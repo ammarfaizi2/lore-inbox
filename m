@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273419AbRINQKr>; Fri, 14 Sep 2001 12:10:47 -0400
+	id <S273421AbRINQWj>; Fri, 14 Sep 2001 12:22:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273422AbRINQKh>; Fri, 14 Sep 2001 12:10:37 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:24580 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S273419AbRINQKU>;
-	Fri, 14 Sep 2001 12:10:20 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: andrew may <acmay@acmay.homeip.net>
-Date: Fri, 14 Sep 2001 18:09:58 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: missing break? linux/drivers/video/riva/fbdev.c
-CC: Ani Joshi <ajoshi@shell.unixbox.com>, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <372A2445C86@vcnet.vc.cvut.cz>
+	id <S273422AbRINQW2>; Fri, 14 Sep 2001 12:22:28 -0400
+Received: from pD9508A29.dip.t-dialin.net ([217.80.138.41]:28978 "EHLO
+	bennew01.localdomain") by vger.kernel.org with ESMTP
+	id <S273421AbRINQWW>; Fri, 14 Sep 2001 12:22:22 -0400
+Date: Fri, 14 Sep 2001 18:23:25 +0200
+From: Matthias Haase <matthias_haase@bennewitz.com>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: repeatable SMP lockups - kernel 2.4.9
+Message-Id: <20010914182325.225a7211.matthias_haase@bennewitz.com>
+In-Reply-To: <Pine.LNX.4.21.0109141634490.1830-100000@tux.rsn.bth.se>
+In-Reply-To: <20010914143021.0a5c9791.matthias_haase@bennewitz.com>
+	<Pine.LNX.4.21.0109141634490.1830-100000@tux.rsn.bth.se>
+X-Operating-System: linux smp kernel 2.4* on i686
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Sep 01 at 21:26, andrew may wrote:
-> diff -u --recursive --new-file v2.4.9/linux/drivers/video/riva/fbdev.c linux/drivers/video/riva/fbdev.c
-> --- v2.4.9/linux/drivers/video/riva/fbdev.c Wed Jul 25 17:10:24 2001
-> +++ linux/drivers/video/riva/fbdev.c    Fri Sep  7 09:28:38 2001
-> @@ -1109,6 +1109,8 @@
->         break;
->  #endif
->  #ifdef FBCON_HAS_CFB16
-> +   case 15:
-> +       rc = 15;    /* fix for 15 bpp depths on Riva 128 based cards */
->     case 16:
->         rc = 16;    /* directcolor... 16 entries SW palette */
->         break;      /* Mystique: truecolor, 16 entries SW palette, HW palette hardwired into 1:1 mapping */
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-I do not think that this comment should be in rivafb driver ;-) It
-is completely unrelated to Riva hardware, it came from matroxfb.
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                                             
+Hi, Martin,
+
+
+I hope, this sounds not to stupid:
+
+As an hardware test I have run quake3d_demo with enabled DRI. 
+For this, I have compiled the 2.4.9 kernel the older DRM-code in, so I
+could use the installed Xfree86 4.03 instead the required 4.1:
+
+No error, no lockup, even though this game produced heavy load on ram and
+harddisks.
+No lockup too with the small traffic on the NIC,  for instance with the
+ADSL-connection (max. 90 kb/s) to our router.
+But, as I sayd, repeatable lockups with some higher network-traffic inside
+the LAN.
+
+
+regards
+
+                          Matthias
+
+-- 
+Gruesse
+
+
+Matthias Haase            | Telefon +49-(0)3733-23713
+Markt 2                   | Telefax +49-(0)3733-22660
+                          |
+D-09456 Annaberg-Buchholz | http://www.bennewitz.com
+

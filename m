@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262240AbUC1KHO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 05:07:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbUC1KHO
+	id S262260AbUC1KP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 05:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbUC1KPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 05:07:14 -0500
-Received: from omr3.netsolmail.com ([216.168.230.164]:4503 "EHLO
-	omr3.netsolmail.com") by vger.kernel.org with ESMTP id S262240AbUC1KHM
+	Sun, 28 Mar 2004 05:15:55 -0500
+Received: from sea1-f108.sea1.hotmail.com ([207.68.163.108]:5903 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262260AbUC1KPy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 05:07:12 -0500
-From: <shai@ftcon.com>
-Message-Id: <200403281006.BHM58378@ms6.netsolmail.com>
-Reply-To: <shai@ftcon.com>
-To: "'Andrew Morton'" <akpm@osdl.org>
-Cc: <ricklind@us.ibm.com>, <mbligh@aracnet.com>,
-       <lse-tech@lists.sourceforge.net>,
-       "'Erik Jacobson'" <erikj@subway.americas.sgi.com>,
-       "'Erich Focht'" <efocht@hpce.nec.com>, "'Paul Jackson'" <pj@sgi.com>,
-       "'Xavier Bru'" <xavier.bru@bull.net>, <linux-kernel@vger.kernel.org>
-Subject: RE: [Lse-tech] Re: NUMA scheduler issue
-Date: Sun, 28 Mar 2004 02:06:45 -0800
-Organization: FT Consulting
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <200403260930.59284.efocht@hpce.nec.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcQTD+3nX+TOcKyFTqG7YuYx8aLHxgBm3aAQ
+	Sun, 28 Mar 2004 05:15:54 -0500
+X-Originating-IP: [203.152.107.104]
+X-Originating-Email: [s_kieu@hotmail.com]
+From: "Steve Kieu" <s_kieu@hotmail.com>
+To: maxime@tralhalla.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vmware and kernel 2.6 high cpu usage
+Date: Sun, 28 Mar 2004 22:15:51 +1200
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Sea1-F108LM2ViWLEkY000116a9@hotmail.com>
+X-OriginalArrivalTime: 28 Mar 2004 10:15:51.0708 (UTC) FILETIME=[A5D16DC0:01C414AD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
 
-Very nice patch.
-Andrew, would you consider adding this one? 
-
---Shai
-
-
------Original Message-----
-From: lse-tech-admin@lists.sourceforge.net
-[mailto:lse-tech-admin@lists.sourceforge.net] On Behalf Of Erich Focht
-Sent: Friday, March 26, 2004 00:31
-To: Paul Jackson; Xavier Bru
-Cc: ricklind@us.ibm.com; mbligh@aracnet.com; lse-tech@lists.sourceforge.net;
-Erik Jacobson
-Subject: Re: [Lse-tech] Re: NUMA scheduler issue
-
-Hi Paul,
-
-On Wednesday 24 March 2004 20:03, Paul Jackson wrote:
-> Where are you getting the printouts that look like:
 >
->     initial CPU = 2
->     cpu  18491 16
->     cpu0 17125 2
->     cpu1 441 0
->     cpu2 700 14
->     cpu3 225 0
->     ...
->     current_cpu 0
+>can you try changing the value of HZ from 1000 to 100 like in a 2.4
+>kernel? I bet this is it. Thanks,
 >
-> We have something in our SGI 2.4 kernels (/proc/<pid>/cpu) that
-> displays this sort of per-cpu usage, but I don't see anything
-> in the 2.6 kernels that seems to do this.
 
-its probably the attached patch. Sorry, I'm travelling and couldn't
-rediff against a current version...
+yes it is fixed. Thanks. I reduce to 100 ; and try to notice the difference 
+when running with 1000 for others apps, at first things seems to be a bit 
+better (in general)
 
+best regards,
 
-
-
+_________________________________________________________________
+Listen to music online with the Xtra Broadband Channel  
+http://xtra.co.nz/broadband
 

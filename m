@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbTEGC3L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 22:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbTEGC3L
+	id S262703AbTEGC3j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 22:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbTEGC3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 22:29:11 -0400
-Received: from holomorphy.com ([66.224.33.161]:34188 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262371AbTEGC3K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 22:29:10 -0400
-Date: Tue, 6 May 2003 19:41:35 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@digeo.com>, dipankar@in.ibm.com,
-       linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       paulus@samba.org
-Subject: Re: [PATCH] kmalloc_percpu
-Message-ID: <20030507024135.GW8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Andrew Morton <akpm@digeo.com>, dipankar@in.ibm.com,
-	linux-kernel@vger.kernel.org,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	paulus@samba.org
-References: <20030506014745.02508f0d.akpm@digeo.com> <20030507023126.12F702C019@lists.samba.org>
+	Tue, 6 May 2003 22:29:39 -0400
+Received: from cbshost-12-155-143-237.sbcox.net ([12.155.143.237]:30933 "EHLO
+	sb-lnx3.rinconnetworks.com") by vger.kernel.org with ESMTP
+	id S262703AbTEGC3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 22:29:37 -0400
+Date: Tue, 6 May 2003 19:46:47 -0700
+From: Paul van Gool <paul.vangool@rinconnetworks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Typo in arch/sh/kernel/io_7751se.c
+Message-ID: <20030507024647.GA6303@rinconnetworks.com>
+Reply-To: paul.vangool@rinconnetworks.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030507023126.12F702C019@lists.samba.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 11:57:13AM +1000, Rusty Russell wrote:
-> Paul Mackerras points out that we could get the numa-aware allocation
-> plus "one big alloc" properties by playing with page mappings: reserve
-> 1MB of virtual address, and map more pages as required.  I didn't
-> think that we'd need that yet, though.
+Hi,
 
-This is somewhat painful to do (though possible) on i386. The cost of
-task migration would increase at the very least.
+not sure who to send it to. So as suggested in REPORTING-BUGS, I'm sending
+it to this mailing list.
 
+While building a kernel for an SH7751 SolutionEngine, I ran into a link
+problem using a non-PCI configuration. I tracked the problem back to
+arch/sh/kernel/io_7751se.c. On line 304, I see:
 
--- wli
+#if defined(CONFIG_PCI)
+#define CHECK_SH7751_PCIIO(port) \
+  ((port >= PCIBIOS_MIN_IO) && (port < (PCIBIOS_MIN_IO + SH7751_PCI_IO_SIZE)))
+#else
+#define CHECK_SH_7751_PCIIO(port) (0)
+#endif
+
+The problem is with the 5th line. It should be:
+
+#define CHECK_SH7751_PCIIO(port) (0)
+
+I removed the '_' between SH and 7751.
+
+If I need to send this somewhere else, please tell me where.
+
+Thanks.
+
+Paul
+-- 
+Paul van Gool                                               Rincon Networks
+paul.vangool@rinconnetworks.com                              (805)-705-1442

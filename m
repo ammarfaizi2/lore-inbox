@@ -1,26 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263172AbTKPUts (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 15:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTKPUts
+	id S263158AbTKPUto (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 15:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTKPUto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 15:49:48 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:12739 "EHLO
+	Sun, 16 Nov 2003 15:49:44 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:11459 "EHLO
 	dagobah.gnumonks.org") by vger.kernel.org with ESMTP
-	id S263172AbTKPUtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 15:49:43 -0500
-Date: Sun, 16 Nov 2003 21:45:01 +0100
+	id S263158AbTKPUtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 15:49:42 -0500
+Date: Sun, 16 Nov 2003 21:42:05 +0100
 From: Harald Welte <laforge@netfilter.org>
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+       linux-kernel@vger.kernel.org
 Subject: Re: seq_file and exporting dynamically allocated data
-Message-ID: <20031116204501.GB15732@obroa-skai.de.gnumonks.org>
-References: <20031115201444.GO24159@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0311152045310.743-100000@einstein.homenet>
+Message-ID: <20031116204205.GA15732@obroa-skai.de.gnumonks.org>
+References: <20031115093833.GB656@obroa-skai.de.gnumonks.org> <20031115171843.GN24159@parcelfarce.linux.theplanet.co.uk> <20031115173310.GA4786@obroa-skai.de.gnumonks.org> <20031115203607.GP24159@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="U+BazGySraz5kW0T"
+	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311152045310.743-100000@einstein.homenet>
+In-Reply-To: <20031115203607.GP24159@parcelfarce.linux.theplanet.co.uk>
 X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.4.23-pre7-ben0
 X-Date: Today is Setting Orange, the 28th day of The Aftermath in the YOLD 3169
 User-Agent: Mutt/1.5.4i
@@ -28,36 +29,48 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---U+BazGySraz5kW0T
+--/9DWx/yDrRhgMJTb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Nov 15, 2003 at 08:50:55PM +0000, Tigran Aivazian wrote:
-> But I was referring to the complication on the kernel side, whereby if th=
-e=20
-> data (collectively, all the entries) is more than 1 page then ->stop()=20
-> must be called and a page returned to user and then the kernel must build=
-=20
-> another page but all it knows is the integer 'offset'. Anything could hav=
-e=20
-> happened to the list (task list in this case) since ->stop() routine=20
-> dropped the spinlock. So, it is not obvious from which position to=20
-> start building the data for the new page.=20
+On Sat, Nov 15, 2003 at 08:36:07PM +0000, viro@parcelfarce.linux.theplanet.=
+co.uk wrote:
 
-Yes, I am well aware of that issue.  As for the connection tracking
-table or the dstlimit htables I was referring to, I am actually relating
-'pos' to the bucket number, not to the logical entry in the table.
+> > So who is the caller? it's the ->open() member of struct
+> > file_operations.  and struct file_operations doesn't have some private
+> > member where I could hide my pointer before saving it to
+> > seq_file.private in seq_open().
+>=20
+> If arguments of ->open() were not enough to find your data, how the hell =
+would
+> current code manage to find it?
+>=20
+> You've got inode; you've got (if that's on procfs) proc_dir_entry - from
+> inode; you've got dentry (from struct file *).  If that's not enough to
+> find your data, what is?
 
-The number of hash buckets is constant, so that's at least something the
-user can count on.
+thanks, I've now found a way to deal with the problem.  after calling
+create_proc_entry(), I put a pointer to my hash table in
+proc_dir_entry->data.  The proc_dir_entry->proc_fops->open() function
+then calls seq_open() and sets seq_file->private to PDE(inode).  This
+way the seq_operations->start/next/show functions can find out the=20
 
-However, there will be a problem when there are too many entries within
-a single bucket - since all of them would have to be returned within a
-single read() call.
+> Which files do you have in mind?
 
-> Kind regards
-> Tigran
+It's not part of the stock kernel, but something I've been working on
+the last couple of days.  An iptables match module called 'dstlimit'.
+(http://cvs.netfilter.org/netfilter-extensions/matches_targets/dstlimit/)
+
+This match creates a new hash table (yes a table, not just an entry) for
+every rule in which you use that match.  Mainly for testing/debugging
+purpose, I want to be able to read the contents of each hash table via a
+/proc file (/proc/net/ipt_dstlimit/*).
+
+The implementation is now done in the way I described above, and it
+seems to be working quite fine.
+
+Thanks to everybody helping me with this issue.
 
 --=20
 - Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
@@ -69,16 +82,16 @@ single read() call.
    architectural error that shows how much experimentation was going
    on while IP was being designed."                    -- Paul Vixie
 
---U+BazGySraz5kW0T
+--/9DWx/yDrRhgMJTb
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/t+HMXaXGVTD0i/8RAhZmAJwNfw+EF5x3Kjx41rdYnsucoNSJFQCgpW15
-TFOeDuBobi9K41CGCejPAlw=
-=Qr3W
+iD8DBQE/t+EdXaXGVTD0i/8RAgvwAKCyl5+5doWBry/n2JuSHXdk6xG54QCdFhrU
+TMyfVHuNKIkCE3c2O4TkWiI=
+=xwFi
 -----END PGP SIGNATURE-----
 
---U+BazGySraz5kW0T--
+--/9DWx/yDrRhgMJTb--

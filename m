@@ -1,97 +1,210 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265417AbSIRIRv>; Wed, 18 Sep 2002 04:17:51 -0400
+	id <S265831AbSIRIZx>; Wed, 18 Sep 2002 04:25:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265831AbSIRIRv>; Wed, 18 Sep 2002 04:17:51 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:29203 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S265417AbSIRIRu>;
-	Wed, 18 Sep 2002 04:17:50 -0400
-Date: Wed, 18 Sep 2002 17:14:31 +0900 (JST)
-Message-Id: <20020918.171431.24608688.taka@valinux.co.jp>
-To: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net
-Subject: [PATCH] zerocopy NFS for 2.5.36
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S265832AbSIRIZx>; Wed, 18 Sep 2002 04:25:53 -0400
+Received: from packet.digeo.com ([12.110.80.53]:36068 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265831AbSIRIZv>;
+	Wed, 18 Sep 2002 04:25:51 -0400
+Message-ID: <3D8839B5.B37DF31C@digeo.com>
+Date: Wed, 18 Sep 2002 01:30:45 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: 2.5.36-mm1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Sep 2002 08:30:45.0335 (UTC) FILETIME=[AED68670:01C25EED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I ported the zerocopy NFS patches against linux-2.5.36.
+url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.36/2.5.36-mm1/
 
-I made va05-zerocopy-nfsdwrite-2.5.36.patch more generic,
-so that it would be easy to merge with NFSv4. Each procedure can
-chose whether it can accept splitted buffers or not.
-And I fixed a probelem that nfsd couldn't handle NFS-symlink
-requests which were very large.
+A reminder that this changes /proc files.  Updated top(1) and
+vmstat(1) source is available at http://surriel.com/procps/
 
+A simple coding bug in the VM has been fixed.  This has increased
+swapout bandwidth and halved the runtime for memset(malloc(huge_amount))
+type benchmarks.
 
-1)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/va10-hwchecksum-2.5.36.patch
-This patch enables HW-checksum against outgoing packets including UDP frames.
+An initial version of the sard accounting patch is included.
 
-2)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/va11-udpsendfile-2.5.36.patch
-This patch makes sendfile systemcall over UDP work. It also supports
-UDP_CORK interface which is very similar to TCP_CORK. And you can call
-sendmsg/senfile with MSG_MORE flags over UDP sockets.
+Some VM changes which clean up some code and attempt to sort out
+some undesirable dependencies between the direct-reclaim and kswapd
+functions has been added.
 
-3)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/va-csumpartial-fix-2.5.36.patch
-This patch fixes the problem of x86 csum_partilal() routines which
-can't handle odd addressed buffers.
+ 
+-madvise-move.patch
+-split-vma.patch
+-mmap-fixes.patch
+-buffer-ops-move.patch
+-slab-stats.patch
 
-4)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/va01-zerocopy-rpc-2.5.36.patch
-This patch makes RPC can send some pieces of data and pages without copy.
+ Merged
 
-5)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/va02-zerocopy-nfsdread-2.5.36.patch
-This patch makes NFSD send pages in pagecache directly when NFS clinets request
-file-read.
++vm-mapping-fix.patch
 
-6)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/va03-zerocopy-nfsdreaddir-2.5.36.patch
-nfsd_readdir can also send pages without copy.
+ Dumb bug.
 
-7)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/va04-zerocopy-shadowsock-2.5.36.patch
-This patch makes per-cpu UDP sockets so that NFSD can send UDP frames on
-each prosessor simultaneously.
-Without the patch we can send only one UDP frame at the time as a UDP socket
-have to be locked during sending some pages to serialize them.
++writev-fix.patch
 
-8)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/va05-zerocopy-nfsdwrite-2.5.36.patch
-This patch enables NFS-write uses writev interface. NFSd can handle NFS
-requests without reassembling IP fragments into one UDP frame.
+ Fix the bounds checking on entry to readv and writev.
 
-9)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/taka-writev-2.5.36.patch
-This patch makes writev for regular file work faster.
-It also can be found at
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.35/2.5.35-mm1/broken-out/
++misc.patch
 
-Caution:
-       XFS doesn't support writev interface yet. NFS write on XFS might
-       slow down with No.8 patch. I wish SGI guys will implement it.
+ misc fixes
 
-10)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/va07-nfsbigbuf-2.5.36.patch
-This makes NFS buffer much bigger (60KB).
-60KB buffer is the same to 32KB buffer for linux-kernel as both of them
-require 64KB chunk.
++highmem-huge-tlb.patch
 
+ Allow hugetlbpages to be allocated from highmem
 
-11)
-ftp://ftp.valinux.co.jp/pub/people/taka/2.5.36/va09-zerocopy-tempsendto-2.5.36.patch
-If you don't want to use sendfile over UDP yet, you can apply it instead of No.1 and No.2 patches.
++sard.patch
+
+ Extended disk accounting
+
++remove-gfp_nfs.patch
+
+ A little cleanup via Rustie Rustle.
+
++per-zone-vm.patch
+
+ kswapd-versus-direct-reclaim rework.
 
 
 
-Regards,
-Hirokazu Takahashi
+
+linus.patch
+  cset-1.547-to-1.565.txt.gz
+
+scsi_hack.patch
+  Fix block-highmem for scsi
+
+ext3-htree.patch
+  Indexed directories for ext3
+
+spin-lock-check.patch
+  spinlock/rwlock checking infrastructure
+
+rd-cleanup.patch
+  Cleanup and fix the ramdisk driver (doesn't work right yet)
+
+writeback-control.patch
+  Cleanup and extension of the writeback paths
+
+free_area_init-cleanup.patch
+  free_area_init() code cleanup
+
+alloc_pages-cleanup.patch
+  alloc_pages cleanup and optimisation
+
+statm_pgd_range-sucks.patch
+  Remove the pagetable walk from /proc/stat
+
+remove-sync_thresh.patch
+  Remove /proc/sys/vm/dirty_sync_thresh
+
+vm-mapping-fix.patch
+  shrink_list bugfix
+
+taka-writev.patch
+  Speed up writev
+
+writev-fix.patch
+  readv/writev bounds checking fixes
+
+pf_nowarn.patch
+  Fix up the handling of PF_NOWARN
+
+misc.patch
+  Misc fixlets
+
+release_pages-speedup.patch
+  Reduced locking in release_pages()
+
+highmem-huge-tlb.patch
+  Allocate huge TLB pages in highmem
+
+queue-congestion.patch
+  Infrastructure for communicating request queue congestion to the VM
+
+nonblocking-ext2-preread.patch
+  avoid ext2 inode prereads if the queue is congested
+
+nonblocking-pdflush.patch
+  non-blocking writeback infrastructure, use it for pdflush
+
+nonblocking-vm.patch
+  Non-blocking page reclaim
+
+prepare_to_wait.patch
+  New sleep/wakeup API
+
+vm-wakeups.patch
+  Use the faster wakeups in the VM and block layers
+
+sync-helper.patch
+  Speed up sys_sync() against multiple spindles
+
+slabasap.patch
+  Early and smarter shrinking of slabs
+
+write-deadlock.patch
+  Fix the generic_file_write-from-same-mmapped-page deadlock
+
+buddyinfo.patch
+  Add /proc/buddyinfo - stats on the free pages pool
+
+free_area.patch
+  Remove struct free_area_struct and free_area_t, use `struct free_area'
+
+per-node-kswapd.patch
+  Per-node kswapd instance
+
+topology-api.patch
+  NUMA topology API
+
+radix_tree_gang_lookup.patch
+  radix tree gang lookup
+
+truncate_inode_pages.patch
+  truncate/invalidate_inode_pages rewrite
+
+proc_vmstat.patch
+  Move the vm accounting out of /proc/stat
+
+kswapd-reclaim-stats.patch
+  Add kswapd_steal to /proc/vmstat
+
+iowait.patch
+  I/O wait statistics
+
+sard.patch
+  SARD disk accounting
+
+remove-gfp_nfs.patch
+  remove GFP_NFS
+
+tcp-wakeups.patch
+  Use fast wakeups in TCP/IPV4
+
+swapoff-deadlock.patch
+  Fix a tmpfs swapoff deadlock
+
+dirty-and-uptodate.patch
+  page state cleanup
+
+shmem_rename.patch
+  shmem_rename() directory link count fix
+
+dirent-size.patch
+  tmpfs: show a non-zero size for directories
+
+tmpfs-trivia.patch
+  tmpfs: small fixlets
+
+per-zone-vm.patch
+  separate the kswapd and direct reclaim code paths

@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291038AbSBNJ3o>; Thu, 14 Feb 2002 04:29:44 -0500
+	id <S291082AbSBNJfO>; Thu, 14 Feb 2002 04:35:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291082AbSBNJ3e>; Thu, 14 Feb 2002 04:29:34 -0500
-Received: from sc-gw.scientific.de ([194.121.255.233]:33725 "EHLO
-	sarah.scientific.de") by vger.kernel.org with ESMTP
-	id <S291038AbSBNJ3Y>; Thu, 14 Feb 2002 04:29:24 -0500
-Subject: Re: [patch] tmpfs: incr. link-count on directory rename
-From: Uli Martens <u.martens@scientific.de>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Christoph Rohland <cr@sap.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020214061933.GA17774@mentor.odyssey.cs.cmu.edu>
-In-Reply-To: <1013648840.2317.5.camel@isax> 
-	<20020214061933.GA17774@mentor.odyssey.cs.cmu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 14 Feb 2002 10:34:01 +0100
-Message-Id: <1013679241.20006.21.camel@pc-um>
-Mime-Version: 1.0
+	id <S291088AbSBNJfH>; Thu, 14 Feb 2002 04:35:07 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:10245 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S291082AbSBNJe7>;
+	Thu, 14 Feb 2002 04:34:59 -0500
+Date: Thu, 14 Feb 2002 10:35:06 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.5-pre1 and i810_audio.c
+Message-ID: <Pine.LNX.4.44.0202141031470.27359-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-02-14 at 07:19, Jan Harkes wrote:
-> 
-> ps. shouldn't the linkcount of the old_dir get decremented too? Also you
-> should only change the linkcounts when the operation completed
-> successfully. i.e. something more like,
-Oops, you're right, the linkcount of old_dir isn't decremented at the
-moment, too. I will test your patch this evening, but I think it looks
-better than mine... ;)
 
-> --- /tmp/shmem.c.orig	Thu Feb 14 01:17:23 2002
-> +++ /tmp/shmem.c	Thu Feb 14 01:18:25 2002
-> @@ -1100,6 +1100,10 @@
->  		error = 0;
->  		old_dentry->d_inode->i_ctime = old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
->  	}
-> +	if (!error && S_ISDIR(old_dentry->d_inode->i_mode)) {
-> +	    old_dir->i_nlink--;
-> +	    new_dir->i_nlink++;
-> +	}
->  	return error;
->  }
+i810audio.c actually does not compile.
 
--- 
-uli martens
+this seems to solve:
+
+--- linux/sound/oss/i810_audio.c.old    Thu Feb 14 10:33:12 2002
++++ linux/sound/oss/i810_audio.c        Thu Feb 14 10:29:40 2002
+@@ -1669,7 +1669,7 @@
+        if (size > (PAGE_SIZE << dmabuf->buforder))
+                goto out;
+        ret = -EAGAIN;
+-       if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
++       if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf),
+                             size, vma->vm_page_prot))
+                goto out;
+        dmabuf->mapped = 1;
+
 

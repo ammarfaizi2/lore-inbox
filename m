@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312797AbSDXW7C>; Wed, 24 Apr 2002 18:59:02 -0400
+	id <S312799AbSDXXJb>; Wed, 24 Apr 2002 19:09:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312799AbSDXW7B>; Wed, 24 Apr 2002 18:59:01 -0400
-Received: from h24-68-93-250.vc.shawcable.net ([24.68.93.250]:36748 "EHLO
-	me.bcgreen.com") by vger.kernel.org with ESMTP id <S312797AbSDXW7A>;
-	Wed, 24 Apr 2002 18:59:00 -0400
-Message-ID: <3CC738AD.50905@bcgreen.com>
-Date: Wed, 24 Apr 2002 15:58:53 -0700
-From: Stephen Samuel <samuel@bcgreen.com>
-Organization: Just Another Radical
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while
- reading damadged files
-In-Reply-To: <Pine.LNX.3.96.1020424150911.3065D-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312803AbSDXXJb>; Wed, 24 Apr 2002 19:09:31 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30703
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S312799AbSDXXJa>; Wed, 24 Apr 2002 19:09:30 -0400
+Date: Wed, 24 Apr 2002 16:11:53 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andi Kleen <ak@suse.de>, Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "David S. Miller" <davem@redhat.com>, taka@valinux.co.jp,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+Message-ID: <20020424231153.GM574@matchmail.com>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Andi Kleen <ak@suse.de>, Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	"David S. Miller" <davem@redhat.com>, taka@valinux.co.jp,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020412.213011.45159995.taka@valinux.co.jp> <20020412143559.A25386@wotan.suse.de> <20020412222252.A25184@kushida.apsleyroad.org> <20020412.143150.74519563.davem@redhat.com> <20020413012142.A25295@kushida.apsleyroad.org> <20020413083952.A32648@wotan.suse.de> <m1662vjtil.fsf@frodo.biederman.org> <20020413213700.A17884@wotan.suse.de> <m1zo07ibi3.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a system with 2 hard disks (on separate controllers) and a CD-ROM
-on the second controller (shared with the disk that, among other things)
-handles /usr.
+On Sat, Apr 13, 2002 at 02:34:12PM -0600, Eric W. Biederman wrote:
+> Andi Kleen <ak@suse.de> writes:
+> 
+> > On Sat, Apr 13, 2002 at 01:19:46PM -0600, Eric W. Biederman wrote:
+> > > Could the garbage from ext3 in writeback mode be considered an
+> > > information leak?  I know that is why most places in the kernel
+> > > initialize pages to 0.  So you don't accidentally see what another
+> > > user put there.
+> > 
+> > Yes it could. But then ext2/ffs have the same problem and so far people were
+> > able to live on with that.
+> 
+> The reason I asked, is the description sounded specific to ext3.  Also
+> with ext3 a supported way to shutdown is to just pull the power on the
+> machine.  And the filesystem comes back to life without a full fsck.
+> 
+> So if this can happen when all you need is to replay the journal, I
+> have issues with it.  If this happens in the case of damaged
+> filesystem I don't.
+> 
 
-I took an old data CD, scratched  took a fork to it and mounted it.
-I then started up MMX playing 'Hotel California' and tried to wc(1)
-a 700K file on the CD.not too bad not too bad not too bad
+Actually, with ext3 the only mode IIRC is data=journal that will keep this
+from happening.  In ordered or writeback mode there is a window where the
+pages will be zeroed in memory, but not on disk.  
 
-Hotel California played fine, but trying to do an 'ls' of /usr
-(same controller) took a LONG time..... (had to wait fnot too bad or the
-CD to release the controller).
+Admittedly, the time window is largest in writeback mode, smaller in ordered
+and smallest (non-existant?) in data journaling mode.
 
-I could wc larg files in my /tmp directory, play music etc
-before that WC came back -- I could do anything I wanted,
-as long as I didn't need any data off of that second controller
-(e.g. loading programs in /usr would die, since that HD shares
-controller with the CD).
-
-Given that I rarely use my CD ROM, it's fine having / and /usr
-separated... On the other hand, if I was trying to read damaged CDs
-with any regularity, I'd be making sure that the CD ROM drive was
-sitting on it's own controller -- even if it meant putting all the
-other IO on the system onto one IDE drive/controller.
-
-> where the bulk of Linux system are running. Putting the CD on another
-> cable is realistic (the system I hung does that) but putting the CD on IDE
-> and the disk on SCSI is not cost effective compared to fixing the hang in
-> software.
-
-Note that this problem is a HARDWARE one -- not a software one.
-It's kinda like trying to cross a Singapore highway... You can
-do it faster, if you don't mind dealing with the nasty side of
-a (data) bus. (read: SPLAT)
-
-Bus error: car dumped.
-
-(and if you think Linux is bad, try doing the same thing in
-Windows!).
-
--- 
-Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
-		   http://www.bcgreen.com/~samuel/
-Powerful committed communication, reaching through fear, uncertainty and
-doubt to touch the jewel within each person and bring it to life.
-
-
+Mike

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264713AbTIJIdG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 04:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264718AbTIJIdG
+	id S264784AbTIJI3L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 04:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbTIJI3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 04:33:06 -0400
-Received: from dp.samba.org ([66.70.73.150]:36249 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264713AbTIJIdD (ORCPT
+	Wed, 10 Sep 2003 04:29:11 -0400
+Received: from ns.suse.de ([195.135.220.2]:14047 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264784AbTIJI3J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 04:33:03 -0400
-Date: Wed, 10 Sep 2003 18:29:16 +1000
-From: Anton Blanchard <anton@samba.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix initramfs permissions on directories and special files
-Message-ID: <20030910082916.GE1532@krispykreme>
+	Wed, 10 Sep 2003 04:29:09 -0400
+Date: Wed, 10 Sep 2003 10:29:08 +0200
+From: Andi Kleen <ak@suse.de>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 2/3] netpoll: netconsole
+Message-ID: <20030910082908.GE29485@wotan.suse.de>
+References: <20030910074256.GD4489@waste.org.suse.lists.linux.kernel> <p73znhdhxkx.fsf@oldwotan.suse.de> <20030910082435.GG4489@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030910082435.GG4489@waste.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> No, haven't encountered it. Which lock are we talking about, specifically?
 
-Set correct permissions on initramfs directories and special files. We dont
-want to obey the umask here, so do the same thing we do on normal files -
-call sys_chmod.
+The hardware register lock of the low level device drivers.
 
+It's a different lock for each driver.
 
- work-anton/init/initramfs.c |    2 ++
- 1 files changed, 2 insertions(+)
+They take it usually in all functions that access hardware registers,
+including poll.
 
-diff -puN init/initramfs.c~initramfs-fix init/initramfs.c
---- work/init/initramfs.c~initramfs-fix	2003-09-10 03:11:58.000000000 -0500
-+++ work-anton/init/initramfs.c	2003-09-10 03:11:58.000000000 -0500
-@@ -260,11 +260,13 @@ static int __init do_name(void)
- 	} else if (S_ISDIR(mode)) {
- 		sys_mkdir(collected, mode);
- 		sys_chown(collected, uid, gid);
-+		sys_chmod(collected, mode);
- 	} else if (S_ISBLK(mode) || S_ISCHR(mode) ||
- 		   S_ISFIFO(mode) || S_ISSOCK(mode)) {
- 		if (maybe_link() == 0) {
- 			sys_mknod(collected, mode, rdev);
- 			sys_chown(collected, uid, gid);
-+			sys_chmod(collected, mode);
- 		}
- 	} else
- 		panic("populate_root: bogus mode: %o\n", mode);
+> It ups the interface if necessary and has enough info to build a
+> complete raw packet so if I understand you correctly, it's already
+> there. I start getting netconsole messages immediately after
+> driver/net initcalls.
 
-_
+Ok, great.
+
+-Andi

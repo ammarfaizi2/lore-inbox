@@ -1,118 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270304AbUJUHio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270460AbUJUIWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270304AbUJUHio (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 03:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270293AbUJUHi1
+	id S270460AbUJUIWv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 04:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270393AbUJUIVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 03:38:27 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:52891 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S270401AbUJUHaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 03:30:14 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 6/7] Input: i8042 remove reboot notifier
-Date: Thu, 21 Oct 2004 02:29:31 -0500
-User-Agent: KMail/1.6.2
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200410210223.45498.dtor_core@ameritech.net> <200410210228.03038.dtor_core@ameritech.net> <200410210228.57067.dtor_core@ameritech.net>
-In-Reply-To: <200410210228.57067.dtor_core@ameritech.net>
-MIME-Version: 1.0
+	Thu, 21 Oct 2004 04:21:22 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:65190 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S270661AbUJUIPm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 04:15:42 -0400
+Date: Thu, 21 Oct 2004 10:12:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041021081215.GA21073@elte.hu>
+References: <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <4176403B.5@stud.feec.vutbr.cz> <20041020105630.GB2614@elte.hu> <417645A4.7000802@stud.feec.vutbr.cz> <20041020120434.GA6297@elte.hu> <4176D9CC.5010107@stud.feec.vutbr.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410210229.33358.dtor_core@ameritech.net>
+In-Reply-To: <4176D9CC.5010107@stud.feec.vutbr.cz>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-===================================================================
+* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
 
+> That patch was not enough. The BUGs were still showing up the same as
+> before. I tried to debug it myself. I've found an interesting thing in
+> kernel/printk.c:release_console_sem(). There is the following
+> sequence:
+> 
+>   spin_lock_irqsave(&logbuf_lock, flags);
+>   /* ... some code ... */
+>   spin_unlock(&logbuf_lock);
+>   call_console_drivers(...);
+>   local_irq_restore(flags);
+> 
+> I know very little about locking, but I didn't like this two-phased
+> unlock. So I replaced it with a single spin_unlock_irqrestore. Patch
+> attached. I'm almost certain that there is a reason for the two-phased
+> unlocking and that this patch will break something, but so far it
+> works for me.  netconsole now works without complaining.
 
-ChangeSet@1.1969, 2004-10-20 00:53:53-05:00, dtor_core@ameritech.net
-  Input: i8042 - get rid of reboot notifier as suspend method
-         should do the job.
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+ah, indeed. Note that this is still not enough - please try to add a
+local_irq_enable() to netconsole.c's console-write function - does that
+fix it equally well for you?
 
+the reason is that if we crash within an irqs-off section then
+netconsole will still be called with interrupts disabled and will
+trigger the assert.
 
- i8042.c |   33 +++++----------------------------
- 1 files changed, 5 insertions(+), 28 deletions(-)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	2004-10-21 02:14:01 -05:00
-+++ b/drivers/input/serio/i8042.c	2004-10-21 02:14:01 -05:00
-@@ -16,10 +16,7 @@
- #include <linux/interrupt.h>
- #include <linux/ioport.h>
- #include <linux/config.h>
--#include <linux/reboot.h>
- #include <linux/init.h>
--#include <linux/sysdev.h>
--#include <linux/pm.h>
- #include <linux/serio.h>
- #include <linux/err.h>
- 
-@@ -825,27 +822,6 @@
- 
- 
- /*
-- * We need to reset the 8042 back to original mode on system shutdown,
-- * because otherwise BIOSes will be confused.
-- */
--
--static int i8042_notify_sys(struct notifier_block *this, unsigned long code,
--        		    void *unused)
--{
--        if (code == SYS_DOWN || code == SYS_HALT)
--        	i8042_controller_cleanup();
--        return NOTIFY_DONE;
--}
--
--static struct notifier_block i8042_notifier =
--{
--        i8042_notify_sys,
--        NULL,
--        0
--};
--
--
--/*
-  * Here we try to restore the original BIOS settings
-  */
- 
-@@ -904,6 +880,11 @@
- 
- }
- 
-+/*
-+ * We need to reset the 8042 back to original mode on system shutdown,
-+ * because otherwise BIOSes will be confused.
-+ */
-+
- static void i8042_shutdown(struct device *dev)
- {
- 	i8042_controller_cleanup();
-@@ -1031,16 +1012,12 @@
- 
- 	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
- 
--	register_reboot_notifier(&i8042_notifier);
--
- 	return 0;
- }
- 
- void __exit i8042_exit(void)
- {
- 	int i;
--
--	unregister_reboot_notifier(&i8042_notifier);
- 
- 	i8042_controller_cleanup();
- 
+	Ingo

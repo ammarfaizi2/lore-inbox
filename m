@@ -1,102 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268030AbUHQABP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268040AbUHQAGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268030AbUHQABP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 20:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUHQABP
+	id S268040AbUHQAGc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 20:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUHQAGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 20:01:15 -0400
-Received: from [139.30.44.16] ([139.30.44.16]:53419 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S268030AbUHQABG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 20:01:06 -0400
-Date: Tue, 17 Aug 2004 01:56:09 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, albert@users.sourceforge.net,
-       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
-       nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi, george@mvista.com,
-       johnstul@us.ibm.com, david+powerix@blue-labs.org
-Subject: Re: boot time, process start time, and NOW time
-In-Reply-To: <Pine.LNX.4.53.0408170055180.14122@gockel.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.53.0408170147150.14197@gockel.physik3.uni-rostock.de>
-References: <1087948634.9831.1154.camel@cube> <87smcf5zx7.fsf@devron.myhome.or.jp>
- <20040816124136.27646d14.akpm@osdl.org> <Pine.LNX.4.53.0408170055180.14122@gockel.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Aug 2004 20:06:32 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:10906 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268031AbUHQADx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 20:03:53 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
+From: Lee Revell <rlrevell@joe-job.com>
+To: Thomas Charbonnel <thomas@undata.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <1092665577.5362.12.camel@localhost>
+References: <20040816023655.GA8746@elte.hu>
+	 <1092624221.867.118.camel@krustophenia.net>
+	 <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu>
+	 <1092627691.867.150.camel@krustophenia.net>
+	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
+	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
+	 <20040816113131.GA30527@elte.hu>  <20040816120933.GA4211@elte.hu>
+	 <1092662814.5082.2.camel@localhost>  <1092665577.5362.12.camel@localhost>
+Content-Type: text/plain
+Message-Id: <1092701086.13981.103.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 16 Aug 2004 20:04:47 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Where did this all end up?  Complaints about wandering start times are
-> > persistent, and it'd be nice to get some fix in place...
-[...]
-
-> Simple fix: revert the patch below.
-> Complicated fix: correct process start times in fork.c (no patch provided, 
-> too complicated for me to do).
-
-Well, if we actually revert the patch, we'd also need to revert the 
-changes made to jiffies_to_clock_t() & Co. in response to the patch.
-Otherwise we again end up inconsistent.
-
-I could make a patch for that tomorrow, if there's interest. At least to 
-show that my analysis actually is correct.
-
-Alternatively we might formulate uptime in terms of jiffies_to_clock_t()). 
-
-
-Tim
-
-
-
-> diff -Nru a/fs/proc/proc_misc.c b/fs/proc/proc_misc.c
-> --- a/fs/proc/proc_misc.c	2004-08-16 15:48:44 -07:00
-> +++ b/fs/proc/proc_misc.c	2004-08-16 15:48:44 -07:00
-> @@ -137,36 +137,19 @@
->  static int uptime_read_proc(char *page, char **start, off_t off,
->  				 int count, int *eof, void *data)
->  {
-> -	u64 uptime;
-> -	unsigned long uptime_remainder;
-> +	struct timespec uptime;
-> +	struct timespec idle;
->  	int len;
-> +	u64 idle_jiffies = init_task.utime + init_task.stime;
->  
-> -	uptime = get_jiffies_64() - INITIAL_JIFFIES;
-> -	uptime_remainder = (unsigned long) do_div(uptime, HZ);
-> +	do_posix_clock_monotonic_gettime(&uptime);
-> +	jiffies_to_timespec(idle_jiffies, &idle);
-> +	len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
-> +			(unsigned long) uptime.tv_sec,
-> +			(uptime.tv_nsec / (NSEC_PER_SEC / 100)),
-> +			(unsigned long) idle.tv_sec,
-> +			(idle.tv_nsec / (NSEC_PER_SEC / 100)));
->  
-> -#if HZ!=100
-> -	{
-> -		u64 idle = init_task.utime + init_task.stime;
-> -		unsigned long idle_remainder;
-> -
-> -		idle_remainder = (unsigned long) do_div(idle, HZ);
-> -		len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
-> -			(unsigned long) uptime,
-> -			(uptime_remainder * 100) / HZ,
-> -			(unsigned long) idle,
-> -			(idle_remainder * 100) / HZ);
-> -	}
-> -#else
-> -	{
-> -		unsigned long idle = init_task.utime + init_task.stime;
-> -
-> -		len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
-> -			(unsigned long) uptime,
-> -			uptime_remainder,
-> -			idle / HZ,
-> -			idle % HZ);
-> -	}
-> -#endif
->  	return proc_calc_metrics(page, start, off, count, eof, len);
->  }
+On Mon, 2004-08-16 at 10:12, Thomas Charbonnel wrote:
+> I wrote :
+> > Ingo Molnar wrote :
+> > > here's -P2:
+> > > 
+> > >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P2
+> > > 
+> > > Changes since -P1:
+> > > 
+> > >  - trace interrupted kernel code (via hardirqs, NMIs and pagefaults)
+> > > 
+> > >  - yet another shot at trying to fix the IO-APIC/USB issues.
+> > > 
+> > >  - mcount speedups - tracing should be faster
+> > > 
+> > > 	Ingo
+> > 
+> > Same do_IRQ problem with P2, trace is here :
+> > http://www.undata.org/~thomas/swapper-P2.trace
+> > 
+> > Thomas
+> > 
 > 
-> 
+> Ok, maybe that was a false positive. In fact the trace corresponds to
+> some preempt violation occurring during the boot process :
+> preemption latency trace v1.0
+> -----------------------------
+>  latency: 136095 us, entries: 4000 (14818)
+>  process: swapper/1, uid: 0
+>  nice: 0, policy: 0, rt_priority: 0
+
+Yes, I get this one too.  Maybe the tracer should ignore such huge
+values, as they seem to only happen during boot and there dosn't seem to
+be a reason to fix them.
+
+Lee
+
 

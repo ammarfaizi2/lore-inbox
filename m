@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263335AbTCNOLl>; Fri, 14 Mar 2003 09:11:41 -0500
+	id <S263328AbTCNOTU>; Fri, 14 Mar 2003 09:19:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263336AbTCNOLk>; Fri, 14 Mar 2003 09:11:40 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28941 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263335AbTCNOLj>; Fri, 14 Mar 2003 09:11:39 -0500
-Date: Fri, 14 Mar 2003 14:22:25 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andries.Brouwer@cwi.nl
-Cc: t_benk@web.de, linux-kernel@vger.kernel.org
-Subject: Re: [util-linux] cfdisk bug?
-Message-ID: <20030314142225.B23686@flint.arm.linux.org.uk>
-Mail-Followup-To: Andries.Brouwer@cwi.nl, t_benk@web.de,
-	linux-kernel@vger.kernel.org
-References: <UTC200303141333.h2EDXL602770.aeb@smtp.cwi.nl>
+	id <S263330AbTCNOTU>; Fri, 14 Mar 2003 09:19:20 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14547
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263328AbTCNOTT>; Fri, 14 Mar 2003 09:19:19 -0500
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030314120604.GE3020@merlin.emma.line.org>
+References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
+	 <20030314120604.GE3020@merlin.emma.line.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047656327.29544.25.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <UTC200303141333.h2EDXL602770.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Fri, Mar 14, 2003 at 02:33:21PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 14 Mar 2003 15:38:47 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 02:33:21PM +0100, Andries.Brouwer@cwi.nl wrote:
-> And maybe someone who knows about Acorns can add a test
-> to make it less likely that an Acorn is recognized by accident.
+On Fri, 2003-03-14 at 12:06, Matthias Andree wrote:
+> No, he has however a right to protect his trademark, which comprises
+> names that are so similar that they can be mistaken for his trademark.
+> 
+> However, you're not getting anywhere with publishing private mail
+> without prior permission. That's betrayal of secrets and privacy, and if
+> Larry jumps on you for this, he'll rightfully do so.
 
-Unfortunately, the checksum is all there is to positively identify
-this partitioning scheme.  Yes, it's crap, but that's what happens
-when there's a lack of direction from the top and people go off and
-do their own partitioning schemes.
+When you are dealing with someone apparently being a corporate bully you
+have no choice quite often but to publicize stuff. Whether Larry is
+actually unreasonable is kind of hard to tell without all the context.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+If Larry feels bitbucket is a lot like bitkeeper then I see his point.
+If he's moaning about things like "foobar is  a tool for reading 
+BitKeeper repositories" then I guess he forgot to take his pills this
+morning 8)
+
+Unfortunately all the current bad feeling and suspicion keeps 
+magnifying probably minor misunderstandings into large ones
 

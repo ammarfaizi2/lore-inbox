@@ -1,99 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263369AbTIWOvz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 10:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263373AbTIWOvz
+	id S261316AbTIWOoL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 10:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbTIWOoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 10:51:55 -0400
-Received: from verein.lst.de ([212.34.189.10]:45236 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S263369AbTIWOvx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 10:51:53 -0400
-Date: Tue, 23 Sep 2003 16:51:49 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: [PATCH] check permission in ->open for /proc/sys/
-Message-ID: <20030923145149.GA16235@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	linux-kernel@vger.kernel.org
+	Tue, 23 Sep 2003 10:44:11 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:42947
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S261316AbTIWOoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 10:44:07 -0400
+Date: Tue, 23 Sep 2003 16:44:35 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030923144435.GC23111@velociraptor.random>
+References: <20030922194833.GA2732@velociraptor.random> <20030923042855.GF589@alpha.home.local> <20030923124951.GB23111@velociraptor.random> <20030923140647.GB3113@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -3 () PATCH_UNIFIED_DIFF,USER_AGENT_MUTT
+In-Reply-To: <20030923140647.GB3113@alpha.home.local>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's the only abuse of proc_iops left (escept the totally b0rked comx
-driver).  The patch is from Al, I just forward-ported it from 2.4.
+On Tue, Sep 23, 2003 at 04:06:47PM +0200, Willy Tarreau wrote:
+> Hi Andrea,
+>  
+> > The point here is that the default must work for 99% of the userbase.
+> > Either that or the default is totally broken.
+> 
+> You're only thinking about what distro vendors should do. If all kernels should
+> suit their needs, then there would not be any config anymore, and everyone
+> would have the same kernel with the same wagon of command line arguments.
 
+this is actually not true. Many options are way too costly to recompile
+every time, or to keep enabled at runtime, it can't be the case for this
+one. My own self compiled kernel has a very stripped down .config, it's
+not like a distro kernel with everything included.
 
---- 1.53/kernel/sysctl.c	Tue Sep  9 02:08:58 2003
-+++ edited/kernel/sysctl.c	Tue Sep 23 15:29:35 2003
-@@ -136,17 +136,14 @@
- 
- static ssize_t proc_readsys(struct file *, char __user *, size_t, loff_t *);
- static ssize_t proc_writesys(struct file *, const char __user *, size_t, loff_t *);
--static int proc_sys_permission(struct inode *, int, struct nameidata *);
-+static int proc_opensys(struct inode *, struct file *);
- 
- struct file_operations proc_sys_file_operations = {
-+	.open		= proc_opensys,
- 	.read		= proc_readsys,
- 	.write		= proc_writesys,
- };
- 
--static struct inode_operations proc_sys_inode_operations = {
--	.permission	= proc_sys_permission,
--};
--
- extern struct proc_dir_entry *proc_sys_root;
- 
- static void register_proc_table(ctl_table *, struct proc_dir_entry *);
-@@ -1140,10 +1137,8 @@
- 			if (!de)
- 				continue;
- 			de->data = (void *) table;
--			if (table->proc_handler) {
-+			if (table->proc_handler)
- 				de->proc_fops = &proc_sys_file_operations;
--				de->proc_iops = &proc_sys_inode_operations;
--			}
- 		}
- 		table->de = de;
- 		if (de->mode & S_IFDIR)
-@@ -1212,6 +1207,20 @@
- 	return res;
- }
- 
-+static int proc_opensys(struct inode *inode, struct file *file)
-+{
-+	if (file->f_mode & FMODE_WRITE) {
-+		/*
-+		 * sysctl entries that are not writable,
-+		 * are _NOT_ writable, capabilities or not.
-+		 */
-+		if (!(inode->i_mode & S_IWUSR))
-+			return -EPERM;
-+	}
-+
-+	return 0;
-+}
-+
- static ssize_t proc_readsys(struct file * file, char __user * buf,
- 			    size_t count, loff_t *ppos)
- {
-@@ -1222,11 +1231,6 @@
- 			     size_t count, loff_t *ppos)
- {
- 	return do_rw_proc(1, file, (char __user *) buf, count, ppos);
--}
--
--static int proc_sys_permission(struct inode *inode, int op, struct nameidata *nd)
--{
--	return test_perm(inode->i_mode, op);
- }
- 
- /**
+> I said I agree on the dynamic advantage. BTW, you didn't reply me about what
+> the statically allocated 64 kB became with your patch. Will this memory be
+
+the 64k are wasted only when you use the option, if you need more than
+64k it's unlikely you care about 64k lost. But I'm ok to fix it, it just
+looks a low priority to fix. Also since you will never use this option
+anyways since you don't like adding parameters to the kernel, then you
+don't care about fixing it either, you simply want the additional config
+option on top of this.
+
+My whole argument is that being able to do it dynamic is an order of
+magnitude more important than being able to do it statically, no matter
+the command line argument and no matter ther 64k lost. You must agree
+with that. the amount of userbase is just not comparable.
+
+> wasted forever or is there a way to free it ? If I want to pre-allocate it
+> dynamically with alloc_space() as you did, what can I use to free it ? is
+> kfree() the right thing ?
+
+we should simply allocate it from the bootmem pool, it's trivial to
+change it so the 64k aren't lost.
+
+Not sure what I should do, personally I consider the additional .config
+option as configuration pollution, but since you care that much I can
+also change my patch not to reject yours, and to allow the two things to
+coexist, but I don't think it's really needed. I believe people should
+be forced to use the kernel params, and it's much more manageable to
+know all the kernels behave the same if no param is passed (otherwise
+you have to check the System.map to see how big the buffer is, to know
+if this was the right or wrong kernel during your remote maintainance,
+either that or you should check /proc/config.gz if you have it). It's
+just a mess if each kernel with the same revision number behaves
+differently, everything becomes less and less predictable. The number of
+System.map checks increases and increases before I can identify what
+kernel is that. Is there anybody else that has opinions on the matter?
+
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/
+	    svn://svn.kernel.org/linux-2.[46]/trunk

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293596AbSCSDTF>; Mon, 18 Mar 2002 22:19:05 -0500
+	id <S293589AbSCSDPP>; Mon, 18 Mar 2002 22:15:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293599AbSCSDSz>; Mon, 18 Mar 2002 22:18:55 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:57865 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S293596AbSCSDSw>;
-	Mon, 18 Mar 2002 22:18:52 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S293595AbSCSDPG>; Mon, 18 Mar 2002 22:15:06 -0500
+Received: from mail.getnet.net ([63.137.32.10]:58332 "HELO mail.getnet.net")
+	by vger.kernel.org with SMTP id <S293589AbSCSDOx>;
+	Mon, 18 Mar 2002 22:14:53 -0500
+Message-ID: <3C96ACD1.9010306@westek-systems.com>
+Date: Tue, 19 Mar 2002 03:13:21 +0000
+From: Art Wagner <awagner@westek-systems.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020315
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15510.42401.731136.2503@argo.ozlabs.ibm.com>
-Date: Tue, 19 Mar 2002 13:42:41 +1100 (EST)
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Cort Dougan <cort@fsmlabs.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 7.52 second kernel compile
-In-Reply-To: <Pine.LNX.4.33.0203181213130.12950-100000@home.transmeta.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.7 oss modules compile error
+Content-Type: multipart/mixed;
+ boundary="------------070203090300090803060006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+This is a multi-part message in MIME format.
+--------------070203090300090803060006
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Btw, here's a program that does a simple histogram of TLB miss cost, and
-> shows the interesting pattern on intel I was talking about: every 8th miss
-> is most costly, apparently because Intel pre-fetches 8 TLB entries at a
-> time.
+I encountered the attached error whie compiling 2.5.7 with the oss sound 
+modules
+configured. The "_not_defined_use_pci_map" portion of the failing statement
+seems to be defined in ./include/asm-i386/io.h, line 117.
+Art Wagner
 
-Here are the results on my 500Mhz G4 laptop:
+--------------070203090300090803060006
+Content-Type: text/plain;
+ name="Compile error.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Compile error.txt"
 
-   1.85: 22
-  17.86: 26
-  14.41: 28
-  16.88: 42
-  34.03: 46
-   9.61: 48
-   2.07: 88
-   1.04: 90
+drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o sound/sound.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
+	net/network.o \
+	--end-group \
+	-o vmlinux
+sound/sound.o: In function `sound_alloc_dmap':
+/usr/src/linux-2.5.7/sound/oss/dmabuf.c:116: undefined reference to `virt_to_bus_not_defined_use_pci_map'
+make: *** [vmlinux] Error 1
 
-The numbers are fairly repeatable except that the last two tend to
-wobble around a little.  These are numbers of cycles obtained using
-one of the performance monitor counters set to count every cycle.
-The average is 40.6 cycles.
+--------------070203090300090803060006--
 
-This was with a 512kB MMU hash table, which translates to 8192 hash
-buckets each holding 8 ptes.  The machine has 1MB of L2 cache.
-
-Paul.

@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269133AbTGZChi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 22:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269144AbTGZChi
+	id S269191AbTGZCr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 22:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272404AbTGZCr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 22:37:38 -0400
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:24506 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S269133AbTGZChh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 22:37:37 -0400
-Date: Sat, 26 Jul 2003 04:52:46 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: Larry McVoy <lm@bitmover.com>
-Subject: Re: Switching to the OSL License, in a dual way.
-Message-ID: <20030726025246.GA30151@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Larry McVoy <lm@bitmover.com>
-References: <pan.2003.07.24.18.06.06.546220@terra.com.br> <Pine.LNX.4.10.10307241256360.16098-100000@master.linux-ide.org> <pan.2003.07.24.21.05.40.969654@terra.com.br> <20030724215744.GA7777@work.bitmover.com> <plopm3wue72alp.fsf@drizzt.kilobug.org> <20030725143933.GA13840@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+	Fri, 25 Jul 2003 22:47:28 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:4482
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S269191AbTGZCr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 22:47:28 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Joshua Kwan <joshk@triplehelix.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS] 2.4.21-ck3 in schedule
+Date: Sat, 26 Jul 2003 13:06:45 +1000
+User-Agent: KMail/1.5.2
+References: <20030725051847.GA1778@triplehelix.org>
+In-Reply-To: <20030725051847.GA1778@triplehelix.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030725143933.GA13840@work.bitmover.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307261306.45743.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jul 2003, Larry McVoy wrote:
+On Fri, 25 Jul 2003 15:18, Joshua Kwan wrote:
+> 2.4.21-ck1 was fine under nearly the same circumstances. I rebuilt with
+> a newer -ck when I was configuring my new ADSL bridge to work with Linux
+> pppoe, but I doubt that's related.
+>
+> Anyway, it drove my wireless card driver nuts too, probably due to some
+> busted interrupts. It kept printing a SW TICK STUCK? message. I'll
+> revert to vanilla for now. :(
 
-> > This is  exactly the  same. As  long as there  is a  data format  or a
-> > protocol involved,  European laws allow users to  reverse engineer it,
-> > to  be  able to  create  another program  using  the  same format  and
-> > protocols. 
-> 
-> Really?  Show me that law please.
+I suspect it's the variable Hz that is exported as 100 but runs as 1000 in 
+2.4-ck. I suggest you build without the variable Hz and tuning so it runs at 
+100Hz and try again.
 
-IANAL, but check the "German Gesetz über Urheberrecht und verwandte
-Schutzrechte" (Urheberrechtsgesetz/UrhG for short), §§ 69c, 69d, 69e.
-http://bundesrecht.juris.de/bundesrecht/urhg/index.html
-
-It concerns itself with "interoperability" of independently developed
-programs with an existing one that you may use, (not with clones though,
-the law formulates this differently); decompilation is allowed, unless
-information needed to obtain interoperability is available, and there
-are other restrictions.  License or contract clauses that attempt to run
-counter to §69d 2,3 (backup copies to ensure future use) or §69e
-(decompilation) are void.
-
-Anyone interested should check out the exact words of the law though,
-and in particular he should not rely on my translation.
+Con
 

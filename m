@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261558AbRFJSx4>; Sun, 10 Jun 2001 14:53:56 -0400
+	id <S261561AbRFJTII>; Sun, 10 Jun 2001 15:08:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261515AbRFJSxq>; Sun, 10 Jun 2001 14:53:46 -0400
-Received: from SMTP-OUT003.ONEMAIN.COM ([63.208.208.73]:1854 "HELO
-	smtp07.mail.onemain.com") by vger.kernel.org with SMTP
-	id <S261535AbRFJSxg>; Sun, 10 Jun 2001 14:53:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Scott Long <smlong@teleport.com>
+	id <S261547AbRFJTH6>; Sun, 10 Jun 2001 15:07:58 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14351 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261535AbRFJTH4>; Sun, 10 Jun 2001 15:07:56 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Threads and the LDT (Intel-specific)?
-Date: Sun, 10 Jun 2001 11:53:29 -0700
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01061011532900.01126@abacus>
-Content-Transfer-Encoding: 7BIT
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
+Date: 10 Jun 2001 12:07:31 -0700
+Organization: A poorly-installed InterNetNews site
+Message-ID: <9g0ghj$1mb$1@penguin.transmeta.com>
+In-Reply-To: <20010610175730.B15945@ontario.alcove-fr> <E1597bu-0006lf-00@the-village.bc.nu> <20010610184611.A16660@ontario.alcove-fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to do something a bit unorthodox: I want to share the 
-address space between threads, but I want a certain region of the 
-address space to be writeable only for a particular thread -- for all 
-other threads this region is read-only.
+In article <20010610184611.A16660@ontario.alcove-fr>,
+Stelian Pop  <stelian.pop@fr.alcove.com> wrote:
+>
+>> 2.	Using the YUV overlay/expand hardware in the ATI card 
+>> 	(see www.gatos.org for X stuff for ATI for this)
+>
+>:s/www.gatos.org/www.linuxvideo.org/gatos/
+>
+>I took a quick look on their site but it seems that the
+>Rage Mobility P/M card which this laptop has isn't yet supported.
 
-I've considered several approaches. I'll only go over the one I think 
-is the best solution. I would appreciate any comments folks might have:
+It definitely is - at least if you use the XFree86 CVS tree with just
+the ATI video extensions imported from Gatos.  I've used the YUV
+hardware for half-accelerated DVD playing ("half-accelerated" only
+because the chip can really do MC too, but ATI doesn't document how to
+do it, so it only does the YUV conversion). 
 
-When linking the userspace program, I instruct the linker to avoid the 
-region from VMA 0 to VMA 0x400000. Then, in the userspace code, I 
-duplicate the GDT entries for CS, DS, ES, SS into the LDT, except that 
-the new segments begin at 0x400000, instead of 0. I load the segment 
-registers with these LDT entries. In the "write-allowed" thread I 
-create an LDT entry to address VMA 0 through VMA 0x400000, in 
-read-write mode. In all the other threads I create an LDT entry to 
-address the same area in read-only mode. This gives me a 4M region at 
-the bottom of memory that is accessible in different ways to different 
-threads.
+I've not figured out why the ATI Xv stuff from gatos seems to not have
+made it into the XFree86 CVS tree - it works better than much of the Xv
+stuff for some other chipsets that _are_ in the CVS tree. 
 
-I can also use the LDT to point to thread-specific segments. IMHO this 
-is much better than the stack trick used by linuxthreads. The problem 
-is, I don't fully understand how to use modify_ldt(). Is anyone 
-knowledgeable about this?
+I imported it into the XFree86 CVS some months ago, it was trivial.  I
+don't have the patches lying around any more, though. I can try to
+re-create them if anybody needs help.
 
-If anyone has any other suggestions, please let me know. If you are 
-confused as to why I would ever want to do this in the first place, I'd 
-be willing to go over it off the list.
-
-Thanks,
-Scott
+		Linus

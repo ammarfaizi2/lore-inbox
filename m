@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263685AbUCUSOv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 13:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263686AbUCUSOv
+	id S263680AbUCUSSn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 13:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263687AbUCUSSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 13:14:51 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:16514 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263685AbUCUSOt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 13:14:49 -0500
-Date: Sun, 21 Mar 2004 19:14:30 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040321181430.GB29440@wohnheim.fh-wedel.de>
-References: <20040321125730.GB21844@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com>
-User-Agent: Mutt/1.3.28i
+	Sun, 21 Mar 2004 13:18:43 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:31096 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S263680AbUCUSSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 13:18:40 -0500
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Eli Cohen <mlxk@mellanox.co.il>, linux-kernel@vger.kernel.org
+Subject: Re: locking user space memory in kernel
+References: <405D7D2F.9050507@colorfullife.com> <52u10i2lx6.fsf@topspin.com>
+	<405DCDA1.3080008@colorfullife.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 21 Mar 2004 10:18:38 -0800
+In-Reply-To: <405DCDA1.3080008@colorfullife.com>
+Message-ID: <52ptb62hdt.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 21 Mar 2004 18:18:38.0953 (UTC) FILETIME=[EEBFFD90:01C40F70]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 March 2004 09:59:39 -0800, Davide Libenzi wrote:
-> 
-> When I did that, fumes of an in-kernel implementation invaded my head for 
-> a little while. Then you start thinking that you have to teach apps of new 
-> open(2) semantics, you have to bloat kernel code a little bit and you have 
-> to deal with a new set of errors cases that open(2) is not expected to 
-> deal with. A fully userspace implementation did fit my needs at that time, 
-> even if the LD_PRELOAD trick might break if weak aliases setup for open 
-> functions change inside glibc.
+    Manfred> I think just get_user_pages() should be sufficient: the
+    Manfred> pages won't be swapped out. You don't need to set
+    Manfred> VM_LOCKED in vma->vm_flags to prevent the swap out. In
+    Manfred> the worst case, the pte is cleared a that will cause a
+    Manfred> soft page fault, but the physical address won't
+    Manfred> change. Multiple get_user_pages() calls on overlapping
+    Manfred> regions are ok, the page count is an atomic_t, at least
+    Manfred> 24-bit large.
 
-209 fairly simple lines definitely have more appear than a full
-in-kernel implementation with many new corner-cases, yes.  But it
-looks as if you ignore the -ENOSPC case, so you cheated a little. ;)
+    Roland> There is one case that we ran into where the physical
+    Roland> address can change: if a process does a fork() and then
+    Roland> triggers COW.
 
-No matter how you try, there is no way around an additional return
-code for open(), so we have to break compatibility anyway.  The good
-news is that a) people not using this feature won't notice and b) all
-programs I tried so far can deal with the problem.  Vim even has a
-decent error message - as if my patch was anticipated already.
+    Manfred> You are right.  What should happen if there are
+    Manfred> registered transfers during fork()?  Copy the pages
+    Manfred> during the fork() syscall?
 
-Jörn
+The current Mellanox InfiniBand driver goes to some trouble to mark
+the memory being registered with VM_DONTCOPY.  This means the vmas
+don't get copied into the child of a fork(), so the COW doesn't
+happen.  However, this certainly leads to some quirks in semantics.
+In particular, an application using fork() has to be careful that
+registered memory doesn't share a page with something the child
+process wants to use.
 
--- 
-Everything should be made as simple as possible, but not simpler.
--- Albert Einstein
+I don't think copying all the registered memory on fork() is feasible,
+because it's going to kill performance (especially since exec() is
+likely to immediately follow the fork() in the child).  Also, there
+may not be enough memory around to copy everything.
+
+Out of curiousity, what happens if I fork with pending AIO in the
+current kernel?
+
+ - Roland
+

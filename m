@@ -1,33 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbVAFDra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbVAFDuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262710AbVAFDra (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 22:47:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVAFDra
+	id S262687AbVAFDuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 22:50:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVAFDuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 22:47:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59603 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262710AbVAFDr2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 22:47:28 -0500
-Date: Wed, 5 Jan 2005 19:47:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
-Subject: drivers/mmc/wbsd.c
-Message-Id: <20050105194709.590f780c.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 5 Jan 2005 22:50:25 -0500
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:41630 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262687AbVAFDuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 22:50:19 -0500
+Message-ID: <41DCB577.9000205@yahoo.com.au>
+Date: Thu, 06 Jan 2005 14:50:15 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
+References: <Pine.LNX.4.61.0501031224400.25392@chimarrao.boston.redhat.com> <20050105020859.3192a298.akpm@osdl.org> <20050105180651.GD4597@dualathlon.random> <Pine.LNX.4.61.0501051350150.22969@chimarrao.boston.redhat.com> <20050105174934.GC15739@logos.cnet> <20050105134457.03aca488.akpm@osdl.org> <20050105203217.GB17265@logos.cnet> <41DC7D86.8050609@yahoo.com.au> <Pine.LNX.4.61.0501052025450.11550@chimarrao.boston.redhat.com> <20050105173624.5c3189b9.akpm@osdl.org> <Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-static inline void wbsd_kunmap_sg(struct wbsd_host* host)
-{
-	kunmap_atomic(host->cur_sg->page, KM_BIO_SRC_IRQ);
-}
+Rik van Riel wrote:
+> On Wed, 5 Jan 2005, Andrew Morton wrote:
+> 
+>> Rik van Riel <riel@redhat.com> wrote:
+> 
+> 
+>>> The recent OOM kill problem has been happening:
+>>> 1) with cache pressure on lowmem only, due to a block device write
+>>> 2) with no block congestion at all
+>>> 3) with pretty much all pageable lowmme pages in writeback state
+>>
+>>
+>> You must have a wild number of requests configured in the queue.  Is 
+>> this CFQ?
+> 
+> 
+> Yes, it is with CFQ.  Around 650MB of lowmem is in writeback
+> stage, which is over 99% of the active and inactive lowmem
+> pages...
+> 
+>> I've done testing with "all of memory under writeback" before and it 
+>> went OK.  It's certainly a design objective to handle this well.  But 
+>> that testing was before we broke it.
+> 
+> 
+> I suspect something might still be broken.  It may take a few
+> days of continuous testing to trigger the bug, though ...
+> 
 
-Guys, kunmap_atomic() takes a kernel virtual address (the value which
-kmap_atomic() returned).
+It is possible to be those blk_congestion_wait paths, because
+the queue simply won't be congested. So doing io_schedule_timeout
+might help.
 
-Passing it the address of a pageframe will have unpleasant results.
+I wonder if reducing the size of the write queue in CFQ would help
+too? IIRC, it only really wants a huge read queue.

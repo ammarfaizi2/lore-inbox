@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbTIPPyj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 11:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbTIPPyj
+	id S261941AbTIPP6g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 11:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbTIPP6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 11:54:39 -0400
-Received: from math.ut.ee ([193.40.5.125]:42942 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S261963AbTIPPyh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 11:54:37 -0400
-Date: Tue, 16 Sep 2003 18:54:34 +0300 (EEST)
-From: Meelis Roos <mroos@math.ut.ee>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: df hangs on nfs automounter in 2.6.0-current
-In-Reply-To: <shsznh4d9g7.fsf@charged.uio.no>
-Message-ID: <Pine.GSO.4.44.0309161853300.25512-100000@math.ut.ee>
+	Tue, 16 Sep 2003 11:58:35 -0400
+Received: from web40020.mail.yahoo.com ([66.218.78.60]:15708 "HELO
+	web40020.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261941AbTIPP6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 11:58:32 -0400
+Message-ID: <20030916155831.67252.qmail@web40020.mail.yahoo.com>
+Date: Tue, 16 Sep 2003 08:58:31 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: [BUG?] 2.6.0-test5-mm[1,2], CONFIG_SOFTWARE_SUSPEND=y, qconf and swapon -a
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->      > Current 2.6.0 (2.6.0-test5+BK as of 16.09) hangs on df when the
->      > am_utils automounter is in use. It displays hda* partitions and
->      > next by mountpoint list is amd but then df hangs, wchan is
->      > rpc_execu*
->
-> Please reproduce using ordinary 'mount'...
+I've recently discovered a bug in the swsusp code in 2.6.0-test5-mm[1,2].
 
-Seems that am-utils (or other userland) is at fault - it breaks with
-2.4.23-pre4 too...
+When CONFIG_SOFTWARE_SUSPEND=y, and the kernel is first started, doing a
+swapon -a livelocks the machine (i.e. bootup stops, but Alt-SysRQ works fine).
+I don't use swsusp and I don't want to at this time, and the swap partition
+swapon was trying to activate is an ordinary 659MB swap partition (version 1,
+priority -1) at the end of the disk.
 
--- 
-Meelis Roos (mroos@ut.ee)      http://www.cs.ut.ee/~mroos/
+qconf doesn't allow you to set CONFIG_SOFTWARE_SUSPEND=n, and modifying .config
+doesn't work either (it gets set back to y). According to the range/data values
+in qconf, there actually is no way to disable swsusp in 2.6.0-test5-mm[1,2].
 
+Interesting part of .config:
+
+#
+# Power management options (ACPI, APM)
+#
+CONFIG_PM=y
+CONFIG_SOFTWARE_SUSPEND=y
+# CONFIG_PM_DISK is not set
+CONFIG_PM_DISK_PARTITION=""
+
+What should I try now?
+
+TIA
+
+Brad Chapman
+
+P.S: Please CC: me directly; I follow the ussg.iu.edu hypermail archive.
+
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

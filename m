@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269515AbRH3ATs>; Wed, 29 Aug 2001 20:19:48 -0400
+	id <S269641AbRH3AUs>; Wed, 29 Aug 2001 20:20:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269543AbRH3ATi>; Wed, 29 Aug 2001 20:19:38 -0400
-Received: from [203.6.240.4] ([203.6.240.4]:63750 "HELO
-	cbus613-server4.colorbus.com.au") by vger.kernel.org with SMTP
-	id <S269515AbRH3AT1>; Wed, 29 Aug 2001 20:19:27 -0400
-Message-ID: <370747DEFD89D2119AFD00C0F017E6614A62CF@cbus613-server4.colorbus.com.au>
-From: Robert Lowery <Robert.Lowery@colorbus.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: [Slightly OT]  Where should SIS 6326 mpeg2 hardware acceleration 
-	code live?
-Date: Thu, 30 Aug 2001 10:18:52 +1000
-X-Mailer: Internet Mail Service (5.5.2650.21)
+	id <S269712AbRH3AUb>; Wed, 29 Aug 2001 20:20:31 -0400
+Received: from mailhost.nmt.edu ([129.138.4.52]:28425 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S269641AbRH3AUZ>;
+	Wed, 29 Aug 2001 20:20:25 -0400
+Date: Wed, 29 Aug 2001 18:20:40 -0600
+From: Val Henson <val@nmt.edu>
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-kernel@vger.kernel.org
+Cc: Philipp Reisner <philipp.reisner@cubit.at>
+Subject: Re: tcp connection hangs on connect
+Message-ID: <20010829182040.C10934@boardwalk>
+In-Reply-To: <20010828171705.F890@boardwalk> <20010829082405.A5966@cubit.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010829082405.A5966@cubit.at>; from philipp.reisner@cubit.at on Wed, Aug 29, 2001 at 08:24:05AM +0200
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alexey Kuznetsov wrote:
 
-I have recently acquired a PCI graphics card based on the SIS 6326 chipset.
-This chipset supports YUV->RGB conversion, Hardware motion compensation and
-iDCT in hardware.  Using Windows 98 and PowerDVD I am able to playback full
-screen DVD without any skipped frames on a Pentium 233MMX.  All for the
-cheap price of around $US20.
+> Hello!
+>  
+> > simply hangs after some minutes to an hour. The script runs on
+> > a Linux-2.2.19 Box (we have also tested Linux-2.4.2)
+>  
+> This bug has been fixed in later 2.4s.
+>  
+> Corresponding fix to 2.2 is expected to be in 2.2.20 and it is available
+> in Alan's 2.2.20-pre.
+> 
+> Alexey
 
-The full specs on this chipset are available at
-http://www.sis.com/ftp/Databook/6326/6326ds10.exe
+This bug still exists in 2.4.10-pre2 (from the linuxppc_2_4_devel
+tree).  The first TCP connection to the machine hangs after a few KB
+of data.  Connections after that work fine.  A tcpdump shows strange
+retransmit behavior before the hang but I haven't investigated it
+further.
 
-The hardware acceleration of this card does not appear to be supported under
-linux, and I am unsure where the code should even go if I was to try and
-write it.
+Philipp Reisner says it's fixed in 2.2.20-pre8 but I can't find any
+equivalent fix in 2.4.8-2.4.10.
 
-I have tried mailing to the livid-devel@linuxvideo.org, as I first thought
-this is where the code would belong, but have had no responses at all in 4
-days.  Is this Livid/OMS project still alive.
+Have I found a new bug or did the patch not make it into 2.4 after
+all?
 
-Alternatives (that I am aware of) are
-video4linux
-fbcon
-Xv
-
-Where should this hardware support live, I suspect it does not belong in the
-kernel ;) and who should I be talking to.  I am willing to do a lot of the
-work to get this chipset supported, but since my device driver experience is
-somewhat limited, I would probably need a mentor ;)
-
-Please cc any repies to me as I am not subscribed
-
-Cheers
-
--Robert
+-VAL

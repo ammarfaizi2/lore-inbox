@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVCCAki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVCCAfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbVCCAki (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 19:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVCCAgT
+	id S261314AbVCCAfz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 19:35:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVCCAcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 19:36:19 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22216 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261212AbVCCAdL (ORCPT
+	Wed, 2 Mar 2005 19:32:12 -0500
+Received: from fire.osdl.org ([65.172.181.4]:5505 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261271AbVCCAaP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 19:33:11 -0500
-Date: Wed, 2 Mar 2005 19:32:59 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Lars Marowsky-Bree <lmb@suse.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303003259.GI10124@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Lars Marowsky-Bree <lmb@suse.de>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302225846.GK17584@marowsky-bree.de> <Pine.LNX.4.58.0503021543430.25732@ppc970.osdl.org>
+	Wed, 2 Mar 2005 19:30:15 -0500
+Date: Wed, 2 Mar 2005 16:30:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
+Message-Id: <20050302163008.322031d3.akpm@osdl.org>
+In-Reply-To: <d05g45$pos$1@sea.gmane.org>
+References: <20050228231721.GA1326@elf.ucw.cz>
+	<d05g45$pos$1@sea.gmane.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503021543430.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 03:44:58PM -0800, Linus Torvalds wrote:
 
- > > I think a better approach, and one which is already working out well in
- > > practice, is to put "more intrusive" features into -mm first, and only
- > > migrate them into 2.6.x when they have 'stabilized'.
- > 
- > That wouldn't change. But we still have the issue of "they have to be 
- > released sometime". This makes it clear to everybody when to merge, and 
- > when to calm down.
+(Please do reply-to-all)
 
-So is the problem that people aren't listening when you say "lets slow down" ?
-Why would this change things for people who obviously ignore what you say ? :)
+Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz> wrote:
+>
+> Pavel Machek wrote:
+> > Hi!
+> > 
+> > In `subj` kernel, machine no longer powers down at the end of
+> > swsusp. 2.6.11-rc5-pavel works ok, as does 2.6.11-bk.
+> 
+> For me, power down stopped working since the introduction of softlockup 
+> detection. After disabling CONFIG_DETECT_SOFTLOCKUP, powerdown works fine.
 
-I'll bet you'll still get flooded with "lets see if Linus takes this despite
-what he said in his last announcement" patches if we moved to this model.
+Could you send the output which CONFIG_DETECT_SOFTLOCKUP generates?
 
-The only thing that would make a difference afaics, would be you putting
-your foot down and just ignoring such submissions ?
-
-		Dave
-
+I had one CONFIG_DETECT_SOFTLOCKUP failure with suspend, on SMP.  The
+machine was stuck somewhere under mce_work_fn().  Perhaps in the
+smp_call_function().  It only happened the once.

@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVDDUe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVDDUnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVDDUe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 16:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVDDUdz
+	id S261399AbVDDUnv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 16:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVDDUnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 16:33:55 -0400
-Received: from smtp7.wanadoo.fr ([193.252.22.24]:52923 "EHLO smtp7.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261389AbVDDUaY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 16:30:24 -0400
-X-ME-UUID: 20050404203018601.92D5714000A1@mwinf0704.wanadoo.fr
-Date: Mon, 4 Apr 2005 22:27:06 +0200
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
-       Sven Luther <sven.luther@wanadoo.fr>,
-       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
-       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org,
-       Jes Sorensen <jes@trained-monkey.org>, linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050404202706.GB3140@pegasos>
-References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk> <42519BCB.2030307@pobox.com>
+	Mon, 4 Apr 2005 16:43:32 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:30449 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261389AbVDDUmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 16:42:08 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Gene Heskett <gene.heskett@verizon.net>,
+       LKML <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20050404200043.GA16736@elte.hu>
+References: <200504011419.20964.gene.heskett@verizon.net>
+	 <424D9F6A.8080407@cybsft.com> <200504011834.22600.gene.heskett@verizon.net>
+	 <20050402051254.GA23786@elte.hu>
+	 <1112470675.27149.14.camel@localhost.localdomain>
+	 <1112472372.27149.23.camel@localhost.localdomain>
+	 <20050402203550.GB16230@elte.hu>
+	 <1112474659.27149.39.camel@localhost.localdomain>
+	 <1112479772.27149.48.camel@localhost.localdomain>
+	 <1112486812.27149.76.camel@localhost.localdomain>
+	 <20050404200043.GA16736@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 04 Apr 2005 16:40:53 -0400
+Message-Id: <1112647253.5147.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <42519BCB.2030307@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 03:55:55PM -0400, Jeff Garzik wrote:
-> Matthew Wilcox wrote:
-> >On Mon, Apr 04, 2005 at 10:51:30AM -0700, Greg KH wrote:
-> >
-> >>Then let's see some acts.  We (lkml) are not the ones with the percieved
-> >>problem, or the ones discussing it.
-> >
-> >
-> >Actually, there are some legitimate problems with some of the files in
-> >the Linux source base.  Last time this came up, the Acenic firmware was
-> >mentioned:
-> >
-> >http://lists.debian.org/debian-legal/2004/12/msg00078.html
-> >
-> >Seems to me that situation is still not resolved.
+On Mon, 2005-04-04 at 22:00 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-> And it looks like no one cares enough to make the effort to resolve this...
+> > So it is probably stuck in some spinning "yield" loop, which was the 
+> > reason I was writing this test to begin with!  It's most likely also 
+> > waiting for kjournald to do some work, and is starving it in a 
+> > schedule or yield loop never actually going to sleep letting kjournald 
+> > do the real work.
 > 
-> I would love an open source acenic firmware.
+> actually, what priorities do the yielding tasks have? sched_yield() does 
+> not guarantee that the CPU will be given up, of if a highest-prio 
+> SCHED_FIFO task is in a yield() loop it will livelock the system.
+> 
 
-Yep, but in the meantime, let's clearly mark said firmware as
-not-covered-by-the-GPL. In the acenic case it seems to be even easier, as the
-firmware is in a separate acenic_firmware.h file, and it just needs to have
-the proper licencing statement added, saying that it is not covered by the
-GPL, and then giving the information under what licence it is being
-distributed.
+What scares me is the code in fs/inode.c with that
+__wait_on_freeing_inode.  Look at the code in find_inode and
+find_inode_fast.  Here you will see that they really are busy loops with
+a yield in them, if the inode they are waiting on is I_FREEING or
+I_CLEAR and the process doing this hasn't set I_LOCK.  I haven't looked
+much at this, but my kernel has livelocked on it.
 
-Jeff, since your name was found in the tg3.c case, and you seem to care about
-this too, what is your take on this proposal ?
+My custom kernel plays with dynamic priorities. That is tasks jump
+around in their priorities based on different situations not part of the
+normal linux kernel. So my kernel can find these cases easier since a
+path where a process gets bumped up to a high priority happens more
+often and causes preemption more often than the normal RT kernel. But
+this situation can probably occur in the RT kernel and maybe even the
+mainline kernel, since it only needs to have a RT FIFO task get blocked
+here, and a lower priority task needing to run to change the state.
 
-Friendly,
+Currently my fix is in yield to lower the priority of the task calling
+yield and raise it after the schedule.  This is NOT a proper fix. It's
+just a hack so I can get by it and test other parts. 
 
-Sven Luther
+-- Steve
+
 

@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273957AbSISX77>; Thu, 19 Sep 2002 19:59:59 -0400
+	id <S274102AbSITALB>; Thu, 19 Sep 2002 20:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273983AbSISX77>; Thu, 19 Sep 2002 19:59:59 -0400
-Received: from dp.samba.org ([66.70.73.150]:12486 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S273957AbSISX76>;
-	Thu, 19 Sep 2002 19:59:58 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] In-kernel module loader 1/7 
-In-reply-to: Your message of "Thu, 19 Sep 2002 15:54:40 +0200."
-             <Pine.LNX.4.44.0209191532110.8911-100000@serv> 
-Date: Fri, 20 Sep 2002 09:44:23 +1000
-Message-Id: <20020920000502.242CF2C100@lists.samba.org>
+	id <S274117AbSITALB>; Thu, 19 Sep 2002 20:11:01 -0400
+Received: from holomorphy.com ([66.224.33.161]:4997 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S274102AbSITALA>;
+	Thu, 19 Sep 2002 20:11:00 -0400
+Date: Thu, 19 Sep 2002 17:10:01 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] x86_udelay_tsc not honoring notsc
+Message-ID: <20020920001001.GQ28202@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0209191532110.8911-100000@serv> you write:
-> Hi,
-> 
-> On Thu, 19 Sep 2002, Rusty Russell wrote:
-> 
-> > If every single object in the kernel is reference counted, *yes* you
-> > can do this.  But they're not, and they will never be.  Changing them
-> > over to use try_module_get() is feasible, though.
-> 
-> Rusty, slowly I'm pissed. :(
+Even though I booted with notsc, rdtsc happens here and appears to
+generate #GP or some such nonsense:
 
-Sorry if I haven't been as clear as I might wish.  I shall try: I do
-appreciate your patience.
+Restoring NMI vector
+Booting processor 14/52 eip 2000
+Initializing CPU#14
+masked ExtINT on CPU#14
+Leaving ESR disabled.
+Calibrating delay loop...
+Program received signal SIGEMT, Emulation trap.
+__rdtsc_delay (loops=69700) at delay.c:40
+40      delay.c: No such file or directory.
+        in delay.c
+(gdb) bt
+#0  __rdtsc_delay (loops=69700) at delay.c:40
+#1  0xc019f31d in __delay (loops=69700) at delay.c:63
+#2  0xc019f384 in __const_udelay (xloops=429400) at delay.c:74
+#3  0xc02c1709 in do_boot_cpu (apicid=52) at smpboot.c:865
+#4  0xc02c1a4e in smp_boot_cpus (max_cpus=4294967295) at smpboot.c:1095
+#5  0xc02c1c70 in smp_prepare_cpus (max_cpus=4294967295) at smpboot.c:1199
+#6  0xc01050d7 in init (unused=0x0) at main.c:547
+(gdb) p $eip       
+$3 = (void *) 0xc019f2d4
+(gdb) disassemble $eip
+Dump of assembler code for function __rdtsc_delay:
+0xc019f2c0 <__rdtsc_delay>:     push   %ebp
+0xc019f2c1 <__rdtsc_delay+1>:   mov    %esp,%ebp
+0xc019f2c3 <__rdtsc_delay+3>:   push   %ebx
+0xc019f2c4 <__rdtsc_delay+4>:   mov    0x8(%ebp),%ebx
+0xc019f2c7 <__rdtsc_delay+7>:   rdtsc  
+0xc019f2c9 <__rdtsc_delay+9>:   mov    %eax,%ecx
+0xc019f2cb <__rdtsc_delay+11>:  nop    
+0xc019f2cc <__rdtsc_delay+12>:  lea    0x0(%esi,1),%esi
+0xc019f2d0 <__rdtsc_delay+16>:  repz nop 
+0xc019f2d2 <__rdtsc_delay+18>:  rdtsc  
+0xc019f2d4 <__rdtsc_delay+20>:  sub    %ecx,%eax
+0xc019f2d6 <__rdtsc_delay+22>:  cmp    %ebx,%eax
+0xc019f2d8 <__rdtsc_delay+24>:  jb     0xc019f2d0 <__rdtsc_delay+16>
+0xc019f2da <__rdtsc_delay+26>:  pop    %ebx
+0xc019f2db <__rdtsc_delay+27>:  mov    %ebp,%esp
+0xc019f2dd <__rdtsc_delay+29>:  pop    %ebp
+0xc019f2de <__rdtsc_delay+30>:  ret    
+End of assembler dump.
 
-1) You keep ignoring the load race problem.  Your solution does not
-   solve that, so you will need something else as well.
-
-2) Several places in the kernel do *not* keep reference counts, for
-   example net/core/dev.c's dev_add_pack and dev_remove_pack.  You
-   want to add reference counts to all of them, but the only reason
-   for the reference counts is for module unload: you are penalizing
-   everyone just *in case* one is a module.
-
-3) The cost of doing atomic_incs and decs on eg. our network performance
-   is simply unacceptable.  The only way to avoid hitting the same
-   cacheline all the time is to use bigrefs, and the kernel bloat will
-   kill us (and they're still not free for the 99% of people who don't
-   have IPv4 and TCP as modules).
-
-4) Your solution does not allow implementation of "rmmod -f" which
-   prevents module count from increasing, and removes it when it is
-   done.  This is very nice when your usage count is controlled by an
-   external source (eg. your network).
-
-Now, your proposal *can* be modified to address these things, but I'm
-not sure you'll like your proposale when that's done 8(
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276132AbRJGDZc>; Sat, 6 Oct 2001 23:25:32 -0400
+	id <S276060AbRJGD3W>; Sat, 6 Oct 2001 23:29:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276073AbRJGDZX>; Sat, 6 Oct 2001 23:25:23 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:18447 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S276060AbRJGDZL>; Sat, 6 Oct 2001 23:25:11 -0400
-Message-ID: <3BBFCB29.9B7BB17F@zip.com.au>
-Date: Sat, 06 Oct 2001 20:25:29 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bob McElrath <mcelrath@draal.physics.wisc.edu>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.11-pre4, extremely long umount times
-In-Reply-To: <20011006202928.C749@draal.physics.wisc.edu>
+	id <S276073AbRJGD3M>; Sat, 6 Oct 2001 23:29:12 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:49167 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S276060AbRJGD27>;
+	Sat, 6 Oct 2001 23:28:59 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: J Sloan <jjs@pobox.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.11-pre vs Red Hat, ac kernels 
+In-Reply-To: Your message of "Sat, 06 Oct 2001 09:21:32 MST."
+             <3BBF2F8C.7F3D72E1@pobox.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 07 Oct 2001 13:29:17 +1000
+Message-ID: <21778.1002425357@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bob McElrath wrote:
-> 
-> I'm running 2.4.11-pre4 with the ext3 patch and Andrew Morton's low-latency
-> patch on an alpha LX164.
-> 
-> umount times are extremely long (> 30 minutes) for both ext2 and ext3
-> filesystems, though they eventually succeed.
-> 
-> Is this a known problem?
-> 
+On Sat, 06 Oct 2001 09:21:32 -0700, 
+J Sloan <jjs@pobox.com> wrote:
+>With any 2.4.11-pre kernel so far, the machine locks
+>up hard within seconds of starting a dbench run.
+>No log entries, and SysRq keys have no effect -
+>The power button is the only option in this case.
 
-Nope.  It's possible to get swapoff durations of many minutes,
-but I don't think similar problems with unmount have been reported.
-Is there any disk activity?  ps and top output?  Any theories?
+Does kdb + the NMI watchdog drop into the debugger and can you get a
+backtrace?  ftp://oss.sgi.com/projects/kdb/download/ix86, boot with
+"nmi_watchdog=1".
 
-BTW: I'm faintly surprised to hear that ext3 actually works in
-2.4.11-pre4.  Quite a lot of things with which ext3 has an intimate
-relationship were changed....

@@ -1,38 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264344AbTFEBKO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 21:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264354AbTFEBKO
+	id S264362AbTFEBe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 21:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbTFEBe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 21:10:14 -0400
-Received: from leviathan.ele.uri.edu ([131.128.51.64]:45765 "EHLO
-	leviathan.ele.uri.edu") by vger.kernel.org with ESMTP
-	id S264344AbTFEBKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 21:10:13 -0400
-From: mingz <mingz@ele.uri.edu>
-Reply-To: mingz@ele.uri.edu
-To: linux-kernel@vger.kernel.org
-Subject: io performance monitoring under linux
-Date: Wed, 4 Jun 2003 21:12:38 -0400
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jun 2003 21:34:57 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:45289 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264362AbTFEBe4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 21:34:56 -0400
+Date: Wed, 4 Jun 2003 18:43:41 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-bk+ broken networking
+Message-ID: <20030604184341.A10256@beaverton.ibm.com>
+References: <20030604161437.2b4d3a79.shemminger@osdl.org> <3EDE7FEB.2C7FAEC7@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306042112.38994.mingz@ele.uri.edu>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3EDE7FEB.2C7FAEC7@digeo.com>; from akpm@digeo.com on Wed, Jun 04, 2003 at 04:25:31PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wonder why Linux do not have a good performance monitoring facility in 
-kernel. For example, there are no place in /proc to read counters like page 
-cache, dcache hit ratio, disk queue length,, etc. does such info and tool 
-already existed? thx.
+On Wed, Jun 04, 2003 at 04:25:31PM -0700, Andrew Morton wrote:
+> Stephen Hemminger wrote:
+> > 
+> > Test machine running 2.5.70-bk latest can't boot because eth2 won't
+> > come up.  The same machine and configuration successfully brings up
+> > all the devices and runs on 2.5.70.
+> 
+> kjournald is stuck waiting for IO to complete against some buffer
+> during transaction commit.
+> 
+> I'd be suspecting block layer or device drivers.  What device driver
+> is handling your /var/log?
 
+I also can't get networking up on current bk, I don't know if this is
+the same problem, the system did not hang (I'm not running NIS?).
 
-(i am not on this list, so pls cc to me as well, thx)
+I also got that "sender address length == 0" message, I have not seen it
+before, it seems to be output by the "ip -o link".
 
+During boot:
 
-ming
+[ ... ]
+Enabling local filesystem quotas:  [  OK  ]
+Enabling swap space:  [  OK  ]
+/bin/cat: /proc/ksyms: No such file or directory
+INIT: Entering runlevel: 3
+Entering non-interactive startup
+Setting network parameters:  [  OK  ]
+Bringing up interface lo:  [  OK  ] 
+sender address length == 0 
+sender address length == 0
+Starting system logger: [  OK  ]
+Starting kernel logger: [  OK  ]
+Starting portmapper: [  OK  ]  
+Starting NFS file locking services:
+[ ... ]
 
+After logging in:
 
+[root@elm3b79 root]# ifup eth0
+sender address length == 0
+[root@elm3b79 root]# ip -o link
+sender address length == 0
+[root@elm3b79 root]# dmesg | grep eth0
+eth0: Digital DS21140 Tulip rev 33 at 0xf8800000, 00:00:BC:0F:03:EB, IRQ 36.
+
+-- Patrick Mansfield

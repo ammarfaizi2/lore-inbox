@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136770AbREAXZy>; Tue, 1 May 2001 19:25:54 -0400
+	id <S136768AbREAX1e>; Tue, 1 May 2001 19:27:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136768AbREAXZq>; Tue, 1 May 2001 19:25:46 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:28426 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S136766AbREAXZb>;
-	Tue, 1 May 2001 19:25:31 -0400
-Date: Tue, 1 May 2001 20:25:14 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Christoph Rohland <cr@sap.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "J . A . Magallon" <jamagallon@able.es>,
-        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Wakko Warner <wakko@animx.eu.org>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-In-Reply-To: <m3n18xcral.fsf@linux.local>
-Message-ID: <Pine.LNX.4.21.0105012020370.19012-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S136769AbREAX1Z>; Tue, 1 May 2001 19:27:25 -0400
+Received: from www.teaparty.net ([216.235.253.180]:7954 "EHLO www.teaparty.net")
+	by vger.kernel.org with ESMTP id <S136768AbREAX1N>;
+	Tue, 1 May 2001 19:27:13 -0400
+Date: Wed, 2 May 2001 00:26:41 +0100 (BST)
+From: Vivek Dasmohapatra <vivek@etla.org>
+To: David Bronaugh <dbronaugh@opensourcedot.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Breakage of opl3sax cards since 2.4.3 (at least)
+In-Reply-To: <20010501153941.E498@Woodbox.gv.shawcable.net>
+Message-ID: <Pine.LNX.4.10.10105020022210.17794-100000@www.teaparty.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 May 2001, Christoph Rohland wrote:
-> On Mon, 30 Apr 2001, Alan Cox wrote:
-> >> paging in just released 2.4.4, but in previuos kernel, a page that
-> >> was paged-out, reserves its place in swap even if it is paged-in
-> >> again, so once you have paged-out all your ram at least once, you
-> >> can't get any more memory, even if swap is 'empty'.
-> > 
-> > This is a bug in the 2.4 VM, nothing more or less. It and the
-> > horrible bounce buffer bugs are forcing large machines to remain on
-> > 2.2. So it has to get fixed
+On Tue, 1 May 2001, David Bronaugh wrote:
+
+> opl3sax cards have refused to init in Linux with the in-kernel OSS driver
+> since 2.4.3 at least (last I tested and worked was 2.4.1). I'm pretty sure
+> this is a kernel issue as it's happened on 2 different machines, one of
+> which I never goofed around with.
+
+My card [I should say chipset - built in to mobo] initialised partially.
+[Running 2.4.3-ac5]
+ 
+> Usually message is something like:
 > 
-> Yes, it is a bug. and thanks for stating this so clearly.
+> opl3sa2: Control I/O port 0x220 (or whatever is tried) is not a YMF7xx
+> chipset!
 
-I finished my USENIX paper (yeah I know, exactly on the deadline ;))
-so now I have time again. This bug is one of the more important ones
-on my TODO list.
+I believe I saw something like this, but the sound subsystem
+initialised, it was just the gameport that was dead.
 
-Let me see if I can cook up a race-free way of fixing this one.
+I resurrected it by cat'ing the following into /proc/isapnp
 
-regards,
+card 0 YMH0802
+dev 0 YMH0022
+port 0 0x201
+activate
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+What does your /proc/isapnp say?
 
-http://www.surriel.com/		http://distro.conectiva.com/
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+
+-- 
+Nobody wants constructive criticism.  It's all we can do to put up with
+constructive praise.
 

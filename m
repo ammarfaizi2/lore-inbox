@@ -1,51 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVBWJAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVBWJJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbVBWJAm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 04:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVBWJAm
+	id S261432AbVBWJJM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 04:09:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVBWJJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 04:00:42 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:33430 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261434AbVBWJAh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 04:00:37 -0500
-Date: Wed, 23 Feb 2005 09:59:21 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jdmason@us.ibm.com,
-       rich@phekda.gotadsl.co.uk, jgarzik@pobox.com
-Subject: Re: [rft/update] r8169 changes in 2.6.x
-Message-ID: <20050223085921.GA22268@electric-eye.fr.zoreil.com>
-References: <20050222234810.GA17303@electric-eye.fr.zoreil.com> <20050222172935.30e43270.akpm@osdl.org>
+	Wed, 23 Feb 2005 04:09:11 -0500
+Received: from fire.osdl.org ([65.172.181.4]:14738 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261432AbVBWJJD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 04:09:03 -0500
+Date: Wed, 23 Feb 2005 01:07:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, johnpol@2ka.mipt.ru,
+       elsa-devel@lists.sourceforge.net, gh@us.ibm.com, efocht@hpce.nec.com
+Subject: Re: [PATCH 2.6.11-rc3-mm2] connector: Add a fork connector
+Message-Id: <20050223010747.0a572422.akpm@osdl.org>
+In-Reply-To: <1109148752.1738.105.camel@frecb000711.frec.bull.fr>
+References: <1108649153.8379.137.camel@frecb000711.frec.bull.fr>
+	<1109148752.1738.105.camel@frecb000711.frec.bull.fr>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050222172935.30e43270.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> :
-> There are already a bunch of r8169 patches in Jeff's tree.  The combination
-> isn't pretty:
-[removed by parental advisory]
+Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
+>
+> Hello,
+> 
+>   This patch replaces the relay_fork module and it implements a fork
+> connector in the kernel/fork.c:do_fork() routine. The connector sends
+> information about parent PID and child PID over a netlink interface. It
+> allows to several user space applications to be informed when a fork
+> occurs in the kernel. The main drawback is that even if nobody listens,
+> message is send. I don't know how to avoid that.
 
-I sent r8169-4{0/1/2/3/4}0 on netdev + Jeff the 22/02/2005. Jeff's netdev
-(thus your tree) already had the r8169-3xx changes.
+We really should find a way to fix that.  Especially if we want all the
+distributors to enable the connector in their builds (we do).
 
-Jeff has acked r8169-4{0/1/2/3}0 on 23/02/2005. r8169-440 (PCI-ID) won't
-be applied (there should be no functionnal change nor merge side-effect).
+What happened to the idea of sending an on/off message down the netlink
+socket?
 
-r8169-4{5/6}0 have been published only here (so far).
+> +#ifdef CONFIG_FORK_CONNECTOR
+> +#define FORK_CN_INFO_SIZE	64 
+> +static inline void fork_connector(pid_t parent, pid_t child)
+> +{
+> +	struct cb_id fork_id = {CN_IDX_FORK, CN_VAL_FORK};
 
-So you can:
-- apply r8169-4{0/1/2/3/5/6}0 if you have not updated to Jeff -netdev beyond
-  what is currently available through plain old patch
-- apply r8169-4{5/6}0 if you are bk-synced with Jeff -netdev (assuming that
-  Jeff acked after he actually pushed to its bk repo)
-- do something else until I verify the above and generate a dedicated
-  patchsets for your tree.
+This can be static const, which will save some stack and cycles.
 
---
-Ueimor
+> +	static __u32 seq; /* used to test if we lost message */
+> +	
+> +	if (cn_already_initialized) {
+> +		struct cn_msg *msg;
+> +		size_t size;
+> +
+> +		size = sizeof(*msg) + FORK_CN_INFO_SIZE;
+> +		msg = kmalloc(size, GFP_KERNEL);
+> +		if (msg) {
+> +			memset(msg, '\0', size);
+
+Do we really need to memset the whole thing?
+
+> +			memcpy(&msg->id, &fork_id, sizeof(msg->id));
+> +			msg->seq = seq++;
+
+`seq' needs a lock to protect it.  Or use atomic_add_return(), maybe.
+
+> +			msg->ack = 0; /* not used */
+> +			/* 
+> +			 * size of data is the number of characters 
+> +			 * printed plus one for the trailing '\0'
+> +			 */
+> +			msg->len = snprintf(msg->data, FORK_CN_INFO_SIZE-1, 
+> +					    "%i %i", parent, child) + 1;
+
+scnprintf() would be more appropriate here, even though it should be a "can't
+happen".
+
+> +			cn_netlink_send(msg, CN_IDX_FORK);
+> +
+> +			kfree(msg);
+
+`msg' is only 84 bytes and do_fork() has a shallow call graph.  Make `msg'
+a local?  
+

@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318456AbSGSDfq>; Thu, 18 Jul 2002 23:35:46 -0400
+	id <S318475AbSGSDsI>; Thu, 18 Jul 2002 23:48:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318457AbSGSDfq>; Thu, 18 Jul 2002 23:35:46 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:46086 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
-	id <S318456AbSGSDfp>; Thu, 18 Jul 2002 23:35:45 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: more thoughts on a new jail() system call
-Date: 19 Jul 2002 03:23:04 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <ah80mo$53t$1@abraham.cs.berkeley.edu>
-References: <ah7m2r$3cr$1@abraham.cs.berkeley.edu> <200207190306.g6J366956014@saturn.cs.uml.edu>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1027048984 5245 128.32.153.211 (19 Jul 2002 03:23:04 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 19 Jul 2002 03:23:04 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S318476AbSGSDsH>; Thu, 18 Jul 2002 23:48:07 -0400
+Received: from dsl-65-189-106-249.telocity.com ([65.189.106.249]:51851 "EHLO
+	mail.temp123.org") by vger.kernel.org with ESMTP id <S318475AbSGSDsH>;
+	Thu, 18 Jul 2002 23:48:07 -0400
+Date: Thu, 18 Jul 2002 23:50:59 -0400
+From: Josh Litherland <fauxpas@temp123.org>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Keypad
+Message-ID: <20020719035059.GA23151@temp123.org>
+References: <20020719015232.GA20956@temp123.org> <20020719031000.GA18382@kroah.com> <20020719032008.GA22934@temp123.org> <200207191336.02403.bhards@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207191336.02403.bhards@bigpond.net.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan wrote:
->>> sys_olduname) - P
->>
->> I'd argue that this should be restricted, on general
->> principles.  (General principle: A jailed process shouldn't
->> be able to learn anything about the host it's running on.)
->
->Learning this info is easy enough without a syscall.
->You only cause trouble for legit usage.
+On Fri, Jul 19, 2002 at 01:36:02PM +1000, Brad Hards wrote:
 
-Ok.  To be clear, I consider this minor and probably
-unimportant for security, hence just allowing this is
-probably reasonable.
+> The obvious error would be not compiling in the input layer keyboard driver (or
+> not loading the module, whatever). 
 
-That said, is it really true that you can learn the
-hostname and the like without a syscall?  How?
+Good call.  That did it, thanks.
 
->No, sys_getcwd will return info based on your current root.
->After chroot and all, your "/" is the top of your jail.
-
-Ahh, I feel stupid for overlooking that.  You're
-absolutely right.  Thanks for the correction.
+-- 
+Josh Litherland (fauxpas@temp123.org)
+public key: temp123.org/fauxpas.pgp
+fingerprint: CFF3 EB2B 4451 DC3C A053  1E07 06B4 C3FC 893D 9228

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135590AbREEX2W>; Sat, 5 May 2001 19:28:22 -0400
+	id <S135593AbREEXaM>; Sat, 5 May 2001 19:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135593AbREEX2N>; Sat, 5 May 2001 19:28:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37783 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135590AbREEX1x>;
-	Sat, 5 May 2001 19:27:53 -0400
+	id <S135594AbREEXaD>; Sat, 5 May 2001 19:30:03 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:39831 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135593AbREEX3n>;
+	Sat, 5 May 2001 19:29:43 -0400
 From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15092.35947.527339.828149@pizda.ninka.net>
-Date: Sat, 5 May 2001 16:27:39 -0700 (PDT)
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: Ben Greear <greearb@candelatech.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] arp_filter patch for 2.4.4 kernel.
-In-Reply-To: <Pine.LNX.4.33.0105051556280.20277-100000@twinlark.arctic.org>
-In-Reply-To: <Pine.LNX.4.33.0105051550000.20277-100000@twinlark.arctic.org>
-	<Pine.LNX.4.33.0105051556280.20277-100000@twinlark.arctic.org>
+Message-ID: <15092.36065.805800.935258@pizda.ninka.net>
+Date: Sat, 5 May 2001 16:29:37 -0700 (PDT)
+To: kernel@stirfried.vegetable.org.uk (Tim Haynes)
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: ipv6 activity causing system hang in kernel 2.4.4
+In-Reply-To: <871yq3mllw.fsf@straw.pigsty.org.uk>
+In-Reply-To: <871yq3mllw.fsf@straw.pigsty.org.uk>
 X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-dean gaudet writes:
- > also -- isn't it kind of wrong for arp to respond with addresses from
- > other interfaces?
- > 
- > what if ip_forward is 0?  or if there's some other sort of routing policy
- > in effect?
+Try this patch, posted the other day.  I bet if you inspected,
+you'd find OOPSes in your logs:
 
-This along with some other issues are why Alexey and myself want to
-do ARP filter in some other way.
-
-There are two sides to this story though, both with valid arguments.
-
-Ho hum... since things have settled down in the networking and this
-is being pushed again, I guess it's time to fire up the dialogue
-once more.
-
-Later,
-David S. Miller
-davem@redhat.com
+--- ../vanilla/linux/net/ipv6/ndisc.c	Thu Apr 26 22:17:26 2001
++++ net/ipv6/ndisc.c	Fri May  4 18:44:54 2001
+@@ -394,7 +382,7 @@
+ 	int send_llinfo;
+ 
+ 	len = sizeof(struct icmp6hdr) + sizeof(struct in6_addr);
+-	send_llinfo = dev->addr_len && ipv6_addr_type(saddr) != IPV6_ADDR_ANY;
++	send_llinfo = dev->addr_len && saddr && ipv6_addr_type(saddr) != IPV6_ADDR_ANY;
+ 	if (send_llinfo)
+ 		len += NDISC_OPT_SPACE(dev->addr_len);
+ 

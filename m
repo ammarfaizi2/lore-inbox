@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267909AbUHPT3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267906AbUHPTdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267909AbUHPT3p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 15:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267902AbUHPT3p
+	id S267906AbUHPTdr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 15:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267919AbUHPTdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 15:29:45 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:14821 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267786AbUHPT3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 15:29:43 -0400
-Subject: Re: PATCH: IDE - fix various comments remove never changing ifdef
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Alan Cox <alan@redhat.com>, linux-ide@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <200408162029.43797.bzolnier@elka.pw.edu.pl>
-References: <20040815143546.GA6284@devserv.devel.redhat.com>
-	 <200408162029.43797.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092680820.21069.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 16 Aug 2004 19:27:18 +0100
+	Mon, 16 Aug 2004 15:33:47 -0400
+Received: from fep31-0.kolumbus.fi ([193.229.0.35]:44191 "EHLO
+	fep31-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S267902AbUHPTdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 15:33:44 -0400
+Date: Mon, 16 Aug 2004 22:33:43 +0300 (EEST)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Marc Ballarin <Ballarin.Marc@gmx.de>
+cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       jwendel10@comcast.net
+Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
+In-Reply-To: <20040816210949.3d024844.Ballarin.Marc@gmx.de>
+Message-ID: <Pine.LNX.4.58.0408162226580.5241@kai.makisara.local>
+References: <411FD919.9030702@comcast.net> <20040816143817.0de30197.Ballarin.Marc@gmx.de>
+ <1092661385.20528.25.camel@localhost.localdomain> <20040816195750.6419699f.Ballarin.Marc@gmx.de>
+ <20040816210949.3d024844.Ballarin.Marc@gmx.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-16 at 19:29, Bartlomiej Zolnierkiewicz wrote:
-> On Sunday 15 August 2004 16:35, Alan Cox wrote:
-> > No code changes in this patch just documenting
+On Mon, 16 Aug 2004, Marc Ballarin wrote:
+
+> Here are the additional commands I permit right now. It allows me to blank
+> a CDRW and record in TAO mode. k3b needs MODE_SELECT_10  even
+> for read-only access.
 > 
-> If you want to remove FANCY_STATUS_DUMPS define please make
-> a separate patch and remove it globally.
+> 
+> 
+> 		safe_for_read(GPCMD_GET_CONFIGURATION),
+> 		safe_for_read(GPCMD_GET_PERFORMANCE),
+> 		safe_for_read(MODE_SELECT_10),
+> 
+> 		safe_for_write(ALLOW_MEDIUM_REMOVAL),
+> 		safe_for_write(REZERO_UNIT),
+> 		safe_for_write(SYNCHRONIZE_CACHE),
+> 		safe_for_write(GPCMD_SET_SPEED),
+> 		safe_for_write(GPCMD_SEND_OPC),
+> 		safe_for_write(GPCMD_BLANK),
+> 		safe_for_write(GPCMD_CLOSE_TRACK),
+> 		safe_for_write(0x5c), //whatever this might be
 
-Will do.
+                Read Buffer Capacity
+> 
+> Shouldn't most GPCMD_* commands be safe for reading or writing, at least
+> for CD devices?
+> Are commands like MODE_SELECT_10 really safe for read?
+> 
+Mode Select is not safe enough even for write (i.e., CAP_RAWIO must be 
+required). Is it really necessary for Mode Select to succeed or do the 
+applications just try to do something and fail gracefully?
 
+-- 
+Kai

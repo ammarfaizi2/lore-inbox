@@ -1,66 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263044AbVCXFoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263043AbVCXFpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263044AbVCXFoe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 00:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263043AbVCXFoe
+	id S263043AbVCXFpm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 00:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263046AbVCXFpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 00:44:34 -0500
-Received: from fire.osdl.org ([65.172.181.4]:14057 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262687AbVCXFo1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 00:44:27 -0500
-Message-ID: <4242538A.10200@osdl.org>
-Date: Wed, 23 Mar 2005 21:43:38 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Andrew Morton <akpm@osdl.org>, David McCullough <davidm@snapgear.com>,
-       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, jmorris@redhat.com,
-       herbert@gondor.apana.org.au
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy
- (2.6.11)
-References: <20050315133644.GA25903@beast>	<20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org> <42424D52.7070508@pobox.com>
-In-Reply-To: <42424D52.7070508@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 24 Mar 2005 00:45:42 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:39654
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S263043AbVCXFpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 00:45:32 -0500
+Date: Wed, 23 Mar 2005 21:44:38 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: hugh@veritas.com, akpm@osdl.org, tony.luck@intel.com,
+       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
+Message-Id: <20050323214438.685a48f9.davem@davemloft.net>
+In-Reply-To: <42420928.7040502@yahoo.com.au>
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
+	<20050323115736.300f34eb.davem@davemloft.net>
+	<42420928.7040502@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Andrew Morton wrote:
-> 
->> David McCullough <davidm@snapgear.com> wrote:
->>
->>> Here is a small patch for 2.6.11 that adds a routine:
->>>
->>>     add_true_randomness(__u32 *buf, int nwords);
->>
->>
->>
->> It neither applies correctly nor compiles in current kernels.  2.6.11 is
->> very old in kernel time.
-> 
-> 
-> Hrm.  This is getting pretty lame, if you can't take patches from the 
-> -latest- stable release.  It's pretty easy in BK:
-> 
->     bk clone -ql -rv2.6.11 linux-2.6 rng-2.6.11
->     cd rng-2.6.11
->     { apply patch }
->     bk pull ../linux-2.6
-> 
-> Can you set up something like that?
+On Thu, 24 Mar 2005 11:26:16 +1100
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-I thought that the latest stable release was 2.6.11.5.
+> OK, attached is my first cut at slimming down the boundary tests.
 
-However, what I really want to do is ask what patches should be
-made against.  I suggested on linux-scsi a day or 2 ago that
-they should be made against the latest linus-bk (or snapshot)
-unless the patch only applies to -mm, then they should obviously
-be made against -mm.  2.6.11 plain is relatively aged IMO also....
-
--- 
-~Randy
+Works perfectly fine on sparc64.

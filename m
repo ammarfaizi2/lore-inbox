@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbULHQsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbULHQwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbULHQsK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 11:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbULHQsJ
+	id S261249AbULHQwy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 11:52:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbULHQwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 11:48:09 -0500
-Received: from dvhart.com ([64.146.134.43]:1924 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261262AbULHQsC (ORCPT
+	Wed, 8 Dec 2004 11:52:54 -0500
+Received: from mail4.utc.com ([192.249.46.193]:50406 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S261249AbULHQwv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 11:48:02 -0500
-Subject: nanosleep resolution, jiffies vs microseconds
-From: Darren Hart <darren@dvhart.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: blainey@ca.ibm.com, Martin J Bligh <mbligh@aracnet.com>, nacc@us.ibm.com,
-       johnstul@us.ibm.com, fultonm@ca.ibm.com, paulmck@us.ibm.com
-Content-Type: text/plain
-Date: Wed, 08 Dec 2004 08:47:48 -0800
-Message-Id: <1102524468.16986.30.camel@farah.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Wed, 8 Dec 2004 11:52:51 -0500
+Message-ID: <41B7314E.1050904@cybsft.com>
+Date: Wed, 08 Dec 2004 10:52:30 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+References: <20041117124234.GA25956@elte.hu>	 <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu>	 <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu>	 <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu>	 <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu>	 <41B6839B.4090403@cybsft.com> <20041208083447.GB7720@elte.hu>	 <41B726D1.6030009@cybsft.com> <1102522720.30593.3.camel@krustophenia.net>
+In-Reply-To: <1102522720.30593.3.camel@krustophenia.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am looking at trying to improve the latency of nanosleep for short
-sleep times (~1ms).  After reading Martin Schwidefsky's post for cputime
-on s390 (Message-ID:
-<20041111171439.GA4900@mschwid3.boeblingen.de.ibm.com>), it seems to me
-that we may be able to accomplish this by storing the expire time in
-microseconds rather than jiffies.  Here is an example for context:
+Lee Revell wrote:
+> On Wed, 2004-12-08 at 10:07 -0600, K.R. Foley wrote:
+> 
+>>I am still confused about one thing, unrelated to this. If RT tasks 
+>>never expire and thus are never moved to the expired array??? Does that 
+>>imply that we never switch the active and expired arrays? If so how do 
+>>tasks that do expire get moved back into the active array?
+> 
+> 
+> I think that RT tasks use a completely different scheduling mechanism
+> that bypasses the active/expired array.
+> 
+> Lee
+> 
+> 
+Please don't misunderstand. I am not arguing with you because obviously 
+I am not really intimate with this code, but if the above statement is 
+true then I am even more confused than I thought. I don't see any such 
+distinctions in the scheduler code. In fact it looks to me like the 
+whole scheduler is built on the premise of allowing RT tasks to be just 
+like other tasks with a few exceptions, one of which is that RT tasks 
+never hit the expired task array.
 
-Say we want to sleep for 1ms on i386, we call nanosleep(1000000).
-Unfortunately on i386 a jiffy is slightly less than 1ms (as one might
-expect with HZ = 1000).  So when sys_nanosleep calls
-timespec_to_jiffies, it returns 2.  Now to allow for the corner case
-when my 1ms sleep request gets called at the very tail end of a clock
-period (see ascii diagram below), nanosleep adds 1 to that and calls
-schedule_timeout with 3.  So a 1 ms sleep correctly turns into 3
-jiffies.
-
-If we were to store the expire value in microseconds, this corner case
-would still exist and still span two full tick periods.  However, the
-large majority of the time, nanosleep(1000000) could pause for only 2
-jiffies, instead of 3.  Before I dug to deep into the relevant code I
-wanted to hear some opinions on this approach.
-
-
-Worst case scenario for a 1ms sleep:
-
-TICK @ 1000000000 ns ------------------------   (X jiffies)
-
-
-    nanosleep(1000000) // this can't correctly wake until 1001999849
-TICK @ 1000999849 ns ------------------------   (X jiffies + 1)
-
-
-
-TICK @ 1001999698 ns ------------------------   (X jiffies + 2)
-    at 1001999849 nanosleep call can wake up
-    (but since this is after X jiffies + 2, we can't actually wake
-     until X jiffies + 3)
-
-TICK @ 1002999547 ns ------------------------   (X jiffies + 3)
-    wake from nanosleep
-
-
-Thanks,
-
--- 
-Darren Hart <darren@dvhart.com>
-
-
+kr

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267373AbSKPVkY>; Sat, 16 Nov 2002 16:40:24 -0500
+	id <S267374AbSKPVid>; Sat, 16 Nov 2002 16:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267378AbSKPVkY>; Sat, 16 Nov 2002 16:40:24 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:7622 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267373AbSKPVkW>; Sat, 16 Nov 2002 16:40:22 -0500
-Date: Sat, 16 Nov 2002 13:44:19 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <551278547.1037454258@[10.10.2.3]>
-In-Reply-To: <20021116214140.GP24641@conectiva.com.br>
-References: <20021116214140.GP24641@conectiva.com.br>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S267375AbSKPVid>; Sat, 16 Nov 2002 16:38:33 -0500
+Received: from verein.lst.de ([212.34.181.86]:19471 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S267374AbSKPVia>;
+	Sat, 16 Nov 2002 16:38:30 -0500
+Date: Sat, 16 Nov 2002 22:45:25 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] don't include mount.h in dcache.h
+Message-ID: <20021116224525.C26097@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Very bad idea. People using unusual hardware do not want to keep
->> re-submitting a bug report. I know when I submit a report I expect 
->> that it will remain until the problem is fixed. I do not like to 
->> receive multiple
-> 
-> Oh well, there is _no_ guarantee that it will be fixed, sometimes 
-> there is no  maintainer at all and the ticket will stay there forever 
-> lost in the noise...
-> And if anybody is interested in fixing the driver or even looking to 
-> see if somebody submitted a ticket he/she can just search for all 
-> tickets, even the ones closed because nobody is did any activity in 
-> a perior of one month (or any other timeout period).
-> 
-> Its not like the ticket will vanish from the database.
+Once again we only need a forward-declaration of struct vfsmount.
 
-One thing we've done before in other bug-tracking systems was to create
-a "STALE" state (or something similar) for this type of bug. So it 
-wouldn't get closed (I have seen this done as a closing resolution, but
-I think that's a bad idea), but it wouldn't be in the default searches
-either ... you could just select it if you wanted it ... does that sound
-sane? (obviously we don't need this yet, but might be a good plan
-longer-term).
 
-M.
-
+--- 1.22/include/linux/dcache.h	Fri Nov 15 18:09:46 2002
++++ edited/include/linux/dcache.h	Sat Nov 16 20:18:12 2002
+@@ -4,11 +4,12 @@
+ #ifdef __KERNEL__
+ 
+ #include <asm/atomic.h>
+-#include <linux/mount.h>
+ #include <linux/list.h>
+ #include <linux/spinlock.h>
+ #include <linux/cache.h>
+ #include <asm/page.h>			/* for BUG() */
++
++struct vfsmount;
+ 
+ /*
+  * linux/include/linux/dcache.h

@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUCFNNo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 08:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbUCFNNo
+	id S261665AbUCFNdL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 08:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbUCFNdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 08:13:44 -0500
-Received: from spectre.fbab.net ([212.214.165.139]:11656 "HELO mail2.fbab.net")
-	by vger.kernel.org with SMTP id S261606AbUCFNNn (ORCPT
+	Sat, 6 Mar 2004 08:33:11 -0500
+Received: from havoc.gtf.org ([216.162.42.101]:11969 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261665AbUCFNdL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 08:13:43 -0500
-Message-ID: <4049CE78.7040607@fbab.net>
-Date: Sat, 06 Mar 2004 14:13:28 +0100
-From: "Magnus Naeslund(t)" <mag@fbab.net>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Magnus Naeslund(t)" <mag@fbab.net>
-CC: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
- end)
-References: <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143425.GA11604@elte.hu> <20040305145947.GA4922@dualathlon.random> <20040305150225.GA13237@elte.hu> <20040305201139.GA7254@mail.shareable.org> <20040306051256.GA9909@mail.shareable.org> <4049CA99.4020002@fbab.net>
-In-Reply-To: <4049CA99.4020002@fbab.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Mar 2004 08:33:11 -0500
+Date: Sat, 6 Mar 2004 08:33:09 -0500
+From: David Eger <eger@havoc.gtf.org>
+To: linux-kernel@vger.kernel.org
+Subject: Other bizarre thing... backspaces?
+Message-ID: <20040306133309.GA17397@havoc.gtf.org>
+References: <20040304100503.GA13970@havoc.gtf.org> <20040305232425.GA6239@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040305232425.GA6239@havoc.gtf.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magnus Naeslund(t) wrote:
-> 
-> But isn't this kind of code a known buggy way of implementing timeouts?
-> Shouldn't it be like:
-> 
-> time_t x = time(0);
-> do {
->   ...
-> } while (time(0) - x >= TIMEOUT_IN_SECONDS);
+There are five files with embedded backspace octets in them.... ;-)
 
-I meant:
-  } while (time(0) - x < TIMEOUT_IN_SECONDS);
+fs/hfs/FAQ.txt
+fs/hfs/HFS.txt
+fs/hfs/INSTALL.txt
+Documentation/filesystems/coda.txt 
+Documentation/uml/UserModeLinux-HOWTO.txt 
 
-Also if time_t is signed, that needs to be taken care of.
-
-Magnus - butterfingers
+-dte
 

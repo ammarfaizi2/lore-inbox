@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbTL1RL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 12:11:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbTL1RL6
+	id S261681AbTL1RGE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 12:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTL1RGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 12:11:58 -0500
-Received: from 12-211-64-253.client.attbi.com ([12.211.64.253]:47751 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id S261758AbTL1RLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 12:11:55 -0500
-Message-ID: <3FEF0EDA.7090502@comcast.net>
-Date: Sun, 28 Dec 2003 09:11:54 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
-X-Accept-Language: en-us
+	Sun, 28 Dec 2003 12:06:04 -0500
+Received: from as1-6-4.ld.bonet.se ([194.236.130.199]:14464 "HELO
+	mail.nicke.nu") by vger.kernel.org with SMTP id S261681AbTL1RGC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 12:06:02 -0500
+From: "Nicklas Bondesson" <nicke@nicke.nu>
+To: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Error mounting root fs on 72:01 using Promise FastTrak TX2000 (PDC20271)
+Date: Sun, 28 Dec 2003 18:06:01 +0100
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: PATCH:  Alternate pdcraid superblock finder
-Content-Type: multipart/mixed;
- boundary="------------040500050902050304010702"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcPNZBIQ47lw1Dq7StCkj3oniOs81gAAHt+g
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <Pine.LNX.4.58L.0312281456090.15034@logos.cnet>
+Message-Id: <S261681AbTL1RGC/20031228170602Z+16985@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040500050902050304010702
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Yes, if I remember it correctly I have tried that too. Should it make any
+difference? It seems like the problem is related to disk geometry failure
+(the kernel is not seeing the correct geometry values for the drives) since
+the patch I got worked fine.
 
-Hi,
+/Nicke
 
-This patch proposes an alternate method of finding the raid superblock on
-Promise raid devices. It hasn't received much testing, so I left the old routine
-intact and just check for ideinfo->head == 255 to use my method. I'm not aware
-of any reasons why my method wouldn't work for all drives, but I thought this
-was a safer change.
-
--Walt Holman
-
-
---------------040500050902050304010702
-Content-Type: text/plain;
- name="pdcraid.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pdcraid.patch"
-
---- /usr/src/temp/linux-2.4.21-xfs/linux/drivers/ide/raid/pdcraid.c	2003-12-22 17:59:09.653139067 -0800
-+++ linux/drivers/ide/raid/pdcraid.c	2003-07-21 20:47:14.000000000 -0700
-@@ -361,7 +361,11 @@
- 	if (ideinfo->sect==0)
- 		return 0;
--	lba = (ideinfo->capacity / (ideinfo->head*ideinfo->sect));
--	lba = lba * (ideinfo->head*ideinfo->sect);
--	lba = lba - ideinfo->sect;
-+	if (ideinfo->head!=255) {
-+		lba = (ideinfo->capacity / (ideinfo->head*ideinfo->sect));
-+		lba = lba * (ideinfo->head*ideinfo->sect);
-+		lba = lba - ideinfo->sect; }
-+	else {
-+		lba = ideinfo->capacity - ideinfo->sect;
-+	}
- 
- 	return lba;
+-----Original Message-----
+From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com] 
+Sent: den 28 december 2003 17:57
+To: Nicklas Bondesson
+Cc: linux-kernel@vger.kernel.org; Bartlomiej Zolnierkiewicz
+Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
+(PDC20271)
 
 
---------------040500050902050304010702--
 
+On Sun, 28 Dec 2003, Nicklas Bondesson wrote:
+
+> I really hope so :) I think you should wrap it up and send it to the 
+> list marked as [PATCH].
+>
+> Many thanks for the help again!
+
+Nicklas,
+
+Have you tried to compile the kernel with CONFIG_PDC202XX_FORCE unset ?
 

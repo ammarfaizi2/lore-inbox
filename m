@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263650AbTDYSbA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 14:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbTDYSbA
+	id S263617AbTDYS2p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 14:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbTDYS2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 14:31:00 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:40457 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263650AbTDYSa7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 14:30:59 -0400
-Date: Fri, 25 Apr 2003 14:14:48 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Timothy Miller <miller@techsource.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Jens Axboe <axboe@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
-In-Reply-To: <Pine.LNX.4.53.0304241244430.32333@chaos>
-Message-ID: <Pine.LNX.3.96.1030425141133.16623E-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Apr 2003 14:28:45 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:23304
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S263617AbTDYS2o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 14:28:44 -0400
+Subject: Re: 2.5.68-mm2
+From: Robert Love <rml@tech9.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Bill Davidsen <davidsen@tmr.com>, bcrl@redhat.com, akpm@digeo.com,
+       mbligh@aracnet.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20030425112042.37493d02.rddunlap@osdl.org>
+References: <20030424163334.A12180@redhat.com>
+	 <Pine.LNX.3.96.1030425135538.16623C-100000@gatekeeper.tmr.com>
+	 <20030425112042.37493d02.rddunlap@osdl.org>
+Content-Type: text/plain
+Message-Id: <1051295252.9767.143.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
+Date: 25 Apr 2003 14:27:32 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Apr 2003, Richard B. Johnson wrote:
-
-
-> > Two alternatives:
-> >
-> > (a)     !!(x & 0x400)
-> >
-> > (b)     (x & 0x400) >> 10
-> >
+On Fri, 2003-04-25 at 14:20, Randy.Dunlap wrote:
+>  
+> | The point is that even if bash is fixed it's desirable to address the
+> | issue in the kernel, other applications may well misbehave as well.
 > 
-> I meant return ((foo & MASK) && 1);
-> 
-> Try it, you'll like it! No shifts, no jumps.
+> So when would this ever end?
 
-Sorry, I still find !!(foo & MASK) easier to read, because !! is only used
-to convert to boolean. Sort of a "boolean cast" in effect. It jumps out at
-you what is intended.
+Exactly what I was thinking.
 
-Anyway, a matter of taste, both generate jumpless code.
+The kernel cannot be expected to cater to applications or make
+concessions (read: hacks) for certain behavior.  If we offer a cleaner,
+improved interface which offers the performance improvement, we are
+done.  Applications need to start using it.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Of course, I am not arguing against optimizing the old interfaces or
+anything of that nature.  I just believe we should not introduce hacks
+for application behavior.  It is their job to do the right thing.
+
+	Robert Love
 

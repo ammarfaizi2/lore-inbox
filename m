@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270073AbRHGFUT>; Tue, 7 Aug 2001 01:20:19 -0400
+	id <S270075AbRHGF3A>; Tue, 7 Aug 2001 01:29:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270074AbRHGFUK>; Tue, 7 Aug 2001 01:20:10 -0400
-Received: from web10406.mail.yahoo.com ([216.136.130.98]:12 "HELO
-	web10406.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S270073AbRHGFUB>; Tue, 7 Aug 2001 01:20:01 -0400
-Message-ID: <20010807052011.41452.qmail@web10406.mail.yahoo.com>
-Date: Tue, 7 Aug 2001 15:20:11 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: 2.4.7-ac7 kernel, system freezed when copying files onto loop device
-To: kernel <linux-kernel@vger.kernel.org>
+	id <S270076AbRHGF2u>; Tue, 7 Aug 2001 01:28:50 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:23287 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S270075AbRHGF2i>;
+	Tue, 7 Aug 2001 01:28:38 -0400
+Date: Tue, 7 Aug 2001 01:28:47 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] one of $BIGNUM devfs races
+In-Reply-To: <200108070517.f775HEw30547@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.GSO.4.21.0108070121530.16817-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I got my system frozen when copying my root partition
-to a loop device
-
-dd if=/dev/zero of=root bs=1k count=100k
-mke2fs -m 0 root
-
-mount -o loop root /mnt/disk
-
-tar -xf root.tgz -z
-(root.tgz is small compressed backup root partition)
-cd root
-cp -a * /mnt/disk
-
-(the source partition is ext3, target ext2)
-
-it runs for a while and system hang.No message, no
-oopses etc..
-
-It did not happen with 2.4.6 with ext3 version 0.9.5
-patch.
-
-what is the cause? 
-
-Regards
 
 
+On Mon, 6 Aug 2001, Richard Gooch wrote:
 
+> > It isn't. socket_i is used only in inodes allocated by sock_alloc().
+> > It is not used in the inodes that live on any fs other than sockfs.
+> 
+> OK. Although, where is sockfs?
 
-=====
-S.KIEU
+net/socket.c. It's a pseudo-fs where all real sockets go. Nothing
+spectacular - just a superblock + directory + bunch of dentries.
+When we allocate a socket (socket(2), accept(2), socketpair(2), etc.)
+its dentry is made a child of sockfs root and given the right name,
+so that readlink on /proc/<pid>/fd/<n> would do the right thing
+without any special-casing. Besides, we can get rid of checks for
+inode->i_sb != NULL - it's _always_ non-NULL now (we have a similar
+one for pipe(2)-created pipes). We also get pipe and socket struct file
+out of the anonymous list - they live on the ->s_files of their
+superblocks. Neither sockfs nor pipefs can be mounted by user, so it's 
+not visible to user, or, for that matter, to the rest of the kernel.
+Some special-casing is gone - that's it.
 
-_____________________________________________________________________________
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- Voice chat, mail alerts, stock quotes and favourite news and lots more!

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131099AbRBARQV>; Thu, 1 Feb 2001 12:16:21 -0500
+	id <S130834AbRBARUm>; Thu, 1 Feb 2001 12:20:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130264AbRBARQL>; Thu, 1 Feb 2001 12:16:11 -0500
-Received: from smtp-rt-10.wanadoo.fr ([193.252.19.59]:61340 "EHLO
-	camelia.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S129690AbRBARPy>; Thu, 1 Feb 2001 12:15:54 -0500
-Message-ID: <3A799967.A614F0EE@wanadoo.fr>
-Date: Thu, 01 Feb 2001 18:14:15 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Organization: Home PC
-X-Mailer: Mozilla 4.76 [fr] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rhys Jones <linux-kernel@postwales.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Need for more ISO8859 codepages?
-In-Reply-To: <4755.137.44.4.15.981028098.squirrel@www.sucs.swan.ac.uk>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S131005AbRBARUd>; Thu, 1 Feb 2001 12:20:33 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:32926 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S130834AbRBARU2>; Thu, 1 Feb 2001 12:20:28 -0500
+Date: Thu, 1 Feb 2001 18:20:21 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>, David Gould <dg@suse.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH] vma limited swapin readahead
+Message-ID: <20010201182021.N1173@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010201143606.P11607@redhat.com> <Pine.LNX.4.21.0102011441380.1321-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0102011441380.1321-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Thu, Feb 01, 2001 at 02:45:04PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rhys Jones wrote:
+On Thu, Feb 01, 2001 at 02:45:04PM -0200, Rik van Riel wrote:
+> One solution could be to put (most of) the swapin readahead
+> pages on the inactive_dirty list, so pressure by readahead
+> on the resident pages is smaller and the not used readahead
+> pages are reclaimed faster.
 
-> Any and all feedback appreciated.
+Shouldn't they be on inactive_clean anyway? They are not mapped
+(if I read Stephens comment correctly) and are clean (because we
+just read them in).
 
-need for less codepages. Is 8859-1 still useful ?
-Why not moving to 8859-15 (and cp1252) ?
+So if we have to put it there explicitly, we have at least a
+performance bug, don't we?
 
+Or do I still not get the new linux mm design? ;-(
+
+Totally clueless
+
+Ingo Oeser
+
+PS: Who CC'ed is also subscribed to linux-mm? Or do we all filter
+   dupes via "formail -D"? ;-)
 -- 
-------------------------------------------------
- Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,92 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267224AbTBDMqM>; Tue, 4 Feb 2003 07:46:12 -0500
+	id <S267247AbTBDMuz>; Tue, 4 Feb 2003 07:50:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267246AbTBDMqM>; Tue, 4 Feb 2003 07:46:12 -0500
-Received: from mailhost.uni-koblenz.de ([141.26.64.1]:31627 "EHLO
-	mailhost.uni-koblenz.de") by vger.kernel.org with ESMTP
-	id <S267224AbTBDMqK>; Tue, 4 Feb 2003 07:46:10 -0500
-From: Rainer Krienke <krienke@uni-koblenz.de>
-Organization: Uni Koblenz
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.19: Strange raid1 resync problem with raid1 on top of  multipath raids
-Date: Tue, 4 Feb 2003 13:55:42 +0100
-User-Agent: KMail/1.5
+	id <S267246AbTBDMuz>; Tue, 4 Feb 2003 07:50:55 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:25276 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S267252AbTBDMux>; Tue, 4 Feb 2003 07:50:53 -0500
+Date: Tue, 4 Feb 2003 14:00:25 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH *] use 64 bit jiffies
+In-Reply-To: <20030203085504.GU821@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.33.0302031004240.26835-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302041355.42073.krienke@uni-koblenz.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 3 Feb 2003, Matti Aarnio wrote:
 
-I am running smp Kernel 2.4.19 (from SuSE: k_smp-2.4.19-210) on a machine that 
-is connected by a fibrechannel fabric to several hardware raid (5) devices. 
-There are two paths to each partition on the hardware raids. I want to have a 
-mirror on two of the hardware raid5 devices (I know this is very redundant). 
-Since each hardware raid can be reached along two different paths (across two 
-fc-switches) I would like to use a multipath config.
+> On Mon, Feb 03, 2003 at 09:47:00AM +0100, Tim Schmielau wrote:
+> > On Mon, 3 Feb 2003, Matti Aarnio wrote:
+> > > I do have a number of machines with 100 to 300 day uptimes, all
+> > > with "mere" 32-bit jiffy.  With 1000 Hz clock that means at least
+> > > one full wrap-around of jiffy.
+> >
+> > Are these 2.5 machines? If so I'd really like to know whether or not
+> > ps shows old processes as having started in the future.
+> > With a simulated uptime it does, but I might have overlooked something.
+>
+> 300 day uptime with 2.5 ?  Do think again.
 
-So I configured a raid1 device on top of two multipath raid devices like shown 
-below in a part of /etc/raidtab. Generally things work just fine. However 
-there is one big problem: The resync speed for the raid1 device is only about 
-1MByte/sec. Because of the size of the array (~900GBytes) resyncing would 
-take about 30Days! If I omit the multipath configuration and just specify a 
-simple raid1 across the two hardwareraid disks, resync speed is at about 
-60MBytes/sec which is normal.
+Well, 100 days of uptime could be around 2.5.40.
 
-Is this a known problem? Is there a patch to get things right?
+>
+> These are 2.4 series kernels.  2.4.17, 2.4.18, 2.4.20
+>
+> With updated 'ps' tools the processes are definitely in the past,
+> although seeing mere "2002" does not tell all that detailed about
+> "when".  A "apr17" would be more usefull.  Any date in "future"
+> means it is of previous year.
 
-Thanks very much
-Rainer
+Ok, so on these machines jifies haven't wrapped yet (if you haven't
+changed HZ).
+Thanks anyways,
 
----------------------------------------------------------------
-/etc/raidtab
-The devicenames are aliases from scsidev
-so do not wonder. sw0, sw1 represent
-the fc-switches by which the raid devices are
-connected to the host. There is one path over sw0 
-to a disk and another over sw1 to the same disk.
----------------------------------------------------------------
-raiddev                 /dev/md5
-raid-level              multipath
-nr-raid-disks           1
-nr-spare-disks          1
-chunk-size              4
-device                  /dev/scsi/sw0d0l0-p1
-raid-disk               0
-device                  /dev/scsi/sw1d0l0-p1
-spare-disk              1
+Tim
 
-raiddev                 /dev/md6
-raid-level              multipath
-nr-raid-disks           1
-nr-spare-disks          1
-chunk-size              4
-device                  /dev/scsi/sw0d1l0-p1
-raid-disk               0
-device                  /dev/scsi/sw1d1l0-p1
-spare-disk              1
 
-raiddev /dev/md7
-raid-level      1
-nr-raid-disks   2
-nr-spare-disks  0
-chunk-size      4
-persistent-superblock 1
-device          /dev/md5
-raid-disk       0
-device          /dev/md6
-raid-disk       1
-
--- 
----------------------------------------------------------------------------
-Rainer Krienke, Universitaet Koblenz, Rechenzentrum
-Universitaetsstrasse 1, 56070 Koblenz, Tel: +49 261287 -1312, Fax: -1001312
-Mail: krienke@uni-koblenz.de, Web: http://www.uni-koblenz.de/~krienke
-Get my public PGP key: http://www.uni-koblenz.de/~krienke/mypgp.html
----------------------------------------------------------------------------
 

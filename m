@@ -1,131 +1,393 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbUBZX1t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbUBZX0p
+	id S261290AbUBZXd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbUBZXcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:26:45 -0500
-Received: from alt.aurema.com ([203.217.18.57]:14981 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S261234AbUBZXYv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:24:51 -0500
-Message-ID: <403E8035.9020606@aurema.com>
-Date: Fri, 27 Feb 2004 10:24:37 +1100
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+	Thu, 26 Feb 2004 18:32:18 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:49913 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261234AbUBZXaT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 18:30:19 -0500
+Message-ID: <403E8180.1060008@mvista.com>
+Date: Thu, 26 Feb 2004 15:30:08 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Albert Cahalan <albert@users.sf.net>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>, johnl@aurema.com
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <1077766232.10393.992.camel@cube>  <403D8FE6.2010905@aurema.com> <1077818221.2255.3.camel@cube>
-In-Reply-To: <1077818221.2255.3.camel@cube>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+CC: Tom Rini <trini@kernel.crashing.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect /
+ detach
+References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net> <20040225215309.GI1052@smtp.west.cox.net> <200402261344.49261.amitkale@emsyssoft.com>
+In-Reply-To: <200402261344.49261.amitkale@emsyssoft.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
-> On Thu, 2004-02-26 at 01:19, Peter Williams wrote:
+Amit S. Kale wrote:
+> On Thursday 26 Feb 2004 3:23 am, Tom Rini wrote:
 > 
->>Albert Cahalan wrote:
+>>The following patch fixes a number of little issues here and there, and
+>>ends up making things more robust.
+>>- We don't need kgdb_might_be_resumed or kgdb_killed_or_detached.
+>>  GDB attaching is GDB attaching, we haven't preserved any of the
+>>  previous context anyhow.
+> 
+> 
+> If gdb is restarted, kgdb has to remove all breakpoints. Present kgdb does 
+> that in the code this patch removes:
+> 
+> -		if (remcom_in_buffer[0] == 'H' && remcom_in_buffer[1] == 'c') {
+> -			remove_all_break();
+> -			atomic_set(&kgdb_killed_or_detached, 0);
+> -			ok_packet(remcom_out_buffer);
+> 
+> If we don't remove breakpoints, they stay in kgdb without gdb not knowing it 
+> and causes consistency problems.
+
+I wonder if this is worth the trouble.  Does kgdb need to know about breakpoints 
+at all?  Is there some other reason it needs to track them?
+> 
+> 
+>>- Don't try and look for a connection in put_packet, after we've tried
+>>  to put a packet.  Instead, when we receive a packet, GDB has
+>>  connected.
+> 
+> 
+> We have to check for gdb connection in putpacket or else following problem 
+> occurs.
+> 
+> 1. kgdb console messages are to be put.
+> 2. gdb dies
+> 3. putpacket writes the packet and waits for a '+'
+
+Oops!  Tom, this '+' will be sent under interrupt and while kgdb is not 
+connected.  Looks like it needs to be passed through without causing a 
+breakpoint.  Possible salvation if we disable interrupts while waiting for the 
+'+' but I don't think that is a good idea.
+
+-g
+
+> 4. new gdb sends a protocol initialization packet
+> 5. putpacket reads characters in that packet hoping for an incoming '+' 
+> sending out console message packet on each incoming character
+> 6. gdb receives and rejects each console message packet
+> 
+> 
+>>- Remove ok_packet(), excessive, IMHO.
+> 
+> 
+> ok_packet is better than littering "OK" all over the place.
+> 
+> Other lindent changes are good.
+> 
+> -Amit
+> 
+> 
+>># This is a BitKeeper generated patch for the following project:
+>># Project Name: Linux kernel tree
+>># This patch format is intended for GNU patch command version 2.5 or
+>>higher. # This patch includes the following deltas:
+>>#	           ChangeSet	1.1664  -> 1.1665
+>>#	arch/ppc/8260_io/uart.c	1.31    -> 1.32
+>>#	       kernel/kgdb.c	1.4     -> 1.5
+>>#
+>># The following is the BitKeeper ChangeSet Log
+>># --------------------------------------------
+>># 04/02/25	trini@kernel.crashing.org	1.1665
+>># - Kill kgdb_might_be_resumed and kgdb_killed_or_detached.
+>># - Spacing and comments.
+>># - put_packet doesn't try and check for a connect now.
+>># - Kill ok_packet().
+>># - Only send an initial packet in kgdb_handle_exception if
+>>#   kgdb has connected already.
+>># --------------------------------------------
+>>#
+>>diff -Nru a/arch/ppc/8260_io/uart.c b/arch/ppc/8260_io/uart.c
+>>--- a/arch/ppc/8260_io/uart.c	Wed Feb 25 14:21:38 2004
+>>+++ b/arch/ppc/8260_io/uart.c	Wed Feb 25 14:21:38 2004
+>>@@ -396,14 +396,8 @@
+>> #ifdef CONFIG_KGDB
+>> 		if (info->state->smc_scc_num == KGDB_SER_IDX) {
+>> 			while (i-- > 0) {
+>>-				if (*cp == 0x03) {
+>>+				if (*cp == 0x03 || *cp == '$') {
+>> 					breakpoint();
+>>-					return;
+>>-				}
+>>-				if (*cp == '$') {
+>>-					atomic_set(&kgdb_might_be_resumed, 1);
+>>-					breakpoint();
+>>-					atomic_set(&kgdb_might_be_resumed, 0);
+>> 					return;
+>> 				}
+>> 				cp++;
+>>diff -Nru a/kernel/kgdb.c b/kernel/kgdb.c
+>>--- a/kernel/kgdb.c	Wed Feb 25 14:21:38 2004
+>>+++ b/kernel/kgdb.c	Wed Feb 25 14:21:38 2004
+>>@@ -15,6 +15,7 @@
+>>  * Copyright (C) 2002-2004 Timesys Corporation
+>>  * Copyright (C) 2003-2004 Amit S. Kale
+>>  * Copyright (C) 2004 Pavel Machek <pavel@suse.cz>
+>>+ * Copyright (C) 2004 Tom Rini <trini@kernel.crashing.org>
+>>  *
+>>  * Restructured KGDB for 2.6 kernels.
+>>  * thread support, support for multiple processors,support for ia-32(x86)
+>>@@ -87,8 +88,6 @@
+>> static spinlock_t slavecpulocks[KGDB_MAX_NO_CPUS];
+>> static volatile int procindebug[KGDB_MAX_NO_CPUS];
+>> atomic_t kgdb_setting_breakpoint;
+>>-atomic_t kgdb_killed_or_detached;
+>>-atomic_t kgdb_might_be_resumed;
+>> struct task_struct *kgdb_usethread, *kgdb_contthread;
 >>
->>>John Lee writes:
-> 
-> 
->>>>The usage rates for each task are estimated using Kalman
->>>>filter techniques, the  estimates being similar to those
->>>>obtained by taking a running average over twice the filter
->>>>_response half life_ (see below). However, Kalman filter
->>>>values are cheaper to compute and don't require the
->>>>maintenance of historical usage data.
->>>
->>>
->>>Linux dearly needs this. Please separate out this part
->>>of the patch and send it in.
+>> int debugger_step;
+>>@@ -212,8 +211,10 @@
+>> 	char ch;
 >>
->>This information can be determined from the SleepAVG: field in the 
->>/proc/<pid>/status and /proc/<tgid>/task/<pid>/status files by 
->>subtracting the value there from 100.
-> 
-> 
-> This doesn't seem to be the case. For example, a fork()
-> causes the value to be adjusted in both child and parent.
-
-This would be the case with our patch as well as we make children 
-inherit their parent's usage rate to partially reduce the effect of ramp 
-up in the estimation of the child's CPU usage rate.
-
-> 
-> Also, perhaps the name is wrong, but I'd think SleepAVG
-> has more to do with the average length of a sleep. It sure
-> isn't documented. (time constant? type of decay?)
-
-My reading of the code caused me to interpret it as a percentage sleep 
-rate i.e. a value of 50 means the task is sleeping 50% of the time.  And 
-this has made me realise that without our patches using (100 - SleepAVG) 
-would not really give you CPU usage rate but would instead give 
-RUNNABILITY rate (i.e. the proportion of time the task is spending on 
-the cpu OR on a runqueue waiting for cpu access.
-
-It also makes me realise that the SleepAVG our patch reports is NOT 
-really a sleep rate it's a sleep OR waiting on a runqueue rate.
-
-> 
-> There's also a need for whole-process stats and cumulative
-> (sum of exited children) stats. %CPU can go as high as 51200%.
-> 
-> 
->>Without our patch this value is a 
->>directly calculated estimated of the task's sleep rate which is 
->>available because it used by the O(1) scheduler's heuristics.  With our 
->>patches, it is calculated from our estimate of the task's usage because 
->>we dispensed with the sleep average calculations as they are no longer 
->>needed.  We decided to still report sleep average in the status file 
->>because we were reluctant to alter the contents of such files in case we 
->>broke user space programs.
-> 
-> 
-> Generally this is a good move, though I don't expect anything
-> to be using SleepAVG at the moment.
-
-OK.
-
-> 
-> 
->>>Right now, Linux does not report the recent CPU usage
->>>of a process. The UNIX standard requires that "ps"
->>>report this; right now ps substitutes CPU usage over
->>>the whole lifetime of a process.
->>>
->>>Both per-task and per-process (tid and tgid) numbers
->>>are needed. Both percent and permill (1/1000) units
->>>get reported, so don't convert to integer percent.
+>> 	do {
+>>-		/* wait around for the start character, ignore all other characters */
+>>-		while ((ch = (kgdb_serial->read_char() & 0x7f)) != '$') ;
+>>+		/* wait around for the start character, ignore all other
+>>+		 * characters */
+>>+		while ((ch = (kgdb_serial->read_char() & 0x7f)) != '$')
+>>+			;	/* Spin. */
+>> 		kgdb_connected = 1;
+>> 		checksum = 0;
+>> 		xmitcsum = -1;
+>>@@ -249,27 +250,22 @@
+>>  * Send the packet in buffer.
+>>  * Check for gdb connection if asked for.
+>>  */
+>>-static void put_packet(char *buffer, int checkconnect)
+>>+static void put_packet(char *buffer)
+>> {
+>> 	unsigned char checksum;
+>> 	int count;
+>> 	char ch;
+>>-	static char gdbseq[] = "$Hc-1#09";
+>>-	int i;
+>>-	int send_count;
 >>
->>I think a modification to fs/proc/array.c to make this field a per 
->>million rather than a percent value would satisfy your needs.  It would 
->>be a very small change but there would be concerns about breaking 
->>programs that rely on it being a percentage.
+>> 	/*  $<packet info>#<checksum>. */
+>> 	do {
+>> 		kgdb_serial->write_char('$');
+>> 		checksum = 0;
+>> 		count = 0;
+>>-		send_count = 0;
+>>
+>> 		while ((ch = buffer[count])) {
+>> 			kgdb_serial->write_char(ch);
+>> 			checksum += ch;
+>> 			count++;
+>>-			send_count++;
+>> 		}
+>>
+>> 		kgdb_serial->write_char('#');
+>>@@ -277,30 +273,7 @@
+>> 		kgdb_serial->write_char(hexchars[checksum % 16]);
+>> 		if (kgdb_serial->flush)
+>> 			kgdb_serial->flush();
+>>-
+>>-		i = 0;
+>>-		while ((ch = kgdb_serial->read_char()) == gdbseq[i++] &&
+>>-		       checkconnect) {
+>>-			if (!gdbseq[i]) {
+>>-				kgdb_serial->write_char('+');
+>>-				if (kgdb_serial->flush)
+>>-					kgdb_serial->flush();
+>>-				breakpoint();
+>>-
+>>-				/*
+>>-				 * GDB is available now.
+>>-				 * Retransmit this packet.
+>>-				 */
+>>-				break;
+>>-			}
+>>-		}
+>>-		if (checkconnect && ch == 3) {
+>>-			kgdb_serial->write_char('+');
+>>-			if (kgdb_serial->flush)
+>>-				kgdb_serial->flush();
+>>-			breakpoint();
+>>-		}
+>>-	} while ((ch & 0x7f) != '+');
+>>+	} while ((kgdb_serial->read_char() & 0x7f) != '+');
+>>
+>> }
+>>
+>>@@ -427,11 +400,6 @@
+>> 	pkt[3] = '\0';
+>> }
+>>
+>>-static void ok_packet(char *pkt)
+>>-{
+>>-	strcpy(pkt, "OK");
+>>-}
+>>-
+>> static char *pack_threadid(char *pkt, threadref * id)
+>> {
+>> 	char *limit;
+>>@@ -502,7 +470,8 @@
+>> 	procindebug[processor] = 1;
+>> 	current->thread.debuggerinfo = regs;
+>>
+>>-	/* Wait till master processor goes completely into the debugger. FIXME:
+>>this looks racy */ +	/* Wait till master processor goes completely into the
+>>debugger. +	 * FIXME: this looks racy */
+>> 	while (!procindebug[atomic_read(&debugger_active) - 1]) {
+>> 		int i = 10;	/* an arbitrary number */
+>>
+>>@@ -701,17 +670,7 @@
+>> 	/* Master processor is completely in the debugger */
+>> 	kgdb_post_master_code(linux_regs, exVector, err_code);
+>>
+>>-	if (atomic_read(&kgdb_killed_or_detached) &&
+>>-	    atomic_read(&kgdb_might_be_resumed)) {
+>>-		get_packet(remcom_in_buffer);
+>>-		if (remcom_in_buffer[0] == 'H' && remcom_in_buffer[1] == 'c') {
+>>-			remove_all_break();
+>>-			atomic_set(&kgdb_killed_or_detached, 0);
+>>-			ok_packet(remcom_out_buffer);
+>>-		} else
+>>-			return 1;
+>>-	} else {
+>>-
+>>+	if (kgdb_connected) {
+>> 		/* reply to host that an exception has occurred */
+>> 		ptr = remcom_out_buffer;
+>> 		*ptr++ = 'T';
+>>@@ -721,11 +680,9 @@
+>> 		int_to_threadref(&thref, shadow_pid(current->pid));
+>> 		ptr = pack_threadid(ptr, &thref);
+>> 		*ptr++ = ';';
+>>-		*ptr = '\0';
+>>-	}
+>>
+>>-	put_packet(remcom_out_buffer, 0);
+>>-	kgdb_connected = 1;
+>>+		put_packet(remcom_out_buffer);
+>>+	}
+>>
+>> 	kgdb_usethread = current;
+>> 	kgdb_usethreadid = shadow_pid(current->pid);
+>>@@ -798,7 +755,7 @@
+>> 			else {
+>> 				gdb_regs_to_regs(gdb_regs, (struct pt_regs *)
+>> 						 current->thread.debuggerinfo);
+>>-				ok_packet(remcom_out_buffer);
+>>+				strcpy(remcom_out_buffer, "OK");
+>> 			}
+>>
+>> 			break;
+>>@@ -838,10 +795,10 @@
+>> 			if ((error = remove_all_break()) < 0) {
+>> 				error_packet(remcom_out_buffer, error);
+>> 			} else {
+>>-				ok_packet(remcom_out_buffer);
+>>+				strcpy(remcom_out_buffer, "OK");
+>> 				kgdb_connected = 0;
+>> 			}
+>>-			put_packet(remcom_out_buffer, 0);
+>>+			put_packet(remcom_out_buffer);
+>> 			goto default_handle;
+>>
+>> 		case 'k':
+>>@@ -947,11 +904,10 @@
+>> 				}
+>> 				kgdb_usethread = thread;
+>> 				kgdb_usethreadid = threadid;
+>>-				ok_packet(remcom_out_buffer);
+>>+				strcpy(remcom_out_buffer, "OK");
+>> 				break;
+>>
+>> 			case 'c':
+>>-				atomic_set(&kgdb_killed_or_detached, 0);
+>> 				ptr = &remcom_in_buffer[2];
+>> 				kgdb_hex2long(&ptr, &threadid);
+>> 				if (!threadid) {
+>>@@ -966,7 +922,7 @@
+>> 					}
+>> 					kgdb_contthread = thread;
+>> 				}
+>>-				ok_packet(remcom_out_buffer);
+>>+				strcpy(remcom_out_buffer, "OK");
+>> 				break;
+>> 			}
+>> 			break;
+>>@@ -977,7 +933,7 @@
+>> 			kgdb_hex2long(&ptr, &threadid);
+>> 			thread = getthread(linux_regs, threadid);
+>> 			if (thread)
+>>-				ok_packet(remcom_out_buffer);
+>>+				strcpy(remcom_out_buffer, "OK");
+>> 			else
+>> 				error_packet(remcom_out_buffer, -EINVAL);
+>> 			break;
+>>@@ -1018,7 +974,7 @@
+>> 			}
+>>
+>> 			if (error == 0)
+>>-				ok_packet(remcom_out_buffer);
+>>+				strcpy(remcom_out_buffer, "OK");
+>> 			else
+>> 				error_packet(remcom_out_buffer, error);
+>>
+>>@@ -1039,7 +995,7 @@
+>> 		}		/* switch */
+>>
+>> 		/* reply to the request */
+>>-		put_packet(remcom_out_buffer, 0);
+>>+		put_packet(remcom_out_buffer);
+>> 	}
+>>
+>>       kgdb_exit:
+>>@@ -1063,7 +1019,6 @@
+>> 	}
+>>
+>> 	/* Free debugger_active */
+>>-	atomic_set(&kgdb_killed_or_detached, 1);
+>> 	atomic_set(&debugger_active, 0);
+>> 	local_irq_restore(flags);
+>>
+>>@@ -1132,12 +1087,6 @@
+>> 	/* Free debugger_active */
+>> 	atomic_set(&debugger_active, 0);
+>>
+>>-	/* This flag is used, if gdb has detached and wants to start
+>>-	 * another session
+>>-	 */
+>>-	atomic_set(&kgdb_killed_or_detached, 1);
+>>-	atomic_set(&kgdb_might_be_resumed, 0);
+>>-
+>> 	for (i = 0; i < MAX_BREAKPOINTS; i++)
+>> 		kgdb_break[i].state = bp_disabled;
+>>
+>>@@ -1222,7 +1171,7 @@
+>> 		*bufptr = '\0';
+>> 		s += wcount;
+>>
+>>-		put_packet(kgdbconbuf, 1);
+>>+		put_packet(kgdbconbuf);
+>>
+>> 	}
+>> 	local_irq_restore(flags);
 > 
 > 
-> Nothing can rely on it existing at all, so a name change would
-> solve the problem of apps getting confused.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> BTW, permill is not per-million, it is per-thousand.
-> Per-million or per-billion would be fine as long as
-> it doesn't overflow.
 
-OK.  Since SleepAVG does not seem to be entrenched in people's 
-expectations and because of the fact that the value calculated from our 
-usage rates are not really valid (see above), I propose that we change 
-this field's name to CPUrate and report the CPU usage rate directly in 
-permill (unless there are violent objections).
-
-Peter
 -- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269045AbUIQXqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269056AbUIRAIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269045AbUIQXqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 19:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269046AbUIQXqZ
+	id S269056AbUIRAIh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 20:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269070AbUIRAIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 19:46:25 -0400
-Received: from mail.kroah.org ([69.55.234.183]:52384 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269045AbUIQXpw (ORCPT
+	Fri, 17 Sep 2004 20:08:37 -0400
+Received: from gate.crashing.org ([63.228.1.57]:59055 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269056AbUIRAIf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 19:45:52 -0400
-Date: Fri, 17 Sep 2004 14:49:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add hook for PCI resource deallocation
-Message-ID: <20040917214943.GE14340@kroah.com>
-References: <41498CF6.9000808@jp.fujitsu.com>
+	Fri, 17 Sep 2004 20:08:35 -0400
+Subject: Re: [BUG] ub.c badness in current bk
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040917090448.32ff763c@lembas.zaitcev.lan>
+References: <mailman.1095300780.10032.linux-kernel2news@redhat.com>
+	 <20040917002935.77620d1d@lembas.zaitcev.lan>
+	 <1095414394.13531.77.camel@gaston>
+	 <20040917090448.32ff763c@lembas.zaitcev.lan>
+Content-Type: text/plain
+Message-Id: <1095466107.3669.13.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41498CF6.9000808@jp.fujitsu.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 18 Sep 2004 10:08:27 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 09:54:14PM +0900, Kenji Kaneshige wrote:
-> Hi,
+On Sat, 2004-09-18 at 02:04, Pete Zaitcev wrote:
+> On Fri, 17 Sep 2004 19:46:34 +1000
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 > 
-> This patch adds a hook 'pcibios_disable_device()' into
-> pci_disable_device() to call architecture specific PCI resource
-> deallocation code. It's a opposite part of pcibios_enable_device().
-> We need this hook to deallocate architecture specific PCI resource
-> such as IRQ resource, etc.. This patch is just for adding the hook,
-> so pcibios_disable_device() is defined as a null function on all
-> architecture so far.
+> > Ok, here's a modified patch that fixes the problem for me.
+> 
+> > +	ret = sc->changed;
+> > +	/* P3 */ printk("%s: %s changed\n", sc->name, ret ? "is": "was not");
+> > +	
+> > +	sc->changed = 0;
+> >  	return sc->changed;
+> >  }
+> 
+> You return zero always. I don't think it's supposed to be that way.
+> I'm sorry, but I cannot apply it. I'll look for a better solution.
 
-I'd prefer to wait until there was an actual user of this hook before
-adding it to the kernel.  Otherwise someone (likely me) will notice this
-hook in a few days and go, "hey, no one is using this, let's clean it
-up" :)
+Oops, my wrong, it indeed doesn't make sense... Well, the problem is definitely
+around here anyway... I'll do more tests when I'm more awake this week-end, the
+above was done while I was fairly tired ;)
 
-So, how about we wait until you have a patch that needs this before I
-apply it?
+Ben.
+ 
 
-thanks,
-
-greg k-h

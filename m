@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270686AbTHEVGx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 17:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270688AbTHEVGw
+	id S272303AbTHEVOY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 17:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272361AbTHEVOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 17:06:52 -0400
-Received: from mail.kroah.org ([65.200.24.183]:36552 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270686AbTHEVGw (ORCPT
+	Tue, 5 Aug 2003 17:14:24 -0400
+Received: from colin2.muc.de ([193.149.48.15]:37903 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S272303AbTHEVOU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 17:06:52 -0400
-Date: Tue, 5 Aug 2003 14:07:04 -0700
-From: Greg KH <greg@kroah.com>
-To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Cc: Sergey Vlasov <vsu@altlinux.ru>,
-       "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-Subject: Re: PATCH: 2.4.22-pre7 drivers/i2c/i2c-dev.c user/kernel bug and mem leak
-Message-ID: <20030805210704.GA5452@kroah.com>
-References: <20030803192312.68762d3c.khali@linux-fr.org> <20030804193212.11786d06.vsu@altlinux.ru> <20030805103240.02221bed.khali@linux-fr.org>
+	Tue, 5 Aug 2003 17:14:20 -0400
+Date: 5 Aug 2003 23:14:16 +0200
+Date: Tue, 5 Aug 2003 23:14:16 +0200
+From: Andi Kleen <ak@colin2.muc.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Export touch_nmi_watchdog
+Message-ID: <20030805211416.GD31598@colin2.muc.de>
+References: <20030805203137.E30256@devserv.devel.redhat.com> <Pine.LNX.4.44.0308051402300.2835-100000@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030805103240.02221bed.khali@linux-fr.org>
+In-Reply-To: <Pine.LNX.4.44.0308051402300.2835-100000@home.osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 10:32:40AM +0200, Jean Delvare wrote:
-> 
-> Changes:
-> 1* Amount of white space, twice. Ignore.
-> 2* Use ++i instead of kfree as discussed above.
-> 3* Remove conditional test around i2c_transfer, since it isn't necessary
-> (if I'm not missing something).
+> Otherwise this will just keep on expanding. 
 
-Patch looks good, want to send it to Marcelo, or do you want me to?
+It does expand on i386 exactly because the watchdog is disabled by default.
 
-thanks,
+Looks like a mistake to me. It should be on because having usable backtraces
+on a deadlock/hang is useful enough that it outweights any other possible
+disadvantages. That's especially true for kernels out there at user's boxes,
+not just special debugging kernels run by developers.
 
-greg k-h
+[if there should be any hardware where it doesn't work it should be blacklisted
+there]
+
+-Andi
+

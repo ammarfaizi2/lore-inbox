@@ -1,134 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263235AbVCDXne@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263418AbVCDXm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263235AbVCDXne (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:43:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbVCDXkp
+	id S263418AbVCDXm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbVCDXhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:40:45 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:55229 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S263220AbVCDVpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 16:45:06 -0500
-Date: Fri, 4 Mar 2005 22:45:04 +0100
-To: linux-kernel@vger.kernel.org
-Subject: useless check in port-allocation code?
-Message-ID: <20050304214501.GK6156@vanheusden.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
-Content-Disposition: inline
-Organization: www.unixexpert.nl
-Read-Receipt-To: <folkert@vanheusden.com>
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Reply-By: Sat Mar  5 18:55:34 CET 2005
-X-MSMail-Priority: High
-User-Agent: Mutt/1.5.6+20040907i
-From: folkert@vanheusden.com (Folkert van Heusden)
+	Fri, 4 Mar 2005 18:37:50 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:61121 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S263224AbVCDV2K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 16:28:10 -0500
+Date: Fri, 04 Mar 2005 16:27:11 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: RFD: Kernel release numbering
+In-reply-to: <Pine.LNX.4.58.0503041223210.11349@ppc970.osdl.org>
+X-X-Sender: nico@localhost.localdomain
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       tglx@linutronix.de, lkml <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.62.0503041534020.15953@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+ <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com>
+ <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random>
+ <20050303160330.5db86db7.akpm@osdl.org>
+ <20050304025746.GD26085@tolot.miese-zwerge.org>
+ <20050303213005.59a30ae6.akpm@osdl.org>
+ <1109924470.4032.105.camel@tglx.tec.linutronix.de>
+ <20050304005450.05a2bd0c.akpm@osdl.org> <20050304091612.GG14764@suse.de>
+ <20050304012154.619948d7.akpm@osdl.org>
+ <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
+ <Pine.LNX.4.62.0503041352480.15953@localhost.localdomain>
+ <Pine.LNX.4.58.0503041223210.11349@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Mar 2005, Linus Torvalds wrote:
 
---cvVnyQ+4j833TQvp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> 
+> 
+> On Fri, 4 Mar 2005, Nicolas Pitre wrote:
+> > 
+> > It might still be worth a try, especially since so many people are 
+> > convinced this is the way to go (your fault or not is not the point).
+> 
+> Making releases is actually a fair bit of work. Not the script itself, but 
+> just deciding and trying to synchronize. The fatc that people won't really 
+> appreciate it anyway, and just complain about "that's not stable anyway" 
+> just makes me even less interested.
 
-Hi,
+Don't read me wrong.
 
-In the 2.6.11 code, I found this:
-static int tcp_v6_get_port(struct sock *sk, unsigned short snum)
-also in:
-static int tcp_v4_get_port(struct sock *sk, unsigned short snum)
-{
-...
-        if (snum == 0) {
-                int low = sysctl_local_port_range[0];
-                int high = sysctl_local_port_range[1];
+It's not the work that is being done which is the problem.  To the 
+contrary, the current process is really great and for one I hope 2.7.x 
+will _never_ happen, and here's why:
 
-                spin_lock(&tcp_portalloc_lock);
-		rover = tcp_port_rover;
-                do {    rover++;
-                        if ((rover < low) || (rover > high))
-                                rover = low;
+Coming from the embedded world I can tell you that 2.5.x was simply too 
+"instable" to use as a basis for a product, and communities around non 
+i386 architectures simply don't have enough man power to follow two 
+kernel trees (2.4.x and 2.5.x) in parallel.  The embedded world 
+therefore ended up developing on 2.4.x only because that was the stable 
+tree that could bring revenues to sustain said development, even if 2.4.x 
+was a dead end.
 
-Now I wonder: is that 'rover < low' check not redundant?
-ints are bigger then the maximum portnumber (65535) so when
-rover++ gets too high, the check for 'rover > high' will truncate
-it to low (in the next line) waaay before the int itself wraps.
-Maybe it is needed because tcp_port_rover is < low before the
-function starts, in that case the check for <low can be taken out
-of the loop.
+Now the catch up phase on 2.6.x within the embedded world is almost done 
+and 2.6.x is also where the major developments are happening.  It's 
+therefore way easier for smaller communities to stay in the game since 
+2.6.x is also stable enough for commercial products despite the rapid 
+development actually occurring there.  There are certainly a few more 
+stability glitches than you could have found in 2.4.x but overall 2.6.x 
+is a much better compromise bringing much more value to us -- thanks to 
+your hard work and Andrew's (and RMK's) and everybody else for making 
+the current process so efficient and dynamic.
 
-Patch:
-diff -uNr net/ipv4/tcp_ipv4.c.org net/ipv4/tcp_ipv4.c
---- net/ipv4/tcp_ipv4.c.org     2005-03-04 22:39:37.340950747 +0100
-+++ net/ipv4/tcp_ipv4.c 2005-03-04 22:40:35.570059217 +0100
-@@ -222,10 +222,13 @@
-                int rover;
+Now back to the current discussion.  What people are complaining about 
+is the lack of testing on the official 2.6.x releases.  This lack of 
+testing comes from the fact that your -rc releases are not seen like 
+stable enough for the mass to test, and this is due mainly because the 
+people outside of the development loop have no idea when you actually 
+called for a patch calm down.
 
-                spin_lock(&tcp_portalloc_lock);
--               rover = tcp_port_rover;
-+               if (tcp_port_rover < low)
-+                       rover = low;
-+               else
-+                       rover = tcp_port_rover;
-                do {
-                        rover++;
--                       if (rover < low || rover > high)
-+                       if (rover > high)
-                                rover = low;
-                        head = &tcp_bhash[tcp_bhashfn(rover)];
-                        spin_lock(&head->lock);
+It's not like you don't actually call for a calm down in order to have a 
+release stabilized because, as Andrew pointed out, you effectively only 
+merged true bug fixes into 2.6.11-rc[45].  See? You _do_ it and you 
+_did_ it already.
 
-diff -uNr net/ipv6/tcp_ipv6.c.org net/ipv6/tcp_ipv6.c
---- net/ipv6/tcp_ipv6.c.org     2005-03-04 22:41:44.043007791 +0100
-+++ net/ipv6/tcp_ipv6.c 2005-03-04 22:42:17.604728073 +0100
-@@ -139,9 +139,12 @@
-                int rover;
+The only issue is to actually have way more people to jump in and try 
+out kernels which are in that "calm down" phase.  And for that to happen 
+you need a clear signal to the people outside the development loop who 
+currently can't trust your -rc releases since they end up including more 
+than just bug fixes up to a randomly chosen particular -rc.
 
-                spin_lock(&tcp_portalloc_lock);
--               rover = tcp_port_rover;
-+               if (tcp_port_rover < low)
-+                       rover = low;
-+               else
-+                       rover = tcp_port_rover;
-                do {    rover++;
--                       if ((rover < low) || (rover > high))
-+                       if (rover > high)
-                                rover = low;
-                        head = &tcp_bhash[tcp_bhashfn(rover)];
-                        spin_lock(&head->lock);
+That's why many are suggesting that you consider switching to -pre 
+releases for developer sync points, and for the last -pre release where 
+you call for a calm down.  Then subsequent releases are -rc releases 
+with strictly bug fixes.  For example, 2.6.11-rc[123] would have been 
+2.6.11-pre[123] and 2.6.11-rc[45] would have been 2.6.11-rc[12].
 
-Signed-off-by: Folkert van Heusden <folkert@vanheusden.com>
+See how this won't change anything to your work methodology besides the 
+naming?  And this has the potential of bringing more testers not closely 
+following lkml or the commit log (granted that -rc becomes real 
+release-candidate-bug_fix_only releases but again you do that already) 
+since they'll see those -rc releases as nearly official releases.  Of 
+course it might not bring the hoped result but it costs nothing to try 
+it out.  That's what I meant in my previous email.
+
+P.S.: this is not incompatible with the "sucker" tree -- in fact both 
+of those things might be useful and effective for their own purpose.
 
 
-Folkert van Heusden
-
-Op zoek naar een IT of Finance baan? Mail me voor de mogelijkheden!
-+------------------------------------------------------------------+
-|UNIX admin? Then give MultiTail (http://vanheusden.com/multitail/)|
-|a try, it brings monitoring logfiles to a different level! See    |
-|http://vanheusden.com/multitail/features.html for a feature list. |
-+------------------------------------------= www.unixsoftware.nl =-+
-Phone: +31-6-41278122, PGP-key: 1F28D8AE
-Get your PGP/GPG key signed at www.biglumber.com!
-
---cvVnyQ+4j833TQvp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCKNbdMBkOjB8o2K4RAkOlAJsEClMujzHCoiT/scerxinCAP7seQCbBeAw
-QqYqJN4ULvlUt3npUjOTgTY=
-=q7pr
------END PGP SIGNATURE-----
-
---cvVnyQ+4j833TQvp--
+Nicolas

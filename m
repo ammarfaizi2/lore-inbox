@@ -1,50 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132864AbQL3Drw>; Fri, 29 Dec 2000 22:47:52 -0500
+	id <S132894AbQL3DtV>; Fri, 29 Dec 2000 22:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132862AbQL3Drm>; Fri, 29 Dec 2000 22:47:42 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55046 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132152AbQL3Drj>; Fri, 29 Dec 2000 22:47:39 -0500
-Date: Fri, 29 Dec 2000 19:16:45 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@innominate.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: test13-pre6
-In-Reply-To: <3A4D47B2.D89015CB@innominate.de>
-Message-ID: <Pine.LNX.4.10.10012291913350.1722-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132887AbQL3DtM>; Fri, 29 Dec 2000 22:49:12 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:31749 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S132862AbQL3DtF>;
+	Fri, 29 Dec 2000 22:49:05 -0500
+Date: Sat, 30 Dec 2000 05:18:25 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Dave Gilbert <gilbertd@treblig.org>, linux-alpha@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Richard Henderson <rth@twiddle.net>
+Subject: Re: memmove broken on alpha - was Re: NFS oddity (2.4.0test13pre4ac2 server, 2.0.36/2.2.14 clients)
+Message-ID: <20001230051825.Z28963@mea-ext.zmailer.org>
+In-Reply-To: <14925.12964.995179.63899@notabene.cse.unsw.edu.au> <Pine.LNX.4.10.10012300105100.26235-100000@tardis.home.dave> <14925.16964.875883.863169@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <14925.16964.875883.863169@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Sat, Dec 30, 2000 at 01:02:44PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 30 Dec 2000, Daniel Phillips wrote:
-
-> Linus Torvalds wrote:
-> > 
-> > Ok, there's a test13-pre6 out there now, which does a partial sync with
-> > Alan, in addition to hopefully fixing the innd shared mapping writeback
-> > problem for good.  Thanks to Marcelo Tosatti and others..
+On Sat, Dec 30, 2000 at 01:02:44PM +1100, Neil Brown wrote:
+> [ extra detail included because I have added linux-alpha and lins to
+> the cc list] 
 > 
-> After the page_cache_release at line 574 of vmscan.c the page is
-> unlocked and only owned by the page cache - anything could happen.  How
-> do you know the set_page_dirty at line 581 is still hitting a valid
-> page?
+> It appears that memmove is broken on the alpha architecture.
 
-Good question.
+  Indeed it is, and your observation/patch isn't the first one:
 
-It should be safe because of the magic return value from "writepage()".
+Date:   Thu, 21 Dec 2000 18:40:46 +0300
+From:   Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To:     Alexander Zarochentcev <zam@namesys.com>
+Cc:     Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: memmove() in 2.4.0-test12, alpha platform
 
-If "writepage()" returns 1, then that implies that the page is locked down
-somehow. But you're right, this is ugly, if not outright buggy (maybe the
-locked down state could change after the writepage, who knows?).
+  As the patch by mr. Kokshaysky is quite different doing more work
+  (and not only label name changes), I would prefer Richard Henderson
+  to act as an umpire to tell if your patch is sufficient, or if that
+  big thing by Kokshaysky is needed.
 
-Moving the test is probably a good idea.
+  Full email (and patch) by Kokshaysky is at:
+    http://www.uwsg.indiana.edu/hypermail/linux/kernel/0012.2/0712.html
 
-		Linus
+> memmove is used by net/sunrpc/xdr.c:xdr_decode_string
+> to move a string 4 bytes down in memory.
+> memmove(X-4, X, 8) should change
+>     
+>  X:  00 00 00 08  67 69 6c 62 65 72 74 64
+> to
+>  X:  67 69 6c 62  65 72 74 64 65 72 74 64
+> 
+> Instead it changes it to
+> 
+>  X:  65 72 74 64  65 72 74 64 65 72 74 64
+> 
+> This is my first time in alpha assembler, but it looks fairly readable
+> and the comments help....
+> 
+> Working from 
+>   arch/alpha/lib/memmove.S
+.... 
+> which I think translates to the following patch:
+> 
+> --- arch/alpha/lib/memmove.S	2000/12/30 01:59:28	1.1
+> +++ arch/alpha/lib/memmove.S	2000/12/30 01:59:49
+> @@ -17,7 +17,7 @@
+>  memmove:
+>  	addq $16,$18,$4
+>  	addq $17,$18,$5
+> -	cmpule $4,$17,$1		/*  dest + n <= src  */
+> +	cmpule $16,$17,$1		/*  dest <= src  */
+>  	cmpule $5,$16,$2		/*  dest >= src + n  */
+>  
+>  	bis $1,$2,$1
+> 
+> NeilBrown
 
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131631AbRA2NAf>; Mon, 29 Jan 2001 08:00:35 -0500
+	id <S130132AbRA2N07>; Mon, 29 Jan 2001 08:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131598AbRA2NA0>; Mon, 29 Jan 2001 08:00:26 -0500
-Received: from laurin.munich.netsurf.de ([194.64.166.1]:38554 "EHLO
-	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
-	id <S131425AbRA2NAK>; Mon, 29 Jan 2001 08:00:10 -0500
-Date: Mon, 29 Jan 2001 13:59:05 +0100
-From: Andi Kleen <ak@muc.de>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: John Fremlin <vii@altern.org>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com, paulus@linuxcare.com, linux-ppp@vger.kernel.org,
-        linux-net@vger.kernel.org
-Subject: Re: [PATCH] dynamic IP support for 2.4.0 (SIOCKILLADDR)
-Message-ID: <20010129135905.B1591@fred.local>
-In-Reply-To: <m2d7d838sj.fsf@boreas.yi.org.> <200101290245.f0T2j2Y438757@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200101290245.f0T2j2Y438757@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Mon, Jan 29, 2001 at 03:46:42AM +0100
+	id <S131063AbRA2N0t>; Mon, 29 Jan 2001 08:26:49 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:34319 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S130132AbRA2N0n>; Mon, 29 Jan 2001 08:26:43 -0500
+Date: Mon, 29 Jan 2001 13:26:40 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: <Tony.Young@ir.com>
+cc: <chris@scary.beasts.org>, <slug@slug.org.au>, <csa@oss.sgi.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: Linux Disk Performance/File IO per process
+In-Reply-To: <C0D2F5944500D411AD8A00104B31930E10809C@ir_nt_server2>
+Message-ID: <Pine.LNX.4.30.0101291209290.3063-100000@ferret.lmh.ox.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 29, 2001 at 03:46:42AM +0100, Albert D. Cahalan wrote:
-> John Fremlin writes:
-> 
-> > When the IP address of an interface changes, TCP connections with the
-> > old source address are useless. Applications are not notified of this
-> > and time out ordinarily, just as if nothing had happened. This is
-> > behaviour isn't very helpful when you have a dynamic IP and know
-> > you're probably not going to get the old one back. In that case, you
-> ...
-> > I patched userspace ppp-2.4.0 to use this functionality. It would be
-> > better if SIOCKILLADDR were not used until we are sure that the new IP
-> > is in fact different from the old one, but pppd in demand mode would
-> 
-> I get the same IP about 2/3 of the time, so it is pretty important
-> to avoid killing connections until after the new IP is known.
 
-I prefer it when the IP is killed as soon as possible so that I can see
-when the connection is lost (ssh sessions get killed etc.)
+On Mon, 29 Jan 2001 Tony.Young@ir.com wrote:
 
-Another reason for killing as soon as possible is the last-ack problem. 
-When the other end goes away suddenly TCP often gets into last-ack state.
-This means it'll retransmit a FIN until it times out or the other end
-answers. Each such retransmitted FIN triggers a new dialin, which can
-get quite costly when you don't have flat rate (like still most of Europe).
-With your approach (waiting until the new IP is known) it would cost 
-at least another dialin in this case.
+> Thanks to both Jens and Chris - this provides the information I need to
+> obtain our busy rate
+> It's unfortunate that the kernel needs to be patched to provide this
+> information - hopefully it will become part of the kernel soon.
+>
+> I had a response saying that this shouldn't become part of the kernel due to
+> the performance cost that obtaining such data will involve. I agree that a
+> cost is involved here, however I think it's up to the user to decide which
+> cost is more expensive to them - getting the data, or not being able to see
+> how busy their disks are. My feeling here is that this support could be user
+> configurable at run time - eg 'cat 1 > /proc/getdiskperf'.
 
-When you have flatrate your way may be better of course, so a final 
-user space solution could switch it via a pppd flag. 
+Hi,
 
-[I agree that the user space way is better than my kernel hacks] 
+I disagree with this runtime variable. It is unnecessary complexity.
+Maintaining a few counts is total noise compared with the time I/O takes.
 
-
--Andi
+Cheers
+Chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

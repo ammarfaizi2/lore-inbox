@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbULAGYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbULAGeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbULAGYP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 01:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbULAGYP
+	id S261313AbULAGeV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 01:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbULAGeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 01:24:15 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:51908
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261294AbULAGYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 01:24:13 -0500
-Date: Tue, 30 Nov 2004 22:17:55 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: James Morris <jmorris@redhat.com>
-Cc: bunk@stusta.de, jlcooke@certainkey.com, andrew@mcdonald.org.uk,
-       kyle@debian.org, jef@linuxbe.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] cry[to/ : make some code static
-Message-Id: <20041130221755.2630165b.davem@davemloft.net>
-In-Reply-To: <Xine.LNX.4.44.0411291039130.6506-100000@thoron.boston.redhat.com>
-References: <20041129031636.GS4390@stusta.de>
-	<Xine.LNX.4.44.0411291039130.6506-100000@thoron.boston.redhat.com>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Dec 2004 01:34:21 -0500
+Received: from fachschaft.cup.uni-muenchen.de ([141.84.250.61]:55937 "EHLO
+	fachschaft.cup.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id S261313AbULAGeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 01:34:18 -0500
+Date: Wed, 1 Dec 2004 07:34:22 +0100 (CET)
+From: Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>
+To: Jagadeesh Bhaskar P <jbhaskar@hclinsys.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Query regarding current macro
+In-Reply-To: <1101879238.7423.13.camel@myLinux>
+Message-ID: <Pine.LNX.4.58.0412010732330.9205@fachschaft.cup.uni-muenchen.de>
+References: <1101879238.7423.13.camel@myLinux>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Nov 2004 10:39:32 -0500 (EST)
-James Morris <jmorris@redhat.com> wrote:
 
-> On Mon, 29 Nov 2004, Adrian Bunk wrote:
-> 
-> > The patch below makes some needlessly global code static.
-> 
-> Looks fine to me.
 
-I'll queue this up for 2.6.11, thanks Adrian.
+On Wed, 1 Dec 2004, Jagadeesh Bhaskar P wrote:
+> 	I have read that both the kernel stack and process descriptor of a
+> process is stored in together in an 8KB page. Now the offsets in the
+> page should start from all bits 0, rite? So then why masking only the 13
+> bits LSB?? What is the significance of keeping that length at 13??
+
+The stack grows downwards on x86. Thus the lowermost stack entry has all
+bits set. The length is 13 because 13 corresponds to 8K.
+
+	HTH
+		Oliver
+

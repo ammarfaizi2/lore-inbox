@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266793AbUJFE55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267250AbUJFFAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266793AbUJFE55 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 00:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUJFE55
+	id S267250AbUJFFAS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 01:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUJFFAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 00:57:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51419 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266793AbUJFE54 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 00:57:56 -0400
-Date: Tue, 5 Oct 2004 21:46:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: andrea@novell.com, nickpiggin@yahoo.com.au, rml@novell.com,
-       roland@topspin.com, linux-kernel@vger.kernel.org
-Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive
- (SCSI-libsata, VIA SATA))
-Message-Id: <20041005214605.5ec397ab.akpm@osdl.org>
-In-Reply-To: <41636FCF.3060600@pobox.com>
-References: <52is9or78f.fsf_-_@topspin.com>
-	<4163465F.6070309@pobox.com>
-	<41634A34.20500@yahoo.com.au>
-	<41634CF3.5040807@pobox.com>
-	<1097027575.5062.100.camel@localhost>
-	<20041006015515.GA28536@havoc.gtf.org>
-	<41635248.5090903@yahoo.com.au>
-	<20041006020734.GA29383@havoc.gtf.org>
-	<20041006031726.GK26820@dualathlon.random>
-	<4163660A.4010804@pobox.com>
-	<20041006040323.GL26820@dualathlon.random>
-	<41636FCF.3060600@pobox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 6 Oct 2004 01:00:18 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:10106 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267250AbUJFFAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 01:00:09 -0400
+Message-ID: <41637BD5.7090001@yahoo.com.au>
+Date: Wed, 06 Oct 2004 15:00:05 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: kenneth.w.chen@intel.com, mingo@redhat.com, linux-kernel@vger.kernel.org,
+       Judith Lebzelter <judith@osdl.org>
+Subject: Re: Default cache_hot_time value back to 10ms
+References: <200410060042.i960gn631637@unix-os.sc.intel.com>	<20041005205511.7746625f.akpm@osdl.org>	<416374D5.50200@yahoo.com.au> <20041005215116.3b0bd028.akpm@osdl.org>
+In-Reply-To: <20041005215116.3b0bd028.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->
-> Preempt will always be something I ask people to turn off when reporting 
->  driver bugs; it just adds too much complicated mess for zero gain.
+Andrew Morton wrote:
 
-What driver bugs are apparent with preemption which are not already SMP bugs?
+> This tunable caused an 11% performance difference in (I assume) TPCx. 
+> That's a big deal, and people will want to diddle it.
+> 
 
-Only thing I can think of is unguarded use of per-cpu data, and we have
-runtime debug checks for that now.
+True. But 2.5 I think really is too low (for anyone, except maybe a
+CPU with no/a tiny L2 cache).
 
+> If one number works optimally for all machines and workloads then fine.
+> 
+
+Yeah.. 10ms may bring up idle times a bit on other workloads. Judith
+had some database tests that were very sensitive to this - if 10ms is
+OK there, then I'd say it would be OK for most things.
+
+> But yes, avoiding a tunable would be nice, but we need a tunable to work
+> out whether we can avoid making it tunable ;)
+> 
+
+Heh. I think it would be good to have a automatic thingy to tune it.
+A smarter cache_decay_ticks calculation would suit.
+
+> Not that I'm soliciting patches or anything.  I'll duck this one for now.
+> 
+
+OK. Any idea when 2.6.9 will be coming out? :)

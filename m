@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293757AbSCAVCk>; Fri, 1 Mar 2002 16:02:40 -0500
+	id <S310113AbSCAVFA>; Fri, 1 Mar 2002 16:05:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310113AbSCAVCU>; Fri, 1 Mar 2002 16:02:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42256 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293757AbSCAVCK>;
-	Fri, 1 Mar 2002 16:02:10 -0500
-Message-ID: <3C7FEC53.389B440C@mandrakesoft.com>
-Date: Fri, 01 Mar 2002 16:02:11 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Blue Lang <blue@b-side.org>
-CC: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>,
-        Thomas Schenk <tschenk@origin.ea.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Recommendations on Gigabit Ethernet Cards
-In-Reply-To: <Pine.LNX.4.30.0203011451290.10809-100000@gib.soccerchix.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S310114AbSCAVEv>; Fri, 1 Mar 2002 16:04:51 -0500
+Received: from ubermail.mweb.co.za ([196.2.53.169]:20996 "EHLO
+	ubermail.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S310113AbSCAVEd>; Fri, 1 Mar 2002 16:04:33 -0500
+Subject: Re: [RFC][PATCH] #define yield() for 2.4 scheduler (anticipating
+	O(1))
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020301185825.GK2711@matchmail.com>
+In-Reply-To: <20020301163237.GC16716@opeth.ath.cx> 
+	<20020301185825.GK2711@matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.21mdk 
+Date: 01 Mar 2002 23:18:12 +0200
+Message-Id: <1015017496.2325.7.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blue Lang wrote:
+On Fri, 2002-03-01 at 20:58, Mike Fedyk wrote:
+> On Fri, Mar 01, 2002 at 11:32:37AM -0500, Dan Chen wrote:
+> > In response to Rik's post concerning a #define yield(), I've done a
+> > quick egrep over the 2.4.19-pre2 tree and modified as necessary. This is
+> > a strict search and replace. Thanks to Rik and Davide for assistance.
+> > Please correct me if I erred.
+> > 
+> > -- 
+> > Dan Chen                 crimsun@email.unc.edu
+> > GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
 > 
-> On Fri, 1 Mar 2002, Pasi Kärkkäinen wrote:
+> > diff -uNr linux.orig/fs/buffer.c linux/fs/buffer.c
+> > --- linux.orig/fs/buffer.c	Thu Feb 28 22:00:02 2002
+> > +++ linux/fs/buffer.c	Fri Mar  1 10:29:52 2002
+> > @@ -735,9 +735,8 @@
+> >  	wakeup_bdflush();
+> >  	try_to_free_pages(zone, GFP_NOFS, 0);
+> >  	run_task_queue(&tq_disk);
+> > -	current->policy |= SCHED_YIELD;
+> >  	__set_current_state(TASK_RUNNING);
+> > -	schedule();
+> > +	yield();
+> >  }
+> >  
+> >  void init_buffer(struct buffer_head *bh, bh_end_io_t *handler, void *private)
 > 
-> > These cards are now supported by the new Tigon3-driver. URL and more
-> > information about the driver can be found from mail with subject:
-> >
-> > "Subject: [BETA-0.93] Fourth test release of Tigon3 driver"
-> 
-> i noticed that the other day, but haven't played with it yet. it is an
-> 'official' replacement of bcm7500?
+> is __set_current_state(TASK_RUNNING) compatible with the new scheduler?
+> -
 
-There are various definitions of official ;-)
+I once tried to apply the O(1) scheduler on 2.4.18-pre9 + aa vm and I
+made a similar change (the O(1) patch was rejected on buffer.c) and it
+caused so corruption on my file system (ext2), but I'm still not sure
+what cause it that change was my main concern. I think Ingo is using
+sys_sched_yield(); instead of yield. I will still be carefull about it
+though.
 
-Is tg3 destined for the official kernel?  Yes.
-Is bcm5700 destined for the official kernel?  No.
-Is tg3 blessed by BroadCom?  Not yet.
-
-	Jeff
-
-
-
--- 
-Jeff Garzik      |
-Building 1024    |
-MandrakeSoft     | Choose life.

@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265589AbUAGRMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 12:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265584AbUAGRMS
+	id S265598AbUAGROW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 12:14:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUAGROW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 12:12:18 -0500
-Received: from users.ccur.com ([208.248.32.211]:55018 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id S266254AbUAGRLv (ORCPT
+	Wed, 7 Jan 2004 12:14:22 -0500
+Received: from mail.kroah.org ([65.200.24.183]:49862 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265598AbUAGROP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 12:11:51 -0500
-Date: Wed, 7 Jan 2004 12:11:43 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: reduce cpumask digit grouping from 8 to 4
-Message-ID: <20040107171142.GA11525@rudolph.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
+	Wed, 7 Jan 2004 12:14:15 -0500
+Date: Wed, 7 Jan 2004 09:14:03 -0800
+From: Greg KH <greg@kroah.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Linus Torvalds <torvalds@osdl.org>, Daniel Jacobowitz <dan@debian.org>,
+       Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040107171403.GB31177@kroah.com>
+References: <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <20040106001326.A1128@pclin040.win.tue.nl> <20040106000014.GL30464@kroah.com> <20040106024115.B1153@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20040106024115.B1153@pclin040.win.tue.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As long as we are going to have a seperator in cpumask_t displays,
-we might as well as group the digits into readable units.
+On Tue, Jan 06, 2004 at 02:41:15AM +0100, Andries Brouwer wrote:
+> On Mon, Jan 05, 2004 at 04:00:15PM -0800, Greg KH wrote:
+> 
+> > > > Have you even _tried_ udev?
+> > > 
+> > > Yes, and it works reasonably well. I have version 012 here.
+> > > Some flaws will be fixed in 013 or so.
+> > 
+> > What flaws would that be?  The short time delay for partitions?  Or
+> > something else?
+> 
+> Yes, partitions are not handled very well.
+> So far I have never seen udev discover partitions on its own.
 
-Against 2.6.1-rc2.
+That is because it can not.  Please see the current thread "removable
+media revalidation - udev vs. devfs or static /dev" on lkml for a
+solution to this.
 
---- base/lib/mask.c	2004-01-07 11:40:07.000000000 -0500
-+++ new/lib/mask.c	2004-01-07 11:57:38.000000000 -0500
-@@ -88,8 +88,8 @@
- int __mask_snprintf_len(char *buf, unsigned int buflen,
- 	const unsigned long *maskp, unsigned int maskbytes)
- {
--	u32 *wordp = (u32 *)maskp;
--	int i = maskbytes/sizeof(u32) - 1;
-+	u16 *wordp = (u16 *)maskp;
-+	int i = maskbytes/sizeof(u16) - 1;
- 	int len = 0;
- 	char *sep = "";
- 
+> > > Some difficulties are of a more fundamental type, not so easy to fix.
+> > 
+> > Such as?
+> 
+> Udev cannot do anything when there are no events.
+> And media insertion or removal does not always give events.
 
+Exactly.  That's why userspace needs to poll for this.
+
+> [By the way, a compilation warning for every C file:
+> % make
+> gcc  -pipe -Wall -Wmore.. -Os -fomit-frame-pointer -D_GNU_SOURCE \
+>   -I/usr/lib/gcc-lib/i486-suse-linux/3.2/include -I.../udev-012/libsysfs
+>   -c -o udev.o udev.c
+> cc1: warning: changing search order for system directory
+>      "/usr/lib/gcc-lib/i486-suse-linux/3.2/include"
+> cc1: warning: as it has already been specified as a non-system directory]
+
+Odd, it works here just fine on a number of different Red Hat boxes :)
+
+thanks,
+
+greg k-h

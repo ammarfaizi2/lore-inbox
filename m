@@ -1,32 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbTBZBFo>; Tue, 25 Feb 2003 20:05:44 -0500
+	id <S267966AbTBZBQB>; Tue, 25 Feb 2003 20:16:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267960AbTBZBFo>; Tue, 25 Feb 2003 20:05:44 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:15120 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP
-	id <S261900AbTBZBFo>; Tue, 25 Feb 2003 20:05:44 -0500
-Message-ID: <3E5BA48C.2020602@cyclades.com>
-Date: Tue, 25 Feb 2003 17:14:52 +0000
-From: Henrique Gobbi <henrique2.gobbi@cyclades.com>
-Reply-To: henrique.gobbi@cyclades.com
-Organization: Cyclades Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Preemptive kernel
-References: <Pine.LNX.4.33.0301211141580.8730-100000@pcz-madhavis.sasken.com> <3E2CF0A1.5030203@ToughGuy.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268532AbTBZBQB>; Tue, 25 Feb 2003 20:16:01 -0500
+Received: from fwout.nihs.go.jp ([202.241.36.162]:52587 "EHLO smtp")
+	by vger.kernel.org with ESMTP id <S267966AbTBZBQA>;
+	Tue, 25 Feb 2003 20:16:00 -0500
+Message-ID: <001b01c2dd36$1cfa8db0$f3c4b5cb@k768>
+From: "Takuya Saitoh" <taka0038@yahoo.com>
+To: "LKM" <linux-kernel@vger.kernel.org>
+Subject: Kernel incompatibility with the SiS 651/962L architecture
+Date: Wed, 26 Feb 2003 10:26:35 +0900
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again !!!
+Hi,
+I am having this terrible problem of nonfunctional PCI devices with kernels
+>= 2.4.19 and the SiS 651 chipset based system (motherboard Gigabyte P4
+Titan GA-8SIMLH).  For example all NIC (onboard or PCI slot) cards are
+recognized and configured just fine but timeout on transmit.  Another
+example is a PCI SCSI card which reports errors of the sort "...
+aic7xxx_abort returns 0x2002 ... device set offline ... command retry failed
+after bus reset ..." upon module loading.  Is someone aware of this problem
+and is there a patch ?  So far I have confirmed the same problem with
+kernels 2.4.19-16mdk and 2.4.18-14 (yes, Mandrake 9.0 and RedHat 8.0 are
+incompatible with this architecture) as well as 2.4.20-pre10-ac2.  This
+problem doesn't occur with kernels from older distributions such as RedHat
+7.3 (2.4.18-3) or 7.2.  There were some changes in the SiS architecture
+around 2.4.18/19 (
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102804753309548&w=2 ) so may
+that be the reason ?  There are also other reports of this problem, e.g.
 
-Where's the official repository for preemptive kernel patches. I'm 
-looking the patch for the kernel 2.4.17 for the ppc arch.
+From: rmkenn (rmkenn@email.de)
+Subject: Suse 8.0 and GA-8SIMLH
+This is the only article in this thread
+View: Original Format
+Newsgroups: alt.os.linux.suse
+Date: 2002-12-06 09:13:03 PST
 
-thanks in advance
-Henrique
+Hello,
+
+I just got a new box, a Maxdata with P4. The mainboord is
+a GA-8SIMLH with SiS 651 chipset.
+
+My problem ist, that I can't bring my network cards to work.
+The installation works fine, no error messages at boot-time,
+but I can't get a 'ping' through. The cards have worked in an
+elder box with SuSe 8.0. Could this be a issue with the motherboard?
+I did not find it in SuSe's compatibilty database.
+
+Any help would be appreciated,
+
+Regards,
+
+Rudolf.
+
 

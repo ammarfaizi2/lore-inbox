@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265233AbUE2RIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265245AbUE2RSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265233AbUE2RIx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 13:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265241AbUE2RIx
+	id S265245AbUE2RSh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 13:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265252AbUE2RSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 13:08:53 -0400
-Received: from pool-68-163-222-67.bos.east.verizon.net ([68.163.222.67]:51722
-	"HELO mica.at") by vger.kernel.org with SMTP id S265233AbUE2RIw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 13:08:52 -0400
-Message-ID: <676301c4459f$4a48f834$acbce14a@mica.at>
-From: "Erick Winston" <ewinstonrj@verbindingskip.nl>
+	Sat, 29 May 2004 13:18:37 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:53383 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265245AbUE2RSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 13:18:36 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
-Subject: Very powerful weightloss now available.
-Date: Sun, 30 May 2004 01:04:56 +0800
+Subject: Re: Fw: Re: keyboard problem with 2.6.6
+Date: Sat, 29 May 2004 12:18:30 -0500
+User-Agent: KMail/1.6.2
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Giuseppe Bilotta <bilotta78@hotpop.com>
+References: <20040528154307.142b7abf.akpm@osdl.org> <MPG.1b22c626ab9fcdc79896a5@news.gmane.org> <20040529154443.GA15651@ucw.cz>
+In-Reply-To: <20040529154443.GA15651@ucw.cz>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405291218.30617.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have a special_offer for you...
-WANT TO LOSE WEIGHT?
-The most powerful weightloss is now available
-without prescription. All natural Adipren720
-100% Money Back Guarantée!
-- Lose up to 19% Total Body Weight.
-- Up to 300% more Weight Loss while dieting.
-- Loss of 20-35% abdominal Fat.
-- Reduction of 40-70% overall Fat under skin.
-- Increase metabolic rate by 76.9% without Exercise.
-- Boost your Confidence level and Self Esteem.
-- Burns calorized fat.
-- Suppresses appetite for sugar.
-Get the facts about all-natural Adipren720 <http://www.8721diet.biz/default45.htm>
-If you wish not to be contacted again please
-enter your email address here. <http://www.8721diet.biz/r.html>
+On Saturday 29 May 2004 10:44 am, Vojtech Pavlik wrote:
+> Module (or kernel cmdline) parameters are not a good way to go, because
+> they cannot be changed at runtime. For mouse models, sysfs will be used
+> (when I get to implementing sysfs support for serio and input layers),
+> and most keyboards don't need any special options, except for scrolling
+> keyboards - setkeycode is enough to teach the driver about the special
+> scancodes.
+> 
 
+I have a patch that sysfsifies all serio drivers but not serio ports yet...
+I wanted to get everything in shape before showing it, but if you are
+interested I can rediff against the current.
+
+-- 
+Dmitry

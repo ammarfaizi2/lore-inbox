@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267153AbUBSKFY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 05:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267155AbUBSKFY
+	id S267151AbUBSKEy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 05:04:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267155AbUBSKEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 05:05:24 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:25875 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S267153AbUBSKFS
+	Thu, 19 Feb 2004 05:04:54 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:11761 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S267151AbUBSKEx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 05:05:18 -0500
-Message-ID: <40348D70.8090103@aitel.hist.no>
-Date: Thu, 19 Feb 2004 11:18:24 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: tridge@samba.org
-CC: "Theodore Ts'o" <tytso@mit.edu>, Pascal Schmidt <der.eremit@email.de>,
+	Thu, 19 Feb 2004 05:04:53 -0500
+Date: Thu, 19 Feb 2004 15:35:50 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@redhat.com>, rusty@rustcorp.com.au,
        linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 and case-insensitivity
-References: <1qqzv-2tr-3@gated-at.bofh.it>	<1qqJc-2A2-5@gated-at.bofh.it>	<1qHAR-2Wm-49@gated-at.bofh.it>	<1qIwr-5GB-11@gated-at.bofh.it>	<1qIwr-5GB-9@gated-at.bofh.it>	<1qIQ1-5WR-27@gated-at.bofh.it>	<1qIZt-6b9-11@gated-at.bofh.it>	<1qJsF-6Be-45@gated-at.bofh.it>	<E1Atbi7-0004tf-O7@localhost>	<16436.2817.900018.285167@samba.org>	<20040219024426.GA3901@thunk.org> <16436.11148.231014.822067@samba.org>
-In-Reply-To: <16436.11148.231014.822067@samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: keventd_create_kthread
+Message-ID: <20040219100549.GA27018@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20040218231322.35EE92C05F@lists.samba.org> <Pine.LNX.4.58.0402190205040.16515@devserv.devel.redhat.com> <20040219001011.6245f163.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040219001011.6245f163.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tridge@samba.org wrote:
-> Ted,
-> 
->  > Actually, not necessarily.  What if Samba gets notifications of all
->  > filename renames and creates in the directory, so that after the
->  > initial directory scan, it can keep track of what filenames are
->  > present in the directory?  It can then "prove the negative", as you
->  > put it, without having to continuously do directory scans.
-> 
-> Currently dnotify doesn't give you the filename that is being
-> added/deleted/renamed. It just tells you that something has happened,
-> but not enough to actually maintain a name cache in user space.
-> 
-You can still keep per-directory caches that you simply invalidate on each dnotify,
-and rebuild when necessary.  At least it would help the "repeated
-lookup of nonexistant filenames" case.  
-Path searches for executables usually happens on directories that don't 
-see much writing.
+On Thu, Feb 19, 2004 at 08:12:19AM +0000, Andrew Morton wrote:
+> However, if that wake_up_process() comes too early we'll just flip the new
+> thread out of TASK_INTERUPTIBLE into TASK_RUNNING and the schedule() in
+> kthread() will fall straight through.  So perhaps we can simply remove the
+> wait_task_inactive()?
 
-Helge Hafting
+If wake_up_process() comes too early (when the target task is still
+in TASK_RUNNING state), then won't wake_up_process() be a no-op?
+In which case, the target kthread will miss a wake-up event 
+(kthread_start/kthread_stop)?
 
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267351AbTAOVuz>; Wed, 15 Jan 2003 16:50:55 -0500
+	id <S267372AbTAOVxE>; Wed, 15 Jan 2003 16:53:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267357AbTAOVuz>; Wed, 15 Jan 2003 16:50:55 -0500
-Received: from grendel.firewall.com ([66.28.56.41]:7902 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id <S267351AbTAOVuy>; Wed, 15 Jan 2003 16:50:54 -0500
-Date: Wed, 15 Jan 2003 22:59:40 +0100
-From: Marek Habersack <grendel@caudium.net>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: XFS problems (hard lockup and oops on startup) with 2.5.5{6,7}
-Message-ID: <20030115215940.GA1441@thanes.org>
-References: <20030114175528.GA1213@thanes.org> <20030115202134.A25143@infradead.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
-Content-Disposition: inline
-In-Reply-To: <20030115202134.A25143@infradead.org>
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.3i
+	id <S267373AbTAOVxE>; Wed, 15 Jan 2003 16:53:04 -0500
+Received: from h-64-105-35-200.SNVACAID.covad.net ([64.105.35.200]:15232 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S267372AbTAOVxD>; Wed, 15 Jan 2003 16:53:03 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 15 Jan 2003 14:01:36 -0800
+Message-Id: <200301152201.OAA02047@adam.yggdrasil.com>
+To: mochel@osdl.org
+Subject: Re: Patch: linux-2.5.58/drivers/base/bus.c ignored pre-existing devices
+Cc: felix-linuxkernel@fefe.de, greg@kroah.com, linux-kernel@vger.kernel.org,
+       tomlins@cam.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2003-01-15, Patrick Mochel wrote:
+>The extra code was an attempt at properly handling failure of ->probe(),
+>and to make sure that an error from ->probe() (e.g. -ENOMEM) is propogated
+>up.
+>
+>The cause of the problem you're seeing is that if a device wasn't bound to 
+>a driver, -ENODEV was returned, causing it to be removed from the bus's 
+>list of devices. 
+>
+>To remedy this, I've changed the semantics of bus_match() to return the 
+>following:
+>
+>* 1     if device was bound to a driver.
+>* 0     if it wasn't 
+>* <0    if drv->probe() returned an error. 
+>
+>This allows the caller to know if binding happened, as well as bubble the 
+>error up.
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	I have't tried your patch, but, from reading it, I infer that
+your patch would not work with drivers that do further matching
+in their probe function and return -ENODEV, which should be handled
+as if match() function failed.  I suggest you use my patch.
 
-On Wed, Jan 15, 2003 at 08:21:34PM +0000, Christoph Hellwig scribbled:
-[snip]
-> > check the first filesystem the kernel oopses with Oops code 0002, in the
-> > interrupt handler. Nothing gets logged, of course, so I can't provide t=
-he
-> > full backtrace right now - I'll try to get it logged through the serial=
- console
-> > if it happens again with 2.5.58. I have copied some values by hand from=
- the
-> > screen (until I lost patience... :)):
-> >=20
-> > Unable to handle kernel paging request at virtual address 000500074
-> >  printing EIP
->=20
-> Hmm, that's really no much info.  And there weren't any XFS changes from
-> 2.5.52 to 2.5.58..
-Yep, that's why I wrote about something that affected XFS - at first I
-thought it might have been preemption but then I checked I had it on also on
-2.5.55. I'm running 2.5.58 currently and should the oops happen again, I'll
-either transcribe the screen or get a screenshot via serial console. The
-only thing I added in my > .55 config was the freebsd slice support and the
-UFS support (as the module), but I doubt that would be the cause, although,
-who knows?
-
-thanks,
-
-marek
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+JdnMq3909GIf5uoRAqcMAJ4m3rNpv4l3zAqqVOj464dQhbLo7gCdEq+T
-7/0gAopmf6+g1GhWdJnNQGU=
-=/4UY
------END PGP SIGNATURE-----
-
---9jxsPFA5p3P2qPhR--
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

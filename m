@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVCUWk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVCUWp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbVCUWk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 17:40:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVCUWgn
+	id S262136AbVCUWp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 17:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVCUWkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:36:43 -0500
-Received: from itbox2.apcinc.com ([12.5.87.41]:28073 "EHLO itbox2.apcinc.com")
-	by vger.kernel.org with ESMTP id S261947AbVCUWcf (ORCPT
+	Mon, 21 Mar 2005 17:40:43 -0500
+Received: from 201008253126.user.veloxzone.com.br ([201.8.253.126]:8717 "HELO
+	yahoo.com") by vger.kernel.org with SMTP id S261947AbVCUWiX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:32:35 -0500
-Subject: 2.4.22 High Memory Support for Pentium M
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF0CFCB9A5.D3A8907F-ON86256FCB.007B4D6C@mail.apcinc.com>
-From: Keith LeMay <keith.lemay@ultra-ats.com>
-Date: Mon, 21 Mar 2005 16:32:31 -0600
-X-MIMETrack: Serialize by Router on APC1/APC(Release 6.5|September 26, 2003) at 03/21/2005
- 04:32:28 PM
+	Mon, 21 Mar 2005 17:38:23 -0500
+Message-ID: <EB3E88D4.4831872@yahoo.com>
+Date: Tue, 22 Mar 2005 05:39:14 -0800
+Reply-To: <ppoiuui@yahoo.com>
+From: <ppoiuui@yahoo.com>
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-AntiVirus: checked by AntiVir Milter (version: 1.1; AVE: 6.30.0.7; VDF: 6.30.0.36; host: itbox2.apcinc.com)
+To: <linux-kernel@vger.kernel.org>
+Subject: Can 10 of us still sign up with you?
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Do not reply to this mail. See email address below.
 
+Please call or email me after you get this.
 
+I will give you 10 real paying signup's and show you how to get 1000's more
+without hardly promoting in a short-time.
 
+It's fast, easy and I will not charge you to find out how to do it.
 
-I'm porting code from a Pentium III processor to a Pentium M processor
-using kernel version 2.4.22.  Both processors contain 1.5Gig of RAM.  I
-noticed High Memory Support must be disabled on the Pentium M platform due
-to a bug that was fixed in kernel version 2.4.26.  Does anyone know how the
-bug was fixed and what changes I need to port back into kernel version
-2.4.22?  For various reasons, upgrading my system to kernel version 2.4.26
-is not an option.  Please respond to keith.lemay@ultra-ats.com.
+Believe me, you will not look back.
+
+You can call me on (0044/+44 or from USA 00144) 7.9.1.3.6.5.8.0.9.4 or
+email 
 

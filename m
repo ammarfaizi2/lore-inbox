@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267456AbSKQEdl>; Sat, 16 Nov 2002 23:33:41 -0500
+	id <S267459AbSKQFEr>; Sun, 17 Nov 2002 00:04:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267459AbSKQEdl>; Sat, 16 Nov 2002 23:33:41 -0500
-Received: from tapu.f00f.org ([66.60.186.129]:52679 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S267456AbSKQEdk>;
-	Sat, 16 Nov 2002 23:33:40 -0500
-Date: Sat, 16 Nov 2002 20:40:39 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [PATCH] 2.5.47: strdup()
-Message-ID: <20021117044039.GA1860@tapu.f00f.org>
-References: <87d6p63ui2.fsf@goat.bogus.local> <20021117000806.GB443@tapu.f00f.org> <873cq1nfhk.fsf@goat.bogus.local>
+	id <S267461AbSKQFEr>; Sun, 17 Nov 2002 00:04:47 -0500
+Received: from mnh-1-29.mv.com ([207.22.10.61]:50949 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S267459AbSKQFEr>;
+	Sun, 17 Nov 2002 00:04:47 -0500
+Message-Id: <200211170515.AAA04761@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: uml-patch-2.5.47-1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <873cq1nfhk.fsf@goat.bogus.local>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+Date: Sun, 17 Nov 2002 00:15:15 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 17, 2002 at 02:37:27AM +0100, Olaf Dietsche wrote:
+This patch updates UML to 2.5.47.
 
-> So you like duplicate code? Well, to each his own.
+Functionally, this is the same UML as the last working patch I had, which
+was for 2.5.44, which was up to UML 2.4.19-12.  Since I'm now up to 2.4.19-31,
+I have a bunch of merging to do, and those patches will be forthcoming.
 
-Not at all.
+The patch is available at
+	http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.47-1.bz2
+ 
+For the other UML mirrors and other downloads, see 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
+ 
+Other links of interest:
+ 
+	The UML project home page : http://user-mode-linux.sourceforge.net
+	The UML Community site : http://usermodelinux.org
+ 
+ 				Jeff
 
-I'm just not sure I like strdup being *easy* to use at it leads to
-misuse.  Admittedly this is a very poor argument for not having it.
-
-
-  --cw

@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261840AbRETKpn>; Sun, 20 May 2001 06:45:43 -0400
+	id <S261842AbRETLT3>; Sun, 20 May 2001 07:19:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261791AbRETKpe>; Sun, 20 May 2001 06:45:34 -0400
-Received: from p3EE3C8C4.dip.t-dialin.net ([62.227.200.196]:3588 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S261747AbRETKpQ>; Sun, 20 May 2001 06:45:16 -0400
-Date: Sun, 20 May 2001 12:27:59 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Donald Becker <becker@scyld.com>
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-        linux-net@vger.kernel.org, jgarzik@mandrakesoft.com
-Subject: Re: RTL8139 difficulties in 2.2, not in 2.4
-Message-ID: <20010520122759.B2910@emma1.emma.line.org>
-Mail-Followup-To: Donald Becker <becker@scyld.com>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-	linux-net@vger.kernel.org, jgarzik@mandrakesoft.com
-In-Reply-To: <20010519140413.B1795@emma1.emma.line.org> <Pine.LNX.4.10.10105191107450.956-100000@vaio.greennet>
+	id <S261854AbRETLTK>; Sun, 20 May 2001 07:19:10 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:6148 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261842AbRETLSv>;
+	Sun, 20 May 2001 07:18:51 -0400
+Message-ID: <20010520131730.D10924@bug.ucw.cz>
+Date: Sun, 20 May 2001 13:17:30 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        James Simmons <jsimmons@transvirtual.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: handling network using filesystem [was Re: no ioctls for serial ports?]
+In-Reply-To: <20010519211717.A7961@atrey.karlin.mff.cuni.cz> <Pine.GSO.4.21.0105191958090.7162-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10105191107450.956-100000@vaio.greennet>; from becker@scyld.com on Sat, May 19, 2001 at 11:15:38 -0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.GSO.4.21.0105191958090.7162-100000@weyl.math.psu.edu>; from Alexander Viro on Sat, May 19, 2001 at 08:01:32PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 May 2001, Donald Becker wrote:
+Hi!
 
-> > eth1: Transmit timeout, status 0c 0005 media 18.
-> > eth1: Tx queue start entry 4  dirty entry 0.
-> > eth1: RTL8139 Interrupt line blocked, status 5.
-> > eth1: RTL8139 Interrupt line blocked, status 5.
-> > eth1: RTL8139 Interrupt line blocked, status 4.
-> > eth1: RTL8139 Interrupt line blocked, status 4.
-> > (continues every minute with status 4 if no traffic on interface)
+> > I thought about how to do networking without sockets, and it seems to
+> > me like this kind of modify syscall is needed, because network sockets
+> > connect to *two* different places (one local address and one
+> > remote). Sockets are really nasty :-(.
 > 
-> The card is reporting that the interrupt line has been asserted (Tx
-> done), but the interrupt handler hasn't been called.
-> 
-> You can verify this by watching the interrupt count in /proc/interrupts.
-> 
-> Try booting the kernel with "noapic", which we recommend as the safe
-> default setting.
+> Pavel, take a look at http://plan9.bell-labs.com/sys/man/3/ip
 
-Sorry, this didn't work out. I still get Tx descriptor dumps, and these:
+Looks nice, and it seems they are even able to run BSD socket
+emulation over that. Wow.
 
-eth1: RTL8139 Interrupt line blocked, status 5.
-eth1: Transmit timeout, status 0c 0005 media 18.
-eth1: Tx queue start entry 8  dirty entry 4, full.
-eth1:  Tx descriptor 0 is 9008a03c. (queue head)
-eth1:  Tx descriptor 1 is 9008a03c.
-eth1:  Tx descriptor 2 is 9008a03c.
-eth1:  Tx descriptor 3 is 9008a03c.
-eth1: MII #32 registers are: 1000 782d 0000 0000 01e1 0000 0000 0000.
-eth1: RTL8139 Interrupt line blocked, status 5.
+However, it is still mid-ugly:
 
-/proc/interrupt looks like this:
-           CPU0       
-  0:      37029          XT-PIC  timer
-  1:       1049          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  4:       1955          XT-PIC  serial
-  5:        173          XT-PIC  ide2, eth0
-  8:          1          XT-PIC  rtc
-  9:          0          XT-PIC  eth1
- 10:       1323          XT-PIC  serial
- 11:         41          XT-PIC  sym53c8xx, es1371
- 13:          1          XT-PIC  fpu
- 14:      14947          XT-PIC  ide0
-NMI:          0
+       Opening  the  clone  file reserves a connection.  The file
+       descriptor returned from the open(2)  will  point  to  the
+       control  file,  ctl,  of  the  newly allocated connection.
+       Reading ctl returns a text string representing the  number
+       of the connection.  Connections may be used either to lis­
+       ten for incoming calls  or  to  initiate  calls  to  other
+       machines.
 
-So, yes, it looks as if there had not been a single eth1 IRQ. But why
-does 2.4 get it right, then, even without special boot options?
+So, you open "clone". That creates directory for you. You can get its
+number by reading from "clone" file.
 
+That's pretty strange, agreed?
+								Pavel
 -- 
-Matthias Andree
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

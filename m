@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUIJHtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266173AbUIJHxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUIJHtx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 03:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUIJHtx
+	id S266173AbUIJHxS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 03:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUIJHwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 03:49:53 -0400
-Received: from trantor.org.uk ([213.146.130.142]:7645 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S266263AbUIJHte (ORCPT
+	Fri, 10 Sep 2004 03:52:43 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:22669 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266173AbUIJHuO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 03:49:34 -0400
-Subject: Re: [patch] to add device+inode check to ipt_owner.c - HACKED UP
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040908103922.GD9795@lkcl.net>
-References: <20040908100946.GA9795@lkcl.net>
-	 <20040908103922.GD9795@lkcl.net>
-Content-Type: text/plain
-Date: Fri, 10 Sep 2004 08:49:28 +0100
-Message-Id: <1094802568.8495.49.camel@sherbert>
+	Fri, 10 Sep 2004 03:50:14 -0400
+Date: Fri, 10 Sep 2004 09:51:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Kevin Hilman <kjh-lkml@hilman.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: voluntary-preemption: understanding latency trace
+Message-ID: <20040910075139.GB27722@elte.hu>
+References: <83656nk9mk.fsf@www2.muking.org> <1094763737.1362.325.camel@krustophenia.net> <20040910063749.GA25298@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040910063749.GA25298@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-08 at 11:39 +0100, Luke Kenneth Casson Leighton wrote:
-> ... did i sent a patch?
+
+> - modify the second sched_clock() call to do this instead:
+                   ^--- first
 > 
-> did i send a patch??  i don't _think_ so *lol* :)
-
-heh :)
-
-IMO the number of constraints involed here make using this patch fairly
-involved (for something security related at least) in that, as you said,
-you have to:
-
- - be careful to use ACCEPT rules only
- - be careful that you do:
-    1. remove fw rules
-    2. upgrade software
-    3. replace rules
-
-plus the fastpath code looks very hairy with at least 3 locks taken and
-O(num_tasks * max_fds) unpreemptable in softirq...
-
-There has to be a simpler approach, perhaps passing in a path, looking
-up the dentry in current namespace and setting an unused flag in
-d_vfs_flags? That way you could just match on skb->sk->sk_socket->file-
->f_dentry.
-
-I don't know enough about VFS to know if that's really possible. I mean
-would you need vfsmnt too to make it accurate across namespaces? and if
-so, could dcookie infrastructure be used?
-
--- 
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+>      user_trace_start();
+> 
+>   modify the second sched_clock() call to do:
+> 
+>      user_trace_stop();
 

@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281021AbRKOT17>; Thu, 15 Nov 2001 14:27:59 -0500
+	id <S281010AbRKOTa3>; Thu, 15 Nov 2001 14:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281016AbRKOT1q>; Thu, 15 Nov 2001 14:27:46 -0500
-Received: from [216.101.162.242] ([216.101.162.242]:47506 "EHLO
-	pizda.ninka.net") by vger.kernel.org with ESMTP id <S281018AbRKOT04>;
-	Thu, 15 Nov 2001 14:26:56 -0500
-Date: Thu, 15 Nov 2001 11:26:06 -0800 (PST)
-Message-Id: <20011115.112606.62677098.davem@redhat.com>
-To: groudier@free.fr
-Cc: anton@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] small sym-2 fix
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011115172204.B1589-100000@gerard>
-In-Reply-To: <20011115153654.E22552@krispykreme>
-	<20011115172204.B1589-100000@gerard>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=big5
+	id <S281016AbRKOTaU>; Thu, 15 Nov 2001 14:30:20 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:44747 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S281019AbRKOTaQ>; Thu, 15 Nov 2001 14:30:16 -0500
+Date: Thu, 15 Nov 2001 14:30:12 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200111151930.fAFJUCq16060@devserv.devel.redhat.com>
+To: vojtech@suse.cz
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Possible Bug: 2.4.14 USB Keyboard
+In-Reply-To: <mailman.1005850740.5583.linux-kernel2news@redhat.com>
+In-Reply-To: <3BF2DFBF.6090502@prairiegroup.com> <20011114145312.A6925@kroah.com> <3BF3D029.7070609@prairiegroup.com> <20011115090023.A10511@kroah.com> <3BF40C03.4010509@prairiegroup.com> <mailman.1005850740.5583.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id GAA24074
 
-   From: Gérard Roudier <groudier@free.fr>
-   Date: Thu, 15 Nov 2001 17:27:38 +0100 (CET)
-   
-   The driver should not need more than 4096 bytes for a single allocation.
+> Do you have the keybdev module loaded? Also, don't load the usbkbd
+> module, if you load hid ...
+> 
+> -- 
+> Vojtech Pavlik
+> SuSE Labs
 
-If platform is 64-bit and PAGE_SIZE < 8K, yes it will.
-And ppc64 fits this criteria.
-ý:.žË›±Êâmçë¢kaŠÉb²ßìzwm…ébïîžË›±Êâmébžìÿ‘êçz_âžØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Þ—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨þ)ß£ømšSåy«­æ¶…­†ÛiÿÿðÃí»è®å’i
+There is a small problem with this approach: users have no clue
+how to control what modules are loaded, hotplug loads whatever
+was built (and recorded in modules.usbmap), and some users
+have keyboards that plainly refuse to work with hid, therefore
+vendors have to build both modules.
+
+See this little gem, for instance:
+ https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=55878
+
+I suspect some distributions can get away with "load the right
+module" approach because their userbase is so small and technical
+that they do not hit these cases often. I think something needs
+fixing in hid.
+
+-- Pete

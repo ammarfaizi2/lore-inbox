@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbTKGWSS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTKGWRz
+	id S261825AbTKGXpm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 18:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTKGWQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:17:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41924 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264378AbTKGPB1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 10:01:27 -0500
-Date: Fri, 7 Nov 2003 07:01:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: John Bradford <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <Pine.LNX.3.96.1031107090309.20991B-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0311070652080.1842-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 7 Nov 2003 17:16:31 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48396 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264408AbTKGP2c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 10:28:32 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Suspend to disk panicked in -test9.
+Date: 7 Nov 2003 15:18:05 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bogd3d$l4o$1@gatekeeper.tmr.com>
+References: <200310291857.40722.rob@landley.net> <200310291935.28554.elenstev@mesatop.com> <200310292333.06470.rob@landley.net>
+X-Trace: gatekeeper.tmr.com 1068218285 21656 192.168.12.62 (7 Nov 2003 15:18:05 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <200310292333.06470.rob@landley.net>,
+Rob Landley  <rob@landley.net> wrote:
 
-On Fri, 7 Nov 2003, Bill Davidsen wrote:
-> 
-> I mentioned ide tapes and ZIP drives, Linus didn't mention how one gets
-> around those.
+| > In the meantime, keeping a digital camera close by when testing is a
+| > low tech/high tech solution to this.
+| 
+| Very few McDonalds have a digital camera behind the register to loan out.  I 
+| was lucky they printed out some blank cash register paper for me to write the 
+| panic down on.  (Ordinarily, I take notes on my laptop...)
 
-The thing is, the non-ide-scsi interfaces really _should_ work. The fact
-is, SG_IO ("send a SCSI command") just _works_.
+If you don't carry a camera then bring a spare laptop ;-)
 
-However, right now only the CD-ROM driver exposes those commands. Why? 
-Because nobody has apparently cared enough about those theoretical IDE 
-tapes and ZIP drives.
+| If this was easily reproducible, I'd recreate it at home under a serial 
+| console.  (Well, this being a "modern" laptop with no serial port, maybe I 
+| could I could rig up a parallel port console or something.  But the 
+| principle's the same.  No, don't ask me why this thing has no serial port but 
+| does have a parallel port.  Ask IBM.)
 
-In other words, they seem to "exist" in the same sense that soubdblaster 
-CD-ROM users "exist". True in theory, but apparently only really useful 
-for theoretical arguments.
-
-Getting SCSI command support is not complicated: you add
-
-	ret = scsi_cmd_ioctl(dev, cmd, arg);
-
-to your ioctl routine. Of course, since so far nobody seems to have cared 
-about anything but CD writing, it's not really tested for anything else.
-
-		Linus
-
+I assume because serial mice and printers are rare, parallel printers
+are not. That said, I would not buy a laptop w/o serial, too useful for
+other things.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263536AbVCEEfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263627AbVCEEfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263536AbVCEEfS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 23:35:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263378AbVCDXUz
+	id S263627AbVCEEfM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 23:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbVCDXn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:20:55 -0500
-Received: from fire.osdl.org ([65.172.181.4]:56730 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263235AbVCDVRX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 16:17:23 -0500
-Message-Id: <200503042117.j24LHI7l017973@shell0.pdx.osdl.net>
-Subject: [patch 4/5] audit mips fix
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, yuasa@hh.iij4u.or.jp
-From: akpm@osdl.org
-Date: Fri, 04 Mar 2005 13:16:57 -0800
+	Fri, 4 Mar 2005 18:43:27 -0500
+Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:42400 "EHLO
+	bastet.signetmail.com") by vger.kernel.org with ESMTP
+	id S263243AbVCDV6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 16:58:48 -0500
+Date: Fri, 4 Mar 2005 16:58:22 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, chrisw@osdl.org,
+       torvalds@osdl.org
+Subject: Re: Linux 2.6.11.1
+Message-ID: <20050304215822.GA24843@havoc.gtf.org>
+References: <20050304175302.GA29289@kroah.com> <20050304124431.676fd7cf.akpm@osdl.org> <4228D43E.1040903@pobox.com> <20050304135113.68c50e13.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050304135113.68c50e13.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 04, 2005 at 01:51:13PM -0800, Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> >
+> > > cramfs-small-stat2-fix.patch
+> > > setup_per_zone_lowmem_reserve-oops-fix.patch
+> > > dv1394-ioctl-retval-fix.patch
+> > > ppc32-compilation-fixes-for-ebony-luan-and-ocotea.patch
+> > > nfsd--sgi-921857-find-broken-with-nohide-on-nfsv3.patch
+> > > nfsd--exportfs-reduce-stack-usage.patch
+> > 
+> > Unless it's crashing for people, stack usage is IMO a wanted-fix not 
+> > needed-fix.
+> 
+> Sure.  The patch is bog-obvious though.
+> 
+> > 
+> > > nfsd--svcrpc-add-a-per-flavor-set_client-method.patch
+> > 
+> > is this critical?
+> 
+> Doubt it, unless the succeeding patches have a dependency on it.  But the
+> other patches have not been tested without this one being present.
+> 
+> 
+> These patches have been in mm for four weeks, so it's probably OK from a
+> stability POV to take them straight into linux-release.  If they were
+> fresher then the way to handle them would be to merge them into Linus's
+> tree and backport in a couple of weeks time.
 
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Cool, fair enough.  linux-release sounds fine.
 
-  CC      arch/mips/kernel/ptrace.o
-arch/mips/kernel/ptrace.c: In function 'do_syscall_trace':
-arch/mips/kernel/ptrace.c:310: warning: implicit declaration of function 'audit_syscall_entry'
-arch/mips/kernel/ptrace.c:310: error: 'struct pt_regs' has no member named 'orig_eax'
-arch/mips/kernel/ptrace.c:314: warning: implicit declaration of function 'audit_syscall_exit'
+	Jeff
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
 
- 25-akpm/arch/mips/kernel/ptrace.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
 
-diff -puN arch/mips/kernel/ptrace.c~audit-mips-fix arch/mips/kernel/ptrace.c
---- 25/arch/mips/kernel/ptrace.c~audit-mips-fix	2005-03-04 13:16:25.000000000 -0800
-+++ 25-akpm/arch/mips/kernel/ptrace.c	2005-03-04 13:16:25.000000000 -0800
-@@ -21,6 +21,7 @@
- #include <linux/mm.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
-+#include <linux/audit.h>
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
- #include <linux/user.h>
-@@ -307,7 +308,7 @@ asmlinkage void do_syscall_trace(struct 
- {
- 	if (unlikely(current->audit_context)) {
- 		if (!entryexit)
--			audit_syscall_entry(current, regs->orig_eax,
-+			audit_syscall_entry(current, regs->regs[2],
- 			                    regs->regs[4], regs->regs[5],
- 			                    regs->regs[6], regs->regs[7]);
- 		else
-_

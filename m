@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318599AbSHWHqm>; Fri, 23 Aug 2002 03:46:42 -0400
+	id <S318643AbSHWHyc>; Fri, 23 Aug 2002 03:54:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318643AbSHWHqm>; Fri, 23 Aug 2002 03:46:42 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:47624
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318599AbSHWHql>; Fri, 23 Aug 2002 03:46:41 -0400
-Date: Fri, 23 Aug 2002 00:49:58 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE-flash device and hard disk on same controller
-In-Reply-To: <3D65E0DA.750FAA04@aitel.hist.no>
-Message-ID: <Pine.LNX.4.10.10208230045530.14761-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318649AbSHWHyc>; Fri, 23 Aug 2002 03:54:32 -0400
+Received: from mailgw.aecom.yu.edu ([129.98.1.16]:62618 "EHLO
+	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP
+	id <S318643AbSHWHyb>; Fri, 23 Aug 2002 03:54:31 -0400
+Mime-Version: 1.0
+Message-Id: <a05111608b98b96373cce@[129.98.90.227]>
+Date: Fri, 23 Aug 2002 03:58:39 -0400
+To: linux-kernel@vger.kernel.org
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: SMP Netfinity 340 hangs under 2.4.19
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Aug 2002, Helge Hafting wrote:
+A single processor Netfinity 340 running RedHat 7.1 and kernel 2.4.18 
+was recently upgraded to
 
-> Andre Hedrick wrote:
-> > 
-> > Oh and it is only useful for borken things like LINBIOS and other
-> > braindead systems like ARM that violate the 31 second rule of POST.
-> > 
-> 31s of POST is uselessly slow.  Perhaps it is needed when
-> the drives _are_ spinning up, but not for the common
-> case of rebooting to activate a new kernel
-> (or reset button when the dev-kernel hung.)  The disk
-> is spinning already in those cases, and there should 
-> be no bootup delay.
+1) 1 GB RAM
+2) second processor (1 Ghz Xeon)
+3) 2.4.19 for SMP with bigmem and added NFS server patches and 
+ext3-related patches.
 
-Correct, and your case is different than from power on cold.
-Regardless, you isse EXECUTE DIAGNOSITCS and there are device which wait
-until the last minute to respond.
+Heavily used processes are netatalk, samba, and NFS.
 
-There are things called shadow registers.
+The box is now hard locking periodically (every several days).
 
-Where the slave device answers for or as the master device in this special
-case.  Now if you have a master (atapi) without shadow registers but slave
-(atapi) with shadow registers, guess what sometimes the master negates
-the slaves attempt to report.  So this command fails here even after a
-warm boot.
+Lore elsewhere on the Internet says Netfinity SMP boxes have had 
+trouble with the nmi-watchdog and the  screen blanker. The former was 
+turning off via LILO and the latter turned off in script (for both 
+terminal and for X).
 
-Now what?
+It seemed that box was OK (for about 2 weeks) when it was not 
+attached to external RAID hardware (via Adaptec 29160LP card). At 
+least one hang occurred during fsck of the hardware RAID and another 
+during what was probably heavy disk activity on the RAID.
+
+The memory was reverted back to the original but it still hung. 
+Presumably, this rules out #1.
+
+In the latest hang, the keyboard is locked up, but the Ethernet card 
+(e1000) has link and ssh and https and ping respond on scan but 
+that's it.Also, heartbeat runs on the box and it stopped reporting to 
+the motherboard Ethernet and serial port being watched by failover 
+node's heartbeat.
+
+Note that another box configured virtually identically except for the 
+e1000 and the Adaptec card (no external RAID) has not hung.
 
 
-Andre Hedrick
-LAD Storage Consulting Group
+Is there significance to the fact that keyboard and mouse are frozen 
+but apparently some processes are still up?
 
+Does anyone one think this could be an issue with the patched SMP kernel?
+
+More keywords: crash, freeze, hung, frozen, locked up.
+-- 
+
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

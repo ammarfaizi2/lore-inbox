@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276220AbRI1SQH>; Fri, 28 Sep 2001 14:16:07 -0400
+	id <S276223AbRI1S0S>; Fri, 28 Sep 2001 14:26:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276226AbRI1SPr>; Fri, 28 Sep 2001 14:15:47 -0400
-Received: from www.diigroup.com ([208.132.17.2]:56068 "HELO
-	aegis.indstorage.com") by vger.kernel.org with SMTP
-	id <S276224AbRI1SPl>; Fri, 28 Sep 2001 14:15:41 -0400
-From: n0ano@indstorage.com
-Date: Fri, 28 Sep 2001 12:34:53 -0600
-To: Eli Carter <eli.carter@inet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] core file naming option
-Message-ID: <20010928123453.A892@tlaloc.indstorage.com>
-In-Reply-To: <E15mHSd-0000mh-00@the-village.bc.nu> <3BB20F26.5575897B@inet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <3BB20F26.5575897B@inet.com>; from eli.carter@inet.com on Wed, Sep 26, 2001 at 12:23:50PM -0500
+	id <S276228AbRI1S0I>; Fri, 28 Sep 2001 14:26:08 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:34820 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S276222AbRI1SZy>; Fri, 28 Sep 2001 14:25:54 -0400
+Date: Fri, 28 Sep 2001 14:26:21 -0400
+Message-Id: <200109281826.f8SIQLP06585@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+X-Also-Posted-To: linux.dev.kernel
+Subject: Re: 2.4.9-ac16 good perfomer?
+In-Reply-To: <Pine.LNX.4.33L.0109280049380.19147-100000@imladris.rielhome.conectiva>
+Distribution: local
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
+Reply-To: davidsen@tmr.com (bill davidsen)
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eli-
+In article <Pine.LNX.4.33L.0109280049380.19147-100000@imladris.rielhome.conectiva>,
+Rik van Riel <riel@conectiva.com.br> wrote:
+| On Thu, 27 Sep 2001, Thomas Hood wrote:
+| 
+| > Either 2.4.9-ac16 has much improved VM performance over
+| > previous 2.4 kernels (under moderate load, at least), or someone
+| > sneaked in to my apartment last night and upgraded my machine
+| > while I was asleep.  I'm leaning toward the latter explanation.
+| 
+| Now that the -ac VM was stable for a few weeks, I thought
+| it might be time to sneak in some big performance changes,
+| finally.
+| 
+| They seem to work ;)
 
-Having the 2.2.x series create `core.pid' is like a 2 line change
-to `fs/binfmt_elf.c', just increase the size of the array that holds
-the file name and `sprintf' the pid into it.  I've got a patch for
-the 2.2.x series that dumps core for all threads and puts them in
-`core.pid' files.
+  I have been playing with 2.4.9-ac16 and I note that on a small machine
+(without the highmem issues) it really seems much slower initially.
+After startx I pop up netscape for a test, and it takes almost 50%
+longer than 2.4.8-pre3 I've been running since it was new. After that it
+seems okay but not wildly better, my aim was to be able to use netscape
+and cdrecord and {anything_else} at the same time.
 
-On Wed, Sep 26, 2001 at 12:23:50PM -0500, Eli Carter wrote:
-> Alan Cox wrote:
-> > 
-> > > Other Unix' have used core.pid as the name. Wouldn't this be better?
-> > > Especially when the process name is already stored in a core file
-> > > (`file core` will give you this). Hmm I wonder could we use this
-> > > core.pid format to dump the core for each thread (probably a bad idea).
-> > 
-> > The -ac tree and latest -linus can use core.pid for each thread already
-> 
-> Ah, I see: /proc/sys/kernel/core_uses_pid if I'm not mistaken.
-> 
-> However, my primary interest is with the 2.2.x series, and I don't see
-> this in 2.2.19.
-> Is this something that will be moving to 2.2.19?  Are there
-> philisophical or technical reasons one way or the other?
-> 
-> Thank you for your time,
-> 
-> Eli
-> --------------------.     Real Users find the one combination of bizarre
-> Eli Carter           \ input values that shuts down the system for days.
-> eli.carter(a)inet.com `-------------------------------------------------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+  I'm measuring some figures now, and I have to dig out the location of
+the preempt stuff and see if it's in already, or will slide in without
+breaking. My bookmarks are on backup while I use the 2nd drive for
+something else today :-(
 
 -- 
-Don Dugger
-"Censeo Toto nos in Kansa esse decisse." - D. Gale
-n0ano@indstorage.com
-Ph: 303/652-0870x117
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe
+

@@ -1,88 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291711AbSBNPGU>; Thu, 14 Feb 2002 10:06:20 -0500
+	id <S291702AbSBNPRk>; Thu, 14 Feb 2002 10:17:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291712AbSBNPGH>; Thu, 14 Feb 2002 10:06:07 -0500
-Received: from pcow035o.blueyonder.co.uk ([195.188.53.121]:8456 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S291711AbSBNPFt>;
-	Thu, 14 Feb 2002 10:05:49 -0500
-Date: Thu, 14 Feb 2002 15:05:43 +0000
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fun with OOM on 2.4.18-pre9
-Message-ID: <20020214150543.GA13788@amphibian.dyndns.org>
-In-Reply-To: <200202141456.IAA24921@tomcat.admin.navo.hpc.mil>
+	id <S291707AbSBNPRa>; Thu, 14 Feb 2002 10:17:30 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:17256 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S291702AbSBNPRQ>; Thu, 14 Feb 2002 10:17:16 -0500
+Date: Thu, 14 Feb 2002 16:17:28 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Gerd Knorr <kraxel@bytesex.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andrew Morton <akpm@zip.com.au>, Rik van Riel <riel@conectiva.com.br>,
+        "David S. Miller" <davem@redhat.com>,
+        Benjamin LaHaise <bcrl@redhat.com>, Dave Jones <davej@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __free_pages_ok oops
+Message-ID: <20020214161728.O7940@athlon.random>
+In-Reply-To: <20020214141028.M7940@athlon.random> <Pine.LNX.4.21.0202141335430.1033-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200202141456.IAA24921@tomcat.admin.navo.hpc.mil>
-User-Agent: Mutt/1.3.27i
-From: toad <mtoseland@cableinet.co.uk>
+In-Reply-To: <Pine.LNX.4.21.0202141335430.1033-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 14, 2002 at 02:01:36PM +0000, Hugh Dickins wrote:
+> On Thu, 14 Feb 2002, Andrea Arcangeli wrote:
+> > On Thu, Feb 14, 2002 at 12:10:37PM +0100, Gerd Knorr wrote:
+> > > 
+> > > I've recently changed the code to make it *not* call unmap_kiobuf/vfree
+> > > from irq context.  Instead bttv 0.8.x doesn't allow you to close the
+> > > device with DMA xfers in flight.  If you try this the release() fops
+> > > handler will block until the transfer is done, then unmap_kiobuf from
+> > > process context, then return.
+> > 
+> > perfect, that's the right fix for 2.4 (waiting DMA to complete at
+> > ->release looks also much saner). unmap_kiobuf wasn't supposed to be run
+> > from irq handlers. Everything dealing with userspace mappings cannot run
+> > from irq handlers, tlb flushes, VM, swapping etc...  everything must run
+> > from normal kernel context. If you obey this rule, my previous email to
+> > this thread will still apply. I wasn't aware of bttv running
+> > unmap_kiobuf from irq.
+> 
+> It's good that Gerd has made his change, but we don't know who else
+> might have been doing similar.  unmap_kiobuf does not involve unmapping
+> virtual address space: it used to be safe run from irq handlers, now not.
+> 
+> We don't have to make a change for 2.4.18, but we really should add some
+> kind of safety check there in 2.4.soon: either of the "it's a BUG()"
+> kind I first suggested (which may embarrass us by firing too often),
+> or of the "we can handle that" kind which I last suggested.
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think your BUG patch is good and it should go in.
 
-On Thu, Feb 14, 2002 at 08:56:10AM -0600, Jesse Pollard wrote:
-> toad <mtoseland@cableinet.co.uk>:
-> >=20
-> > I do a make -j bzImage
-> > I have 2 large processes (Kaffe) running in the background. They are
-> > driven by scripts like this:
-> >=20
-> > while true;
-> > do su freenet -c java freenet.node.Main;
-> > done
-> >=20
-> > I have 512MB of RAM and no swap on 2.4.18-pre9.
-> > Kernel eventually slows to a near complete halt, and starts killing
-> > processes.
-> > It kills Kaffe several times
-> > Out of Memory: Killed process xyz (Kaffe)
-> > (no I don't have logs, sorry)
-> > Each time it's a different pid, having respawned from its parent
-> > process. Then later, it apparently becomes unkillable - each time it
-> > respawns it is *the same PID*. VT switching works, but otherwise the
-> > system is unresponsive. It is not clear whether the make -j is still
-> > running. Immediately before this, it did the same thing with dictd, but
-> > eventually got around to Kaffe. After a fairly long wait I rebooted with
-> > the reset switch.
-> >=20
-> > Any more information useful? Is this known behaviour?
->=20
-> Known behaviour - ie. don't do that.
->=20
-> On most systems a "make -j4", or 6, or even 8 will work. But SOMETHING has
-> to give after memory fills up. The number of processes to use for -j
-> depends on the system. On mine (256MB, dual pentium pro) I don't do more
-> than 6, and 4 works best (lets me run solitare too).
-Isn't that what the OOM killer is for?
->=20
-> -------------------------------------------------------------------------
-> Jesse I Pollard, II
-> Email: pollard@navo.hpc.mil
->=20
-> Any opinions expressed are solely my own.
+Also note that such BUG() cannot trigger in mainline, and this is not an
+hope, we know this for sure. It cannot happen even with bttv, because
+the bttv-driver in mainline is using remap_page_range and it doesn't
+allow read/write zerocopy. Such BUG can trigger only if you patch
+mainline or if you use drivers not part of the maineline kernel, so as
+usual it's a matter of the driver maintainers to provide a driver that
+functions correctly on top of a certain mainline kernel. So I really
+wouldn't worry to change this for 2.4 (as said, unless/until we're
+forced to ship aio on top of 2.4).
 
---=20
-The road to Tycho is paved with good intentions
-
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8a9JH9dS6LLJqPpURAvYVAJ4lNcl2/iD3O0qh4sqpL6w6uHDgzwCgmUQ7
-aH+iMzWVGYlEFeYUgxLnUr0=
-=bWvQ
------END PGP SIGNATURE-----
-
---mYCpIKhGyMATD0i+--
+Andrea

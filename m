@@ -1,78 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266379AbTBTRdr>; Thu, 20 Feb 2003 12:33:47 -0500
+	id <S266453AbTBTRfM>; Thu, 20 Feb 2003 12:35:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266356AbTBTRdr>; Thu, 20 Feb 2003 12:33:47 -0500
-Received: from ithilien.qualcomm.com ([129.46.51.59]:49398 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S266379AbTBTRcx>; Thu, 20 Feb 2003 12:32:53 -0500
-Message-Id: <5.1.0.14.2.20030220092216.0d3fefd0@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 20 Feb 2003 09:38:50 -0800
-To: Rusty Russell <rusty@rustcorp.com.au>
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family 
-Cc: "David S. Miller" <davem@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Jean Tourrilhes <jt@bougret.hpl.hp.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030220041225.AC0A42C5AB@lists.samba.org>
-References: <Your message of "Wed, 19 Feb 2003 09:45:59 -0800." <5.1.0.14.2.20030219092611.0d0d00c8@mail1.qualcomm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S266356AbTBTRdw>; Thu, 20 Feb 2003 12:33:52 -0500
+Received: from mail.permas.de ([195.143.204.226]:2445 "EHLO netserv.local")
+	by vger.kernel.org with ESMTP id <S266408AbTBTRdF>;
+	Thu, 20 Feb 2003 12:33:05 -0500
+From: Hartmut Manz <manz@intes.de>
+Organization: INTES GmbH
+To: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: allocate more than 2 GB on IA32
+Date: Thu, 20 Feb 2003 18:40:21 +0100
+User-Agent: KMail/1.5
+References: <200302111015.54223.manz@intes.de> <86310000.1044979897@[10.10.2.4]>
+In-Reply-To: <86310000.1044979897@[10.10.2.4]>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302201840.21464.manz@intes.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:21 PM 2/19/2003, Rusty Russell wrote:
->In message <5.1.0.14.2.20030219092611.0d0d00c8@mail1.qualcomm.com> you write:
->> >Firstly, the owner field should probably be in struct proto_ops not
->> >struct socket, where the function pointers are.
->> struct proto_ops doesn't exists on its own without struct socket.
->> I think it make sense to simply keep track of the sockets but I don't 
->> see any problem with putting it in proto_ops.
+On Tuesday 11 February 2003 17:11, Martin J. Bligh wrote:
+> > i would like to allocate more than 2 GB of memory on an IA32
+> > architecture.
+> >
+> > The machine is a dual XEON_DP with 3 GB of Ram and 4 GB of swap space.
+> >
+> > I have tried with the default SUSE 8.1 kernel as well as with a
+> > 2.4.20-pre4aa1 Kernel compile by my own using these Options:
+> >
+> > CONFIG_HIGHMEM4G=y
+> > CONFIG_HIGHMEM=y
+> > CONFIG_1GB=y
+> >
+> > but I am only able to allocate 2 GB with a single malloc call.
+> > I tought it should be possible to allocate up to 2.9 GB of memory to a
+> > process, with this kernel settings.
 >
->Well, the purpose is to stop those methods from vanishing, so it makes
->sense to have the owner field next to those pointers.  It's
->nitpicking, really.
-Actually I think I have strong reason to have it in struct socket. I'll reply to
-Dave's email and explain it there.
-
->> >> +     try_module_get(sock->owner);
->> >> +     newsock->owner = sock->owner;
->> >> +     
->> >>       err = sock->ops->accept(sock, newsock, sock->file->f_flags);
->> >>       if (err < 0)
->> >>               goto out_release;
->> >
->> >You still need to check the result of try_module_get, and fail if it
->> >fails.  The *only* time this will fail is when someone is doing an
->> >"rmmod --wait" on the module, which presumably means they really do
->> >not want you to increase the reference count furthur.
+> Well, assuming you had no user-space code or data, or a stack, or any
+> shared libraries to fit into that space as well ;-)
 >
->> Ohh, I see. My assumption here was that we know for sure that module
->> is alive at this point since we already hold a reference to the
->> first socket. Actually I was going to send another email and ask for
->> unconditional module_get() specifically for the cases like that.
+> Try shifting TASK_UNMAPPED_BASE down from 1GB to 0.5GB - that should give
+> you some more breathing room, though you'll never get to 2.9GB.
 >
->There has been talk of this, but OTOH, the admin has explicitly gone
->out of their way to remove this module.  They really don't want anyone
->new using it.  Presumably at this very moment they are killing off all
->the processes they can find with such a socket.
-The thing is that once those processes are killed sockets will be 
-destroyed and release the module anyway. i.e. There is no reason to
-sort of artificially force accept() to fail. Everything will be cleaned 
-up once the process is gone.
+> M.
 
->My other reluctance is that people will use "module_get" the way they
->used MOD_INC_USE_COUNT() (ie. when *not* already holding a reference),
->and we'll have all those races back.
-Yes that'd be wrong. However I think in general when module wants to create 
-a copy of its own object (ie already holds reference) it should be able to 
-copy the object and simply bump refcount with module_get(). That will help 
-to avoid a lot of unnecessary error recovery paths (like in the accept() case).
+First of all I would like to say THANK YOU for your help.
 
->I think it can be argued both ways, honestly.
-Yep. And I'd argue in for of module_get() :)
+I am now able to allocate up to ~3.2 GB of memory on a 4 GB Machine, even with 
+shared libraries. 
 
-Thanks
-Max
+This is what I have done.
+
+1. I have activated the kernel option in  Kernel 2.4.21pre4aa3
+   CONFIG_05GB=y
+  This gives the following: 
+    a: TASK_UNMAPPED_BASE is now 0xe000000 wich is  224 MB
+    b: Upper Limit for User-Space memory is now at 3.5 GB
+   So I have the potential to allocated up to 3360 MB of memory
+
+2. I have exchanged malloc with anonymous mmap, since malloc
+    was still only able to allocate about 2 GB.
+
+
+
+-- 
+-----------------------------------------------------------------------------
+Hartmut Manz                                      WWW:    http://www.intes.de
+INTES GmbH                                        Phone:  +49-711-78499-29
+Schulze-Delitzsch-Str. 16                         Fax:    +49-711-78499-10
+D-70565 Stuttgart                                 E-mail: manz@intes.de
+   Ein Mensch sieht, was vor Augen ist; der Herr aber sieht das Herz an.
+------------------------------------------------------- 1. Samuel 16, 7 -----
 

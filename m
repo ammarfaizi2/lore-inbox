@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262444AbSKDSLy>; Mon, 4 Nov 2002 13:11:54 -0500
+	id <S262620AbSKDSTw>; Mon, 4 Nov 2002 13:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262447AbSKDSLy>; Mon, 4 Nov 2002 13:11:54 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:17881 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S262444AbSKDSLx>;
-	Mon, 4 Nov 2002 13:11:53 -0500
-Date: Mon, 4 Nov 2002 19:18:22 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Thomas Schenk <tschenk@origin.ea.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Need assistance in determining memory usage
-Message-ID: <20021104181822.GA20070@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Thomas Schenk <tschenk@origin.ea.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1036433472.2884.42.camel@shire>
+	id <S262621AbSKDSTw>; Mon, 4 Nov 2002 13:19:52 -0500
+Received: from [198.149.18.6] ([198.149.18.6]:65516 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S262620AbSKDSTv>;
+	Mon, 4 Nov 2002 13:19:51 -0500
+Subject: Re: [2.5.45] Unable to umount XFS filesystems
+From: Steve Lord <lord@sgi.com>
+To: kronos@kronoz.cjb.net
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021102151320.GA308@dreamland.darkstar.net>
+References: <20021102151320.GA308@dreamland.darkstar.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 04 Nov 2002 12:25:08 -0600
+Message-Id: <1036434308.23501.16.camel@jen.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1036433472.2884.42.camel@shire>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 04, 2002 at 12:11:07PM -0600, Thomas Schenk wrote:
+On Sat, 2002-11-02 at 09:13, Kronos wrote:
+> Hi,
+> with kernel  2.5.45 I'm  unable to unmount  XFS filesystems. 'umount' is
+> blocked in D state:
+> 
 
-> Please don't say to just use ps or top, because if either of these tools
-> was adequate, I wouldn't be asking here and every reference I could find
+Here is the fix for this hang.
 
-(...)
+Steve
 
-> expert (being just a lowly systems administrator), so please keep make
-> your explanations as detailed as possible.
+===========================================================================
+Index: linux/fs/xfs/xfs_vfsops.c
+===========================================================================
 
-If you could state your question as detailed as possible. Please explain how
-'ps' and 'top' are inadequate.
-
-Regards,
-
-bert
+--- /usr/tmp/TmpDir.27770-0/linux/fs/xfs/xfs_vfsops.c_1.390	Mon Nov  4 12:20:05 2002
++++ linux/fs/xfs/xfs_vfsops.c	Mon Nov  4 12:18:52 2002
+@@ -592,8 +592,6 @@
+ 	rvp->v_flag |= VPURGE;			/* OK for vn_purge */
+ 	VN_RELE(rvp);
+ 
+-	vn_remove(rvp);
+-
+ 	/*
+ 	 * If we're forcing a shutdown, typically because of a media error,
+ 	 * we want to make sure we invalidate dirty pages that belong to
 
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

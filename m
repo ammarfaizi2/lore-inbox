@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264888AbSKVOxF>; Fri, 22 Nov 2002 09:53:05 -0500
+	id <S264915AbSKVPCG>; Fri, 22 Nov 2002 10:02:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264889AbSKVOxF>; Fri, 22 Nov 2002 09:53:05 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:25566 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S264888AbSKVOxE>;
-	Fri, 22 Nov 2002 09:53:04 -0500
-Date: Fri, 22 Nov 2002 16:00:11 +0100
-From: KELEMEN Peter <fuji@elte.hu>
+	id <S264939AbSKVPCG>; Fri, 22 Nov 2002 10:02:06 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:48621 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264915AbSKVPCF>; Fri, 22 Nov 2002 10:02:05 -0500
 To: linux-kernel@vger.kernel.org
-Subject: NFS performance ...
-Message-ID: <20021122150010.GB18778@chiara.elte.hu>
-Reply-To: KELEMEN Peter <fuji@elte.hu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-Organization: ELTE Eotvos Lorand University of Sciences, Budapest, Hungary
-X-GPG-KeyID: 1024D/EE4C26E8 2000-03-20
-X-GPG-Fingerprint: D402 4AF3 7488 165B CC34  4147 7F0C D922 EE4C 26E8
-X-PGP-KeyID: 1024/45F83E45 1998/04/04
-X-PGP-Fingerprint: 26 87 63 4B 07 28 1F AD  6D AA B5 8A D6 03 0F BF
-X-Comment: Personal opinion.  Paragraphs might have been reformatted.
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Accept-Language: hu,en
+Subject: Re: Qt 3.1 and xconfig
+References: <3DDC6AD0.40906@iinet.net.au>
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+From: Markus Plail <plail@web.de>
+Date: Fri, 22 Nov 2002 16:09:03 +0100
+In-Reply-To: <3DDC6AD0.40906@iinet.net.au> (Nero's message of "Thu, 21 Nov
+ 2002 16:10:40 +1100")
+Message-ID: <87d6oxvdyo.fsf@web.de>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i686-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+* Nero  writes:
+>If you link against qt 3.1 (and this will be common soon, KDE 3.1
+>requires it), you can't change any of the options. There is a warning
+>when it is running:
+>[error messages]
 
-I have a very simple NFS setup over a siwtched 100Mbit/s network.
+It works just fine here. QT 3.1.0.
 
-client is Celeron 400MHz/256M RAM, using XFS
-server is dual Pentium Pro 200MHz/1G RAM, using XFS
-server is running Linux 2.4.19-pre8aa3.
+regards
+Markus
 
-Network bandwith can be utilized, because ICMP flooding the
-server results in ~20000 kbit/s network traffic (as of
-iptraf), but NFS (v3,udp) write performance is unacceptably
-slow (around 300 KiB/sec), same results with the following
-kernels:
-Linux 2.4.18-WOLK3.1
-Linux 2.4.18-wolk3.7.1
-Linux 2.4.20-pre8aa2
-
-However, with 2.4.19-rmap14b-xfs the very same NFS
-performance tops out at 2.54 MiB/sec.  What's the catch?
-
-TIA,
-Peter
-
--- 
-    .+'''+.         .+'''+.         .+'''+.         .+'''+.         .+''
- Kelemen Péter     /       \       /       \       /      fuji@elte.hu
-.+'         `+...+'         `+...+'         `+...+'         `+...+'

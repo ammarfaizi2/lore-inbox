@@ -1,33 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280289AbRLDDCE>; Mon, 3 Dec 2001 22:02:04 -0500
+	id <S280365AbRLDDCE>; Mon, 3 Dec 2001 22:02:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284610AbRLCXrG>; Mon, 3 Dec 2001 18:47:06 -0500
-Received: from zodiac.mimuw.edu.pl ([193.0.99.1]:42927 "EHLO
-	students.mimuw.edu.pl") by vger.kernel.org with ESMTP
-	id <S285299AbRLCWlV>; Mon, 3 Dec 2001 17:41:21 -0500
-From: Filip Kalinski <fk181140@zodiac.mimuw.edu.pl>
-Message-Id: <200112032246.fB3MkZVf022727@fk.filipnet>
-Date: Mon, 03 Dec 2001 23:46:35 +0100
+	id <S284588AbRLCXqq>; Mon, 3 Dec 2001 18:46:46 -0500
+Received: from stud.tb.fh-muenchen.de ([129.187.138.35]:19688 "EHLO
+	server.intern.stud.fh-muenchen.de") by vger.kernel.org with ESMTP
+	id <S282997AbRLCJ2O>; Mon, 3 Dec 2001 04:28:14 -0500
+Subject: ACPI / APM - Battery level not readable on HP Omnibook XE3
+From: Lars Duesing <ld@stud.fh-muenchen.de>
 To: linux-kernel@vger.kernel.org
-Subject: (PATCH) small fix for building with new gcc
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 03 Dec 2001 10:28:05 +0100
+Message-Id: <1007371685.12788.6.camel@ws1.intern.stud.fh-muenchen.de>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes problem with compiling the kernel with gcc 3.x.
-It does not like that xtime is defined differently in linux/sched.h
-(as "volatile"), and doesn't want to proceed.
+Hi List,
 
-Filip Kaliñski <filon@pld.org.pl>
+I do have some nice problem.
+I got a new Omnibook XE3/1066, and wanted to install Linux.
+Problems are growing big :)
 
---- linux-vanilla/kernel/timer.c	Sun Nov  4 16:27:47 2001
-+++ linux-modfied/kernel/timer.c	Fri Nov 23 23:58:34 2001
-@@ -32,7 +32,7 @@
- long tick = (1000000 + HZ/2) / HZ;	/* timer interrupt period */
- 
- /* The current time */
--struct timeval xtime __attribute__ ((aligned (16)));
-+volatile struct timeval xtime __attribute__ ((aligned (16)));
- 
- /* Don't completely fail for HZ > 500.  */
- int tickadj = 500/HZ ? : 1;		/* microsecs */
+All information regards to kernel 2.5.0.
+
+One of my Problems is: I cannot read battery-level trough either acpi
+nor apm.
+On acpi kernel tells me on cat /proc/acpi/battery/1/info:
+Present:		yes
+Design Capacity:	5400 mAh
+Last Full Capacity:	5400 mAh
+...
+Model Number:		LIP9071
+...
+Battery Type:		LiON
+OEM Info:		HP
+
+so far so good.
+cat /proc/acpi/battery/1/status:
+Present:		yes
+Error reading battery status (_BST)
+
+ouch.
+best thing - next cat /proc/acpi/battery/1/info:
+Present:		yes
+Error reading battery information (_BIF)
+
+double ouch.
+
+Using APM results are more or less the same.
+
+any hints?
+
+thanks
+
+	Lars Duesing
+
+
+-- 
+======================================================================
+This mail may contain private and/or confidential information. 
+If you are not the intended recipient, please discard this mail 
+immediately. Any unauthorized use of the information in this mail is 
+prohibited by international law.
+
+

@@ -1,77 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266072AbUA2FHL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 00:07:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266083AbUA2FHL
+	id S261957AbUA2FkM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 00:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266022AbUA2FkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 00:07:11 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:1994 "EHLO
-	myware.akkadia.org") by vger.kernel.org with ESMTP id S266072AbUA2FHJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 00:07:09 -0500
-Message-ID: <401894DA.7000609@redhat.com>
-Date: Wed, 28 Jan 2004 21:06:34 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040118
-X-Accept-Language: en-us, en
+	Thu, 29 Jan 2004 00:40:12 -0500
+Received: from sputnik.senv.net ([213.157.66.5]:2820 "EHLO sputnik.senv.net")
+	by vger.kernel.org with ESMTP id S261957AbUA2FkK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 00:40:10 -0500
+Date: Thu, 29 Jan 2004 07:40:07 +0200 (EET)
+From: Jussi Hamalainen <count@theblah.fi>
+X-X-Sender: count@mir.senv.net
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS: giant filename in readdir
+In-Reply-To: <1075331193.1616.69.camel@nidelv.trondhjem.org>
+Message-ID: <Pine.LNX.4.58.0401290736210.12477@mir.senv.net>
+References: <Pine.LNX.4.58.0401272233490.10626@mir.senv.net>
+ <1075331193.1616.69.camel@nidelv.trondhjem.org>
 MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-References: <1075344395.1592.87.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1075344395.1592.87.camel@cog.beaverton.ibm.com>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 29 Jan 2004, Trond Myklebust wrote:
 
-john stultz wrote:
+> Any info forthcoming on the filesystem you used and/or a binary tcpdump
+> demonstrating the problem?
 
-> Please let me know if you have any comments or suggestions. 
+All filesystems are ext3. I'll try to get you a tcpdump if and when
+the phenomenon happens again.
 
-I really don't like this special address in the vdso approach.  Yes,
-it's unfortunately done for x86-64 as well but this doesn't mean the
-mistakes have to be repeated.
+> Does the problem still occur when you change "soft" to "hard"?
 
-Ideally there will be a couple more syscalls which over time can at
-least partially be handled at userlevel in the vdso.  Do you want to add
-a new special address for each of them?
+Both boxes have two NFS-mounts from each other. One is soft, one is
+hard and this happens on both mounts simultaineously.
 
-There are two ways two avoid this which are easy to support in the
-current framework:
-
-~ to transparently invoke the optimized syscalls change the DSO entry
-code to do a table lookup.  The table content are pointers to code.  By
-default, it points to the syscall code we now use.  If there is a
-special version of the syscall point to that code and see it magically
-called.  No need for libc changes, old libcs automatically take
-advantage of the optimizations.  No information about the optimizations
-is spilled out to userlevel.
-
-~ alternatively use the symbol table the vdso has.  Export the new code
-only via the symbol table.  No fixed address for the function, the
-runtime gets it from the symbol table.  glibc will use weak symbol
-references; if the symbol isn't there, the old code is used.  This will
-require that every single optimized syscall needs to be handled special.
-
-
-I personally like the first approach better.  The indirection table can
-maintained in sync with the syscall table inside the kernel.  It all
-comes at all times from the same source.  The overhead of the memory
-load should be neglectable.
-
-- -- 
-‚ûß Ulrich Drepper ‚ûß Red Hat, Inc. ‚ûß 444 Castro St ‚ûß Mountain View, CA ‚ùñ
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAGJTa2ijCOnn/RHQRArL2AJ9ULsq2xl3m8TNLNkJydPzrmhQXbACgrlhe
-uYIrFlankjw1TIU5W/AdvBA=
-=yP4a
------END PGP SIGNATURE-----
+-- 
+-=[ Count Zero / TBH - Jussi H‰m‰l‰inen - email count@theblah.fi ]=-

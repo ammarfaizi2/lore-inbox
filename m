@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbUDIRyI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 13:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUDIRyI
+	id S261563AbUDIRy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 13:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbUDIRyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 13:54:08 -0400
-Received: from web13904.mail.yahoo.com ([216.136.175.67]:23098 "HELO
-	web13904.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261416AbUDIRyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 13:54:04 -0400
-Message-ID: <20040409175403.91924.qmail@web13904.mail.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Fri, 9 Apr 2004 10:54:03 -0700 (PDT)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Apr 2004 13:54:55 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:24353 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261563AbUDIRyv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 13:54:51 -0400
+Date: Fri, 9 Apr 2004 10:53:49 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: colpatch@us.ibm.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 17/23] mask v2 = [6/7] nodemask_t_ia64_changes
+Message-Id: <20040409105349.6b40fe02.pj@sgi.com>
+In-Reply-To: <200404091054.24618.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <20040401122802.23521599.pj@sgi.com>
+	<20040406235000.6c06af9a.pj@sgi.com>
+	<20040407004437.3a078f28.pj@sgi.com>
+	<200404091054.24618.vda@port.imtp.ilyichevsk.odessa.ua>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I was wondering if for linux or better for a linux filesystem
->there is something like dynamic swapping of files possible.
->For explanation: I habeaccess to an Infinstor via NFS and
->linux is runnig there. This server has a nice funtion I'd
->like to have: if there are files that are not used for a
->specified time (i.e. 30 days) they are moved to another storage
->(disk and after that to an streamer tape) and are replaced
->by some kind of 'link'. So if you look at your directory you
->can see everything that was there, but if you try to open it,
->you have to wait a moment (some seconds if the file was
->swapped to another disk) oder just another moment (some
->minutes if the file is on a tape) and then it restored at
->it's old place.
->
+> > It may well make sense for the O(1) scheduler to be inlining this.
+> 
+> Why?
 
- Good description of a HSM (Hierarchical Storage Management)
-System.
+I was thinking that perhaps this call was in a certain critical
+performance path of the O(1) scheduler.
 
->So is there anything which provides such a feature? By now
->I have a little script that moves such files out of the way and
->replaces them by links. But restoring is somewhat harder and
->it's not automatic.
->
->Any ideas?
->
+Turned out it wasn't - see further Nick Piggin's followups to this
+same thread.
 
- Really depends. As far as I know thare are no "free" HSM Systems
-out there for Linux The only one that I am faintly familiar with
-that runs on Linux is StorNext from ADIC. Definitely not free.
+My latest bitmap/cpumask patch moves this out of line, for ia64.
+The other arch's that use this large find_next_bit() code might
+want to move it out too.
 
- DMF/Irix may now be ported to Linux (Altix/IA64), but I doubt
-it will be free.
-
- Sun is most likely not (yet) interested in doing a Linux port
-of SAM-FS (there are still Sparc/Solaris Machines to sell).
-And it won't be free (my guess).
-
- Tivoli/IBM and UniTree are also sold for Linux. Again "sold" is
-the important word
-
-Martin
-
-
-=====
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

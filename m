@@ -1,79 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262312AbSKTT6G>; Wed, 20 Nov 2002 14:58:06 -0500
+	id <S261600AbSKTT5V>; Wed, 20 Nov 2002 14:57:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262314AbSKTT6G>; Wed, 20 Nov 2002 14:58:06 -0500
-Received: from relay.snowman.net ([66.92.156.198]:15886 "EHLO
-	relay.snowman.net") by vger.kernel.org with ESMTP
-	id <S262312AbSKTT6C> convert rfc822-to-8bit; Wed, 20 Nov 2002 14:58:02 -0500
-From: nick@snowman.net
-Date: Wed, 20 Nov 2002 14:16:49 -0500 (EST)
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Dana Lacoste <dana.lacoste@peregrine.com>,
-       Thomas =?ISO-8859-1?Q?Lang=E5s?= <tlan@stud.ntnu.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: spinlocks, the GPL, and binary-only modules
-In-Reply-To: <Pine.LNX.4.10.10211201143030.3892-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.21.0211201415380.11473-100000@ns>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S262312AbSKTT5V>; Wed, 20 Nov 2002 14:57:21 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:30728 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S261600AbSKTT5U>;
+	Wed, 20 Nov 2002 14:57:20 -0500
+Date: Wed, 20 Nov 2002 21:03:57 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: gallir@uib.es, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: PATCH: Recognize Tualatin cache size in 2.4.x
+Message-Id: <20021120210357.70464ff2.skraw@ithnet.com>
+In-Reply-To: <20021119120834.GA32004@suse.de>
+References: <200211171549.gAHFnSrE021923@mnm.uib.es>
+	<20021118190200.GA20936@suse.de>
+	<200211182154.52081.gallir@uib.es>
+	<20021119120834.GA32004@suse.de>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-7% of the code you're takeing from, or 7% of the code you're adding
-to?  Either of these can be abused badly.  What do you
-count?  Words?  Lines?  Uncommented lines?  Non-blank uncommented
-lines?  I think it should and can be argued that the 7 second rule is
-sound for code as well as music.
-	Nick
+On Tue, 19 Nov 2002 12:08:34 +0000
+Dave Jones <davej@codemonkey.org.uk> wrote:
 
-On Wed, 20 Nov 2002, Andre Hedrick wrote:
+> On Mon, Nov 18, 2002 at 09:54:52PM +0100, Ricardo Galli wrote:
+> 
+>  > It's very cosmetic but very annoying for P3 > 1GHz, where Linux <= 2.4.20-preX 
+>  > only reports 32 KB of cache and it also seems to ignore the "cachesize" 
+>  > parameter. Perhaps it really uses 256KB, but not sure.
+> 
+> There was a bug related to that parameter, I'm sure if the fix
+> went into the same patch, or a separate one. I'll check later.
 
-> 
-> How about 7% of code max that can pollute the headers and not taint the
-> closed source.
-> 
-> 
-> On Wed, 20 Nov 2002 nick@snowman.net wrote:
-> 
-> > Ahh, but that's 7 seconds of *PREFORMED* music.  This implies that no
-> > matter how much past work has gone into it, if it can be run in under 7
-> > seconds it can't be copyrighted.  I rather like this interpretation.
-> > 	Nick
-> > 
-> > On 20 Nov 2002, Dana Lacoste wrote:
-> > 
-> > > On Wed, 2002-11-20 at 13:57, Thomas Langås wrote:
-> > > > If someone snags 10-20 secs of a song,
-> > > > and puts it into his/her song that's violation of the copyrights (given
-> > > > that the person didn't ask for permission). But, then there's "what's the
-> > > > minimum"-question
-> > > 
-> > > 7 seconds for music.
-> > > 
-> > > What's 7 seconds worth of code? :)
-> > > 
-> > > -- 
-> > > Dana Lacoste
-> > > Ottawa, Canada
-> > > 
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> 
+Sorry for this possibly dumb comment/question:
+my Tualatins have 512KB cache on die. Are we all sure that it's used?
+/proc says indeed 32KB on 2.4.20-rc2
 
+Regards,
+Stephan

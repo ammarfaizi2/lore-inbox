@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310399AbSCBQeh>; Sat, 2 Mar 2002 11:34:37 -0500
+	id <S310405AbSCBQ6r>; Sat, 2 Mar 2002 11:58:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310400AbSCBQe0>; Sat, 2 Mar 2002 11:34:26 -0500
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:53473 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S310399AbSCBQeN>; Sat, 2 Mar 2002 11:34:13 -0500
-Subject: Re: dell inspiron and 2.4.18?
-From: NyQuist <nyquist@ntlworld.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0203021111530.22434-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.33.0203021111530.22434-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 02 Mar 2002 16:19:20 +0000
-Message-Id: <1015085960.24870.9.camel@stinky.pussy>
-Mime-Version: 1.0
+	id <S310404AbSCBQ6i>; Sat, 2 Mar 2002 11:58:38 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:64243 "EHLO
+	office.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S310402AbSCBQ6Z>; Sat, 2 Mar 2002 11:58:25 -0500
+To: root@chaos.analogic.com
+Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Matthew Allum <mallum@xblox.net>, linux-kernel@vger.kernel.org
+Subject: Re: Multiple kernels OOPS at boot on Fujitsu pt510 ( AMD DX100 CPU ) - ksymoops output attached
+In-Reply-To: <Pine.LNX.3.95.1020301123724.5515A-100000@chaos.analogic.com>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <Pine.LNX.3.95.1020301123724.5515A-100000@chaos.analogic.com>
+Date: 02 Mar 2002 04:53:23 +0100
+Message-ID: <m24rjzy6a4.fsf@anano.mitica>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-03-02 at 16:13, Mark Hahn wrote:
-> > Even though I wouldn't go so far as to call the 2.4 series stable (not
-> 
-> it is.  at least in the sense of not "locking up" under normal loads.
-> 
-> > spent in front of the computer are dulling my senses; i've had
-> > intermittent lock-ups and 'soft'-locks, where hardly any processing is
-> > done. I'm running 2.4.17 on a dell dimension. 
-> 
-> apm and/or acpi active?
-> 
-.config
+>>>>> "richard" == Richard B Johnson <root@chaos.analogic.com> writes:
 
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-# CONFIG_APM_DO_ENABLE is not set
-# CONFIG_APM_CPU_IDLE is not set
-# CONFIG_APM_DISPLAY_BLANK is not set
-# CONFIG_APM_RTC_IS_GMT is not set
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-# CONFIG_ACPI is not set
+Hi
 
-It's quite wierd, a couple of days ago, it soft-locked several times
-whilst playing a dvd (no h/w decoder so probably load problems), and
-yesterday it completely slowed (to a near halt - and in the middle of
-coding aswell :(). I'm now unsure whether my hdd is on the edge of
-collapse (time to backup), or my old p3 500 is on the blink.
+richard> Once somebody makes a kernel they has both a working loop device and
+richard> a working initial RAM Disk, I will use that kernel. In the meantime,
+richard> I'm stuck at 2.4.1.
+
+I am not sure what you are doing, and I don't remeber seing your
+script to reproduce the problem, but I can confirm you that:
+- loop device works
+- initrd works
+
+We used it for Mandrake kernels, and it works with SCSI without any
+problems.  Could you send me your script to create the intrd to me to
+take a look?
+
+Later, Juan.
 
 -- 
-NyQuist | Matthew Hall -- NyQuist at ntlworld dot com --
-http://NyQuist.port5.com
-Sig: #define QUESTION ((bb) || !(bb))
-
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVAYIKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVAYIPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbVAYIKK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 03:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVAYIKJ
+	id S261868AbVAYIPD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 03:15:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVAYIPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 03:10:09 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:11435 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261867AbVAYIJu (ORCPT
+	Tue, 25 Jan 2005 03:15:02 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49360 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261868AbVAYIO6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 03:09:50 -0500
-Date: Tue, 25 Jan 2005 09:06:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jeffpc@optonline.net
-Subject: Re: [2.6 patch] *-iosched.c: Use proper documentation path
-Message-ID: <20050125080636.GB2751@suse.de>
-References: <20050125074906.GE3515@stusta.de>
+	Tue, 25 Jan 2005 03:14:58 -0500
+Date: Tue, 25 Jan 2005 00:14:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: 2.6.11-rc2-mm1 kernel BUG at kernel/workqueue.c:104
+Message-Id: <20050125001424.481a9a19.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0501250020320.3010@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.61.0501242144120.3010@montezuma.fsmlabs.com>
+	<20050124214356.6bed35ac.akpm@osdl.org>
+	<Pine.LNX.4.61.0501250020320.3010@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050125074906.GE3515@stusta.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25 2005, Adrian Bunk wrote:
-> This patch by Josef "Jeff" Sipek <jeffpc@optonline.net> fixes two 
-> documentationn paths.
+Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+>
+> On Mon, 24 Jan 2005, Andrew Morton wrote:
 > 
-> Signed-off-by: Josef "Jeff" Sipek <jeffpc@optonline.net>
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
-Looks fine, thanks.
-
+> > I can't reproduce it from a quick test here.  I'd assume that the keystroke
+> > came in before the vt's workqueue is initialised.  fn_enter() calls
+> > put_queue() calls con_schedule_flip() calls schedule_work() which goes BUG:
 > 
-> diff -Nru a/drivers/block/as-iosched.c b/drivers/block/as-iosched.c
-> --- a/drivers/block/as-iosched.c	2004-12-02 19:45:45 -05:00
-> +++ b/drivers/block/as-iosched.c	2004-12-02 19:45:45 -05:00
-> @@ -25,7 +25,7 @@
->  #define REQ_ASYNC	0
->  
->  /*
-> - * See Documentation/as-iosched.txt
-> + * See Documentation/block/as-iosched.txt
->   */
->  
->  /*
-> diff -Nru a/drivers/block/deadline-iosched.c b/drivers/block/deadline-iosched.c
-> --- a/drivers/block/deadline-iosched.c	2004-12-02 19:45:45 -05:00
-> +++ b/drivers/block/deadline-iosched.c	2004-12-02 19:45:45 -05:00
-> @@ -19,7 +19,7 @@
->  #include <linux/rbtree.h>
->  
->  /*
-> - * See Documentation/deadline-iosched.txt
-> + * See Documentation/block/deadline-iosched.txt
->   */
->  static int read_expire = HZ / 2;  /* max time before a read is submitted. */
->  static int write_expire = 5 * HZ; /* ditto for writes, these limits are SOFT! */
-> 
-> 
-> 
-> 
-> 
+> Boot into runlevel 1 (console will then be on serial, nothing on any of 
+> the VTs), then press a key. This can be any time after it's booted into 
+> runlevel 1.
 > 
 
--- 
-Jens Axboe
+OK, thanks.  I get what appears to be a use-after-free error. 
+CONFIG_DEBUG_PAGEALLOC is set:
 
+Program received signal SIGEMT, Emulation trap.
+0xc0272bc2 in kbd_keycode (keycode=57, down=1, hw_raw=0, regs=0xc0673f9c)
+    at drivers/char/keyboard.c:1035
+1035            if (tty && (!tty->driver_data)) {
+(gdb) p tty
+$1 = (struct tty_struct *) 0xce3c4000
+(gdb) p *tty
+Cannot access memory at address 0xce3c4000
+(gdb) bt
+#0  0xc0272bc2 in kbd_keycode (keycode=57, down=1, hw_raw=0, regs=0xc0673f9c)
+    at drivers/char/keyboard.c:1035
+#1  0xc0272ee4 in kbd_event (handle=0xcf150674, event_type=1, event_code=57, 
+    value=1) at drivers/char/keyboard.c:1162
+#2  0xc03081d8 in input_event (dev=0xcf19b090, type=1, code=57, value=1)
+    at drivers/input/input.c:188
+#3  0xc030a71a in atkbd_report_key (dev=0xcf19b090, regs=0xc1235000, code=57, 
+    value=0) at drivers/input/keyboard/atkbd.c:239
+#4  0xc030ab8b in atkbd_interrupt (serio=0xcf771df8, data=57 '9', flags=0, 
+    regs=0xc0673f9c) at drivers/input/keyboard/atkbd.c:392
+#5  0xc0279dd9 in serio_interrupt (serio=0xcf771df8, data=57 '9', dfl=0, 
+    regs=0xc1235000) at drivers/input/serio/serio.c:681
+#6  0xc027a96f in i8042_interrupt (irq=1, dev_id=0xc06cb3a0, regs=0xc1235000)
+    at drivers/input/serio/i8042.c:481
+#7  0xc013b7e5 in handle_IRQ_event (irq=1, regs=0xc0673f9c, action=0xcf0ee85c)
+    at kernel/irq/handle.c:90
+#8  0xc013b913 in __do_IRQ (irq=1, regs=0xc0673f9c) at kernel/irq/handle.c:177
+#9  0xc0104eee in do_IRQ (regs=0x0) at arch/i386/kernel/irq.c:105
+#10 0xc010375a in common_interrupt () at arch/i386/kernel/semaphore.c:177
+
+Roman, binary searching indicates that the bug was introduced by
+merge-vt_struct-into-vc_data.patch.  The latest version.

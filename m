@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVADP0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVADP1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbVADP0m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 10:26:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVADP0m
+	id S261678AbVADP1J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 10:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVADP1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 10:26:42 -0500
-Received: from fire.osdl.org ([65.172.181.4]:48285 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261675AbVADP0l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 10:26:41 -0500
-Message-ID: <41DAB4EC.2070309@osdl.org>
-Date: Tue, 04 Jan 2005 07:23:24 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: ak@suse.de
-Subject: Re: [PATCH] x86_64: Add reboot=force
-References: <200501040623.j046N1Sf011351@hera.kernel.org>
-In-Reply-To: <200501040623.j046N1Sf011351@hera.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 4 Jan 2005 10:27:09 -0500
+Received: from [212.20.225.142] ([212.20.225.142]:32282 "EHLO
+	orlando.wolfsonmicro.main") by vger.kernel.org with ESMTP
+	id S261678AbVADP1F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 10:27:05 -0500
+Subject: Re: [PATCH] AC97 support for low power codecs
+From: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <s5hekh1grl6.wl@alsa2.suse.de>
+References: <1104838450.9143.81.camel@cearnarfon>
+	 <s5hekh1grl6.wl@alsa2.suse.de>
+Content-Type: text/plain
+Message-Id: <1104852422.9143.348.camel@cearnarfon>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 04 Jan 2005 15:27:02 +0000
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Jan 2005 15:27:03.0104 (UTC) FILETIME=[D753DC00:01C4F271]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> ChangeSet 1.2136.3.75, 2005/01/03 20:44:39-08:00, ak@suse.de
+On Tue, 2005-01-04 at 15:08, Takashi Iwai wrote:
 > 
-> 	[PATCH] x86_64: Add reboot=force
-> 	
-> 	Add reboot=force
-> 	
-> 	reboot=force doesn't wait for any other CPUs on reboot.  This is useful when
-> 	you really need a system to reboot on its own.
+> Does writing RESET on such a codec must be avoided always?
+> Or can one power up again by writing some values on POWER register?
+> 
 
-Why only for x86_64 ?
+Writing RESET causes an AC97 codec to return to it's default state. On
+some codecs this is state is "power down" and therefore undesirable
+during a call to probe.
 
--- 
-~Randy
+The only way to wake such a codec is via an AC97 warm reset.
+
+Liam
+  
+

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264353AbTICSns (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbTICSmo
+	id S264158AbTICSP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 14:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTICSOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:42:44 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:27329 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264234AbTICS3X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:29:23 -0400
-Date: Wed, 03 Sep 2003 11:17:56 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Larry McVoy <lm@bitmover.com>, "Brown, Len" <len.brown@intel.com>
-cc: Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <89360000.1062613076@flay>
-In-Reply-To: <20030903173213.GC5769@work.bitmover.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Wed, 3 Sep 2003 14:14:22 -0400
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:52748 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id S264158AbTICSNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 14:13:44 -0400
+Date: Wed, 3 Sep 2003 15:15:24 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew de Quincey <adq_dvb@lidskialf.net>,
+       Roger Luethi <rl@hellgate.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <acpi-devel@lists.sourceforge.net>,
+       Andrew Grover <andrew.grover@intel.com>,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: [ACPI] Where do I send APIC victims?
+In-Reply-To: <Pine.LNX.4.44.0309031511420.6102-100000@logos.cnet>
+Message-ID: <Pine.LNX.4.44.0309031515010.6102-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Back to the original off-topic...
->> An OEM can spin their motivation to focus on smaller systems in 3 ways:
->> 
->> 1. large server sales are a small % of industry units
->> 2. large server sales are a small % of industry revenue
->> 3. large server sales are a small % of industry profits
->> 
->> Only 1 is true.
+
+
+On Wed, 3 Sep 2003, Marcelo Tosatti wrote:
+
 > 
-> How about some data to back up that statement?
 > 
-> Sun: ~11B/year and losing money, heavily server based
-> Dell: ~38B/year and making money, 99% small box based
+> On Wed, 3 Sep 2003, Alan Cox wrote:
 > 
-> If you were gambling with _your_ money, would you invest in Sun or Dell?
+> > On Mer, 2003-09-03 at 11:48, Andrew de Quincey wrote:
+> > > 2.4.22 has the ACPI from 2.6 backported into it, (which includes my patch for 
+> > > nforce2 boards) so it will start having the same issue with the BIOS bug in 
+> > > KT333/KT400  boards.
+> > 
+> > It does - 2.4.22pre7 is great on my boxes, 2.4.22 final ACPI is
+> > basically unusable on anything I own thats not intel. 
+> 
+> I've collected a few 2.4.22 ACPI problems and sent them to the ACPI guys.
+> 
+> Randy, Len? Any update on any bug? 
 
-Errm, IBM is gambling with _their_ money, as are others such as HP,
-and they're making big iron.
+Alan, mind sending us detailed reports of the ACPI issues with 2.4.22, 
+too? 
 
-So do you believe they're all just completely stupid, and unable to read
-their own sales figures? Or is it just a vast conspiracy to promote large 
-SMP / NUMA boxes because of ... something?
-
-Sun is not loosing money because they're "server based". It's because
-they're locked into Solaris and SPARC, and customers by and large 
-don't want that. Their machines are probably rather overpriced vs using
-ia32 hardware as well. Your 1 dimensional extension of logic is ... 
-unimpressive.
-
-M.
+Thanks
 

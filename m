@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbVC2KZD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262286AbVC2KZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262292AbVC2KZD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 05:25:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVC2KZB
+	id S262286AbVC2KZE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 05:25:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbVC2KYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 05:25:01 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:2937 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262292AbVC2KYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 05:24:00 -0500
-Message-ID: <42492CBC.1060406@yahoo.com.au>
-Date: Tue, 29 Mar 2005 20:23:56 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Jens Axboe <axboe@suse.de>, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] use cheaper elv_queue_empty when unplug a device
-References: <200503290253.j2T2rqg25691@unix-os.sc.intel.com>	 <20050329080646.GE16636@suse.de>  <42491DBE.6020303@yahoo.com.au> <1112091026.6282.43.camel@laptopd505.fenrus.org>
-In-Reply-To: <1112091026.6282.43.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Mar 2005 05:24:36 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57505 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262286AbVC2KXc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 05:23:32 -0500
+Date: Tue, 29 Mar 2005 12:23:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Jeff Garzik <jgarzik@pobox.com>,
+       David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Message-ID: <20050329102314.GC6496@elf.ucw.cz>
+References: <1111728804.23532.137.camel@uganda> <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <1111732459.20797.16.camel@uganda> <20050325063333.GA27939@gondor.apana.org.au> <1111733958.20797.30.camel@uganda> <20050325065622.GA31127@gondor.apana.org.au> <1111735195.20797.42.camel@uganda> <20050325072531.GA416@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050325072531.GA416@gondor.apana.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Tue, 2005-03-29 at 19:19 +1000, Nick Piggin wrote:
+Hi!
+
+On Pá 25-03-05 18:25:31, Herbert Xu wrote:
+> On Fri, Mar 25, 2005 at 10:19:55AM +0300, Evgeniy Polyakov wrote:
+> > 
+> > Noone will complain on Linux if NIC is broken and produces wrong
+> > checksum
+> > and HW checksum offloading is enabled using ethtools.
 > 
->>- removes the relock/retry merge mechanism in __make_request if we
->>   aren't able to get the GFP_ATOMIC allocation. Just fall through
->>   and assume the chances of getting a merge will be small (is this
->>   a valid assumption? Should measure it I guess).
+> This is completely different.  The worst that can happen with checksum
+> offloading is that the packet is dropped.  That's something people deal
+> with on a daily basis since the Internet as a whole does not guarantee
+> the delivery of packets.
 > 
+> On the other hand, /dev/random is something that has always promised
+> to deliver random numbers that are totally unpredictable.  People out
+> there *depend* on this.
 > 
-> this may have a potential problem; if the vm gets in trouble, you
-> suddenly start to generate worse IO patterns, which means IO performance
-> goes down right when it's most needed.....
-> 
+> If that assumption is violated the result could be catastrophic.
 
-Sorry my wording was incorrect. It currently *always* retries the
-merge if it had at first failed, and after the patch, we never retry.
-So it should not result in behavioural shifts when there is a VM load
-is high.
+Yes, and we had huge security hole where it sometimes gave same random
+data to two different processes on smp, and noone noticed for 10
+years.... /dev/random is not as critical as you paint it.
 
-It seems to be a clear source of problems for Kenneth though, because
-his workload appears to have almost zero merges, so he'll always be
-invoking the merge logic twice.
-
-I agree there is potential for subtle interactions. But generally the
-block layer is surprisingly well behaved in my experience.
-
-As Jens said, the complete removal of the GFP_ATOMIC allocation probably
-has the most potential for problems in this regard, although bios are not
-using GFP_ATOMIC allocations, so I would be a little surprised if it made
-a really noticable difference.
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbTGEPMg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 11:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266363AbTGEPMf
+	id S266365AbTGEPel (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 11:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbTGEPel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 11:12:35 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:33767 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S266362AbTGEPMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 11:12:34 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.74-mm1
-Date: Sat, 5 Jul 2003 17:28:12 +0200
-User-Agent: KMail/1.5.2
-References: <20030703023714.55d13934.akpm@osdl.org> <200307050216.27850.phillips@arcor.de>
-In-Reply-To: <200307050216.27850.phillips@arcor.de>
+	Sat, 5 Jul 2003 11:34:41 -0400
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:29827 "EHLO
+	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
+	id S266365AbTGEPek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 11:34:40 -0400
+Date: Sat, 5 Jul 2003 10:53:07 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Harald Dunkel <harri@synopsys.COM>
+Cc: linux-kernel@vger.kernel.org, James Simmons <jsimmons@infradead.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, Flameeyes <daps_mls@libero.it>
+Subject: Re: 2.5.71, fbconsole: No boot logo?
+In-Reply-To: <3F06EB64.4090808@Synopsys.COM>
+Message-ID: <Pine.LNX.4.56.0307051050520.1295@dust>
+References: <Pine.LNX.4.44.0306162133520.12997-100000@phoenix.infradead.org>
+ <3F06EB64.4090808@Synopsys.COM>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307051728.12891.phillips@arcor.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 July 2003 02:16, Daniel Phillips wrote:
-> It now tolerates window dragging on this unaccelerated moderately high
-> resolution VGA without any sound dropouts.  There are still dropouts while
-> scrolling in Mozilla, so it acts much like 2.5.73+Con's patch, as expected.
+On Sat, 5 Jul 2003, Harald Dunkel wrote:
 
-Update: dropouts still do occur while moving windows, but rarely.  When they 
-do occur, they are severe.  A debian dist-upgrade just caused a dropout - and 
-another just now, about 3 seconds long.  I feel that tweaking is only going 
-to get us so far with this.  The situation re scheduling in 2.5 feels much as 
-the vm situation did in 2.3, in other words, we're halfway down a long twisty 
-road that ends with something that works, after having tried and failed at 
-many flavors of tweaking and tuning.  Ultimately the problem will be solved 
-by redesign, and probably not just limited to kernel code.
+[Boot Logo Stuff]
 
-> I had 2.5.74 freeze up a couple of times yesterday, resulting in a totally
-> dead, unpingable system, so now I'm running 2.5.74-mm1 with kgdb and hoping
-> to catch one of those beasts in the wild.
+> Would it be possible to include this change in the official
+> source tree?
 
-Update: this is easily repeatable.  A few quick switches between X and text 
-mode triggers the freeze reliably.  On two occasions, I had a lockup while 
-just doing an innocent window operation.  It also happens in 2.4, so it isn't 
-a 2.5 problem per se.  Is it a pure hardware problem?  It's always easy to 
-take that position.  I can only guess at the moment.  Kgdb is no help in 
-diagnosing, as the kgdb stub also goes comatose, or at least the serial link 
-does.  No lockups have occurred so far when I was not interacting with the 
-system via the keyboard or mouse.  Suggestions?
+This paticular change (and several) others are in a set of fb updates that 
+James posted a day or three ago.  It's kind of out of his hands now.  I'm 
+sure they'll get in eventually.
 
-Regards,
+You can search your friendly, neighborhood lkml archive for the post with 
+the newest fb patch's URL.
 
-Daniel
-
+-- 
+Alex Goddard
+agoddard@purdue.edu

@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbTL2Dpt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 22:45:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbTL2Dpt
+	id S262598AbTL2Dzy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 22:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbTL2Dzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 22:45:49 -0500
-Received: from 12-211-64-253.client.attbi.com ([12.211.64.253]:61081 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id S262652AbTL2Dpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 22:45:47 -0500
-Message-ID: <3FEFA36A.5050307@comcast.net>
-Date: Sun, 28 Dec 2003 19:45:46 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Can't eject a previously mounted CD?
-References: <3FEF89D5.4090103@comcast.net> <3FEF8BB1.6090704@wmich.edu>
-In-Reply-To: <3FEF8BB1.6090704@wmich.edu>
+	Sun, 28 Dec 2003 22:55:54 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:20960 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262598AbTL2Dzy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 22:55:54 -0500
+Date: Sun, 28 Dec 2003 19:55:33 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: akmiller@nzol.net, linux-kernel@vger.kernel.org
+Subject: Re: ide: "lost interrupt" with 2.6.0
+Message-ID: <20031229035533.GG1882@matchmail.com>
+Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>, akmiller@nzol.net,
+	linux-kernel@vger.kernel.org
+References: <1072657930.3fef760a50062@webmail.nzol.net> <Pine.LNX.4.10.10312281934150.32122-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10312281934150.32122-100000@master.linux-ide.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman wrote:
-> I'd have to say the december 17th listed changes are the culprit here.
-> I'm definitely not up to figuring out what change is the bad one.  If
-> any of the cdrom/ide-cd people wanna have me get some data from them
-> then just tell me how.  I've tried viewing the debug output from the
-> modules with no success in figuring out the problem.
-> 
-> 
+On Sun, Dec 28, 2003 at 07:37:37PM -0800, Andre Hedrick wrote:
+> I know the FSM's are wrong because I fixed them for Dupli-Disk.
+> How they operate, I can not disclose.  But Accusys can not handle correct
+> settings for FSM to Taskfile.
 
-Luckily for me, I built my cdrom drivers as modules, so I could play :)
-I turned on debugging, and noticed that cdi->use_count continues to increment by
-2 for each access. In cdrom_release, only one cdi->use_count-- exists, so the
-driver never gets to 0 use count and releases. I noticed in
-drivers/cdrom/cdrom.c line 753:
-
-        if (!ret) cdi->use_count++;
-
-Which is our second increment, but I can't find two decrements, because the
-check further down won't ever be true if the above is true. Hence, two
-increments and only 1 dec when we reach cdrom_release. What I did, was add a
-conditional decrement right before the open_for_data call, which makes the value
-of use_count like it used to be prior to the Mt. Rainier patches. Seems kinda
-hacky :)
-
--Walt
-
---- /usr/src/linux/drivers/cdrom/cdrom.c        2003-12-25 09:53:59.000000000 -0800
-+++ linux-2.6.0-mm1/drivers/cdrom/cdrom.c       2003-12-28 19:42:04.174098225 -0800
-@@ -744,4 +744,7 @@
-        }
-
-+       if (cdi->use_count > 0)
-+               cdi->use_count--;
-+
-        /* if this was a O_NONBLOCK open and we should honor the flags,
-         * do a quick open without drive/disc integrity checks. */
-@@ -931,5 +934,5 @@
-        struct cdrom_device_ops *cdo = cdi->ops;
-
--       cdinfo(CD_CLOSE, "entering cdrom_release\n");
-+       cdinfo(CD_CLOSE, "entering cdrom_release\n");
-
-        if (cdi->use_count > 0)
-
-
+Does that mean that if you use taskfile on Dupli-Disk controllers that they
+will fail, and that disabling taskfile access might help (is that still an
+option in 2.6?)
 

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129437AbQKYNHI>; Sat, 25 Nov 2000 08:07:08 -0500
+        id <S129183AbQKYNJ6>; Sat, 25 Nov 2000 08:09:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129183AbQKYNG7>; Sat, 25 Nov 2000 08:06:59 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:64782 "HELO mail.ocs.com.au")
-        by vger.kernel.org with SMTP id <S131092AbQKYNGx>;
-        Sat, 25 Nov 2000 08:06:53 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: ssd@nevets.oau.org (Steven S. Dick), linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11 (pre1, final) OOPS during boot/modprobe 
-In-Reply-To: Your message of "Sat, 25 Nov 2000 12:27:24 -0000."
-             <200011251227.eAPCRPe19247@flint.arm.linux.org.uk> 
+        id <S129228AbQKYNJt>; Sat, 25 Nov 2000 08:09:49 -0500
+Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:11056 "EHLO
+        cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
+        id <S129183AbQKYNJf>; Sat, 25 Nov 2000 08:09:35 -0500
+Date: Sat, 25 Nov 2000 12:39:32 +0000
+From: Paul Warren <pdw@ex-parrot.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with NM256 and APM
+Message-ID: <20001125123932.H1467@cerberus.grovehouse.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 25 Nov 2000 23:36:45 +1100
-Message-ID: <7012.975155805@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2000 12:27:24 +0000 (GMT), 
-Russell King <rmk@arm.linux.org.uk> wrote:
->Keith Owens writes:
->> On Sat, 25 Nov 2000 06:10:54 -0500 (EST), 
->> ssd@nevets.oau.org (Steven S. Dick) wrote:
->> >2.4.0-test11-pre1 seems to have broken something.
->> >I have no problems with test10, but test11-pre1 gives three oops
->> >messages during boot.  test11-final gives the exact same OOPS messages...
->> 
->> Which modutils?  And if it is not 2.3.21, upgrade.
->
->Steven probably wants to apply this patch to test11:
+I have a problem with APM interfering with sound playback through a
+NeoMagic 256.  
 
-Upgrading to modutils 2.3.21 is easier and everybody should do that
-anyway to fix the local root exploits.
+If I have sound playing, and do a "cat /proc/apm" I get a noticeable
+glitch in sound playback.  The glitch sounds like playback skips
+backwards by a fraction of a second.
 
+The machine is a Dell Latitude CS, and I have seen this problem on
+2.2.17 and 2.4.0test11.
+
+The anonymous author of the NM256 driver claims to have not seen this
+problem before.
+
+dmesg says:
+
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.13)
+...
+NeoMagic 256AV/256ZX audio driver, version 1.1
+NM256: Found card signature in video RAM: 0x3fec00
+NM256: Mapping port 1 from 0x3e6c00 - 0x3fec00
+Initialized NeoMagic 256ZX audio in PCI native mode
+Initialized AC97 mixer
+Done installing NM256 audio driver.
+
+Any clues as to what might be behind this?
+
+cheers,
+
+Paul
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

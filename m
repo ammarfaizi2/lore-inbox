@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317504AbSHCTo5>; Sat, 3 Aug 2002 15:44:57 -0400
+	id <S317546AbSHCTsT>; Sat, 3 Aug 2002 15:48:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317540AbSHCTo5>; Sat, 3 Aug 2002 15:44:57 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32012 "EHLO
+	id <S317610AbSHCTsT>; Sat, 3 Aug 2002 15:48:19 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39180 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317504AbSHCTo5>; Sat, 3 Aug 2002 15:44:57 -0400
-Date: Sat, 3 Aug 2002 12:36:17 -0700 (PDT)
+	id <S317546AbSHCTsS>; Sat, 3 Aug 2002 15:48:18 -0400
+Date: Sat, 3 Aug 2002 12:39:40 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: davidm@hpl.hp.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>, <davidm@napali.hpl.hp.com>
-Subject: Re: adjust prefetch in free_one_pgd() 
-In-Reply-To: <18259.1028396351@redhat.com>
-Message-ID: <Pine.LNX.4.44.0208031230400.9758-100000@home.transmeta.com>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+cc: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
+       Gerrit Huizenga <gh@us.ibm.com>, <Martin.Bligh@us.ibm.com>,
+       <wli@holomorpy.com>, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: large page patch (fwd) (fwd)
+In-Reply-To: <200208031441.29353.frankeh@watson.ibm.com>
+Message-ID: <Pine.LNX.4.44.0208031237060.9758-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,32 +22,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 3 Aug 2002, David Woodhouse wrote:
+On Sat, 3 Aug 2002, Hubertus Franke wrote:
 >
-> Not that I'm necessarily disagreeing with you -- but can you confirm that
-> you are including all architectures with non-cache-coherent DMA in the
-> 'broken hardware' category below, or point out what I'm missing?
+> But I'd like to point out that superpages are there to reduce the number of
+> TLB misses by providing larger coverage. Simply providing page coloring
+> will not get you there.
 
-Rule: if prefetch to random addresses is a problem, then that's broken
-hardware.
+Superpages can from a memory allocation angle be seen as a very strict
+form of page coloring - the problems are fairly closely related, I think
+(superpages are just a lot stricter, in that it's not enough to get "any
+page of color X", you have to get just the _right_ page).
 
-I don't think that non-cache-coherency wrt DMA necessarily means that that
-is true, though. If you flush all CPU caches to memory before starting the
-DMA, and you invalidate the DMA'd memory range _after_ the DMA finished, a
-"prefetch" on such an architecture is not a problem at all.
+Doing superpages will automatically do coloring (while the reverse is
+obviously not true). And the way David did coloring a long time ago (if
+I remember his implementation correctly) was the same way you'd do
+superpages: just do higher order allocations.
 
-Sure, the data vould have been (for a while - between the potential
-prefetch and the "DMA write finish invalidate") in the CPU caches in a
-non-coherent state, but since the kernel reading anything from that region
-would have been a bug in the first place, that should not matter.
-
-Note that such architectures have issues with speculative reads etc too,
-which can have all the same issues as prefetch. Of course, only slow and
-stupid architectures tend to have non-coherent caches in the first place,
-so "speculation" simply isn' tmuch of an issue.
-
-		Linus
-
-(That's not to say that I think that non-coherent DMA is broken _anyway_,
-but I don't think it should be a problem for prefetch itself)
+			Linus
 

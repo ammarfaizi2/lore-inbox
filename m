@@ -1,82 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264052AbTH1Pcm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 11:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264053AbTH1Pcm
+	id S264077AbTH1Pt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 11:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbTH1Pt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 11:32:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55512 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264052AbTH1Pck (ORCPT
+	Thu, 28 Aug 2003 11:49:56 -0400
+Received: from sojef.skynet.be ([195.238.2.127]:166 "EHLO sojef.skynet.be")
+	by vger.kernel.org with ESMTP id S264077AbTH1Ptw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 11:32:40 -0400
-Date: Thu, 28 Aug 2003 08:38:36 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Russell King <rmk@arm.linux.org.uk>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Platform Devices
-In-Reply-To: <20030825172737.E16790@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0308280813130.4140-100000@cherise>
+	Thu, 28 Aug 2003 11:49:52 -0400
+Message-ID: <001301c36d7b$f96cfbe0$0400a8c0@LAPTOP>
+From: "Hans Lambrechts" <hans.lambrechts@skynet.be>
+To: "Patrick McHardy" <kaber@trash.net>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Netfilter Development Mailinglist" 
+	<netfilter-devel@lists.netfilter.org>
+References: <pcKD.6BP.19@gated-at.bofh.it> <200308280850.h7S8oxGx001862@pc.skynet.be> <3F4E1823.7060600@trash.net>
+Subject: Re: Linux 2.4.23-pre1
+Date: Thu, 28 Aug 2003 17:49:32 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks Patrick,
 
-Sorry it's taken so long to reply, this has needed a chance to sink in 
-(and for other things to be resolved). 
+forwarding and NAT works as before
 
-> I think we need to expand the platform device support to include the
-> notion of platform drivers.  For example:
-> 
-> 	struct platform_driver {
-> 		int (*probe)(struct platform_device *);
-> 		int (*remove)(struct platform_device *);
-> 		int (*suspend)(struct platform_device *, u32);
-> 		int (*resume)(struct platform_device *);
-> 		struct device_driver drv;
-> 	};
+greetings,
+Hans
 
-I see two ways of supporting platform devices that will have a variable 
-number of logical interfaces -- depending on the platform -- per physical 
-device, and support power management on them. 
-
-The first: put power management methods in struct class. 
-
-As we suspend each physical device, we would loop over each class device 
-that is associated with the physical device, and call its class's 
-->suspend() method for it. The class would be responsible for stopping the 
-device and taking that view of the device offline. The class-specific 
-portion of the driver may optionally have suspend()/resume() methods that 
-the class could call to save those bits of device state. 
-
-This would leave the bus-specific power management calls to only power 
-down the device and save config-space-like register state of the device.
-(Especially if there were per-driver class-specific suspend/resume 
-methods, as they would be responsible for saving/restoring the interesting 
-parts of the device.)
+----- Original Message ----- 
+From: "Patrick McHardy" <kaber@trash.net>
+To: "Hans Lambrechts" <hans.lambrechts@skynet.be>
+Cc: <linux-kernel@vger.kernel.org>; "Netfilter Development Mailinglist"
+<netfilter-devel@lists.netfilter.org>
+Sent: Thursday, August 28, 2003 4:56 PM
+Subject: Re: Linux 2.4.23-pre1
 
 
-The second: Allow mulitple drivers to bind to platform devices. 
+> Please try this patch.
+>
+> Regards,
+> Patrick
+>
+> Hans Lambrechts wrote:
+>
+> >Greetings,
+> >
+> >
+> >
+> >>Harald Welte:
+> >>  o [NETFILTER]: Backport iptables AH/ESP fixes from 2.6.x
+> >>  o [NETFILTER]: Fix uninitialized return in iptables tftp
+> >>  o [NETFILTER]: NAT optimization
+> >>  o [NETFILTER]: Conntrack optimization (LIST_DELETE)
+> >>
+> >>
+> >>
+> >
+> >
+> >I see this in my log:
+> >
+> >Aug 28 10:45:44 pc kernel: MASQUERADE: No route: Rusty's brain broke!
+> >Aug 28 10:46:10 pc last message repeated 13 times
+> >Aug 28 10:48:42 pc kernel: NET: 1 messages suppressed.
+> >Aug 28 10:48:42 pc kernel: MASQUERADE: No route: Rusty's brain broke!
+> >Aug 28 10:48:43 pc kernel: MASQUERADE: Route sent us somewhere else.
+> >
+> >Forwarding and masquerading doesn't work anymore.
+> >
+> >Hans
+> >
+> >
+>
 
-We would use a similar structure as you have above, with a struct
-list_head in it to allow us to chain them together. When we suspended a
-platform device, the platform bus would iterate through each driver that's
-bound to a device and call ->suspend(). 
 
-Simple enough, though we'd have to create some sort of notion of a 
-'platform_class' for each device type, as there could theoretically be 
-multiple instances of a device type, and a chain of drivers could only 
-bind to one without dynamically allocating each instance of the driver. It 
-would be similar to the way system devices are handled, but without 
-breaking away from the unified device hierarchy. 
-
-Either way is relatively easy to implement, and I'm ambivalent about which 
-to choose this morning. The former may have much added benefit by reducing 
-the amount of work that needs to be done in each driver of each type, 
-while the latter focuses on just resolving your issue.. 
+----------------------------------------------------------------------------
+----
 
 
-	Pat
+> ===== net/ipv4/netfilter/ipt_MASQUERADE.c 1.6 vs edited =====
+> --- 1.6/net/ipv4/netfilter/ipt_MASQUERADE.c Tue Aug 12 11:30:12 2003
+> +++ edited/net/ipv4/netfilter/ipt_MASQUERADE.c Thu Aug 28 16:54:15 2003
+> @@ -90,6 +90,7 @@
+>  #ifdef CONFIG_IP_ROUTE_FWMARK
+>   key.fwmark = (*pskb)->nfmark;
+>  #endif
+> + key.oif = 0;
+>   if (ip_route_output_key(&rt, &key) != 0) {
+>                  /* Funky routing can do this. */
+>                  if (net_ratelimit())
+>
 
 

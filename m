@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbTEAWQx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 18:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTEAWQu
+	id S262720AbTEAWRO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 18:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbTEAWRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 18:16:50 -0400
-Received: from ns.suse.de ([213.95.15.193]:20236 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262714AbTEAWQp (ORCPT
+	Thu, 1 May 2003 18:17:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:65223 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262720AbTEAWRK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 18:16:45 -0400
-To: Hans-Georg Thien <1682-600@onlinehome.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] "Disable Trackpad while typing" on Notebooks withh a  PS/2 Trackpad
-References: <3EB19625.6040904@onlinehome.de.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 02 May 2003 00:29:07 +0200
-In-Reply-To: <3EB19625.6040904@onlinehome.de.suse.lists.linux.kernel>
-Message-ID: <p73znm61eto.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 May 2003 18:17:10 -0400
+Date: Thu, 01 May 2003 14:22:35 -0700 (PDT)
+Message-Id: <20030501.142235.91789378.davem@redhat.com>
+To: Steve@ChyGwyn.com, steve@gw.chygwyn.com
+Cc: hch@infradead.org, linux-decnet-user@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Remains of seq_file conversion for DECnet, plus fixes
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200305012135.WAA19582@gw.chygwyn.com>
+References: <20030501215709.A28210@infradead.org>
+	<200305012135.WAA19582@gw.chygwyn.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans-Georg Thien <1682-600@onlinehome.de> writes:
+   From: Steven Whitehouse <steve@gw.chygwyn.com>
+   Date: Thu, 1 May 2003 22:35:46 +0100 (BST)
 
-> The short story
-> ---------------
-> The trackpad on the MacIntosh iBook Notebooks have a feature that
-> prevents unintended trackpad input while typing on the keyboard. There
-> are no mouse-moves or mouse-taps for a short period of time after each
-> keystroke.
+   > The name is a bit generic for an export function.  What about
+   > seq_release_kfree?
+   
+   Yes, I'd considered that and eventually settled for the non-prefixed version
+   since it followed the pattern set by single_release() which doesn't have
+   the seq_ prefix. I don't mind changing it though if the prefixed version is
+   preferred,
 
-Very nice. In fact I wanted something like this for my ibook for a
-long time.
-
-But it won't work on an ibook of course because it doesn't use the
-pc_keyb driver. Instead it uses the Input layer for the adb device.
-In fact in 2.5 there is only the input layer for everything including
-PC keyboards. It should be probably moved there too.
-
-One suggestion: don't make it a CONFIG_*. Recompiling a kernel
-to change things like that is not good. Make it an ioctl that
-can be configured at runtime.
-
-Another one: the disable_trackpad_timer_while_typing variable is not 
-really needed. You can manage all state by checking the timer with
-timer_pending()
-
--Andi
+I think a naming convention without a prefix is asking for
+trouble.  I'd ask that you add the prefix, the current convention
+is troublesome and someone ought to clean that up.

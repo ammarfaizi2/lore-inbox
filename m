@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272578AbRHaBX2>; Thu, 30 Aug 2001 21:23:28 -0400
+	id <S272579AbRHaB2i>; Thu, 30 Aug 2001 21:28:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272579AbRHaBXJ>; Thu, 30 Aug 2001 21:23:09 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41990 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272578AbRHaBXD>; Thu, 30 Aug 2001 21:23:03 -0400
-Subject: Re: Linux 2.4.9-ac5
-To: kaos@ocs.com.au (Keith Owens)
-Date: Fri, 31 Aug 2001 02:26:09 +0100 (BST)
-Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <8483.999220293@kao2.melbourne.sgi.com> from "Keith Owens" at Aug 31, 2001 11:11:33 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272580AbRHaB23>; Thu, 30 Aug 2001 21:28:29 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:63498 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S272579AbRHaB2Y>;
+	Thu, 30 Aug 2001 21:28:24 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108310128.f7V1S3q18739@oboe.it.uc3m.es>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <Pine.LNX.4.33.0108301753180.2569-100000@penguin.transmeta.com>
+ from "Linus Torvalds" at "Aug 30, 2001 05:55:51 pm"
+To: "Linus Torvalds" <torvalds@transmeta.com>
+Date: Fri, 31 Aug 2001 03:28:03 +0200 (MET DST)
+CC: "Peter T. Breuer" <ptb@it.uc3m.es>,
+        "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
+        linux-kernel@vger.kernel.org
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15cd4T-0002Hm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What do you need for licence support in modutils?  Obviously modinfo
-> needs to print it, but what about insmod?  Should insmod issue warning
-> messages for proprietary modules?  What about ksymoops?  IOW, what was
-> the reason for adding MODULE_LICENSE?
+"A month of sundays ago Linus Torvalds wrote:"
+> 
+> On Fri, 31 Aug 2001, Peter T. Breuer wrote:
+> >
+> > To give you all something definite to look at, here's some test code:
+> 
+> Hmm.. This might be a good idea, actually. Have you tried whether it finds
+> something in the existing tree (you could just take the existing macro and
 
-My goal is to eventually include the info tucked away on oops report lines
-so that I can automatically dump bug reports with binary drivers, including
-the growing number of people who lie about nvdriver and think that this will
-get their bug cured.
+Yes. I just tried it. The first warning thrown up for 2.4.8 was in
+tun.c, when I did a make modules. Obviously it all depends on my
+  .config as to what it finds!  I put in a asm(".error_here") instead of
+BUG() so the compilation stops at every problem instead of warning and
+continuing. Hence I don't kow the total. I can try and see ..
 
-insmod warnings is something I want to stay out of. I think thats up to
-vendors and the like. I want to tell if people loaded crud I dont want
-to tell them not to...
+It's very late here (spain) so I don't trust myself to do much
+hacking of code right now .. I corrected the tun.c code (it was
+harmless) and posted the first bit of output a little while ago.
+It should be down your mail client page a bit.
 
-Alan
+> ignore the first argument)?
+> 
+> This would definitely be acceptable to me, and should (assuming no gcc
+> optimization bugs) work with no run-time overhead.
 
+
+Peter

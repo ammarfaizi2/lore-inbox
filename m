@@ -1,93 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313841AbSDJVON>; Wed, 10 Apr 2002 17:14:13 -0400
+	id <S313843AbSDJVSw>; Wed, 10 Apr 2002 17:18:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313843AbSDJVOM>; Wed, 10 Apr 2002 17:14:12 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:46759 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S313841AbSDJVOL>;
-	Wed, 10 Apr 2002 17:14:11 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: "Bill Abt" <babt@us.ibm.com>
-Subject: Re: [PATCH] Futex Generalization Patch
-Date: Wed, 10 Apr 2002 16:14:36 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: drepper@redhat.com, linux-kernel@vger.kernel.org, Martin.Wirth@dlr.de,
-        pwaechtler@loewe-Komp.de, Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <OF6ED1E5D5.39630DC3-ON85256B97.006D2F99@raleigh.ibm.com>
+	id <S313848AbSDJVSv>; Wed, 10 Apr 2002 17:18:51 -0400
+Received: from mail.myrio.com ([63.109.146.2]:1269 "HELO mail.myrio.com")
+	by vger.kernel.org with SMTP id <S313843AbSDJVSv> convert rfc822-to-8bit;
+	Wed, 10 Apr 2002 17:18:51 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020410211348.AB5E93FE06@smtp.linux.ibm.com>
+Subject: RE: ReiserFS Bug Fixes 3 of 6 (Please apply all 6)
+Date: Wed, 10 Apr 2002 14:18:25 -0700
+Message-ID: <A015F722AB845E4B8458CBABDFFE63420FE3D3@mail0.myrio.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ReiserFS Bug Fixes 3 of 6 (Please apply all 6)
+Thread-Index: AcHgygcMZ+7jVFP4QkqRGIA+OK/aKQACNYmQ
+From: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
+To: "Florian Weimer" <Weimer@CERT.Uni-Stuttgart.DE>,
+        "James Simmons" <jsimmons@transvirtual.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 10 Apr 2002 21:17:40.0335 (UTC) FILETIME=[25688FF0:01C1E0D5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 April 2002 03:59 pm, Bill Abt wrote:
-> On 04/10/2002 at 02:47:50 PM AST, Hubertus Franke <frankeh@watson.ibm.com>
->
-> wrote:
-> > The current interface is
+Florian Weimer wrote:
+[...]
+> >> > rather similar to what I use for reiserfs, which is free 
+> for use with
+> >> > free operating systems only,
+> >> 
+> >> Really?  I thought ReiserFS was released under the GPL.  Is this no
+> >> longer the case?
 > >
-> > (A)
-> > async wait:
-> >    sys_futex (uaddr, FUTEX_AWAIT, value, (struct timespec*) sig);
-> > upon signal handling
-> >    sys_futex(uaddrs[], FUTEX_WAIT, size, NULL);
-> >    to retrieve the uaddrs that got woken up...
->
-> This is actually the preferred way.  I must've misinterpeted what you said
-> earlier.  I believe this is actually a more generic way of handling.  A
-> thread package can specify the signal to used much in the way the current
-> LinuxThreads pre-allocates and uses certain real-time signals...
->
-> > I am mainly concerned that SIGIO can be overloaded in a thread package ?
-> > How would you know whether a SIGIO came from the futex or from other file
-> >
-> > handle.
->
-> By keep with the original interface, we don't have to contend with this
-> problem.  The thread package can use the signal that most suits its'
-> implementation...
->
-> Make sense?
->
+> > Because something is GPL doesn't mean it is free dollar 
+> wise. GPL is free
+> > as in free speech not free beer.
+> 
+> That's not my point.  Of course you can charge for GPLed software, or,
+> as the copyright holder, offer different licensing options for a fee.
+> 
+> However, if you release software under the GPL, you do not prevent
+> people from using it on proprietary operating systems.
 
-I wasn't precise... 
-There are ++ and -- for the file descriptors approach
-++)
-(a) it automatically cleans up the notify queue associated with the FD.
-     [ notify queue could still be global, if we want that ]
-     when the process disappears, no callback required in do_exit()
---) There is more overhead in the wakeup and the wait because I need to 
-     move from the fd to the filestruct which is always some lookup and
-     I have to verify that the file descriptor is actually a valid /dev/futex
-     file (yikes).    
+well, technically that's true.  However they would not be able to link 
+it into the proprietary operating system and then distribute it without 
+violating the GPL.  
 
-Another problem I see is that we only have one additional 
-argument (void *utime) to piggyback the fd and the signal on. 
+So the only ways to put reiserFS on (say) Win2K would be to:
 
-What could be done is the following.
-Make utime a (void *utime) argument
-In FUTEX_WAIT   interpret it as a pointer <struct timespec>
-In FUTEX_AWAIT  inteprest it as { short fd, short sig };
-There should be no limitation by casting it to shorts ?
+- Pay for and get a separate, non-GPL license from Hans Reiser and 
+  his team, which is perfectly legitimate for them to do as the 
+  copyright holders,
 
-Comments, anyone....
+- or, implement it in _user-space_ as an entirely GPL'ed application.
+  Obviously this second option would be difficult, I don't know 
+  if Win2K supports user-space filesystems at all.  At the least, it 
+  would have negative performance and reliability implications...
 
-I suggest, we leave it as is right now until more comments come.
+- or, do whatever you want but never distribute it at all.
 
-> Regards,
->       Bill Abt
->       Senior Software Engineer
->       Next Generation POSIX Threading for Linux
->       IBM Cambridge, MA, USA 02142
->       Ext: +(00)1 617-693-1591
->       T/L: 693-1591 (M/W/F)
->       T/L: 253-9938 (T/Th/Eves.)
->       Cell: +(00)1 617-803-7514
->       babt@us.ibm.com or abt@us.ibm.com
->       http://oss.software.ibm.com/developerworks/opensource/pthreads
+Not to speak for Mr. Reiser, but I believe that's what he meant when
+he said it's free for use with free operating systems only.
 
--- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+Finally, that second option could be even more difficult... I hear 
+MS has recently changed the terms of their C run-time-library license
+to forbid use by GPLed code. If so, you'd have to use a different C 
+library for Windows...
+
+Torrey Hoffman

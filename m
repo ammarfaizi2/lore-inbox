@@ -1,46 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129334AbRAYVFS>; Thu, 25 Jan 2001 16:05:18 -0500
+	id <S135236AbRAYVGs>; Thu, 25 Jan 2001 16:06:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135236AbRAYVFI>; Thu, 25 Jan 2001 16:05:08 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:23317 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S129334AbRAYVEx>; Thu, 25 Jan 2001 16:04:53 -0500
-Message-ID: <3A70957F.649C6A49@ngforever.de>
-Date: Thu, 25 Jan 2001 14:07:11 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
-X-Accept-Language: de,en-US
+	id <S129847AbRAYVGl>; Thu, 25 Jan 2001 16:06:41 -0500
+Received: from hs-gk.cyberbills.com ([216.35.157.254]:2313 "EHLO
+	hs-mail.cyberbills.com") by vger.kernel.org with ESMTP
+	id <S135236AbRAYVGV>; Thu, 25 Jan 2001 16:06:21 -0500
+Date: Thu, 25 Jan 2001 13:06:14 -0800 (PST)
+From: "Sergey Kubushin" <ksi@cyberbills.com>
+To: Micah Gorrell <angelcode@myrealbox.com>
+cc: Tom Sightler <ttsig@tuxyturvy.com>, linux-kernel@vger.kernel.org
+Subject: Re: eepro100 problems in 2.4.0
+In-Reply-To: <006601c08711$4bdfb600$9b2f4189@angelw2k>
+Message-ID: <Pine.LNX.4.31ksi3.0101251305030.6635-100000@nomad.cyberbills.com>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@innominate.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: named streams, extended attributes, and posix
-In-Reply-To: <Pine.LNX.4.30.0101182129050.1089-100000@nvws005.nv.london> <004701c081ef$e32dcb90$8501a8c0@gromit> <3A708F8F.17426D2@innominate.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> Michael Rothwell wrote:
-> > Unfortunately, unix allows everything but "/" in filenames. This was
-> > probably a mistake, as it makes it nearly impossible to augment the
-> > namespace, but it is the reality.
-> 
-> For some reason totally beyond my comprehension // inside a file name is
-> taken to be the same as /, but if it wasn't it could be the stream
-> separator.  *sigh*
-It seems that you mix up forward and backward slashes. a // means //,
-but a \\ means a single \. So if you want a double backslash, you have
-to write \\\\. Thus, removing double backslashes from NETBIOS names via
-perl is: $name =~ s/\\\\//;
-So what...?
+On Thu, 25 Jan 2001, Micah Gorrell wrote:
 
-Cheers!
-Thunder
+I do have such a problem with the machines that have only one eepro100 nic.
+
+> Because of the problems we where having we are no longer using the
+> machine
+> with 3 nics.  We are now using a machine with just one and it is going
+> live
+> next week.  We do need kernel 2.4 because of the process limits in 2.2.
+> Does the 'Enable Power Management (EXPERIMENTAL)' option fix the no
+> resources problems?
+>
+> Micah
+> ___
+> The irony is that Bill Gates claims to be making a stable operating
+> system
+> and Linus Torvalds claims to be trying to take over the world
+> -----Original Message-----
+> From: "Tom Sightler" <ttsig@tuxyturvy.com>
+> To: "Micah Gorrell" <angelcode@myrealbox.com>;
+> <linux-kernel@vger.kernel.org>
+> Date: Thursday, January 25, 2001 1:48 PM
+> Subject: Re: eepro100 problems in 2.4.0
+>
+>
+> > > I have doing some testing with kernel 2.4 and I have had constant
+> >problems
+> >> with the eepro100 driver.  Under 2.2 it works perfectly but under
+> 2.4 I
+> am
+> >> unable to use more than one card in a server and when I do use one
+> card I
+> >> get errors stating that eth0 reports no recources.  Has anyone else
+> seen
+> >> this kind of problem?
+> >
+> >I had a similar problem with a server that had dual embedded eepro100
+> >adapters however selecting the 'Enable Power Management
+> (EXPERIMENTAL)'
+> >option for the eepro100 seemed to make the problem go away.  I don't
+> really
+> >know why but it might be worth trying if it wasn't already selected.
+> >
+> >Later,
+> >Tom
+> >
+> >
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >Please read the FAQ at http://www.tux.org/lkml/
+> >
+> >
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
+>
+
 ---
-I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard god...
+Sergey Kubushin				Sr. Unix Administrator
+CyberBills, Inc.			Phone:	702-567-8857
+874 American Pacific Dr,		Fax:	702-567-8890
+Henderson, NV, 89014
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

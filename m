@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbUKEA7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbUKEA7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbUKEA7r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 19:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbUKEA4y
+	id S262542AbUKEA7v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 19:59:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbUKEA5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 19:56:54 -0500
-Received: from mail.kroah.org ([69.55.234.183]:9951 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262534AbUKEAtc convert rfc822-to-8bit
+	Thu, 4 Nov 2004 19:57:18 -0500
+Received: from mail.kroah.org ([69.55.234.183]:11999 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262535AbUKEAtc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 4 Nov 2004 19:49:32 -0500
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] More Driver Core patches for 2.6.10-rc1
-In-Reply-To: <10996157051968@kroah.com>
+In-Reply-To: <10996157064167@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Thu, 4 Nov 2004 16:48:25 -0800
-Message-Id: <10996157052061@kroah.com>
+Date: Thu, 4 Nov 2004 16:48:26 -0800
+Message-Id: <10996157062058@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,57 +23,57 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2449.2.10, 2004/11/04 12:00:12-08:00, rml@novell.com
+ChangeSet 1.2462, 2004/11/04 14:44:35-08:00, maneesh@in.ibm.com
 
-[PATCH] kobject_uevent: fix init ordering
+[PATCH] fix kernel BUG at fs/sysfs/dir.c:20!
 
-Looks like kobject_uevent_init is executed before netlink_proto_init and
-consequently always fails.  Not cool.
+On Thu, Nov 04, 2004 at 12:52:38PM -0800, Greg KH wrote:
+> Hi,
+>
+> I get the following BUG in the sysfs code when I do:
+> 	- plug in a usb-serial device.
+> 	- open the port with 'cat /dev/ttyUSB0'
+> 	- unplug the device.
+> 	- stop the 'cat' process with control-C
+>
+> This used to work just fine before your big sysfs changes.
 
-Attached patch switches the initialization over from core_initcall (init
-level 1) to postcore_initcall (init level 2).  Netlink's initialization
-is done in core_initcall, so this should fix the problem.  We should be
-fine waiting until postcore_initcall.
+There is a similar problem reported by s390 people where we see parent
+kobject (directory) going away before child kobject (sub-directory). It
+seems kobject code is able to handle this, but not the sysfs. What could
+be happening that in sysfs_remove_dir() of parent directory, we try to
+remove its contents. It works well with the regular files as it is the
+final removal for sysfs_dirent corresponding to the files. But in case
+of sub-directory we are doing an extra sysfs_put().  Once while removing
+parent and the other one being the one from when sysfs_remove_dir() is
+called for the child.
 
-Also a couple white space changes mixed in, because I am anal.
+The following patch worked for the s390 people, I hope same will work in
+this case also.
 
-Signed-Off-By: Robert Love <rml@novell.com>
+
+o Do not remove sysfs_dirents corresponding to the sub-directory in
+  sysfs_remove_dir(). They will be removed in the sysfs_remove_dir() call
+  for the specific sub-directory.
+
+Signed-off-by: Maneesh Soni <maneesh@in.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- lib/kobject_uevent.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ fs/sysfs/dir.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
 
-diff -Nru a/lib/kobject_uevent.c b/lib/kobject_uevent.c
---- a/lib/kobject_uevent.c	2004-11-04 16:30:09 -08:00
-+++ b/lib/kobject_uevent.c	2004-11-04 16:30:09 -08:00
-@@ -120,9 +120,8 @@
- 		sprintf(attrpath, "%s/%s", path, attr->name);
- 		rc = send_uevent(signal, attrpath, NULL, gfp_mask);
- 		kfree(attrpath);
--	} else {
-+	} else
- 		rc = send_uevent(signal, path, NULL, gfp_mask);
--	}
- 
- exit:
- 	kfree(path);
-@@ -148,7 +147,6 @@
- {
- 	return do_kobject_uevent(kobj, action, attr, GFP_ATOMIC);
- }
--
- EXPORT_SYMBOL_GPL(kobject_uevent_atomic);
- 
- static int __init kobject_uevent_init(void)
-@@ -164,7 +162,7 @@
- 	return 0;
- }
- 
--core_initcall(kobject_uevent_init);
-+postcore_initcall(kobject_uevent_init);
- 
- #else
- static inline int send_uevent(const char *signal, const char *obj,
+diff -Nru a/fs/sysfs/dir.c b/fs/sysfs/dir.c
+--- a/fs/sysfs/dir.c	2004-11-04 16:29:54 -08:00
++++ b/fs/sysfs/dir.c	2004-11-04 16:29:54 -08:00
+@@ -277,7 +277,7 @@
+ 	pr_debug("sysfs %s: removing dir\n",dentry->d_name.name);
+ 	down(&dentry->d_inode->i_sem);
+ 	list_for_each_entry_safe(sd, tmp, &parent_sd->s_children, s_sibling) {
+-		if (!sd->s_element)
++		if (!sd->s_element || !(sd->s_type & SYSFS_NOT_PINNED))
+ 			continue;
+ 		list_del_init(&sd->s_sibling);
+ 		sysfs_drop_dentry(sd, dentry);
 

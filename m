@@ -1,188 +1,155 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291863AbSBNUWP>; Thu, 14 Feb 2002 15:22:15 -0500
+	id <S291869AbSBNUVP>; Thu, 14 Feb 2002 15:21:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291871AbSBNUWG>; Thu, 14 Feb 2002 15:22:06 -0500
-Received: from skunk.directfb.org ([212.84.236.169]:31379 "EHLO
-	skunk.convergence.de") by vger.kernel.org with ESMTP
-	id <S291863AbSBNUVv>; Thu, 14 Feb 2002 15:21:51 -0500
-Date: Thu, 14 Feb 2002 21:20:53 +0100
-From: Denis Oliver Kropp <dok@directfb.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [UPDATE] NeoMagic FPU fix (2.4.18-pre9-ac3)
-Message-ID: <20020214202053.GA16755@skunk.convergence.de>
-Reply-To: Denis Oliver Kropp <dok@directfb.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="5vNYLRcllDrimb99"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S291863AbSBNUVG>; Thu, 14 Feb 2002 15:21:06 -0500
+Received: from 64-30-107-48.ftth.sac.winfirst.net ([64.30.107.48]:30980 "EHLO
+	leng.internal") by vger.kernel.org with ESMTP id <S291869AbSBNUUr>;
+	Thu, 14 Feb 2002 15:20:47 -0500
+Message-ID: <006601c1b595$baa16b20$7e93a8c0@sac.unify.com>
+From: "Manuel McLure" <manuel@mclure.org>
+To: <markus.schaber@student.uni-ulm.de>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020214143358.301201f9.markus.schaber@student.uni-ulm.de>
+Subject: Re: Opses
+Date: Thu, 14 Feb 2002 12:24:59 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcus Schaber said:
+> After some days of uptime, I always get an Oops in the kswapd. After that,
+there are some other Oopses (mostly "cannot handle Kernel page request", but
+also some other oopses). But as far as I can see, the kswapd is always the
+first Oops after the reboot.
+>
+> This is what ksymoops tells me:
+>
+> ***
+> multimedia:/var/log# ksymoops <messages
+> ksymoops 2.4.3 on i686 2.4.17.  Options used
+>      -V (default)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.17/ (default)
+>      -m /boot/System.map-2.4.17 (default)
+>
+> Warning: You did not tell me where to find symbol information.  I will
+> assume that the log matches the kernel and modules that are running
+> right now and I'll use the default options above for symbol resolution.
+> If the current kernel and/or modules do not match the log, you can get
+> more accurate output by telling me the kernel version and where to find
+> map, modules, ksyms etc.  ksymoops -h explains the options.
+>
+> Feb 14 09:08:04 multimedia kernel: c0140a17
+> Feb 14 09:08:04 multimedia kernel: Oops: 0002
+> Feb 14 09:08:04 multimedia kernel: CPU:    0
+> Feb 14 09:08:04 multimedia kernel: EIP:    0010:[prune_icache+103/208]
+Not tainted
+> Feb 14 09:08:04 multimedia kernel: EFLAGS: 00010246
+> Feb 14 09:08:04 multimedia kernel: eax: fd22c080   ebx: c3129648   ecx:
+00000000   edx: cd0207cf
+> Feb 14 09:08:04 multimedia kernel: esi: c3129640   edi: c3129848   ebp:
+c1435f64   esp: c1435f4c
+> Feb 14 09:08:04 multimedia kernel: ds: 0018   es: 0018   ss: 0018
+> Feb 14 09:08:04 multimedia kernel: Process kswapd (pid: 5,
+stackpage=c1435000)
+> Feb 14 09:08:04 multimedia kernel: Stack: 0000000f 000001d0 00000020
+00001757 c3129448 c78dfcc8 00000006 c0140a9b
+> Feb 14 09:08:04 multimedia kernel:        00001559 c012968d 00000006
+000001d0 00000006 000001d0 00000006 000001d0
+> Feb 14 09:08:04 multimedia kernel:        c021b5c8 00000000 c021b5c8
+c01296dc 00000020 c021b5c8 00000001 c1434000
+> Feb 14 09:08:04 multimedia kernel: Call Trace:
+[shrink_icache_memory+27/64] [shrink_caches+109/128]
+[try_to_free_pages+60/96] [kswapd_balance_pgdat+67/144]
+[kswapd_balance+22/48]
+> Feb 14 09:08:04 multimedia kernel: Code: 89 50 04 89 02 89 73 f8 89 73 fc
+8b 45 f8 89 58 04 89 03 8d
+> Using defaults from ksymoops -t elf32-i386 -a i386
+>
+> Code;  00000000 Before first symbol
+> 00000000 <_EIP>:
+> Code;  00000000 Before first symbol
+>    0:   89 50 04                  mov    %edx,0x4(%eax)
+> Code;  00000002 Before first symbol
+>    3:   89 02                     mov    %eax,(%edx)
+> Code;  00000004 Before first symbol
+>    5:   89 73 f8                  mov    %esi,0xfffffff8(%ebx)
+> Code;  00000008 Before first symbol
+>    8:   89 73 fc                  mov    %esi,0xfffffffc(%ebx)
+> Code;  0000000a Before first symbol
+>    b:   8b 45 f8                  mov    0xfffffff8(%ebp),%eax
+> Code;  0000000e Before first symbol
+>    e:   89 58 04                  mov    %ebx,0x4(%eax)
+> Code;  00000010 Before first symbol
+>   11:   89 03                     mov    %eax,(%ebx)
+> Code;  00000012 Before first symbol
+>   13:   8d 00                     lea    (%eax),%eax
+>
+>
+> 1 warning issued.  Results may not be reliable.
+> ***
+>
+> It happened using 2.4.14, 2.4.27 and one or two 2.4 versions I don't
+remember now.
+>
+> Does anybody know what this means?
+>
+> If you need more diagnostics, tell me, and I'll try my best.
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+
+Very interesting - last night I got a very similar Oops on 2.4.17:
+
+Feb 14 04:03:06 leng kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000004
+Feb 14 04:03:06 leng kernel:  printing eip:
+Feb 14 04:03:06 leng kernel: c01434e2
+Feb 14 04:03:06 leng kernel: *pde = 00000000
+Feb 14 04:03:06 leng kernel: Oops: 0000
+Feb 14 04:03:06 leng kernel: CPU:    0
+Feb 14 04:03:07 leng kernel: EIP:    0010:[prune_icache+50/240]    Not
+tainted
+Feb 14 04:03:07 leng kernel: EIP:    0010:[<c01434e2>]    Not tainted
+Feb 14 04:03:07 leng kernel: EFLAGS: 00010207
+Feb 14 04:03:07 leng kernel: eax: 6e657272   ebx: 00000000   ecx: 00000000
+edx: c2a03280
+Feb 14 04:03:07 leng kernel: esi: c72cee00   edi: 00000000   ebp: c1257f54
+esp: c1257f3c
+Feb 14 04:03:07 leng kernel: ds: 0018   es: 0018   ss: 0018
+Feb 14 04:03:07 leng kernel: Process kswapd (pid: 5, stackpage=c1257000)
+Feb 14 04:03:07 leng kernel: Stack: 00000d3b c72cea28 c57a07e8 00000003
+000001d0 00000005 00000005 c01435c5
+Feb 14 04:03:07 leng kernel:        000003c8 c012b04e 00000005 000001d0
+00000005 000001d0 c023ab68 00000005
+Feb 14 04:03:08 leng kernel:        000001d0 c023ab68 00000000 c012b0a0
+00000003 c023ab68 00000001 c1256000
+Feb 14 04:03:08 leng kernel: Call Trace: [shrink_icache_memory+37/64]
+[shrink_caches+110/144] [try_to_free_pages+48/80]
+[kswapd_balance_pgdat+68/144] [kswapd_balance+22/48]
+Feb 14 04:03:08 leng kernel: Call Trace: [<c01435c5>] [<c012b04e>]
+[<c012b0a0>] [<c012b134>] [<c012b196>]
+Feb 14 04:03:08 leng kernel:    [kswapd+161/192] [kswapd+0/192]
+[rest_init+0/48] [kernel_thread+38/48] [kswapd+0/192]
+Feb 14 04:03:08 leng kernel:    [<c012b2b1>] [<c012b210>] [<c0105000>]
+[<c0105726>] [<c012b210>]
+Feb 14 04:03:08 leng kernel:
+Feb 14 04:03:08 leng kernel: Code: 8b 7f 04 8d 73 f8 8b 86 08 01 00 00 a9 38
+00 00 00 75 61 0b
+
+This was the first of many Oops in my log - after the Oops happened multiple
+processes started segfaulting.
+
+--
+Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
+<manuel@mclure.org>     | and significant law, no man may kill a cat.
+<http://www.mclure.org> |             -- H.P. Lovecraft
 
 
-This version has a suitable fixed point type.
-Should now be safe against high values.
-
----------------------------------
-
-Hi,
-
-here is a patch for my NeoMagic framebuffer driver that
-removes all floating stuff. I also added me to CREDITS as
-I forgot the last time. The driver version is 0.3.2 now.
-
-It applies against Linux 2.4.18-pre9-ac3 which had version
-0.3.0 of the driver while the last version was 0.3.1.
-
-So this patch is not applyable to the 2.5 tree. I will do
-another one for 2.5 and 2.5-dj, too. So that all trees have
-the same version.
-
--- 
-Best regards,
-  Denis Oliver Kropp
-
-.------------------------------------------.
-| DirectFB - Hardware accelerated graphics |
-| http://www.directfb.org/                 |
-"------------------------------------------"
-
-           convergence integrated media GmbH
-
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="neofb-0.3.2-linux-2.4.18-pre9-ac3.diff"
-
-diff -uraN linux-2.4.18-pre9-ac3/CREDITS linux/CREDITS
---- linux-2.4.18-pre9-ac3/CREDITS	Thu Feb 14 18:38:28 2002
-+++ linux/CREDITS	Thu Feb 14 20:44:42 2002
-@@ -1656,6 +1656,13 @@
- S: San Antonio, Texas 78269-1886
- S: USA
- 
-+N: Denis O. Kropp
-+E: dok@directfb.org
-+D: NeoMagic framebuffer driver
-+S: Badensche Str. 46
-+S: 10715 Berlin
-+S: Germany
-+
- N: Andrzej M. Krzysztofowicz
- E: ankry@mif.pg.gda.pl
- D: Some 8-bit XT disk driver and devfs hacking 
-diff -uraN linux-2.4.18-pre9-ac3/drivers/video/neofb.c linux/drivers/video/neofb.c
---- linux-2.4.18-pre9-ac3/drivers/video/neofb.c	Thu Feb 14 18:38:30 2002
-+++ linux/drivers/video/neofb.c	Thu Feb 14 20:41:37 2002
-@@ -12,9 +12,15 @@
-  * archive for more details.
-  *
-  *
-+ * 0.3.2
-+ *  - got rid of all floating point (dok)
-+ *
-+ * 0.3.1
-+ *  - added module license (dok)
-+ *
-  * 0.3
-- *  - hardware accelerated clear and move for 2200 and above
-- *  - maximum allowed dotclock is handled now
-+ *  - hardware accelerated clear and move for 2200 and above (dok)
-+ *  - maximum allowed dotclock is handled now (dok)
-  *
-  * 0.2.1
-  *  - correct panning after X usage (dok)
-@@ -29,10 +35,10 @@
-  * - ioctl for internal/external switching
-  * - blanking
-  * - 32bit depth support, maybe impossible
-- * - disable automatic pan on sync, need specs
-+ * - disable pan-on-sync, need specs
-  *
-  * BUGS
-- * - white margin on bootup (colormap problem?)
-+ * - white margin on bootup like with tdfxfb (colormap problem?)
-  *
-  */
- 
-@@ -68,7 +74,7 @@
- #include "neofb.h"
- 
- 
--#define NEOFB_VERSION "0.3"
-+#define NEOFB_VERSION "0.3.2"
- 
- /* --------------------------------------------------------------------- */
- 
-@@ -81,7 +87,8 @@
- 
- #ifdef MODULE
- 
--MODULE_AUTHOR("(c) 2001  Denis Oliver Kropp <dok@convergence.de>");
-+MODULE_AUTHOR("(c) 2001-2002  Denis Oliver Kropp <dok@convergence.de>");
-+MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("FBDev driver for NeoMagic PCI Chips");
- MODULE_PARM(disabled, "i");
- MODULE_PARM_DESC(disabled, "Disable this driver's initialization.");
-@@ -861,13 +868,12 @@
-   return err;
- }
- 
--#error "Floating point maths. This needs fixing before this driver is safe"
- /*
-  * neoCalcVCLK --
-  *
-  * Determine the closest clock frequency to the one requested.
-  */
--#define REF_FREQ 14.31818
-+#define REF_FREQ 0xe517  /* 14.31818 in 20.12 fixed point */
- #define MAX_N 127
- #define MAX_D 31
- #define MAX_F 1
-@@ -875,17 +881,18 @@
- static void neoCalcVCLK (const struct neofb_info *info, struct neofb_par *par, long freq)
- {
-   int n, d, f;
--  double f_out;
--  double f_diff;
-   int n_best = 0, d_best = 0, f_best = 0;
--  double f_best_diff = 999999.0;
--  double f_target = freq/1000.0;
-+  long f_best_diff = (0x7ffff << 12); /* 20.12 */
-+  long f_target = (freq << 12) / 1000; /* 20.12 */
- 
-   for (f = 0; f <= MAX_F; f++)
-     for (n = 0; n <= MAX_N; n++)
-       for (d = 0; d <= MAX_D; d++)
- 	{
--	  f_out = (n+1.0)/((d+1.0)*(1<<f))*REF_FREQ;
-+          long f_out;  /* 20.12 */
-+          long f_diff; /* 20.12 */
-+
-+	  f_out = ((((n+1) << 12)  /  ((d+1)*(1<<f))) >> 12)  *  REF_FREQ;
- 	  f_diff = abs(f_out-f_target);
- 	  if (f_diff < f_best_diff)
- 	    {
-@@ -912,12 +919,12 @@
-   par->VCLK3Denominator = d_best;
- 
- #ifdef NEOFB_DEBUG
--  printk ("neoVCLK: f:%f NumLow=%d NumHi=%d Den=%d Df=%f\n",
--	  f_target,
-+  printk ("neoVCLK: f:%d NumLow=%d NumHi=%d Den=%d Df=%d\n",
-+	  f_target >> 12,
- 	  par->VCLK3NumeratorLow,
- 	  par->VCLK3NumeratorHigh,
- 	  par->VCLK3Denominator,
--	  f_best_diff);
-+	  f_best_diff >> 12);
- #endif
- }
- 
-
---5vNYLRcllDrimb99--

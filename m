@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289482AbSBOKUu>; Fri, 15 Feb 2002 05:20:50 -0500
+	id <S292083AbSBOKbJ>; Fri, 15 Feb 2002 05:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289484AbSBOKUi>; Fri, 15 Feb 2002 05:20:38 -0500
-Received: from vaak.stack.nl ([131.155.140.140]:12041 "HELO mailhost.stack.nl")
-	by vger.kernel.org with SMTP id <S289482AbSBOKUX>;
-	Fri, 15 Feb 2002 05:20:23 -0500
-Date: Fri, 15 Feb 2002 11:20:21 +0100 (CET)
-From: Jos Hulzink <josh@stack.nl>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: 2.5.5-pre1: Deadlocks and ALSA driver problems
-Message-ID: <20020215110243.U68580-100000@toad.stack.nl>
+	id <S292082AbSBOKbA>; Fri, 15 Feb 2002 05:31:00 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:27908 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S289484AbSBOKam>; Fri, 15 Feb 2002 05:30:42 -0500
+Message-Id: <200202151025.g1FAPAt26255@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: abhi@kernelnewbies.org
+Subject: Re: lk maintainers
+Date: Fri, 15 Feb 2002 12:25:12 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200202150943.g1F9hht26143@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200202150943.g1F9hht26143@Port.imtp.ilyichevsk.odessa.ua>
+Cc: Thomas Capricelli <tcaprice@logatique.fr>,
+        Hans-Joachim Baader <hjb@pro-linux.de>,
+        Jeremy Andrews <jeremy@kerneltrap.com>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 15 February 2002 06:04, you wrote:
+> Hi,
+> 	It would be easier if u upload the file as and when it changes,
+> instead of a cron job. As I think it is going to be a pretty stable
+> list once it is complete. I'll mail u the URL where u can upload the
+> file as soon as I complete the setup.
 
-Still fighting with the debug tools (I'm new to kernel debugging), but
-maybe this info is useful to others:
+That is fine.
 
-2.5.5-pre1 deadlocked completely about 7 times in 40 minutes. The Magic
-SysRq key didn't work anymore. Don't know if it is related, but after I
-recompiled the ALSA driver as modules, the system was stable for about 4
-hours. (With ALSA modules loaded, playing music, and I rebooted it myself
-afterwards.)
+Given unexpected amount of similar requests, I will set up a cron job which 
+will automatically check and upload new version of lk miantainers list to 
+anybody interested.
 
-Besides: the ALSA /proc interface is terribly broken, any cat
-/proc/asound/... results in a no such device error. The ALSA /dev entries
-return the same errors while opening them, but the OSS emulation layer
-works fine.
+Just tell me how to upload the list to your site. Preferebly in a form:
 
-System Info:
-PII-333 SMP on Asus P2L97-DS (Intel LX chipset), 512 MB RAM
-SB Live 5.1 soundcard
+------------
+Hi Denis,
+you may upload your list to my site as follows:
 
-The kernel is compiled with ALSA driver and Preemptive=Y
+# <upload_tool> upload lk-maintainers.txt <address>...
+BTW, I tested <upload_tool> and it works (version x.y.z)
 
-I hope to provide you better emails in the future.
+# wget lk-maintainers.txt <address>....
+works too, if you need it.
+------------
 
-Jos
-
+--
+vda

@@ -1,240 +1,276 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262740AbTCJGDr>; Mon, 10 Mar 2003 01:03:47 -0500
+	id <S261349AbTCJGTD>; Mon, 10 Mar 2003 01:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262741AbTCJGDr>; Mon, 10 Mar 2003 01:03:47 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:44942 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262740AbTCJGDn>; Mon, 10 Mar 2003 01:03:43 -0500
-Date: Sun, 09 Mar 2003 22:14:10 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 455] New: 2.5.64 Dell Inspiron 5000e heaps of suspend/resume problems 
-Message-ID: <72540000.1047276850@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S261385AbTCJGSl>; Mon, 10 Mar 2003 01:18:41 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:61347 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP
+	id <S261349AbTCJGSU>; Mon, 10 Mar 2003 01:18:20 -0500
+Message-ID: <3E6C301C.A3807942@verizon.net>
+Date: Sun, 09 Mar 2003 22:26:36 -0800
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.64 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: linux-kernel@vger.kernel.org, jsimmons@infradead.org
+Subject: [PATCH] stack reduction in drivers/char/vt_ioctl.c
+Content-Type: multipart/mixed;
+ boundary="------------90626E56CD14A9127835B47F"
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [4.64.238.61] at Mon, 10 Mar 2003 00:28:53 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=455
+This is a multi-part message in MIME format.
+--------------90626E56CD14A9127835B47F
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-           Summary: 2.5.64 Dell Inspiron 5000e heaps of suspend/resume
-                    problems
-    Kernel Version: 2.5.64
-            Status: NEW
-          Severity: normal
-             Owner: andrew.grover@intel.com
-         Submitter: andi@lisas.de
+Hi,
+
+This patch (to 2.5.64) reduces the stack usage in vt_ioctl()
+from 0x334 bytes to 0xec bytes (P4, UP, gcc 2.96).
+
+Any problems, comments?
+If not, please apply.
+
+Thanks,
+~Randy
+--------------90626E56CD14A9127835B47F
+Content-Type: text/plain; charset=us-ascii;
+ name="vt_ioctl_stack.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vt_ioctl_stack.patch"
+
+patch_name:	vt_ioctl_stack.patch
+patch_version:	2003-03-09.22:16:16
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	reduces stack usage in drivers/char/vt_ioctl.c::vt_ioctl() from
+		0x334 bytes to 0xec bytes (P4, UP, gcc 2.96)
+product:	Linux
+product_versions: linux-2564
+changelog:	_
+URL:		_
+requires:	_
+conflicts:	_
+maintainer:	jsimmons@users.sf.net, jsimmons@infradead.org
+diffstat:	=
+ drivers/char/vt_ioctl.c |  103 ++++++++++++++++++++++++++++--------------------
+ 1 files changed, 62 insertions(+), 41 deletions(-)
 
 
-Distribution: Debian testing/unstable
-Hardware Environment: bare-bone I5Ke, with mini-PCI wireless card
-Software Environment: gcc 3.2.2, libc6 2.3.1, 2.5.64 standard
-Problem Description:
-When suspending via echo 1>/proc/acpi/sleep, upon resume I get the following
-errors frequently:
-Debug: sleeping function called from illegal context at
-include/linux/rwsem.h:43
-Mar  9 23:43:48 localhost kernel: Call Trace:
-Mar  9 23:43:48 localhost kernel:  [sync_supers+121/240] sync_supers+0x79/0xf0
-Mar  9 23:43:48 localhost kernel:  [wb_kupdate+96/352] wb_kupdate+0x60/0x160
-Mar  9 23:43:48 localhost kernel:  [__wake_up_common+58/96]
-__wake_up_common+0x3a/0x60
-Mar  9 23:43:48 localhost kernel:  [printk+280/384] printk+0x118/0x180
-Mar  9 23:43:48 localhost kernel:  [context_switch+124/304]
-context_switch+0x7c/0x130
-Mar  9 23:43:48 localhost kernel:  [show_trace+66/144] show_trace+0x42/0x90
-Mar  9 23:43:48 localhost kernel:  [kernel_thread_helper+5/24]
-kernel_thread_helper+0x5/0x18
-Mar  9 23:43:48 localhost kernel:  [schedule+332/560] schedule+0x14c/0x230
-Mar  9 23:43:48 localhost kernel:  [__pdflush+220/480] __pdflush+0xdc/0x1e0
-Mar  9 23:43:48 localhost kernel:  [pdflush+0/32] pdflush+0x0/0x20
-Mar  9 23:43:48 localhost kernel:  [pdflush+17/32] pdflush+0x11/0x20
-Mar  9 23:43:48 localhost kernel:  [wb_kupdate+0/352] wb_kupdate+0x0/0x160
-Mar  9 23:43:48 localhost kernel:  [kernel_thread_helper+5/24]
-kernel_thread_helper+0x5/0x18
+diff -Naur ./drivers/char/vt_ioctl.c%VTSTK ./drivers/char/vt_ioctl.c
+--- ./drivers/char/vt_ioctl.c%VTSTK	Tue Mar  4 19:29:31 2003
++++ ./drivers/char/vt_ioctl.c	Sun Mar  9 21:59:39 2003
+@@ -191,38 +191,56 @@
+ static inline int
+ do_kdgkb_ioctl(int cmd, struct kbsentry *user_kdgkb, int perm)
+ {
+-	struct kbsentry tmp;
++	struct kbsentry *kbs;
+ 	char *p;
+ 	u_char *q;
+ 	int sz;
+ 	int delta;
+ 	char *first_free, *fj, *fnw;
+ 	int i, j, k;
++	int ret;
++
++	kbs = kmalloc(sizeof(*kbs), GFP_KERNEL);
++	if (!kbs) {
++		ret = -ENOMEM;
++		goto reterr;
++	}
+ 
+ 	/* we mostly copy too much here (512bytes), but who cares ;) */
+-	if (copy_from_user(&tmp, user_kdgkb, sizeof(struct kbsentry)))
+-		return -EFAULT;
+-	tmp.kb_string[sizeof(tmp.kb_string)-1] = '\0';
+-	if (tmp.kb_func >= MAX_NR_FUNC)
+-		return -EINVAL;
+-	i = tmp.kb_func;
++	if (copy_from_user(kbs, user_kdgkb, sizeof(struct kbsentry))) {
++		ret = -EFAULT;
++		goto reterr;
++	}
++	kbs->kb_string[sizeof(kbs->kb_string)-1] = '\0';
++	if (kbs->kb_func >= MAX_NR_FUNC) {
++		ret = -EINVAL;
++		goto reterr;
++	}
++	i = kbs->kb_func;
+ 
+ 	switch (cmd) {
+ 	case KDGKBSENT:
+-		sz = sizeof(tmp.kb_string) - 1; /* sz should have been
++		sz = sizeof(kbs->kb_string) - 1; /* sz should have been
+ 						  a struct member */
+ 		q = user_kdgkb->kb_string;
+ 		p = func_table[i];
+ 		if(p)
+ 			for ( ; *p && sz; p++, sz--)
+-				if (put_user(*p, q++))
+-					return -EFAULT;
+-		if (put_user('\0', q))
+-			return -EFAULT;
++				if (put_user(*p, q++)) {
++					ret = -EFAULT;
++					goto reterr;
++				}
++		if (put_user('\0', q)) {
++			ret = -EFAULT;
++			goto reterr;
++		}
++		kfree(kbs);
+ 		return ((p && *p) ? -EOVERFLOW : 0);
+ 	case KDSKBSENT:
+-		if (!perm)
+-			return -EPERM;
++		if (!perm) {
++			ret = -EPERM;
++			goto reterr;
++		}
+ 
+ 		q = func_table[i];
+ 		first_free = funcbufptr + (funcbufsize - funcbufleft);
+@@ -233,7 +251,7 @@
+ 		else
+ 			fj = first_free;
+ 
+-		delta = (q ? -strlen(q) : 1) + strlen(tmp.kb_string);
++		delta = (q ? -strlen(q) : 1) + strlen(kbs->kb_string);
+ 		if (delta <= funcbufleft) { 	/* it fits in current buf */
+ 		    if (j < MAX_NR_FUNC) {
+ 			memmove(fj + delta, fj, first_free - fj);
+@@ -249,8 +267,10 @@
+ 		    while (sz < funcbufsize - funcbufleft + delta)
+ 		      sz <<= 1;
+ 		    fnw = (char *) kmalloc(sz, GFP_KERNEL);
+-		    if(!fnw)
+-		      return -ENOMEM;
++		    if(!fnw) {
++		      ret = -ENOMEM;
++		      goto reterr;
++		    }
+ 
+ 		    if (!q)
+ 		      func_table[i] = fj;
+@@ -272,17 +292,21 @@
+ 		    funcbufleft = funcbufleft - delta + sz - funcbufsize;
+ 		    funcbufsize = sz;
+ 		}
+-		strcpy(func_table[i], tmp.kb_string);
++		strcpy(func_table[i], kbs->kb_string);
+ 		break;
+ 	}
++	kfree(kbs);
+ 	return 0;
++
++reterr:
++	kfree(kbs);
++	return ret;
+ }
+ 
+ static inline int 
+-do_fontx_ioctl(int cmd, struct consolefontdesc *user_cfd, int perm)
++do_fontx_ioctl(int cmd, struct consolefontdesc *user_cfd, int perm, struct console_font_op *op)
+ {
+ 	struct consolefontdesc cfdarg;
+-	struct console_font_op op;
+ 	int i;
+ 
+ 	if (copy_from_user(&cfdarg, user_cfd, sizeof(struct consolefontdesc))) 
+@@ -292,25 +316,25 @@
+ 	case PIO_FONTX:
+ 		if (!perm)
+ 			return -EPERM;
+-		op.op = KD_FONT_OP_SET;
+-		op.flags = KD_FONT_FLAG_OLD;
+-		op.width = 8;
+-		op.height = cfdarg.charheight;
+-		op.charcount = cfdarg.charcount;
+-		op.data = cfdarg.chardata;
+-		return con_font_op(fg_console, &op);
++		op->op = KD_FONT_OP_SET;
++		op->flags = KD_FONT_FLAG_OLD;
++		op->width = 8;
++		op->height = cfdarg.charheight;
++		op->charcount = cfdarg.charcount;
++		op->data = cfdarg.chardata;
++		return con_font_op(fg_console, op);
+ 	case GIO_FONTX: {
+-		op.op = KD_FONT_OP_GET;
+-		op.flags = KD_FONT_FLAG_OLD;
+-		op.width = 8;
+-		op.height = cfdarg.charheight;
+-		op.charcount = cfdarg.charcount;
+-		op.data = cfdarg.chardata;
+-		i = con_font_op(fg_console, &op);
++		op->op = KD_FONT_OP_GET;
++		op->flags = KD_FONT_FLAG_OLD;
++		op->width = 8;
++		op->height = cfdarg.charheight;
++		op->charcount = cfdarg.charcount;
++		op->data = cfdarg.chardata;
++		i = con_font_op(fg_console, op);
+ 		if (i)
+ 			return i;
+-		cfdarg.charheight = op.height;
+-		cfdarg.charcount = op.charcount;
++		cfdarg.charheight = op->height;
++		cfdarg.charcount = op->charcount;
+ 		if (copy_to_user(user_cfd, &cfdarg, sizeof(struct consolefontdesc)))
+ 			return -EFAULT;
+ 		return 0;
+@@ -355,6 +379,7 @@
+ 	unsigned char ucval;
+ 	struct kbd_struct * kbd;
+ 	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
++	struct console_font_op op;	/* used in multiple places here */
+ 
+ 	console = vt->vc_num;
+ 
+@@ -860,7 +885,6 @@
+ 	}
+ 
+ 	case PIO_FONT: {
+-		struct console_font_op op;
+ 		if (!perm)
+ 			return -EPERM;
+ 		op.op = KD_FONT_OP_SET;
+@@ -873,7 +897,6 @@
+ 	}
+ 
+ 	case GIO_FONT: {
+-		struct console_font_op op;
+ 		op.op = KD_FONT_OP_GET;
+ 		op.flags = KD_FONT_FLAG_OLD;
+ 		op.width = 8;
+@@ -893,7 +916,7 @@
+ 
+ 	case PIO_FONTX:
+ 	case GIO_FONTX:
+-		return do_fontx_ioctl(cmd, (struct consolefontdesc *)arg, perm);
++		return do_fontx_ioctl(cmd, (struct consolefontdesc *)arg, perm, &op);
+ 
+ 	case PIO_FONTRESET:
+ 	{
+@@ -906,7 +929,6 @@
+ 		return -ENOSYS;
+ #else
+ 		{
+-		struct console_font_op op;
+ 		op.op = KD_FONT_OP_SET_DEFAULT;
+ 		op.data = NULL;
+ 		i = con_font_op(fg_console, &op);
+@@ -918,7 +940,6 @@
+ 	}
+ 
+ 	case KDFONTOP: {
+-		struct console_font_op op;
+ 		if (copy_from_user(&op, (void *) arg, sizeof(op)))
+ 			return -EFAULT;
+ 		if (!perm && op.op != KD_FONT_OP_GET)
 
-
-bad: scheduling while atomic!
-Call Trace:
- [<c011d4c0>] schedule+0x220/0x230
- [<c0140608>] __pdflush+0x98/0x1e0
- [<c0140750>] pdflush+0x0/0x20
- [<c0140761>] pdflush+0x11/0x20
- [<c010826d>] kernel_thread_helper+0x5/0x18
-
-The system is still sort-of-usable in console (keeps having errors though),
-but as soon as I switch back to X11, BOOM, that's it.
-
-When trying an echo 3>/proc/acpi/sleep, the notebook doesn't react AT ALL
-after resume (it does resume, though, but it's dead).
-
-Steps to reproduce:
-This happens both with extensive module/driver/support programs loaded and
-without ANY modules loaded (just to check whether some driver is guilty of
-producing this mess).
-
-Yeah, I know that Dell produces incredibly crappy BIOS power mgmt code, but it'd
-be nice to see this running anyway ;-)
-
-Any ideas?
-
-And what do the various seemingly important error messages below mean?
-
-Thanks!
-
-Andreas Mohr, Wine developer
-
-ACPI boot output:
-
-Mar  9 23:45:03 localhost kernel: ACPI: Subsystem revision 20030228
-Mar  9 23:45:03 localhost kernel:  tbxface-0117 [03] acpi_load_tables      : ACP
-I Tables successfully acquired
-Mar  9 23:45:03 localhost kernel: Parsing all Control Methods:..................
-................................................................................
-...........................................................................
-Mar  9 23:45:03 localhost kernel: Table [DSDT] - 602 Objects with 51 Devices 173
- Methods 16 Regions
-Mar  9 23:45:03 localhost kernel: ACPI Namespace successfully loaded at root c03
-b2b3c
-Mar  9 23:45:03 localhost kernel: evxfevnt-0092 [04] acpi_enable           : Tra
-nsition to ACPI mode successful
-Mar  9 23:45:03 localhost kernel:    evgpe-0416 [06] ev_create_gpe_block   : GPE
- Block: 2 registers at 000000000000100C
-Mar  9 23:45:03 localhost kernel:    evgpe-0421 [06] ev_create_gpe_block   : GPE
- Block defined as GPE0 to GPE15
-Mar  9 23:45:03 localhost kernel: Executing all Device _STA and_INI methods:....
-...........[ACPI Debug] String: LNKA_STA
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] Integer: 000000000000000B
-Mar  9 23:45:03 localhost kernel: ...............[ACPI Debug] String: PCI IDE Pr
-imary _STA
-Mar  9 23:45:03 localhost kernel: ......[ACPI Debug] String: USB_STA
-Mar  9 23:45:03 localhost kernel: ..[ACPI Debug] String: AUD_STA
-Mar  9 23:45:03 localhost kernel: .[ACPI Debug] String: MDM1_STA
-Mar  9 23:45:03 localhost kernel: ......[ACPI Debug] String: VGA_STA
-Mar  9 23:45:03 localhost kernel: ......
-Mar  9 23:45:03 localhost kernel: 51 Devices found containing: 51 _STA, 2 _INI m
-ethods
-Mar  9 23:45:03 localhost kernel: Completing Region/Field/Buffer/Package initial
-ization:........................................................................
-.......
-Mar  9 23:45:03 localhost kernel: Initialized 9/16 Regions 0/0 Fields 25/25 Buff
-ers 45/46 Packages (602 nodes)
-Mar  9 23:45:03 localhost kernel: ACPI: Interpreter enabled
-Mar  9 23:45:03 localhost kernel: ACPI: Using PIC for interrupt routing
-Mar  9 23:45:03 localhost kernel: ACPI: PCI Root Bridge [PCI0] (00:00)
-Mar  9 23:45:03 localhost kernel: PCI: Probing PCI hardware (bus 00)
->>>>> Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [05]
-acpi_evaluate_referenc: [
-Package] has zero elements (cffee9e0)
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [06] acpi_evaluate_referenc: [
-Package] has zero elements (cffee9e0)
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [07] acpi_evaluate_referenc: [
-Package] has zero elements (cffee9e0)
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [08] acpi_evaluate_referenc: [
-Package] has zero elements (cffee9e0)
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [09] acpi_evaluate_referenc: [
-Package] has zero elements (cffee9e0)
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [10] acpi_evaluate_referenc: [
-Package] has zero elements (cffee9e0)
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: LNKA_STA
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] Integer: 000000000000000B
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: LNKA_STA
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] Integer: 000000000000000B
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: LNKA_STA
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] Integer: 000000000000000B
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: LNKA_CRS
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] Buffer: Length 06
-Mar  9 23:45:03 localhost kernel: ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 
-7 9 10 *11 14 15)
-Mar  9 23:45:03 localhost kernel: ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 
-7 9 10 11 14 15, disabled)
-Mar  9 23:45:03 localhost kernel: ACPI: PCI Interrupt Link [LNKC] (IRQs 5 7, dis
-abled)
-Mar  9 23:45:03 localhost kernel: ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *5 6
- 7 9 10 11 14 15)
-Mar  9 23:45:03 localhost kernel: ACPI: Embedded Controller [EC0] (gpe 9)
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [17] acpi_evaluate_referenc: [
-Package] has zero elements (cffee9e0)
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: PCI IDE Primary _STA
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: PCI IDE Primary _STA
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: USB_STA
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: USB_STA
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [18] acpi_evaluate_referenc: [
-Package] has zero elements (cffee9c0)
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: AUD_STA
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: AUD_STA
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [19] acpi_evaluate_referenc: [
-Package] has zero elements (cffee980)
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: MDM1_STA
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: MDM1_STA
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [20] acpi_evaluate_referenc: [
-Package] has zero elements (cffee960)
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [21] acpi_evaluate_referenc: [
-Package] has zero elements (cffe33c0)
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [22] acpi_evaluate_referenc: [
-Package] has zero elements (cffe33a0)
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [23] acpi_evaluate_referenc: [
-Package] has zero elements (cffe3380)
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [24] acpi_evaluate_referenc: [
-Package] has zero elements (cffe3380)
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: VGA_STA
-Mar  9 23:45:03 localhost kernel: [ACPI Debug] String: VGA_STA
-Mar  9 23:45:03 localhost kernel: acpi_utils-0369 [25] acpi_evaluate_referenc: [
-Package] has zero elements (cffe3340)
-Mar  9 23:45:03 localhost kernel: ACPI: Power Resource [PFN0] (off)
-Mar  9 23:45:03 localhost kernel: ACPI: Power Resource [PFN1] (off)
-Mar  9 23:45:03 localhost kernel: block request queues:
-Mar  9 23:45:03 localhost kernel:  128 requests per read queue
-Mar  9 23:45:03 localhost kernel:  128 requests per write queue
-Mar  9 23:45:03 localhost kernel:  8 requests per batch
-Mar  9 23:45:03 localhost kernel:  enter congestion at 15
-Mar  9 23:45:03 localhost kernel:  exit congestion at 17
-Mar  9 23:45:03 localhost kernel: ACPI: PCI Interrupt Link [LNKB] enabled at IRQ
- 10
-Mar  9 23:45:03 localhost kernel: ACPI: PCI Interrupt Link [LNKC] enabled at IRQ
- 5
-Mar  9 23:45:03 localhost kernel: PCI: Using ACPI for IRQ routing
-Mar  9 23:45:03 localhost kernel: PCI: if you experience problems, try using opt
-ion 'pci=noacpi' or even 'acpi=off'
->>>>> Mar  9 23:45:03 localhost kernel: PCI: Cannot allocate resource region 4
-of devi
-ce 00:07.1
-(00:07.1 is IDE interface, BTW)
->>>>> Mar  9 23:45:03 localhost kernel: SBF: ACPI BOOT descriptor is wrong
-length (39)
-Mar  9 23:45:03 localhost kernel: SBF: Simple Boot Flag extension found and enab
-led.
-Mar  9 23:45:03 localhost kernel: SBF: Setting boot flags 0x1
-Mar  9 23:45:03 localhost kernel: cpufreq: Intel(R) SpeedStep(TM) for this chips
-et not (yet) available.
-Mar  9 23:45:03 localhost kernel: apm: BIOS version 1.2 Flags 0x03 (Driver versi
-on 1.16ac)
-Mar  9 23:45:03 localhost kernel: apm: overridden by ACPI.
-Mar  9 23:45:03 localhost kernel: Enabling SEP on CPU 0
-Mar  9 23:45:03 localhost kernel: aio_setup: sizeof(struct page) = 40
-Mar  9 23:45:03 localhost kernel: Journalled Block Device driver loaded
-Mar  9 23:45:03 localhost kernel: devfs: v1.22 (20021013) Richard Gooch (rgooch@
-atnf.csiro.au)
-Mar  9 23:45:03 localhost kernel: devfs: boot_options: 0x1
-Mar  9 23:45:03 localhost kernel: Limiting direct PCI/PCI transfers.
-Mar  9 23:45:03 localhost kernel: ACPI: AC Adapter [AC] (on-line)
-Mar  9 23:45:03 localhost kernel: ACPI: Battery Slot [BAT0] (battery present)
-Mar  9 23:45:03 localhost kernel: ACPI: Battery Slot [BAT1] (battery absent)
-Mar  9 23:45:03 localhost kernel: ACPI: Lid Switch [LID]
-Mar  9 23:45:03 localhost kernel: ACPI: Power Button (CM) [PWRB]
-Mar  9 23:45:03 localhost kernel: ACPI: Sleep Button (CM) [SBTN]
-Mar  9 23:45:03 localhost kernel: ACPI: Fan [FAN0] (on)
-Mar  9 23:45:03 localhost kernel: ACPI: Fan [FAN1] (on)
-Mar  9 23:45:03 localhost kernel: ACPI: Processor [CPU0] (supports C1 C2, 8 thro
-
->>>>>> Mar  9 23:45:03 localhost kernel: acpi_thermal-0373 [34]
-acpi_thermal_get_trip_:
- Invalid passive threshold
-
-Mar  9 23:45:03 localhost kernel: ACPI: Thermal Zone [THRM] (56 C)
-
+--------------90626E56CD14A9127835B47F--
 

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267930AbRGWVva>; Mon, 23 Jul 2001 17:51:30 -0400
+	id <S267927AbRGWVvU>; Mon, 23 Jul 2001 17:51:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267931AbRGWVvU>; Mon, 23 Jul 2001 17:51:20 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:47764 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S267930AbRGWVvE>; Mon, 23 Jul 2001 17:51:04 -0400
-Date: Mon, 23 Jul 2001 15:50:54 -0600
-Message-Id: <200107232150.f6NLosh13126@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-        Linus Torvalds <torvalds@transmeta.com>, Jeff Dike <jdike@karaya.com>,
-        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: user-mode port 0.44-2.4.7
-In-Reply-To: <20010723231136.E16919@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0107231259520.13272-100000@penguin.transmeta.com>
-	<3B5C8C96.FE53F5BA@nortelnetworks.com>
-	<20010723231136.E16919@athlon.random>
+	id <S267931AbRGWVvK>; Mon, 23 Jul 2001 17:51:10 -0400
+Received: from front7.grolier.fr ([194.158.96.57]:21953 "EHLO
+	front7.grolier.fr") by vger.kernel.org with ESMTP
+	id <S267927AbRGWVuy> convert rfc822-to-8bit; Mon, 23 Jul 2001 17:50:54 -0400
+From: "J.L.Carlet" <pyrenees@club-internet.fr>
+Reply-To: pyrenees@club-internet.fr
+To: linux-kernel@vger.kernel.org
+Subject: The moxa.c module is not compiled in 2.4.7 kernel.
+Date: Mon, 23 Jul 2001 23:49:17 +0200
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <01072323491700.00616@linux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Andrea Arcangeli writes:
-> cases if the code breaks in the actual usages of xtime it is likely that
-> gcc is doing something stupid in terms of performance. but GCC if it
-> wants to is allowed to compile this code:
-> 
-> 	printf("%lx\n", xtime.tv_sec);
-> 
-> as:
-> 
-> 	unsigned long sec = xtime.tv_sec;
-> 	if (sec != xtime.tv_sec)
-> 		BUG();
-> 	printf("%lx\n", sec);
+Hi !
 
-And if it does that, it's stupid. Why on earth would GCC add extra
-code to check if a value hasn't changed? I want it to produce
-efficient code. What's next? Wrap checking?
-    printk ("You've just wrapped an integer: press [ENTER] to confirm,
-	    [NT] to ignore   ");
+I have a problem with the 2.4.7 kernel only, not with the 2.4.6.
+In the 2.4.6, using make xconfig, I select Moxa Intellio support, in the 
+Character devices menu. I made make dep, make clean, make modules, make 
+modules_install, and then I obtained the moxa.o file in 
+/lib/modules/2.4.6/kernel/drivers/char directory.
+If I make the same operations with 2.4.7 kernel, I don't obtain moxa.o
+The file is not compiled and not installed.
+But, if I edit the file .config in /usr/src/linux with 2.4.7 kernel, I see 
+the line  CONFIG_MOXA_INTELLIO=m.
+I don't understand why the moxa.c file is not compiled.
+I don't receive error messages.
 
-				Regards,
+If I want the moxa.o module, I need to make:
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.7/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE  
+ -DEXPORT_SYMTAB -c moxa.c
+and then I have to copy moxa.o in the /lib/modules/2.4.7/kernel/drivers/char 
+directory.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+The computer is an i386 , Duron processor
+The multiport card is an Intellio Moxa C218 ISA card
+The distribution is Suse 7
+
+Thank you for your response.
+
+Best regards.
+

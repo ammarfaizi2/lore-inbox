@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264694AbTIJIeq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 04:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264721AbTIJIeq
+	id S264718AbTIJIdK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 04:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264694AbTIJIdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 04:34:46 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:65435 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264694AbTIJId4 (ORCPT
+	Wed, 10 Sep 2003 04:33:10 -0400
+Received: from dp.samba.org ([66.70.73.150]:36761 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264754AbTIJIdD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 04:33:56 -0400
-Date: Wed, 10 Sep 2003 10:33:51 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Markus Plail <linux-kernel@gitteundmarkus.de>
-Cc: linux-kernel@vger.kernel.org, ed.sweetman@wmich.edu
-Subject: Re: atapi write support? No
-Message-ID: <20030910083351.GK20800@suse.de>
-References: <3F5E2BA4.60704@wmich.edu> <20030909195428.GQ4755@suse.de> <3F5E338F.2000007@wmich.edu> <87brttemlk.fsf@gitteundmarkus.de>
+	Wed, 10 Sep 2003 04:33:03 -0400
+Date: Wed, 10 Sep 2003 18:31:30 +1000
+From: Anton Blanchard <anton@samba.org>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] quieten initramfs and fix /dev permissions
+Message-ID: <20030910083130.GF1532@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87brttemlk.fsf@gitteundmarkus.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09 2003, Markus Plail wrote:
-> On Tue, 09 Sep 2003, Ed Sweetman wrote:
-> 
-> >Jens Axboe wrote: 
-> >> On Tue, Sep 09 2003, Ed Sweetman wrote:
-> > There is no other information needed.
-> 
-> There is...
-> 
-> > By use atapi write support i mean Get it to do anything besides error
-> > out reporting that it cant access the drive. If you can query the
-> > drive much less actually write anything to it using the ATAPI
-> > interface than that's more than i've been able to do.
-> > 
-> > for example   cdrecord dev=ATAPI:1,0,0 checkdisk
-> 
-> ATAPI: is most likely wrong for what you want to do. It's meant for
-> notebooks (PCATA or something).
-> If you just want to get rid of ide-scsi, you have to use dev=/dev/hdX in
-> cdrecord.
 
-That ATAPI support is slow and unreliable, Joerg was a fool to merge it.
-It shold _not_ be used! Using dev=/dev/hdX is required for SG_IO in 2.6
-right now, other methods should be usable in the future. So Markus is
-dead right.
+Dont print the contents of the initramfs, for any decent sized cpio it will
+overflow the kernel ring buffer. 
 
-> PS: A little change in attitude towards people who are willing to help
-> you wouldn't be the worst idea. IMHO of course.
+Also relax permissions on /dev (755 not 700).
 
-Indeed, and doing just a little work before showing up with an attitude
-would be even better. It's amazing how people asking for help think they
-can define the rules as well.
 
--- 
-Jens Axboe
+ work-anton/init/initramfs.c     |    1 -
+ work-anton/usr/gen_init_cpio.c  |    2 +-
 
+diff -puN init/initramfs.c~initramfs_stuff init/initramfs.c
+--- work/init/initramfs.c~initramfs_stuff	2003-09-06 22:58:23.000000000 -0500
++++ work-anton/init/initramfs.c	2003-09-10 03:04:31.000000000 -0500
+@@ -248,7 +248,6 @@ static int __init do_name(void)
+ 		next_state = Reset;
+ 		return 0;
+ 	}
+-	printk(KERN_INFO "-> %s\n", collected);
+ 	if (S_ISREG(mode)) {
+ 		if (maybe_link() >= 0) {
+ 			wfd = sys_open(collected, O_WRONLY|O_CREAT, mode);
+diff -puN usr/gen_init_cpio.c~initramfs_stuff usr/gen_init_cpio.c
+--- work/usr/gen_init_cpio.c~initramfs_stuff	2003-09-06 22:58:23.000000000 -0500
++++ work-anton/usr/gen_init_cpio.c	2003-09-06 22:58:23.000000000 -0500
+@@ -212,7 +212,7 @@ error:
+ 
+ int main (int argc, char *argv[])
+ {
+-	cpio_mkdir("/dev", 0700, 0, 0);
++	cpio_mkdir("/dev", 0755, 0, 0);
+ 	cpio_mknod("/dev/console", 0600, 0, 0, 'c', 5, 1);
+ 	cpio_mkdir("/root", 0700, 0, 0);
+ 	cpio_trailer();

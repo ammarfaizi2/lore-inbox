@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264225AbUD0SGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264268AbUD0SG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264225AbUD0SGj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 14:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbUD0SGi
+	id S264268AbUD0SG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 14:06:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUD0SET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 14:06:38 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:16645 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264225AbUD0SEm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 14:04:42 -0400
-Date: Tue, 27 Apr 2004 19:04:39 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Chris Mason <mason@suse.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, akpm@osdl.org
-Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary additional namespace to ReiserFS
-Message-ID: <20040427190439.A20646@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hans Reiser <reiser@namesys.com>, Chris Mason <mason@suse.com>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com, akpm@osdl.org
-References: <1082750045.12989.199.camel@watt.suse.com> <408D3FEE.1030603@namesys.com> <20040426203314.A6973@infradead.org> <408E986F.90506@namesys.com> <20040427183400.A20221@infradead.org> <408E9F42.2080804@namesys.com>
+	Tue, 27 Apr 2004 14:04:19 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:49537 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S264258AbUD0SCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 14:02:55 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+	for idle=C1halt, 2.6.5
+From: Len Brown <len.brown@intel.com>
+To: a.verweij@student.tudelft.nl
+Cc: Ross Dickson <ross@datscreative.com.au>,
+       Jesse Allen <the3dfxdude@hotmail.com>,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       Craig Bradney <cbradney@zip.com.au>, christian.kroener@tu-harburg.de,
+       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
+       Ian Kumlien <pomac@vapor.com>, Allen Martin <AMartin@nvidia.com>
+In-Reply-To: <Pine.GHP.4.44.0404271807470.6154-100000@elektron.its.tudelft.nl>
+References: <Pine.GHP.4.44.0404271807470.6154-100000@elektron.its.tudelft.nl>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1083088854.2322.38.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <408E9F42.2080804@namesys.com>; from reiser@namesys.com on Tue, Apr 27, 2004 at 10:58:26AM -0700
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 27 Apr 2004 14:00:54 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 10:58:26AM -0700, Hans Reiser wrote:
-> Ask the users whether their laptops, etc.,  seem to go a lot faster with 
-> V4.  They seem to be pretty happy with it.
-> 
-> V4 fixed all of V3's serious performance flaws, and totally obsoletes 
-> it.    I am very happy with it.
+On Tue, 2004-04-27 at 13:02, Arjen Verweij wrote:
 
-Hans, that's not what we're discussing in this thread.  I don't give a shit
-whether filesystem A is fater than filesystem B on task C.  Really, how
-fast a fs is an implementation details.
+> After having his box run with cat /dev/hda > /dev/null for a night
+> straight no lockup has occured. The brand of his motherboard is Shuttle.
 
-I also still think someone who does most work in the last years on a fs
-(Chris on reiserfs v3) should be considered maintainer, but that's just my
-2cents and I'd rather leave that to you guys.
+My shuttle is a FN41 board in a SN41G2 system.
 
-The important part is xattr/acl/namespace semantics.  In Linux those
-semantics are at the _VFS_ level, not at the individual filesystem,
-in fact if a fs can mess with namespace semantics I'd almost considere
-that a bug.
+I found "rev 1.0" BIOS (FN41S00X of 12/18/2002) on Shuttle's ftp site
+and downgraded to that, but still no hang.
 
-So if you want different xattr/acl semantics after you ignored all the
-discussion has been going on the last years start *now* to discuss you
-proposal on -fsdevel, and acl-devel, explaining why your semantics are
-better and hash out the implementation details to support both
-transparently.
+It may be this board never hangs no matter what,
+or perhaps C1 disconnect was simply disabled in that BIOS
+b/c there was no option for it in Advanced Chipset Features
+like there is for the most recent BIOS.
 
-Funneling in new semantics through a low level driver is pretty much
-always wrong.
+Other things about my board.
+I run "optimized defaults", I don't overclock anything.
+Processor is an AMD XP 2200+
+Does anybody else see the hang with this processor model?
+I wonder if the hang is processor model or speed dependent?
+
+> Does anyone have some input on how to tackle this problem?
+
+Unfortunately I don't have tools for debugging nvidia + amd hardware.
+I would expect that those companies do, however.  So encouraging them
+to reproduce the hang internally may be the best way to go.
+
+> buy Len the cheapest broken nforce2 board I can find at pricewatch.com and
+> have it shipped to his house :)
+
+I got tangled in this b/c this board (actually, the reference BIOS for
+this chipset) had some unusual ACPI related failures.  If the failures
+turn out to be related to ACPI, I'll do what I can to help.  But I
+expect that hardware debugging tools may be necessary before the
+hang issue is completely explained and solved.
+
+-Len
+
+

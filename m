@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313144AbSDIML3>; Tue, 9 Apr 2002 08:11:29 -0400
+	id <S313867AbSDIMQI>; Tue, 9 Apr 2002 08:16:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313151AbSDIML2>; Tue, 9 Apr 2002 08:11:28 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:62151 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S313144AbSDIML2>; Tue, 9 Apr 2002 08:11:28 -0400
-Date: Tue, 9 Apr 2002 14:11:28 +0200 (CEST)
-From: Petr Kulhavy <brain@artax.karlin.mff.cuni.cz>
-To: Manoj Sharma <manoj.sharma@wipro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Framebuffer documentation
-In-Reply-To: <Pine.LNX.4.33.0204091351550.24749-100000@kaveri>
-Message-ID: <Pine.LNX.4.44.0204091407150.26332-100000@artax.karlin.mff.cuni.cz>
-X-Echelon: GRU Vatutinki Aquarium Khodynka Chodynka Khodinka Putin Suvorov USA Russia Ladygin China Moscow missile reconnaissance agent spetsnaz security tactical target operation military defense spy information attack bomb explode tap intercept plan intelligence war analysis echelon sucks
+	id <S313868AbSDIMQH>; Tue, 9 Apr 2002 08:16:07 -0400
+Received: from firewall.unidec.co.uk ([195.166.19.2]:42552 "EHLO
+	firewall.unidec.co.uk") by vger.kernel.org with ESMTP
+	id <S313867AbSDIMQH>; Tue, 9 Apr 2002 08:16:07 -0400
+Message-Id: <200204091216.g39CG5Q31094@frumious.unidec.co.uk>
+Content-Type: text/plain; charset=US-ASCII
+From: dr john halewood <john@frumious.unidec.co.uk>
+Organization: unidentified sloths
+To: linux-kernel@vger.kernel.org
+Subject: Re: Compaq Alpha DS10 - Kernel 2.4.18
+Date: Tue, 9 Apr 2002 12:16:05 +0000
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <000d01c1dfb0$0da74a30$010b10ac@sbp.uptime.at>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Apr 2002, Manoj Sharma wrote:
-
+On Tuesday 09 April 2002 11:19 am, Oliver Pitzeier wrote:
+> Hi all!
+> [...]
+> OK, I did so... fsck -y /dev/sda1 -> Works perfectly. After
+> fsck has corrected more than 1000 errors I'm able to
+> reboot the machine.
 >
-> You can get the documents at www.linux-fbdev.org
+> And than: MY SYSTEM IS NO LONGER BOOTABLE. It's totally
+> currupted...
+> Are there any alpha-users in this list? :o))))
+$uname -a
+Linux frumious.unidec.co.uk 2.4.19pre1 #2 Wed Feb 27 14:45:16 GMT 2002 alpha 
+unknown
 
-That's not a documentation. There's e. g. nothing about colormaps. When I
-set mode with 15, 16 or 24 bits, dark colors are very strange (cyan, red
-or something like that), when I set palette (in 24 bit mode!) the colors
-change.
+Yup.  Not had any problems despite a series of recent powercuts (including 
+one where the mains voltage dropped from ~230V to ~150V), but did have very 
+long fsck()s afterwards. So I gave up and went to ext3 - all it takes is 
+kernel support and a quick tune2fs -j /dev/XXX ;-)
 
-"Documentation" says nothing about it.
-
-Brain
-
---------------------------------
-Petr `Brain' Kulhavy
-<brain@artax.karlin.mff.cuni.cz>
-http://artax.karlin.mff.cuni.cz/~brain
-Faculty of Mathematics and Physics, Charles University Prague, Czech Republic
-
----
-God is dead.
-                 -- Nietzsche
-
-Nietzsche is dead.
-                 -- God
-
+cheers
+john

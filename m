@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266363AbSLTXbV>; Fri, 20 Dec 2002 18:31:21 -0500
+	id <S266368AbSLTXd5>; Fri, 20 Dec 2002 18:33:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266456AbSLTXbV>; Fri, 20 Dec 2002 18:31:21 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:14572 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S266363AbSLTXbT>;
-	Fri, 20 Dec 2002 18:31:19 -0500
-Date: Fri, 20 Dec 2002 23:38:25 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ulrich Drepper <drepper@redhat.com>, bart@etpmod.phys.tue.nl,
-       davej@codemonkey.org.uk, hpa@transmeta.com, terje.eggestad@scali.com,
-       matti.aarnio@zmailer.org, hugh@veritas.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021220233825.GA22232@bjl1.asuk.net>
-References: <20021220120656.GA20674@bjl1.asuk.net> <Pine.LNX.4.44.0212200834590.2035-100000@home.transmeta.com>
+	id <S266411AbSLTXd5>; Fri, 20 Dec 2002 18:33:57 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:36615 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266368AbSLTXd4>;
+	Fri, 20 Dec 2002 18:33:56 -0500
+Date: Fri, 20 Dec 2002 15:38:56 -0800
+From: Greg KH <greg@kroah.com>
+To: lvm-devel@sistina.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove __MOD_* from dm
+Message-ID: <20021220233855.GA13962@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212200834590.2035-100000@home.transmeta.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> And if the caller cannot depend on registers being saved, the caller may
-> actually end up being more complicated. For example, with the current
-> setup, you can have
-> 
-> 	getpid():
-> 		movl $__NR_getpid,%eax
-> 		jmp *%gs:0x18
-> 
-> but if system calls clobber registers, the caller needs to be
-> 
-> [long code snippet]
-> 
-> and notice how the _real_ code sequence actually got much _worse_ from the
-> fact that you tried to save time by not saving registers.
+Here's another patch against 2.5.52-bk that gets rid of the old __MOD_*
+functions for the newer module api.  This also allows the modules to be
+unloaded.
 
-No, your "real" code sequence is wrong.
+Joe, please add this to your next round of patches.
 
-%ebx/%edi/%esi are preserved across sysenter/sysexit, whereas
-%ecx/%edx are call-clobbered registers in the i386 function call ABI.
+thanks,
 
-This is not a coincidence.
+greg k-h
 
-So, getpid looks like this with the _smaller_ vsyscall code:
 
- 	getpid():
- 		movl $__NR_getpid,%eax
- 		call *%gs:0x18
- 		ret
+# DM: convert old __MOD_INC and __MOD_DEC calls to the new style.
 
-Intel didn't choose %ecx/%edx as the sysexit registers by accident.
-They were chosen for exactly this reason.
-
-By the way, the same applies to AMD's syscall/sysret, which clobbers %ecx.
-
-What I'm suggesting is that we should say that "call 0xffffe000"
-clobbers only the registers (%eax/%ecx/%edx) that _normal_ function
-calls clobber on i386, and preserves the call-saved registers.
-
-This keeps the size of system call stubs in libc to the minimum.
-Think about it.
-
--- Jamie
+diff -Nru a/drivers/md/dm-target.c b/drivers/md/dm-target.c
+--- a/drivers/md/dm-target.c	Fri Dec 20 15:38:41 2002
++++ b/drivers/md/dm-target.c	Fri Dec 20 15:38:41 2002
+@@ -46,10 +46,14 @@
+ 	ti = __find_target_type(name);
+ 
+ 	if (ti) {
+-		if (ti->use == 0 && ti->tt.module)
+-			__MOD_INC_USE_COUNT(ti->tt.module);
++		if (ti->use == 0)
++			if (!try_module_get(ti->tt.module)) {
++				ti = NULL;
++				goto exit;
++			}
+ 		ti->use++;
+ 	}
++exit:
+ 	read_unlock(&_lock);
+ 
+ 	return ti;
+@@ -86,8 +90,8 @@
+ 	struct tt_internal *ti = (struct tt_internal *) t;
+ 
+ 	read_lock(&_lock);
+-	if (--ti->use == 0 && ti->tt.module)
+-		__MOD_DEC_USE_COUNT(ti->tt.module);
++	if (--ti->use == 0)
++		module_put(ti->tt.module);
+ 
+ 	if (ti->use < 0)
+ 		BUG();

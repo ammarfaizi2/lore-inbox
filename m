@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265725AbTB0RrF>; Thu, 27 Feb 2003 12:47:05 -0500
+	id <S265809AbTB0Rtw>; Thu, 27 Feb 2003 12:49:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbTB0RrF>; Thu, 27 Feb 2003 12:47:05 -0500
-Received: from adsl-63-195-13-67.dsl.chic01.pacbell.net ([63.195.13.67]:530
-	"EHLO mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id <S265725AbTB0RrE>; Thu, 27 Feb 2003 12:47:04 -0500
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: linux-kernel@vger.kernel.org
-Date: Thu, 27 Feb 2003 09:57:16 -0800
-MIME-Version: 1.0
-Subject: Re: Is the GIO_FONT ioctl() busted in Linux kernel 2.4?
-Message-ID: <3E5DE0FC.29370.6FD7FC8B@localhost>
-In-reply-to: <3E5DDE8D.14024.6FCE7D82@localhost>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	id <S265857AbTB0Rtv>; Thu, 27 Feb 2003 12:49:51 -0500
+Received: from B5109.pppool.de ([213.7.81.9]:50351 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S265809AbTB0Rts>; Thu, 27 Feb 2003 12:49:48 -0500
+Subject: Re: Minutes from Feb 21 LSE Call
+From: Daniel Egger <degger@fhm.edu>
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E18nu9a-0004VP-00@calista.inka.de>
+References: <E18nu9a-0004VP-00@calista.inka.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5NuIb28ToOJtnx2WaH7I"
+Organization: 
+Message-Id: <1046368220.14387.23.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 27 Feb 2003 18:50:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kendall Bennett" <KendallB@scitechsoft.com> wrote:
 
-> From looking at the 2.4 kernel source code that comes with Red
-> Hat 8.0, it is clear that these functions are implemented on top
-> of a new console font interface that supports 512 characters and
-> up to 32x32 pixel fonts (obviously for fb consoles). 
+--=-5NuIb28ToOJtnx2WaH7I
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yep, after further investigation the problem is that the VGA console is 
-configured to run with 512 characters, yet the 'old' interface code is 
-trying to save/restore only 256 characters so it fails. It could be fixed 
-if it was changed to save/restore 512 characters, but I don't know if 
-that will break old code (it won't break mine as I always uses a 64K 
-buffer to save/restore the font tables).
+Am Mit, 2003-02-26 um 06.30 schrieb Bernd Eckenfels:
 
-Can someone who is more experienced with the kernel describe how this can 
-be properly patched? 
+> > unfortunantly for them the core CPU speeds became uncoupled from the
+> > memory speeds and skyrocketed up to the point where CISC cores are as f=
+ast
+> > or faster then the 'high speed' RISC cores.
 
-I have worked around the problem in my code by simply switching to the 
-new interface (KDFONTOP), but I would like to know what kernel version 
-this new interface showed up in. If it was in the 2.0 or even 2.2 kernels 
-that would be fine since that goes back far enough for the support we 
-need.
+> Hmm.. are there any RISC Cores which run even closely to CISC Speeds?
 
-Regards,
+Define RISC and CISC: do you mean pure RISC implementations or RISC
+implementations with CISC frontend?
 
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
+Define Speed: Felt speed, clock speed or measurable speed?
 
-~ SciTech SNAP - The future of device driver technology! ~
+I'm convinced that for each (sensible) combination of definations above
+there's a clear indication that your question is wrong.
+
+--=20
+Servus,
+       Daniel
+
+--=-5NuIb28ToOJtnx2WaH7I
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+Xk/cchlzsq9KoIYRAuNDAJwNWz6MX2FH3lXhf32ZL1eideinLwCg4byF
+YHNQdI1GCGOcc6CVfROCyro=
+=1VRG
+-----END PGP SIGNATURE-----
+
+--=-5NuIb28ToOJtnx2WaH7I--
 

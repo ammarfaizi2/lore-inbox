@@ -1,84 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbUKIBYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbUKIBYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbUKIBYd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 20:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbUKIBXQ
+	id S261318AbUKIBYf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 20:24:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbUKIBWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 20:23:16 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60169 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261334AbUKIBBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 20:01:16 -0500
-Date: Tue, 9 Nov 2004 02:00:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: [7/11] bttv-driver.c: make some variables static
-Message-ID: <20041109010042.GV15077@stusta.de>
-References: <20041107175017.GP14308@stusta.de> <20041108114008.GB20607@bytesex> <20041109004341.GO15077@stusta.de>
+	Mon, 8 Nov 2004 20:22:42 -0500
+Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:37353 "EHLO
+	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261352AbUKIBIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 20:08:36 -0500
+References: <DBFABB80F7FD3143A911F9E6CFD477B002A7F0CE@hqemmail02.nvidia.com>
+Message-ID: <cone.1099962506.38730.13436.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Stephen Warren <SWarren@nvidia.com>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: SCHED_RR and kernel threads
+Date: Tue, 09 Nov 2004 12:08:26 +1100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
 Content-Disposition: inline
-In-Reply-To: <20041109004341.GO15077@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes 3 variables in drivers/media/video/bttv-driver.c 
-with no external users static.
+Stephen Warren writes:
 
+>> From: Con Kolivas [mailto:kernel@kolivas.org] 
+>> Stephen Warren wrote:
+>> > It appears that during times of high application CPU usage, some
+>> > *kernel* threads don't get to run.
+>> > ...
+>> > This appears to be due to the fact that the kernel threads are all
+>> > SCHED_OTHER, so our SCHED_RR user-space application trumps them!
+>> 
+>> Don't run your userspace at SCHED_RR? The kernel threads are 
+>> SCHED_NORMAL precisely for the reason that you wont get real time 
+>> performance if the kernel threads rear their ugly heads, 
+>> albeit rarely.
+> 
+> We have actually set the kernel threads to priority SCHED_RR 50, and
+> most user-space threads to SCHED_RR priority 50. Some critical
+> user-space threads are above priority 50.
+> 
+> Won't this allow the kernel and user space threads to co-operate nicely
+> all the time?
+> 
+> What is it specifically that will make kernel SCHED_RR threads cause
+> non-real-time operation? If it's just a bunch of corner cases or odd
+> conditions, we may be in an environment we can control so that doesn't
+> happen...
+> 
+> I guess we could have most threads stay at SCHED_NORMAL, and just make
+> the few critical threads SCHED_RR, but I'm getting a lot of push-back on
+> this, since it makes our thread API a lot more complex.
 
-diffstat output:
- drivers/media/video/bttv-driver.c |    6 +++---
- drivers/media/video/bttvp.h       |    3 ---
- 2 files changed, 3 insertions(+), 6 deletions(-)
+Your workaround is not suitable for the kernel at large. Preventing 
+starvation of the system if you are using SCHED_RR threads is up to your 
+userspace apps to provide. SCHED_RR is _not_ designed to use 100% of the cpu 
+all the time, but to provide minimum latency preempting everything lower 
+priority than itself when scheduled. The kernel threads do not need that 
+sort of control and can potentially starve critical userspace threads during 
+heavy system stress.
 
+Cheers,
+Con
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
-
---- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttvp.h.old	2004-11-07 16:34:44.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttvp.h	2004-11-07 16:47:42.000000000 +0100
-@@ -89,7 +89,6 @@
- 	int   sram;
- };
- extern const struct bttv_tvnorm bttv_tvnorms[];
--extern const unsigned int BTTV_TVNORMS;
- 
- struct bttv_format {
- 	char *name;
-@@ -101,8 +100,6 @@
- 	int  flags;
- 	int  hshift,vshift;   /* for planar modes   */
- };
--extern const struct bttv_format bttv_formats[];
--extern const unsigned int BTTV_FORMATS;
- 
- /* ---------------------------------------------------------- */
- 
---- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-driver.c.old	2004-11-07 16:40:15.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-driver.c	2004-11-07 16:41:55.000000000 +0100
-@@ -321,12 +321,12 @@
- 		.sram           = -1,
- 	}
- };
--const unsigned int BTTV_TVNORMS = ARRAY_SIZE(bttv_tvnorms);
-+static const unsigned int BTTV_TVNORMS = ARRAY_SIZE(bttv_tvnorms);
- 
- /* ----------------------------------------------------------------------- */
- /* bttv format list
-    packed pixel formats must come first */
--const struct bttv_format bttv_formats[] = {
-+static const struct bttv_format bttv_formats[] = {
- 	{
- 		.name     = "8 bpp, gray",
- 		.palette  = VIDEO_PALETTE_GREY,
-@@ -478,7 +478,7 @@
- 		.flags    = FORMAT_FLAGS_RAW,
- 	}
- };
--const unsigned int BTTV_FORMATS = ARRAY_SIZE(bttv_formats);
-+static const unsigned int BTTV_FORMATS = ARRAY_SIZE(bttv_formats);
- 
- /* ----------------------------------------------------------------------- */
- 

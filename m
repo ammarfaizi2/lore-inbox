@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbUJ1OWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbUJ1OWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbUJ1OWA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 10:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbUJ1OTA
+	id S261410AbUJ1OWT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 10:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbUJ1OWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 10:19:00 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:65183 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261305AbUJ1OQz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 10:16:55 -0400
-Date: Thu, 28 Oct 2004 16:18:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: DaMouse <damouse@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5.2
-Message-ID: <20041028141802.GA27382@elte.hu>
-References: <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu> <33083.192.168.1.5.1098919913.squirrel@192.168.1.5> <20041028063630.GD9781@elte.hu> <20668.195.245.190.93.1098952275.squirrel@195.245.190.93> <20041028085656.GA21535@elte.hu> <26253.195.245.190.93.1098955051.squirrel@195.245.190.93> <20041028093215.GA27694@elte.hu> <20041028135706.GA25849@elte.hu> <1a56ea3904102807101147e561@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1a56ea3904102807101147e561@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 28 Oct 2004 10:22:19 -0400
+Received: from mxsf21.cluster1.charter.net ([209.225.28.221]:3724 "EHLO
+	mxsf21.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261410AbUJ1OUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 10:20:51 -0400
+X-Ironport-AV: i="3.86,109,1096862400"; 
+   d="scan'208"; a="390419328:sNHT16120716"
+Message-ID: <009f01c4bcf9$39f98930$0200a8c0@haneyhbmu5pv2g>
+From: "Ameer Armaly" <ameer@charter.net>
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Subject: cisco aironet 4800 pci wireless card not configuring properly
+Date: Thu, 28 Oct 2004 10:19:06 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* DaMouse <damouse@gmail.com> wrote:
-
-> >     echo 0 > /proc/sys/kernel/preempt_max_latency
-> > 
-> > this will switch back to critical-section timing/tracing:
-> > 
-> >     echo 0 > /proc/sys/kernel/preempt_wakeup_timing
-> 
-> What kind of benchmarking tools about from the inkernel timing/tracing
-> do you use for testing REALTIME_PREEMPT?
-
-amlat's 'realfeel' with the patch i posted yesterday.
-
-	Ingo
+Hi all.
+I've got a cisco 4800 aironet card, that is detected successfully by the
+driver in the kernel.  However, when I configure with ifup, it says that it
+doesn't
+understand hardware address 801 for wifi0.
+I'm running debian unstable with kernel 2.6.8.1 on an athlon 2.07 ghz with
+256 mb ram.
+---
+Life is either tragedy or comedy.
+ Usually it's your choice. You can whine or you can laugh.
+--Animorphs

@@ -1,140 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266094AbSKZDsJ>; Mon, 25 Nov 2002 22:48:09 -0500
+	id <S266135AbSKZDwB>; Mon, 25 Nov 2002 22:52:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266095AbSKZDsJ>; Mon, 25 Nov 2002 22:48:09 -0500
-Received: from louise.pinerecords.com ([212.71.160.16]:59660 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S266094AbSKZDsH>; Mon, 25 Nov 2002 22:48:07 -0500
-Date: Tue, 26 Nov 2002 04:55:18 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.49-ac1
-Message-ID: <20021126035518.GC29196@louise.pinerecords.com>
-References: <200211252352.gAPNqnt09081@devserv.devel.redhat.com>
+	id <S266144AbSKZDwB>; Mon, 25 Nov 2002 22:52:01 -0500
+Received: from thunk.org ([140.239.227.29]:60361 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S266135AbSKZDwA>;
+	Mon, 25 Nov 2002 22:52:00 -0500
+Date: Mon, 25 Nov 2002 22:55:56 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+       Clemmitt Sigler <siglercm@jrt.me.vt.edu>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Alan Cox <Alan.Cox@linux.org>
+Subject: Re: 2.4.20-rc3 ext3 fsck corruption -- tool update warning needed?
+Message-ID: <20021126035556.GB11903@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Clemmitt Sigler <siglercm@jrt.me.vt.edu>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>, Alan Cox <Alan.Cox@linux.org>
+References: <Pine.LNX.4.33L2.0211242351001.2368-100000@jrt.me.vt.edu> <20021125105739.GA7531@carfax.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="HcAYCG3uE/tztfnV"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211252352.gAPNqnt09081@devserv.devel.redhat.com>
+In-Reply-To: <20021125105739.GA7531@carfax.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 25, 2002 at 10:57:39AM +0000, Hugo Mills wrote:
+>    Running fsck recovers the missing files into lost+found, but
+> doesn't remove the duplicated filenames. 
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+E2fsck doesn't currently check for duplicated files in a directory.
+It probably should, but doing so would increase its required memory
+usuage and/or its run-time, at least in the non-HTREE case, which is
+why I never implemented it.  (Currently we scan all directory blocks
+in the filesystem sorted by disk block number, to avoid seeks.  So in
+order to check for duplicates, we would either need to allocate enough
+disk space to store all directory entries on the filesystem in memory
+--- which would take up lost of memory --- or scan directory blocks
+directory by directory, which would significantly increase the number
+of seeks needed by e2fsck in its pass 2 processing.)
 
-> Linux 2.5.49-ac1
+If the directory is indexed using the HTREE format, or the directories
+are going to be optimized anyway by specifying the -D option in newer
+versions e2fsck, adding support for detecting duplicate filenames
+would be really cheap, so I'll very likely end up adding this feature
+in an upcoming release of e2fsck.
 
-  gcc -Wp,-MD,init/.main.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototyp=
-es -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-st=
-ack-boundary=3D2 -march=3Di686 -malign-functions=3D4 -Iarch/i386/mach-gener=
-ic -Iarch/i386/mach-defaults -fomit-frame-pointer -nostdinc -iwithprefix in=
-clude    -DKBUILD_BASENAME=3Dmain -DKBUILD_MODNAME=3Dmain   -c -o init/main=
-.o init/main.c
-In file included from include/asm/smp.h:19,
-                 from init/main.c:45:
-include/asm/io_apic.h: In function `io_apic_modify':
-include/asm/io_apic.h:128: =01pic_sis_bug' undeclared (first use in this fu=
-nction)
-include/asm/io_apic.h:128: (Each undeclared identifier is reported only once
-include/asm/io_apic.h:128: for each function it appears in.)
-make[1]: *** [init/main.o] Error 1
-make: *** [init] Error 2
+Given the reports that people with xfs filesystems are also seeing
+filesystem corruption, it sounds like filesystem blocks are getting
+written to the wrong location on disk.  That would explain the
+duplicate filenames in the directory, as well as files disappearing.
+In general this sort of corruption is relatively rare, which is
+another reason why I havne't bothered with adding that support to
+e2fsck.
 
-[.config is attached]
-
---
-Tomas Szepe <szepe@pinerecords.com>
-
---HcAYCG3uE/tztfnV
-Content-Type: application/x-gunzip
-Content-Disposition: attachment; filename=".config.gz"
-Content-Transfer-Encoding: base64
-
-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
-
---HcAYCG3uE/tztfnV--
+						- Ted

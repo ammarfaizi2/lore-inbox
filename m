@@ -1,68 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263374AbTCUAdM>; Thu, 20 Mar 2003 19:33:12 -0500
+	id <S263383AbTCUAed>; Thu, 20 Mar 2003 19:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263375AbTCUAdM>; Thu, 20 Mar 2003 19:33:12 -0500
-Received: from lsanca2-ar27-4-46-143-089.lsanca2.dsl-verizon.net ([4.46.143.89]:31617
-	"EHLO BL4ST") by vger.kernel.org with ESMTP id <S263374AbTCUAdL>;
-	Thu, 20 Mar 2003 19:33:11 -0500
-Date: Thu, 20 Mar 2003 16:44:09 -0800
-From: Eric Wong <eric@yhbt.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched-2.5.64-bk10-C4
-Message-ID: <20030321004409.GA16206@bl4st.yhbt.net>
-References: <Pine.LNX.4.44.0303161213200.4930-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303161213200.4930-100000@localhost.localdomain>
-Organization: Tire Smokers Anonymous
-User-Agent: Mutt/1.5.4i
+	id <S263376AbTCUAeV>; Thu, 20 Mar 2003 19:34:21 -0500
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:34828
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S263381AbTCUAeM>; Thu, 20 Mar 2003 19:34:12 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D1A33DF0@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Linux-2.4.20 modem control
+Date: Thu, 20 Mar 2003 16:45:03 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
+On Thu, Mar 20, 2003 at 2:14 PM, Richard B. Johnson wrote:
 > 
-> the attached patch fixes a fundamental (and long-standing) bug in the
-> sleep-average estimator which is the root cause of the "contest
-> process_load" problems reported by Mike Galbraith and Andrew Morton, and
-> which problem is addressed by Mike's patch.
-
-> --- linux/kernel/sched.c.orig	
-> +++ linux/kernel/sched.c	
-> @@ -342,10 +342,10 @@ static inline void __activate_task(task_
->   */
->  static inline int activate_task(task_t *p, runqueue_t *rq)
->  {
-> -	unsigned long sleep_time = jiffies - p->last_run;
-> +	long sleep_time = jiffies - p->last_run - 1;
->  	int requeue_waker = 0;
->  
-> -	if (sleep_time) {
-> +	if (sleep_time > 0) {
->  		int sleep_avg;
->  
->  		/*
+> [SNIPPED...]
 > 
+> This patch works (no other promises).
+> 
+> --- linux-2.4.20/drivers/char/serial.c.orig	2003-03-20 
+> 16:21:55.000000000 -0500
+> +++ linux-2.4.20/drivers/char/serial.c	2003-03-20 
+> 16:31:23.000000000 -0500
+> @@ -1538,8 +1538,12 @@
+>  	serial_out(info, UART_LCR, serial_inp(info, UART_LCR) & 
+> ~UART_LCR_SBC);
+> 
+>  	if (!info->tty || (info->tty->termios->c_cflag & HUPCL))
+> -		info->MCR &= ~(UART_MCR_DTR|UART_MCR_RTS);
+> -	serial_outp(info, UART_MCR, info->MCR);
+> +        {
+> +           serial_outp(info, UART_MCR,info->MCR & 
+> ~(UART_MCR_DTR|UART_MCR_RTS));
+> +           set_current_state(TASK_INTERRUPTIBLE);
+> +           schedule_timeout(HZ/2);              /* 
+> Disconnect modem  */
+> +        }
+> +	serial_outp(info, UART_MCR, info->MCR);  /* Don't keep it off */
+> 
+>  	/* disable FIFO's */
+>  	serial_outp(info, UART_FCR, (UART_FCR_ENABLE_FIFO |
+> 
+Hi Richard,
 
-Would this be an equivalent fix for 2.4.20-ck4?
+I'm not sure it's a Good Thing(tm) to call schedule_timeout() with 
+the interrupts disabled. The shutdown function is framed by 
+save_flags();cli and restore_flags(). Don't know exactly what the 
+downside of that could be. 
 
---- kernel/sched.c	2003-03-20 16:33:07.000000000 -0800
-+++ kernel/sched.c.orig	2003-03-20 16:38:51.000000000 -0800
-@@ -307,10 +286,10 @@
- 
- static inline void activate_task(task_t *p, runqueue_t *rq)
- {
--	long sleep_time = jiffies - p->sleep_timestamp - 1;
-+	unsigned long sleep_time = jiffies - p->sleep_timestamp;
- 	prio_array_t *array = rq->active;
- 
--	if (!rt_task(p) && (sleep_time > 0)) {
-+	if (!rt_task(p) && sleep_time) {
- 	/*
- 		 * This code gives a bonus to interactive tasks. We update
- 		 * an 'average sleep time' value here, based on
+Is the re-enable of DTR actually necessary to get agetty to work? 
+DTR is supposed to stay off until the next open. 
 
--- 
-Eric Wong
+Still, if it works for you, it works. 
+
+Cheers,
+Ed
+
+---------------------------------------------------------------- 
+Ed Vance              edv (at) macrolink (dot) com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------

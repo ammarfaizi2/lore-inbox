@@ -1,133 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266004AbRGCUrW>; Tue, 3 Jul 2001 16:47:22 -0400
+	id <S266006AbRGCUuw>; Tue, 3 Jul 2001 16:50:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266002AbRGCUrM>; Tue, 3 Jul 2001 16:47:12 -0400
-Received: from linux01.linuxforce.net ([207.106.68.238]:56072 "EHLO
-	linux01.LinuxForce.net") by vger.kernel.org with ESMTP
-	id <S266004AbRGCUq7>; Tue, 3 Jul 2001 16:46:59 -0400
-From: Tim Peeler <thp@linux01.LinuxForce.net>
-Date: Tue, 3 Jul 2001 16:47:12 -0400
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.19 kernel hang
-Message-ID: <20010703164712.A21932@linux01.LinuxForce.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S266007AbRGCUum>; Tue, 3 Jul 2001 16:50:42 -0400
+Received: from [209.21.47.229] ([209.21.47.229]:32528 "EHLO
+	therouter.routefree.com") by vger.kernel.org with ESMTP
+	id <S266006AbRGCUub>; Tue, 3 Jul 2001 16:50:31 -0400
+Message-ID: <034101c10401$feec9340$b300000a@foolio1>
+From: "Eli Chen" <eli@routefree.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <paulus@linuxcare.com.au>
+Subject: [PATCH] ppp_generic.c - kfree(ppp) called twice, kernel 2.4.0
+Date: Tue, 3 Jul 2001 13:50:40 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Summary: 
+In ppp_destroy_interface(), there is a chance that kfree(ppp) is called
+twice, causing a kernel oops when ppp is opened again.  I was able to cause
+this by running PPPOE, and killing -9 pppd and pppoe-daemon with one kill
+command.  By doing this, the closing of ppp->dev causes a
+ppp_disconnect_channel(), which calls kfree(ppp) assuming the ppp unit is
+dead.  But destroy_interface() hasn't finished, and it tries to kfree(ppp)
+also.  I simply moved the closing of the device to after the channels == 0
+check.  Anyways, follows is the patch.  Please cc comments to
+eli@routefree.com.
 
-   Kernel 2.2.19 hang [stuck on TLB IPI wait (CPU#0)]
-
-Description:
-
-   After recently upgrading the kernel on a production server to
-   kernel 2.2.19 with the reiserfs patch and kernel-patch-2.2.19-ide
-   from Andre Hendrick, the system became hung.  The server was
-   responsive to ping but ssh and http service stopped working until
-   we rebooted.  The hang did not happen instantly, but took several
-   days of uptime before the system hung.  Looking through the logs
-   we noticed that "stuck on TLB IPI wait (CPU#0) was logged 128 times
-   in one second.  Also during that second, 4443 packets were rejected
-   by the kernel coming in on eth0, of which 2681 were aimed at port
-   137.  These packets came from 60 addresses not on our local network
-   (packets destined to 137 on our local network are rejected, but not
-   logged). Of other note was this kernel message: "dst cache overflow"
-   "last message repeated 9 times".  Since this did not crash the
-   machine, there is no oops output.  We were running the mon package
-   from 3 other servers during this time and noticed shortly after
-   the hang that several services were failing (ssh, http, etc). Even
-   ping failed a few times.
-
-Kernel Version:
-
-   Linux version 2.2.19 (cjf@linux00) (gcc version 2.95.2 20000220 
-   (Debian GNU/Linux)) #1 SMP Tue Jun 26 11:55:50 EDT 2001
-
-Output from ver_linux:
-
-Linux www.fi.edu 2.2.19 #1 SMP Tue Jun 26 11:55:50 EDT 2001 i686 unknown
- 
-Gnu C                  2.95.2
-Gnu make               3.79.1
-binutils               2.9.5.0.37
-util-linux             2.10f
-modutils               2.3.11
-e2fsprogs              1.18
-Linux C Library        2.1.3
-ldd: version 1.9.11
-Procps                 2.0.6
-Net-tools              1.54
-Console-tools          0.2.3
-Sh-utils               2.0
-Modules Loaded         
+thanks,
+Eli Chen
 
 
-CPU Info:
+--- ppp_generic.c 2001/02/21 00:53:01 1.1.1.2
++++ ppp_generic.c 2001/07/03 20:37:22
+@@ -2268,13 +2268,6 @@
+  ppp->dev = 0;
+  ppp_unlock(ppp);
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 3
-cpu MHz         : 933.040
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 3
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 psn mmx fxsr xmm
-bogomips        : 1854.66
+- if (dev) {
+-  rtnl_lock();
+-  dev_close(dev);
+-  unregister_netdevice(dev);
+-  rtnl_unlock();
+- }
+-
+  /*
+   * We can't acquire any new channels (since we have the
+   * all_ppp_lock) so if n_channels is 0, we can free the
+@@ -2283,6 +2276,13 @@
+   */
+  if (ppp->n_channels == 0)
+   kfree(ppp);
++
++ if (dev) {
++  rtnl_lock();
++  dev_close(dev);
++  unregister_netdevice(dev);
++  rtnl_unlock();
++ }
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 3
-cpu MHz         : 933.040
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 3
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 psn mmx fxsr xmm
-bogomips        : 1861.22
-
-
-SCSI Info:
-Host: scsi0 Channel: 00 Id: 04 Lun: 00
-  Vendor: ARCHIVE  Model: Python 04106-XXX Rev: 743B
-  Type:   Sequential-Access                ANSI SCSI revision: 02
-
-
-Interrupts (/proc/interrupts):
-           CPU0       CPU1       
-  0:    5674938    5598011    IO-APIC-edge  timer
-  1:          1          1    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          0          1    IO-APIC-edge  rtc
- 10:    1829310    1817099   IO-APIC-level  Mylex DAC960PTL1, eth0
- 11:         18         18   IO-APIC-level  aic7xxx
- 13:          1          0          XT-PIC  fpu
-NMI:          0
-ERR:          0
+  spin_unlock(&all_ppp_lock);
+ }
 
 

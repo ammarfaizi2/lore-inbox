@@ -1,113 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129627AbRAPRNV>; Tue, 16 Jan 2001 12:13:21 -0500
+	id <S129880AbRAPRZz>; Tue, 16 Jan 2001 12:25:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129849AbRAPRNB>; Tue, 16 Jan 2001 12:13:01 -0500
-Received: from m918-mp1-cvx1c.col.ntl.com ([213.104.79.150]:6148 "EHLO
-	[213.104.79.150]") by vger.kernel.org with ESMTP id <S129436AbRAPRM5>;
-	Tue, 16 Jan 2001 12:12:57 -0500
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: "Pierre Rousselet" <pierre.rousselet@wanadoo.fr>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-x features ?
-In-Reply-To: <200101151959.f0FJxDB248265@saturn.cs.uml.edu>
-From: "John Fremlin" <vii@altern.org>
-Date: 16 Jan 2001 13:14:18 +0000
-In-Reply-To: "Albert D. Cahalan"'s message of "Mon, 15 Jan 2001 14:59:13 -0500 (EST)"
-Message-ID: <m2wvbvod05.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	id <S129523AbRAPRZp>; Tue, 16 Jan 2001 12:25:45 -0500
+Received: from host194.steeleye.com ([216.33.1.194]:48136 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S129401AbRAPRZf>; Tue, 16 Jan 2001 12:25:35 -0500
+Message-Id: <200101161724.f0GHOnE01880@aslan.sc.steeleye.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Venkatesh Ramamurthy <Venkateshr@ami.com>,
+        "'David Woodhouse'" <dwmw2@infradead.org>,
+        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux not adhering to BIOS Drive boot order? 
+In-Reply-To: Message from Brian Gerst <bgerst@didntduck.org> 
+   of "Tue, 16 Jan 2001 12:04:57 EST." <3A647F39.EC62BB81@didntduck.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 16 Jan 2001 12:24:49 -0500
+From: Eddie Williams <Eddie.Williams@steeleye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
 
- "Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
+> Why does the end-user have to compile the kernel?  Most distributions
+> provide a kernel with no SCSI drivers in it, but use an initrd to get
+> the root SCSI driver in (man mkinitrd on any Redhat box).  Just
+> distribute all SCSI drivers as modules and you won't have any problems.
+> 
 
-> > 1) top (procps-2.0.7) gives me the messages :
-> > 'bad data in /proc/uptime'
-> > 'bad data in /proc/loadavg'
-> > cat /proc/uptime 
-> > 1435.30 904.74
-> > cat /proc/loadavg
-> > 0.01 0.21 0.29 1/17 19444
-> > What is wrong ?
+That is not totally true.  There are two problems here, one is where you have 
+different controllers in your system and the other is where you have multiples 
+of the same controller.  What you list above solves the different controller 
+problem.  By loading the drivers in the right order you will get predictable 
+results.  However when having multiples of the same controller you are only 
+loading one driver so you are at the mercy of the way that driver was 
+developed.  Some drivers give you ways to work around this others do not.
 
-You probably have locale settings where the decimal point is a comma
-so scanf on /proc/loadavg etc. doesn't work. The following patch
-(submitted to RedHat ages ago) fixes that for me.
+For example the aic7xxx.c (current one at least - I have not played with the 
+Beta one enough to know what it does) lets you play with the order by turning 
+BIOS off on the cards that you don't want to BOOT from.  So the aic7xxx driver 
+sorts the controllers with BIOS enabled first.  This solves the problem where 
+you have multiple adaptec controllers in the same box to make sure you have 
+the "boot" controller first.  This, however, does not solve a third problem 
+where you have multiple disks on that controller.  My recommendation is that 
+you always install on ID 0 since that will be the "first" one found.  If you 
+install on ID 1 and you add ID 0 then you just broke your boot.  If you 
+install on ID 1 where there was an ID 0 (so you install to sdb) then if ID 0 
+dies, get pulled, etc then you can boot because ID 1 is now ID 0.
 
+So though I do agree that making all drivers modules usually simplifies 
+handling this there are still issues and solving these I do agree today is 
+beyond the scope for the unexperienced.
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=procps-2.0.7-intl.patch
+Eddie
 
-diff -u --recursive procps-2.0.7-orig/proc/sysinfo.c procps-2.0.7-hacked/proc/sysinfo.c
---- procps-2.0.7-orig/proc/sysinfo.c	Mon Jul 10 20:36:13 2000
-+++ procps-2.0.7-hacked/proc/sysinfo.c	Wed Nov 29 23:11:41 2000
-@@ -13,6 +13,8 @@
- #include <stdlib.h>
- #include <string.h>
- #include <ctype.h>
-+#include <locale.h>
-+#include <assert.h>
- 
- #include <unistd.h>
- #include <fcntl.h>
-@@ -62,12 +64,19 @@
- /***********************************************************************/
- int uptime(double *uptime_secs, double *idle_secs) {
-     double up=0, idle=0;
-+    char*numeric=setlocale(LC_NUMERIC,0);
-+    /* It is necessary to save and restore the numeric locale, because
-+    if the locale we're in happens to use , instead of decimal point,
-+    we can't sscanf the values in /proc/uptime */
-+    setlocale(LC_NUMERIC,"C");
- 
-     FILE_TO_BUF(UPTIME_FILE,uptime_fd);
-     if (sscanf(buf, "%lf %lf", &up, &idle) < 2) {
- 	fprintf(stderr, "bad data in " UPTIME_FILE "\n");
- 	return 0;
-     }
-+    setlocale(LC_NUMERIC,numeric);
-+
-     SET_IF_DESIRED(uptime_secs, up);
-     SET_IF_DESIRED(idle_secs, idle);
-     return up;	/* assume never be zero seconds in practice */
-@@ -171,12 +180,20 @@
- /***********************************************************************/
- int loadavg(double *av1, double *av5, double *av15) {
-     double avg_1=0, avg_5=0, avg_15=0;
-+    /* It is necessary to save and restore the numeric locale, because
-+    if the locale we're in happens to use , instead of decimal point,
-+    we can't sscanf the values in /proc/loadavg */
-+    char*numeric=setlocale(LC_NUMERIC,0);
-+    setlocale(LC_NUMERIC,"C");
-     
-     FILE_TO_BUF(LOADAVG_FILE,loadavg_fd);
-     if (sscanf(buf, "%lf %lf %lf", &avg_1, &avg_5, &avg_15) < 3) {
- 	fprintf(stderr, "bad data in " LOADAVG_FILE "\n");
- 	exit(1);
-+
-     }
-+    setlocale(LC_NUMERIC,numeric);
-+    
-     SET_IF_DESIRED(av1,  avg_1);
-     SET_IF_DESIRED(av5,  avg_5);
-     SET_IF_DESIRED(av15, avg_15);
-
---=-=-=
-
-
-[...]
-
-
--- 
-
-	http://www.penguinpowered.com/~vii
-
---=-=-=--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

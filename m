@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUHSIi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263850AbUHSIkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUHSIi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 04:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUHSIi4
+	id S263850AbUHSIkA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 04:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUHSIj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 04:38:56 -0400
-Received: from chico.rediris.es ([130.206.1.3]:21934 "EHLO chico.rediris.es")
-	by vger.kernel.org with ESMTP id S263806AbUHSIiy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 04:38:54 -0400
-From: David =?iso-8859-1?q?Mart=EDnez_Moreno?= <ender@debian.org>
-Organization: Debian
-To: Nathan Scott <nathans@sgi.com>
-Subject: Re: Crashes and lockups in XFS filesystem (2.6.8-rc4).
-Date: Thu, 19 Aug 2004 10:39:26 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200408181816.57940.ender@debian.org> <20040819084410.GA14750@frodo>
-In-Reply-To: <20040819084410.GA14750@frodo>
-MIME-Version: 1.0
+	Thu, 19 Aug 2004 04:39:59 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:61848 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263850AbUHSIjz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 04:39:55 -0400
+Date: Thu, 19 Aug 2004 10:40:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P4
+Message-ID: <20040819084001.GA4098@elte.hu>
+References: <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <1092902417.8432.108.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200408191039.27724.ender@debian.org>
+In-Reply-To: <1092902417.8432.108.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-El Jueves, 19 de Agosto de 2004 10:44, Nathan Scott escribió:
-> On Wed, Aug 18, 2004 at 06:16:57PM +0200, David Martinez Moreno wrote:
-> > 	Hello, I am getting persistent lockups that could be IMHO XFS-related. I
-> > created a fresh XFS filesystem in a SCSI disk, with xfsprogs version
-> > 2.6.18.
-> >
-> > 	Mounted /dev/sda1 under /mnt, after that, I have been copying lots of
-> > files from /dev/md0, then run a find blabla -exec rm \{\} \; over /mnt
-> > and then voilà! the lockup:
->
-> Did /mnt run out of space while doing that?  Or nearly?  There's
-> a known issue with that area of the XFS code, in conjunction with
-> 4K stacks at the moment - was that enabled in your .config?
->
-> Looks like something stamped on parts of the xfs_mount structure
-> for the filesystem mounted at /mnt, a stack overrun would explain
-> that and your subsequent oopsen.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-	Hello, Nathan, many thanks for the reply.
+> On Thu, 2004-08-19 at 03:32, Ingo Molnar wrote:
+> > i've uploaded the -P4 patch:
+> > 
+> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P4
+> 
+> Any comments on the unmap_vmas issue?
 
-	The machine locked up last night again, so I cannot login, and I cannot 
-manage to remember if I enabled 4K stacks in the code, could be possible, but 
-I am not sure.
+wli indicated he's working on the pagetable zapping critical section
+issue - wli?
 
-	What I am sure of is that /mnt was plenty (8-10 GB or so) of disk space. I 
-had two or three concurrent accesses, IIRC, some of them writing from the 
-RAID to the SCSI (both using XFS), and the last one finding and removing 
-unwanted packages.
-
-	Could this scenario give you some hints? I will return where the server is in 
-5 hours, and I will send to the list the .config.
-
-	Again, many thanks,
-
-
-		Ender.
-- -- 
-Prepare ship for ludicrous speed! Fasten all seatbelts, seal all
- entrances and exits, close all shops in the mall, cancel the three
- ring circus, secure all animals in the zoo!
-		-- Colonel Sandurz (Spaceballs).
-- --
-Servicios de red - Network services
-RedIRIS - Spanish Academic Network for Research and Development
-Red.es - Madrid (Spain)
-Tlf (+34) 91.212.76.25
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBJGc/Ws/EhA1iABsRAqYVAKDPWUIi6m5pBH3nwbgHttV9ko436ACfYDbp
-F+SsCIE95BvW9m7YMbg/yc8=
-=MHxU
------END PGP SIGNATURE-----
+	Ingo

@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129832AbRBIHUT>; Fri, 9 Feb 2001 02:20:19 -0500
+	id <S129026AbRBIH2T>; Fri, 9 Feb 2001 02:28:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129837AbRBIHUJ>; Fri, 9 Feb 2001 02:20:09 -0500
-Received: from kauha.saunalahti.fi ([195.197.53.227]:36227 "EHLO
-	kauha.saunalahti.fi") by vger.kernel.org with ESMTP
-	id <S129832AbRBIHUD>; Fri, 9 Feb 2001 02:20:03 -0500
-Message-ID: <000f01c09268$ee56e4a0$56dc10c3@tal.org>
-From: "Kaj-Michael Lang" <milang@tal.org>
-To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-Subject: VIA Rhine on Alpha bug
-Date: Fri, 9 Feb 2001 09:21:29 +0200
-Organization: Tal.Org
+	id <S129030AbRBIH2J>; Fri, 9 Feb 2001 02:28:09 -0500
+Received: from [210.212.54.4] ([210.212.54.4]:60165 "EHLO mail.cse.iitk.ac.in")
+	by vger.kernel.org with ESMTP id <S129026AbRBIH2G>;
+	Fri, 9 Feb 2001 02:28:06 -0500
+Date: Fri, 9 Feb 2001 00:11:26 +0530 (IST)
+From: Avinash vyas <avyas@cse.iitk.ac.in>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org, kernelnewbies@humbolt.nl.linux.org,
+        "Atul Kumar (9721171)" <ak@cse.iitk.ac.in>,
+        "Rajiv A.R" <rajiva@cse.iitk.ac.in>
+Subject: Re: Problem with schedule_timeout..
+In-Reply-To: <E14QqLB-0003RI-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10102090006280.1187-100000@csews5.cse.iitk.ac.in>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if it should work or not but using a VIA Rhine compatible card
-on my LX164 locks it solid when transfering large packets:
-ping -f host.on.100mbit.lan works
-ping -f -s 1024 same.host locks it solid as does
-untarring to a NFS mount.
+Hi 
+	Yes the problem was what Sir Alan Cox told, when i called my
+device driver poll function after making the TASK_INTERRUPTIBLE, it made
+the process state again to RUNNING (In a rpc_call() function).
 
-No oops/panic, just locks solid.
+Thanx
 
-Kaj-Michael Lang
-milang@tal.org
+                 ########################################
+                 #     Avinash Vyas                     #
+                 #     M.Tech. CSE                      #
+                 #     IIT Kanpur                       #
+                 #                                      #                 
+                 #   Address: C-302,                    #
+                 #            Hall IV,                  #
+                 #            IIT Kanpur.               #
+                 #   E-mail: avyas@cse.iitk.ac.in       #
+                 #           avyas@iitk.ac.in           #
+                 #                                      #
+                 ########################################
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

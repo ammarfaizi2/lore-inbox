@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265399AbUFCAME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265398AbUFCAP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265399AbUFCAME (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 20:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUFCAME
+	id S265398AbUFCAP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 20:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbUFCAP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 20:12:04 -0400
-Received: from 209-128-98-078.bayarea.net ([209.128.98.78]:4992 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S265399AbUFCALp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 20:11:45 -0400
-Message-ID: <40BE6CA9.9030403@zytor.com>
-Date: Wed, 02 Jun 2004 17:11:21 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hanna Linder <hannal@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH 2.6.6-rc2 RFT] Add's class support to cpuid.c
-References: <98460000.1086215543@dyn318071bld.beaverton.ibm.com>
-In-Reply-To: <98460000.1086215543@dyn318071bld.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 2 Jun 2004 20:15:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30166 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265398AbUFCAP6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 20:15:58 -0400
+Date: Wed, 2 Jun 2004 17:17:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, rusty@rustcorp.com.au,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
+Message-Id: <20040602171724.2221f97e.akpm@osdl.org>
+In-Reply-To: <20040602165902.73dfc977.pj@sgi.com>
+References: <20040602161115.1340f698.pj@sgi.com>
+	<20040602162330.0664ec5d.akpm@osdl.org>
+	<20040602165902.73dfc977.pj@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hanna Linder wrote:
-> This patch adds class support to arch/i386/kernel/cpuid.c. This enables udev
-> support. I have tested on a 2-way SMP system and on a 2-way built as UP.
-> Here are the results for the SMP:
-
-I think it would be better if udev could handle /dev/cpu as an iterator 
-instead of needing O(N) kernel memory for all per-CPU devices; I made the same 
-comments about devfs.
-
-As it is, it also mishandles the hotswap CPU scenario.
-
-> [hlinder@w-hlinder2 hlinder]$ tree /sys/class/cpuid
-> /sys/class/cpuid
-> |-- cpu0
-> |   `-- dev
-> `-- cpu1
->     `-- dev
+Paul Jackson <pj@sgi.com> wrote:
+>
+> > Can't we just stick a PAGE_SIZE in here?
 > 
-> 2 directories, 2 files
-> [hlinder@w-hlinder2 hlinder]$ more /sys/class/cpuid/cpu0/dev
-> 203:0
-> [hlinder@w-hlinder2 hlinder]$ more /sys/class/cpuid/cpu1/dev
-> 203:1
-> [hlinder@w-hlinder2 hlinder]$
+> We could - either way works about as well.  Is there something special
+> about PAGE_SIZE here?  Is that in fact what sysfs is making available?
 
-	-hpa
+Think so.  Greg, can you confirm that a SYSDEV_ATTR's handler can safely
+assume that it has a PAGE_SIZE buffer to write to?
+

@@ -1,76 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUJIL3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUJILxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266703AbUJIL3k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 07:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266704AbUJIL3k
+	id S266704AbUJILxH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 07:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUJILxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 07:29:40 -0400
-Received: from us1.server44secre01.de ([80.190.243.163]:10468 "EHLO
-	us1.server44secre01.de") by vger.kernel.org with ESMTP
-	id S266703AbUJIL3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 07:29:37 -0400
-Date: Sat, 9 Oct 2004 13:28:39 +0200
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: video_usercopy() enforces change of VideoText IOCTLs since 2.6.8
-Message-ID: <20041009112839.GA2908@t-online.de>
-References: <20041007165410.GA2306@t-online.de> <20041008105219.GA24842@bytesex> <20041008140056.72b177d9.akpm@osdl.org> <20041009092801.GC3482@bytesex>
+	Sat, 9 Oct 2004 07:53:07 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:21466 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S266704AbUJILxF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 07:53:05 -0400
+Date: Sat, 9 Oct 2004 13:50:28 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: Greg KH <greg@kroah.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
+Message-ID: <20041009115028.GA14571@electric-eye.fr.zoreil.com>
+References: <20041008202247.GA9653@kroah.com> <528yagn63x.fsf@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041009092801.GC3482@bytesex>
-User-Agent: Mutt/1.3.28i
-From: linux@MichaelGeng.de (Michael Geng)
+In-Reply-To: <528yagn63x.fsf@topspin.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 09, 2004 at 11:28:01AM +0200, Gerd Knorr wrote:
-> > >  	/*  Copy arguments into temp kernel buffer  */
-> > >  	switch (_IOC_DIR(cmd)) {
-> > >  	case _IOC_NONE:
-> > > -		parg = NULL;
-> > > +		parg = (void*)arg;
-> > >  		break;
-> > 
-> > (the typecast is unneeded)
-> > 
-> > Seems that with this change we are now sometimes passing a user pointer
-> > into (*func)().  And we're sometimes passing a kernel pointer, yes?
-> 
-> Assuming that ioctls passing _pointers_ are declared correctly with _IO*
-> that shouldn't be the case:  _IOC_DIR(cmd) == _IOC_NONE means _IO()
-> means no pointer passed in.
-> 
-> > Are all the implementations of (*func)() handling that correctly?
-> 
-> Hmm, it broke for videotext, checking ...
-> 
-> Ok, you can drop it.  The videotext ioctls (include/videotext.h) don't
-> use the _IO*() macros but pass around pointers anyway, thats bad.
-> 
-> Michael, you'll have to fix the saa5246a driver.  video_usercopy() will
-> not work for you because the videotext ioctls doesn't use the _IO()
-> macros.  You have to do the userspace copying in the driver yourself.
+Roland Dreier <roland@topspin.com> :
+> it's orthogonal to any IP issues.  Since the Linux kernel contains a
+> lot of code written to specs available only under NDA (and even
+> reverse-engineered code where specs are completely unavailable), I
+> don't think the expense should be an issue.
 
-I would prefer fixing the IOCTLs in include/linux/videotext.h. These definitions
-are older than the _IO macros in linux/ioctl.h AFAIK. So it is clear that they 
-can't conform to that definition. I would prefer redefining them with respect
-to the arguments passed to the IOCTLs.
+One can say good bye to peer review.
 
-This would be a little step towards unifying the kernel. Implementing a private
-usercopy in saa5246a.c and saa5249.c would be the opposite. 
-
-The concept with the _IO() macros is good and helps preventing errors in the
-use of IOCTLs. So also the videotext drivers should use it.
-
-Nevertheless there is one big disadvantage: The userspace programs 
-have to be recompiled because they of course have to use the same IOCTL 
-definitions. 
-
-Nevertheless, affected are only saa5246a.c and saa5249.c. I think that there
-are not many people left in the world using these drivers. So I think we can
-afford to make a break here.
-
-Do you agree? If so then I will work out a patch.
-
-Michael
+--
+Ueimor

@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268132AbUIWBxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268137AbUIWB6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268132AbUIWBxd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 21:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268137AbUIWBxd
+	id S268137AbUIWB6u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 21:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268138AbUIWB6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 21:53:33 -0400
-Received: from mproxy.gmail.com ([216.239.56.247]:31286 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268132AbUIWBxb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 21:53:31 -0400
-Message-ID: <21d7e99704092218531ec19260@mail.gmail.com>
-Date: Thu, 23 Sep 2004 11:53:23 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH] mark inter_module_* deprecated
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040919101337.GA5910@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 22 Sep 2004 21:58:50 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:3588 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S268137AbUIWB6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 21:58:49 -0400
+In-Reply-To: <200409222236.26323.norberto+linux-kernel@bensa.ath.cx>
+References: <4506E4E6490@vcnet.vc.cvut.cz> <aeb13402040922144553f096c7@mail.gmail.com> <8250D402-0CEC-11D9-B9FD-000D9352858E@linuxmail.org> <200409222236.26323.norberto+linux-kernel@bensa.ath.cx>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <19102930-0D04-11D9-B9FD-000D9352858E@linuxmail.org>
 Content-Transfer-Encoding: 7bit
-References: <20040919101337.GA5910@lst.de>
+Cc: Kyle Schlansker <kylesch@gmail.com>, linux-kernel@vger.kernel.org
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: NOT FIXED (Is anyone using vmware 4.5 with 2.6.9-rc2-mm
+Date: Thu, 23 Sep 2004 03:58:43 +0200
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Sep 2004 12:13:38 +0200, Christoph Hellwig <hch@lst.de> wrote:
-> These had been officially deprecated since Rusty's module rewrite, but
-> never got the __deprecated marker.  The only remaining users are drm and
-> mtd, so we'll get some warnings for common builds.  But maybe that's the
-> only way to get the drm people to fix the mess :)
-> 
+On Sep 23, 2004, at 03:36, Norberto Bensa wrote:
 
-It'll piss a few people off but it won't create time, the only thing
-stopping the drm from getting this stuff out of the way is time, there
-are two uses in the DRM, one is the agp one, this is easy, Rusty
-posted a patch for this and I'll probably merge it up after the next
-kernel release.. the other use requries moving to some sort of DRM
-in-kernel core, again I'd rather do this at the start of a kernel
-release cycle as it'll require a bit of testing to make sure we don't
-break anything....
+> Felipe Alfaro Solana wrote:
+>>> I must have missed the previous discussion, so
+>>> what issues are you having (i.e. how does vmware "not work")?
+>>
+>> I think all the problems he is having are related to the fact that he
+>> has a "tmpfs" mounted on top of "/tmp".
+>
+> Exactly, I have tmpfs mounted on /tmp; but why does it work with 
+> kernels up to
+> 2.6.9-rc1-mm5? I'm an ignorant on all this so an explanation would be 
+> nice.
+>
+>
+>> I'm also using VMware with
+>> 2.6.9-rc2-mm1 with a plain, disk-based, /tmp directory, with no
+>> problems at all.
+>
+> I'll try a plain /tmp directory, but I'd like to know why I can't use 
+> tmpfs
+> anymore with kernels >=2.6.9-rc2-mm1.
 
-Most of this stuff is easier if we weren't waiting on Alans vga class
-support driver to turn up as without it the DRM CVS is blocked, and no
-DRM developer really wants to start hacking on the vga class stuff as
-we don't believe it is where our time is best spent until Alan gets
-code merged into the kernel and gets the fb guys to convert all their
-drivers... I've already got a patch for converting the DRM to a fixed
-up version of his last patch...
+That's a question that requires far more knowledge than I have.
+Maybe someone here... Andrew?
 
-Dave.

@@ -1,125 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265657AbSKFGag>; Wed, 6 Nov 2002 01:30:36 -0500
+	id <S265429AbSKFG63>; Wed, 6 Nov 2002 01:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265665AbSKFGag>; Wed, 6 Nov 2002 01:30:36 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:47754 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265657AbSKFGaa>; Wed, 6 Nov 2002 01:30:30 -0500
-Date: Wed, 6 Nov 2002 12:08:54 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: [lkcd-devel] Re: What's left over.
-Message-ID: <20021106120854.A2259@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <m1d6pjfhhr.fsf@frodo.biederman.org> <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com>
+	id <S265666AbSKFG63>; Wed, 6 Nov 2002 01:58:29 -0500
+Received: from to-velocet.redhat.com ([216.138.202.10]:26864 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S265429AbSKFG62>; Wed, 6 Nov 2002 01:58:28 -0500
+Date: Wed, 6 Nov 2002 02:05:05 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-aio@kvack.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] 2.5.46 AIO support for raw/O_DIRECT
+Message-ID: <20021106020505.A11610@redhat.com>
+References: <200211060103.gA613a321256@eng2.beaverton.ibm.com> <3DC86DAC.4EBB59C8@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com>; from torvalds@transmeta.com on Tue, Nov 05, 2002 at 10:25:35PM -0800
+In-Reply-To: <3DC86DAC.4EBB59C8@digeo.com>; from akpm@digeo.com on Tue, Nov 05, 2002 at 05:17:32PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 05, 2002 at 10:25:35PM -0800, Linus Torvalds wrote:
+On Tue, Nov 05, 2002 at 05:17:32PM -0800, Andrew Morton wrote:
+> Or not proceed with this patch at all.  If this is to be the
+> only code which wishes to perform page list motion at interrupt
+> time, perhaps it's not justifiable?
 > 
-> On 5 Nov 2002, Eric W. Biederman wrote:
-> > 
-> > In replying to another post by Al Viro I managed to think this through.
-> > kexec needs:
-> 
-> Note that kexec doesn't bother me at all, and I might find myself using it 
-> myself.
-> 
-> >From a sanity standpoint, I think the thing already _has_ a system call, 
-> though: clearly "sys_reboot()" is the place to add a case for "reboot into 
-> this image". No? That's where we shut down devices anyway, and it's the 
-> sane place to say "reboot into the kexec image"
-> 
-> Which still leaves you with a real sys_kexec() to actually _load_ the
-> image, or course. I think loading of the image should be a totally
-> separate event from the actual booting of the image, since we may want to
-> load the image early, then do various user-level shutdown (unmounting 
-> etc), and then reboot.
-> 
-> Right now the kexec() stuff seems to mix up the loading and rebooting, but
-> I didn't take a very deep look, maybe I'm wrong.
-> 
-> Anyway, I don't really get why the kexec() system call would not just be
-> 
-> 	void *kexec_image = NULL;
-> 	unsigned long kexec_size;
-> 
-> 	int sys_kexec(void *uaddr, size_t len)
-> 	{
-> 		void *new;
-> 
-> 		if (!capable(CAP_ADMIN))
-> 			return -EPERM;
-> 
-> 		/* Get rid of old image if any.. */
-> 		if (kexec_image) {
-> 			vfree(kexec_image);
-> 			kexec_image = NULL;
-> 		}
-> 
-> 		/* Zero length just meant "get rid of it" */
-> 		if (!len)
-> 			return 0;
-> 
-> 		if (!access_ok(VERIFY_READ, uaddr, len))
-> 			return -EFAULT;
-> 
-> 		new = vmalloc(len);
-> 		if (!new)
-> 			return -ENOMEM;
-> 
-> 		if (memcpy_from_user(new, uaddr, len)) {
-> 			vfree(new);
-> 			return -EFAULT;
-> 		}
-> 
-> 		kexec_image = new;
-> 		kexec_size = len;
-> 		return 0;
-> 	}
-> 
-> and be done with it that way? Then the actual "reboot" (and that would be
-> in the existing "sys_reboot()") basically just does something like
-> 
-> 	memcpy(kernelbase, kexec_image, kexec_size);
-> 
-> at the very end (while obviously having to be careful about itself being
-> out of the way. It can avoid the page table issue by using the "page *"
-> array that vmalloc uses internally anyway: see "area->pages[]" in
-> vmalloc).
-> 
-> Note that the two-phase boot means that you can load the new kernel early, 
-> which allows you to later on use it for oops handling (it's a bit late to 
-> try to set up the kernel to be loaded at that time ;)
+> I really don't have a feeling for how valuable this is, nor
+> do I know whether there will be other code which wants to
+> perform page list manipulation at interrupt time.
 
-Yes, that's exactly what we need to support a soft-boot based dump
-mechanism, much like the Mission Critical folks split up the bootimg
-syscall to do the early load on a sane system, and the actual soft-boot
-at crash time. And it fits in naturally as you point out ..
+I can think of a few other places that would like to perform page 
+motion from irq context: anything else doing zero copy or page 
+flipping, and more importantly the O(1) vm code that's being worked 
+on.  The latter is actually quite important as we've got a number 
+of customers running into problems with some of the algorithms in 
+the 2.4 kernel where the kernel does not perform any list motion 
+from irq context and this results in excess cpu time spent traversing 
+lists to see if io has completed.
 
-Regards
-Suparna
+> In fact I also don't know where the whole AIO thing sits at
+> present.  Is it all done and finished?  Is there more to come,
+> and if so, what??
 
-> 
-> 		Linus
-> 
+There's more to come.  The bits I'm working on are running in kernel 
+context mainly to simplify the copy_*_user case since we don't have 
+full zero copy semantics available and coping with pinned pages is 
+a challenge in a multiuser system, plus it makes reusing the existing 
+networking code a lot easier.  Basically, anything that involves a 
+copy of data is likely to be better implemented running in a task to 
+get the priority of execution correct, whereas anything involving 
+zero copy io is going to want completion from irq or bottom half 
+context and hence dirty pages.  Does that make sense?
 
+		-ben
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
-
+"Do you seek knowledge in time travel?"

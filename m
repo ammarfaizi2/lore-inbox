@@ -1,89 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVCUWx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVCUWx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbVCUWx0 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262137AbVCUWx0 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 21 Mar 2005 17:53:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVCUWvX
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVCUWvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:51:23 -0500
-Received: from sta.galis.org ([66.250.170.210]:41360 "HELO sta.galis.org")
-	by vger.kernel.org with SMTP id S261947AbVCUWsQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:48:16 -0500
-From: "George Georgalis" <george@galis.org>
-Date: Mon, 21 Mar 2005 17:48:15 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Paul Jarc <prj@po.cwru.edu>
-Subject: Re: problem with linux 2.6.11 and sa
-Message-ID: <20050321224815.GA4041@ixeon.local>
-References: <20050303173459.GC952@ixeon.local> <20050321142555.47b1e5a1.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050321142555.47b1e5a1.akpm@osdl.org>
+	Mon, 21 Mar 2005 17:51:52 -0500
+Received: from nijmegen.renzel.net ([195.243.213.130]:47779 "EHLO
+	mx1.renzel.net") by vger.kernel.org with ESMTP id S261977AbVCUWra
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 17:47:30 -0500
+X-Spam-Report: SA TESTS
+ -1.7 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                             [score: 0.0000]
+Message-ID: <423F4F1F.3010905@twisted-brains.org>
+Date: Mon, 21 Mar 2005 23:47:59 +0100
+From: Mws <mws@twisted-brains.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2/2] SquashFS
+References: <20050314170653.1ed105eb.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz> <200503211908.46602.mws@twisted-brains.org> <20050321185418.GC1390@elf.ucw.cz> <423F496C.10004@twisted-brains.org> <20050321223146.GM1390@elf.ucw.cz>
+In-Reply-To: <20050321223146.GM1390@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 02:25:55PM -0800, Andrew Morton wrote:
->"George Georgalis" <george@galis.org> wrote:
->>
->> I'm very defiantly seeing a problem with the 2.6.11
->> kernel and my spamassassin setup. However, it's not
->> clear exactly where the problem is, seems like sa
->> but it might be 2.6.11 with daemontools + qmail +
->> QMAIL_QUEUE.
->> 
->> A sure sign of it is no logs (with debug) for
->> remote sa connections which score "0/0" and correct
->> operation with local "cat spam.txt | spamc -R"; fix
->> is to use the older kernel.
->> 
->> SA has stopped stdout logging completely with 2.6.11
->> in addition to the all pass score. But the message
->> seems to go through my temp queue (for testing) and
->> sent on to my local MDA. I'm not sure if it's a sa
->> problem with the kernel or the new kernel doing
->> something new with pipes from tcp connections.
->> Maybe the new kernel is not making files available
->> (eg 0 bytes), until the writing pipe is closed?
->> That would make my SA test a zero byte file, which
->> would pass, close, become full, and the file piped
->> to local MDA is full? ...humm then I'd get a score
->> of "0/5"... this sounds like a SA problem with the
->> new kernel, ideas?
+Pavel Machek wrote:
+
+>Hi,
 >
->George, did you end up getting to the bottom of this?  I'd be suspecting a
->bug in the new pipe code, or an application bug which was triggered by the
->new pipe code.
+-snip-
 
-Hi! No resolution, I've been overloaded on a work related project.  The
-best I can say is no problem noticed with 2.6.8.1, 2.6.10 works for smtp
-code below but fails mplayer commands; 2.6.11 failed smtp code, didn't
-test mplayer on 2.6.11 and haven't tried any newer kernels.
+>>>>but if there is a contribution from the outside - it is not taken "as is" 
+>>>>and maybe fixed up, which
+>>>>should be nearly possible in the same time like analysing and commenting 
+>>>>the code - it ends up
+>>>>in having less supported hardware. 
+>>>>
+>>>>imho if a hardware company does indeed provide us with opensource 
+>>>>drivers, we should take these
+>>>>things as a gift, not as a "not coding guide a'like" intrusion which
+>>>>has to be defeated.
+>>>>        
+>>>>
+>>>Remember that horse in Troja? It was a gift, too.
+>>>      
+>>>
+>
+>  
+>
+>>of course there had been a horse in troja., but thinking like that 
+>>nowadays is a bit incorrect - don't you agree?
+>>
+>>code is reviewed normally - thats what i told before and i stated as 
+>>good feature - but there is no serious reason
+>>to blame every code to have potential "trojan horses" inside and to 
+>>reject it.
+>>    
+>>
+>
+>I should have added a smiley.
+>
+>I'm not seriously suggesting that it contains deliberate problem. But
+>codestyle uglyness and arbitrary limits may come back and haunt us in
+>future. Once code is in kernel, it is very hard to change on-disk
+>format, for example.
+>								Pavel
+>  
+>
+yes, i agree at that point. but, there are many people using this 
+already and if it will _not_ become merged to
+mainline kernel, maybe these portions of code will get lost.
 
-while read file; do mplayer $file ; done <mediafiles.txt # fails
+ps: pavel, don't take my opinions as a personal attack or something like 
+this. it is just to bring out my thinking
+of how things "could" be.
 
-for file in `cat mediafiles.txt`; do mplayer $file ; done # works
-
-mplayer foo.mpg # works 
-mplayer foo.mpg < mediafiles.txt # confuses binary for keboard input
-
-This is the code that seems to fail per quote above, stdin is the smtp
-DATA
-
-tmp="${scq}/`safecat "${scq}/tmp" "${scq}" </dev/stdin`" \
-        || { echo "Error $?"; exit 71; } # put the pipeline to disk, if possible
-        # ${scq}/tmp is a temp for this function ${scq} is temp for this
-        # program
-score=`spamc -x -c <"$tmp"` # score it with spamd
-sce=$?
-
-I saw some notes on the new multi page pipes, me thinks its related but
-that's all I know...
-
-Regards,
-// George
-
-
--- 
-George Georgalis, systems architect, administrator Linux BSD IXOYE
-http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org

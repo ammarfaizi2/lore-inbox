@@ -1,75 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVBGCsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVBGDE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbVBGCsV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 21:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVBGCsU
+	id S261344AbVBGDE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 22:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVBGDE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 21:48:20 -0500
-Received: from zeus.bragatel.pt ([217.70.64.253]:8412 "HELO mail.bragatel.pt")
-	by vger.kernel.org with SMTP id S261329AbVBGCsP (ORCPT
+	Sun, 6 Feb 2005 22:04:58 -0500
+Received: from ozlabs.org ([203.10.76.45]:62603 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261344AbVBGDEv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 21:48:15 -0500
-Date: Mon, 7 Feb 2005 02:48:00 +0000
-From: Nuno Monteiro <nuno@itsari.org>
-To: =?iso-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: msdos/vfat defaults are annoying
-Message-ID: <20050207024800.GA18010@hobbes.itsari.int>
-References: <4205AC37.3030301@comcast.net> <20050206070659.GA28596@infradead.org> <20050206232108.GA31813@ojjektum.uhulinux.hu> <20050207003610.GP8859@parcelfarce.linux.theplanet.co.uk> <20050207004218.GA12541@ojjektum.uhulinux.hu>
+	Sun, 6 Feb 2005 22:04:51 -0500
+Subject: Re: [linux-usb-devel] 2.6: USB disk unusable level of data
+	corruption
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <200502041241.28029.david-b@pacbell.net>
+References: <1107519382.1703.7.camel@localhost.localdomain>
+	 <200502041241.28029.david-b@pacbell.net>
+Content-Type: text/plain
+Date: Mon, 07 Feb 2005 13:55:22 +1100
+Message-Id: <1107744922.8689.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; Format=Flowed; DelSp=Yes; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050207004218.GA12541@ojjektum.uhulinux.hu> (from pozsy@uhulinux.hu on Mon, Feb 07, 2005 at 00:42:18 +0000)
-X-Mailer: Balsa 2.0.15
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2005.02.07 00:42, Pozsár Balázs wrote:
-> On Mon, Feb 07, 2005 at 12:36:10AM +0000, Al Viro wrote:
-> > On Mon, Feb 07, 2005 at 12:21:08AM +0100, Pozsar Balazs wrote:
-> > > On Sun, Feb 06, 2005 at 07:06:59AM +0000, Christoph Hellwig wrote:
-> > > > filesystem detection isn't handled at the kerne level.
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+On Fri, 2005-02-04 at 12:41 -0800, David Brownell wrote:
+> On Friday 04 February 2005 4:16 am, Rusty Russell wrote:
+> > 
+> > Is USB/SCSI just terminally broken under 2.6?  
 > 
-> IIRC currently if both msdos and vfat are compiled in (not modules),  
-> and
+> I don't think so, but there are problems that appear in some
+> hardware configs and not others.  Many folk report no problems;
+> a (very) few report nothing but.
 > 
-> you try to mount a vfat filesystem without explicitly specifying the fs
-> type, it will be mounted with the msdos type. With the, it will mounted
-> vfat.
->
+> If you've verified this on 2.6.10, then you certainly have
+> have the ehci-hcd (re)queueing race fix that has made a big
+> difference for some folk.  I don't know of any other issues
+> in that driver that could explain usb-storage problems.
+> 
+> What hardware config do you have?
+> 
+>   - Whose EHCI controller and revision?  I've never had
+>     good luck with VIA VT6202.  ("lspci -v".)
 
+OK, it's an IBM Thinkpad X31:
 
-But since filesystem detection isn't handled in the kernel, changing the  
-link order is pointless. Please fix your /etc/filesystems instead.
+0000:00:1d.7 USB Controller: Intel Corp. 82801DB/DBM (ICH4/ICH4-M) USB 2.0 EHCI
+Controller (rev 01) (prog-if 20 [EHCI])
+        Subsystem: IBM: Unknown device 052e
+        Flags: bus master, medium devsel, latency 0, IRQ 11
+        Memory at c0000000 (32-bit, non-prefetchable) [size=1K]
+        Capabilities: [50] Power Management version 2
+        Capabilities: [58] #0a [2080]
 
-~# grep camera /etc/fstab
-/dev/sda1 /mnt/camera auto users,noauto 0 0
-~# strace -o mount.trace mount /mnt/camera
-~# grep filesystems mount.trace
-open("/etc/filesystems", O_RDONLY|O_LARGEFILE) = 3
-~# cat /etc/filesystems
-ext2
-ext3
-nodev proc
-nodev devpts
-iso9660
-reiserfs
-vfat
-udf
+Kernel messages when plugged in:
+usb 4-3: new high speed USB device using address 5
+scsi3 : SCSI emulation for USB Mass Storage devices
+  Vendor: HTS72606  Model: 0M9AT00           Rev: MH4O
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sda: 117210240 512-byte hdwr sectors (60012 MB)
+sda: assuming drive cache: write through
+ /dev/scsi/host3/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 >
+Attached scsi disk sda at scsi3, channel 0, id 0, lun 0
+USB Mass Storage device found at 5
 
-Also check man 8 mount, specifically option -t:
+>   - Whose USB storage adapter?  ("lsusb -v", or in this
+>     case the /proc/bus/usb/devices entry would be ok.)
+>     GeneSys adapters have been the most problematic,
+>     but they're hardly the only ones with quirks.
 
-[...] Creating a  file /etc/filesystems can be useful to change the probe  
-order (e.g., to try vfat before msdos) ...
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0        64
+  idVendor           0x0dc4 Macpower Peripherals, Ltd
+  idProduct          0x00c4
+  bcdDevice            0.02
+  iManufacturer           1 Macpower
+  iProduct                2 2.5HDD
+  iSerial                 3 8000D1
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           32
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          4 Myson 8818
+    bmAttributes         0xc0
+      Self Powered
+    MaxPower               10mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass         8 Mass Storage
+      bInterfaceSubClass      5 SFF-8070i
+      bInterfaceProtocol     80
+      iInterface              5 USB2.0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x84  EP 4 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+Device Qualifier (for other device speed):
+  bLength                10
+  bDescriptorType         6
+  bcdUSB               2.00
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0        64
+  bNumConfigurations      1
 
-This is from man-pages 1.66, btw.
+> Thing is, that driver stack isn't especially thin:  SCSI isn't
+> the top, and it's got usb-storage, usbcore, and a USB HCD under
+> it.  That makes it harder to track down root causes, even when
+> there is just a single one and it's in those drivers (rather
+> than being hardware misbehavior).
 
+I have some spare partitions on the disk, so I've written a program
+which writes using DIRECT_IO and verifies the results.  It took less
+than an hour under my filesystem load, so I'll see if I can get this to
+trigger it (currently N children writing to separate blocks, but if that
+doesn't trigger it I'll get more sophisticated with readers and
+writers).
 
-Regards,
+Thanks for the response,
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
-
-		Nuno

@@ -1,69 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269484AbUJSQE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269491AbUJSQJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269484AbUJSQE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 12:04:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269488AbUJSQDm
+	id S269491AbUJSQJy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 12:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269496AbUJSQI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 12:03:42 -0400
-Received: from mail3.utc.com ([192.249.46.192]:49658 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S269484AbUJSQCH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 12:02:07 -0400
-Message-ID: <41753A58.2020906@cybsft.com>
-Date: Tue, 19 Oct 2004 11:01:28 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Tue, 19 Oct 2004 12:08:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13196 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269495AbUJSQHE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:07:04 -0400
+Message-ID: <41753B99.5090003@pobox.com>
+Date: Tue, 19 Oct 2004 12:06:49 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
-References: <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019144642.GA6512@elte.hu> <28172.195.245.190.93.1098199429.squirrel@195.245.190.93> <20041019155008.GA9116@elte.hu>
-In-Reply-To: <20041019155008.GA9116@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Larry McVoy <lm@bitmover.com>, support@bitmover.com, torvalds@osdl.org,
+       akpm@osdl.org
+Subject: BK kernel workflow
+References: <41752E53.8060103@pobox.com> <20041019153126.GG18939@work.bitmover.com>
+In-Reply-To: <20041019153126.GG18939@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Rui Nuno Capela <rncbc@rncbc.org> wrote:
-> 
-> 
->>OK. After some incremental configurations, I've isolated that those
->>oops(es) only occurs if PREEMPT_TIMING and/or LATENCY_TRACE areset
->>(Y). My first suspect was that newest RWSEM_DEADLOCK_DETECT, but it
->>wasn't the case.
->>
->>So something has broken on that non-preemptible critical section
->>timing stuff since U4.
->>
->>Hasn't anybody else stumbled on this?
-> 
-> 
-> i'm using it myself and havent seen the problem yet. Could you send me
-> the latest .configs, the working and the broken one too? I'll try to
-> reprodue it (or maybe someone else with a serial console sees it too).
-> 
-> 	Ingo
-> 
+Although tangential to the problem, I thought LKML and BitMover (and 
+maybe Andrew or Linus as well) might be interested in a general 
+description of my workflow.
 
-I am seeing something similar here with both U5 and U6 on both of my SMP 
-systems (actually I haven't gotten to try U6 on my SMP system at home 
-yet.) On my SMP system here (dual Xeon) I get a handful of traces during 
-the boot and then the last thing I see is a trace that has something to 
-do with parport, but the key MIGHT be that it always seems to crap out 
-when I get traces for 3-level deep critical section nesting. I will try 
-to capture the trace the old-fashioned way when I get a chance shortly.
 
-I do have U5 booted on my UP system at home though.
+For net drivers in the Linux kernel, there exists two patch queues, 
+net-drivers-2.6 and netdev-2.6 (and corresponding 2.4 versions). 
+net-drivers-2.6 could be described as the "upstream immediately" or "for 
+Linus" queue, and netdev-2.6 could be described as the "testing" queue.
 
-kr
+When receive a patch from some random person on the Internet, fixing a 
+net driver bug in the "8139too" driver, I do
+
+1) create "topic-specific" repo, if it doesn't already exist
+
+Key point:  when dealing with a large number of incoming changes, like I 
+do, sorting the changes locally into logically separate _sets of 
+changes_ (one set per repo) has a lot of advantages, given that 
+BitKeeper doesn't allow changeset "cherrypicking".
+
+	cd /spare/repo/netdev-2.6	# not a repo, just a subdir
+	bk clone -ql ../linux-2.6 8139too
+
+2) move the email containing the patch, in my MUA, to 25_Patches mbox
+
+3) merge the patch into the topic-specific repo, using Linus's patch 
+importing tools,
+
+	cd 8139too && dotest < /garz/nsmail/25_Patches
+
+4) pull the topic-specific repo into "collector" repo, and merge conflicts
+
+	cd ALL && bk pull ../8139too
+
+5) build and test 'ALL' repo [heh... usually...]
+
+6) push 'ALL' to external netdev-2.6 repos on gkernel.bkbits.net and 
+kernel.bkbits.net
+
+7) Andrew's workflow includes automatically pulling netdev-2.6 repo into 
+his more-experimental "-mm" tree for wider review and testing.
+
+[time passes]
+
+8) Linus and Andrew release the latest and greatest 2.6.N stable release.
+
+9) every day or so, I 'bk pull' a few "topic-specific" repos into a 
+local clone of net-drivers-2.6, test that, and send it off to Linus/Andrew.
+
+Key point:  thanks to the daily snapshots, my changes show up broken up 
+across several daily snapshots, rather than "one big huge lump of 
+changes that's been waiting to go in".
+
+	cd /spare/repo
+	bk clone -ql linux-2.6 net-drivers-2.6
+	bk pull ../netdev-2.6/8139too
+	bk pull ../netdev-2.6/viro-sparse-annotations
+	bk pull ../netdev-2.6/janitor
+	bk pull ../netdev-2.6/misc
+	bk push && bk push kernel.bkbits.net:net-drivers-2.6
+
+	# and then email Linus/Andrew the output of
+	# bk-make-sum + gcapatch (see Documentation/BK-usage)
+
+

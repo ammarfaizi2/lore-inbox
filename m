@@ -1,193 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266849AbUHXGcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265977AbUHXGgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266849AbUHXGcN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 02:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267165AbUHXGcN
+	id S265977AbUHXGgf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 02:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUHXGgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 02:32:13 -0400
-Received: from ozlabs.org ([203.10.76.45]:50579 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S266849AbUHXGb4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 02:31:56 -0400
+	Tue, 24 Aug 2004 02:36:35 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:32723 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S265977AbUHXGg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 02:36:29 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16682.57544.685323.638898@cargo.ozlabs.ibm.com>
-Date: Tue, 24 Aug 2004 16:31:36 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: anton@samba.org, johnrose@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64 Use struct list_head for hose_list
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C489A4.AE54A0EA"
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: interrupt is enabled before it should be when kernel is booted
+Date: Tue, 24 Aug 2004 14:36:19 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E84392E19@pdsmsx404>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: interrupt is enabled before it should be when kernel is booted
+Thread-Index: AcSJpKnt8shjlyZpS7KgENRmk/3kzQ==
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 24 Aug 2004 06:36:26.0776 (UTC) FILETIME=[AE74F980:01C489A4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes hose_list from a simple linked list to a
-"list.h"-style list.  This is in preparation for the runtime
-addition/removal of PCI Host Bridges.
+This is a multi-part message in MIME format.
 
-Signed-off-by: John Rose <johnrose@austin.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+------_=_NextPart_001_01C489A4.AE54A0EA
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-diff -urN linux-2.5/arch/ppc64/kernel/pSeries_iommu.c akpm/arch/ppc64/kernel/pSeries_iommu.c
---- linux-2.5/arch/ppc64/kernel/pSeries_iommu.c	2004-08-24 11:25:47.000000000 +1000
-+++ akpm/arch/ppc64/kernel/pSeries_iommu.c	2004-08-24 16:05:41.000000000 +1000
-@@ -90,7 +90,7 @@
- 
- static void iommu_buses_init(void)
+There is a minor problem in function start_kernel. start_kernel will
+enable interrupt after calling profile_init. However, before that,
+function time_init on IA64 platform could enable interrupt. See this
+call sequence:
+start_kernel->time_init->ia64_init_itm->register_time_interpolator->writ
+e_seqlock_irq.=20
+The attachment is a patch to fix it in generic source codes against
+2.6.8.
+
+Signed-off-by:	Zhang Yanmin <yanmin.zhang@intel.com>
+Signed-off-by:	Yao Jun	<junx.yao@intel.com>
+
+
+diff -Nraup linux-2.6.8/kernel/timer.c linux-2.6.8_fix/kernel/timer.c
+--- linux-2.6.8/kernel/timer.c	2004-08-16 07:58:21.000000000 +0800
++++ linux-2.6.8_fix/kernel/timer.c	2004-08-17 17:03:38.364035163
++0800
+@@ -1447,11 +1447,13 @@ is_better_time_interpolator(struct time_
+ void
+ register_time_interpolator(struct time_interpolator *ti)
  {
--	struct pci_controller* phb;
-+	struct pci_controller *phb, *tmp;
- 	struct device_node *dn, *first_dn;
- 	int num_slots, num_slots_ilog2;
- 	int first_phb = 1;
-@@ -106,10 +106,10 @@
- 	else
- 		tcetable_ilog2 = 22;
- 
--	/* XXX Should we be using pci_root_buses instead?  -ojn 
-+	/* XXX Should we be using pci_root_buses instead?  -ojn
- 	 */
- 
--	for (phb=hose_head; phb; phb=phb->next) {
-+	list_for_each_entry_safe(phb, tmp, &hose_list, list_node) {
- 		first_dn = ((struct device_node *)phb->arch_data)->child;
- 
- 		/* Carve 2GB into the largest dma_window_size possible */
-diff -urN linux-2.5/arch/ppc64/kernel/pSeries_pci.c akpm/arch/ppc64/kernel/pSeries_pci.c
---- linux-2.5/arch/ppc64/kernel/pSeries_pci.c	2004-08-24 11:25:47.000000000 +1000
-+++ akpm/arch/ppc64/kernel/pSeries_pci.c	2004-08-24 16:07:32.000000000 +1000
-@@ -729,9 +729,9 @@
- 
- static void phbs_fixup_io(void)
- {
--	struct pci_controller *hose;
-+	struct pci_controller *hose, *tmp;
- 
--	for (hose=hose_head;hose;hose=hose->next) 
-+	list_for_each_entry_safe(hose, tmp, &hose_list, list_node)
- 		remap_bus_range(hose->bus);
- }
- 
-@@ -764,8 +764,8 @@
- pci_find_hose_for_OF_device(struct device_node *node)
- {
- 	while (node) {
--		struct pci_controller *hose;
--		for (hose=hose_head;hose;hose=hose->next)
-+		struct pci_controller *hose, *tmp;
-+		list_for_each_entry_safe(hose, tmp, &hose_list, list_node)
- 			if (hose->arch_data == node)
- 				return hose;
- 		node=node->parent;
-diff -urN linux-2.5/arch/ppc64/kernel/pci.c akpm/arch/ppc64/kernel/pci.c
---- linux-2.5/arch/ppc64/kernel/pci.c	2004-08-24 11:25:47.000000000 +1000
-+++ akpm/arch/ppc64/kernel/pci.c	2004-08-24 16:09:15.000000000 +1000
-@@ -23,6 +23,7 @@
- #include <linux/bootmem.h>
- #include <linux/module.h>
- #include <linux/mm.h>
-+#include <linux/list.h>
- 
- #include <asm/processor.h>
- #include <asm/io.h>
-@@ -57,8 +58,7 @@
- 
- void iSeries_pcibios_init(void);
- 
--struct pci_controller *hose_head;
--struct pci_controller **hose_tail = &hose_head;
-+LIST_HEAD(hose_list);
- 
- struct pci_dma_ops pci_dma_ops;
- EXPORT_SYMBOL(pci_dma_ops);
-@@ -221,9 +221,9 @@
- 		memcpy(hose->what,model,7);
-         hose->type = controller_type;
-         hose->global_number = global_phb_number++;
--        
--        *hose_tail = hose;
--        hose_tail = &hose->next;
++	unsigned long	flags;
 +
-+	list_add_tail(&hose->list_node, &hose_list);
-+
-         return hose;
+ 	spin_lock(&time_interpolator_lock);
+-	write_seqlock_irq(&xtime_lock);
++	write_seqlock_irqsave(&xtime_lock, flags);
+ 	if (is_better_time_interpolator(ti))
+ 		time_interpolator =3D ti;
+-	write_sequnlock_irq(&xtime_lock);
++	write_sequnlock_irqrestore(&xtime_lock, flags);
+=20
+ 	ti->next =3D time_interpolator_list;
+ 	time_interpolator_list =3D ti;
+@@ -1462,6 +1464,7 @@ void
+ unregister_time_interpolator(struct time_interpolator *ti)
+ {
+ 	struct time_interpolator *curr, **prev;
++	unsigned long	flags;
+=20
+ 	spin_lock(&time_interpolator_lock);
+ 	prev =3D &time_interpolator_list;
+@@ -1473,7 +1476,7 @@ unregister_time_interpolator(struct time
+ 		prev =3D &curr->next;
+ 	}
+=20
+-	write_seqlock_irq(&xtime_lock);
++	write_seqlock_irqsave(&xtime_lock, flags);
+ 	if (ti =3D=3D time_interpolator) {
+ 		/* we lost the best time-interpolator: */
+ 		time_interpolator =3D NULL;
+@@ -1482,7 +1485,7 @@ unregister_time_interpolator(struct time
+ 			if (is_better_time_interpolator(curr))
+ 				time_interpolator =3D curr;
+ 	}
+-	write_sequnlock_irq(&xtime_lock);
++	write_sequnlock_irqrestore(&xtime_lock, flags);
+ 	spin_unlock(&time_interpolator_lock);
  }
- 
-@@ -263,7 +263,7 @@
- 
- static int __init pcibios_init(void)
- {
--	struct pci_controller *hose;
-+	struct pci_controller *hose, *tmp;
- 	struct pci_bus *bus;
- 
- #ifdef CONFIG_PPC_ISERIES
-@@ -274,7 +274,7 @@
- 	printk("PCI: Probing PCI hardware\n");
- 
- 	/* Scan all of the recorded PCI controllers.  */
--	for (hose = hose_head; hose; hose = hose->next) {
-+	list_for_each_entry_safe(hose, tmp, &hose_list, list_node) {
- 		hose->last_busno = 0xff;
- 		bus = pci_scan_bus(hose->first_busno, hose->ops,
- 				   hose->arch_data);
-diff -urN linux-2.5/arch/ppc64/kernel/pci.h akpm/arch/ppc64/kernel/pci.h
---- linux-2.5/arch/ppc64/kernel/pci.h	2004-08-08 12:05:16.000000000 +1000
-+++ akpm/arch/ppc64/kernel/pci.h	2004-08-24 16:03:26.000000000 +1000
-@@ -17,9 +17,7 @@
- extern struct pci_controller* pci_alloc_pci_controller(enum phb_types controller_type);
- extern struct pci_controller* pci_find_hose_for_OF_device(struct device_node* node);
- 
--extern struct pci_controller* hose_head;
--extern struct pci_controller** hose_tail;
--
-+extern struct list_head hose_list;
- extern int global_phb_number;
- 
- /*******************************************************************
-diff -urN linux-2.5/arch/ppc64/kernel/pci_dn.c akpm/arch/ppc64/kernel/pci_dn.c
---- linux-2.5/arch/ppc64/kernel/pci_dn.c	2004-08-08 12:05:16.000000000 +1000
-+++ akpm/arch/ppc64/kernel/pci_dn.c	2004-08-24 16:03:26.000000000 +1000
-@@ -129,10 +129,10 @@
-  */
- static void *traverse_all_pci_devices(traverse_func pre)
- {
--	struct pci_controller *phb;
-+	struct pci_controller *phb, *tmp;
- 	void *ret;
- 
--	for (phb = hose_head; phb; phb = phb->next)
-+	list_for_each_entry_safe(phb, tmp, &hose_list, list_node)
- 		if ((ret = traverse_pci_devices(phb->arch_data, pre, phb))
- 				!= NULL)
- 			return ret;
-diff -urN linux-2.5/arch/ppc64/kernel/pmac_pci.c akpm/arch/ppc64/kernel/pmac_pci.c
---- linux-2.5/arch/ppc64/kernel/pmac_pci.c	2004-08-24 11:25:47.000000000 +1000
-+++ akpm/arch/ppc64/kernel/pmac_pci.c	2004-08-24 16:10:00.000000000 +1000
-@@ -672,9 +672,9 @@
- 
- static void __init pmac_fixup_phb_resources(void)
- {
--	struct pci_controller *hose;
-+	struct pci_controller *hose, *tmp;
- 	
--	for (hose = hose_head; hose; hose = hose->next) {
-+	list_for_each_entry_safe(hose, tmp, &hose_list, list_node) {
- 		unsigned long offset = (unsigned long)hose->io_base_virt - pci_io_base;
- 		hose->io_resource.start += offset;
- 		hose->io_resource.end += offset;
-diff -urN linux-2.5/include/asm-ppc64/pci-bridge.h akpm/include/asm-ppc64/pci-bridge.h
---- linux-2.5/include/asm-ppc64/pci-bridge.h	2004-08-03 08:07:44.000000000 +1000
-+++ akpm/include/asm-ppc64/pci-bridge.h	2004-08-24 16:03:26.000000000 +1000
-@@ -33,9 +33,9 @@
- struct pci_controller {
- 	char what[8];                     /* Eye catcher      */
- 	enum phb_types type;              /* Type of hardware */
--	struct pci_controller *next;
- 	struct pci_bus *bus;
- 	void *arch_data;
-+	struct list_head list_node;
- 
- 	int first_busno;
- 	int last_busno;
+ #endif /* CONFIG_TIME_INTERPOLATION */
+
+
+
+ <<time_init_enable_interrupt.patch.diff>>=20
+
+------_=_NextPart_001_01C489A4.AE54A0EA
+Content-Type: application/octet-stream;
+	name="time_init_enable_interrupt.patch.diff"
+Content-Transfer-Encoding: base64
+Content-Description: time_init_enable_interrupt.patch.diff
+Content-Disposition: attachment;
+	filename="time_init_enable_interrupt.patch.diff"
+
+ZGlmZiAtTnJhdXAgbGludXgtMi42Ljgva2VybmVsL3RpbWVyLmMgbGludXgtMi42LjhfZml4L2tl
+cm5lbC90aW1lci5jCi0tLSBsaW51eC0yLjYuOC9rZXJuZWwvdGltZXIuYwkyMDA0LTA4LTE2IDA3
+OjU4OjIxLjAwMDAwMDAwMCArMDgwMAorKysgbGludXgtMi42LjhfZml4L2tlcm5lbC90aW1lci5j
+CTIwMDQtMDgtMTcgMTc6MDM6MzguMzY0MDM1MTYzICswODAwCkBAIC0xNDQ3LDExICsxNDQ3LDEz
+IEBAIGlzX2JldHRlcl90aW1lX2ludGVycG9sYXRvcihzdHJ1Y3QgdGltZV8KIHZvaWQKIHJlZ2lz
+dGVyX3RpbWVfaW50ZXJwb2xhdG9yKHN0cnVjdCB0aW1lX2ludGVycG9sYXRvciAqdGkpCiB7CisJ
+dW5zaWduZWQgbG9uZwlmbGFnczsKKwogCXNwaW5fbG9jaygmdGltZV9pbnRlcnBvbGF0b3JfbG9j
+ayk7Ci0Jd3JpdGVfc2VxbG9ja19pcnEoJnh0aW1lX2xvY2spOworCXdyaXRlX3NlcWxvY2tfaXJx
+c2F2ZSgmeHRpbWVfbG9jaywgZmxhZ3MpOwogCWlmIChpc19iZXR0ZXJfdGltZV9pbnRlcnBvbGF0
+b3IodGkpKQogCQl0aW1lX2ludGVycG9sYXRvciA9IHRpOwotCXdyaXRlX3NlcXVubG9ja19pcnEo
+Jnh0aW1lX2xvY2spOworCXdyaXRlX3NlcXVubG9ja19pcnFyZXN0b3JlKCZ4dGltZV9sb2NrLCBm
+bGFncyk7CiAKIAl0aS0+bmV4dCA9IHRpbWVfaW50ZXJwb2xhdG9yX2xpc3Q7CiAJdGltZV9pbnRl
+cnBvbGF0b3JfbGlzdCA9IHRpOwpAQCAtMTQ2Miw2ICsxNDY0LDcgQEAgdm9pZAogdW5yZWdpc3Rl
+cl90aW1lX2ludGVycG9sYXRvcihzdHJ1Y3QgdGltZV9pbnRlcnBvbGF0b3IgKnRpKQogewogCXN0
+cnVjdCB0aW1lX2ludGVycG9sYXRvciAqY3VyciwgKipwcmV2OworCXVuc2lnbmVkIGxvbmcJZmxh
+Z3M7CiAKIAlzcGluX2xvY2soJnRpbWVfaW50ZXJwb2xhdG9yX2xvY2spOwogCXByZXYgPSAmdGlt
+ZV9pbnRlcnBvbGF0b3JfbGlzdDsKQEAgLTE0NzMsNyArMTQ3Niw3IEBAIHVucmVnaXN0ZXJfdGlt
+ZV9pbnRlcnBvbGF0b3Ioc3RydWN0IHRpbWUKIAkJcHJldiA9ICZjdXJyLT5uZXh0OwogCX0KIAot
+CXdyaXRlX3NlcWxvY2tfaXJxKCZ4dGltZV9sb2NrKTsKKwl3cml0ZV9zZXFsb2NrX2lycXNhdmUo
+Jnh0aW1lX2xvY2ssIGZsYWdzKTsKIAlpZiAodGkgPT0gdGltZV9pbnRlcnBvbGF0b3IpIHsKIAkJ
+Lyogd2UgbG9zdCB0aGUgYmVzdCB0aW1lLWludGVycG9sYXRvcjogKi8KIAkJdGltZV9pbnRlcnBv
+bGF0b3IgPSBOVUxMOwpAQCAtMTQ4Miw3ICsxNDg1LDcgQEAgdW5yZWdpc3Rlcl90aW1lX2ludGVy
+cG9sYXRvcihzdHJ1Y3QgdGltZQogCQkJaWYgKGlzX2JldHRlcl90aW1lX2ludGVycG9sYXRvcihj
+dXJyKSkKIAkJCQl0aW1lX2ludGVycG9sYXRvciA9IGN1cnI7CiAJfQotCXdyaXRlX3NlcXVubG9j
+a19pcnEoJnh0aW1lX2xvY2spOworCXdyaXRlX3NlcXVubG9ja19pcnFyZXN0b3JlKCZ4dGltZV9s
+b2NrLCBmbGFncyk7CiAJc3Bpbl91bmxvY2soJnRpbWVfaW50ZXJwb2xhdG9yX2xvY2spOwogfQog
+I2VuZGlmIC8qIENPTkZJR19USU1FX0lOVEVSUE9MQVRJT04gKi8K
+
+------_=_NextPart_001_01C489A4.AE54A0EA--

@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262431AbREUJzx>; Mon, 21 May 2001 05:55:53 -0400
+	id <S262434AbREUJ6N>; Mon, 21 May 2001 05:58:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262432AbREUJzo>; Mon, 21 May 2001 05:55:44 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:58641 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S262431AbREUJzb>;
-	Mon, 21 May 2001 05:55:31 -0400
-To: Ben Ford <ben@kalifornia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-In-Reply-To: <20010520185827.B16356@thune.mrc-home.com> <3B08B6B0.4010907@kalifornia.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 21 May 2001 11:55:15 +0200
-In-Reply-To: Ben Ford's message of "Sun, 20 May 2001 23:33:20 -0700"
-Message-ID: <d3snhzowl8.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S262433AbREUJ6D>; Mon, 21 May 2001 05:58:03 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:18052 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S262432AbREUJ5x>;
+	Mon, 21 May 2001 05:57:53 -0400
+Date: Mon, 21 May 2001 05:57:52 -0400 (EDT)
+From: Hua Zhong <huaz@cs.columbia.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: CRAK: a process checkpoint/restart kernel module
+Message-ID: <Pine.LNX.4.33.0105210555220.20626-100000@razor.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Ben" == Ben Ford <ben@kalifornia.com> writes:
 
-Ben> Mike Castle wrote:
->>  People who are going to be savvy enough to install a development
->> 2.5.* kernel that is defining a new configuration utility are going
->> to be savvy enough to install python.
->> 
-Ben> Not only that, but Alan said that somebody is rewriting it in C.
+This project has been there for over one year, and I've got quite a few
+emails asking about it.  Before it becomes more reliable, I think letting
+more people know about it is a good idea.  Thanks to those who ever
+pushed me on it :-)
 
-No and yes, the Python 2 issue is not reasonable, the C version of it
-is. Hopefully with a proper C version, the Python 2 dependencies will
-go away completely and that part of the discussion becomes moot.
+I guess many of you have already known about epckpt, a patch written
+by Eduardo Pinheiro that adds process checkpoint/restart capability to the
+Linux kernel.  CRAK does the similar thing - in fact, I started this
+project based on epckpt's code, but now they have been very different.
 
-The Python 2 one is a major issue, some people compile current kernels
-because thats all that exists for their hardware. Some people who are
-bringing up new architectures etc. wants to be self hosting but things
-like Perl and Python are not exactly the first things you build. You
-may not have threads, you may not have proper math support, maybe no
-shared libraries, but that wont stop you from getting
-gcc/binutils/bash going. The argument I got from Eric at the 2.5
-kernel summit when I first brought this up was 'just configure your
-kernel on another machine and copy it over'. Thats extremely naiive,
-in some cases you do not have network nor floppy. You copy your
-sources over once (so you can hack on the network driver :), you don't
-want to have to rip out the disk every time you need a change to the
-.config because some obscure option doesn't compile and you hadn't
-noticed.
+The major differences are:
 
-It's just not that trivial.
+* CRAK is a kernel module (!!)
+* CRAK doesn't do any bookkeeping (thus no run time overhead)
+* CRAK uses different strategy to checkpoint parallel processes (user
+space vs kernel space, and signal vs semaphore)
 
-Jes
+Moreover, I've successfully (in the sense of working for simple cases such
+as telnet) added network socket support.  Due to some academic reasons I
+have not put this portion of code online, but I'll do so as soon as
+possible.
+
+The main website is at http://www.cs.columbia.edu/~huaz/research/crak.htm.
+It works for 2.2.19 and 2.4.4 (the latter is still beta).  You can also
+learn more about checkpointing at http://www.checkpointing.org (maintained
+by Eduardo Pinheiro).
+
+Speaking of reliability, it's not 100% reliable.  Originally I wanted to
+make it more reliable before annoucing it, and now I realized (and was
+convinced) that letting people know about it earlier could make this goal
+happen sooner.
+
+All comments/praise/criticism are welcome.  Thanks.
+
+----------------------------------------------------------------
+Hua Zhong
+
+Central Research Facilities	Department of Computer Science
+Columbia University		New York, NY 10027
+Email: huaz@cs.columbia.edu	http://www.cs.columbia.edu/~huaz
+----------------------------------------------------------------
+
+
+

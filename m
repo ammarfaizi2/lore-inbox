@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317007AbSFALzp>; Sat, 1 Jun 2002 07:55:45 -0400
+	id <S317010AbSFAMVb>; Sat, 1 Jun 2002 08:21:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317008AbSFALzo>; Sat, 1 Jun 2002 07:55:44 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:55045 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S317007AbSFALzn>; Sat, 1 Jun 2002 07:55:43 -0400
-Date: Sat, 1 Jun 2002 13:55:42 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.enlightnet.local
-To: Roger Luethi <rl@hellgate.ch>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix VIA Rhine time outs (some)
-In-Reply-To: <20020601105745.GA2726@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.44.0206011335300.15719-100000@cola.enlightnet.local>
+	id <S317011AbSFAMVa>; Sat, 1 Jun 2002 08:21:30 -0400
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:56502 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S317010AbSFAMVa>; Sat, 1 Jun 2002 08:21:30 -0400
+From: Chris Rankin <cj.rankin@ntlworld.com>
+Message-Id: <200206011221.g51CLULu000691@twopit.underworld>
+Subject: Crazy nosmp IRQ assignments in 2.4.19-pre9-ac3??
+To: linux-kernel@vger.kernel.org
+Date: Sat, 1 Jun 2002 13:21:30 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Jun 2002, Roger Luethi wrote:
+Hi,
 
-> reset via netdev timeout [1]. The patch addresses that by setting the Tx
-> ring buffer pointer to where the driver thinks the chip should continue.
+I just tried booting 2.4.19-pre9-ac3 (SMP, 1.25 GB, devfs) with the
+"nosmp single" flags to try and debug a Firewire problem, and I found
+this oddity in /proc/interrupts:
 
-You shouldn't use virt_to_bus().
+           CPU0       
+  0:      28797          XT-PIC  timer
+  1:        629          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  8:          0          XT-PIC  rtc
+  9:          0          XT-PIC  acpi
+ 14:      10299          XT-PIC  ide0
+ 15:         26          XT-PIC  ide1
+ 16:          0            none  usb-ohci
+ 17:          0            none  ehci-hcd
+ 18:          0            none  ohci1394
+ 19:          0            none  usb-ohci, usb-uhci
+NMI:          0 
+LOC:          0 
+ERR:          0
+MIS:          0
 
-On x86 it doesn't matter(?) but on other hw it does.
-See Documentation/DMA-mapping.txt.
+Last time I booted an SMP kernel with "nosmp", there were no IRQs > 15
+and all the PCI devices were remapped to 5,7,9,10,11 etc.
 
+This doesn't look good...
 
-The tx_ring array is allocated with pci_alloc_consistent and the addresses
-you are supposed to send to the hardware are the rx_ring_dma and
-tx_ring_dma. tx_ring and rx_ring are for the driver.
-
-The initialisation of tx_ring_dma assumes the area allocted by
-pci_alloc_consistent is contiguous and that it is ok to use any address
-within that area (within any alignment constrinats of the hw). If that
-code is correct you could copy it and do:
-
-int entry = np->dirty_tx % TX_RING_SIZE;
-writel(np->tx_ring_dma + entry * sizeof(struct tx_desc),
-       dev->base_addr + TxRingPtr);
-
-(Or something prettier ...)
-
-/Urban
-
+Chris

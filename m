@@ -1,70 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbUDNShM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 14:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUDNShL
+	id S261551AbUDNSsV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 14:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUDNSsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 14:37:11 -0400
-Received: from ns.suse.de ([195.135.220.2]:4228 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261580AbUDNShE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 14:37:04 -0400
-Date: Wed, 14 Apr 2004 20:35:02 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       mingo@redhat.com
-Subject: Re: RE: Non-Exec stack patches
-Message-ID: <20040414183502.GR16701@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	"Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	mingo@redhat.com
-References: <9AB83E4717F13F419BD880F5254709E5011EBABA@scsmsx402.sc.intel.com>
+	Wed, 14 Apr 2004 14:48:21 -0400
+Received: from mail.shareable.org ([81.29.64.88]:39585 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261551AbUDNSsT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 14:48:19 -0400
+Date: Wed, 14 Apr 2004 19:46:03 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: davidm@hpl.hp.com
+Cc: linux-ia64@linuxia64.org, "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Kurt Garloff <garloff@suse.de>,
+       linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: [PATCH] (IA64) Fix ugly __[PS]* macros in <asm-ia64/pgtable.h>
+Message-ID: <20040414184603.GA12105@mail.shareable.org>
+References: <9AB83E4717F13F419BD880F5254709E5011EBABA@scsmsx402.sc.intel.com> <20040414082355.GA8303@mail.shareable.org> <20040414113753.GA9413@mail.shareable.org> <16509.25006.96933.584153@napali.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TMgB3/Ch1aWgZB1L"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9AB83E4717F13F419BD880F5254709E5011EBABA@scsmsx402.sc.intel.com>
-X-Operating-System: Linux 2.6.5-2-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <16509.25006.96933.584153@napali.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Mosberger wrote:
+> Huh?  You haven't actually checked, have you?
 
---TMgB3/Ch1aWgZB1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes I have.  Quite thoroughly.
 
-On Wed, Apr 14, 2004 at 12:28:24AM -0700, Suresh B Siddha wrote:
-> Recent ia64 mm trees are broken because of this issue. Attached patch=20
-> fixes protection_map[7] in IA64.
+> I don't pollute namespace for no good reason.
 
-Ah, sorry. ia64 seems to be strangely different here.
-My understanding is that it support NX page protection. And that you
-don't have executable stacks in the ia64 ABI at all. But for i386
-emulation you should be able to enable and disable executable stacks.
-For some reason the needed defines are missing ...
+In this instance, there is a certain amount of arch variation.  parisc
+defines PAGE_EXECREAD and PAGE_RWX.  ppc defines PAGE_COPY_X,
+PAGE_SHARED_X, PAGE_READONLY_X (X is for exec).  m68k defines
+PAGE_COPY_C, PAGE_READONLY_C, PAGE_SHARED_C.  x86_64 defines
+PAGE_COPY_EXEC, PAGE_SHARED_EXEC and PAGE_READONLY_EXEC.
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
-SUSE LINUX AG, Nuernberg, DE                          SUSE Labs (Head)
+Those are all arch-private names, some of them used in code in arch/*,
+some just to define the __[PS]* constants.
 
---TMgB3/Ch1aWgZB1L
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+>  Jamie> Here is a page (untested) which cleans up those definitions.
+>  Jamie> It was made from 2.6.5.
+> 
+> If the same names are adopted by the other platforms, I'm fine with it.
+> Otherwise, see my comment above.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+I copied <asm-x86_64/pgtable.h>, which closely matches ia64, except
+for PAGE_EXEC which I named because nothing else has it.  That name
+isn't used anywhere.  On reflection, a better name for it is
+PAGE_EXECONLY (like PAGE_READONLY).
 
-iD8DBQFAfYRWxmLh6hyYd04RAqoqAKCRmqPG0/vXyrY4fiezY7EEcwyB/wCcCT1w
-3086TbEw4Z9py4Pk4C2wWDw=
-=VDw2
------END PGP SIGNATURE-----
+In theory the Alpha can do exec-only pages, but it's __[PS]* map
+always gives read permission when there's execute permission.  I'm not
+sure if there's a reason for that, or if it just historically copied
+the i386 behaviour (Alpha was the first port).
 
---TMgB3/Ch1aWgZB1L--
+The constants PAGE_KERNEL and PAGE_READONLY are used in
+arch-independent code with a common meaning.  Otherwise, the constants
+are used only to defined __[PS]* and a few in arch-dependent
+initialisation code.
+
+I agree it is best to avoid namespace pollution.  However this is one
+area where ia64 sticks out because it's approach is different from
+other ports.  All of them except Alpha used PAGE_* names to clarify
+the __[PS]* map, defining additional names as needed.
+
+The Alpha is quite clean in a different way, or looks like it until
+you realise the _PAGE_P() macro is equivalent to identity so just
+obfuscates the code.  (The _PAGE_P() macro which is absurd because
+it's a complicated expression that's equivalent to identity).
+
+The thing I don't like about the ia64 file is the mixing of two
+different styles of definition in the same table.  When I had to read
+all the arch pgtable.h files to discover what is Linux's mmap()
+behaviour on each one, ia64 stood out awkwardly.
+
+-- Jamie

@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266381AbUBLSFB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 13:05:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266396AbUBLSFA
+	id S266396AbUBLSHC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 13:07:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUBLSHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 13:05:00 -0500
-Received: from crete.csd.uch.gr ([147.52.16.2]:55454 "EHLO crete.csd.uch.gr")
-	by vger.kernel.org with ESMTP id S266381AbUBLSE6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 13:04:58 -0500
-Organization: 
-Date: Thu, 12 Feb 2004 19:59:26 +0200 (EET)
-From: Panagiotis Papadakos <papadako@csd.uoc.gr>
-To: linux-kernel@vger.kernel.org
-cc: benh@kernel.crashing.org
-Subject: Radeon fb patch
-Message-ID: <Pine.GSO.4.58.0402121944170.12860@thanatos.csd.uch.gr>
+	Thu, 12 Feb 2004 13:07:02 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:45316 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S266396AbUBLSG7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 13:06:59 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: John Bradford <john@grabjohn.com>
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+Date: Thu, 12 Feb 2004 19:06:54 +0100
+User-Agent: KMail/1.6.1
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+References: <20040209115852.GB877@schottelius.org> <200402121740.03974.robin.rosenberg.lists@dewire.com> <200402121716.i1CHGXLv000188@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200402121716.i1CHGXLv000188@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1804928587-1076608766=:12860"
-X-Spam-Flag: NO
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200402121906.54699.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Thursday 12 February 2004 18.16, John Bradford wrote:
+> I'm not sure whether it's valid UTF-8 or not, but it's certainly
+> possible to code, for example, an 'A', (decimal 65), via an escape to
+> a 31-bit character representation.  Presumably the majority of UTF-8
+> parsers would decode the sequence as 65, rather than emit an error.
 
----559023410-1804928587-1076608766=:12860
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+There are many ways of getting things wrong. The algorithm for encoding 
+UTF-8 doesn't give you the option of encoding 65 as two bytes; any UCS-4 
+character with code 0-0x7F must result in a onand the same principle goes 
+for every other character and the unicdeo standard forbids the use of anything
+but the shortest possible sequence.
 
-I tried to compile bk2 with the new radeofb patch, but it failed.
-The problem exists if you have enabled drm for radeon, because
-radeon_engine_reset is declared twice, once in drivers/char/drm/
-radeon_cp.c and the second time in drivers/video/aty/radeon_accel.c.
-The attached patch just renames radeon_engine_reset to
-radeonfb_engine_reset in drivers/video/aty and also radeon_engine_init
-to radeonfb_engine_init just for consistency. It compiles fine, but shows
-garbage on my notebook. Don't know if it is my patch or the new radeonfb
-code.
+> Also, even ignoring that, how do you handle things like accented
+> characters which can be represented as single characters, or as
+> sequences containing combining characters?  Some applications might
+> convert the sequence containing combining characters in to the single
+> character, and others might not.
 
-Regards
-	Panagiotis Papadakos
----559023410-1804928587-1076608766=:12860
-Content-Type: APPLICATION/octet-stream; name="radeonfb.diff.bz2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.58.0402121959260.12860@thanatos.csd.uch.gr>
-Content-Description: 
-Content-Disposition: attachment; filename="radeonfb.diff.bz2"
+In UTF-8 you cannot represent à as `a. I can have both in a file name and they
+are different. An application that assumes `a is the same a à (in UTF-8) is broken
+and should be fixed. 
 
-QlpoOTFBWSZTWTDPZfcAAn/fgAIwYX//23/n1iC/79/6UAOb2zKLagGgJRQk
-8JNih6m1NMGKADEMRtMmp6nlD1BzRkxMAExGBGmBBiMEyYBGCUylT0NPUmmT
-IGj1GjTQGgBoGgGgHNGTEwATEYEaYEGIwTJgEYFUQmghoUwmGqeUemkABpp6
-gANB6lsC1OsRRJuTYjqjKhJyEIKG4oZGD9270k354WtatMKzjSF4wvW88Uw2
-kqROGyNtVWCkp4ZNQIglzsW5LcKk6gqrbdOzYCYgOol62I0OMIX7JgJ02Ip4
-bsXa9JKxkUwrEPPXtEsNSSSq3e5JJL1toJohQD2GOn2UyNnSCrgMLgmVx9nw
-7SVDYq+nuWWTEu82+M4tlny1owtlVFpivjDKIN8ekSUhEmH3z/fr93o5Prkm
-Mo5CTxFhshpZQl0BjCzczttttv6DHBzlKLIBcAMOQQhCJSn1B2QMZHAb6D7B
-UV5h1DAcjGnb9peC/rUpcYjJm6zQOIqyyxdZ+7/Gz8MGg1Izz8mxLd9Uzk3H
-BElCjLKpQFYKgmG+GNbyIkgMKyz6yC9Big89aWfASebN81WV1vSA3KzeeZmc
-97bHPWi37oEPbNtpVkkLwwqqqqKTMy8lFZIpEeweOBUU8sPu9t7x7Y6kfqEZ
-RdJ+/UBDCb4Qq00gDiCI+D64+CcrtIJE0JUI3Hzu1iUviRGOnOhKm/JYNAi3
-0mebBrwDji6+ntv24dXndlljyMRlIrFqXdCMNY1DMDbYeYaIbEJ0vk9ifxTx
-jtPPGFpEzJMFjdWoK9Na1G/pisQV7ThF5xQ4Bm+aN5u4Djyv3S6YgkjBEVmZ
-maI8vn1dQb6bY5uZGGdJDWtU89sMu4mU+/GaWgThir095hSK4b/Vpsg9MEeH
-gzIdHuwiIVBOMQUiNFbyrGsSHMC4T6PS6uxDAItfE4Dh39HZsw5UFsniDvEG
-3GuIQmCQMaEKCL9+pxKmDDMbS8TJMS36hbPaI8D3kR3c/IJjeXQtrLPe3TKE
-2xiL36ETInqVLTCnXpbL+hWn0WzzjJEZ4hztUGzWt9+QaB0Bx1mXjMy46yvT
-mCR26B8DbfKN0p/8XckU4UJAwz2X3A==
-
----559023410-1804928587-1076608766=:12860--
+-- robin

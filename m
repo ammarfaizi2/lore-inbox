@@ -1,66 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbTFKRcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 13:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTFKRcZ
+	id S263305AbTFKRcT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 13:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbTFKRcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 13:32:25 -0400
-Received: from lucidpixels.com ([66.45.37.187]:2959 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S263338AbTFKRcV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 13:32:21 -0400
-Date: Wed, 11 Jun 2003 13:46:04 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p500
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: "Dave Gilbert (Home)" <gilbertd@treblig.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       apiszcz@solarrain.com
-Subject: Re: WESTERN DIGITAL 200GB IDE DRIVES GO OFFLINE - HOW TO FIX
-In-Reply-To: <20030611172712.GB31051@gtf.org>
-Message-ID: <Pine.LNX.4.53.0306111341230.23823@p500>
-References: <Pine.LNX.4.53.0306111115530.14178@p500>
- <1055346538.2420.3.camel@dhcp22.swansea.linux.org.uk> <3EE75FF0.3080702@treblig.org>
- <20030611172712.GB31051@gtf.org>
+	Wed, 11 Jun 2003 13:32:19 -0400
+Received: from customer-148-223-196-18.uninet.net.mx ([148.223.196.18]:57988
+	"EHLO soltisns.soltis.cc") by vger.kernel.org with ESMTP
+	id S263305AbTFKRcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 13:32:15 -0400
+From: "jds" <jds@soltis.cc>
+To: linux-kernel@vger.kernel.org
+Subject: problem when compile 2.5.70-mm8 
+Date: Wed, 11 Jun 2003 11:16:43 -0600
+Message-Id: <20030611171334.M36451@soltis.cc>
+X-Mailer: Open WebMail 1.90 20030212
+X-OriginatingIP: 180.175.220.238 (jds)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears as if that site is having problems.
-
-http://www.warp2search.net/
-
-I don't recall the URL directly to the file, but I still have the file,
-I've made it availible here:
-
-http://66.93.105.220/~war/wd_cfg.zip (144KiB)
-http://209.81.41.149/~war/wd_cfg.zip (144KiB)
-
-$ md5sum wd_cfg.zip
-ca3bfc92364e607ef04a1fbe3dba76c0  wd_cfg.zip
 
 
-On Wed, 11 Jun 2003, Jeff Garzik wrote:
+Hi:
 
-> On Wed, Jun 11, 2003 at 05:59:28PM +0100, Dave Gilbert (Home) wrote:
-> > In many cases these drives with the older firmware don't even grace you
-> > with the benefit of an IDE error; they just give random file system
-> > corruption.  I believe that this was the cause of the problems I was
-> > reporting here:
-> > http://www.cs.helsinki.fi/linux/linux-kernel/2003-14/0935.html
-> >
-> > after updating the firmware both systems seem to be OK.
-> >
-> > So even if you aren't actually seeing these errors, even if you aren't
-> > using RAID I'd suggest getting this patch.
->
-> Where can we obtain these wonderful firmware updates?  :)
->
-> 	Jeff
->
->
->
->
->
+   I try the compile kernel 2.5.70-mm8 and recive this messages:
+
+      [root@toshiba linux-2.5.70]# make bzImage
+  CHK     include/linux/version.h
+  UPD     include/linux/version.h
+  Making asm->asm-i386 symlink
+  CC      scripts/empty.o
+  MKELF   scripts/elfconfig.h
+  HOSTCC  scripts/file2alias.o
+  HOSTCC  scripts/modpost.o
+  HOSTLD  scripts/modpost
+  SPLIT   include/linux/autoconf.h -> include/config/*
+  CC      arch/i386/kernel/asm-offsets.s
+  CHK     include/asm-i386/asm_offsets.h
+  UPD     include/asm-i386/asm_offsets.h
+  Starting the build. KBUILD_BUILTIN=1 KBUILD_MODULES=
+  CC      init/main.o
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  CC      init/do_mounts.o
+  CC      init/do_mounts_rd.o
+  CC      init/do_mounts_initrd.o
+  LD      init/mounts.o
+  CC      init/initramfs.o
+  LD      init/built-in.o
+  HOSTCC  usr/gen_init_cpio
+  CPIO    usr/initramfs_data.cpio
+  GZIP    usr/initramfs_data.cpio.gz
+  LD      usr/initramfs_data.o
+  LD      usr/built-in.o
+  CC      arch/i386/kernel/process.o
+  CC      arch/i386/kernel/semaphore.o
+  CC      arch/i386/kernel/signal.o
+  AS      arch/i386/kernel/entry.o
+  CC      arch/i386/kernel/traps.o
+  CC      arch/i386/kernel/irq.o
+  CC      arch/i386/kernel/vm86.o
+  CC      arch/i386/kernel/ptrace.o
+  CC      arch/i386/kernel/i8259.o
+  CC      arch/i386/kernel/ioport.o
+  CC      arch/i386/kernel/ldt.o
+  CC      arch/i386/kernel/setup.o
+arch/i386/kernel/setup.c: In function `setup_early_printk':
+arch/i386/kernel/setup.c:919: invalid lvalue in unary `&'
+make[1]: *** [arch/i386/kernel/setup.o] Error 1
+make: *** [arch/i386/kernel] Error 2
+
+  Help me please;
+
+  Regards.
+

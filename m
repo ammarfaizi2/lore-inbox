@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283503AbRLDOob>; Tue, 4 Dec 2001 09:44:31 -0500
+	id <S283123AbRLDOob>; Tue, 4 Dec 2001 09:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283506AbRLDOmu>; Tue, 4 Dec 2001 09:42:50 -0500
-Received: from dsl-213-023-038-097.arcor-ip.net ([213.23.38.97]:64522 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S284382AbRLDOfI>;
-	Tue, 4 Dec 2001 09:35:08 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Donald Becker <becker@scyld.com>, Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: Linux/Pro  -- clusters
-Date: Tue, 4 Dec 2001 15:37:41 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10112032057070.978-100000@vaio.greennet>
-In-Reply-To: <Pine.LNX.4.10.10112032057070.978-100000@vaio.greennet>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16BGhe-0000Pq-00@starship.berlin>
+	id <S283503AbRLDOmt>; Tue, 4 Dec 2001 09:42:49 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:29875
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S283614AbRLDNZk>; Tue, 4 Dec 2001 08:25:40 -0500
+Date: Tue, 4 Dec 2001 08:16:40 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
+        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011204081640.A12658@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
+	kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com> <20011204131136.B6051@caldera.de> <20011204072808.A11867@thyrsus.com> <20011204133932.A8805@caldera.de> <20011204074815.A12231@thyrsus.com> <20011204140050.A10691@caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011204140050.A10691@caldera.de>; from hch@caldera.de on Tue, Dec 04, 2001 at 02:00:50PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 4, 2001 03:09 am, Donald Becker wrote:
-> To bring this branch back on point: we should distinguish between
-> design for an arbitrary and unpredictable goal (e.g. 128 way SMP)
-> vs. putting some design into things that we are supposed to already
-> understan
->    [...]
->    a VFS layer that doesn't require the kernel to know a priori all of
->      the filesystem types that might be loaded
+Christoph Hellwig <hch@caldera.de>:
+> There is a CML1 language specification, as written down in a file, namely
+> Documentation/kbuild/config-language.txt in the kernel tree.
 
-Right, there's a consensus that the fs includes have to fixed and that it 
-should be in 2.5.lownum.  The precise plan isn't fully evolved yet ;)
+A specification which, according to its author, is incomplete.
 
-See fsdevel for the thread, 3-4 months ago.  IIRC, the favored idea (Linus's) 
-was to make the generic struct inode part of the fs-specific inode instead of 
-the other way around, which resolves the question of how the compiler 
-calculates the size/layout of an inode.
+> There is one tool (mconfig) which has a yacc-parser that implements that
+> specification completly, and some horrid ugly scripts in the tree that
+> parse them in a more or less working way.  There also are a number of
+> other tools I don't know to much about that understand the language as
+> well.
 
-This is going to be a pervasive change that someone has to do all in one
-day, so it remains to be seen when/if that is actually going to happen.
+N separate implementations means N dialects and N**2 compatibility problems.
+Nicer just to have *one* parser, *one* compiler, and *one* service class that
+supports several thin front-end layers, yes?  No?
+ 
+> All of these tools just require the runtime contained in the LSB and no
+> funky additional script languages.  Also none needs a binary intermediate
+> representation of the config.
 
-It's also going to break every out-of-tree filesystem.
+I quote Linus at the 2.5 kernel summit: "Python is not an issue."
+Unless and until he changes his mind about that, waving around this
+kind of argument is likely to do your case more harm than good.
 
---
-Daniel
+If you want to re-open the case for saving CML1, you'd be better off
+demonstrating how CML1 can be used to (a) automatically do implied 
+side-effects when a symbol is changed, (b) guarantee that the user
+cannot generate a configuration that violates stated invariants, and 
+(c) unify the configuration tree so that the equivalents of arch/*
+files never suffer from lag or skew when an architecture-independent
+feature is added to the kernel.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Where rights secured by the Constitution are involved, there can be no
+rule making or legislation which would abrogate them.
+        -- Miranda vs. Arizona, 384 US 436 p. 491

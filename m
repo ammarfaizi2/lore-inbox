@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbTLBISC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 03:18:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbTLBISC
+	id S261733AbTLBI11 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 03:27:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTLBI11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 03:18:02 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:43275 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261522AbTLBISA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 03:18:00 -0500
-Date: Tue, 2 Dec 2003 08:17:54 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Peter C. Norton" <spacey-linux-kernel@lenin.nu>
-Cc: Ian Kent <raven@themaw.net>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-ID: <20031202081754.A19277@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Peter C. Norton" <spacey-linux-kernel@lenin.nu>,
-	Ian Kent <raven@themaw.net>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <Pine.LNX.4.44.0312012302310.9674-100000@raven.themaw.net> <20031201153316.B3879@infradead.org> <20031201213651.GK18176@lenin.nu>
+	Tue, 2 Dec 2003 03:27:27 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:2251 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261563AbTLBI1Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 03:27:24 -0500
+Date: Tue, 2 Dec 2003 09:27:13 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Linux-raid maillist <linux-raid@vger.kernel.org>, linux-lvm@sistina.com
+Subject: Re: Reproducable OOPS with MD RAID-5 on 2.6.0-test11
+Message-ID: <20031202082713.GN12211@suse.de>
+References: <3FCB4AFB.3090700@backtobasicsmgmt.com> <20031201141144.GD12211@suse.de> <3FCB4CFA.4020302@backtobasicsmgmt.com> <20031201155143.GF12211@suse.de> <3FCC0EE0.9010207@backtobasicsmgmt.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031201213651.GK18176@lenin.nu>; from spacey-linux-kernel@lenin.nu on Mon, Dec 01, 2003 at 01:36:51PM -0800
+In-Reply-To: <3FCC0EE0.9010207@backtobasicsmgmt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 01, 2003 at 01:36:51PM -0800, Peter C. Norton wrote:
-> Ian has lots of bugfixes and and feature patches (like direct mounts)
-> going to the autofs mailing list.  Autofs4 has always had stability
-> issues in 2.4.x, and its been lacking in features.  This makes myself
-> and others run a bastard combination of amd, autofs and editing
-> /etc/fstab to get "automounter" features even close to the solaris
-> automounter.  If these can go into 2.4, which will be "stable" and in
-> use in lots of places for the next couple of years it could help by
-> encouraging the distros to get behind autofs4 (hint hint, redhat,
-> hint).
+On Mon, Dec 01 2003, Kevin P. Fleming wrote:
+> Jens Axboe wrote:
+> 
+> >Alright, so no bouncing should be happening. Could you boot with
+> >mem=800m (and reproduce) just to rule it out completely?
+> 
+> Tested with mem=800m, problem still occurs. Additional test was done 
 
-Well, it looks like you're a bit later for 2.4 with that.  Get them
-into 2.6 and if they prove good we can backport the bugfix portions.
-As for Red Hat:  I'll bet the next Red Hat product will be based on
-a 2.6 kernel, as is fedora as their public beta testing community
-whizbang version.
+Suspected as much, just wanted to make sure.
+
+> without device-mapper in place, though, and I could not reproduce the 
+> problem! I copied > 500MB of stuff to the XFS filesystem created using 
+> the entire /dev/md/0 device without a single unusual message. I then 
+> unmounted the filesystem and used pvcreate/vgcreate/lvcreate to make a 
+> 3G volume on the array, made an XFS filesystem on it, mounted it, and 
+> tried copying data over. The oops message came back.
+
+Smells like a bio stacking problem in raid/dm then. I'll take a quick
+look and see if anything obvious pops up, otherwise the maintainers of
+those areas should take a closer look.
+
+> I'm copying this message to linux-lvm; the original oops message is 
+> repeated below for the benefit of those list readers. I've got one more 
+> round of testing to do (after the array resyncs itself), which is to try 
+> a filesystem other than XFS.
+
+That might be a good idea, although it's not very likely to be an XFS
+problem as it happens further down the io stack. It should trigger just
+as happily on IDE or SCSI if that was the case.
+
+-- 
+Jens Axboe
 

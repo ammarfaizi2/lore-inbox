@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262525AbSIPQOs>; Mon, 16 Sep 2002 12:14:48 -0400
+	id <S262536AbSIPQK4>; Mon, 16 Sep 2002 12:10:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262532AbSIPQOs>; Mon, 16 Sep 2002 12:14:48 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:28280 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262525AbSIPQOr>; Mon, 16 Sep 2002 12:14:47 -0400
-Date: Mon, 16 Sep 2002 18:20:01 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Samuel Flory <sflory@rackable.com>, Stephen Lord <lord@sgi.com>,
-       Austin Gonyou <austin@coremetrics.com>,
-       Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: 2.4.20pre5aa2
-Message-ID: <20020916162001.GK11605@dualathlon.random>
-References: <20020911201602.A13655@pc9391.uni-regensburg.de> <1031768655.24629.23.camel@UberGeek.coremetrics.com> <20020911184111.GY17868@dualathlon.random> <3D81235B.6080809@rackable.com> <20020913002316.GG11605@dualathlon.random> <1031878070.1236.29.camel@snafu> <20020913005440.GJ11605@dualathlon.random> <3D8149F6.9060702@rackable.com> <20020913125345.GO11605@dualathlon.random> <3D8600DD.1010707@us.ibm.com>
-Mime-Version: 1.0
+	id <S262544AbSIPQK4>; Mon, 16 Sep 2002 12:10:56 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:39366 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262536AbSIPQKz>; Mon, 16 Sep 2002 12:10:55 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200209161615.g8GGFqx10004@devserv.devel.redhat.com>
+Subject: Re: [PATCH] Summit patch for 2.5.34
+To: davej@suse.de (Dave Jones)
+Date: Mon, 16 Sep 2002 12:15:52 -0400 (EDT)
+Cc: jamesclv@us.ibm.com (James Cleverdon), linux-kernel@vger.kernel.org,
+       James.Bottomley@steeleye.com, torvalds@transmeta.com, alan@redhat.com,
+       mingo@redhat.com
+In-Reply-To: <20020916175545.A21875@suse.de> from "Dave Jones" at Sep 16, 2002 05:55:45 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D8600DD.1010707@us.ibm.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 16, 2002 at 09:03:41AM -0700, Dave Hansen wrote:
-> +	vmi = get_vmalloc_info();
+> - Is this the same summit code as is in 2.4-ac ?
+>   (Ie, the one that boots on non summit systems too)
 
-hmm, not sure if it's better to slowdown vmalloc instead of
-/proc/meminfo and to keep meminfo o1. In theory vmalloc should be used
-only for persistent infrequent allocations, so meminfo has a chance to
-be recalled more frequently with monitors like xosview during workloads.
-Admittedly in final production with no monitoring meminfo is going to
-never be recalled, however I like the idea to keep meminfo very quick.
+Yes
 
-Andrea
+> - I believe the way forward here is to work with James Bottomley,
+>   who has a nice abstraction of the areas your patch touches for
+>   his Voyager sub-architecture.
+
+For 2.5 maybe not for 2.4. Until Linus takes the subarch stuff the 
+if if if bits will just get uglier. As well as voyager there are at least
+two more pending NUMA x86 platforms other than IBM summit

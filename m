@@ -1,90 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262269AbTFOO0T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 10:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbTFOO0T
+	id S262283AbTFOO2O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 10:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTFOO1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 10:26:19 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:44209 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262269AbTFOO0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 10:26:06 -0400
-Date: Sun, 15 Jun 2003 09:36:31 -0400
-From: Ben Collins <bcollins@debian.org>
-To: linux-kernel@vger.kernel.org
-Cc: Larry McVoy <lm@bitmover.com>
-Subject: bkSVN live
-Message-ID: <20030615133631.GF542@hopper.phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Sun, 15 Jun 2003 10:27:50 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:1442 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262283AbTFOO1i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 10:27:38 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: e1000 performance hack for ppc64 (Power4)
+To: "David S. Miller" <davem@redhat.com>
+Cc: ltd@cisco.com, anton@samba.org, haveblue@us.ibm.com,
+       scott.feldman@intel.com, dwg@au1.ibm.com, linux-kernel@vger.kernel.org,
+       "Nancy J Milliner" <milliner@us.ibm.com>,
+       "Ricardo C Gonzalez" <ricardoz@us.ibm.com>,
+       "Brian Twichell" <twichell@us.ibm.com>, netdev@oss.sgi.com
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF7D02DC37.06BCABE8-ON85256D46.004E9127@pok.ibm.com>
+From: "Herman Dierks" <hdierks@us.ibm.com>
+Date: Sun, 15 Jun 2003 09:40:41 -0500
+X-MIMETrack: Serialize by Router on D01ML065/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 06/15/2003 10:40:49 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to Larry, the bkSVN repo is now live. It's actually bkcvs2svn,
-since I am using bkcvs's metadata. However subversion is able to make
-better use of the metadata than CVS can. You can get better log output,
-for one. Also, you can more easily determine the scope of a change,
-since subversion supports changesets.
 
-If you aren't familiar with subversion, please visit the URL in my sig.
-Please do not ask me a lot of questions about it. First off, it's very
-well documented, and second off, I am not what I would consider an
-expert on the internals of SVN.
+Look folks,   we run 40 to 48  GigE adapters in a p690 32 way on AIX and
+they basically all run at full speed  so let me se you try that on most of
+these other boxes you are talking about.     Same adapter, same hardware
+logic.
+I have also seen what many of these other boxes you talk about do when data
+or structures are not aligned on 64 bit boundaries.
+The PPC HW does not have those 64bit alignment  issues.   So, each machine
+has some warts.  Have yet to see a perfect one.
 
-And please DO NOT email linux-kernel with any comments, suggestions,
-questions regarding subversion. It is way off topic. Subversion !=
-BitKeeper, and it's not intended to replace it. So this isn't a
-competition. Otherwise, Larry wouldn't feel so comfortable with hosting
-the repo :)
+If you want a lot of PCI adapters on a box, it takes a number of bridge
+chips and other IO links to do that.
+Memory controllers like to deal with cache lines.
+For larger packets, like jumbo frames or large send (TSO), the few added
+DMA's is not an issue as the packets are so large the DMA soon get aligned
+and are not an issue.   With TSO being the default,   the small packet case
+becomes less important anyway.   Its more an issue on 2.4 where TSO is not
+provided.  We also want this to run well if someone does not want to use
+TSO.
 
-For those that know SVN, you need a recent (e.g. upcoming 0.24 release
-of SVN, or current trunk) client. I am using revision r6227. If you need
-a client just for testing, you can get a ra_svn only static binary from
-http://www.phunnypharm.org/pub/svn/clients/linux/. i386, sparc and ia64
-are there. I can build more if needed (I think I have access to just
-about anything). You'll need glibc 2.3 for the static clients since it
-uses NSS modules, and well, it just wont work with 2.2/2.1/etc. If you
-want to build your own, remember, you don't need berkeley DB, or neon
-to access this repo.
+Its only the MTU 1500 case with non-TSO that we are discussing here so
+copying a few bytes is really not a big deal as the data is already in
+cache from copying into kernel.  If it lets the adapter run at speed, thats
+what customers want and what we need.
+Granted, if the HW could deal with this we would not have to, but thats not
+the case today so I want to spend a few CPU cycles to get best performance.
+Again, if this is not done on other platforms, I don't understand why you
+care.
 
-Now, finally the SVN URL's:
+If we have to do this for PPC port, fine.   I have not seen any of you
+suggest a better solution that works and will not be a worse hack to TCP or
+other code.  Anton tried various other ideas before we fell back to doing
+it the same way we did this in AIX.   This code is very localized and is
+only used by platforms that need it.  Thus I don't see the big issue here.
 
-	svn://kernel.bkbits.net/linux-2.4
+Herman
 
-	svn://kernel.bkbits.net/linux-2.5
 
-WAIT. If you don't know anything about SVN repo layouts, just remember
-this:
+"David S. Miller" <davem@redhat.com> on 06/14/2003 01:08:50 AM
 
-	REPO_BASE/trunk		Primary (aka HEAD) development
-	REPO_BASE/tags/*	Tagged revsions
-	REPO_BASE/branches/*	Other development lines (not used in bkSVN)
+To:    ltd@cisco.com
+cc:    anton@samba.org, haveblue@us.ltcfwd.linux.ibm.com, Herman
+       Dierks/Austin/IBM@IBMUS, scott.feldman@intel.com, dwg@au1.ibm.com,
+       linux-kernel@vger.kernel.org, Nancy J Milliner/Austin/IBM@IBMUS,
+       Ricardo C Gonzalez/Austin/IBM@ibmus, Brian
+       Twichell/Austin/IBM@IBMUS, netdev@oss.sgi.com
+Subject:    Re: e1000 performance hack for ppc64 (Power4)
 
-So, to get the main development for say 2.5:
 
-# svn co svn://kernel.bkbits.net/linux-2.5/trunk linux-2.5-bkbits
 
-Will checkout the main 2.5 trunk into a directory called
-linux-2.5-bkbits. Then you can cd into that directory and do "svn up"
-just like CVS :). The "svn log" output is much better than in CVS, since
-you can do things like "svn log drivers/usb" and get a single list of
-revisions that affected anything in drivers/usb, unlike CVS where you
-would get history for all files seperately. "svn help" is really useful
-aswell.
+   From: Lincoln Dale <ltd@cisco.com>
+   Date: Sat, 14 Jun 2003 15:52:35 +1000
 
-If you want to checkout a particular version:
+   can we have the TCP retransmit side take a performance hit if it needs
+   to
+   realign buffers?
 
-# svn co svn://kernel.bkbits.net/linux-2.5/tags/v2.5.60 linux-2.5.60
+You don't understand, the person who mangles the packet
+must make the copy, not the person not doing the packet
+modifications.
 
-Or diff versions, via URL, without a working copy:
+   for a "high performance app" requiring gigabit-type speeds,
 
-# svn diff svn://kernel.bkbits.net/linux-2.4/tags/v2.4.19 \
-	svn://kernel.bkbits.net/linux-2.4/tags/v2.4.20 > patch-2.4.20.diff
+...we probably won't be using ppc64 and e1000 cards, yes, I agree
+:-)
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Anton, go to the local computer store and pick up some tg3
+ cards or a bunch of Taiwan specials :-)
+
+
+
+

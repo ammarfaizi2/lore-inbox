@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVAXPFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVAXPII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbVAXPFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 10:05:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVAXPFJ
+	id S261519AbVAXPII (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 10:08:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVAXPII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 10:05:09 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:64737 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261518AbVAXPFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 10:05:02 -0500
-Message-ID: <41F50E9D.3050702@acm.org>
-Date: Mon, 24 Jan 2005 09:05:01 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sensors <sensors@stimpy.netroedge.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Adding an async I2C interface
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jan 2005 10:08:08 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:18615 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261519AbVAXPID (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 10:08:03 -0500
+Date: Mon, 24 Jan 2005 16:07:55 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: Volker Armin Hemmann <volker.armin.hemmann@tu-clausthal.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: DVD burning still have problems
+Message-ID: <20050124150755.GH2707@suse.de>
+References: <200501232126.55191.volker.armin.hemmann@tu-clausthal.de> <5a4c581d050123125967a65cd7@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5a4c581d050123125967a65cd7@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an IPMI interface driver that sits on top of the I2C code.  I'd
-like to get it into the mainstream kernel, but I have a few problems
-to solve first before I can do that.  The I2C code is synchronous and
-must run from a task context.  The IPMI driver has certain
-operations that occur at panic time, including:
+On Sun, Jan 23 2005, Alessandro Suardi wrote:
+> On Sun, 23 Jan 2005 21:26:55 +0100, Volker Armin Hemmann
+> <volker.armin.hemmann@tu-clausthal.de> wrote:
+> > Hi,
+> > 
+> > have you checked, that cdrecord is not suid root, and growisofs/dvd+rw-tools
+> > is?
+> > 
+> > I had some probs, solved with a simple chmod +s growisofs :)
+> 
+> Lucky you. Burning as root here, cdrecord not suid. Tried also
+>  burning with a +s growisofs, but...
+> 
+>  794034176/4572807168 (17.4%) @2.4x, remaining 18:47
+>  805339136/4572807168 (17.6%) @2.4x, remaining 18:42
+> :-[ WRITE@LBA=60eb0h failed with SK=3h/ASC=0Ch/ACQ=00h]: Input/output error
+> builtin_dd: 396976*2KB out @ average 2.4x1385KBps
+> :-( write failed: Input/output error
 
-   * Storing panic information in IPMI's system event log
-   * Extending the watchdog timer so it doesn't go off during panic
-     operations (like kernel coredumps).
-   * Powering the system off
+As with the original report, the drive is sending back a write error to
+the issuer. Looks like bad media.
 
-I can't really put the IPMI SMB interface into the kernel until I can
-do those operations.  Also, I understand that some vendors put RTC
-chips onto the I2C bus and this must be accessed outside task context,
-too.  I would really like add asynchronous interface to the I2C bus
-drivers.  I propose:
+-- 
+Jens Axboe
 
-   * Adding an async send interface to the busses that does a callback
-     when the operation is complete.
-   * Adding a poll interface to the busses.  The I2C core code could
-     call this if a synchronous call is made from task context (much
-     like all the current drivers do right now).  For asyncronous
-     operation, the I2C core code would call it from a timer
-     interrupt.  If the driver supported interrupts, polling from the
-     timer interrupt would not be necessary.
-   * Add async operations for the user to call, including access to the
-     polling code.
-   * If the driver didn't support an async send, it would work as it
-     does today and the async calls would return ENOSYS.
-
-This way, the bus drivers on I2C could be converted on a
-driver-by-driver basis.  The IPMI code could query to see if the
-driver supported async operations.  And the RTC code could use it,
-too.
-
-Is this ok with the I2C community?  I would do the base work and
-convert over a few drivers.
-
-Thanks,
-
--Corey

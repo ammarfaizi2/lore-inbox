@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271690AbTG2NvW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 09:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271694AbTG2NvW
+	id S271740AbTG2N7v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 09:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271748AbTG2N7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 09:51:22 -0400
-Received: from [207.231.225.15] ([207.231.225.15]:57073 "EHLO mail")
-	by vger.kernel.org with ESMTP id S271690AbTG2NvU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 09:51:20 -0400
-Message-ID: <3F267BC4.8000507@infointeractive.com>
-Date: Tue, 29 Jul 2003 10:51:00 -0300
-From: Rob Shortt <rob@infointeractive.com>
-Organization: InfoInterActive Corp., An AOL Company
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: DMA errors - 2.4.22-pre8 - SiS730 - WD800JB
-References: <3F266B99.1040507@infointeractive.com> <20030729153309.A25792@bouton.inet6-interne.fr>
-In-Reply-To: <20030729153309.A25792@bouton.inet6-interne.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 29 Jul 2003 09:59:51 -0400
+Received: from modemcable198.171-130-66.que.mc.videotron.ca ([66.130.171.198]:62852
+	"EHLO gaston") by vger.kernel.org with ESMTP id S271740AbTG2N7P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 09:59:15 -0400
+Subject: Re: [PATCH] Framebuffer: client notification mecanism & PM
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <89CD6530893@vcnet.vc.cvut.cz>
+References: <89CD6530893@vcnet.vc.cvut.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1059487140.8537.35.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 29 Jul 2003 09:59:00 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lionel Bouton wrote:
-> On mar, jui 29, 2003 at 09:42:01 -0300, Rob Shortt wrote:
+On Tue, 2003-07-29 at 09:39, Petr Vandrovec wrote:
 
->>ECS K7SEM w/ Athlon XP 2100+
+> Oops... You probably did not want IBM LCD diffs in fbmem.c posted.
 > 
-> 
-> This is a SiS based mainboard.
-> SiS APIC support was still buggy last time I checked.
+> matroxfb tried to use a 'dead' for handling hot removal, but your code
+> looks definitely saner
 
-Darn. :)
+Hrm... right, that ibmlcd bit can go ;) Hopefully someone else will
+get the real ibmlcd driver in sooner or later...
 
->>Local APIC disabled by BIOS -- reenabling.
->>Found and enabled local APIC!
-> 
-> 
-> Argh ?
+My code wasn't really intended to deal with hot-removal, more with
+"what happens if printk occurs during the Power Management suspend
+sequence", but I tried to keep the notification mecanism simple
+enough so it could be used for that as well. Also, indeed, the fbcon
+changes should deal with hot-removal in some way (though you surely
+also want to "deatch" from the fbdev's in this case).
 
-Yeah, that raised some flags for me as well.  I was hoping someone would 
-comment on it.
+Among other things that could be used for is live monitor insertion/
+removal detection (some HW are able to do that), "pivot" monitor
+kind of things, etc... typically via the mode_changed hook.
 
-> Usually disabling local APIC support solves this (sometimes with nasty
-> side-effects like huge perf drops or lost peripheral support).
-> 
-> You can quickly try to pass "noapic" to the kernel and report.
-
-Will do, thanks.
-
-> 
-> There are SiS APIC patches floating around, try looking in the mailing list
-> archives, there was a similar problem reported not long ago (for a SiS based
-> laptop).
-
-I will look for this as well.
-
-> 
-> Best regards,
-> 
-> LB.
-
-Thanks for your help, I will try these things later and report back.
-
--Rob
+Ben.
 

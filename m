@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268212AbUIXFsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268346AbUIXGCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268212AbUIXFsz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 01:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUIXFpu
+	id S268346AbUIXGCk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 02:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268502AbUIXFtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 01:45:50 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:13495 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S267974AbUIXFng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 01:43:36 -0400
-Date: Fri, 24 Sep 2004 14:45:22 +0900
+	Fri, 24 Sep 2004 01:49:08 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:18899 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S268334AbUIXFoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 01:44:05 -0400
+Date: Fri, 24 Sep 2004 14:45:53 +0900
 From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: [PATCH] Updated patches for PCI IRQ resource deallocation support [0/3]
+Subject: [PATCH] Updated patches for PCI IRQ resource deallocation support [2/3]
 To: greg@kroah.com, len.brown@intel.com, tony.luck@intel.com
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
        acpi-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org
-Message-id: <4153B472.5020109@jp.fujitsu.com>
+Message-id: <4153B491.7050605@jp.fujitsu.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
@@ -25,88 +25,157 @@ User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg, Len and Tony,
-
-Here is an updated set of patches for PCI IRQ resource deallocation
-based on some feedbacks. This set of patches has the following three
-patches:
-
-    - Patch [1/3]: This is for PCI code that has no dependencies. This
-      is the latest version (against 2.6.9-rc2-mm1) of the patch
-      posted in the other therad. Please see:
-      http://marc.theaimsgroup.com/?l=linux-kernel&m=109533945101033&w=2
-
-    - Patch [2/3]: This is for ACPI code that has no dependencies.
-
-    - Patch [3/3]: This is for ia64 code that depends on patch [1/3]
-      and patch [2/3].
-
-Patch [3/3] is waiting for the others to be applied, because it
-depends on patch [1/3] and patch [2/3].
-
-Greg and Len, could you apply patch [1/3] and patch [2/3] onto each
-your tree first?
-
-Thanks,
-Kenji Kaneshige
+This is a patch for ACPI code that has no dependencies.
+Len, please apply.
 
 ----
-Architecture dependent IRQ resources such as interrupt vector for PCI
-devices are allocated at pci_enable_device() time on i386, x86-64 and
-ia64 platform. Today, however, these IRQ resources are never
-deallocated even if they are no longer used. The following set of
-patches adds supports to deallocate IRQ resources at
-pci_disable_device() time.
+Change Log:
 
-The motivation of the set of patches is as follows:
+    - Fixed some typos in comments.
 
-    - IRQ resources such as interrupt vectors should be freed if they
-      are no longer used because the amount of these resources are
-      limited. By deallocating IRQ resources, we can recycle them.
+    - Changed 'unsigned char irq_disabled' to 'unsigned int
+      irq_disabled' because pci_dev.irq is unsigned int.
 
-    - I think some hardwares will support hot-pluggable I/O units with
-      I/O xAPICs in the near future. So I/O xAPIC hot-plug support by
-      OS will be needed soon. IRQ resouces deallocation will be one of
-      the most important stuff for I/O xAPIC hot-plug.
+----
+Name:		IRQ_deallocation_acpi.patch
+Kernel Version:	2.6.9-rc2-mm1
+Depends:	none
+Description:
 
-To realize IRQ resource deallocation, the following set of patches
-defines new interfaces:
+This patch is ACPI portion of IRQ deallocation. This patch defines the
+following new interface. The implementation of this interface depends
+on each platform.
 
-    - void pcibios_disable_device (struct pci_dev *dev)
+    o void acpi_unregister_gsi(int irq)
 
-      This is a opposite portion of pcibios_enable_device(). It's a
-      hook to call architecture specific code for deallocating PCI
-      resources.
-      
-    - void acpi_unregister_gsi (int irq)
+        This is a opposite portion of acpi_register_gsi(). This has a
+        responsibility for deallocating IRQ resources associated with
+        the specified linux IRQ number.
 
-      This is a opposite portion of acpi_register_gsi(). This has a
-      responsibility for deallocating IRQ resources associated with
-      the specified linux IRQ number. 
+        We need to consider the case of shared interrupt. In the case
+        of shared interrupt, acpi_register_gsi() is called multiple
+        times for one gsi. That is, registrations and unregistrations
+        can be nested.
 
-For details of these interfaces, please see the description in each
-patch.
+        This function undoes the effect of one call to
+        acpi_register_gsi(). If this matches the last registration,
+        IRQ resources associated with the specified linux IRQ number
+        are freed.
 
-The set of patches containes the following patches:
+This patch also adds the following new function.
 
-    - add_pcibios_disable_device_hook.patch
+    o void acpi_pci_irq_disable (struct pci_dev *dev)
 
-      This patch defines new a interface pcibios_disable_device(). It
-      has already been posted to LKML before. Please see:
-      http://marc.theaimsgroup.com/?l=linux-kernel&m=109533945101033&w=2
+        This function is a opposite portion of
+        acpi_pci_enable_irq(). It clears the device's linux IRQ number
+        and calls acpi_unregister_gsi() to deallocate IRQ resources.
 
-    - IRQ_deallocation_acpi.patch
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
 
-      This is a acpi portion of IRQ resource deallocation. It defines
-      a new interface acpi_unregister_gsi().
 
-    - IRQ_deallocation_ia64.patch
+---
 
-      This is a ia64 portion of IRQ resource deallocation. It
-      implements pcibios_disable_device() and acpi_unregister_gsi()
-      for ia64.
+ linux-2.6.9-rc2-mm1-kanesige/arch/i386/kernel/acpi/boot.c |   11 +++++
+ linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/acpi.c      |   11 +++++
+ linux-2.6.9-rc2-mm1-kanesige/drivers/acpi/pci_irq.c       |   27 ++++++++++++++
+ linux-2.6.9-rc2-mm1-kanesige/include/linux/acpi.h         |    2 +
+ 4 files changed, 51 insertions(+)
 
-For now, the following set of patches has ia64 implementation only.
-i386 and x86_64 implementations are TBD.
+diff -puN arch/i386/kernel/acpi/boot.c~IRQ_deallocation_acpi arch/i386/kernel/acpi/boot.c
+--- linux-2.6.9-rc2-mm1/arch/i386/kernel/acpi/boot.c~IRQ_deallocation_acpi	2004-09-22 20:29:23.000000000 +0900
++++ linux-2.6.9-rc2-mm1-kanesige/arch/i386/kernel/acpi/boot.c	2004-09-22 20:30:41.000000000 +0900
+@@ -480,6 +480,17 @@ unsigned int acpi_register_gsi(u32 gsi, 
+ }
+ EXPORT_SYMBOL(acpi_register_gsi);
+ 
++/*
++ * This function undoes the effect of one call to acpi_register_gsi().
++ * If this matches the last registration, any IRQ resources for gsi
++ * associated with the irq are freed.
++ */
++void
++acpi_unregister_gsi (unsigned int irq)
++{
++}
++EXPORT_SYMBOL(acpi_unregister_gsi);
++
+ static unsigned long __init
+ acpi_scan_rsdp (
+ 	unsigned long		start,
+diff -puN arch/ia64/kernel/acpi.c~IRQ_deallocation_acpi arch/ia64/kernel/acpi.c
+--- linux-2.6.9-rc2-mm1/arch/ia64/kernel/acpi.c~IRQ_deallocation_acpi	2004-09-22 20:29:23.000000000 +0900
++++ linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/acpi.c	2004-09-24 13:57:16.780496484 +0900
+@@ -516,6 +516,17 @@ acpi_register_gsi (u32 gsi, int edge_lev
+ }
+ EXPORT_SYMBOL(acpi_register_gsi);
+ 
++/*
++ * This function undoes the effect of one call to acpi_register_gsi().
++ * If this matches the last registration, any IRQ resources for gsi
++ * associated with the irq are freed.
++ */
++void
++acpi_unregister_gsi (unsigned int irq)
++{
++}
++EXPORT_SYMBOL(acpi_unregister_gsi);
++
+ static int __init
+ acpi_parse_fadt (unsigned long phys_addr, unsigned long size)
+ {
+diff -puN drivers/acpi/pci_irq.c~IRQ_deallocation_acpi drivers/acpi/pci_irq.c
+--- linux-2.6.9-rc2-mm1/drivers/acpi/pci_irq.c~IRQ_deallocation_acpi	2004-09-22 20:29:23.000000000 +0900
++++ linux-2.6.9-rc2-mm1-kanesige/drivers/acpi/pci_irq.c	2004-09-22 20:29:23.000000000 +0900
+@@ -390,3 +390,30 @@ acpi_pci_irq_enable (
+ 
+ 	return_VALUE(dev->irq);
+ }
++
++void
++acpi_pci_irq_disable (
++	struct pci_dev		*dev)
++{
++	unsigned int		irq_disabled;
++	unsigned char		irq;
++
++	ACPI_FUNCTION_TRACE("acpi_pci_irq_disable");
++
++	irq_disabled = dev->irq;
++
++	/*
++	 * dev->irq is cleared by BIOS-assigned IRQ set during boot.
++	 */
++	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &irq);
++	if (irq)
++		pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
++	dev->irq = irq;
++
++	printk(KERN_INFO PREFIX "PCI interrupt for device %s disabled\n",
++	       pci_name(dev));
++
++	acpi_unregister_gsi(irq_disabled);
++
++	return_VOID;
++}
+diff -puN include/linux/acpi.h~IRQ_deallocation_acpi include/linux/acpi.h
+--- linux-2.6.9-rc2-mm1/include/linux/acpi.h~IRQ_deallocation_acpi	2004-09-22 20:29:23.000000000 +0900
++++ linux-2.6.9-rc2-mm1-kanesige/include/linux/acpi.h	2004-09-22 20:29:23.000000000 +0900
+@@ -414,6 +414,7 @@ static inline int acpi_boot_init(void)
+ #endif 	/*!CONFIG_ACPI_BOOT*/
+ 
+ unsigned int acpi_register_gsi (u32 gsi, int edge_level, int active_high_low);
++void acpi_unregister_gsi (unsigned int);
+ int acpi_gsi_to_irq (u32 gsi, unsigned int *irq);
+ 
+ #ifdef CONFIG_ACPI_PCI
+@@ -439,6 +440,7 @@ extern struct acpi_prt_list	acpi_prt;
+ struct pci_dev;
+ 
+ int acpi_pci_irq_enable (struct pci_dev *dev);
++void acpi_pci_irq_disable (struct pci_dev *dev);
+ 
+ struct acpi_pci_driver {
+ 	struct acpi_pci_driver *next;
 
+_
 

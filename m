@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbUAWO2O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 09:28:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUAWO2O
+	id S266566AbUAWOid (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 09:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266568AbUAWOid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 09:28:14 -0500
-Received: from [81.171.138.7] ([81.171.138.7]:28835 "EHLO
-	gateway.herefordshire.gov.uk") by vger.kernel.org with ESMTP
-	id S262131AbUAWO1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 09:27:51 -0500
-Message-ID: <0EBC45FCABFC95428EBFC3A51B368C9501C9C468@jessica.herefordshire.gov.uk>
-From: "Randal, Phil" <prandal@herefordshire.gov.uk>
-To: linux-kernel@vger.kernel.org
-Subject: RE: buggy raid checksumming selection?
-Date: Fri, 23 Jan 2004 14:27:32 -0000
+	Fri, 23 Jan 2004 09:38:33 -0500
+Received: from ns1.s2io.com ([216.209.86.101]:54410 "EHLO ns1.s2io.com")
+	by vger.kernel.org with ESMTP id S266566AbUAWOic (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 09:38:32 -0500
+From: "Leonid Grossman" <leonid.grossman@s2io.com>
+To: "'Jes Sorensen'" <jes@wildopensource.com>
+Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "'ravinandan arakali'" <ravinandan.arakali@s2io.com>
+Subject: RE: pci_alloc_consistent()
+Date: Fri, 23 Jan 2004 06:37:47 -0800
+Message-ID: <000001c3e1be$79904640$0400a8c0@S2IOtech.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
 Content-Type: text/plain;
-	charset="iso-8859-1"
-X-herefordshire.gov.uk-MailScanner-Information: Please contact the ISP for more information
-X-herefordshire.gov.uk-MailScanner: Found to be clean
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+In-Reply-To: <yq07jzj2gmx.fsf@wildopensource.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Spam-Score: -106.2
+X-Spam-Outlook-Score: ()
+X-Spam-Features: BAYES_01,IN_REP_TO,QUOTED_EMAIL_TEXT,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Jan 23, 2004 at 11:40:53AM -0200, Evaldo Gardenali wrote:
+Hi Jes,
+
+> Leonid,
 > 
->  > Uhh. correct me if I am wrong, but shouldnt it select the 
-> fastest algorithm?
+> What type of Itanium box? It's possible what you're seeing is 
+> caused by a bug in the IOMMU code, but we would need to know 
+> which one (HP, SGI or someone else's).
+
+The problem with pci_alloc_consistent()above 1MB happens on HP rx2600
+(this is 2U dual-Itanium 900MHz pci-x 133 box). I don't believe it
+happens on 64 bit Opterons. Today we are going to test Dell and SGI
+Itanium systems, as well as a bit newer rx 2600 with Itanium-2 1.5GHz -
+I'll let you know by the end of the day.
+
+Thanks, Leonid
+
+
 > 
-> No, if it can choose a function which avoids polluting the cache over
-> one that doesn't, it will.  Even if that means slightly less 
-> raw throughput
+> Cheers,
+> Jes
 > 
-> This comes up time after time, maybe we need a printk in that case ?
-> 
-> 	Dave
 
-I'm not suggesting that anyone waste any time over this, but are there any
-"real world" benchmarks of the "fastest" vs "non cache-polluting"
-algorithms.
-
-Could there be any situations whereby even with cache-pollution we'd get
-better performance?
-
-I know it depends on the workload mix and amount of I/O, but...
-
-Just curious.
-
-Phil
----------------------------------------------
-Phil Randal
-Network Engineer
-Herefordshire Council
-Hereford, UK

@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263403AbTC2Ljw>; Sat, 29 Mar 2003 06:39:52 -0500
+	id <S263407AbTC2L6N>; Sat, 29 Mar 2003 06:58:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263404AbTC2Ljw>; Sat, 29 Mar 2003 06:39:52 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36103
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S263403AbTC2Ljv>; Sat, 29 Mar 2003 06:39:51 -0500
-Date: Sat, 29 Mar 2003 03:34:25 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jeremy Jackson <jerj@coplanar.net>
-cc: Ron House <house@usq.edu.au>, Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: hdparm and removable IDE?
-In-Reply-To: <1048860279.1615.13.camel@contact.skynet.coplanar.net>
-Message-ID: <Pine.LNX.4.10.10303290318330.4415-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S263404AbTC2L6N>; Sat, 29 Mar 2003 06:58:13 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:26126 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S263407AbTC2L6M>;
+	Sat, 29 Mar 2003 06:58:12 -0500
+Date: Sat, 29 Mar 2003 13:09:28 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: "list, linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20: problem with "ps -olstart"
+Message-ID: <20030329120928.GB12005@win.tue.nl>
+References: <3E85003A.3DE4DDE7@eyal.emu.id.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E85003A.3DE4DDE7@eyal.emu.id.au>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Mar 2003, Jeremy Jackson wrote:
+On Sat, Mar 29, 2003 at 01:08:58PM +1100, Eyal Lebedinsky wrote:
 
-> > As an aside, I am puzzled by statements that Linux `doesn't support' 
-> > this. As far as I can see (and I acknowledge my relative ignorance, 
-> > which is why I have appealed for help here), whatever is done at boot 
-
-Nope, there are BIOS INT19 hooks that have some voodoo.
-Until the driver can open and read the BIOS on the HBA, no can do.
-
-> > time can be done again later if conditions change, and it should be just 
-> > a matter of my ascertaining exactly what must be done to achieve this. 
-> > Or have I missed something very important (highly possible!)?
+> I see a different start time returned on different calls. An example
+> is attached below. This is a show stopper for me. Is this a known
+> problem? Does it have a solution?
 > 
-> What can be done at boot... correct.  However, the BIOS does part of the
-> BOOT init, the linux kerenel IDE driver does some more.  So changing the
-> drive without rebooting through BIOS can be a problem.  The PIO modes
-> are the issue here.  Perhaps a script can do hdparm -X somehow, but
-> nobody is certain if it will be reliable, because who knows what the
-> bios does.  With LinuxBIOS there is hope though.
+> This is vanilla (my build) 2.4.20 on i386.
+> 
+> $ while true ; do ps --pid "3026" -olstart,cmd --no-headers ; done
+> Thu Mar 27 22:03:11 2003 sh
+> Thu Mar 27 22:03:11 2003 sh
+> Thu Mar 27 22:03:12 2003 sh
+> Thu Mar 27 22:03:11 2003 sh
 
-LOL, LinuxBIOS can not even get POST on execute diagnostics correct.
-It violently nukes the state machine requirements of a 31 seconds.
-This is another war and I really do not give a damn to fight, when nobody
-listens or bothers to read the freaking spec.  Anybody got a copy of the
-Phoenix BIOS book to see how the old hats did it?
+Look at your ps source. There are many incarnations of ps,
+but perhaps you'll find something like
 
-> IMHO the ide driver is a real mess.  statically allocated structures,
-> because the kernel command line parameters have to be read early because
+	seconds_since_boot = uptime(0,0);
+	seconds_since_1970 = time(NULL);
+	time_of_boot = seconds_since_1970 - seconds_since_boot;
+	start = time_of_boot + pp->start_time/Hertz;
 
-Sure kill all the legacy stuff and split the driver.
+The interplay of rounding and truncating you see here
+results in what you see. Instead of using ps you might try
+a tiny utility that reads the start time directly.
 
-If you are wanking so hard on the setup, take and export all the setup to
-their respective modules (ie hba's).  As for the static structs, I pushed
-to have dynamic major/minor allocations but got dive bombed with a flock
-of sea gulls.
-
-> they're so wierd, no wonder the hdparm -U / -R stuff is busted.  It
-> should take the PCI ID of the interface, not the io ports.  Fixing this
-> is on my hit list, in about a month.
-
-I just love how everyone thinks it is so easy, how I made such a freaking
-mess of the driver.  Well you all can dork with it and I will wander off
-and intergrate the chipset cores.  The only reason it is even close to
-becoming clean is because the core transport layer for the state machine
-was ripped appart and started from the ground up.
-
-Hell, just ask and I will turn the whole transport into as SCSI wrapper
-and we can root wad the directory.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
+Andries
 

@@ -1,153 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266074AbUFPCik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266076AbUFPCsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266074AbUFPCik (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 22:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266076AbUFPCik
+	id S266076AbUFPCsc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 22:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266078AbUFPCsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 22:38:40 -0400
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:14201 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266074AbUFPCid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 22:38:33 -0400
-Message-ID: <40CFB2A1.8070104@yahoo.com.au>
-Date: Wed, 16 Jun 2004 12:38:25 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Tue, 15 Jun 2004 22:48:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2730 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266076AbUFPCsX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 22:48:23 -0400
+Date: Tue, 15 Jun 2004 22:48:09 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: "David S. Miller" <davem@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Chris Wright <chrisw@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <selinux@tycho.nsa.gov>
+Subject: [SELINUX][PATCH 0/4] Fine-grained Netlink support
+Message-ID: <Xine.LNX.4.44.0406152216030.30562-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Nuno Monteiro <nuno@itsari.org>
-CC: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com,
-       David Howells <dhowells@redhat.com>
-Subject: Re: [2.4] build error with latest BK
-References: <20040615164848.GA8276@hobbes.itsari.int>
-In-Reply-To: <20040615164848.GA8276@hobbes.itsari.int>
-Content-Type: multipart/mixed;
- boundary="------------020103020802060401070103"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020103020802060401070103
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+The following patch set implements fine-grained Netlink support for
+SELinux.  It adds a set of extended Netlink socket classes, inherhited
+from the socket class.  This allows socket controls to be applied on a per
+Netlink family basis.
 
-Nuno Monteiro wrote:
-> 
-> Hi all,
-> 
-> 
-> Just pulled latest bk of 2.4 and it appears to be broken. The recent  
-> rwsem race fixes seem to be the culprit (see  
-> http://linux.bkbits.net:8080/linux-2.4/cset@40cee86dCLGhZc1lEOWZV6K7FysQlw?nav=index.html| 
-> ChangeSet@-1d). Reversing it fixes the problem.
-> 
+Additionally, two new permissions have been added:
 
-Sorry, that was stupid of me.
+nlmsg_read
+nlmsg_write
 
-Does the attached patch look acceptable? In particular, should
-task_lock be used in this manner? (ie. to guarantee the task doesn't
-go away).
+These permissions control whether a domain can send messages which cause
+kernel data to be read or written respectively (e.g. route table updates
+vs. listings). They are only applied to extended Netlink socket classes
+which carry user-generated messages.
+
+This is important for locking down applications which need to do things
+like read network configuration data, but not write any (e.g. Apache).  
+(Currently, this is not possible, as SELinux cannot distinguish bewteen
+different types of Netlink messages, or even different types of Netlink 
+sockets).
+
+Here are some example AVC messages with the patches applied:
+
+Routing table listing:
+
+avc:  granted  { nlmsg_read } for  pid=2760 exe=/sbin/ip
+scontext=root:staff_r:staff_t tcontext=root:staff_r:staff_t
+tclass=netlink_route_socket
+
+Routing table update:
+
+avc:  granted  { nlmsg_write } for  pid=2763 exe=/sbin/ip 
+scontext=root:staff_r:staff_t tcontext=root:staff_r:staff_t 
+tclass=netlink_route_socket
+
+Reading socket status via 'ss':
+
+avc: denied  { nlmsg_read } for  pid=1798 exe=/usr/sbin/ss 
+scontext=root:staff_r:staff_t tcontext=root:staff_r:staff_t 
+tclass=netlink_tcpdiag_socket
+
+Note the new Netlink message permissions and extended Netlink socket
+classes.
+
+Patches for userspace components are available at:
+http://people.redhat.com/jmorris/selinux/netlink/
 
 
---------------020103020802060401070103
-Content-Type: text/x-patch;
- name="rwsem24-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rwsem24-fix.patch"
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
---- linux-2.4/lib/rwsem.c.orig	2004-06-16 12:26:52.000000000 +1000
-+++ linux-2.4/lib/rwsem.c	2004-06-16 12:33:28.000000000 +1000
-@@ -61,10 +61,10 @@ static inline struct rw_semaphore *__rws
- 
- 	list_del(&waiter->list);
- 	tsk = waiter->task;
--	mb();
-+	task_lock(tsk);		/* task_lock is an implicit memory barrier */
- 	waiter->task = NULL;
- 	wake_up_process(tsk);
--	put_task_struct(tsk);
-+	task_unlock(tsk);
- 	goto out;
- 
- 	/* grant an infinite number of read locks to the readers at the front of the queue
-@@ -93,10 +93,10 @@ static inline struct rw_semaphore *__rws
- 		waiter = list_entry(next,struct rwsem_waiter,list);
- 		next = waiter->list.next;
- 		tsk = waiter->task;
--		mb();
-+		task_lock(tsk);
- 		waiter->task = NULL;
- 		wake_up_process(tsk);
--		put_task_struct(tsk);
-+		task_unlock(tsk);
- 	}
- 
- 	sem->wait_list.next = next;
-@@ -128,7 +128,6 @@ static inline struct rw_semaphore *rwsem
- 	/* set up my own style of waitqueue */
- 	spin_lock(&sem->wait_lock);
- 	waiter->task = tsk;
--	get_task_struct(tsk);
- 
- 	list_add_tail(&waiter->list,&sem->wait_list);
- 
---- linux-2.4/lib/rwsem-spinlock.c.orig	2004-06-16 12:33:40.000000000 +1000
-+++ linux-2.4/lib/rwsem-spinlock.c	2004-06-16 12:34:39.000000000 +1000
-@@ -66,10 +66,10 @@ static inline struct rw_semaphore *__rws
- 		sem->activity = -1;
- 		list_del(&waiter->list);
- 		tsk = waiter->task;
--		mb();
-+		task_lock(tsk);			/* implicit memory barrier */
- 		waiter->task = NULL;
- 		wake_up_process(tsk);
--		put_task_struct(tsk);
-+		task_unlock(tsk);
- 		goto out;
- 	}
- 
-@@ -78,10 +78,10 @@ static inline struct rw_semaphore *__rws
- 	do {
- 		list_del(&waiter->list);
- 		tsk = waiter->task;
--		mb();
-+		task_lock(tsk);
- 		waiter->task = NULL;
- 		wake_up_process(tsk);
--		put_task_struct(tsk);
-+		task_unlock(tsk);
- 		woken++;
- 		if (list_empty(&sem->wait_list))
- 			break;
-@@ -108,10 +108,10 @@ static inline struct rw_semaphore *__rws
- 	list_del(&waiter->list);
- 
- 	tsk = waiter->task;
--	mb();
-+	task_lock(tsk);
- 	waiter->task = NULL;
- 	wake_up_process(tsk);
--	put_task_struct(tsk);
-+	task_unlock(tsk);
- 	return sem;
- }
- 
-@@ -140,7 +140,6 @@ void __down_read(struct rw_semaphore *se
- 	/* set up my own style of waitqueue */
- 	waiter.task = tsk;
- 	waiter.flags = RWSEM_WAITING_FOR_READ;
--	get_task_struct(tsk);
- 
- 	list_add_tail(&waiter.list,&sem->wait_list);
- 
-@@ -209,7 +208,6 @@ void __down_write(struct rw_semaphore *s
- 	/* set up my own style of waitqueue */
- 	waiter.task = tsk;
- 	waiter.flags = RWSEM_WAITING_FOR_WRITE;
--	get_task_struct(tsk);
- 
- 	list_add_tail(&waiter.list,&sem->wait_list);
- 
 
---------------020103020802060401070103--
+
+

@@ -1,69 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264854AbTGBWDP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 18:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264674AbTGBWBU
+	id S264924AbTGBWMI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 18:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbTGBWMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 18:01:20 -0400
-Received: from cpt-dial-196-30-178-203.mweb.co.za ([196.30.178.203]:60035 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S264635AbTGBWA6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 18:00:58 -0400
-Subject: Re: [PATCH] remove IO APIC newline
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
-Cc: KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030701221347.4aa0dc2e.diegocg@teleline.es>
-References: <200306271836.h5RIakGD026159@hera.kernel.org>
-	 <20030627184111.GB4333@gtf.org>
-	 <20030627205742.48f107c2.diegocg@teleline.es>
-	 <1057039383.5499.46.camel@workshop.saharacpt.lan>
-	 <20030701221347.4aa0dc2e.diegocg@teleline.es>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dnSsGS73HyqkQOFIz9Xr"
-Message-Id: <1057184214.21471.9.camel@nosferatu.lan>
+	Wed, 2 Jul 2003 18:12:08 -0400
+Received: from buerotecgmbh.de ([217.160.181.99]:25489 "EHLO buerotecgmbh.de")
+	by vger.kernel.org with ESMTP id S264924AbTGBWME (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 18:12:04 -0400
+Date: Thu, 3 Jul 2003 00:26:28 +0200
+From: Kay Sievers <lkml001@vrfy.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why does sscanf() does not interpret number length attributes?
+Message-ID: <20030702222628.GA15836@vrfy.org>
+References: <20030702203433.GA14854@vrfy.org> <Pine.LNX.4.53.0307021644550.26973@chaos>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 03 Jul 2003 00:16:54 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0307021644550.26973@chaos>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 02, 2003 at 04:55:44PM -0400, Richard B. Johnson wrote:
+> On Wed, 2 Jul 2003, Kay Sievers wrote:
+> 
+> > I needed a conversion from hex-string to integer and found
+> > this mail from Linus suggesting sscanf:
+> >
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=101414195507893&w=2
+> >
+> > but sscanf in linux-2.5/lib/vsprintf.c interpretes length attributes
+> > only when the type is a string. It uses simple_strtoul() and it will
+> > read the buffer until it finds a non-(hex)digit.
+> >
+> > int i;
+> > char str[] ="34AFFE45XYZ";
+> > sscanf(str, "%1x", &i);
+> >
+> > i will be '0x34AFFE45' instead of the expected '3'.
+> >
+> > Is this behaviour intended or is just nobody caring about?
+> >
+> 
+> The in-kernel vsprintf() is very primative, used for very simple
+> things. Note that it doesn't even have "%f". You should just
+> do something like:
+> 
+> 	i = (int) *str + '0';
 
---=-dnSsGS73HyqkQOFIz9Xr
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2003-07-01 at 22:13, Diego Calleja Garc=EDa wrote:
-> El 01 Jul 2003 08:03:04 +0200 Martin Schlemmer <azarah@gentoo.org>
-> escribi=F3:
->=20
-> > Wont it be more consistant to rather use CPU#0, CPU#1, etc ?
->=20
-> Probably. I though nobody would mind it...attached a version with CPU#X.
-
-Looks cleaner for all its worth.
+And what about hex lowercases ?
+Do you meant  "- '0'" :-)
 
 
-Regards,
+> 
+>       ... if you need to read part of a number.
+> 
+> You don't really wany to increase the size of the permanent
+> in-kernel stuff if you can help. You add any increased functionality
+> to your modules so it is used only when needed.
 
---=20
+Sure, but the length attribute is already available in a var at processing
+and all what is needed is one extra parameter for escaping from the char read loop.
 
-Martin Schlemmer
+i wouldn't call this "increase of permanent stuff".
 
-
-
-
---=-dnSsGS73HyqkQOFIz9Xr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/A1nWqburzKaJYLYRAnUfAJ434duZJGomQMzeZOsUyADOkLAS8ACgmWVE
-xGPP8hartlw9bCOfB9mwIf4=
-=oEt0
------END PGP SIGNATURE-----
-
---=-dnSsGS73HyqkQOFIz9Xr--
-
+thanks
+Kay

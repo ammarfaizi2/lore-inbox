@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261745AbSJAPYU>; Tue, 1 Oct 2002 11:24:20 -0400
+	id <S261705AbSJAPP6>; Tue, 1 Oct 2002 11:15:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261750AbSJAPYU>; Tue, 1 Oct 2002 11:24:20 -0400
-Received: from dsl-213-023-043-077.arcor-ip.net ([213.23.43.77]:26779 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261745AbSJAPYT>;
-	Tue, 1 Oct 2002 11:24:19 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Richard.Zidlicky@stud.informatik.uni-erlangen.de, zippel@linux-m68k.org
-Subject: Re: 2.4 mm trouble [possible lru race]
-Date: Tue, 1 Oct 2002 17:29:00 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
-References: <200210011420.QAA13868@faui02b.informatik.uni-erlangen.de>
-In-Reply-To: <200210011420.QAA13868@faui02b.informatik.uni-erlangen.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17wOxJ-0005uR-00@starship>
+	id <S261706AbSJAPP6>; Tue, 1 Oct 2002 11:15:58 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:59779 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261705AbSJAPP4>;
+	Tue, 1 Oct 2002 11:15:56 -0400
+Date: Tue, 1 Oct 2002 16:24:28 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Art Haas <ahaas@neosoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vmalloc.c patch for 2.4.20-pre8-ac3
+Message-ID: <20021001152428.GB126@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Art Haas <ahaas@neosoft.com>, linux-kernel@vger.kernel.org
+References: <20021001004432.GA4230@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021001004432.GA4230@debian>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 October 2002 16:20, Richard.Zidlicky@stud.informatik.uni-erlangen.de wrote:
-> > 
-> > The theoretical lru race possibly spotted in the wild...
-> > 
-> > >
-> > > Now I am wondering if that is just coincidence or why m68k hit that 
-> > > error so reliably.. is it supposed to have any effect at all on
-> > > UP?
-> > 
-> > Are you running UP+preempt?
-> 
-> no preempt or anything fancy, m68k vanila 2.4.19 (well almost).
+On Mon, Sep 30, 2002 at 07:44:32PM -0500, Art Haas wrote:
 
-Vanilla would be CONFIG_SMP=y, is that what you have?  Otherwise please
-disregard the post just above (which hasn't appeared on the list yet)
-because spin_lock/unlock would be null, and the tests I suggested would
-have no effect.
+ > --- linux-2.4.20-pre8-ac3/mm/vmalloc.c.ac3	2002-09-30 18:27:42.000000000 -0500
+ > +++ linux-2.4.20-pre8-ac3/mm/vmalloc.c	2002-09-30 13:59:30.000000000 -0500
+ > @@ -179,7 +179,7 @@
+ >  
+ >  	size += PAGE_SIZE;
+ >  	if (!size) {
+ > -		kfree (addr);
+ > +		kfree (area);
+ >  		return NULL;
+ >  	}
 
-We would then be left with a *very* small number of candidates, which
-we will test in accordance with the "what remains must be the truth"
-principle.
+Ick, that's my bad. Fix is correct, though davem suggested testing
+for -PAGE_SIZE before we do the kmalloc would be cleaner.
+I tend to agree, but didn't get around to doing it.
+
+		Dave
 
 -- 
-Daniel
+| Dave Jones.        http://www.codemonkey.org.uk

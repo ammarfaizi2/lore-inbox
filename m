@@ -1,173 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268405AbUH3Bj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268410AbUH3BnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268405AbUH3Bj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 21:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268410AbUH3Bj7
+	id S268410AbUH3BnX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 21:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268415AbUH3BnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 21:39:59 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:58251 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S268405AbUH3Bjw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 21:39:52 -0400
-Date: Mon, 30 Aug 2004 03:39:39 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: linux-kernel@vger.kernel.org
-Cc: rmk+serial@arm.linux.org.uk, akpm@osdl.org
-Subject: [PATCH] Add support for non-standard XTALs to 16c950 driver
-Message-ID: <20040830013939.GA5298@vana.vc.cvut.cz>
-Mime-Version: 1.0
+	Sun, 29 Aug 2004 21:43:23 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:58761 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S268410AbUH3BnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 21:43:20 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Date: Mon, 30 Aug 2004 11:43:05 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040818i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16690.34345.865445.560298@cse.unsw.edu.au>
+Cc: Grzegorz Kulewski <kangur@polcom.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: message from Linus Torvalds on Sunday August 29
+References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
+	<412F7D63.4000109@namesys.com>
+	<20040827230857.69340aec.pj@sgi.com>
+	<20040829150231.GE9471@alias>
+	<4132205A.9080505@namesys.com>
+	<20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
+	<20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk>
+	<41323751.5000607@namesys.com>
+	<20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org>
+	<Pine.LNX.4.60.0408300009001.10533@alpha.polcom.net>
+	<Pine.LNX.4.58.0408291523130.2295@ppc970.osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-   patch below adds support for using different prescaler than 16 for 16c950
-chips.  This is needed for using Fujitsu-Siemens Connect2Air compact-flash
-card, which comes (apparently) with 806kHz clocks, and so you have to program
-prescaler for division by 7, and DLAB to 1, to get 115200Bd. 
+On Sunday August 29, torvalds@osdl.org wrote:
+> 
+> Also, while the VFS layer no longer cares (to it, ".." is purely virtual,
+> and it never uses it), the NFS export routines still do actually want to
+> get the on-disk parent. A filesystem that can't do that may be unable to
+> be exported with full semantics (ie you might get ESTALE errors after
+> server reboots, although you'd have to ask somebody with more kNFSd
+> knowledge than me on exactly why that is the case ;)
+> 
 
-   To get card properly running you also have to add lines below to 
-/etc/pcmcia/serial.opts so kernel knows that base speed is not 115200 but 
-50400 (50400 * 16 = 806400; 806400 / 7 = 115200). As I've found no code
-specifying baud_rate in serial_cs, I assume that specifying it in serial.opts
-is right way to do this type of things.
+The VFS requires all directories to have full paths from the
+filesystem root in the dcache.  This is needed for loop detection when
+renaming directories.
 
-   Patch also fixes problem that for UPF_MAGIC_MULTIPLIER maximum possible
-baud rate passed to uart code was uartclk / 16 while correct value for these
-devices (and for 16c950) is uartclk / 4.
+suppose and NFS client: (UPPERCASE words refer to file handles)
+ Says "lookup ROOT 'a'" and gets A  (file handle for /a)
+ Says "lookup A 'b'" and gets B     (file handle for /a/b)
+ waits for /a and /a/b to be flushed from the dcache
+ Says "RENAME ROOT 'a' to B 'z'"    (i.e. asks for /a to be moved to /a/b/c)
 
-   Patch also fixes problem that for UPF_MAGIC_MULTIPLIER devices with baud_rate
-19200 or 9600 spd_cust did not work correctly. Not that such devices exist,
-but we should not ignore spd_cust, user probably knows why he asked for spd_cust.
-
-serial.opts:
-
-case "$MANFID-$FUNCID-$PRODID_1-$PRODID_2-$PRODID_3-$PRODID_4" in
-'0279,950b-2-GPRS Modem---')
-    SERIAL_OPTS="baud_base 50400"
-    ;;
-esac
-
-					Thanks,
-						Petr Vandrovec
+how can the VFS detect that that is not allowed?  It needs to know
+that B is a subdirectory of /a.  The complete path cannot fit in
+filehandle, so to needs to be computed by repeated lookup of "..",
+which must be on disk.
 
 
+Even without that, storing ".." on disk makes lots of sense for
+fsck-like tools.
 
-diff -urN linux/drivers/serial/8250.c linux/drivers/serial/8250.c
---- linux/drivers/serial/8250.c 2004-08-28 23:17:31.000000000 +0200
-+++ linux/drivers/serial/8250.c 2004-08-29 23:13:13.000000000 +0200
-@@ -1369,24 +1369,58 @@
- 		serial_unlink_irq_chain(up);
- }
- 
--static unsigned int serial8250_get_divisor(struct uart_port *port, unsigned int baud)
-+static unsigned int serial8250_get_divisor(struct uart_port *port, unsigned int baud,
-+					   unsigned int *prescaler)
- {
--	unsigned int quot;
--
--	/*
--	 * Handle magic divisors for baud rates above baud_base on
--	 * SMSC SuperIO chips.
-+        /*
-+	 * Use special handling only if user did not supply its own divider.
-+	 * spd_cust is defined in terms of baud_base, so always use default
-+	 * prescaler when spd_cust is requested.
- 	 */
--	if ((port->flags & UPF_MAGIC_MULTIPLIER) &&
--	    baud == (port->uartclk/4))
--		quot = 0x8001;
--	else if ((port->flags & UPF_MAGIC_MULTIPLIER) &&
--		 baud == (port->uartclk/8))
--		quot = 0x8002;
--	else
--		quot = uart_get_divisor(port, baud);
- 
--	return quot;
-+	*prescaler = 16;
-+        if (baud != 38400 || (port->flags & UPF_SPD_MASK) != UPF_SPD_CUST) {
-+		unsigned int quot = port->uartclk / baud;
-+
-+		/*
-+		 * Handle magic divisors for baud rates above baud_base on
-+		 * SMSC SuperIO chips.
-+		 */
-+		if (port->flags & UPF_MAGIC_MULTIPLIER) {
-+			if (quot == 4) {
-+				return 0x8001;
-+			} else if (quot == 8) {
-+				return 0x8002;
-+			}
-+		}
-+		if (port->type == PORT_16C950) {
-+			/* 
-+			 * This computes TCR value (4 to 16), not CPR value (which can 
-+			 * be between 1.000 and 31.875) - chip I have uses XTAL of
-+			 * 806400Hz, and so a division by 7 is required to get 115200Bd.
-+			 * I'm leaving CPR disabled for now, until someone will
-+			 * hit even more exotic XTAL (it is needed to get 500kbps
-+			 * or 1000kbps from 18.432MHz XTAL, but I have no device
-+			 * which would benefit from doing that).
-+			 * 
-+			 * If we can use divide by 16, use it.  Otherwise look for 
-+			 * better prescaler, from 15 to 4.  If quotient cannot
-+			 * be divided by any integer value between 4 and 15, use 4. 
-+			 */
-+			if (quot & 0x0F) {
-+				unsigned int div;
-+
-+				for (div = 15; div > 4; div--) {
-+					if (quot % div == 0) {
-+						break;
-+					}
-+				}
-+				*prescaler = div;
-+				return quot / div;
-+			}
-+		}
-+	}
-+	return uart_get_divisor(port, baud);
- }
- 
- static void
-@@ -1396,7 +1430,7 @@
- 	struct uart_8250_port *up = (struct uart_8250_port *)port;
- 	unsigned char cval, fcr = 0;
- 	unsigned long flags;
--	unsigned int baud, quot;
-+	unsigned int baud, quot, prescaler;
- 
- 	switch (termios->c_cflag & CSIZE) {
- 	case CS5:
-@@ -1428,8 +1462,13 @@
- 	/*
- 	 * Ask the core to calculate the divisor for us.
- 	 */
--	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
--	quot = serial8250_get_divisor(port, baud);
-+
-+	if (port->type == PORT_16C950 || (port->flags & UPF_MAGIC_MULTIPLIER)) {
-+		baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/4);
-+	} else {
-+		baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16);
-+	}
-+	quot = serial8250_get_divisor(port, baud, &prescaler);
- 
- 	/*
- 	 * Work around a bug in the Oxford Semiconductor 952 rev B
-@@ -1531,6 +1570,13 @@
- 	serial_outp(up, UART_DLM, quot >> 8);		/* MS of divisor */
- 
- 	/*
-+	 * Program prescaler for 16C950 chips.
-+	 */
-+	if (up->port.type == PORT_16C950) {
-+		serial_icr_write(up, UART_TCR, prescaler == 16 ? 0 : prescaler);
-+	}
-+
-+	/*
- 	 * LCR DLAB must be set to enable 64-byte FIFO mode. If the FCR
- 	 * is written without DLAB set, this mode will be disabled.
- 	 */
+NeilBrown

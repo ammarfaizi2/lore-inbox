@@ -1,114 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275700AbRIZXjq>; Wed, 26 Sep 2001 19:39:46 -0400
+	id <S275704AbRIZXqg>; Wed, 26 Sep 2001 19:46:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275699AbRIZXjh>; Wed, 26 Sep 2001 19:39:37 -0400
-Received: from con-64-133-52-190-ria.sprinthome.com ([64.133.52.190]:51205
-	"EHLO ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S275698AbRIZXjY>; Wed, 26 Sep 2001 19:39:24 -0400
-Date: Wed, 26 Sep 2001 16:39:28 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Peter Sandstrom <peter@zaphod.nu>
-Cc: Robert Cantu <robert@tux.cs.ou.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Question: Etherenet Link Detection
-Message-ID: <20010926163928.A3678@one-eyed-alien.net>
-Mail-Followup-To: Peter Sandstrom <peter@zaphod.nu>,
-	Robert Cantu <robert@tux.cs.ou.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010926174116.A7544@tux.cs.ou.edu> <CIEJKOKMAIAHDBBLFGFFEEOPCGAA.peter@zaphod.nu>
+	id <S275702AbRIZXqT>; Wed, 26 Sep 2001 19:46:19 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:36852 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S275701AbRIZXp5>; Wed, 26 Sep 2001 19:45:57 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Wed, 26 Sep 2001 17:46:05 -0600
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [patch] netconsole - log kernel messages over the network. 2.4.10.
+Message-ID: <20010926174605.E1140@turbolinux.com>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+	linux-net@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <Pine.LNX.4.33.0109262128320.8277-100000@localhost.localdomain> <Pine.LNX.4.21.0109261635190.957-100000@freak.distro.conectiva> <20010926152909.D1140@turbolinux.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <CIEJKOKMAIAHDBBLFGFFEEOPCGAA.peter@zaphod.nu>; from peter@zaphod.nu on Fri, Sep 28, 2001 at 01:36:07AM +0200
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+In-Reply-To: <20010926152909.D1140@turbolinux.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 26, 2001  15:29 -0600, adilger wrote:
+> On Wed, 26 Sep 2001, Ingo Molnar wrote:
+> > sample startup of the netconsole on the server:
+> > 
+> >      insmod netconsole dev=eth1 target_ip=0x0a000701 \
+> >                   source_port=6666 \
+> >                   target_port=6666 \
+> >                   target_eth_byte0=0x00 \
+> >                   target_eth_byte1=0x90\
+> >                   target_eth_byte2=0x27 \
+> >                   target_eth_byte3=0x8C \
+> >                   target_eth_byte4=0xA0 \
+> >                   target_eth_byte5=0xA8
+> 
+> Ugh.  Maybe a wrapper script (netconsole-server) which automates this is
+> in order?  I imagine the eth_byteX is a MAC address (or at least that this
+> is in the documentation)?
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok, I read the docs, and this is indeed a target MAC address.  It may still
+be easier to accept a regular MAC address like target_mac=XX:XX:XX:XX:XX:XX
+as the module parameter (and a target_ip=A.B.C.D).  In any case, here is a
+script to automate this (ugly because of the conversions needed).
 
-You can get that information from the PHY too, so if you can get to the MII
-control registers, you can query the phy for link status.
+=========================================================================
+#!/bin/sh
+prog=netconsole-server
+#
+# initialize the netconsole using reasonable defaults (normally just the
+# client IP address, and possibly the port.  We can determine the MAC
+# address of the client system, IP address, the correct device, and verify
+# that we are using an ethernet interface (required for netconsole to work).
+#
+# Andreas Dilger <adilger@turbolinux.com>  Sep 26, 2001
 
-Again, tho, the problem is getting that data to userland.
+usage()
+{
+	cat - <<- EOF 1>&2
 
-Matt
+	Initialize a network message console over UDP.
 
-On Fri, Sep 28, 2001 at 01:36:07AM +0200, Peter Sandstrom wrote:
-> I know for sure that the Intel 82559 Fast Ethernet embedded controller=20
-> has a register where it's possible to read out if the link led is active
-> or not. It seems quite likely that this would be available on other
-> controllers as well.
->=20
-> Is there any functionality in the current kernel that enables a userland
-> program to read this? I mostly turn my machines on and and let them do
-> their thing until the hardware fails :)
->=20
-> /Peter
->=20
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Robert Cantu
-> Sent: den 26 september 2001 23:41
-> To: linux-kernel@vger.kernel.org
-> Subject: Question: Etherenet Link Detection
->=20
->=20
-> Is there a method of detecting the link status of an ethernet NIC? If not,
-> is it feasible? And if it is, then would it be something in each driver, =
-=20
-> or on a level above the driver, thereby available to all drivers? I figure
-> the list is the best place to ask this, although it might be a moot point.
->                                                                =20
-> Example: Have a cable modem hooked into a computer's NIC. Cable service  =
-=20
-> goes out, link light on back of NIC goes out. A hypothetical program says=
-=20
-> that the link is gone via some hook in /proc somewhere.
->=20
-> Is this a worthwhile endeavor, if possible?
->=20
-> Thanks in advance,
-> Robert
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	usage: $prog [-b] [-d dev] [-m mac] [-p port] target[:port]
+		-b       - use broadcast ethernet MAC address
+		-m       - specify remote system MAC address (default: detect)
+		-p       - local port to use for message traffic (default: 6666)
+		-d       - ethernet device to use for messages (default: detect)
+		target   - hostname/IP address of remote netconsole-client
+		:port    - port on target netconsole-client (default: like -p)
+	EOF
+	exit 1
+}
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+PATH=$PATH:/sbin:/usr/sbin
+PORT=6666
 
-Type "format c:"  That should fix everything.
-					-- Greg
-User Friendly, 12/18/1997
+while [ $# -ge 1 ]; do case $1 in
+	-b) NOMAC=1 ;;
+	-d) DEV=$2; shift ;;
+	-m) MAC=$2; shift ;;
+	-p) PORT=$2; shift ;;
+	*:*) TGT=`echo $1 | sed "s/:.*//"`; TPORT=`echo $1 | sed "s/.*://"` ;;
+	*) TGT=$1 ;;
+	esac
+	shift
+done
 
---MGYHOYXEY6WxJCY8
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+[ -z "$TGT" ] && usage
+[ -z "$TPORT" ] && TPORT=$PORT
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+ping -c 1 $TGT > /dev/null 2>&1
+[ $? -ne 0 ] && echo "$prog: can't ping $TGT" 1>&2 && usage
 
-iD8DBQE7smcwz64nssGU+ykRAinkAJsFF+0NHQoFX2bS/Nri2DWhMdwL6QCfTRD+
-mcAlO7TLA2iBQ1G3g1iwuCU=
-=Zz/L
------END PGP SIGNATURE-----
+dquad_to_hex()
+{
+	echo $1 | sed -e "s/[()]//g" -e "s/\./ /g" | while read I0 I1 I2 I3 ; do
+		printf "0x%02X%02X%02X%02X" $I0 $I1 $I2 $I3
+	done
+}
 
---MGYHOYXEY6WxJCY8--
+# output from arp -a of the form:
+# good: host.domain (A.B.C.D) at 00:50:BF:06:48:C1 [ether] on eth0
+# bad:  ? (A.B.C.D) at <incomplete> on eth0
+arp -a | grep $TGT | { read HOSTNAME IPADDR AT MACADDR TYPE ON IFACE;
+	[ "$HOSTNAME" = "?" -a -z "$MAC" -a -z "$NOMAC" ] && \
+		echo "$prog: can't resolve $TGT MAC" 1>&2 && usage
+
+	[ -z "$MAC" ] && MAC=$MACADDR
+	[ -z "$DEV" ] && DEV=$IFACE
+	[ "$DEV" = "$IFACE" -a "$TYPE" != "[ether]" ] && \
+		echo "$prog: $DEV must be an ethernet interface" 1>&2 && usage
+		
+	IPHEX=`dquad_to_hex $IPADDR`
+	echo $MAC | sed "s/:/ /g" | { read M0 M1 M2 M3 M4 M5;
+		if [ -z "$NOMAC" ]; then
+			TGTMAC="target_eth_byte0=0x$M0 target_eth_byte1=0x$M1 \
+				target_eth_byte2=0x$M2 target_eth_byte3=0x$M3 \
+				target_eth_byte4=0x$M4 target_eth_byte5=0x$M5"
+		fi
+		#insmod netconsole dev=$DEV target_ip=$IPHEX \
+		echo dev=$DEV target_ip=$IPHEX \
+			source_port=$PORT target_port=$TPORT $TGTMAC
+	}
+}
+
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

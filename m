@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTHUE43 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 00:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTHUE4U
+	id S262433AbTHUFTU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 01:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbTHUFTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 00:56:20 -0400
-Received: from co239024-a.almel1.ov.home.nl ([217.120.226.100]:49032 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262414AbTHUE4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 00:56:16 -0400
-Date: Thu, 21 Aug 2003 06:51:19 +0200 (CEST)
-From: Aschwin Marsman <aschwin@marsman.org>
-X-X-Sender: marsman@localhost.localdomain
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Next Month/Changes to where to send stuff
-In-Reply-To: <1061381109.32752.23.camel@dhcp23.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0308210647050.1968-100000@localhost.localdomain>
+	Thu, 21 Aug 2003 01:19:20 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:3005
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S262433AbTHUFTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 01:19:20 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Voluspa <lista1@comhem.se>
+Subject: Re: [PATCH] O17int
+Date: Thu, 21 Aug 2003 15:26:01 +1000
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <200308200102.04155.kernel@kolivas.org> <20030820162736.GA711@gmx.de> <200308210723.42789.kernel@kolivas.org>
+In-Reply-To: <200308210723.42789.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308211526.01796.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Aug 2003, Alan Cox wrote:
+Unhappy with this latest O16.3-O17int patch I'm withdrawing it, and 
+recommending nothing on top of O16.3 yet.
 
-> At the end of September I'm off back to University on a years sabbatical
-> from Red Hat to study for an MBA. I've made the decision that I'm
-> basically going to vanish for the year so I can concentrate on the
-> course, and on the pet side project of learning Welsh.
+More and more it just seems to be a bandaid to the priority inverting spin on 
+waiters, and it does seem to be of detriment to general interacivity. I can 
+now reproduce some loss of interactive feel with O17. 
 
-Good luck, thanks for you're -ac kernels to keep me living on the edge.
- 
-> A few years ago I'd have worried about doing this, the great thing is
-> that with the kernel community we have today I know I'm not a critical
-> cog in the machine. In fact I'm surrounded by people far better than I
-> am and we even have Andrew Morton to keep Linus in check 8)
+Something specific for the spin on waiters is required that doesn't affect 
+general performance. The fact that I can reproduce the same starvation in 
+vanilla 2.6.0-test3 but to a lesser extent means this is an intrinsic problem 
+that needs a specific solution.
 
-I always like you're answers: brief, to the point (except this message ;-) ).
-Thanx for you're excellent support, hope to see it again in the future.
- 
-> Alan
- 
-Have fun,
- 
-Aschwin Marsman
- 
---
-aschwin@marsman.org              http://www.marsman.org
+Con
 

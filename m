@@ -1,58 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262748AbUKRMK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbUKRMMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262748AbUKRMK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 07:10:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbUKRMK7
+	id S262749AbUKRMMA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 07:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbUKRML7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 07:10:59 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:19891 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262748AbUKRMKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 07:10:53 -0500
-Message-ID: <419C9144.2080605@yahoo.com.au>
-Date: Thu, 18 Nov 2004 23:10:44 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Morten W. Petersen" <morten@nidelven-it.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Fixing page allocation failure
-References: <419C8756.3080709@nidelven-it.no>
-In-Reply-To: <419C8756.3080709@nidelven-it.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 18 Nov 2004 07:11:59 -0500
+Received: from mail.renesas.com ([202.234.163.13]:25596 "EHLO
+	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S262749AbUKRMLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 07:11:03 -0500
+Date: Thu, 18 Nov 2004 21:10:48 +0900 (JST)
+Message-Id: <20041118.211048.628179754.takata.hirokazu@renesas.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: Re: 2.6.10-rc2-mm2
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20041118021538.5764d58c.akpm@osdl.org>
+References: <20041118021538.5764d58c.akpm@osdl.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Morten W. Petersen wrote:
-> Hi all,
-> 
-> I have a server that a couple of times each day squirts out messages 
-> about page allocation failures (python: page allocation failure. 
-> order:3, mode:0x20).  What's the reason for this, and could it affect 
-> the stability of the box?
-> 
-> The server that squirts these messages just crashed, for no apparent 
-> reason, so that's why I'm wondering.  It's a UML box.  Also, I'm 
-> wondering, are there any howto's for tweaking /proc settings so that the 
-> machine becomes more stable?  Are there any settings for increasing the 
-> verbosity of the kernel log so that the reason for a server crashing is 
-> easier to find?
-> 
-> Thanks in advance, and please CC me any replies :)
-> 
-> Regards,
-> 
-> Morten
+Hi, Andrew,
 
-Yeah you can increase /proc/sys/vm/min_free_kbytes to help the problem.
+From: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.10-rc2-mm2
+Date: Thu, 18 Nov 2004 02:15:38 -0800
+> 
+> +m32r-fix-build-error-of.patch
+> 
+>  m32r build fix
 
-There is a possibly better solution in the -mm kernels which should get
-merged into 2.6 sooner or later - but there is still no way to guarantee
-safety from allocation failures. If they cause crashes then that is a
-bug, so report them here with traces and a description of the workload
-and system hardware, etc.
+Please drop this patch from -mm tree.
+Again, the patch was prepared for not -mm-tree but bk-tree.
 
-Thanks
-Nick
+# The -mm tree is sometimes too experimental for developing and
+# maintaining our new m32r port.
+# I don't have good idea...
+
+Thank you.
+
+
+From: Hirokazu Takata <takata@linux-m32r.org>
+Subject: [PATCH 2.6.10-rc2-bk1] m32r: Fix build error of arch/m32r/mm/fault.c
+Date: Wed, 17 Nov 2004 11:46:31 +0900 (JST)
+> Hi,
+> 
+> Please drop "Changes for arch/m32r/mm/fault.c@1.3" or 
+> apply the attached patch to bk-tree for m32r.
+> 
+> The modification of "Changes for arch/m32r/mm/fault.c@1.3" was
+> prepared for enforce-a-gap-between-heap-and-stack.patch(*) of -mm tree,
+> but it has not been merged into mainline.
+>   (*) "heap-stack-gap for 2.6" (Sep. 25, 2004)
+>        http://www.uwsg.iu.edu/hypermail/linux/kernel/0409.3/0435.html
+> 
+> So, this patch is for withdrawing the previous arch/m32r/mm/fault.c.
+> 
+> Thanks.
+> 
+> Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+> ---
+> 
+>  arch/m32r/mm/fault.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> 
+> diff -ruNp a/arch/m32r/mm/fault.c b/arch/m32r/mm/fault.c
+> --- a/arch/m32r/mm/fault.c	2004-11-15 12:16:47.000000000 +0900
+> +++ b/arch/m32r/mm/fault.c	2004-11-17 10:54:24.000000000 +0900
+> @@ -182,7 +182,7 @@ asmlinkage void do_page_fault(struct pt_
+>  			goto bad_area;
+>  	}
+>  #endif
+> -	if (expand_stack(vma, address, NULL))
+> +	if (expand_stack(vma, address))
+>  		goto bad_area;
+>  /*
+>   * Ok, we have a good vm_area for this memory access, so
+> 
+> --
+> Hirokazu Takata <takata@linux-m32r.org>
+> Linux/M32R Project:  http://www.linux-m32r.org/
+
+-- Takata
+
+
+
+
+

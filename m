@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266662AbRGJQsp>; Tue, 10 Jul 2001 12:48:45 -0400
+	id <S266652AbRGJQrY>; Tue, 10 Jul 2001 12:47:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266661AbRGJQsf>; Tue, 10 Jul 2001 12:48:35 -0400
-Received: from ECE.CMU.EDU ([128.2.236.200]:12694 "EHLO ece.cmu.edu")
-	by vger.kernel.org with ESMTP id <S266654AbRGJQsZ>;
-	Tue, 10 Jul 2001 12:48:25 -0400
-Date: Tue, 10 Jul 2001 12:48:20 -0400 (EDT)
-From: Craig Soules <soules@happyplace.pdl.cmu.edu>
-To: Andi Kleen <ak@suse.de>
-cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-Subject: Re: NFS Client patch
-In-Reply-To: <20010710154135.A4603@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.3.96L.1010710124338.16113W-100000@happyplace.pdl.cmu.edu>
+	id <S266654AbRGJQrP>; Tue, 10 Jul 2001 12:47:15 -0400
+Received: from ns.suse.de ([213.95.15.193]:5380 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S266652AbRGJQrI>;
+	Tue, 10 Jul 2001 12:47:08 -0400
+Date: Tue, 10 Jul 2001 18:47:09 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: John Clemens <john@deater.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: BIOS, Duron4 specifics...
+In-Reply-To: <Pine.LNX.4.33.0107101222560.13575-100000@pianoman.cluster.toy>
+Message-ID: <Pine.LNX.4.30.0107101837460.11256-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jul 2001, Andi Kleen wrote:
-> Because to get that new cookie you would need another cookie; otherwise
-> you could violate the readdir guarantee that it'll never return files
-> twice.
+On Tue, 10 Jul 2001, John Clemens wrote:
 
-I cannot locate any such guarantee in the NFS spec... are you refering to
-another spec which applies?
+> Actually, CPUID reports Family 6, Model 6, Rev2, which corellates directly
+> to Athlon4/MP (Model 6) processors.
 
-> BTW; the cookie issue is not an NFS only problem. It occurs on local
-> IO as well. Just consider rm -rf - reading directories and in parallel
-> deleting them (the original poster's file system would have surely
-> gotten that wrong). Another tricky case is telldir().  
+*nod*
 
-I don't believe that the behavior in this case is deterministic.  If you
-have multiple people accessing a single file, reading and writing to it,
-there is no guarantee as to what the behavior is.  The client should be
-able to handle any errors it creates for itself while doing this kind of
-parallel operation.
+> make me wonder if it's really a neutered Athlon4.  Besides, I though the
+> origional mobile durons (T-bird core, model 3) didn't even support
+> powernow...?
 
-Craig
+That was my belief also. It appears you have a new type of Duron.
+I was unaware of this stepping, which makes me even more curious
+to see your x86info -a output :)
+
+> FYI: This is an HP 5430 notebook.  Duron 850.
+> http://notebooks.hp-at-home.com/products/notebooks/overview.php?modelNumber=n5430
+
+Neat. I'm expecting this to be new style (Athlon 4) PowerNow rather than
+the K6 style PowerNOW. I'll look into this some more.
+
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

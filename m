@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265276AbSKNVpQ>; Thu, 14 Nov 2002 16:45:16 -0500
+	id <S265246AbSKNV4V>; Thu, 14 Nov 2002 16:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbSKNVpQ>; Thu, 14 Nov 2002 16:45:16 -0500
-Received: from tapu.f00f.org ([66.60.186.129]:18114 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S265276AbSKNVpP>;
-	Thu, 14 Nov 2002 16:45:15 -0500
-Date: Thu, 14 Nov 2002 13:52:09 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Paul Larson <plars@linuxtestproject.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: LTP - gettimeofday02 FAIL
-Message-ID: <20021114215209.GA25778@tapu.f00f.org>
-References: <1037139074.10626.37.camel@plars>
-Mime-Version: 1.0
+	id <S265262AbSKNV4V>; Thu, 14 Nov 2002 16:56:21 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:14839 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265246AbSKNV4U>;
+	Thu, 14 Nov 2002 16:56:20 -0500
+Date: Thu, 14 Nov 2002 14:57:15 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       "David S. Miller" <davem@redhat.com>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <265930000.1037314635@flay>
+In-Reply-To: <20021114201231.GE15563@conectiva.com.br>
+References: <225710000.1037241209@flay> <3DD3D6E1.3060104@pobox.com> <234560000.1037297061@flay> <1037304674.13735.0.camel@rth.ninka.net> <20021114201231.GE15563@conectiva.com.br>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1037139074.10626.37.camel@plars>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 04:11:14PM -0600, Paul Larson wrote:
+>> On Thu, 2002-11-14 at 10:04, Martin J. Bligh wrote:
+>> > > If people have net driver bugs, feel free to report them to the 
+>> > > above URL, and assign them to me...
+>> > 
+>> > You should now be the default owner for net driver bugs. Still looking
+>> > for other willing owners ;-)
+>> 
+>> Please assign the other networking categories to davem@vger.kernel.org
+>> thanks.
+> 
+> Hey boss, if you accept I can take care of the ones for
+> 
+> net/{ipx,llc,appletalk,x25,lapb}
 
-    I have not been able to reproduce this on a single processor machine
-    though.
+We didn't bother breaking those out as they're .... ummm ... obscure,
+and I wasn't desperately keen to end up with 10,000 categories ;-)
+They should get dumped into "networking, other" at the moment. 
+These are just the default owners, so bugs can just get reassigned
+to somebody else if that suits ...
 
-    Basically, all the test does is:
-    gettimeofday(&tv1, NULL);
-    while(!done) {
-    	gettimeofday(&tv2, NULL);
-    	FAIL if tv2 < tv1
-    	tv1 = tv2;
-    }
+M.
 
-    Any ideas on what could be causing this?
-
-
-The TSC's aren't synchronized between CPUs.
-
-This is becoming more and more of a problem and in-escapable on some
-hardware so I'm starting to wonder if assuming the TSCs are even
-roughly synchronized *anywhere* is a good idea.
-
-
-   --cw

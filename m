@@ -1,55 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284757AbRLEWcI>; Wed, 5 Dec 2001 17:32:08 -0500
+	id <S284768AbRLEWdi>; Wed, 5 Dec 2001 17:33:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284768AbRLEWbs>; Wed, 5 Dec 2001 17:31:48 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:43433 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284757AbRLEWbn>; Wed, 5 Dec 2001 17:31:43 -0500
-Message-ID: <3C0EA044.6000501@redhat.com>
-Date: Wed, 05 Dec 2001 17:31:32 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nathan Bryant <nbryant@optonline.net>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA1CC.1070408@redhat.com> <3C0DAD26.1020906@optonline.net> <3C0DAF35.50008@redhat.com> <3C0E7DCB.6050600@optonline.net> <3C0E7DFB.2030400@optonline.net> <3C0E7F1C.4060603@redhat.com> <3C0E8DBF.5010000@optonline.net> <3C0E90B2.1030601@redhat.com> <3C0E935F.3070505@optonline.net> <3C0E97FD.9050909@optonline.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S284773AbRLEWda>; Wed, 5 Dec 2001 17:33:30 -0500
+Received: from uucp.cistron.nl ([195.64.68.38]:4876 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S284771AbRLEWdU>;
+	Wed, 5 Dec 2001 17:33:20 -0500
+From: miquels@cistron.nl (Miquel van Smoorenburg)
+Subject: Re: Random "File size limit exceeded" under 2.4
+Date: Wed, 5 Dec 2001 22:33:19 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9um7bf$lsp$1@ncc1701.cistron.net>
+In-Reply-To: <1007573331.1809.6.camel@two> <3C0E813D.F5B1F84E@zip.com.au>
+X-Trace: ncc1701.cistron.net 1007591599 22425 195.64.65.67 (5 Dec 2001 22:33:19 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Bryant wrote:
+In article <3C0E813D.F5B1F84E@zip.com.au>,
+Andrew Morton  <akpm@zip.com.au> wrote:
+>Derek Glidden wrote:
+>> 
+>> I've been experiencing random and occasional encounters with "File size
+>> limit exceeded" errors under 2.4 kernels when trying to make
+>> filesystems.
+>
+>I don't know if anyone has come forth to fix this yet.
+>
+>Apparently it's something to do with your shell setting
+>rlimits, and block devices are (bogusly) honouring those
+>settings.
 
-> Nathan Bryant wrote:
-> 
->>
->> also, I ran your other DEBUG_MMAP patch and the news is that count 
->> just sits at 65536 ad nauseum.
->>
-> 
-> this is because settrigger in 0.9 doesn't: it's setting LVI=CVI so it 
-> goes nowhere.
+Perhaps the old app is calling sys_old_getrlimit() from
+linux/kernel/sys.c. It truncates rlimits to 0x7FFFFFFF
+if it's bigger than that. 0x7FFFFFFF used to be the old
+RLIM_INFINITY in 2.2 [actually, ((long)(~0UL>>1))]. In
+2.4, RLIM_INFINITY is (~0UL).
 
+So if you call sys_setrlimit() with the old RLIM_INFINITY from 2.2
+OR with the result from sys_old_getrlimit(), then the new limit
+will be 0x7FFFFFFF instead of unlimited.
 
-Not true.  SETTRIGGER is (generally) only called once to start things 
-(and things are getting started or else it would set at 0 instead of at 
-65536).  After that, SETTRIGGER isn't typically called again unless you 
-are turning the device off.  It's calls to GETOPTR that are suppossed to 
-keep the LVI-CIV tail chasing going on.
+Looks like someone forgot to implement sys_old_setrlimit(),
+which would have been the right thing to do.
 
-> this was introduced by the second patch against 0.08 that 
-> you sent me...
-> 
+Now all we can do is to hack sys_setrlimit and let it translate
+0x7FFFFFFF to RLIM_INFINITY.
 
+The following untested and uncompiled patch might do it, or not...
 
+--- linux-2.4.17-pre2/kernel/sys.c.orig	Tue Sep 18 23:10:43 2001
++++ linux-2.4.17-pre2/kernel/sys.c	Wed Dec  5 23:30:50 2001
+@@ -1120,6 +1120,16 @@
+ 		return -EINVAL;
+ 	if(copy_from_user(&new_rlim, rlim, sizeof(*rlim)))
+ 		return -EFAULT;
++#if !defined(__ia64__)
++	/*
++	 * 	In 2.2, RLIMIT_INFINITY was defined as ((long)(~0UL>>1)).
++	 * 	Reckognize it and translate it to the new RLIMIT_INFINITY.
++	 */
++	if ((long)new_rlim.rlim_cur == ((long)(~0UL>>1)))
++		new_rlim.rlim_cur = RLIMIT_INFINITY;
++	if ((long)new_rlim.rlim_max == ((long)(~0UL>>1)))
++		new_rlim.rlim_max = RLIMIT_INFINITY;
++#endif
+ 	old_rlim = current->rlim + resource;
+ 	if (((new_rlim.rlim_cur > old_rlim->rlim_max) ||
+ 	     (new_rlim.rlim_max > old_rlim->rlim_max)) &&
 
+Mike.
 -- 
-
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.
 

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289148AbSAMMUt>; Sun, 13 Jan 2002 07:20:49 -0500
+	id <S287991AbSAMMhZ>; Sun, 13 Jan 2002 07:37:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289165AbSAMMUk>; Sun, 13 Jan 2002 07:20:40 -0500
-Received: from dsl-213-023-060-153.arcor-ip.net ([213.23.60.153]:14090 "HELO
-	spot.local") by vger.kernel.org with SMTP id <S289148AbSAMMUV>;
-	Sun, 13 Jan 2002 07:20:21 -0500
-Date: Sun, 13 Jan 2002 13:23:05 +0100
-From: Oliver Feiler <kiza@gmx.net>
-To: Duncan Laurie <void@sun.com>
-Cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linuxdiskcert.org>
-Subject: Re: HPT370 controller set wrong udma mode
-Message-ID: <20020113132305.A239@gmxpro.net>
-In-Reply-To: <20020113054705.GA2160@sun.com>
-Mime-Version: 1.0
+	id <S289165AbSAMMhO>; Sun, 13 Jan 2002 07:37:14 -0500
+Received: from mons.uio.no ([129.240.130.14]:6641 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S287991AbSAMMhJ>;
+	Sun, 13 Jan 2002 07:37:09 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020113054705.GA2160@sun.com>; from void@sun.com on Sat, Jan 12, 2002 at 09:47:05PM -0800
-X-Operating-System: Linux 2.4.16 i686
-X-Species: Snow Leopard
+Content-Transfer-Encoding: 7bit
+Message-ID: <15425.32621.987964.944902@charged.uio.no>
+Date: Sun, 13 Jan 2002 13:37:01 +0100
+To: Hans-Peter Jansen <hpj@urpla.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [NFS] some strangeness (at least) with linux-2.4.18-NFS_ALL patch
+In-Reply-To: <20020112224046.4205F1433@shrek.lisa.de>
+In-Reply-To: <20020111131528.44F8613E6@shrek.lisa.de>
+	<20020112170111.12E601431@shrek.lisa.de>
+	<15424.33959.99237.666877@charged.uio.no>
+	<20020112224046.4205F1433@shrek.lisa.de>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Laurie wrote:
-> 
-> Try this patch... apply it after the latest patch from Andre becuase that 
-> includes several other crucial highpoint fixes.  It looks like the cable
-> detect pins are also used as address lines and so must be configured as
-> inputs to read valid cable detect state.
+>>>>> " " == Hans-Peter Jansen <hpj@urpla.net> writes:
 
-	That solved the problem. Thank you.
+     > client: Athlon 1.2, Asus Via KT133, 768 MB Linux version
+     > 2.4.18-pre3 (hp@elfe) (gcc version 2.95.3 20010315 (SuSE)) #3
+     > Sam Jan 12 21:26:40 CET 2002 mount opt:
+     > rw,nodev,v3,rsize=4096,wsize=4096,soft,intr,udp,lock,addr=shrek
 
-Oliver
+     > Any more ideas? What's wrong with my setup?
 
--- 
-Oliver Feiler                                               kiza@gmx.net
-http://www.lionking.org/~kiza/pgpkey              PGP key ID: 0x561D4FD2
-http://www.lionking.org/~kiza/
+10 to 1 it's the 'soft' mount option.
+
+Cheers,
+   Trond

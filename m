@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265525AbUA0Q1H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 11:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUA0Q1H
+	id S264485AbUA0QTc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 11:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264553AbUA0QT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 11:27:07 -0500
-Received: from colin2.muc.de ([193.149.48.15]:16146 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S265525AbUA0Q1D (ORCPT
+	Tue, 27 Jan 2004 11:19:29 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:35810 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S264485AbUA0QTY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 11:27:03 -0500
-Date: 27 Jan 2004 17:26:05 +0100
-Date: Tue, 27 Jan 2004 17:26:05 +0100
-From: Andi Kleen <ak@muc.de>
-To: Eric <eric@cisu.net>
-Cc: Andrew Morton <akpm@osdl.org>, stoffel@lucent.com, ak@muc.de,
-       Valdis.Kletnieks@vt.edu, bunk@fs.tum.de, cova@ferrara.linux.it,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
-Message-ID: <20040127162605.GB98702@colin2.muc.de>
-References: <200401232253.08552.eric@cisu.net> <200401262343.35633.eric@cisu.net> <20040126215056.4e891086.akpm@osdl.org> <200401270037.43676.eric@cisu.net>
-Mime-Version: 1.0
+	Tue, 27 Jan 2004 11:19:24 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401270037.43676.eric@cisu.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16406.36741.510353.456578@napali.hpl.hp.com>
+Date: Tue, 27 Jan 2004 08:19:17 -0800
+To: Paul Mackerras <paulus@samba.org>
+Cc: davidm@hpl.hp.com, Andrew Morton <akpm@osdl.org>,
+       Jes Sorensen <jes@trained-monkey.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for
+ ia64
+In-Reply-To: <16406.10170.911012.262682@cargo.ozlabs.ibm.com>
+References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
+	<20040120090004.48995f2a.akpm@osdl.org>
+	<16401.57298.175645.749468@napali.hpl.hp.com>
+	<16402.19894.686335.695215@cargo.ozlabs.ibm.com>
+	<16405.41953.344071.456754@napali.hpl.hp.com>
+	<16406.10170.911012.262682@cargo.ozlabs.ibm.com>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 12:37:43AM -0600, Eric wrote:
-> On Monday 26 January 2004 23:50, Andrew Morton wrote:
-> > Eric <eric@cisu.net> wrote:
-> > > YES. I finally have a working 2.6.2-rc1-mm3 booted kernel.
-> > >  Lets review folks---
-> > >  	reverted -funit-at-a-time
-> > >  	patched test_wp_bit so exception tables are sorted sooner
-> > >  	reverted md-partition patch
-> >
-> > The latter two are understood, but the `-funit-at-a-time' problem is not.
-> >
-> > Can you plesae confirm that restoring only -funit-at-a-time again produces
-> > a crashy kernel?  And that you are using a flavour of gcc-3.3?  If so, I
-> > guess we'll need to only enable it for gcc-3.4 and later.
-> >
-> Yes, confirmed. My  version of gcc, I just sent you adding the 
-> -funit-at-a-time hung after uncompressing the kernel. I booted a secondary 
-> kernel, recompiled without it and all was fine again. Confirmed non-boot for 
-> 2.6.2-rc1-mm3 but without a doubt for all kernels previous where 
-> -funit-at-a-time is active in the makefile.
+>>>>> On Tue, 27 Jan 2004 19:56:26 +1100, Paul Mackerras <paulus@samba.org> said:
 
-Ok thanks for the confimration. I will try to reproduce this with the 
-SuSE 8.2 compiler and track it down.
+  Paul> David Mosberger writes:
+  >> How about the attached one?  It will touch memory more when
+  >> moving an element down, but we're talking about exception tables
+  >> here, and I don't think module loading time would be affected in
+  >> any noticable fashion.
 
--Andi
+  Paul> Hmmm...  Stylistically I much prefer to pick up the new
+  Paul> element, move the others up and just drop the new element in
+  Paul> where it should go, rather than doing swap, swap, swap down
+  Paul> the list.
+
+Sure, the latter can be done, too.
+
+  Paul> Also, I don't think there is enough code there to be worth the
+  Paul> bother of trying to abstract the generic routine so you can
+  Paul> plug in different compare and move-element routines.  The
+  Paul> whole sort routine is only 16 lines of code, after all.  Why
+  Paul> not just have an ia64-specific version of sort_extable?
+  Paul> That's what I thought you would do.
+
+Because the Alpha needs exactly the same code.
+
+	--david

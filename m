@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317258AbSG1Txm>; Sun, 28 Jul 2002 15:53:42 -0400
+	id <S317189AbSG1T72>; Sun, 28 Jul 2002 15:59:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317214AbSG1Txm>; Sun, 28 Jul 2002 15:53:42 -0400
-Received: from dnvrdslgw14poolA183.dnvr.uswest.net ([63.228.84.183]:59761 "EHLO
-	q.dyndns.org") by vger.kernel.org with ESMTP id <S317258AbSG1Txl>;
-	Sun, 28 Jul 2002 15:53:41 -0400
-Date: Sun, 28 Jul 2002 13:56:49 -0600 (MDT)
-From: Benson Chow <blc+lkml-post@q.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: traffic shaper in 2.4.18 working?
-Message-ID: <Pine.LNX.4.44.0207281337330.1415-100000@q.dyndns.org>
+	id <S317191AbSG1T72>; Sun, 28 Jul 2002 15:59:28 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:23273 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S317189AbSG1T71>;
+	Sun, 28 Jul 2002 15:59:27 -0400
+Date: Sun, 28 Jul 2002 22:01:30 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [announce, patch] Thread-Local Storage (TLS) support for Linux,
+  2.5.28
+In-Reply-To: <3D443B8C.7C2028B0@tv-sign.ru>
+Message-ID: <Pine.LNX.4.44.0207282201020.32399-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(initial conditions)
-I have two existing IP addresses on eth0 belonging to the same subnet as a
-virtual host.  This machine is a dual CPU box at 450MHz with an Intel
-EtherPro 100.
 
-(what I've done)
-I've executed:
-shapecfg attach shaper0 eth0
-shapecfg speed shaper0 19000
-ifconfig shaper0 10.0.0.80
+On Sun, 28 Jul 2002, Oleg Nesterov wrote:
 
-However, it seems whenever I subsequently connect to this
-machine's 10.0.0.80 from another machine, it still transmits at full
-bandwidth of the media and not the 19K (Bytes/sec?) that I expect?
+> I thought, that gdt entry consulted only while
+> loading its index into the segment register.
+> 
+> So load_TLS_desc(next, cpu) must be called before
+> loading next->fs,next->gs in __switch_to() ?
 
-Is this a proper usage of this device or is it a bug?
+hm, right. I'm wondering, why did the tls_test code still work?
 
-Thanks,
-
--bc
+	Ingo
 

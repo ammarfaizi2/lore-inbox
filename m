@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbUKOFBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUKOFLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbUKOFBm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 00:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbUKOFAg
+	id S261443AbUKOFLt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 00:11:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbUKOFLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 00:00:36 -0500
-Received: from ozlabs.org ([203.10.76.45]:41396 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261443AbUKOFAO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 00:00:14 -0500
-MIME-Version: 1.0
+	Mon, 15 Nov 2004 00:11:49 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:13324 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261443AbUKOFLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 00:11:47 -0500
+Date: Mon, 15 Nov 2004 06:02:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] SCSI: misc possible cleanups
+Message-ID: <20041115050232.GB2235@stusta.de>
+References: <20041115020432.GK2249@stusta.de> <1100494253.24811.9.camel@mulgrave>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16792.14169.933065.101043@cargo.ozlabs.ibm.com>
-Date: Mon, 15 Nov 2004 15:58:01 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: olh@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64 call ibm,os-term only if its available
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <1100494253.24811.9.camel@mulgrave>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is from Olaf Hering.
+On Sun, Nov 14, 2004 at 10:50:46PM -0600, James Bottomley wrote:
+> On Sun, 2004-11-14 at 20:04, Adrian Bunk wrote:
+> > This patch below does:
+> > - remove unused code
+> 
+> Erm, some of the code you're trying to remove was recently added as
+> enablers for fibre channel drivers, like this:
+> 
+> [...]
+> 
+> >  drivers/scsi/scsi_transport_fc.c  |  202 ------------------------------
+> 
+> It's really not safe to remove code without understanding why it's there
+> in the first place.
 
-The rtas property 'ibm,os-term' is not available on JS20, a panic will
-print:
+That's exactly why I wrote:
 
-unable to mount root filesystem on /dev/hda
-Kernel panic - not syncing: Attempted to kill init!
- <0>ibm,os-term call failed -1
-Rebooting in 42 seconds..
+<--  snip  -->
 
-Signed-off-by: Olaf Hering <olh@suse.de>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+It is meant for review and not for being applied immediately.
+It should simply demonstrate with users are possible with the current 
+in-kernel users today.
 
-diff -purN linux-2.6.10-rc1-bk15.orig/arch/ppc64/kernel/rtas.c linux-2.6.10-rc1-bk15.ibm,os-term/arch/ppc64/kernel/rtas.c
---- linux-2.6.10-rc1-bk15.orig/arch/ppc64/kernel/rtas.c	2004-11-05 14:52:14.747905961 +0100
-+++ linux-2.6.10-rc1-bk15.ibm,os-term/arch/ppc64/kernel/rtas.c	2004-11-05 23:00:10.581515367 +0100
-@@ -439,6 +439,9 @@ void rtas_os_term(char *str)
- {
- 	int status;
- 
-+	if (RTAS_UNKNOWN_SERVICE == rtas_token("ibm,os-term"))
-+		return;
-+
- 	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
- 
- 	do {
+<--  snip  -->
+
+OK, the last wasn't a correct sentence.
+
+I wanted to say:
+It should simply demonstrate with changes are possible with the current 
+in-kernel users.
+
+> James
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

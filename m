@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129675AbRALD5e>; Thu, 11 Jan 2001 22:57:34 -0500
+	id <S129675AbRALEBg>; Thu, 11 Jan 2001 23:01:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbRALD5Y>; Thu, 11 Jan 2001 22:57:24 -0500
-Received: from gherkin.sa.wlk.com ([192.158.254.49]:4 "HELO gherkin.sa.wlk.com")
-	by vger.kernel.org with SMTP id <S129675AbRALD5K>;
-	Thu, 11 Jan 2001 22:57:10 -0500
-Message-Id: <m14GvKu-0005keC@gherkin.sa.wlk.com>
+	id <S132951AbRALEBZ>; Thu, 11 Jan 2001 23:01:25 -0500
+Received: from gherkin.sa.wlk.com ([192.158.254.49]:4868 "HELO
+	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
+	id <S132942AbRALEBI>; Thu, 11 Jan 2001 23:01:08 -0500
+Message-Id: <m14GvOk-0005keC@gherkin.sa.wlk.com>
 From: rct@gherkin.sa.wlk.com (Bob_Tracy)
-Subject: depmod -a and 2.4.0
+Subject: followup: depmod -a and 2.4.0
 To: linux-kernel@vger.kernel.org
-Date: Thu, 11 Jan 2001 21:57:08 -0600 (CST)
+Date: Thu, 11 Jan 2001 22:01:06 -0600 (CST)
 X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -18,16 +18,9 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe I missed the discussion, but why might "depmod -a" result
-in every module getting installed?  This didn't happen under any
-of the 2.4.0-testX releases that I recall, and I ran every one of
-those and the prerelease without this "trouble".  Gotta say, the
-screen output from running "lsmod" with everything installed is
-pretty darned impressive :-).  Another oddity that someone else
-already reported: the ipv6 module shows a reference count of -1.
-
-Yes, I'm running modutils-2.4.1, and I get the same results with
-modutils-2.3.15.
+Dooh!  Please ignore earlier bogus report of module loading
+"trouble".  This was my bad: an old init script was running
+"modprobe -a".  Sigh...
 
 -- 
 Bob Tracy                                            rct@frus.com

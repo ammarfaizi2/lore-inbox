@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130448AbRCIHkF>; Fri, 9 Mar 2001 02:40:05 -0500
+	id <S130447AbRCIHjf>; Fri, 9 Mar 2001 02:39:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130449AbRCIHj4>; Fri, 9 Mar 2001 02:39:56 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:56123 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S130448AbRCIHjn>;
-	Fri, 9 Mar 2001 02:39:43 -0500
-Date: Fri, 9 Mar 2001 07:37:58 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Jauder Ho <jauderho@carumba.com>
-cc: Tom Sightler <ttsig@tuxyturvy.com>, linux-kernel@vger.kernel.org
-Subject: Re: Questions about Enterprise Storage with Linux
-In-Reply-To: <Pine.LNX.4.21.0103090725030.699-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0103090737040.1017-100000@penguin.homenet>
+	id <S130448AbRCIHj0>; Fri, 9 Mar 2001 02:39:26 -0500
+Received: from samar.sasken.com ([164.164.56.2]:57830 "EHLO samar.sasi.com")
+	by vger.kernel.org with ESMTP id <S130447AbRCIHjO>;
+	Fri, 9 Mar 2001 02:39:14 -0500
+Message-ID: <3AA88891.294C17A0@sasken.com>
+Date: Fri, 09 Mar 2001 13:08:57 +0530
+From: Manoj Sontakke <manojs@sasken.com>
+Organization: Sasken Communication Technologies Limited.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: quicksort for linked list
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi
+	Sorry, these questions do not belog here but i could not find any
+better place.
 
-On Wed, 7 Mar 2001, Jauder Ho wrote:
-> I am not sure what you intend this application for. If it is mission
-> critical in any way shape or form, I would still recommend using something
-> like Veritas (which unfortunately is not ported to Linux yet).
-       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Is quicksort on doubly linked list is implemented anywhere? I need it
+for sk_buff queues.
+2. Is Weighted Round Robin implemented in linux anyehere?
 
-What do you mean not ported? Of course it has been ported and everything
-works nicely and has been so for ages. Ok, it is true that you can't buy
-it just yet but should be able to sometime this year. By "it" I meant the
-volume manager, vxfs journalling filesystem etc...
-
-Regards,
-Tigran
-
-
-
+thanks in advence.
+Manoj

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261508AbSJUQjG>; Mon, 21 Oct 2002 12:39:06 -0400
+	id <S261506AbSJUQhy>; Mon, 21 Oct 2002 12:37:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261515AbSJUQjG>; Mon, 21 Oct 2002 12:39:06 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:53428 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261508AbSJUQjE>; Mon, 21 Oct 2002 12:39:04 -0400
-Date: Mon, 21 Oct 2002 14:07:58 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] compile fix for dmi_scan.c in 2.4.bk-current
-In-Reply-To: <1035215203.28189.167.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44L.0210211404570.11201-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261508AbSJUQhy>; Mon, 21 Oct 2002 12:37:54 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:63412 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261506AbSJUQhw>; Mon, 21 Oct 2002 12:37:52 -0400
+Subject: Re: [PATCH] async poll for 2.5
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: John Gardiner Myers <jgmyers@netscape.com>
+Cc: "Charles 'Buck' Krasic" <krasic@acm.org>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <3DADB020.4060506@netscape.com>
+References: <Pine.LNX.4.44.0210151601560.1554-100000@blue1.dev.mcafeelabs.com>
+	<3DACA5E4.7090509@netscape.com> <xu4lm4zf6ew.fsf@brittany.cse.ogi.edu> 
+	<3DADB020.4060506@netscape.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Oct 2002 17:58:17 +0100
+Message-Id: <1035219498.27318.205.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-10-16 at 19:29, John Gardiner Myers wrote:
+> Better to fix the API.  The kernel has more information than user space 
+> and can do a better job.  In the kernel, the problem can be fixed once 
+> and for all, not over and over again in each different wrapper library. 
+>  It's not even as if the change would break programs correctly written 
+> to the old API, not that we particularly care about programs written to 
+> the old API.
 
+I think a chunk of the poll scaling problem is better addressed by
+futexes. If I can say "this futex list for this fd for events X Y and Z"
+I can construct almost all the efficient stuff I need out of the futex
+interfaces, much like doing it with SIGIO setting flags but a lot less
+clocks
 
-On 21 Oct 2002, Alan Cox wrote:
-
-> On Tue, 2002-10-15 at 20:03, Marcelo Tosatti wrote:
-> > I'll remove the dmi update from Alan for 2.4.20-pre.
-> >
-> > Thats a 2.4.21-pre thing.
->
-> Its very much a 2.4.20 thing. Its just that it accidentally acquired the
-> HP entry as well which we dont want.
->
-> Lose the problem function and the HP specific quirk and you'll get the
-> bits that actually do matter
-
-I merged the HP Pavilion quirks on my tree and then backed it all out
-later because I thought the changes were not necessary for 2.4.20.
-
-Which issues the DMI update is addressing?
-
+Alan

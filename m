@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262789AbUKRRNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbUKRRNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262789AbUKRRNa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 12:13:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbUKRRK7
+	id S262768AbUKRRNb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 12:13:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbUKRRFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 12:10:59 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:4870 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S262779AbUKRRJG (ORCPT
+	Thu, 18 Nov 2004 12:05:25 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:63987 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262767AbUKRRDt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 12:09:06 -0500
-Subject: [patch 1/1] Uml - update some copyright
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Thu, 18 Nov 2004 18:11:08 +0100
-Message-Id: <20041118171108.3B70A55C98@zion.localdomain>
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.18; VDF: 6.28.0.80; host: ssc.unict.it)
+	Thu, 18 Nov 2004 12:03:49 -0500
+In-Reply-To: <E1CUhTd-0006c8-00@dorka.pomaz.szeredi.hu>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz, torvalds@osdl.org
+MIME-Version: 1.0
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF43CCF252.FCCFAB5B-ON88256F50.005CE35E-88256F50.005D8559@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Thu, 18 Nov 2004 09:00:36 -0800
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_M2_07222004 Beta 2|July
+ 22, 2004) at 11/18/2004 12:03:46,
+	Serialize complete at 11/18/2004 12:03:46
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>  2) doing non-blocking asynchronous writepage
+>
+>In the second case there is no deadlock, because the memory subsystem
+>doesn't wait for data to be written.  If the filesystem refuses to
+>write back data in a timely manner, memory will get full and OOM
+>killer will go to work.
 
-Update/add some copyright notices.
+I don't see how the OOM killer can help you here.  The OOM killer deals 
+with the system being out of virtual memory; writepage is about freeing 
+real memory.  The real memory allocator will wait forever if it has to for 
+pageouts to complete so that it can evict a page and free up real memory.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+If a pageout requires a user space process to run, and the user space 
+process requires additional real memory (e.g. in order to swap something 
+in from swap space) to do the pageout, you can have a deadlock.
 
- linux-2.6.10-rc-paolo/arch/um/kernel/sigio_kern.c |    2 +-
- linux-2.6.10-rc-paolo/arch/um/sys-i386/sysrq.c    |    5 +++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
-
-diff -puN arch/um/kernel/sigio_kern.c~uml-comments arch/um/kernel/sigio_kern.c
---- linux-2.6.10-rc/arch/um/kernel/sigio_kern.c~uml-comments	2004-11-18 18:00:11.537308448 +0100
-+++ linux-2.6.10-rc-paolo/arch/um/kernel/sigio_kern.c	2004-11-18 18:00:11.541307840 +0100
-@@ -1,5 +1,5 @@
- /* 
-- * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-+ * Copyright (C) 2002 - 2003 Jeff Dike (jdike@addtoit.com)
-  * Licensed under the GPL
-  */
- 
-diff -puN arch/um/sys-i386/sysrq.c~uml-comments arch/um/sys-i386/sysrq.c
---- linux-2.6.10-rc/arch/um/sys-i386/sysrq.c~uml-comments	2004-11-18 18:00:11.539308144 +0100
-+++ linux-2.6.10-rc-paolo/arch/um/sys-i386/sysrq.c	2004-11-18 18:00:11.541307840 +0100
-@@ -1,3 +1,8 @@
-+/*
-+ * Copyright (C) 2001 - 2003 Jeff Dike (jdike@addtoit.com)
-+ * Licensed under the GPL
-+ */
-+
- #include "linux/kernel.h"
- #include "linux/smp.h"
- #include "linux/sched.h"
-_
+--
+Bryan Henderson                          IBM Almaden Research Center
+San Jose CA                              Filesystems

@@ -1,23 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264950AbSKJRGN>; Sun, 10 Nov 2002 12:06:13 -0500
+	id <S264968AbSKJRPv>; Sun, 10 Nov 2002 12:15:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264954AbSKJRGN>; Sun, 10 Nov 2002 12:06:13 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:51863 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S264950AbSKJRGM>;
-	Sun, 10 Nov 2002 12:06:12 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 10 Nov 2002 18:12:56 +0100 (MET)
-Message-Id: <UTC200211101712.gAAHCuZ14598.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, tmolina@cox.net
+	id <S264969AbSKJRPv>; Sun, 10 Nov 2002 12:15:51 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:45842 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S264968AbSKJRPu>; Sun, 10 Nov 2002 12:15:50 -0500
+Date: Sun, 10 Nov 2002 18:22:29 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Thomas Molina <tmolina@cox.net>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.5 Problem Report Status for 10 Nov
+In-Reply-To: <Pine.LNX.4.44.0211100834110.16968-100000@dad.molina>
+Message-ID: <Pine.LNX.4.44.0211101819390.2109-100000@serv>
+References: <Pine.LNX.4.44.0211100834110.16968-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   open   11 Oct 2002 tcp packets lost
-  31. http://marc.theaimsgroup.com/?l=linux-kernel&m=103429736523667&w=2
+Hi,
 
-This one is solved. I sent a patch to davem.
-See that it already is in Linus' current bk.
+On Sun, 10 Nov 2002, Thomas Molina wrote:
 
-Andries
+>    open   26 Oct 2002 Make xconfig fails
+>   68. http://marc.theaimsgroup.com/?l=linux-kernel&m=103542716930487&w=2
+
+That's the old xconfig and it's obsolete by now.
+
+bye, Roman
+

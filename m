@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265921AbUAKOnv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 09:43:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUAKOnv
+	id S264361AbUAKPC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 10:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265882AbUAKPC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 09:43:51 -0500
-Received: from debian4.unizh.ch ([130.60.73.144]:56529 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S265921AbUAKOnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 09:43:49 -0500
-Date: Sun, 11 Jan 2004 15:43:43 +0100
-From: martin f krafft <madduck@madduck.net>
+	Sun, 11 Jan 2004 10:02:28 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16909 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264361AbUAKPC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 10:02:26 -0500
+Date: Sun, 11 Jan 2004 15:02:23 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: kernel 2.6: can't get 3c575/PCMCIA working - other PCMCIA card work
-Message-ID: <20040111144343.GA8410@piper.madduck.net>
+Message-ID: <20040111150223.A8427@flint.arm.linux.org.uk>
 Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040106111939.GA2046@piper.madduck.net> <20040111120053.C1931@flint.arm.linux.org.uk> <20040111123208.GA4766@piper.madduck.net> <20040111125404.E1931@flint.arm.linux.org.uk>
+References: <20040106111939.GA2046@piper.madduck.net> <20040111120053.C1931@flint.arm.linux.org.uk> <20040111123208.GA4766@piper.madduck.net> <20040111125404.E1931@flint.arm.linux.org.uk> <20040111144343.GA8410@piper.madduck.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040111125404.E1931@flint.arm.linux.org.uk>
-X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-piper i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040111144343.GA8410@piper.madduck.net>; from madduck@madduck.net on Sun, Jan 11, 2004 at 03:43:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 11, 2004 at 03:43:43PM +0100, martin f krafft wrote:
+> also sprach Russell King <rmk+lkml@arm.linux.org.uk> [2004.01.11.1354 +0100]:
+> > Cardbus cards look exactly like normal PCI cards, and are therefore
+> > the drivers are handled by the PCI subsystem.  PCMCIA helps out only
+> > to detect the card insertion/removal events.
+> 
+> Are you sure about the latter.
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes.
 
-also sprach Russell King <rmk+lkml@arm.linux.org.uk> [2004.01.11.1354 +0100=
-]:
-> Cardbus cards look exactly like normal PCI cards, and are therefore
-> the drivers are handled by the PCI subsystem.  PCMCIA helps out only
-> to detect the card insertion/removal events.
+> Cause the driver gets loaded whether cardmgr is started or not. But in
+> any case, cardmgr does not configure the interface.
 
-Are you sure about the latter. Cause the driver gets loaded whether
-cardmgr is started or not. But in any case, cardmgr does not
-configure the interface. Where can I find the hook for Cardbus cards
-to do configuration after initialisation?
+cardmgr doesn't play a part when you've inserted a cardbus card - it
+doesn't even know that a card has been inserted into the slot.
 
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-=20
-"i wish there was a knob on the tv to turn up the intelligence.
- there's a knob called 'brightness', but it doesn't seem to work."
-                                                          -- gallagher
+> Where can I find
+> the hook for Cardbus cards to do configuration after initialisation?
 
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+It's all done via the hotplug subsystem, which is integrated into the
+driver model.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Basically, we discover that a cardbus card has been inserted, and ask
+the PCI layer to scan the slot.  We add the new device to the list of
+PCI devices, which automatically causes the hotplug system to call
+/sbin/hotplug for the new PCI device.
 
-iD8DBQFAAWEfIgvIgzMMSnURAjedAJ9UKDW4NFG/jEC3dygVyXi96r4LgwCfSrlA
-7JHGONgAu+2UG+GKVct+VWo=
-=nFk1
------END PGP SIGNATURE-----
+The hotplug scripts are then supposed to load the driver as necessary
+(using /etc/modules.conf) which creates a network interface.  This then
+causes the hotplug scripts to be invoked again, this time for the new
+network interface, which should configure it.
 
---HcAYCG3uE/tztfnV--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,66 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272767AbTG1JeT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 05:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272770AbTG1JeT
+	id S263062AbTG1JtH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 05:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTG1JtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 05:34:19 -0400
-Received: from server.snowfall.se ([213.136.34.4]:33541 "EHLO mail.snowfall.se")
-	by vger.kernel.org with ESMTP id S272767AbTG1JeP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 05:34:15 -0400
-Date: Mon, 28 Jul 2003 11:49:27 +0200 (CEST)
-From: Stefan Cars <stefan@snowfall.se>
-X-X-Sender: stefan@guldivar.globalwire.se
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ICH5 SATA high interrupt/system load again...
-In-Reply-To: <3F187DB1.1040309@pobox.com>
-Message-ID: <20030728114850.F22307@guldivar.globalwire.se>
-References: <20030718233631.F31074@guldivar.globalwire.se> <3F187DB1.1040309@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 28 Jul 2003 05:49:07 -0400
+Received: from karnickel.4msp.de ([217.6.190.222]:12814 "EHLO
+	karnickel.franken.de") by vger.kernel.org with ESMTP
+	id S263062AbTG1JtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 05:49:05 -0400
+Date: Mon, 28 Jul 2003 12:03:13 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: where are the sources :-)
+Message-ID: <20030728100312.GB3096@debian.franken.de>
+References: <3F240AA1.70403@mscc.huji.ac.il> <Pine.LNX.4.44.0307271026001.3400-100000@home.osdl.org> <20030728022249.GA19583@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030728022249.GA19583@work.bitmover.com>
+User-Agent: Mutt/1.5.4i
+From: erik@debian.franken.de (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What also is interesting is that when I configure my kernel to use APIC it
-hangs during boot just as it found the SATA drives...
+On Sun, Jul 27, 2003 at 07:22:49PM -0700, Larry McVoy wrote:
+> On Sun, Jul 27, 2003 at 10:27:04AM -0700, Linus Torvalds wrote:
+> > They are there on master.kernel.org now, but might take a while to
+> > percolate out the door. The BK trees are already updated, except for
+> > kernel.bkbits.net that seems to have been off the net the last 36 hours.
+> 
+> It's back, it got moved to a new colo, needed more bandwidth.
 
-/ Stefan
-
-On Fri, 18 Jul 2003, Jeff Garzik wrote:
-
-> Stefan Cars wrote:
-> > Hi!
-> >
-> > I've seen the discussion regarding high interrupt / system load on the
-> > ICH5 SATA and I'm asking what todo about it if I can't put my BIOS into
-> > "normal" mode. This machine is an Dell Precision 360 and for some stupid
-> > reason they have for this model removed the possibility in the BIOS to
-> > change this sort of things (you can't change much really). I'm using
-> > 2.4.21-ac4. Just to extract a simple tar file brings the system load up
-> > and the computer is slow...
-> >
-> >
-> > Here is some info:
-> > tjatte:/import# cat /proc/interrupts
-> >            CPU0
-> >   0:     557725          XT-PIC  timer
-> >   1:        102          XT-PIC  keyboard
-> >   2:          0          XT-PIC  cascade
-> >   5:          0          XT-PIC  ehci_hcd
-> >   9:   16409116          XT-PIC  libata, usb-uhci, eth0
->
->
-> Hum... interesting.  I had seen reports of this before, but they were of
-> the variety "drivers/ide has high load, libata doesn't".  So it seems
-> intrinsic of the hardware, which is a useful data point.
->
-> Have you tried messing around with interrupt routing in BIOS setup?
-> Since ATA, USB, and eth0 are all on the same interrupt, changing that
-> may affect the situation positively.
->
-> 	Jeff
->
->
->
+I still get a connection refused at the svn-port? Did you forget to
+start the service?

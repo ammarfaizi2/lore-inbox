@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265903AbTFSTIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 15:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265909AbTFSTIZ
+	id S265908AbTFSTLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 15:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265905AbTFSTLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 15:08:25 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:39892 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S265903AbTFSTIT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 15:08:19 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780E0408B5@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Robert Love'" <rml@tech9.net>
-Cc: "'Ingo Molnar'" <mingo@elte.hu>, "'Andrew Morton'" <akpm@digeo.com>,
-       "'george anzinger'" <george@mvista.com>,
-       "'joe.korty@ccur.com'" <joe.korty@ccur.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "Li, Adam" <adam.li@intel.com>
-Subject: RE: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
-	sks
-Date: Thu, 19 Jun 2003 12:22:13 -0700
+	Thu, 19 Jun 2003 15:11:25 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:60291 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265908AbTFSTLW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 15:11:22 -0400
+Message-ID: <3EF20E86.3030102@austin.ibm.com>
+Date: Thu, 19 Jun 2003 14:27:02 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext3 umount hangs
+References: <3EF1EC73.4070305@austin.ibm.com> <20030619105817.51613df2.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-> From: Robert Love [mailto:rml@tech9.net]
-> 
-> And we can prevent starvation just by running the kernel thread at
-> FIFO/99, because then it will never be starved by a higher priority
-> task. If the RT task being starved is also at priority 99, it will
-> eventually block (as in our example, on console I/O) and let the kernel
-> thread run. If the RT task being starved is lower priority, then there
-> is nothing to worry about.
+>Steven Pratt <slpratt@austin.ibm.com> wrote:
+>  
+>
+>>Has anyone else seen hangs trying to umount ext3 volumes?
+>>    
+>>
+>Could you please debug it a bit?  sysrq-T, etc?
+>
+Here is the trace of the hung process:
 
-/me is quite uneasy with that assumption; not that it is not
-correct (it should), but I can think of cases where that does 
-not need to happen (for example, if you have another FIFO/99 
-task B after your user task A that depends on kernel task K0),
-and that task B happens to hold it for too long for A to miss
-deadlines.
+umount        D 00000001 290213268 18747  18746                     (NOTLB)
+Call Trace:
+ [<c01a1ae8>] journal_kill_thread+0xa8/0xe0
+ [<c011c780>] default_wake_function+0x0/0x30
+ [<c016d8c5>] destroy_inode+0x35/0x60
+ [<c01a2b80>] journal_destroy+0x10/0x1c0
+ [<c019a97e>] ext3_xattr_put_super+0x1e/0x30
+ [<c0196209>] ext3_put_super+0x29/0x1a0
+ [<c015b64b>] generic_shutdown_super+0x16b/0x180
+ [<c015c03d>] kill_block_super+0x1d/0x50
+ [<c015b3fd>] deactivate_super+0x5d/0x90
+ [<c0170fef>] sys_umount+0x3f/0xa0
+ [<c0171067>] sys_oldumount+0x17/0x20
+ [<c010afaf>] syscall_call+0x7/0xb
 
-> I guess a real deadlock could only occur if the FIFO/99 task does not
-> block on the resource the kernel thread is providing but busy loops
-> waiting for it.
 
-I can think of a OpenOffice + sched_yield() style or a brain-damaged 
-poll for previous art. It would screw the whole equation.
+Here is a link to the console log with full sysrq trace:
 
-Another example, I changed NGPT to do spin+futex for spinlocks, 
-but then it was changed back by someone to spinning again -- 
-performance reasons [they said] - of course, Thou Shall Not 
-Use NGPT + Real-Time (tm). But how many of these are left? I am
-so scared of JVMs...
+http://www-124.ibm.com/developerworks/opensource/linuxperf/logs/ext3umount
 
-This is even more prone to happen when you have priority
-inheritance ... been there, done that, SysRq+E was my friend. 
+Steve
 
-It gets uncomfortably close to the "not my problem if you don't 
-know to set up your system" area, but I would really prefer that
-safeguard that then I can disable manually (by prioritizing down)
-if I know where to push.
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)

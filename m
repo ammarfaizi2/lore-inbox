@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129664AbRCAPrL>; Thu, 1 Mar 2001 10:47:11 -0500
+	id <S129667AbRCAP4D>; Thu, 1 Mar 2001 10:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129667AbRCAPrD>; Thu, 1 Mar 2001 10:47:03 -0500
-Received: from [62.90.5.51] ([62.90.5.51]:48903 "EHLO salvador.shunra.co.il")
-	by vger.kernel.org with ESMTP id <S129664AbRCAPqw>;
-	Thu, 1 Mar 2001 10:46:52 -0500
-Message-ID: <F1629832DE36D411858F00C04F24847A11DECF@SALVADOR>
-From: Ofer Fryman <ofer@shunra.co.il>
-To: "'kernel@kvack.org'" <kernel@kvack.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Intel-e1000 for Linux 2.0.36-pre14
-Date: Thu, 1 Mar 2001 17:51:30 +0200 
+	id <S129669AbRCAPzn>; Thu, 1 Mar 2001 10:55:43 -0500
+Received: from mgw-x2.nokia.com ([131.228.20.22]:22999 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S129667AbRCAPzd>;
+	Thu, 1 Mar 2001 10:55:33 -0500
+Date: Thu, 1 Mar 2001 15:30:56 +0200 (EET)
+From: "Matilainen Panu (NRC/Helsinki)" <panu.matilainen@nokia.com>
+To: ext Andrew Morton <andrewm@uow.edu.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x very unstable on 8-way IBM 8500R
+In-Reply-To: <3A9E3F00.E5667AAC@uow.edu.au>
+Message-ID: <Pine.LNX.4.30.0103011523200.23756-100000@godzilla.research.nokia.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="WINDOWS-1255"
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I need a giga fiber PMC cards for linux2.0.36-pre14, the only cards I know
-are either Intel based or level-one lxt-1001 card, the level-one lxt-1001
-has very bad performance so I cannot use it.
+On Thu, 1 Mar 2001, ext Andrew Morton wrote:
+> "Matilainen Panu (NRC/Helsinki)" wrote:
+> > On Thu, 1 Mar 2001, ext Andrew Morton wrote:
+> > >
+> > > Is it stable with `nmi_watchdog=0'?
+> >
+> > If the default value for nmi_watchdog is 0 then no - I added the
+> > nmi_watchdog=1 just to see if that makes any difference. If it's on by
+> > default then I'll need to test it that way.
+>
+> Default for nmi_watchdog is `enabled'.
+>
+> Several people have reported that turning it off with
+> the `nmi_watchdog=0' LILO option makes systems stable.
+> Nobody knows why.
+>
+> (If nmi_watchdog _does_ make the achine stable, please
+>  tell linux-kernel.).
 
-Thanks,
-Ofer
+It's too early to say for sure but that seems to have fixed it. Uptime now
+nearly an hour under loads of 20-30 which is way more than it has been
+able to stay up before. I'll let you know whether its still up tomorrow.
 
------Original Message-----
-From: kernel@kvack.org [mailto:kernel@kvack.org]
-Sent: Thursday, March 01, 2001 5:31 PM
-To: Ofer Fryman
-Cc: 'linux-kernel@vger.kernel.org'
-Subject: Re: Intel-e1000 for Linux 2.0.36-pre14
+Million thanks for the tip!
 
+	- Panu -
 
-On Thu, 1 Mar 2001, Ofer Fryman wrote:
+>
 
-> I managed to compiled e1000 for Linux 2.0.36-pre14, I can also load it
-> successfully. 
-> With the E1000_IMS_RXSEQ bit set in IMS_ENABLE_MASK I get endless
-interrupts
-> and the computer freezes, without this bit set it works but I cannot
-receive
-> or send anything.
-
-Intel refuses to provide complete documentation for any of their ethernet
-cards.  I recommend purchasing alternative products from vendors like 3com
-and National Semiconduct who are cooperative in providing data needed by
-the development community.
+-- 
 
 
-		-ben
 

@@ -1,40 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVCNWls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVCNWpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbVCNWls (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 17:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVCNWh4
+	id S262027AbVCNWpy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 17:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVCNWmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 17:37:56 -0500
-Received: from newmail.linux4media.de ([193.201.54.81]:53481 "EHLO l4m.mine.nu")
-	by vger.kernel.org with ESMTP id S262034AbVCNWfv (ORCPT
+	Mon, 14 Mar 2005 17:42:23 -0500
+Received: from fire.osdl.org ([65.172.181.4]:1989 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262040AbVCNWld (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 17:35:51 -0500
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-Organization: Ark Linux team
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Subject: Re: 2.6.11-mm3 - DRM/i915 broken
-Date: Mon, 14 Mar 2005 23:30:40 +0100
-User-Agent: KMail/1.8
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050312034222.12a264c4.akpm@osdl.org> <42360820.702@ens-lyon.org>
-In-Reply-To: <42360820.702@ens-lyon.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Mon, 14 Mar 2005 17:41:33 -0500
+Date: Mon, 14 Mar 2005 14:41:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] Re: inode cache, dentry cache, buffer heads usage
+Message-Id: <20050314144103.0d6ed063.akpm@osdl.org>
+In-Reply-To: <1110838395.24286.297.camel@dyn318077bld.beaverton.ibm.com>
+References: <1110394558.24286.203.camel@dyn318077bld.beaverton.ibm.com>
+	<20050310174751.522c5420.akpm@osdl.org>
+	<1110835692.24286.288.camel@dyn318077bld.beaverton.ibm.com>
+	<20050314141128.7da95c34.akpm@osdl.org>
+	<1110838395.24286.297.camel@dyn318077bld.beaverton.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503142330.42556.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 March 2005 22:54, Brice Goglin wrote:
-> DRM/i915 does not work on my Dell Dimension 3000 (i865 chipset).
-> It's the first -mm kernel I try on this box. I don't whether previous -mm
-> worked or not. Anyway, 2.6.11 works great.
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> On Mon, 2005-03-14 at 14:11, Andrew Morton wrote:
+> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > >
+> > > On Thu, 2005-03-10 at 17:47, Andrew Morton wrote:
+> > > > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > > > >
+> > > > > So, why is these slab cache are not getting purged/shrinked even
+> > > > >  under memory pressure ? (I have seen lowmem as low as 6MB). What
+> > > > >  can I do to keep the machine healthy ?
+> > > > 
+> > > > Tried increasing /proc/sys/vm/vfs_cache_pressure?  (That might not be in
+> > > > 2.6.8 though).
+> > > > 
+> > > > 
+> > > 
+> > > Yep. This helped shrink the slabs, but we end up eating up lots of
+> > > the lowmem in Buffers. Is there a way to shrink buffers ?
+> > 
+> > It would require some patchwork.  Why is it a problem?  That memory is
+> > reclaimable.
+> > 
+> 
+> Well, machine pauses for 5-30 seconds for each vi,cscope, write() etc.
 
-You may want to try compiling without CONFIG_4KSTACKS. I've run into (not 100% 
-reproducable) problems with i855 [and i865 is using a lot of the same code] 
-and 4K stacks before...
+Why?
 
-LLaP
-bero
+> > How'd you get 1.8gig of lowmem?
+> 
+> 2:2 split
+> 
+
+Does a normal kernel exhibit the pauses?

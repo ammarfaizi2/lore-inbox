@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVC0FZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVC0Gwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVC0FZq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 00:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVC0FZp
+	id S261299AbVC0Gwj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 01:52:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVC0Gwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 00:25:45 -0500
-Received: from siaag2ad.compuserve.com ([149.174.40.134]:18144 "EHLO
-	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
-	id S261298AbVC0FZl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 00:25:41 -0500
-Date: Sun, 27 Mar 2005 00:20:58 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-To: Greg KH <greg@kroah.com>
-Cc: Mark Fortescue <mark@mtfhpc.demon.co.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200503270023_MC3-1-99BE-B601@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Sun, 27 Mar 2005 01:52:39 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:50880 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261299AbVC0Gwh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 01:52:37 -0500
+Date: Sat, 26 Mar 2005 22:52:15 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
+To: trivial@rustcorp.com.au
+Cc: Simon Derr <Simon.Derr@bull.net>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org
+Message-Id: <20050327065213.25762.54635.sendpatchset@sam.engr.sgi.com>
+Subject: [Trivial Patch] cpusets docs - mention notify_on_release
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Mar 2005 at 10:28:28 -0800 Greg KH wrote:
+Provide (minimal) documentation of the cpusets notify_on_release file.
 
-> However, if you do wish to create a Linux driver, you _must_ abide by
-> the legal requirements of the kernel, which I feel, along with every IP
-> lawyer I have ever consulted, that it is not allowed to create a non-GPL
-> compatible kernel module.
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
- Creating a non-GPL kernel module is perfectly legal.
+Index: 2.6.12-pj/Documentation/cpusets.txt
+===================================================================
+--- 2.6.12-pj.orig/Documentation/cpusets.txt	2005-03-26 19:57:27.000000000 -0800
++++ 2.6.12-pj/Documentation/cpusets.txt	2005-03-26 19:58:43.000000000 -0800
+@@ -166,6 +166,7 @@ containing the following files describin
+  - mems: list of Memory Nodes in that cpuset
+  - cpu_exclusive flag: is cpu placement exclusive?
+  - mem_exclusive flag: is memory placement exclusive?
++ - notify_on_release: call /sbin/cpuset_release_agent on exit if set
+  - tasks: list of tasks (by pid) attached to that cpuset
+ 
+ New cpusets are created using the mkdir system call or shell
+@@ -333,7 +334,7 @@ Now you want to do something with this c
+ 
+ In this directory you can find several files:
+ # ls
+-cpus  cpu_exclusive  mems  mem_exclusive  tasks
++cpus  cpu_exclusive  mems  mem_exclusive  notify_on_release  tasks
+ 
+ Reading them will give you information about the state of this cpuset:
+ the CPUs and Memory Nodes it can use, the processes that are using
 
- Distributing that module to a third party may not be legal, though.
-
-
---
-Chuck
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

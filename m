@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbTLLUsv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 15:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbTLLUsv
+	id S261950AbTLLUzn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 15:55:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTLLUzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 15:48:51 -0500
-Received: from ida.rowland.org ([192.131.102.52]:16644 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S261957AbTLLUsu (ORCPT
+	Fri, 12 Dec 2003 15:55:43 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:30422 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261950AbTLLUzm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 15:48:50 -0500
-Date: Fri, 12 Dec 2003 15:48:50 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: David Brownell <david-b@pacbell.net>
-cc: Duncan Sands <baldrick@free.fr>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-In-Reply-To: <3FDA1AF7.8010604@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0312121547430.677-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Dec 2003 15:55:42 -0500
+Subject: Re: 2.4.23 Boot failure
+From: Danny Brow <fms@istop.com>
+To: Kernel-Maillist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1071260218.13287.46.camel@bubbles.imr-net.com>
+References: <1071260218.13287.46.camel@bubbles.imr-net.com>
+Content-Type: text/plain
+Message-Id: <1071262670.19921.1.camel@zeus.fullmotionsolutions.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 12 Dec 2003 15:57:50 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Dec 2003, David Brownell wrote:
+I have this problem with an acer laptop, if you have apic selected you
+will never get passed the uncompressing Linux screen. If you have frame
+buffer support compiled in you could try to append vga=normal to lilo to
+see if there are any errors.
 
-> Alan Stern wrote:
+Dan.
+
+On Fri, 2003-12-12 at 15:16, Joshua Schmidlkofer wrote:
+> 2.4.23 Hangs just after the boot loader.
 > 
-> >>That would also reduce the length of time the address0_sem
-> >>is held,
-> > 
-> > 
-> > It would?  How so?
+> This is what I get:
+>  
+> Uncompressing Linux... Ok, booting the kernel.
 > 
-> It would be dropped after the address is assigned (the bus
-> no longer has an "address zero") ... rather than waiting
-> until after the device was configured and all its interfaces
-> were probed.  I think that's the issue Oliver alluded to in
-> his followup to your comment.
-
-I thought it did that already.  Oh well...
-
-Alan Stern
+> 
+> Then nothing.   I have never seen this before.  I do not get any errors,
+> it just hangs.  
+> 
+> I have been trying to upgrade my server from 2.4.20 to 2.4.23.  This
+> server is running the xfs patches from SGI.
+> 
+> It is a Dual PIII 800
+> 1.1GB Ram
+> 
+> Storage:
+>    cpqarry - Compaq Smart Array 431 Controller
+>      RAID5 array [5 disks.]
+>    sym53c8xx
+>      4 independent scsi disk - Boot drive here.
+> 
+> 
+> Attached is my .config, 
+> 
+> Please let me know if there is anything else.  I have tried make
+> mrproper, then rebuilding, and I have changed a few options, etc.
+> 
+> Note:  2.4.21, and 2.4.22 both started booting, but would hang on the
+> sym53c8xx controller.  I did not devote time to the issue to sort it
+> out.  I need to update because of the brk() vuln, and I would rather
+> just move to 2.4.23.  
+> 
+> I am using 2.4.23 + xfs patches.
+> 
+> thanks,
+>   Joshua
 

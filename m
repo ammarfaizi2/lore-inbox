@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318278AbSGXIQE>; Wed, 24 Jul 2002 04:16:04 -0400
+	id <S318275AbSGXIVm>; Wed, 24 Jul 2002 04:21:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318279AbSGXIQE>; Wed, 24 Jul 2002 04:16:04 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:20188 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318278AbSGXIQD>;
-	Wed, 24 Jul 2002 04:16:03 -0400
-Date: Wed, 24 Jul 2002 10:17:38 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>,
-       george anzinger <george@mvista.com>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] irqlock patch -G3. [was Re: odd memory corruptionin2.5.27?]
-In-Reply-To: <20020724081511.GC25038@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0207241015050.7968-100000@localhost.localdomain>
+	id <S318276AbSGXIVm>; Wed, 24 Jul 2002 04:21:42 -0400
+Received: from signup.localnet.com ([207.251.201.46]:41468 "HELO
+	smtp.localnet.com") by vger.kernel.org with SMTP id <S318275AbSGXIVl>;
+	Wed, 24 Jul 2002 04:21:41 -0400
+To: linux-kernel@vger.kernel.org
+Cc: bitkeeper-users@bitmover.com
+Subject: bk://linux.bkbits.net/linux-2.[45] pull error
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+Date: 24 Jul 2002 04:24:51 -0400
+Message-ID: <m37kjlmt2k.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm getting this all of a sudden:
 
-On Wed, 24 Jul 2002, William Lee Irwin III wrote:
+:; cd linux-2.4
+:; bk parent
+Parent repository is bk://linux.bkbits.net/linux-2.4
+:; bk pull
+---------------------- Receiving the following csets -----------------------
+1.652 1.651 1.650 1.649 1.648 
+----------------------------------------------------------------------------
+ChangeSet fnext: No such file or directory
 
-> > i've fixed this in my tree: the init thread needs to start up with a
-> > nonzero preempt_count, and schedule_init() sets it to 0. [schedule_init()  
-> > is the point after we can schedule.]
-> 
-> Sorry about the duplicated report, I must have missed the fix in the
-> changelogs. [...]
+=================================== ERROR ====================================
+takepatch: missing checksum line in patch, aborting.
+==============================================================================
 
-sorry - i was too compact. What i wanted to say: "i agree that this is a
-bug, and based on your report i've fixed this bug in my tree, it will show
-up in the next patch". Thanks!
+666 bytes uncompressed to 1222, 1.83X expansion
+:; cd ../linux-2.5
+:; bk parent
+Parent repository is bk://linux.bkbits.net/linux-2.5
+:; bk pull 
+---------------------- Receiving the following csets -----------------------
+1.684 1.683 1.681.1.1 1.682 1.681 1.680 1.679 1.678 1.677
+1.676 1.675 1.674 1.673 1.672 1.671 1.670 1.669 1.668 1.667
+1.666 
+----------------------------------------------------------------------------
+ChangeSet fnext: No such file or directory
 
-	Ingo
+=================================== ERROR ====================================
+takepatch: missing checksum line in patch, aborting.
+==============================================================================
+
+344 bytes uncompressed to 710, 2.06X expansion
+
+
+
+Is this a bkbits issue or something wrong on my side?
+
+-JimC
 

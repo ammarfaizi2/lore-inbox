@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288597AbSAQMCx>; Thu, 17 Jan 2002 07:02:53 -0500
+	id <S288622AbSAQMHe>; Thu, 17 Jan 2002 07:07:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288603AbSAQMCm>; Thu, 17 Jan 2002 07:02:42 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:19728 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S288597AbSAQMCe>;
-	Thu, 17 Jan 2002 07:02:34 -0500
-Date: Thu, 17 Jan 2002 13:02:15 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: nico@cam.org, andrea@suse.de, linux-kernel@vger.kernel.org
+	id <S288623AbSAQMHX>; Thu, 17 Jan 2002 07:07:23 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:8196 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288622AbSAQMHT>;
+	Thu, 17 Jan 2002 07:07:19 -0500
+Date: Thu, 17 Jan 2002 10:07:04 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Andrea Scrimieri <livore@karma.oltrelinux.com>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Rik spreading bullshit about VM
-Message-Id: <20020117130215.54ca42d6.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.33L.0201170944010.32617-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.44.0201162044510.14097-100000@xanadu.home>
-	<Pine.LNX.4.33L.0201170944010.32617-100000@imladris.surriel.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.40L0.0201170230530.3361-100000@karma.oltrelinux.com>
+Message-ID: <Pine.LNX.4.33L.0201171004530.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002 09:45:24 -0200 (BRST)
-Rik van Riel <riel@conectiva.com.br> wrote:
+On Thu, 17 Jan 2002, Andrea Scrimieri wrote:
 
-> On Wed, 16 Jan 2002, Nicolas Pitre wrote:
-> 
-> > Then...
-> >
-> > What did you want to say exactly?
-> >
-> > Why aren't you rushing out to provide corrections?
-> >
-> > What are you waiting for?
-> 
-> It's just an article, it's just this week.
-> 
-> Next week people will be all upset about the next
-> block io layer flamewar or maybe the politicians
-> will have time again for the next round of DMCA.
-> 
-> I'm not a good writer, by the time I'd have written
-> any correction or follow-up people would have mostly
-> forgotten this thing anyway.
+> > 2) the interview was done quite informally on IRC, with me
+> >    replying in normal IRC style  ...  it appears however
+> >    that the sentence fragments were just cut'n'pasted
+> >    together into something gramatically dubious, this has
+> >    messed up the contents in some places ;)
+>
+> Rik, I asked you to choose between an email or IRC interview, you chose
+> IRC, so from that moment if you used an informal language, it was out
+> of my job. If you aren't able to take your responsabilities for your
+> actions or words,
 
-Wrong century, Rik.
-Google is your friend.
+I'm willing to take full responsability for what I mean,
+not for other people's interpretations of my words.
 
-But anyway, hope we all have learned something.
+It seems IRC isn't a good medium to do interviews so I
+won't do that again.
 
-Regards,
-Stephan
+regards,
 
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

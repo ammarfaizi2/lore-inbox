@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269032AbUIQQMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269012AbUIQQMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269032AbUIQQMO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 12:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268993AbUIQQLe
+	id S269012AbUIQQMa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 12:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269015AbUIQQL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 12:11:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13481 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269012AbUIQQFD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 12:05:03 -0400
-Date: Fri, 17 Sep 2004 09:04:48 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, zaitcev@redhat.com
-Subject: Re: [BUG] ub.c badness in current bk
-Message-Id: <20040917090448.32ff763c@lembas.zaitcev.lan>
-In-Reply-To: <1095414394.13531.77.camel@gaston>
-References: <mailman.1095300780.10032.linux-kernel2news@redhat.com>
-	<20040917002935.77620d1d@lembas.zaitcev.lan>
-	<1095414394.13531.77.camel@gaston>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 17 Sep 2004 12:11:29 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:33693 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S268993AbUIQQDc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 12:03:32 -0400
+Date: Fri, 17 Sep 2004 18:01:51 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jon Mason <jdmason@us.ibm.com>
+Cc: Hans-Frieder Vogt <hfvogt@arcor.de>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, netdev@oss.sgi.com
+Subject: Re: 2.6.9-rc1-bk11+ and 2.6.9-rc1-mm3,4 r8169: freeze during boot (FIX included)
+Message-ID: <20040917160151.GA29337@electric-eye.fr.zoreil.com>
+References: <200409130035.50823.hfvogt@arcor.de> <20040916070211.GA32592@electric-eye.fr.zoreil.com> <200409161320.16526.jdmason@us.ltcfwd.linux.ibm.com> <200409171043.21772.jdmason@us.ltcfwd.linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409171043.21772.jdmason@us.ltcfwd.linux.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Sep 2004 19:46:34 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Jon Mason <jdmason@us.ibm.com> :
+[...]
+> Before I make any sweeping comments about the performance on ppc64, I should 
+> probably do some more tests.  I'll have to get back to you regarding that.
+> 
+> Would you like me to run the "Config2" patch on my amd64 system?
 
-> Ok, here's a modified patch that fixes the problem for me.
+Please do. If I read you correctly, 2.6.9-rc2-bkX works (more or less)
+on both your ppc64 and amd64 systems, right ?
 
-> +	ret = sc->changed;
-> +	/* P3 */ printk("%s: %s changed\n", sc->name, ret ? "is": "was not");
-> +	
-> +	sc->changed = 0;
->  	return sc->changed;
->  }
-
-You return zero always. I don't think it's supposed to be that way.
-I'm sorry, but I cannot apply it. I'll look for a better solution.
-
--- Pete
+--
+Ueimor

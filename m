@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268389AbUHLDaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268374AbUHLDaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268389AbUHLDaY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 23:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268394AbUHLDaY
+	id S268374AbUHLDaM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 23:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268389AbUHLDaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 23:30:24 -0400
-Received: from holomorphy.com ([207.189.100.168]:49032 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268389AbUHLDaT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 23:30:19 -0400
-Date: Wed, 11 Aug 2004 20:30:12 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] 2.6.8-rc4-mm1 - UML fixes
-Message-ID: <20040812033012.GE11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jeff Dike <jdike@addtoit.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <200408120415.i7C4FWJd010494@ccure.user-mode-linux.org>
+	Wed, 11 Aug 2004 23:30:12 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:59882 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S268374AbUHLDaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 23:30:08 -0400
+Subject: Re: Allow userspace do something special on overtemp
+From: Len Brown <len.brown@intel.com>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Pavel Machek <pavel@suse.cz>, trenn@suse.de, seife@suse.de,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1092269309.3948.57.camel@mentorng.gurulabs.com>
+References: <20040811085326.GA11765@elf.ucw.cz>
+	 <1092269309.3948.57.camel@mentorng.gurulabs.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092281393.7765.141.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408120415.i7C4FWJd010494@ccure.user-mode-linux.org>
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 11 Aug 2004 23:29:53 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 12, 2004 at 12:15:32AM -0400, Jeff Dike wrote:
-> The patch below fixes a few UML-specific bugs not related to the rest of the
-> kernel
-> 	a bogus error return and some formatting in the fork code
-> 	correct calculation of task.thread.kernel_stack
-> 	remove a bogus panic
-> 	a couple of fixes to allow UML to boot in the presence of exec-shield
-[...]
->  	p->thread.kernel_stack = 
-> -		(unsigned long) p->thread_info + THREAD_SIZE;
-> +		(unsigned long) p->thread_info + 2 * PAGE_SIZE;
->  	return(CHOOSE_MODE_PROC(copy_thread_tt, copy_thread_skas, nr, 
->  				clone_flags, sp, stack_top, p, regs));
+I agree with Dan.
 
-Out of curiosity, why are you allocating 4*PAGE_SIZE for the stack if
-you're only going to use 2*PAGE_SIZE of it? I saw no other users for
-the rest of ->thread_info offhand.
+I think I'd rather see the calls to usermode deleted
+instead of extended -- unless there is a reason that
+the general event -> acpid method can't work.
+
+If the administrator screws up and disables shutdown
+on critical temp, modern hardware will throttle
+(in hardware), and if that too fails, it will shut
+itself off.
+
+-Len
 
 
--- wli

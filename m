@@ -1,31 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265534AbRFVVtO>; Fri, 22 Jun 2001 17:49:14 -0400
+	id <S265532AbRFVVtO>; Fri, 22 Jun 2001 17:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265535AbRFVVsy>; Fri, 22 Jun 2001 17:48:54 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3854 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265534AbRFVVsv>; Fri, 22 Jun 2001 17:48:51 -0400
-Subject: Re: For comment: draft BIOS use document for the kernel
-To: bgerst@didntduck.org (Brian Gerst)
-Date: Fri, 22 Jun 2001 22:46:22 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), root@chaos.analogic.com,
-        RSchilling@affiliatedhealth.org (Schilling Richard),
-        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <3B338C2B.D036012F@didntduck.org> from "Brian Gerst" at Jun 22, 2001 02:19:23 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265534AbRFVVsy>; Fri, 22 Jun 2001 17:48:54 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:24797 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S265532AbRFVVsp>;
+	Fri, 22 Jun 2001 17:48:45 -0400
+Date: Fri, 22 Jun 2001 18:43:24 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] CREDITS update
+Message-ID: <Pine.LNX.4.33L.0106221842220.4442-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15DYkw-0004CB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's in arch/i386/boot/setup.S, after label bootsect_second.  It's only
-> used with bzImage kernels and the floppy bootsector.
+Hi,
 
-I stand corrected. I will add this to the documentation
+seems that I've forgotten to update my CREDITS entry for
+quite a long time now. Patch attached ;)
 
-Alan
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+
+
+--- CREDITS.orig	Fri Jun 22 18:41:15 2001
++++ CREDITS	Fri Jun 22 18:42:06 2001
+@@ -2337,14 +2337,15 @@
+ S: France
+
+ N: Rik van Riel
+-E: riel@nl.linux.org
+-W: http://www.nl.linux.org/~riel/
++E: riel@conectiva.com.br
++W: http://www.surriel.com/
+ D: Linux-MM site, Documentation/sysctl/*, swap/mm readaround
+ D: clustering contributor, kswapd fixes, random kernel hacker,
+-D: nl.linux.org maintainer, minor scheduler additions
+-S: IJsselstraat 23a
+-S: 9725 GA  Groningen
+-S: The Netherlands
++D: nl.linux.org administrator, minor scheduler additions
++S: Conectiva S.A.
++S: R. Tocantins, 89 - Cristo Rei
++S: 80050-430 - Curitiba - Paraná
++S: Brazil
+
+ N: Pekka Riikonen
+ E: priikone@poseidon.pspt.fi
 

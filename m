@@ -1,1562 +1,3379 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVBOQ4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVBORD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVBOQ4X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 11:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVBOQ4X
+	id S261786AbVBORD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 12:03:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVBORD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 11:56:23 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:45001 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261787AbVBOQuT
+	Tue, 15 Feb 2005 12:03:28 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:45257 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261786AbVBOQuW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 11:50:19 -0500
+	Tue, 15 Feb 2005 11:50:22 -0500
 X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 15 Feb 2005 17:42:45 +0100
+Date: Tue, 15 Feb 2005 17:44:13 +0100
 From: Gerd Knorr <kraxel@bytesex.org>
 To: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [patch] add scsi changer driver
-Message-ID: <20050215164245.GA13352@bytesex>
+Subject: [patch] tv tuner module update.
+Message-ID: <20050215164413.GA13455@bytesex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+Did some code reorganization: splitted up the source into four files:
+ - tuner-core.c for all the interfacing stuff (register driver,
+   handle insmod options, react on v4l ioctls, ...),
+ - tuner-simple.c for all those trivial 4-byte-command-sequence tuner
+   chips.
+ - mt20xx.c for the mt2032 and mt2050 tuners.
+ - tda8290.c for the tda8290/8272 combo (this code is new).
 
-This patch adds a device driver for scsi media changer devices (tape
-libraries for example).
-
-It exists for quite some time (since 2.2.x or so ...), is used by
-several people and also is in some vendor kernels (debian, suse, maybe
-others as well).  People bug be from time to time to submit it ;)
-
-Recently I went over it and did some 2.6 cleanups, module parameters
-and the like.  And now, finally, here it is.
-
-Please apply,
-
-  Gerd
+I also did a number of cleanups like using dev_printk() for the
+messages everythere.  There should be no functional changes beside
+the new support for the tda8290 tuner.
 
 Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
----
- Documentation/scsi-changer.txt |  184 +++++
- drivers/scsi/Kconfig           |   18 
- drivers/scsi/Makefile          |    1 
- drivers/scsi/ch.c              | 1059 +++++++++++++++++++++++++++++++++
- include/linux/chio.h           |  168 +++++
- include/linux/major.h          |    1 
- include/scsi/scsi.h            |    3 
- 7 files changed, 1434 insertions(+)
 
-Index: linux-2.6.10/Documentation/scsi-changer.txt
+Index: linux-2.6.11-rc4/include/media/tuner.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.10/Documentation/scsi-changer.txt	2005-01-19 14:30:27.000000000 +0100
-@@ -0,0 +1,184 @@
+--- linux-2.6.11-rc4.orig/include/media/tuner.h	2005-02-14 15:24:15.000000000 +0100
++++ linux-2.6.11-rc4/include/media/tuner.h	2005-02-15 17:02:08.000000000 +0100
+@@ -29,55 +29,70 @@
+ #define TUNER_PHILIPS_PAL_I 1
+ #define TUNER_PHILIPS_NTSC  2
+ #define TUNER_PHILIPS_SECAM 3		/* you must actively select B/G, L, L` */
 +
-+README for the SCSI media changer driver
-+========================================
+ #define TUNER_ABSENT        4
+ #define TUNER_PHILIPS_PAL   5
+ #define TUNER_TEMIC_NTSC    6        /* 4032 FY5 (3X 7004, 9498, 9789)  */
+ #define TUNER_TEMIC_PAL_I   7        /* 4062 FY5 (3X 8501, 9957)        */
 +
-+This is a driver for SCSI Medium Changer devices, which are listed
-+with "Type: Medium Changer" in /proc/scsi/scsi.
+ #define TUNER_TEMIC_4036FY5_NTSC 8   /* 4036 FY5 (3X 1223, 1981, 7686)  */
+ #define TUNER_ALPS_TSBH1_NTSC 	 9
+ #define TUNER_ALPS_TSBE1_PAL 	10
+ #define TUNER_ALPS_TSBB5_PAL_I 	11
 +
-+This is for *real* Jukeboxes.  It is *not* supported to work with
-+common small CD-ROM changers, neither one-lun-per-slot SCSI changers
-+nor IDE drives.
+ #define TUNER_ALPS_TSBE5_PAL 	12
+ #define TUNER_ALPS_TSBC5_PAL 	13
+ #define TUNER_TEMIC_4006FH5_PAL	14   /* 4006 FH5 (3X 9500, 9501, 7291)     */
+ #define TUNER_ALPS_TSHC6_NTSC 	15
 +
-+Userland tools available from: http://bytesex.org/changer.html
+ #define TUNER_TEMIC_PAL_DK	16   /* 4016 FY5 (3X 1392, 1393)     */
+ #define TUNER_PHILIPS_NTSC_M	17
+ #define TUNER_TEMIC_4066FY5_PAL_I       18  /* 4066 FY5 (3X 7032, 7035) */
+ #define TUNER_TEMIC_4006FN5_MULTI_PAL   19  /* B/G, I and D/K autodetected (3X 7595, 7606, 7657)*/
 +
+ #define TUNER_TEMIC_4009FR5_PAL         20  /* incl. FM radio (3X 7607, 7488, 7711)*/
+ #define TUNER_TEMIC_4039FR5_NTSC        21  /* incl. FM radio (3X 7246, 7578, 7732)*/
+ #define TUNER_TEMIC_4046FM5             22  /* you must actively select B/G, D/K, I, L, L` !  (3X 7804, 7806, 8103, 8104)*/
+ #define TUNER_PHILIPS_PAL_DK		23
 +
-+General Information
-+-------------------
+ #define TUNER_PHILIPS_FQ1216ME		24  /* you must actively select B/G/D/K, I, L, L` */
+ #define TUNER_LG_PAL_I_FM	25
+ #define TUNER_LG_PAL_I		26
+ #define TUNER_LG_NTSC_FM	27
 +
-+First some words about how changers work: A changer has 2 (possibly
-+more) SCSI ID's. One for the changer device which controls the robot,
-+and one for the device which actually reads and writes the data. The
-+later may be anything, a MOD, a CD-ROM, a tape or whatever. For the
-+changer device this is a "don't care", he *only* shuffles around the
-+media, nothing else.
+ #define TUNER_LG_PAL_FM		28
+ #define TUNER_LG_PAL		29
+ #define TUNER_TEMIC_4009FN5_MULTI_PAL_FM	30  /* B/G, I and D/K autodetected (3X 8155, 8160, 8163)*/
+ #define TUNER_SHARP_2U5JF5540_NTSC  31
 +
+ #define TUNER_Samsung_PAL_TCPM9091PD27 32
+ #define TUNER_MT2032 33
+ #define TUNER_TEMIC_4106FH5 	34	/* 4106 FH5 (3X 7808, 7865)*/
+ #define TUNER_TEMIC_4012FY5	35	/* 4012 FY5 (3X 0971, 1099)*/
 +
-+The SCSI changer model is complex, compared to - for example - IDE-CD
-+changers. But it allows to handle nearly all possible cases. It knows
-+4 different types of changer elements:
+ #define TUNER_TEMIC_4136FY5	36	/* 4136 FY5 (3X 7708, 7746)*/
+ #define TUNER_LG_PAL_NEW_TAPC   37
+ #define TUNER_PHILIPS_FM1216ME_MK3  38
+ #define TUNER_LG_NTSC_NEW_TAPC   39
 +
-+  media transport - this one shuffles around the media, i.e. the
-+                    transport arm.  Also known as "picker".
-+  storage         - a slot which can hold a media.
-+  import/export   - the same as above, but is accessable from outside,
-+                    i.e. there the operator (you !) can use this to
-+                    fill in and remove media from the changer.
-+		    Sometimes named "mailslot".
-+  data transfer   - this is the device which reads/writes, i.e. the
-+		    CD-ROM / Tape / whatever drive.
+ #define TUNER_HITACHI_NTSC       40
+ #define TUNER_PHILIPS_PAL_MK     41
+ #define TUNER_PHILIPS_ATSC       42
+ #define TUNER_PHILIPS_FM1236_MK3 43
 +
-+None of these is limited to one: A huge Jukebox could have slots for
-+123 CD-ROM's, 5 CD-ROM readers (and therefore 6 SCSI ID's: the changer
-+and each CD-ROM) and 2 transport arms. No problem to handle.
+ #define TUNER_PHILIPS_4IN1       44	/* ATI TV Wonder Pro - Conexant */
+ /* Microtune mergeged with Temic 12/31/1999 partially financed by Alps - these may be similar to Temic */
+ #define TUNER_MICROTUNE_4049FM5  45
+ #define TUNER_LG_NTSC_TAPE       47
 +
+ #define TUNER_TNF_8831BGFF       48
+ #define TUNER_MICROTUNE_4042FI5  49	/* FusionHDTV 3 Gold - 4042 FI5 (3X 8147) */
+ #define TUNER_TCL_2002N          50
+ #define TUNER_PHILIPS_FM1256_IH3   51
 +
-+How it is implemented
-+---------------------
-+
-+I implemented the driver as character device driver with a NetBSD-like
-+ioctl interface. Just grabbed NetBSD's header file and one of the
-+other linux SCSI device drivers as starting point. The interface
-+should be source code compatible with NetBSD. So if there is any
-+software (anybody knows ???) which supports a BSDish changer driver,
-+it should work with this driver too.
-+
-+Over time a few more ioctls where added, volume tag support for example
-+wasn't covered by the NetBSD ioctl API.
-+
-+
-+Current State
-+-------------
-+
-+Support for more than one transport arm is not implemented yet (and
-+nobody asked for it so far...).
-+
-+I test and use the driver myself with a 35 slot cdrom jukebox from
-+Grundig.  I got some reports telling it works ok with tape autoloaders
-+(Exabyte, HP and DEC).  Some People use this driver with amanda.  It
-+works fine with small (11 slots) and a huge (4 MOs, 88 slots)
-+magneto-optical Jukebox.  Probably with lots of other changers too, most
-+(but not all :-) people mail me only if it does *not* work...
-+
-+I don't have any device lists, neither black-list nor white-list.  Thus
-+it is quite useless to ask me whenever a specific device is supported or
-+not.  In theory every changer device which supports the SCSI-2 media
-+changer command set should work out-of-the-box with this driver.  If it
-+doesn't, it is a bug.  Either within the driver or within the firmware
-+of the changer device.
-+
-+
-+Using it
-+--------
-+
-+This is a character device with major number is 86, so use
-+"mknod /dev/sch0 c 86 0" to create the special file for the driver.
-+
-+If the module finds the changer, it prints some messages about the
-+device [ try "dmesg" if you don't see anything ] and should show up in
-+/proc/devices. If not....  some changers use ID ? / LUN 0 for the
-+device and ID ? / LUN 1 for the robot mechanism. But Linux does *not*
-+look for LUN's other than 0 as default, becauce there are to many
-+broken devices. So you can try:
-+
-+  1) echo "scsi add-single-device 0 0 ID 1" > /proc/scsi/scsi
-+     (replace ID with the SCSI-ID of the device)
-+  2) boot the kernel with "max_scsi_luns=1" on the command line
-+     (append="max_scsi_luns=1" in lilo.conf should do the trick)
-+
-+
-+Trouble?
-+--------
-+
-+If you insmod the driver with "insmod debug=1", it will be verbose and
-+prints a lot of stuff to the syslog.  Compiling the kernel with
-+CONFIG_SCSI_CONSTANTS=y improves the quality of the error messages alot
-+because the kernel will translate the error codes into human-readable
-+strings then.
-+
-+You can display these messages with the dmesg command (or check the
-+logfiles).  If you email me some question becauce of a problem with the
-+driver, please include these messages.
-+
-+
-+Insmod options
-+--------------
-+
-+debug=0/1
-+	Enable debug messages (see above, default: 0).
-+
-+verbose=0/1
-+	Be verbose (default: 1).
-+
-+init=0/1
-+	Send INITIALIZE ELEMENT STATUS command to the changer
-+	at insmod time (default: 1).
-+
-+check_busy=0/1
-+	When moving media from/to data transfer elements, check
-+	whenever the device is busy and refuse to move if so
-+	(default: 1).
-+
-+timeout_init=<seconds>
-+	timeout for the INITIALIZE ELEMENT STATUS command
-+	(default: 3600).
-+
-+timeout_move=<seconds>
-+	timeout for all other commands (default: 120).
-+
-+dt_id=<id1>,<id2>,...
-+dt_lun=<lun1>,<lun2>,...
-+	These two allow to specify the SCSI ID and LUN for the data
-+	transfer elements.  You likely don't need this as the jukebox
-+	should provide this information.  But some devices don't ...
-+
-+vendor_firsts=
-+vendor_counts=
-+vendor_labels=
-+	These insmod options can be used to tell the driver that there
-+	are some vendor-specific element types.  Grundig for example
-+	does this.  Some jukeboxes have a printer to label fresh burned
-+	CDs, which is addressed as element 0xc000 (type 5).  To tell the
-+	driver about this vendor-specific element, use this:
-+		$ insmod ch			\
-+			vendor_firsts=0xc000	\
-+			vendor_counts=1		\
-+			vendor_labels=printer
-+	All three insmod options accept up to four comma-separated
-+	values, this way you can configure the element types 5-8.
-+	You likely need the SCSI specs for the device in question to
-+	find the correct values as they are not covered by the SCSI-2
-+	standard.
-+
-+
-+Credits
-+-------
-+
-+I wrote this driver using the famous mailing-patches-around-the-world
-+method.  With (more or less) help from:
-+
-+	Daniel Moehwald <moehwald@hdg.de>
-+	Dane Jasper <dane@sonic.net>
-+	R. Scott Bailey <sbailey@dsddi.eds.com>
-+	Jonathan Corbet <corbet@atd.ucar.edu>
-+
-+Special thanks go to
-+	Martin Kuehne <Martin.KUEHNE@GRUNDIG.com>
-+for a old, second-hand (but full functional) cdrom jukebox which I use
-+to develop/test driver and tools now.
-+
-+Have fun,
-+
-+   Gerd
-+
-+-- 
-+Gerd Knorr <kraxel@bytesex.org>
-Index: linux-2.6.10/drivers/scsi/Kconfig
-===================================================================
---- linux-2.6.10.orig/drivers/scsi/Kconfig	2004-12-29 23:58:40.000000000 +0100
-+++ linux-2.6.10/drivers/scsi/Kconfig	2005-01-19 14:30:27.567747617 +0100
-@@ -137,6 +137,24 @@ config CHR_DEV_SG
+ #define TUNER_THOMSON_DTT7610    52
++#define TUNER_PHILIPS_FQ1286     53
++#define TUNER_PHILIPS_TDA8290    54
  
- 	  If unsure, say N.
+ #define NOTUNER 0
+ #define PAL     1	/* PAL_BG */
+@@ -102,10 +117,6 @@
  
-+config CHR_DEV_SCH
-+	tristate "SCSI media changer support"
-+	depends on SCSI
-+	---help---
-+	  This is a driver for SCSI media changers.  Most common devices are
-+	  tape libraries and MOD/CDROM jukeboxes.  *Real* jukeboxes, you
-+	  don't need this for those tiny 6-slot cdrom changers.  Media
-+	  changers are listed as "Type: Medium Changer" in /proc/scsi/scsi.
-+	  If you have such hardware and want to use it with linux, say Y
-+	  here.  Check <file:Documentation/scsi-changer.txt> for details.
-+	
-+	  If you want to compile this as a module ( = code which can be
-+	  inserted in and removed from the running kernel whenever you want),
-+	  say M here and read <file:Documentation/modules.txt> and
-+	  <file:Documentation/scsi.txt>. The module will be called ch.o.
-+	  If unsure, say N.
-+	
-+
- comment "Some SCSI devices (e.g. CD jukebox) support multiple LUNs"
- 	depends on SCSI
+ #define TUNER_SET_TYPE               _IOW('t',1,int)    /* set tuner type */
+ #define TUNER_SET_TVFREQ             _IOW('t',2,int)    /* set tv freq */
+-#if 0 /* obsolete */
+-# define TUNER_SET_RADIOFREQ         _IOW('t',3,int)    /* set radio freq */
+-# define TUNER_SET_MODE              _IOW('t',4,int)    /* set tuner mode */
+-#endif
  
-Index: linux-2.6.10/drivers/scsi/Makefile
-===================================================================
---- linux-2.6.10.orig/drivers/scsi/Makefile	2004-12-29 23:58:17.000000000 +0100
-+++ linux-2.6.10/drivers/scsi/Makefile	2005-01-19 14:30:27.567747617 +0100
-@@ -140,6 +140,7 @@ obj-$(CONFIG_CHR_DEV_OSST)	+= osst.o
- obj-$(CONFIG_BLK_DEV_SD)	+= sd_mod.o
- obj-$(CONFIG_BLK_DEV_SR)	+= sr_mod.o
- obj-$(CONFIG_CHR_DEV_SG)	+= sg.o
-+obj-$(CONFIG_CHR_DEV_SCH)	+= ch.o
+ #define  TDA9887_SET_CONFIG          _IOW('t',5,int)
+ /* tv card specific */
+@@ -123,4 +134,62 @@
+ # define TDA9887_DEEMPHASIS_75       (3<<16)
+ # define TDA9887_AUTOMUTE            (1<<18)
  
- scsi_mod-y			+= scsi.o hosts.o scsi_ioctl.o constants.o \
- 				   scsicam.o scsi_error.o scsi_lib.o \
-Index: linux-2.6.10/drivers/scsi/ch.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.10/drivers/scsi/ch.c	2005-01-19 14:43:54.199099554 +0100
-@@ -0,0 +1,1059 @@
-+/*
-+ * SCSI Media Changer device driver for Linux 2.6
-+ *
-+ *     (c) 1996-2003 Gerd Knorr <kraxel@bytesex.org>
-+ *
-+ */
++#ifdef __KERNEL__
 +
-+#define VERSION "0.23"
++#define I2C_ADDR_TDA8290        0x4b
++#define I2C_ADDR_TDA8275        0x61
 +
-+#include <linux/config.h>
-+#include <linux/version.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/fs.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+#include <linux/major.h>
-+#include <linux/string.h>
-+#include <linux/errno.h>
-+#include <linux/interrupt.h>
-+#include <linux/blkdev.h>
-+#include <linux/completion.h>
-+#include <linux/devfs_fs_kernel.h>
-+#include <linux/ioctl32.h>
-+#include <linux/compat.h>
-+#include <asm/system.h>
-+#include <asm/uaccess.h>
++struct tuner {
++	/* device */
++	struct i2c_client i2c;
 +
-+#include <linux/chio.h>			/* here are all the ioctls */
++	/* state + config */
++	unsigned int initialized;
++	unsigned int type;            /* chip type */
++	unsigned int freq;            /* keep track of the current settings */
++	v4l2_std_id  std;
++	int          using_v4l2;
 +
-+#define MAJOR_NR	SCSI_CHANGER_MAJOR
++	enum v4l2_tuner_type mode;
++	unsigned int input;
 +
-+#define CH_DT_MAX       16
-+#define CH_TYPES        8
++	/* used by MT2032 */
++	unsigned int xogc;
++	unsigned int radio_if2;
 +
-+#include <scsi/scsi_cmnd.h>
-+#include <scsi/scsi_driver.h>
-+#include <scsi/scsi_ioctl.h>
-+#include <scsi/scsi_host.h>
++	/* used by tda8290 */
++	unsigned char i2c_easy_mode[2];
++	unsigned char i2c_set_freq[8];
 +
-+#include "scsi.h"
-+
-+MODULE_SUPPORTED_DEVICE("sch");
-+MODULE_DESCRIPTION("device driver for scsi media changer devices");
-+MODULE_AUTHOR("Gerd Knorr <kraxel@bytesex.org>");
-+MODULE_LICENSE("GPL");
-+
-+static int init = 1;
-+module_param(init, int, 0444);
-+MODULE_PARM_DESC(init, \
-+    "initialize element status on driver load (default: on)");
-+
-+static int timeout_move = 300;
-+module_param(timeout_move, int, 0644);
-+MODULE_PARM_DESC(timeout_move,"timeout for move commands "
-+		 "(default: 300 seconds)");
-+
-+static int timeout_init = 3600;
-+module_param(timeout_init, int, 0644);
-+MODULE_PARM_DESC(timeout_init,"timeout for INITIALIZE ELEMENT STATUS "
-+		 "(default: 3600 seconds)");
-+
-+static int verbose = 1;
-+module_param(verbose, int, 0644);
-+MODULE_PARM_DESC(verbose,"be verbose (default: on)");
-+
-+static int debug = 0;
-+module_param(debug, int, 0644);
-+MODULE_PARM_DESC(debug,"enable/disable debug messages, also prints more "
-+		 "detailed sense codes on scsi errors (default: off)");
-+
-+static int dt_id[CH_DT_MAX] = { [ 0 ... (CH_DT_MAX-1) ] = -1 };
-+static int dt_lun[CH_DT_MAX];
-+module_param_array(dt_id,  int, NULL, 0444);
-+module_param_array(dt_lun, int, NULL, 0444);
-+
-+/* tell the driver about vendor-specific slots */
-+static int vendor_firsts[CH_TYPES-4];
-+static int vendor_counts[CH_TYPES-4];
-+module_param_array(vendor_firsts, int, NULL, 0444);
-+module_param_array(vendor_counts, int, NULL, 0444);
-+
-+static char *vendor_labels[CH_TYPES-4] = {
-+	"v0", "v1", "v2", "v3"
-+};
-+// module_param_string_array(vendor_labels, NULL, 0444);
-+
-+#define dprintk(fmt, arg...)    if (debug) \
-+        printk(KERN_DEBUG "%s: " fmt, ch->name, ##arg)
-+#define vprintk(fmt, arg...)    if (verbose) \
-+        printk(KERN_INFO "%s: " fmt, ch->name, ##arg)
-+
-+/* ------------------------------------------------------------------- */
-+
-+#define MAX_RETRIES   1
-+
-+static int  ch_probe(struct device *);
-+static int  ch_remove(struct device *);
-+static int  ch_open(struct inode * inode, struct file * filp);
-+static int  ch_release(struct inode * inode, struct file * filp);
-+static int  ch_ioctl(struct inode * inode, struct file * filp,
-+		     unsigned int cmd, unsigned long arg);
-+
-+typedef struct {
-+	struct list_head    list;
-+	int                 minor;
-+	char                name[8];
-+	Scsi_Device  	    *device;
-+	Scsi_Device         **dt;        /* ptrs to data transfer elements */
-+	u_int               firsts[CH_TYPES];
-+	u_int               counts[CH_TYPES];
-+	u_int               unit_attention;
-+	u_int		    voltags;
-+	struct semaphore    lock;
-+} scsi_changer;
-+
-+static LIST_HEAD(ch_devlist);
-+static spinlock_t ch_devlist_lock = SPIN_LOCK_UNLOCKED;
-+static int ch_devcount;
-+
-+struct scsi_driver ch_template =
-+{
-+	.owner     	= THIS_MODULE,
-+	.gendrv     	= {
-+		.name	= "ch",
-+		.probe  = ch_probe,
-+		.remove = ch_remove,
-+	},
++	/* function ptrs */
++	void (*tv_freq)(struct i2c_client *c, unsigned int freq);
++	void (*radio_freq)(struct i2c_client *c, unsigned int freq);
++	int  (*has_signal)(struct i2c_client *c);
++	int  (*is_stereo)(struct i2c_client *c);
 +};
 +
-+static struct file_operations changer_fops =
-+{
-+	.owner      = THIS_MODULE,
-+	.open       = ch_open,
-+	.release    = ch_release,
-+	.ioctl      = ch_ioctl,
-+};
-+
-+static struct {
-+	unsigned char  sense;
-+	unsigned char  asc;
-+	unsigned char  ascq;
-+	int	       errno;
-+} err[] = {
-+/* Just filled in what looks right. Hav'nt checked any standard paper for
-+   these errno assignments, so they may be wrong... */
-+	{
-+		.sense  = ILLEGAL_REQUEST,
-+		.asc    = 0x21,
-+		.ascq   = 0x01,
-+		.errno  = EBADSLT, /* Invalid element address */
-+	},{
-+		.sense  = ILLEGAL_REQUEST,
-+		.asc    = 0x28,
-+		.ascq   = 0x01,
-+		.errno  = EBADE,   /* Import or export element accessed */
-+	},{
-+		.sense  = ILLEGAL_REQUEST,
-+		.asc    = 0x3B,
-+		.ascq   = 0x0D,
-+		.errno  = EXFULL,  /* Medium destination element full */
-+	},{
-+		.sense  = ILLEGAL_REQUEST,
-+		.asc    = 0x3B,
-+		.ascq   = 0x0E,
-+		.errno  = EBADE,   /* Medium source element empty */
-+	},{
-+		.sense  = ILLEGAL_REQUEST,
-+		.asc    = 0x20,
-+		.ascq   = 0x00,
-+		.errno  = EBADRQC, /* Invalid command operation code */
-+	},{
-+	        /* end of list */
-+	}
-+};
-+
-+/* ------------------------------------------------------------------- */
-+/* ioctl32 compat                                                      */
-+
-+#ifdef CONFIG_COMPAT
-+
-+struct changer_element_status32 {
-+	int		ces_type;
-+	compat_uptr_t	ces_data;
-+};
-+#define CHIOGSTATUS32  _IOW('c', 8,struct changer_element_status32)
-+
-+static struct {
-+	unsigned int cmd;
-+	int          reg;
-+} ioctl32_cmds[] = {
-+	{ .cmd = CHIOMOVE      },
-+	{ .cmd = CHIOEXCHANGE  },
-+	{ .cmd = CHIOPOSITION  },
-+	{ .cmd = CHIOGPICKER   },
-+	{ .cmd = CHIOSPICKER   },
-+	{ .cmd = CHIOGPARAMS   },
-+	{ .cmd = CHIOGELEM     },
-+	{ .cmd = CHIOINITELEM  },
-+	{ .cmd = CHIOSVOLTAG   },
-+	{ .cmd = CHIOGVPARAMS  },
-+	{ .cmd = CHIOGSTATUS32 },
-+};
-+
-+static int ioctl32_register(void)
-+{
-+	unsigned int i;
-+	int err;
-+
-+	for (i = 0; i < ARRAY_SIZE(ioctl32_cmds); i++) {
-+		err = register_ioctl32_conversion(ioctl32_cmds[i].cmd,NULL);
-+		if (err >= 0)
-+			ioctl32_cmds[i].reg++;
-+	}
-+	return 0;
-+}
-+static int ioctl32_unregister(void)
-+{
-+	unsigned int i;
-+	
-+	for (i = 0; i < ARRAY_SIZE(ioctl32_cmds); i++) {
-+		if (ioctl32_cmds[i].reg) {
-+			unregister_ioctl32_conversion(ioctl32_cmds[i].cmd);
-+			ioctl32_cmds[i].reg--;
-+		}
-+	}
-+	return 0;
-+}
-+
-+#else
-+
-+static int ioctl32_register(void)   { return 0; }
-+static int ioctl32_unregister(void) { return 0; }
-+
-+#endif
-+
-+/* ------------------------------------------------------------------- */
-+
-+static int ch_find_errno(unsigned char *sense_buffer)
-+{
-+	int i,errno = 0;
-+
-+	/* Check to see if additional sense information is available */
-+	if (sense_buffer[7]  > 5 &&
-+	    sense_buffer[12] != 0) {
-+		for (i = 0; err[i].errno != 0; i++) {
-+			if (err[i].sense == sense_buffer[ 2] &&
-+			    err[i].asc   == sense_buffer[12] &&
-+			    err[i].ascq  == sense_buffer[13]) {
-+				errno = -err[i].errno;
-+				break;
-+			}
-+		}
-+	}
-+	if (errno == 0)
-+		errno = -EIO;
-+	return errno;
-+}
-+
-+static void
-+ch_request_done (Scsi_Cmnd * sc)
-+{
-+	sc->request->rq_status = RQ_SCSI_DONE; /* Busy, but indicate request done */
-+        if (sc->request->waiting != NULL)
-+		complete(sc->request->waiting);
-+}
-+
-+static int
-+ch_do_scsi(scsi_changer *ch, unsigned char *cmd,
-+	   void *buffer, unsigned buflength)
-+{
-+	int errno, retries = 0, timeout;
-+	DECLARE_COMPLETION(wait);
-+	Scsi_Request *sr;
-+	
-+	sr = scsi_allocate_request(ch->device, GFP_ATOMIC);
-+	if (NULL == sr)
-+		return -ENOMEM;
-+
-+ retry:
-+	errno = 0;
-+	if (debug) {
-+		dprintk("command: %s","");
-+		print_command(cmd);
-+	}
-+
-+	sr->sr_request->waiting = &wait;
-+	timeout = (cmd[0] == INITIALIZE_ELEMENT_STATUS)
-+		? timeout_init : timeout_move;
-+	scsi_do_req(sr, cmd, buffer, buflength, ch_request_done,
-+		    timeout * HZ, MAX_RETRIES);
-+	wait_for_completion(&wait);
-+	sr->sr_request->waiting = NULL;
-+
-+	dprintk("result: 0x%x\n",sr->sr_result);
-+	if (driver_byte(sr->sr_result) != 0) {
-+		if (debug)
-+			print_req_sense(ch->name, sr);
-+		errno = ch_find_errno(sr->sr_sense_buffer);
-+
-+		switch(sr->sr_sense_buffer[2] & 0xf) {
-+		case UNIT_ATTENTION:
-+			ch->unit_attention = 1;
-+			if (retries++ < 3)
-+				goto retry;
-+			break;
-+		}
-+	}
-+	scsi_release_request(sr);
-+	return errno;
-+}
-+
-+/* ------------------------------------------------------------------------ */
-+
-+static int
-+ch_elem_to_typecode(scsi_changer *ch, u_int elem)
-+{
-+	int i;
-+	
-+	for (i = 0; i < CH_TYPES; i++) {
-+		if (elem >= ch->firsts[i]  &&
-+		    elem <  ch->firsts[i] +
-+	            ch->counts[i])
-+			return i+1;
-+	}
-+	return 0;
-+}
-+
-+static int
-+ch_read_element_status(scsi_changer *ch, u_int elem, char *data)
-+{
-+	u_char  cmd[12];
-+	u_char  *buffer;
-+	int     result;
-+	
-+	buffer = kmalloc(512, GFP_KERNEL);
-+	if(!buffer)
-+		return -ENOMEM;
-+	
-+ retry:
-+	memset(cmd,0,sizeof(cmd));
-+	cmd[0] = READ_ELEMENT_STATUS;
-+	cmd[1] = (ch->device->lun << 5) | 
-+		(ch->voltags ? 0x10 : 0) |
-+		ch_elem_to_typecode(ch,elem);
-+	cmd[2] = (elem >> 8) & 0xff;
-+	cmd[3] = elem        & 0xff;
-+	cmd[5] = 1;
-+	cmd[9] = 255;
-+	if (0 == (result = ch_do_scsi(ch, cmd, buffer, 256))) {
-+		if (((buffer[16] << 8) | buffer[17]) != elem) {
-+			dprintk("asked for element 0x%02x, got 0x%02x\n",
-+				elem,(buffer[16] << 8) | buffer[17]);
-+			kfree(buffer);
-+			return -EIO;
-+		}
-+		memcpy(data,buffer+16,16);
-+	} else {
-+		if (ch->voltags) {
-+			ch->voltags = 0;
-+			vprintk("device has no volume tag support%s\n","");
-+			goto retry;
-+		}
-+		dprintk("READ ELEMENT STATUS for element 0x%x failed\n",elem);
-+	}
-+	kfree(buffer);
-+	return result;
-+}
-+
-+static int 
-+ch_init_elem(scsi_changer *ch)
-+{
-+	int err;
-+	u_char cmd[6];
-+
-+	vprintk("INITIALIZE ELEMENT STATUS, may take some time ...%s\n","");
-+	memset(cmd,0,sizeof(cmd));
-+	cmd[0] = INITIALIZE_ELEMENT_STATUS;
-+	cmd[1] = ch->device->lun << 5;
-+	err = ch_do_scsi(ch, cmd, NULL, 0);
-+	vprintk("... finished%s\n","");
-+	return err;
-+}
-+
-+static int
-+ch_readconfig(scsi_changer *ch)
-+{
-+	u_char  cmd[10], data[16];
-+	u_char  *buffer;
-+	int     result,id,lun,i;
-+	u_int   elem;
-+	
-+	buffer = kmalloc(512, GFP_KERNEL);
-+	if (!buffer)
-+		return -ENOMEM;
-+	memset(buffer,0,512);
-+	
-+	memset(cmd,0,sizeof(cmd));
-+	cmd[0] = MODE_SENSE;
-+	cmd[1] = ch->device->lun << 5;
-+	cmd[2] = 0x1d;
-+	cmd[4] = 255;
-+	result = ch_do_scsi(ch, cmd, buffer, 255);
-+	if (0 != result) {
-+		cmd[1] |= (1<<3);
-+		result  = ch_do_scsi(ch, cmd, buffer, 255);
-+	}
-+	if (0 == result) {
-+		ch->firsts[CHET_MT] =
-+			(buffer[buffer[3]+ 6] << 8) | buffer[buffer[3]+ 7];
-+		ch->counts[CHET_MT] =
-+			(buffer[buffer[3]+ 8] << 8) | buffer[buffer[3]+ 9];
-+		ch->firsts[CHET_ST] =
-+			(buffer[buffer[3]+10] << 8) | buffer[buffer[3]+11];
-+		ch->counts[CHET_ST] =
-+			(buffer[buffer[3]+12] << 8) | buffer[buffer[3]+13];
-+		ch->firsts[CHET_IE] =
-+			(buffer[buffer[3]+14] << 8) | buffer[buffer[3]+15];
-+		ch->counts[CHET_IE] =
-+			(buffer[buffer[3]+16] << 8) | buffer[buffer[3]+17];
-+		ch->firsts[CHET_DT] =
-+			(buffer[buffer[3]+18] << 8) | buffer[buffer[3]+19];
-+		ch->counts[CHET_DT] =
-+			(buffer[buffer[3]+20] << 8) | buffer[buffer[3]+21];
-+		vprintk("type #1 (mt): 0x%x+%d [medium transport]\n",
-+			ch->firsts[CHET_MT],
-+			ch->counts[CHET_MT]);
-+		vprintk("type #2 (st): 0x%x+%d [storage]\n",
-+			ch->firsts[CHET_ST],
-+			ch->counts[CHET_ST]);
-+		vprintk("type #3 (ie): 0x%x+%d [import/export]\n",
-+			ch->firsts[CHET_IE],
-+			ch->counts[CHET_IE]);
-+		vprintk("type #4 (dt): 0x%x+%d [data transfer]\n",
-+			ch->firsts[CHET_DT],
-+			ch->counts[CHET_DT]);
-+	} else {
-+		vprintk("reading element address assigment page failed!%s\n",
-+			"");
-+	}
-+	
-+	/* vendor specific element types */
-+	for (i = 0; i < 4; i++) {
-+		if (0 == vendor_counts[i])
-+			continue;
-+		if (NULL == vendor_labels[i])
-+			continue;
-+		ch->firsts[CHET_V1+i] = vendor_firsts[i];
-+		ch->counts[CHET_V1+i] = vendor_counts[i];
-+		vprintk("type #%d (v%d): 0x%x+%d [%s, vendor specific]\n",
-+			i+5,i+1,vendor_firsts[i],vendor_counts[i],
-+			vendor_labels[i]);
-+	}
-+
-+	/* look up the devices of the data transfer elements */
-+	ch->dt =
-+		kmalloc(ch->counts[CHET_DT]*sizeof(Scsi_Device*),
-+			GFP_ATOMIC);
-+	for (elem = 0; elem < ch->counts[CHET_DT]; elem++) {
-+		id  = -1;
-+		lun = 0;
-+		if (-1 != dt_id[elem]) {
-+			id  = dt_id[elem];
-+			lun = dt_lun[elem];
-+			vprintk("dt 0x%x: [insmod option] ",
-+				elem+ch->firsts[CHET_DT]);
-+		} else if (0 != ch_read_element_status
-+			   (ch,elem+ch->firsts[CHET_DT],data)) {
-+			vprintk("dt 0x%x: READ ELEMENT STATUS failed\n",
-+				elem+ch->firsts[CHET_DT]);
-+		} else {
-+			vprintk("dt 0x%x: ",elem+ch->firsts[CHET_DT]);
-+			if (data[6] & 0x80) {
-+				if (verbose)
-+					printk("not this SCSI bus\n");
-+				ch->dt[elem] = NULL;
-+			} else if (0 == (data[6] & 0x30)) {
-+				if (verbose)
-+					printk("ID/LUN unknown\n");
-+				ch->dt[elem] = NULL;
-+			} else {
-+				id  = ch->device->id;
-+				lun = 0;
-+				if (data[6] & 0x20) id  = data[7];
-+				if (data[6] & 0x10) lun = data[6] & 7;
-+			}
-+		}
-+		if (-1 != id) {
-+			if (verbose)
-+				printk("ID %i, LUN %i, ",id,lun);
-+			ch->dt[elem] =
-+				scsi_device_lookup(ch->device->host,
-+						   ch->device->channel,
-+						   id,lun);
-+			if (!ch->dt[elem]) {
-+				/* should not happen */
-+				if (verbose)
-+					printk("Huh? device not found!\n");
-+			} else {
-+				if (verbose)
-+					printk("name: %8.8s %16.16s %4.4s\n",
-+					       ch->dt[elem]->vendor,
-+					       ch->dt[elem]->model,
-+					       ch->dt[elem]->rev);
-+			}
-+		}
-+	}
-+	ch->voltags = 1;
-+	kfree(buffer);
-+
-+	return 0;
-+}
-+
-+/* ------------------------------------------------------------------------ */
-+
-+static int
-+ch_position(scsi_changer *ch, u_int trans, u_int elem, int rotate)
-+{
-+	u_char  cmd[10];
-+	
-+	dprintk("position: 0x%x\n",elem);
-+	if (0 == trans)
-+		trans = ch->firsts[CHET_MT];
-+	memset(cmd,0,sizeof(cmd));
-+	cmd[0]  = POSITION_TO_ELEMENT;
-+	cmd[1]  = ch->device->lun << 5;
-+	cmd[2]  = (trans >> 8) & 0xff;
-+	cmd[3]  =  trans       & 0xff;
-+	cmd[4]  = (elem  >> 8) & 0xff;
-+	cmd[5]  =  elem        & 0xff;
-+	cmd[8]  = rotate ? 1 : 0;
-+	return ch_do_scsi(ch, cmd, NULL,0);
-+}
-+
-+static int
-+ch_move(scsi_changer *ch, u_int trans, u_int src, u_int dest, int rotate)
-+{
-+	u_char  cmd[12];
-+	
-+	dprintk("move: 0x%x => 0x%x\n",src,dest);
-+	if (0 == trans)
-+		trans = ch->firsts[CHET_MT];
-+	memset(cmd,0,sizeof(cmd));
-+	cmd[0]  = MOVE_MEDIUM;
-+	cmd[1]  = ch->device->lun << 5;
-+	cmd[2]  = (trans >> 8) & 0xff;
-+	cmd[3]  =  trans       & 0xff;
-+	cmd[4]  = (src   >> 8) & 0xff;
-+	cmd[5]  =  src         & 0xff;
-+	cmd[6]  = (dest  >> 8) & 0xff;
-+	cmd[7]  =  dest        & 0xff;
-+	cmd[10] = rotate ? 1 : 0;
-+	return ch_do_scsi(ch, cmd, NULL,0);
-+}
-+
-+static int
-+ch_exchange(scsi_changer *ch, u_int trans, u_int src,
-+	    u_int dest1, u_int dest2, int rotate1, int rotate2)
-+{
-+	u_char  cmd[12];
-+	
-+	dprintk("exchange: 0x%x => 0x%x => 0x%x\n",
-+		src,dest1,dest2);
-+	if (0 == trans)
-+		trans = ch->firsts[CHET_MT];
-+	memset(cmd,0,sizeof(cmd));
-+	cmd[0]  = EXCHANGE_MEDIUM;
-+	cmd[1]  = ch->device->lun << 5;
-+	cmd[2]  = (trans >> 8) & 0xff;
-+	cmd[3]  =  trans       & 0xff;
-+	cmd[4]  = (src   >> 8) & 0xff;
-+	cmd[5]  =  src         & 0xff;
-+	cmd[6]  = (dest1 >> 8) & 0xff;
-+	cmd[7]  =  dest1       & 0xff;
-+	cmd[8]  = (dest2 >> 8) & 0xff;
-+	cmd[9]  =  dest2       & 0xff;
-+	cmd[10] = (rotate1 ? 1 : 0) | (rotate2 ? 2 : 0);
-+	
-+	return ch_do_scsi(ch, cmd, NULL,0);
-+}
-+
-+static void
-+ch_check_voltag(char *tag)
-+{
-+	int i;
-+
-+	for (i = 0; i < 32; i++) {
-+		/* restrict to ascii */
-+		if (tag[i] >= 0x7f || tag[i] < 0x20)
-+			tag[i] = ' ';
-+		/* don't allow search wildcards */
-+		if (tag[i] == '?' ||
-+		    tag[i] == '*')
-+			tag[i] = ' ';
-+	}
-+}
-+
-+static int
-+ch_set_voltag(scsi_changer *ch, u_int elem,
-+	      int alternate, int clear, u_char *tag)
-+{
-+	u_char  cmd[12];
-+	u_char  *buffer;
-+	int result;
-+
-+	buffer = kmalloc(512, GFP_KERNEL);
-+	if (!buffer)
-+		return -ENOMEM;
-+	memset(buffer,0,512);
-+
-+	dprintk("%s %s voltag: 0x%x => \"%s\"\n",
-+		clear     ? "clear"     : "set",
-+		alternate ? "alternate" : "primary",
-+		elem, tag);
-+	memset(cmd,0,sizeof(cmd));
-+	cmd[0]  = SEND_VOLUME_TAG;
-+	cmd[1] = (ch->device->lun << 5) | 
-+		ch_elem_to_typecode(ch,elem);
-+	cmd[2] = (elem >> 8) & 0xff;
-+	cmd[3] = elem        & 0xff;
-+	cmd[5] = clear
-+		? (alternate ? 0x0d : 0x0c)
-+		: (alternate ? 0x0b : 0x0a);
-+	
-+	cmd[9] = 255;
-+
-+	memcpy(buffer,tag,32);
-+	ch_check_voltag(buffer);
-+
-+	result = ch_do_scsi(ch, cmd, buffer, 256);
-+	kfree(buffer);
-+	return result;
-+}
-+
-+static int ch_gstatus(scsi_changer *ch, int type, unsigned char *dest)
-+{
-+	int retval = 0;
-+	u_char data[16];
-+	unsigned int i;
-+	
-+	down(&ch->lock);
-+	for (i = 0; i < ch->counts[type]; i++) {
-+		if (0 != ch_read_element_status
-+		    (ch, ch->firsts[type]+i,data)) {
-+			retval = -EIO;
-+			break;
-+		}
-+		put_user(data[2], dest+i);
-+		if (data[2] & CESTATUS_EXCEPT)
-+			vprintk("element 0x%x: asc=0x%x, ascq=0x%x\n",
-+				ch->firsts[type]+i,
-+				(int)data[4],(int)data[5]);
-+		retval = ch_read_element_status
-+			(ch, ch->firsts[type]+i,data);
-+		if (0 != retval)
-+			break;
-+	}
-+	up(&ch->lock);
-+	return retval;
-+}
-+
-+/* ------------------------------------------------------------------------ */
-+
-+static int
-+ch_release(struct inode *inode, struct file *file)
-+{
-+	scsi_changer *ch = file->private_data;
-+
-+	scsi_device_put(ch->device);
-+	file->private_data = NULL;
-+	return 0;
-+}
-+
-+static int
-+ch_open(struct inode *inode, struct file *file)
-+{
-+	struct list_head *item;
-+	scsi_changer *tmp, *ch;
-+	int minor = iminor(inode);
-+
-+	spin_lock(&ch_devlist_lock);
-+	ch = NULL;
-+	list_for_each(item,&ch_devlist) {
-+		tmp = list_entry(item, scsi_changer, list);
-+		if (tmp->minor == minor)
-+			ch = tmp;
-+	}
-+	if (NULL == ch || scsi_device_get(ch->device)) {
-+		spin_unlock(&ch_devlist_lock);
-+		return -ENXIO;
-+	}
-+	spin_unlock(&ch_devlist_lock);
-+
-+	file->private_data = ch;
-+	return 0;
-+}
-+
-+static int
-+ch_checkrange(scsi_changer *ch, unsigned int type, unsigned int unit)
-+{
-+	if (type >= CH_TYPES  ||  unit >= ch->counts[type])
-+		return -1;
-+	return 0;
-+}
-+
-+static int ch_ioctl(struct inode * inode, struct file * file,
-+		    unsigned int cmd, unsigned long arg)
-+{
-+	scsi_changer *ch = file->private_data;
-+	int retval;
-+	
-+	switch (cmd) {
-+	case CHIOGPARAMS:
-+	{
-+		struct changer_params params;
-+		
-+		params.cp_curpicker = 0;
-+		params.cp_npickers  = ch->counts[CHET_MT];
-+		params.cp_nslots    = ch->counts[CHET_ST];
-+		params.cp_nportals  = ch->counts[CHET_IE];
-+		params.cp_ndrives   = ch->counts[CHET_DT];
-+		
-+		if (copy_to_user((void *) arg, &params, sizeof(params)))
-+			return -EFAULT;
-+		return 0;
-+	}
-+	case CHIOGVPARAMS:
-+	{
-+		struct changer_vendor_params vparams;
-+
-+		memset(&vparams,0,sizeof(vparams));
-+		if (ch->counts[CHET_V1]) {
-+			vparams.cvp_n1  = ch->counts[CHET_V1];
-+			strncpy(vparams.cvp_label1,vendor_labels[0],16);
-+		}
-+		if (ch->counts[CHET_V2]) {
-+			vparams.cvp_n2  = ch->counts[CHET_V2];
-+			strncpy(vparams.cvp_label2,vendor_labels[1],16);
-+		}
-+		if (ch->counts[CHET_V3]) {
-+			vparams.cvp_n3  = ch->counts[CHET_V3];
-+			strncpy(vparams.cvp_label3,vendor_labels[2],16);
-+		}
-+		if (ch->counts[CHET_V4]) {
-+			vparams.cvp_n4  = ch->counts[CHET_V4];
-+			strncpy(vparams.cvp_label4,vendor_labels[3],16);
-+		}
-+		if (copy_to_user((void *) arg, &vparams, sizeof(vparams)))
-+			return -EFAULT;
-+		return 0;
-+	}
-+	
-+	case CHIOPOSITION:
-+	{
-+		struct changer_position pos;
-+		
-+		if (copy_from_user(&pos, (void*)arg, sizeof (pos)))
-+			return -EFAULT;
-+
-+		if (0 != ch_checkrange(ch, pos.cp_type, pos.cp_unit)) {
-+			dprintk("CHIOPOSITION: invalid parameter%s\n","");
-+			return -EBADSLT;
-+		}
-+		down(&ch->lock);
-+		retval = ch_position(ch,0,
-+				     ch->firsts[pos.cp_type] + pos.cp_unit,
-+				     pos.cp_flags & CP_INVERT);
-+		up(&ch->lock);
-+		return retval;
-+	}
-+	
-+	case CHIOMOVE:
-+	{
-+		struct changer_move mv;
-+
-+		if (copy_from_user(&mv, (void*)arg, sizeof (mv)))
-+			return -EFAULT;
-+
-+		if (0 != ch_checkrange(ch, mv.cm_fromtype, mv.cm_fromunit) ||
-+		    0 != ch_checkrange(ch, mv.cm_totype,   mv.cm_tounit  )) {
-+			dprintk("CHIOMOVE: invalid parameter%s\n","");
-+			return -EBADSLT;
-+		}
-+		
-+		down(&ch->lock);
-+		retval = ch_move(ch,0,
-+				 ch->firsts[mv.cm_fromtype] + mv.cm_fromunit,
-+				 ch->firsts[mv.cm_totype]   + mv.cm_tounit,
-+				 mv.cm_flags & CM_INVERT);
-+		up(&ch->lock);
-+		return retval;
-+	}
-+
-+	case CHIOEXCHANGE:
-+	{
-+		struct changer_exchange mv;
-+		
-+		if (copy_from_user(&mv, (void*)arg, sizeof (mv)))
-+			return -EFAULT;
-+
-+		if (0 != ch_checkrange(ch, mv.ce_srctype,  mv.ce_srcunit ) ||
-+		    0 != ch_checkrange(ch, mv.ce_fdsttype, mv.ce_fdstunit) ||
-+		    0 != ch_checkrange(ch, mv.ce_sdsttype, mv.ce_sdstunit)) {
-+			dprintk("CHIOEXCHANGE: invalid parameter%s\n","");
-+			return -EBADSLT;
-+		}
-+		
-+		down(&ch->lock);
-+		retval = ch_exchange
-+			(ch,0,
-+			 ch->firsts[mv.ce_srctype]  + mv.ce_srcunit,
-+			 ch->firsts[mv.ce_fdsttype] + mv.ce_fdstunit,
-+			 ch->firsts[mv.ce_sdsttype] + mv.ce_sdstunit,
-+			 mv.ce_flags & CE_INVERT1, mv.ce_flags & CE_INVERT2);
-+		up(&ch->lock);
-+		return retval;
-+	}
-+
-+	case CHIOGSTATUS:
-+	{
-+		struct changer_element_status ces;
-+		
-+		if (copy_from_user(&ces, (void*)arg, sizeof (ces)))
-+			return -EFAULT;
-+		if (ces.ces_type < 0 || ces.ces_type >= CH_TYPES)
-+			return -EINVAL;
-+
-+		return ch_gstatus(ch, ces.ces_type, ces.ces_data);
-+	}
-+
-+#ifdef CONFIG_COMPAT
-+	case CHIOGSTATUS32:
-+	{
-+		struct changer_element_status32 ces32;
-+		unsigned char *data;
-+		
-+		if (copy_from_user(&ces32, (void*)arg, sizeof (ces32)))
-+			return -EFAULT;
-+		if (ces32.ces_type < 0 || ces32.ces_type >= CH_TYPES)
-+			return -EINVAL;
-+
-+		data = compat_ptr(ces32.ces_data);
-+		return ch_gstatus(ch, ces32.ces_type, data);
-+	}
-+#endif
-+    
-+	case CHIOGELEM:
-+	{
-+		struct changer_get_element cge;
-+		u_char  cmd[12];
-+		u_char  *buffer;
-+		unsigned int elem;
-+		int     result,i;
-+		
-+		if (copy_from_user(&cge, (void*)arg, sizeof (cge)))
-+			return -EFAULT;
-+
-+		if (0 != ch_checkrange(ch, cge.cge_type, cge.cge_unit))
-+			return -EINVAL;
-+		elem = ch->firsts[cge.cge_type] + cge.cge_unit;
-+		
-+		buffer = kmalloc(512, GFP_KERNEL);
-+		if (!buffer)
-+			return -ENOMEM;
-+		down(&ch->lock);
-+		
-+	voltag_retry:
-+		memset(cmd,0,sizeof(cmd));
-+		cmd[0] = READ_ELEMENT_STATUS;
-+		cmd[1] = (ch->device->lun << 5) |
-+			(ch->voltags ? 0x10 : 0) |
-+			ch_elem_to_typecode(ch,elem);
-+		cmd[2] = (elem >> 8) & 0xff;
-+		cmd[3] = elem        & 0xff;
-+		cmd[5] = 1;
-+		cmd[9] = 255;
-+		
-+		if (0 == (result = ch_do_scsi(ch, cmd, buffer, 256))) {
-+			cge.cge_status = buffer[18];
-+			cge.cge_flags = 0;
-+			if (buffer[18] & CESTATUS_EXCEPT) {
-+				/* FIXME: fill cge_errno */
-+			}
-+			if (buffer[25] & 0x80) {
-+				cge.cge_flags |= CGE_SRC;
-+				if (buffer[25] & 0x40)
-+					cge.cge_flags |= CGE_INVERT;
-+				elem = (buffer[26]<<8) | buffer[27];
-+				for (i = 0; i < 4; i++) {
-+					if (elem >= ch->firsts[i] &&
-+					    elem <  ch->firsts[i] + ch->counts[i]) {
-+						cge.cge_srctype = i;
-+						cge.cge_srcunit = elem-ch->firsts[i];
-+					}
-+				}
-+			}
-+			if ((buffer[22] & 0x30) == 0x30) {
-+				cge.cge_flags |= CGE_IDLUN;
-+				cge.cge_id  = buffer[23];
-+				cge.cge_lun = buffer[22] & 7;
-+			}
-+			if (buffer[9] & 0x80) {
-+				cge.cge_flags |= CGE_PVOLTAG;
-+				memcpy(cge.cge_pvoltag,buffer+28,36);
-+			}
-+			if (buffer[9] & 0x40) {
-+				cge.cge_flags |= CGE_AVOLTAG;
-+				memcpy(cge.cge_avoltag,buffer+64,36);
-+			}
-+		} else if (ch->voltags) {
-+			ch->voltags = 0;
-+			vprintk("device has no volume tag support%s\n","");
-+			goto voltag_retry;
-+		}
-+		kfree(buffer);
-+		up(&ch->lock);
-+		
-+		if (copy_to_user((void*)arg, &cge, sizeof (cge)))
-+			return -EFAULT;
-+		return result;
-+	}
-+
-+	case CHIOINITELEM:
-+	{
-+		down(&ch->lock);
-+		retval = ch_init_elem(ch);
-+		up(&ch->lock);
-+		return retval;
-+	}
-+		
-+	case CHIOSVOLTAG:
-+	{
-+		struct changer_set_voltag csv;
-+		int elem;
-+
-+		if (copy_from_user(&csv, (void*)arg, sizeof(csv)))
-+			return -EFAULT;
-+
-+		if (0 != ch_checkrange(ch, csv.csv_type, csv.csv_unit)) {
-+			dprintk("CHIOSVOLTAG: invalid parameter%s\n","");
-+			return -EBADSLT;
-+		}
-+		elem = ch->firsts[csv.csv_type] + csv.csv_unit;
-+		down(&ch->lock);
-+		retval = ch_set_voltag(ch, elem,
-+				       csv.csv_flags & CSV_AVOLTAG,
-+				       csv.csv_flags & CSV_CLEARTAG,
-+				       csv.csv_voltag);
-+		up(&ch->lock);
-+		return retval;
-+	}
-+
-+	default:
-+		return scsi_ioctl(ch->device, cmd, (void*)arg);
-+
-+	}
-+}
-+
-+/* ------------------------------------------------------------------------ */
-+
-+static int ch_probe(struct device *dev)
-+{
-+	struct scsi_device *sd = to_scsi_device(dev);
-+	scsi_changer *ch;
-+	
-+	if (sd->type != TYPE_MEDIUM_CHANGER)
-+		return -ENODEV;
-+    
-+	ch = kmalloc(sizeof(*ch), GFP_KERNEL);
-+	if (NULL == ch)
-+		return -ENOMEM;
-+
-+	memset(ch,0,sizeof(*ch));
-+	ch->minor = ch_devcount;
-+	sprintf(ch->name,"ch%d",ch->minor);
-+	init_MUTEX(&ch->lock);
-+	ch->device = sd;
-+	ch_readconfig(ch);
-+	if (init)
-+		ch_init_elem(ch);
-+
-+	devfs_mk_cdev(MKDEV(MAJOR_NR,ch->minor),
-+		      S_IFCHR | S_IRUGO | S_IWUGO, ch->name);
-+
-+	printk(KERN_INFO "Attached scsi changer %s "
-+	       "at scsi%d, channel %d, id %d, lun %d\n", 
-+	       ch->name, sd->host->host_no, sd->channel, sd->id, sd->lun);
-+	
-+	spin_lock(&ch_devlist_lock);
-+	list_add_tail(&ch->list,&ch_devlist);
-+	ch_devcount++;
-+	spin_unlock(&ch_devlist_lock);
-+	return 0;
-+}
-+
-+static int ch_remove(struct device *dev)
-+{
-+	struct scsi_device *sd = to_scsi_device(dev);
-+	struct list_head *item;
-+	scsi_changer *tmp, *ch;
-+
-+	spin_lock(&ch_devlist_lock);
-+	ch = NULL;
-+	list_for_each(item,&ch_devlist) {
-+		tmp = list_entry(item, scsi_changer, list);
-+		if (tmp->device == sd)
-+			ch = tmp;
-+	}
-+	BUG_ON(NULL == ch);
-+	list_del(&ch->list);
-+	spin_unlock(&ch_devlist_lock);
-+
-+	devfs_remove(ch->name);
-+	kfree(ch->dt);
-+	kfree(ch);
-+	ch_devcount--;
-+	return 0;
-+}
-+
-+static int __init init_ch_module(void)
-+{
-+	int rc;
-+	
-+	printk(KERN_INFO "SCSI Media Changer driver v" VERSION
-+	       " for Linux " UTS_RELEASE "\n");
-+	rc = register_chrdev(MAJOR_NR,"ch",&changer_fops);
-+	if (rc < 0) {
-+		printk("Unable to get major %d for SCSI-Changer\n",
-+		       MAJOR_NR);
-+		return rc;
-+	}
-+	ioctl32_register();
-+	rc = scsi_register_driver(&ch_template.gendrv);
-+	if (rc < 0)
-+		goto fail1;
-+	return 0;
-+
-+ fail1:
-+	ioctl32_unregister();
-+	unregister_chrdev(MAJOR_NR, "ch");
-+	return rc;
-+}
-+
-+static void __exit exit_ch_module(void) 
-+{
-+	scsi_unregister_driver(&ch_template.gendrv);
-+	unregister_chrdev(MAJOR_NR, "ch");
-+	ioctl32_unregister();
-+}
-+
-+module_init(init_ch_module);
-+module_exit(exit_ch_module);
++extern unsigned int tuner_debug;
++extern unsigned const int tuner_count;
++
++extern int microtune_init(struct i2c_client *c);
++extern int tda8290_init(struct i2c_client *c);
++extern int default_tuner_init(struct i2c_client *c);
++
++#define tuner_warn(fmt, arg...) \
++	dev_printk(KERN_WARNING , &t->i2c.dev , fmt , ## arg)
++#define tuner_info(fmt, arg...) \
++	dev_printk(KERN_INFO , &t->i2c.dev , fmt , ## arg)
++#define tuner_dbg(fmt, arg...) \
++	if (tuner_debug) dev_printk(KERN_DEBUG , &t->i2c.dev , fmt , ## arg)
++
++#endif /* __KERNEL__ */
++
+ #endif
 +
 +/*
++ * Overrides for Emacs so that we follow Linus's tabbing style.
++ * ---------------------------------------------------------------------------
 + * Local variables:
 + * c-basic-offset: 8
 + * End:
 + */
-Index: linux-2.6.10/include/linux/chio.h
+Index: linux-2.6.11-rc4/drivers/media/video/tuner-core.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.10/include/linux/chio.h	2005-01-19 14:30:27.569747241 +0100
-@@ -0,0 +1,168 @@
++++ linux-2.6.11-rc4/drivers/media/video/tuner-core.c	2005-02-15 17:02:13.000000000 +0100
+@@ -0,0 +1,443 @@
 +/*
-+ * ioctl interface for the scsi media changer driver
-+ */
-+
-+/* changer element types */
-+#define CHET_MT   0	/* media transport element (robot) */
-+#define CHET_ST   1	/* storage element (media slots) */
-+#define CHET_IE   2	/* import/export element */
-+#define CHET_DT   3	/* data transfer element (tape/cdrom/whatever) */
-+#define CHET_V1   4	/* vendor specific #1 */
-+#define CHET_V2   5	/* vendor specific #2 */
-+#define CHET_V3   6	/* vendor specific #3 */
-+#define CHET_V4   7	/* vendor specific #4 */
-+
-+
-+/*
-+ * CHIOGPARAMS
-+ *    query changer properties
++ * $Id: tuner-core.c,v 1.5 2005/02/15 15:59:35 kraxel Exp $
 + *
-+ * CHIOVGPARAMS
-+ *    query vendor-specific element types
-+ *
-+ *    accessing elements works by specifing type and unit of the element.
-+ *    for eample, storage elements are addressed with type = CHET_ST and
-+ *    unit = 0 .. cp_nslots-1
-+ *
++ * i2c tv tuner chip device driver
++ * core core, i.e. kernel interfaces, registering and so on
 + */
-+struct changer_params {
-+	int cp_curpicker;  /* current transport element */
-+	int cp_npickers;   /* number of transport elements      (CHET_MT) */
-+	int cp_nslots;     /* number of storage elements        (CHET_ST) */
-+	int cp_nportals;   /* number of import/export elements  (CHET_IE) */
-+	int cp_ndrives;    /* number of data transfer elements  (CHET_DT) */
++
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/string.h>
++#include <linux/timer.h>
++#include <linux/delay.h>
++#include <linux/errno.h>
++#include <linux/slab.h>
++#include <linux/poll.h>
++#include <linux/i2c.h>
++#include <linux/types.h>
++#include <linux/videodev.h>
++#include <linux/init.h>
++
++#include <media/tuner.h>
++#include <media/audiochip.h>
++
++#define UNSET (-1U)
++
++/* standard i2c insmod options */
++static unsigned short normal_i2c[] = {
++	0x4b, /* tda8290 */
++	I2C_CLIENT_END
 +};
-+struct changer_vendor_params {
-+	int  cvp_n1;       /* number of vendor specific elems   (CHET_V1) */
-+	char cvp_label1[16];
-+	int  cvp_n2;       /* number of vendor specific elems   (CHET_V2) */
-+	char cvp_label2[16];
-+	int  cvp_n3;       /* number of vendor specific elems   (CHET_V3) */
-+	char cvp_label3[16];
-+	int  cvp_n4;       /* number of vendor specific elems   (CHET_V4) */
-+	char cvp_label4[16];
-+	int  reserved[8];
++static unsigned short normal_i2c_range[] = {
++	0x60, 0x6f,
++	I2C_CLIENT_END
 +};
++I2C_CLIENT_INSMOD;
 +
++/* insmod options used at init time => read/only */
++static unsigned int addr  =  0;
++module_param(addr, int, 0444);
 +
-+/*
-+ * CHIOMOVE
-+ *    move a medium from one element to another
-+ */
-+struct changer_move {
-+	int cm_fromtype;	/* type/unit of source element */
-+	int cm_fromunit;	
-+	int cm_totype;	/* type/unit of destination element */
-+	int cm_tounit;
-+	int cm_flags;
-+};
-+#define CM_INVERT   1   /* flag: rotate media (for double-sided like MOD) */
++/* insmod options used at runtime => read/write */
++unsigned int tuner_debug   = 0;
++module_param(tuner_debug,       int, 0644);
 +
++static unsigned int tv_range[2]    = { 44, 958 };
++static unsigned int radio_range[2] = { 65, 108 };
 +
-+/*
-+ * CHIOEXCHANGE
-+ *    move one medium from element #1 to element #2,
-+ *    and another one from element #2 to element #3.
-+ *    element #1 and #3 are allowed to be identical.
-+ */
-+struct changer_exchange {
-+	int ce_srctype;	    /* type/unit of element #1 */
-+	int ce_srcunit;
-+	int ce_fdsttype;    /* type/unit of element #2 */
-+	int ce_fdstunit;
-+	int ce_sdsttype;    /* type/unit of element #3 */
-+	int ce_sdstunit;
-+	int ce_flags;
-+};
-+#define CE_INVERT1   1
-+#define CE_INVERT2   2
++module_param_array(tv_range,    int, NULL, 0644);
++module_param_array(radio_range, int, NULL, 0644);
 +
++MODULE_DESCRIPTION("device driver for various TV and TV+FM radio tuners");
++MODULE_AUTHOR("Ralph Metzler, Gerd Knorr, Gunther Mayer");
++MODULE_LICENSE("GPL");
 +
-+/*
-+ * CHIOPOSITION
-+ *    move the transport element (robot arm) to a specific element.
-+ */
-+struct changer_position {
-+	int cp_type;
-+	int cp_unit;
-+	int cp_flags;
-+};
-+#define CP_INVERT   1
++static int this_adap;
 +
-+
-+/*
-+ * CHIOGSTATUS
-+ *    get element status for all elements of a specific type
-+ */
-+struct changer_element_status {
-+	int             ces_type;
-+	unsigned char   *ces_data;
-+};
-+#define CESTATUS_FULL     0x01 /* full */
-+#define CESTATUS_IMPEXP   0x02	/* media was imported (inserted by sysop) */
-+#define CESTATUS_EXCEPT   0x04	/* error condition */
-+#define CESTATUS_ACCESS   0x08	/* access allowed */
-+#define CESTATUS_EXENAB   0x10	/* element can export media */
-+#define CESTATUS_INENAB   0x20	/* element can import media */
-+
-+
-+/*
-+ * CHIOGELEM
-+ *    get more detailed status informtion for a single element
-+ */
-+struct changer_get_element {
-+	int	cge_type;	 /* type/unit */
-+	int	cge_unit;
-+	int	cge_status;      /* status */
-+	int     cge_errno;       /* errno */
-+	int     cge_srctype;     /* source element of the last move/exchange */
-+	int     cge_srcunit;
-+	int     cge_id;          /* scsi id  (for data transfer elements) */
-+	int     cge_lun;         /* scsi lun (for data transfer elements) */
-+	char    cge_pvoltag[36]; /* primary volume tag */
-+	char    cge_avoltag[36]; /* alternate volume tag */
-+	int     cge_flags;
-+};
-+/* flags */
-+#define CGE_ERRNO     0x01       /* errno available       */
-+#define CGE_INVERT    0x02       /* media inverted        */
-+#define CGE_SRC       0x04       /* media src available   */
-+#define CGE_IDLUN     0x08       /* ID+LUN available      */
-+#define CGE_PVOLTAG   0x10       /* primary volume tag available */
-+#define CGE_AVOLTAG   0x20       /* alternate volume tag available */
-+
-+
-+/*
-+ * CHIOSVOLTAG
-+ *    set volume tag
-+ */
-+struct changer_set_voltag {
-+	int	csv_type;	 /* type/unit */
-+	int	csv_unit;
-+	char    csv_voltag[36];  /* volume tag */
-+	int     csv_flags;
-+};
-+#define CSV_PVOLTAG   0x01       /* primary volume tag */
-+#define CSV_AVOLTAG   0x02       /* alternate volume tag */
-+#define CSV_CLEARTAG  0x04       /* clear volume tag */
-+
-+/* ioctls */
-+#define CHIOMOVE       _IOW('c', 1,struct changer_move)
-+#define CHIOEXCHANGE   _IOW('c', 2,struct changer_exchange)
-+#define CHIOPOSITION   _IOW('c', 3,struct changer_position)
-+#define CHIOGPICKER    _IOR('c', 4,int)                        /* not impl. */
-+#define CHIOSPICKER    _IOW('c', 5,int)                        /* not impl. */
-+#define CHIOGPARAMS    _IOR('c', 6,struct changer_params)
-+#define CHIOGSTATUS    _IOW('c', 8,struct changer_element_status)
-+#define CHIOGELEM      _IOW('c',16,struct changer_get_element)
-+#define CHIOINITELEM   _IO('c',17)
-+#define CHIOSVOLTAG    _IOW('c',18,struct changer_set_voltag)
-+#define CHIOGVPARAMS   _IOR('c',19,struct changer_vendor_params)
++static struct i2c_driver driver;
++static struct i2c_client client_template;
 +
 +/* ---------------------------------------------------------------------- */
 +
++// Set tuner frequency,  freq in Units of 62.5kHz = 1/16MHz
++static void set_tv_freq(struct i2c_client *c, unsigned int freq)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++
++	if (t->type == UNSET) {
++		tuner_info("tuner type not set\n");
++		return;
++	}
++	if (NULL == t->tv_freq) {
++		tuner_info("Huh? tv_set is NULL?\n");
++		return;
++	}
++	if (freq < tv_range[0]*16 || freq > tv_range[1]*16) {
++		/* FIXME: better do that chip-specific, but
++		   right now we don't have that in the config
++		   struct and this way is still better than no
++		   check at all */
++		tuner_info("TV freq (%d.%02d) out of range (%d-%d)\n",
++			   freq/16,freq%16*100/16,tv_range[0],tv_range[1]);
++		return;
++	}
++	t->tv_freq(c,freq);
++}
++
++static void set_radio_freq(struct i2c_client *c, unsigned int freq)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++
++	if (t->type == UNSET) {
++		tuner_info("tuner type not set\n");
++		return;
++	}
++	if (NULL == t->radio_freq) {
++		tuner_info("no radio tuning for this one, sorry.\n");
++		return;
++	}
++	if (freq < radio_range[0]*16 || freq > radio_range[1]*16) {
++		tuner_info("radio freq (%d.%02d) out of range (%d-%d)\n",
++			   freq/16,freq%16*100/16,
++			   radio_range[0],radio_range[1]);
++		return;
++	}
++	t->radio_freq(c,freq);
++}
++
++static void set_freq(struct i2c_client *c, unsigned long freq)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++
++	switch (t->mode) {
++	case V4L2_TUNER_RADIO:
++		tuner_dbg("radio freq set to %lu.%02lu\n",
++			  freq/16,freq%16*100/16);
++		set_radio_freq(c,freq);
++		break;
++	case V4L2_TUNER_ANALOG_TV:
++	case V4L2_TUNER_DIGITAL_TV:
++		tuner_dbg("tv freq set to %lu.%02lu\n",
++			  freq/16,freq%16*100/16);
++		set_tv_freq(c, freq);
++		break;
++	}
++	t->freq = freq;
++}
++
++static void set_type(struct i2c_client *c, unsigned int type)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++
++	/* sanity check */
++	if (type == UNSET  ||  type == TUNER_ABSENT)
++		return;
++	if (type >= tuner_count)
++		return;
++
++	if (NULL == t->i2c.dev.driver) {
++		/* not registered yet */
++		t->type = type;
++		return;
++	}
++	if (t->initialized)
++		/* run only once */
++		return;
++
++	t->initialized = 1;
++	t->type = type;
++	switch (t->type) {
++	case TUNER_MT2032:
++		microtune_init(c);
++		break;
++	case TUNER_PHILIPS_TDA8290:
++		tda8290_init(c);
++		break;
++	default:
++		default_tuner_init(c);
++		break;
++	}
++}
++
++static char pal[] = "-";
++module_param_string(pal, pal, 0644, sizeof(pal));
++
++static int tuner_fixup_std(struct tuner *t)
++{
++	if ((t->std & V4L2_STD_PAL) == V4L2_STD_PAL) {
++		/* get more precise norm info from insmod option */
++		switch (pal[0]) {
++		case 'b':
++		case 'B':
++		case 'g':
++		case 'G':
++			tuner_dbg("insmod fixup: PAL => PAL-BG\n");
++			t->std = V4L2_STD_PAL_BG;
++			break;
++		case 'i':
++		case 'I':
++			tuner_dbg("insmod fixup: PAL => PAL-I\n");
++			t->std = V4L2_STD_PAL_I;
++			break;
++		case 'd':
++		case 'D':
++		case 'k':
++		case 'K':
++			tuner_dbg("insmod fixup: PAL => PAL-DK\n");
++			t->std = V4L2_STD_PAL_DK;
++			break;
++		}
++	}
++	return 0;
++}
++
++/* ---------------------------------------------------------------------- */
++
++static int tuner_attach(struct i2c_adapter *adap, int addr, int kind)
++{
++	struct tuner *t;
++
++	if (this_adap > 0)
++		return -1;
++	this_adap++;
++
++        client_template.adapter = adap;
++        client_template.addr = addr;
++
++        t = kmalloc(sizeof(struct tuner),GFP_KERNEL);
++        if (NULL == t)
++                return -ENOMEM;
++        memset(t,0,sizeof(struct tuner));
++        memcpy(&t->i2c,&client_template,sizeof(struct i2c_client));
++	i2c_set_clientdata(&t->i2c, t);
++	t->type       = UNSET;
++	t->radio_if2  = 10700*1000; // 10.7MHz - FM radio
++
++        i2c_attach_client(&t->i2c);
++	tuner_info("chip found @ 0x%x (%s)\n",
++		   addr << 1, adap->name);
++	set_type(&t->i2c, t->type);
++	return 0;
++}
++
++static int tuner_probe(struct i2c_adapter *adap)
++{
++	if (0 != addr) {
++		normal_i2c[0]       = addr;
++		normal_i2c_range[0] = addr;
++		normal_i2c_range[1] = addr;
++	}
++	this_adap = 0;
++
++	if (adap->class & I2C_CLASS_TV_ANALOG)
++		return i2c_probe(adap, &addr_data, tuner_attach);
++	return 0;
++}
++
++static int tuner_detach(struct i2c_client *client)
++{
++	struct tuner *t = i2c_get_clientdata(client);
++
++	i2c_detach_client(&t->i2c);
++	kfree(t);
++	return 0;
++}
++
++#define SWITCH_V4L2	if (!t->using_v4l2 && tuner_debug) \
++		          tuner_info("switching to v4l2\n"); \
++	                  t->using_v4l2 = 1;
++#define CHECK_V4L2	if (t->using_v4l2) { if (tuner_debug) \
++			  tuner_info("ignore v4l1 call\n"); \
++		          return 0; }
++
++static int
++tuner_command(struct i2c_client *client, unsigned int cmd, void *arg)
++{
++	struct tuner *t = i2c_get_clientdata(client);
++        unsigned int *iarg = (int*)arg;
++
++        switch (cmd) {
++
++	/* --- configuration --- */
++	case TUNER_SET_TYPE:
++		set_type(client,*iarg);
++		break;
++	case AUDC_SET_RADIO:
++		if (V4L2_TUNER_RADIO != t->mode) {
++			set_tv_freq(client,400 * 16);
++			t->mode = V4L2_TUNER_RADIO;
++		}
++		break;
++	case AUDC_CONFIG_PINNACLE:
++		switch (*iarg) {
++		case 2:
++			tuner_dbg("pinnacle pal\n");
++			t->radio_if2 = 33300 * 1000;
++			break;
++		case 3:
++			tuner_dbg("pinnacle ntsc\n");
++			t->radio_if2 = 41300 * 1000;
++			break;
++		}
++                break;
++
++	/* --- v4l ioctls --- */
++	/* take care: bttv does userspace copying, we'll get a
++	   kernel pointer here... */
++	case VIDIOCSCHAN:
++	{
++		static const v4l2_std_id map[] = {
++			[ VIDEO_MODE_PAL   ] = V4L2_STD_PAL,
++			[ VIDEO_MODE_NTSC  ] = V4L2_STD_NTSC_M,
++			[ VIDEO_MODE_SECAM ] = V4L2_STD_SECAM,
++			[ 4 /* bttv */     ] = V4L2_STD_PAL_M,
++			[ 5 /* bttv */     ] = V4L2_STD_PAL_N,
++			[ 6 /* bttv */     ] = V4L2_STD_NTSC_M_JP,
++		};
++		struct video_channel *vc = arg;
++
++		CHECK_V4L2;
++		t->mode = V4L2_TUNER_ANALOG_TV;
++		if (vc->norm < ARRAY_SIZE(map))
++			t->std = map[vc->norm];
++		tuner_fixup_std(t);
++		if (t->freq)
++			set_tv_freq(client,t->freq);
++		return 0;
++	}
++	case VIDIOCSFREQ:
++	{
++		unsigned long *v = arg;
++
++		CHECK_V4L2;
++		set_freq(client,*v);
++		return 0;
++	}
++	case VIDIOCGTUNER:
++	{
++		struct video_tuner *vt = arg;
++
++		CHECK_V4L2;
++		if (V4L2_TUNER_RADIO == t->mode  &&  t->has_signal)
++			vt->signal = t->has_signal(client);
++		return 0;
++	}
++	case VIDIOCGAUDIO:
++	{
++		struct video_audio *va = arg;
++
++		CHECK_V4L2;
++		if (V4L2_TUNER_RADIO == t->mode  &&  t->is_stereo)
++			va->mode = t->is_stereo(client)
++				? VIDEO_SOUND_STEREO
++				: VIDEO_SOUND_MONO;
++		return 0;
++	}
++
++	case VIDIOC_S_STD:
++	{
++		v4l2_std_id *id = arg;
++
++		SWITCH_V4L2;
++		t->mode = V4L2_TUNER_ANALOG_TV;
++		t->std = *id;
++		tuner_fixup_std(t);
++		if (t->freq)
++			set_freq(client,t->freq);
++		break;
++	}
++	case VIDIOC_S_FREQUENCY:
++	{
++		struct v4l2_frequency *f = arg;
++
++		SWITCH_V4L2;
++		if (V4L2_TUNER_RADIO == f->type &&
++		    V4L2_TUNER_RADIO != t->mode)
++			set_tv_freq(client,400*16);
++		t->mode  = f->type;
++		t->freq  = f->frequency;
++		set_freq(client,t->freq);
++		break;
++	}
++	case VIDIOC_G_TUNER:
++	{
++		struct v4l2_tuner *tuner = arg;
++
++		SWITCH_V4L2;
++		if (V4L2_TUNER_RADIO == t->mode  &&  t->has_signal)
++			tuner->signal = t->has_signal(client);
++		break;
++	}
++	default:
++		/* nothing */
++		break;
++	}
++
++	return 0;
++}
++
++static int tuner_suspend(struct device * dev, u32 state, u32 level)
++{
++	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
++	struct tuner *t = i2c_get_clientdata(c);
++
++	tuner_dbg("suspend\n");
++	/* FIXME: power down ??? */
++	return 0;
++}
++
++static int tuner_resume(struct device * dev, u32 level)
++{
++	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
++	struct tuner *t = i2c_get_clientdata(c);
++
++	tuner_dbg("resume\n");
++	if (t->freq)
++		set_freq(c,t->freq);
++	return 0;
++}
++
++/* ----------------------------------------------------------------------- */
++
++static struct i2c_driver driver = {
++	.owner          = THIS_MODULE,
++        .name           = "tuner",
++        .id             = I2C_DRIVERID_TUNER,
++        .flags          = I2C_DF_NOTIFY,
++        .attach_adapter = tuner_probe,
++        .detach_client  = tuner_detach,
++        .command        = tuner_command,
++	.driver = {
++		.suspend = tuner_suspend,
++		.resume  = tuner_resume,
++	},
++};
++static struct i2c_client client_template =
++{
++	I2C_DEVNAME("(tuner unset)"),
++	.flags      = I2C_CLIENT_ALLOW_USE,
++        .driver     = &driver,
++};
++
++static int __init tuner_init_module(void)
++{
++	return i2c_add_driver(&driver);
++}
++
++static void __exit tuner_cleanup_module(void)
++{
++	i2c_del_driver(&driver);
++}
++
++module_init(tuner_init_module);
++module_exit(tuner_cleanup_module);
++
 +/*
++ * Overrides for Emacs so that we follow Linus's tabbing style.
++ * ---------------------------------------------------------------------------
 + * Local variables:
 + * c-basic-offset: 8
 + * End:
 + */
-Index: linux-2.6.10/include/linux/major.h
+Index: linux-2.6.11-rc4/drivers/media/video/tuner-simple.c
 ===================================================================
---- linux-2.6.10.orig/include/linux/major.h	2004-12-29 23:55:49.000000000 +0100
-+++ linux-2.6.10/include/linux/major.h	2005-01-19 14:30:27.569747241 +0100
-@@ -101,6 +101,7 @@
- #define I2O_MAJOR		80	/* 80->87 */
- 
- #define SHMIQ_MAJOR		85   /* Linux/mips, SGI /dev/shmiq */
-+#define SCSI_CHANGER_MAJOR      86
- 
- #define IDE6_MAJOR		88
- #define IDE7_MAJOR		89
-Index: linux-2.6.10/include/scsi/scsi.h
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.11-rc4/drivers/media/video/tuner-simple.c	2005-02-15 17:02:13.000000000 +0100
+@@ -0,0 +1,467 @@
++/*
++ * $Id: tuner-simple.c,v 1.4 2005/02/15 15:59:35 kraxel Exp $
++ *
++ * i2c tv tuner chip device driver
++ * controls all those simple 4-control-bytes style tuners.
++ */
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/videodev.h>
++#include <media/tuner.h>
++
++/* ---------------------------------------------------------------------- */
++
++/* tv standard selection for Temic 4046 FM5
++   this value takes the low bits of control byte 2
++   from datasheet Rev.01, Feb.00
++     standard     BG      I       L       L2      D
++     picture IF   38.9    38.9    38.9    33.95   38.9
++     sound 1      33.4    32.9    32.4    40.45   32.4
++     sound 2      33.16
++     NICAM        33.05   32.348  33.05           33.05
++ */
++#define TEMIC_SET_PAL_I         0x05
++#define TEMIC_SET_PAL_DK        0x09
++#define TEMIC_SET_PAL_L         0x0a // SECAM ?
++#define TEMIC_SET_PAL_L2        0x0b // change IF !
++#define TEMIC_SET_PAL_BG        0x0c
++
++/* tv tuner system standard selection for Philips FQ1216ME
++   this value takes the low bits of control byte 2
++   from datasheet "1999 Nov 16" (supersedes "1999 Mar 23")
++     standard 		BG	DK	I	L	L`
++     picture carrier	38.90	38.90	38.90	38.90	33.95
++     colour		34.47	34.47	34.47	34.47	38.38
++     sound 1		33.40	32.40	32.90	32.40	40.45
++     sound 2		33.16	-	-	-	-
++     NICAM		33.05	33.05	32.35	33.05	39.80
++ */
++#define PHILIPS_SET_PAL_I	0x01 /* Bit 2 always zero !*/
++#define PHILIPS_SET_PAL_BGDK	0x09
++#define PHILIPS_SET_PAL_L2	0x0a
++#define PHILIPS_SET_PAL_L	0x0b
++
++/* system switching for Philips FI1216MF MK2
++   from datasheet "1996 Jul 09",
++    standard         BG     L      L'
++    picture carrier  38.90  38.90  33.95
++    colour	     34.47  34.37  38.38
++    sound 1          33.40  32.40  40.45
++    sound 2          33.16  -      -
++    NICAM            33.05  33.05  39.80
++ */
++#define PHILIPS_MF_SET_BG	0x01 /* Bit 2 must be zero, Bit 3 is system output */
++#define PHILIPS_MF_SET_PAL_L	0x03 // France
++#define PHILIPS_MF_SET_PAL_L2	0x02 // L'
++
++
++/* ---------------------------------------------------------------------- */
++
++struct tunertype
++{
++	char *name;
++	unsigned char Vendor;
++	unsigned char Type;
++
++	unsigned short thresh1;  /*  band switch VHF_LO <=> VHF_HI  */
++	unsigned short thresh2;  /*  band switch VHF_HI <=> UHF     */
++	unsigned char VHF_L;
++	unsigned char VHF_H;
++	unsigned char UHF;
++	unsigned char config;
++	unsigned short IFPCoff; /* 622.4=16*38.90 MHz PAL,
++				   732  =16*45.75 NTSCi,
++				   940  =16*58.75 NTSC-Japan
++				   704  =16*44    ATSC */
++};
++
++/*
++ *	The floats in the tuner struct are computed at compile time
++ *	by gcc and cast back to integers. Thus we don't violate the
++ *	"no float in kernel" rule.
++ */
++static struct tunertype tuners[] = {
++        { "Temic PAL (4002 FH5)", TEMIC, PAL,
++	  16*140.25,16*463.25,0x02,0x04,0x01,0x8e,623},
++	{ "Philips PAL_I (FI1246 and compatibles)", Philips, PAL_I,
++	  16*140.25,16*463.25,0xa0,0x90,0x30,0x8e,623},
++	{ "Philips NTSC (FI1236,FM1236 and compatibles)", Philips, NTSC,
++	  16*157.25,16*451.25,0xA0,0x90,0x30,0x8e,732},
++	{ "Philips (SECAM+PAL_BG) (FI1216MF, FM1216MF, FR1216MF)", Philips, SECAM,
++	  16*168.25,16*447.25,0xA7,0x97,0x37,0x8e,623},
++
++	{ "NoTuner", NoTuner, NOTUNER,
++	  0,0,0x00,0x00,0x00,0x00,0x00},
++	{ "Philips PAL_BG (FI1216 and compatibles)", Philips, PAL,
++	  16*168.25,16*447.25,0xA0,0x90,0x30,0x8e,623},
++	{ "Temic NTSC (4032 FY5)", TEMIC, NTSC,
++	  16*157.25,16*463.25,0x02,0x04,0x01,0x8e,732},
++	{ "Temic PAL_I (4062 FY5)", TEMIC, PAL_I,
++	  16*170.00,16*450.00,0x02,0x04,0x01,0x8e,623},
++
++ 	{ "Temic NTSC (4036 FY5)", TEMIC, NTSC,
++	  16*157.25,16*463.25,0xa0,0x90,0x30,0x8e,732},
++        { "Alps HSBH1", TEMIC, NTSC,
++	  16*137.25,16*385.25,0x01,0x02,0x08,0x8e,732},
++        { "Alps TSBE1",TEMIC,PAL,
++	  16*137.25,16*385.25,0x01,0x02,0x08,0x8e,732},
++        { "Alps TSBB5", Alps, PAL_I, /* tested (UK UHF) with Modulartech MM205 */
++	  16*133.25,16*351.25,0x01,0x02,0x08,0x8e,632},
++
++        { "Alps TSBE5", Alps, PAL, /* untested - data sheet guess. Only IF differs. */
++	  16*133.25,16*351.25,0x01,0x02,0x08,0x8e,622},
++        { "Alps TSBC5", Alps, PAL, /* untested - data sheet guess. Only IF differs. */
++	  16*133.25,16*351.25,0x01,0x02,0x08,0x8e,608},
++	{ "Temic PAL_BG (4006FH5)", TEMIC, PAL,
++	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
++  	{ "Alps TSCH6",Alps,NTSC,
++  	  16*137.25,16*385.25,0x14,0x12,0x11,0x8e,732},
++
++  	{ "Temic PAL_DK (4016 FY5)",TEMIC,PAL,
++  	  16*168.25,16*456.25,0xa0,0x90,0x30,0x8e,623},
++  	{ "Philips NTSC_M (MK2)",Philips,NTSC,
++  	  16*160.00,16*454.00,0xa0,0x90,0x30,0x8e,732},
++        { "Temic PAL_I (4066 FY5)", TEMIC, PAL_I,
++          16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623},
++        { "Temic PAL* auto (4006 FN5)", TEMIC, PAL,
++          16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623},
++
++        { "Temic PAL_BG (4009 FR5) or PAL_I (4069 FR5)", TEMIC, PAL,
++          16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623},
++        { "Temic NTSC (4039 FR5)", TEMIC, NTSC,
++          16*158.00, 16*453.00, 0xa0,0x90,0x30,0x8e,732},
++        { "Temic PAL/SECAM multi (4046 FM5)", TEMIC, PAL,
++          16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623},
++        { "Philips PAL_DK (FI1256 and compatibles)", Philips, PAL,
++	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
++
++	{ "Philips PAL/SECAM multi (FQ1216ME)", Philips, PAL,
++	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
++	{ "LG PAL_I+FM (TAPC-I001D)", LGINNOTEK, PAL_I,
++	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
++	{ "LG PAL_I (TAPC-I701D)", LGINNOTEK, PAL_I,
++	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
++	{ "LG NTSC+FM (TPI8NSR01F)", LGINNOTEK, NTSC,
++	  16*210.00,16*497.00,0xa0,0x90,0x30,0x8e,732},
++
++	{ "LG PAL_BG+FM (TPI8PSB01D)", LGINNOTEK, PAL,
++	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
++	{ "LG PAL_BG (TPI8PSB11D)", LGINNOTEK, PAL,
++	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
++	{ "Temic PAL* auto + FM (4009 FN5)", TEMIC, PAL,
++	  16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623},
++	{ "SHARP NTSC_JP (2U5JF5540)", SHARP, NTSC, /* 940=16*58.75 NTSC@Japan */
++	  16*137.25,16*317.25,0x01,0x02,0x08,0x8e,940 },
++
++	{ "Samsung PAL TCPM9091PD27", Samsung, PAL,  /* from sourceforge v3tv */
++          16*169,16*464,0xA0,0x90,0x30,0x8e,623},
++	{ "MT20xx universal", Microtune,PAL|NTSC,
++	  /* see mt20xx.c for details */ },
++	{ "Temic PAL_BG (4106 FH5)", TEMIC, PAL,
++          16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623},
++	{ "Temic PAL_DK/SECAM_L (4012 FY5)", TEMIC, PAL,
++          16*140.25, 16*463.25, 0x02,0x04,0x01,0x8e,623},
++
++	{ "Temic NTSC (4136 FY5)", TEMIC, NTSC,
++          16*158.00, 16*453.00, 0xa0,0x90,0x30,0x8e,732},
++        { "LG PAL (newer TAPC series)", LGINNOTEK, PAL,
++          16*170.00, 16*450.00, 0x01,0x02,0x08,0x8e,623},
++	{ "Philips PAL/SECAM multi (FM1216ME MK3)", Philips, PAL,
++	  16*160.00,16*442.00,0x01,0x02,0x04,0x8e,623 },
++	{ "LG NTSC (newer TAPC series)", LGINNOTEK, NTSC,
++          16*170.00, 16*450.00, 0x01,0x02,0x08,0x8e,732},
++
++	{ "HITACHI V7-J180AT", HITACHI, NTSC,
++	  16*170.00, 16*450.00, 0x01,0x02,0x08,0x8e,940 },
++	{ "Philips PAL_MK (FI1216 MK)", Philips, PAL,
++	  16*140.25,16*463.25,0x01,0xc2,0xcf,0x8e,623},
++	{ "Philips 1236D ATSC/NTSC daul in",Philips,ATSC,
++	  16*157.25,16*454.00,0xa0,0x90,0x30,0x8e,732},
++        { "Philips NTSC MK3 (FM1236MK3 or FM1236/F)", Philips, NTSC,
++          16*160.00,16*442.00,0x01,0x02,0x04,0x8e,732},
++
++        { "Philips 4 in 1 (ATI TV Wonder Pro/Conexant)", Philips, NTSC,
++          16*160.00,16*442.00,0x01,0x02,0x04,0x8e,732},
++	{ "Microtune 4049 FM5",Microtune,PAL,
++	  16*141.00,16*464.00,0xa0,0x90,0x30,0x8e,623},
++	{ "Panasonic VP27s/ENGE4324D", Panasonic, NTSC,
++	  16*160.00,16*454.00,0x01,0x02,0x08,0xce,940},
++        { "LG NTSC (TAPE series)", LGINNOTEK, NTSC,
++          16*160.00,16*442.00,0x01,0x02,0x04,0x8e,732 },
++
++        { "Tenna TNF 8831 BGFF)", Philips, PAL,
++          16*161.25,16*463.25,0xa0,0x90,0x30,0x8e,623},
++	{ "Microtune 4042 FI5 ATSC/NTSC dual in", Microtune, NTSC,
++	  16*162.00,16*457.00,0xa2,0x94,0x31,0x8e,732},
++        { "TCL 2002N", TCL, NTSC,
++          16*172.00,16*448.00,0x01,0x02,0x08,0x8e,732},
++	{ "Philips PAL/SECAM_D (FM 1256 I-H3)", Philips, PAL,
++	  16*160.00,16*442.00,0x01,0x02,0x04,0x8e,623 },
++
++	{ "Thomson DDT 7610 (ATSC/NTSC)", THOMSON, ATSC,
++	  16*157.25,16*454.00,0x39,0x3a,0x3c,0x8e,732},
++	{ "Philips FQ1286", Philips, NTSC,
++	  16*160.00,16*454.00,0x41,0x42,0x04,0x8e,940}, // UHF band untested
++	{ "tda8290+75", Philips,PAL|NTSC,
++	  /* see tda8290.c for details */ },
++
++};
++unsigned const int tuner_count = ARRAY_SIZE(tuners);
++
++/* ---------------------------------------------------------------------- */
++
++static int tuner_getstatus(struct i2c_client *c)
++{
++	unsigned char byte;
++
++	if (1 != i2c_master_recv(c,&byte,1))
++		return 0;
++	return byte;
++}
++
++#define TUNER_POR       0x80
++#define TUNER_FL        0x40
++#define TUNER_MODE      0x38
++#define TUNER_AFC       0x07
++
++#define TUNER_STEREO    0x10 /* radio mode */
++#define TUNER_SIGNAL    0x07 /* radio mode */
++
++static int tuner_signal(struct i2c_client *c)
++{
++	return (tuner_getstatus(c) & TUNER_SIGNAL)<<13;
++}
++
++static int tuner_stereo(struct i2c_client *c)
++{
++	return (tuner_getstatus (c) & TUNER_STEREO);
++}
++
++#if 0 /* unused */
++static int tuner_islocked (struct i2c_client *c)
++{
++        return (tuner_getstatus (c) & TUNER_FL);
++}
++
++static int tuner_afcstatus (struct i2c_client *c)
++{
++        return (tuner_getstatus (c) & TUNER_AFC) - 2;
++}
++
++static int tuner_mode (struct i2c_client *c)
++{
++        return (tuner_getstatus (c) & TUNER_MODE) >> 3;
++}
++#endif
++
++/* ---------------------------------------------------------------------- */
++
++static void default_set_tv_freq(struct i2c_client *c, unsigned int freq)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	u8 config;
++	u16 div;
++	struct tunertype *tun;
++        unsigned char buffer[4];
++	int rc;
++
++	tun = &tuners[t->type];
++	if (freq < tun->thresh1) {
++		config = tun->VHF_L;
++		tuner_dbg("tv: VHF lowrange\n");
++	} else if (freq < tun->thresh2) {
++		config = tun->VHF_H;
++		tuner_dbg("tv: VHF high range\n");
++	} else {
++		config = tun->UHF;
++		tuner_dbg("tv: UHF range\n");
++	}
++
++
++	/* tv norm specific stuff for multi-norm tuners */
++	switch (t->type) {
++	case TUNER_PHILIPS_SECAM: // FI1216MF
++		/* 0x01 -> ??? no change ??? */
++		/* 0x02 -> PAL BDGHI / SECAM L */
++		/* 0x04 -> ??? PAL others / SECAM others ??? */
++		config &= ~0x02;
++		if (t->std & V4L2_STD_SECAM)
++			config |= 0x02;
++		break;
++
++	case TUNER_TEMIC_4046FM5:
++		config &= ~0x0f;
++
++		if (t->std & V4L2_STD_PAL_BG) {
++			config |= TEMIC_SET_PAL_BG;
++
++		} else if (t->std & V4L2_STD_PAL_I) {
++			config |= TEMIC_SET_PAL_I;
++
++		} else if (t->std & V4L2_STD_PAL_DK) {
++			config |= TEMIC_SET_PAL_DK;
++
++		} else if (t->std & V4L2_STD_SECAM_L) {
++			config |= TEMIC_SET_PAL_L;
++
++		}
++		break;
++
++	case TUNER_PHILIPS_FQ1216ME:
++		config &= ~0x0f;
++
++		if (t->std & (V4L2_STD_PAL_BG|V4L2_STD_PAL_DK)) {
++			config |= PHILIPS_SET_PAL_BGDK;
++
++		} else if (t->std & V4L2_STD_PAL_I) {
++			config |= PHILIPS_SET_PAL_I;
++
++		} else if (t->std & V4L2_STD_SECAM_L) {
++			config |= PHILIPS_SET_PAL_L;
++
++		}
++		break;
++
++	case TUNER_PHILIPS_ATSC:
++		/* 0x00 -> ATSC antenna input 1 */
++		/* 0x01 -> ATSC antenna input 2 */
++		/* 0x02 -> NTSC antenna input 1 */
++		/* 0x03 -> NTSC antenna input 2 */
++		config &= ~0x03;
++		if (!(t->std & V4L2_STD_ATSC))
++			config |= 2;
++		/* FIXME: input */
++		break;
++
++	case TUNER_MICROTUNE_4042FI5:
++		/* Set the charge pump for fast tuning */
++		tun->config |= 0x40;
++		break;
++	}
++
++	/*
++	 * Philips FI1216MK2 remark from specification :
++	 * for channel selection involving band switching, and to ensure
++	 * smooth tuning to the desired channel without causing
++	 * unnecessary charge pump action, it is recommended to consider
++	 * the difference between wanted channel frequency and the
++	 * current channel frequency.  Unnecessary charge pump action
++	 * will result in very low tuning voltage which may drive the
++	 * oscillator to extreme conditions.
++	 *
++	 * Progfou: specification says to send config data before
++	 * frequency in case (wanted frequency < current frequency).
++	 */
++
++	div=freq + tun->IFPCoff;
++	if (t->type == TUNER_PHILIPS_SECAM && freq < t->freq) {
++		buffer[0] = tun->config;
++		buffer[1] = config;
++		buffer[2] = (div>>8) & 0x7f;
++		buffer[3] = div      & 0xff;
++	} else {
++		buffer[0] = (div>>8) & 0x7f;
++		buffer[1] = div      & 0xff;
++		buffer[2] = tun->config;
++		buffer[3] = config;
++	}
++	tuner_dbg("tv 0x%02x 0x%02x 0x%02x 0x%02x\n",
++		  buffer[0],buffer[1],buffer[2],buffer[3]);
++
++        if (4 != (rc = i2c_master_send(c,buffer,4)))
++		tuner_warn("i2c i/o error: rc == %d (should be 4)\n",rc);
++
++	if (t->type == TUNER_MICROTUNE_4042FI5) {
++		// FIXME - this may also work for other tuners
++		unsigned long timeout = jiffies + msecs_to_jiffies(1);
++		u8 status_byte = 0;
++
++		/* Wait until the PLL locks */
++		for (;;) {
++			if (time_after(jiffies,timeout))
++				return;
++			if (1 != (rc = i2c_master_recv(c,&status_byte,1))) {
++				tuner_warn("i2c i/o read error: rc == %d (should be 1)\n",rc);
++				break;
++			}
++			/* bit 6 is PLL locked indicator */
++			if (status_byte & 0x40)
++				break;
++			udelay(10);
++		}
++
++		/* Set the charge pump for optimized phase noise figure */
++		tun->config &= ~0x40;
++		buffer[0] = (div>>8) & 0x7f;
++		buffer[1] = div      & 0xff;
++		buffer[2] = tun->config;
++		buffer[3] = config;
++		tuner_dbg("tv 0x%02x 0x%02x 0x%02x 0x%02x\n",
++		       buffer[0],buffer[1],buffer[2],buffer[3]);
++
++		if (4 != (rc = i2c_master_send(c,buffer,4)))
++			tuner_warn("i2c i/o error: rc == %d (should be 4)\n",rc);
++	}
++}
++
++static void default_set_radio_freq(struct i2c_client *c, unsigned int freq)
++{
++	struct tunertype *tun;
++	struct tuner *t = i2c_get_clientdata(c);
++        unsigned char buffer[4];
++	unsigned div;
++	int rc;
++
++	tun=&tuners[t->type];
++	div = freq + (int)(16*10.7);
++	buffer[2] = tun->config;
++
++	switch (t->type) {
++	case TUNER_PHILIPS_FM1216ME_MK3:
++	case TUNER_PHILIPS_FM1236_MK3:
++		buffer[3] = 0x19;
++		break;
++	case TUNER_PHILIPS_FM1256_IH3:
++		div = (20 * freq)/16 + 333 * 2;
++	        buffer[2] = 0x80;
++		buffer[3] = 0x19;
++		break;
++	case TUNER_LG_PAL_FM:
++		buffer[3] = 0xa5;
++		break;
++	default:
++		buffer[3] = 0xa4;
++		break;
++	}
++        buffer[0] = (div>>8) & 0x7f;
++        buffer[1] = div      & 0xff;
++
++	tuner_dbg("radio 0x%02x 0x%02x 0x%02x 0x%02x\n",
++	       buffer[0],buffer[1],buffer[2],buffer[3]);
++
++        if (4 != (rc = i2c_master_send(c,buffer,4)))
++		tuner_warn("i2c i/o error: rc == %d (should be 4)\n",rc);
++}
++
++int default_tuner_init(struct i2c_client *c)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++
++	tuner_info("type set to %d (%s)\n",
++		   t->type, tuners[t->type].name);
++	strlcpy(c->name, tuners[t->type].name, sizeof(c->name));
++
++	t->tv_freq    = default_set_tv_freq;
++	t->radio_freq = default_set_radio_freq;
++	t->has_signal = tuner_signal;
++	t->is_stereo  = tuner_stereo;
++	return 0;
++}
++
++/*
++ * Overrides for Emacs so that we follow Linus's tabbing style.
++ * ---------------------------------------------------------------------------
++ * Local variables:
++ * c-basic-offset: 8
++ * End:
++ */
+Index: linux-2.6.11-rc4/drivers/media/video/mt20xx.c
 ===================================================================
---- linux-2.6.10.orig/include/scsi/scsi.h	2004-12-29 23:59:22.000000000 +0100
-+++ linux-2.6.10/include/scsi/scsi.h	2005-01-19 14:30:27.569747241 +0100
-@@ -41,6 +41,7 @@ extern const char *const scsi_device_typ
- #define FORMAT_UNIT           0x04
- #define READ_BLOCK_LIMITS     0x05
- #define REASSIGN_BLOCKS       0x07
-+#define INITIALIZE_ELEMENT_STATUS 0x07
- #define READ_6                0x08
- #define WRITE_6               0x0a
- #define SEEK_6                0x0b
-@@ -65,6 +66,7 @@ extern const char *const scsi_device_typ
- #define READ_10               0x28
- #define WRITE_10              0x2a
- #define SEEK_10               0x2b
-+#define POSITION_TO_ELEMENT   0x2b
- #define WRITE_VERIFY          0x2e
- #define VERIFY                0x2f
- #define SEARCH_HIGH           0x30
-@@ -97,6 +99,7 @@ extern const char *const scsi_device_typ
- #define PERSISTENT_RESERVE_OUT 0x5f
- #define REPORT_LUNS           0xa0
- #define MOVE_MEDIUM           0xa5
-+#define EXCHANGE_MEDIUM       0xa6
- #define READ_12               0xa8
- #define WRITE_12              0xaa
- #define WRITE_VERIFY_12       0xae
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.11-rc4/drivers/media/video/mt20xx.c	2005-02-15 17:02:13.000000000 +0100
+@@ -0,0 +1,557 @@
++/*
++ * $Id: mt20xx.c,v 1.3 2005/02/15 15:59:35 kraxel Exp $
++ *
++ * i2c tv tuner chip device driver
++ * controls microtune tuners, mt2032 + mt2050 at the moment.
++ */
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/videodev.h>
++#include <media/tuner.h>
++
++/* ---------------------------------------------------------------------- */
++
++static unsigned int optimize_vco  = 1;
++module_param(optimize_vco,      int, 0644);
++
++static unsigned int tv_antenna    = 1;
++module_param(tv_antenna,        int, 0644);
++
++static unsigned int radio_antenna = 0;
++module_param(radio_antenna,     int, 0644);
++
++/* ---------------------------------------------------------------------- */
++
++#define MT2032 0x04
++#define MT2030 0x06
++#define MT2040 0x07
++#define MT2050 0x42
++
++static char *microtune_part[] = {
++	[ MT2030 ] = "MT2030",
++	[ MT2032 ] = "MT2032",
++	[ MT2040 ] = "MT2040",
++	[ MT2050 ] = "MT2050",
++};
++
++// IsSpurInBand()?
++static int mt2032_spurcheck(struct i2c_client *c,
++			    int f1, int f2, int spectrum_from,int spectrum_to)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	int n1=1,n2,f;
++
++	f1=f1/1000; //scale to kHz to avoid 32bit overflows
++	f2=f2/1000;
++	spectrum_from/=1000;
++	spectrum_to/=1000;
++
++	tuner_dbg("spurcheck f1=%d f2=%d  from=%d to=%d\n",
++		  f1,f2,spectrum_from,spectrum_to);
++
++	do {
++	    n2=-n1;
++	    f=n1*(f1-f2);
++	    do {
++		n2--;
++		f=f-f2;
++		tuner_dbg("spurtest n1=%d n2=%d ftest=%d\n",n1,n2,f);
++
++		if( (f>spectrum_from) && (f<spectrum_to))
++			tuner_dbg("mt2032 spurcheck triggered: %d\n",n1);
++	    } while ( (f>(f2-spectrum_to)) || (n2>-5));
++	    n1++;
++	} while (n1<5);
++
++	return 1;
++}
++
++static int mt2032_compute_freq(struct i2c_client *c,
++			       unsigned int rfin,
++			       unsigned int if1, unsigned int if2,
++			       unsigned int spectrum_from,
++			       unsigned int spectrum_to,
++			       unsigned char *buf,
++			       int *ret_sel,
++			       unsigned int xogc) //all in Hz
++{
++	struct tuner *t = i2c_get_clientdata(c);
++        unsigned int fref,lo1,lo1n,lo1a,s,sel,lo1freq, desired_lo1,
++		desired_lo2,lo2,lo2n,lo2a,lo2num,lo2freq;
++
++        fref= 5250 *1000; //5.25MHz
++	desired_lo1=rfin+if1;
++
++	lo1=(2*(desired_lo1/1000)+(fref/1000)) / (2*fref/1000);
++        lo1n=lo1/8;
++        lo1a=lo1-(lo1n*8);
++
++        s=rfin/1000/1000+1090;
++
++	if(optimize_vco) {
++		if(s>1890) sel=0;
++		else if(s>1720) sel=1;
++		else if(s>1530) sel=2;
++		else if(s>1370) sel=3;
++		else sel=4; // >1090
++	}
++	else {
++        	if(s>1790) sel=0; // <1958
++        	else if(s>1617) sel=1;
++        	else if(s>1449) sel=2;
++        	else if(s>1291) sel=3;
++        	else sel=4; // >1090
++	}
++	*ret_sel=sel;
++
++        lo1freq=(lo1a+8*lo1n)*fref;
++
++	tuner_dbg("mt2032: rfin=%d lo1=%d lo1n=%d lo1a=%d sel=%d, lo1freq=%d\n",
++		  rfin,lo1,lo1n,lo1a,sel,lo1freq);
++
++        desired_lo2=lo1freq-rfin-if2;
++        lo2=(desired_lo2)/fref;
++        lo2n=lo2/8;
++        lo2a=lo2-(lo2n*8);
++        lo2num=((desired_lo2/1000)%(fref/1000))* 3780/(fref/1000); //scale to fit in 32bit arith
++        lo2freq=(lo2a+8*lo2n)*fref + lo2num*(fref/1000)/3780*1000;
++
++	tuner_dbg("mt2032: rfin=%d lo2=%d lo2n=%d lo2a=%d num=%d lo2freq=%d\n",
++		  rfin,lo2,lo2n,lo2a,lo2num,lo2freq);
++
++        if(lo1a<0 || lo1a>7 || lo1n<17 ||lo1n>48 || lo2a<0 ||lo2a >7 ||lo2n<17 || lo2n>30) {
++		tuner_info("mt2032: frequency parameters out of range: %d %d %d %d\n",
++			   lo1a, lo1n, lo2a,lo2n);
++                return(-1);
++        }
++
++	mt2032_spurcheck(c, lo1freq, desired_lo2,  spectrum_from, spectrum_to);
++	// should recalculate lo1 (one step up/down)
++
++	// set up MT2032 register map for transfer over i2c
++	buf[0]=lo1n-1;
++	buf[1]=lo1a | (sel<<4);
++	buf[2]=0x86; // LOGC
++	buf[3]=0x0f; //reserved
++	buf[4]=0x1f;
++	buf[5]=(lo2n-1) | (lo2a<<5);
++ 	if(rfin >400*1000*1000)
++                buf[6]=0xe4;
++        else
++                buf[6]=0xf4; // set PKEN per rev 1.2
++	buf[7]=8+xogc;
++	buf[8]=0xc3; //reserved
++	buf[9]=0x4e; //reserved
++	buf[10]=0xec; //reserved
++	buf[11]=(lo2num&0xff);
++	buf[12]=(lo2num>>8) |0x80; // Lo2RST
++
++	return 0;
++}
++
++static int mt2032_check_lo_lock(struct i2c_client *c)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	int try,lock=0;
++	unsigned char buf[2];
++
++	for(try=0;try<10;try++) {
++		buf[0]=0x0e;
++		i2c_master_send(c,buf,1);
++		i2c_master_recv(c,buf,1);
++		tuner_dbg("mt2032 Reg.E=0x%02x\n",buf[0]);
++		lock=buf[0] &0x06;
++
++		if (lock==6)
++			break;
++
++		tuner_dbg("mt2032: pll wait 1ms for lock (0x%2x)\n",buf[0]);
++		udelay(1000);
++	}
++        return lock;
++}
++
++static int mt2032_optimize_vco(struct i2c_client *c,int sel,int lock)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	unsigned char buf[2];
++	int tad1;
++
++	buf[0]=0x0f;
++	i2c_master_send(c,buf,1);
++	i2c_master_recv(c,buf,1);
++	tuner_dbg("mt2032 Reg.F=0x%02x\n",buf[0]);
++	tad1=buf[0]&0x07;
++
++	if(tad1 ==0) return lock;
++	if(tad1 ==1) return lock;
++
++	if(tad1==2) {
++		if(sel==0)
++			return lock;
++		else sel--;
++	}
++	else {
++		if(sel<4)
++			sel++;
++		else
++			return lock;
++	}
++
++	tuner_dbg("mt2032 optimize_vco: sel=%d\n",sel);
++
++	buf[0]=0x0f;
++	buf[1]=sel;
++        i2c_master_send(c,buf,2);
++	lock=mt2032_check_lo_lock(c);
++	return lock;
++}
++
++
++static void mt2032_set_if_freq(struct i2c_client *c, unsigned int rfin,
++			       unsigned int if1, unsigned int if2,
++			       unsigned int from, unsigned int to)
++{
++	unsigned char buf[21];
++	int lint_try,ret,sel,lock=0;
++	struct tuner *t = i2c_get_clientdata(c);
++
++	tuner_dbg("mt2032_set_if_freq rfin=%d if1=%d if2=%d from=%d to=%d\n",
++		  rfin,if1,if2,from,to);
++
++        buf[0]=0;
++        ret=i2c_master_send(c,buf,1);
++        i2c_master_recv(c,buf,21);
++
++	buf[0]=0;
++	ret=mt2032_compute_freq(c,rfin,if1,if2,from,to,&buf[1],&sel,t->xogc);
++	if (ret<0)
++		return;
++
++        // send only the relevant registers per Rev. 1.2
++        buf[0]=0;
++        ret=i2c_master_send(c,buf,4);
++        buf[5]=5;
++        ret=i2c_master_send(c,buf+5,4);
++        buf[11]=11;
++        ret=i2c_master_send(c,buf+11,3);
++        if(ret!=3)
++		tuner_warn("i2c i/o error: rc == %d (should be 3)\n",ret);
++
++	// wait for PLLs to lock (per manual), retry LINT if not.
++	for(lint_try=0; lint_try<2; lint_try++) {
++		lock=mt2032_check_lo_lock(c);
++
++		if(optimize_vco)
++			lock=mt2032_optimize_vco(c,sel,lock);
++		if(lock==6) break;
++
++		tuner_dbg("mt2032: re-init PLLs by LINT\n");
++		buf[0]=7;
++		buf[1]=0x80 +8+t->xogc; // set LINT to re-init PLLs
++		i2c_master_send(c,buf,2);
++		mdelay(10);
++		buf[1]=8+t->xogc;
++		i2c_master_send(c,buf,2);
++        }
++
++	if (lock!=6)
++		tuner_warn("MT2032 Fatal Error: PLLs didn't lock.\n");
++
++	buf[0]=2;
++	buf[1]=0x20; // LOGC for optimal phase noise
++	ret=i2c_master_send(c,buf,2);
++	if (ret!=2)
++		tuner_warn("i2c i/o error: rc == %d (should be 2)\n",ret);
++}
++
++
++static void mt2032_set_tv_freq(struct i2c_client *c, unsigned int freq)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	int if2,from,to;
++
++	// signal bandwidth and picture carrier
++	if (t->std & V4L2_STD_525_60) {
++		// NTSC
++		from = 40750*1000;
++		to   = 46750*1000;
++		if2  = 45750*1000;
++	} else {
++		// PAL
++		from = 32900*1000;
++		to   = 39900*1000;
++		if2  = 38900*1000;
++	}
++
++        mt2032_set_if_freq(c, freq*62500 /* freq*1000*1000/16 */,
++			   1090*1000*1000, if2, from, to);
++}
++
++static void mt2032_set_radio_freq(struct i2c_client *c, unsigned int freq)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	int if2 = t->radio_if2;
++
++	// per Manual for FM tuning: first if center freq. 1085 MHz
++        mt2032_set_if_freq(c, freq*62500 /* freq*1000*1000/16 */,
++			   1085*1000*1000,if2,if2,if2);
++}
++
++// Initalization as described in "MT203x Programming Procedures", Rev 1.2, Feb.2001
++static int mt2032_init(struct i2c_client *c)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++        unsigned char buf[21];
++        int ret,xogc,xok=0;
++
++	// Initialize Registers per spec.
++        buf[1]=2; // Index to register 2
++        buf[2]=0xff;
++        buf[3]=0x0f;
++        buf[4]=0x1f;
++        ret=i2c_master_send(c,buf+1,4);
++
++        buf[5]=6; // Index register 6
++        buf[6]=0xe4;
++        buf[7]=0x8f;
++        buf[8]=0xc3;
++        buf[9]=0x4e;
++        buf[10]=0xec;
++        ret=i2c_master_send(c,buf+5,6);
++
++        buf[12]=13;  // Index register 13
++        buf[13]=0x32;
++        ret=i2c_master_send(c,buf+12,2);
++
++        // Adjust XOGC (register 7), wait for XOK
++        xogc=7;
++        do {
++		tuner_dbg("mt2032: xogc = 0x%02x\n",xogc&0x07);
++                mdelay(10);
++                buf[0]=0x0e;
++                i2c_master_send(c,buf,1);
++                i2c_master_recv(c,buf,1);
++                xok=buf[0]&0x01;
++                tuner_dbg("mt2032: xok = 0x%02x\n",xok);
++                if (xok == 1) break;
++
++                xogc--;
++                tuner_dbg("mt2032: xogc = 0x%02x\n",xogc&0x07);
++                if (xogc == 3) {
++                        xogc=4; // min. 4 per spec
++                        break;
++                }
++                buf[0]=0x07;
++                buf[1]=0x88 + xogc;
++                ret=i2c_master_send(c,buf,2);
++                if (ret!=2)
++			tuner_warn("i2c i/o error: rc == %d (should be 2)\n",ret);
++        } while (xok != 1 );
++	t->xogc=xogc;
++
++	t->tv_freq    = mt2032_set_tv_freq;
++	t->radio_freq = mt2032_set_radio_freq;
++        return(1);
++}
++
++static void mt2050_set_antenna(struct i2c_client *c, unsigned char antenna)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++       unsigned char buf[2];
++       int ret;
++
++       buf[0] = 6;
++       buf[1] = antenna ? 0x11 : 0x10;
++       ret=i2c_master_send(c,buf,2);
++       tuner_dbg("mt2050: enabled antenna connector %d\n", antenna);
++}
++
++static void mt2050_set_if_freq(struct i2c_client *c,unsigned int freq, unsigned int if2)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	unsigned int if1=1218*1000*1000;
++	unsigned int f_lo1,f_lo2,lo1,lo2,f_lo1_modulo,f_lo2_modulo,num1,num2,div1a,div1b,div2a,div2b;
++	int ret;
++	unsigned char buf[6];
++
++	tuner_dbg("mt2050_set_if_freq freq=%d if1=%d if2=%d\n",
++		  freq,if1,if2);
++
++	f_lo1=freq+if1;
++	f_lo1=(f_lo1/1000000)*1000000;
++
++	f_lo2=f_lo1-freq-if2;
++	f_lo2=(f_lo2/50000)*50000;
++
++	lo1=f_lo1/4000000;
++	lo2=f_lo2/4000000;
++
++	f_lo1_modulo= f_lo1-(lo1*4000000);
++	f_lo2_modulo= f_lo2-(lo2*4000000);
++
++	num1=4*f_lo1_modulo/4000000;
++	num2=4096*(f_lo2_modulo/1000)/4000;
++
++	// todo spurchecks
++
++	div1a=(lo1/12)-1;
++	div1b=lo1-(div1a+1)*12;
++
++	div2a=(lo2/8)-1;
++	div2b=lo2-(div2a+1)*8;
++
++	if (tuner_debug > 1) {
++		tuner_dbg("lo1 lo2 = %d %d\n", lo1, lo2);
++		tuner_dbg("num1 num2 div1a div1b div2a div2b= %x %x %x %x %x %x\n",
++			  num1,num2,div1a,div1b,div2a,div2b);
++	}
++
++	buf[0]=1;
++	buf[1]= 4*div1b + num1;
++	if(freq<275*1000*1000) buf[1] = buf[1]|0x80;
++
++	buf[2]=div1a;
++	buf[3]=32*div2b + num2/256;
++	buf[4]=num2-(num2/256)*256;
++	buf[5]=div2a;
++	if(num2!=0) buf[5]=buf[5]|0x40;
++
++	if (tuner_debug > 1) {
++		int i;
++		tuner_dbg("bufs is: ");
++		for(i=0;i<6;i++)
++			printk("%x ",buf[i]);
++		printk("\n");
++	}
++
++	ret=i2c_master_send(c,buf,6);
++        if (ret!=6)
++		tuner_warn("i2c i/o error: rc == %d (should be 6)\n",ret);
++}
++
++static void mt2050_set_tv_freq(struct i2c_client *c, unsigned int freq)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	unsigned int if2;
++
++	if (t->std & V4L2_STD_525_60) {
++		// NTSC
++                if2 = 45750*1000;
++        } else {
++                // PAL
++                if2 = 38900*1000;
++        }
++	if (V4L2_TUNER_DIGITAL_TV == t->mode) {
++		// DVB (pinnacle 300i)
++		if2 = 36150*1000;
++	}
++	mt2050_set_if_freq(c, freq*62500, if2);
++	mt2050_set_antenna(c, tv_antenna);
++}
++
++static void mt2050_set_radio_freq(struct i2c_client *c, unsigned int freq)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	int if2 = t->radio_if2;
++
++	mt2050_set_if_freq(c, freq*62500, if2);
++	mt2050_set_antenna(c, radio_antenna);
++}
++
++static int mt2050_init(struct i2c_client *c)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	unsigned char buf[2];
++	int ret;
++
++	buf[0]=6;
++	buf[1]=0x10;
++	ret=i2c_master_send(c,buf,2); //  power
++
++	buf[0]=0x0f;
++	buf[1]=0x0f;
++	ret=i2c_master_send(c,buf,2); // m1lo
++
++	buf[0]=0x0d;
++	ret=i2c_master_send(c,buf,1);
++	i2c_master_recv(c,buf,1);
++
++	tuner_dbg("mt2050: sro is %x\n",buf[0]);
++	t->tv_freq    = mt2050_set_tv_freq;
++	t->radio_freq = mt2050_set_radio_freq;
++	return 0;
++}
++
++int microtune_init(struct i2c_client *c)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	char *name;
++        unsigned char buf[21];
++	int company_code;
++
++	memset(buf,0,sizeof(buf));
++	t->tv_freq    = NULL;
++	t->radio_freq = NULL;
++	name = "unknown";
++
++        i2c_master_send(c,buf,1);
++        i2c_master_recv(c,buf,21);
++        if (tuner_debug) {
++                int i;
++		tuner_dbg("MT20xx hexdump:");
++                for(i=0;i<21;i++) {
++                        printk(" %02x",buf[i]);
++                        if(((i+1)%8)==0) printk(" ");
++                }
++                printk("\n");
++        }
++	company_code = buf[0x11] << 8 | buf[0x12];
++	tuner_info("microtune: companycode=%04x part=%02x rev=%02x\n",
++		   company_code,buf[0x13],buf[0x14]);
++
++#if 0
++	/* seems to cause more problems than it solves ... */
++	switch (company_code) {
++	case 0x30bf:
++	case 0x3cbf:
++	case 0x3dbf:
++	case 0x4d54:
++	case 0x8e81:
++	case 0x8e91:
++		/* ok (?) */
++		break;
++	default:
++		tuner_warn("tuner: microtune: unknown companycode\n");
++		return 0;
++	}
++#endif
++
++	if (buf[0x13] < ARRAY_SIZE(microtune_part) &&
++	    NULL != microtune_part[buf[0x13]])
++		name = microtune_part[buf[0x13]];
++	switch (buf[0x13]) {
++	case MT2032:
++		mt2032_init(c);
++		break;
++	case MT2050:
++		mt2050_init(c);
++		break;
++	default:
++		tuner_info("microtune %s found, not (yet?) supported, sorry :-/\n",
++			   name);
++                return 0;
++        }
++
++	strlcpy(c->name, name, sizeof(c->name));
++	tuner_info("microtune %s found, OK\n",name);
++	return 0;
++}
++
++/*
++ * Overrides for Emacs so that we follow Linus's tabbing style.
++ * ---------------------------------------------------------------------------
++ * Local variables:
++ * c-basic-offset: 8
++ * End:
++ */
+Index: linux-2.6.11-rc4/drivers/media/video/tda8290.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.11-rc4/drivers/media/video/tda8290.c	2005-02-15 17:02:13.000000000 +0100
+@@ -0,0 +1,224 @@
++/*
++ * $Id: tda8290.c,v 1.5 2005/02/15 15:59:35 kraxel Exp $
++ *
++ * i2c tv tuner chip device driver
++ * controls the philips tda8290+75 tuner chip combo.
++ */
++#include <linux/i2c.h>
++#include <linux/videodev.h>
++#include <linux/delay.h>
++#include <media/tuner.h>
++
++/* ---------------------------------------------------------------------- */
++
++struct freq_entry {
++	u16	freq;
++	u8	value;
++};
++
++static struct freq_entry band_table[] = {
++	{ 0x2DF4, 0x1C },
++	{ 0x2574, 0x14 },
++	{ 0x22B4, 0x0C },
++	{ 0x20D4, 0x0B },
++	{ 0x1E74, 0x3B },
++	{ 0x1C34, 0x33 },
++	{ 0x16F4, 0x5B },
++	{ 0x1454, 0x53 },
++	{ 0x12D4, 0x52 },
++	{ 0x1034, 0x4A },
++	{ 0x0EE4, 0x7A },
++	{ 0x0D34, 0x72 },
++	{ 0x0B54, 0x9A },
++	{ 0x0914, 0x91 },
++	{ 0x07F4, 0x89 },
++	{ 0x0774, 0xB9 },
++	{ 0x067B, 0xB1 },
++	{ 0x0634, 0xD9 },
++	{ 0x05A4, 0xD8 },	// FM radio
++	{ 0x0494, 0xD0 },
++	{ 0x03BC, 0xC8 },
++	{ 0x0394, 0xF8 },	// 57250000 Hz
++	{ 0x0000, 0xF0 },	// 0
++};
++
++static struct freq_entry div_table[] = {
++	{ 0x1C34, 3 },
++	{ 0x0D34, 2 },
++	{ 0x067B, 1 },
++        { 0x0000, 0 },
++};
++
++static struct freq_entry agc_table[] = {
++	{ 0x22B4, 0x8F },
++	{ 0x0B54, 0x9F },
++	{ 0x09A4, 0x8F },
++	{ 0x0554, 0x9F },
++	{ 0x0000, 0xBF },
++};
++
++static __u8 get_freq_entry( struct freq_entry* table, __u16 freq)
++{
++	while(table->freq && table->freq > freq)
++		table++;
++	return table->value;
++}
++
++/* ---------------------------------------------------------------------- */
++
++static unsigned char i2c_enable_bridge[2] = 	{ 0x21, 0xC0 };
++static unsigned char i2c_disable_bridge[2] = 	{ 0x21, 0x80 };
++static unsigned char i2c_init_tda8275[14] = 	{ 0x00, 0x00, 0x00, 0x00,
++						  0x7C, 0x04, 0xA3, 0x3F,
++						  0x2A, 0x04, 0xFF, 0x00,
++						  0x00, 0x40 };
++static unsigned char i2c_set_VS[2] = 		{ 0x30, 0x6F };
++static unsigned char i2c_set_GP01_CF[2] = 	{ 0x20, 0x0B };
++static unsigned char i2c_tda8290_reset[2] =	{ 0x00, 0x00 };
++static unsigned char i2c_gainset_off[2] =	{ 0x28, 0x14 };
++static unsigned char i2c_gainset_on[2] =	{ 0x28, 0x54 };
++static unsigned char i2c_agc3_00[2] =		{ 0x80, 0x00 };
++static unsigned char i2c_agc2_BF[2] =		{ 0x60, 0xBF };
++static unsigned char i2c_cb1_D2[2] =		{ 0x30, 0xD2 };
++static unsigned char i2c_cb1_56[2] =		{ 0x30, 0x56 };
++static unsigned char i2c_cb1_52[2] =		{ 0x30, 0x52 };
++static unsigned char i2c_cb1_50[2] =		{ 0x30, 0x50 };
++static unsigned char i2c_agc2_7F[2] =		{ 0x60, 0x7F };
++static unsigned char i2c_agc3_08[2] =		{ 0x80, 0x08 };
++
++static struct i2c_msg i2c_msg_init[] = {
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_init_tda8275), i2c_init_tda8275 },
++	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_disable_bridge), i2c_disable_bridge },
++	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_set_VS), i2c_set_VS },
++	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_set_GP01_CF), i2c_set_GP01_CF },
++};
++
++static struct i2c_msg i2c_msg_prolog[] = {
++//	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_easy_mode), i2c_easy_mode },
++	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_gainset_off), i2c_gainset_off },
++	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_tda8290_reset), i2c_tda8290_reset },
++	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_enable_bridge), i2c_enable_bridge },
++};
++
++static struct i2c_msg i2c_msg_config[] = {
++//	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_set_freq), i2c_set_freq },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_agc3_00), i2c_agc3_00 },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_agc2_BF), i2c_agc2_BF },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_cb1_D2), i2c_cb1_D2 },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_cb1_56), i2c_cb1_56 },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_cb1_52), i2c_cb1_52 },
++};
++
++static struct i2c_msg i2c_msg_epilog[] = {
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_cb1_50), i2c_cb1_50 },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_agc2_7F), i2c_agc2_7F },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_agc3_08), i2c_agc3_08 },
++	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_disable_bridge), i2c_disable_bridge },
++	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_gainset_on), i2c_gainset_on },
++};
++
++static int tda8290_tune(struct i2c_client *c)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	struct i2c_msg easy_mode =
++		{ I2C_ADDR_TDA8290, 0, 2, t->i2c_easy_mode };
++	struct i2c_msg set_freq =
++		{ I2C_ADDR_TDA8290, 0, 8, t->i2c_set_freq  };
++
++	i2c_transfer(c->adapter, &easy_mode,      1);
++	i2c_transfer(c->adapter, i2c_msg_prolog, ARRAY_SIZE(i2c_msg_prolog));
++
++	i2c_transfer(c->adapter, &set_freq,       1);
++	i2c_transfer(c->adapter, i2c_msg_config, ARRAY_SIZE(i2c_msg_config));
++
++	msleep(550);
++	i2c_transfer(c->adapter, i2c_msg_epilog, ARRAY_SIZE(i2c_msg_epilog));
++	return 0;
++}
++
++static void set_frequency(struct tuner *t, u16 ifc)
++{
++	u32 N = (((t->freq<<3)+ifc)&0x3fffc);
++
++	N = N >> get_freq_entry(div_table, t->freq);
++	t->i2c_set_freq[0] = 0;
++	t->i2c_set_freq[1] = (unsigned char)(N>>8);
++	t->i2c_set_freq[2] = (unsigned char) N;
++	t->i2c_set_freq[3] = 0x40;
++	t->i2c_set_freq[4] = 0x52;
++	t->i2c_set_freq[5] = get_freq_entry(band_table, t->freq);
++	t->i2c_set_freq[6] = get_freq_entry(agc_table,  t->freq);
++	t->i2c_set_freq[7] = 0x8f;
++}
++
++#define V4L2_STD_MN	(V4L2_STD_PAL_M|V4L2_STD_PAL_N|V4L2_STD_PAL_Nc|V4L2_STD_NTSC)
++#define V4L2_STD_B	(V4L2_STD_PAL_B|V4L2_STD_PAL_B1|V4L2_STD_SECAM_B)
++#define V4L2_STD_GH	(V4L2_STD_PAL_G|V4L2_STD_PAL_H|V4L2_STD_SECAM_G|V4L2_STD_SECAM_H)
++#define V4L2_STD_DK	(V4L2_STD_PAL_DK|V4L2_STD_SECAM_DK)
++
++static void set_audio(struct tuner *t)
++{
++	t->i2c_easy_mode[0] = 0x01;
++
++	if (t->std & V4L2_STD_MN)
++		t->i2c_easy_mode[1] = 0x01;
++	else if (t->std & V4L2_STD_B)
++		t->i2c_easy_mode[1] = 0x02;
++	else if (t->std & V4L2_STD_GH)
++		t->i2c_easy_mode[1] = 0x04;
++	else if (t->std & V4L2_STD_PAL_I)
++		t->i2c_easy_mode[1] = 0x08;
++	else if (t->std & V4L2_STD_DK)
++		t->i2c_easy_mode[1] = 0x10;
++	else if (t->std & V4L2_STD_SECAM_L)
++		t->i2c_easy_mode[1] = 0x20;
++}
++
++static void set_tv_freq(struct i2c_client *c, unsigned int freq)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++
++	set_audio(t);
++	set_frequency(t, 864);
++	tda8290_tune(c);
++}
++
++static void set_radio_freq(struct i2c_client *c, unsigned int freq)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++	set_frequency(t, 704);
++	tda8290_tune(c);
++}
++
++static int has_signal(struct i2c_client *c)
++{
++	unsigned char i2c_get_afc[1] = { 0x1B };
++	unsigned char afc = 0;
++	
++	i2c_master_send(c, i2c_get_afc, ARRAY_SIZE(i2c_get_afc));
++	i2c_master_recv(c, &afc, 1);
++	return (afc & 0x80)? 65535:0;
++}
++	
++int tda8290_init(struct i2c_client *c)
++{
++	struct tuner *t = i2c_get_clientdata(c);
++
++	strlcpy(c->name, "tda8290+75", sizeof(c->name));
++	tuner_info("tuner: type set to %s\n", c->name);
++	t->tv_freq    = set_tv_freq;
++	t->radio_freq = set_radio_freq;
++	t->has_signal = has_signal;
++
++	i2c_master_send(c, i2c_enable_bridge, ARRAY_SIZE(i2c_enable_bridge));
++	i2c_transfer(c->adapter, i2c_msg_init, ARRAY_SIZE(i2c_msg_init));
++	return 0;
++}
++
++/*
++ * Overrides for Emacs so that we follow Linus's tabbing style.
++ * ---------------------------------------------------------------------------
++ * Local variables:
++ * c-basic-offset: 8
++ * End:
++ */
+Index: linux-2.6.11-rc4/drivers/media/video/tda9887.c
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/media/video/tda9887.c	2005-02-14 15:25:43.000000000 +0100
++++ linux-2.6.11-rc4/drivers/media/video/tda9887.c	2005-02-15 17:02:08.000000000 +0100
+@@ -557,7 +557,7 @@ static int tda9887_configure(struct tda9
+ #if 0
+ 	/* This as-is breaks some cards, must be fixed in a
+ 	 * card-specific way, probably using TDA9887_SET_CONFIG to
+-	  * turn on/off port2 */
++	 * turn on/off port2 */
+ 	if (t->std & V4L2_STD_SECAM_L) {
+ 		/* secam fixup (FIXME: move this to tvnorms array?) */
+ 		buf[1] &= ~cOutputPort2Inactive;
+Index: linux-2.6.11-rc4/drivers/media/video/Makefile
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/media/video/Makefile	2005-02-14 15:23:04.000000000 +0100
++++ linux-2.6.11-rc4/drivers/media/video/Makefile	2005-02-15 17:02:08.000000000 +0100
+@@ -7,6 +7,7 @@ bttv-objs	:=	bttv-driver.o bttv-cards.o 
+ zoran-objs      :=	zr36120.o zr36120_i2c.o zr36120_mem.o
+ zr36067-objs	:=	zoran_procfs.o zoran_device.o \
+ 			zoran_driver.o zoran_card.o
++tuner-objs	:=	tuner-core.o tuner-simple.o mt20xx.o tda8290.o
+ 
+ obj-$(CONFIG_VIDEO_DEV) += videodev.o v4l2-common.o v4l1-compat.o
+ 
+Index: linux-2.6.11-rc4/drivers/media/video/tuner.c
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/media/video/tuner.c	2005-02-14 15:26:11.000000000 +0100
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,1425 +0,0 @@
+-/*
+- * $Id: tuner.c,v 1.36 2005/01/14 13:29:40 kraxel Exp $
+- */
+-
+-#include <linux/module.h>
+-#include <linux/moduleparam.h>
+-#include <linux/kernel.h>
+-#include <linux/sched.h>
+-#include <linux/string.h>
+-#include <linux/timer.h>
+-#include <linux/delay.h>
+-#include <linux/errno.h>
+-#include <linux/slab.h>
+-#include <linux/poll.h>
+-#include <linux/i2c.h>
+-#include <linux/types.h>
+-#include <linux/videodev.h>
+-#include <linux/init.h>
+-
+-#include <media/tuner.h>
+-#include <media/audiochip.h>
+-
+-#define UNSET (-1U)
+-
+-/* standard i2c insmod options */
+-static unsigned short normal_i2c[] = {I2C_CLIENT_END};
+-static unsigned short normal_i2c_range[] = {0x60,0x6f,I2C_CLIENT_END};
+-I2C_CLIENT_INSMOD;
+-
+-/* insmod options used at init time => read/only */
+-static unsigned int type  =  UNSET;
+-static unsigned int addr  =  0;
+-module_param(type, int, 0444);
+-module_param(addr, int, 0444);
+-
+-/* insmod options used at runtime => read/write */
+-static unsigned int debug         = 0;
+-static unsigned int tv_antenna    = 1;
+-static unsigned int radio_antenna = 0;
+-static unsigned int optimize_vco  = 1;
+-module_param(debug,             int, 0644);
+-module_param(tv_antenna,        int, 0644);
+-module_param(radio_antenna,     int, 0644);
+-module_param(optimize_vco,      int, 0644);
+-
+-static unsigned int tv_range[2]    = { 44, 958 };
+-static unsigned int radio_range[2] = { 65, 108 };
+-
+-module_param_array(tv_range,    int, NULL, 0644);
+-module_param_array(radio_range, int, NULL, 0644);
+-
+-MODULE_DESCRIPTION("device driver for various TV and TV+FM radio tuners");
+-MODULE_AUTHOR("Ralph Metzler, Gerd Knorr, Gunther Mayer");
+-MODULE_LICENSE("GPL");
+-
+-static int this_adap;
+-#define dprintk     if (debug) printk
+-
+-struct tuner {
+-	unsigned int type;            /* chip type */
+-	unsigned int freq;            /* keep track of the current settings */
+-	v4l2_std_id  std;
+-	int          using_v4l2;
+-
+-	enum v4l2_tuner_type mode;
+-	unsigned int input;
+-
+-	// only for MT2032
+-	unsigned int xogc;
+-	unsigned int radio_if2;
+-
+-	void (*tv_freq)(struct i2c_client *c, unsigned int freq);
+-	void (*radio_freq)(struct i2c_client *c, unsigned int freq);
+-};
+-
+-static struct i2c_driver driver;
+-static struct i2c_client client_template;
+-
+-/* ---------------------------------------------------------------------- */
+-
+-/* tv standard selection for Temic 4046 FM5
+-   this value takes the low bits of control byte 2
+-   from datasheet Rev.01, Feb.00
+-     standard     BG      I       L       L2      D
+-     picture IF   38.9    38.9    38.9    33.95   38.9
+-     sound 1      33.4    32.9    32.4    40.45   32.4
+-     sound 2      33.16
+-     NICAM        33.05   32.348  33.05           33.05
+- */
+-#define TEMIC_SET_PAL_I         0x05
+-#define TEMIC_SET_PAL_DK        0x09
+-#define TEMIC_SET_PAL_L         0x0a // SECAM ?
+-#define TEMIC_SET_PAL_L2        0x0b // change IF !
+-#define TEMIC_SET_PAL_BG        0x0c
+-
+-/* tv tuner system standard selection for Philips FQ1216ME
+-   this value takes the low bits of control byte 2
+-   from datasheet "1999 Nov 16" (supersedes "1999 Mar 23")
+-     standard 		BG	DK	I	L	L`
+-     picture carrier	38.90	38.90	38.90	38.90	33.95
+-     colour		34.47	34.47	34.47	34.47	38.38
+-     sound 1		33.40	32.40	32.90	32.40	40.45
+-     sound 2		33.16	-	-	-	-
+-     NICAM		33.05	33.05	32.35	33.05	39.80
+- */
+-#define PHILIPS_SET_PAL_I	0x01 /* Bit 2 always zero !*/
+-#define PHILIPS_SET_PAL_BGDK	0x09
+-#define PHILIPS_SET_PAL_L2	0x0a
+-#define PHILIPS_SET_PAL_L	0x0b
+-
+-/* system switching for Philips FI1216MF MK2
+-   from datasheet "1996 Jul 09",
+-    standard         BG     L      L'
+-    picture carrier  38.90  38.90  33.95
+-    colour	     34.47  34.37  38.38
+-    sound 1          33.40  32.40  40.45
+-    sound 2          33.16  -      -
+-    NICAM            33.05  33.05  39.80
+- */
+-#define PHILIPS_MF_SET_BG	0x01 /* Bit 2 must be zero, Bit 3 is system output */
+-#define PHILIPS_MF_SET_PAL_L	0x03 // France
+-#define PHILIPS_MF_SET_PAL_L2	0x02 // L'
+-
+-
+-/* ---------------------------------------------------------------------- */
+-
+-struct tunertype
+-{
+-	char *name;
+-	unsigned char Vendor;
+-	unsigned char Type;
+-
+-	unsigned short thresh1;  /*  band switch VHF_LO <=> VHF_HI  */
+-	unsigned short thresh2;  /*  band switch VHF_HI <=> UHF     */
+-	unsigned char VHF_L;
+-	unsigned char VHF_H;
+-	unsigned char UHF;
+-	unsigned char config;
+-	unsigned short IFPCoff; /* 622.4=16*38.90 MHz PAL,
+-				   732  =16*45.75 NTSCi,
+-				   940  =16*58.75 NTSC-Japan
+-				   704  =16*44    ATSC */
+-};
+-
+-/*
+- *	The floats in the tuner struct are computed at compile time
+- *	by gcc and cast back to integers. Thus we don't violate the
+- *	"no float in kernel" rule.
+- */
+-static struct tunertype tuners[] = {
+-        { "Temic PAL (4002 FH5)", TEMIC, PAL,
+-	  16*140.25,16*463.25,0x02,0x04,0x01,0x8e,623},
+-	{ "Philips PAL_I (FI1246 and compatibles)", Philips, PAL_I,
+-	  16*140.25,16*463.25,0xa0,0x90,0x30,0x8e,623},
+-	{ "Philips NTSC (FI1236,FM1236 and compatibles)", Philips, NTSC,
+-	  16*157.25,16*451.25,0xA0,0x90,0x30,0x8e,732},
+-	{ "Philips (SECAM+PAL_BG) (FI1216MF, FM1216MF, FR1216MF)", Philips, SECAM,
+-	  16*168.25,16*447.25,0xA7,0x97,0x37,0x8e,623},
+-
+-	{ "NoTuner", NoTuner, NOTUNER,
+-	  0,0,0x00,0x00,0x00,0x00,0x00},
+-	{ "Philips PAL_BG (FI1216 and compatibles)", Philips, PAL,
+-	  16*168.25,16*447.25,0xA0,0x90,0x30,0x8e,623},
+-	{ "Temic NTSC (4032 FY5)", TEMIC, NTSC,
+-	  16*157.25,16*463.25,0x02,0x04,0x01,0x8e,732},
+-	{ "Temic PAL_I (4062 FY5)", TEMIC, PAL_I,
+-	  16*170.00,16*450.00,0x02,0x04,0x01,0x8e,623},
+-
+- 	{ "Temic NTSC (4036 FY5)", TEMIC, NTSC,
+-	  16*157.25,16*463.25,0xa0,0x90,0x30,0x8e,732},
+-        { "Alps HSBH1", TEMIC, NTSC,
+-	  16*137.25,16*385.25,0x01,0x02,0x08,0x8e,732},
+-        { "Alps TSBE1",TEMIC,PAL,
+-	  16*137.25,16*385.25,0x01,0x02,0x08,0x8e,732},
+-        { "Alps TSBB5", Alps, PAL_I, /* tested (UK UHF) with Modulartech MM205 */
+-	  16*133.25,16*351.25,0x01,0x02,0x08,0x8e,632},
+-
+-        { "Alps TSBE5", Alps, PAL, /* untested - data sheet guess. Only IF differs. */
+-	  16*133.25,16*351.25,0x01,0x02,0x08,0x8e,622},
+-        { "Alps TSBC5", Alps, PAL, /* untested - data sheet guess. Only IF differs. */
+-	  16*133.25,16*351.25,0x01,0x02,0x08,0x8e,608},
+-	{ "Temic PAL_BG (4006FH5)", TEMIC, PAL,
+-	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
+-  	{ "Alps TSCH6",Alps,NTSC,
+-  	  16*137.25,16*385.25,0x14,0x12,0x11,0x8e,732},
+-
+-  	{ "Temic PAL_DK (4016 FY5)",TEMIC,PAL,
+-  	  16*168.25,16*456.25,0xa0,0x90,0x30,0x8e,623},
+-  	{ "Philips NTSC_M (MK2)",Philips,NTSC,
+-  	  16*160.00,16*454.00,0xa0,0x90,0x30,0x8e,732},
+-        { "Temic PAL_I (4066 FY5)", TEMIC, PAL_I,
+-          16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623},
+-        { "Temic PAL* auto (4006 FN5)", TEMIC, PAL,
+-          16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623},
+-
+-        { "Temic PAL_BG (4009 FR5) or PAL_I (4069 FR5)", TEMIC, PAL,
+-          16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623},
+-        { "Temic NTSC (4039 FR5)", TEMIC, NTSC,
+-          16*158.00, 16*453.00, 0xa0,0x90,0x30,0x8e,732},
+-        { "Temic PAL/SECAM multi (4046 FM5)", TEMIC, PAL,
+-          16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623},
+-        { "Philips PAL_DK (FI1256 and compatibles)", Philips, PAL,
+-	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
+-
+-	{ "Philips PAL/SECAM multi (FQ1216ME)", Philips, PAL,
+-	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
+-	{ "LG PAL_I+FM (TAPC-I001D)", LGINNOTEK, PAL_I,
+-	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
+-	{ "LG PAL_I (TAPC-I701D)", LGINNOTEK, PAL_I,
+-	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
+-	{ "LG NTSC+FM (TPI8NSR01F)", LGINNOTEK, NTSC,
+-	  16*210.00,16*497.00,0xa0,0x90,0x30,0x8e,732},
+-
+-	{ "LG PAL_BG+FM (TPI8PSB01D)", LGINNOTEK, PAL,
+-	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
+-	{ "LG PAL_BG (TPI8PSB11D)", LGINNOTEK, PAL,
+-	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
+-	{ "Temic PAL* auto + FM (4009 FN5)", TEMIC, PAL,
+-	  16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623},
+-	{ "SHARP NTSC_JP (2U5JF5540)", SHARP, NTSC, /* 940=16*58.75 NTSC@Japan */
+-	  16*137.25,16*317.25,0x01,0x02,0x08,0x8e,940 },
+-
+-	{ "Samsung PAL TCPM9091PD27", Samsung, PAL,  /* from sourceforge v3tv */
+-          16*169,16*464,0xA0,0x90,0x30,0x8e,623},
+-	{ "MT20xx universal", Microtune,PAL|NTSC,
+-               0,0,0,0,0,0,0},
+-	{ "Temic PAL_BG (4106 FH5)", TEMIC, PAL,
+-          16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623},
+-	{ "Temic PAL_DK/SECAM_L (4012 FY5)", TEMIC, PAL,
+-          16*140.25, 16*463.25, 0x02,0x04,0x01,0x8e,623},
+-
+-	{ "Temic NTSC (4136 FY5)", TEMIC, NTSC,
+-          16*158.00, 16*453.00, 0xa0,0x90,0x30,0x8e,732},
+-        { "LG PAL (newer TAPC series)", LGINNOTEK, PAL,
+-          16*170.00, 16*450.00, 0x01,0x02,0x08,0x8e,623},
+-	{ "Philips PAL/SECAM multi (FM1216ME MK3)", Philips, PAL,
+-	  16*160.00,16*442.00,0x01,0x02,0x04,0x8e,623 },
+-	{ "LG NTSC (newer TAPC series)", LGINNOTEK, NTSC,
+-          16*170.00, 16*450.00, 0x01,0x02,0x08,0x8e,732},
+-
+-	{ "HITACHI V7-J180AT", HITACHI, NTSC,
+-	  16*170.00, 16*450.00, 0x01,0x02,0x08,0x8e,940 },
+-	{ "Philips PAL_MK (FI1216 MK)", Philips, PAL,
+-	  16*140.25,16*463.25,0x01,0xc2,0xcf,0x8e,623},
+-	{ "Philips 1236D ATSC/NTSC daul in",Philips,ATSC,
+-	  16*157.25,16*454.00,0xa0,0x90,0x30,0x8e,732},
+-        { "Philips NTSC MK3 (FM1236MK3 or FM1236/F)", Philips, NTSC,
+-          16*160.00,16*442.00,0x01,0x02,0x04,0x8e,732},
+-
+-        { "Philips 4 in 1 (ATI TV Wonder Pro/Conexant)", Philips, NTSC,
+-          16*160.00,16*442.00,0x01,0x02,0x04,0x8e,732},
+-	{ "Microtune 4049 FM5",Microtune,PAL,
+-	  16*141.00,16*464.00,0xa0,0x90,0x30,0x8e,623},
+-	{ "Panasonic VP27s/ENGE4324D", Panasonic, NTSC,
+-	  16*160.00,16*454.00,0x01,0x02,0x08,0xce,940},
+-        { "LG NTSC (TAPE series)", LGINNOTEK, NTSC,
+-          16*160.00,16*442.00,0x01,0x02,0x04,0x8e,732 },
+-
+-        { "Tenna TNF 8831 BGFF)", Philips, PAL,
+-          16*161.25,16*463.25,0xa0,0x90,0x30,0x8e,623},
+-	{ "Microtune 4042 FI5 ATSC/NTSC dual in", Microtune, NTSC,
+-	  16*162.00,16*457.00,0xa2,0x94,0x31,0x8e,732},
+-        { "TCL 2002N", TCL, NTSC,
+-          16*172.00,16*448.00,0x01,0x02,0x08,0x8e,732},
+-	{ "Philips PAL/SECAM_D (FM 1256 I-H3)", Philips, PAL,
+-	  16*160.00,16*442.00,0x01,0x02,0x04,0x8e,623 },
+-
+-	{ "Thomson DDT 7610 ATSC/NTSC)", THOMSON, ATSC,
+-	  16*157.25,16*454.00,0x39,0x3a,0x3c,0x8e,732},
+-	{ "Philips FQ1286", Philips, NTSC,
+-	  16*160.00,16*454.00,0x41,0x42,0x04,0x8e,940}, // UHF band untested
+-
+-};
+-#define TUNERS ARRAY_SIZE(tuners)
+-
+-/* ---------------------------------------------------------------------- */
+-
+-static int tuner_getstatus(struct i2c_client *c)
+-{
+-	unsigned char byte;
+-
+-	struct tuner *t = i2c_get_clientdata(c);
+-
+-        if (t->type == TUNER_MT2032)
+-		return 0;
+-
+-	if (1 != i2c_master_recv(c,&byte,1))
+-		return 0;
+-	return byte;
+-}
+-
+-#define TUNER_POR       0x80
+-#define TUNER_FL        0x40
+-#define TUNER_MODE      0x38
+-#define TUNER_AFC       0x07
+-
+-#define TUNER_STEREO    0x10 /* radio mode */
+-#define TUNER_SIGNAL    0x07 /* radio mode */
+-
+-static int tuner_signal(struct i2c_client *c)
+-{
+-	return (tuner_getstatus(c) & TUNER_SIGNAL)<<13;
+-}
+-
+-static int tuner_stereo(struct i2c_client *c)
+-{
+-	return (tuner_getstatus (c) & TUNER_STEREO);
+-}
+-
+-#if 0 /* unused */
+-static int tuner_islocked (struct i2c_client *c)
+-{
+-        return (tuner_getstatus (c) & TUNER_FL);
+-}
+-
+-static int tuner_afcstatus (struct i2c_client *c)
+-{
+-        return (tuner_getstatus (c) & TUNER_AFC) - 2;
+-}
+-
+-static int tuner_mode (struct i2c_client *c)
+-{
+-        return (tuner_getstatus (c) & TUNER_MODE) >> 3;
+-}
+-#endif
+-
+-/* ---------------------------------------------------------------------- */
+-
+-#define MT2032 0x04
+-#define MT2030 0x06
+-#define MT2040 0x07
+-#define MT2050 0x42
+-
+-static char *microtune_part[] = {
+-	[ MT2030 ] = "MT2030",
+-	[ MT2032 ] = "MT2032",
+-	[ MT2040 ] = "MT2040",
+-	[ MT2050 ] = "MT2050",
+-};
+-
+-// IsSpurInBand()?
+-static int mt2032_spurcheck(int f1, int f2, int spectrum_from,int spectrum_to)
+-{
+-	int n1=1,n2,f;
+-
+-	f1=f1/1000; //scale to kHz to avoid 32bit overflows
+-	f2=f2/1000;
+-	spectrum_from/=1000;
+-	spectrum_to/=1000;
+-
+-	dprintk("spurcheck f1=%d f2=%d  from=%d to=%d\n",f1,f2,spectrum_from,spectrum_to);
+-
+-	do {
+-	    n2=-n1;
+-	    f=n1*(f1-f2);
+-	    do {
+-		n2--;
+-		f=f-f2;
+-		dprintk(" spurtest n1=%d n2=%d ftest=%d\n",n1,n2,f);
+-
+-		if( (f>spectrum_from) && (f<spectrum_to))
+-			printk("mt2032 spurcheck triggered: %d\n",n1);
+-	    } while ( (f>(f2-spectrum_to)) || (n2>-5));
+-	    n1++;
+-	} while (n1<5);
+-
+-	return 1;
+-}
+-
+-static int mt2032_compute_freq(unsigned int rfin,
+-			       unsigned int if1, unsigned int if2,
+-			       unsigned int spectrum_from,
+-			       unsigned int spectrum_to,
+-			       unsigned char *buf,
+-			       int *ret_sel,
+-			       unsigned int xogc) //all in Hz
+-{
+-        unsigned int fref,lo1,lo1n,lo1a,s,sel,lo1freq, desired_lo1,
+-		desired_lo2,lo2,lo2n,lo2a,lo2num,lo2freq;
+-
+-        fref= 5250 *1000; //5.25MHz
+-	desired_lo1=rfin+if1;
+-
+-	lo1=(2*(desired_lo1/1000)+(fref/1000)) / (2*fref/1000);
+-        lo1n=lo1/8;
+-        lo1a=lo1-(lo1n*8);
+-
+-        s=rfin/1000/1000+1090;
+-
+-	if(optimize_vco) {
+-		if(s>1890) sel=0;
+-		else if(s>1720) sel=1;
+-		else if(s>1530) sel=2;
+-		else if(s>1370) sel=3;
+-		else sel=4; // >1090
+-	}
+-	else {
+-        	if(s>1790) sel=0; // <1958
+-        	else if(s>1617) sel=1;
+-        	else if(s>1449) sel=2;
+-        	else if(s>1291) sel=3;
+-        	else sel=4; // >1090
+-	}
+-	*ret_sel=sel;
+-
+-        lo1freq=(lo1a+8*lo1n)*fref;
+-
+-        dprintk("mt2032: rfin=%d lo1=%d lo1n=%d lo1a=%d sel=%d, lo1freq=%d\n",
+-		rfin,lo1,lo1n,lo1a,sel,lo1freq);
+-
+-        desired_lo2=lo1freq-rfin-if2;
+-        lo2=(desired_lo2)/fref;
+-        lo2n=lo2/8;
+-        lo2a=lo2-(lo2n*8);
+-        lo2num=((desired_lo2/1000)%(fref/1000))* 3780/(fref/1000); //scale to fit in 32bit arith
+-        lo2freq=(lo2a+8*lo2n)*fref + lo2num*(fref/1000)/3780*1000;
+-
+-        dprintk("mt2032: rfin=%d lo2=%d lo2n=%d lo2a=%d num=%d lo2freq=%d\n",
+-		rfin,lo2,lo2n,lo2a,lo2num,lo2freq);
+-
+-        if(lo1a<0 || lo1a>7 || lo1n<17 ||lo1n>48 || lo2a<0 ||lo2a >7 ||lo2n<17 || lo2n>30) {
+-                printk("mt2032: frequency parameters out of range: %d %d %d %d\n",
+-		       lo1a, lo1n, lo2a,lo2n);
+-                return(-1);
+-        }
+-
+-	mt2032_spurcheck(lo1freq, desired_lo2,  spectrum_from, spectrum_to);
+-	// should recalculate lo1 (one step up/down)
+-
+-	// set up MT2032 register map for transfer over i2c
+-	buf[0]=lo1n-1;
+-	buf[1]=lo1a | (sel<<4);
+-	buf[2]=0x86; // LOGC
+-	buf[3]=0x0f; //reserved
+-	buf[4]=0x1f;
+-	buf[5]=(lo2n-1) | (lo2a<<5);
+- 	if(rfin >400*1000*1000)
+-                buf[6]=0xe4;
+-        else
+-                buf[6]=0xf4; // set PKEN per rev 1.2
+-	buf[7]=8+xogc;
+-	buf[8]=0xc3; //reserved
+-	buf[9]=0x4e; //reserved
+-	buf[10]=0xec; //reserved
+-	buf[11]=(lo2num&0xff);
+-	buf[12]=(lo2num>>8) |0x80; // Lo2RST
+-
+-	return 0;
+-}
+-
+-static int mt2032_check_lo_lock(struct i2c_client *c)
+-{
+-	int try,lock=0;
+-	unsigned char buf[2];
+-	for(try=0;try<10;try++) {
+-		buf[0]=0x0e;
+-		i2c_master_send(c,buf,1);
+-		i2c_master_recv(c,buf,1);
+-		dprintk("mt2032 Reg.E=0x%02x\n",buf[0]);
+-		lock=buf[0] &0x06;
+-
+-		if (lock==6)
+-			break;
+-
+-		dprintk("mt2032: pll wait 1ms for lock (0x%2x)\n",buf[0]);
+-		udelay(1000);
+-	}
+-        return lock;
+-}
+-
+-static int mt2032_optimize_vco(struct i2c_client *c,int sel,int lock)
+-{
+-	unsigned char buf[2];
+-	int tad1;
+-
+-	buf[0]=0x0f;
+-	i2c_master_send(c,buf,1);
+-	i2c_master_recv(c,buf,1);
+-	dprintk("mt2032 Reg.F=0x%02x\n",buf[0]);
+-	tad1=buf[0]&0x07;
+-
+-	if(tad1 ==0) return lock;
+-	if(tad1 ==1) return lock;
+-
+-	if(tad1==2) {
+-		if(sel==0)
+-			return lock;
+-		else sel--;
+-	}
+-	else {
+-		if(sel<4)
+-			sel++;
+-		else
+-			return lock;
+-	}
+-
+-	dprintk("mt2032 optimize_vco: sel=%d\n",sel);
+-
+-	buf[0]=0x0f;
+-	buf[1]=sel;
+-        i2c_master_send(c,buf,2);
+-	lock=mt2032_check_lo_lock(c);
+-	return lock;
+-}
+-
+-
+-static void mt2032_set_if_freq(struct i2c_client *c, unsigned int rfin,
+-			       unsigned int if1, unsigned int if2,
+-			       unsigned int from, unsigned int to)
+-{
+-	unsigned char buf[21];
+-	int lint_try,ret,sel,lock=0;
+-	struct tuner *t = i2c_get_clientdata(c);
+-
+-	dprintk("mt2032_set_if_freq rfin=%d if1=%d if2=%d from=%d to=%d\n",rfin,if1,if2,from,to);
+-
+-        buf[0]=0;
+-        ret=i2c_master_send(c,buf,1);
+-        i2c_master_recv(c,buf,21);
+-
+-	buf[0]=0;
+-	ret=mt2032_compute_freq(rfin,if1,if2,from,to,&buf[1],&sel,t->xogc);
+-	if (ret<0)
+-		return;
+-
+-        // send only the relevant registers per Rev. 1.2
+-        buf[0]=0;
+-        ret=i2c_master_send(c,buf,4);
+-        buf[5]=5;
+-        ret=i2c_master_send(c,buf+5,4);
+-        buf[11]=11;
+-        ret=i2c_master_send(c,buf+11,3);
+-        if(ret!=3)
+-                printk("mt2032_set_if_freq failed with %d\n",ret);
+-
+-	// wait for PLLs to lock (per manual), retry LINT if not.
+-	for(lint_try=0; lint_try<2; lint_try++) {
+-		lock=mt2032_check_lo_lock(c);
+-
+-		if(optimize_vco)
+-			lock=mt2032_optimize_vco(c,sel,lock);
+-		if(lock==6) break;
+-
+-		printk("mt2032: re-init PLLs by LINT\n");
+-		buf[0]=7;
+-		buf[1]=0x80 +8+t->xogc; // set LINT to re-init PLLs
+-		i2c_master_send(c,buf,2);
+-		mdelay(10);
+-		buf[1]=8+t->xogc;
+-		i2c_master_send(c,buf,2);
+-        }
+-
+-	if (lock!=6)
+-		printk("MT2032 Fatal Error: PLLs didn't lock.\n");
+-
+-	buf[0]=2;
+-	buf[1]=0x20; // LOGC for optimal phase noise
+-	ret=i2c_master_send(c,buf,2);
+-	if (ret!=2)
+-		printk("mt2032_set_if_freq2 failed with %d\n",ret);
+-}
+-
+-
+-static void mt2032_set_tv_freq(struct i2c_client *c, unsigned int freq)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-	int if2,from,to;
+-
+-	// signal bandwidth and picture carrier
+-	if (t->std & V4L2_STD_525_60) {
+-		// NTSC
+-		from = 40750*1000;
+-		to   = 46750*1000;
+-		if2  = 45750*1000;
+-	} else {
+-		// PAL
+-		from = 32900*1000;
+-		to   = 39900*1000;
+-		if2  = 38900*1000;
+-	}
+-
+-        mt2032_set_if_freq(c, freq*62500 /* freq*1000*1000/16 */,
+-			   1090*1000*1000, if2, from, to);
+-}
+-
+-static void mt2032_set_radio_freq(struct i2c_client *c, unsigned int freq)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-	int if2 = t->radio_if2;
+-
+-	// per Manual for FM tuning: first if center freq. 1085 MHz
+-        mt2032_set_if_freq(c, freq*62500 /* freq*1000*1000/16 */,
+-			   1085*1000*1000,if2,if2,if2);
+-}
+-
+-// Initalization as described in "MT203x Programming Procedures", Rev 1.2, Feb.2001
+-static int mt2032_init(struct i2c_client *c)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-        unsigned char buf[21];
+-        int ret,xogc,xok=0;
+-
+-	// Initialize Registers per spec.
+-        buf[1]=2; // Index to register 2
+-        buf[2]=0xff;
+-        buf[3]=0x0f;
+-        buf[4]=0x1f;
+-        ret=i2c_master_send(c,buf+1,4);
+-
+-        buf[5]=6; // Index register 6
+-        buf[6]=0xe4;
+-        buf[7]=0x8f;
+-        buf[8]=0xc3;
+-        buf[9]=0x4e;
+-        buf[10]=0xec;
+-        ret=i2c_master_send(c,buf+5,6);
+-
+-        buf[12]=13;  // Index register 13
+-        buf[13]=0x32;
+-        ret=i2c_master_send(c,buf+12,2);
+-
+-        // Adjust XOGC (register 7), wait for XOK
+-        xogc=7;
+-        do {
+-		dprintk("mt2032: xogc = 0x%02x\n",xogc&0x07);
+-                mdelay(10);
+-                buf[0]=0x0e;
+-                i2c_master_send(c,buf,1);
+-                i2c_master_recv(c,buf,1);
+-                xok=buf[0]&0x01;
+-                dprintk("mt2032: xok = 0x%02x\n",xok);
+-                if (xok == 1) break;
+-
+-                xogc--;
+-                dprintk("mt2032: xogc = 0x%02x\n",xogc&0x07);
+-                if (xogc == 3) {
+-                        xogc=4; // min. 4 per spec
+-                        break;
+-                }
+-                buf[0]=0x07;
+-                buf[1]=0x88 + xogc;
+-                ret=i2c_master_send(c,buf,2);
+-                if (ret!=2)
+-                        printk("mt2032_init failed with %d\n",ret);
+-        } while (xok != 1 );
+-	t->xogc=xogc;
+-
+-	t->tv_freq    = mt2032_set_tv_freq;
+-	t->radio_freq = mt2032_set_radio_freq;
+-        return(1);
+-}
+-
+-static void mt2050_set_antenna(struct i2c_client *c, unsigned char antenna)
+-{
+-       unsigned char buf[2];
+-       int ret;
+-
+-       buf[0] = 6;
+-       buf[1] = antenna ? 0x11 : 0x10;
+-       ret=i2c_master_send(c,buf,2);
+-       dprintk("mt2050: enabled antenna connector %d\n", antenna);
+-}
+-
+-static void mt2050_set_if_freq(struct i2c_client *c,unsigned int freq, unsigned int if2)
+-{
+-	unsigned int if1=1218*1000*1000;
+-	unsigned int f_lo1,f_lo2,lo1,lo2,f_lo1_modulo,f_lo2_modulo,num1,num2,div1a,div1b,div2a,div2b;
+-	int ret;
+-	unsigned char buf[6];
+-
+-	dprintk("mt2050_set_if_freq freq=%d if1=%d if2=%d\n",
+-		freq,if1,if2);
+-
+-	f_lo1=freq+if1;
+-	f_lo1=(f_lo1/1000000)*1000000;
+-
+-	f_lo2=f_lo1-freq-if2;
+-	f_lo2=(f_lo2/50000)*50000;
+-
+-	lo1=f_lo1/4000000;
+-	lo2=f_lo2/4000000;
+-
+-	f_lo1_modulo= f_lo1-(lo1*4000000);
+-	f_lo2_modulo= f_lo2-(lo2*4000000);
+-
+-	num1=4*f_lo1_modulo/4000000;
+-	num2=4096*(f_lo2_modulo/1000)/4000;
+-
+-	// todo spurchecks
+-
+-	div1a=(lo1/12)-1;
+-	div1b=lo1-(div1a+1)*12;
+-
+-	div2a=(lo2/8)-1;
+-	div2b=lo2-(div2a+1)*8;
+-
+-	if (debug > 1) {
+-		printk("lo1 lo2 = %d %d\n", lo1, lo2);
+-		printk("num1 num2 div1a div1b div2a div2b= %x %x %x %x %x %x\n",num1,num2,div1a,div1b,div2a,div2b);
+-	}
+-
+-	buf[0]=1;
+-	buf[1]= 4*div1b + num1;
+-	if(freq<275*1000*1000) buf[1] = buf[1]|0x80;
+-
+-	buf[2]=div1a;
+-	buf[3]=32*div2b + num2/256;
+-	buf[4]=num2-(num2/256)*256;
+-	buf[5]=div2a;
+-	if(num2!=0) buf[5]=buf[5]|0x40;
+-
+-	if (debug > 1) {
+-		int i;
+-		printk("bufs is: ");
+-		for(i=0;i<6;i++)
+-			printk("%x ",buf[i]);
+-		printk("\n");
+-	}
+-
+-	ret=i2c_master_send(c,buf,6);
+-        if (ret!=6)
+-                printk("mt2050_set_if_freq failed with %d\n",ret);
+-}
+-
+-static void mt2050_set_tv_freq(struct i2c_client *c, unsigned int freq)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-	unsigned int if2;
+-
+-	if (t->std & V4L2_STD_525_60) {
+-		// NTSC
+-                if2 = 45750*1000;
+-        } else {
+-                // PAL
+-                if2 = 38900*1000;
+-        }
+-	if (V4L2_TUNER_DIGITAL_TV == t->mode) {
+-		// testing for DVB ...
+-		if2 = 36150*1000;
+-	}
+-	mt2050_set_if_freq(c, freq*62500, if2);
+-	mt2050_set_antenna(c, tv_antenna);
+-}
+-
+-static void mt2050_set_radio_freq(struct i2c_client *c, unsigned int freq)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-	int if2 = t->radio_if2;
+-
+-	mt2050_set_if_freq(c, freq*62500, if2);
+-	mt2050_set_antenna(c, radio_antenna);
+-}
+-
+-static int mt2050_init(struct i2c_client *c)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-	unsigned char buf[2];
+-	int ret;
+-
+-	buf[0]=6;
+-	buf[1]=0x10;
+-	ret=i2c_master_send(c,buf,2); //  power
+-
+-	buf[0]=0x0f;
+-	buf[1]=0x0f;
+-	ret=i2c_master_send(c,buf,2); // m1lo
+-
+-	buf[0]=0x0d;
+-	ret=i2c_master_send(c,buf,1);
+-	i2c_master_recv(c,buf,1);
+-
+-	dprintk("mt2050: sro is %x\n",buf[0]);
+-	t->tv_freq    = mt2050_set_tv_freq;
+-	t->radio_freq = mt2050_set_radio_freq;
+-	return 0;
+-}
+-
+-static int microtune_init(struct i2c_client *c)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-	char *name;
+-        unsigned char buf[21];
+-	int company_code;
+-
+-	memset(buf,0,sizeof(buf));
+-	t->tv_freq    = NULL;
+-	t->radio_freq = NULL;
+-	name = "unknown";
+-
+-        i2c_master_send(c,buf,1);
+-        i2c_master_recv(c,buf,21);
+-        if(debug) {
+-                int i;
+-                printk(KERN_DEBUG "tuner: MT2032 hexdump:\n");
+-                for(i=0;i<21;i++) {
+-                        printk(" %02x",buf[i]);
+-                        if(((i+1)%8)==0) printk(" ");
+-                        if(((i+1)%16)==0) printk("\n ");
+-                }
+-                printk("\n ");
+-        }
+-	company_code = buf[0x11] << 8 | buf[0x12];
+-        printk("tuner: microtune: companycode=%04x part=%02x rev=%02x\n",
+-	       company_code,buf[0x13],buf[0x14]);
+-
+-#if 0
+-	/* seems to cause more problems than it solves ... */
+-	switch (company_code) {
+-	case 0x30bf:
+-	case 0x3cbf:
+-	case 0x3dbf:
+-	case 0x4d54:
+-	case 0x8e81:
+-	case 0x8e91:
+-		/* ok (?) */
+-		break;
+-	default:
+-		printk("tuner: microtune: unknown companycode\n");
+-		return 0;
+-	}
+-#endif
+-
+-	if (buf[0x13] < ARRAY_SIZE(microtune_part) &&
+-	    NULL != microtune_part[buf[0x13]])
+-		name = microtune_part[buf[0x13]];
+-	switch (buf[0x13]) {
+-	case MT2032:
+-		mt2032_init(c);
+-		break;
+-	case MT2050:
+-		mt2050_init(c);
+-		break;
+-	default:
+-		printk("tuner: microtune %s found, not (yet?) supported, sorry :-/\n",
+-		       name);
+-                return 0;
+-        }
+-	printk("tuner: microtune %s found, OK\n",name);
+-	return 0;
+-}
+-
+-/* ---------------------------------------------------------------------- */
+-
+-static void default_set_tv_freq(struct i2c_client *c, unsigned int freq)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-	u8 config;
+-	u16 div;
+-	struct tunertype *tun;
+-        unsigned char buffer[4];
+-	int rc;
+-
+-	tun = &tuners[t->type];
+-	if (freq < tun->thresh1) {
+-		config = tun->VHF_L;
+-		dprintk("tv: VHF lowrange\n");
+-	} else if (freq < tun->thresh2) {
+-		config = tun->VHF_H;
+-		dprintk("tv: VHF high range\n");
+-	} else {
+-		config = tun->UHF;
+-		dprintk("tv: UHF range\n");
+-	}
+-
+-
+-	/* tv norm specific stuff for multi-norm tuners */
+-	switch (t->type) {
+-	case TUNER_PHILIPS_SECAM: // FI1216MF
+-		/* 0x01 -> ??? no change ??? */
+-		/* 0x02 -> PAL BDGHI / SECAM L */
+-		/* 0x04 -> ??? PAL others / SECAM others ??? */
+-		config &= ~0x02;
+-		if (t->std & V4L2_STD_SECAM)
+-			config |= 0x02;
+-		break;
+-
+-	case TUNER_TEMIC_4046FM5:
+-		config &= ~0x0f;
+-
+-		if (t->std & V4L2_STD_PAL_BG) {
+-			config |= TEMIC_SET_PAL_BG;
+-
+-		} else if (t->std & V4L2_STD_PAL_I) {
+-			config |= TEMIC_SET_PAL_I;
+-
+-		} else if (t->std & V4L2_STD_PAL_DK) {
+-			config |= TEMIC_SET_PAL_DK;
+-
+-		} else if (t->std & V4L2_STD_SECAM_L) {
+-			config |= TEMIC_SET_PAL_L;
+-
+-		}
+-		break;
+-
+-	case TUNER_PHILIPS_FQ1216ME:
+-		config &= ~0x0f;
+-
+-		if (t->std & (V4L2_STD_PAL_BG|V4L2_STD_PAL_DK)) {
+-			config |= PHILIPS_SET_PAL_BGDK;
+-
+-		} else if (t->std & V4L2_STD_PAL_I) {
+-			config |= PHILIPS_SET_PAL_I;
+-
+-		} else if (t->std & V4L2_STD_SECAM_L) {
+-			config |= PHILIPS_SET_PAL_L;
+-
+-		}
+-		break;
+-
+-	case TUNER_PHILIPS_ATSC:
+-		/* 0x00 -> ATSC antenna input 1 */
+-		/* 0x01 -> ATSC antenna input 2 */
+-		/* 0x02 -> NTSC antenna input 1 */
+-		/* 0x03 -> NTSC antenna input 2 */
+-		config &= ~0x03;
+-		if (!(t->std & V4L2_STD_ATSC))
+-			config |= 2;
+-		/* FIXME: input */
+-		break;
+-
+-	case TUNER_MICROTUNE_4042FI5:
+-		/* Set the charge pump for fast tuning */
+-		tun->config |= 0x40;
+-		break;
+-	}
+-
+-	/*
+-	 * Philips FI1216MK2 remark from specification :
+-	 * for channel selection involving band switching, and to ensure
+-	 * smooth tuning to the desired channel without causing
+-	 * unnecessary charge pump action, it is recommended to consider
+-	 * the difference between wanted channel frequency and the
+-	 * current channel frequency.  Unnecessary charge pump action
+-	 * will result in very low tuning voltage which may drive the
+-	 * oscillator to extreme conditions.
+-	 *
+-	 * Progfou: specification says to send config data before
+-	 * frequency in case (wanted frequency < current frequency).
+-	 */
+-
+-	div=freq + tun->IFPCoff;
+-	if (t->type == TUNER_PHILIPS_SECAM && freq < t->freq) {
+-		buffer[0] = tun->config;
+-		buffer[1] = config;
+-		buffer[2] = (div>>8) & 0x7f;
+-		buffer[3] = div      & 0xff;
+-	} else {
+-		buffer[0] = (div>>8) & 0x7f;
+-		buffer[1] = div      & 0xff;
+-		buffer[2] = tun->config;
+-		buffer[3] = config;
+-	}
+-	dprintk("tuner: tv 0x%02x 0x%02x 0x%02x 0x%02x\n",
+-		buffer[0],buffer[1],buffer[2],buffer[3]);
+-
+-        if (4 != (rc = i2c_master_send(c,buffer,4)))
+-                printk("tuner: i2c i/o error: rc == %d (should be 4)\n",rc);
+-
+-	if (t->type == TUNER_MICROTUNE_4042FI5) {
+-		// FIXME - this may also work for other tuners
+-		unsigned long timeout = jiffies + msecs_to_jiffies(1);
+-		u8 status_byte = 0;
+-
+-		/* Wait until the PLL locks */
+-		for (;;) {
+-			if (time_after(jiffies,timeout))
+-				return;
+-			if (1 != (rc = i2c_master_recv(c,&status_byte,1))) {
+-				dprintk("tuner: i2c i/o read error: rc == %d (should be 1)\n",rc);
+-				break;
+-			}
+-			/* bit 6 is PLL locked indicator */
+-			if (status_byte & 0x40)
+-				break;
+-			udelay(10);
+-		}
+-
+-		/* Set the charge pump for optimized phase noise figure */
+-		tun->config &= ~0x40;
+-		buffer[0] = (div>>8) & 0x7f;
+-		buffer[1] = div      & 0xff;
+-		buffer[2] = tun->config;
+-		buffer[3] = config;
+-		dprintk("tuner: tv 0x%02x 0x%02x 0x%02x 0x%02x\n",
+-			buffer[0],buffer[1],buffer[2],buffer[3]);
+-
+-		if (4 != (rc = i2c_master_send(c,buffer,4)))
+-			dprintk("tuner: i2c i/o error: rc == %d (should be 4)\n",rc);
+-	}
+-}
+-
+-static void default_set_radio_freq(struct i2c_client *c, unsigned int freq)
+-{
+-	struct tunertype *tun;
+-	struct tuner *t = i2c_get_clientdata(c);
+-        unsigned char buffer[4];
+-	unsigned div;
+-	int rc;
+-
+-	tun=&tuners[t->type];
+-	div = freq + (int)(16*10.7);
+-	buffer[2] = tun->config;
+-
+-	switch (t->type) {
+-	case TUNER_PHILIPS_FM1216ME_MK3:
+-	case TUNER_PHILIPS_FM1236_MK3:
+-		buffer[3] = 0x19;
+-		break;
+-	case TUNER_PHILIPS_FM1256_IH3:
+-		div = (20 * freq)/16 + 333 * 2;
+-	        buffer[2] = 0x80;
+-		buffer[3] = 0x19;
+-		break;
+-	case TUNER_LG_PAL_FM:
+-		buffer[3] = 0xa5;
+-		break;
+-	default:
+-		buffer[3] = 0xa4;
+-		break;
+-	}
+-        buffer[0] = (div>>8) & 0x7f;
+-        buffer[1] = div      & 0xff;
+-
+-	dprintk("tuner: radio 0x%02x 0x%02x 0x%02x 0x%02x\n",
+-		buffer[0],buffer[1],buffer[2],buffer[3]);
+-
+-        if (4 != (rc = i2c_master_send(c,buffer,4)))
+-                printk("tuner: i2c i/o error: rc == %d (should be 4)\n",rc);
+-}
+-
+-/* ---------------------------------------------------------------------- */
+-
+-// Set tuner frequency,  freq in Units of 62.5kHz = 1/16MHz
+-static void set_tv_freq(struct i2c_client *c, unsigned int freq)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-
+-	if (t->type == UNSET) {
+-		printk("tuner: tuner type not set\n");
+-		return;
+-	}
+-	if (NULL == t->tv_freq) {
+-		printk("tuner: Huh? tv_set is NULL?\n");
+-		return;
+-	}
+-	if (freq < tv_range[0]*16 || freq > tv_range[1]*16) {
+-		/* FIXME: better do that chip-specific, but
+-		   right now we don't have that in the config
+-		   struct and this way is still better than no
+-		   check at all */
+-		printk("tuner: TV freq (%d.%02d) out of range (%d-%d)\n",
+-		       freq/16,freq%16*100/16,tv_range[0],tv_range[1]);
+-		return;
+-	}
+-	t->tv_freq(c,freq);
+-}
+-
+-static void set_radio_freq(struct i2c_client *c, unsigned int freq)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-
+-	if (t->type == UNSET) {
+-		printk("tuner: tuner type not set\n");
+-		return;
+-	}
+-	if (NULL == t->radio_freq) {
+-		printk("tuner: no radio tuning for this one, sorry.\n");
+-		return;
+-	}
+-	if (freq < radio_range[0]*16 || freq > radio_range[1]*16) {
+-		printk("tuner: radio freq (%d.%02d) out of range (%d-%d)\n",
+-		       freq/16,freq%16*100/16,
+-		       radio_range[0],radio_range[1]);
+-		return;
+-	}
+-	t->radio_freq(c,freq);
+-}
+-
+-static void set_freq(struct i2c_client *c, unsigned long freq)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-
+-	switch (t->mode) {
+-	case V4L2_TUNER_RADIO:
+-		dprintk("tuner: radio freq set to %lu.%02lu\n",
+-			freq/16,freq%16*100/16);
+-		set_radio_freq(c,freq);
+-		break;
+-	case V4L2_TUNER_ANALOG_TV:
+-	case V4L2_TUNER_DIGITAL_TV:
+-		dprintk("tuner: tv freq set to %lu.%02lu\n",
+-			freq/16,freq%16*100/16);
+-		set_tv_freq(c, freq);
+-		break;
+-	}
+-	t->freq = freq;
+-}
+-
+-static void set_type(struct i2c_client *c, unsigned int type, char *source)
+-{
+-	struct tuner *t = i2c_get_clientdata(c);
+-
+-	if (t->type != UNSET && t->type != TUNER_ABSENT) {
+-		if (t->type != type)
+-			printk("tuner: type already set to %d, "
+-			       "ignoring request for %d\n", t->type, type);
+-		return;
+-	}
+-	if (type >= TUNERS)
+-		return;
+-
+-	t->type = type;
+-	printk("tuner: type set to %d (%s) by %s\n",
+-	       t->type,tuners[t->type].name, source);
+-	strlcpy(c->name, tuners[t->type].name, sizeof(c->name));
+-
+-	switch (t->type) {
+-	case TUNER_MT2032:
+-		microtune_init(c);
+-		break;
+-	default:
+-		t->tv_freq    = default_set_tv_freq;
+-		t->radio_freq = default_set_radio_freq;
+-		break;
+-	}
+-}
+-
+-static char pal[] = "-";
+-module_param_string(pal, pal, 0644, sizeof(pal));
+-
+-static int tuner_fixup_std(struct tuner *t)
+-{
+-	if ((t->std & V4L2_STD_PAL) == V4L2_STD_PAL) {
+-		/* get more precise norm info from insmod option */
+-		switch (pal[0]) {
+-		case 'b':
+-		case 'B':
+-		case 'g':
+-		case 'G':
+-			dprintk("insmod fixup: PAL => PAL-BG\n");
+-			t->std = V4L2_STD_PAL_BG;
+-			break;
+-		case 'i':
+-		case 'I':
+-			dprintk("insmod fixup: PAL => PAL-I\n");
+-			t->std = V4L2_STD_PAL_I;
+-			break;
+-		case 'd':
+-		case 'D':
+-		case 'k':
+-		case 'K':
+-			dprintk("insmod fixup: PAL => PAL-DK\n");
+-			t->std = V4L2_STD_PAL_DK;
+-			break;
+-		}
+-	}
+-	return 0;
+-}
+-
+-/* ---------------------------------------------------------------------- */
+-
+-static int tuner_attach(struct i2c_adapter *adap, int addr, int kind)
+-{
+-	struct tuner *t;
+-	struct i2c_client *client;
+-
+-	if (this_adap > 0)
+-		return -1;
+-	this_adap++;
+-
+-        client_template.adapter = adap;
+-        client_template.addr = addr;
+-
+-        printk("tuner: chip found at addr 0x%x i2c-bus %s\n",
+-	       addr<<1, adap->name);
+-
+-        if (NULL == (client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL)))
+-                return -ENOMEM;
+-        memcpy(client,&client_template,sizeof(struct i2c_client));
+-        t = kmalloc(sizeof(struct tuner),GFP_KERNEL);
+-        if (NULL == t) {
+-                kfree(client);
+-                return -ENOMEM;
+-        }
+-        memset(t,0,sizeof(struct tuner));
+-	i2c_set_clientdata(client, t);
+-	t->type       = UNSET;
+-	t->radio_if2  = 10700*1000; // 10.7MHz - FM radio
+-
+-        i2c_attach_client(client);
+-	if (type < TUNERS) {
+-		set_type(client, type, "insmod option");
+-		printk("tuner: The type=<n> insmod option will go away soon.\n");
+-		printk("tuner: Please use the tuner=<n> option provided by\n");
+-		printk("tuner: tv aard core driver (bttv, saa7134, ...) instead.\n");
+-	}
+-	return 0;
+-}
+-
+-static int tuner_probe(struct i2c_adapter *adap)
+-{
+-	if (0 != addr) {
+-		normal_i2c_range[0] = addr;
+-		normal_i2c_range[1] = addr;
+-	}
+-	this_adap = 0;
+-
+-#ifdef I2C_CLASS_TV_ANALOG
+-	if (adap->class & I2C_CLASS_TV_ANALOG)
+-		return i2c_probe(adap, &addr_data, tuner_attach);
+-#else
+-	switch (adap->id) {
+-	case I2C_ALGO_BIT | I2C_HW_SMBUS_VOODOO3:
+-	case I2C_ALGO_BIT | I2C_HW_B_BT848:
+-	case I2C_ALGO_BIT | I2C_HW_B_RIVA:
+-	case I2C_ALGO_SAA7134:
+-	case I2C_ALGO_SAA7146:
+-		return i2c_probe(adap, &addr_data, tuner_attach);
+-		break;
+-	}
+-#endif
+-	return 0;
+-}
+-
+-static int tuner_detach(struct i2c_client *client)
+-{
+-	struct tuner *t = i2c_get_clientdata(client);
+-
+-	i2c_detach_client(client);
+-	kfree(t);
+-	kfree(client);
+-	return 0;
+-}
+-
+-#define SWITCH_V4L2	if (!t->using_v4l2 && debug) \
+-		          printk("tuner: switching to v4l2\n"); \
+-	                  t->using_v4l2 = 1;
+-#define CHECK_V4L2	if (t->using_v4l2) { if (debug) \
+-			  printk("tuner: ignore v4l1 call\n"); \
+-		          return 0; }
+-
+-static int
+-tuner_command(struct i2c_client *client, unsigned int cmd, void *arg)
+-{
+-	struct tuner *t = i2c_get_clientdata(client);
+-        unsigned int *iarg = (int*)arg;
+-
+-        switch (cmd) {
+-
+-	/* --- configuration --- */
+-	case TUNER_SET_TYPE:
+-		set_type(client,*iarg,client->adapter->name);
+-		break;
+-	case AUDC_SET_RADIO:
+-		if (V4L2_TUNER_RADIO != t->mode) {
+-			set_tv_freq(client,400 * 16);
+-			t->mode = V4L2_TUNER_RADIO;
+-		}
+-		break;
+-	case AUDC_CONFIG_PINNACLE:
+-		switch (*iarg) {
+-		case 2:
+-			dprintk("tuner: pinnacle pal\n");
+-			t->radio_if2 = 33300 * 1000;
+-			break;
+-		case 3:
+-			dprintk("tuner: pinnacle ntsc\n");
+-			t->radio_if2 = 41300 * 1000;
+-			break;
+-		}
+-                break;
+-
+-	/* --- v4l ioctls --- */
+-	/* take care: bttv does userspace copying, we'll get a
+-	   kernel pointer here... */
+-	case VIDIOCSCHAN:
+-	{
+-		static const v4l2_std_id map[] = {
+-			[ VIDEO_MODE_PAL   ] = V4L2_STD_PAL,
+-			[ VIDEO_MODE_NTSC  ] = V4L2_STD_NTSC_M,
+-			[ VIDEO_MODE_SECAM ] = V4L2_STD_SECAM,
+-			[ 4 /* bttv */     ] = V4L2_STD_PAL_M,
+-			[ 5 /* bttv */     ] = V4L2_STD_PAL_N,
+-			[ 6 /* bttv */     ] = V4L2_STD_NTSC_M_JP,
+-		};
+-		struct video_channel *vc = arg;
+-
+-		CHECK_V4L2;
+-		t->mode = V4L2_TUNER_ANALOG_TV;
+-		if (vc->norm < ARRAY_SIZE(map))
+-			t->std = map[vc->norm];
+-		tuner_fixup_std(t);
+-		if (t->freq)
+-			set_tv_freq(client,t->freq);
+-		return 0;
+-	}
+-	case VIDIOCSFREQ:
+-	{
+-		unsigned long *v = arg;
+-
+-		CHECK_V4L2;
+-		set_freq(client,*v);
+-		return 0;
+-	}
+-	case VIDIOCGTUNER:
+-	{
+-		struct video_tuner *vt = arg;
+-
+-		CHECK_V4L2;
+-		if (V4L2_TUNER_RADIO == t->mode)
+-			vt->signal = tuner_signal(client);
+-		return 0;
+-	}
+-	case VIDIOCGAUDIO:
+-	{
+-		struct video_audio *va = arg;
+-
+-		CHECK_V4L2;
+-		if (V4L2_TUNER_RADIO == t->mode)
+-			va->mode = (tuner_stereo(client) ? VIDEO_SOUND_STEREO : VIDEO_SOUND_MONO);
+-		return 0;
+-	}
+-
+-	case VIDIOC_S_STD:
+-	{
+-		v4l2_std_id *id = arg;
+-
+-		SWITCH_V4L2;
+-		t->mode = V4L2_TUNER_ANALOG_TV;
+-		t->std = *id;
+-		tuner_fixup_std(t);
+-		if (t->freq)
+-			set_freq(client,t->freq);
+-		break;
+-	}
+-	case VIDIOC_S_FREQUENCY:
+-	{
+-		struct v4l2_frequency *f = arg;
+-
+-		SWITCH_V4L2;
+-		if (V4L2_TUNER_RADIO == f->type &&
+-		    V4L2_TUNER_RADIO != t->mode)
+-			set_tv_freq(client,400*16);
+-		t->mode  = f->type;
+-		t->freq  = f->frequency;
+-		set_freq(client,t->freq);
+-		break;
+-	}
+-	case VIDIOC_G_TUNER:
+-	{
+-		struct v4l2_tuner *tuner = arg;
+-
+-		SWITCH_V4L2;
+-		if (V4L2_TUNER_RADIO == t->mode)
+-			tuner->signal = tuner_signal(client);
+-		break;
+-	}
+-	default:
+-		/* nothing */
+-		break;
+-	}
+-
+-	return 0;
+-}
+-
+-static int tuner_suspend(struct device * dev, u32 state, u32 level)
+-{
+-	dprintk("tuner: suspend\n");
+-	/* FIXME: power down ??? */
+-	return 0;
+-}
+-
+-static int tuner_resume(struct device * dev, u32 level)
+-{
+-	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
+-	struct tuner *t = i2c_get_clientdata(c);
+-
+-	dprintk("tuner: resume\n");
+-	if (t->freq)
+-		set_freq(c,t->freq);
+-	return 0;
+-}
+-
+-/* ----------------------------------------------------------------------- */
+-
+-static struct i2c_driver driver = {
+-	.owner          = THIS_MODULE,
+-        .name           = "i2c TV tuner driver",
+-        .id             = I2C_DRIVERID_TUNER,
+-        .flags          = I2C_DF_NOTIFY,
+-        .attach_adapter = tuner_probe,
+-        .detach_client  = tuner_detach,
+-        .command        = tuner_command,
+-	.driver = {
+-		.suspend = tuner_suspend,
+-		.resume  = tuner_resume,
+-	},
+-};
+-static struct i2c_client client_template =
+-{
+-	I2C_DEVNAME("(tuner unset)"),
+-	.flags      = I2C_CLIENT_ALLOW_USE,
+-        .driver     = &driver,
+-};
+-
+-static int __init tuner_init_module(void)
+-{
+-	return i2c_add_driver(&driver);
+-}
+-
+-static void __exit tuner_cleanup_module(void)
+-{
+-	i2c_del_driver(&driver);
+-}
+-
+-module_init(tuner_init_module);
+-module_exit(tuner_cleanup_module);
+-
+-/*
+- * Overrides for Emacs so that we follow Linus's tabbing style.
+- * ---------------------------------------------------------------------------
+- * Local variables:
+- * c-basic-offset: 8
+- * End:
+- */
+Index: linux-2.6.11-rc4/drivers/media/video/tveeprom.c
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/media/video/tveeprom.c	2005-02-14 15:25:17.000000000 +0100
++++ linux-2.6.11-rc4/drivers/media/video/tveeprom.c	2005-02-15 17:02:08.000000000 +0100
+@@ -34,6 +34,7 @@
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/types.h>
++#include <linux/videodev.h>
+ #include <linux/i2c.h>
+ 
+ #include <media/tuner.h>
+@@ -73,7 +74,7 @@ hauppauge_tuner_fmt[] =
+ 	{ 0x00000007, "PAL(B/G)" },
+ 	{ 0x00001000, "NTSC(M)" },
+ 	{ 0x00000010, "PAL(I)" },
+-	{ 0x00400000, "SECAM(L/L�)" },
++	{ 0x00400000, "SECAM(L/L�)" },
+ 	{ 0x00000e00, "PAL(D/K)" },
+ 	{ 0x03000000, "ATSC Digital" },
+ };
 
 -- 
 #define printk(args...) fprintf(stderr, ## args)

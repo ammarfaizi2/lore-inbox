@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289084AbSA2JUJ>; Tue, 29 Jan 2002 04:20:09 -0500
+	id <S289114AbSA2J3v>; Tue, 29 Jan 2002 04:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289114AbSA2JT4>; Tue, 29 Jan 2002 04:19:56 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:28431 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S289084AbSA2JTf>;
-	Tue, 29 Jan 2002 04:19:35 -0500
-Date: Wed, 30 Jan 2002 12:22:00 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
-Message-ID: <20020130122200.A254@pazke.ipt>
-In-Reply-To: <012d01c1a687$faa11120$0201a8c0@HOMER> <Pine.LNX.4.33.0201261339220.17628-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0201261339220.17628-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Jan 26, 2002 at 01:42:52PM -0800
-X-Uname: Linux pazke 2.4.13-ac7 
+	id <S289226AbSA2J3k>; Tue, 29 Jan 2002 04:29:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12551 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289114AbSA2J3e>;
+	Tue, 29 Jan 2002 04:29:34 -0500
+Message-ID: <3C5669D6.B81E0B4@zip.com.au>
+Date: Tue, 29 Jan 2002 01:22:30 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
+In-Reply-To: <E16VU8j-0006Hm-00@wagner.rustcorp.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell wrote:
+> 
+> This patch introduces the __per_cpu_data tag for data, and the
+> per_cpu() & this_cpu() macros to go with it.
+> 
+> This allows us to get rid of all those special case structures
+> springing up all over the place for CPU-local data.
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+Am I missing something? smp_init() is called quite late in
+the boot process, and if any code touches per-cpu data before
+this, it'll get a null pointer deref, won't it?
 
-On Sat, Jan 26, 2002 at 01:42:52PM -0800, Linus Torvalds wrote:
->=20
-> On Sat, 26 Jan 2002, Martin Eriksson wrote:
-> >
-> > Hmm.. I tried to compile the kernel with -Os (gcc 2.96-98) and I just g=
-ot a
-> > ~1% smaller vmlinux and a ~3% smaller bzImage.
->=20
-> Note that while "-Os" exists and is documented, as far as I know gcc
-> doesn't actually do much with it. It really acts mostly as a "disable
-> certain optimizations" than anything else.
->=20
+You could possibly do:
 
-Stupid questions:
-	- what stop us from using -mregparm=3D3 gcc switch ?
-	- same with -Os -malign-loops=3D1 -malign-jumps=3D1 ?
-	- any tool to measure perfomance gain/penalty of above ?
+unsigned long __per_cpu_offset[NR_CPUS] = { (unsigned long *)&__per_cpu_start, };
 
-> In the 3.0.x tree, it seems to change some of the weights of some
-> instructions, and it might make more of a difference there. But at the
-> same time it is quite telling that "-Os" doesn't even change any of the
-> alignments etc - because gcc developers do not seem to really support it
-> as a real option. It's an after-thought, not a big performance push.
->=20
-> 		Linus
->=20
+which takes care of the boot processor.  You lose the ability
+to put statically initialised data into the per-cpu area, but
+that's not too bad.
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---a8Wt8u1KmwUX3Y2C
-Content-Type: application/pgp-signature
+Also the boot processor won't be able to initialise stuff which
+belongs to other CPUs.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Or the whole thing needs to be moved super-early into the boot
+process.
 
-iD8DBQE8V7s4Bm4rlNOo3YgRAlhnAJ0eIYkGBRqMUxVbs8uMS8xgnWLx8QCgiv1+
-kzBPdlitozHhpL4YcTmU1Ik=
-=bRaG
------END PGP SIGNATURE-----
+Or I missed something :)
 
---a8Wt8u1KmwUX3Y2C--
+-

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317544AbSGTWOD>; Sat, 20 Jul 2002 18:14:03 -0400
+	id <S317547AbSGTWQr>; Sat, 20 Jul 2002 18:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317547AbSGTWOD>; Sat, 20 Jul 2002 18:14:03 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:56074 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317544AbSGTWOD>; Sat, 20 Jul 2002 18:14:03 -0400
-Date: Sun, 21 Jul 2002 00:17:03 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Thunder from the hill <thunder@ngforever.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Impressions of IDE 98?
-Message-ID: <20020720221703.GE12637@louise.pinerecords.com>
-References: <20020720212553.GA12637@louise.pinerecords.com> <Pine.SOL.4.30.0207202329530.22207-100000@mion.elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0207202329530.22207-100000@mion.elka.pw.edu.pl>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 46 days, 12:53
+	id <S317551AbSGTWQr>; Sat, 20 Jul 2002 18:16:47 -0400
+Received: from ns2.bizsystems.net ([63.77.172.2]:8201 "EHLO
+	ns2.is.bizsystems.com") by vger.kernel.org with ESMTP
+	id <S317547AbSGTWQr>; Sat, 20 Jul 2002 18:16:47 -0400
+Message-Id: <200207202219.g6KMJvpK026242@ns2.is.bizsystems.com>
+From: "Michael" <michael@insulin-pumpers.org>
+To: linux-kernel@vger.kernel.org
+Date: Sat, 20 Jul 2002 15:19:57 -0800
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: build error when SMP = No
+Reply-to: michael@insulin-pumpers.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I'm wondering, why haven't IDE 99 and IDE 100 been posted on lkml?
-> >
-> Ask Martin, I don't know.
+i86 based build of 
+2.4.19-rc2
 
-Right. I'm puzzled here.
+When 
+Symmetric multi-processing support (CONFIG_SMP) [Y/n/?] n
 
-How safe does Martin think people will suppose the patches are if they were
-not meant to be reviewed in the standard lkml manner? Given the problems
-with 2.5.25 (and 'problems' would be an euphemism here) I'd expect to see
-something like a 'safer coding' approach, not 'stealth operations.'
+is Yes, everything builds fine.
+if No, the following fatal error occurs
 
-T.
+/usr/src/linux-2.4.19-rc2.2/include/linux/kernel_stat.h:45:
+`smp_num_cpus' undeclared (first use in this function)
+/usr/src/linux-2.4.19-rc2.2/include/linux/kernel_stat.h:45: (Each
+undeclared identifier is reported only once
+/usr/src/linux-2.4.19-rc2.2/include/linux/kernel_stat.h:45: for each
+function it appears in.) make[2]: *** [ksyms.o] 
+Error 1 make[2]: Leaving directory 
+`/usr/src/linux-2.4.19-rc2.2/kernel' make[1]: *** [first_rule] 
+
+Any joy out there??
+Michael
+Michael@Insulin-Pumpers.org

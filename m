@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285243AbRLVARR>; Fri, 21 Dec 2001 19:17:17 -0500
+	id <S285227AbRLVAT5>; Fri, 21 Dec 2001 19:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285227AbRLVAQ5>; Fri, 21 Dec 2001 19:16:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45574 "EHLO
+	id <S285230AbRLVATr>; Fri, 21 Dec 2001 19:19:47 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46598 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285230AbRLVAQx>; Fri, 21 Dec 2001 19:16:53 -0500
-Subject: Re: Concerning a driver rewrite (NOT THE KERNEL)
-To: camel_3@hotmail.com (victor1 torres)
-Date: Sat, 22 Dec 2001 00:26:58 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <F134DovvQ0Puz63Bma4000031b8@hotmail.com> from "victor1 torres" at Dec 21, 2001 06:45:29 PM
+	id <S285227AbRLVATg>; Fri, 21 Dec 2001 19:19:36 -0500
+Subject: Re: conclusion: arp.c *must* be (still) defective
+To: mail_ker@xarch.tu-graz.ac.at (Alex)
+Date: Sat, 22 Dec 2001 00:29:03 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10112211952010.6988-100000@xarch.tu-graz.ac.at> from "Alex" at Dec 21, 2001 07:52:36 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16Ha0A-00026D-00@the-village.bc.nu>
+Message-Id: <E16Ha2B-00026Y-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You driver also seems to be assuming the sound
-> driver has initialised the codec bus and codecs.) How could I fix it if the 
-> sound codec is not initialised so that the modem codec could initialised  
-> the codec bus and codecs?
+> > Sounds like you have the card on the wrong port or the IRQ not set in the
+> > BIOS to be routed to ISA
+> 
+> Sir! It's PLUG AND PLAY! Isapnp! I ought not to care about IRQ or Bios?
 
-As far as I can tell from a scan of the docs you need the drivers to
-co-operate because if that isn't done if the modem driver inits the AC97
-then it will break running audio (and vice versa). The sound driver also
-has the interrupt line and status handling so that appears to need to 
-become shared code - or with the sound driver calling out to the modem
-driver.
+IMHO you have an overdeveloped faith in technology 8)
 
-My i810 board doesn't have a modem or an AMR slot but I can certainly help
-integrate the pieces. Right now Doug Ledford is doing major reworking on
-the i810 driver (and having tried to fix audio bugs in that before I 
-really appreciate him taking on that battle) but after that I'm happy to
-give you a hand
+Things to check
+
+1.	Does tcpdump show anything if you ping the box from another machine
+2.	Is the link light on
+3.	Does the irq count in /proc/interrupts for the card rise
+	appropriately ?
+4.	What does the 3c5x9 diagnostic tool say (http://www.scyld.com)
+
+The reason I ask is that Linux 2.2 and on some platforms 2.4 will be relying
+on BIOS IRQ routing where Windows 9x will do the work itself. So I've seen
+precisely these symptoms before

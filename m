@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289359AbSAJJbJ>; Thu, 10 Jan 2002 04:31:09 -0500
+	id <S289358AbSAJJjS>; Thu, 10 Jan 2002 04:39:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289358AbSAJJbA>; Thu, 10 Jan 2002 04:31:00 -0500
-Received: from yeager.cse.Buffalo.EDU ([128.205.36.9]:15059 "EHLO
-	yeager.cse.Buffalo.EDU") by vger.kernel.org with ESMTP
-	id <S289359AbSAJJay>; Thu, 10 Jan 2002 04:30:54 -0500
-Date: Thu, 10 Jan 2002 04:30:53 -0500 (EST)
-From: Nelson Mok <nmok@cse.Buffalo.EDU>
+	id <S289360AbSAJJjJ>; Thu, 10 Jan 2002 04:39:09 -0500
+Received: from CPE00E02915899A.cpe.net.cable.rogers.com ([24.112.88.234]:45195
+	"EHLO mokona.furryterror.org") by vger.kernel.org with ESMTP
+	id <S289358AbSAJJi5>; Thu, 10 Jan 2002 04:38:57 -0500
+From: uixjjji1@umail.furryterror.org (Zygo Blaxell)
+Subject: Re: Moving zlib so that others may use it
+Date: 10 Jan 2002 04:37:00 -0500
+Organization: A poorly-maintained Debian GNU/Linux InterNetNews site
+Message-ID: <a1jnbs$r0s$1@shippou.furryterror.org>
+In-Reply-To: <24080.1010637887@kao2.melbourne.sgi.com> <3C3D22F8.1080201@acm.org>
+NNTP-Posting-Host: 10.215.3.77
+X-Header-Mangling: Original "From:" was <zblaxell@shippou.furryterror.org>
 To: <linux-kernel@vger.kernel.org>
-Subject: USB Sandisk SDDR-31 problems in 2.4.9 - 2.4.17
-Message-ID: <Pine.SOL.4.30.0201100411100.25549-100000@yeager.cse.Buffalo.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My system is currently an AMD Athlon with kernel 2.4.17, Adaptec 2940 PCI
-SCSI card, Plextor 40X SCSI CD-ROM, Plextor 8x CD-R and the USB Sandisk
-SDDR-31 compact flash reader.  With the 2.4.x series of the kernel, in
-particular with RedHat's 2.4.9 kernel, 2.4.15, 2.4.16, and 2.4.17 I have
-been experiencing the same two problems.
+In article <3C3D22F8.1080201@acm.org>, Corey Minyard  <minyard@acm.org> wrote:
+>Keith Owens wrote:
+>
+>>On Wed, 09 Jan 2002 22:23:31 -0600, 
+>>Corey Minyard <minyard@acm.org> wrote:
+>>>Keith Owens wrote:
+[...]
+>Building zlib as a
+>>module guarantees that you cannot use it in a boot loader, forcing you
+>>to maintain multiple versions of zlib.c.  If you are going to use one
+>>version of zlib then you should try to handle bootloaders as well.
+[...]
+>I don't know about the bootloaders.  I'm not sure you can make the 
+>requirement
+>to have them compiled the same as the kernel, since they may have different
+>compilation requirements in the boot loader.
 
-1. the SCSI CD-ROM on my system works fine, that is until I mount the USB
-cf reader.  After doing so, any attempts to mount a CD in the CD-ROM gives
-me the message "mount: wrong fs type, bad option, bad superblock on
-/dev/cdrom, or too many mounted file systems".  If the CD-ROM is already
-mounted and I then mount the USB cf reader, the CD-ROM will no longer
-respond...  unmounting and mounting the CD-ROM at this point seems to work
-but any attempt to access the information is futile.  The physical eject
-on the CD-ROM also ceases to function after this.  Tried removing all the
-USB modules followed by the SCSI modules and then modprobe them all again
-but doing that does not affect anything.  Only way to access my CD-ROM
-again is a reboot of the machine.  The wierd thing to this is, it does not
-affect my CD-R drive as it continues to work fine.  This happens again if
-I were to repeat the above mentioned steps.
+Ummm, you can't use an in-kernel anything in a bootloader.  How do you
+uncompress an in-kernel zlib.o without an out-of-kernel zlib.o lying
+around somewhere?
 
-2. after mounting the USB cf reader, the shutting down of the system
-stalls for quite a bit at the point where it tries to unmount all the file
-systems.  This occurs regardless of whether I unmounted the drive or not.
+The closest thing to a zlib.o shared between bootloader and kernel would
+be to build one zlib.o and then perhaps copy the compiled binary from the
+kernel to the bootloader (thus having only one zlib.c but two zlib.o) or
+link it from the bootloader to the kernel once the kernel is uncompressed.
 
-
-Lastly, I know both the CD-ROM and USB cf reader are fine as they have
-worked fine under the later 2.2.x kernels, as well as in Windows.
-
+-- 
+Zygo Blaxell (Laptop) <zblaxell@feedme.hungrycats.org>
+GPG = D13D 6651 F446 9787 600B AD1E CCF3 6F93 2823 44AD

@@ -1,46 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265657AbUAGW0e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 17:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbUAGW0e
+	id S265623AbUAGWVq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 17:21:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265647AbUAGWVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 17:26:34 -0500
-Received: from mxout.iskon.hr ([213.191.128.10]:55777 "HELO mxout.iskon.hr")
-	by vger.kernel.org with SMTP id S265657AbUAGW0d (ORCPT
+	Wed, 7 Jan 2004 17:21:46 -0500
+Received: from colo.lackof.org ([198.49.126.79]:15757 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S265623AbUAGWVo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 17:26:33 -0500
-X-Remote-IP: 213.191.139.250
-To: linux-kernel@vger.kernel.org
-Subject: iostat - Linux I/O performance monitoring utility
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: Wed, 07 Jan 2004 23:26:21 +0100
-Message-ID: <87znczfl9u.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Reasonable Discussion,
- linux)
-MIME-Version: 1.0
+	Wed, 7 Jan 2004 17:21:44 -0500
+Date: Wed, 7 Jan 2004 15:21:42 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Jesse Barnes <jbarnes@sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, jeremy@sgi.com
+Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
+Message-ID: <20040107222142.GB14951@colo.lackof.org>
+References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-iostat v2.0 is out!
+On Wed, Jan 07, 2004 at 07:02:06PM +0000, Matthew Wilcox wrote:
+> So we want a pci_set_relaxed() macro / function() to set this bit
+> (otherwise dozens of drivers will start to try to set the bit themselves,
+> badly).  If this bit *isn't* set, setting the bit in the transaction will have
+> no effect, right?
 
-It works flawlessly on both 2.4 & 2.6, compiles on Debian, Redhat, you
-name it... IOW, it's perfect. :)
+I think that's correct if the platform chipset ignores RO signal
+by default. I'm not real comfortable with that assumption though.
+I want the driver to advertise to PCI services the intent to use
+RO capability.
 
-Looks something like this:
+> How about always setting the bit in readb() and having a readb_ordered()
+> which doesn't set the bit in the transaction?
 
-                             extended device statistics                       
-device mgr/s mgw/s    r/s    w/s    kr/s    kw/s   size queue   wait svc_t  %b 
-hde        0  3530    5.0   92.0    20.2 14597.8  150.6  68.1  563.2   6.0  58 
-hdg        0     0    0.0    0.0     0.0     0.0    0.0   0.0    0.0   0.0   0 
-hda        0   105  159.6   69.4   637.7   812.9    6.3  56.0  176.4   4.1  95 
+I was under the impression the driver can't control RO for
+each transaction though. The PCI-X device controls which
+transactions set RO "signal" in the PCI-X command on read-return.
+The Read-Return is a seperate transaction from the Read-Request.
 
-Find it on:  http://linux.inet.hr/
+If anyone has data that specific devices are "smart" and set/clear
+RO appropriately, it would be safe to enable RO for them.
 
-Comments welcome, please Cc: me 'cause I'm not subscribed.
--- 
-Zlatko
+On HP ZX1, the "Allow Relaxed Ordering" is only implemented for outbound
+DMA/PIO Writes *while they pass through the ZX1 chip*. Ie RO bit settings
+don't explicitly apply since we aren't talking about PCI-X bus transactions
+even though the system chipset needs to honor PCI-X rules.
+
+> That way, drivers which
+> call pci_set_relaxed() have the responsibility to verify they're not
+> relying on these semantics and use readb_ordered() in any places that
+> they are.
+
+if new variants of readb() are ok, then yours sounds better.
+
+But I wasn't too keen on introducing readb variants to solve what
+looks like a DMA flushing problem. I've come to the conclusion
+that systems which implement (and enable) RO for inbound DMA are
+effectively not coherent. The data the CPU expects to be visible is not.
+
+DMA-mapping.txt already has support (pci_dma_sync_xx() or pci_dma_unmap_xx())
+to deal with common forms off non-coherence and syncronize caches
+for streaming mappings but not for consistent mappings.
+DMA-ABI.txt (2.6 only) has a method to handle non-coherent systems and
+I have to reread/study it to see if the provided interface is sufficient
+for the case of relaxed ordering.  Jesse, have you looked at this already?
+
+hth,
+grant
+
+> No doubt you're going to smack this idea down by telling me what SN2
+> firmware currently does ...
+> 
+> -- 
+> "Next the statesmen will invent cheap lies, putting the blame upon 
+> the nation that is attacked, and every man will be glad of those
+> conscience-soothing falsities, and will diligently study them, and refuse
+> to examine any refutations of them; and thus he will by and by convince 
+> himself that the war is just, and will thank God for the better sleep 
+> he enjoys after this process of grotesque self-deception." -- Mark Twain

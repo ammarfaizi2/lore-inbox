@@ -1,95 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267264AbSLKSci>; Wed, 11 Dec 2002 13:32:38 -0500
+	id <S267257AbSLKSax>; Wed, 11 Dec 2002 13:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267265AbSLKSci>; Wed, 11 Dec 2002 13:32:38 -0500
-Received: from halon.barra.com ([144.203.11.1]:64197 "EHLO halon.barra.com")
-	by vger.kernel.org with ESMTP id <S267264AbSLKScg>;
-	Wed, 11 Dec 2002 13:32:36 -0500
-From: Fedor Karpelevitch <fedor@apache.org>
-To: Fedor Karpelevitch <fedor@apache.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [2.4]ALi M5451 sound hangs on init; workaround
-Date: Wed, 11 Dec 2002 10:36:21 -0800
-User-Agent: KMail/1.5
-Cc: lkml <linux-kernel@vger.kernel.org>, Vicente Aguilar <bisente@bisente.com>,
-       alsa-devel@lists.sourceforge.net,
-       Debian-Laptops <debian-laptop@lists.debian.org>
-References: <200212110715.20617.fedor@apache.org> <1039625298.18087.61.camel@irongate.swansea.linux.org.uk> <200212110852.42778.fedor@apache.org>
-In-Reply-To: <200212110852.42778.fedor@apache.org>
+	id <S267264AbSLKSax>; Wed, 11 Dec 2002 13:30:53 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:5894 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267257AbSLKSaw>;
+	Wed, 11 Dec 2002 13:30:52 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212111850.gBBIoCOL009048@darkstar.example.net>
+Subject: [TRIVIAL][PATCH] fix spelling mistake
+To: linux-kernel@vger.kernel.org
+Date: Wed, 11 Dec 2002 18:50:12 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200212111036.21771.fedor@apache.org>
+Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.9042.1039632612--%"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I have ALi M5451 souncard in my laptop (Compaq Presario 900z
-> > > for those searching) and it hangs the machine with any kernel I
-> > > tried (currently 2.4.20-ac1 + hirofumi patch). I traced it down
-> > > to the line where it hangs - that is
-> > > drivers/sound/trident.c:3379 which says:
-> > > pci_write_config_byte(pci_dev, 0xB8, ~temp);
-> >
-> > Looking at the docs it looks like the code Matt Wu added may have
-> > been meant to do
-> >
-> > 	pci_read_config_byte(pci_dev, 0x59, temp)
-> > 	temp &= ~0x80
-> > 	pci_write...
->
-> ---------------------
-> I'll try it and will tell you what the result is. Anyway, what are
-> those commands doing, i.e. what am I loosing when I comment it out?
-> Is there some specific functionality I should test to see the
-> result of these changes?
->
-> > and similarly for the other port
-> >
-> > (Ditto with fixing setup_multi_cannnels)
-> >
-> > Does it work sanely with those fixd ?
 
-here is what I i got it work with:
+--%--multipart-mixed-boundary-1.9042.1039632612--%
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
---------
-static int ali_close_multi_channels(void)
-{
-        char temp = 0;
-        struct pci_dev *pci_dev = NULL;
+I posted this an hour or so ago, but it doesn't seem to have appeared
+on the list.
 
-        pci_dev 
-=pci_find_device(PCI_VENDOR_ID_AL,PCI_DEVICE_ID_AL_M1533,
-                pci_dev);
-        if (pci_dev == NULL)
-                return -1;
--       temp = 0x80;
-+       pci_read_config_byte(pci_dev, 0x59, &temp);
-+      temp &= ~0x80;
--       pci_write_config_byte(pci_dev, 0x59, ~temp);
-+       pci_write_config_byte(pci_dev, 0x59, temp);
+John.
 
-        pci_dev = pci_find_device(PCI_VENDOR_ID_AL,
-                PCI_DEVICE_ID_AL_M7101, pci_dev);
-        if (pci_dev == NULL)
-                return -1;
+--%--multipart-mixed-boundary-1.9042.1039632612--%
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Description: ASCII English text
+Content-Disposition: attachment; filename="patch"
 
--       temp = 0x20;
-+       pci_read_config_byte(pci_dev, 0xB8, &temp);
-+       temp &= ~0x20
--       pci_write_config_byte(pci_dev, 0xB8, ~temp);  // the line I 
-+       pci_write_config_byte(pci_dev, 0xB8, temp);  //commented out
+--- linux-2.4.20-pre1-orig/drivers/scsi/README.ncr53c8xx	2002-12-11 17:14:48.000000000 +0000
++++ linux-2.4.20-pre1/drivers/scsi/README.ncr53c8xx	2002-12-11 17:18:24.000000000 +0000
+@@ -1025,7 +1025,7 @@
+ then it will for sure win the next SCSI BUS arbitration.
+ 
+ Since, there is no way to know what devices are trying to arbitrate for the 
+-BUS, using this feature can be extremally unfair. So, you are not advised 
++BUS, using this feature can be extremely unfair. So, you are not advised 
+ to enable it, or at most enable this feature for the case the chip lost 
+ the previous arbitration (boot option 'iarb:1').
+ 
 
-        return 0;
-}
----------------------
-
-almost as I posted before, just passing pointers to the read method.
-It works, but the question as to what is this supposed to affect 
-remains...
-
-should similar changes be made elsewhere in this driver? I better not 
-change blindly what I do not quite understand...
-
-Fedor
+--%--multipart-mixed-boundary-1.9042.1039632612--%--

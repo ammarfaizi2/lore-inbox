@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbTEIILX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 04:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbTEIILX
+	id S262362AbTEIITc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 04:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTEIITc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 04:11:23 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:38120 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262356AbTEIILV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 04:11:21 -0400
-Date: Fri, 9 May 2003 10:24:01 +0200
-From: norbert_wolff@t-online.de (Norbert Wolff)
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Bogus Warning in ppp_generic.c
-Message-Id: <20030509102401.3534d179.norbert_wolff@t-online.de>
-X-Mailer: Sylpheed version 0.8.11
+	Fri, 9 May 2003 04:19:32 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:1548 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262362AbTEIITb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 04:19:31 -0400
+Date: Fri, 9 May 2003 09:32:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Norbert Wolff <norbert_wolff@t-online.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Bogus Warning in ppp_generic.c
+Message-ID: <20030509093208.A12934@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Norbert Wolff <norbert_wolff@t-online.de>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <20030509102401.3534d179.norbert_wolff@t-online.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030509102401.3534d179.norbert_wolff@t-online.de>; from norbert_wolff@t-online.de on Fri, May 09, 2003 at 10:24:01AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Fri, May 09, 2003 at 10:24:01AM +0200, Norbert Wolff wrote:
+>  	printk(KERN_INFO "PPP generic driver version " PPP_VERSION "\n");
+>  	err = register_chrdev(PPP_MAJOR, "ppp", &ppp_device_fops);
+> +
+> +#ifdef CONFIG_DEVFS_FS
+>  	if (!err) {
+>  		err = devfs_mk_cdev(MKDEV(PPP_MAJOR, 0),
+>  				S_IFCHR|S_IRUSR|S_IWUSR, "ppp");
+>  	}
+> +#endif
+>  
+>  	if (!err)
+>  		printk(KERN_ERR "failed to register PPP device (%d)\n", err);
 
-If devfs is not configured, devfs_mk_cdev returns 0.
-The ppp_generic-Driver reports a bogus Warning in this case.
-Fix below.
+Wrong fix :)  the error check is just reveresed, devfs_mk_cdev also returns
+0 if CONFIG_DEVFS_FS is set and it succeded.
 
-Regards,
+Btw, almost any occurance of #ifdef CONFIG_DEVFS_FS is a bug.
 
-	Norbert	
-
-
---- ppp_generic.c.orig	2003-05-09 09:16:56.%N +0200
-+++ ppp_generic.c	2003-05-09 10:09:19.%N +0200
-@@ -784,10 +784,13 @@ int __init ppp_init(void)
- 
- 	printk(KERN_INFO "PPP generic driver version " PPP_VERSION "\n");
- 	err = register_chrdev(PPP_MAJOR, "ppp", &ppp_device_fops);
-+
-+#ifdef CONFIG_DEVFS_FS
- 	if (!err) {
- 		err = devfs_mk_cdev(MKDEV(PPP_MAJOR, 0),
- 				S_IFCHR|S_IRUSR|S_IWUSR, "ppp");
- 	}
-+#endif
- 
- 	if (!err)
- 		printk(KERN_ERR "failed to register PPP device (%d)\n", err);
-
-
---
- Norbert Wolff
- OpenPGP-Key:
-   http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xF13BD6F6

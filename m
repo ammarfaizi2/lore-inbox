@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263847AbTCUTaq>; Fri, 21 Mar 2003 14:30:46 -0500
+	id <S264082AbTCUUjl>; Fri, 21 Mar 2003 15:39:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263841AbTCUT3v>; Fri, 21 Mar 2003 14:29:51 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60425 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263840AbTCUT3m>; Fri, 21 Mar 2003 14:29:42 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Date: 21 Mar 2003 11:40:26 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b5fpra$rdb$1@cesium.transmeta.com>
-References: <Pine.LNX.4.44.0303161341520.5348-100000@xanadu.home> <20030317215639.GG15658@atrey.karlin.mff.cuni.cz> <20030317220830.GM1324@dualathlon.random> <20030321141620.GA25142@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	id <S263836AbTCUTFB>; Fri, 21 Mar 2003 14:05:01 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:40068
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263833AbTCUS7n>; Fri, 21 Mar 2003 13:59:43 -0500
+Date: Fri, 21 Mar 2003 20:14:59 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303212014.h2LKExig026340@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: handle exploding pnpbios
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030321141620.GA25142@work.bitmover.com>
-By author:    Larry McVoy <lm@bitmover.com>
-In newsgroup: linux.dev.kernel
-> 
-> HPA, should we be mirroring the CVS tarballs to kernel.org?
-> 
-
-That would be highly useful.  I would also like to see the bk export
-text file, whatever it's called, mirrored there.
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/arch/i386/kernel/dmi_scan.c linux-2.5.65-ac2/arch/i386/kernel/dmi_scan.c
+--- linux-2.5.65/arch/i386/kernel/dmi_scan.c	2003-03-18 16:46:45.000000000 +0000
++++ linux-2.5.65-ac2/arch/i386/kernel/dmi_scan.c	2003-03-21 00:00:01.000000000 +0000
+@@ -499,6 +499,19 @@
+ 	return 0;
+ }
+ 
++/*
++ *	Exploding PnPBIOS. Don't yet know if its the BIOS or us for
++ *	some entries
++ */
++
++static __init int exploding_pnp_bios(struct dmi_blacklist *d)
++{
++	printk(KERN_WARNING "%s detected. Disabling PnPBIOS\n", d->ident);
++	dmi_broken |= BROKEN_PNP_BIOS;
++	return 0;
++}
++
++
+ 
+ /*
+  *	Simple "print if true" callback
+@@ -687,6 +700,13 @@
+ 			MATCH(DMI_BIOS_VERSION, "WXPO1Z3"),
+ 			MATCH(DMI_BIOS_DATE, "10/26/01"), NO_MATCH
+ 			} },
++			
++	{ exploding_pnp_bios, "Higraded P14H", {	/* BIOSPnP problem */
++			MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
++			MATCH(DMI_BIOS_VERSION, "07.00T"),
++			MATCH(DMI_SYS_VENDOR, "Higraded"),
++			MATCH(DMI_PRODUCT_NAME, "P14H")
++			} },
+ 
+ 	/* Machines which have problems handling enabled local APICs */
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/pnp/pnpbios/core.c linux-2.5.65-ac2/drivers/pnp/pnpbios/core.c
+--- linux-2.5.65/drivers/pnp/pnpbios/core.c	2003-03-03 19:20:10.000000000 +0000
++++ linux-2.5.65-ac2/drivers/pnp/pnpbios/core.c	2003-03-20 18:13:07.000000000 +0000
+@@ -969,7 +969,7 @@
+ 
+ 	spin_lock_init(&pnp_bios_lock);
+ 
+-	if(pnpbios_disabled) {
++	if(pnpbios_disabled || (dmi_broken & BROKEN_PNP_BIOS)) {
+ 		printk(KERN_INFO "PnPBIOS: Disabled\n");
+ 		return -ENODEV;
+ 	}

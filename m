@@ -1,128 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265464AbUAGKQI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 05:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266159AbUAGKQI
+	id S266203AbUAGKYA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 05:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUAGKX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 05:16:08 -0500
-Received: from ns.suse.de ([195.135.220.2]:21982 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265464AbUAGKQB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 05:16:01 -0500
-Date: Wed, 7 Jan 2004 11:15:59 +0100
-From: Olaf Hering <olh@suse.de>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Rob Love <rml@ximian.com>, Nathan Conrad <lk@bungled.net>,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040107101559.GA22770@suse.de>
-References: <18Cz7-7Ep-7@gated-at.bofh.it> <E1AbWgJ-0000aT-00@neptune.local> <20031231192306.GG25389@kroah.com> <1072901961.11003.14.camel@fur> <20031231220107.GC11032@bungled.net> <1072909218.11003.24.camel@fur> <20031231225536.GP4176@parcelfarce.linux.theplanet.co.uk>
+	Wed, 7 Jan 2004 05:23:59 -0500
+Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:19592 "EHLO
+	diamond.madduck.net") by vger.kernel.org with ESMTP id S266203AbUAGKXy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 05:23:54 -0500
+Date: Wed, 7 Jan 2004 11:23:52 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: scheduling problems in X with 2.6.0
+Message-ID: <20040107102352.GA2954@piper.madduck.net>
+Mail-Followup-To: martin f krafft <madduck@madduck.net>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031231225536.GP4176@parcelfarce.linux.theplanet.co.uk>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-diamond i686
+X-Mailer: Mutt 1.5.4i (2003-03-19)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Dec 31, viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-> On Wed, Dec 31, 2003 at 05:20:18PM -0500, Rob Love wrote:
-> > On Wed, 2003-12-31 at 17:01, Nathan Conrad wrote:
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > Uh, Unix systems (Linux included) do not use the filename of the device
-> > node at all.  Those are just names for you, the user.
-> > 
-> > The kernel uses the device number to understand what device user-space
-> > is trying to access.  The kernel associates the device with a device
-> > number.  Normally that number is static, and known a priori, so we just
-> > create a huge /dev directory with all possible devices and their
-> > assigned numbers (you can see these numbers with ls -la).
-> > 
-> > But if the kernel _tells_ user-space what the device number is, for each
-> > device as it is created, we do not need a static /dev directory.  We can
-> > assemble the directory on the fly and device numbers really no longer
-> > matter.  This is what udev does.
-> 
-> I think you've missed a point here.  There are several places where kernel
-> deals with device identification.
-> 	a) when normal pathname lookup results in a device node on filesystem.
-> That's the regular way.
-> 	b) when we create a new device node; device number is passed to
-> ->mknod() and new device node is created.  Also a normal codepath.
-> 	c) when late-boot code mounts the final root.  It used to be black
-> magic, but these days it's done by regular syscalls.  Namely, we parse the
-> "device name" (most of the work is done by lookups in sysfs), do mknod(2)
-> and mount(2).  It's still done from the kernel mode, but it could be moved
-> to userland.  Should be, actually.
-> 	d) when kernel deals with resume/suspend stuff.  Currently - black
-> magic.  Should be moved to early userland (same parser as for final root
-> name + mknod on rootfs + open() to get the device in question).
-> 	e) in several pathological syscalls we pass device number to
-> identify a device.  ustat(2) and its ilk - bad API that can't die.
-> 	f) /dev/raw passes device number to bind raw device to block device.
-> Bad API; we probably ought to replace it with saner one at some point.
-> 	g) RAID setup - mix of both pathologies; should be done in userland
-> and interfaces are in bad need of cleanup.
-> 	h) nfsd uses device number as a substitute for export ID if said
-> ID is not given explicitly.  That, BTW, is a big problem for crackpipe
-> dreams about random device numbers - export ID _must_ be stable across
-> reboots.
-> 	i) mtdblk parses "device name" on boot; should be take to early
-> userland, same as RAID et.al.
+Hi all,
 
-This is about the /proc/self/mounts format:
+Ever since I moved to 2.6.0, I have been experiencing something I'd
+like to call scheduling problems while working in X. I have tried
+using preemptive mode, and turning it off, but the symptoms are the
+same:
 
-Why does it contain stuff like "/dev/root" or "/dev/sda3" or
-"/dev/myblockdevice"? Does anyone __really__ care about it? I doubt
-that. What I have here (with 2.4) is:
+whenever there is continuous disk access (e.g. tar, rsync, dd),
+X will not respond for a couple of seconds every couple of seconds.
+With that I mean that the mouse will freeze as well as all screen
+output, and then resume after a couple of seconds.
 
-olh@melon:~> cat /proc/mounts
-rootfs / rootfs rw 0 0
-/dev/root / ext3 rw 0 0
-proc /proc proc rw 0 0
-devpts /dev/pts devpts rw 0 0
-/dev/vg_melon/abuild /abuild ext3 rw 0 0
-/dev/vg_melon/data1 /data1 ext3 rw 0 0
-/dev/vg_melon/data2 /data2 ext3 rw 0 0
-shmfs /dev/shm shm rw 0 0
-automount(pid937) /suse autofs rw 0 0
-wotan:/real-home/jplack /suse/jplack nfs rw,nosuid,v3,rsize=8192,wsize=8192,hard,intr,tcp,nolock,addr=wotan 0 0
-wotan:/real-home/olh /suse/olh nfs rw,nosuid,v3,rsize=8192,wsize=8192,hard,intr,tcp,nolock,addr=wotan 0 0
+I wonder if I am the only one with that problem. The machine in
+question is a dual AMD 2400+ with 2Gb of RAM and a Maxtor DiamondMax
+drive spinning at 7200 RPM. The drive is configured as follows
+(hdparm):
 
-Now, thats just fine and it was always been that way.
-What if I chroot into /foo, proc is mounted on /foo/proc,
-and run fsck /dev/sda3 in that chroot? 
-That silly app looks for /etc/mtab (oh my...) and start the work.
-Fine. Now, /dev/root is in reality /dev/sda3. Bad for me.
+ multcount    =3D 16 (on)
+ IO_support   =3D  1 (32-bit)
+ unmaskirq    =3D  0 (off)
+ using_dma    =3D  1 (on)
+ keepsettings =3D  0 (off)
+ readonly     =3D  0 (off)
+ readahead    =3D 256 (on)
+ geometry     =3D 16383/255/63, sectors =3D 241254720, start =3D 0
+ Model=3DIC35L120AVV207-0, FwRev=3DV24OA63A, SerialNo=3DVNVD06G4C1NXZL
+ Config=3D{ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=3D16383/16/63, TrkSize=3D0, SectSize=3D0, ECCbytes=3D52
+ BuffType=3DDualPortCache, BuffSize=3D1821kB, MaxMultSect=3D16, MultSect=3D=
+16
+ CurCHS=3D65535/1/63, CurSects=3D4128705, LBA=3Dyes, LBAsects=3D241254720
+ IORDY=3Don/off, tPIO=3D{min:240,w/IORDY:120}, tDMA=3D{min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4=20
+ DMA modes:  mdma0 mdma1 mdma2=20
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5=20
+ AdvancedPM=3Dyes: disabled (255) WriteCache=3Denabled
+ Drive conforms to: ATA/ATAPI-6 T13 1410D revision 3a:=20
 
-the whole thing would work as expected of /proc/self/mounts would have
-a sane format:
-olh@melon:~> cat /proc/mounts
-0:0 / rootfs rw 0 0
-8:3 / ext3 rw 0 0
-proc /proc proc rw 0 0
-devpts /dev/pts devpts rw 0 0
-58:0 /abuild ext3 rw 0 0
-58:1 /data1 ext3 rw 0 0
-58:2 /data2 ext3 rw 0 0
-shmfs /dev/shm shm rw 0 0
-automount(pid937) /suse autofs rw 0 0
-wotan:/real-home/jplack /suse/jplack nfs rw,nosuid,v3,rsize=8192,wsize=8192,hard,intr,tcp,nolock,addr=wotan 0 0
-wotan:/real-home/olh /suse/olh nfs rw,nosuid,v3,rsize=8192,wsize=8192,hard,intr,tcp,nolock,addr=wotan 0 0
+I would appreciate any pointers to the source of the problem, or
+general hints!
 
-Now fsck could look for /dev/sda3, realize that it is a block
-device node and look for that in the kernel mount table.
-If it is mounted, abort with a nice and meaningful error message.
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+"never try to explain computers to a layman.
+ it's easier to explain sex to a virgin."
+                                                    -- robert heinlein
+=20
+(note, however, that virgins tend to know a lot about computers.)
 
-So my question is: why was this strange format invented in the first place?
-And: will 2.7 get a sane /proc/self/mounts format for block devices?
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
--- 
-USB is for mice, FireWire is for men!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-sUse lINUX ag, nÜRNBERG
+iD8DBQE/+944IgvIgzMMSnURAvYwAJ9/U45rL3rm/G7CJUP/2/HG7TLueACfe9Bc
+7eQHTZmUNPl7eVaa+CZ3SPo=
+=fJYP
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--

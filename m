@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130415AbQK1Xa1>; Tue, 28 Nov 2000 18:30:27 -0500
+        id <S129532AbQK1XdH>; Tue, 28 Nov 2000 18:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130363AbQK1XaR>; Tue, 28 Nov 2000 18:30:17 -0500
-Received: from web.sajt.cz ([212.71.160.9]:65289 "EHLO web.sajt.cz")
-        by vger.kernel.org with ESMTP id <S129996AbQK1XaD>;
-        Tue, 28 Nov 2000 18:30:03 -0500
-Date: Tue, 28 Nov 2000 23:17:28 +0100 (CET)
-From: Pavel Rabel <pavel@web.sajt.cz>
-To: andre@linux-ide.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ide config order
-Message-ID: <Pine.LNX.4.21.0011282311410.30456-100000@web.sajt.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S129818AbQK1Xc5>; Tue, 28 Nov 2000 18:32:57 -0500
+Received: from north.net.CSUChico.EDU ([132.241.66.18]:9480 "EHLO
+        north.net.csuchico.edu") by vger.kernel.org with ESMTP
+        id <S129532AbQK1Xck>; Tue, 28 Nov 2000 18:32:40 -0500
+Date: Tue, 28 Nov 2000 15:02:35 -0800
+From: John Kennedy <jk@csuchico.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] blindingly stupid 2.2 VM bug
+Message-ID: <20001128150235.A7323@north.csuchico.edu>
+In-Reply-To: <20001119100100.A54301@niksula.cs.hut.fi> <Pine.LNX.4.21.0011201135590.4587-100000@duckman.distro.conectiva> <20001124152831.A5696@valinux.com> <20001125145701.A12719@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001125145701.A12719@athlon.random>; from andrea@suse.de on Sat, Nov 25, 2000 at 02:57:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 25, 2000 at 02:57:01PM +0100, Andrea Arcangeli wrote:
+> ... VM-global-*-7 has no known bugs AFIK.
 
-2.4.0test12-pre2
-Please reorder config to group DMA options together.
+  Is there anything more recent than VM-global-2.2.18pre18-7?  It isn't
+patching very cleanly against my pre-patch-2.2.18-23 tree. 
 
-Pavel Rabel
+  (I don't see anything under your pre19 thru pre23 dirs, but I
+   may not be looking at a fully populated server or something.)
 
-
---- drivers/ide/Config.in.old	Tue Nov 28 22:22:49 2000
-+++ drivers/ide/Config.in	Tue Nov 28 22:24:19 2000
-@@ -42,8 +42,8 @@
- 	 bool '  Generic PCI IDE chipset support' CONFIG_BLK_DEV_IDEPCI
- 	 if [ "$CONFIG_BLK_DEV_IDEPCI" = "y" ]; then
- 	    bool '    Sharing PCI IDE interrupts support' CONFIG_IDEPCI_SHARE_IRQ
--	    bool '    Generic PCI bus-master DMA support' CONFIG_BLK_DEV_IDEDMA_PCI
- 	    bool '    Boot off-board chipsets first support' CONFIG_BLK_DEV_OFFBOARD
-+	    bool '    Generic PCI bus-master DMA support' CONFIG_BLK_DEV_IDEDMA_PCI
- 	    dep_bool '      Use PCI DMA by default when available' CONFIG_IDEDMA_PCI_AUTO $CONFIG_BLK_DEV_IDEDMA_PCI
- 	    define_bool CONFIG_BLK_DEV_IDEDMA $CONFIG_BLK_DEV_IDEDMA_PCI
- 	    dep_bool '      ATA Work(s) In Progress (EXPERIMENTAL)' CONFIG_IDEDMA_PCI_WIP $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_EXPERIMENTAL
-
+  Reiserfs on top of 2.2.18-23 blatantly runs me out of memory, and ext3fs
+may be doing it too, although the laptop fan makes it sounds like it is
+busy-looping somewhere.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

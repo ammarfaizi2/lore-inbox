@@ -1,194 +1,188 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265515AbUAZVnR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 16:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265369AbUAZVnQ
+	id S265557AbUAZVur (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 16:50:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265558AbUAZVur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 16:43:16 -0500
-Received: from fed1mtao03.cox.net ([68.6.19.242]:29833 "EHLO
-	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S265466AbUAZVm6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 16:42:58 -0500
-Date: Mon, 26 Jan 2004 14:42:47 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: George Anzinger <george@mvista.com>
-Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
-       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-Subject: Re: PPC KGDB changes and some help?
-Message-ID: <20040126214246.GD32525@stop.crashing.org>
-References: <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <20040121192128.GV13454@stop.crashing.org> <20040121192230.GW13454@stop.crashing.org> <20040122174416.GJ15271@stop.crashing.org> <20040122180555.GK15271@stop.crashing.org> <20040123224605.GC15271@stop.crashing.org> <4011B07F.5060409@mvista.com> <20040126204631.GB32525@stop.crashing.org> <40158647.70701@mvista.com>
+	Mon, 26 Jan 2004 16:50:47 -0500
+Received: from mail.kroah.org ([65.200.24.183]:41897 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265557AbUAZVul (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 16:50:41 -0500
+Date: Mon, 26 Jan 2004 13:50:36 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] udev 015 release
+Message-ID: <20040126215036.GA6906@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <40158647.70701@mvista.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 01:27:35PM -0800, George Anzinger wrote:
-> Tom Rini wrote:
-> >On Fri, Jan 23, 2004 at 03:38:39PM -0800, George Anzinger wrote:
-> >
-> >>Tom Rini wrote:
-> >>
-> >>>On Thu, Jan 22, 2004 at 11:05:55AM -0700, Tom Rini wrote:
-> >>>[snip]
-> >>>
-> >>>
-> >>>>First up:
-> >>>>We need to call flush_instruction_cache() on a 'c' or 's' command.
-> >>>>arch/ppc/kernel/ppc-stub.c |   19 ++++++-------------
-> >>>>1 files changed, 6 insertions(+), 13 deletions(-)
-> >>>
-> >>>
-> >>>On tpo of this patch, there's the following:
-> >>>Put back some code to figure out what signal we're dealing with.
-> >>>
-> >>>arch/ppc/kernel/ppc-stub.c |   63 
-> >>>++++++++++++++++++++++++++++++++++++++++++---
-> >>>1 files changed, 60 insertions(+), 3 deletions(-)
-> >>>--- 1.15/arch/ppc/kernel/ppc-stub.c	Thu Jan 22 10:53:06 2004
-> >>>+++ edited/arch/ppc/kernel/ppc-stub.c	Fri Jan 23 15:43:10 2004
-> >>>@@ -3,6 +3,7 @@
-> >>>*
-> >>>* PowerPC-specific bits to work with the common KGDB stub.
-> >>>*
-> >>>+ * 1998 (c) Michael AK Tesch (tesch@cs.wisc.edu)
-> >>>* 2003 (c) TimeSys Corporation
-> >>>* 2004 (c) MontaVista Software, Inc.
-> >>>* This file is licensed under the terms of the GNU General Public License
-> >>>@@ -19,13 +20,69 @@
-> >>>#include <asm/processor.h>
-> >>>#include <asm/machdep.h>
-> >>>
-> >>>+/* Convert the hardware trap type code to a unix signal number. */
-> >>>+/*
-> >>>+ * This table contains the mapping between PowerPC hardware trap types, 
-> >>>and
-> >>>+ * signals, which are primarily what GDB understands.
-> >>>+ */
-> >>>+static struct hard_trap_info
-> >>>+{
-> >>>+	unsigned int tt;		/* Trap type code for powerpc */
-> >>>+	unsigned char signo;		/* Signal that we map this trap into 
-> >>>*/
-> >>>+} hard_trap_info[] = {
-> >>>+#if defined(CONFIG_40x)
-> >>>+	{ 0x100, SIGINT  },		/* critical input interrupt */
-> >>>+	{ 0x200, SIGSEGV },		/* machine check */
-> >>>+	{ 0x300, SIGSEGV },		/* data storage */
-> >>>+	{ 0x400, SIGBUS  },		/* instruction storage */
-> >>>+	{ 0x500, SIGINT  },		/* interrupt */
-> >>>+	{ 0x600, SIGBUS  },		/* alignment */
-> >>>+	{ 0x700, SIGILL  },		/* program */
-> >>>+	{ 0x800, SIGILL  },		/* reserved */
-> >>>+	{ 0x900, SIGILL  },		/* reserved */
-> >>>+	{ 0xa00, SIGILL  },		/* reserved */
-> >>>+	{ 0xb00, SIGILL  },		/* reserved */
-> >>>+	{ 0xc00, SIGCHLD },		/* syscall */
-> >>>+	{ 0xd00, SIGILL  },		/* reserved */
-> >>>+	{ 0xe00, SIGILL  },		/* reserved */
-> >>>+	{ 0xf00, SIGILL  },		/* reserved */
-> >>>+	{ 0x2000, SIGTRAP},		/* debug */
-> >>>+#else
-> >>>+	{ 0x200, SIGSEGV },		/* machine check */
-> >>>+	{ 0x300, SIGSEGV },		/* address error (store) */
-> >>>+	{ 0x400, SIGBUS },		/* instruction bus error */
-> >>>+	{ 0x500, SIGINT },		/* interrupt */
-> >>>+	{ 0x600, SIGBUS },		/* alingment */
-> >>>+	{ 0x700, SIGTRAP },		/* breakpoint trap */
-> >>>+	{ 0x800, SIGFPE },		/* fpu unavail */
-> >>>+	{ 0x900, SIGALRM },		/* decrementer */
-> >>>+	{ 0xa00, SIGILL },		/* reserved */
-> >>>+	{ 0xb00, SIGILL },		/* reserved */
-> >>>+	{ 0xc00, SIGCHLD },		/* syscall */
-> >>>+	{ 0xd00, SIGTRAP },		/* single-step/watch */
-> >>>+	{ 0xe00, SIGFPE },		/* fp assist */
-> >>>+#endif
-> >>>+	{ 0, 0}				/* Must be last */
-> >>>+};
-> >>>+
-> >>>+static int computeSignal(unsigned int tt)
-> >>>+{
-> >>>+	struct hard_trap_info *ht;
-> >>>+
-> >>>+	for (ht = hard_trap_info; ht->tt && ht->signo; ht++)
-> >>>+		if (ht->tt == tt)
-> >>>+			return ht->signo;
-> >>>+
-> >>>+	return SIGHUP; /* default for things we don't know about */
-> >>>+}
-> >>>+
-> >>>/*
-> >>>* Routines
-> >>>*/
-> >>>static void
-> >>>kgdb_debugger(struct pt_regs *regs)
-> >>>{
-> >>>-	(*linux_debug_hook) (0, 0, 0, regs);
-> >>>+	(*linux_debug_hook) (0, computeSignal(regs->trap), 0, regs);
-> >>>	return;
-> >>>}
-> >>>
-> >>>@@ -52,14 +109,14 @@
-> >>>int
-> >>>kgdb_iabr_match(struct pt_regs *regs)
-> >>>{
-> >>>-	(*linux_debug_hook) (0, 0, 0, regs);
-> >>>+	(*linux_debug_hook) (0, computeSignal(regs->trap), 0, regs);
-> >>>	return 1;
-> >>>}
-> >>>
-> >>>int
-> >>>kgdb_dabr_match(struct pt_regs *regs)
-> >>>{
-> >>>-	(*linux_debug_hook) (0, 0, 0, regs);
-> >>>+	(*linux_debug_hook) (0, computeSignal(regs->trap), 0, regs);
-> >>>	return 1;
-> >>>}
-> >>>
-> >>>
-> >>>Now, not being as well versed in all of the debugging infos that can be
-> >>>passed around, it sounds like this patch could be dropped in the future
-> >>>for a cleaner method using some of the dwarf2 bits being talked about.
-> >>>But I don't know, and clarification and pointers (if so) to how to do
-> >>>this would be appreciated.
-> >>
-> >>I am not sure what this buys you.  I don't think dwarf2 will help here.
-> >
-> >
-> >OK.
-> >
-> >
-> >>There is a real danger of passing signal info back to gdb as it will want 
-> >>to try to deliver the signal which is a non-compute in most kgdbs in the 
-> >>field.  I did put code in the mm-kgdb to do just this, but usually the 
-> >>arrival of such a signal (other than SIGTRAP) is the end of the kernel.  
-> >>All that is left is to read the tea leaves.
-> >
-> >
-> >The gdb I've been testing this with knows better than to try and send a
-> >singal back, so that's not a worry.  The motivation behind doing this
-> >however is along the lines of "if it ain't broke, don't remove it".  The
-> >original stub was getting all of this information correctly, so why stop
-> >doing it?
-> >
-> OK, but I still don't like losing the return address.  Tell me again, why 
-> do you need three different functions all doing the same thing?
+I've released the 015 version of udev.  It can be found at:
+ 	kernel.org/pub/linux/utils/kernel/hotplug/udev-015.tar.gz
 
-You get:
-- kgdb_breakpoint => debugger_bpt : This is how the various PPC codes
-  drop you into KGDB.
-- kgdb_iabr_match => debugger_iabr_match : Called from
-  InstructionBreakpoint, exception.
-- kgdb_dabr_match => debugger_dabr_match : Called from do_page_fault,
-  this is a Data Access Breakpoint Register match.
+rpms built against Red Hat FC1 are available at:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-015-1.i386.rpm
+with the source rpm at:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-015-1.src.rpm
 
-So we need at least 2 for the KGDB side of things (prototypes) and 3
-just to make it clear.
+udev allows users to have a dynamic /dev and provides the ability to
+have persistent device names.  It uses sysfs and /sbin/hotplug and runs
+entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
+enabled to run.  Please see the udev FAQ for any questions about it:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+For any udev vs devfs questions anyone might have, please see:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
+
+
+Major changes from the 014 version:
+	- we finally look up the chain of sysfs device entries trying to
+	  match all devices in the chain for each rule.
+
+What this means to users:  Consider the following sysfs device:
+$ tree /sys/class/input/mouse1/
+/sys/class/input/mouse1/
+|-- dev
+|-- device -> ../../../devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1:1.0
+`-- driver -> ../../../bus/usb/drivers/hid
+
+Now this is a USB trackball.  udev will follow that "device" symlink and
+get to the following directory:
+$ tree /sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1:1.0
+/sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1:1.0
+|-- bAlternateSetting
+|-- bInterfaceClass
+|-- bInterfaceNumber
+|-- bInterfaceProtocol
+|-- bInterfaceSubClass
+|-- bNumEndpoints
+|-- detach_state
+|-- iInterface
+`-- power
+    `-- state
+
+This is the directory of the USB interface that is bound to a mouse
+driver.  But in itself, that directory is pretty boring, no vendor id,
+no product id, no manufacturer string...  What a user really wants is
+the directory above this:
+$ tree /sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1
+/sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1
+|-- 2-1:1.0
+|   |-- bAlternateSetting
+|   ...
+|-- bConfigurationValue
+|-- bDeviceClass
+|-- bDeviceProtocol
+|-- bDeviceSubClass
+|-- bMaxPower
+|-- bNumConfigurations
+|-- bNumInterfaces
+|-- bcdDevice
+|-- bmAttributes
+|-- detach_state
+|-- idProduct
+|-- idVendor
+|-- manufacturer
+|-- power
+|   `-- state
+|-- product
+`-- speed
+
+Now this directory contains good stuff:
+$ cat /sys/devices/pci0000:00/0000:00:1d.0/usb2/2-1/product
+Microsoft Trackball Optical®
+
+
+So, in short, you can now write a udev rule for this device as:
+SYSFS_product="Microsoft Trackball*", NAME="my_trackball", SYMLINK="input/mouse1"
+
+and it will actually work :)
+
+This is really helpful for all USB devices, and SCSI devices on USB or
+Firewire buses.  If anyone has any questions about this, please let me
+know, or bring it up on the linux-hotplug-devel mailing list.
+
+
+Another big thing in this release is 'udevinfo'.  It's a way to get all
+information out of the udev database about what devices are present,
+what they are called, and other good stuff.  It also will walk the sysfs
+chain of any device and print out all information on the device which
+helps out a lot in creating rules for udev.
+
+Thanks to Kay Sievers who wrote udevinfo.  Great job.
+
+
+Also in this release is the start of a udev daemon.  It's really in 3
+pieces:
+	udevsend - sends the hotplug message to the udev daemon
+	udevd - the udev daemon, gets the hotplug messages, sorts them
+		in proper order, and passes them off to the udev program
+		to act apon them.
+	udev - still the same.
+
+This lets us keep udevsend and udevd small, and hopefully bug free.
+These programs still need a lot of work and polish before we feel they
+are stable enough to use for everyone (they are not built right now in
+the .rpm).  Help is appreciated here.
+
+Thanks a lot to Kay Sievers and Xiaofeng Ling for the work on udevsend
+and udevd.  Again, I really appreciate it.
+
+Thanks also to everyone who has send me patches for this release, a full
+list of everyone, and their changes is below.
+
+udev development is done in a BitKeeper repository located at:
+	bk://linuxusb.bkbits.net/udev
+
+Daily snapshots of udev from the BitKeeper tree can be found at:
+	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
+If anyone ever wants a tarball of the current bk tree, just email me.
+
+thanks,
+
+greg k-h
+
+
+Summary of changes from v014 to v015
+============================================
+
+<mbuesch:freenet.de>:
+  o LFS init script update
+
+Greg Kroah-Hartman:
+  o update klibc to version 0.98
+  o clean up udevinfo on 'make clean'
+  o add udevinfo man page to spec file
+  o remove command line documentation from udev man page
+  o create initial version of udevinfo man page
+  o added URL to spec file
+  o add udevinfo to udev.spec file
+  o add udevinfo to install target of Makefile
+  o rip out command line code from udev, now that we have udevinfo
+  o udevinfo doesn't need to declare main_envp
+  o move get_pair to udev_config.c because udevinfo doesn't need all of namedev.o
+  o more makefile cleanups
+  o move udevinfo into the main build and clean up the main Makefile a bit
+  o clean up compiler warnings if building using klibc
+  o make udevd only have one instance running at a time
+  o new testd.block script for debugging
+  o udevsnd : clean up message creation logic a bit
+  o make bk ignore udevd and udevsend binaries
+  o whitespace cleanups
+  o remove TODO item about BUS value, as it is now done
+  o add support for figuring out which device on the sysfs "chain" the rule applies to
+
+Kay Sievers:
+  o udevinfo - now a real program :)
+  o udevd - cleanup and better timeout handling
+  o udev - next round of udev event order daemon
+  o fix udevd exec
+  o udev - udevinfo with device chain walk
+  o spilt udev into pieces
+
+

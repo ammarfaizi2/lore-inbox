@@ -1,91 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262218AbUKQHB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbUKQHHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262218AbUKQHB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 02:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbUKQHB5
+	id S262219AbUKQHHX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 02:07:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUKQHHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 02:01:57 -0500
-Received: from danga.com ([66.150.15.140]:1759 "EHLO danga.com")
-	by vger.kernel.org with ESMTP id S262218AbUKQHAm (ORCPT
+	Wed, 17 Nov 2004 02:07:23 -0500
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:1154 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262219AbUKQHHR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 02:00:42 -0500
-Date: Tue, 16 Nov 2004 23:00:41 -0800 (PST)
-From: Brad Fitzpatrick <brad@danga.com>
-X-X-Sender: bradfitz@danga.com
-To: Nathan Scott <nathans@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Lisa Phillips <lisa@danga.com>, Mark Smith <marksmith@danga.com>,
-       linux-xfs@oss.sgi.com
-Subject: Re: 2.6.9: unkillable processes during heavy IO
-In-Reply-To: <20041117045506.GA1802@frodo>
-Message-ID: <Pine.LNX.4.58.0411162251170.7904@danga.com>
-References: <Pine.LNX.4.58.0411141403040.22805@danga.com>
- <Pine.LNX.4.58.0411160549070.7904@danga.com> <20041116200156.2b2526e5.akpm@osdl.org>
- <20041117045506.GA1802@frodo>
+	Wed, 17 Nov 2004 02:07:17 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
+Date: Wed, 17 Nov 2004 02:07:14 -0500
+User-Agent: KMail/1.6.2
+Cc: ambx1@neo.rr.com, linux-kernel@vger.kernel.org, Tejun Heo <tj@home-tj.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+References: <20041109223729.GB7416@kroah.com> <20041116061315.GG29574@neo.rr.com> <20041116201726.GA11069@kroah.com>
+In-Reply-To: <20041116201726.GA11069@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200411170207.14745.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan,
+On Tuesday 16 November 2004 03:17 pm, Greg KH wrote:
+> > 2.) I don't like having an "unbind" file.
+> 
+> Why?
 
-On Wed, 17 Nov 2004, Nathan Scott wrote:
+I do not like interfaces accepting and encouraging writing garbage data. What
+value sould be written into "unbind"? Yes, any junk.
+ 
+> 
+> > This implies that we will have at least three seperate files controlling
+> > driver binding when we really need only one or two at the most.  Consider
+> > "bind", "unbind", and the link to the driver that is bound.
+> 
+> No.  Consider the fact that the "unbind" file will not be present if the
+> device is not bound to anything.  Once it is bound, the unbind file will
+> be created, and the symlink will be created.  The symlink matches other
+> parts of sysfs.  By trying to put the name of the driver in a file, that
+> makes userspace work a lot harder to try to figure out exactly what
+> driver is bound (consider the fact that I can have both a pci and a usb
+> driver with the same name in sysfs, and that's legal.)
 
-> > > On Sun, 14 Nov 2004, Brad Fitzpatrick wrote:
-> > >
-> > > > We have two database servers which freeze up during heavy IO load.  The
->
-> Brad, could you send me details on how you've setup mysqld
-> and how to generate a load similar to yours, so that I can
-> reproduce the hang locally?
+But not 2 drivers with the same name on the same bus so I don't think this
+is a valid argument. Anyway, we already have this symlink.
 
-The MySQL people made a tool to reproduce MySQL-like load for the specific
-purpose of not putting you through the database setup pain:
+> 
+> So, when a device is not bound to a driver, there will be no symlink, or
+> a "unbind" file, only a "bind" file.  Really there is only 1 "control"
+> type file present at any single point in time.
 
-http://sysbench.sourceforge.net/
+Does that imply that I can not rebind device while it is bound to a driver?
+("bind" would be missing it seems). And what about all other flavors of that
+operation - rescan, reconnect? Do we want to have separate attributes for
+them as well?
 
-To simulate our InnoDB:
-
-   -- use the tool to do "seqwr" and write out a 50GB file or so
-
-   -- use the tool to make another file, about 30GB.
-
-   -- use the tool to do "rndrw" to do random I/O over that 50 GB
-      file, with the O_DIRECT flag on, with a bunch of threads doing
-      16k reads/writes.
-
-   -- use the tool to do random IO w/o O_DIRECT on the smaller file
-      at the same time as the O_DIRECT run, also with a number of
-      threads, doing smaller reads/writes.
-
-This is happening on a machine with LVM2, as well as directly on
-/dev/sdb2 (an IBM ServeRAID), so device-mapper shouldn't be an issue one
-way or another.
-
-The filesystem size is 270 GB on one machine (on /dev/sdb2) and 120 GB on
-LVM2.
-
-
-> > > > The hardware/software stack is:
-> > > >
-> > > >   - Dual Opteron 246, SMP kernel, w/ NUMA
-> > > >   - 9 GB of memory (4GB in one zone, 5GB in the other)
-> > > >   - MySQL, running mostly InnoDB, but some MyISAM
->
-> ( I don't even know what those two things are, so you can
-> probably guess at the level of assistance I'll need here. :)
-
-Well, sysbench should help you find the problem.
-
-Let me know if I can help more.  Thanks for looking into this.
-
-- Brad
-
-
->
-> thanks!
->
-> --
-> Nathan
->
->
+-- 
+Dmitry

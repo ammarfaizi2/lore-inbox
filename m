@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272290AbTHIJFk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 05:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272291AbTHIJFk
+	id S272295AbTHIJKw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 05:10:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272299AbTHIJKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 05:05:40 -0400
-Received: from fep04.swip.net ([130.244.199.132]:5860 "EHLO fep04-svc.swip.net")
-	by vger.kernel.org with ESMTP id S272290AbTHIJFj (ORCPT
+	Sat, 9 Aug 2003 05:10:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:20901 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272295AbTHIJKv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 05:05:39 -0400
-From: Michal Semler <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: APM working on SMP machines?
-Date: Sat, 9 Aug 2003 11:05:27 +0200
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Sat, 9 Aug 2003 05:10:51 -0400
+Date: Sat, 9 Aug 2003 02:05:27 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: chas@locutus.cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] TRY #2 - 2.6.0-test2-bk8 - seq_file conversion of
+ /proc/net/atm
+Message-Id: <20030809020527.7b242e0b.davem@redhat.com>
+In-Reply-To: <20030809000303.A2699@electric-eye.fr.zoreil.com>
+References: <20030809000303.A2699@electric-eye.fr.zoreil.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308091105.27619.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, 9 Aug 2003 00:03:03 +0200
+Francois Romieu <romieu@fr.zoreil.com> wrote:
 
-I would like to know when will work APM on SMP machines?
-I use Dell  workstation 400 with 2 P2 CPUs.
-When I remove one CPU APM works, when I have 2 in case APM
-doesn't work
+>   followup to the posting of 2003/07/09. Patchkit is still divided in 8 parts:
 
-I can't use ACPI, because this machine doesn't support it.
-
-apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
-apm: disabled - APM is not SMP safe.
-
-Thanks for fixing and reply - it's very uncomfortable
-switch off computer manually :(
-
-Michal
-
+Chas, I trust you'll look at these?

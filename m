@@ -1,188 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133000AbRDLOec>; Thu, 12 Apr 2001 10:34:32 -0400
+	id <S133045AbRDLOmf>; Thu, 12 Apr 2001 10:42:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133045AbRDLOeX>; Thu, 12 Apr 2001 10:34:23 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:16052 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S133000AbRDLOeN>; Thu, 12 Apr 2001 10:34:13 -0400
-Date: Thu, 12 Apr 2001 10:34:04 -0400
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: Fwd: Re: memory usage - dentry_cacheg
-Message-ID: <20010412103404.D13778@cs.cmu.edu>
-Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
-	Andreas Dilger <adilger@turbolinux.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200104120448.f3C4mtlD016247@webber.adilger.int> <Pine.GSO.4.21.0104120110210.18135-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.GSO.4.21.0104120110210.18135-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Apr 12, 2001 at 01:45:08AM -0400
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S133062AbRDLOmZ>; Thu, 12 Apr 2001 10:42:25 -0400
+Received: from mail.axisinc.com ([193.13.178.2]:36614 "EHLO roma.axis.se")
+	by vger.kernel.org with ESMTP id <S133045AbRDLOmO>;
+	Thu, 12 Apr 2001 10:42:14 -0400
+From: johan.adolfsson@axis.com
+Message-ID: <070001c0c35f$201f3740$a8b270d5@homeip.net>
+Reply-To: <johan.adolfsson@axis.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <200104121236.FAA03613@adam.yggdrasil.com>
+Subject: Re: List of all-zero .data variables in linux-2.4.3 available
+Date: Thu, 12 Apr 2001 16:44:48 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 12, 2001 at 01:45:08AM -0400, Alexander Viro wrote:
-> On Wed, 11 Apr 2001, Andreas Dilger wrote:
-> 
-> > I just discovered a similar problem when testing Daniel Philip's new ext2
-> > directory indexing code with bonnie++.  I was running bonnie under single
-> > user mode (basically nothing else running) to create 100k files with 1 data
-> > block each (in a single directory).  This would create a directory about
-> > 8MB in size, 32MB of dirty inode tables, and about 400M of dirty buffers.
-> > I have 128MB RAM, no swap for the testing.
-> > 
-> > In short order, my single user shell was OOM killed, and in another test
-> > bonnie was OOM-killed (even though the process itself is only 8MB in size).
-> > There were 80k entries each of icache and dcache (38MB and 10MB respectively)
-> > and only dirty buffers otherwise.  Clearly we need some VM pressure on the
-> > icache and dcache in this case.  Probably also need more agressive flushing
-> > of dirty buffers before invoking OOM.
-> 
-> We _have_ VM pressure there. However, such loads had never been used, so
-> there's no wonder that system gets unbalanced under them.
+Shouldn't a compiler be able to deal with this instead?
+(Just a thought.)
+/Johan
 
-But the VM pressure on the dcache and icache only comes into play once
-the system still has a free_shortage _after_ other attempts of freeing
-up memory in do_try_to_free_pages.
+----- Original Message -----
+From: Adam J. Richter <adam@yggdrasil.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, April 12, 2001 2:36 PM
+Subject: List of all-zero .data variables in linux-2.4.3 available
 
-sync_all_inodes, which is called from shrink_icache_memory is
-counterproductive at this point. Writing dirty inodes to disk,
-especially when there is a lot of them, requires additional page
-allocations.
 
-I have a patch that avoids unconditionally puts pressure on the dcache
-and icache, and avoids sync_all_inodes in shrink_icache_memory. An
-additional wakeup for the kupdate thread makes sure that inodes are more
-frequently written when there is no more free shortage. Maybe kupdated
-should be always get woken up.
+> For anyone who is interested, I have produced a list of all
+> of the .data variables that contain all zeroes and could be moved to
+> .bss within the kernel and all of the modules (all of the modules
+> that we build at Yggdrasil for x86, which is almost all).  These
+> are global or static variables that have been declared
+>
+> int foo = 0;
+>
+> instead of
+>
+> int foo; /* = 0 */
+>
+> The result is that the .o files are bigger than they have
+> to be.  The kernel memory image is not bigger, and gzip shrinks the
+> runs of zeroes down to almost nothing, so it does not have a huge effect
+> on bootable disks.  Still, it would be nice to save the disk space of
+> the approximately 75 kilobytes of zeroes and perhaps squeeze in another
+> sector or two when building boot floppies.
+>
+> I have also included a copy of the program that I wrote to
+> find these all-zero .data variables.
+>
+> The program and the output are FTPable from
+> ftp://ftp.yggdrasil.com/private/adam/linux/zerovars/.  Files with no
+> all-zero .data variables are not included in the listing.  If you maintain
+> any code in the kernel, you might want to look at the output to see
+> how your code stacks up.
+>
+> Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite
+104
+> adam@yggdrasil.com     \ /                  San Jose, California
+95129-1034
+> +1 408 261-6630         | g g d r a s i l   United States of America
+> fax +1 408 261-6631      "Free Software For The Rest Of Us."
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-btw. Alexander, is the following a valid optimization to improve
-write-coalescing when calling sync_one for several inodes?
-
-inode.c:sync_one
-
--    filemap_fdatawait(inode->i_mapping);
-+    if (sync) filemap_fdatawait(inode->i_mapping);
-
-Jan
-
-================================================
---- fs/buffer.c.orig	Mon Mar 26 10:47:09 2001
-+++ fs/buffer.c	Mon Mar 26 10:48:33 2001
-@@ -2593,7 +2593,7 @@
- 	return flushed;
- }
- 
--struct task_struct *bdflush_tsk = 0;
-+struct task_struct *bdflush_tsk = 0, *kupdate_tsk = 0;
- 
- void wakeup_bdflush(int block)
- {
-@@ -2605,6 +2605,12 @@
- 	}
- }
- 
-+void wakeup_kupdate(void)
-+{
-+	if (current != kupdate_tsk)
-+		wake_up_process(kupdate_tsk);
-+}
-+
- /* 
-  * Here we attempt to write back old buffers.  We also try to flush inodes 
-  * and supers as well, since this function is essentially "update", and 
-@@ -2751,6 +2757,7 @@
- 	tsk->session = 1;
- 	tsk->pgrp = 1;
- 	strcpy(tsk->comm, "kupdated");
-+	kupdate_tsk = tsk;
- 
- 	/* sigstop and sigcont will stop and wakeup kupdate */
- 	spin_lock_irq(&tsk->sigmask_lock);
---- fs/inode.c.orig	Thu Mar 22 13:20:55 2001
-+++ fs/inode.c	Mon Mar 26 10:48:33 2001
-@@ -224,7 +224,8 @@
- 		if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
- 			write_inode(inode, sync);
- 
--		filemap_fdatawait(inode->i_mapping);
-+		if (sync)
-+			filemap_fdatawait(inode->i_mapping);
- 
- 		spin_lock(&inode_lock);
- 		inode->i_state &= ~I_LOCK;
-@@ -270,19 +271,6 @@
- 	spin_unlock(&inode_lock);
- }
- 
--/*
-- * Called with the spinlock already held..
-- */
--static void sync_all_inodes(void)
--{
--	struct super_block * sb = sb_entry(super_blocks.next);
--	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.next)) {
--		if (!sb->s_dev)
--			continue;
--		sync_list(&sb->s_dirty);
--	}
--}
--
- /**
-  *	write_inode_now	-	write an inode to disk
-  *	@inode: inode to write to disk
-@@ -507,8 +495,6 @@
- 	struct inode * inode;
- 
- 	spin_lock(&inode_lock);
--	/* go simple and safe syncing everything before starting */
--	sync_all_inodes();
- 
- 	entry = inode_unused.prev;
- 	while (entry != &inode_unused)
---- mm/vmscan.c.orig	Thu Mar 22 14:00:41 2001
-+++ mm/vmscan.c	Mon Mar 26 10:48:33 2001
-@@ -840,14 +840,7 @@
- 	if (inactive_shortage())
- 		ret += refill_inactive(gfp_mask, user);
- 
--	/* 	
--	 * Delete pages from the inode and dentry caches and 
--	 * reclaim unused slab cache if memory is low.
--	 */
--	if (free_shortage()) {
--		shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
--		shrink_icache_memory(DEF_PRIORITY, gfp_mask);
--	} else {
-+	if (!free_shortage()) {
- 		/*
- 		 * Illogical, but true. At least for now.
- 		 *
-@@ -857,7 +850,14 @@
- 		 * which we'll want to keep if under shortage.
- 		 */
- 		kmem_cache_reap(gfp_mask);
-+		wakeup_kupdate();
- 	} 
-+
-+	/* 
-+	 * Delete pages from the inode and dentry caches.
-+	 */
-+	shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
-+	shrink_icache_memory(DEF_PRIORITY, gfp_mask);
- 
- 	return ret;
- }
---- include/linux/fs.h.orig	Mon Mar 26 10:48:56 2001
-+++ include/linux/fs.h	Mon Mar 26 10:48:33 2001
-@@ -1248,6 +1248,7 @@
- extern unsigned int get_hardblocksize(kdev_t);
- extern struct buffer_head * bread(kdev_t, int, int);
- extern void wakeup_bdflush(int wait);
-+extern void wakeup_kupdate(void);
- 
- extern int brw_page(int, struct page *, kdev_t, int [], int);
- 

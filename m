@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUJHUoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUJHUmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUJHUoi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 16:44:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264726AbUJHUoh
+	id S264668AbUJHUmv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 16:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUJHUmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 16:44:37 -0400
-Received: from pristine.overt.org ([69.59.183.228]:64425 "EHLO
-	pristine.saidi.cx") by vger.kernel.org with ESMTP id S264704AbUJHUof
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 16:44:35 -0400
-Mime-Version: 1.0 (Apple Message framework v619)
+	Fri, 8 Oct 2004 16:42:51 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:23815 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S264668AbUJHUmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 16:42:49 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Subject: Re: [PATCH] Make gcc -align options .config-settable
+Date: Fri, 8 Oct 2004 23:42:40 +0300
+User-Agent: KMail/1.5.4
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+References: <2KBq9-2S1-15@gated-at.bofh.it> <200410081710.58766.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.60.0410081618530.10253@alpha.polcom.net>
+In-Reply-To: <Pine.LNX.4.60.0410081618530.10253@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-Message-Id: <B00811E6-196A-11D9-8001-000A95AF0DA8@umich.edu>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Ali Saidi <saidi@umich.edu>
-Subject: [PATCH] Alpha - cpu mask fix-ups broke SMP DP264 machines in 2.6.8
-Date: Fri, 8 Oct 2004 16:43:19 -0400
-X-Mailer: Apple Mail (2.619)
+Content-Disposition: inline
+Message-Id: <200410082342.40682.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The cpu mask fix-ups in 2.6.8 broke SMP kernels booting on a DP264. 
-Instead of not setting the DIM for cpus that did not exit, the patch 
-inadvertently doesn't set the DIM for CPUs that do exist. Thus no 
-device interrupts get to the cpu.
+On Friday 08 October 2004 17:30, Grzegorz Kulewski wrote:
+> > Also bencmarking people may do little research on real usefulness of
+> > various kinds of alignment.
+> 
+> I think that removing aligns completly will be very bad. I am Gentoo user 
+> and I set my user space CFLAGS for all system to -falign-loops 
+> -fno-align-<everything else>. I did not tested it in depth, but my simple 
+> tests show that unaligning loops is a very bad idea. Unaligning functions 
 
-Thanks,
+That depends on how often that loop runs. 90% of code runs only
+10% of time. I think ultimately we want to mark other 10% of code with:
 
-Ali
+int __hotpath often_called_func()
+{
+...
+}
 
+Rest of code is to be optimized for size.
 
---- linux-2.6.8.1.orig/arch/alpha/kernel/sys_dp264.c    2004-10-08 
-15:51:26.000000000 -0400
-+++ linux-2.6.8.1.fix/arch/alpha/kernel/sys_dp264.c     2004-10-08 
-15:58:07.000000000 -0400
-@@ -71,10 +71,10 @@
-         dim1 = &cchip->dim1.csr;
-         dim2 = &cchip->dim2.csr;
-         dim3 = &cchip->dim3.csr;
--       if (cpu_possible(0)) dim0 = &dummy;
--       if (cpu_possible(1)) dim1 = &dummy;
--       if (cpu_possible(2)) dim2 = &dummy;
--       if (cpu_possible(3)) dim3 = &dummy;
-+       if (!cpu_possible(0)) dim0 = &dummy;
-+       if (!cpu_possible(1)) dim1 = &dummy;
-+       if (!cpu_possible(2)) dim2 = &dummy;
-+       if (!cpu_possible(3)) dim3 = &dummy;
+> is safer since small and fast functions should be always inlined.
 
-         *dim0 = mask0;
-         *dim1 = mask1;
+Concept of alignment does not apply to inlined functions at all.
+--
+vda
 

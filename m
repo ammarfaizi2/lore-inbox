@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbUDKUja (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 16:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbUDKUja
+	id S262473AbUDKUxD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 16:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUDKUxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 16:39:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8857 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262470AbUDKUj3 (ORCPT
+	Sun, 11 Apr 2004 16:53:03 -0400
+Received: from mail.kroah.org ([65.200.24.183]:7863 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262473AbUDKUxA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 16:39:29 -0400
-Date: Sun, 11 Apr 2004 13:38:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: Re: List of oversized inlines
-Message-Id: <20040411133855.31022616.akpm@osdl.org>
-In-Reply-To: <200404111951.34734.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <200404111905.49443.vda@port.imtp.ilyichevsk.odessa.ua>
-	<20040411163255.GB6248@waste.org>
-	<200404111951.34734.vda@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 11 Apr 2004 16:53:00 -0400
+Date: Sun, 11 Apr 2004 13:51:19 -0700
+From: Greg KH <greg@kroah.com>
+To: wim delvaux <wim.delvaux@adaptiveplanet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: crash of usb ... backtrace included.
+Message-ID: <20040411205119.GA23434@kroah.com>
+References: <200404111408.08828.wim.delvaux@adaptiveplanet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404111408.08828.wim.delvaux@adaptiveplanet.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
->
-> Basically, you:
+On Sun, Apr 11, 2004 at 02:08:08PM +0200, wim delvaux wrote:
 > 
->  * untar linux tree into tree/, 
->  * make allyesconfig
+> This happened when trying to use a usb bluetooth dongle on my system
 
-You should disable at least CONFIG_DEBUG_SPINLOCK, CONFIG_DEBUG_PAGEALLOC and
-CONFIG_DEBUG_SPINLOCK_SLEEP.
+Yes, there are multiple problems with the bluetooth driver and the USB
+system right now.  A number of them have been worked out, and should be
+fixed in the -mm tree, but there are still a few left to be done to the
+bluetooth driver itself, patches are available on the linux-usb-devel
+mailing list for them to be blessed by the bluetooth maintainer.
+
+It seems that lots of things broke this driver all at once, a few of
+which were always bugs, but are just now getting hit due to timing
+changes...
+
+Sorry about this.
+
+greg k-h

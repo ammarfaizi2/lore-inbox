@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132056AbRCVPOa>; Thu, 22 Mar 2001 10:14:30 -0500
+	id <S132053AbRCVP2A>; Thu, 22 Mar 2001 10:28:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132055AbRCVPOX>; Thu, 22 Mar 2001 10:14:23 -0500
-Received: from staffnet.com ([207.226.80.14]:24079 "EHLO staffnet.com")
-	by vger.kernel.org with ESMTP id <S132058AbRCVPOE>;
-	Thu, 22 Mar 2001 10:14:04 -0500
-Message-ID: <3ABA1680.D1467727@staffnet.com>
-Date: Thu, 22 Mar 2001 10:13:04 -0500
-From: Wade Hampton <whampton@staffnet.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre9 i686)
-X-Accept-Language: en
+	id <S132060AbRCVP1v>; Thu, 22 Mar 2001 10:27:51 -0500
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:50185 "HELO
+	zcamail05.zca.compaq.com") by vger.kernel.org with SMTP
+	id <S132053AbRCVP1j>; Thu, 22 Mar 2001 10:27:39 -0500
+Message-ID: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CD10@aeoexc1.aeo.cpqcorp.net>
+From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
+To: "'Andrea Arcangeli'" <andrea@suse.de>
+Cc: Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: RE: AlphaServer with 4 GB RAM, kernel 2.2.19pre17aa1 patched with
+	 big mem... locks for 4 Gbytes, works for 2,6,8 Gbytes
+Date: Thu, 22 Mar 2001 16:25:02 +0100
 MIME-Version: 1.0
-To: nbecker@fred.net, linux-kernel@vger.kernel.org
-Subject: Re: regression testing
-In-Reply-To: <x88zoeeeyh8.fsf@adglinux1.hns.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nbecker@fred.net wrote:
-> 
-> Hi.  I was wondering if there has been any discussion of kernel
-> regression testing.  Wouldn't it be great if we didn't have to depend
-> on human testers to verify every change didn't break something?
-IMHO, much of the strength of Linux is the very large, extremely 
-diverse population of folks using it, testing it, beating on 
-the latest release, etc.  
+It seems that having a Myrinet 2k board plugged into any slot of the second
+PCI bus
+of the ES40 make the system freeze with 4 GBytes of RAM when doing cat
+/proc/pci.
 
-However, a lab dedicated to testing the linux kernel, properly 
-funded, staffed, and containing the most common hardware and 
-software would be a good idea.  Does anyone have any idea how
-this could be accomplished?  Who could do it?  IBM?  What would
-it cost to setup a reasonable lab?  My guess would be dozens 
-of machines of various architectures, a staff of at least 10,
-several thousand square feet of space, and a good budget....
-Any takers?  
+I just plugged the board back into one slot of PCI 0 and it works again.
 
-Much of the kernel COULD be tested such as file systems, network 
-stack, SMP, compile options on various platforms, etc.  More
-obscure hardware, some older hardware, etc., would be out of 
-scope for such an effort.
+Why does it work with Tru64 and not with Linux ? I don't know.
 
-Cheers,
--- 
-W. Wade, Hampton  <whampton@staffnet.com>  
-If Microsoft Built Cars:  Every time they repainted the 
-lines on the road, you'd have to buy a new car.
-Occasionally your car would just die for no reason, and 
-you'd have to restart it, but you'd just accept this.
+Thanks to Andrea Arcangeli for helping me understand there was something
+with the second PCI bus.
+
+
+----------------------------------------------------------------------------
+--
+Sebastien CABANIOLS
+COMPAQ France 
+HPTC Engineer
+CustomSystems & Solutions  Annecy  
+High Performance Technical Computing 
+Office No.  +33 (0)4 50 09 44 10
+Fax No.  +33 (0)4 50 64 01 39 
+Email.   sebastien.cabaniols@compaq.com 
+----------------------------------------------------------------------------
+--
+
+  

@@ -1,112 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbUJYWWi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbUJYW0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261938AbUJYWWi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 18:22:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUJYPMZ
+	id S261294AbUJYW0g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 18:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbUJYWX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:12:25 -0400
-Received: from ip22-176.tor.istop.com ([66.11.176.22]:59048 "EHLO
-	crlf.tor.istop.com") by vger.kernel.org with ESMTP id S261860AbUJYOqs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 10:46:48 -0400
-Cc: raven@themaw.net
-Subject: [PATCH 16/28] VFS: Mountpoint file descriptor attach support
-In-Reply-To: <10987155691365@sun.com>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Mon, 25 Oct 2004 10:46:39 -0400
-Message-Id: <10987155992813@sun.com>
-References: <10987155691365@sun.com>
+	Mon, 25 Oct 2004 18:23:57 -0400
+Received: from gprs214-185.eurotel.cz ([160.218.214.185]:39809 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262002AbUJYWJk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 18:09:40 -0400
+Date: Tue, 26 Oct 2004 00:09:21 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Stelian Pop <stelian@popies.net>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
+Message-ID: <20041025220921.GA5207@elf.ucw.cz>
+References: <200410210154.58301.dtor_core@ameritech.net> <20041025125629.GF6027@crusoe.alcove-fr> <200410250822.46023.dtor_core@ameritech.net> <20041025135635.GB3161@crusoe.alcove-fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Mike Waychison <michael.waychison@sun.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041025135635.GB3161@crusoe.alcove-fr>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch allows an unattached mountfd to be attached to a directory given a
-direct fd.
+Hi!
 
-NOTE: Probably requires CAP_SYSADMIN..  depends on what we want the security
-model to be.
+> > If you need a hand - I am a bit familiar with the input system...
+> 
+> See the other mail I just send CC:'ed to Vojtech...
+> 
+> > > Some of your changes (those related to module_param(), wait_event()
+> > > use etc) were already in my tree, those related to whitespace cleanup,
+> > > platform instead of sysdev etc are new and I will integrate them.
+> > >
+> > 
+> > The change from sysdev to a platform device is the main reason I did
+> > the change (and getting rid of old pm_register stuff which is useless
+> > now) because swsusp2 (and seems that swsusp1 as well) have trouble
+> > resuming system devices. The rest was just fluff really.
+> 
+> Ok. Suspending never really worked on my laptop so I'll have to assume
+> you're correct. :)
+> 
+> [ Just tried once again to do a suspend to ram, seems that there were
+> some enhancements in this area lately. 
+> 
+>   No luck. Machine suspends ok, but upon waking up, the power led goes
+>   greek ok, the disk led lights up, but the keyboard is dead, the
+>   network card is dead, the screen doesn't turn on...
+> 
+>   Since this laptop has no serial port I don't see what else I can do,
+>   except wait another 6 months and try again... :(
 
-Signed-off-by: Mike Waychison <michael.waychison@sun.com>
----
+Debug using pc speaker... Or paralel port, or something like that.
 
- fs/mountfd.c       |   35 +++++++++++++++++++++++++++++++++++
- include/linux/fs.h |    1 +
- 2 files changed, 36 insertions(+)
+								Pavel
 
-Index: linux-2.6.9-quilt/fs/mountfd.c
-===================================================================
---- linux-2.6.9-quilt.orig/fs/mountfd.c	2004-10-22 17:17:41.367175376 -0400
-+++ linux-2.6.9-quilt/fs/mountfd.c	2004-10-22 17:17:42.011077488 -0400
-@@ -5,6 +5,7 @@
- #include <linux/stat.h>
- #include <linux/init.h>
- #include <linux/security.h>
-+#include <linux/namei.h>
- 
- #define MFDFS_MAGIC 0x4A9F2E43
- #define MFDFS_ROOT_INO 1
-@@ -251,6 +252,38 @@ out_filp:
- 	return error;
- }
- 
-+static long mfd_attach(struct file *mountfilp, int dirfd)
-+{
-+	struct file *dir;
-+	struct vfsmount *mnt;
-+	struct nameidata nd;
-+	int ret;
-+
-+	mnt = mntget(VFSMOUNT(mountfilp));
-+
-+	ret = -EBADF;
-+	dir = fget(dirfd);
-+	if (!dir)
-+		goto out;
-+
-+	ret = -ENOTDIR;
-+	if (!S_ISDIR(dir->f_dentry->d_inode->i_mode))
-+		goto out2;
-+
-+	memset(&nd, 0, sizeof(nd));
-+	nd.dentry = dget(dir->f_dentry);
-+	nd.mnt = mntget(dir->f_vfsmnt);
-+
-+	ret = do_graft_mount(mnt, &nd);
-+
-+	path_release(&nd);
-+out2:
-+	put_filp(dir);
-+out:
-+	mntput(mnt);
-+	return ret;
-+}
-+
- static int mfd_ioctl(struct inode *inode, struct file *filp,
- 		     unsigned int cmd, unsigned long arg)
- {
-@@ -263,6 +296,8 @@ static int mfd_ioctl(struct inode *inode
- 		return mfd_umount(filp, 0);
- 	case MOUNTFD_IOC_FORCEDUNMOUNT:
- 		return mfd_umount(filp, MNT_FORCE);
-+	case MOUNTFD_IOC_ATTACH:
-+		return mfd_attach(filp, arg);
- 	}
- 	return -ENOTTY;
- }
-Index: linux-2.6.9-quilt/include/linux/fs.h
-===================================================================
---- linux-2.6.9-quilt.orig/include/linux/fs.h	2004-10-22 17:17:41.369175072 -0400
-+++ linux-2.6.9-quilt/include/linux/fs.h	2004-10-22 17:17:42.012077336 -0400
-@@ -218,6 +218,7 @@ extern int leases_enable, dir_notify_ena
- #define MOUNTFD_IOC_UNMOUNT       _IO('p', 0xa1)
- #define MOUNTFD_IOC_DETACH        _IO('p', 0xa2)
- #define MOUNTFD_IOC_FORCEDUNMOUNT _IO('p', 0xa3)
-+#define MOUNTFD_IOC_ATTACH        _IOW('p', 0xa4, int)
- 
- #ifdef __KERNEL__
- 
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

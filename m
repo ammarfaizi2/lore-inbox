@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbSJYQrV>; Fri, 25 Oct 2002 12:47:21 -0400
+	id <S261491AbSJYQsJ>; Fri, 25 Oct 2002 12:48:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261489AbSJYQrV>; Fri, 25 Oct 2002 12:47:21 -0400
-Received: from 1-116.ctame701-1.telepar.net.br ([200.181.137.116]:37045 "EHLO
-	1-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261486AbSJYQrV>; Fri, 25 Oct 2002 12:47:21 -0400
-Date: Fri, 25 Oct 2002 14:53:15 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@digeo.com>
-cc: Hugh Dickins <hugh@veritas.com>, <cmm@us.ibm.com>,
-       <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>,
-       <dipankar@in.ibm.com>, <lse-tech@lists.sourceforge.net>
-Subject: Re: [PATCH]updated ipc lock patch
-In-Reply-To: <3DB88298.735FD044@digeo.com>
-Message-ID: <Pine.LNX.4.44L.0210251451460.1995-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261490AbSJYQsJ>; Fri, 25 Oct 2002 12:48:09 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:60826 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261489AbSJYQsH>;
+	Fri, 25 Oct 2002 12:48:07 -0400
+Date: Fri, 25 Oct 2002 18:53:54 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Markus Plail <plail@web.de>
+Cc: linux-kernel@vger.kernel.org, Vegard.Lima@hia.no,
+       matthias.welk@fokus.gmd.de
+Subject: Re: [Bug] 2.5.44-ac2 cdrom eject panic
+Message-ID: <20021025165354.GG4153@suse.de>
+References: <20021025103631.GA588@giantx.co.uk> <20021025103938.GN4153@suse.de> <87adl2is1u.fsf@gitteundmarkus.de> <20021025144224.GW4153@suse.de> <87pttyh3r5.fsf@gitteundmarkus.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87pttyh3r5.fsf@gitteundmarkus.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Oct 2002, Andrew Morton wrote:
+On Fri, Oct 25 2002, Markus Plail wrote:
+> Hi Jens!
+> 
+> * Jens Axboe writes:
+> >Please try:
+> >*.kernel.org/pub/linux/kernel/people/axboe/patches/v2.5/2.5.44/sgio-16.bz2
+>                                                                      ^^16b
+> >That should fix the silly panic.
+> 
+> Yes it does. I can't burn though. I attached the cdrecord output. Hava
+> a look at the Blocks numbers. Although the image is only 500MB, it says
+> it wouldn't fit on the disc which is 700MB. In another try it wanted to
+> start burning although I had a bought audio CD in the burner.
 
-> And it seems that if the kmalloc fails, we decide to leak some
-> memory, yes?
->
-> If so it would be better to use GFP_ATOMIC there.  Avoids any
-> locking problems and also increases the chance of the allocation
-> succeeding.  (With an explanatory comment, naturally :)).
+As a hack, can you change:
 
-Actually, under memory load GFP_KERNEL will wait for the
-memory to become available, while GFP_ATOMIC will fail.
+	if ((rq->flags & REQ_BLOCK_PC) && !rq->errors)
+		rq->errors = sense_key;
 
-Using GFP_ATOMIC here will probably increase the risk of
-a memory leak.
+in drivers/ide/ide-cd.c:cdrom_decode_status() to
 
-regards,
+	if ((rq->flags & REQ_BLOCK_PC) && !rq->errors)
+		rq->errors = 2;
 
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+Jens Axboe
 

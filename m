@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287658AbRLaV5Q>; Mon, 31 Dec 2001 16:57:16 -0500
+	id <S287667AbRLaWDG>; Mon, 31 Dec 2001 17:03:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287666AbRLaV5G>; Mon, 31 Dec 2001 16:57:06 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6417 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287658AbRLaV4w>;
-	Mon, 31 Dec 2001 16:56:52 -0500
-Date: Mon, 31 Dec 2001 19:56:55 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Scott McDermott <vaxerdec@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Framebuffer...Why oh Why???
-Message-ID: <20011231195655.A16870@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Scott McDermott <vaxerdec@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200112302117.fBULHISr011887@svr3.applink.net> <Pine.LNX.4.33.0112301618310.1011-100000@penguin.transmeta.com> <20011231164258.A1099@vaxerdec.homeip.net>
+	id <S287665AbRLaWC4>; Mon, 31 Dec 2001 17:02:56 -0500
+Received: from mercury.ccmr.cornell.edu ([128.84.231.97]:43020 "EHLO
+	mercury.ccmr.cornell.edu") by vger.kernel.org with ESMTP
+	id <S287659AbRLaWCs>; Mon, 31 Dec 2001 17:02:48 -0500
+From: Daniel Freedman <freedman@ccmr.cornell.edu>
+Date: Mon, 31 Dec 2001 17:02:47 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dual ATHLON MP AND curren linux KERNEL
+Message-ID: <20011231170247.B27565@ccmr.cornell.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <000d01c19243$a29ac280$d500a8c0@mshome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011231164258.A1099@vaxerdec.homeip.net>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <000d01c19243$a29ac280$d500a8c0@mshome.net>; from Astinus@netcabo.pt on Mon, Dec 31, 2001 at 09:39:32PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Dec 31, 2001 at 04:42:58PM -0500, Scott McDermott escreveu:
-> Linus Torvalds on Sun 30/12 16:19 -0800:
-> > No sane person should use frame buffers if they have the choice.
+On Mon, Dec 31, 2001, Astinus wrote:
+> Well i would like if the kernel supportd the AMD 760 MP
+> chipset.
 > 
-> Text mode is slow and has poor resolution, yes even svga text mode stuff
-> is way slower than accelerated fbconsole for me, I don't like having to
-> wait for the screen to update when I page a file and go to the next
-> page.
+> By the way, will this pc setup bring any obvious problems with linux red hat
+> / suse 7.x???
 
-ouch, this hasn't been the case for me for ages, maybe I should try this
-accelerated fbconsole thing again...
- 
-> And why require me to load X just to have a usuable system? Yes I think
+Why do you think it doesn't?  I've been running 2.4.9 and then later
+2.4.16 on ten boards with 760MP's for a few months with perfect
+stability and reboots only for kernel upgrades and power outages
+exceeding our UPS backup.  I also still run 2.2.19 on a 760MP box for
+our NFS server.
 
-yes, why? Use lynx + zgv(in the rare cases where it is needed to see
-images) ;)
+BTW, all of above are with Tyan S2460.
 
-> when I have to switch consoles so a program doing a lot of screen output
-> doesn't block endlessly on my slow textmode display is unusable.
+Take care,
+Daniel
 
-Thats what I feel when I use fbconsoles, and not the good old 80x25 text
-mode console.
+> Dual Athlon Mp 1800
+> mobo-- Tyan's Thunder k7 (S2462)
+> seagte scsci ultra 160 cheeta 10k 16 mb cache 73,4 gb
+> no sound
+> ~52x scsi cdrom ( creative )
+> matrox g450(g550)
+> 
+> regards Astinus
 
-- Arnaldo
+-- 
+Daniel A. Freedman
+Laboratory for Atomic and Solid State Physics
+Department of Physics
+Cornell University

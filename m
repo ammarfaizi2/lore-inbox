@@ -1,90 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUIMAq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUIMAqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUIMAq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 20:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUIMAq3
+	id S264500AbUIMAqW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 20:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUIMAp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 20:46:29 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:8913 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S264668AbUIMAqR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 20:46:17 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Sun, 12 Sep 2004 20:45:57 -0400
+Received: from pimout6-ext.prodigy.net ([207.115.63.78]:54706 "EHLO
+	pimout6-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264500AbUIMApv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 20:45:51 -0400
+Date: Sun, 12 Sep 2004 20:45:18 -0400 (EDT)
+From: Vladimir Dergachev <volodya@mindspring.com>
+X-X-Sender: volodya@node2.an-vo.com
+Reply-To: Vladimir Dergachev <volodya@mindspring.com>
+To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+cc: Dave Airlie <airlied@linux.ie>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jon Smirl <jonsmirl@gmail.com>,
+       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: radeon-pre-2
+In-Reply-To: <1095035276.22112.31.camel@admin.tel.thor.asgaard.local>
+Message-ID: <Pine.LNX.4.61.0409122042370.9611@node2.an-vo.com>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> 
+ <Pine.LNX.4.58.0409100209100.32064@skynet>  <9e47339104090919015b5b5a4d@mail.gmail.com>
+  <20040910153135.4310c13a.felix@trabant>  <9e47339104091008115b821912@mail.gmail.com>
+  <1094829278.17801.18.camel@localhost.localdomain>  <9e4733910409100937126dc0e7@mail.gmail.com>
+  <1094832031.17883.1.camel@localhost.localdomain>  <9e47339104091010221f03ec06@mail.gmail.com>
+  <1094835846.17932.11.camel@localhost.localdomain>  <9e47339104091011402e8341d0@mail.gmail.com>
+  <Pine.LNX.4.58.0409102254250.13921@skynet>  <1094853588.18235.12.camel@localhost.localdomain>
+  <Pine.LNX.4.58.0409110137590.26651@skynet>  <1094912726.21157.52.camel@localhost.localdomain>
+  <Pine.LNX.4.58.0409122319550.20080@skynet> <1095035276.22112.31.camel@admin.tel.thor.asgaard.local>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Yielding processor resources during lock contention
-Date: Sun, 12 Sep 2004 17:45:50 -0700
-Message-ID: <7F740D512C7C1046AB53446D372001730232E115@scsmsx402.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Yielding processor resources during lock contention
-Thread-Index: AcSYhtQ6GOpPNOQMTXW3u7umxEsRzQAoffTg
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Linus Torvalds" <torvalds@osdl.org>,
-       "Zwane Mwaikambo" <zwane@fsmlabs.com>
-Cc: "Paul Mackerras" <paulus@samba.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Anton Blanchard" <anton@samba.org>,
-       "Andi Kleen" <ak@suse.de>, "Ingo Molnar" <mingo@elte.hu>
-X-OriginalArrivalTime: 13 Sep 2004 00:45:51.0346 (UTC) FILETIME=[04A01520:01C4992B]
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811584-275043848-1095036318=:9611"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Linus Torvalds [mailto:torvalds@osdl.org]
->Sent: Saturday, September 11, 2004 10:10 PM
->To: Zwane Mwaikambo
->Cc: Paul Mackerras; Linux Kernel; Andrew Morton; Anton Blanchard;
-Nakajima,
->Jun; Andi Kleen; Ingo Molnar
->Subject: Re: [PATCH] Yielding processor resources during lock
-contention
->
->
->
->On Sun, 12 Sep 2004, Zwane Mwaikambo wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+---1463811584-275043848-1095036318=:9611
+Content-Type: TEXT/PLAIN; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+
+
+
+On Sun, 12 Sep 2004, Michel [ISO-8859-1] D=E4nzer wrote:
+
+> On Sun, 2004-09-12 at 23:42 +0100, Dave Airlie wrote:
 >>
->> On i386 processors with PNI this is achieved by using the
->> monitor/mwait opcodes to halt the processor until a write to the lock
-is
->> done.
+>> I think yourself and Linus's ideas for a locking scheme look good, I als=
+o
+>> know they won't please Jon too much as he can see where the potential
+>> ineffecienes with saving/restore card state on driver swap are, especail=
+ly
+>> on running fbcon and X on a dual-head card with different users.
 >
->I'd seriously suggest you ask Intel for an official opinion on this.
-Last
->I heard (and that was, I believe, before monitor/mwait had been
-officially
->announced, so it's certainly a bit dated now) it wasn't architecturally
->clear that it's a good idea using it for things like spinlocks.
->
->In particular, if the CPU idly waits for a cacheline to be dirtied, it
-is
->entirely possible that the other CPU that owns the lock and releases it
->won't actually _tell_ the world that the lock has been released for
-quite
->some time. After all, why should it - if it is the exclusive owner, and
-it
->sees no memory traffic on the bus, it may have no reason to push out
-the
->fact that it just released the lock. Just keep it dirty in its caches.
->
->In other words: monitor/mwait on purpose obviously causes fewer bus
->cycles. But that very fact may well mean (at least in theory) that you
-get
->very high latencies. It could make spinlock contention very very unfair
->(the original CPU keeps getting the lock over and over again, while the
->monitor/mwait one never gets to play), and it might also make ping-pong
->locking latency be extremely high.
->
-This is my personal comment, but the current monitor/mwait
-implementation on Prescott is not proper for things like spinlock
-because high latency. At this point, the idle loop in the kernel is one
-of the intended usage models under that implementation. In the future,
-the latency may be lowered, and we'll revisit spinlocks using
-monitor/mwait in that case.
+> Frankly, I don't understand the fuss about that. When you run a 3D
+> client on X today, 3D client and X server share the accelerator with
+> this scheme, and as imperfect as it is, it seems to do a pretty good job
+> in my experience.
 
-Jun
+Not that good - try dragging something while a DVD video is playing.
 
-<snip>
->			Linus
+But, I don't understand what the fuss is about either. What's wrong with=20
+putting PLL setting code inside DRM driver and letting it be the client of=
+=20
+fbcon ? And the transition problems could be well solved by leaving the=20
+existing fbcon in for the time being, it is not like the kernel does not=20
+have duplicate drivers.
+
+                      best
+
+                        Vladimir Dergachev
+
+>
+>
+> --=20
+> Earthling Michel D=C3=A4nzer      |     Debian (powerpc), X and DRI devel=
+oper
+> Libre software enthusiast    |   http://svcs.affero.net/rm.php?r=3Ddaenze=
+r
+>
+>
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: YOU BE THE JUDGE. Be one of 170
+> Project Admins to receive an Apple iPod Mini FREE for your judgement on
+> who ports your project to Linux PPC the best. Sponsored by IBM.
+> Deadline: Sept. 13. Go here: http://sf.net/ppc_contest.php
+> --
+> _______________________________________________
+> Dri-devel mailing list
+> Dri-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/dri-devel
+>
+---1463811584-275043848-1095036318=:9611--

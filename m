@@ -1,67 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265325AbTLNBQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 20:16:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbTLNBQz
+	id S265327AbTLNBqf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 20:46:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265328AbTLNBqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 20:16:55 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39941 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265325AbTLNBQy
+	Sat, 13 Dec 2003 20:46:32 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:43013 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265327AbTLNBq3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 20:16:54 -0500
+	Sat, 13 Dec 2003 20:46:29 -0500
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
-Subject: Re: Increasing HZ (patch for HZ > 1000)
-Date: 14 Dec 2003 01:05:28 GMT
+Subject: Re: [CFT][RFC] HT scheduler
+Date: 14 Dec 2003 01:35:03 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <brgd0o$hr4$1@gatekeeper.tmr.com>
-References: <20031212220853.GA314@elf.ucw.cz> <1071269849.4182.14.camel@idefix.homelinux.org>
-X-Trace: gatekeeper.tmr.com 1071363928 18276 192.168.12.62 (14 Dec 2003 01:05:28 GMT)
+Message-ID: <brgeo7$huv$1@gatekeeper.tmr.com>
+References: <20031213022038.300B22C2C1@lists.samba.org> <3FDAB517.4000309@cyberone.com.au>
+X-Trace: gatekeeper.tmr.com 1071365703 18399 192.168.12.62 (14 Dec 2003 01:35:03 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1071269849.4182.14.camel@idefix.homelinux.org>,
-Jean-Marc Valin  <Jean-Marc.Valin@USherbrooke.ca> wrote:
-| 
-| > Every notebook from thinkpad 560X up has produced some kind of
-| > cpu-load-related-noise. You'd have to throw out quite a lot of
-| > notebooks...
-| 
-| You're right, I'm probably not the only one. It may be worth at least
-| having an option to change HZ to less annoying values. Otherwise there
-| are going to be lots of complaints when people try out 2.6 on their
-| laptops and hear that noise. On mine, I seriously could not stand the
-| noise more than 5 minutes. Not because it was that loud but 1 kHz is
-| really annoying.
-| 
-| > PS: Jean, can you try how high you can get it? You might want to go to
-| > 24kHz so that no human can hear it, or to 100kHz to be kind to
-| > cats. At ~1MHz you'd be even kind to bats :-), but it is probably
-| > impossible to get over 200kHz or so. Still it might be funny
-| > experiment.
-| 
-| For now, my patch only allows up to around 10 kHz. At that frequency, I
-| don't hear anything because the noise is not loud enough (ear is much
-| more sensitive at 1 kHz). Also, I have around 10% overhead on my
-| Pentium-M 1.6 GHz, so I guess it's not for everyone. Extrapolating from
-| there, I'd also say that at 100 kHz, it wouldn't do anything but handle
-| the interrupts, which is slightly annoying when you want to actually get
-| some work done :)
-| 
-| 	Jean-Marc
+In article <3FDAB517.4000309@cyberone.com.au>,
+Nick Piggin  <piggin@cyberone.com.au> wrote:
 
-Stop! This is Linux we're talking about, if we can have Morse code panic
-messages, we can certainly have the idle loop change frequency to play a
-tune on the output capacitors (or whatever else make noise). How about
-the Penguin army marching music from the Saturday morning cartoon, and
-maybe hack LinuxBIOS to check for Windows running and have the idle loop
-play Twilight of the Gods.
+| Possibly. But it restricts your load balancing to a specific case, it
+| eliminates any possibility of CPU affinity: 4 running threads on 1 HT
+| CPU for example, they'll ping pong from one cpu to the other happily.
 
-I better stop before someone actually does it.
+Huh? I hope you meant sibling and not CPU, here.
+
+| I could get domains to do the same thing, but at the moment a CPU only looks
+| at its sibling's runqueue if they are unbalanced or is about to become idle.
+| I'm pretty sure domains can do anything shared runqueues can. I don't know
+| if you're disputing this or not?
+
+Shared runqueues sound like a simplification to describe execution units
+which have shared resourses and null cost of changing units. You can do
+that by having a domain which behaved like that, but a shared runqueue
+sounds better because it would eliminate the cost of even considering
+moving a process from one sibling to another.
+
+Sorry if I'm mixing features of Con/Nick/Ingo approaches here, I just
+spent some time looking at the code for several approaches, thinking
+about moving jobs from the end of the runqueue vs. the head, in terms of
+fair vs. overall cache impact.
+
+| >But this is my point.  Scheduling is one part of the problem.  I want
+| >to be able to have the arch-specific code feed in a description of
+| >memory and cpu distances, bandwidths and whatever, and have the
+| >scheduler, slab allocator, per-cpu data allocation, page cache, page
+| >migrator and anything else which cares adjust itself based on that.
+
+And would shared runqueues not fit into that model?
+
+| (Plus two threads / siblings per CPU, right?)
+| 
+| I agree with you here. You know, we could rename struct sched_domain, add
+| a few fields to it and it becomes what you want. Its a _heirachical set_
+| of _sets of cpus sharing a certian property_ (underlining to aid grouping.
+| 
+| Uniform access to certian memory ranges could easily be one of these
+| properties. There is already some info about the amount of cache shared,
+| that also could be expanded on.
+| 
+| (Perhaps some exotic architecture  would like scheduling and memory a bit
+| more decoupled, but designing for *that* before hitting it would be over
+| engineering).
+| 
+| I'm not going to that because 2.6 doesn't need a generalised topology
+| because nothing makes use of it. Perhaps if something really good came up
+| in 2.7, there would be a case for backporting it. 2.6 does need improvements
+| to the scheduler though.
+
+| But if sched domains are accepted, there is no need for shared runqueues,
+| because as I said they can do anything sched domains can, so the code would
+| just be a redundant specialisation - unless you specifically wanted to share
+| locks & data with siblings.
+
+I doubt the gain would be worth the complexity, but what do I know?
+
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

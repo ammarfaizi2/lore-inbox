@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbTK1HFb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 02:05:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTK1HFb
+	id S262050AbTK1HSf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 02:18:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTK1HSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 02:05:31 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:936 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262048AbTK1HF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 02:05:28 -0500
-Date: Fri, 28 Nov 2003 16:05:02 +0900
-From: Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
-Subject: Re: Hp/Compaq Fibre HBA
-To: Danny Brow <fms@istop.com>
-Cc: Kernel-Maillist <linux-kernel@vger.kernel.org>
-Message-id: <013901c3b57d$f3fa1c20$2987110a@lsd.css.fujitsu.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-Content-type: text/plain;	charset="iso-2022-jp"
-Content-transfer-encoding: 7bit
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <20031126110558.16044.qmail@web13906.mail.yahoo.com>
- <016501c3b4d5$aa4b2130$2987110a@lsd.css.fujitsu.com>
- <1069949135.24875.11.camel@zeus.fullmotionsolutions.com>
+	Fri, 28 Nov 2003 02:18:35 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:13225 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S262050AbTK1HSe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 02:18:34 -0500
+Date: Fri, 28 Nov 2003 08:18:12 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>, Andries.Brouwer@cwi.nl
+Subject: Re: BUG (non-kernel), can hurt developers.
+Message-ID: <20031128071812.GA28728@louise.pinerecords.com>
+References: <Pine.LNX.4.53.0311261153050.10929@chaos> <Pine.LNX.4.58.0311261021400.1524@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0311261021400.1524@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Danny,
+On Nov-26 2003, Wed, 10:29 -0800
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-> This is all the information on the card.
+> You can't just randomly use library functions in signal handlers. You can
+> only use a very specific "signal-safe" set.
 > 
-> Tachyon
-> HPFC-5000c/3.0
-> L2A0729
+> POSIX lists that set in 3.3.1.3 (3f), and says
 > 
-> &
+> 	"All POSIX.1 functions not in the preceding table and all
+> 	 functions defined in the C standard {2} not stated to be callable
+> 	 from a signal-catching function are considered to be /unsafe/
+> 	 with respect to signals. .."
 > 
-> NEC
-> Compaq 194789-002
-> UPD65806GD-071
-> 9733PU003
+> typos mine.
+> 
+> The thing is, they have internal state that makes then non-reentrant (and
+> note that even the re-entrant ones might not be signal-safe, since they
+> may have deadlock issues: being thread-safe is _not_ the same as being
+> signal-safe).
 
-UPD65806 is a gate array.
-http://www.necel.com/cgi-bin/nesdis/o003_e.cgi?article=UPD65806
+I believe it would be very useful to have this information included in
+the standard Linux signal(2) manpage.  (I've just verified it's not in
+man-pages-1.60.)
 
-HHBA-5000A uses Compaq original bus bridge chip.
-So, you can't use "drivers/net/fc" driver.
+What do you think, Andries?
 
-
-Hironobu Ishii.
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

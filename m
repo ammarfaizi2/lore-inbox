@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132558AbRD3J7I>; Mon, 30 Apr 2001 05:59:08 -0400
+	id <S133099AbRD3KNm>; Mon, 30 Apr 2001 06:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133071AbRD3J66>; Mon, 30 Apr 2001 05:58:58 -0400
-Received: from mons.uio.no ([129.240.130.14]:30604 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S132558AbRD3J6l>;
-	Mon, 30 Apr 2001 05:58:41 -0400
-To: Steffen Persvold <sp@scali.no>
-CC: lkml <linux-kernel@vger.kernel.org>,
-        "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>
-Subject: Re: Kernel crash using NFSv3 on 2.4.4
-In-Reply-To: <3AED12A4.FA869E84@scali.no>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 30 Apr 2001 11:58:32 +0200
-In-Reply-To: Steffen Persvold's message of "Mon, 30 Apr 2001 02:22:12 -0500"
-Message-ID: <shsitjmd7zr.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S135172AbRD3KNY>; Mon, 30 Apr 2001 06:13:24 -0400
+Received: from tilde.ookhoi.dds.nl ([194.109.10.165]:27777 "HELO
+	humilis.ookhoi.dds.nl") by vger.kernel.org with SMTP
+	id <S133099AbRD3KNM>; Mon, 30 Apr 2001 06:13:12 -0400
+Date: Mon, 30 Apr 2001 12:13:05 +0200
+From: Ookhoi <ookhoi@dds.nl>
+To: Elmer Joandi <elmer@linking.ee>
+Cc: Francois Gouget <fgouget@free.fr>, linux-kernel@vger.kernel.org
+Subject: Re: Aironet doesn't work
+Message-ID: <20010430121305.H324@humilis>
+Reply-To: ookhoi@dds.nl
+In-Reply-To: <20010430113117.F324@humilis> <Pine.LNX.4.21.0104301133110.9957-100000@ns.linking.ee>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.21.0104301133110.9957-100000@ns.linking.ee>; from elmer@linking.ee on Mon, Apr 30, 2001 at 11:38:08AM +0200
+X-Uptime: 13:06:18 up 4 min,  4 users,  load average: 0.07, 0.13, 0.07
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Steffen Persvold <sp@scali.no> writes:
+Hi Elmer,
 
-     > Hi all, I have compiled a stock 2.4.4 kernel and applied SGI's
-     > kdb patch v1.8. Most of the time this runs just fine, but one
-     > time when I tried to copy a file from a NFS server I got a
-     > kernel fault. Luckily it jumped right into the debugger and I
-     > could to some batcktracing (quite useful!) :
+> the whole pcmcia does not work in 2.4.
+> Not with latest cardmgr.
 
-     > Unable to handle kernel paging request at virtual address
-     > 414478b1
-     >  printing eip:
-     > c012c826 *pde = 00000000
+My 3com 3c575 (kernel 2.4, 3c59x) works fine, and has done so since I
+bought it.
 
-     > Entering kdb (current=0xca07a000, pid 971) on processor 0 Oops:
-     > Oops due to oops @ 0xc012c826 eax = 0x20000000 ebx = 0xc15e4800
-     > ecx = 0x00000000 edx = 0xc1447899 esi = 0x00000000 edi =
-     > 0xc14477a0 esp = 0xca07ba98 eip = 0xc012c826 ebp = 0xca07baa4
-     > xss = 0x00000018 xcs = 0x00000010 eflags = 0x00010046 xds =
-     > 0xc1440018 xes = 0x00000018 origeax = 0xffffffff &regs =
-     > 0xca07ba64 [0]kdb> bt
-     >     EBP EIP Function(args)
-     > 0xca07baa4 0xc012c826 kmem_cache_alloc_batch+0x46 (0xc14477a0,
-     > 0x7, 0xcb965260)
-     >                                kernel .text 0xc0100000
-     >                                0xc012c7e0 0xc012c864
-     > 0xca07bad0 0xc012ca8e kmalloc+0x82 (0x13c, 0x7, 0xca4ca040,
-     > 0x0)
+> What makes airo_cs to work is that pcmcia package
+> and kernel modules are replaced.
 
-Looks like the IP layer is trying to allocate too much memory. You
-wouldn't have set /proc/sys/net/core/{w,r}mem_{max,default} to some
-value greater than 256k?
+They are not replaced. They have a different name. You can try them both
+with the same kernel.
 
-Cheers,
-   Trond
+> That is what most of distros do.
+> Which overwrites kernel standard ones and really fucks things up
+> for pcmcia drivers being in kernel.
+
+I use pcmcia kernel modules and userspace modules together to make both
+the 3com and the aironet cards work.
+
+	Ookhoi

@@ -1,50 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318606AbSGSRI4>; Fri, 19 Jul 2002 13:08:56 -0400
+	id <S318594AbSGSRB6>; Fri, 19 Jul 2002 13:01:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318607AbSGSRI4>; Fri, 19 Jul 2002 13:08:56 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:19620 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S318606AbSGSRIz> convert rfc822-to-8bit; Fri, 19 Jul 2002 13:08:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH]: scheduler complex macros fixes
-Date: Fri, 19 Jul 2002 19:11:48 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ia64 <linux-ia64@linuxia64.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-References: <Pine.LNX.4.44.0207201855380.17169-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0207201855380.17169-100000@localhost.localdomain>
+	id <S318595AbSGSRB5>; Fri, 19 Jul 2002 13:01:57 -0400
+Received: from [206.155.169.10] ([206.155.169.10]:57861 "EHLO spinbox.com")
+	by vger.kernel.org with ESMTP id <S318594AbSGSRBx>;
+	Fri, 19 Jul 2002 13:01:53 -0400
+Date: Fri, 19 Jul 2002 13:04:55 -0400 (EDT)
+From: Hayden Myers <hayden@spinbox.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2 to 2.4... serious TCP send slowdowns
+In-Reply-To: <Pine.LNX.4.10.10207181918410.32173-100000@compaq.skyline.net>
+Message-ID: <Pine.LNX.4.10.10207191302330.32173-100000@compaq.skyline.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207191911.48427.efocht@ess.nec.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
 
-On Saturday 20 July 2002 18:57, Ingo Molnar wrote:
-> On Fri, 19 Jul 2002, Erich Focht wrote:
-> > The attached patch fixes problems with the "complex" macros in the
-> > scheduler, as discussed about a week ago with Ingo on this mailing list.
->
-> the fix has been in my tree for some time, the latest version, against
-> 2.5.26 is at:
->
->   http://people.redhat.com/mingo/O(1)-scheduler/sched-2.5.26-B7
->
-> it has a number of other fixes as well, plus the SCHED_BATCH feature.
->
-> 	Ingo
-
-Thanks. But as long as SCHED_BATCH ins't in 2.5.X, we need this separate
-fix. And if it's in the main tree, you don't need it additionally in
-your patches. The fix is O(1) specific and I thought it should not hide
-inside the SCHED_BATCH patches, some people might encounter these
-problems...
-
-Regards,
-Erich
+ We're finally migrating to the 2.4 kernel due to hardware
+ incompatibilities with the 2.2.  The 2.2 has worked better for us in the
+ past as far as our application performs.  Our application is an adserver
+ and becomes bogged down in 2.4 when sending files such as images across
+ the wire.  They're in general between 20-50k in size.  I've been
+ researching the differences between 2.4 and 2.2 and have noticed that a
+ lot of work has gone into autotuning with 2.4 and I'm wondering if this is
+ what's slowing things down.  When I do tcpdumps to see the traffic being
+ sent to the client I'm noticing that the receiver window is almost always
+ set to 6430 bytes.  When looking at the same transfer on our 2.2 boxes the
+ receiver window is almost always over 31000 bytes.  I've tried to increase
+ the size of the buffers using the proc settings that are provided however
+ this hasn't seemed to make a difference even after restarting servers
+ after each change the window is still 6430 bytes.  I've tried manually
+ settting the size with setsockopt calls in the server code but this hasn't
+ seemed to help.  I believe the problem is definately with sending the
+ files over the line.  We files are read into the socket to be sent across
+ the network byte by byte.  The boss says this is the best way to do it but
+ I'm curious if this is so.  The code that reads the file into the socket
+ to go across the network is below.  
+ 
+ 
+ int output_block(int socket, char *filename)
+ {
+ int fd, count = 0;
+ size_t total_bytes = 0;
+ /*size_t buf_cnt = 1460;*/
+ size_t buf_cnt = 512;
+ char buffer[buf_cnt];
+ fd_set rfds;
+ struct timeval tv;
+ 
+    if ((fd = open(filename, O_RDONLY)) < 0) {
+       //fprintf(stderr, "Unable to open filename: %s\n", filename);
+       return(-1);
+    }
+ 
+    while ((count = read(fd, &buffer, buf_cnt)) > 0) {
+ 
+       FD_ZERO(&rfds);
+       FD_SET(socket, &rfds);
+       tv.tv_sec = 10;
+       tv.tv_usec = 0;
+       if (select(socket+1, NULL, &rfds, NULL, &tv) <= 0) {
+          //fprintf(stderr, "Output_block timeout\n");
+          break;
+       }
+ 
+       if (writen(socket, buffer, count) <= 0)
+          break;
+       total_bytes += count;
+    }
+ 
+    close(fd);
+    return(total_bytes);
+ 
+ The application is a single threaded app using a multiprocess pre forking
+ model if that helps any.  I'm really baffled as to why using the 2.4
+ kernel is slowing us down.  Any help is appreciated.  Sorry if this has
+ come up before.  I really have been looking for help for quite some time
+ before posting this.
+ 
+ Hayden Myers	
+ Support Manager
+ Skyline Network Technologies	
+ hayden@spinbox.com
+ (410)583-1337 option 2
+ 
+ 
 

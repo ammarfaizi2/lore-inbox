@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130287AbQLNOaR>; Thu, 14 Dec 2000 09:30:17 -0500
+	id <S129904AbQLNOcR>; Thu, 14 Dec 2000 09:32:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129904AbQLNO36>; Thu, 14 Dec 2000 09:29:58 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:27411 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S130287AbQLNO3q>; Thu, 14 Dec 2000 09:29:46 -0500
-Message-Id: <200012141359.eBEDxFs46530@aslan.scsiguy.com>
+	id <S130517AbQLNOcH>; Thu, 14 Dec 2000 09:32:07 -0500
+Received: from jalon.able.es ([212.97.163.2]:61065 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129904AbQLNObv>;
+	Thu, 14 Dec 2000 09:31:51 -0500
+Date: Thu, 14 Dec 2000 15:01:15 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: shirsch@adelphia.net (Steven N. Hirsch), linux-kernel@vger.kernel.org
-Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released 
-In-Reply-To: Your message of "Thu, 14 Dec 2000 10:14:51 GMT."
-             <E146VPa-00044k-00@the-village.bc.nu> 
-Date: Thu, 14 Dec 2000 06:59:15 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: do NOT compile 2.2.18 with egcs-1.1.2
+Message-ID: <20001214150115.E9662@werewolf.able.es>
+In-Reply-To: <20001214113813.C9662@werewolf.able.es> <E146Vys-00047u-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E146Vys-00047u-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 14, 2000 at 11:51:19 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I'll update my patch tomorrow to restore the definition of current.
->> I do fear, however, that this will perpetuate the polution of the
->> namespace should "current" ever get cleaned up.
->
->It can probably get cleaned up after 2.4 by making current() the actual 
->inline. For 2.2 it won't change. Consider it a feature.
->
->It was done originally because the 2.0 code using #define based current
->generated better code than using inline functions. 2.2 upwards use a different
->(far nicer) method to find current.
->
->Note also that you cannot rely on 'get_current()'. The only way to find 
->current is to use current. get_current() the inline is an x86ism.
 
-I figured as much.  I will test for the #define, stash it in a #define
-unique within my namespace, and #define it back in hosts.c should my
-local define exist.
+On Thu, 14 Dec 2000 11:51:19 Alan Cox wrote:
+> 
+> I have no plan to do this. Don's drivers depend on some extra glue that was
+> rejected from the main kernel tree. Said glue is also buggy causing the same
+> card to be multiply detected.
+> 
+> If folks want to strip the glue out and get real changes into the tree or
+> clean up a given driver then go ahead. (natsemi and the via-rhine updates
+> would be nice for example).
+> 
 
---
-Justin
+Thanks, will try with the ne2k-pci, which is what I can test. I like mainly
+the new full-duplex.
+
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+
+Linux werewolf 2.2.18-aa1 #1 SMP Mon Dec 11 21:26:28 CET 2000 i686
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

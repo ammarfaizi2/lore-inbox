@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbTIOO2T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 10:28:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbTIOO2T
+	id S261413AbTIOOZS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 10:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbTIOOZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 10:28:19 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10979 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261407AbTIOO2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 10:28:17 -0400
-Date: Mon, 15 Sep 2003 16:28:09 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: [2.4 patch] add CONFIG_AGP_ATI Configure.help entry
-Message-ID: <20030915142809.GG126@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 15 Sep 2003 10:25:17 -0400
+Received: from deadlock.et.tudelft.nl ([130.161.36.93]:20353 "EHLO
+	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id S261413AbTIOOZK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 10:25:10 -0400
+Date: Mon, 15 Sep 2003 16:25:06 +0200 (CEST)
+From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
+To: "David S. Miller" <davem@redhat.com>
+cc: mroos@linux.ee, <linux-kernel@vger.kernel.org>
+Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
+In-Reply-To: <20030915011159.250f3346.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0309151623090.24675-100000@deadlock.et.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below against 2.4.23-pre4 adds the missing Configure.help 
-entry for CONFIG_AGP_ATI.
+Hello,
 
-The help text is stolen from 2.6.
+The patch below fixes the Atyfb problems on the Sparc.
 
-Please apply
-Adrian
+Greetings,
 
---- linux-2.4.23-pre4-full/Documentation/Configure.help.old	2003-09-15 16:25:06.000000000 +0200
-+++ linux-2.4.23-pre4-full/Documentation/Configure.help	2003-09-15 16:26:02.000000000 +0200
-@@ -4055,6 +4055,13 @@
-   This option gives you AGP GART support for the HP ZX1 chipset
-   for IA64 processors.
- 
-+CONFIG_AGP_ATI
-+  This option gives you AGP support for the GLX component of
-+  XFree86 4.x on the ATI RadeonIGP family of chipsets.
+Daniël Mantione
+
+
+
+diff -urN linux-2.4.22-bk18/drivers/video/aty/atyfb_base.c linux-2.4.22-bk18.fixed/drivers/video/aty/atyfb_base.c
+--- linux-2.4.22-bk18/drivers/video/aty/atyfb_base.c	Mon Sep 15 16:10:41 2003
++++ linux-2.4.22-bk18.fixed/drivers/video/aty/atyfb_base.c	Mon Sep 15 13:55:25 2003
+@@ -2481,6 +2479,8 @@
+             info->frame_buffer = (unsigned long) addr + 0x800000UL;
+             info->frame_buffer_phys = addr + 0x800000UL;
+
++            aty_init_register_array(info);
 +
-+  You should say Y here if you use XFree86 3.3.6 or 4.x and want to
-+  use GLX or DRI.  If unsure, say N.
+             /*
+              * Figure mmap addresses from PCI config space.
+              * Split Framebuffer in big- and little-endian halfs.
+@@ -2671,6 +2671,7 @@
+
+                 default_var.pixclock = 1000000000 / T;
+             }
 +
- Support for ISA-bus hardware
- CONFIG_ISA
-   Find out whether you have ISA slots on your motherboard.  ISA is the
+ #else /* __sparc__ */
+
+             aux_app = 0;
+diff -urN linux-2.4.22-bk18/drivers/video/aty/mach64_ct.c linux-2.4.22-bk18.fixed/drivers/video/aty/mach64_ct.c
+--- linux-2.4.22-bk18/drivers/video/aty/mach64_ct.c	Mon Sep 15 16:10:41 2003
++++ linux-2.4.22-bk18.fixed/drivers/video/aty/mach64_ct.c	Sun Sep 14 11:35:37 2003
+@@ -86,7 +86,7 @@
+
+ u8 stdcall aty_ld_pll(int offset, const struct fb_info_aty *info)
+ {
+-    u32 addr;
++    unsigned long addr;
+
+     addr = info->ati_regbase + CLOCK_CNTL + 1;
+     /* write addr byte */
+@@ -98,7 +98,7 @@
+
+ static void stdcall aty_st_pll(int offset, u8 val, const struct fb_info_aty *info)
+ {
+-    u32 addr;
++    unsigned long addr;
+     addr = info->ati_regbase + CLOCK_CNTL + 1;
+     /* write addr byte */
+     writeb((offset << 2) | PLL_WR_EN,addr);
+

@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267533AbTGOMla (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 08:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267590AbTGOMla
+	id S267638AbTGOMld (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 08:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267590AbTGOMlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 08:41:30 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41836 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S267533AbTGOM1p
+	Tue, 15 Jul 2003 08:41:32 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:1017 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S267638AbTGOM1h
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 08:27:45 -0400
-To: Anders Gustafsson <andersg@0x63.nu>
-Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] XBox Gaming System subarchitecture.
-References: <20030714124933.GB20708@h55p111.delphi.afb.lu.se>
-	<20030714135948.GA27930@suse.de>
-	<20030714142152.GC20708@h55p111.delphi.afb.lu.se>
-	<20030714142838.GA29413@suse.de>
-	<20030714145429.GD20708@h55p111.delphi.afb.lu.se>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 15 Jul 2003 06:39:46 -0600
-In-Reply-To: <20030714145429.GD20708@h55p111.delphi.afb.lu.se>
-Message-ID: <m1ptkcx8tp.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	Tue, 15 Jul 2003 08:27:37 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Jeff Garzik <jgarzik@pobox.com>, David griego <dagriego@hotmail.com>
+Subject: Re: Alan Shih: "TCP IP Offloading Interface"
+Date: Tue, 15 Jul 2003 07:42:01 -0500
+X-Mailer: KMail [version 1.2]
+Cc: alan@storlinksemi.com, linux-kernel@vger.kernel.org
+References: <Sea2-F50x3G5aYY61LE00011019@hotmail.com> <3F1303FA.8080706@pobox.com>
+In-Reply-To: <3F1303FA.8080706@pobox.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <03071507420100.27793@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Gustafsson <andersg@0x63.nu> writes:
-
-> On Mon, Jul 14, 2003 at 03:28:38PM +0100, Dave Jones wrote:
-> >  > The real patch contains cleaned up HZ-ifdefs.
-> > 
-> > good good..
-> 
-> Testing it an extra time now.
-> 
-> >  > Or as Christoph answered: "Oh well, stupid crappy hardware..."
-> > 
-> > That's a possibility, but if that were the case, I'd expect other things
-> > also to start randomly failing. It's unclear to me how -O2 would make
-> > a hardware bug more aparent. If it did so, that would also mean you'd
-> > have to ensure all your userspace was similarly compiled, which sounds
-> > very suspect.  It's just a celeron based PC with nvidia nforce chipset right ?
-> 
-> > If that combination caused such problems, I'd expect to see the
-> > occasional problem report from non-Xbox regular home-built PC users too.
-> 
-> It only happens when paging is off. Hence no problem as soon as the kernel
-> is up and running. -O2 changes the memory-access patterns so it is quite
-> possible that it would expose hardware bugs.
+On Monday 14 July 2003 14:26, Jeff Garzik wrote:
+> David griego wrote:
+> > How does one measure the reliability and security of current software
+> > TCP/IP stacks?  Some standard set of test would have to be identified
+> > and the TOEs would need to be tested against this to ensure that they
+> > meet some minimum standard.  I would suggest offloading the minimum
+> > amount from the OS so that most of the control could be maintaind by the
+> > OS stack.  This also would make failover/routing changes between TOE
+> > -TOE, and TOE-NIC easier.
 >
-> 
-> > Might be one worth picking over on the gcc lists if you can identify
-> > which part gets miscompiled ?
-> > 
-> > Tried different versions of binutils too ?
-> 
-> On 1.0 xboxes it works with any gcc with or without optimizations on.
-> 
-> On 1.1+ xboxen it does NOT work with 2.95, -O0 or -O2. But with 3.2.2-3.3 it
-> is known to work with -O0.
-> 
-> It's was not easy to localize the crashes. Cos adding more code for
-> debugging moves the point where it crashes around. However it does crash
-> reading from memory. A prefectly valid address. That it just a few
-> instructions earlier had written and read from.
+> Anything beyond basic host-only TOE adds massive complexity for very
+> little gain:  interfacing netfilter and routing code with a black box we
+> _hope_ will act properly sounds like suicide.
+>
+>  >  Current offloads such as checksum and
+> >
+> > segmentation will not be enough for 10GbE processing, so it would have
+> > to be something more than we have today.
+>
+> All this is vague handwaving without supporting evidence.  So far we get
+> stuff like Internet2 speed records _without_ TOE.  And Linux currently
+> supports 10gige...  and hosts are just going to keep getting faster and
+> faster.
+>
+> 	Jeff
 
-Have you tried running memtest86 on the box?  Except when you have more
-than 2GB memtest86 does not enable paging, so another code sequence can
-reproduce this bug memtest86 is likely to do it.
-
-Eric
+Not to mention the problems IPSec would have with such a device.

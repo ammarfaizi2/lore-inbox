@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313472AbSDYVIZ>; Thu, 25 Apr 2002 17:08:25 -0400
+	id <S313492AbSDYVUw>; Thu, 25 Apr 2002 17:20:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313477AbSDYVIY>; Thu, 25 Apr 2002 17:08:24 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:57867 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S313472AbSDYVIY>;
-	Thu, 25 Apr 2002 17:08:24 -0400
-Date: Thu, 25 Apr 2002 14:02:26 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <gjwucherpfennig@gmx.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel panic while booting on a P2 with linux-2.5.10
-In-Reply-To: <4175.1019767657@www13.gmx.net>
-Message-ID: <Pine.LNX.4.33L2.0204251354000.10911-100000@dragon.pdx.osdl.net>
+	id <S313501AbSDYVUv>; Thu, 25 Apr 2002 17:20:51 -0400
+Received: from pc132.utati.net ([216.143.22.132]:21916 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S313492AbSDYVUv>; Thu, 25 Apr 2002 17:20:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Steffen Persvold <sp@scali.com>
+Subject: Re: [NFS] NFS clients behind a masqueraded gateway
+Date: Thu, 25 Apr 2002 11:22:17 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0204251922190.16930-100000@elin.scali.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020425214220.2C658761@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Apr 2002 gjwucherpfennig@gmx.net wrote:
+On Thursday 25 April 2002 01:24 pm, Steffen Persvold wrote:
+> Hi again,
+>
+> I hate to bother you guys again with this problem, but do you have any
+> ideas (haven't received any response so far) ?
+>
+> Answers highly appreciated.
+>
+> On Thu, 18 Apr 2002, Steffen Persvold wrote:
+> > Hi all,
+> >
+> > I'm experiencing some problems with a cluster setup. The cluster is set
+> > up in a way that you have a frontend machine configured as a masquerading
+> > gateway and all the compute nodes behind it on a private network (i.e the
+> > frontend has two network interfaces). User home directories and also
+> > other data directories which should be available to the cluster (i.e
+> > statically mounted in the same location on both frontend and nodes) are
+> > located on external NFS servers (IRIX and Linux servers). This seems to
+> > work fine when the cluster is in use, but if the cluster is idle for some
+> > time (e.g over night), the NFS directories has become unavailable and
+> > trying to reboot the frontend results in a complete hang when it tries to
+> > unmount the NFS directories (it hangs in a fuser command). The frontend
+> > and all the nodes are running RedHat 7.2, but with a stock 2.4.18 kernel
+> > (plus Trond's seekdir patch, thanks for the help BTW).
+> >
+> > Ideas anyone ?
+> >
+> > Thanks in advance,
+>
+> Regards,
 
-| It would be great if someone would set up an automated stress tester that
-| will test each kernel before release, so that kernel developers and bug
-| hunters can concentrate on the really important issues.
+I've run into a similar problem combining ssh with IP Masquerading.  
+Specificallly, IP Masquerading has a timeout: after a certain period of 
+inactivity it forgets about a connection.  (It doesn't seem to clean up the 
+connection and send close packets, it just silently drops it from its 
+internal routing tables.)
 
-OSDL's STP (Scalable Test Platform) often runs thru a set of
-tests on released and pre-released kernels.
+The really FUN part is that, depending on how your firewall rules are set up, 
+when you try to send a packet along an expired NAT connection it may just 
+silently drop it (rather than sending back a "what, are you NUTS?" packet to 
+let you know that's not a good connection anymore).
 
-However, like you say, some of those 2.5.x kernels just won't
-compile without some external patches...and if the external
-patches are available, we'll be able to handle that soon.
+I believe the NAT Masquerading timeout defaults to 15 minutes (it probably 
+has a configuration entry under /proc somewhere, but am not caffienated 
+enough to remember where.  Try Documentation/filesystems/procfs.txt in the 
+linux source tarball.)
 
-Full coverage will still be difficult...some drivers etc.
-don't compile due to kernel API changes.
-Some drivers break when loading, like IDE in your case,
-and we don't have many IDE drives here.
-I'm sure that we could come up with other coverage
-problems^W challenges, but lots of them can be overcome.
+It's also possible that something like "echo 600 > 
+/proc/sys/net/ipv4/tcp_keepalive_time" might help.  (Make keepalive timeout 
+happen faster than IP masquerading timeout.)  You never know. :)
 
-We haven't reached the point of being a go/no-go decider
-(that I know of).
-
--- 
-~Randy
-
+Rob

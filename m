@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262161AbTCRFtn>; Tue, 18 Mar 2003 00:49:43 -0500
+	id <S262165AbTCRGGH>; Tue, 18 Mar 2003 01:06:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262165AbTCRFtn>; Tue, 18 Mar 2003 00:49:43 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:25548 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S262161AbTCRFtm>; Tue, 18 Mar 2003 00:49:42 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andrew Morton <akpm@digeo.com>
-Date: Tue, 18 Mar 2003 16:59:53 +1100
+	id <S262170AbTCRGGH>; Tue, 18 Mar 2003 01:06:07 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:13070 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S262165AbTCRGGG>; Tue, 18 Mar 2003 01:06:06 -0500
+Message-Id: <200303180608.h2I68mu23488@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+Date: Tue, 18 Mar 2003 08:05:30 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <200303172143.h2HLhLql010853@pincoya.inf.utfsm.cl>
+In-Reply-To: <200303172143.h2HLhLql010853@pincoya.inf.utfsm.cl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15990.46553.729846.969182@notabene.cse.unsw.edu.au>
-Cc: gilbertd@treblig.org, linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: 2.4.20: ext3/raid5 - allocating block in system zone/multiple 1
- requests for sector
-In-Reply-To: message from Andrew Morton on Monday March 17
-References: <20030316150148.GC1148@gallifrey>
-	<15990.28660.687262.457216@notabene.cse.unsw.edu.au>
-	<20030317192738.6a420ed0.akpm@digeo.com>
-X-Mailer: VM 7.08 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday March 17, akpm@digeo.com wrote:
-> Neil Brown <neilb@cse.unsw.edu.au> wrote:
+On 17 March 2003 23:43, Horst von Brand wrote:
+> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> said:
+> > On 15 March 2003 20:34, Horst von Brand wrote:
+> > > Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> said:
+>
+> [...]
+>
+> > > > Why not? Disassemble from, say, EIP-16 and check whether you
+> > > > have an instruction starting exactly at EIP. If no, repeat from
+> > > > EIP-15, -14... You are guaranteed to succeed at EIP-0  ;)
+> > >
+> > > But your previous success (if any) doesn't mean anything, and
+> > > might even screw up the decoding after EIP
 > >
-> > These two symptoms strongly suggest a buffer aliasing problem.
-> > i.e. you have two buffers (one for data and one for metadata)
-> > that refer to the same location on disc.
-> > One is part of a file that was recently deleted, but the buffer hasn't
-> > been flushed yet.  The other is part of a new directory.
-> > The old buffer and the new buffer both get written to disc at much the
-> > same time (hence the "multiple 1 requests"), but the old buffer hits
-> > the disc second and so corrupts the filesystem.
-> 
-> This aliasing can happen very easily with direct-io, and it is something
-> which drivers should be able to cope with.
-> 
-> I hope RAID is not still assuming that all requests are unique in this way?
+> > How come? If I started to decode at EIP-n and got a sequence of
+> > instructions at EIP-n, EIP-n+k1, EIP-n+k2, EIP-n+k3..., EIP,
+> > instructions prior to EIP can be wrong. Instruction at EIP
+> > and all subsequent ones ought to be right.
+>
+> Iff you exactly hit EIP that way (sure, should check). But wrong
+> previous instructions _will_ confuse people or start them on all kind
+> of wild goose chases. Too much work for a dubious gain.
 
-No.  RAID copes.  If raid5 sees a write request for a block that it
-already has a pending write request for, it will print a warning and
-delay the second until the first complete.
-
-In the cas in question I don't think raid5 is contributing to the
-problem.  It is just provide extra information which might help point
-towards the problem - i.e. it is confirming that some sort of aliasing
-is happening.
-
-NeilBrown
+You are right. But that is better than showing no prior instructions
+at all. And most of the time (can I say 90% ?) prior instructions
+will be ok.
+--
+vda

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131968AbQKVXn2>; Wed, 22 Nov 2000 18:43:28 -0500
+        id <S129927AbQKVXri>; Wed, 22 Nov 2000 18:47:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131724AbQKVXnS>; Wed, 22 Nov 2000 18:43:18 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55049 "EHLO
-        www.linux.org.uk") by vger.kernel.org with ESMTP id <S131968AbQKVXnL>;
-        Wed, 22 Nov 2000 18:43:11 -0500
+        id <S130671AbQKVXr2>; Wed, 22 Nov 2000 18:47:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16138 "EHLO
+        www.linux.org.uk") by vger.kernel.org with ESMTP id <S129927AbQKVXrW>;
+        Wed, 22 Nov 2000 18:47:22 -0500
 From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011222312.eAMNCQ613184@flint.arm.linux.org.uk>
-Subject: Modutils 2.3.14 / Kernel 2.4.0-test11 incompatibility
-To: linux-kernel@vger.kernel.org
-Date: Wed, 22 Nov 2000 23:12:25 +0000 (GMT)
-Cc: kaos@ocs.com.au
+Message-Id: <200011222316.XAA02538@raistlin.arm.linux.org.uk>
+Subject: Re: silly [< >] and other excess
+To: Andries.Brouwer@cwi.nl
+Date: Wed, 22 Nov 2000 23:16:59 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200011221900.UAA141657.aeb@aak.cwi.nl> from "Andries.Brouwer@cwi.nl" at Nov 22, 2000 08:00:49 PM
 X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andries.Brouwer@cwi.nl writes:
+>     From rmk@flint.arm.linux.org.uk Wed Nov 22 19:20:52 2000
+>     They provide no information to the human reader, but they tell klogd
+>     (and other tools) that the enclosed value is a kernel address that
+>     should be looked up in the System.map file and decoded into name +
+>     offset.
+> 
+> Of course. But since there is no information in [< >]
+> (their presence is syntactically determined, not semantically)
+> the tools you mention can be trivially patched to work without
+> this [< >] kludge. On the other hand, when the system panics
+> often klogd and similar nice programs do not run at all, and
+> hence are unable to do any good. All information available
+> is the information on the screen, and it is really a pity
+> to lose EIP and get a few parentheses instead.
 
-There appears to be an incompatibility between modutils 2.3.14 and kernel
-2.4.0-test11.
+Well, in my experience, values of PC (or EIP is x86 speak) rarely
+appear over column 50 on the screen.  Therefore, removing them is
+only going to save width, not height.
 
-This occurs because modutils knows only of an 84-byte struct module, but
-the kernel knows about a 96-byte struct module.
-
-Unfortunately, the kernel "forgets" about the 12 bytes, which are part of
-the loading module text because in sys_init_module():
-
-        if ((error = get_user(mod_user_size, &mod_user->size_of_struct)) != 0)
-                goto err1;
-/* mod_user_size == 84 */
-	/* ... */
-        error = copy_from_user(mod, mod_user, mod_user_size);
-/* we copy byte 0 to byte 83 of struct module */
-	/* ... */
-        if (copy_from_user(mod+1, mod_user+1, mod->size-sizeof(*mod))) {
-/* we copy byte 96 to <end of module> */
-
-And guess what?  We missed bytes 84 to 95!  Oh dear, the result is one
-of these:
+Also, have you considered that not every oops is formatted exactly
+the same way on every architecture?  In fact, an oops on ARM looks
+like:
 
 Unable to handle kernel NULL pointer dereference at virtual address 00000000
 pgd = c1e90000
@@ -72,17 +73,11 @@ Function entered at [<c2800060>] from [<c0026194>]
 Function entered at [<c0025ac0>] from [<c0016860>]
 Code: e51f2024 e5923000 (e5813000) e3a00000 e51f3030
 
-because both r2 and r1 are loaded from the first two words of module text
-which forgot to be copied.  Therefore, please reverse the following change
-in 2.4.0-test11 because it is NOT a security problem but a much needed
-subtlety:
+where each number in [< >] should be looked up in System.map.  Do you
+propose to teach klogd and ksymoops every single oops format style?
 
-
--       error = copy_from_user(mod, mod_user, sizeof(struct module));
-+       error = copy_from_user(mod, mod_user, mod_user_size);
-        if (error) {
-
-Better still, place a comment before it describing why it is so!
+If no, then don't make this change to the kernel.  If yes, then you've
+got a big job on your hands.
    _____
   |_____| ------------------------------------------------- ---+---+-
   |   |         Russell King        rmk@arm.linux.org.uk      --- ---

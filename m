@@ -1,309 +1,260 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263192AbUKTXoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263194AbUKTXru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263192AbUKTXoz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 18:44:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbUKTXoQ
+	id S263194AbUKTXru (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 18:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263200AbUKTXrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 18:44:16 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:57483 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S263192AbUKTXL7 (ORCPT
+	Sat, 20 Nov 2004 18:47:00 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:2973 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263194AbUKTXix (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 18:11:59 -0500
-To: akpm@osdl.org, torvalds@osdl.org
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 8/13] Filesystem in Userspace
-Message-Id: <E1CVeOT-0007Qz-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sun, 21 Nov 2004 00:11:49 +0100
+	Sat, 20 Nov 2004 18:38:53 -0500
+Message-ID: <419FD58A.3010309@us.ibm.com>
+Date: Sat, 20 Nov 2004 17:38:50 -0600
+From: Brian King <brking@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST
+References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>	 <1100917635.9398.12.camel@localhost.localdomain>	 <1100934567.3669.12.camel@gaston> <1100954543.11822.8.camel@localhost.localdomain>
+In-Reply-To: <1100954543.11822.8.camel@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------080204020605090908000809"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the extended attribute operations to FUSE.
+This is a multi-part message in MIME format.
+--------------080204020605090908000809
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The following operations are added:
+Alan Cox wrote:
+> Some of the Intel CPU's are very bad at lock handling so it is an issue.
+> Also most PCI config accesses nowdays go to onboard devices whose
+> behaviour may well be quite different to PCI anyway. PCI has become a
+> device management API.
 
- o getxattr
- o setxattr
- o listxattr
- o removexattr
+Does this following patch address your issues with this patch, Alan?
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
---- linux-2.6.10-rc2/fs/fuse/dir.c	2004-11-20 22:56:23.000000000 +0100
-+++ linux-2.6.10-rc2-fuse/fs/fuse/dir.c	2004-11-20 22:56:21.000000000 +0100
-@@ -877,6 +877,177 @@ static struct dentry *fuse_lookup(struct
- 	return d_splice_alias(inode, entry);
- }
- 
-+static int fuse_setxattr(struct dentry *entry, const char *name,
-+			 const void *value, size_t size, int flags)
-+{
-+	struct inode *inode = entry->d_inode;
-+	struct fuse_conn *fc = INO_FC(inode);
-+	struct fuse_inode *fi = INO_FI(inode);
-+	struct fuse_req *req;
-+	struct fuse_setxattr_in inarg;
-+	int err;
+It still doesn't address Greg's issue about making this apply to the
+pci_bus_* functions as well, but I'm not sure of a good way to do that
+due to the reasons given earlier.
+
+
+-- 
+Brian King
+eServer Storage I/O
+IBM Linux Technology Center
+
+--------------080204020605090908000809
+Content-Type: text/plain;
+ name="pci_block_config_io_during_bist.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pci_block_config_io_during_bist.patch"
+
+
+Some PCI adapters (eg. ipr scsi adapters) have an exposure today in that 
+they issue BIST to the adapter to reset the card. If, during the time
+it takes to complete BIST, userspace attempts to access PCI config space, 
+the host bus bridge will master abort the access since the ipr adapter 
+does not respond on the PCI bus for a brief period of time when running BIST. 
+On PPC64 hardware, this master abort results in the host PCI bridge
+isolating that PCI device from the rest of the system, making the device
+unusable until Linux is rebooted. This patch is an attempt to close that
+exposure by introducing some blocking code in the PCI code. When blocked,
+writes will be humored and reads will return the cached value. Ben
+Herrenschmidt has also mentioned that he plans to use this in PPC power
+management.
+
+Signed-off-by: Brian King <brking@us.ibm.com>
+---
+
+
+
+---
+
+ linux-2.6.10-rc2-bk5-bjking1/drivers/pci/access.c |  103 ++++++++++++++++++++++
+ linux-2.6.10-rc2-bk5-bjking1/include/linux/pci.h  |   37 ++-----
+ 2 files changed, 114 insertions(+), 26 deletions(-)
+
+diff -puN drivers/pci/access.c~pci_block_config_io_during_bist drivers/pci/access.c
+--- linux-2.6.10-rc2-bk5/drivers/pci/access.c~pci_block_config_io_during_bist	2004-11-20 16:07:19.000000000 -0600
++++ linux-2.6.10-rc2-bk5-bjking1/drivers/pci/access.c	2004-11-20 16:40:32.000000000 -0600
+@@ -60,3 +60,106 @@ EXPORT_SYMBOL(pci_bus_read_config_dword)
+ EXPORT_SYMBOL(pci_bus_write_config_byte);
+ EXPORT_SYMBOL(pci_bus_write_config_word);
+ EXPORT_SYMBOL(pci_bus_write_config_dword);
 +
-+	if (size > FUSE_XATTR_SIZE_MAX)
-+		return -E2BIG;
-+
-+	if (fc->no_setxattr)
-+		return -EOPNOTSUPP;
-+
-+	req = fuse_get_request(fc);
-+	if (!req)
-+		return -ERESTARTSYS;
-+
-+	memset(&inarg, 0, sizeof(inarg));
-+	inarg.size = size;
-+	inarg.flags = flags;
-+	req->in.h.opcode = FUSE_SETXATTR;
-+	req->in.h.nodeid = fi->nodeid;
-+	req->in.numargs = 3;
-+	req->in.args[0].size = sizeof(inarg);
-+	req->in.args[0].value = &inarg;
-+	req->in.args[1].size = strlen(name) + 1;
-+	req->in.args[1].value = name;
-+	req->in.args[2].size = size;
-+	req->in.args[2].value = value;
-+	request_send(fc, req);
-+	err = req->out.h.error;
-+	if (err == -ENOSYS) {
-+		fc->no_setxattr = 1;
-+		err = -EOPNOTSUPP;
-+	}
-+	fuse_put_request(fc, req);
-+	return err;
++#define PCI_READ_CONFIG(size,type)	\
++int pci_read_config_##size	\
++	(struct pci_dev *dev, int pos, type *val)	\
++{									\
++	unsigned long flags;					\
++	int ret = 0;						\
++	u32 data = -1;						\
++	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
++	spin_lock_irqsave(&pci_lock, flags);		\
++	if (likely(!dev->block_cfg_access))				\
++		ret = dev->bus->ops->read(dev->bus, dev->devfn, pos, sizeof(type), &data); \
++	else if (pos < sizeof(dev->saved_config_space))		\
++		data = dev->saved_config_space[pos/sizeof(dev->saved_config_space[0])]; \
++	spin_unlock_irqrestore(&pci_lock, flags);		\
++	*val = (type)data;					\
++	return ret;							\
 +}
 +
-+static ssize_t fuse_getxattr(struct dentry *entry, const char *name,
-+			     void *value, size_t size)
-+{
-+	struct inode *inode = entry->d_inode;
-+	struct fuse_conn *fc = INO_FC(inode);
-+	struct fuse_inode *fi = INO_FI(inode);
-+	struct fuse_req *req;
-+	struct fuse_getxattr_in inarg;
-+	struct fuse_getxattr_out outarg;
-+	ssize_t ret;
-+
-+	if (fc->no_getxattr)
-+		return -EOPNOTSUPP;
-+
-+	req = fuse_get_request(fc);
-+	if (!req)
-+		return -ERESTARTSYS;
-+
-+	memset(&inarg, 0, sizeof(inarg));
-+	inarg.size = size;
-+	req->in.h.opcode = FUSE_GETXATTR;
-+	req->in.h.nodeid = fi->nodeid;
-+	req->in.numargs = 2;
-+	req->in.args[0].size = sizeof(inarg);
-+	req->in.args[0].value = &inarg;
-+	req->in.args[1].size = strlen(name) + 1;
-+	req->in.args[1].value = name;
-+	/* This is really two different operations rolled into one */
-+	req->out.numargs = 1;
-+	if (size) {
-+		req->out.argvar = 1;
-+		req->out.args[0].size = size;
-+		req->out.args[0].value = value;
-+	} else {
-+		req->out.args[0].size = sizeof(outarg);
-+		req->out.args[0].value = &outarg;
-+	}
-+	request_send(fc, req);
-+	ret = req->out.h.error;
-+	if (!ret)
-+		ret = size ? req->out.args[0].size : outarg.size;
-+	else {
-+		if (ret == -ENOSYS) {
-+			fc->no_getxattr = 1;
-+			ret = -EOPNOTSUPP;
-+		}
-+	}
-+	fuse_put_request(fc, req);
-+	return ret;
++#define PCI_WRITE_CONFIG(size,type)	\
++int pci_write_config_##size	\
++	(struct pci_dev *dev, int pos, type val)		\
++{									\
++	unsigned long flags;					\
++	int ret = 0;						\
++	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
++	spin_lock_irqsave(&pci_lock, flags);		\
++	if (likely(!dev->block_cfg_access))					\
++		ret = dev->bus->ops->write(dev->bus, dev->devfn, pos, sizeof(type), val); \
++	spin_unlock_irqrestore(&pci_lock, flags);		\
++	return ret;							\
 +}
 +
-+static ssize_t fuse_listxattr(struct dentry *entry, char *list, size_t size)
++PCI_READ_CONFIG(byte, u8)
++PCI_READ_CONFIG(word, u16)
++PCI_READ_CONFIG(dword, u32)
++PCI_WRITE_CONFIG(byte, u8)
++PCI_WRITE_CONFIG(word, u16)
++PCI_WRITE_CONFIG(dword, u32)
++
++/**
++ * pci_block_config_access - Block PCI config reads/writes
++ * @dev:	pci device struct
++ *
++ * This function blocks any PCI config accesses from occurring.
++ * When blocked, any writes will be humored and reads will return
++ * the data last saved using pci_save_state for the first 64 bytes
++ * of config space and return ff's for all other config reads.
++ *
++ * Return value:
++ * 	nothing
++ **/
++void pci_block_config_access(struct pci_dev *dev)
 +{
-+	struct inode *inode = entry->d_inode;
-+	struct fuse_conn *fc = INO_FC(inode);
-+	struct fuse_inode *fi = INO_FI(inode);
-+	struct fuse_req *req;
-+	struct fuse_getxattr_in inarg;
-+	struct fuse_getxattr_out outarg;
-+	ssize_t ret;
++	unsigned long flags;
 +
-+	if (fc->no_listxattr)
-+		return -EOPNOTSUPP;
-+
-+	req = fuse_get_request(fc);
-+	if (!req)
-+		return -ERESTARTSYS;
-+
-+	memset(&inarg, 0, sizeof(inarg));
-+	inarg.size = size;
-+	req->in.h.opcode = FUSE_LISTXATTR;
-+	req->in.h.nodeid = fi->nodeid;
-+	req->in.numargs = 1;
-+	req->in.args[0].size = sizeof(inarg);
-+	req->in.args[0].value = &inarg;
-+	/* This is really two different operations rolled into one */
-+	req->out.numargs = 1;
-+	if (size) {
-+		req->out.argvar = 1;
-+		req->out.args[0].size = size;
-+		req->out.args[0].value = list;
-+	} else {
-+		req->out.args[0].size = sizeof(outarg);
-+		req->out.args[0].value = &outarg;
-+	}
-+	request_send(fc, req);
-+	ret = req->out.h.error;
-+	if (!ret)
-+		ret = size ? req->out.args[0].size : outarg.size;
-+	else {
-+		if (ret == -ENOSYS) {
-+			fc->no_listxattr = 1;
-+			ret = -EOPNOTSUPP;
-+		}
-+	}
-+	fuse_put_request(fc, req);
-+	return ret;
++	spin_lock_irqsave(&pci_lock, flags);
++	dev->block_cfg_access = 1;
++	spin_unlock_irqrestore(&pci_lock, flags);
 +}
 +
-+static int fuse_removexattr(struct dentry *entry, const char *name)
++/**
++ * pci_unblock_config_access - Unblock PCI config reads/writes
++ * @dev:	pci device struct
++ *
++ * This function allows PCI config accesses to resume.
++ *
++ * Return value:
++ * 	nothing
++ **/
++void pci_unblock_config_access(struct pci_dev *dev)
 +{
-+	struct inode *inode = entry->d_inode;
-+	struct fuse_conn *fc = INO_FC(inode);
-+	struct fuse_inode *fi = INO_FI(inode);
-+	struct fuse_req *req;
-+	int err;
-+	
-+	if (fc->no_removexattr)
-+		return -EOPNOTSUPP;
++	unsigned long flags;
 +
-+	req = fuse_get_request(fc);
-+	if (!req)
-+		return -ERESTARTSYS;
-+
-+	req->in.h.opcode = FUSE_REMOVEXATTR;
-+	req->in.h.nodeid = fi->nodeid;
-+	req->in.numargs = 1;
-+	req->in.args[0].size = strlen(name) + 1;
-+	req->in.args[0].value = name;
-+	request_send(fc, req);
-+	err = req->out.h.error;
-+	if (err == -ENOSYS) {
-+		fc->no_removexattr = 1;
-+		err = -EOPNOTSUPP;
-+	}
-+	fuse_put_request(fc, req);
-+	return err;
++	spin_lock_irqsave(&pci_lock, flags);
++	dev->block_cfg_access = 0;
++	spin_unlock_irqrestore(&pci_lock, flags);
 +}
 +
- static struct inode_operations fuse_dir_inode_operations = {
- 	.lookup		= fuse_lookup,
- 	.mkdir		= fuse_mkdir,
-@@ -890,6 +1061,10 @@ static struct inode_operations fuse_dir_
- 	.mknod		= fuse_mknod,
- 	.permission	= fuse_permission,
- 	.getattr	= fuse_getattr,
-+	.setxattr	= fuse_setxattr,
-+	.getxattr	= fuse_getxattr,
-+	.listxattr	= fuse_listxattr,
-+	.removexattr	= fuse_removexattr,
- };
- 
- static struct file_operations fuse_dir_operations = {
-@@ -903,6 +1078,10 @@ static struct inode_operations fuse_file
- 	.setattr	= fuse_setattr,
- 	.permission	= fuse_permission,
- 	.getattr	= fuse_getattr,
-+	.setxattr	= fuse_setxattr,
-+	.getxattr	= fuse_getxattr,
-+	.listxattr	= fuse_listxattr,
-+	.removexattr	= fuse_removexattr,
- };
- 
- static struct inode_operations fuse_symlink_inode_operations = {
-@@ -910,6 +1089,10 @@ static struct inode_operations fuse_syml
- 	.readlink	= fuse_readlink,
- 	.follow_link	= fuse_follow_link,
- 	.getattr	= fuse_getattr,
-+	.setxattr	= fuse_setxattr,
-+	.getxattr	= fuse_getxattr,
-+	.listxattr	= fuse_listxattr,
-+	.removexattr	= fuse_removexattr,
- };
- 
- static struct dentry_operations fuse_dentry_operations = {
---- linux-2.6.10-rc2/fs/fuse/fuse_i.h	2004-11-20 22:56:23.000000000 +0100
-+++ linux-2.6.10-rc2-fuse/fs/fuse/fuse_i.h	2004-11-20 22:56:23.000000000 +0100
-@@ -152,6 +152,18 @@ struct fuse_conn {
- 
- 	/** Is flush not implemented by fs? */
- 	unsigned int no_flush : 1;
++/**
++ * pci_start_bist - Start BIST on a PCI device
++ * @dev:	pci device struct
++ *
++ * This function allows a device driver to start BIST
++ * when PCI config accesses are disabled.
++ *
++ * Return value:
++ * 	nothing
++ **/
++int pci_start_bist(struct pci_dev *dev)
++{
++	return pci_bus_write_config_byte(dev->bus, dev->devfn, PCI_BIST, PCI_BIST_START);
++}
 +
-+	/** Is setxattr not implemented by fs? */
-+	unsigned int no_setxattr : 1;
++EXPORT_SYMBOL(pci_read_config_byte);
++EXPORT_SYMBOL(pci_read_config_word);
++EXPORT_SYMBOL(pci_read_config_dword);
++EXPORT_SYMBOL(pci_write_config_byte);
++EXPORT_SYMBOL(pci_write_config_word);
++EXPORT_SYMBOL(pci_write_config_dword);
++EXPORT_SYMBOL(pci_start_bist);
++EXPORT_SYMBOL(pci_block_config_access);
++EXPORT_SYMBOL(pci_unblock_config_access);
+diff -puN include/linux/pci.h~pci_block_config_io_during_bist include/linux/pci.h
+--- linux-2.6.10-rc2-bk5/include/linux/pci.h~pci_block_config_io_during_bist	2004-11-20 16:07:19.000000000 -0600
++++ linux-2.6.10-rc2-bk5-bjking1/include/linux/pci.h	2004-11-20 16:07:19.000000000 -0600
+@@ -535,7 +535,8 @@ struct pci_dev {
+ 	/* keep track of device state */
+ 	unsigned int	is_enabled:1;	/* pci_enable_device has been called */
+ 	unsigned int	is_busmaster:1; /* device is busmaster */
+-	
++	unsigned int	block_cfg_access:1;	/* config space access is blocked */
 +
-+	/** Is getxattr not implemented by fs? */
-+	unsigned int no_getxattr : 1;
-+
-+	/** Is listxattr not implemented by fs? */
-+	unsigned int no_listxattr : 1;
-+
-+	/** Is removexattr not implemented by fs? */
-+	unsigned int no_removexattr : 1;
- };
+ 	u32		saved_config_space[16]; /* config space saved at suspend time */
+ 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
+ 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
+@@ -750,31 +751,12 @@ int pci_bus_read_config_dword (struct pc
+ int pci_bus_write_config_byte (struct pci_bus *bus, unsigned int devfn, int where, u8 val);
+ int pci_bus_write_config_word (struct pci_bus *bus, unsigned int devfn, int where, u16 val);
+ int pci_bus_write_config_dword (struct pci_bus *bus, unsigned int devfn, int where, u32 val);
+-
+-static inline int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val)
+-{
+-	return pci_bus_read_config_byte (dev->bus, dev->devfn, where, val);
+-}
+-static inline int pci_read_config_word(struct pci_dev *dev, int where, u16 *val)
+-{
+-	return pci_bus_read_config_word (dev->bus, dev->devfn, where, val);
+-}
+-static inline int pci_read_config_dword(struct pci_dev *dev, int where, u32 *val)
+-{
+-	return pci_bus_read_config_dword (dev->bus, dev->devfn, where, val);
+-}
+-static inline int pci_write_config_byte(struct pci_dev *dev, int where, u8 val)
+-{
+-	return pci_bus_write_config_byte (dev->bus, dev->devfn, where, val);
+-}
+-static inline int pci_write_config_word(struct pci_dev *dev, int where, u16 val)
+-{
+-	return pci_bus_write_config_word (dev->bus, dev->devfn, where, val);
+-}
+-static inline int pci_write_config_dword(struct pci_dev *dev, int where, u32 val)
+-{
+-	return pci_bus_write_config_dword (dev->bus, dev->devfn, where, val);
+-}
++int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val);
++int pci_read_config_word(struct pci_dev *dev, int where, u16 *val);
++int pci_read_config_dword(struct pci_dev *dev, int where, u32 *val);
++int pci_write_config_byte(struct pci_dev *dev, int where, u8 val);
++int pci_write_config_word(struct pci_dev *dev, int where, u16 val);
++int pci_write_config_dword(struct pci_dev *dev, int where, u32 val);
  
- struct fuse_getdir_out_i {
---- linux-2.6.10-rc2/include/linux/fuse.h	2004-11-20 22:56:23.000000000 +0100
-+++ linux-2.6.10-rc2-fuse/include/linux/fuse.h	2004-11-20 22:56:22.000000000 +0100
-@@ -79,10 +79,10 @@ enum fuse_opcode {
- 	FUSE_RELEASE       = 18,
- 	/* FUSE_INVALIDATE    = 19, */
- 	FUSE_FSYNC         = 20,
--	/* FUSE_SETXATTR      = 21, */
--	/* FUSE_GETXATTR      = 22, */
--	/* FUSE_LISTXATTR     = 23, */
--	/* FUSE_REMOVEXATTR   = 24, */
-+	FUSE_SETXATTR      = 21,
-+	FUSE_GETXATTR      = 22,
-+	FUSE_LISTXATTR     = 23,
-+	FUSE_REMOVEXATTR   = 24,
- 	FUSE_FLUSH         = 25,
- };
+ int pci_enable_device(struct pci_dev *dev);
+ int pci_enable_device_bars(struct pci_dev *dev, int mask);
+@@ -870,6 +852,9 @@ extern void pci_disable_msix(struct pci_
+ extern void msi_remove_pci_irq_vectors(struct pci_dev *dev);
+ #endif
  
-@@ -91,6 +91,7 @@ enum fuse_opcode {
++extern int pci_start_bist(struct pci_dev *dev);
++extern void pci_block_config_access(struct pci_dev *dev);
++extern void pci_unblock_config_access(struct pci_dev *dev);
+ #endif /* CONFIG_PCI */
  
- #define FUSE_NAME_MAX 1024
- #define FUSE_SYMLINK_MAX 4096
-+#define FUSE_XATTR_SIZE_MAX 4096
- 
- struct fuse_entry_out {
- 	unsigned long nodeid;      /* Inode ID */
-@@ -184,6 +185,19 @@ struct fuse_fsync_in {
- 	int datasync;
- };
- 
-+struct fuse_setxattr_in {
-+	unsigned int size;
-+	unsigned int flags;
-+};
-+
-+struct fuse_getxattr_in {
-+	unsigned int size;
-+};
-+
-+struct fuse_getxattr_out {
-+	unsigned int size;
-+};
-+
- struct fuse_in_header {
- 	int unique;
- 	enum fuse_opcode opcode;
+ /* Include architecture-dependent settings and functions */
+
+_
+
+--------------080204020605090908000809--
+

@@ -1,81 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261406AbSJYNlS>; Fri, 25 Oct 2002 09:41:18 -0400
+	id <S261407AbSJYNrb>; Fri, 25 Oct 2002 09:47:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261413AbSJYNlR>; Fri, 25 Oct 2002 09:41:17 -0400
-Received: from relay.snowman.net ([63.80.4.38]:30215 "EHLO relay.snowman.net")
-	by vger.kernel.org with ESMTP id <S261406AbSJYNlQ>;
-	Fri, 25 Oct 2002 09:41:16 -0400
-Date: Fri, 25 Oct 2002 09:47:23 -0400
-From: Stephen Frost <sfrost@snowman.net>
-To: Stephen Satchell <list@fluent2.pyramid.net>
-Cc: hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: One for the Security Guru's
-Message-ID: <20021025134723.GZ15886@ns>
-Mail-Followup-To: Stephen Satchell <list@fluent2.pyramid.net>,
-	hps@intermeta.de, linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.95.1021023105535.13301A-100000@chaos.analogic.com> <Pine.LNX.4.44.0210231346500.26808-100000@innerfire.net> <5.1.0.14.0.20021024210320.01db0750@fluent2.pyramid.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eSbLxR/uY7u5MyMV"
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.0.20021024210320.01db0750@fluent2.pyramid.net>
-User-Agent: Mutt/1.4i
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 09:41:59 up 82 days, 16:18, 11 users,  load average: 0.12, 0.21, 0.16
+	id <S261413AbSJYNrb>; Fri, 25 Oct 2002 09:47:31 -0400
+Received: from mta03ps.bigpond.com ([144.135.25.135]:46052 "EHLO
+	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261407AbSJYNra> convert rfc822-to-8bit; Fri, 25 Oct 2002 09:47:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Srihari Vijayaraghavan <harisri@bigpond.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.20pre11aa1
+Date: Sat, 26 Oct 2002 00:03:06 +1000
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <20021018145204.GG23930@dualathlon.random> <200210240026.36642.harisri@bigpond.com> <20021023143515.GE1912@dualathlon.random>
+In-Reply-To: <20021023143515.GE1912@dualathlon.random>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210260003.06285.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Andrea,
 
---eSbLxR/uY7u5MyMV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[I tried to post the reply through groups.google.com, and it looks like it 
+didn't get to lkml. :( ]
 
-* Stephen Satchell (list@fluent2.pyramid.net) wrote:
-> I've also been experimenting with the traffic limiting capabilities, as o=
-ne=20
-> co-locate provider offers discounts for guaranteed lower bandwidth=20
-> utilization, so by limiting the bandwidth using IPTABLES I should be able=
-=20
-> to cut my co-lo costs to 1/3 of what they would be with "unlimited"=20
-> bandwidth.
+> try to apply all the scheduler related patches:
+>
+> 10_sched-o1-hyperthreading-3  20_apm-o1-sched-1  20_sched-o1-fixes-5
+> 21_o1-A4-aa-1 20_rcu-poll-7
 
-http://www.lartc.org ; When talking about traffic shaping with Linux
-you're really talking about tc from the iproute2 package.  I'd recommend
-you check out that URL if you havn't already and that you strongly
-consider using HTB for your traffic shaping needs, it's alot easier to
-use and makes alot more sense than CBQ.
+OK.
 
-> I've worked with the PIX, and I don't see what I'm missing in features=20
-> between the PIX and Linux/IPTABLES.  I'm sure there is something.  Please=
-=20
-> amplify on your comments.
+I have applied the patches 0* and the following patches in this order:
+10_sched-o1-hyperthreading-3
+20_apm-o1-sched-1
+20_rcu-poll-7
+20_sched-o1-fixes-5
+21_o1-A4-aa-1
 
-Eh, it depends on how you look at it, but...  The cisco includes support
-for checking out high-level protocols, such as HTTP.  Basically you can
-set things up inside the PIX based on what URL is being requested and
-such.  That's why the PIX is more than just a packet filter.  Personally
-I still characterize my Linux box running iptables as a firewall.  If
-you want to do the same kind of thing the PIX is doing on port 80 you'd
-need to run squid or something similar to it and set it up as a reverse
-proxy with associated access rules and whatnot.  Things like deny
-anything with cmd.exe in it, etc.
+The resulting kernel is very stable and it does not crash.
 
-	Stephen
+Then I tried patches [01]* and the extra patches (20_apm-o1-sched-1,
+20_rcu-poll-7, 20_sched-o1-fixes-5, 21_o1-A4-aa-1), I couldn't compile
+the kernel.
 
---eSbLxR/uY7u5MyMV
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Here is the current std_err:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+inode.c:1468: warning: initialization from incompatible pointer type
+In file included from ide.c:149:
+/usr/src/01/include/linux/ide.h:333:16: warning: ISO C requires
+whitespace after the macro name
+ide.c: In function `init_hwif_data':
+ide.c:270: `ide_disk' undeclared (first use in this function)
+ide.c:270: (Each undeclared identifier is reported only once
+ide.c:270: for each function it appears in.)
+ide.c: In function `ide_geninit':
+ide.c:639: `ide_disk' undeclared (first use in this function)
+ide.c: In function `do_reset1':
+ide.c:791: `ide_disk' undeclared (first use in this function)
+ide.c: In function `ide_dump_status':
+ide.c:973: `ide_disk' undeclared (first use in this function)
+ide.c: In function `try_to_flush_leftover_data':
+ide.c:1034: `ide_disk' undeclared (first use in this function)
+ide.c: In function `ide_error':
+ide.c:1071: `ide_disk' undeclared (first use in this function)
+ide.c: In function `start_request':
+ide.c:1373: `ide_disk' undeclared (first use in this function)
+ide.c: In function `ide_open':
+ide.c:2119: `ide_disk' undeclared (first use in this function)
+ide.c: In function `ide_reinit_drive':
+ide.c:2768: `ide_disk' undeclared (first use in this function)
+ide.c: In function `ide_ioctl':
+ide.c:2842: `ide_disk' undeclared (first use in this function)
+ide.c: In function `ide_setup':
+ide.c:3383: `ide_disk' undeclared (first use in this function)
+make[3]: *** [ide.o] Error 1
+make[2]: *** [first_rule] Error 2
+make[1]: *** [_subdir_ide] Error 2
+make: *** [_dir_drivers] Error 2
+make: *** Waiting for unfinished jobs....
+{standard input}: Assembler messages:
+{standard input}:1014: Warning: indirect lcall without `*'
+{standard input}:1091: Warning: indirect lcall without `*'
+{standard input}:1176: Warning: indirect lcall without `*'
+{standard input}:1255: Warning: indirect lcall without `*'
+{standard input}:1271: Warning: indirect lcall without `*'
+{standard input}:1281: Warning: indirect lcall without `*'
+{standard input}:1349: Warning: indirect lcall without `*'
+{standard input}:1364: Warning: indirect lcall without `*'
+{standard input}:1375: Warning: indirect lcall without `*'
+{standard input}:1874: Warning: indirect lcall without `*'
+{standard input}:1960: Warning: indirect lcall without `*'
 
-iD8DBQE9uUtrrzgMPqB3kigRAsFcAKCANdPOD4v+erBzLiCN3NuGU8HZvQCdH7oA
-DTEdJJwPbDgiAuPiIpZPm8E=
-=iWGW
------END PGP SIGNATURE-----
+Thanks.
+-- 
+Hari
+harisri@bigpond.com
 
---eSbLxR/uY7u5MyMV--
+

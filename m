@@ -1,118 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269451AbUKAP5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266908AbUKAQDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269451AbUKAP5r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 10:57:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268873AbUKAP5p
+	id S266908AbUKAQDN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 11:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269146AbUKAQDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 10:57:45 -0500
-Received: from kelvin.pobox.com ([207.8.226.2]:28392 "EHLO kelvin.pobox.com")
-	by vger.kernel.org with ESMTP id S261845AbUKANsp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 08:48:45 -0500
-Date: Mon, 1 Nov 2004 06:48:28 -0700
-From: Paul Dickson <dickson@permanentmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc1: drivers/ide/ide-dma.o: value of -130 too large for
- field of 1 bytes at 911
-Message-Id: <20041101064828.1d67078a.dickson@permanentmail.com>
-In-Reply-To: <20041101121256.GK2495@stusta.de>
-References: <20041101035402.556616d2.dickson@permanentmail.com>
-	<20041101121256.GK2495@stusta.de>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 1 Nov 2004 11:03:12 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:58535
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S267540AbUKAPzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 10:55:35 -0500
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+In-Reply-To: <20041101140630.GA20448@elte.hu>
+References: <20041031120721.GA19450@elte.hu>
+	 <20041031124828.GA22008@elte.hu>
+	 <1099227269.1459.45.camel@krustophenia.net>
+	 <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu>
+	 <20041031162059.1a3dd9eb@mango.fruits.de>
+	 <20041031165913.2d0ad21e@mango.fruits.de>
+	 <20041031200621.212ee044@mango.fruits.de> <20041101134235.GA18009@elte.hu>
+	 <20041101135358.GA19718@elte.hu>  <20041101140630.GA20448@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: linutronix
+Date: Mon, 01 Nov 2004 16:47:20 +0100
+Message-Id: <1099324040.3337.32.camel@thomas>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Nov 2004 13:12:56 +0100, Adrian Bunk wrote:
+On Mon, 2004-11-01 at 15:06 +0100, Ingo Molnar wrote:
+> ah, found it. Only RT tasks were supposed to get special priority
+> handling, while in fact all tasks got it - so when Thomas ran hackbench
+> (Thomas, you did, right?) it created an O(nr_hackbench) overhead within
+> the mutex code ... I've uploaded -V0.6.5 to the usual place:
 
-> On Mon, Nov 01, 2004 at 03:54:02AM -0700, Paul Dickson wrote:
-> > With the attached .config, I'm getting this while compiling...
-> > 
-> >...
-> >   CC      drivers/ide/ide-dma.o
-> > {standard input}: Assembler messages:
-> > {standard input}:607: Error: value of -130 too large for field of 1 bytes at 911
-> > make[3]: *** [drivers/ide/ide-dma.o] Error 1
-> > make[2]: *** [drivers/ide] Error 2
-> > make[1]: *** [drivers] Error 2
-> > make: *** [bzImage] Error 2
-> > 
-> > I got the same error with 2.6.9 too.
-> > 
-> > GCC 3.2.2 and 3.4.1.
-> > 
-> > Has this been fixed since 2.6.10-rc1?  Searching my Linux-Kernel folder
-> > didn't find a match.
+Yes, I was running hackbench as usual
+
+>   http://redhat.com/~mingo/realtime-preempt/
 > 
-> I can't reproduce it with your .config in 2.6.10-rc1.
-> 
-> Please send the output of ./scripts/ver_linux .
-> 
+> Thomas, can you confirm that this kernel fixes the irqs-off latencies? 
+> (the priority loop indeed was done with irqs turned off.)
 
-The problem does not occur if I unselect "Generic PCI bus-master DMA
-support".
+The latencies are still there. I have the feeling it's worse than 0.6.2.
 
-I'm also using 0=../out.router.20041030 for an external directory:
-    make O=../out.router.20041030/ bzImage
+It's definitely irq-off. I have a card with a controller, which produces
+an 2ms interrupt. The controller busy loops until the second level ack
+is done. The time is measured from raising the irq to the 2nd level ack.
 
+The irqhandler is using NODELAY and keeps irqs disabled. So the measured
+time in the controller is the irqs disabled time + the irq latency
+(which is ~7µs). The testrun on 0.6.5 showed latencies up to 600µs
+within 10 minutes.
 
->From the FC2 system:
+After 15 Mintes the keyboard was dead. 
 
-Linux violet.pwd.internal 2.6.8-1.521 #1 Mon Aug 16 09:01:18 EDT 2004 i686 i686 i386 GNU/Linux
-  
-Gnu C                  3.4.1
-Gnu make               3.80
-binutils               2.15.90.0.3
-util-linux             2.12
-mount                  2.12
-module-init-tools      2.4.26
-e2fsprogs              1.35
-reiserfsprogs          line
-reiser4progs           line
-pcmcia-cs              3.2.7
-quota-tools            3.10.
-PPP                    2.4.2
-nfs-utils              1.0.6
-Linux C Library        2.3.3
-Dynamic linker (ldd)   2.3.3
-Procps                 3.2.0
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.2.1
-Modules Loaded         snd_pcm_oss snd_mixer_oss snd_es1968 snd_ac97_codec snd_pcm snd_page_alloc snd_timer gameport snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore nfs lockd parport_pc lp parport autofs4 ide_cs ds yenta_socket pcmcia_core sunrpc 3c59x floppy sg scsi_mod microcode vfat fat dm_mod joydev uhci_hcd ext3 jbd
+I'm porting some of the Libertos debugging stuff into 0.6.5, so I can
+instrument the problem. 
+
+More later.
+
+tglx
 
 
 
->From the RH9 system:
-
-Linux red 2.4.20-18.9 #1 Thu May 29 07:08:16 EDT 2003 i686 athlon i386 GNU/Linux
-  
-Gnu C                  3.2.2
-Gnu make               3.79.1
-binutils               2.13.90.0.18
-util-linux             2.11y
-mount                  2.11y
-module-init-tools      writing
-e2fsprogs              1.32
-jfsutils               1.0.17
-reiserfsprogs          2002------------->
-reiser4progs           line
-pcmcia-cs              3.1.31
-quota-tools            3.06.
-PPP                    2.4.1
-isdn4k-utils           3.1pre4
-nfs-utils              1.0.1
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 2.0.11
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               4.5.3
-Modules Loaded         w83781d i2c-proc i2c-viapro i2c-core parport_pc lp parport nfsd lockd sunrpc iptable_filter ip_tables autofs 3c59x loop keybdev mousedev hid input usb-uhci usbcore ext3 jbd lvm-mod
-
-
-	-Paul
 

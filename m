@@ -1,106 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264709AbRFXVGf>; Sun, 24 Jun 2001 17:06:35 -0400
+	id <S264779AbRFXVsa>; Sun, 24 Jun 2001 17:48:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264719AbRFXVGZ>; Sun, 24 Jun 2001 17:06:25 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:18791
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S264709AbRFXVGO>; Sun, 24 Jun 2001 17:06:14 -0400
-Date: Sun, 24 Jun 2001 23:06:06 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-computone@lazuli.wittsend.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] catch potential null derefs in drivers/char/ip2main.c (245ac16)
-Message-ID: <20010624230606.G847@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264784AbRFXVsT>; Sun, 24 Jun 2001 17:48:19 -0400
+Received: from warden.digitalinsight.com ([208.29.163.2]:20434 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S264779AbRFXVsC>; Sun, 24 Jun 2001 17:48:02 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: John Nilsson <pzycrow@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Sun, 24 Jun 2001 13:35:51 -0700 (PDT)
+Subject: Re: Some experience of linux on a Laptop
+In-Reply-To: <F175UFyfL1QMaCAP6Ki00001f92@hotmail.com>
+Message-ID: <Pine.LNX.4.33.0106241325240.7535-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sun, 24 Jun 2001, John Nilsson wrote:
 
-(My last mail to dougm@computone.com bounced. Is there another
-maintainer for drivers/char/ip2main.c somewhere?)
+> Date: Sun, 24 Jun 2001 22:51:56 +0200
+> From: John Nilsson <pzycrow@hotmail.com>
+> To: linux-kernel@vger.kernel.org
+> Subject: Some experience of linux on a Laptop
+>
+> Well I thought that it was time for me to give some feedback to the linux
+> community. So I will tell you guys a little of my experience with linux so
+> far.
+>
+> I have a Toshiba Portege 3010CT laptop. That is:
+> 266MHz Pentium-MMX
+> 4GB HD with 512kb cache (which linux reduces to 0kb)
+> 32 Mb EDO RAM
+>
+> After have tried
+> Slackware
+> Gentoo
+> Linux From Scratch
+> Debian
+> Mandrake
+> and soon ROCK linux
+>
 
-The patch below tries to avoid dereferencing (potential)
-NULL pointers. It was reported by the Stanford team way
-back and applies against 245ac16 and 246p6. It could
-probably be done nicer but that would take someone that
-actually understands this code.
+well, for the most part you have been trying distros that are not designed
+for the desktop as much as for servers.
 
---- linux-245-ac16-clean/drivers/char/ip2main.c	Sat May 19 20:58:17 2001
-+++ linux-245-ac16/drivers/char/ip2main.c	Sun Jun 24 22:37:27 2001
-@@ -866,36 +866,38 @@
- 			}
- 
- #ifdef	CONFIG_DEVFS_FS
--			sprintf( name, "ipl%d", i );
--			i2BoardPtrTable[i]->devfs_ipl_handle =
--				devfs_register (devfs_handle, name,
--					DEVFS_FL_DEFAULT,
--					IP2_IPL_MAJOR, 4 * i,
--					S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
--					&ip2_ipl, NULL);
-+			if (i2BoardPtrTable[i] && pB) {
-+				sprintf( name, "ipl%d", i );
-+				i2BoardPtrTable[i]->devfs_ipl_handle =
-+					devfs_register (devfs_handle, name,
-+							DEVFS_FL_DEFAULT,
-+							IP2_IPL_MAJOR, 4 * i,
-+							S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
-+							&ip2_ipl, NULL);
- 
--			sprintf( name, "stat%d", i );
--			i2BoardPtrTable[i]->devfs_stat_handle =
--				devfs_register (devfs_handle, name,
--					DEVFS_FL_DEFAULT,
--					IP2_IPL_MAJOR, 4 * i + 1,
--					S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
--					&ip2_ipl, NULL);
-+				sprintf( name, "stat%d", i );
-+				i2BoardPtrTable[i]->devfs_stat_handle =
-+					devfs_register (devfs_handle, name,
-+							DEVFS_FL_DEFAULT,
-+							IP2_IPL_MAJOR, 4 * i + 1,
-+							S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
-+							&ip2_ipl, NULL);
- 
--			for ( box = 0; box < ABS_MAX_BOXES; ++box )
--			{
--			    for ( j = 0; j < ABS_BIGGEST_BOX; ++j )
--			    {
--				if ( pB->i2eChannelMap[box] & (1 << j) )
-+				for ( box = 0; box < ABS_MAX_BOXES; ++box )
- 				{
--				    tty_register_devfs(&ip2_tty_driver,
--					0, j + ABS_BIGGEST_BOX *
--						(box+i*ABS_MAX_BOXES));
--				    tty_register_devfs(&ip2_callout_driver,
--					0, j + ABS_BIGGEST_BOX *
--						(box+i*ABS_MAX_BOXES));
-+					for ( j = 0; j < ABS_BIGGEST_BOX; ++j )
-+					{
-+						if ( pB->i2eChannelMap[box] & (1 << j) )
-+						{
-+							tty_register_devfs(&ip2_tty_driver,
-+									   0, j + ABS_BIGGEST_BOX *
-+									   (box+i*ABS_MAX_BOXES));
-+							tty_register_devfs(&ip2_callout_driver,
-+									   0, j + ABS_BIGGEST_BOX *
-+									   (box+i*ABS_MAX_BOXES));
-+						}
-+					}
- 				}
--			    }
- 			}
- #endif
- 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+> I have come to the conclusion that linux is NOT suitable for the general
+> desktop market, I have configured a number of linux routers/fierwalls and am
+> really pleased with the scalability, but the harware compatibility is to
+> damn low for a general user base. I know this isn't really a Linux issue
+> rather a distribution issue, but in the end it's you guys that make the
+> drivers. So a little plea is that you let the optimization phase cooldown a
+> little and concern your self a little more with compatibility, and ease of
+> installation, (tidy up the kernel build system).
+>
+> On my particular computer the chipset (toshiba specific) is not supported
+> wich makes the harddrive unable to run in UDMA and/or use it's cache.
+> Somehow this make X totaly unusable. With a little luck if it doesn't hang
+> it takes several minutes to launch a simple program.
+> This could be X specific, but I doub't it.
+>
+> So when you speak of being able to run on 386:es I still have problem
+> starting X on 266MHz with 32Mb mem. This should not be =)
+>
+> And regarding my slow HD, could anyone implment an option to mount a
+> filesystem while keeping statistics on fileusage so that one could optimize
+> physical-file-placement?
+>
+>
+> Features I would like in the kernel:
+> 1: Make the whole insmod-rmmod tingie a kernel internal so they could be
+> trigged before rootmount.
 
-A chicken and an egg are lying in bed. The chicken is smoking a
-cigarette with a satisfied smile on it's face and the egg is frowning
-and looking a bit pissed off. The egg mutters, to no-one in particular,
-"Well, I guess we answered THAT question..."
+compile your kernel with all the stuff you need built in, that way you
+won't need modules at all (except for pcmcia stuff)
+
+> 2: Compile time optimization options in Make menuconfig
+
+that's what the CPU selection is, currently that's the only optimization
+available
+
+> 3: Lilo/grub config in make menuconfig
+
+lilo/grub/loadlinux/bootdisks/etc are all different ways to load the
+kernel, the job is completely seperate from compiling the kernel and as
+such integrating it would just make it harder to develop better ways to
+load the kernel.
+
+> 4: make bzImage && make modules && make modules install && cp
+> arch/i386/boot/bzImage /boot/'uname -r' something inside make menuconfig
+> 5: Better support for toshiba computers... well try =)
+>
+> 6: Wouldn't it be easier for svgalib/framebuffer/GGI/X11 and others if the
+> graphiccard drivers where kernel modules?
+
+only in the idea that the people writing graphics drivers for those other
+systems would have to shift to writing kernel code. it would still be the
+same people writing the code so no big advantage here
+
+> 7: As I said mount with statistics database of files.
+>
+> 8: A way to change kernel without rebooting. I have no diskdrive or cddrive
+> in my laptop so I often do drastic things when I install a new distribution.
+
+this is suggested every few months, the normal answer is that there is a
+lot of stuff that the new kernel needs to know from the old one to make
+the handoff sucessful, with potentially drastic changes of the kernel
+internal structures it's a very difficult thing to do.
+
+rebooting isn't that big a problem for desktop/laptop use. with lilo it's
+easy enough to have multiple kernels configured and boot from whichever
+one you want.
+
+David Lang
+
+
+>
+> I'm not on the list so please CC me any responses
+>
+> /John Nilsson
+> _________________________________________________________________________
+> Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

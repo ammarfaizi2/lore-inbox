@@ -1,110 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316535AbSFUKgB>; Fri, 21 Jun 2002 06:36:01 -0400
+	id <S316544AbSFULHt>; Fri, 21 Jun 2002 07:07:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSFUKgB>; Fri, 21 Jun 2002 06:36:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:3811 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S316535AbSFUKgA>;
-	Fri, 21 Jun 2002 06:36:00 -0400
-Date: Fri, 21 Jun 2002 12:35:53 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: hda: error: DMA in progress..
-Message-ID: <20020621103553.GI27090@suse.de>
-References: <20020621092459.GD27090@suse.de> <3D12FA4D.6060500@evision-ventures.com> <20020621101202.GF27090@suse.de> <3D130095.6050207@evision-ventures.com>
+	id <S316541AbSFULHs>; Fri, 21 Jun 2002 07:07:48 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:39987 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S316540AbSFULHr>; Fri, 21 Jun 2002 07:07:47 -0400
+Date: Fri, 21 Jun 2002 13:07:47 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Linux SCSI list <linux-scsi@vger.kernel.org>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: New SCSI exc handlers: Returning cmnds?
+Message-ID: <20020621110747.GA28197@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
 Content-Disposition: inline
-In-Reply-To: <3D130095.6050207@evision-ventures.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 21 2002, Martin Dalecki wrote:
-> U?ytkownik Jens Axboe napisa?:
-> >On Fri, Jun 21 2002, Martin Dalecki wrote:
-> 
-> >
-> >>And I was asking about it's possible interactions with TCQ.
-> >
-> >
-> >Haven't even tried TCQ yet, the above is just plain dma (no travelstarts
-> >can do tcq).
-> 
-> Argh...
 
-Indeed
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> >>
-> >>	if (blk_queue_plugged(&drive->queue)) {
-> >>			BUG_ON(!drive->using_tcq);
-> >>			break;
-> 
-> >
-> >Not exactly, let me see if I remember the race here... The queue can
-> >become plugged when we queue one request with the drive (the only on the
-> >queue at that time), and then try to queue another right after (hence
-> >only a tcq issue). In that time period, we drop the queue lock, so it's
-> >indeed possible for the block layer to plug the queue before we reach
-> >the above code again. The drive can be in two states here, 1) IDE_DMA is
-> >set because the drive didn't release the bus (or it did, and it already
-> >reconnected), or 2) drive is disconnected from the bus.
-> 
-> OK. We have now just one single place where IDE_DMA gets unset ->
-> udma_stop. This to too early to reset IDE_BUSY. However it well
-> may be that ide_dma_intr() simply doesn't care about IDE_BUSY.
-> Let's have a look...
+Hi,
 
-You can leave IDE_BUSY there, that's ok. It's not invalid for IDE_BUSY
-to be set while IDE_DMA gets cleared. That's expected.
+converting the dc395x_trm (Tekram DC3x5 / TRM-S1040) to new exception
+handling, I wonder what needs to be done with queued commands when
+eh_abort_handler() or eh_bus_reset_handler() are called.
 
-> >For non-tcq, hitting IDE_DMA set queue_commands() is a bug. The old
-> >IDE_BUSY/IDE_DMA worked because IDE_DMA must not be set if IDE_BUSY is
-> >not set.
-> >
-> >
-> >>This time it's no new damage - just detecting weak code
-> >>from the past...
-> >
-> >
-> >Smells like new breakage to me :-)
-> 
-> Well lets look at ata_irq_intr, the end of it:
-> 
-> 	 * Note that handler() may have set things up for another
-> 	 * interrupt to occur soon, but it cannot happen until
-> 	 * we exit from this routine, because it will be the
-> 	 * same irq as is currently being serviced here, and Linux
-> 	 * won't allow another of the same (on any CPU) until we return.
-> 	 */
-> 	if (startstop == ide_stopped) {
-> 		if (!ch->handler) {	/* paranoia */
-> 			clear_bit(IDE_BUSY, ch->active);
-> 			do_request(ch);
-> 		} else {
-> 			printk("%s: %s: huh? expected NULL handler on 
-> 			exit\n", drive->name, __FUNCTION__);
-> 		}
-> 	} else if (startstop == ide_released)
-> 		queue_commands(drive);
-> 
-> I think the above needs more tough now...
+In the old abort handler, I was feeding the command back with DID_ABORT
+and call scsi_done() on it, if successful.
+In the old reset handler, I was feeding all commands (including the one that
+was passed when _reset was called) that were sitting in the host adapter
+driver's queue  with DID_RESET back to midlayer by calling scsi_done() on
+them.=20
 
-Same case as the one I described in the email following this, will only
-happen for TCQ with release interrupt enabled. Otherwise it's illegal to
-release the bus from the tcq interrupt handler. Since I removed all
-traces of that long ago, you can safely kill the
+How should this handled in the new EH code?
+Is the new EH code implicitly aborting the commands, so I don't have to
+do it?=20
+Is the ML prepared to have scsi_done() called when doing EH?
+Or do I have to use some bottom half/tasklet ... type of mechanism?
 
-	} else if (startstop == ide_released)
-		queue_commands(drive);
+Do I have to give the cmnds in queueing order, or does the ML take care
+of the correct ordering?
 
-part of it.
+http://www.andante.org/scsi_error.html
+is scarily ignorant on that subject.
 
-The rest looks sane. If handler returns it's no longer busy
-(ide_stopped), we clear IDE_BUSY (IDE_DMA damn well better be cleared at
-this point as well!!) and let do_request() start a new request (heck or
-the same, we don't know and don't care).
+Thanks for advice!
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
 
--- 
-Jens Axboe
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9EwkDxmLh6hyYd04RAo+HAKCPLRc+H4tpsuS7+slvQYZf3OhTJwCgycpu
++XnhsjMw3OENi8OlJB5aB60=
+=/WNt
+-----END PGP SIGNATURE-----
+
+--PEIAKu/WMn1b1Hv9--

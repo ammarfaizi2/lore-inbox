@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbTDVA2I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 20:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbTDVA2I
+	id S262693AbTDVAha (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 20:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbTDVAha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 20:28:08 -0400
-Received: from mta7.srv.hcvlny.cv.net ([167.206.5.22]:3901 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S262690AbTDVA2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 20:28:07 -0400
-Date: Mon, 21 Apr 2003 20:40:08 -0400
-From: Mace Moneta <mmoneta@optonline.net>
-Subject: 2.4.21.rc1 - make xconfig
+	Mon, 21 Apr 2003 20:37:30 -0400
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:50075 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP id S262693AbTDVAh3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 20:37:29 -0400
+Date: Mon, 21 Apr 2003 18:49:33 -0600
+From: Michal Jaegermann <michal@harddata.com>
 To: linux-kernel@vger.kernel.org
-Reply-to: mmoneta@optonline.net
-Message-id: <1050972007.7851.36.camel@optonline.net>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5)
-Content-type: multipart/signed; boundary="=-hLZsFO3kF6LzP7RsYkt7";
- protocol="application/pgp-signature"; micalg=pgp-sha1
+Subject: ENE Technology flash memory reader
+Message-ID: <20030421184933.A17766@mail.harddata.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have here on a machine a flash card reader with a PCI id 1524:0510.
+In a verbose mode from 'lspci' it identifies itself as
 
---=-hLZsFO3kF6LzP7RsYkt7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Ran a 'make oldconfig' which completed without error, then ran:
-
----
-
-# make xconfig
-rm -f include/asm
-( cd include ; ln -sf asm-i386 asm)
-make -C scripts kconfig.tk
-make[1]: Entering directory `/usr/src/linux-2.4.21-rc1/scripts'
-cat header.tk >> ./kconfig.tk
-./tkparse < ../arch/i386/config.in >> kconfig.tk
-drivers/ide/Config.in: 46: can't handle dep_bool/dep_mbool/dep_tristate
-condition
-make[1]: *** [kconfig.tk] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.21-rc1/scripts'
-make: *** [xconfig] Error 2
-
----
-
-The line 46 in 'drivers/ide/Config.in' the complaint is about:
-
-   dep_tristate '    Pacific Digital ADMA-100 basic support'
-CONFIG_BLK_DEV_ADMA100
-
----
-
-'make config' and 'make menuconfig' work correctly.
+00:10.1 FLASH memory: ENE Technology Inc: Unknown device 0510
+	Subsystem: Asustek Computer, Inc.: Unknown device 1724
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin B routed to IRQ 3
+	Region 0: I/O ports at 8400 [size=128]
+	Capabilities: [a0] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
 
---=-hLZsFO3kF6LzP7RsYkt7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+This seems to be somewhat integrated with a bus controller 1524:1411, a.k.a
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+00:10.0 CardBus bridge: ENE Technology Inc: Unknown device 1411 (rev 01)
+	Subsystem: ENE Technology Inc: Unknown device 1411
 
-iD8DBQA+pI9neRnU1Q3hpXYRAtixAJ9ONl+p18JjN1fiF8FI/z6snQrcggCgzAv+
-zL/lO01LlocrpatFVtwWY3o=
-=HJN7
------END PGP SIGNATURE-----
+A Windows driver (at least 0510 part of it) treats that as some
+kind of a SCSI device.
 
---=-hLZsFO3kF6LzP7RsYkt7--
+So far I cannot make Linux with 2.4.x kernels to recognize that
+gizmo.  Does anybody know if there is a device driver which would
+make this workable in Linux?
 
+Apparently some details about it one can find in
+http://www.tssc.de/download/docs/List%20of%20supported%20devices.pdf
+
+   Thanks,
+   Michal

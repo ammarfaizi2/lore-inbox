@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261592AbTCKU2k>; Tue, 11 Mar 2003 15:28:40 -0500
+	id <S261616AbTCKUeG>; Tue, 11 Mar 2003 15:34:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261595AbTCKU2k>; Tue, 11 Mar 2003 15:28:40 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:65459 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261592AbTCKU2i>; Tue, 11 Mar 2003 15:28:38 -0500
-Date: Tue, 11 Mar 2003 12:29:10 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: phillips@arcor.de, zbrown@tumblerings.org, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <26420000.1047414550@flay>
-In-Reply-To: <20030311120824.2f5a7374.akpm@digeo.com>
-References: <200303020011.QAA13450@adam.yggdrasil.com><20030311184043.GA24925@renegade><22230000.1047408397@flay><20030311192639.E72163C5BE@mx01.nexgo.de><24360000.1047411221@flay> <20030311120824.2f5a7374.akpm@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S261617AbTCKUeG>; Tue, 11 Mar 2003 15:34:06 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:27664 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S261616AbTCKUeE>; Tue, 11 Mar 2003 15:34:04 -0500
+Date: Tue, 11 Mar 2003 15:44:29 -0500
+From: Ben Collins <bcollins@debian.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Firewire on Linux-2.4.20
+Message-ID: <20030311204429.GD379@phunnypharm.org>
+References: <20030311200311.GB379@phunnypharm.org> <Pine.LNX.3.95.1030311152746.8672A-100000@chaos>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.95.1030311152746.8672A-100000@chaos>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> At the moment, I slap the patches back on top of every new version
->> >> seperately, which works well, but is a PITA.
->> > 
->> > Tell me about it.
->> 
->> Well, it normally only takes me an hour per release.
-> 
-> Whoa.  You need better tools.
-> 
-> A bunch of fine people took patch-tools and turned them into a real project. 
-> They have .deb's and .rpm's, but it looks like they're a bit old and a `cvs co'
-> is needed.  I'm still using the old stuff, but I'm sure theirs is better.
-> 
-> See http://savannah.nongnu.org/projects/quilt/
+> # cd drivers/ieee*
+> # ls *.o
+> csr.o	     hosts.o	 ieee1394_core.o	  nodemgr.o   pcilynx.o  sbp2.o
+> highlevel.o  ieee1394.o  ieee1394_transactions.o  ohci1394.o  raw1394.o
+> # ls -la pcilynx.o
+> -rw-r--r--   1 root     root        16432 Mar 11 15:30 pcilynx.o
+> # depmod pcilynx.o
+> depmod: *** Unresolved symbols in pcilynx.o
+> pcilynx.o:
 
-I did take a look at your stuff in the past ... had a few minor objections
-at the time, but have actually grown closer to what you do since then.
-I *do* like the numbering of my patches though. I might try to merge them
-together at some point soon.
+> pcilynx.o: unresolved symbol i2c_transfer
+> pcilynx.o: unresolved symbol i2c_bit_del_bus
+> pcilynx.o: unresolved symbol i2c_bit_add_bus
 
-So when I say 1 hour ... bear in mind I don't take Linus bk-drops normally,
-on the full releases, so the delta is bigger (and I'm slower than you! ;-))
-You still have to fix up the rejects from 'patch -p1' by hand though,
-right? That's what normally takes most of the time, especially if it's
-code I'm unfamiliar with, or I make a mistake (reboot takes 5-10 mins ;-))
+Everything built fine this time. Redo "make modules" with the SUBDIRS
+option to get the rest built.
 
-M.
+I strongly believe this is something local to your system. Maybe your
+system clock is wrong and it is confusing make. Maybe you don't have all
+the right tools installed. I'm not realy sure, but I do know it is not a
+problem in ieee1394 itself.
 
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

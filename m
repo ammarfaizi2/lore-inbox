@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129418AbRBBPsD>; Fri, 2 Feb 2001 10:48:03 -0500
+	id <S129454AbRBBPvD>; Fri, 2 Feb 2001 10:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129454AbRBBPrx>; Fri, 2 Feb 2001 10:47:53 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:37761 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129418AbRBBPrd>; Fri, 2 Feb 2001 10:47:33 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010202115712.A31607@netppl.fi> 
-In-Reply-To: <20010202115712.A31607@netppl.fi>  <6lah7t4f685qo3igk679ocdo2obfhd9lvg@4ax.com> <20010201193255.A32191@thune.yy.com> 
-To: Pekka Pietikainen <pp@evil.netppl.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: spelling of disc (disk) in /devfs 
-Mime-Version: 1.0
+	id <S129790AbRBBPux>; Fri, 2 Feb 2001 10:50:53 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:54278 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129454AbRBBPun>; Fri, 2 Feb 2001 10:50:43 -0500
+Subject: RAMFS
+To: linux-kernel@vger.kernel.org
+Date: Fri, 2 Feb 2001 15:51:53 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 02 Feb 2001 15:47:18 +0000
-Message-ID: <28964.981128838@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14OiV8-0006hH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Random quick poking
 
-pp@evil.netppl.fi said:
-> <sarcasm>
-> What we really need is the ability to  
-> echo en_US/en_GB > /proc/sys/kernel/locale 
-> so you can choose the one you want.
-> </sarcasm>
-
-Heh. But you don't need the explicit <sarcasm> tags in the en_GB version.
-
---
-dwmw2
+Does this fix the ramfs problem in -ac ?
 
 
+--- fs/ramfs/inode.c~	Wed Jan 31 22:02:16 2001
++++ fs/ramfs/inode.c	Fri Feb  2 14:51:47 2001
+@@ -174,7 +174,6 @@
+ 		inode->i_blocks += IBLOCKS_PER_PAGE;
+ 		rsb->free_pages--;
+ 		SetPageDirty(page);
+-		UnlockPage(page);
+ 	} else {
+ 		ClearPageUptodate(page);
+ 		ret = 0;
+@@ -264,6 +263,7 @@
+ 
+ 	if (! ramfs_alloc_page(inode, page))
+ 		return -ENOSPC;
++	UnlockPage(page);
+ 	return 0;
+ }
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313016AbSDPX1f>; Tue, 16 Apr 2002 19:27:35 -0400
+	id <S313964AbSDPX36>; Tue, 16 Apr 2002 19:29:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313962AbSDPX1e>; Tue, 16 Apr 2002 19:27:34 -0400
-Received: from adsl-64-109-89-110.chicago.il.ameritech.net ([64.109.89.110]:21841
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S313016AbSDPX1d>; Tue, 16 Apr 2002 19:27:33 -0400
-Message-Id: <200204162327.g3GNRO606562@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: ebiederm@xmission.com (Eric W. Biederman)
-cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 arch subdivision into machine types for 2.5.8 
-In-Reply-To: Message from ebiederm@xmission.com (Eric W. Biederman) 
-   of "16 Apr 2002 15:44:37 MDT." <m1n0w3iaii.fsf@frodo.biederman.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Apr 2002 18:27:23 -0500
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+	id <S313963AbSDPX35>; Tue, 16 Apr 2002 19:29:57 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:17859 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S313964AbSDPX3z>; Tue, 16 Apr 2002 19:29:55 -0400
+Message-ID: <3CBCB3EC.2030803@metaparadigm.com>
+Date: Wed, 17 Apr 2002 07:29:48 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020412 Debian/0.9.9-6
+MIME-Version: 1.0
+To: Emmanuel Michon <emmanuel_michon@realmagic.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: periodic scsi hard disk noise due to regular flushes?
+In-Reply-To: <7wbscjvdke.fsf@avalon.france.sdesigns.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com said:
-> Yes.  I'm totally for the ability to select from config.in.  But at
-> the same time having being able to build a kernel that works in all
-> kinds of configurations comes in quite handy.  I know the alpha does
-> this I'm not quite certain about ARM. 
+Sounds like TCAL (Thermal Recalibration) - some drives are quite noisy
+when doing this. I had an Hitachi drive that would do this every 30
+seconds once it warmed up. Could be a faulty thermo sensor on the drive.
 
-The alpha uses a machine type function table switch to achieve this.  It's 
-certainly possible, just slightly more than I bargained for.
+~mc
 
-The issue will become more interesting with Patrick's cpu/bus/mtrr switch, 
-where self configuration does become more of an issue.  Can I just wait to see 
-what he comes up with and then copy it?
 
-> Do you have boot problems on the NCR voyagers?  If so I'd be
-> interested in hearing what the issues are.
+Emmanuel Michon wrote:
 
-The 8 byte GDT alignment requirement in boot/setup.S was the biggest problem 
-(until I found it empirically), if that's not done, they crash when jumping to 
-protected mode.
-
-Not all boot managers work on voyager: grub and syslinux don't, lilo does (for 
-now) but complains that EBDA is too big.
-
-I think it's because they actually have a larger than 384k hole (low memory 
-seems to end at 588k instead of 640k), but I was just so relieved to get them 
-to boot finally that I've never explored the problems in detail.
-
-This is the actual memory map:
-
-BIOS-provided physical RAM map:
- Voyager-SUS: 0000000000000000 - 0000000000093000 (usable)
-                                            ^^^^^ usually around 9fffff
- Voyager-SUS: 0000000000100000 - 000000003ffff000 (usable)
-
-James
+>Hi,
+>
+>my recent IBM SCSI drive (18GB IC35L018UWD210-0) connected
+>to an old Adaptec AHA-2940 UW adapter make as very 
+>irritating high pitched noise (as if it were parking/unparking
+>his heads?) periodically with the following intervals:
+>
+>1min35
+>2min12
+>5min03
+>2min14
+>1min02
+>4min09
+>4min14
+>3min18
+>1min06
+>1min04
+>
+>It runs in ext3, journalling has commit interval set to 5sec.
+>
+>Does something happen in the kernel with a about 1min05 interval?
+>
+>Is there some way to keep it busy?
+>
+>My kernel is 2.4.7-10
+>
+>Thanks for any reply to this strange request ;-)
+>
 
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVAPKdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbVAPKf3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbVAPKdK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 05:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVAPKdJ
+	id S262475AbVAPKf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 05:35:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVAPKf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 05:33:09 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:45320 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262472AbVAPKdF (ORCPT
+	Sun, 16 Jan 2005 05:35:29 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:57367 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262475AbVAPKfZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 05:33:05 -0500
+	Sun, 16 Jan 2005 05:35:25 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=NgQCHZ4i4jfnPsMvn7gj8ESfVnoHyLsy9MDw4iOT8g2iwNdgzQMgSf8SJzlYDKy2eJkELUoSiL6mJMMIz/Ml16GKQgpzaC3FNWMRkN+4jx6nV9uQPEg6exYblM2786OZLdmDNJsM3YMGHSwtQMR6fJvQdcLKHECCDybOPv6jcLs=
-Message-ID: <9e473391050116023344a5f954@mail.gmail.com>
-Date: Sun, 16 Jan 2005 05:33:05 -0500
+        b=EFtD9/8Y+YTgNWvTkiUlFrE3ZhF54Z8UKlIlzkX5ThFq5ZEgJybpksejvvwnnRlXhZumKN0bM5sBGy0rNHKpAvO21wEHOuAZXrhsba8+NJD9NTovSE2NR94Urr0U+wiw92ZvdWW0FzZXxE3Oy8wUmxKyTD6uEr8EysmJOvBlHak=
+Message-ID: <9e47339105011602354bdbd92e@mail.gmail.com>
+Date: Sun, 16 Jan 2005 05:35:25 -0500
 From: Jon Smirl <jonsmirl@gmail.com>
 Reply-To: Jon Smirl <jonsmirl@gmail.com>
 To: Dave Airlie <airlied@gmail.com>
@@ -33,35 +33,10 @@ References: <41E64DAB.1010808@hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use PCI Rage128 cards which are working fine. 
-
-I suspect it is this code from radeon_drv.c. There is probably
-something wrong with card's BIOS or whatever and it is saying that it
-is an AGP card when it is really a PCI one.  We used to specify this
-manually in xconfig but now DRM code does it automatically. Fix is
-probably to add a special case on the PCI_ID of the card that is
-failing.
-
-        /* There are signatures in BIOS and PCI-SSID for a PCI card,
-but they are not very reliable.
-        Following detection method works for all cards tested so far.
-        Note, checking AGP_ENABLE bit after drmAgpEnable call can also
-give the correct result.
-        However, calling drmAgpEnable on a PCI card can cause some
-strange lockup when the server
-        restarts next time.
-        */
-        pci_read_config_dword(dev->pdev, RADEON_AGP_COMMAND_PCI_CONFIG, &save);
-        pci_write_config_dword(dev->pdev, RADEON_AGP_COMMAND_PCI_CONFIG,
-                               save | RADEON_AGP_ENABLE);
-        pci_read_config_dword(dev->pdev, RADEON_AGP_COMMAND_PCI_CONFIG, &temp);
-        if (temp & RADEON_AGP_ENABLE)
-                dev_priv->flags |= CHIP_IS_AGP;
-        DRM_DEBUG("%s card detected\n",
-                  ((dev_priv->flags & CHIP_IS_AGP) ? "AGP" : "PCI"));
-        pci_write_config_dword(dev->pdev, RADEON_AGP_COMMAND_PCI_CONFIG, save);
-
-
+Be sure and run with "modprobe drm debug=1" and check the debug
+output. If it is broken the debug output will say the card is AGP. The
+message from the X server does not mean anything for DRM, you need to
+check the debug output from DRM.
 
 -- 
 Jon Smirl

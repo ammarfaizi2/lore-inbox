@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269730AbUJGHLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269731AbUJGHQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269730AbUJGHLh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 03:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269740AbUJGHLe
+	id S269731AbUJGHQT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 03:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269723AbUJGHQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 03:11:34 -0400
-Received: from siaag2ah.compuserve.com ([149.174.40.141]:55850 "EHLO
-	siaag2ah.compuserve.com") by vger.kernel.org with ESMTP
-	id S269730AbUJGHIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 03:08:51 -0400
-Date: Thu, 7 Oct 2004 03:05:38 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Why no linux-2.6.8.2? (was Re: new dev model)
-To: Trent Lloyd <lathiat@bur.st>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200410070308_MC3-1-8BB4-FF92@compuserve.com>
+	Thu, 7 Oct 2004 03:16:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57502 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269734AbUJGHPa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 03:15:30 -0400
+Message-ID: <4164ED05.4000608@pobox.com>
+Date: Thu, 07 Oct 2004 03:15:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Chuck Ebbert <76306.1226@compuserve.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Why no linux-2.6.8.2? (was Re: new dev model)
+References: <200410070308_MC3-1-8BB4-FF94@compuserve.com>
+In-Reply-To: <200410070308_MC3-1-8BB4-FF94@compuserve.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trent Lloyd wrote:
-
-> 2.6.8.1 was released because there was a 1-line error in 2.6.8 that
-> completely stopped NFS from working.
->
-
-  Yes, I know that.
-
-
-> The patches mentioned below will probably go into 2.6.9 or something, if
-> they have been approved for it etc.
->
-
-  A host of new bugs will probably be added too, leaving the average user with
-no stable 'offical' kernel to use -- ever.
+Chuck Ebbert wrote:
+> Jeff Garzik wrote:
+> 
+> 
+>>Thanks to BitKeeper no properly-tagged branch is ever dead.
+>>
+>>Anyone could make a 2.6.8.2 if they so chose.
+>>
+> 
+> 
+>   But it would be pointless without offical blessing from Linus.
 
 
---Chuck Ebbert
+Why don't you create a 2.6.8.2 and see what happens?  :)
 
-Vanity kills/It don't pay bills  --ABC
+	Jeff
+
+

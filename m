@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbTDUXiH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 19:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbTDUXiH
+	id S262728AbTDUXhc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 19:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbTDUXhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 19:38:07 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:9604 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S262731AbTDUXiF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 19:38:05 -0400
-Date: Tue, 22 Apr 2003 00:50:09 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 21 Apr 2003 19:37:32 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:41478 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262728AbTDUXhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 19:37:31 -0400
+Date: Tue, 22 Apr 2003 01:49:24 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>, <Andries.Brouwer@cwi.nl>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] new system call mknod64
-Message-ID: <20030421235009.GC17595@mail.jlokier.co.uk>
-References: <UTC200304212143.h3LLh6e02148.aeb@smtp.cwi.nl> <b81tan$637$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b81tan$637$1@cesium.transmeta.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0304211117260.3101-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0304220057080.5042-100000@serv>
+References: <Pine.LNX.4.44.0304211117260.3101-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> > and in fact the patches I have been giving out use kdev_t
-> > as internal format, where you can think of kdev_t as
-> > u64, or, if you prefer, as struct { u32 major, minor; }.
+Hi,
+
+On Mon, 21 Apr 2003, Linus Torvalds wrote:
+
+> > Not anymore for blockdevices.  And now that Al's back not anymore soon
+> > for charater devices, too :)
 > 
-> Any reason why we don't just *make it* a struct?  (Well, besides that
-> it'd somewhat suck on 64-bit architectures?)
+> Actually, we still do it for both block _and_ character devices.
+> 
+> Look at "nfs*xdr.c" to see what's up.
 
-It varies very much between architectures.
+This is actually a good example to show how problematic the major/minor 
+split is. It depends very much on the nfs server which bits you actually 
+get back and it requires some guessing from the client side which bits it 
+can use. A linux-2.2 server will happilly truncate that value to 16 bit, 
+BSD will give you a 8:24 value back.
+It's very unlikely that you can use a 64bit dev_t reliably with nfs in the 
+foreseeable future.
 
-I just checked, and simple copies of this structure are absolutely
-atrocious in GCC 3.2 (I tried Alpha, Mips64 and Sparc64).  The code
-was approx. 3 times longer to copy the 32:32 struct than to copy a 64
-bit scalar.
+bye, Roman
 
-On x86_64, the struct produces the same code as the scalar.
-The same is true on s390x.
 
-If you change this to test 16:16, on i386 (or x86_64 with -m32),
-the struct still produces the same code as the scalar.
-
-Looks like a part of GCC that might be easy to improve, given that it
-works quite well on some architectures already.
-
--- Jamie

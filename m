@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261457AbSJMIOx>; Sun, 13 Oct 2002 04:14:53 -0400
+	id <S261460AbSJMIZW>; Sun, 13 Oct 2002 04:25:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261460AbSJMIOx>; Sun, 13 Oct 2002 04:14:53 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:7053 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261457AbSJMIOw>;
-	Sun, 13 Oct 2002 04:14:52 -0400
-Date: Sun, 13 Oct 2002 01:13:44 -0700 (PDT)
-Message-Id: <20021013.011344.58438240.davem@redhat.com>
-To: wagnerjd@prodigy.net
-Cc: robm@fastmail.fm, hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org,
-       jhoward@fastmail.fm
-Subject: Re: Strange load spikes on 2.4.19 kernel
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <000e01c27290$dd0b5640$7443f4d1@joe>
-References: <20021013.005005.41948345.davem@redhat.com>
-	<000e01c27290$dd0b5640$7443f4d1@joe>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261462AbSJMIZW>; Sun, 13 Oct 2002 04:25:22 -0400
+Received: from 62-190-219-201.pdu.pipex.net ([62.190.219.201]:1540 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S261460AbSJMIZW>; Sun, 13 Oct 2002 04:25:22 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210130840.g9D8e0ZL000212@darkstar.example.net>
+Subject: Re: Re: OT (Re: Re: The end of embedded Linux?)
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Sun, 13 Oct 2002 09:40:00 +0100 (BST)
+Cc: Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L.0210122343580.22735-100000@imladris.surriel.com> from "Rik van Riel" at Oct 12, 2002 11:44:37 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-   Date: Sun, 13 Oct 2002 03:16:30 -0500
+> On Sat, 12 Oct 2002 Hell.Surfers@cwctv.net wrote:
+> 
+> > brilliantly this summerises every problem, theres no enter.. am i really
+> > replying by attachment...?
+> 
+> Yes.  The output of your mail program is so bad that I'm
+> seriously pondering killfiling all of cwctv.net, preferably
+> at the SMTP level.
 
-   "SMP locking primitives"? Tell me what that is again?  Oh yeah!  That's
-   when the kernel basically gives SMP a timeout and behaves as if there
-   was only one processor.
-   
-   So in effect, I was right.  File processes really do use one and only
-   one processor.
-   
-Not true.  While a block is being allocated on mounted filesystem X
-on one cpu, a TCP packet can be being processed on another processor and
-a block can be allocated on mounted filesystem Y on another processor.
+However bad the output of his mail program is, what is even more
+irritating is the constant discussion of it on this list.
 
-Actually, it can even be threaded to the point where block allocations
-on the same filesystem can occur in parallel as long as it is being
-done for different block groups.
+Dean, couldn't you just delete the superflous headers that it
+generates when you reply?  I don't personally care about the quoting
+style.
 
-So in effect, you're not so right.
+Please, everybody, read the FAQ.  This is supposed to be a technical
+discussion list.  The odd funny comment, or discussion related to
+kernel development is appropriate, but flamewars about Bitkeeper
+licensing, or the mail application that somebody uses are not.
+
+Please _don't_ post to the list just to get 'street cred', and make
+yourself look like a 1337 k3rn37 h@x0r.  It doesn't.
+
+For example, I take the time to mail people who send a vague bug
+report to the list and don't direct it to a particular developer, to
+tell them:
+
+* Who they should address it to
+* What info they should include
+
+I _don't_ CC the list on every one of them, just so that people will
+think, "Aha!  John is cool.".
+
+John.

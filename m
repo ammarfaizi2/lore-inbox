@@ -1,76 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261678AbSKEOqC>; Tue, 5 Nov 2002 09:46:02 -0500
+	id <S262510AbSKEO7o>; Tue, 5 Nov 2002 09:59:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262510AbSKEOqC>; Tue, 5 Nov 2002 09:46:02 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:19418 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP
-	id <S261678AbSKEOqB>; Tue, 5 Nov 2002 09:46:01 -0500
-Date: Tue, 05 Nov 2002 09:52:00 -0500
-From: Akira Tsukamoto <akira-t@suna-asobi.com>
-To: Akira Tsukamoto <at541@columbia.edu>
-Subject: Re: [PATCH] 2.5.46 add original copy_ro/from_user for i386 and support PenPro PenII
-Cc: linux-kernel@vger.kernel.org, Hirokazu Takahashi <taka@valinux.co.jp>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <20021105090237.511A.AT541@columbia.edu>
-References: <20021105090237.511A.AT541@columbia.edu>
-Message-Id: <20021105094344.5120.AKIRA-T@suna-asobi.com>
+	id <S262667AbSKEO7o>; Tue, 5 Nov 2002 09:59:44 -0500
+Received: from ns.suse.de ([213.95.15.193]:49417 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262510AbSKEO7n> convert rfc822-to-8bit;
+	Tue, 5 Nov 2002 09:59:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Subject: Re: Filesystem Capabilities in 2.6?
+Date: Tue, 5 Nov 2002 16:05:47 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <20021101085148.E105A2C06A@lists.samba.org> <200211050514.53709.agruen@suse.de> <87u1iwcbt5.fsf@goat.bogus.local>
+In-Reply-To: <87u1iwcbt5.fsf@goat.bogus.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.06
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at out002.verizon.net from [138.89.32.225] at Tue, 5 Nov 2002 08:52:29 -0600
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211051605.47225.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 05 Nov 2002 09:36:48 -0500
-Akira Tsukamoto <at541@columbia.edu> mentioned:
-> 
-> This is revised version from my previous patch, adding original copy_user.
-> 
-> In addition, I changed one line in Kconfig, remove M585MMX and add M686
-> because I run new copy-user on my PentiumMMX but had no improvement,
-> however PenII/PenPro likely to have improvement from new copy_user function.
-> 
-> Athlon is ignored in the current kernel from 2.5.45 but you could use 
-> CONFIG_M686 to try new copy_user.
+On Tuesday 05 November 2002 15:48, Olaf Dietsche wrote:
+> Andreas Gruenbacher <agruen@suse.de> writes:
+> > On Friday 01 November 2002 19:32, Dax Kelson wrote:
+> >> With FS capabilities we (Linux) can have the same situation.  Security
+> >> is a hot topic, and anything the kernel can do make security
+> >> better/easier seems worthy of consideration.
+> >
+> > We have little experience with full blown capability enabled systems.
+> > Rushing
+>
+> And it will stay that way, if we don't start now.
+>
+> > things doesn't seem like a good idea. IMO we should wait until vendors
+> > have integrated FS caps before adding this to the standard kernel.
+>
+> Fact is, we have a capability enabled system for quite some time. It's
+> just not making any progress regarding fs caps. 
 
-For arhlon, to try the new copy_user,
-I run the Taka's socket benchmark program between CONFIG_M686 and K7.
-http://www.suna-asobi.com/~akira-t/linux/netio-bench/netio2.c
+> But I must admit, that it may not be the time to include them into
+> the mainstream kernel.
 
-CONFIG_MK7
-(off:100, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.117 seconds at 342.9 Mbytes/sec
-(off:104, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.114 seconds at 350.1 Mbytes/sec
-(off:108, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.115 seconds at 347.9 Mbytes/sec
-(off:112, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.113 seconds at 354.8 Mbytes/sec
-(off:116, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.112 seconds at 358.1 Mbytes/sec
-(off:120, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.113 seconds at 354.2 Mbytes/sec
+This was my point. After this discussion I am sure the patch won't be merged 
+for 2.6 anyway.
 
-CONFIG_M686
-(off:100, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.090 seconds at 445.1 Mbytes/sec
-(off:104, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.090 seconds at 442.4 Mbytes/sec
-(off:108, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.089 seconds at 447.2 Mbytes/sec
-(off:112, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.091 seconds at 438.7 Mbytes/sec
-(off:116, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.091 seconds at 440.7 Mbytes/sec
-(off:120, size:0x800000) 
-send/recv: copied 40.0 Mbytes in 0.090 seconds at 442.7 Mbytes/sec
+[...]
 
-It looks like improving, but it could be X86_L1_CACHE_SHIFT 6/5
-problem that I post it previously.
+> BTW, it's really amazing how many people argue _against_ and how few
+> are working _for_ fs capabilities. And it's not that anybody has shown
+> real arguments against. Mostly uneasy fealings, eventual scenarios and
+> bashing of stupid vendors and foolish sysadmins. This might score some
+> points here and there, but it is not really helpful.
 
--- 
-Akira Tsukamoto <akira-t@suna-asobi.com, at541@columbia.edu>
+Several pros and cons were brought up. In the end all that counts is whether 
+the pros are big enough to warrant the cons.
 
+--Andreas.
 

@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318518AbSIFMAj>; Fri, 6 Sep 2002 08:00:39 -0400
+	id <S318470AbSIFMEl>; Fri, 6 Sep 2002 08:04:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318519AbSIFMAj>; Fri, 6 Sep 2002 08:00:39 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:43648 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318518AbSIFMAi>; Fri, 6 Sep 2002 08:00:38 -0400
-Date: Fri, 6 Sep 2002 08:06:48 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: Peter Surda <shurdeek@panorama.sth.ac.at>, linux-kernel@vger.kernel.org
-Subject: Re: Uptime timer-wrap
-In-Reply-To: <20020905212516.GN7887@clusterfs.com>
-Message-ID: <Pine.LNX.3.95.1020906075225.3143A-100000@chaos.analogic.com>
+	id <S318519AbSIFMEk>; Fri, 6 Sep 2002 08:04:40 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:34960 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S318470AbSIFMEk>; Fri, 6 Sep 2002 08:04:40 -0400
+Message-ID: <20020906120914.23405.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: <ahu@ds9a.nl>
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de
+Date: Fri, 06 Sep 2002 20:09:14 +0800
+Subject: Re: BYTE UNIX Benchmarks (Version 4.1.0)
+X-Originating-Ip: 194.185.48.246
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Sep 2002, Andreas Dilger wrote:
+From: bert hubert <ahu@ds9a.nl>
 
-> On Sep 05, 2002  16:16 -0400, Richard B. Johnson wrote:
-> > I tried to simulate your observation by making a driver that
-> > set the 'jiffies' count upon an 'open'. The idea was to get
-> > the jiffies count to something close to wrap so I didn't have to
-> > wait a long time.
-> > 
-> > Anyway, I found that setting the jiffies count to more than a
-> > few hundred counts into the future, causes the machine to halt
-> > with no interrupts (no Capslock, no NumLock, no network ping, etc).
-> > 
-> > The machine just stops and I don't understand why. 
-> > 
-> > 
-> > 	spin_lock_irqsave(&xlock, flags);
-> >         jiffies += 0x1000;
-> > 	spin_lock_irqrestore(&xlock, flags);
-> > 
-> > 	... works just fine, but, changing 0x1000 to 0x7fffffff causes
-> > the machine to stop as reported. 
-> > 
-> > Does anybody have a clue?
-> 
-> Yes, because now some kernel code is going to wait 147 days - 1s
-> or something like that to finish.
-> 
+> Can you tell us what the 'baseline' is and what the 'result' is? Ie, which
+> kernels. 
 
-Yes. And isn't this a bug? I fear some code is waiting for some
-hardware timer value with the interrupts disabled. Since the CPU(s)
-are not the only user's of I/O (bus-masters), they may miss completely
-whatever they are spinning for. This could be the reason many
-machines simply "stop", could it not?
+Oh yes, I wrote it in the privious email when linuxmail.org started to mangle my emails (now is all ok).
 
-Do you have an idea where to look? I need to prevent the possibility
-of waiting forever for an event that may never occur, with interrupts
-disabled, on at least one embedded system. Any wait-forever possibility
-must be interruptible because any watch-dog timer that re-boots will end
-up destroying data that must never be lost.
+Result is  2.4.20-pre5aa1.
+The baseline is a vanilla 2.4.19
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+In my first email there is the result of 2.5.33 baseline 2.4.19
 
+Ciao,
+        Paolo
+
+-- 
+Get your free email from www.linuxmail.org 
+
+
+Powered by Outblaze

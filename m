@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbRBGSxO>; Wed, 7 Feb 2001 13:53:14 -0500
+	id <S129053AbRBGS5x>; Wed, 7 Feb 2001 13:57:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129053AbRBGSwy>; Wed, 7 Feb 2001 13:52:54 -0500
-Received: from river.it.gvsu.edu ([148.61.1.16]:42699 "EHLO river.it.gvsu.edu")
-	by vger.kernel.org with ESMTP id <S129032AbRBGSwn>;
-	Wed, 7 Feb 2001 13:52:43 -0500
-Message-ID: <3A81996C.3060600@lycosmail.com>
-Date: Wed, 07 Feb 2001 13:52:28 -0500
-From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
+	id <S130004AbRBGS5o>; Wed, 7 Feb 2001 13:57:44 -0500
+Received: from [194.73.73.176] ([194.73.73.176]:40619 "EHLO protactinium")
+	by vger.kernel.org with ESMTP id <S129053AbRBGS5d>;
+	Wed, 7 Feb 2001 13:57:33 -0500
+Date: Wed, 7 Feb 2001 18:33:01 +0000 (GMT)
+From: <davej@suse.de>
+X-X-Sender: <davej@athlon.local>
+To: Alan Cox <alan@redhat.com>
+Subject: [PATCH] nvram driver 2.88mb floppy fix.
+Message-ID: <Pine.LNX.4.31.0102071831450.16839-100000@athlon.local>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Status of loopback
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm curious if the loopback block driver is stable enough yet to, say 
-put a loopback file on a vfat partition.
 
-I have 2 HDs, one windoze, one linux. I can't be sure I won't need to 
-keep the vfat partition, so I can't just wipe it out. However, it 
-currently has more space on it than my ext2 disc. (200 vs 500 MB)
+Hi Alan,
+ Seems that 2.88mb drives can be type 5 or type 6
+(I found a Thinkpad with a type 6)
 
-The question therefore is, is it safe to do this yet?? I want to move 
-some stuff to the other disc, but don't want the troubles of 
-permissions. (BTW, IIRC umsdos doesn't to Win9x LFNs, right. Otherwise I 
-could remount umsdos [assuming that it works again. It was broken 
-sometime around 2.3.20]).
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+
+diff -urN --exclude-from=/home/davej/.exclude linux/drivers/char/nvram.c linux-dj/drivers/char/nvram.c
+--- linux/drivers/char/nvram.c	Thu Jan  4 20:50:17 2001
++++ linux-dj/drivers/char/nvram.c	Sun Feb  4 20:36:45 2001
+@@ -481,7 +481,8 @@
+ #ifdef CONFIG_PROC_FS
+
+ static char *floppy_types[] = {
+-	"none", "5.25'' 360k", "5.25'' 1.2M", "3.5'' 720k", "3.5'' 1.44M", "3.5'' 2.88M"
++	"none", "5.25'' 360k", "5.25'' 1.2M", "3.5'' 720k", "3.5'' 1.44M",
++	"3.5'' 2.88M", "3.5'' 2.88M"
+ };
+
+ static char *gfx_types[] = {
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

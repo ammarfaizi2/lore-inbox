@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129712AbRCMJYu>; Tue, 13 Mar 2001 04:24:50 -0500
+	id <S129446AbRCMJW7>; Tue, 13 Mar 2001 04:22:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129741AbRCMJYj>; Tue, 13 Mar 2001 04:24:39 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:17286 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S129712AbRCMJYc>; Tue, 13 Mar 2001 04:24:32 -0500
-Date: Tue, 13 Mar 2001 10:22:24 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: named pipe writes on readonly filesystems
-Message-ID: <20010313102224.A17224@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <517520000.984449174@tiny> <Pine.GSO.4.21.0103122113480.28460-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129657AbRCMJWt>; Tue, 13 Mar 2001 04:22:49 -0500
+Received: from mail22.bigmailbox.com ([209.132.220.199]:63505 "EHLO
+	mail22.bigmailbox.com") by vger.kernel.org with ESMTP
+	id <S129446AbRCMJWe>; Tue, 13 Mar 2001 04:22:34 -0500
+Date: Tue, 13 Mar 2001 01:21:13 -0800
+Message-Id: <200103130921.BAA01799@mail22.bigmailbox.com>
+Content-Type: text/plain
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.GSO.4.21.0103122113480.28460-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Mar 12, 2001 at 09:15:33PM -0500
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [24.5.157.48]
+From: "Quim K Holland" <qkholland@my-deja.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: About DC-315U scsi driver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 12, 2001 at 09:15:33PM -0500, Alexander Viro wrote:
-> On Mon, 12 Mar 2001, Chris Mason wrote:
-> > Since fs/pipe.c:pipe_write() calls mark_inode_dirty, and it is legal to
-> > write to a named pipe on a readonly filesystem, we can end up writing an
-> > inode on a readonly FS.
-> 
-> I would check that in pipe_write()...
+>>>>> "AC" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-So atime and mtime of a named pipe are meaningless in general?
-That would make sense, since you cannot access the data anymore,
-once they are through the pipe.
+>> Indeed; people report more problems on 2.4 kernels than on
+>> 2.2 kernels. I currently have no clue why.
 
-Regards
+AC> 2.4 causes longer continuous I/O requests to be sent to the
+AC> drive for one
 
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+Sorry but I am having a hard time understanding this comment.
+Are you saying 2.4 causes applications to send I/O requests
+longer than the hardware accepts, and if applications are
+properly written they should be able to limit the continuous
+requests from the userland (which means it is an application
+bug)?  Or are you saying 2.4 kernel should not ``cause longer
+continuous I/O requests to be sent'' but it ends up doing
+so (which means its a kernel bug)?
+
+
+------------------------------------------------------------
+--== Sent via Deja.com ==--
+http://www.deja.com/
+
+

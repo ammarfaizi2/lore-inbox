@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265814AbUAHSbE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 13:31:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265878AbUAHSbE
+	id S265878AbUAHSb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 13:31:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265901AbUAHSb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 13:31:04 -0500
-Received: from p68.rivermarket.wintek.com ([208.13.56.68]:3482 "EHLO
-	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
-	id S265814AbUAHSbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 13:31:01 -0500
-Date: Thu, 8 Jan 2004 13:35:01 -0500 (EST)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Ian Kent <raven@themaw.net>
-Cc: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: udev and devfs - The final word
-In-Reply-To: <Pine.LNX.4.58.0401081310060.3452@dust>
-Message-ID: <Pine.LNX.4.58.0401081333190.3452@dust>
-References: <Pine.LNX.4.44.0401082333280.449-100000@donald.themaw.net>
- <Pine.LNX.4.58.0401081310060.3452@dust>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Jan 2004 13:31:29 -0500
+Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:19589 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265878AbUAHSbY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 13:31:24 -0500
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Greg KH <greg@kroah.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040108011538.GA4002@kroah.com>
+References: <200401012333.04930.arvidjaar@mail.ru>
+	 <20040103055847.GC5306@kroah.com>
+	 <Pine.LNX.4.58.0401071036560.12602@home.osdl.org>
+	 <20040107185656.GB31827@kroah.com>
+	 <Pine.LNX.4.58.0401071123490.12602@home.osdl.org>
+	 <20040107195032.GB823@kroah.com> <14870000.1073521945@[10.10.2.4]>
+	 <20040108004124.GA3388@kroah.com> <16970000.1073524052@[10.10.2.4]>
+	 <20040108011538.GA4002@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yqvXrTIRGvWurS6hz/7K"
+Message-Id: <1073586854.6075.427.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 08 Jan 2004 20:34:14 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Jan 2004, Alex Goddard wrote:
 
-> On Thu, 8 Jan 2004, Ian Kent wrote:
-> 
-> > On Thu, 8 Jan 2004, [koi8-r] "Andrey Borzenkov[koi8-r] "  wrote:
-> 
-> [Snip]
-> 
-> > > I do care. Searching archives for devfs mostly brings "everyone knows
-> > > this is crap". That is why I kindly ask you to show real evidence that
-> > > the problems it has are unsolvable.
-> > 
-> > Again I'm also unable to find descriptions of the 'unsolvable' races.
-> > 
-> > I wouldn't mind knowing what they are either. Anyone?
-> 
-> Can no one think of good search terms for these sorts of things these
-> days?  From the first and only page of results for 'devfs unsolvable
-> races':
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=105851630726585&w=2
+--=-yqvXrTIRGvWurS6hz/7K
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Someone else already mentioned the many, many posts by Al Viro on this
-subject I was about to post a URL or two for.  They make for good (and
-entertainingly flame-ridden) reading.
+On Thu, 2004-01-08 at 03:15, Greg KH wrote:
 
--- 
-Alex Goddard
-agoddard at purdue.edu
+> The problem is the following:
+> 	- user plugs in their usb flash reader with no media in it
+> 	- the main block device is create, no partitions
+> 	- user plugs a flash stick/whatever into the reader
+> 	- kernel gets no notification of this event
+> 	- userspace gets no notification of this event
+>=20
+> How can userspace know to open the main block device now?  Require that
+> we put a big "Rescan media now" button on the desktop?  That's one way,
+> but users are used to having to not do that. =20
+>=20
+
+Stupid question - can't the kernel do the rescan?
+
+
+--=20
+Martin Schlemmer
+
+--=-yqvXrTIRGvWurS6hz/7K
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA//aKmqburzKaJYLYRAkMgAJ42Bm6pmQi47NPkfDOGgfCrUGGvGACfaR0J
+I6CisOut6Mw8OlUEq3aYxMs=
+=jUNQ
+-----END PGP SIGNATURE-----
+
+--=-yqvXrTIRGvWurS6hz/7K--
+

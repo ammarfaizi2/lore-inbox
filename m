@@ -1,68 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbTD2Nrt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 09:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTD2Nrt
+	id S261950AbTD2Nxy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 09:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbTD2Nxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 09:47:49 -0400
-Received: from watch.techsource.com ([209.208.48.130]:33007 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S261521AbTD2Nrs
+	Tue, 29 Apr 2003 09:53:54 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:17370 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261950AbTD2Nxw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 09:47:48 -0400
-Message-ID: <3EAE85CB.9070000@techsource.com>
-Date: Tue, 29 Apr 2003 10:01:47 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+	Tue, 29 Apr 2003 09:53:52 -0400
+Message-ID: <3EAE796C.7010405@austin.ibm.com>
+Date: Tue, 29 Apr 2003 08:09:00 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@hansenpartnership.com>
-CC: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-References: <1051466395.2427.62.camel@fuzzy>
+To: Bobby Singh <bobbysingh22@hotmail.com>
+CC: linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: Having problem with io_getevents with o_direct flag
+References: <Law10-F78IJsaJbqJGN00015519@hotmail.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Well a couple of possibilities.  First, are you opening a block device 
+(like /dev/sdb) ?  If you are, this is still broken in 2.5.67. A patch 
+for this has been submitted to the aio list and is also available in the 
+2.5 bugtraker (http://bugme.osdl.org) attached to bug 626.
 
+Also, as far as your code goes, the res from io_get_events only tells 
+you that the io_get_events succeeded.  To see if the IO actually 
+succeeded you always need to check event.res.  Be careful for event.res 
+as there is a bug in libaio where event.res is defined as unsigned but 
+it is really signed (negative=error, positive=bytesread/written).
 
-James Bottomley wrote:
+Also I see that you are setting the minimum number of events requested 
+to 0, not sure what this will do.  Might want to set that to 1.
 
->>    
->>
+Hmm, also see that you are passing in just a struct event where the API 
+calls for a struct event * (actually an array of event structs).  Not 
+sure why this ever works.
+
+Hope this helps,
+Steve
+
+Bobby Singh wrote:
+
+> Hi,
 >
->As far as the DMCA goes, many people think it oversteps the
->constitutional boundary by giving to IP holders rights they are
->forbidden from possessing, and hence they come to talk about "ownership
->of intellectual contributions" rather than "my limited right to profit
->by my invention"...only time and the courts will tell.
+>  I am having problems with using io_getevents ? Is the o_direct aio 
+> support stable in 2.5.67? Following is the scenario:
 >
->  
+> Machine: Dell 500SC 1.13Gz
+> Original Kernel : 2.4.18-3 ( redhat 7.3)
+> Downloaded kernel 2.5.67 and compiled it.
+> Installed libaio-0.3.92 aio library.
 >
-I believe that it's very important that an author have rights to profit 
-exclusively from their creations.  It gives them incentive to create.  I 
-mean, if every time you developed some cool new technology, some foreign 
-company took it, made huge profits from it, and left you with out a dime 
-for all of your effort, wouldn't that put a huge kink in your desire to 
-expend that sort of effort?
-
-On the other hand, I don't believe people should rest on their laurels. 
- Limited rights is an incentive to get off one's behind and create 
-another thing.
-
-I think patent periods should be very strongly enforced and SHORT.  Like 
-most of these patents that we think of as frivolous should be allowed, 
-but the time limit should be at most a year or two.  Many of these 
-'defensive' patents that companies like Amazon have are actually good 
-things because they ensure that these ideas go into the public domain. 
- If some patent is deemed particularly clever, then the limit should be 
-more like five years.
-
-I have mixed feelings on defensive patents.  "Since I know that you're 
-going to patent what I'm already doing and then sue me over it, I'm 
-going to beat you to the punch and patent it to protect myself."  It 
-makes sense in a very sad sort of way.
-
->  
+> I am writing an io intensive application and want to leverage the 
+> o_direct aio support. I am using in following way (borrowed from 
+> testcase in libaio)
 >
+> struct iocb **pAiocb;
+> struct io_event event;
+> if(io_submit(io_ctx,numAiocb, pAiocb) <0)
+> {
+>    perror("Error in io_submit");
+>    return(-1);
+> }
+> for(i=0;i<numAiocb;i++)
+> {
+>    if((res=io_getevents(io_ctx,0,1,event,NULL)) && (res != 1))
+>    {
+>        perror("Error in getevents");
+>        return(-1);
+>    }
+>    printf("%d\n",event.res);
+> }
+>
+>
+> PROBLEM is : THe code doesn't print an ERROR but in "event.res" the 
+> amount of data  read is not same as requested. Sometimes the return 
+> size is ZERO and event is returned.
+>
+> THE CODE WORKS fine if the file is opened WITHOUT O_DIRECT.
+>
+> Thanks,
+> Bobby
+>
+> _________________________________________________________________
+> Protect your PC - get McAfee.com VirusScan Online  
+> http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
+>
+> -- 
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+
+
 

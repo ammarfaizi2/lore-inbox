@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290461AbSBKVBL>; Mon, 11 Feb 2002 16:01:11 -0500
+	id <S290494AbSBKVJB>; Mon, 11 Feb 2002 16:09:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290454AbSBKVBC>; Mon, 11 Feb 2002 16:01:02 -0500
-Received: from [209.205.26.42] ([209.205.26.42]:32774 "HELO
-	gateway.fpelectronics.com") by vger.kernel.org with SMTP
-	id <S290423AbSBKVAs> convert rfc822-to-8bit; Mon, 11 Feb 2002 16:00:48 -0500
-Message-ID: <200202111559320446.2581AD39@notes.fpelectronics.com>
-X-Mailer: Calypso Version 3.30.00.00 (4)
-Date: Mon, 11 Feb 2002 15:59:32 -0500
-From: "Al Moote" <amoote@ivhs.com>
-To: linux-kernel@vger.kernel.org
-Subject: "All of your loopback devices are in use!" reported by
-  mkinitrd
-Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on notes/MarkIV(Release 5.0.9 |November 16, 2001) at
- 02/11/2002 03:55:58 PM,
-	Serialize by Router on notes/MarkIV(Release 5.0.9 |November 16, 2001) at 02/11/2002
- 03:55:58 PM,
-	Serialize complete at 02/11/2002 03:55:58 PM
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
+	id <S290475AbSBKVIv>; Mon, 11 Feb 2002 16:08:51 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:30992 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S290491AbSBKVIf>; Mon, 11 Feb 2002 16:08:35 -0500
+Message-ID: <3C6832CC.D9D27F2F@linux-m68k.org>
+Date: Mon, 11 Feb 2002 22:08:28 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: thread_info implementation
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all.  I am not-so new to Linux, but I haven't had to recompile my kernel before.  We are taking the leap into Samba Fileserving an thus, I need to add ACL functionality to my kernel.  I have opted to go with 2.4.17 and have had some success so far.  I am, however, stuck at one point.
+Hi,
 
-I am trying to make my .img file to support my RAID devices.  When I run:
+I'm currently wondering how to implement the recent thread_info changes
+for m68k, unfortunately I can't find any discussion about it on lkml,
+why it was done this way.
 
-/sbin/mkinitrd /boot/initrd-2.4.17-021102.img 2.4.17-021102
+1. I more liked the previous byte fields instead of the bitmasks.
+bitfield/bitmask instructions are at least 2 bytes longer than a simple
+test instruction for m68k. I got this now nicely optimized (see
+http://linux-m68k-cvs.apia.dhs.org/c/cvsweb/linux/arch/m68k/kernel/entry.S?rev=1.6&content-type=text/x-cvsweb-markup)
+and changing it back to bitmasks would make it worse again.
+2. I can understand that we split the task structure from the stack, but
+why have thread_info and task_struct to be two different pointers? I'd
+prefer two keep one pointer, through everything is accessed, that means
+thread_info would be part of task_struct.
 
-I get the message:
-
-All of your loopback devices are in use!
-
-I don't really understand why this is preventing me from creatingthe .img file.  But then again, I have little experience in this area.  I was hoping somebody on this list could len a hand.  Thanks alot guys (and the occasional gal).
-
-Al Moote
-
+bye, Roman

@@ -1,100 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267477AbTAGVte>; Tue, 7 Jan 2003 16:49:34 -0500
+	id <S267485AbTAGVuL>; Tue, 7 Jan 2003 16:50:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267485AbTAGVte>; Tue, 7 Jan 2003 16:49:34 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:29352 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267477AbTAGVtb>;
-	Tue, 7 Jan 2003 16:49:31 -0500
-Date: Tue, 7 Jan 2003 15:12:22 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: net devices: Get network devices to show up in sysfs.
-In-Reply-To: <20030107214315.GA23011@gtf.org>
-Message-ID: <Pine.LNX.4.33.0301071506250.1020-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267499AbTAGVuL>; Tue, 7 Jan 2003 16:50:11 -0500
+Received: from crack.them.org ([65.125.64.184]:27620 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S267485AbTAGVuD>;
+	Tue, 7 Jan 2003 16:50:03 -0500
+Date: Tue, 7 Jan 2003 16:58:38 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Alex Bennee <alex@braddahead.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why do some net drivers require __OPTIMIZE__?
+Message-ID: <20030107215838.GA20046@nevyn.them.org>
+Mail-Followup-To: Alex Bennee <alex@braddahead.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1041863609.21044.11.camel@cambridge.braddahead> <1041867367.17472.40.camel@irongate.swansea.linux.org.uk> <1041949988.21044.37.camel@cambridge.braddahead>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1041949988.21044.37.camel@cambridge.braddahead>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 7 Jan 2003, Jeff Garzik wrote:
-
-> On Mon, Jan 06, 2003 at 07:50:37PM +0000, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.838.151.11, 2003/01/06 13:50:37-06:00, mochel@osdl.org
+On Tue, Jan 07, 2003 at 02:33:07PM +0000, Alex Bennee wrote:
+> On Mon, 2003-01-06 at 15:36, Alan Cox wrote:
+> > > Does anybody know the history behind those lines? Do they serve any
+> > > purpose now or in the past? Should I be nervous about compiling the
+> > > kernel at a *lower* than normal optimization level? After all
+> > > optimizations are generally processor specific and shouldn't affect the
+> > > meaning of the C.
 > > 
-> > 	net devices: Get network devices to show up in sysfs.
-> > 	
-> > 	- declare net_subsys, and register during net_dev_init().
-> > 	- Add kobject to struct net_device.
-> > 	- initialize name and register in register_netdevice().
-> > 	- remove in unregister_netdevice().
-> > 	
-> > diff -Nru a/include/linux/netdevice.h b/include/linux/netdevice.h
-> > --- a/include/linux/netdevice.h	Tue Jan  7 13:06:05 2003
-> > +++ b/include/linux/netdevice.h	Tue Jan  7 13:06:05 2003
-> > @@ -28,6 +28,7 @@
-> >  #include <linux/if.h>
-> >  #include <linux/if_ether.h>
-> >  #include <linux/if_packet.h>
-> > +#include <linux/kobject.h>
-> >  
-> >  #include <asm/atomic.h>
-> >  #include <asm/cache.h>
-> > @@ -438,6 +439,9 @@
-> >  	/* this will get initialized at each interface type init routine */
-> >  	struct divert_blk	*divert;
-> >  #endif /* CONFIG_NET_DIVERT */
-> > +
-> > +	/* generic object representation */
-> > +	struct kobject kobj;
-> >  };
+> > Some of our inline and asm blocks assume things like optimisation. Killing
+> > that check and adding -finline-functions ought to be enough to get what
+> > you expect.
 > 
-> Just curious, is this needed purely for reference counting, or mainly to
-> hook into sysfs?  If the former, net devices already have reference
-> counting, so I want to make sure kobjects do not run afoul of that.
-
-The latter. If desired, the reference counting can be converted to use 
-kobject refcounting. I can look into this, if you like. 
-
-> > +	snprintf(dev->kobj.name,KOBJ_NAME_LEN,dev->name);
-> > +	kobj_set_kset_s(dev,net_subsys);
-> > +	ret = kobject_register(&dev->kobj);
+> It appears to go deeper than a few network drivers. Droping to -O0
+> breaks a host of other sections (ipc, sockets etc.) for less than
+> obvious reasons. The only source files that seem to depend on the
+> __OPTIMIZE__ define are a few of the other drivers and the byteswap
+> macros.
 > 
-> If the return code matters, shouldn't you be checking for its success?
+> I'll investigate the gcc pages to see if there is anyway to allow
+> optimisation without the out-of-order stuff that makes tracing the start
+> up so hard. *sigh*
 
-Bah. How about the attached patch instead? 
+Try -O1; it's much better for debugging in general.
 
+> I assume I can't drop the -fomit-frame-pointer for the same reason
+> (inline and asm blocks assuming register assigment?).
 
-	-pat
+Shouldn't matter.
 
-===== net/core/dev.c 1.51 vs edited =====
---- 1.51/net/core/dev.c	Mon Jan  6 13:50:36 2003
-+++ edited/net/core/dev.c	Tue Jan  7 15:10:55 2003
-@@ -2520,6 +2520,11 @@
- 		if (d == dev || !strcmp(d->name, dev->name))
- 			goto out_err;
- 	}
-+	snprintf(dev->kobj.name,KOBJ_NAME_LEN,dev->name);
-+	kobj_set_kset_s(dev,net_subsys);
-+	if ((ret = kobject_register(&dev->kobj)))
-+		goto out_err;
-+	
- 	/*
- 	 *	nil rebuild_header routine,
- 	 *	that should be never called and used as just bug trap.
-@@ -2547,10 +2552,7 @@
- 	notifier_call_chain(&netdev_chain, NETDEV_REGISTER, dev);
- 
- 	net_run_sbin_hotplug(dev, "register");
--
--	snprintf(dev->kobj.name,KOBJ_NAME_LEN,dev->name);
--	kobj_set_kset_s(dev,net_subsys);
--	ret = kobject_register(&dev->kobj);
-+	ret = 0;
- 
- out:
- 	return ret;
+> On a related note should enabling -g on the kernel CFLAGS be ok? For
+> some reason vmlinux kernels compiled with -g (even after being stripped)
+> seem to break the bootmem allocator on my setup. I'm trying to track
+> down if this is due to some linker weirdness due to the symbol table
+> being bigger than physical memory even though its not actually being
+> loaded into the system.
 
+It should be OK; it sounds like a problem with the loader you're using,
+at a guess.
+
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

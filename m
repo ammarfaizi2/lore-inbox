@@ -1,161 +1,181 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268238AbTCFRWI>; Thu, 6 Mar 2003 12:22:08 -0500
+	id <S268232AbTCFRan>; Thu, 6 Mar 2003 12:30:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268239AbTCFRWI>; Thu, 6 Mar 2003 12:22:08 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56582 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268238AbTCFRWF>; Thu, 6 Mar 2003 12:22:05 -0500
-Date: Thu, 6 Mar 2003 09:30:20 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <Pine.LNX.4.44.0303060857380.4511-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303060912370.7206-100000@home.transmeta.com>
+	id <S268233AbTCFRan>; Thu, 6 Mar 2003 12:30:43 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:44222 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268232AbTCFRai>;
+	Thu, 6 Mar 2003 12:30:38 -0500
+Date: Thu, 6 Mar 2003 11:16:40 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Adrian Bunk <bunk@fs.tum.de>, Dominik Brodowski <linux@brodo.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.64: cpufreq "userspace" governor doesn't compile
+In-Reply-To: <20030306172803.D838@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0303061111530.994-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 6 Mar 2003, Ingo Molnar wrote:
+On Thu, 6 Mar 2003, Russell King wrote:
+
+> On Wed, Mar 05, 2003 at 08:53:12PM +0100, Adrian Bunk wrote:
+> >   gcc -Wp,-MD,drivers/cpufreq/.userspace.o.d -D__KERNEL__ -Iinclude 
+> > -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+> > -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 
+> > -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
+> > -DKBUILD_BASENAME=userspace -DKBUILD_MODNAME=userspace -c -o 
+> > drivers/cpufreq/userspace.o drivers/cpufreq/userspace.c
+> > drivers/cpufreq/userspace.c: In function `cpufreq_governor_userspace':
+> > drivers/cpufreq/userspace.c:514: structure has no member named `intf'
+> > drivers/cpufreq/userspace.c:523: structure has no member named `intf'
+> > make[2]: *** [drivers/cpufreq/userspace.o] Error 1
 > 
-> interesting approach,
+> Dominik sent this patch to the cpufreq list to fix this.  I'm not
+> sure if it fixes this exact problem, but from reading the patch I
+> think its worth a try.  (its currently building here.)
+> 
+> --- Dominik's message follows ---
+> 
+> Forgot to cc the cpufreq list...: I just sent this patch to Linus:
+> 
+> - update the userspace governor sysfs interface to get along with the
+>   new "device interface" model
+> 
+>  drivers/cpufreq/userspace.c |   29 ++++++++++++-----------------
+>  include/linux/cpufreq.h     |   10 +++++++++-
+>  kernel/cpufreq.c            |    6 ------
+>  3 files changed, 21 insertions(+), 24 deletions(-)
 
-Ahh.. After five emails on the subject, you finally took a look at the 
-patch? Good.
+I sent a patch to Linus last night that fixed the compile error, since I
+broke it, but wasn't as complete a fix as this.
 
->		 but it has one problem which so far i tried to
-> avoid: it makes it too easy for a process to gain a bonus.
+Dominik, the patch below is the patch just sent, relative to the current
+BK tree. Sorry about this..
 
-Yes and no. It actually follows your rules:
+	-pat
 
->							 Until now
-> pretty much the only way to get an interactive bonus was to actually
-> sleep.
-
-And that is still true. _Somebody_ has to sleep, and the bonus is still 
-entirely based on how long that somebody slept.
-
-
->  Another rule was that interactivity is kept constant, ie. the only
-> 'source' of interactivity was passing time, not some artificial activity
-> performed by any process.
-
-And this is also still true. Again, the only _source_ of interactivity is 
-the fact that the woken-up process slept for a noticeable time. There is 
-no "artificial source" there.
-
-Do the math: the patch uses the exact same source as the current algorithm 
-does - it only changes the _cutoff_.
-
-The current algorithm just throws away "interactivity bonus" points when 
-the sleeper has gotten to some maximum value. 
-
-The new one doesn't throw them away when it hits the maximum - it gives 
-them to the person who woke it up.
-
->		 Even the timeslice passing across fork()/exit()  
-> is controlled carefully to maintain the total sum of timeslices.
-
-But my patch DID NOT CHANGE THE TOTAL SUM! Read the patch again. 
-
-See:
-
-+                       int ticks = p->sleep_avg - MAX_SLEEP_AVG + current->sleep_avg;
-			p->sleep_avg = MAX_SLEEP_AVG;
-
-Note how this breaks down:
-
-	"p->sleep_avg - MAX_SLEEP_AVG"
-
-this is the part we're "throwing away", because the sleeper had already 
-accumulated enough interactivity points.
-
-	" + current->sleep_avg"
-
-this is the part that the waker _already_had_.
-
-	if (ticks > MAX_SLEEP_AVG)
-		ticks = MAX_SLEEP_AVG;
-
-This just says that the waker, too, will be limited by the "maximum 
-interactivity" thing.
-
-	if (!in_interrupt())
-		current->sleep_avg = ticks;
-
-and this part says "we only give the potential boost to a _synchronous_ 
-waker" (ie a network packet that comes in and wakes somebody up in 
-bottom half processing will _not_ cause an interactivity boost to a random 
-process).
-
-See? The patch maintains the rule that "interactivity" only gets created 
-by sleeping. The only thing it really does is to change how we 
-_distribute_ the interactivity we get. It gives some of the interactivity 
-to the waker.
-
-> With the above code it's enough to keep a single helper thread around
-> which blocks on a pipe, to create an almost endless source of
-> interactivity bonus.
-
-No. You do not get to "create" interactivity. All the CPU cycles you win 
-from interactivity you must have lost by having one of your processes wait 
-for it.
-
-Sure - it changes the balance of who gets to be considered interactive. 
-But that's the whole _point_ of it.
-
->		 And does not even have to be 'deliberate' - there's
-> tons of code that just waits for a CPU-bound task to finish (eg. 'make'
-> waiting for gcc to finish), and which processes/threads have a maximum
-> boost already, in which case the interactivity boost is not justified.
-
-And if they already have the maximum boost, they won't get any more. Look 
-at the five lines of actual code added.
-
-Also, note how your "waiting for gcc to finish" is still not true. Sure, 
-that "make" will be considered interactive, but it's not going to help the 
-waker (gcc) any, since it will be interactive waiting for gcc to _die_.
-
-I can come up with better (ie "real") examples of where this changes
-behaviour:
-
- - "cc1" (slow) writes to a pipe to "as" (fast)
-
-   "as" is fast, so as ends up waiting most of the time. Thus it ends up 
-   being marked interactive.
-
-   When cc1 wakes up as, assuming as has been marked "maximally 
-   interactive", cc1 will get an interactivity boost too.
-
-Is this "wrong"?  Maybe, if you see it from a pure "interactivity"  
-standpoint. But another way of seeing it is to say that it automatically
-tries to _balance_ this kind of pipeline - since "cc1" is much slower and
-actually _wants_ the interactivity that "as" is clearly not ever going to
-actually get any real advantage from, it is actually likely to be
-perfectly fine give "cc1" a priority.
-
-Also, note that if cc1 is _really_ slow (which it is) and really doesn't 
-wake up as very often, you won't see this effect, since the 
-"anti-interactive" code will balance things out.
-
-In short, it's all about balancing. There are things that are
-"pro-interactive" (real sleeping), and there are things that are
-"anti-interactive" (using up your timeslice). The question is how you 
-spread out the bonus points (or the negative points).
-
-The current scheduler doesn't spread them out at all. I think that's a
-bug, since pipelines of multiple processes are actually perfectly common,
-and X is only one example of this.
-
-And my patch may spread it out _too_ much. Maybe we shouldn't give _all_ 
-of the left-over interactivity to the waker. Maybe we should give just 
-half of it away..
-
-See?
-
-		Linus
+===== drivers/cpufreq/userspace.c 1.2 vs edited =====
+--- 1.2/drivers/cpufreq/userspace.c	Wed Mar  5 17:44:20 2003
++++ edited/drivers/cpufreq/userspace.c	Thu Mar  6 11:11:49 2003
+@@ -23,6 +23,7 @@
+ #include <linux/sysctl.h>
+ #include <linux/types.h>
+ #include <linux/fs.h>
++#include <linux/sysfs.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -465,23 +466,14 @@
+ 
+ 
+ /************************** sysfs interface ************************/
+-static inline int to_cpu_nr (struct device *dev)
++static ssize_t show_speed (struct cpufreq_policy *policy, char *buf)
+ {
+-	struct sys_device * cpu_sys_dev = container_of(dev, struct sys_device, dev);
+-	return (cpu_sys_dev->id);
+-}
+-
+-static ssize_t show_speed (struct device *dev, char *buf)
+-{
+-	unsigned int cpu = to_cpu_nr(dev);
+-
+-	return sprintf (buf, "%u\n", cpu_cur_freq[cpu]);
++	return sprintf (buf, "%u\n", cpu_cur_freq[policy->cpu]);
+ }
+ 
+ static ssize_t 
+-store_speed (struct device *dev, const char *buf, size_t count) 
++store_speed (struct cpufreq_policy *policy, const char *buf, size_t count) 
+ {
+-	unsigned int cpu = to_cpu_nr(dev);
+ 	unsigned int freq = 0;
+ 	unsigned int ret;
+ 
+@@ -489,13 +481,16 @@
+ 	if (ret != 1)
+ 		return -EINVAL;
+ 
+-	cpufreq_set(freq, cpu);
++	cpufreq_set(freq, policy->cpu);
+ 
+ 	return count;
+ }
+ 
+-static DEVICE_ATTR(scaling_setspeed, (S_IRUGO | S_IWUSR), show_speed, store_speed);
+-
++static struct freq_attr freq_attr_scaling_setspeed = {
++	.attr = { .name = "scaling_setspeed", .mode = 0644 },
++	.show = show_speed,
++	.store = store_speed,
++};
+ 
+ static int cpufreq_governor_userspace(struct cpufreq_policy *policy,
+ 				   unsigned int event)
+@@ -511,7 +506,7 @@
+ 		cpu_min_freq[cpu] = policy->min;
+ 		cpu_max_freq[cpu] = policy->max;
+ 		cpu_cur_freq[cpu] = policy->cur;
+-		device_create_file (policy->dev, &dev_attr_scaling_setspeed);
++		sysfs_create_file (&policy->kobj, &freq_attr_scaling_setspeed.attr);
+ 		memcpy (&current_policy[cpu], policy, sizeof(struct cpufreq_policy));
+ 		up(&userspace_sem);
+ 		break;
+@@ -520,7 +515,7 @@
+ 		cpu_is_managed[cpu] = 0;
+ 		cpu_min_freq[cpu] = 0;
+ 		cpu_max_freq[cpu] = 0;
+-		device_remove_file (policy->dev, &dev_attr_scaling_setspeed);
++		sysfs_remove_file (&policy->kobj, &freq_attr_scaling_setspeed.attr);
+ 		up(&userspace_sem);
+ 		module_put(THIS_MODULE);
+ 		break;
+===== include/linux/cpufreq.h 1.18 vs edited =====
+--- 1.18/include/linux/cpufreq.h	Mon Mar  3 16:38:51 2003
++++ edited/include/linux/cpufreq.h	Thu Mar  6 11:09:36 2003
+@@ -18,7 +18,8 @@
+ #include <linux/notifier.h>
+ #include <linux/threads.h>
+ #include <linux/device.h>
+-
++#include <linux/kobject.h>
++#include <linux/sysfs.h>
+ 
+ #define CPUFREQ_NAME_LEN 16
+ 
+@@ -193,6 +194,13 @@
+ 		policy->min = policy->max;
+ 	return;
+ }
++
++struct freq_attr {
++	struct attribute attr;
++	ssize_t (*show)(struct cpufreq_policy *, char *);
++	ssize_t (*store)(struct cpufreq_policy *, const char *, size_t count);
++};
++
+ 
+ /*********************************************************************
+  *                        CPUFREQ 2.6. INTERFACE                     *
+===== kernel/cpufreq.c 1.21 vs edited =====
+--- 1.21/kernel/cpufreq.c	Mon Mar  3 16:38:51 2003
++++ edited/kernel/cpufreq.c	Thu Mar  6 11:09:36 2003
+@@ -206,12 +206,6 @@
+ }
+ 
+ 
+-struct freq_attr {
+-	struct attribute attr;
+-	ssize_t (*show)(struct cpufreq_policy *, char *);
+-	ssize_t (*store)(struct cpufreq_policy *, const char *, size_t count);
+-};
+-
+ #define define_one_ro(_name) \
+ struct freq_attr _name = { \
+ 	.attr = { .name = __stringify(_name), .mode = 0444 }, \
 

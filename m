@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267627AbTALXEs>; Sun, 12 Jan 2003 18:04:48 -0500
+	id <S267612AbTALW4S>; Sun, 12 Jan 2003 17:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267628AbTALXEs>; Sun, 12 Jan 2003 18:04:48 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:2054 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267627AbTALXEq>;
-	Sun, 12 Jan 2003 18:04:46 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301122311.h0CNBkE1001677@darkstar.example.net>
-Subject: Coding style - (Was Re: any chance of 2.6.0-test*?)
-To: robw@optonline.net
-Date: Sun, 12 Jan 2003 23:11:46 +0000 (GMT)
-Cc: torvalds@transmeta.com, hch@infradead.org, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1042404503.1208.95.camel@RobsPC.RobertWilkens.com> from "Rob Wilkens" at Jan 12, 2003 03:48:24 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S267618AbTALW4S>; Sun, 12 Jan 2003 17:56:18 -0500
+Received: from almesberger.net ([63.105.73.239]:21510 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S267612AbTALW4O>; Sun, 12 Jan 2003 17:56:14 -0500
+Date: Sun, 12 Jan 2003 20:04:48 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: uaca@alumni.uv.es,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dveitch@unimelb.edu.au
+Subject: Re: How much we can trust packet timestamping
+Message-ID: <20030112200448.G1516@almesberger.net>
+References: <20021230112838.GA928@pusa.informat.uv.es> <1041253743.13097.3.camel@irongate.swansea.linux.org.uk> <20030110190706.A6866@almesberger.net> <1042253032.32431.28.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1042253032.32431.28.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sat, Jan 11, 2003 at 02:43:52AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Most of a discussion about coding style removed]
+Alan Cox wrote:
+> You run NTP between the host clock and the nic timer.
 
-> As someone else pointed out, it's provable that goto isn't needed, and
-> given that C is a minimalist language, I'm not sure why it was included.
+While NTP is a good synchronization source (frequently the only
+affordable one around), I'm not so sure it's such a good tool
+for correcting drift. If you have a look at figure 5 in
+http://www.cubinlab.ee.mu.oz.au/~darryl/tscclock_final.pdf.gz
+you'll see that NTP uses drift to correct for offset errors, so
+using NTP directly doesn't yield a clock that remains stable
+unless it's constantly getting corrected by NTP.
 
-It's worth keeping in mind, when coding in *any* language, that
-concepts such as loops, functions, and any kind of 'structured'
-programming, are all completely artificial concepts.
+What should work better is to use NTP only as a reference for
+offset, and then calibrate the hardware clock from that.
+Particularly the TSC is very stable, so there isn't much drift
+to worry about.
 
-Microprocessors are essentially based around:
+But what I'm after is the interface between kernel and user space,
+and any kernel-internal interfaces that may be needed. If people
+really want to use NTP directly on hardware clocks, I guess my
+approach 1) (export everything to user space, and let user space
+worry about the details) would then be the appropriately flexible
+choice ?
 
-Loading discrete values to registers.
-Loading discrete values into memory locations.
-Copying a value from a register or a memory location, to another
-register or a memory location.
-Pushing and poping values on to and off of the stack.
-Jumping to another location based on whether a register contains zero
-or a non zero value.
+- Werner
 
-The only thing that can really be considered anything like structured
-programming is the stack, (and possibly interupts).
-
-> But at least the code is "readable" when you do that.
-
-Assember for a simple microprocessor such as a Z80 is arguable easier
-to understand than C source code for something like the Linux kernel.
-
-It's not the language, or how it is indented, that determines how
-difficult code is to read.  It's the logic in the code.
-
-John.
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

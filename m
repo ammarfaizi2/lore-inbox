@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUJCR4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUJCSEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268036AbUJCR4B (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 13:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUJCR4B
+	id S268039AbUJCSEf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 14:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUJCSEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 13:56:01 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:14860 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268036AbUJCRz6 (ORCPT
+	Sun, 3 Oct 2004 14:04:35 -0400
+Received: from [145.85.127.2] ([145.85.127.2]:55973 "EHLO mail.il.fontys.nl")
+	by vger.kernel.org with ESMTP id S268039AbUJCSEd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 13:55:58 -0400
-Message-ID: <9e473391041003105511b77003@mail.gmail.com>
-Date: Sun, 3 Oct 2004 13:55:53 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Vladimir Dergachev <volodya@mindspring.com>
-Subject: Re: Merging DRM and fbdev
-Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0410031254280.17448@node2.an-vo.com>
-Mime-Version: 1.0
+	Sun, 3 Oct 2004 14:04:33 -0400
+Message-ID: <56986.217.121.83.210.1096826639.squirrel@217.121.83.210>
+Date: Sun, 3 Oct 2004 20:03:58 +0200 (CEST)
+Subject: [Patch] nfsd: Insecure port warning shows decimal IPv4 address
+From: "Ed Schouten" <ed@il.fontys.nl>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@ppc970.osdl.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e47339104100220553c57624a@mail.gmail.com>
-	 <Pine.LNX.4.58.0410030824280.2325@skynet>
-	 <9e4733910410030833e8a6683@mail.gmail.com>
-	 <Pine.LNX.4.61.0410031145560.17248@node2.an-vo.com>
-	 <9e4733910410030924214dd3e3@mail.gmail.com>
-	 <Pine.LNX.4.61.0410031254280.17448@node2.an-vo.com>
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How is the tuner controlled? Is it a V4L insterface?
+Hi guys,
 
+Made a quick patch that changes dmesg(8) output to show IPv4 addresses in
+decimal form instead of hexadecimal when you receive an insecure port
+warning.
+---
 
-On Sun, 3 Oct 2004 12:59:38 -0400 (EDT), Vladimir Dergachev
-<volodya@mindspring.com> wrote:
-> Jon, this is a common misconception - GATOS km module *does* provide a v4l
-> interface.
-> 
-> What is different is that the device configuration (like setting the tuner
-> or encoding) is done by Xserver.
-> 
-> All km does is check whether the card can supply a v4l stream and, if so,
-> it provides it. This is little different from a webcam driver, especially
-> if a webcam has its own on/off switch.
-> 
-> The misconception arises from the fact that many v4l programs were only
-> made to work with bt848 cards - they would *not* work with webcams any
-> more than they would work with km.
-> 
->                                best
-> 
->                                  Vladimir Dergachev
-> 
-> >
-> > --
-> > Jon Smirl
-> > jonsmirl@gmail.com
-> >
-> >
-> > -------------------------------------------------------
-> > This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
-> > Use IT products in your business? Tell us what you think of them. Give us
-> > Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
-> > http://productguide.itmanagersjournal.com/guidepromo.tmpl
-> > --
-> > _______________________________________________
-> > Dri-devel mailing list
-> > Dri-devel@lists.sourceforge.net
-> > https://lists.sourceforge.net/lists/listinfo/dri-devel
-> >
-> 
+ nfsfh.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
-
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+--- linux-2.6.9-rc3/fs/nfsd/nfsfh.c	2004-09-30 05:04:26.000000000 +0200
++++ linux-2.6.9-rc3-xbox/fs/nfsd/nfsfh.c	2004-10-03 19:29:39.711659000 +0200
+@@ -153,8 +153,11 @@
+ 		error = nfserr_perm;
+ 		if (!rqstp->rq_secure && EX_SECURE(exp)) {
+ 			printk(KERN_WARNING
+-			       "nfsd: request from insecure port (%08x:%d)!\n",
+-			       ntohl(rqstp->rq_addr.sin_addr.s_addr),
++			       "nfsd: request from insecure port (%d.%d.%d.%d:%d)!\n",
++			       (unsigned char)(ntohl(rqstp->rq_addr.sin_addr.s_addr) >> 24),
++			       (unsigned char)(ntohl(rqstp->rq_addr.sin_addr.s_addr) >> 16),
++			       (unsigned char)(ntohl(rqstp->rq_addr.sin_addr.s_addr) >> 8),
++			       (unsigned char)(ntohl(rqstp->rq_addr.sin_addr.s_addr)),
+ 			       ntohs(rqstp->rq_addr.sin_port));
+ 			goto out;
+ 		}

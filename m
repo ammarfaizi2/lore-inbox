@@ -1,37 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133101AbRDSTxL>; Thu, 19 Apr 2001 15:53:11 -0400
+	id <S135511AbRDSTzJ>; Thu, 19 Apr 2001 15:55:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135364AbRDSTvw>; Thu, 19 Apr 2001 15:51:52 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26639 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133101AbRDSTvF>; Thu, 19 Apr 2001 15:51:05 -0400
+	id <S135364AbRDSTy7>; Thu, 19 Apr 2001 15:54:59 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4873 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135497AbRDSTxo>; Thu, 19 Apr 2001 15:53:44 -0400
+Date: Thu, 19 Apr 2001 16:53:36 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: <linux-lvm@sistina.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jes Sorensen <jes@linuxcare.com>, <linux-kernel@vger.kernel.org>,
+        <linux-openlvm@nl.linux.org>, Arjan van de Ven <arjanv@redhat.com>,
+        Jens Axboe <axboe@suse.de>, Martin Kasper Petersen <mkp@linuxcare.com>
 Subject: Re: [linux-lvm] Re: [repost] Announce: Linux-OpenLVM mailing list
-To: adilger@turbolinux.com (Andreas Dilger)
-Date: Thu, 19 Apr 2001 20:51:22 +0100 (BST)
-Cc: linux-lvm@sistina.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jes@linuxcare.com (Jes Sorensen), linux-kernel@vger.kernel.org,
-        linux-openlvm@nl.linux.org, arjanv@redhat.com (Arjan van de Ven),
-        axboe@suse.de (Jens Axboe), mkp@linuxcare.com (Martin Kasper Petersen),
-        riel@conectiva.com.br
-In-Reply-To: <200104191945.f3JJjKRn015661@webber.adilger.int> from "Andreas Dilger" at Apr 19, 2001 01:45:20 PM
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <200104191945.f3JJjKRn015661@webber.adilger.int>
+Message-ID: <Pine.LNX.4.33.0104191650050.17635-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14qKSa-0007vI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not to be negative, but isn't Alan the pot calling the kettle black?  You
-> use ORBS to block email as well, with no hope of reprieve.  AFAIK, the
+On Thu, 19 Apr 2001, Andreas Dilger wrote:
 
-I dont stop other people discussing the kernel. Its very very different.
+> I don't think that the subscription is necessarily the only
+> issue.  I'm subscribed to all of the LVM mailing lists, and
+> still a lot of what I submit (legitimate bug fixes, and not just
+> features/code cleanup) does not get added to CVS.  Yes, the
+> no-possible-harm patches like man pages went in, but not other
+> stuff.  Also, it doesn't appear that any of the LVM changes are
+> making it into the stock kernel, which is basically a recepie
+> for disaster.
 
-> linux-lvm list has a moderator which _should_ forward legitimate emails
-> on to the list.  Maybe they are piling up somewhere, unread?
+This is indeed an even bigger problem.  LVM is no longer just
+a Sistina product, it is an integrated part of the Linux kernel.
 
-If they were that would be understandable but they were being rejected. Anyway
-it seems to be a finished discussion. 
+This brings with it the responsability of maintaining the LVM
+subsystem which is included in the kernel. I understand that
+Sistina may want to do "LVM releases" every once in a while,
+but this isn't a development model that makes much sense when
+their code has been integrated into the Linux kernel (IMHO).
+
+> The openlvm list may change my mind, I'll see.
+
+If you think any other openly accessible LVM development things
+are needed (maybe a CVS tree which can be used by all LVM
+developers and not just the Sistina folks?) .. NL.linux.org is
+all yours.
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVCAXk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVCAXlU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262132AbVCAXk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 18:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVCAXk6
+	id S262128AbVCAXlU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 18:41:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVCAXlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 18:40:58 -0500
-Received: from gprs215-167.eurotel.cz ([160.218.215.167]:2708 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262133AbVCAXkH (ORCPT
+	Tue, 1 Mar 2005 18:41:19 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:11933 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262128AbVCAXjE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 18:40:07 -0500
-Date: Wed, 2 Mar 2005 00:39:52 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
-Message-ID: <20050301233952.GG2062@elf.ucw.cz>
-References: <20050228231721.GA1326@elf.ucw.cz> <20050301020722.6faffb69.akpm@osdl.org> <20050301022116.2bbd55a0.akpm@osdl.org> <20050301105625.GH1345@elf.ucw.cz> <20050301123522.1bb8cfec.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050301123522.1bb8cfec.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 1 Mar 2005 18:39:04 -0500
+To: Bernd Schubert <bernd-schubert@web.de>
+Cc: Andi Kleen <ak@muc.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       nfs@lists.sourceforge.net
+Subject: Re: x86_64: 32bit emulation problems
+References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de>
+	<200503012207.02915.bernd-schubert@web.de>
+	<jewtsruie9.fsf@sykes.suse.de>
+	<200503020019.20256.bernd-schubert@web.de>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: My CODE of ETHICS is vacationing at famed SCHROON LAKE
+ in upstate New York!!
+Date: Wed, 02 Mar 2005 00:39:02 +0100
+In-Reply-To: <200503020019.20256.bernd-schubert@web.de> (Bernd Schubert's
+ message of "Wed, 2 Mar 2005 00:19:19 +0100")
+Message-ID: <jefyzfueax.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Bernd Schubert <bernd-schubert@web.de> writes:
 
-> > > Relocating pagedir | 
-> > > Reading image data (8157 pages): 100% 8157 done.
-> > > Stopping tasks: ====|                           
-> > > Freeing memory... done (0 pages freed)
-> > > Freezing CPUs (at 1)...Sleeping in:   
-> > >  [<c0103c1d>] dump_stack+0x19/0x20 
-> > >  [<c0133c7f>] smp_pause+0x1f/0x54 
-> > >  [<c010ee27>] smp_call_function_interrupt+0x3b/0x60
-> > >  [<c01037d4>] call_function_interrupt+0x1c/0x24    
-> > >  [<c0101111>] cpu_idle+0x55/0x64               
-> > >  [<c05929ed>] start_secondary+0x71/0x78
-> > >  [<00000000>] 0x0                      
-> > >  [<cffa5fbc>] 0xcffa5fbc
-> > > ok                      
-> > > double fault, gdt at c1203260 [255 bytes]
-> > > NMI Watchdog detected LOCKUP on CPU1, eip c0133c96, registers:
-> 
-> Note the double fault.
+> Hmm, after compiling with -D_FILE_OFFSET_BITS=64 it works fine. But why does 
+> it work without this option on a 32bit kernel, but not on a 64bit kernel?
 
-Yes, I can see it, it scares me. SMP swsusp is not in good state
-because I do not have easy access to SMP or HT hardware. I guess I'll
-just have to get into suse at the night and steal some P4 ;-).
+Most likely the inode number (which is the only non-filesize related item
+that is different between struct stat and struct stat64) overflows ino_t.
 
-								Pavel
+Andreas.
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

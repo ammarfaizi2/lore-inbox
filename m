@@ -1,54 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262843AbVAQS1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbVAQSXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262843AbVAQS1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 13:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbVAQS1U
+	id S262826AbVAQSXn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 13:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVAQSUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 13:27:20 -0500
-Received: from [62.217.32.94] ([62.217.32.94]:6398 "HELO ferris-medz.com")
-	by vger.kernel.org with SMTP id S262832AbVAQS0T (ORCPT
+	Mon, 17 Jan 2005 13:20:38 -0500
+Received: from smtp1.sloane.cz ([62.240.161.228]:52437 "EHLO smtp1.sloane.cz")
+	by vger.kernel.org with ESMTP id S262837AbVAQSSo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 13:26:19 -0500
-Message-ID: <4eb401c4fcb3$9b621b20$bedbf200@wwwavocnrjn>
-Reply-To: "hello" <wwwavocnrjn@ferris-medz.com>
-From: "hello" <wwwavocnrjn@ferris-medz.com>
-To: "hello" <linux-kernel@vger.kernel.org>
-Subject: refill notification from discount prescription (Order 2629)
-Date: Mon, 17 Jan 2005 16:43:00 +0100
+	Mon, 17 Jan 2005 13:18:44 -0500
+From: Michal Semler <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-dvb@linuxtv.org
+Subject: Satelco driver stopped development - new developer wanted
+Date: Mon, 17 Jan 2005 19:17:47 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1158
+Content-Disposition: inline
+Message-Id: <200501171917.48109.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to offer you a full range of meds offered by our licensed
-pharmacy. 
-We use only licensed Doctors and Pharmacists and our staff is all standing
-by to process
-your order as quickly as possible.
+Hi guys,
 
-Viaa  gra Just $67
+people which developed original driver stopped supporting it. Will you please 
+maintain it?
 
-Soo  ma Just $63
+Original driver is here:
+http://instinct-wp8.no-ip.org/pluto/
 
-Vall  ium Just $59
+Michal
 
- Xan  nax Just $79
+----
+Re: 2.6.10 and your driver for Pluto
 
-Am  bienn  Just $68
+From:
+Dany Salman <salmandany@yahoo.fr>
 
-Please visit our site for an easy ordering process.
+To: 
+cijoml@volny.cz
 
-http://www.ferris-medz.com/?wid=209081
+
+Datum: 
+Dnes 17:02:47
 
 
-Sincerely,
-Gary Martin
+Hi,
 
-rem0ve: www.akwjoiksx.com
+Here is what I think of your trouble :
 
+> Hi,
+> 
+> I simply fixed compilation via:
+> +#include <linux/version.h>
+> 
+> - eth= skb->mac.ethernet;
+> +#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,8)
+> + eth = skb->mac.ethernet;
+> +#else
+> + eth = eth_hdr(skb);
+> +#endif
+> 
+> But after inserting module I get:
+> 
+> PCI: Setting latency timer of device 0000:03:00.0 to
+> 64
+> Pluto 2 MacAddress : 00:d0:16:01:5c:0c
+> Pluto Card Revision (Maj,Min) : (2,15)
+
+This part works fine, the driver even manages to find
+your Macaddress and the card revision...
+
+> driver_initialize: unable to allocate dma !
+
+However, it cannot allocate dma for an unknown
+reason... You should try to compile it on a previous
+kernel version (it has been succesfully tested until
+2.6.6 and then its development stopped). Maybe it is
+due to your intel chipset. I only can advise you to
+run a previous kernel to check if it works.
+
+By the way, I am not developping this driver any more 
+so if the linuxtv guys don't release and support it,
+I'm afraid there is no issue for your trouble...
+
+Cheers,
+
+Dany Salman
+----

@@ -1,81 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132673AbRDMAY3>; Thu, 12 Apr 2001 20:24:29 -0400
+	id <S132642AbRDMAYk>; Thu, 12 Apr 2001 20:24:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132666AbRDMAYT>; Thu, 12 Apr 2001 20:24:19 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6152 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S132642AbRDMAYK>; Thu, 12 Apr 2001 20:24:10 -0400
-Date: Thu, 12 Apr 2001 19:42:18 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: generic_osync_inode() broken?
-In-Reply-To: <Pine.LNX.4.31.0104121228550.20191-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0104121937110.3305-100000@freak.distro.conectiva>
+	id <S132716AbRDMAY3>; Thu, 12 Apr 2001 20:24:29 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:65288 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132642AbRDMAYY>; Thu, 12 Apr 2001 20:24:24 -0400
+Subject: Re: Help with Fasttrack/100 Raid on Linux
+To: timothymoore@bigfoot.com (Tim Moore)
+Date: Fri, 13 Apr 2001 01:26:34 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AD644EF.FCB2C8A2@bigfoot.com> from "Tim Moore" at Apr 12, 2001 05:14:39 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14nrQ6-0001oE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 12 Apr 2001, Linus Torvalds wrote:
-
+> > > FrastTrack/100 Raid controller working. I finally found the ft.o driver
 > 
+> Did you try building it from source?  Their docs say beta ft.o is RH 6.2-7.0
+> which would make me a bit nervous.
 > 
-> On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
-> >
-> > Comments?
-> >
-> > --- fs/inode.c~	Thu Mar 22 16:04:13 2001
-> > +++ fs/inode.c	Thu Apr 12 15:18:22 2001
-> > @@ -347,6 +347,11 @@
-> >  #endif
-> >
-> >  	spin_lock(&inode_lock);
-> > +	while (inode->i_state & I_LOCK) {
-> > +		spin_unlock(&inode_lock);
-> > +		__wait_on_inode(inode);
-> > +		spin_lock(&inode_lock);
-> > +	}
-> >  	if (!(inode->i_state & I_DIRTY))
-> >  		goto out;
-> >  	if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
-> 
-> Ehh.
-> 
-> Why not just lock the inode around the thing?
-> 
-> The above looks rather ugly.
+> ftp://ftp.promise.com/Controllers/IDE/FastTrak100/Linux/LinuxBETA/
 
-Ok, me again.
- 
-The inode->i_state locking is rather nasty: there is no need to lock the
-inode. We just have to wait for it to become unlocked, since its
-guaranteed that who locked it wrote it to disk. (sync_one())
-
-Aviro suggested the following, which is much cleaner than the previous
-patch: 
-
-
---- fs/inode.c~	Thu Apr 12 21:15:23 2001
-+++ fs/inode.c	Thu Apr 12 21:16:35 2001
-@@ -301,6 +301,8 @@
- 		while (inode->i_state & I_DIRTY)
- 			sync_one(inode, sync);
- 		spin_unlock(&inode_lock);
-+		if (sync)
-+			wait_on_inode(inode);
- 	}
- 	else
- 		printk("write_inode_now: no super block\n");
-@@ -357,6 +359,7 @@
- 
-  out:
- 	spin_unlock(&inode_lock);
-+	wait_on_inode(inode);
- 	return err;
- }
- 
-
+They dont supply most of the source, just get a different controller.

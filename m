@@ -1,83 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265697AbSJXXnl>; Thu, 24 Oct 2002 19:43:41 -0400
+	id <S265701AbSJXXrM>; Thu, 24 Oct 2002 19:47:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265701AbSJXXnl>; Thu, 24 Oct 2002 19:43:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62481 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265697AbSJXXnk>;
-	Thu, 24 Oct 2002 19:43:40 -0400
-Message-ID: <3DB88715.7070203@pobox.com>
-Date: Thu, 24 Oct 2002 19:49:41 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S265710AbSJXXrM>; Thu, 24 Oct 2002 19:47:12 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:18827 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S265701AbSJXXrK>; Thu, 24 Oct 2002 19:47:10 -0400
+From: SL Baur <steve@kbuxd.necst.nec.co.jp>
 MIME-Version: 1.0
-To: "H. J. Lu" <hjl@lucon.org>
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI device order problem
-References: <20021024163945.A21961@lucon.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15800.34980.899069.115419@sofia.bsd2.kbnes.nec.co.jp>
+Date: Fri, 25 Oct 2002 08:56:20 +0900
+To: Philippe Troin <phil@fifi.org>
+Cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, tmolina@cox.net, haveblue@us.ibm.com
+Subject: Re: more aic7xxx boot failure
+In-Reply-To: <87hefbxw3d.fsf@ceramic.fifi.org>
+References: <8800000.1035498319@w-hlinder>
+	<87lm4nxxnj.fsf@ceramic.fifi.org>
+	<16660000.1035501142@w-hlinder>
+	<87hefbxw3d.fsf@ceramic.fifi.org>
+X-Mailer: VM 7.03 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. J. Lu wrote:
+Philippe Troin writes:
 
->In arch/i386/kernel/pci-pc.c, there are
->
->/*
-> * Sort the device list according to PCI BIOS. Nasty hack, but since some
-> * fool forgot to define the `correct' device order in the PCI BIOS specs
-> * and we want to be (possibly bug-to-bug ;-]) compatible with older kernels 
-> * which used BIOS ordering, we are bound to do this... 
-> */
->
->static void __devinit pcibios_sort(void)
->
->The problem is on my MB:
->
->00:00.0 Host bridge: Intel Corp. e7500 [Plumas] DRAM Controller (rev 03)
->00:00.1 Class ff00: Intel Corp. e7500 [Plumas] DRAM Controller Error Reporting ( rev 03)
->00:03.0 PCI bridge: Intel Corp. e7500 [Plumas] HI_C Virtual PCI Bridge (F0) (rev 03)
->00:03.1 Class ff00: Intel Corp. e7500 [Plumas] HI_C Virtual PCI Bridge (F1) (rev 03)
->00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
->00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
->00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 42)
->00:1f.0 ISA bridge: Intel Corp. 82801CA ISA Bridge (LPC) (rev 02)
->00:1f.1 IDE interface: Intel Corp. 82801CA IDE U100 (rev 02)
->00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus (rev 02)
->01:0c.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
->02:1c.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
->02:1d.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
->02:1e.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
->02:1f.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
->03:07.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
->03:07.1 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
->03:08.0 RAID bus controller: 3ware Inc 3ware 7000-series ATA-RAID (rev 01)
->
->Eth1 becomes:
->03:07.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
->
->and eth0 becomes:
->03:07.1 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
->
->Is that a good idea to have an option to sort the PCI device by PCI bus and
->slot numbers?
->  
->
+> Now, if the driver could be fixed, that would be nicer...
 
-Without answering your specific question, but addressing $subject, what 
-problem is caused by the PCI device order you see?
-
-You can use ETHTOOL_GDRVINFO to get the PCI bus info for an ethernet 
-interface, so you know at all times what device is associated with what 
-PCI device.  And among other ways you are notified of device 
-addition/removal by the execution of /sbin/hotplug for each ethernet 
-interface.
-
-    Jeff
-
-
-
-
+I've forward ported the aic7xxx driver in 2.4.20-pre11 (which works
+excellently for me) to 2.5.44.  I'll post the patches later this morning.
 

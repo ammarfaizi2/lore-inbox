@@ -1,67 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130895AbQKRTIN>; Sat, 18 Nov 2000 14:08:13 -0500
+	id <S130751AbQKRTJN>; Sat, 18 Nov 2000 14:09:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130893AbQKRTID>; Sat, 18 Nov 2000 14:08:03 -0500
-Received: from jalon.able.es ([212.97.163.2]:64419 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130751AbQKRTHm>;
-	Sat, 18 Nov 2000 14:07:42 -0500
-Date: Sat, 18 Nov 2000 19:37:28 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Errors in aa2
-Message-ID: <20001118193728.A4607@werewolf.able.es>
-Reply-To: jamagallon@able.es
-In-Reply-To: <20001118033609.C4381@werewolf.able.es> <20001118181937.I2512@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20001118181937.I2512@athlon.random>; from andrea@suse.de on Sat, Nov 18, 2000 at 18:19:37 +0100
-X-Mailer: Balsa 1.0.0
+	id <S130805AbQKRTJD>; Sat, 18 Nov 2000 14:09:03 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:64267 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130751AbQKRTI4>; Sat, 18 Nov 2000 14:08:56 -0500
+Date: Sat, 18 Nov 2000 10:38:36 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Markus Schoder <markus_schoder@yahoo.de>
+cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org,
+        "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Alan Cox <alan@redhat.com>
+Subject: Re: Freeze on FPU exception with Athlon
+In-Reply-To: <20001118182230.14470.qmail@web3407.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.10.10011181025250.919-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 18 Nov 2000 18:19:37 Andrea Arcangeli wrote:
-> On Sat, Nov 18, 2000 at 03:36:09AM +0100, J . A . Magallon wrote:
-> > /usr/bin/kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall
-> -Wstrict-prototypes
-> > -O4 -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe
-> > -fno-strength-reduce -march=i686 -malign-loops=2 -malign-jumps=2
-> > -malign-functions=2 -DCPU=686   -c -o time.o time.c
-> > time.c: In function `do_gettimeofday':
-> > time.c:727: fixed or forbidden register 0 (ax) was spilled for class AREG.
-> > This may be due to a compiler bug or to impossible asm
-> > statements or clauses.
-> 
-> That's compiler bug obviously.
-> 
-> Anyways I guess you're triggering compiler bugs because of the weird
-> optimizations (-O4). Note also that everything over -O2 is _wrongly_ used to
-> inline everything and that will trash away all your icache (I remeber
-> also Linus complained about that bad behaviour of >-O2 in the past and
-> it's also trivial to fix [shouldn't be more than a one liner], but nobody on
-> the gcc side seems to care to fix it since it's still impling the
-> inline-functions in gcc CVS of a few weeks ago).
-> 
 
-Thanks. I tried to do "by hand" the inlining (just cut and paste, the proc
-seemed
-not to be used anywhere but time.c), but the result was the same. So looked at
-the
-gcc info and saw that the function was being inlined from opt level 3.
-Also realized that the 'O4' level does not exist in gcc ( I think i 'ported' it
-from
-use of IRIX cc), so just O2 is right.
+On Sat, 18 Nov 2000, Markus Schoder wrote:
+> 
+> Your test program is indeed sufficient to trigger the
+> freeze.  Unfortunately the patch does not make a
+> difference :(
 
-Anyway, you can compile somehing with -O9751, and gcc says nothing. If max opt
-level
-is 3, any higher level should trig a warning at least...
+Ok.
 
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
+This may in fact be an Athlon CPU bug. But before we contact anybody from
+AMD, I'd really need to know what the result from the irq13 disabling and
+the non-3dnow thing is.
+
+Considering that Udo reports no lockup at all with the same test-program
+even with an Athlon and 3dnow, it looks like it's either irq13 (and a
+motherboard routing issue: sane modern motherboards shouldn't even route
+the external FERR at _all_ any more), or something stepping-specific on
+your Athlon. It doesn't sound kernel-related per se.
+
+Let's hope it's irq13. If so, it will be easy to fix (tentative fix: any
+CPU that reports a built-in FPU just doesn't get irq13 enabled at all).
+
+Current workign theory:
+
+ - Athlons do FERR wrong. They drive FERR externally when the
+   unmasked exception happens, rather than when the next FP instruction
+   actually detects the exception. This means that the external FERR irq13
+   actually happens _before_ the internal exception 16, which is wrong.
+
+ - Linux has seen exception 16 working, so it ignores irq13 and assumes
+   that it's some real external device (which does happen - sometimes
+   SCI is wired to irq13).
+
+ - irq13 is not only wired on the motherboard (which was right in 1989,
+   but is not right in 2000), but is marked level-triggered (which
+   probably wasn't right even in 1989). So when the irq13 happens, it
+   _keeps_ on happening, and we never get an exception 16 at all.
+
+The reason 2.2.x works on your machine might be that the early bootup test
+for FP exceptions will have done something to mask the fpu exception just
+by luck. I forget the exact details of the test - it got removed in later
+kernels because it made it really nasty to handle XMM faults correctly.
+
+Does anybody have any better ideas? 
+
+		Linus
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,72 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbUCGMpm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 07:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUCGMpm
+	id S261614AbUCGMxw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 07:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUCGMxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 07:45:42 -0500
-Received: from zux191-241.adsl.green.ch ([80.254.191.241]:59144 "EHLO jupiter")
-	by vger.kernel.org with ESMTP id S261854AbUCGMpk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 07:45:40 -0500
-Message-ID: <1078670323.404b33f368fbb@oribi.org>
-Date: Sun,  7 Mar 2004 15:38:43 +0100
-From: markus.amsler@oribi.org
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] DAC960 Oopses
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 192.168.67.251
+	Sun, 7 Mar 2004 07:53:52 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:2830 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261614AbUCGMxu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 07:53:50 -0500
+Date: Sun, 7 Mar 2004 13:53:48 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>, lkml <linux-kernel@vger.kernel.org>,
+       "kbuild-devel@lists.sourceforge.net" 
+	<kbuild-devel@lists.sourceforge.net>
+Subject: Re: External kernel modules, second try
+Message-ID: <20040307125348.GA2020@mars.ravnborg.org>
+Mail-Followup-To: Andreas Gruenbacher <agruen@suse.de>,
+	Sam Ravnborg <sam@ravnborg.org>, lkml <linux-kernel@vger.kernel.org>,
+	"kbuild-devel@lists.sourceforge.net" <kbuild-devel@lists.sourceforge.net>
+References: <1078620297.3156.139.camel@nb.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1078620297.3156.139.camel@nb.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Mar 07, 2004 at 01:44:58AM +0100, Andreas Gruenbacher wrote:
+> Hello,
+> 
+> here is the patch I posted previously that adds support for modversions
+> in external kernel modules that are built outside the main kernel tree
+> (first posting archived here: http://lwn.net/Articles/69148/). Relative
+> to the original version, the attached version also works when compiling
+> with O=.
+Hi Andreas.
+I have started to look into this.
+The changes im Makefile when you use SUBDIRS as a flag does not look
+pretty.
 
-The first part fixes a Kernel paging request failure on alpha with
-some older DAC960P cards (i tried D040340-0-DEC/Firmware 2.70).
-The Problem was, that ioremap_nocache(NULL) is not  NULL (only on alpha).
-This card is still unsupported, due to lacking PCI resources.
+What I have in mind is something like this:
+- Get rid of current use of SUBDIRS. It is no longer used in any
+  arch Makefiles.
+- Introduce a KBUILD_EXTMOD variable that is only set when building
+  external modules
+- Introduce a new method to be used when compiling external modules:
+  make M=dir-to-module
+- Keeping the SUbDIRS notation for backward compatibility
+- When using SUBDIRS or M= the 'modules' target is implicit.
+- make clean and make mrproper/distclen only deletes files in the
+  external module directory (as done in your patch)
+- Error out if any updadtes are requires in the kernel tree
+- Find a magic way to include a Kconfig file for the external module
+- Allow kbuild Makefiles to be named Kbuild, so local stuff can be in
+  a file named Makefile file
+  note: this can be achieved using makefile/Makefile today but
+  it makes sense since there is not much 'Make' syntax left in
+  kbuild makefiles today.
 
-The second part fixes a kernel Oops, if the initialization
-of the Controller fails (like too old firmware).
-In that case, DAC960_UnregisterBlockDevice fails, 
-because DAC960_RegisterBlockDevice was never called.
-This is a side effect of the multi-queue patch by Dave Olien.
+Above will not be made in one go. My next step is to make a patch for the
+first four steps - to see the actual impact on current makefiles.
 
-Please CC to me directly.
+Comments welcome!
 
---- linux-2.6.3/drivers/block/DAC960.c	Wed Feb 18 04:59:05 2004
-+++ linux/drivers/block/DAC960.c	Sun Mar  7 11:47:55 2004
-@@ -2723,6 +2723,20 @@
- 	  break;
-   }
- 
-+  /*
-+    Controller with Mylex P/N D040340-0-DEC has no PCI resource[1]!!
-+    Checking the MemoryMappedAddress == NULL will fail on 
-+    virtual Alpha addresses. 
-+  */	  
-+  if (!Controller->PCI_Address)
-+  {
-+	  DAC960_Error("Unable to get PCI Address. "
-+		       "This Controller is currently not supported.\n",
-+                       Controller);
-+	  Controller->IO_Address = 0;
-+	  goto Failure;
-+  }
-+
-   pci_set_drvdata(PCI_Device, (void *)((long)Controller->ControllerNumber));
-   for (i = 0; i < DAC960_MaxLogicalDrives; i++) {
- 	Controller->disks[i] = alloc_disk(1<<DAC960_MaxPartitionsBits);
-@@ -3061,8 +3075,8 @@
- 				    DAC960_V2_RAID_Controller);
- 	  DAC960_Notice("done\n", Controller);
- 	}
-+    DAC960_UnregisterBlockDevice(Controller);
-     }
--  DAC960_UnregisterBlockDevice(Controller);
-   DAC960_DestroyAuxiliaryStructures(Controller);
-   DAC960_DestroyProcEntries(Controller);
-   DAC960_DetectCleanup(Controller);
+Could you explain what is the actually gain of using the
+modversions file your patch creates. (modpost changes)
+
+> The patch also adds a modules_add target that does the equivalent of
+> modules_install for one external module.
+Looks good.
+
+> The third change is to remove one instance of temporary file creation
+> inside the main kernel tree while external modules are built. I think
+> there are still other cases where temp files in the kernel tree are
+> used. IMHO they should all go away, so that a ``make -C $KERNEL_SOURCE
+> modules SUBDIRS=$PWD'' works against a read-only tree.
+Agree - should be easy to test using a CD.
+Are there an easy way to mount just a directory structure RO?
+
+	Sam

@@ -1,87 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbVCVMGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVCVMOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbVCVMGs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 07:06:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVCVMGr
+	id S261153AbVCVMOh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 07:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVCVMOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 07:06:47 -0500
-Received: from downeast.net ([204.176.212.2]:56001 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S262659AbVCVMGe (ORCPT
+	Tue, 22 Mar 2005 07:14:37 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:31939 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261153AbVCVMOb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 07:06:34 -0500
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
-Date: Tue, 22 Mar 2005 07:06:07 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200503201557.58055.pmcfarland@downeast.net> <200503212241.26780.pmcfarland@downeast.net> <200503212249.09512.dtor_core@ameritech.net>
-In-Reply-To: <200503212249.09512.dtor_core@ameritech.net>
+	Tue, 22 Mar 2005 07:14:31 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6827646.ptdGDFebDh";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503220706.13029.pmcfarland@downeast.net>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.12-rc1-mm1: Kernel BUG at pci:389
+Date: Tue, 22 Mar 2005 20:13:13 +0800
+Message-ID: <16A54BF5D6E14E4D916CE26C9AD3057501731439@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.12-rc1-mm1: Kernel BUG at pci:389
+Thread-Index: AcUuzmZCC5QCVGVVQlK2s3YBI6SL1QACL7IA
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Cc: "Andrew Morton" <akpm@osdl.org>, <rjw@sisk.pl>,
+       "lkml" <linux-kernel@vger.kernel.org>,
+       "Brown, Len" <len.brown@intel.com>
+X-OriginalArrivalTime: 22 Mar 2005 12:13:14.0954 (UTC) FILETIME=[8637BAA0:01C52ED8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6827646.ptdGDFebDh
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Monday 21 March 2005 10:49 pm, Dmitry Torokhov wrote:
-> On Monday 21 March 2005 22:41, Patrick McFarland wrote:
-> > On Monday 21 March 2005 10:15 pm, Dmitry Torokhov wrote:
-> > > Looks good, I was wondering if you had GAMEPORT=3Dm and SND_ENS1371=
-=3Dy.
-> >
-> > Yes, that would be quite silly. ;)
-> >
-> > > > For the curious, what was the first kernel to be released that had
-> > > > your sysfs stuff in it?
-> > >
-> > > 2.6.11-mm and 2.6.12-rc1. Vanilla 2.6.11 does not have it.
-> >
-> > I'll go compile 2.6.11 to see if it works there.
-> >
-> > > Could you verify that you enabled joystick port on card? What does
-> > > "cat /sys/module/snd_ens1371/parameters/joystick_port" show?
-> >
-> > 0,0,0,0,0,0,0,0
 >
-> Ok, it looks like setup problem. Try doing:
+>> > Yes, but it is needed. There are many drivers, and they look at
+>> > numerical value of PMSG_*. I'm proceeding in steps. I hopefully
+killed
+>> > all direct accesses to the constants, and will switch constants to
+>> > something else... But that is going to be tommorow (need some
+sleep).
+>> The patches are going to acquire correct PCI device sleep state for
+>> suspend/resume. We discussed the issue several months ago. My plan is
+we
+>> first introduce 'platform_pci_set_power_state', then merge the
+>> 'platform_pci_choose_state' patch after Pavel's pm_message_t
+conversion
+>> finished. Maybe Len mislead my comments.
+>>
+>> Anyway for the callback, my intend is platform_pci_choose_state
+accept
+>> the pm_message_t parameter, and it return an 'int', since platform
+>> method possibly failed and then pci_choose_state translate the return
+>> value to pci_power_t.
 >
->  modprobe snd-ens1371 joystick_port=3D1
+>You can't just retype around like that. You may want it take
+>pci_power_t * as an argument, and then return 0/-ENODEV or something
+>like that. But you can't retype between int and pm_message_t...
+No, taking pci_power_t as an argument is meaningless. For ACPI, we
+should know the exact sleep state, pm_message_t will tell us. But I'm ok
+to let it return a pci_power_t, and the failure case returns -ENODEV.
 
-I already tried that before I mailed the great and almighty source of all=20
-information kernely (aka the lkml). Infact, I tried both joystick=3D1 and=20
-joystick_port=3D1 (some drivers use one, others use the other, and I wasn't=
-=20
-sure at the time which es1371 used).
+>
+>Plus that function should have a documentation somewhere!
+I will add it.
 
-It didn't work.
+>
+>> > Could you just revert those two patches? First one is very
+>> > wrong. Second one might be fixed, but... See comments below.
+>> I think the platform_pci_set_power_state should be ok, did you see it
+>> causes oops?
+>
+>No its just ugly and uses __force in "creative" way. That one can be
+>recovered.
+Do you mean this?
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+> +	static int state_conv[] = {
+> +		[0] = 0,
+> +		[1] = 1,
+> +		[2] = 2,
+> +		[3] = 3,
+> +		[4] = 3
+> +	};
+> +	int acpi_state = state_conv[(int __force) state];
 
---nextPart6827646.ptdGDFebDh
-Content-Type: application/pgp-signature
+The table should be
+		[PCI_D0] = 0,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+I'm not sure, but then could we use state_conv[state] directly? It seems
+wrong to me (the array accepts a pci_power_t as index?)
 
-iD8DBQBCQAo08Gvouk7G1cURAsjtAKC+x8OI246bEtHWoXxy8VdaB3/K8QCeI5GH
-UZSMYRb7UoLqlyEi0OqEbH8=
-=cPSg
------END PGP SIGNATURE-----
-
---nextPart6827646.ptdGDFebDh--
+Thanks,
+Shaohua

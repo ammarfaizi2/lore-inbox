@@ -1,98 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbTDYSjC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 14:39:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263635AbTDYSjC
+	id S263639AbTDYSqG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 14:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263669AbTDYSqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 14:39:02 -0400
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:41182 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S263632AbTDYSjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 14:39:00 -0400
-Message-ID: <3EA983F3.2000306@sun.com>
-Date: Fri, 25 Apr 2003 11:52:35 -0700
-From: Duncan Laurie <duncan@sun.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: problem with Serverworks CSB5 IDE
-References: <3EA85C5C.7060402@sun.com> <20030423212713.GD21689@puck.ch>	 <1051136469.2062.108.camel@dhcp22.swansea.linux.org.uk>	 <20030423232909.GE21689@puck.ch> <20030423232909.GE21689@puck.ch>	 <20030424080023.GG21689@puck.ch> <3EA85C5C.7060402@sun.com>	 <1051268422.5573.25.camel@dhcp22.swansea.linux.org.uk>	 <3EA964D1.3070908@sun.com> <1051285350.5902.14.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1051285350.5902.14.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Apr 2003 14:46:06 -0400
+Received: from grendel.firewall.com ([66.28.56.41]:46534 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S263639AbTDYSqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 14:46:03 -0400
+Date: Fri, 25 Apr 2003 20:58:02 +0200
+From: Marek Habersack <grendel@caudium.net>
+To: linux-kernel@vger.kernel.org
+Subject: Lost interrupts with IDE DMA on 2.5.x
+Message-ID: <20030425185802.GA4391@thanes.org>
+Reply-To: grendel@caudium.net
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Content-Disposition: inline
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Gwe, 2003-04-25 at 17:39, Duncan Laurie wrote:
-> 
->>mode because the PCI interrupt pin register is hardwired to zero (don't
->>ask me why...) so it follows a codepath in do_ide_setup_pci_device()
->>where init_chipset isn't called.
-> 
-> 
-> That would imply a problem in the PCI layer, since the IRQ should have 
-> been assigned, and if the IRQ is not assigned we can't use the device.
-> 
-> I'll take a look. 
-> 
 
-It might just be another unfortunate serverworks chipset bug...
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The CSB5 doesn't appear to fully support native mode--sure you can
-put it in native mode (!) and you're free to assign the BARs any
-way you want, but it still assumes IRQ14 for ide0 and IRQ15 for
-ide1 when they should really be collapsed and shared on a single
-PCI (non-compatibility) interrupt.
+Hello,
 
-While it might be possible to re-route the interrupts using the
-pirq table and a few different bits in the southbridge, that still
-wouldn't solve the problem of PCI config reg 0x3c being read-only
-and set to zero in the IDE function..
+ I've recently added a second drive to my workstation and since then I'm
+getting the following error from time to time:
 
-The best answer might be to not use native mode.  We can force it
-into legacy mode with a pci quirk and it works, but its ugly:
+  Apr 25 20:42:06 beowulf kernel: hda: dma_timer_expiry: dma status =3D=3D =
+0x64
+  Apr 25 20:42:06 beowulf kernel: hda: lost interrupt
+  Apr 25 20:42:06 beowulf kernel: hda: dma_intr: bad DMA status (dma_stat=
+=3D70)
+  Apr 25 20:42:06 beowulf kernel: hda: dma_intr: status=3D0x50 { DriveReady=
+=20
+   SeekComplete }
 
+Both drives are new Maxtors (60 and 40GB) on the VIA KT266 chipset (the mobo
+is MSI K7T266 Pro2-A mobo):
 
---- quirks.c~   2003-04-25 11:37:46.000000000 -0700
-+++ quirks.c    2003-04-25 11:46:45.000000000 -0700
-@@ -631,6 +631,22 @@
-                 interrupt_line_quirk = 1;
-  }
+----------VIA BusMastering IDE Configuration----------------
+Driver Version:                     3.36
+South Bridge:                       VIA vt8233a
+Revision:                           ISA 0x0 IDE 0x6
+Highest DMA rate:                   UDMA133
+BM-DMA base:                        0xfc00
+PCI clock:                          33.3MHz
+Master Read  Cycle IRDY:            0ws
+Master Write Cycle IRDY:            0ws
+BM IDE Status Register Read Retry:  yes
+Max DRDY Pulse Width:               No limit
+-----------------------Primary IDE-------Secondary IDE------
+Read DMA FIFO flush:          yes                 yes
+End Sector FIFO flush:         no                  no
+Prefetch Buffer:              yes                 yes
+Post Write Buffer:            yes                 yes
+Enabled:                      yes                 yes
+Simplex only:                  no                  no
+Cable Type:                   80w                 40w
+-------------------drive0----drive1----drive2----drive3-----
+Transfer Mode:       UDMA      UDMA       PIO       DMA
+Address Setup:      120ns     120ns     120ns     120ns
+Cmd Active:          90ns      90ns      90ns      90ns
+Cmd Recovery:        30ns      30ns      30ns      30ns
+Data Active:         90ns      90ns     330ns      90ns
+Data Recovery:       30ns      30ns     270ns      30ns
+Cycle Time:          15ns      15ns     600ns     120ns
+Transfer Rate:  133.3MB/s 133.3MB/s   3.3MB/s  16.6MB/s
 
-+/*
-+ *     Serverworks CSB5 IDE does not fully support native mode
-+ */
-+static void __init quirk_svwks_csb5ide(struct pci_dev *pdev)
-+{
-+       u8 prog;
-+       pci_read_config_byte(pdev, PCI_CLASS_PROG, &prog);
-+       if (prog & 5) {
-+               prog &= ~5;
-+               pdev->class &= ~5;
-+               pci_write_config_byte(pdev, PCI_CLASS_PROG, prog);
-+               /* need to re-assign BARs for compat mode */
-+               quirk_ide_bases(pdev);
-+       }
-+}
-+
-  /*
-   *  The main table of quirks.
-   */
-@@ -702,6 +718,8 @@
+  Of course, when the above happens, all disk I/O freezes. The above happens
+only when there's simultaneous activity on both devices. It doesn't happen
+when the devices are on different IDE interfaces. The transfer is always
+retried and completed successfully, so it's not a bad hdd and I can only
+guess the problem is somewhere in the DMA/IRQ handling by the IDE driver. If
+there's not enough information to diagnose/solve the problem, I can do more
+tests (run with 2.4 for a while, run with the generic IDE drive etc.).
 
-         { PCI_FIXUP_FINAL,      PCI_VENDOR_ID_CYRIX,    PCI_DEVICE_ID_CYRIX_PCI_MASTER, 
-quirk_mediagx_master },
+TIA,
 
-+       { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_SERVERWORKS, 
-PCI_DEVICE_ID_SERVERWORKS_CSB5IDE, quirk_svwks_csb5ide },
-+
-  #ifdef CONFIG_X86_IO_APIC
-         { PCI_FIXUP_FINAL,      PCI_VENDOR_ID_AMD,      PCI_DEVICE_ID_AMD_8131_APIC,
-           quirk_amd_8131_ioapic },
+marek
 
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--duncan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQE+qYU6q3909GIf5uoRAp/TAJ9m6hNzq0YXpuUjBrlFbfWbV66GxQCeJOES
+eRKodoR7qZKTIWjmyuMjbg4=
+=xxSW
+-----END PGP SIGNATURE-----
+
+--/04w6evG8XlLl3ft--

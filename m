@@ -1,31 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268325AbUJFGtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268382AbUJFGwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268325AbUJFGtK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 02:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268345AbUJFGtK
+	id S268382AbUJFGwt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 02:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268648AbUJFGwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 02:49:10 -0400
-Received: from quechua.inka.de ([193.197.184.2]:8167 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S268325AbUJFGtJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 02:49:09 -0400
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: block till hotplug is done?
-Date: Wed, 06 Oct 2004 00:04:54 +0200
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
-Message-Id: <pan.2004.10.05.22.04.54.237116@dungeon.inka.de>
-References: <1097005927.4953.4.camel@simulacron> <4163005B.2090000@t-online.de>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Wed, 6 Oct 2004 02:52:49 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62217 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S268382AbUJFGws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 02:52:48 -0400
+Date: Wed, 6 Oct 2004 07:52:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjanv@redhat.com>, linux-pcmcia@lists.infradead.org,
+       fujiwara@linux-m32r.org
+Subject: Re: [PATCH 2.6.9-rc3-mm2] [m32r] New CF/PCMCIA driver for m32r
+Message-ID: <20041006075244.B16588@flint.arm.linux.org.uk>
+Mail-Followup-To: Hirokazu Takata <takata@linux-m32r.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>,
+	Arjan van de Ven <arjanv@redhat.com>,
+	linux-pcmcia@lists.infradead.org, fujiwara@linux-m32r.org
+References: <20041006.120502.57438367.takata.hirokazu@renesas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041006.120502.57438367.takata.hirokazu@renesas.com>; from takata@linux-m32r.org on Wed, Oct 06, 2004 at 12:05:02PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 05 Oct 2004 20:19:59 +0000, Harald Dunkel wrote:
-> while [ "`ps | grep /sbin/hotplug | grep -v grep`" ]; do sleep 1; done
+On Wed, Oct 06, 2004 at 12:05:02PM +0900, Hirokazu Takata wrote:
+> This patch is for the new M32R CF/PCMCIA drivers.
+> It is moved from arch/m32r/drivers/ and some part are updated 
+> for 2.6 kernel.
 
-wouldn't work in case the hotplug bug uses exec(), right?
+Reading through your CF driver, I suspect you want to look at using the
+soc_common.c infrastructure.
 
-Andreas
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

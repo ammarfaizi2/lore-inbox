@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbTLPNc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 08:32:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbTLPNc6
+	id S261595AbTLPNhr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 08:37:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTLPNhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 08:32:58 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:36549 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S261681AbTLPNc5
+	Tue, 16 Dec 2003 08:37:47 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:64975 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261595AbTLPNho
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 08:32:57 -0500
-Message-ID: <3FDF0987.3040400@verizon.net>
-Date: Tue, 16 Dec 2003 08:32:55 -0500
-From: RunNHide <res0g1ta@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5.1) Gecko/20031208
-X-Accept-Language: en-us, en
+	Tue, 16 Dec 2003 08:37:44 -0500
+Date: Tue, 16 Dec 2003 14:37:42 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: George Anzinger <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+In-Reply-To: <3FDE2AC6.30902@mvista.com>
+Message-ID: <Pine.LNX.4.55.0312161426060.8262@jurand.ds.pg.gda.pl>
+References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>
+ <brcoob$a02$1@gatekeeper.tmr.com> <3FDA40DA.20409@mvista.com>
+ <Pine.LNX.4.55.0312151412270.26565@jurand.ds.pg.gda.pl> <3FDE2AC6.30902@mvista.com>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-To: Mike Christie <mikenc@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Initio SCSI Drivers
-References: <3FD82252.6050300@verizon.net> <3FDEB84D.1080806@us.ibm.com>
-In-Reply-To: <3FDEB84D.1080806@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [4.4.161.12] at Tue, 16 Dec 2003 07:32:56 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I sure will give it a shot - will do it when I get home from work this 
-evening and will report my findings.
-------------------------------------------------------------------------------------------------------
-RunNHide wrote:
+On Mon, 15 Dec 2003, George Anzinger wrote:
 
-> Can anyone help out? Tried building 2.6.0-test11 today and, lo and 
-> behold, noticed the support for my Initio SCSI card has been removed - 
+> >  Hmm, you could have simply asked... ;-)  Anyway, an inclusion is doable,
+> > I guess.
+> 
+> I suspect I did, but most likey the wrong place.  In any case, I would like to 
+> think that "read the source, Luke" is the right answer.
 
+ Certainly it is, but not necessarily the only one. ;-)
 
-Could you try this patch 
-http://marc.theaimsgroup.com/?l=linux-scsi&m=107118845311085&w=2
+> So, while I am in the asking mode, is there a simple way to turn off the PIT 
+> interrupt without changing the PIT program?  I would like a way to stop the 
+> interrupts AND also stop the NMIs that it generates for the watchdog.  I suspect 
+> that this is a bit more complex that it would appear, due to how its wired.
 
-Thanks,
+ Well, in PC/AT compatible implementations, the counter #0 of the PIT has
+its gate hardwired to active, so you cannot mask the PIT output itself.  
+So the only other choices are either reprogramming the counter to a mode
+that won't cause periodic triggers (which is probably the easiest way, but
+you don't want to do that for some purpose, right?) or reprogramming
+interrupt controllers not to accept interrupts arriving from the PIT.
 
-Mike Christie
-mikenc@us.ibm.com
+ Note that Linux may behave strangely then. ;-)
 
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

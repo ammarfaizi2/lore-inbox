@@ -1,49 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVBWBg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVBWBgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVBWBg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 20:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVBWBg2
+	id S261383AbVBWBgq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 20:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVBWBgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 20:36:28 -0500
-Received: from it4systems-kln-gw.de.clara.net ([212.6.222.118]:33881 "EHLO
-	frankbuss.de") by vger.kernel.org with ESMTP id S261375AbVBWBgY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 20:36:24 -0500
-From: "Frank Buss" <fb@frank-buss.de>
-To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Cc: <rmk+lkml@arm.linux.org.uk>
-Subject: RE: Problems with dma_mmap_writecombine on mach-pxa
-Date: Wed, 23 Feb 2005 02:36:23 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: 
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-Thread-Index: AcUZR1eJK15ELao0TDWR9vDxj7TZZQAAJEqg
-Message-Id: <20050223013624.346885B8C4@frankbuss.de>
+	Tue, 22 Feb 2005 20:36:46 -0500
+Received: from fire.osdl.org ([65.172.181.4]:40594 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261383AbVBWBgh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 20:36:37 -0500
+Date: Tue, 22 Feb 2005 17:36:31 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.11-rc4 i386] Re-order <linux/fs.h> includes to fix userland breakage
+Message-ID: <20050223013631.GC21662@shell0.pdx.osdl.net>
+References: <20050222215141.GA30663@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050222215141.GA30663@smtp.west.cox.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+* Tom Rini (trini@kernel.crashing.org) wrote:
+> The following moves all includes <linux/fs.h> (except <linux/ioctl.h>
+> and <linux/config.h> down to below the existing __KERNEL__ test.  None
+> of these includes are needed by the user-visible portions of the header,
+> and in some cases can cause userland apps to break.  For example, LTP
+> and sash with an empty <linux/autoconf.h> will fail thusly:
+> cc -Wall  -I../../include -g -Wall -I../../../../include -Wall    setrlimit02.c -L../../../../lib -lltp  -o setrlimit02
+> In file included from /usr/include/asm/atomic.h:6,
+>                  from /usr/include/linux/fs.h:20,
+>                  from setrlimit02.c:46:
+> /usr/include/asm/processor.h:68: error: `CONFIG_X86_L1_CACHE_SHIFT' undeclared here (not in a function)
+> /usr/include/asm/processor.h:68: error: requested alignment is not a constant
 
-> Since we map the whole lot in one go, if you get one page, there's no
-> reason why you shouldn't get the lot.  This is why I'm wondering if
-> it has something to do with your other modifications.
+This change is spewing warnings like:
 
-my colleage has found the bug: in the function dma_mmap in 
-arch/arm/mm/consistent.c the call to remap_pfn_range uses 
-user_size in PAGE_SIZE units, but looks like it is expected 
-in bytes. When using (user_size << PAGE_SHIFT), it works.
+  CC      init/main.o
+In file included from include/linux/fs.h:202,
+                 from include/linux/proc_fs.h:6,
+                 from init/main.c:17:
+include/linux/limits.h:4:1: warning: "NR_OPEN" redefined
+In file included from include/linux/proc_fs.h:6,
+                 from init/main.c:17:
+include/linux/fs.h:24:1: warning: this is the location of the previous definition
+  CC      init/do_mounts.o
+In file included from include/linux/fs.h:202,
+                 from include/linux/tty.h:20,
+                 from init/do_mounts.c:5:
+include/linux/limits.h:4:1: warning: "NR_OPEN" redefined
+In file included from include/linux/tty.h:20,
+                 from init/do_mounts.c:5:
+include/linux/fs.h:24:1: warning: this is the location of the previous definition
 
-I don't know, where to fix it: Should the lower level calls 
-get the size in bytes (most function arguments in Linux 
-kernel sources are not commented), this means fixing the 
-dma_mmap, or should PAGE_SIZE be used, then the lower level 
-functions needs to be fixed.
+Move limits.h include back above __KERNEL__ to quiet things back down.
 
--- 
-Frank Buß, fb@frank-buss.de
-http://www.frank-buss.de, http://www.it4-systems.de
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
+===== include/linux/fs.h 1.377 vs edited =====
+--- 1.377/include/linux/fs.h	2005-02-22 13:44:27 -08:00
++++ edited/include/linux/fs.h	2005-02-22 17:26:03 -08:00
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/ioctl.h>
++#include <linux/limits.h>
+ 
+ /*
+  * It's silly to have NR_OPEN bigger than NR_FILE, but you can change
+@@ -199,7 +200,6 @@ extern int dir_notify_enable;
+ #ifdef __KERNEL__
+ 
+ #include <linux/linkage.h>
+-#include <linux/limits.h>
+ #include <linux/wait.h>
+ #include <linux/types.h>
+ #include <linux/kdev_t.h>

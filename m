@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273922AbRIXOlH>; Mon, 24 Sep 2001 10:41:07 -0400
+	id <S273926AbRIXOmr>; Mon, 24 Sep 2001 10:42:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273925AbRIXOk5>; Mon, 24 Sep 2001 10:40:57 -0400
-Received: from waste.org ([209.173.204.2]:24609 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S273922AbRIXOkt>;
-	Mon, 24 Sep 2001 10:40:49 -0400
-Date: Mon, 24 Sep 2001 09:42:34 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.10 - necessary patches
-In-Reply-To: <E15lJF4-0000rL-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0109240936140.11663-100000@waste.org>
+	id <S273925AbRIXOmh>; Mon, 24 Sep 2001 10:42:37 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:7943 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S273926AbRIXOmV>;
+	Mon, 24 Sep 2001 10:42:21 -0400
+Message-ID: <3BAF45CB.3BC2B254@osdlab.org>
+Date: Mon, 24 Sep 2001 07:40:11 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Michel A. S. Pereira KIDMumU|ResolveBucha" 
+	<michelcultivo@uol.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Documentation about Kernel Hacking
+In-Reply-To: <3BAF327C.1050707@uol.com.br>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001, Alan Cox wrote:
-
-> > --- linux-2.4.10-pre7/include/scsi/scsi.h	Fri Apr 27 13:59:19 2001
-> > +++ linux/include/scsi/scsi.h	Mon Sep 10 03:53:58 2001
-> > @@ -214,6 +214,12 @@
-> >  /* Used to get the PCI location of a device */
-> >  #define SCSI_IOCTL_GET_PCI 0x5387
-> >
-> > +/* Used to invoke Target Defice Reset for Fibre Channel */
-> > +#define SCSI_IOCTL_FC_TDR 0x5388
-> > +
-> > +/* Used to get Fibre Channel WWN and port_id from device */
-> > +#define SCSI_IOCTL_FC_TARGET_ADDRESS 0x5389
-> > +
+"Michel A. S. Pereira KIDMumU|ResolveBucha" wrote:
 >
-> These are compaq made up ioctls. They shouldnt be merged like that. Instead
-> there needs to be proper discussion about what is actualyl needed
+>         Hi, where can I get documentation about kernel hacking?
 
-And please, not ioctl(). iSCSI (SCSI-over-IP) is going to require similar
-per-device information (this info isn't FC-specific), but probably a lot
-more. Adding a dozen ioctls is bad. At least one of the current iSCSI
-drivers puts this info in /proc/scsi/iscsi.
+Start with linux/Documentation/kernel-docs.txt
+and www.kernelnewbies.org .
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+~Randy

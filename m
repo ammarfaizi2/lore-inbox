@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268450AbUHLHql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268452AbUHLHze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268450AbUHLHql (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 03:46:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268456AbUHLHpx
+	id S268452AbUHLHze (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 03:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268456AbUHLHze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 03:45:53 -0400
-Received: from gprs214-50.eurotel.cz ([160.218.214.50]:22916 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268448AbUHLHpl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 03:45:41 -0400
-Date: Thu, 12 Aug 2004 09:45:20 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Nathan Bryant <nbryant@optonline.net>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] SCSI midlayer power management
-Message-ID: <20040812074520.GE29466@elf.ucw.cz>
-References: <4119611D.60401@optonline.net> <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net> <1092231462.2087.3.camel@mulgrave> <1092267400.2136.24.camel@gaston>
+	Thu, 12 Aug 2004 03:55:34 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:46084 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S268452AbUHLHzc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 03:55:32 -0400
+Message-ID: <20040812115531.A16166@castle.nmd.msu.ru>
+Date: Thu, 12 Aug 2004 11:55:31 +0400
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Jirka Kosina <jikos@jikos.cz>, Giuliano Pochini <pochini@shiny.it>,
+       linux-kernel@vger.kernel.org
+Subject: Re: FW: Linux kernel file offset pointer races
+References: <XFMail.20040805104213.pochini@shiny.it> <Pine.LNX.4.58.0408051228400.2791@twin.jikos.cz> <20040807171500.GA26084@logos.cnet> <20040811182602.A2055@castle.nmd.msu.ru> <20040811211430.GA4275@dmt.cyclades>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092267400.2136.24.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <20040811211430.GA4275@dmt.cyclades>; from "Marcelo Tosatti" on Wed, Aug 11, 2004 at 06:14:30PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Aug 11, 2004 at 06:14:30PM -0300, Marcelo Tosatti wrote:
+> On Wed, Aug 11, 2004 at 06:26:02PM +0400, Andrey Savochkin wrote:
+> > BTW, f_pos assignments are non-atomic on IA-32 since it's a 64-bit value.
+> > The file position is protected by the BKL in llseek(), but I do not see any
+> > serialization neither in sys_read() nor in generic_file_read() and other
+> > methods.
+> > 
+> > Have we accepted that the file position may be corrupted after crossing 2^32
+> > boundary by 2 processes reading in parallel from the same file?
+> > Or am I missing something?
+> 
+> Yes, as far as I know, parallel users of the same file descriptions (which 
+> can race on 64-bit architectures) is expected, we dont care about handling it.
+> 
+> Behaviour is undefined. 
 
-> > Actually, the answer is to most intents and purposes "yes".  You are
-> > technically correct: there's no way to disable DMA in SCSI.  However,
-> > once a device is quiesced, it has no outstanding commands, so there will
-> > be no outstanding DMA to that device.  When all devices on a host have
-> > been quiesced, then there will be no DMA at all going on *except* if the
-> > user initiates any via another interface (like sending a device probe or
-> > doing a unit scan).  The guarantee should be strong enough for swsusp to
-> > proceed, but we can look at quiescing a host properly (however, we'd
-> > need to move to a better host state model than we currently possess).
-> 
-> Some hosts will continuously DMA to memory iirc.. I remember having a
-> problem with 53c8xx on some macs when transitionning from MacOS to Linux
-> because of that.
-> 
-> We need to properly quisce the host, but that's a per host driver thing
-> and shouldn't be too difficult.
-> 
-> Regarding suspend-to-disk, it's fairly easy for the sd driver not to
-> spin down the disk for S4 (only for S3). However, we will still probably
-> do at least a bus reset when waking up...
-> 
-> Pavel: That's one of the reason I wanted an argument to resume() too so
-> drivers can make a difference between the immediate wakeup that happens
-> for writing the image to disk, vs. the real wakeup on resume. In the first
-> case, SCSI can avoid the bus reset, and any kind of re-configuring, in the 
-> second case, the full stuff might be necessary. 
+I prefer explainable behaviours :)
 
-Hmm, and it can not be handled by "just remember why you were
-suspended", because it is one suspend, two resumes...
+If 2 processes start reading at offset 0xfffffffe, and one of them reads 1
+byte and the second 2 bytes, I can expect the file position be 0xffffffff,
+0x100000000, 0x100000001, or, in the worst case, 0xfffffffe again.
+But 0x1ffffffff will be a real surprise.
 
-Yes, I agree that argument will be usefull. Just who does all the
-driver updating? ;-).
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+For a bigger surprise, we can kill one of the processes with SIGFPE if we
+find that the processes perform such an "incorrect" parallel read and the
+file position has changed behind us ;)
+But we don't want that much undefined behaviour, do we? :)
+
+Best regards
+		Andrey

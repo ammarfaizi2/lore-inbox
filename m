@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135322AbRAJTEK>; Wed, 10 Jan 2001 14:04:10 -0500
+	id <S129406AbRAJTMk>; Wed, 10 Jan 2001 14:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136234AbRAJTEA>; Wed, 10 Jan 2001 14:04:00 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:37533 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S135322AbRAJTDy>; Wed, 10 Jan 2001 14:03:54 -0500
-Date: Wed, 10 Jan 2001 20:05:17 +0100 (CET)
-From: Matthias Juchem <matthias@gandalf.math.uni-mannheim.de>
-Reply-To: Matthias Juchem <juchem@uni-mannheim.de>
-To: Pavel Machek <pavel@suse.cz>
-cc: Matthias Juchem <juchem@uni-mannheim.de>,
-        "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Bug reporting script? (was: removal of redundant line in
- documentation)
-In-Reply-To: <20010109004555.A7021@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.30.0101101959070.12979-100000@gandalf.math.uni-mannheim.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129436AbRAJTMb>; Wed, 10 Jan 2001 14:12:31 -0500
+Received: from f229.law9.hotmail.com ([64.4.9.229]:8459 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129406AbRAJTMU>;
+	Wed, 10 Jan 2001 14:12:20 -0500
+X-Originating-IP: [195.197.160.12]
+From: "M T" <hyponephele@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 umount problem
+Date: Wed, 10 Jan 2001 19:12:14 -0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F229GZuNY1SWoBDyseV00014ef7@hotmail.com>
+X-OriginalArrivalTime: 10 Jan 2001 19:12:14.0529 (UTC) FILETIME=[3DB97310:01C07B39]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Pavel Machek wrote:
-
-> Hi!
+>>M T (hyponephele@hotmail.com) said: I'm running redhat 6.2 halt scripts 
+>>and strange problem appears >>when shutting system down with kernel-2.4.0. 
+>>I get message that "/ >>device is busy". I've updated util-linux 
+>>(kill,mount,umount) >>according documentation without any success. I've 
+>>got no problems >>with 2.2.18. Any ideas?
 >
-> This is horrible bugreport. Kill "keywords". Putting "modules" into
-> keywords i not going to help anyone. Having "4. Kernel version" and
-> minuses before actuall version is not helpfull, either.
+>Are you using devfs?
+>
+>Bill
 
-"modules" as keyword, keywords in general: This is a suggestion from
-REPORTING-BUGS.
-
-minuses: I thought it would be nice to see quickly where one point ends
-and another begins. Readability. But this can easily be changed, probably
-into an empty line, if that doesn't stop you from helping people, either
-
-
+No I'm not.
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

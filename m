@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269259AbUJKVQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269261AbUJKVR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269259AbUJKVQK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 17:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269260AbUJKVQK
+	id S269261AbUJKVR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 17:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269260AbUJKVRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 17:16:10 -0400
-Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:20669 "HELO
-	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269259AbUJKVQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 17:16:07 -0400
-Date: Mon, 11 Oct 2004 14:16:05 -0700
-To: Roland McGrath <roland@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
-Message-ID: <20041011211605.GD3316@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20041010211507.GB3316@triplehelix.org> <200410112055.i9BKt5LI031359@magilla.sf.frob.com>
+	Mon, 11 Oct 2004 17:17:55 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:50053 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S269277AbUJKVRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 17:17:49 -0400
+Subject: Re: Totally broken PCI PM calls
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: David Brownell <david-b@pacbell.net>
+Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <200410110936.37268.david-b@pacbell.net>
+References: <1097455528.25489.9.camel@gaston>
+	 <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
+	 <16746.299.189583.506818@cargo.ozlabs.ibm.com>
+	 <200410110936.37268.david-b@pacbell.net>
+Content-Type: text/plain
+Message-Id: <1097529469.4523.3.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410112055.i9BKt5LI031359@magilla.sf.frob.com>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-User-Agent: Mutt/1.5.6+20040722i
-From: joshk@triplehelix.org (Joshua Kwan)
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 12 Oct 2004 07:17:50 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 01:55:05PM -0700, Roland McGrath wrote:
-> That is a clearly bogus argument.  (In fact it looks like a stack address,
-> a common thing to be found in uninitialized variables.)  Unless you have
-> some reason to suspect that this is not the argument actually passed by
-> make, then you should look at make and see why it passed the bogus
-> argument.  So far, I still don't see a direct suggestion of a kernel bug
-> here.  
+Hi David.
 
-All I know is that this doesn't happen in kernels where the waitid patch
-was not applied. It has *NEVER* happened until now.
+On Tue, 2004-10-12 at 02:36, David Brownell wrote:
+> I've made that point too.  STD is logically a few steps:  quiesce system,
+> write image to swap, change power state.  The ACPI spec talks about
+> that as keeping the system in a G1/S4 powered state, but "swusp"
+> doesn't use that ... it does a full power-off.   And of course, full power-off
+> means that the BIOS probably mucks with the USB hardware, so it's
+> not a real resume any more.
 
-Possibly it was strace catching the wrong end of whatever make was doing
-when it started ptracing it.
+That's not necessarily true. Swsusp and suspend2 both include support
+for enter ACPI S4 state. For suspend2 it's optional (to allow for broken
+bioses). Not sure about whether it is with swsusp.
 
-Could it be glibc's problem.
+Regards,
 
+Nigel
 -- 
-Joshua Kwan
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
+

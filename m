@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272805AbTHKQfj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 12:35:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272818AbTHKQfi
+	id S272832AbTHKQqV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 12:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272837AbTHKQqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 12:35:38 -0400
-Received: from web20706.mail.yahoo.com ([216.136.226.179]:58803 "HELO
-	web20706.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S272805AbTHKQfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 12:35:08 -0400
-Message-ID: <20030811163507.93305.qmail@web20706.mail.yahoo.com>
-Date: Mon, 11 Aug 2003 09:35:07 -0700 (PDT)
-From: "Mr. Mailing List" <mailinglistaddie@yahoo.com>
-Subject: Re: software suspend and 2.6 test2 and laptop
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030808133303.GC6914@openzaurus.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 11 Aug 2003 12:46:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33447 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272832AbTHKQqP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 12:46:15 -0400
+Date: Mon, 11 Aug 2003 09:43:04 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: [RFC] file extents for EXT3
+Message-Id: <20030811094304.10369817.rddunlap@osdl.org>
+In-Reply-To: <3F3791C8.4090903@pobox.com>
+References: <m3ptjcabey.fsf@bzzz.home.net>
+	<3F3791C8.4090903@pobox.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have compaq 2110 amd athlon
---- Pavel Machek <pavel@ucw.cz> wrote:
-> Hi!
-> 
-> > I have S3 sleep state supported, so i echoe'd 3
-> and
-> > the screen went blank and the hard disk light
-> blinked,
-> > and i didn't know how to get back into session, so
-> i
-> > touched power button once, and it turned it off.
-> > 
-> > is there a faq on this?
-> 
-> No, as its notebook-specific.
-> 				Pavel
-> -- 
-> 				Pavel
-> Written on sharp zaurus, because my Velo1 broke. If
-> you have Velo you don't need...
-> 
+On Mon, 11 Aug 2003 08:53:28 -0400 Jeff Garzik <jgarzik@pobox.com> wrote:
+
+| Alex Tomas wrote:
+| > hello all!
+| > 
+| > there are several problems with old good method ext2/ext3
+| > use to store map of block for an inode. for example, ext3's
+| > truncate is quite slow. I think extents could solve this
+| > and some other troubles. so ...
+| > 
+| > 
+| > in fact, design is taken from htree modern ext2/ext3 uses. in constrast with
+| > htree, it isn't backward-compatible.
+| 
+| Neat.  I really like extents, and think this is the best long-term 
+| approach.  Apparently the ext3 maintainers do, too, because tytso/sct's 
+| "ext roadmap" paper publishing a while ago describes extents, too.  (I 
+| wish I had a URL for that)
+
+like this?  http://www.usenix.org/publications/library/proceedings/usenix02/tech/freenix/tso.html
 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+--
+~Randy				For Linux-2.6, see:
+http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt

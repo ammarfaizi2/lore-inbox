@@ -1,519 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263037AbTDBP42>; Wed, 2 Apr 2003 10:56:28 -0500
+	id <S263040AbTDBPyu>; Wed, 2 Apr 2003 10:54:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263038AbTDBP42>; Wed, 2 Apr 2003 10:56:28 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:28151 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S263037AbTDBP4O>; Wed, 2 Apr 2003 10:56:14 -0500
-Date: Wed, 2 Apr 2003 18:07:29 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5] pcmcia: replace cardctl with in-kernel socketctl
-Message-ID: <20030402160729.GA12109@brodo.de>
+	id <S263037AbTDBPyu>; Wed, 2 Apr 2003 10:54:50 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:17079 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S263036AbTDBPyq>; Wed, 2 Apr 2003 10:54:46 -0500
+Date: Wed, 2 Apr 2003 08:02:26 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
+Subject: Re: isp1020 memory trample in 2.5.66
+Message-ID: <20030402080226.A25288@beaverton.ibm.com>
+References: <Pine.LNX.4.50.0304020101460.8773-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.50.0304020101460.8773-100000@montezuma.mastecende.com>; from zwane@linuxpower.ca on Wed, Apr 02, 2003 at 01:08:54AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Socketctl can replace the userspace tool "cardctl" and provide the user with
-many useful information in sysfs directories (one per socket) below the actual 
-socket device. Also, "insert", "eject", "suspend", "resume" and "reset"
-commands can be echo'ed into the file "status" in that directory.
+On Wed, Apr 02, 2003 at 01:08:54AM -0500, Zwane Mwaikambo wrote:
+> 2.5.65 was ok, 2.5.66 can't boot, there is nothing obvious in the patch 
+> which could have led to this. I'd try a binary search but i'm afraid i 
+> won't have that much free time for a while.
 
-As this does not depend on any other change, is a Good Thing IMO, and will
-us enable to get rid of the ds.c ioctl after my devices/hotplug/matching changes
-are merged.
+> Box is 32way PIII-450, devices attached to the only real active isp1020 
+> HBA are;
 
-	Dominik
+I've been booting OK with 2.5.66 with isp1020 and qlogicisp driver with
+multiple disks, though the boot sometimes hangs.
 
- Kconfig     |    9 +
- Makefile    |    2
- socketctl.c |  448 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 459 insertions(+)
+I've also booted OK with the feral driver.
 
-diff -ruN linux-original/drivers/pcmcia/Kconfig linux/drivers/pcmcia/Kconfig
---- linux-original/drivers/pcmcia/Kconfig	2003-04-02 16:19:39.000000000 +0200
-+++ linux/drivers/pcmcia/Kconfig	2003-04-02 17:42:16.000000000 +0200
-@@ -103,5 +103,14 @@
- 	bool
- 	default y if ISA && !ARCH_SA1100 && !ARCH_CLPS711X
- 
-+config PCMCIA_SOCKETCTL
-+	tristate "Socket-Control"
-+	depends on PCMCIA
-+	help
-+	  Say Y here for the new in-kernel functionality of the tool
-+	  "cardctl". Specifically, you will be able to pass "insert",
-+	  "eject", "suspend", "resume" and "reset" commands to the
-+	  PCMCIA socket using a new sysfs interface. If unsure, say Y.
-+
- endmenu
- 
-diff -ruN linux-original/drivers/pcmcia/Makefile linux/drivers/pcmcia/Makefile
---- linux-original/drivers/pcmcia/Makefile	2003-04-02 16:19:39.000000000 +0200
-+++ linux/drivers/pcmcia/Makefile	2003-04-02 17:40:34.000000000 +0200
-@@ -7,6 +7,8 @@
-   obj-$(CONFIG_PCMCIA) 				+= yenta_socket.o
- endif
- 
-+obj-$(CONFIG_PCMCIA_SOCKETCTL)			+= socketctl.o
-+
- obj-$(CONFIG_I82365)				+= i82365.o
- obj-$(CONFIG_I82092)				+= i82092.o
- obj-$(CONFIG_TCIC)				+= tcic.o
-diff -ruN linux-original/drivers/pcmcia/socketctl.c linux/drivers/pcmcia/socketctl.c
---- linux-original/drivers/pcmcia/socketctl.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux/drivers/pcmcia/socketctl.c	2003-04-02 17:45:09.000000000 +0200
-@@ -0,0 +1,448 @@
-+/*
-+ * linux/drivers/pcmcia/socketctl.c
-+ *
-+ * Copyright (C) 2003 Dominik Brodowski 
-+ *           (C) 1999 David A. Hinds
-+ * license : GPL v. 2
-+ * based on the cardctl tool by David A. Hinds
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/list.h>
-+#include <linux/proc_fs.h>
-+
-+#include <pcmcia/version.h>
-+#include <pcmcia/cs_types.h>
-+#include <pcmcia/cs.h>
-+#include <pcmcia/ss.h>
-+
-+static struct device_interface socketctl_interface;
-+
-+struct socketctl_data {
-+	struct list_head	socket_list;
-+	struct kobject		kobj;
-+	int			socket_no;
-+	client_handle_t		handle;
-+};
-+
-+static LIST_HEAD(socketctl_socket_list);
-+static DECLARE_MUTEX		(socketctl_sem);
-+
-+
-+static dev_info_t dev_info = "socketctl";
-+
-+/* Voltage information */
-+
-+#define show_one_voltage(object)	 				\
-+static ssize_t show_##object 						\
-+(struct socketctl_data * data, char *buf)				\
-+{									\
-+	config_info_t config;	 					\
-+	int ret = -EINVAL;	 					\
-+	config.Function = 0;	 					\
-+	ret = pcmcia_get_configuration_info(data->handle, &config);	\
-+	if (ret)	 						\
-+		return 0;	 					\
-+	return sprintf (buf, "%d.%1dV\n", 	 			\
-+			config.object/10, config.object%10);	 	\
-+}
-+
-+show_one_voltage(Vcc);
-+show_one_voltage(Vpp1);
-+show_one_voltage(Vpp2);
-+
-+
-+/* IRQ information */
-+
-+static ssize_t show_irq (struct socketctl_data * data, char *buf)
-+{
-+	config_info_t config;
-+	int ret = -EINVAL;
-+
-+	config.Function = 0;
-+	ret = pcmcia_get_configuration_info(data->handle, &config);
-+	if (ret)
-+		return 0;
-+	if (!(config.Attributes & CONF_VALID_CLIENT))
-+		config.AssignedIRQ = 0;
-+	return sprintf(buf, "%d\n", config.AssignedIRQ);
-+}
-+
-+static ssize_t show_irq_type (struct socketctl_data * data, char *buf)
-+{
-+	config_info_t config;
-+	int ret = -EINVAL;
-+
-+	config.Function = 0;
-+	ret = pcmcia_get_configuration_info(data->handle, &config);
-+	if (ret)
-+		return 0;
-+	if ((config.AssignedIRQ == 0) || !(config.Attributes & CONF_VALID_CLIENT))
-+		return sprintf(buf, "n/a\n");
-+
-+	switch (config.IRQAttributes & IRQ_TYPE) {
-+	case IRQ_TYPE_EXCLUSIVE:
-+		return sprintf(buf, "exclusive\n");
-+	case IRQ_TYPE_TIME:
-+		return sprintf(buf, "multiplexed\n");
-+	case IRQ_TYPE_DYNAMIC_SHARING:
-+		return sprintf(buf, "shared\n"); 
-+	}
-+	return 0;
-+}
-+
-+static ssize_t show_irq_mode (struct socketctl_data * data, char *buf)
-+{
-+	config_info_t config;
-+	int ret = -EINVAL;
-+
-+	config.Function = 0;
-+	ret = pcmcia_get_configuration_info(data->handle, &config);
-+	if (ret)
-+		return 0;
-+	if ((config.AssignedIRQ == 0) || !(config.Attributes & CONF_VALID_CLIENT))
-+		return sprintf(buf, "n/a\n");
-+
-+
-+	if (config.IRQAttributes & IRQ_PULSE_ALLOCATED)
-+		return sprintf(buf, "pulse\n");
-+	else
-+	        return sprintf(buf, "level\n");
-+}
-+
-+#define show_one_enabled(file_name, bit)				\
-+static ssize_t show_##file_name						\
-+(struct socketctl_data * data, char *buf)				\
-+{									\
-+	config_info_t config;	 					\
-+	int ret = -EINVAL;	 					\
-+	config.Function = 0;	 					\
-+	ret = pcmcia_get_configuration_info(data->handle, &config);	\
-+	if (ret)	 						\
-+		return 0;	 					\
-+	if (config.AssignedIRQ == 0)					\
-+		config.Attributes &= ~CONF_ENABLE_IRQ;			\
-+	if (!(config.Attributes & CONF_VALID_CLIENT))			\
-+		config.Attributes = 0;					\
-+	if (config.Attributes & CONF_ENABLE_##bit)			\
-+		return sprintf (buf, "enabled\n");			\
-+	else								\
-+		return sprintf(buf, "disabled\n");			\
-+}
-+
-+show_one_enabled(irq_enabled, IRQ);
-+
-+
-+/* card-specific info */
-+
-+static ssize_t show_card_voltage (struct socketctl_data * data, char *buf)
-+{
-+	cs_status_t status;
-+	int ret;
-+
-+	status.Function = 0;
-+	ret = pcmcia_get_status(data->handle, &status);
-+	if (ret == -ENODEV)
-+		return sprintf(buf, "no card\n");
-+	else if (ret)
-+		return 0;
-+
-+	if (status.CardState & CS_EVENT_3VCARD)
-+		return sprintf(buf, "3.3V\n");
-+	else if (status.CardState & CS_EVENT_XVCARD)
-+		return sprintf(buf, "X.XV\n");
-+	else
-+		return sprintf(buf, "5V\n");
-+}
-+
-+static ssize_t show_card_type (struct socketctl_data * data, char *buf)
-+{
-+	cs_status_t status;
-+	int ret;
-+
-+	status.Function = 0;
-+	ret = pcmcia_get_status(data->handle, &status);
-+	if (ret == -ENODEV)
-+		return sprintf(buf, "no card\n");
-+	else if (ret)
-+		return 0;
-+
-+	if (status.CardState & CS_EVENT_CB_DETECT)
-+		return sprintf(buf, "CardBus card\n");
-+	else if (status.CardState & CS_EVENT_CARD_DETECT)
-+		return sprintf(buf, "16-bit PC Card\n");
-+	else
-+		return sprintf(buf, "no card\n");
-+}
-+
-+show_one_enabled(DMA, DMA);
-+show_one_enabled(speaker, SPKR);
-+
-+
-+/* status */
-+
-+static ssize_t show_status (struct socketctl_data * data, char *buf)
-+{
-+	cs_status_t status;
-+	int ret;
-+
-+	status.Function = 0;
-+	ret = pcmcia_get_status(data->handle, &status);
-+	if (ret == -ENODEV)
-+		return sprintf(buf, "no card\n");
-+	else if (ret)
-+		return 0;
-+
-+	if (status.CardState & CS_EVENT_PM_SUSPEND)
-+		return sprintf(buf, "suspended\n");
-+
-+	return sprintf(buf, "present\n");
-+}
-+
-+static ssize_t store_status(struct socketctl_data *data, const char *buf, size_t count)
-+{
-+	int ret = -EINVAL;
-+	client_req_t req;
-+
-+	if (!strnicmp(buf, "suspend", 7)) {
-+		ret = pcmcia_suspend_card(data->handle, &req);
-+		goto out;
-+	}
-+
-+	if (!strnicmp(buf, "resume", 6)) {
-+		ret = pcmcia_resume_card(data->handle, &req);
-+		goto out;
-+	}
-+
-+	if (!strnicmp(buf, "reset", 5)) {
-+		ret = pcmcia_reset_card(data->handle, &req);
-+		goto out;
-+	}
-+
-+	if (!strnicmp(buf, "insert", 6)) {
-+		ret = pcmcia_insert_card(data->handle, &req);
-+		goto out;
-+	}
-+
-+	if (!strnicmp(buf, "eject", 5)) {
-+		ret = pcmcia_eject_card(data->handle, &req);
-+		goto out;
-+	}
-+
-+ out:
-+	if (ret)
-+		return 0;
-+	else
-+		return count;
-+};
-+
-+
-+/* general #defines */
-+
-+struct socketctl_attr {
-+	struct attribute attr;
-+	ssize_t (*show)(struct socketctl_data *, char *);
-+	ssize_t (*store)(struct socketctl_data *, const char *, size_t count);
-+};
-+
-+#define define_one_ro(_name) \
-+struct socketctl_attr _name = { \
-+	.attr = { .name = __stringify(_name), .mode = 0444 }, \
-+	.show = show_##_name, \
-+}
-+
-+#define define_one_rw(_name) \
-+struct socketctl_attr _name = { \
-+	.attr = { .name = __stringify(_name), .mode = 0644 }, \
-+	.show = show_##_name, \
-+	.store = store_##_name, \
-+}
-+
-+define_one_ro(Vcc);
-+define_one_ro(Vpp1);
-+define_one_ro(Vpp2);
-+
-+define_one_ro(irq);
-+define_one_ro(irq_type);
-+define_one_ro(irq_mode);
-+define_one_ro(irq_enabled);
-+
-+define_one_ro(card_type);
-+define_one_ro(card_voltage);
-+define_one_ro(DMA);
-+define_one_ro(speaker);
-+
-+define_one_rw(status);
-+
-+static struct attribute * default_attrs[] = {
-+	&Vcc.attr,
-+	&Vpp1.attr,
-+	&Vpp2.attr,
-+	&irq.attr,
-+	&irq_type.attr,
-+	&irq_mode.attr,
-+	&irq_enabled.attr,
-+	&card_type.attr,
-+	&card_voltage.attr,
-+	&DMA.attr,
-+	&speaker.attr,
-+	&status.attr,
-+	NULL
-+};
-+
-+#define to_data(k) container_of(k,struct socketctl_data,kobj)
-+#define to_attr(a) container_of(a,struct socketctl_attr,attr)
-+
-+static ssize_t show(struct kobject * kobj, struct attribute * attr ,char * buf)
-+{
-+	struct socketctl_data * data = to_data(kobj);
-+	struct socketctl_attr * sattr = to_attr(attr);
-+	return sattr->show ? sattr->show(data,buf) : 0;
-+}
-+
-+static ssize_t store(struct kobject * kobj, struct attribute * attr, 
-+		     const char * buf, size_t count)
-+{
-+	struct socketctl_data * data = to_data(kobj);
-+	struct socketctl_attr * sattr = to_attr(attr);
-+	return sattr->store ? sattr->store(data,buf,count) : 0;
-+}
-+
-+static struct sysfs_ops sysfs_ops = {
-+	.show	= show,
-+	.store	= store,
-+};
-+
-+static struct kobj_type ktype_socketctl = {
-+	.sysfs_ops	= &sysfs_ops,
-+	.default_attrs	= default_attrs,
-+};
-+
-+static int socketctl_add_socket(struct device *dev, unsigned int socket_nr)
-+{
-+	struct socketctl_data *socketctl;
-+	unsigned int i;
-+	struct socketctl_data *tmp_d;
-+	client_reg_t client_reg;
-+	bind_req_t bind;
-+	int ret;
-+
-+	socketctl = kmalloc(sizeof(struct socketctl_data), GFP_KERNEL);
-+	if (!socketctl)
-+		return -ENOMEM;
-+	memset(socketctl, 0, (sizeof(struct socketctl_data)));
-+
-+	snprintf(socketctl->kobj.name, KOBJ_NAME_LEN, "socketctl%u", socket_nr);
-+	socketctl->kobj.parent = &dev->kobj;
-+	socketctl->kobj.ktype = &ktype_socketctl;
-+
-+	/* find the lowest, unused socket no. Please note that this is a
-+	 * temporary workaround until "struct pcmcia_socket" is introduced
-+	 * into cs.c which will include this number, and which will be
-+	 * accessible to socketctl.c directly */
-+	i = 0;
-+	next_try:
-+	list_for_each_entry(tmp_d, &socketctl_socket_list, socket_list) {
-+		if (tmp_d->socket_no == i) {
-+			i++;
-+			goto next_try;
-+		}
-+	}
-+	socketctl->socket_no = i;
-+
-+	client_reg.dev_info = bind.dev_info = &dev_info;
-+	bind.Socket = socketctl->socket_no;
-+	bind.Function = BIND_FN_ALL;
-+	ret = pcmcia_bind_device(&bind);
-+	if (ret != CS_SUCCESS) {
-+		kfree(socketctl);
-+		return -EINVAL;
-+	}
-+
-+	client_reg.Attributes = 0;
-+	client_reg.EventMask = 0;
-+	client_reg.event_handler = NULL;
-+	client_reg.Version = 0x0210;
-+	client_reg.event_callback_args.client_data = NULL;
-+	ret = pcmcia_register_client(&socketctl->handle, &client_reg);
-+	if (ret != CS_SUCCESS) {
-+		kfree(socketctl);
-+		return -EINVAL;
-+	}
-+	list_add(&socketctl->socket_list,&socketctl_socket_list);
-+	kobject_register(&socketctl->kobj);
-+
-+	return 0;
-+}
-+
-+static int socketctl_add(struct device *dev)
-+{
-+	struct pcmcia_socket_class_data *cls_d;
-+	int i;
-+	unsigned int ret = ~0;
-+
-+	cls_d = dev->class_data;
-+	if (!cls_d || !cls_d->nsock) {
-+		kset_put(&socketctl_interface.kset);
-+		return -EINVAL;
-+	}
-+
-+	down(&socketctl_sem);
-+	for (i=0; i<cls_d->nsock; i++) {
-+		ret &= socketctl_add_socket(dev, i);
-+	}
-+	up(&socketctl_sem);
-+
-+	return (ret);
-+}
-+
-+static int socketctl_remove(struct device *dev)
-+{
-+	struct socketctl_data *socketctl;
-+	struct list_head *tmp;
-+	struct list_head *tmp_s;
-+	int found = 0;
-+
-+	down(&socketctl_sem);
-+	list_for_each_safe(tmp_s, tmp, &socketctl_socket_list) {
-+		socketctl = container_of(tmp_s, struct socketctl_data, socket_list);
-+		if (socketctl->kobj.parent == &dev->kobj) {
-+			kobject_unregister(&socketctl->kobj);
-+			list_del(&socketctl->socket_list);
-+			found++;
-+		}
-+	}
-+	up(&socketctl_sem);
-+
-+	return (!found);
-+}
-+
-+
-+static struct device_interface socketctl_interface = {
-+        .name = "socketctl",
-+	.devclass = &pcmcia_socket_class,
-+	.add_device = &socketctl_add,
-+	.remove_device = &socketctl_remove,
-+	.kset = { .subsys = &pcmcia_socket_class.subsys, },
-+	.devnum = 0,
-+};
-+
-+static int __init socketctl_init(void)
-+{
-+	return interface_register(&socketctl_interface);
-+}
-+
-+static void __exit socketctl_exit(void)
-+{
-+	interface_unregister(&socketctl_interface);
-+}
-+
-+module_init(socketctl_init);
-+module_exit(socketctl_exit);
-+
-+MODULE_AUTHOR ("Dominik Brodowski <linux@brodo.de>");
-+MODULE_DESCRIPTION ("Socket control module for PCMCIA/CardBus sockets");
-+MODULE_LICENSE ("GPL");
+> qlogicisp : new isp1020 revision ID (5)
+> qlogicisp : interrupt 233 already in use
+> scsi0 : QLogic ISP1020 SCSI on PCI bus 01 device 70 irq 41 MEM base 
+> 0xf8c1a000
+>   Vendor: IBM       Model: DRHS36V           Rev: 0270
+>   Type:   Direct-Access                      ANSI SCSI revision: 03
+>   Vendor: IBM       Model: DRHS36V           Rev: 0270
+>   Type:   Direct-Access                      ANSI SCSI revision: 03
+>   Vendor: PLEXTOR   Model: CD-ROM PX-32CS    Rev: 1.02
+>   Type:   CD-ROM                             ANSI SCSI revision: 02
+> scsi1 : QLogic ISP1020 SCSI on PCI bus 04 device 70 irq 89 MEM base 0xf8c1c000
+> SCSI device sda: 72170879 512-byte hdwr sectors (36951 MB)
+> SCSI device sda: drive cache: write through
+>  sda: sda1 sda2 sda3
+> Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+> SCSI device sdb: 72170879 512-byte hdwr sectors (36951 MB)
+> SCSI device sdb: drive cache: write through
+>  sdb: unknown partition table
+> 
+> Unable to handle kernel paging request at virtual address 6b6b6b6b
+>  printing eip:
+> 6b6b6b6b
+> *pde = 00000000
+> Oops: 0000 [#1]
+> CPU:    0
+> EIP:    0060:[<6b6b6b6b>]    Not tainted
+> EFLAGS: 00010086
+> EIP is at 0x6b6b6b6b
+> eax: f8c1c000   ebx: e4f9c000   ecx: 00000001   edx: c3f56400
+> esi: e4f9c000   edi: 00000002   ebp: e4fa09cc   esp: c0375f10
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 0, threadinfo=c0374000 task=c03064a0)
+> Stack: c0228d4b e4fa09cc 00000001 00000001 c3f564b0 c3f56400 0000000b c3f56400 
+>        00000002 c0375f98 c0228a39 0000000b c3f56400 c0375f98 e59f1914 24000001 
+>        0000000b c010cd4a 0000000b c3f56400 c0375f98 c0356960 c0356970 0000000b 
+> Call Trace:
+>  [<c0228d4b>] isp1020_intr_handler+0x2db/0x300
+>  [<c0228a39>] do_isp1020_intr_handler+0x49/0x80
+>  [<c010cd4a>] handle_IRQ_event+0x3a/0x60
+>  [<c010d052>] do_IRQ+0x112/0x1f0
+>  [<c01089b0>] default_idle+0x0/0x40
+>  [<c01089b0>] default_idle+0x0/0x40
+>  [<c010b700>] common_interrupt+0x18/0x20
+>  [<c01089b0>] default_idle+0x0/0x40
+>  [<c01089b0>] default_idle+0x0/0x40
+>  [<c01089dd>] default_idle+0x2d/0x40
+>  [<c0108a82>] cpu_idle+0x52/0x70
+>  [<c0105000>] _stext+0x0/0x70
+> 
+> Code:  Bad EIP value.
+>  <0>Kernel panic: Aiee, killing interrupt handler!
+> 
+> 0xc0228d4b is in isp1020_intr_handler (drivers/scsi/qlogicisp.c:1072).
+> 1071                    (*Cmnd->scsi_done)(Cmnd); <===
+> 1072            }
+
+This looks a lot like the oops when trying to send IO to more than one
+disk at a time with the isp1020 + qlogicisp.
+
+Is there something different causing IO to muliple disks at that point?
+
+I hit this once when I enabled parallel fsck (it didn't oops until after I
+got a late oops, and rebooted).
+
+Martin hit it when the queue depth was not properly checked.
+
+wli has hit it with parallel mkfs (or something).
+
+The following thread was pretty useful, Doug L mentions that the qlogicisp
+does bad things, starting with Martin's analysis:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104457083601573&w=2
+
+-- Patrick Mansfield

@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268047AbUHNESV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUHNEpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268047AbUHNESV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 00:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268048AbUHNESU
+	id S265211AbUHNEpd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 00:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUHNEpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 00:18:20 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:34197 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S268047AbUHNESS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 00:18:18 -0400
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 14 Aug 2004 14:18:15 +1000
-Cc: lef@freil.com
-Subject: Re: Serious Kernel slowdown with HIMEM (4Gig) in 2.6.7
-Message-ID: <20040814041815.GA10742@cse.unsw.EDU.AU>
-Mail-Followup-To: linux-kernel@vger.kernel.org, lef@freil.com
-References: <200408140211.i7E2BNSg027992@dogwood.freil.com>
+	Sat, 14 Aug 2004 00:45:33 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:48532 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S265211AbUHNEpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 00:45:31 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc4-O7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20040813104817.GI8135@elte.hu>
+References: <20040726083537.GA24948@elte.hu>
+	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
+	 <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu>
+	 <1092382825.3450.19.camel@mindpipe>  <20040813104817.GI8135@elte.hu>
+Content-Type: text/plain
+Message-Id: <1092458772.803.64.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408140211.i7E2BNSg027992@dogwood.freil.com>
-User-Agent: Mutt/1.5.6+20040523i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 14 Aug 2004 00:46:12 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Lawrence
-
-On Fri, 13 Aug 2004, Lawrence E. Freil wrote:
-
-> Hello,
->    
-> I'm following the kernel bug reporting format so:
+On Fri, 2004-08-13 at 06:48, Ingo Molnar wrote:
+> ok, it seems the lock-break of the outer loop was not enough - the up to
+> 1024 iterations in the inner loop can generate quite high latencies too.
 > 
-> 1. Linux 2.6.7 kernel slowdown in directory access with HIMEM on
-> 
-> 2. I have discovered an issue with the Linux 2.6.7 kernel when HIMEM is
->    enabled which exhibits itself as a slowdown in directory access regardless
->    of filesystem used.  When HIMEM is disabled the performance returns to
->    normal.  The test I ran was a simple "/usr/bin/time ls -l" of a directory
->    with 3000 empty files.  With HIMEM enabled in the kernel this takes
->    approximately 1.5 seconds.  Without HIMEM it takes 0.03 seconds.  The
->    time is 100% CPU and no I/O operations are done to disk.  "time" reports
->    there are 460 "minor" page faults with zero "major" page faults.
->    I believe the issue here is the mapping of pages between high-mem and
->    lowmem in the kernel paging code.  This increase in time for directory
->    accesses doubles to triples times for applications using samba.
->    I have also tested this on another system which had only 512Meg of RAM
->    but with HIMEM set in the kernel and did not experience the problem.
->    I believe it only effects the performance when the paging buffers end
->    up in highmem.
-> 
-> 3. Keywords: HIMEM, Performance
-> 
-Would you be running these in a gnome-terminal, I remember seeing a thread
-that discussed gnome-terminal problems though a quick search did not turn
-anything up. Here is what I get between a xterm and gnome-terminal.
 
-xterm
-# time ls -lR /etc
-real    0m0.381s
-user    0m0.056s
-sys     0m0.130s
+In some of the traces, like this one:
 
-gnome-terminal
-# time ls -lR /etc
-real    0m0.869s
-user    0m0.057s
-sys     0m0.141s
+http://krustophenia.net/testresults.php?dataset=2.6.8-rc4-bk3-O7#/var/www/2.6.8-rc4-bk3-O7/mount_reiserfs_latency_trace.txt
 
-I ran this twice in both teminals and reported the
-second result.
+there are calls to voluntary_resched.  How is this possible?  Does it
+mean that we called voluntary_resched while holding a spinlock, where we
+needed to call voluntary_preempt_lock(&foo_lock), and thus failed to
+reschedule?
 
-system info
-P4 3.06 HT
-2.6.7 SMP/SMT/HIGHMEM
-1GB ram
+Lee
 
--------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------

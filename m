@@ -1,84 +1,247 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268837AbRIML2t>; Thu, 13 Sep 2001 07:28:49 -0400
+	id <S269404AbRIMLku>; Thu, 13 Sep 2001 07:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268940AbRIML2k>; Thu, 13 Sep 2001 07:28:40 -0400
-Received: from falka.mfa.kfki.hu ([148.6.72.6]:49322 "EHLO falka.mfa.kfki.hu")
-	by vger.kernel.org with ESMTP id <S268837AbRIML2b>;
-	Thu, 13 Sep 2001 07:28:31 -0400
-Date: Thu, 13 Sep 2001 13:27:12 +0200 (CEST)
-From: Gergely Tamas <dice@mfa.kfki.hu>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-cc: <linux-kernel@vger.kernel.org>, <heinz@auto.tuwien.ac.at>,
-        <drebes@inf.ufrgs.br>, <leo@debian.org>
-Subject: Re: Stomping on Athlon bug
-In-Reply-To: <Pine.LNX.4.33.0109131159390.27066-100000@falka.mfa.kfki.hu>
-Message-ID: <Pine.LNX.4.33.0109131325340.31004-100000@falka.mfa.kfki.hu>
+	id <S268940AbRIMLkk>; Thu, 13 Sep 2001 07:40:40 -0400
+Received: from host217-32-117-20.in-addr.btopenworld.com ([217.32.117.20]:35223
+	"EHLO buffy.monodef.org") by vger.kernel.org with ESMTP
+	id <S269041AbRIMLka>; Thu, 13 Sep 2001 07:40:30 -0400
+Message-Id: <200109131139.f8DBdxj0022606@buffy.monodef.org>
+Content-Type: text/plain; charset=US-ASCII
+From: S Fox <stuart@tech-tonic.org>
+To: linux-kernel@vger.kernel.org
+Subject: Strange swap problem on 2.4.5
+Date: Thu, 13 Sep 2001 12:40:42 +0100
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- > I've got here an ABIT KT7 (duron, 750MHz) with BIOS 3C
+Hi all
 
-Sorry, I've ment ABIT KT7A (with VIA KT133A) of course.
+First post so be kind.
 
- >
- >  > YH 00: 06 11 05 03 06 00 10 22 03 00 00 06 00 00 00 00
- >    3C 00: 06 11 05 03 06 00 10 22 03 00 00 06 00 00 00 00
- >  > 3R 00: 06 11 05 03 06 00 10 22 03 00 00 06 00 08 00 00
- >  >                                               ^^
- >
- >  > YH 10: 08 00 00 d0 00 00 00 00 00 00 00 00 00 00 00 00
- >    3C 10: 08 00 00 d8 00 00 00 00 00 00 00 00 00 00 00 00
- >  > 3R 10: 08 00 00 e0 00 00 00 00 00 00 00 00 00 00 00 00
- >  >        ^^^^^^^^^^^
- >
- >  > YH 50: 16 f4 eb
- >    3C 50: 16 f4 eb
- >  > 3R 50: 16 f4 6b
- >  >              ^^
- >
- >  > YH 50: .. .. .. b4 06
- >    3C 50: .. .. .. b4 06
- >  > 3R 50: .. .. .. b4 47
- >  >                    ^^
- >
- >  > YH 50: .. .. .. .. .. 00 04 04 00 00 01 02 03 04 04 04
- >    3C 50: .. .. .. .. .. 00 08 08 80 00 04 08 08 08 08 08
- >  > 3R 50: .. .. .. .. .. 89 04 04 00 00 01 02 03 04 04 04
- >  >                       ^^
- >
- >  > YH 60: 0f 0a 00 20 e4 e4 d4 c4 50 28 65 0d 08 5f 00 00
- >    3C 60: 03 aa 00 20 64 54 54 c4 50 08 65 0d 08 3f 00 00
- >  > 3R 60: 0f 0a 00 20 e4 e4 d4 00 50 08 65 0d 08 5f 00 00
- >  >                                   ^^
- >
- >  > YH 70: d4 88 cc 0c 0e 81 d2 00 01 b4 19 02 00 00 00 00
- >    3C 70: d0 88 cc 0c 0e 81 d2 00 01 b4 19 02 00 00 00 00
- >  > 3R 70: d8 88 cc 0c 0e 81 d2 00 01 b4 19 02 00 00 00 00
- >  >        ^^
- >
- >  > YH a0: 02 c0 20 00 03 02 00 1f 00 00 00 00 2b 12 00 00
- >    3C a0: 02 c0 20 00 03 02 00 1f 00 00 00 00 2b 12 00 00
- >  > 3R a0: 02 c0 20 00 03 02 00 1f 00 00 00 00 2f 12 00 00
- >  >                                            ^^
- >
- >  > YH b0: db 63 02
- >    3C b0: db da 02
- >  > 3R b0: db 63 1a
- >  >              ^^
- >
- >  > YH b0: .. .. .. 50 31 ff 80 0a 67 00 00 00 00 00 00 00
- >    3C b0: .. .. .. 48 31 ff 80 0e 67 00 00 00 00 00 00 00
- >  > 3R b0: .. .. .. 50 31 ff 80 0b 67 00 00 00 00 00 00 00
- >  >                             ^^
- >
- >  > YH f0: 00 00 00 00 00 03 03 00 22 00 00 00 00 00 00 00
- >    3C f0: 00 00 00 00 00 03 03 00 22 00 00 00 00 00 00 00
- >  > 3R f0: 00 00 00 00 00 03 03 00 22 00 00 00 00 80 00 00
- >  >                                               ^^
- >
- > Gergely
+I have a problem on a webserver with the following hardware(RH6.2 
+/etc/sysconfig/hwconf)
 
+class: OTHER
+bus: PCI
+detached: 0
+driver: unknown
+desc: "Relience Computer|CNB20HE"
+vendorId: 1166
+deviceId: 0009
+pciType: 1
+-
+class: OTHER
+bus: PCI
+detached: 0
+driver: unknown
+desc: "Relience Computer|CNB20HE"
+vendorId: 1166
+deviceId: 0009
+pciType: 1
+-
+class: OTHER
+bus: PCI
+detached: 0
+driver: unknown
+desc: "Relience Computer|unknown device 1166:0200"
+vendorId: 1166
+deviceId: 0200
+pciType: 1
+-
+class: OTHER
+bus: PCI
+detached: 0
+driver: unknown
+desc: "Relience Computer|unknown device 1166:0211"
+vendorId: 1166
+deviceId: 0211
+pciType: 1
+-
+class: OTHER
+bus: PCI
+detached: 0
+driver: unknown
+desc: "Relience Computer|unknown device 1166:0220"
+vendorId: 1166
+deviceId: 0220
+pciType: 1
+-
+class: NETWORK
+bus: PCI
+detached: 0
+device: eth
+driver: eepro100
+desc: "Intel Corporation|82557 [Ethernet Pro 100]"
+vendorId: 8086
+deviceId: 1229
+pciType: 1
+-
+class: NETWORK
+bus: PCI
+detached: 0
+device: eth
+driver: eepro100
+desc: "Intel Corporation|82557 [Ethernet Pro 100]"
+vendorId: 8086
+deviceId: 1229
+pciType: 1
+-
+class: SCSI
+bus: PCI
+detached: 0
+driver: unknown
+desc: "Symbios|unknown device 1000:0020"
+vendorId: 1000
+deviceId: 0020
+pciType: 1
+-
+class: SCSI
+bus: PCI
+detached: 0
+driver: unknown
+desc: "Symbios|unknown device 1000:0020"
+vendorId: 1000
+deviceId: 0020
+pciType: 1
+-
+class: VIDEO
+bus: PCI
+detached: 0
+driver: unknown
+desc: "ATI|unknown device 1002:4752"
+vendorId: 1002
+deviceId: 4752
+pciType: 1
+-
+class: MOUSE
+bus: PSAUX
+detached: 0
+device: psaux
+driver: genericps/2
+desc: "Generic PS/2 Mouse"
+-
+class: CDROM
+bus: IDE
+detached: 0
+device: hda
+driver: ignore
+desc: "CD-540E"
+-
+class: HD
+bus: SCSI
+detached: 0
+device: sda
+driver: ignore
+desc: "Fujitsu MAJ3182MP"
+host: 1
+id: 0
+channel: 0
+lun: 0
+
+Dual pIII 1000, 1gb mem, 1gb swap
+
+.config from kernel is
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_SMP=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_NET=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=20
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_INTEL_RNG=y
+CONFIG_RTC=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_VGA_CONSOLE=y
+
+The problem is, occationally(apparently random) the system uses about 650mg 
+swap, keeps that swap level for about a week then slowly over the next 2-3 
+days drops it off.  However, if I dd the swap partition to a file, the swap 
+goes down to what I'd call a normal level.  Running strings through the file 
+reveils mainly apache and perl stuff.(well it is a webserver!).  Nothing else 
+weird seems to be happening.  
+
+Any help|explanation appreciated.
+
+Stuart Fox
+Fotango

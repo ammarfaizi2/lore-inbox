@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263246AbTEVUeo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 16:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTEVUeo
+	id S263258AbTEVUh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 16:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263268AbTEVUh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 16:34:44 -0400
-Received: from mail.eskimo.com ([204.122.16.4]:47371 "EHLO mail.eskimo.com")
-	by vger.kernel.org with ESMTP id S263246AbTEVUen (ORCPT
+	Thu, 22 May 2003 16:37:59 -0400
+Received: from holomorphy.com ([66.224.33.161]:45198 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263258AbTEVUh6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 16:34:43 -0400
-Date: Thu, 22 May 2003 13:47:35 -0700
-To: Ming Lei <lei.ming@attbi.com>
-Cc: linux-kernel@vger.kernel.org, Elladan <elladan@eskimo.com>, efault@gmx.de
-Subject: Re: Linux 2.4 scheduler is RTOS-alike?
-Message-ID: <20030522204735.GB4195@eskimo.com>
-References: <200305142020.h4EKK9J01052@relax.cmf.nrl.navy.mil> <20030514205949.GA3945@kroah.com> <004601c3209c$f0739700$0305a8c0@arch.sel.sony.com>
+	Thu, 22 May 2003 16:37:58 -0400
+Date: Thu, 22 May 2003 13:50:51 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: jjs <jjs@tmsusa.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.69-mm8 improvements and one oops
+Message-ID: <20030522205051.GX8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	jjs <jjs@tmsusa.com>, Andrew Morton <akpm@digeo.com>,
+	linux kernel <linux-kernel@vger.kernel.org>
+References: <3ECD13A1.9060103@tmsusa.com> <20030522130731.10f34d58.akpm@digeo.com> <3ECD35E2.10109@tmsusa.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <004601c3209c$f0739700$0305a8c0@arch.sel.sony.com>
+In-Reply-To: <3ECD35E2.10109@tmsusa.com>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
-From: Elladan <elladan@eskimo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also of note, FIFO threads will actually block the same priority threads
-forever.  An RR thread will also block a lower priority thread forever,
-but it'll get preempted by other RR threads with the same priority.  A
-FIFO thread is never preempted except by higher priority, it has to
-yield somehow (explicitly or by blocking)
+Andrew Morton wrote
+>> You hit the free-of-a-freed-task_struct bug.
+>> This bug has been hanging around for ages.  It is very rare and nobody
+>> knows what causes it.
 
--J
+On Thu, May 22, 2003 at 01:41:06PM -0700, jjs wrote:
+> I'm lucky I suppose -
 
-On Thu, May 22, 2003 at 01:01:30PM -0700, Ming Lei wrote:
-> 
-> will it be the same behavior If thread A and thread B both have a lot of
-> printf? Suppose A get first run, does B get run at all?
-> 
-> > this question is regarding linux kernel 2.4.7-2.4.20.
-> > linux 2.4 kernel does support real time sheduler. If using FIFO real time
-> > schedule policy, would the case that higher priority thread starve the
-> lower
-> > priority thread happen?  Similarly, let's say an example: if I have higher
-> > prioority thread A and lower priority thread B, thread A is running
-> without
-> > any wait or blocking, is there a possiblity that 2.4 scheduler may want to
-> > switch to thread B? Why?
-> 
-> Yes, FIFO threads that spin will block lower priority threads forever.
-> 
-> Sure, guaranteed if the high prio SCHED_FIFO task doesn't block at all.  If
-> you have a pure cpu burner, it will starve all lower priority
-> threads.
+The cause for this is less than obvious.
+
+
+Andrew Morton wrote
+>> Are you running preempt?  SMP?   Is it repeatable?
+
+On Thu, May 22, 2003 at 01:41:06PM -0700, jjs wrote:
+> It's preempt, defintely, always -
+> But just a UP kernel on a lowly UP box -
+> As for repeatability, I'll see if I can induce
+> the oops again but there's no telling...
+
+Preempt is a common theme in the reports I've seen on this. It appears
+SMP allows the offender to clean up after the bug, but relatively long
+times between racy things rescheduling on preempt triggers the issue
+more readily.
+
+
+-- wli

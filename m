@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131666AbRDCAAL>; Mon, 2 Apr 2001 20:00:11 -0400
+	id <S131631AbRDCABL>; Mon, 2 Apr 2001 20:01:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131573AbRDCAAC>; Mon, 2 Apr 2001 20:00:02 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:58578 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S131586AbRDBX74>;
-	Mon, 2 Apr 2001 19:59:56 -0400
-Message-ID: <3AC91253.34E3C9DA@mandrakesoft.com>
-Date: Mon, 02 Apr 2001 19:59:15 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-20mdksmp i686)
-X-Accept-Language: en
+	id <S131573AbRDCABC>; Mon, 2 Apr 2001 20:01:02 -0400
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:3580 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S131586AbRDCAAs>; Mon, 2 Apr 2001 20:00:48 -0400
+Date: Mon, 2 Apr 2001 16:59:30 -0700 (PDT)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: Boris Pisarcik <boris@acheron.sk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Question about SysRq
+In-Reply-To: <20010331230454.A801@Boris>
+Message-ID: <Pine.LNX.4.30.0104021654340.29684-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Douglas Gilbert <dougg@torque.net>, Peter Daum <gator@cs.tu-berlin.de>,
-   linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: scsi bus numbering
-In-Reply-To: <200104022050.f32KoRs93074@aslan.scsiguy.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Justin T. Gibbs" wrote:
-> It is bogus that this stuff depends on link order to function
-> correctly.
+On Sat, 31 Mar 2001, Boris Pisarcik wrote:
+> on say tty2. The processes get created pretty fast. After a short while
+> I supposed a single solution to this to kill all session by alt+sysrq+k,
+> but nothing happened. Under normal averagely loaded situation, this will
+> imidiately kill all processes on current vt and bring getty prompt.
+> Shouldn't it function similiarily in former case ? I see all processes on vt
+> get SIGKILL, so what's hapenned ? Maybe I had to wait
+> a bit longer for kernel to accomplish that ? Killing all processes with init
+> (alt+sysrq+i) seems to be immediate.
+>
+>
+> Thought, i really love all sysrq properties of linux, so i need less often
+> to make hardware resets an then await and fear, what fsck will print.
+> One more property, that i'd like to have should be request key to force the
+> most basic text mode (say 80x25) on the console, when eg. X freezes and
+> i kill its session, then last gfx mode resides on the screen and see no way
+> to restore back the text mode - /usr/bin/reset or something alike will not
+> do it. But it seems to be not a good idea at all, does it ?
 
-No, it is simply one more rule, and one that is not immediately
-obvious.  Take heart though.  Like Rolaids, 2.5's updated makefile
-system will bring relief...
+I've noticed a similar situation:
 
-Make sure to add a comment, when you update the 2.4 makefile where link
-order is significant.  (as it is not, in all cases)
+I recently upgraded to XFree86 4.0.3 and have been having nothing but
+problems with it. Often times, the machine will crash, with crap shot to
+the screen. Howver, the IP stack still functions, routes packets, but none
+of the user processes respond. I'll try and hit sysrq-s to sync the disks,
+sysrq-u to unmount them, and sysrq-b to boot the machine. Unfortunately,
+the only one that responds is sysrq-b, which boots the box without
+syncing or unmounting the disks. Not only does that piss me off but it's
+led to some fs corruption as well (which pisses me off even more). sysrq-b
+is the *only* combination I can get working when this happens. However,
+when the machine is *not* locked, sysrq-[su] work fine. Kernel is
+2.4.3-pre6 on SMP i686.
 
--- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full moon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
+ Kelsey Hudson                                           khudson@ctica.com
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
+

@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbUBKVYx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 16:24:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUBKVYx
+	id S266146AbUBKV1d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 16:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266157AbUBKV1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 16:24:53 -0500
-Received: from h0060089601a0.ne.client2.attbi.com ([24.34.92.88]:16078 "EHLO
-	sevoog.kriation.com") by vger.kernel.org with ESMTP id S266169AbUBKVYw
+	Wed, 11 Feb 2004 16:27:33 -0500
+Received: from smtp.terra.es ([213.4.129.129]:25895 "EHLO tsmtp1.mail.isp")
+	by vger.kernel.org with ESMTP id S266146AbUBKV1c convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 16:24:52 -0500
-Date: Wed, 11 Feb 2004 16:24:52 -0500
-From: Armen Kaleshian <akaleshian@kriation.com>
-To: Karthik Vishwanath <Karthik.Vishwanath.Adv03@Alum.Dartmouth.ORG>
+	Wed, 11 Feb 2004 16:27:32 -0500
+Date: Wed, 11 Feb 2004 22:18:06 +0100
+From: Diego Calleja <grundig@teleline.es>
+To: Michael Frank <mhf@linuxmail.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: failed scp with fortune
-Message-ID: <20040211212452.GH6190@sevoog.kriation.com>
-References: <Pine.LNX.4.44.0402111604410.845-100000@legolas.personal.engin.umich.edu>
+Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small
+ interleaved writes
+Message-Id: <20040211221806.106eed62.grundig@teleline.es>
+In-Reply-To: <200402120502.39300.mhf@linuxmail.org>
+References: <Pine.LNX.4.44.0402111528140.23220-100000@chimarrao.boston.redhat.com>
+	<200402120502.39300.mhf@linuxmail.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0402111604410.845-100000@legolas.personal.engin.umich.edu>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This list is for kernel development and bug reporting. Please check out the
-newbie list at linux-newbie@vger.kernel.org.
+El Thu, 12 Feb 2004 05:02:39 +0800 Michael Frank <mhf@linuxmail.org> escribió:
 
-Thanks!
 
-On Wed, Feb 11, 2004 at 04:07:58PM -0500, Karthik Vishwanath wrote:
-: Hello,
-: 
-: scp fails to get files from a remote machine when the .bashrc in the 
-: remote machine runs /usr/games/fortune (or even just a plain echo). How 
-: can I fix this without removing the "offending" line from the .bashrc 
-: file? 
-: 
-: Thanks,
-: 
-: -K
-: 
-: ---------------------
-: By the time you get to the point where you can make ends meet,
-: somebody moves the ends.
-: 
-: -
-: To unsubscribe from this list: send the line "unsubscribe linux-newbie" in
-: the body of a message to majordomo@vger.kernel.org
-: More majordomo info at  http://vger.kernel.org/majordomo-info.html
-: Please read the FAQ at http://www.linux-learn.org/faqs
+> 2.4 has a deadline scheduler. 2.6 default is anticipatory.
+
+I though the 2.4 io scheduler wasn't "deadline" base, I think the first
+"deadline" io scheduler was the one merged ~2.5.39
+

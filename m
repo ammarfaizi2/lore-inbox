@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265568AbSL1IsU>; Sat, 28 Dec 2002 03:48:20 -0500
+	id <S266161AbSL1JIS>; Sat, 28 Dec 2002 04:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265570AbSL1IsU>; Sat, 28 Dec 2002 03:48:20 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:29970 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S265568AbSL1IsT>;
-	Sat, 28 Dec 2002 03:48:19 -0500
-Date: Sat, 28 Dec 2002 09:56:31 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: gibbs@btc.adaptec.com, gibbs@adaptec.com,
-       Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [aic7xxx] Spurious recompile with defconfig
-Message-ID: <20021228085631.GA1835@mars.ravnborg.org>
-Mail-Followup-To: gibbs@btc.adaptec.com, gibbs@adaptec.com,
-	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S266160AbSL1JIS>; Sat, 28 Dec 2002 04:08:18 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:5558 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S266125AbSL1JIQ>; Sat, 28 Dec 2002 04:08:16 -0500
+Date: Sat, 28 Dec 2002 10:16:08 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Samuel Flory <sflory@rackable.com>, "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] aic7xxx bouncing over 4G
+Message-ID: <20021228091608.GA13814@louise.pinerecords.com>
+References: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com> <176730000.1040430221@aslan.btc.adaptec.com> <3E03BB0D.5070605@rackable.com> <Pine.LNX.4.50L.0212280331110.30646-100000@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.50L.0212280331110.30646-100000@freak.distro.conectiva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling aic7xxx in 2.5.53 with defconfig the kernel always
-recompiles because dependency for reg_print.c is not
-per default in the aic7xxx Makefile.
-Simple correction is to make PRETTY_PRINT dependend on BUILD_FIRMWARE.
+> [marcelo@conectiva.com.br]
+>
+> > >>I have an Adaptec AIC-7897 Ultra2 SCSI adapter on a system with 8G
+> > >>of physical memory.  The adapter is using bounce buffers when DMA'ing
+> > >>to memory >4G because of a bug in the aic7xxx driver.
+> > >>
+> > >>
+> > >
+> > >This has been fixed in both the aic7xxx and aic79xx drivers for some
+> > >time.  The problem is that these later revisions have not been integrated
+> > >into the mainline trees.
+> > >
+> > >
+> > >
+> >   Marcelo, what is required get the aic79xx driver, and the aic7xxx
+> > updates into 2.4.21?  A number of linux distros are already using it.
+> >  It would really help people using board with the U320.
+> >
+> >     I've been using both drivers for some time with no issues.  Or maybe
+> > you'd prefer Alan put it in his tree 1st?
+> 
+> Ho, hum, I prefer getting it tested in -ac for a while first.
 
-	Sam
+Marcelo, you've been overlooking these updates for a bit too long now
+for your "let's throw them at -ac" to sound fair.  IMHO of course.  Also
+remember those are both production drivers tested thoroughly in FreeBSD,
+plus you have your own testing releases -- or at least that's how I thought
+'-pre' was meant, and so did Pete Zaitcev apparently
+(Message-ID: <20021217142235.C8233@devserv.devel.redhat.com>). <g>
 
-===== drivers/scsi/aic7xxx/Kconfig.aic79xx 1.5 vs edited =====
---- 1.5/drivers/scsi/aic7xxx/Kconfig.aic79xx	Fri Dec 13 21:17:38 2002
-+++ edited/drivers/scsi/aic7xxx/Kconfig.aic79xx	Sat Dec 28 09:46:40 2002
-@@ -87,7 +87,7 @@
- 
- config AIC79XX_REG_PRETTY_PRINT
-         bool "Decode registers during diagnostics"
--        depends on SCSI_AIC79XX
-+        depends on SCSI_AIC79XX && SCSI_AIC7XXX_BUILD_FIRMWARE
- 	default y
-         help
- 	Compile in register value tables for the output of expanded register
-===== drivers/scsi/aic7xxx/Kconfig.aic7xxx 1.6 vs edited =====
---- 1.6/drivers/scsi/aic7xxx/Kconfig.aic7xxx	Tue Dec 24 20:12:14 2002
-+++ edited/drivers/scsi/aic7xxx/Kconfig.aic7xxx	Sat Dec 28 09:46:22 2002
-@@ -92,7 +92,7 @@
- 
- config AIC7XXX_REG_PRETTY_PRINT
-         bool "Decode registers during diagnostics"
--        depends on SCSI_AIC7XXX
-+        depends on SCSI_AIC7XXX && SCSI_AIC7XXX_BUILD_FIRMWARE
- 	default y
-         help
- 	Compile in register value tables for the output of expanded register
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132695AbRC2J2S>; Thu, 29 Mar 2001 04:28:18 -0500
+	id <S132688AbRC2J36>; Thu, 29 Mar 2001 04:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132694AbRC2J2I>; Thu, 29 Mar 2001 04:28:08 -0500
-Received: from se1.cogenit.fr ([195.68.53.173]:25093 "EHLO se1.cogenit.fr")
-	by vger.kernel.org with ESMTP id <S132688AbRC2J2B>;
-	Thu, 29 Mar 2001 04:28:01 -0500
-Date: Thu, 29 Mar 2001 11:25:47 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: configuring net interfaces
-Message-ID: <20010329112547.A23947@se1.cogenit.fr>
-In-Reply-To: <m3itkuq6xt.fsf@intrepid.pm.waw.pl> <20010328182729.A16067@se1.cogenit.fr> <m34rwd8pj2.fsf@intrepid.pm.waw.pl>
+	id <S132694AbRC2J3s>; Thu, 29 Mar 2001 04:29:48 -0500
+Received: from mehl.gfz-potsdam.de ([139.17.1.100]:32507 "EHLO
+	mehl.gfz-potsdam.de") by vger.kernel.org with ESMTP
+	id <S132688AbRC2J3g> convert rfc822-to-8bit; Thu, 29 Mar 2001 04:29:36 -0500
+Date: Thu, 29 Mar 2001 11:28:50 +0200
+From: Steffen Grunewald <steffen@gfz-potsdam.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 53c400a datasheet
+Message-ID: <20010329112848.X1396@dss19>
+Mail-Followup-To: Steffen Grunewald <steffen>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010328221522.A22535@ghost.btnet.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <m34rwd8pj2.fsf@intrepid.pm.waw.pl>; from khc@intrepid.pm.waw.pl on Thu, Mar 29, 2001 at 01:03:29AM +0200
-X-Organisation: Marie's fan club
+In-Reply-To: <20010328221522.A22535@ghost.btnet.cz>; from clock@ghost.btnet.cz on Wed, Mar 28, 2001 at 10:15:22PM +0200
+X-Disclaimer: I don't speak for no one else. And vice versa
+X-Operating-System: SunOS
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by dss19.gfz-potsdam.de id LAA13598
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa <khc@intrepid.pm.waw.pl> écrit :
-[...]
-> That's a physical interface like V.35 or RS232.
-
-Ok.
-
-[...]
-> > * n200, t200 ?
+On Wed 2001-03-28 (22:15), clock@ghost.btnet.cz wrote:
+> Hello
 > 
-> What's that?
-
-Parameters for retransmission of a trame specified in Q922. t200 is the
-timeout value and n200 the maximal number of retransmissions. They can
-be negocied and default to t200=1,5s, n200=3.
-
-> > Do we put the crc type here ?
+> does anybody here have the datasheet for the 53c400a SCSI bus interface cotroller?
 > 
-> I don't think so. Frame Relay uses only standard CRC. Correct me if I'm
-> wrong.
+> I tried to find it on the Net but did not succeed.
 
-Ok.
+found a printout of the page at
 
-[...]
-> > While we're here, could we agree on the notion of raw hdlc, i.e. :
-> > - no address, no command. crc present (ARPHRD_RAWHDLC ?);
-> > - no address, no command, no crc (ARPHRD_PATHOLOGICHDLC ?).
-> 
-> Do we really need another ARPHRD for that?
-> BTW: What protocol(s) use such CRC-less HDLC?
+ftp://ftp.symbios.com/pub/symchips/scsi/scsidocs/c40xxfaq.txt
 
-No protocol I know. Sometime one just want to verify how a driver performs
-when he receives badly fscked data. One can live without it.
+this may help you to find out more (didn't check the URL again)
 
+Steffen
 -- 
-Ueimor
+ Steffen Grunewald | GFZ | PB 2.2 | Telegrafenberg E3 | D-14473 Potsdam
+ » email: steffen(at)gfz-potsdam.de | fax/fon: +49-331-288-1266/-1245 «
+ Software is like sex - it's better when it's free. --- Linus Torvalds

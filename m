@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280290AbRJaQiV>; Wed, 31 Oct 2001 11:38:21 -0500
+	id <S280291AbRJaQsx>; Wed, 31 Oct 2001 11:48:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280291AbRJaQiL>; Wed, 31 Oct 2001 11:38:11 -0500
-Received: from sitar.i-cable.com ([210.80.60.11]:9108 "HELO sitar.i-cable.com")
-	by vger.kernel.org with SMTP id <S280290AbRJaQh4>;
-	Wed, 31 Oct 2001 11:37:56 -0500
-Message-ID: <3BB7F3FC.1020909@rcn.com.hk>
-Date: Mon, 01 Oct 2001 12:41:32 +0800
-From: David Chow <davidchow@rcn.com.hk>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-GB; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-gb
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: The old vm variables in /proc/sys/vm/
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S280295AbRJaQsl>; Wed, 31 Oct 2001 11:48:41 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:37040 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S280284AbRJaQsY>; Wed, 31 Oct 2001 11:48:24 -0500
+Date: Wed, 31 Oct 2001 11:48:59 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200110311648.f9VGmxJ26896@devserv.devel.redhat.com>
+To: Kai.Makisara@kolumbus.fi, Richard Kettlewell <rjk@greenend.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: problem with ide-scsi and IDE tape drive
+In-Reply-To: <mailman.1004529422.24577.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.1004529422.24577.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+> > I have a Seagate STT20000A IDE tape drive, which I am trying to use
 
-I am porting my old code to the new kernels 2.4.12 , I find the a couple 
-of variables including "freepages" in the kernel space are gone... how 
-can I read these values in the kernel space? Also it is missing from 
-/proc/sys/vm as well. Is there a new type of VM adopted in Linux? Thanks.
+> Does your drive only accept writes from the beginning of the tape
 
-regards,
+> 	Kai
 
-DC
+I thought that was the property of helical technologies such
+as DAT and 8mm. STT20000 must be QIC which ought to work,
+that's why I did not bring it up. I saw the Illegal Request too.
 
+Historically ide-scsi worked better with tapes than ide-tape,
+so I am puzzled why it fails that way.
+
+-- Pete

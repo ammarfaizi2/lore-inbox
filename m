@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272917AbTG3OjM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272920AbTG3OjM
+	id S270316AbTG3Ogi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272894AbTG3Ogi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:39:12 -0400
-Received: from 200-184-71-82.chies.com.br ([200.184.71.82]:14103 "EHLO
-	mars.elipse.com.br") by vger.kernel.org with ESMTP id S272917AbTG3OjG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:39:06 -0400
-Message-ID: <3F27D963.9040609@terra.com.br>
-Date: Wed, 30 Jul 2003 11:42:43 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3.1) Gecko/20030425
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-CC: gerg@snapgear.com, support@stallion.oz.au
-Subject: [PATCH] drivers/char/stallion.c: devfs_mk_cdev fix
-Content-Type: multipart/mixed;
- boundary="------------090201070603000902080808"
-X-OriginalArrivalTime: 30 Jul 2003 14:44:41.0453 (UTC) FILETIME=[1BEDB1D0:01C356A9]
+	Wed, 30 Jul 2003 10:36:38 -0400
+Received: from home.wiggy.net ([213.84.101.140]:690 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S270316AbTG3Ogh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:36:37 -0400
+Date: Wed, 30 Jul 2003 16:36:34 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Anuradha Ratnaweera <anuradha@ratnaweera.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Contributing to the kernel while being employed
+Message-ID: <20030730143634.GF26515@wiggy.net>
+Mail-Followup-To: Anuradha Ratnaweera <anuradha@ratnaweera.net>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <1059574407.1759.26.camel@anuradha>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1059574407.1759.26.camel@anuradha>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090201070603000902080808
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Previously Anuradha Ratnaweera wrote:
+> Before working for a commercial organization, one usually has to sign a
+> contract which makes all the work done during the period of employment
+> (including innovations, "hobby" coding done during "after hours")
+> copyrighted by the employer.  This introduces various problems when one
+> wishes to do open source development, especially as a hobby.
 
-	Hi,
+If you signed a contract which said that you might be out of luck,
+depending on you local law. If your law allows a company to demand
+ownership of everything you do in your own time without using company
+resources than you can't work on open source projects unless your
+employer allows you to. Personally, I would never sign any contract with
+a clause like that.
 
-	devfs_mk_cdev now only takes 3 parameters (dev_t, umode_t, fmt..), so 
-update this driver to the new API.
+Wichert.
 
-	Please apply,
-
-Felipe
-
---------------090201070603000902080808
-Content-Type: text/plain;
- name="stallion-devfs_fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="stallion-devfs_fix.patch"
-
---- linux-2.6.0-test2/drivers/char/stallion.c.orig	Wed Jul 30 11:38:08 2003
-+++ linux-2.6.0-test2/drivers/char/stallion.c	Wed Jul 30 11:37:51 2003
-@@ -3173,7 +3171,7 @@
- 	for (i = 0; i < 4; i++) {
- 		devfs_mk_cdev(MKDEV(STL_SIOMEMMAJOR, i),
- 				S_IFCHR|S_IRUSR|S_IWUSR,
--				&stl_fsiomem, NULL, "staliomem/%d", i);
-+				"staliomem/%d", i);
- 	}
- 
- 	stl_serial->owner = THIS_MODULE;
-
---------------090201070603000902080808--
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.
 

@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313019AbSDYJuh>; Thu, 25 Apr 2002 05:50:37 -0400
+	id <S313022AbSDYKFY>; Thu, 25 Apr 2002 06:05:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313022AbSDYJug>; Thu, 25 Apr 2002 05:50:36 -0400
-Received: from [195.163.186.27] ([195.163.186.27]:48517 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S313019AbSDYJuf>;
-	Thu, 25 Apr 2002 05:50:35 -0400
-Date: Thu, 25 Apr 2002 12:50:34 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Huo Zhigang <zghuo@gatekeeper.ncic.ac.cn>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Re: what`s wrong?
-Message-ID: <20020425125034.O1284@mea-ext.zmailer.org>
-In-Reply-To: <7754BE8DC82.AAA4CC2@gatekeeper.ncic.ac.cn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S313025AbSDYKFX>; Thu, 25 Apr 2002 06:05:23 -0400
+Received: from ns.suse.de ([213.95.15.193]:46084 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313022AbSDYKFX>;
+	Thu, 25 Apr 2002 06:05:23 -0400
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] gcc 3.1 breaks wchan
+In-Reply-To: <200204250528.g3P5SHo462311@saturn.cs.uml.edu>
+X-Yow: TONY RANDALL!  Is YOUR life a PATIO of FUN??
+From: Andreas Schwab <schwab@suse.de>
+Date: Thu, 25 Apr 2002 12:05:20 +0200
+Message-ID: <jeg01k14bj.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 25, 2002 at 05:12:21PM +0800, Huo Zhigang wrote:
-...
-> >The entire kernel stack is only 8kB in size.  You have already killed
->   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> >a bunch of random memory by allocating this much memory on the stack.
-> >You allocated 4*8192 = 32kB on the stack here.
->   
->    Sure, the kernel stack is 8192 Bytes, but "err_frame[]" is a local 
->    variable. Does the kernel allocate memory for "err_frame[]" from the 
->    stack?? 
+"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
-   It is not about how KERNEL does it, but how C (programming language)
-   does it.  If you don't know C's memory management things regarding
-   various classes of variables, I suggest you pick some good reference
-   book and study it asap.
+|> The compiler's
+|> inability to inline something ought to be an error as well. Oh well.
 
->    Here, I think, err_frame[] as a function parameter  will take 8K in 
->    the kernel stack.  Am I correct?
+-Winline -Werror
 
-  Sorry, this isn't "programming in C"-education forum..
+d&h, Andreas.
 
->    Thank you.
-
-/Matti Aarnio
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318124AbSIORJf>; Sun, 15 Sep 2002 13:09:35 -0400
+	id <S318131AbSIORKp>; Sun, 15 Sep 2002 13:10:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318128AbSIORJf>; Sun, 15 Sep 2002 13:09:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65295 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318124AbSIORJf>;
-	Sun, 15 Sep 2002 13:09:35 -0400
-Message-ID: <3D84BFD7.3010305@mandrakesoft.com>
-Date: Sun, 15 Sep 2002 13:13:59 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S318133AbSIORKo>; Sun, 15 Sep 2002 13:10:44 -0400
+Received: from balu.sch.bme.hu ([152.66.208.40]:18066 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S318131AbSIORKn>;
+	Sun, 15 Sep 2002 13:10:43 -0400
+Date: Sun, 15 Sep 2002 19:15:38 +0200 (MEST)
+From: Pozsar Balazs <pozsy@uhulinux.hu>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [BUG?] binfmt_script: interpreted interpreter doesn't work
+Message-ID: <Pine.GSO.4.30.0209151910220.22107-100000@balu>
 MIME-Version: 1.0
-To: Kevin Carpenter <kevinc@seaplace.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Think 2.4.10 broke my PCI subsystem.
-References: <200209150529.g8F5Tgh14760@lynn.seaplace.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin Carpenter wrote:
-> I've recently been okaying around with low cost motherboards and have been
-> problems on two of them:  the BIOSTAT micro-ATX mobo M7VKQ, and the ESC L7SOM
-> mobos.
-> 
-> BOth work fine so long as I hold the kernel to 2.4.9 or earlier.  Once the
-> 2.4.10 patch is applied, the kernel no longer recognises the PCI Buss.
+
+Hi all,
+
+This may well not be bug, rather an intended feature, but please enlighten
+me why the following doesn't work:
+
+I have two scripts:
+/home/pozsy/a:
+#!/bin/sh
+echo "Hello from a!"
+
+/home/pozsy/b:
+#!/home/pozsy/a
+echo "hello from b!"
 
 
-What happens on a modern kernel, 2.4.19 or 2.4.20-pre7?
+Both of them has +x permissions.
+But I cannot execute the /home/pozsy/b script:
+
+[pozsy:~]$ strace -f /home/pozsy/b
+execve("/home/pozsy/b", ["/home/pozsy/b"], [/* 25 vars */]) = 0
+strace: exec: Exec format error
+[pozsy:~]$
+
+
+Isn't this "indirection" allowed?
+
+-- 
+pozsy
 

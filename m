@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129632AbQLGRDF>; Thu, 7 Dec 2000 12:03:05 -0500
+	id <S129757AbQLGRDf>; Thu, 7 Dec 2000 12:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130471AbQLGRCp>; Thu, 7 Dec 2000 12:02:45 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129632AbQLGRCk>; Thu, 7 Dec 2000 12:02:40 -0500
-Date: Thu, 7 Dec 2000 11:31:23 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andi Kleen <ak@suse.de>
-cc: richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Why is double_fault serviced by a trap gate?
-In-Reply-To: <20001207171353.A28798@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.3.95.1001207112423.188A-100000@chaos.analogic.com>
+	id <S131422AbQLGRD0>; Thu, 7 Dec 2000 12:03:26 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:33552 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S131412AbQLGRDO>; Thu, 7 Dec 2000 12:03:14 -0500
+Date: Thu, 7 Dec 2000 18:45:17 +0200 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: Tigran Aivazian <tigran@veritas.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Broken NR_RESERVED_FILES
+In-Reply-To: <Pine.LNX.4.21.0012071608550.970-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.30.0012071837140.5455-100000@fs129-190.f-secure.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000, Andi Kleen wrote:
 
-> On Thu, Dec 07, 2000 at 04:04:21PM +0000, richardj_moore@uk.ibm.com wrote:
-> > 
-> > 
-> > Why is double_fault serviced by a trap gate? The problem with this is that
-> > any double-fault caused by a stack-fault, which is the usual reason,
-> > becomes a triple-fault. And a triple-fault results in a processor reset or
-> > shutdown making the fault damn near impossible to get any information on.
-> > 
-> > Oughtn't the double-fault exception handler be serviced by a task gate? And
-> > similarly the NMI handler in case the NMI is on the current stack page
-> > frame?
-> 
-> Sounds like a good idea, when you can afford a few K for a special
-> NMI/double fault stack. On x86-64 it is planned to do that.
-> 
-> 
+On Thu, 7 Dec 2000, Tigran Aivazian wrote:
 
-Well, at least on current ix86 processors it can't. Attempting to
-use a task gate appears to be a trick to cause the exception to
-be handled on the current stack. The hardware protection hierarchy
-won't let this happen. You need to have a stack that is not accessible
-from the mode that will be trapped. Otherwise, a user could crash
-the machine by setting ESP to 0 and waiting for the next context-
-switch or timer-tick.
+> On Thu, 7 Dec 2000, Szabolcs Szakacsits wrote:
+> > Read the whole get_empty_filp function, especially this part, note the
+> > goto new_one below and the part you didn't include above [from
+> > the new_one label],
+> >
+> >         if (files_stat.nr_files < files_stat.max_files) {
+> >                 file_list_unlock();
+> >                 f = kmem_cache_alloc(filp_cachep, SLAB_KERNEL);
+> >                 file_list_lock();
+> >                 if (f) {
+> >                         files_stat.nr_files++;
+> >                         goto new_one;
+> >                 }
+>
+> I have read the whole function, including the above code, of course. The
+> new_one label has nothing to do with freelists -- it adds the file to the
+> anon_list, where the new arrivales from the slab cache go. The goto
+> new_one above is there simply to initialize the structure with sane
+> initial values
 
+OK, 2.2 has
 
-Cheers,
-Dick Johnson
+                put_inuse(f);
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+instead of putting it to anon_list, so 2.4 seems ok.
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+	Szaka
 
+> So, the normal user _cannot_ take a file structure from the freelist
+> unless it contains more than NR_RESERVED_FILE entries. Please read the
+> whole function and see it for yourself.
+>
+> Regards,
+> Tigran
+>
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

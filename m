@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270532AbRHHRpK>; Wed, 8 Aug 2001 13:45:10 -0400
+	id <S270537AbRHHR6F>; Wed, 8 Aug 2001 13:58:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270537AbRHHRpA>; Wed, 8 Aug 2001 13:45:00 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:12040 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270532AbRHHRor>; Wed, 8 Aug 2001 13:44:47 -0400
-Date: Wed, 8 Aug 2001 10:43:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Hubertus Franke <frankeh@us.ibm.com>
-cc: Mike Kravetz <mkravetz@beaverton.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] Scalable Scheduling
-In-Reply-To: <OFF9CB2CBE.6FCCA7C5-ON85256AA2.005FE800@pok.ibm.com>
-Message-ID: <Pine.LNX.4.33.0108081041260.8047-100000@penguin.transmeta.com>
+	id <S270540AbRHHR5y>; Wed, 8 Aug 2001 13:57:54 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:58125 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S270537AbRHHR5o>; Wed, 8 Aug 2001 13:57:44 -0400
+To: "Rob" <rwideman@austin.rr.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: configuring the kernel
+In-Reply-To: <LHEGJICMMCCGOHKDFALMOEMHCAAA.rwideman@austin.rr.com>
+From: Doug McNaught <doug@wireboard.com>
+Date: 08 Aug 2001 13:56:28 -0400
+In-Reply-To: "Rob"'s message of "Wed, 8 Aug 2001 12:11:44 -0500"
+Message-ID: <m3n15aigfn.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Rob" <rwideman@austin.rr.com> writes:
 
-On Wed, 8 Aug 2001, Hubertus Franke wrote:
->
-> Linus, great input on the FLAME side, criticism accepted :-)
->
-> More importantly, we wanted to get some input (particular from you)
-> on whether our approach is actually an acceptable one, not
-> withstanding the #ifdef's :-),
+> 1-does "make menuconfig" require X to be installed? I dont have X, i just
+> have RH 7.1 with kernel dev and kernel sources installed (atleast those were
+> the ONLY things i had selected during install).
 
-I think what the code itself tried to do looked reasonable, but it was so
-distracting to read the patch that I can't make any really intelligent
-comments about it.
+No, all you need is the 'ncurses-devel' package.  
 
-The only thing that looked really ugly was that real-time runqueue thing.
-Does it _really_ have to be done that way?
+> 2-if i untared/unpacked the kernel to the folder /root/newkern (here is
+> where i did the "gzip -cd linux 2.4.7...... |tar xvf -" command) is it ok to
+> delete the newkern folder and unpack nd then do the "make menuconfig"?
 
-		Linus
+Yes, but this will reset your configuration to the defaults.  If you
+want to preserve the choices you made and then modify them in
+menuconfig, save off the '.config' file before nuking, then move it
+into the newly unpacked directory.
 
+That said, you shouldn't have to remove the source tree.  Simply do:
+
+$ make menuconfig
+$ make dep && make clean && make bzImage
+
+-Doug
+-- 
+Free Dmitry Sklyarov! 
+http://www.freesklyarov.org/ 
+
+We will return to our regularly scheduled signature shortly.

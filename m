@@ -1,66 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVCVDDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVCVDFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbVCVDDr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 22:03:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVCVCpk
+	id S262539AbVCVDFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 22:05:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVCVCp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:45:40 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:57996 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262334AbVCVCPk
+	Mon, 21 Mar 2005 21:45:27 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:45298 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S262341AbVCVCM4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 21:15:40 -0500
-Date: Tue, 22 Mar 2005 03:18:57 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: felix-linuxkernel@fefe.de, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Message-ID: <20050322021857.GA17972@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Andrew Morton <akpm@osdl.org>, felix-linuxkernel@fefe.de,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <20050311202122.GA13205@fefe.de> <20050311173308.7a076e8f.akpm@osdl.org> <20050321163358.1b4968a0.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 21 Mar 2005 21:12:56 -0500
+Date: Tue, 22 Mar 2005 02:12:52 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: Distinguish real vs. virtual CPUs?
+To: Dan Maas <dmaas@maasdigital.com>
+Cc: linux-kernel@vger.kernel.org
+References: <20050321202726.A7630@morpheus>
+In-Reply-To: <20050321202726.A7630@morpheus> (from dmaas@maasdigital.com on
+	Tue Mar 22 02:27:26 2005)
+X-Mailer: Balsa 2.3.0
+Message-Id: <1111457572l.9192l.0l@werewolf.able.es>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050321163358.1b4968a0.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: 217.231.55.169
-Subject: Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino speedstep even more broken than in 2.6.10
-X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > 
-> > (Added netdev cc)
-> > 
-> > Felix von Leitner <felix-linuxkernel@fefe.de> wrote:
-> > >
-> > > Now about IPv6: npush and npoll are two applications I wrote.  npush
-> > > sends multicast announcements and opens a TCP socket.  npoll receives
-> > > the multicast announcement and connects to the source IP/port/scope_id
-> > > of the announcement.  If both are run on the same machine, npoll sees
-> > > the link local address of eth0 as source IP, and the interface number of
-> > > eth0 as scope_id.  So far so good.  Trying to connect() however hangs.
-> > > Since this has been broken in different ways for as long as I can
-> > > remember in Linux, and I keep complaining about it every half a year or
-> > > so.  Can't someone fix this once and for all?  IPv4 checks whether we
-> > > are connecting to our own address and reroutes through loopback, why
-> > > can't IPv6?
+
+On 03.22, Dan Maas wrote:
+> Is there a canonical way for user-space software to determine how many
+> real CPUs are present in a system (as opposed to HyperThreaded or
+> otherwise virtual CPUs)?
 > 
-> afaik, this problem is still open.  If you have time, please provide
-> additional info for the net developers.  Maybe the source to npoll anbd
-> npush?
 
-Grab the ncp package from http://www.fefe.de/ncp/, or more specifically
-ftp://ftp.fu-berlin.de/unix/network/ncp/ncp-1.2.3.tar.bz2.
+This is 2xXeonHT, is, 4 cpus on 2 packages:
 
-It's a very useful and handy tool for pushing around data within
-a LAN of a small workgroup, one guy does "npush foo" and yells
-at the intended recepient "do npoll". The first one to do
-it wins and gets foo ;-)
+cat /proc/cpuinfo:
 
-Johannes
+processor	: 0
+...
+physical id	: 0
+siblings	: 2
+core id		: 0
+cpu cores	: 1
+
+processor	: 1
+...
+physical id	: 0
+siblings	: 2
+core id		: 0
+cpu cores	: 1
+
+processor	: 2
+...
+physical id	: 3
+siblings	: 2
+core id		: 3
+cpu cores	: 1
+
+processor	: 3
+...
+physical id	: 3
+siblings	: 2
+core id		: 3
+cpu cores	: 1
+
+So something like:
+
+cat /proc/cpuinfo | grep 'core id' | uniq | wc -l
+
+would give you the number of packages or 'real cpus'. Then you have to
+choose which ones are unrelated. Usually evens are siblings of odds, but
+I won't trust on it...
+
+> We have an application that for performance reasons wants to run one
+> process per CPU. However, on a HyperThreaded system /proc/cpuinfo
+> lists two CPUs, and running two processes in this case is the wrong
+> thing to do. (Hyperthreading ends up degrading our performance,
+> perhaps due to cache or bus contention).
+> 
+
+I always hear people about HT 'degrading' performance. Obviously you don't
+get a 200%, but it is always better than 100%. With my simulation code,
+in which I did not anything special for HT (it uses my 4 cpus as 'real' ones),
+I usually get a 125-130% gain. So the theoretical performance loos true.
+Your application behaviour has to be really nasty to run slower with 2 threads
+on an HT-P4 that with one thread.
+
+Hope this helps.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.11-jam6 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-6mdk)) #1
+
+

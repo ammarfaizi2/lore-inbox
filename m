@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266688AbRH0T3r>; Mon, 27 Aug 2001 15:29:47 -0400
+	id <S265249AbRH0T26>; Mon, 27 Aug 2001 15:28:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266797AbRH0T3k>; Mon, 27 Aug 2001 15:29:40 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:52679 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S266263AbRH0T3Y>; Mon, 27 Aug 2001 15:29:24 -0400
-Message-Id: <200108271929.OAA23048@popmail.austin.ibm.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Theurer <habanero@us.ibm.com>
-Reply-To: habanero@us.ibm.com
-To: "Randy.Dunlap" <rddunlap@osdlab.org>
-Subject: Re: Journal FS Comparison on IOzone (was Netbench)
-Date: Mon, 27 Aug 2001 14:28:48 -0500
-X-Mailer: KMail [version 1.3]
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com> <3B8A9070.AD43D0E7@osdlab.org>
-In-Reply-To: <3B8A9070.AD43D0E7@osdlab.org>
+	id <S266263AbRH0T2h>; Mon, 27 Aug 2001 15:28:37 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58888 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265249AbRH0T2c>; Mon, 27 Aug 2001 15:28:32 -0400
+Subject: Re: Oops with 2.4.9
+To: bole@falcon.etf.bg.ac.yu (Bosko Radivojevic)
+Date: Mon, 27 Aug 2001 20:31:54 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108272056250.11401-200000@falcon.etf.bg.ac.yu> from "Bosko Radivojevic" at Aug 27, 2001 08:59:19 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15bS70-0004WY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 August 2001 01:24 pm, Randy.Dunlap wrote:
-> Hi,
+> I have a problem with 2.4.9 (vanilla) and HP NetServer 5/100 LC
+> (Pentium 133MHz) with Adaptec AIC 7770 EISA SCSI host adapter.
 > 
-> I am doing some similar FS comparisons, but using IOzone
-> (www.iozone.org)
-> instead of Netbench.
+> The system also has one PCI card - Digital DS21140 Tulip rev 18 NIC.
 > 
-> Some preliminary (mostly raw) data are available at:
-> http://www.osdlab.org/reports/journal_fs/
-> (updated today).
-> 
-> I am using a Linux 2.4.7 on a 4-way VA Linux system.
-> It has 4 GB of RAM, but I have limited it to 256 MB in
-> accordance with IOzone run rules.
-> 
-> However, I suspect that this causes IOzone to measure disk
-> subsystem or PCI bus performance more than it does FS performance.
-> Any comments on this?
+> Here is the oops output from bootup (in attachment is .config):
 
-Randy, 
+Does this help
 
-You are definitly exceeding what the kernel will cache and writing to disk on 
-some tests.  I guess it depends on what is more important to you.  I think 
-both are valid things to test, and you may want to try not limiting memory to 
-get just FS performace in memory for large files.  However, writing to disk 
-is important, especially for things like bounce-buffer.  Did you have himem 
-support in your kernel?  If so, did you have a bounce-buffer elimination 
-patch as well? 
-
-Does the storage system/controller have a disk cache?  What size?
-
-Also, does IOzone default to num procs=num cpus?  I didn't see any options in 
-your cmdline for num_procs.  
-
--Andrew
-
-
-
+--- drivers/scsi/aic7xxx/aic7xxx_linux.c~	Sat Aug 11 23:50:55 2001
++++ drivers/scsi/aic7xxx/aic7xxx_linux.c	Mon Aug 27 20:34:30 2001
+@@ -788,10 +788,11 @@
+ 	 * address).  For this reason, we have to reset
+ 	 * our dma mask when doing allocations.
+ 	 */
++	if(ahc->dev_softc)
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,3)
+-	pci_set_dma_mask(ahc->dev_softc, 0xFFFFFFFF);
++		pci_set_dma_mask(ahc->dev_softc, 0xFFFFFFFF);
+ #else
+-	ahc->dev_softc->dma_mask = 0xFFFFFFFF;
++		ahc->dev_softc->dma_mask = 0xFFFFFFFF;
+ #endif
+ 	*vaddr = pci_alloc_consistent(ahc->dev_softc,
+ 				      dmat->maxsize, &map->bus_addr);

@@ -1,43 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275482AbRJYQyy>; Thu, 25 Oct 2001 12:54:54 -0400
+	id <S275552AbRJYRCy>; Thu, 25 Oct 2001 13:02:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275424AbRJYQyi>; Thu, 25 Oct 2001 12:54:38 -0400
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:12548 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S275482AbRJYQyb>;
-	Thu, 25 Oct 2001 12:54:31 -0400
-Message-ID: <3BD843DE.6FD5AF2D@nyc.rr.com>
-Date: Thu, 25 Oct 2001 12:54:54 -0400
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
-X-Accept-Language: en
+	id <S275680AbRJYRCj>; Thu, 25 Oct 2001 13:02:39 -0400
+Received: from [64.92.133.94] ([64.92.133.94]:24333 "HELO boxxtech.com")
+	by vger.kernel.org with SMTP id <S275552AbRJYRCU> convert rfc822-to-8bit;
+	Thu, 25 Oct 2001 13:02:20 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+content-class: urn:content-classes:message
+Subject: 2.4.13-pre5-aa1 O_DIRECT drastic HIGHMEM performance hit
+Date: Thu, 25 Oct 2001 11:57:08 -0500
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel PCMCIA
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <3B6867E6CB09B24385A73719A50C7C9A01797E@athena.boxxtech.com>
+Thread-Topic: 2.4.13-pre5-aa1 O_DIRECT drastic HIGHMEM performance hit
+Thread-Index: AcFddkFxhmzWfcldEdW/cQCQJ5vCsg==
+From: "Marvin Justice" <Mjustice@boxxtech.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I posted a while ago, and a got a partial answer so I've decided to be
-more specific in my query.
+We're looking into setting up an HD video editing solution with the
+following hardware:
 
-Why are hotplug and cardmgr needed?  As I understand it, cardbus uses
-hotplug for config/init, and other pcmcia cards use cardmgr for init and
-/etc/pcmcia/* for config.  This seems like a big, smelly mess.
+dual 1GHz P3, 2GB RAM
+Serverworks HeSL based board
+dual U160 Adaptec SCSI card
+5 68gb Fujitsu drives on each SCSI channel
 
-The only documentation I've found (on sourceforge) is a bit dated.  Can
-anyone point me to some recent documentation? 
+The 10 drives are software raid0 striped with a 68k chunk size. For an
+initial benchmark I got a copy of lmdd and modified it to open files
+using O_DIRECT (also hacked it to work on W2K with FILE_FLAG_NO_BUFFER).
+Here are the average results in MB/sec for 2.4.13-pre5-aa1 streaming
+chunks of data 4MB at a time to RAM where they are immediately
+discarded:
 
-Also is anyone working on putting the "cardmgr/hotplug" functionality in
-the kernel?  In my VERY HUMBLE opinion, putting this in the kernel is
-akin to having PCI (or some other bus) init code in the kernel, so why
-isn't this done? 
-What's the deal with hotplug vs. kernel-pcmcia-cs? 
+                     w           r
+no O_DIRECT         136         132
+O_DIRECT            111          96
 
-I don't use modules, so I don't use cardmgr for anything except to tell
-the kernel that there is a card in the socket.
+I experimented around a bit and discovered that increasing
+KIO_MAX_ATOMIC_IO from 512 to 4096 gave a significant performance boost
+for the O_DIRECT read case:
+                     w           r
+no O_DIRECT         117         124
+O_DIRECT            111         165
 
-I really need a good architectural overview of this in Linux.  Any
-pointers?
+
+Next I recompiled without HIGHMEM support and was quite suprised
+(numbers are with KIO_MAX_ATOMIC_IO=4096)
+
+                     w           r
+no O_DIRECT         138         125
+O_DIRECT            221         182
+
+XFS shows similar behavior: (XFS barfs if you change KIO_MAX_ATOMIC_IO
+from 512)
+
+                           w         r
+O_DIRECT w/ HIGHMEM       114       146
+O_DIRECT w/o HIGHMEM      218       248
+
+
+(Incidentally, W2k reads and writes at a smooth 255 MB/sec on identical
+hardware.) 
+
+Are we stuck with a low mem configuration or are there workarounds that
+would allow us to stick with the initial 2GB of RAM and still get ~200
+MB/sec.
+ 
+
+
+--------------------------
+Marvin Justice
+Software Developer
+BOXX Technologies, Inc.
+www.boxxtech.com
+mjustice@boxxtech.com
+(V) (512)225-6318
+(F) (512)835-0434

@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVBIN2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVBINsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbVBIN2h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 08:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVBIN2h
+	id S261820AbVBINsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 08:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVBINsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 08:28:37 -0500
-Received: from smtprelay02.ispgateway.de ([80.67.18.14]:27116 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261819AbVBIN2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 08:28:35 -0500
-Message-ID: <420A1011.1030602@einar-lueck.de>
-Date: Wed, 09 Feb 2005 14:28:49 +0100
-From: =?ISO-8859-1?Q?Einar_L=FCck?= <lkml@einar-lueck.de>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH 2/2] ipv4 routing: multipath with cache support, 2.6.10-rc3
-References: <41C6B54F.2020604@einar-lueck.de> <20050202172333.4d0ad5f0.davem@davemloft.net>
-In-Reply-To: <20050202172333.4d0ad5f0.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Feb 2005 08:48:16 -0500
+Received: from user-10mt71s.cable.mindspring.com ([65.110.156.60]:24105 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S261820AbVBINsN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 08:48:13 -0500
+Date: Wed, 9 Feb 2005 08:44:16 -0500
+From: David Roundy <droundy@abridgegame.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050209134411.GC6881@abridgegame.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050202155403.GE3117@crusoe.alcove-fr> <51cfdfdc084037ae1e3f164b0c524abc@libero.it> <20050203104501.GC3144@crusoe.alcove-fr> <87sm4cm4io.fsf@goat.bogus.local> <cuc6el$7r5$2@sea.gmane.org> <buowtticdox.fsf@mctpc71.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <buowtticdox.fsf@mctpc71.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> Can you describe more precisely "the scenerios, that are relevant
-> to us"?
+On Wed, Feb 09, 2005 at 05:58:22PM +0900, Miles Bader wrote:
+> Kevin Puetz <puetzk@puetzk.org> writes:
+> > erm, svk is cool and all, but it keeps a local repository mirror (not
+> > necessarily full I suppose, but usually it is). So it's *much* heavier
+> > on the client side than normal svn. Pays off in several ways, but just
+> > because it keeps it's weight in the depot folder instead of the wc
+> > folder doesn't make it ligher (unless you use several wc's I suppose).
+> 
+> Hmmm, I thought that several other systems had similar (or worse)
+> overhead -- most notably that bk and darcs have no real notion of a
+> "repository", but always store the entire history in every source tree.
+> Such a model seems to simplify the user interface in some cases, but
+> obviously can impact disk usage...
+> 
+> However I have no real experience with either bk or darcs; please
+> correct me if I'm wrong about this.
 
-The scenarios we have in mind are setups in which a set of collaborating 
-servers steadly establish connections among each other with a very high rate. 
-This high rate requirement drove us to consider the inclusion of all 
-alternative routes into the routing cache because the corresponding delay 
-for each connection establishment is low and the load is balanced over all
-available routes. That's why we did not consider a slow lookup in the fib 
-for each connection established.
-
-Regards,
-Einar.
+wrt darcs, you're mostly correct.  There is the possibility of a "partial"
+repository, which doesn't have the full history, but that isn't the
+default, and therefore tends to be less well-debugged.  On the other hand,
+if you never try to *look* at the history, you're pretty much safe--the
+bugs tend to show up when you try to browse that history which you *do*
+have.
+-- 
+David Roundy
+http://www.darcs.net

@@ -1,56 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131326AbRAKWxh>; Thu, 11 Jan 2001 17:53:37 -0500
+	id <S129994AbRAKXHc>; Thu, 11 Jan 2001 18:07:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130874AbRAKWx1>; Thu, 11 Jan 2001 17:53:27 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:44904
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S131326AbRAKWxN>; Thu, 11 Jan 2001 17:53:13 -0500
-Date: Thu, 11 Jan 2001 23:53:05 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Hans Grobler <grobh@sun.ac.za>
-Cc: "Karsten Hopp (Red Hat)" <Karsten.Hopp@sap.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-ac6: drivers/net/rcpci45.c typo
-Message-ID: <20010111235305.D612@jaquet.dk>
-In-Reply-To: <3A5D9F29.4274AD6B@sap.com> <Pine.LNX.4.30.0101111358140.30013-100000@prime.sun.ac.za> <20010111130632.H27620@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010111130632.H27620@jaquet.dk>; from rasmus@jaquet.dk on Thu, Jan 11, 2001 at 01:06:32PM +0100
+	id <S130204AbRAKXHV>; Thu, 11 Jan 2001 18:07:21 -0500
+Received: from james.kalifornia.com ([208.179.0.2]:51759 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S129994AbRAKXHL>; Thu, 11 Jan 2001 18:07:11 -0500
+Message-ID: <3A5E3C18.18A6A42@linux.com>
+Date: Thu, 11 Jan 2001 15:04:56 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Strange umount problem in latest 2.4.0 kernels
+In-Reply-To: <Pine.GSO.4.21.0101111337250.17363-100000@weyl.math.psu.edu> <3A5E0886.4389692E@Hell.WH8.TU-Dresden.De> <3A5E1E0D.B420A045@Hell.WH8.TU-Dresden.De>
+Content-Type: multipart/mixed;
+ boundary="------------CFFBC751E6363CED755E9B62"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 11, 2001 at 01:06:32PM +0100, Rasmus Andersen wrote:
-> On Thu, Jan 11, 2001 at 01:59:31PM +0200, Hans Grobler wrote:
-> > Yes we know about this one. This is a bug that was killed, and then came
-> > back to life. We're still trying to figure out how... :)
-> > 
-> I feel that I must step up and claim responsibility here: The patch is
-> mine and I apparently messed it up. I will get back with a better one
-> this evening.
+This is a multi-part message in MIME format.
+--------------CFFBC751E6363CED755E9B62
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Hi again.
+"Udo A. Steinberg" wrote:
 
-The attached patch is against ac6 and hopefully fixes the problems
-reported (I personally inspected it to make sure that the rcpci45_pci_table
-stuff was correct). An updated patch against 240p2 can be found at
-www.jaquet.dk/kernel/patches/rcpci.patch.gz
+> "Udo A. Steinberg" wrote:
+> >
+> > The very strange stuff is umount at reboot:
+> >
+> > umount: none busy - remounted read-only
+> > umount: /: device is busy
+> > Remounting root-filesystem read-only
+> > mount: / is busy
+> > Rebooting.
 
-<pause>
+Are you using devfs and do kernel threads have /dev/initctl open?
 
-On closer look this patch (against ac6) might be a bit to large to 
-post to linux-kernel. I will make it available at 
-www.jaquet.dk/kernel/patches/rcpci.patch.ac6.gz instead.
+# lsof /dev
+COMMAND     PID USER   FD   TYPE DEVICE SIZE NODE NAME
+init          1 root   10u  FIFO    0,5       574 /dev/initctl
+keventd       2 root   10u  FIFO    0,5       574 /dev/initctl
+kapm-idle     3 root   10u  FIFO    0,5       574 /dev/initctl
+kswapd        4 root   10u  FIFO    0,5       574 /dev/initctl
+kreclaimd     5 root   10u  FIFO    0,5       574 /dev/initctl
+bdflush       6 root   10u  FIFO    0,5       574 /dev/initctl
+kupdate       7 root   10u  FIFO    0,5       574 /dev/initctl
+i2oevtd       8 root   10u  FIFO    0,5       574 /dev/initctl
+i2oblock      9 root   10u  FIFO    0,5       574 /dev/initctl
+khubd        12 root   10u  FIFO    0,5       574 /dev/initctl
+khttpd       16 root   10u  FIFO    0,5       574 /dev/initctl
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+-d
 
-If we do not succeed, then we run the risk of failure.
-		-- Vice President Dan Quayle, to the Phoenix Republican
-		   Forum, March 1990
+
+--------------CFFBC751E6363CED755E9B62
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+url:www.blue-labs.org
+adr:;;;;;;
+version:2.1
+email;internet:david@blue-labs.org
+title:Blue Labs Developer
+note;quoted-printable:GPG key: http://www.blue-labs.org/david@nifty.key=0D=0A
+x-mozilla-cpt:;9952
+fn:David Ford
+end:vcard
+
+--------------CFFBC751E6363CED755E9B62--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

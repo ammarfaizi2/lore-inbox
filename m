@@ -1,51 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267424AbTBVTIT>; Sat, 22 Feb 2003 14:08:19 -0500
+	id <S267468AbTBVTRz>; Sat, 22 Feb 2003 14:17:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267468AbTBVTIT>; Sat, 22 Feb 2003 14:08:19 -0500
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:11533 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id <S267424AbTBVTIT>; Sat, 22 Feb 2003 14:08:19 -0500
-Date: Sat, 22 Feb 2003 13:18:25 -0600
-From: Art Haas <ahaas@airmail.net>
-To: linux-kernel@vger.kernel.org
-Cc: Jaroslav Kysela <perex@suse.cz>, Adam Belay <ambx1@neo.rr.com>
-Subject: [PATCH] Fix for drivers/pnp/interface.c
-Message-ID: <20030222191825.GB28591@debian>
+	id <S267513AbTBVTRz>; Sat, 22 Feb 2003 14:17:55 -0500
+Received: from mnh-1-19.mv.com ([207.22.10.51]:58628 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S267468AbTBVTRz>;
+	Sat, 22 Feb 2003 14:17:55 -0500
+Message-Id: <200302221921.OAA02596@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Zwane Mwaikambo <zwane@zwane.ca>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5][13/14] smp_call_function_on_cpu - UML 
+In-Reply-To: Your message of "Fri, 14 Feb 2003 04:34:06 EST."
+             <Pine.LNX.4.50.0302140411160.3518-100000@montezuma.mastecende.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+Date: Sat, 22 Feb 2003 14:21:33 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+zwane@holomorphy.com said:
+> One liner to fix num_cpus == 0 on SMP kernel w/ UP box 
 
-A BK pull from this morning brings in a number of PNP changes, and there
-is a problem with interface.c. The patch below moves the variable
-declarations to the beginning of the block, and the code now compiles
-without problems. I'm using GCC-2.95.4 from Debian, BTW.
+Applied, thanks.
 
-Art Haas
+		Jeff
 
-===== drivers/pnp/interface.c 1.10 vs edited =====
---- 1.10/drivers/pnp/interface.c	Wed Feb 19 11:54:46 2003
-+++ edited/drivers/pnp/interface.c	Sat Feb 22 11:47:10 2003
-@@ -432,11 +432,11 @@
- 		goto done;
- 	}
- 	if (!strnicmp(buf,"set",3)) {
-+		struct pnp_resource_table res;
-+		int nport = 0, nmem = 0, nirq = 0, ndma = 0;
- 		if (dev->active)
- 			goto done;
- 		buf += 3;
--		struct pnp_resource_table res;
--		int nport = 0, nmem = 0, nirq = 0, ndma = 0;
- 		pnp_init_resource_table(&res);
- 		while (1) {
- 			while (isspace(*buf))
--- 
-They that can give up essential liberty to obtain a little temporary safety
-deserve neither liberty nor safety.
- -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

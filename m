@@ -1,46 +1,88 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311752AbSFJMFm>; Mon, 10 Jun 2002 08:05:42 -0400
+	id <S311885AbSFJMSY>; Mon, 10 Jun 2002 08:18:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311871AbSFJMFl>; Mon, 10 Jun 2002 08:05:41 -0400
-Received: from sj-msg-core-4.cisco.com ([171.71.163.10]:29695 "EHLO
-	sj-msg-core-4.cisco.com") by vger.kernel.org with ESMTP
-	id <S311752AbSFJMFk>; Mon, 10 Jun 2002 08:05:40 -0400
-Message-Id: <5.1.0.14.2.20020610220015.040aff60@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 10 Jun 2002 22:03:25 +1000
-To: "David S. Miller" <davem@redhat.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-Cc: greearb@candelatech.com, mark@mark.mielke.cc, cfriesen@nortelnetworks.com,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <20020609.213440.04716391.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S311898AbSFJMSX>; Mon, 10 Jun 2002 08:18:23 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:31238 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S311885AbSFJMSW>; Mon, 10 Jun 2002 08:18:22 -0400
+Message-ID: <3D048B4C.7080107@evision-ventures.com>
+Date: Mon, 10 Jun 2002 13:19:40 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.21 "I can't get no compilation"
+In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------010403090902010905020906"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:34 PM 9/06/2002 -0700, David S. Miller wrote:
->Every argument I hear is one out of lazyness.  And that is not a
->reason to add something.  Simply put, I don't want to add all of this
->per-socket counter bumping that only, at best, 1 tenth of 1 percent
->of people will use.  This means that the rest of the world eats the
->overhead just for this small group that actually uses it.
+This is a multi-part message in MIME format.
+--------------010403090902010905020906
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-would you be willing to accept a patch that enables per-socket accounting 
-with a CONFIG_ option?
+The subject says it all...
 
-to my mind, i can see a number of perfectly valid scenarios.
-one is for streaming-media applications which could use retransmissions as 
-an indication to buffer more data and/or switch to a different bitrate.
+Contrary to other proposed patches I realized that there is
+no such thing as vmalloc_dma.
 
-another is for a http proxy which has multiple outgoing interfaces which 
-are multihomed via different providers (and some via simplex satellite).
-retransmissions woud be a nice metric to use for determining the weightings 
-between using different interfaces.
+--------------010403090902010905020906
+Content-Type: text/plain;
+ name="compile-2.5.21-1.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="compile-2.5.21-1.diff"
 
+diff -urN linux-2.5.21/drivers/media/video/tda9875.c linux/drivers/media/video/tda9875.c
+--- linux-2.5.21/drivers/media/video/tda9875.c	2002-06-09 07:29:29.000000000 +0200
++++ linux/drivers/media/video/tda9875.c	2002-06-09 19:24:06.000000000 +0200
+@@ -28,6 +28,7 @@
+ #include <linux/videodev.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-bit.h>
++#include <linux/init.h>
+ 
+ #include "bttv.h"
+ #include "audiochip.h"
+diff -urN linux-2.5.21/drivers/pnp/pnpbios_proc.c linux/drivers/pnp/pnpbios_proc.c
+--- linux-2.5.21/drivers/pnp/pnpbios_proc.c	2002-06-09 07:31:26.000000000 +0200
++++ linux/drivers/pnp/pnpbios_proc.c	2002-06-09 17:57:42.000000000 +0200
+@@ -28,6 +28,7 @@
+ #include <linux/types.h>
+ #include <linux/proc_fs.h>
+ #include <linux/pnpbios.h>
++#include <linux/init.h>
+ 
+ static struct proc_dir_entry *proc_pnp = NULL;
+ static struct proc_dir_entry *proc_pnp_boot = NULL;
+diff -urN linux-2.5.21/include/linux/vmalloc.h linux/include/linux/vmalloc.h
+--- linux-2.5.21/include/linux/vmalloc.h	2002-06-09 07:31:29.000000000 +0200
++++ linux/include/linux/vmalloc.h	2002-06-09 18:44:41.000000000 +0200
+@@ -28,7 +28,6 @@
+  */
+ 
+ extern void * vmalloc(unsigned long size);
+-extern void * vmalloc_dma(unsigned long size);
+ extern void * vmalloc_32(unsigned long size);
+ 
+ /*
+diff -urN linux-2.5.21/kernel/ksyms.c linux/kernel/ksyms.c
+--- linux-2.5.21/kernel/ksyms.c	2002-06-09 07:26:33.000000000 +0200
++++ linux/kernel/ksyms.c	2002-06-09 18:43:30.000000000 +0200
+@@ -108,6 +108,8 @@
+ EXPORT_SYMBOL(kfree);
+ EXPORT_SYMBOL(vfree);
+ EXPORT_SYMBOL(__vmalloc);
++EXPORT_SYMBOL(vmalloc);
++EXPORT_SYMBOL(vmalloc_32);
+ EXPORT_SYMBOL(vmalloc_to_page);
+ EXPORT_SYMBOL(mem_map);
+ EXPORT_SYMBOL(remap_page_range);
 
-cheers,
-
-lincoln.
+--------------010403090902010905020906--
 

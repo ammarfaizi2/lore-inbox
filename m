@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132382AbRAJSrm>; Wed, 10 Jan 2001 13:47:42 -0500
+	id <S135341AbRAJStN>; Wed, 10 Jan 2001 13:49:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132918AbRAJSrd>; Wed, 10 Jan 2001 13:47:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28682 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132382AbRAJSrY>;
-	Wed, 10 Jan 2001 13:47:24 -0500
-Date: Wed, 10 Jan 2001 18:47:09 +0000
-From: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-To: Daniel Phillips <phillips@innominate.de>
-Cc: Mark Hindley <mh15@st-andrews.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 kernel paging error
-Message-ID: <20010110184709.F21944@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <l03130302b681de2fd7a0@[138.251.135.28]> <3A5C93E9.A96EF8AE@innominate.de>
-Mime-Version: 1.0
+	id <S135378AbRAJStD>; Wed, 10 Jan 2001 13:49:03 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:35086 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S135341AbRAJSsw>; Wed, 10 Jan 2001 13:48:52 -0500
+Date: Wed, 10 Jan 2001 13:48:43 -0500
+From: Chris Mason <mason@suse.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Marc Lehmann <pcg@goof.com>, reiserfs-list@namesys.com,
+        linux-kernel@vger.kernel.org, vs@namesys.botik.ru
+Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect SuSE
+ Linux)
+Message-ID: <243350000.979152523@tiny>
+In-Reply-To: <Pine.GSO.4.21.0101101229050.13614-100000@weyl.math.psu.edu>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A5C93E9.A96EF8AE@innominate.de>; from phillips@innominate.de on Wed, Jan 10, 2001 at 05:55:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 05:55:05PM +0100, Daniel Phillips wrote:
-> Mark Hindley wrote:
-> > I am running 2.4.0 final. I got the following failed paging request which
-> > produced a complete freeze.
-> > 
-> > As you can see it was precipitated by cron starting to run some
-> > housekeeping stuff overnight.
-> > 
-> > Has anyone else had prblems?
+
+
+On Wednesday, January 10, 2001 12:38:34 PM -0500 Alexander Viro
+<viro@math.psu.edu> wrote:
+
+> On Wed, 10 Jan 2001, Chris Mason wrote:
 > 
-> It looks real.  It was executing this line of clear_inode in fs/inode.c:
+>> In filldir, I don't like the line where we ((char *)dirent += reclen ;
+>> If reclen is much larger than the buffer sent from userspace, I don't
+>> see how we stay in bounds.
 > 
-> 380         if (inode->i_sb && inode->i_sb->s_op && inode->i_sb->s_op->clear_inode)
->                                                                      ^^^^^^^^^^^^^
->                                            and it blew up here ----->
+>	 So? copy_to_user() and put_user() will refuse to scramble the
+> kernel memory. IOW, dirent can be out of the userspace. Hell, user could
+> call getdents() and pass it a kernel pointer. Try it and you'll see what
+> happens.
+> 
 
-> Unable to handle kernel paging request at virtual address c4870840
+Ah thanks, that makes more sense.  But, copy_to_user is only working on
+namelen bytes, and reclen is bigger than that.  So, who is checking the
+value for the buf->current_dir pointer?
 
-I'm pretty sure this is a vmalloc/module address, which would mean ->s_op
-points to a module that has been unloaded.  This sounds consistent with the
-"cron starting to run some housekeeping stuff" above.
+-chris
 
-Mark, which file systems are you using ?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264414AbTLZBCI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 20:02:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264428AbTLZBCI
+	id S264411AbTLZA5n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 19:57:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbTLZA5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 20:02:08 -0500
-Received: from crisium.vnl.com ([194.46.8.33]:18963 "EHLO crisium.vnl.com")
-	by vger.kernel.org with ESMTP id S264414AbTLZBCF (ORCPT
+	Thu, 25 Dec 2003 19:57:43 -0500
+Received: from mail.nvc.net ([64.68.160.43]:20484 "EHLO garbanzo.nvc.net")
+	by vger.kernel.org with ESMTP id S264411AbTLZA5m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 20:02:05 -0500
-Date: Fri, 26 Dec 2003 01:02:04 +0000
-From: Dale Amon <amon@vnl.com>
+	Thu, 25 Dec 2003 19:57:42 -0500
+Message-ID: <3FEB8785.6070404@dakotainet.net>
+Date: Thu, 25 Dec 2003 18:57:41 -0600
+From: merwan kashouty <kashouty@dakotainet.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0 compile failure
-Message-ID: <20031226010204.GM4987@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux, the choice of a GNU generation
+Subject: mpt-fusion driver
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like this is the night for 2.6.0 bug reports!
-Here's the output when the build craps out:
+i bought a  new scsi controller , lsi21320 and was running 2.4.23 , 
+after about 20 hrs the system became sluggish and then locked up... i 
+switched back to a tekram u160 card i had and after a few days found this.
 
-fs/smbfs/inode.c: In function `smb_fill_super':
-fs/smbfs/inode.c:554: warning: comparison is always false due to limited range of data type
-fs/smbfs/inode.c:555: warning: comparison is always false due to limited range of data type
-gcc: {standard input}: Assembler messages:
-{standard input}:11930: Warning: end of file not at end of a line; newline inserted
-{standard input}:12164: Error: invalid character '_' in mnemonic
-Internal error: Terminated (program cc1)
-Please submit a full bug report.
-See <URL:http://gcc.gnu.org/bugs.html> for instructions.
-For Debian GNU/Linux specific bugs,
-please see /usr/share/doc/debian/bug-reporting.txt.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0310.3/0068.html
 
-make[2]: *** [drivers/block/floppy.o] Error 1
-make[1]: *** [drivers/block] Error 2
-make: *** [drivers] Error 2
+in the messege is a link to a driver update released by lsi
 
-I'll probably try building without smbfs. Same
-config worked with test11.
+ftp://ftp.lsil.com/HostAdapterDrivers/linux/Fusion-MPT/2.05.10/mptlinux-2.05
 
--- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+so i applied the updated driver patch to my kernel recompiled and its 
+been running great ever since.. very fast too....
+
+ Timing buffered disk reads:  316 MB in  3.02 seconds = 104.77 MB/sec
+
+could this possibly find its way into the 2.4.23 or atleast 2.4.24 if it 
+isnt already.
+
+ciao
+
+merwan
+
+i am not a subscriber to the lkml so CC me if not to much trouble

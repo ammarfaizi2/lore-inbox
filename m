@@ -1,99 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280082AbRKEAmN>; Sun, 4 Nov 2001 19:42:13 -0500
+	id <S280081AbRKEAon>; Sun, 4 Nov 2001 19:44:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280081AbRKEAl6>; Sun, 4 Nov 2001 19:41:58 -0500
-Received: from a904j637.tower.wayne.edu ([141.217.140.65]:26357 "HELO
-	mail.outstep.com") by vger.kernel.org with SMTP id <S280082AbRKEAlA>;
-	Sun, 4 Nov 2001 19:41:00 -0500
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>
-Subject: Re: Special Kernel Modification
-Message-ID: <1004920141.3be5dd4db68a0@mail.outstep.com>
-Date: Sun, 04 Nov 2001 19:29:01 -0500 (EST)
-From: lonnie@outstep.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BE5D6EC.8040204@outstep.com> <E160XU3-00012T-00@localhost>
-In-Reply-To: <E160XU3-00012T-00@localhost>
+	id <S280084AbRKEAo0>; Sun, 4 Nov 2001 19:44:26 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:51985 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S280081AbRKEAoL>;
+	Sun, 4 Nov 2001 19:44:11 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200111050044.fA50i8o182130@saturn.cs.uml.edu>
+Subject: Re: The PCI ID Repository
+To: mj@ucw.cz (Martin Mares)
+Date: Sun, 4 Nov 2001 19:44:08 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20011104170202.A3370@ucw.cz> from "Martin Mares" at Nov 04, 2001 05:02:02 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.5
-X-Originating-IP: 192.168.1.100
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ryan,
+Martin Mares writes:
 
->From what I can see. With chrooting, I have to make a complete "fake" system an
-then place the users below that into a home directory, or make a complete "fake"
-system for each user.
+> The repository lives at http://pciids.sourceforge.net/ and you can download
 
-I was trying to find a simple solution that would allow for:
+What about revision codes?
 
-I was initially thinking about something like this for each user:
+Vendor and device really isn't enough to identify something.
+There may be completely different chips with the same vendor
+and device IDs.
 
-/system (real) /dev/hda4 (chrooted also)
-      |
-      /bin
-      /etc
-      /lib
+Tundra provides an example: Universe, Universe II, Universe IIB
+
+These chips are the same device in some sense; they are all
+PCI-to-VME bridges. (damn popular too) The programming interface
+is incompatible, so they get different revisions. Tundra isn't
+alone in interpreting the PCI spec this way.
 
 
 
-/home (each user chrooted)
-     |
-     /user1
-     |     |
-     |     /system (mounted /dev/hda4)
-     |            |
-     |            /bin
-     |            /etc
-     |            /lib
-     |
-     /user2
-     |     |
-     |     /system (mounted /dev/hda4)
-     |            |
-     |            /bin
-     |            /etc
-     |            /lib
-     |
-     /user n
-          |
-          /system (mounted /dev/hda4)
-                 |
-                 /bin
-                 /etc
-                 /lib
-
-The basic problem is that I did not want, for example "user2" to be able to "cd
-.." or some thing to go out of user2
-
-I was hoping to be able to accomplish this at the filesystem level somehow, and
-possibly without the need to mount the /dev/hda4 onto each /home/user/system, or
-without having to make entire copies of the chrooted environment for each user.
-
-Cheers,
-Lonnie
-
-Quoting Ryan Cumming <bodnar42@phalynx.dhs.org>:
-
-> On November 4, 2001 16:01, Lonnie Cumberland wrote:
-> > I have look into using things like "chroot" to restrict the users
-> for
-> > this very special server, but that solution is not what we need.
-> ....
-> > Is there someone who might be able to give me some information on how
-> I
-> > could add a few lines to the VFS filesystem so that I might set some
-> > type of extended attribute to prevent users from navigating out of
-> the
-> > locations.
->
-> I fail to see the difference between "chroot" and "preventing users from
->
-> navigating out of locations". Would you care to clarify what was wrong
-> was
-> chroot that you believe you can solve with a different approach?
-> -Ryan
->

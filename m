@@ -1,64 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbVADUbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbVADUr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262146AbVADUbM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 15:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVADU1v
+	id S262147AbVADUr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 15:47:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVADUox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 15:27:51 -0500
-Received: from gprs214-202.eurotel.cz ([160.218.214.202]:57829 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262100AbVADUZl (ORCPT
+	Tue, 4 Jan 2005 15:44:53 -0500
+Received: from imag.imag.fr ([129.88.30.1]:23994 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S262135AbVADUb6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 15:25:41 -0500
-Date: Tue, 4 Jan 2005 21:22:45 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: Power management of old ISA devices (Re: mark older power managment as deprecated)
-Message-ID: <20050104202245.GB7924@elf.ucw.cz>
-References: <20050104124659.GA22256@elf.ucw.cz> <s5h3bxhgncy.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5h3bxhgncy.wl@alsa2.suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 4 Jan 2005 15:31:58 -0500
+Date: Tue, 4 Jan 2005 21:31:44 +0100 (MET)
+From: "emmanuel.colbus@ensimag.imag.fr" <colbuse@ensisun.imag.fr>
+X-X-Sender: colbuse@ensisun
+To: linux-kernel@vger.kernel.org
+cc: jakub@redhat.com, <roots@ensilinx1.imag.fr>
+Subject: [BUG]Deadlock in get_irqlock() due to Bottom halves on Sparc64 SMP,
+ kernel 2.4.27
+Message-ID: <Pine.GSO.4.40.0501042036480.20746-100000@ensisun>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Tue, 04 Jan 2005 21:31:45 +0100 (CET)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > What about this patch? It marks old power managemnt as obsolete (and
-> > also adds some sparse-style type checking; typedefs were already there
-> > so why not use them?). I think it should go in, so that we can get a
-> > rid of old power managment infrastructure post-2.6.11.
-> 
-> ALSA core part still includes pm_register/unregister() for old
-> (non-PnP) ISA devices.
-> 
-> What is the proper way to register/unregister PM hooks for such
-> devices?
+We are currently experiencing a kind of freeze on a 4-processor
+UltraSparc computer (a sun Enterprise 4000).
+The VT100 screen shows only occurences of the following message :
 
-How are PnP ISA devices handled?
+get_irqlock, CPU1:
+irq:  0 [ 0 0 0 0 ]
+bh:   1 [ 1 0 0 0 ]
 
-Right solution for ISA devices is probably to create an ISA bus in
-driver model, and hook such devices there....
+Having checked to the sources, we found that this message shows that CPU0
+has currently one Bottom-half, and keeps it, but we have no idea why it
+has freezed in this situation.
 
-Alternatively, you might just hang them onto platform bus, in similar
-way i8042 uses...
+To tell the truth, this is not a complete freeze, since the kernel
+continues to answer to "ping", and nmap shows normal output, but we had
+never been able to contact any of the theoretically running services. It
+seems us as no user-space program get access to a processor.
 
-Imagine this configuration:
+This is the content of the /proc/cpuinfo file :
 
-cpu -- PCI #1 -- PCI to PCI bridge -- PCI #2 -- PCI to ISA bridge -- sound card #1 on 0x100
-              \- PCI to PCI bridge -- PCI #3 -- PCI to ISA bridge -- sound card #2 on 0x100
+cpu             : TI UltraSparc I   (SpitFire)
+fpu             : UltraSparc I integrated FPU
+promlib         : Version 3 Revision 2
+prom            : 3.2.4
+type            : sun4u
+ncpus probed    : 4
+ncpus active    : 4
+Cpu0Bogo        : 333.41
+Cpu0ClkTck      : 0000000009f437c0
+Cpu1Bogo        : 333.41
+Cpu1ClkTck      : 0000000009f437c0
+Cpu4Bogo        : 333.41
+Cpu4ClkTck      : 0000000009f437c0
+Cpu5Bogo        : 333.41
+Cpu5ClkTck      : 0000000009f437c0
+MMU Type        : Spitfire
+State:
+CPU0:           online
+CPU1:           online
+CPU4:           online
+CPU5:           online
 
-...would you say that's supported? If yes you'd need to create ISA
-buses and do it properly, otherwise hooking to platform bus is
-probably acceptable.
+And this is the result of a uname -a :
+
+Linux ensilinx6 2.4.27 #2 SMP dim nov 14 18:58:56 CET 2004 sparc64
+GNU/Linux
 
 
-								Pavel
+Note :
+Nmapping the computer has the side-effect of fulling the VT100 screen with
+the message :
+"eth0: Happy Meal out of receive descriptors, packet dropped".
+After that, and after some time, the original "get_irqlock" messages
+came again.
+
+The sources are telling that it means that the computer is overloaded and
+receives packets too quickly (from drivers/net/sunhme.c, line 1832).
+
+Any ideas?
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Alban Crequy - Emmanuel Colbus
+Club Gnu/Linux
+ENSIMAG - Departement Telecommunications
+

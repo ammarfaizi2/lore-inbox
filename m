@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267330AbTABXuT>; Thu, 2 Jan 2003 18:50:19 -0500
+	id <S267327AbTACAAO>; Thu, 2 Jan 2003 19:00:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267331AbTABXuT>; Thu, 2 Jan 2003 18:50:19 -0500
-Received: from vger.timpanogas.org ([216.250.140.154]:46818 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S267330AbTABXuS>; Thu, 2 Jan 2003 18:50:18 -0500
-Date: Thu, 2 Jan 2003 18:08:49 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       jmerkey@timpanogas.org
-Subject: Re: Questton about Zone Allocation 2.4.X
-Message-ID: <20030102180849.A21498@vger.timpanogas.org>
-References: <20030102175517.A21471@vger.timpanogas.org> <20030102235147.GS9704@holomorphy.com>
+	id <S267331AbTACAAO>; Thu, 2 Jan 2003 19:00:14 -0500
+Received: from main.gmane.org ([80.91.224.249]:56457 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S267327AbTACAAN>;
+	Thu, 2 Jan 2003 19:00:13 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Steven Barnhart" <sbarn03@softhome.net>
+Subject: [2.5.54] OOPS: unable to handle kernel paging request
+Date: Thu, 02 Jan 2003 19:08:55 -0500
+Message-ID: <pan.2003.01.03.00.08.53.924016@softhome.net>
+References: <20030102171803.GQ6114@fs.tum.de> <Pine.LNX.4.33.0301021827160.649-100000@pnote.perex-int.cz> <20030102132640.GA328@neo.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030102235147.GS9704@holomorphy.com>; from wli@holomorphy.com on Thu, Jan 02, 2003 at 03:51:47PM -0800
+Content-Type: text/plain; charset=ISO-8859-1
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.13.0 (The whole remains beautiful)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-> 
-> __get_free_pages() allocates from lowmem (i.e. 0-4GB) only.
-> Allocate from highmem instead.
-
-0-4GB is where I need to allocate, so allocating from highmem is not 
-a solution.  I found the Ingo/Andrea patch for RH 8.0, but this patch 
-looks a little scary since it affects the memory allocations between
-user and kernel space and the ratios alloted to these areas (I may 
-be missing something here -- as Dave M. puts it "Jeff you are such a pain
-in the ass sometimes"  :-).  
-
-Jeff
+I seem to get a very nasty oops exactly when booting 2.5.54. When i
+boot to the kernel I immediately get a kksymoops report flooding my
+screen. This happens to fast that the text blurs and basically everything
+stays where its at. There is no way to stop it except rebooting. I do not
+have any serial connections to send the output to so I got (hopefully) the
+most important line. The oops says "unable to handle kernel paging
+request at virtual address ffffff8d (there may be another 'f' in there). I
+searched through the archives and their seems to be a few oops reports of
+the same kind but no patches and the only kernel was 2.5.48-bk I think.
+Any thoughts?
 
 
-> 
-> 
-> Bill

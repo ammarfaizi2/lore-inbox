@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265390AbUFBXp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263840AbUFBXvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbUFBXp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 19:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUFBXp2
+	id S263840AbUFBXvR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 19:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265382AbUFBXvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 19:45:28 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:27009 "EHLO cloud.ucw.cz")
-	by vger.kernel.org with ESMTP id S265390AbUFBXnE (ORCPT
+	Wed, 2 Jun 2004 19:51:17 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:448 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263840AbUFBXvQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 19:43:04 -0400
-Date: Thu, 3 Jun 2004 01:44:28 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Derek Chen-Becker <derek@chen-becker.org>
-Cc: Kim Holviala <kim@holviala.com>, linux-kernel@vger.kernel.org
-Subject: Re: Troubleshooting PS/2 mouse in 2.6.5
-Message-ID: <20040602234428.GE1366@ucw.cz>
-References: <408D4CB4.4070901@chen-becker.org> <200404270849.23397.kim@holviala.com> <408E64EB.6080204@chen-becker.org> <408E68C9.5010102@chen-becker.org>
+	Wed, 2 Jun 2004 19:51:16 -0400
+Date: Wed, 2 Jun 2004 16:59:02 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, rusty@rustcorp.com.au
+Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
+Message-Id: <20040602165902.73dfc977.pj@sgi.com>
+In-Reply-To: <20040602162330.0664ec5d.akpm@osdl.org>
+References: <20040602161115.1340f698.pj@sgi.com>
+	<20040602162330.0664ec5d.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <408E68C9.5010102@chen-becker.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 08:06:01AM -0600, Derek Chen-Becker wrote:
-> OK, this is weird. I changed psmouse to be a module and now it works (I 
-> also made gameport a module). Here's /proc/bus/input/devices from when 
-> it *didn't* work:
-> 
-> I: Bus=0011 Vendor=0002 Product=0005 Version=0000
-> N: Name="ImPS/2 Generic Wheel Mouse"
-> P: Phys=isa0060/serio1/input0
-> H: Handlers=mouse0
-> B: EV=7
-> B: KEY=70000 0 0 0 0 0 0 0 0
-> B: REL=103
-> 
-> I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
-> N: Name="AT Translated Set 2 keyboard"
-> P: Phys=isa0060/serio0/input0
-> H: Handlers=kbd
-> B: EV=120003
-> B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
-> B: LED=7
-> 
-> 
-> And here's from when it *does* work:
-> 
-> I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
-> N: Name="AT Translated Set 2 keyboard"
-> P: Phys=isa0060/serio0/input0
-> H: Handlers=kbd
-> B: EV=120003
-> B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
-> B: LED=7
-> 
-> I: Bus=0011 Vendor=0002 Product=0005 Version=0000
-> N: Name="ImPS/2 Generic Wheel Mouse"
-> P: Phys=isa0060/serio1/input0
-> H: Handlers=mouse0
-> B: EV=7
-> B: KEY=70000 0 0 0 0 0 0 0 0
-> B: REL=103
-> 
-> The only difference I can see is the ordering. Does the mouse handler 
-> have to be initialized after the keyboard handler?
+> Can't we just stick a PAGE_SIZE in here?
 
-No, but on many machines it needs to be initalized after USB.
+We could - either way works about as well.  Is there something special
+about PAGE_SIZE here?  Is that in fact what sysfs is making available?
+
+I can send a PAGE_SIZE hack-a-shaq if you like, or you can just code it
+yourself.  If I do it, I will also fix the comment as appropriate. 
+Whatever you prefer ...
+
+	len = cpumask_scnprintf(buf, PAGE_SIZE /* XXX FIXME */, mask);
 
 -- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

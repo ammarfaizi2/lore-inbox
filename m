@@ -1,103 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262626AbRFGOIw>; Thu, 7 Jun 2001 10:08:52 -0400
+	id <S262651AbRFGOKM>; Thu, 7 Jun 2001 10:10:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262640AbRFGOIm>; Thu, 7 Jun 2001 10:08:42 -0400
-Received: from leeor.math.technion.ac.il ([132.68.115.2]:36007 "EHLO
-	leeor.math.technion.ac.il") by vger.kernel.org with ESMTP
-	id <S262626AbRFGOI2>; Thu, 7 Jun 2001 10:08:28 -0400
-Date: Thu, 7 Jun 2001 17:08:25 +0300
-From: "Nadav Har'El" <nyh@math.technion.ac.il>
+	id <S262649AbRFGOKC>; Thu, 7 Jun 2001 10:10:02 -0400
+Received: from ns.suse.de ([213.95.15.193]:58384 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S262651AbRFGOJy>;
+	Thu, 7 Jun 2001 10:09:54 -0400
+Date: Thu, 7 Jun 2001 15:40:54 +0200
+From: Olaf Hering <olh@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: Bug in nonlocal-bind (transparent proxy)?
-Message-ID: <20010607170825.A18760@leeor.math.technion.ac.il>
+Subject: 2.4.5-ac9 console NULL pointer pointer dereference
+Message-ID: <20010607154054.A23442@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-Hebrew-Date: 16 Sivan 5761
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am writing a transparent-proxy-like application, that needs to be able to
-bind a TCP socket with a non-local address (i.e., the proxy contacts the
-origin-server, in the local network, pretending to be the original client.
-The reply will get back to the proxy because it acts as the default
-gateway, and the kernel needs to pass that reply to the socket).
+Hi,
 
-Bind()ing a non-local address worked fine in the 2.2 line of kernels if a
-certain compile-time option was enabled (TRANSPARENT_PROXY, or something
-like that). But it no longer seems to be working in the 2.4 kernels (I
-tried this on 2.4.2 coming from the Redhat 7.1 distribution).
+this happend with 2.4.5-ac9 with serial console on i386.
 
-First, bind() simply refused to work when given a non-local address (returning
-EADDRNOTAVAIL). Reading the kernel's source I discovered that an undocumented
-"ip_nonlocal_bind" sysctl makes the kernel agree to do such a bind (this
-should really be in the bind() documentation...). Enabling this option
-allowed bind to work (it can even catch the case of two sockets trying to
-bind the same address), but the later connect() fails!
-I tryed reading the kernel sources to figure out what's wrong with the
-connect(), but failed to understand why it returns a EINVAL. I think this
-is a bug, and include below a short program to reproduce it:
+Full boot log and config can be found here:
+http://www.penguinppc.org/~olaf/bugs/245-ac9/
 
-If you run the program below, connect() will fail with EINVAL (it will do
-so before even trying to output a packet). To see that nothing's actually
-wrong with the connect, change the #if 1 to #if 0, eliminating the bind(),
-and see that the connect works (or at least fails with a connection refused,
-as it should because of the random IP address).
-Note that you must run the program as root, and do
-	echo 1 > /proc/sys/net/ipv4/ip_nonlocal_bind 
-to get the bind() to work at all. But once you do that, and bind() works,
-how come connect() doesn't work?
 
-Thanks in advance for any insights or fixes!
+ksymoops 2.4.1 on i686 2.4.6-pre1.  Options used
+     -v /usr/src/OLAF/linux-2.4.5-ac9/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -O (specified)
+     -m /usr/src/OLAF/linux-2.4.5-ac9/System.map (specified)
 
-Here's the program to reproduce the bug:
+ WARNING: unexpectC, please mail
+cpu: 0, clocks: 1001790, slice: 500895
+ttyS1 at Unable to handle kernel NULL pointer dereference0x02f8 (irq = 3) at virtual address 00000004
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c01967c7>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 00000000   ebx: c1231fa4   ecx: 00000202   edx: 00000000
+esi: c1231fa4   edi: c1230332   ebp: c1230000   esp: c1231f8c
+ds: 0018   es: 0018   ss: 0018
+Process keventd (pid: 2, stackpage=c1231000)
+Stack: c0195a67 c1231fa4 c0119a5c 00000000 c1230650 c1231fe0 c025a5c4 c025a5c4 
+       c0120f97 c0252d20 00000700 c123ffc4 00000000 0008e000 c1230650 c1230640 
+       00000001 00000000 00000000 00010000 00000000 00000000 c1230000 c0252d2c 
+Call Trace: [<c0195a67>] [<c0119a5c>] [<c0120f97>] [<c01056cc>] 
+Code: 80 78 04 01 74 39 83 3d 00 43 2d c0 00 74 11 a1 88 52 2c c0 
 
-/* try non-local bind on 2.4 kernel...
+>>EIP; c01967c7 <poke_blanked_console+1b/5c>   <=====
+Trace; c0195a67 <console_callback+5f/b0>
+Trace; c0119a5c <__run_task_queue+60/74>
+Trace; c0120f97 <context_thread+127/1c4>
+Trace; c01056cc <kernel_thread+28/38>
+Code;  c01967c7 <poke_blanked_console+1b/5c>
+00000000 <_EIP>:
+Code;  c01967c7 <poke_blanked_console+1b/5c>   <=====
+   0:   80 78 04 01               cmpb   $0x1,0x4(%eax)   <=====
+Code;  c01967cb <poke_blanked_console+1f/5c>
+   4:   74 39                     je     3f <_EIP+0x3f> c0196806 <poke_blanked_console+5a/5c>
+Code;  c01967cd <poke_blanked_console+21/5c>
+   6:   83 3d 00 43 2d c0 00      cmpl   $0x0,0xc02d4300
+Code;  c01967d4 <poke_blanked_console+28/5c>
+   d:   74 11                     je     20 <_EIP+0x20> c01967e7 <poke_blanked_console+3b/5c>
+Code;  c01967d6 <poke_blanked_console+2a/5c>
+   f:   a1 88 52 2c c0            mov    0xc02c5288,%eax
 
-   echo 1 > /proc/sys/net/ipv4/ip_nonlocal_bind
-   doesn't seem to help :(
-*/
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <errno.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
 
-main(){
-    int s,c;
-    struct sockaddr_in addr;
 
-    s=socket(PF_INET,SOCK_STREAM,0);
-    if(s<0)
-        perror("socket");
 
-#if 1
-    printf("binding %d\n",s);
-    addr.sin_family=AF_INET;
-    addr.sin_port=htons(5678);
-    inet_aton("2.3.4.5",&addr.sin_addr);
-    /* this requires echo 1 > /proc/sys/net/ipv4/ip_nonlocal_bind */
-    if(bind(s, (struct sockaddr *)&addr, sizeof(addr))<0)
-        perror("bind");
-#endif
-
-    printf("connecting %d\n",s);
-    addr.sin_family=AF_INET;
-    addr.sin_port=htons(22);
-    inet_aton("1.2.3.4",&addr.sin_addr);
-    c=connect(s,(struct sockaddr *)&addr, sizeof(addr));
-    if(c<0)
-        perror("connect");
-
-    printf("end.\n");
-}
-
+Gruss Olaf
 
 -- 
-Nadav Har'El                        |     Thursday, Jun  7 2001, 16 Sivan 5761
-nyh@math.technion.ac.il             |-----------------------------------------
-Phone: +972-53-245868, ICQ 13349191 |(On the back of a VW Beetle) Don't honk,
-http://nadav.harel.org.il           |I'm peddling as fast as I can.
+ $ man clone
+
+BUGS
+       Main feature not yet implemented...

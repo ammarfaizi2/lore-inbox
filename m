@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282703AbRK0BFo>; Mon, 26 Nov 2001 20:05:44 -0500
+	id <S282701AbRK0BFY>; Mon, 26 Nov 2001 20:05:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282702AbRK0BFh>; Mon, 26 Nov 2001 20:05:37 -0500
-Received: from mauve.demon.co.uk ([158.152.209.66]:5761 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S282703AbRK0BFX>; Mon, 26 Nov 2001 20:05:23 -0500
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200111270101.BAA01290@mauve.demon.co.uk>
-Subject: Re: Journaling pointless with today's hard disks?
-To: jlundell@pobox.com (Jonathan Lundell)
-Date: Tue, 27 Nov 2001 01:01:19 +0000 (GMT)
-Cc: nitrax@giron.wox.org (Martin Eriksson),
-        xioborg@yahoo.com (Steve Brueggeman), linux-kernel@vger.kernel.org
-In-Reply-To: <p05100301b82887aff497@[207.213.214.37]> from "Jonathan Lundell" at Nov 26, 2001 04:18:15 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S282704AbRK0BFI>; Mon, 26 Nov 2001 20:05:08 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:65297 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282702AbRK0BEt>; Mon, 26 Nov 2001 20:04:49 -0500
+Message-ID: <3C02E682.4CDC6858@zip.com.au>
+Date: Mon, 26 Nov 2001 17:04:02 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+In-Reply-To: <4.3.2.7.2.20011126113409.00bfaa70@mail.osagesoftware.com> <Pine.LNX.4.21.0111261328450.13681-100000@freak.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo Tosatti wrote:
 > 
-> At 12:49 AM +0100 11/27/01, Martin Eriksson wrote:
-> >I sure think the drives could afford the teeny-weeny cost of a power failure
-<snip>
-> converter, which is expensive. If you simply detect a drop in dc 
-> power, there simply isn't enough margin to reliably write a block.
+> (people are flooding me with patches, btw, please stop for a while).
 > 
-> Years (many years) back, Diablo had a short-lived model (400, IIRC) 
-> that had an interesting twist on this. On a power failure, the 
-> spinning disk (this was in the days of 14" platters, so plenty of 
-> energy) drove the spindle motor as a generator, providing power to 
-> the drive electronics for several seconds before it spun down to 
-> below operating speed.
 
-I have a (IIRC) elantec databook from 1985 or so, that I've found chips in
-disks from the MFM/RLL PC era. 
-These are motor driver chips aimed at PCs, which support generation 
-using the motor.
+That's funny.  The rest of us haven't seen these patches.
+
+Marcelo, if someone sends you a patch which has not been thoroughly
+reviewed on the appropriate mailing list, I would urge you to
+peremptorily shitcan it.  There is no reason why you alone should
+be responsible for reviewing kernel changes.
+
+-

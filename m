@@ -1,79 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbUK3Cm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbUK3Ci2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbUK3Cm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 21:42:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbUK3CmI
+	id S261929AbUK3Ci2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 21:38:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbUK3CAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 21:42:08 -0500
-Received: from grendel.firewall.com ([66.28.58.176]:29896 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id S261947AbUK3Cj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 21:39:56 -0500
-Date: Tue, 30 Nov 2004 03:39:47 +0100
-From: Marek Habersack <grendel@caudium.net>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
-Subject: Re: user- vs kernel-level resource sandbox for Linux?
-Message-ID: <20041130023947.GI5378@beowulf.thanes.org>
-Reply-To: grendel@caudium.net
-References: <20041129101919.GB9419@beowulf.thanes.org> <200411292000.iATK0qOF004026@ccure.user-mode-linux.org> <16811.40687.892939.304185@wombat.chubb.wattle.id.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cYtjc4pxslFTELvY"
-Content-Disposition: inline
-In-Reply-To: <16811.40687.892939.304185@wombat.chubb.wattle.id.au>
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 29 Nov 2004 21:00:23 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:58521 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261925AbUK3B5i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 20:57:38 -0500
+Subject: [patch 09/11] Subject: ifdef typos mips: AU1[0X]00_USB_DEVICE
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org,
+       rddunlap@osdl.org
+From: janitor@sternwelten.at
+Date: Tue, 30 Nov 2004 02:57:35 +0100
+Message-ID: <E1CYxGp-0002zG-MP@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---cYtjc4pxslFTELvY
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 30, 2004 at 09:13:03AM +1100, Peter Chubb scribbled:
-> >>>>> "Jeff" =3D=3D Jeff Dike <jdike@addtoit.com> writes:
->=20
-> Jeff> grendel@caudium.net said:
-> >> I would appreciate any pointers to the userland solutions for that
-> >> problem (if any exist) before I resort to Xen/UML.
->=20
-> Jeff> UML would be exactly what you're looking for.
->=20
-> Jeff> 				Jeff
->=20
-> apart from the performance hit :-(
-that's the problem...
+AU1000_USB_DEVICE appears 3 times.
+AU1X00_USB_DEVICE appears 44 times, and is nowhere defined.
+One ifdef starts with "X" version, and ends with "0", so it's quite
+obvious these is supposed to be one option.
 
->=20
-> There have been a number of different approaches proposed in the past
-> to limit real memory usage per-process; search for RSS limit in the
-> archives.
-per-process isn't enough. I specifically need something to limit the memory
-usage on a more global scale - per user ID or per process group or a similar
-way of grouping related processes. That's the only way to tame processes
-like apache. At this point the option I'm considering is Xen, unless I can
-find a userland solution to the problem...
+Makes you wonder if anybody uses these devices.
 
-regards,
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Acked-by: Randy Dunlap <rddunlap@osdl.org>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
-marek
+---
 
---cYtjc4pxslFTELvY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+ linux-2.6.10-rc2-bk13-max/arch/mips/Kconfig                    |    2 +-
+ linux-2.6.10-rc2-bk13-max/arch/mips/au1000/mtx-1/board_setup.c |    2 +-
+ linux-2.6.10-rc2-bk13-max/arch/mips/configs/pb1500_defconfig   |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBq91zq3909GIf5uoRAi+tAJ0Qxn0uYComiZkCGmDueksSiYkieACbBczK
-S2vpKgk5e0uOJw3IoonuSUE=
-=hFGG
------END PGP SIGNATURE-----
-
---cYtjc4pxslFTELvY--
+diff -puN arch/mips/au1000/mtx-1/board_setup.c~ifdef-mips-au100_usb_device arch/mips/au1000/mtx-1/board_setup.c
+--- linux-2.6.10-rc2-bk13/arch/mips/au1000/mtx-1/board_setup.c~ifdef-mips-au100_usb_device	2004-11-30 02:41:43.000000000 +0100
++++ linux-2.6.10-rc2-bk13-max/arch/mips/au1000/mtx-1/board_setup.c	2004-11-30 02:41:43.000000000 +0100
+@@ -60,7 +60,7 @@ void __init board_setup(void)
+ 	// enable USB power switch
+ 	au_writel( au_readl(GPIO2_DIR) | 0x10, GPIO2_DIR );
+ 	au_writel( 0x100000, GPIO2_OUTPUT );
+-#endif // defined (CONFIG_USB_OHCI) || defined (CONFIG_AU1000_USB_DEVICE)
++#endif // defined (CONFIG_USB_OHCI) || defined (CONFIG_AU1X00_USB_DEVICE)
+ 
+ #ifdef CONFIG_PCI
+ #if defined(__MIPSEB__)
+diff -puN arch/mips/configs/pb1500_defconfig~ifdef-mips-au100_usb_device arch/mips/configs/pb1500_defconfig
+--- linux-2.6.10-rc2-bk13/arch/mips/configs/pb1500_defconfig~ifdef-mips-au100_usb_device	2004-11-30 02:41:43.000000000 +0100
++++ linux-2.6.10-rc2-bk13-max/arch/mips/configs/pb1500_defconfig	2004-11-30 02:41:43.000000000 +0100
+@@ -99,7 +99,7 @@ CONFIG_RWSEM_GENERIC_SPINLOCK=y
+ CONFIG_HAVE_DEC_LOCK=y
+ CONFIG_DMA_NONCOHERENT=y
+ CONFIG_CPU_LITTLE_ENDIAN=y
+-# CONFIG_AU1000_USB_DEVICE is not set
++# CONFIG_AU1X00_USB_DEVICE is not set
+ CONFIG_MIPS_L1_CACHE_SHIFT=5
+ # CONFIG_FB is not set
+ 
+diff -puN arch/mips/Kconfig~ifdef-mips-au100_usb_device arch/mips/Kconfig
+--- linux-2.6.10-rc2-bk13/arch/mips/Kconfig~ifdef-mips-au100_usb_device	2004-11-30 02:41:43.000000000 +0100
++++ linux-2.6.10-rc2-bk13-max/arch/mips/Kconfig	2004-11-30 02:41:43.000000000 +0100
+@@ -959,7 +959,7 @@ config SYSCLK_100
+ 
+ endchoice
+ 
+-config AU1000_USB_DEVICE
++config AU1X00_USB_DEVICE
+ 	bool
+ 	depends on MIPS_PB1500 || MIPS_PB1100 || MIPS_PB1000
+ 	default n
+_

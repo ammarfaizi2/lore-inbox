@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277408AbRJJU23>; Wed, 10 Oct 2001 16:28:29 -0400
+	id <S277411AbRJJU2s>; Wed, 10 Oct 2001 16:28:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277418AbRJJU2T>; Wed, 10 Oct 2001 16:28:19 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:35969 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S277408AbRJJU2A>; Wed, 10 Oct 2001 16:28:00 -0400
-Date: Wed, 10 Oct 2001 16:28:26 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Stephen Torri <storri@ameritech.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Memory free report error (kernel-2.4.10-ac10)
-In-Reply-To: <Pine.LNX.4.33.0110101605120.733-100000@base.torri.linux>
-Message-ID: <Pine.LNX.3.95.1011010162500.21306A-100000@chaos.analogic.com>
+	id <S277410AbRJJU2d>; Wed, 10 Oct 2001 16:28:33 -0400
+Received: from 157-151.nwinfo.net ([216.187.157.151]:25739 "EHLO
+	mail.morcant.org") by vger.kernel.org with ESMTP id <S277414AbRJJU2Q>;
+	Wed, 10 Oct 2001 16:28:16 -0400
+Message-ID: <34710.24.255.76.12.1002745701.squirrel@webmail.morcant.org>
+Date: Wed, 10 Oct 2001 13:28:21 -0700 (PDT)
+Subject: Re: Tainted Modules Help Notices
+From: "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>
+To: tkhoadfdsaf@hotmail.com
+In-Reply-To: <OE64YU5ts1Tjkw1BzCf0000708c@hotmail.com>
+In-Reply-To: <OE64YU5ts1Tjkw1BzCf0000708c@hotmail.com>
+Cc: dwmw2@infradead.org, alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
+        kaos@ocs.com.au, sirmorcant@morcant.org, linux-kernel@vger.kernel.org
+X-Mailer: SquirrelMail (version 1.0.6)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001, Stephen Torri wrote:
-
+>     I was under the same impression about the module licensing tagging.  I
+> had read that it was suppose to be for maintainability (.i.e. source available so
+> kernel gods can debug) and not to enforce ideological conformity.  Now I read that
+> anything not licensed under the GPL, including BSD or simply public domain source
+> code, will taint my kernel and modprobe complains about non-GPL stuff including
+> parport_pc which apparently did not have a license.  Should I expect a Linux kernel
+> KGB to show up next?
 > 
-> I have installed and used kernel-2.4.10-ac10 on a SMP system (Dual P3)
-> using 768 MB Ram. Yet on startup of the system (RedHat 7.0), the system
-> resources are almost all used. Here are the files started:
+I think what has happened here is a little bit of a misunderstanding.
+
+I think that the modprobe source and the kernel source just aren't in sync with the
+development of the new (re DEVELOPMENTAL) MOD_LICENSE() implementation.
+
+Weither or not the BSD-NAC is GPL compatible has already been determined, as it's in the
+kernel and the lead developers have said so. I trust them, they'll get sued if they don't
+look at things like that. Modprobe told me a BSD module was tainted, I assumed that ment
+it was incompatible with the kernel which is GPLed. I shouldn't trust everything I read :>
+
+The problem lies in modprobe not having it in it's list of licenses to not mark as tainted.
+
+When I modprobe ppp_deflate, it does not fail to load, it simply warned me that my kernel
+would be tainted. What does having a tainted kernel mean? It is to tell kernel 
+debuggers if this is a clean kernel or if anything unusual has occurred.
+
+>     Furthermore I have to agree with the previous poster.  Any module could
+> easily lie to MODULE_LICENSE about its licensing terms and that would not make it's
+> source automatically "free" and GPLable so I am now wondering if this tainting
+> mechanism is of any use at all.
 > 
+If the purpose was to discriminate against licensing, I would agree. But since
+non-compatible source is not distributed with the kernel, and the mechanism is for
+debugging, what is the purpose of lying to the kernel? To confuse debuggers? No point in that.
 
-> Here is the report of the memory (free -m):
->              total       used       free     shared    buffers     cached
-> Mem:           751        662         89          0        564         18
-> -/+ buffers/cache:         78        672
-> Swap:          133          0        133
+>     Just out of curiosity do all of these license tags in the modules take
+> up any permanent kernel memory, especially in a heavily modularize system?
 > 
+A grep of /proc/kcore only showed the MODULE_LICESE in this email, and the scrollback
+buffer in my xterm, so I don't think so.
 
-Yep. It's fine. Memory that's not used is wasted. Therefore anything
-that is "spare" is used for buffers, usually to cache the file-system
-to make your hard-disk run as fast as a RAM disk.
-
-When your task needs memory, the kernel will give some of it to you,
-but not before you actually need it. That's the way virtual memory
-systems work.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+-- 
+Morgan Collins [Ax0n] http://sirmorcant.morcant.org
+Software is something like a machine, and something like mathematics, and something like
+language, and something like thought, and art, and information.... but software is not in
+fact any of those other things.
 

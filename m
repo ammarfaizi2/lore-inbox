@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbULINx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbULIN5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbULINx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 08:53:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbULINx1
+	id S261311AbULIN5y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 08:57:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbULIN5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 08:53:27 -0500
-Received: from unthought.net ([212.97.129.88]:55749 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S261308AbULINxX (ORCPT
+	Thu, 9 Dec 2004 08:57:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:24962 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261311AbULIN5t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 08:53:23 -0500
-Date: Thu, 9 Dec 2004 14:53:23 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: linux-kernel@vger.kernel.org, kruty@fi.muni.cz
-Subject: Re: XFS: inode with st_mode == 0
-Message-ID: <20041209135322.GK347@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Jan Kasprzak <kas@fi.muni.cz>, linux-kernel@vger.kernel.org,
-	kruty@fi.muni.cz
-References: <20041209125918.GO9994@fi.muni.cz>
+	Thu, 9 Dec 2004 08:57:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=f1jYNcYQSaCkl8cd7/wobfbEUyhnWOamLGJ2sHzMPt6wwaZACVHRpwsDdExnzzHYlD6iS1Qf2NecLr/pidPSl/1AAgojV1yXyewLifxAq6I7XD7Oz6h4Zpb1GOMzP8L9gOguKBrofisxbilUbibVPui0PZmBcKgQ6X5G1inDOaM=
+Message-ID: <7d34f21904120905573ddb6d25@mail.gmail.com>
+Date: Thu, 9 Dec 2004 19:27:49 +0530
+From: Phani Kandula <phani.lkml@gmail.com>
+Reply-To: Phani Kandula <phani.lkml@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: doubt about "switch" - default case in af_inet.c
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041209125918.GO9994@fi.muni.cz>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 09, 2004 at 01:59:18PM +0100, Jan Kasprzak wrote:
-> 	Hi all,
-> 
-> I have seen the strange problem on our NFS server: yesterday I have
-> found an empty file owned by UID 0/GID 0 and st_mode == 0 in my home
-> directory (ls -l said "?--------- 1 root root 0 <date> <filename>").
-> The <filename> was correct name of a temporary file used by one of my
-> cron jobs (and the cron job was failing because it could not rewrite the file).
-> It was not possible to write to this file, so I have renamed it
-> as "badfile" for further investigation (using mv(1) on the NFS server itself).
+Hi all,
 
-Known problem
+I'm a newbie to the Linux. I'm using 2.6.8 kernel. 
+In /usr/src/linux/net/ipv4/af_inet.c I came across this...
+ <code>
+     switch (sock->state) {
+     default:
+     //do something..
+         goto out;
+     case SS_CONNECTED:
+     //do something..
+         goto out;
+     case SS_CONNECTING:
+     //do something..
+         break;
+     case SS_UNCONNECTED:
+     //do something..
+         break;
+     }
+ </code>
 
-http://lkml.org/lkml/2004/11/23/283
+Is there any advantage in having 'default' as the first case? 
+My understanding is that it will be useful only when 'default' is the
+most likely case (in general).
 
-Seems there is no solution yet
+Even then, my doubt: How will compiler (say gcc) implement 'default'
+as the first value? Program is supposed to see all the cases and then
+decide 'default'. Is this correct?
 
-http://lkml.org/lkml/2004/11/30/145
+So, is this the best way to do it? please clarify..
 
-...
-> 
-> Maybe some data is flushed in an incorrect order?
-
-Maybe  :)
-
--- 
-
- / jakob
-
+Thanks,
+Phani

@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315959AbSEGUB6>; Tue, 7 May 2002 16:01:58 -0400
+	id <S315960AbSEGUDe>; Tue, 7 May 2002 16:03:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315960AbSEGUB5>; Tue, 7 May 2002 16:01:57 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:20879 "EHLO segfault.osdl.org")
-	by vger.kernel.org with ESMTP id <S315959AbSEGUB5>;
-	Tue, 7 May 2002 16:01:57 -0400
-Date: Tue, 7 May 2002 12:58:22 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <200205071921.g47JLAV00682@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0205071248450.6307-100000@segfault.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315961AbSEGUDd>; Tue, 7 May 2002 16:03:33 -0400
+Received: from outbound.ea.com ([12.35.91.3]:60110 "EHLO outbound.ea.com")
+	by vger.kernel.org with ESMTP id <S315960AbSEGUDc>;
+	Tue, 7 May 2002 16:03:32 -0400
+Subject: Has anyone integrated the e1000 driver into the 2.4.x kernel
+From: Thomas Schenk <tschenk@origin.ea.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.4 
+Date: 07 May 2002 15:04:08 -0500
+Message-Id: <1020801852.26725.23.camel@bagend.origin.ea.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am working a project where I need to be able to compile the Intel
+e1000 driver into a monolithic kernel, but the readme says that you can
+only use the driver as a module.  Is there some technical reason why
+this driver cannot be compiled into the kernel instead of being used as
+a module?
 
-> Oh, it's certainly more that 6 hours of work. But it *will* get done.
+Tom S.
 
-Even the mtrr driver was a good 8 hours to clean up, make readable and 
-more object-oriented. I wish you luck, as well as anyone that has to 
-attempt to decipher it. 
-
-> > > At that point devfs will mostly be:
-> > > - an API
-> > > - a way fo supporting the devfsd protocol.
-> > 
-> > I argue that you shouldn't need a separate daemon. We already have
-> > the /sbin/hotplug interface. It's simple and sweet. We shouldn't
-> > need to rely on an entirely separate daemon.
-> 
-> The devfsd protocol is more lightweight. Plus it doesn't require
-> fork(2)+execve(2) overheads. And more importantly, you can capture
-> lookup() events.
-
-These events are not performance critical, so the overhead is less 
-important. Besides, almost all systems have /sbin/hotplug, since it can be 
-anything - a shell script, a perl script, a tiny C executable. 
-
-The hotplug interface doesn't rely on any particular implementation. It 
-only relies on something on the other side implementing a particular 
-interface. The implementation can be replaced, as well as the format of 
-the policy, based on the constratints of the system or the whims of 
-the distro. 
-
-It also doesn't rely on a process running to capture events. What happens 
-if the devfsd process is killed?
-
-	-pat
+-- 
++=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+| Tom Schenk      | A positive attitude may not solve all your    |
+| Online Ops      | problems, but it will annoy enough people to  |
+| tschenk@ea.com  | make it worth the effort. -- Herm Albright    |
++=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 

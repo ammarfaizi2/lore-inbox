@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315503AbSFJQmG>; Mon, 10 Jun 2002 12:42:06 -0400
+	id <S315525AbSFJQuV>; Mon, 10 Jun 2002 12:50:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315539AbSFJQmF>; Mon, 10 Jun 2002 12:42:05 -0400
-Received: from mailrelay.nefonline.de ([212.114.153.196]:17417 "EHLO
-	mailrelay.nefonline.de") by vger.kernel.org with ESMTP
-	id <S315503AbSFJQmD>; Mon, 10 Jun 2002 12:42:03 -0400
-Message-Id: <200206101642.SAA30947@myway.myway.de>
-From: "Daniela Engert" <dani@ngrt.de>
-To: "Martin Wilck" <Martin.Wilck@Fujitsu-Siemens.com>
-Cc: "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
-Date: Mon, 10 Jun 2002 18:41:56 +0200 (CDT)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.20.2200 for OS/2 Warp 4.05
-In-Reply-To: <1023724379.23630.309.camel@biker.pdb.fsc.net>
+	id <S315529AbSFJQuU>; Mon, 10 Jun 2002 12:50:20 -0400
+Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:34723 "EHLO
+	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id <S315525AbSFJQuT>; Mon, 10 Jun 2002 12:50:19 -0400
+Date: Mon, 10 Jun 2002 18:50:16 +0200 (MET DST)
+From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+To: Andreas Dilger <adilger@clusterfs.com>
+cc: Dan Aloni <da-x@gmx.net>,
+        Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] 2.5.21 - list.h cleanup
+In-Reply-To: <20020610163702.GL20388@turbolinux.com>
+Message-ID: <Pine.GSO.4.05.10206101846060.17299-100000@mausmaki.cosy.sbg.ac.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Subject: Re: Serverworks OSB4 in impossible state
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Martin,
+--snip/snip
 
-On 10 Jun 2002 17:52:58 +0200, Martin Wilck wrote:
+> I think you will find that the "struct list_head" is the preferred way
+> to go (which is why there are lots of "struct list_head" users in the
+> code and few "list_t" users.
 
->We have a CD with a corrupt last block. If we try to read this block in
->PIO mode (hdparm -d 0 /dev/hdc) , we get errors like in the first
->attachment.
+ok, the point that *_t is hiding implementation details (when used for
+structs is valid). but is there a general consens on not using typedefs
+for structs?
 
-The error code returned is "check condition" with a sense key of 3
-"medium error". The most appropriate driver action would have been to
-issue a "request sense" command to learn the precise error and retry
-only in case of a good chance of a recoverable problem - but that's a
-different story.
+if yes, can we _please_ get rid of the *_t for structs.
+if no, shouldn't we use the types already defined?
 
->If we read the block in DMA mode (with dd), the machine stalls with the
->"impossible state" message.
->
->A PCI bus scan reveals that the IO register (dma_base+2) contains indeed
->0xa5 (bit 0 set), which leads to the panic. Normally the read on that
->register returns 0xa0.
+a similar thing will be unsigned (int|short|long|...)
 
-The intersting bits of the DMA status register are bits 0 though 2. A
-value of 5 indicates the condition "interrupt from unit, DMA state
-machine active". This is a valid status! It basically means the unit
-issued an interrupt before the PRD table is exhausted. This makes sense
-because the CD-ROM units fails to transfer the amount of data described
-by the PRD table because of the non-recoverable read error.
+just my $0.02 for the day,
 
->We see in our PCI bus scan that a successful DMA of 4096 bytes was
->carried out ~23ms before the stall condition. Another 4096 byte request
->was scheduled but never seen. Between the successful DMA and the stall
->condition we see nothing but a few timer interrupts.
->Then an IDE interrupt occurs, which leads immediately to the panic.
+	tm
 
-What you makes sense (the next DMA transfer is scheduled but never
-carried out by the CD-ROM unit) except for the panic, ofcoz. The
-correct driver action in this case were stopping the DMA engine and
-issuing a reset of the state machines involved (both on the host and
-the unit side).
-
->Any ideas/comments?
-
-I hope this clears up things a little ...
-
-Ciao,
-  Dani
-
+-- 
+in sometimes i don't, this time i do. 
 

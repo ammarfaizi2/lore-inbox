@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135858AbRDYMkE>; Wed, 25 Apr 2001 08:40:04 -0400
+	id <S135855AbRDYMoX>; Wed, 25 Apr 2001 08:44:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135857AbRDYMjy>; Wed, 25 Apr 2001 08:39:54 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:54923 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135854AbRDYMjk>;
-	Wed, 25 Apr 2001 08:39:40 -0400
-Date: Wed, 25 Apr 2001 08:39:38 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: linux-kernel@vger.kernel.org
-cc: linux-fsdevel@vger.kernel.org
-Subject: Re: [CFT][PATCH] namespaces patch (2.4.4-pre6)
-In-Reply-To: <Pine.GSO.4.21.0104231758300.4968-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0104250836270.10935-100000@weyl.math.psu.edu>
+	id <S135860AbRDYMoD>; Wed, 25 Apr 2001 08:44:03 -0400
+Received: from zcamail04.zca.compaq.com ([161.114.32.104]:12298 "HELO
+	zcamail04.zca.compaq.com") by vger.kernel.org with SMTP
+	id <S135855AbRDYMoB>; Wed, 25 Apr 2001 08:44:01 -0400
+Message-ID: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CDB0@aeoexc1.aeo.cpqcorp.net>
+From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: [POT] eepro100 crash my 2.4.2smp on Alpha ES40 under network load
+	!
+Date: Wed, 25 Apr 2001 14:42:30 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+My hardware configuration is:
+
+	AlphaServer ES40, 4 cpus, 8 Gigas of RAM
+
+	lspci -tv shows the network board as:
+
+	Intel Corporation 82557 [ Ethernet Pro 100 ]
+
+The driver is inserted as a module: lsmod shows eepro100 loaded.
 
 
-New version of patch is on ftp.math.psu.edu/pub/viro/namespaces-d-S4-pre6.gz
+The system is Redhat 7.0 with updates and 2.4.2 kernel hand compiled
+with egcs-2.91.66.
 
-	* Fixed idiotic bug in do_add_mount() - the thing forgot
-to pass error value back to the caller.
+As long as I do not stress too much the network everything is fine. I can
+transfer
+little files but when I do big transfers: I see on the /var/log/messages:
 
-> News:
-> 	* ported to 2.4.4-pre6
-> 	* fixes for d_flags races (already in -ac, hopefully will go into
-> the main tree soon)
-> 	* fixes for sync_inodes()/kill_super() races (submitted to Linus
-> and Alan, hopefully will go into the tree soon)
-> 	* killed low-memory deadlocks between {u,re,}mount and kswapd.
-> 	* further cleanup of fs/super.c
-> 
-> It works here. Please, help with testing. Patch had somewhat grown, but
-> new pieces are fixes for the bugs present in the main tree and these
-> fixes had been submitted for inclusion in 2.4, so hopefully it will
-> shrink again.
->  							Cheers,
->  								Al
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+	NETDEV WATCHDOG | eth0: transmit timeout
+				 status 0090 0c00 at xxxxxx/xxxxxx command
+000ca000
+				 wait_cmd_done timeout.
 
+
+I if instist and launch another transfer, the system freeze, I loose the
+console and the 
+network and I must do a hard reboot.
+
+PS:With 2.2 the problem was fixed by changing the eepro100 driver with the
+package
+of donald becker on www.scyld.com, but I can't load it in my 2.4 kernel. 
+
+Any help would be much appreciated.
+
+
+
+Sebastien CABANIOLS
+
+  

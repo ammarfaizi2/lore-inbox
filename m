@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbQJ3Wj3>; Mon, 30 Oct 2000 17:39:29 -0500
+	id <S129371AbQJ3WmU>; Mon, 30 Oct 2000 17:42:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129475AbQJ3WjS>; Mon, 30 Oct 2000 17:39:18 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:31617 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129371AbQJ3WjJ>;
-	Mon, 30 Oct 2000 17:39:09 -0500
-Date: Mon, 30 Oct 2000 14:24:46 -0800
-Message-Id: <200010302224.OAA02266@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: tleete@mountain.net
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <39FDF518.A9F1204D@mountain.net> (message from Tom Leete on Mon,
-	30 Oct 2000 17:24:24 -0500)
-Subject: Re: [PATCH] ipv4 skbuff locking scope
-In-Reply-To: <39FDF518.A9F1204D@mountain.net>
+	id <S129475AbQJ3WmJ>; Mon, 30 Oct 2000 17:42:09 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:43534 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129371AbQJ3WmG>;
+	Mon, 30 Oct 2000 17:42:06 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test10-pre7 
+In-Reply-To: Your message of "Mon, 30 Oct 2000 14:24:13 -0800."
+             <Pine.LNX.4.10.10010301423070.1085-100000@penguin.transmeta.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 31 Oct 2000 09:41:57 +1100
+Message-ID: <11037.972945717@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Mon, 30 Oct 2000 17:24:24 -0500
-   From: Tom Leete <tleete@mountain.net>
+On Mon, 30 Oct 2000 14:24:13 -0800 (PST), 
+Linus Torvalds <torvalds@transmeta.com> wrote:
+>This is the right fix. We MUST NOT sort those things.
 
-   This fixes tests of a socket buffer done without holding the
-   lock. tcp_data_wait() and wait_for_tcp_memory() both had
-   unguarded refs in their sleep conditionals.
+Correction.  We can sort them if we know what the correct link order
+should be.  In far too many Makefiles, we have no idea if the existing
+order is required or is just historical so we fail safe and do not sort
+them.  For USB we know what the link order must be, usb.o must be
+first, the rest do not matter.  This patch only affects usb because it
+is the only one that uses LINK_FIRST.
 
-These are not buggy at all, see the discussion which took place here
-over the past few days.
+>The only reason for sorting is apparently to remove the "multi-objs"
+>things, and replace them with the object files they are composed of.
+>
+>To which I say "Why?"
+>
+>It makes more sense to just leave the multi's there.
 
-Look, if the sleep condition test "races" due to not holding the lock,
-the schedule() just returns because if the sleep condidion test passes
-then by definition this means we were also woken up, see?
-
-BTW, while we're on the topic of people not understanding the
-networking locking and proposing bogus patches, does anyone know who
-sent the bogon IP tunneling locking "fixes" to Linus behind my back?
-
-They were crap too, and I had to revert them in test10-pre7.  It's
-another case of people just not understanding how the code works and
-thus that it is correct without any changes.
-
-Please send such fixes to me, and I'll set you straight with a
-description as to why your change is unnecessary :-)
-
-Later,
-David S. Miller
-davem@redhat.com
+obj-y is used together with export-objs to split objects into O_OBJS
+(no export symbol) and OX_OBJS (export symbol).  If usbcore.o (multi)
+is not replaced by its components then usb.o (in export-objs) is not
+added to OX_OBJS so usb.c gets compiled with the wrong flags which
+causes incorrect module symbols.  Multi's in obj-y have to replaced by
+their components before being split into O_OBS and OX_OBJS.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

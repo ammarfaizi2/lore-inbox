@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316845AbSGLT4d>; Fri, 12 Jul 2002 15:56:33 -0400
+	id <S316826AbSGLTyQ>; Fri, 12 Jul 2002 15:54:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316842AbSGLT42>; Fri, 12 Jul 2002 15:56:28 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:11755 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S316840AbSGLT4S>; Fri, 12 Jul 2002 15:56:18 -0400
-Date: Fri, 12 Jul 2002 21:57:33 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207121957.g6CJvXLs018439@burner.fokus.gmd.de>
-To: alan@lxorguk.ukuu.org.uk, schilling@fokus.gmd.de
-Cc: linux-kernel@vger.kernel.org
+	id <S316835AbSGLTyP>; Fri, 12 Jul 2002 15:54:15 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:57081 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316826AbSGLTyL>; Fri, 12 Jul 2002 15:54:11 -0400
 Subject: Re: IDE/ATAPI in 2.5
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Joerg Schilling <schilling@fokus.gmd.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200207121949.g6CJnNOj018428@burner.fokus.gmd.de>
+References: <200207121949.g6CJnNOj018428@burner.fokus.gmd.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 12 Jul 2002 22:05:35 +0100
+Message-Id: <1026507935.9956.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From alan@lxorguk.ukuu.org.uk Fri Jul 12 21:56:54 2002
+On Fri, 2002-07-12 at 20:49, Joerg Schilling wrote:
+> >> Describe the problems.
+> 
+> >Go read the source code, do your own homework
+> 
+> Fine! You repeat that you have no argument that stands a check.
+> So let us take it as prooven that there is no problem with resent
+> (< 10 year old) drives. 
 
->On Fri, 2002-07-12 at 20:49, Joerg Schilling wrote:
->> >> Describe the problems.
->> 
->> >Go read the source code, do your own homework
->> 
->> Fine! You repeat that you have no argument that stands a check.
->> So let us take it as prooven that there is no problem with resent
->> (< 10 year old) drives. 
+Read the source code, then you'd already know you are talking crap
 
->Read the source code, then you'd already know you are talking crap
-
-
-If you are unable to use arguments, I cannot take you for serious.
-Please educate yourself about SCSI and ATAPI, this would help a lot
-haveing a serious discussion.
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

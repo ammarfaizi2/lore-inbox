@@ -1,84 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288460AbSAHWAg>; Tue, 8 Jan 2002 17:00:36 -0500
+	id <S288465AbSAHWAg>; Tue, 8 Jan 2002 17:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288471AbSAHWAZ>; Tue, 8 Jan 2002 17:00:25 -0500
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:45461 "EHLO
-	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S288435AbSAHV7x>; Tue, 8 Jan 2002 16:59:53 -0500
-Message-ID: <3C3B6BD2.9070201@attglobal.net>
-Date: Tue, 08 Jan 2002 14:59:46 -0700
-From: "Ian S. Nelson" <nelcomp@attglobal.net>
-Reply-To: nelcomp@attglobal.net
-Organization: Nelson Computing LLC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: __FUNCTION__
-In-Reply-To: <3C3B664B.3060103@intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S288435AbSAHWA3>; Tue, 8 Jan 2002 17:00:29 -0500
+Received: from zero.tech9.net ([209.61.188.187]:51976 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288460AbSAHV76>;
+	Tue, 8 Jan 2002 16:59:58 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+From: Robert Love <rml@tech9.net>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Luigi Genoni <kernel@Expansa.sns.it>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16O4FN-0000BI-00@starship.berlin>
+In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org>
+	<E16O3L5-0000B8-00@starship.berlin> <1010524653.3225.109.camel@phantasy> 
+	<E16O4FN-0000BI-00@starship.berlin>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 08 Jan 2002 17:01:53 -0500
+Message-Id: <1010527314.3229.146.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir Kondratiev wrote:
+On Tue, 2002-01-08 at 16:57, Daniel Phillips wrote:
 
-> Hello,
-> Modern C standard (C99) defines __FUNCTION__ as if immediately after 
-> function open brace string with function name is declared. Thus, it's 
-> invalid to use string concatenations like __FILE__ ":" __FUNCTION__.
->
-> Gcc 3.03 gives warning for such use of __FUNCTION__. Before this 
-> warnings become error, it's worth to fix this in the kernel source.
->
-> I found tons of improper __FUNCTION__ usage in USB drivers. I am not 
-> to say, USB is the only place, I just started with it. In USB, typical 
-> use is with dbg() and alike macros. dbg() defined in usb.h as follows:
->
-> #define dbg(format, arg...) printk(KERN_DEBUG __FILE__ ": " format 
-> "\n" , ## arg)
->
-> In source it is usually used like
->
-> dbg(__FUNCTION__ " endpoint %d\n", usb_pipeendpoint(this_urb->pipe));
->
-> I propose modification for dbg() and friends like
->
-> #define dbg(format, arg...) printk(KERN_DEBUG __FILE__ ":%s - " format 
-> "\n", __FUNCTION__, ## arg)
->
-> This will enable the same usage, but will incorporate __FUNCTION__ in 
-> the common message prefix. This centralization will force function 
-> name in all messages, and make it easy to fix code. Code will be 
-> shorter and cleaner. It may be worth to (#ifdef MODULE) add module 
-> name to message prefix.
->
-> Any comments?
+> > True (re spinlock weight in preemptible kernel) but how is that not
+> > comparable to explicit scheduling points?  Worse, the preempt-kernel
+> > typically does its preemption on a branch on return to interrupt
+> > (similar to user space's preemption).  What better time to check and
+> > reschedule if needed?
+> 
+> The per-spinlock cost I was refering to is the cost of the inc/dec per 
+> spinlock.  I guess this cost is small enough as to be hard to measure, but
+> I have not tried so I don't know.  Curiously, none of the people I've heard
+> making pronouncements on the overhead of your preempt patch seem to have 
+> measured it either.
 
-I suspect this might be about as religious an issue as there is but has 
-anyone thought about coming up with some "standard" debugging macros, 
-perhaps something that can be configured at compile time from the 
-configuration for everyone to use everywhere?  I've got my own debug 
-macros,  essentially a printk with the file, function and line added 
-wrapped in #ifdef DEBUG.  I've seen several other schemes in other parts 
-of the kernel and now some of them aren't correct.
+;-)
+ 
+If they did I suspect it would be minimal.  Andrew's point on complexity
+and overhead in this manner is exact -- such thinks are just not an
+issue.
 
-I guess what I would envision is some kind of debug menu item in the 
-configuration tool that let's you select if you want messages, and/or 
-filenames, and/or line numbers, and/or function names, or nothing at 
-all.   They could still be controlled at the module level by defining or 
-not defining some constant.   It just seems kind of pointless to have 
-10-20 different macros or methods that all do the same thing for 
-different parts of the kernel.  
+I see two valid arguments against kernel preemption, and I'll be the
+first to admit them:
 
-Ian
+- we introduce new problems with kernel programming.  specifically, the
+issue with implicitly locked per-CPU data.  honestly, this isn't a huge
+deal.  I've been working on preempt-kernel for awhile now and the
+problems we have found and fixed are minimal.  admittedly, however,
+especially wrt the future, preempt-kernel may introduce new concerns.  I
+say let's rise to meet them.
 
--- 
-Ian S. Nelson <nelcomp@attglobal.net>        303-666-0315
-Nelson Computing of Boulder Colorado
-Networking/Contracting/Custom Software/Linux Fast and Personal service
+- we don't do enough for the worst-case latency.  this is where future
+work is useful and where preempt-kernel provides the framework for a
+better kernel.
 
+I want a better kernel.  Hell, I want the best kernel.  In my opinion,
+one factor of that is having a preemptible kernel.
 
+	Robert Love
 

@@ -1,85 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261689AbUCCBbU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 20:31:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbUCCBbU
+	id S262317AbUCCBlS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 20:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbUCCBlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 20:31:20 -0500
-Received: from CPE006097a16e12-CM400026313227.cpe.net.cable.rogers.com ([24.101.19.1]:14606
-	"EHLO visualfx.animezone.org") by vger.kernel.org with ESMTP
-	id S261689AbUCCBbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 20:31:18 -0500
-Message-ID: <40453538.8050103@animezone.org>
-Date: Tue, 02 Mar 2004 20:30:32 -0500
-From: Andrew Ho <andrewho@animezone.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030509
-X-Accept-Language: en-us, en, zh-hk, zh, zh-cn
-MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>
-CC: Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
+	Tue, 2 Mar 2004 20:41:18 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:43675 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S262317AbUCCBlR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 20:41:17 -0500
+Date: Wed, 3 Mar 2004 02:41:15 +0100
+From: David Weinehall <david@southpole.se>
+To: Andrew Ho <andrewho@animezone.org>
+Cc: Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
        Hans Reiser <reiser@namesys.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
        jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
        linux-xfs@oss.sgi.com
 Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-References: <4044119D.6050502@andrew.cmu.edu> <4044366B.3000405@namesys.com> <4044B787.7080301@andrew.cmu.edu> <1078266793.8582.24.camel@mentor.gurulabs.com> <20040302224758.GK19111@khan.acc.umu.se>
-In-Reply-To: <20040302224758.GK19111@khan.acc.umu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040303014115.GP19111@khan.acc.umu.se>
+Mail-Followup-To: Andrew Ho <andrewho@animezone.org>,
+	Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
+	Hans Reiser <reiser@namesys.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+	jfs-discussion@www-124.southbury.usf.ibm.com,
+	reiserfs-list@namesys.com, linux-xfs@oss.sgi.com
+References: <4044119D.6050502@andrew.cmu.edu> <4044366B.3000405@namesys.com> <4044B787.7080301@andrew.cmu.edu> <1078266793.8582.24.camel@mentor.gurulabs.com> <20040302224758.GK19111@khan.acc.umu.se> <40453538.8050103@animezone.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40453538.8050103@animezone.org>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-XFS is the best filesystem.
+On Tue, Mar 02, 2004 at 08:30:32PM -0500, Andrew Ho wrote:
+> XFS is the best filesystem.
+
+Well it'd better be, it's 10 times the size of ext3, 5 times the size of
+ReiserFS and 3.5 times the size of JFS.
+
+And people say size doesn't matter.
 
 
-David Weinehall wrote:
-
->On Tue, Mar 02, 2004 at 03:33:13PM -0700, Dax Kelson wrote:
->  
->
->>On Tue, 2004-03-02 at 09:34, Peter Nelson wrote:
->>    
->>
->>>Hans Reiser wrote:
->>>
->>>I'm confused as to why performing a benchmark out of cache as opposed to 
->>>on disk would hurt performance?
->>>      
->>>
->>My understanding (which could be completely wrong) is that reieserfs v3
->>and v4 are algorithmically more complex than ext2 or ext3. Reiserfs
->>spends more CPU time to make the eventual ondisk operations more
->>efficient/faster.
->>
->>When operating purely or mostly out of ram, the higher CPU utilization
->>of reiserfs hurts performance compared to ext2 and ext3.
->>
->>When your system I/O utilization exceeds cache size and your disks
->>starting getting busy, the CPU time previously invested by reiserfs pays
->>big dividends and provides large performance gains versus more
->>simplistic filesystems.  
->>
->>In other words, the CPU penalty paid by reiserfs v3/v4 is more than made
->>up for by the resultant more efficient disk operations. Reiserfs trades 
->>CPU for disk performance.
->>
->>In a nutshell, if you have more memory than you know what do to with,
->>stick with ext3. If you spend all your time waiting for disk operations
->>to complete, go with reiserfs.
->>    
->>
->
->Or rather, if you have more memory than you know what to do with, use
->ext3.  If you have more CPU power than you know what to do with, use
->ReiserFS[34].
->
->On slower machines, I generally prefer a little slower I/O rather than
->having the entire system sluggish because of higher CPU-usage.
->
->
->Regards: David Weinehall
->  
->
-
-
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbTJJIaH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 04:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbTJJIaH
+	id S262673AbTJJIj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 04:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTJJIjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 04:30:07 -0400
-Received: from gprs151-212.eurotel.cz ([160.218.151.212]:896 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262647AbTJJIaE (ORCPT
+	Fri, 10 Oct 2003 04:39:25 -0400
+Received: from law14-f5.law14.hotmail.com ([64.4.21.5]:18705 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S262673AbTJJIjU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 04:30:04 -0400
-Date: Fri, 10 Oct 2003 10:17:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: -test7: /sys/power/disk not reading right data?
-Message-ID: <20031010081728.GA218@elf.ucw.cz>
+	Fri, 10 Oct 2003 04:39:20 -0400
+X-Originating-IP: [61.11.18.237]
+X-Originating-Email: [t_telichari@hotmail.com]
+From: "Tushar Telichari" <t_telichari@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Changing map for shared libraries
+Date: Fri, 10 Oct 2003 14:09:18 +0530
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; format=flowed
+Message-ID: <LAW14-F5V9LvuKebm4M00000d37@hotmail.com>
+X-OriginalArrivalTime: 10 Oct 2003 08:39:19.0267 (UTC) FILETIME=[FF079330:01C38F09]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-I'm seeing this on -test7 (tainted:pavel, but I did not touch this
-area).
-								Pavel
+I need to change the 0x40000000 (loading of shared libraries) to a different 
+address after it.
+My Linux kernel is 2.4.7-10
+It would be great if someone could suggest how to do it.
 
+Regards,
+Tushar
 
-root@amd:~# echo -n platform > /sys/power/disk
-root@amd:~# dmesg | tail -1
-PM: suspend-to-disk mode set to 'platform'
-root@amd:~# cat /sys/power/disk
-firmware
-root@amd:~#
+_________________________________________________________________
+Interact with peers. Learn from experts. 
+http://server1.msn.co.in/sp03/teched/index.asp Be tech-empowered!
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

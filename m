@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267441AbSLEVEm>; Thu, 5 Dec 2002 16:04:42 -0500
+	id <S267438AbSLEU6z>; Thu, 5 Dec 2002 15:58:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267436AbSLEVES>; Thu, 5 Dec 2002 16:04:18 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:64990 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267442AbSLEVBg>;
-	Thu, 5 Dec 2002 16:01:36 -0500
-Date: Thu, 05 Dec 2002 13:06:14 -0800 (PST)
-Message-Id: <20021205.130614.99253893.davem@redhat.com>
-To: pavel@suse.cz
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, hubicka@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH] Start of compat32.h (again)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021204111947.GB309@elf.ucw.cz>
-References: <20021202090756.GA26034@wotan.suse.de>
-	<20021202.021629.93360250.davem@redhat.com>
-	<20021204111947.GB309@elf.ucw.cz>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S267394AbSLEU54>; Thu, 5 Dec 2002 15:57:56 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:27603 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S267390AbSLEU4t>;
+	Thu, 5 Dec 2002 15:56:49 -0500
+Date: Thu, 5 Dec 2002 18:31:45 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Eric Altendorf <EricAltendorf@orst.edu>
+Cc: Jochen Hein <jochen@jochen.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.50, ACPI] link error
+Message-ID: <20021205173145.GB731@elf.ucw.cz>
+References: <E18Ix71-0003ik-00@gswi1164.jochen.org> <200212031007.01782.EricAltendorf@orst.edu> <87znrn3q92.fsf@gswi1164.jochen.org> <200212031247.07284.EricAltendorf@orst.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212031247.07284.EricAltendorf@orst.edu>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pavel Machek <pavel@suse.cz>
-   Date: Wed, 4 Dec 2002 12:19:47 +0100
+Hi!
 
-   Actually, it tends to nullify the bloat cost and then make it few
-   percent faster... For most of spec2000 modulo two or three cache-bound
-   tests that are 50% slower :-(.
+> > >> When compiling 2.5.50 with CONFIG_ACPI_SLEEP=y
+> > >> I get:
+> > >>
+> > >> arch/i386/kernel/built-in.o(.data+0x1304): In function
+> > >
+> > > `do_suspend_lowlevel':
+> > >> : undefined reference to `save_processor_state'
+> > >>
+> > >> arch/i386/kernel/built-in.o(.data+0x130a): In function
+> > >
+> > > `do_suspend_lowlevel':
+> > >> : undefined reference to `saved_context_esp'
+> > >
+> > > Try turning on software suspend in the kernel hacking section.
+> >
+> > It is off (and has been all the time, AFAIR).
+> 
+> Right ... I'm no kernel hacker so I don't know why, but I can only get 
+> the recent kernels to compile with sleep states if I turn *ON* 
+> software suspend as well.  However, as soon as I turn on swsusp and 
+> get a compiled kernel, it oops'es on boot.
 
-How about some test where relocations come into play?
-spec2000 is a bad example, it's just crunch code.
-
-Most systems spend their time running quick small executables over and
-over, and in such cases relocation overhead shows up very strongly.
-This is why I asked for fork, exec et al. latency figures for 32-bit
-vs 64-bit on x86_64 but I've been informed in private email that
-nobody can send me numbers due to NDAs.
-
-I still think making the simple programs like ls, cat, bash et
-al. 64-bit in a dist is a bad idea.
+Can you mail me decoded oops?
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

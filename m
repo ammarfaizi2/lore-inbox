@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbTI2R3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263899AbTI2R2z
+	id S263890AbTI2R0c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTI2R0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:28:55 -0400
-Received: from gaia.cela.pl ([213.134.162.11]:15369 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S263895AbTI2R0m (ORCPT
+	Mon, 29 Sep 2003 13:26:00 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:57009 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S263890AbTI2RZJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:26:42 -0400
-Date: Mon, 29 Sep 2003 19:25:53 +0200 (CEST)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Valdis.Kletnieks@vt.edu
-cc: Jamie Lokier <jamie@shareable.org>, Muli Ben-Yehuda <mulix@mulix.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] document optimizing macro for translating PROT_ to VM_
- bits 
-In-Reply-To: <200309291551.h8TFpZtH028192@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.44.0309291918070.26827-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Sep 2003 13:25:09 -0400
+Date: Mon, 29 Sep 2003 13:23:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: davej@redhat.com
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ULL fixes for qlogicfc
+Message-ID: <20030929172329.GD6526@gtf.org>
+References: <E1A41Rq-0000NJ-00@hardwired>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1A41Rq-0000NJ-00@hardwired>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > +/* Optimisation macro, used to be defined as: */
-> > > +/* ((bit1 == bit2) ? (x & bit1) : (x & bit1) ? bit2 : 0) */ 
-> > > +/* but this version is faster */ 
-> > > +/* "check if bit1 is on in 'x'. If it is, return bit2" */ 
-> > >  #define _calc_vm_trans(x,bit1,bit2) \
-> > >    ((bit1) <= (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1)) \
-> > >     : ((x) & (bit1)) / ((bit1) / (bit2)))
-> > 
-> > I agree with the intent of that comment, but the code in it is
-> > unnecessarily complex.  See if you like this, and if you do feel free
-> > to submit it as a patch:
-> > 
-> > /* Optimisation macro.  It is equivalent to:
-> >       (x & bit1) ? bit2 : 0
-> >    but this version is faster.  ("bit1" and "bit2" must be single bits). */
-> 
-> Is this supposed to return the bitmask bit2, or (x & bit2)?  If the former,
-> then your code is right.  If the latter,  (x & bit1) ? (x & bit2) : 0
-> 
-> I'm totally failing to see why the original did the bit1 == bit2 compare,
-> so maybe mhyself and Jamie are both missing some subtlety?
+On Mon, Sep 29, 2003 at 06:04:34PM +0100, davej@redhat.com wrote:
+> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/scsi/qlogicfc.c linux-2.5/drivers/scsi/qlogicfc.c
+> --- bk-linus/drivers/scsi/qlogicfc.c	2003-09-08 00:47:00.000000000 +0100
+> +++ linux-2.5/drivers/scsi/qlogicfc.c	2003-09-08 01:30:56.000000000 +0100
+> @@ -718,8 +718,8 @@ int isp2x00_detect(Scsi_Host_Template * 
+>  				continue;
+>  
+>  			/* Try to configure DMA attributes. */
+> -			if (pci_set_dma_mask(pdev, (u64) 0xffffffffffffffff) &&
+> -			    pci_set_dma_mask(pdev, (u64) 0xffffffff))
+> +			if (pci_set_dma_mask(pdev, 0xffffffffffffffffULL) &&
+> +			    pci_set_dma_mask(pdev, 0xffffffffULL))
+>  					continue;
 
-I'd guess since the majority of the time bit1 and bit2 are compile time 
-constants and the comparison can be resolved during compilation into more 
-effective code in the bit1==bit2 case, thus effectively decreasing not 
-increasing the amount of generated object code.
+Looks great.
 
-That probably also explains why the convoluted long code with division
-above is faster - the division and multiplication most likely gets
-resolved during compile (since we're dealing with compile time constants)
-into a single shift and results in an execution of bitop 'and' followed by
-'shift left/right', which due to lacking and conditional branches
-(necessary for ?:) is usually significantly faster due to a lack of 
-branch mispredictions.
+I wonder if you are motivated to create similar pci_set_dma_mask()
+cleanups for other drivers?  ;-)  Several other drivers need this same
+cleanup, too.
 
-MaZe.
+	Jeff
+
 
 

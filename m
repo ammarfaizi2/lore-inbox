@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264814AbSJVSbV>; Tue, 22 Oct 2002 14:31:21 -0400
+	id <S264863AbSJVSeb>; Tue, 22 Oct 2002 14:34:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264816AbSJVSbV>; Tue, 22 Oct 2002 14:31:21 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:180 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S264814AbSJVSbT>; Tue, 22 Oct 2002 14:31:19 -0400
-Date: Tue, 22 Oct 2002 13:36:49 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@digeo.com>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-Message-ID: <145460000.1035311809@baldur.austin.ibm.com>
-In-Reply-To: <Pine.LNX.4.44L.0210221514430.1648-100000@duckman.distro.conectiva>
-References: <Pine.LNX.4.44L.0210221514430.1648-100000@duckman.distro.conecti
- va>
-X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
-MIME-Version: 1.0
+	id <S264861AbSJVSeb>; Tue, 22 Oct 2002 14:34:31 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:16125 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S264863AbSJVSe3>;
+	Tue, 22 Oct 2002 14:34:29 -0400
+Date: Tue, 22 Oct 2002 20:40:34 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: linux-kernel@vger.kernel.org, hch@infradead.org, marcelo@conectiva.com.br
+Subject: Re: 2.4.20-pre11 /proc/partitions read
+Message-ID: <20021022184034.GA26585@win.tue.nl>
+References: <20021022161957.N26402@fi.muni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20021022161957.N26402@fi.muni.cz>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 22, 2002 at 04:19:57PM +0200, Jan Kasprzak wrote:
 
---On Tuesday, October 22, 2002 15:15:29 -0200 Rik van Riel
-<riel@conectiva.com.br> wrote:
+> 	I.e. if you read the /proc/partitions in single read() call,
+> it gets read OK. However, if you read() with smaller-sized blocks,
+> you get the truncated contents.
 
->> Or large pages.  I confess to being a little perplexed as to
->> why we're pursuing both.
-> 
-> I guess that's due to two things.
-> 
-> 1) shared pagetables can speed up fork()+exec() somewhat
-> 
-> 2) if we have two options that fix the Oracle problem,
->    there's a better chance of getting at least one of
->    the two merged ;)
+Having statistics in /proc/partitions leads to such problems.
+Make sure you do not ask for them.
 
-And
-  3) The current large page implementation is only for applications
-     that want anonymous *non-pageable* shared memory.  Shared page
-     tables reduce resource usage for any shared area that's mapped
-     at a common address and is large enough to span entire pte pages.
-     Since all pte pages are shared on a COW basis at fork time, children
-     will continue to share all large read-only areas with their
-     parent, eg large executables.
+--- Documentation/Configure.help~       Mon Oct 14 01:12:13 2002
++++ Documentation/Configure.help        Tue Oct 22 20:30:39 2002
+@@ -561,6 +561,8 @@
+ 
+   This is required for the full functionality of sar(8) and interesting
+   if you want to do performance tuning, by tweaking the elevator, e.g.
++  On the other hand, it will cause random and mysterious failures for
++  fdisk, mount and other programs reading /proc/partitions.
+ 
+   If unsure, say N.
 
-Dave McCracken
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+(this is about CONFIG_BLK_STATS).
 
+Andries
+
+
+[I still do not understand how hch can want to add this cruft to
+/proc/partitions, and how marcelo can accept it.
+If some vendor made this mistake, why force it on the rest of
+the world? It is bad for RedHat users, and worse for all others.]

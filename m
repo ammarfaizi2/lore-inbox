@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262242AbRFKVgP>; Mon, 11 Jun 2001 17:36:15 -0400
+	id <S262421AbRFKVtf>; Mon, 11 Jun 2001 17:49:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262421AbRFKVgG>; Mon, 11 Jun 2001 17:36:06 -0400
-Received: from flodhest.stud.ntnu.no ([129.241.56.24]:39673 "EHLO
-	flodhest.stud.ntnu.no") by vger.kernel.org with ESMTP
-	id <S262242AbRFKVfu>; Mon, 11 Jun 2001 17:35:50 -0400
-Date: Mon, 11 Jun 2001 23:35:30 +0200
-From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+	id <S263473AbRFKVtZ>; Mon, 11 Jun 2001 17:49:25 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:29959 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S262421AbRFKVtP>;
+	Mon, 11 Jun 2001 17:49:15 -0400
+Date: Mon, 11 Jun 2001 22:49:05 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: tlan@stud.ntnu.no, linux-kernel@vger.kernel.org
-Subject: Re: BCM5700, 1000 Mbps driver
-Message-ID: <20010611233530.B10927@flodhest.stud.ntnu.no>
-Reply-To: tlan@stud.ntnu.no
-In-Reply-To: <20010611230603.A10927@flodhest.stud.ntnu.no> <E159Z1v-0000OH-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E159Z1v-0000OH-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jun 11, 2001 at 10:15:23PM +0100
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] 15 probable security holes in 2.4.5-ac8
+In-Reply-To: <E159V0v-0008UM-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106112243440.12726-100000@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox:
-> > * Are there anyone testing/maintaing this driver, trying to get it into the
-> >   standard kernel source?
-> Not right now that I know of. Nobody who read the source code did anything
-> more constructive than run to throw up.
+Hi Alan.
 
-Are there any places (besides other drivers in the kernel) to look for
-documents on how to write module-drivers/in-kernel drivers? 
+ >> Ideally, yes.  However, client side DSP at these kinds of data
+ >> rates still isn't practical.  Most people are lucky if they can
+ >> get 9600 baud, although admittedly some of that is a function of
+ >> trying to use a standard sound card with it's limited input
+ >> bandwidth (apx 22Khz).
 
-> > * If not, would it be rude for me to make it work with the latest kernels,
-> >   and then submitt it? (I won't take credit for anything I haven't done, but
-> >   since I haven't written the driver itself, I don't know what you guys think)
-> It does want a lot of clean up as well but go for it. I'm sure you will get
-> plenty of comments on what needs cleaning up
+ > A P200 can do the DSP work required to do 9600 baud with full
+ > FEC. I doubt you'll find USB on anything slower
 
-Should I start by giving people a link to the source code? ;)  We need this
-driver by the end of this summer, so I thought that making something that
-could go in the std. kernel-tree was the best way of doing things. That way
-we don't have to patch stuff each time either.
+I can list two machines with USB that are slower - and I run both of
+them...
 
--- 
--Thomas
+ 1. P166 (non-MMX) based, with USB on the motherboard. Currently
+    unused, but I plan on plugging a digital camera SmartMedia card
+    reader into it when I get one.
+
+ 2. 486dx4/120 with USB on a plug in ISA-bus card (I'm not joking
+    either).
+
+I'll admit that I was surprised to come across that ISA-bus USB card
+at a local radio rally, but as they only wanted £2.50 for it, I paid
+the pennies and tried it out. It works fine for my scanner interface
+although I've never tried it for anything else.
+
+Best wishes from Riley.
+

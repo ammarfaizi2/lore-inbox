@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130670AbQL1Pny>; Thu, 28 Dec 2000 10:43:54 -0500
+	id <S130865AbQL1Pw2>; Thu, 28 Dec 2000 10:52:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130685AbQL1Pno>; Thu, 28 Dec 2000 10:43:44 -0500
-Received: from femail3.rdc1.on.home.com ([24.2.9.90]:7655 "EHLO
-	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S130670AbQL1Pnd>; Thu, 28 Dec 2000 10:43:33 -0500
-Message-ID: <3A4B585C.4C6A0B16@home.net>
-Date: Thu, 28 Dec 2000 10:12:29 -0500
-From: Shawn Starr <shawn.starr@home.net>
-Reply-To: shawn.starr@home.net
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre2 i586)
-X-Accept-Language: en
+	id <S130420AbQL1PwS>; Thu, 28 Dec 2000 10:52:18 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:21011 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130865AbQL1PwG>;
+	Thu, 28 Dec 2000 10:52:06 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: innd mmap bug in 2.4.0-test12
+Date: Thu, 28 Dec 2000 16:15:48 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0012281310530.14052-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0012281310530.14052-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Alan.Cox@linux.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel 2.2.19ac2
-In-Reply-To: <3A4B51AC.E27FF483@home.net>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Message-Id: <00122816191301.00966@gimli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bleh, ignore that. I fixed the problem. dont know what I did though but its
-ok now..
+On Thu, 28 Dec 2000, Rik van Riel wrote:
+> On Thu, 28 Dec 2000, Daniel Phillips wrote:
+> 
+> > It's logical that PageDirty should never be get for ramfs,
+> 
+> No. Not setting PageDirty will cause the system to move the
+> page to the inactive_clean list and happily reclaim your data.
+> 
+> We _have to_ use something like PageDirty for this, and
+> checking for the ->writepage method will even allow us to
+> do stuff like dynamically switching swapping support for
+> ramfs on/off (or other funny things).
 
-Shawn Starr wrote:
+You're suggesting using the absence of a method as a kind of flag, but
+the code is really too full of obscure stuff like that already.
 
-Dec 28 09:31:59 coredump kernel: Filesystem panic (dev 03:41).
+How about taking an extra user on the ramfs pages instead.  It doesn't
+sound right to set PageDirty when you are not requesting IO.
 
-> Dec 28 09:31:59 coredump kernel:   FAT error
-> Dec 28 09:31:59 coredump kernel:   File system has been set read-only
-> Dec 28 09:31:59 coredump kernel: Directory 401: bad FAT
-> Dec 28 09:32:16 coredump kernel: Filesystem panic (dev 03:41).
-> Dec 28 09:32:16 coredump kernel:   FAT error
-> Dec 28 09:32:16 coredump kernel:   File system has been set read-only
-> Dec 28 09:32:16 coredump kernel: Directory 503: bad FAT
->
-> hmmm, there appears to be a problem with the fat or vfat driver. Im
-> using Windows 2000 on a different hard drive which is using FAT32 for
-> the filesystem.
->
-> When I rebooted into Win2k the system did not detect a corrupt FAT.
->
-> Im going to compile 2.2.19ac3 today and see if this was a known issue or
-> not.
->
-> I dont know what information I can give you other then what the log
-> shows.
->
-> Thanks,
->
-> Shawn Starr.
-
+-- 
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

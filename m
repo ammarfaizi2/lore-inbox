@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284053AbRLAKyd>; Sat, 1 Dec 2001 05:54:33 -0500
+	id <S284068AbRLALCE>; Sat, 1 Dec 2001 06:02:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284065AbRLAKyX>; Sat, 1 Dec 2001 05:54:23 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:59149 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S284053AbRLAKyN>;
-	Sat, 1 Dec 2001 05:54:13 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S284067AbRLALBx>; Sat, 1 Dec 2001 06:01:53 -0500
+Received: from mail315.mail.bellsouth.net ([205.152.58.175]:34194 "EHLO
+	imf15bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S284070AbRLALBp>; Sat, 1 Dec 2001 06:01:45 -0500
+Message-ID: <3C08B891.FDE4260D@mandrakesoft.com>
+Date: Sat, 01 Dec 2001 06:01:37 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: Re: Status of patrick's new device/driver model
+In-Reply-To: <20011130222356.A168@elf.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15368.46723.286664.552743@argo.ozlabs.ibm.com>
-Date: Sat, 1 Dec 2001 21:52:51 +1100 (EST)
-To: Nico Schottelius <nicos@pcsystems.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bug in make bzImage (ppc)
-In-Reply-To: <3C061FD7.9646F772@pcsystems.de>
-In-Reply-To: <3C061FD7.9646F772@pcsystems.de>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nico Schottelius writes:
+Pavel Machek wrote:
+> 
+> Hi!
+> 
+> What is the status of Patrick Mochel's device model? Is it going to
+> kernel anytime soon?
 
-> I tried to compile the 2.4.13 kernel on a ppc.
-> It failed. The output indicates it is possible bad asm or a compiler
-> error. What is it ?
+Changelog from 2.5.1-pre5:
 
-You need a newer gcc, I recommend 2.95.3 or 2.95.4.
+pre5:
+- Patrick Mochel: driver model infrastructure, part 1
+[...]
 
-Paul.
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

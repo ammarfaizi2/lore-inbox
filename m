@@ -1,157 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129130AbQKELqh>; Sun, 5 Nov 2000 06:46:37 -0500
+	id <S129030AbQKEMLX>; Sun, 5 Nov 2000 07:11:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129121AbQKELq0>; Sun, 5 Nov 2000 06:46:26 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:1750 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129102AbQKELqR>; Sun, 5 Nov 2000 06:46:17 -0500
-Message-ID: <3A054872.8D88EF95@uow.edu.au>
-Date: Sun, 05 Nov 2000 22:45:54 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+	id <S129038AbQKEMLM>; Sun, 5 Nov 2000 07:11:12 -0500
+Received: from pop.gmx.net ([194.221.183.20]:40667 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129030AbQKEMK6>;
+	Sun, 5 Nov 2000 07:10:58 -0500
+Message-ID: <3A054DC8.1D9701EC@gmx.de>
+Date: Sun, 05 Nov 2000 13:08:40 +0100
+From: Bernd Harries <bha@gmx.de>
+Reply-To: bha@gmx.de
+Organization: BHA Industries
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Andi Kleen <ak@suse.de>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "Hen, Shmulik" <shmulik.hen@intel.com>,
-        "'LKML'" <linux-kernel@vger.kernel.org>,
-        "'LNML'" <linux-net@vger.kernel.org>
-Subject: Re: Locking Between User Context and Soft IRQs in 2.4.0
-In-Reply-To: Your message of "Sun, 05 Nov 2000 14:39:43 +1100."
-	             <9277.973395583@ocs3.ocs-net> <9368.973396061@ocs3.ocs-net>
+To: linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org
+Subject: 2.2.x: Secret stack size limit in Driver file-ops??? (Was:are Generic 
+ ioctls a good thing?)
+In-Reply-To: <3A01C6FA.25A90016@gmx.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> Pressed enter too soon.
-> 
->         /*
->          *      Call device private open method
->          */
-> 
->         ret = -ENODEV;
->         if (dev->open && try_inc_mod_count(dev->owner)) {
->                 if ((ret = dev->open(dev)) && dev->owner)
->                         __MOD_DEC_USE_COUNT(dev->owner);
->         }
+Hi kernel hackers,
 
-y'know, if we keep working this patch for about a year we
-might end up getting it right.  Thousand monkeys and all that.
+Is there a limit to the stack size (automatic variables) in driver methods, esp.
+ioctl?
 
-The above assumes that (dev->open == 0) is an error, but
-netdevices are in fact allowed to have a NULL open() method.
+I was just implementing some generic ioctls where the size field and cmd field
+are defined at runtime. For testing I use a kernbuf on the stack.
 
-So hereunder is about the seventieth version of the netdevice
-modules safety patch.  Go wild.
+The driver's ioctl interface, which is normally a big case construction, looks
+like this, the default case is another switch:
 
-Some notes:
+xyz_ioctl(..., ..., unsigned int request, unsigned long arg)
+{
 
-- I've created the generic macro SET_OWNER_MODULE and put it
-  into modules.h.  It may perhaps be useful for things other
-  than netdevices?  The intent here is that 2.4-only drivers
-  can use:
+  ----some smaller declarations----
 
-	SET_OWNER_MODULE(dev);
-
-  in their init routines.
-  
-  Drivers which retain 2.2 compatibility should use:
-
-  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
-  #define SET_OWNER_MODULE(d)
-  #else
-  #undef MOD_INC_USE_COUNT
-  #undef MOD_DEC_USE_COUNT
-  #endif
-
-    xxx_probe()
+  switch(request)
+  {
+    ...
+    case IOR_GET_FIX:
     {
-	...
-	SET_MODULE_OWNER(dev);		/* 2.4 */
-	...
-	MOD_INC_USE_COUNT;		/* 2.2 */
+      fix_par_t   fix_par;   /* small struct */
+
+      ----some code----
+      if(copy_to_user( , , sizeof(fix_par)))  return(-EFAULT);  
+      break;
     }
+    ...
 
-  And everything should work.
+    default:
+    {
+      switch(request & 0xF000FF00)
+      {
+        case IOW_000_G_00:
+        {
+          UINT32    kernbuf[0x0400];  /* is this too much??? */
 
-- With this patch applied, the module refcounts for netdevices
-  will show doubled values in `lsmod', unless those drivers
-  have been changed to remove the now unneeded MOD_INC/DEC_USE_COUNT
-  macros (perhaps with the above 2.2-compatibility thing).
+          if(copy_from_user( , , dyn_size))  return(-EFAULT);
+          ----some code----
+          break;
+        }
+        case IOR_000_G_00:
+        {
+          UINT32    kernbuf[0x0400];  /* how much is allowed??? */
 
+          ----some code----
+          if(copy_to_user( , , dyn_size))  return(-EFAULT);
+          break;
+        }
 
+      }
+      /*endswitch(request & 0xF000FF00)*/
+    }
+    /*endcase default:*/
+  }
+  /*endswitch(request)*/
+}
+/*endproc()*/
 
---- linux-2.4.0-test10/include/linux/netdevice.h	Sat Nov  4 16:22:49 2000
-+++ linux-akpm/include/linux/netdevice.h	Sun Nov  5 22:15:48 2000
-@@ -383,6 +383,9 @@
- 	int			(*neigh_setup)(struct net_device *dev, struct neigh_parms *);
- 	int			(*accept_fastpath)(struct net_device *, struct dst_entry*);
- 
-+	/* open/release and usage marking */
-+	struct module *owner;
-+
- 	/* bridge stuff */
- 	struct net_bridge_port	*br_port;
- 
---- linux-2.4.0-test10/include/linux/module.h	Sat Nov  4 16:22:49 2000
-+++ linux-akpm/include/linux/module.h	Sun Nov  5 22:18:16 2000
-@@ -313,4 +313,10 @@
- #define EXPORT_NO_SYMBOLS
- #endif /* MODULE */
- 
-+#ifdef CONFIG_MODULES
-+#define SET_OWNER_MODULE(some_struct) do { some_struct->owner = THIS_MODULE; } while (0)
-+#else
-+#define SET_OWNER_MODULE(some_struct) do { } while (0)
-+#endif
-+
- #endif /* _LINUX_MODULE_H */
---- linux-2.4.0-test10/net/core/dev.c	Sat Nov  4 16:22:50 2000
-+++ linux-akpm/net/core/dev.c	Sun Nov  5 22:31:57 2000
-@@ -93,6 +93,7 @@
- #include <net/profile.h>
- #include <linux/init.h>
- #include <linux/kmod.h>
-+#include <linux/module.h>
- #if defined(CONFIG_NET_RADIO) || defined(CONFIG_NET_PCMCIA_RADIO)
- #include <linux/wireless.h>		/* Note : will define WIRELESS_EXT */
- #endif	/* CONFIG_NET_RADIO || CONFIG_NET_PCMCIA_RADIO */
-@@ -666,9 +667,15 @@
- 	/*
- 	 *	Call device private open method
- 	 */
--	 
--	if (dev->open) 
--  		ret = dev->open(dev);
-+	if (try_inc_mod_count(dev->owner)) {
-+		if (dev->open) {
-+			ret = dev->open(dev);
-+			if (ret != 0 && dev->owner)
-+				__MOD_DEC_USE_COUNT(dev->owner);
-+		}
-+	} else {
-+		ret = -ENODEV;
-+	}
- 
- 	/*
- 	 *	If it went open OK then:
-@@ -783,6 +790,12 @@
- 	 *	Tell people we are down
- 	 */
- 	notifier_call_chain(&netdev_chain, NETDEV_DOWN, dev);
-+
-+	/*
-+	 * Drop the module refcount
-+	 */
-+	if (dev->owner)
-+		__MOD_DEC_USE_COUNT(dev->owner);
- 
- 	return(0);
- }
+Having this and testing not yet the generic ioctls, but the older, once working
+'primitive' ioctls, I experienced that suddenly copy_to_user would not work any
+more and return the complete length as remainder. The whole system seemed to
+behave strange the more often I started the testprogram. Compiling the driver
+module again would show strange error messages.
+
+Observe, that the case-Block with the additional kernbuf was not even entered,
+because the IOR_GET_FIX: returned an error "Bad address" or so.
+
+Today I reduced the kernbuf to 4 * UINT32 and it seems to work. I will next try
+to use a static kernbuf of 0x400 * UINT32...
+
+In the Linux Device Drivers book I didn't find 'stack size' or similar in the
+index. Are there any limits on the stacksize? If yes, how large are they and why
+would the driver behave so stange and not oops or hang? I fear, my filesystem on
+the test Box could be damaged. I saw this bad addres error quite some times and
+suddenly make modules complained about strange contents in .config...
+
+Does gcc grow the stack only at the beginning of a function, or can it save the
+space and re-grow it on entering code_blocks also?
+
+Thanks for any hints,
+-- 
+Bernd Harries
+
+bha@gmx.de           http://www.freeyellow.com/members/bharries
+bha@nikocity.de       Tel. +49 421 809 7343 priv.  | MSB First!
+harries@stn-atlas.de       +49 421 457 3966 offi.  | Linux-m68k
+bernd@linux-m68k.org      8.48'21" E  52.48'52" N  | Medusa T40
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317964AbSGLBXS>; Thu, 11 Jul 2002 21:23:18 -0400
+	id <S317965AbSGLBYN>; Thu, 11 Jul 2002 21:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317965AbSGLBXR>; Thu, 11 Jul 2002 21:23:17 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:51977
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317964AbSGLBXQ>; Thu, 11 Jul 2002 21:23:16 -0400
-Date: Thu, 11 Jul 2002 18:23:05 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <E17Son2-0001yp-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10207111821080.20499-100000@master.linux-ide.org>
+	id <S317966AbSGLBYM>; Thu, 11 Jul 2002 21:24:12 -0400
+Received: from [209.237.59.50] ([209.237.59.50]:56992 "EHLO
+	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
+	id <S317965AbSGLBYK>; Thu, 11 Jul 2002 21:24:10 -0400
+To: george anzinger <george@mvista.com>
+Cc: Stevie O <oliver@klozoff.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: HZ, preferably as small as possible
+References: <Pine.LNX.4.10.10207110847170.6183-100000@zeus.compusonic.fi>
+	<5.1.0.14.2.20020711201602.022387b0@whisper.qrpff.net>
+	<3D2E2C48.DCB509D7@mvista.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 11 Jul 2002 18:26:52 -0700
+In-Reply-To: <3D2E2C48.DCB509D7@mvista.com>
+Message-ID: <52adoxrb1f.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jul 2002, Alan Cox wrote:
+>>>>> "george" == george anzinger <george@mvista.com> writes:
 
-> > Please consider deprecating or removing ide-floppy/ide-tape/ide-cdrom
-> > and treat all ATAPI devices as what they really are -- SCSI over IDE.
-> 
-> They aren't.
-> 
-> o	Not all ide cdrom devices are ATAPI capable
-> o	Many ide floppy devices can do ATAPI but get it horribly wrong
-> o	ide-tape is -totally- weird and unrelated to st
-> 
-> Andre did the framework ready to move to a situation where you could open
-> either the ide-scsi or the ide-cdrom name without module reloading mess.
-> You'd need to ask our new 2.5 IDE maintainer to finish that work off.
+    george> Well, in truth it has nothing to do with interrupts.  It
+    george> is just that that is the way most systems keep time.  The
+    george> REAL definition of HZ is in its relationship to jiffies
+    george> and seconds.
 
-It was deleted, LOL.
+    george> I.e. jiffies * HZ = seconds, by definition.
 
-What you really need another NEW maintainer or any other replacement.
+I'm sure you know the truth, but this isn't quite right.  Just to be
+pedantic and make sure the correct definition is out there:
 
-> For disk it gets much easier. Linus has already said he wants a single
-> 'disk' device, which once we get 32bit dev_t will be nice. With that we
-> can finally turn aacraid, megaraid and other 'fake scsi' devices back to
-> raw block devices without breaking compatibility assumptions, and get more
-> throughput.
-> 
-> Alan
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+  jiffies / HZ = seconds
 
-Andre Hedrick
-LAD Storage Consulting Group
+For example if HZ is 100 then the jiffy counter is incremented 100
+times each second.
 
+Best,
+  Roland

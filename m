@@ -1,87 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263589AbUDUS2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263599AbUDUSdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263589AbUDUS2d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 14:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUDUS2d
+	id S263599AbUDUSdH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 14:33:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263602AbUDUSdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 14:28:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20446 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263589AbUDUS2a (ORCPT
+	Wed, 21 Apr 2004 14:33:07 -0400
+Received: from borf.com ([209.179.94.84]:8369 "EHLO edsac.borf.com")
+	by vger.kernel.org with ESMTP id S263601AbUDUSdC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 14:28:30 -0400
-Date: Wed, 21 Apr 2004 11:28:27 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Andy Lutomirski <luto@myrealbox.com>, Chris Wright <chrisw@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: compute_creds fixup in -mm
-Message-ID: <20040421112827.O21045@build.pdx.osdl.net>
-References: <20040421010621.L22989@build.pdx.osdl.net> <4086AEFC.5010002@myrealbox.com> <1082571199.9213.61.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1082571199.9213.61.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Wed, Apr 21, 2004 at 02:13:19PM -0400
+	Wed, 21 Apr 2004 14:33:02 -0400
+Message-ID: <58a06a347fde8a8a90c9fbff504a943f@borf.com>
+From: Sam Hopkins <sah@coraid.com>
+Date: Wed, 21 Apr 2004 14:27:51 -0400
+To: jgarzik@pobox.com, sah@coraid.com, linux-kernel@vger.kernel.org
+Subject: Re: AoE inclusion into 2.4.x
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="upas-vnocjcoyjgoawjzvknjixqudbt"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> On Wed, 2004-04-21 at 13:27, Andy Lutomirski wrote:
-> > This doesn't fix selinux, though -- its apply_creds hook just blindly calls
-> > commoncap's.  In fact, this breaks all attempts to get nested capability modules
-> > right.  The problem is that, AFAICS, not only does ptrace_detach not take
-> > task_lock, _exit() doesn't either.  So you get an equivalent race for the shared
-> > state check.  I see two ways to fix that:
+This is a multi-part message in MIME format.
+--upas-vnocjcoyjgoawjzvknjixqudbt
+Content-Disposition: inline
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+
+When I started development 2.6 was barely out.  I wanted to develop
+for a stable system to start.  I've looked at what has changed betwixt
+v4 and v6 and am in the process of porting.
+
+Sam
+--upas-vnocjcoyjgoawjzvknjixqudbt
+Content-Type: message/rfc822
+Content-Disposition: inline
+
+Received: from relay.borf.com ([205.185.197.204]) by edsac; Wed Apr 21 13:53:35 EDT 2004
+Received: from [195.92.249.252] by borf.com ; Wed, 21 Apr 2004 13:49:58 -0400
+Received: from rdu74-153-143.nc.rr.com ([24.74.153.143] helo=pobox.com)
+	by www.linux.org.uk with asmtp (TLSv1:AES256-SHA:256)
+	(Exim 4.22)
+	id 1BGLu9-0002vF-PD; Wed, 21 Apr 2004 18:53:01 +0100
+Message-ID: <4086B4F2.90104@pobox.com>
+Date: Wed, 21 Apr 2004 13:52:50 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Hopkins <sah@coraid.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AoE inclusion into 2.4.x
+References: <c6be8c22d61f39eeb861c900d5abd7fe@borf.com>
+In-Reply-To: <c6be8c22d61f39eeb861c900d5abd7fe@borf.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Sam Hopkins wrote:
+> Greetings,
 > 
-> I didn't see Chris' patch.  I assume that the worst case is unexpected
-> program failure due to lack of capability, right?  The SELinux security
-
-The opposite.  You'd get a program with non-root euid, but full
-capability set, and AT_SECURE set false.  My patch is below.
-
---- a/security/commoncap.c~compute_creds-lock	2004-04-21 00:54:34.000000000 -0700
-+++ b/security/commoncap.c	2004-04-21 01:01:00.000000000 -0700
-@@ -135,28 +135,26 @@
- 
- 	task_lock(current);
- 
--	if (bprm->e_uid != current->uid || bprm->e_gid != current->gid) {
-+	if (bprm->e_uid != current->uid || bprm->e_gid != current->gid ||
-+	    !cap_issubset (new_permitted, current->cap_permitted)) {
- 		current->mm->dumpable = 0;
- 
--		if (must_not_trace_exec(current) && !capable(CAP_SETUID)) {
--			bprm->e_uid = current->uid;
--			bprm->e_gid = current->gid;
-+		if (must_not_trace_exec(current)) {
-+			if (!capable(CAP_SETUID)) {
-+				bprm->e_uid = current->uid;
-+				bprm->e_gid = current->gid;
-+			}
-+			if (!capable (CAP_SETPCAP)) {
-+				new_permitted = cap_intersect (new_permitted,
-+							current->cap_permitted);
-+			}
-+
- 		}
- 	}
- 
- 	current->suid = current->euid = current->fsuid = bprm->e_uid;
- 	current->sgid = current->egid = current->fsgid = bprm->e_gid;
- 
--	if (!cap_issubset (new_permitted, current->cap_permitted)) {
--		current->mm->dumpable = 0;
--
--		if (must_not_trace_exec (current) && !capable (CAP_SETPCAP)) {
--			new_permitted = cap_intersect (new_permitted,
--						       current->
--						       cap_permitted);
--		}
--	}
--
- 	/* For init, we want to retain the capabilities set
- 	 * in the init_task struct. Thus we skip the usual
- 	 * capability rules */
+> I would like to offer our driver for inclusion into the 2.4 kernel.
+> Marcelo suggested (strongly) that I make this request officially
+> to the list.
 
 
+Oh, why submit to 2.4 before 2.6?  Usually the other way around is 
+preferred.
+
+	Jeff
+
+
+
+--upas-vnocjcoyjgoawjzvknjixqudbt--

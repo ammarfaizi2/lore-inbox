@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319195AbSH2Mdu>; Thu, 29 Aug 2002 08:33:50 -0400
+	id <S319151AbSH2NF7>; Thu, 29 Aug 2002 09:05:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319197AbSH2Mdt>; Thu, 29 Aug 2002 08:33:49 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:61616 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319195AbSH2Mdt>; Thu, 29 Aug 2002 08:33:49 -0400
-Date: Thu, 29 Aug 2002 09:37:45 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] adjustments to dirty memory thresholds
-In-Reply-To: <20020829034957.GE878@holomorphy.com>
-Message-ID: <Pine.LNX.4.44L.0208290933200.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319152AbSH2NF7>; Thu, 29 Aug 2002 09:05:59 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:37370
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319151AbSH2NF7>; Thu, 29 Aug 2002 09:05:59 -0400
+Subject: Re: Laptops with SpeedStep technology.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steffen Persvold <sp@scali.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0208291004550.1952-100000@sp-laptop.isdn.scali.no>
+References: <Pine.LNX.4.44.0208291004550.1952-100000@sp-laptop.isdn.scali.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 29 Aug 2002 11:29:02 +0100
+Message-Id: <1030616946.7290.98.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Aug 2002, William Lee Irwin III wrote:
+On Thu, 2002-08-29 at 09:13, Steffen Persvold wrote:
+> Hi all,
+> 
+> Recently I got myself a Dell Inspiron 8200 with a Intel P4 Mobile wich has 
+> SpeedStep technology. With power plugged in, this processor runs at 1.6 
+> GHz and with battery only, 1.2 GHz. However I've found that the 
+> /proc/cpuinfo doesn't show this and I was wondering if there were some 
+> patches lying around before I began to look at this on my own.
 
-> +	gfp_nowait = gfp_mask & ~(__GFP_WAIT | __GFP_IO | __GFP_NOKILL);
-
-
-I suspect what you want is (in vmscan.c):
-
--	out_of_memory();
-+	if (gfp_mask & __GFP_FS)
-+		out_of_memory();
-
-This means we'll just never call out_of_memory() if we haven't
-used all possibilities for freeing pages.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+cpufre handles this including switching processor speeds, fixing up
+udelay and ensuring you dont get stuck at random boot speed
 

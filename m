@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268527AbUJVXHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUJVXJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268527AbUJVXHe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 19:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268295AbUJVXEo
+	id S267607AbUJVXJh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 19:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268710AbUJVXHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 19:04:44 -0400
-Received: from mail.kroah.org ([69.55.234.183]:47519 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268278AbUJVXC4 (ORCPT
+	Fri, 22 Oct 2004 19:07:48 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:64242 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S268040AbUJVXEn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 19:02:56 -0400
-Date: Fri, 22 Oct 2004 16:02:09 -0700
-From: Greg KH <greg@kroah.com>
-To: Ari Pollak <aripollak@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev doesn't add a device for one of my partitions under 2.6.9
-Message-ID: <20041022230209.GA26748@kroah.com>
-References: <clbgip$63d$1@sea.gmane.org>
+	Fri, 22 Oct 2004 19:04:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=liJ/Lmd7csJnWtmORX5MIXpLoKK2dzOdKdU34iXTF+hetLpd8UyMi87UFrVg1Asyp7OK+mZHasLux8OYGda7eP1YTtupV59pf3n4bhXU9ptf/RYsz1CEG2tYGq90sMuhjwpqqvIn1bR6zIKcaHEyATmZGQd6/RNM5l2ItqKhWtY=
+Message-ID: <35fb2e5904102216038257cb1@mail.gmail.com>
+Date: Sat, 23 Oct 2004 00:03:02 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Cc: brian wheeler <bdwheele@indiana.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <41797B49.5020809@drdos.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <clbgip$63d$1@sea.gmane.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1098480691.8033.8.camel@wombat.educ.indiana.edu>
+	 <41797B49.5020809@drdos.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 01:39:01PM -0400, Ari Pollak wrote:
-> Hi,
-> 
-> I'm currently running kernel 2.6.9 with udev 0.034 and Debian's hotplug 
-> 0.0.20040329-15. I'm assuming this is a device driver bug and not a udev 
-> or hotplug bug because I'm pretty sure this worked fine in 2.6.8.1.
-> My only hard drive on my IBM Thinkpad T41 has a primary partition, a 
-> logical partition, and an extended partition (hda1, hda2, and hda5). 
-> Both /dev/hda1 and /dev/hda2 show up as devices, but /dev/hda5 doesn't 
-> show up at all. If I create the /dev/hda5 manually with mknod, accessing 
-> it works fine. Below is the IDE-related output from dmesg on system 
-> startup, the output from lspci, and my kernel config.
+On Fri, 22 Oct 2004 15:27:37 -0600, Jeff V. Merkey <jmerkey@drdos.com> wrote:
 
-Does /sys/block/hda/ show partition the partition you are missing?  If
-not, there's no way that udev could know to create it.
+> I'll post the entire listing with line numbers of the files SCO
+> [alleges] were taken from UNIX by IBM and others.
 
-thanks,
+Jeff,
 
-greg k-h
+Could you please digitally sign this mail that you are planning to
+send or otherwise provide notorisation that confirms you definately
+mean this?
+
+I'd love for you to accept liability for this so we can pass all SCO
+enquiries on to you.
+
+Jon.

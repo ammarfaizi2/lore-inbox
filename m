@@ -1,88 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265375AbUAAURG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:17:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbUAAUOr
+	id S264940AbUAAUFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 15:05:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264583AbUAAUE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:14:47 -0500
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:5934 "EHLO
+	Thu, 1 Jan 2004 15:04:57 -0500
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:35667 "EHLO
 	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264874AbUAAUJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:09:57 -0500
-Date: Thu, 1 Jan 2004 21:02:01 +0100
-Message-Id: <200401012002.i01K21pa031811@callisto.of.borg>
+	id S264591AbUAAUB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:01:56 -0500
+Date: Thu, 1 Jan 2004 21:01:54 +0100
+Message-Id: <200401012001.i01K1srR031751@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 364] Mac ADB
+Subject: [PATCH 351] M68k math emu C99
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ADB: Disable the ADB clock code when CONFIG_ADB is not selected (from Matthias
-Urlichs).
+M68k math emulator: Use C99 struct initializers
 
---- linux-2.6.0/arch/m68k/mac/misc.c	2003-01-02 12:53:57.000000000 +0100
-+++ linux-m68k-2.6.0/arch/m68k/mac/misc.c	2003-11-03 20:49:30.000000000 +0100
-@@ -39,6 +39,7 @@
- extern struct mac_booter_data mac_bi_data;
- static void (*rom_reset)(void);
+--- linux-2.6.0/arch/m68k/math-emu/fp_arith.c	Sun Apr  6 10:28:29 2003
++++ linux-m68k-2.6.0/arch/m68k/math-emu/fp_arith.c	Sun Oct 19 20:06:26 2003
+@@ -19,12 +19,13 @@
  
-+#ifdef CONFIG_ADB
- /*
-  * Return the current time as the number of seconds since January 1, 1904.
-  */
-@@ -103,6 +104,7 @@
- 			(offset >> 8) & 0xFF, offset & 0xFF,
- 			data);
- }
-+#endif /* CONFIG_ADB */
+ const struct fp_ext fp_QNaN =
+ {
+-	0, 0, 0x7fff, { ~0 }
++	.exp = 0x7fff,
++	.mant = { .m64 = ~0 }
+ };
  
- /*
-  * VIA PRAM/RTC access routines
-@@ -356,7 +358,11 @@
- 	    macintosh_config->adb_type == MAC_ADB_PB1 ||
- 	    macintosh_config->adb_type == MAC_ADB_PB2 ||
- 	    macintosh_config->adb_type == MAC_ADB_CUDA) {
-+#ifdef CONFIG_ADB
- 		func = adb_read_pram;
-+#else
-+		return;
-+#endif
- 	} else {
- 		func = via_read_pram;
- 	}
-@@ -374,7 +380,11 @@
- 	    macintosh_config->adb_type == MAC_ADB_PB1 ||
- 	    macintosh_config->adb_type == MAC_ADB_PB2 ||
- 	    macintosh_config->adb_type == MAC_ADB_CUDA) {
-+#ifdef CONFIG_ADB
- 		func = adb_write_pram;
-+#else
-+		return;
-+#endif
- 	} else {
- 		func = via_write_pram;
- 	}
-@@ -580,12 +590,16 @@
- 	if (!op) { /* read */
- 		if (macintosh_config->adb_type == MAC_ADB_II) {
- 			now = via_read_time();
--		} else if ((macintosh_config->adb_type == MAC_ADB_IISI) ||
-+		} else
-+#ifdef CONFIG_ADB
-+		if ((macintosh_config->adb_type == MAC_ADB_IISI) ||
- 			   (macintosh_config->adb_type == MAC_ADB_PB1) ||
- 			   (macintosh_config->adb_type == MAC_ADB_PB2) ||
- 			   (macintosh_config->adb_type == MAC_ADB_CUDA)) {
- 			now = adb_read_time();
--		} else if (macintosh_config->adb_type == MAC_ADB_IOP) {
-+		} else
-+#endif
-+		if (macintosh_config->adb_type == MAC_ADB_IOP) {
- 			now = via_read_time();
- 		} else {
- 			now = 0;
+ const struct fp_ext fp_Inf =
+ {
+-	0, 0, 0x7fff, { 0 }
++	.exp = 0x7fff,
+ };
+ 
+ /* let's start with the easy ones */
+--- linux-2.6.0/arch/m68k/math-emu/fp_log.c	Tue Jul 29 18:18:35 2003
++++ linux-m68k-2.6.0/arch/m68k/math-emu/fp_log.c	Sun Oct 19 20:06:41 2003
+@@ -19,7 +19,7 @@
+ 
+ static const struct fp_ext fp_one =
+ {
+-	0, 0, 0x3fff, { 0 }
++	.exp = 0x3fff,
+ };
+ 
+ extern struct fp_ext *fp_fadd(struct fp_ext *dest, const struct fp_ext *src);
 
 Gr{oetje,eeting}s,
 

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129235AbRBFQhF>; Tue, 6 Feb 2001 11:37:05 -0500
+	id <S129063AbRBFQgp>; Tue, 6 Feb 2001 11:36:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129320AbRBFQgq>; Tue, 6 Feb 2001 11:36:46 -0500
-Received: from knatte.tninet.se ([195.100.94.10]:59087 "HELO knatte.tninet.se")
-	by vger.kernel.org with SMTP id <S129214AbRBFQge>;
-	Tue, 6 Feb 2001 11:36:34 -0500
-Date: Tue, 6 Feb 2001 14:59:40 +0100
+	id <S129235AbRBFQgg>; Tue, 6 Feb 2001 11:36:36 -0500
+Received: from musse.tninet.se ([195.100.94.12]:60133 "HELO musse.tninet.se")
+	by vger.kernel.org with SMTP id <S129063AbRBFQga>;
+	Tue, 6 Feb 2001 11:36:30 -0500
+Date: Tue, 6 Feb 2001 14:55:30 +0100
 From: André Dahlqvist <anedah-9@sm.luth.se>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix typo in linux/fs/reiserfs/namei.c
-Message-ID: <20010206145940.B3245@sm.luth.se>
+Subject: [PATCH] Fix typo in linux/include/asm-ppc/semaphore.h
+Message-ID: <20010206145530.A3245@sm.luth.se>
 Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -21,20 +21,20 @@ X-Unexpected-Header: The Spanish Inquisition
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The below patch fixes a typo in linux/fs/reiserfs/namei.c.
-It is against 2.4.1-ac3.
+Below is a patch for a typo that I found while doing some grepping.
+The patch is against 2.4.1-ac3.
 
---- linux-2.4.1-ac3/fs/reiserfs/namei.c~	Tue Feb  6 14:58:08 2001
-+++ linux-2.4.1-ac3/fs/reiserfs/namei.c	Tue Feb  6 14:58:26 2001
-@@ -1213,7 +1213,7 @@
-     // anybody, but it will panic if will not be able to find the
-     // entry. This needs one more clean up
-     if (reiserfs_cut_from_item (&th, &old_entry_path, &(old_de.de_entry_key), old_dir, NULL, 0) < 0)
--	reiserfs_warning ("vs-: reiserfs_rename: coudl not cut old name. Fsck later?\n");
-+	reiserfs_warning ("vs-: reiserfs_rename: could not cut old name. Fsck later?\n");
+--- linux-2.4.1-ac3/include/asm-ppc/semaphore.h~	Tue Feb  6 14:50:41 2001
++++ linux-2.4.1-ac3/include/asm-ppc/semaphore.h	Tue Feb  6 14:50:45 2001
+@@ -132,7 +132,7 @@
  
-     old_dir->i_size -= DEH_SIZE + old_de.de_entrylen;
-     old_dir->i_blocks = ((old_dir->i_size + 511) >> 9);
+ #define DECLARE_RWSEM(name) __DECLARE_RWSEM_GENERIC(name, 0, 0)
+ #define DECLARE_RWSEM_READ_LOCKED(name) __DECLARE_RWSEM_GENERIC(name, 1, 0)
+-#define DECLAER_RWSEM_WRITE_LOCKED(name) __DECLARE_RWSEM_GENERIC(name, 0, 1)
++#define DECLARE_RWSEM_WRITE_LOCKED(name) __DECLARE_RWSEM_GENERIC(name, 0, 1)
+ 
+ extern inline void init_rwsem(struct rw_semaphore *sem)
+ {
 -- 
 
 André Dahlqvist <anedah-9@sm.luth.se>

@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbRBGSSb>; Wed, 7 Feb 2001 13:18:31 -0500
+	id <S129027AbRBGS0Y>; Wed, 7 Feb 2001 13:26:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129053AbRBGSSW>; Wed, 7 Feb 2001 13:18:22 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:38404 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129032AbRBGSSI>; Wed, 7 Feb 2001 13:18:08 -0500
-Date: Wed, 7 Feb 2001 10:17:12 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] micro-opt DEBUG_ADD_PAGE
-In-Reply-To: <Pine.LNX.4.21.0102071755200.5243-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.10.10102071016050.4623-100000@penguin.transmeta.com>
+	id <S129047AbRBGS0N>; Wed, 7 Feb 2001 13:26:13 -0500
+Received: from 409-MADR-XL4.libre.retevision.es ([62.175.109.153]:27923 "EHLO
+	vivaldi.ddts.net") by vger.kernel.org with ESMTP id <S129027AbRBGS0F>;
+	Wed, 7 Feb 2001 13:26:05 -0500
+Date: Wed, 7 Feb 2001 19:25:25 +0100 (MET)
+From: Roberto Diaz <rdiazmartin@vivaldi.ddts.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-legal@nl.linux.org, Roberto Diaz <rdiazmartin@vivaldi.net.dhis.org>,
+        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
+        Guido Socher <guido@bearix.oche.de>
+Subject: Re: Software Mestizo Manifesto
+In-Reply-To: <E14QR2C-0008EK-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0102071923170.494-100000@vivaldi.ddts.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 7 Feb 2001, Hugh Dickins wrote:
+> > > Your "ethical" statement is incompatible with the GPL.
 > 
-> Micro-optimization season?
+> I disagree. Its a statement. Its a request. It says 'advice'. Anyone is
+> entitled to advise how to use GPL software. The only issue is if someone
+> chooses to require it is not used by XYZ person. 
 
-I'd rather not do these kinds of things that the compiler should be able
-to trivially do for us.
+Please.. I am not lawyer... my intention were good, just to give authors
+the freedom to say "hey please dont drop a nuclear weapon in my city using
+my software" just that..
 
-(gcc sometimes _does_ do these things. I've seen it. Why doesn't it do it
-here? Did you check the code? Have you asked the gcc lists?)
+As you see even I have troubles with my english.. 
 
-		Linus
+If someone agree this intentions please help.
+
+
+Regards
+
+Roberto
+
+------------------------------------------------------------------------
+Roberto Diaz <rdiazmartin@vivaldi.dtts.net>
+http://vivaldi.dtts.net 
+Powered by ddt dynamic DNS
+Powered by GNU running on a Linux kernel.
+Powered by Debian (The real wonder)
+
+Concerto Grosso Op. 3/8 A minor
+Antonio Vivaldi (so... do you need beautiful words?)
+------------------------------------------------------------------------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

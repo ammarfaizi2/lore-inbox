@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbTJMKTc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 06:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTJMKTc
+	id S261380AbTJMKJS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 06:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTJMKJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 06:19:32 -0400
-Received: from mail.gmx.de ([213.165.64.20]:23209 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261602AbTJMKTb (ORCPT
+	Mon, 13 Oct 2003 06:09:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40840 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261380AbTJMKJR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 06:19:31 -0400
-X-Authenticated: #1226656
-Date: Mon, 13 Oct 2003 12:19:18 +0200
-From: Marc Giger <gigerstyle@gmx.ch>
-To: achirica@users.sourceforge.net, jt@hpl.hp.com,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Aironet troubles
-Message-Id: <20031013121918.091179d6.gigerstyle@gmx.ch>
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 13 Oct 2003 06:09:17 -0400
+Date: Mon, 13 Oct 2003 03:12:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [patch] SMP races in the timer code, timer-fix-2.6.0-test7-A0
+Message-Id: <20031013031225.06ef0d45.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.56.0310111807590.10679@earth>
+References: <3F881B46.6070301@colorfullife.com>
+	<Pine.LNX.4.56.0310111713440.8641@earth>
+	<Pine.LNX.4.56.0310111807590.10679@earth>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Javier, All
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> 
+> On Sat, 11 Oct 2003, Ingo Molnar wrote:
+> 
+> > since this would be the 8th word-sized field in struct timer_list,
+> > making it a nice round structure size.
+> 
+> it's the 9th field in fact, due to timer->magic.
+> 
 
-With 2.4.23-pre6 I'm not able to connect to the wireless lan
-with the aironet 340 pcmcia card. I've not tried pre7 since it seems
-there are no fixes for aironet added.
-
-I have to use dhcpcd to get an IP but I don't get one. Ifconfig shows
-that packets ar transmitted, but no single one received. There are also
-a lot of errors in rx.
-
-My wireless-tools version: 26
-
-oh, and I have to enable WEP to access the lan.
-
-Thanks
-
-greets
-
-Marc
+We can remove the debug code now.  Or wrap it in a debug config option.
 

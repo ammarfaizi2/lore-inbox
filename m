@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315440AbSFORJi>; Sat, 15 Jun 2002 13:09:38 -0400
+	id <S315445AbSFORRf>; Sat, 15 Jun 2002 13:17:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315442AbSFORJh>; Sat, 15 Jun 2002 13:09:37 -0400
-Received: from velli.mail.jippii.net ([195.197.172.114]:12698 "HELO
-	velli.mail.jippii.net") by vger.kernel.org with SMTP
-	id <S315440AbSFORJh>; Sat, 15 Jun 2002 13:09:37 -0400
-Date: Sat, 15 Jun 2002 20:12:47 +0300
-From: Anssi Saari <as@sci.fi>
-To: linux-kernel@vger.kernel.org
-Cc: andre@linux-ide.org
-Subject: Re: linux 2.4.19-preX IDE bugs
-Message-ID: <20020615171246.GB22017@sci.fi>
+	id <S315449AbSFORRe>; Sat, 15 Jun 2002 13:17:34 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:20448 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315445AbSFORRd>;
+	Sat, 15 Jun 2002 13:17:33 -0400
+Date: Sat, 15 Jun 2002 19:17:11 +0200
+From: Jens Axboe <axboe@suse.de>
+To: rwhron@earthlink.net
+Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 IDE 91
+Message-ID: <20020615171711.GH1359@suse.de>
+In-Reply-To: <20020615104239.GA30698@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jun 2002, Andre Hedrick wrote: 
-
-> http://www.tecchannel.de/hardware/817/index.html
+On Sat, Jun 15 2002, rwhron@earthlink.net wrote:
+> > One possibile culprit here is the doubling of the request queue size
+> > in 2.5.20.  A long time ago it was 1024 slots.  Then it went to
+> > 128.  That's where it is in Marcelo kernels.  Then -ac kernels
+> > went up to 1024 because they have read-latency2.  Somehow 2.5 found
+> > itself at 256 slots.  In 2.5.20 it slealthily snuck up to 512
+> > slots.  I didn't squeak about this because I was interested to see what
+> > effect it would have.
 > 
-> Read about the JUNK hardware base you are working with.
-> This is one of the reasons people avoid VIA. 
+> Interesting.  I've seen read-latency2 drop dbench throughput in -aa
+> kernels (but I use it anyway).  I'd like to capture the request
+> queue size.  Is there a command or file in /proc that displays 
+> it, or should I just grep drivers/block/ll_rw_blk.c?
 
-Do you have recommendations for chipsets for AMD CPUs, especially from
-Linux IDE driver guy's point of view and especially regarding Linux
-support for them? ALi, AMD, nVidia or SiS?
+There is currently no way you can capture the queue request state. In
+the past I've done sysrq hacks to display it, but that's about it.
 
-It seems hard to find any comparisons between current VIA and non-VIA
-motherboards on the net. 
+-- 
+Jens Axboe
+

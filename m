@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVC1U3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVC1UlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVC1U3d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 15:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVC1U3c
+	id S262059AbVC1UlR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 15:41:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVC1UlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 15:29:32 -0500
-Received: from smtp-vbr6.xs4all.nl ([194.109.24.26]:47373 "EHLO
-	smtp-vbr6.xs4all.nl") by vger.kernel.org with ESMTP id S261215AbVC1U33
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 15:29:29 -0500
-In-Reply-To: <20050328193933.GH943@vanheusden.com>
-References: <20050328172820.GA31571@linux.ensimag.fr> <20050328175614.GG943@vanheusden.com> <Pine.LNX.4.61.0503282131560.11428@yvahk01.tjqt.qr> <20050328193933.GH943@vanheusden.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <a1212af498cc4d77373b7be0db524347@xs4all.nl>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Renate Meijer <kleuske@xs4all.nl>
-Subject: Re: forkbombing Linux distributions
-Date: Mon, 28 Mar 2005 22:35:00 +0200
-To: folkert@vanheusden.com
-X-Mailer: Apple Mail (2.619.2)
+	Mon, 28 Mar 2005 15:41:17 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47259 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262059AbVC1UlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 15:41:15 -0500
+Date: Sat, 19 Mar 2005 20:33:45 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/4] sparsemem intro patches
+Message-ID: <20050319193345.GE1504@openzaurus.ucw.cz>
+References: <1110834883.19340.47.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110834883.19340.47.camel@localhost>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Mar 28, 2005, at 9:39 PM, folkert@vanheusden.com wrote:
+> Three of these are i386-only, but one of them reorganizes the macros
+> used to manage the space in page->flags, and will affect all platforms.
+> There are analogous patches to the i386 ones for ppc64, ia64, and
+> x86_64, but those will be submitted by the normal arch maintainers.
+> 
+> The combination of the four patches has been test-booted on a variety of
+> i386 hardware, and compiled for ppc64, i386, and x86-64 with about 17
+> different .configs.  It's also been runtime-tested on ia64 configs (with
+> more patches on top).
 
-On Mar 28, 2005, at 9:39 PM, folkert@vanheusden.com wrote:
-
->> I already posted one, posts ago.
->>>> [snip]
->>> Imporved version:
->>> [snip]
->>> char *dummy = (char *)malloc(1);
->> That cast is not supposed to be there, is it? (To pretake it: it's 
->> bad.)
->
-> What is so bad about it?
-
-Read the FAQ at http://www.eskimo.com/~scs/C-faq/q7.7.html
-
-Malloc() returns a void*, so casts are superfluous if stdlib.h is 
-included (as it should be). Hence if one typecasts the result of malloc 
-in order to suit any particular type, the real bug is probably a 
-lacking "#iinclude <stdlib.h>", which the cast (effectively) is hiding.
-
-
+Could you try swsusp on i386, too?
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

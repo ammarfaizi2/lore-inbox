@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311025AbSHLUXu>; Mon, 12 Aug 2002 16:23:50 -0400
+	id <S318810AbSHLUYq>; Mon, 12 Aug 2002 16:24:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318810AbSHLUXt>; Mon, 12 Aug 2002 16:23:49 -0400
-Received: from stinky.trash.net ([195.134.144.50]:24039 "EHLO stinky.trash.net")
-	by vger.kernel.org with ESMTP id <S311025AbSHLUXt>;
-	Mon, 12 Aug 2002 16:23:49 -0400
-Date: Mon, 12 Aug 2002 22:29:05 +0200
-From: Mathias Gygax <mg@trash.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: The spam problem.
-Message-ID: <20020812202905.GA5928@chiba.dyndns.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.95.1020812112413.16287B-100000@chaos.analogic.com> <1764820337.1029140862@[10.10.2.3]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1764820337.1029140862@[10.10.2.3]>
-User-Agent: Mutt/1.4i
+	id <S318811AbSHLUYq>; Mon, 12 Aug 2002 16:24:46 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32529 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318810AbSHLUYp>; Mon, 12 Aug 2002 16:24:45 -0400
+Date: Mon, 12 Aug 2002 13:29:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@arcor.de>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <akpm@zip.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+In-Reply-To: <E17eBlU-0001nX-00@starship>
+Message-ID: <Pine.LNX.4.33.0208121328280.1289-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Now that I have your attention.
+
+On Mon, 12 Aug 2002, Daniel Phillips wrote:
 > 
-> No, now you have an entry in my killfile
+> That's the whole point of this: it's not a bug anymore.  (It's a feature.)
 
-and we saw hitler too.
+Well, it's a feature only if _intentional_, so I think Rusty's argument 
+was that we should call it something else than "copy_to/from_user()" if 
+we're ready to accept the fact that it fails for random reasons..
 
--- 
-"Sometimes I think the surest sign that intelligent life exists
- elsewhere in the universe is that none of it has tried to
- contact us."
-	-- Bill Waterson, cartoonist
+		Linus
+

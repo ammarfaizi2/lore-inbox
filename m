@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbUFNKX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUFNKpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262238AbUFNKX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 06:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUFNKX4
+	id S262356AbUFNKpT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 06:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUFNKpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 06:23:56 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:63699 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262238AbUFNKXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 06:23:55 -0400
-Date: Mon, 14 Jun 2004 11:23:52 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [12/12] fix thread_info.h ignoring __HAVE_THREAD_FUNCTIONS
-Message-ID: <20040614102352.GA11844@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20040614003835.GT1444@holomorphy.com> <20040614003929.GU1444@holomorphy.com> <20040614004034.GV1444@holomorphy.com> <20040614004147.GW1444@holomorphy.com> <20040614004354.GX1444@holomorphy.com> <20040614004516.GY1444@holomorphy.com> <20040614004701.GZ1444@holomorphy.com> <20040614004855.GA1444@holomorphy.com> <20040614081639.GI7162@infradead.org> <Pine.LNX.4.58.0406141032210.10292@scrub.local>
+	Mon, 14 Jun 2004 06:45:19 -0400
+Received: from bay14-f22.bay14.hotmail.com ([64.4.49.22]:61714 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262356AbUFNKpO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 06:45:14 -0400
+X-Originating-IP: [212.143.127.195]
+X-Originating-Email: [qwejohn@hotmail.com]
+From: "John Que" <qwejohn@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: insmod of ov511 failes
+Date: Mon, 14 Jun 2004 13:45:13 +0300
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406141032210.10292@scrub.local>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY14-F22zmWecm9t0C00089a46@hotmail.com>
+X-OriginalArrivalTime: 14 Jun 2004 10:45:13.0454 (UTC) FILETIME=[AC1F08E0:01C451FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 12:19:12PM +0200, Roman Zippel wrote:
-> There is another pending change in this department: current_thread_info(). 
-> For all nonbroken archs which have proper thread register it would 
-> actually be beneficial, to keep the task structure and thread info 
-> together and access them via the thread register, but a certain arch 
-> and include dependencies forces everyone to derive the thread info pointer 
-> from the stack pointer.
+Hello,
 
-ia64 actually has thread_info and task_info in a single allocation and
-uses a thread register to find that one.
+I have tried to perform build modules from the kernel tree ;
+Now , when I try to insmod the module (it's a video driver,ov511.o), I get
+many unresolved symbol errors like  the follwing error of
+
+unresolved symbol video_register_device_Re376151777
+
+I have a backup old version of the module binary (ov511.o); when I
+insert it I do succeed.
+I tried
+cat /proc/ksyms |grep video_register_device
+
+de975b90 video_register_device_R31b9699b        [videodev]
+
+I also tried
+nm -a ov511.o  and I got:
+U video_register_device_R31b9699b
+
+but  the same nm operation on the new one gives a different result:
+nm -a ov511.o  and I got:
+U video_register_device_Re3761517
+
+from where are the differences ? what is the meaning of the
+differences in the "R" (relocation) extension?
+
+I assume that if I will build the bzImage and install it I will succeed to
+insmod the new module;
+
+But I am curious - does this problem have a workaround?
+
+Could this problem be cause because I also installed 2.6.0 kernel on the 
+same machine?
+regards,
+John
+
+_________________________________________________________________
+Add photos to your e-mail with MSN 8. Get 2 months FREE*. 
+http://join.msn.com/?page=features/featuredemail
 

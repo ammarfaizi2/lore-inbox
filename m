@@ -1,58 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265848AbUACBJS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 20:09:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265856AbUACBJS
+	id S265880AbUACBWs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 20:22:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbUACBWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 20:09:18 -0500
-Received: from mx15.sac.fedex.com ([199.81.197.54]:24586 "EHLO
-	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S265848AbUACBJO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 20:09:14 -0500
-Date: Sat, 3 Jan 2004 08:55:40 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Jeff Chua <jchua@fedex.com>
-cc: Jens Axboe <axboe@suse.de>, Michael Hunold <hunold@convergence.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GetASF failed on DVD authentication
-In-Reply-To: <Pine.LNX.4.58.0401030830360.407@boston.corp.fedex.com>
-Message-ID: <Pine.LNX.4.58.0401030849040.806@boston.corp.fedex.com>
-References: <Pine.LNX.4.58.0401021616580.4954@boston.corp.fedex.com>
- <20040102103949.GL5523@suse.de> <Pine.LNX.4.58.0401022219290.10338@silk.corp.fedex.com>
- <3FF5986C.8060806@convergence.de> <20040102161813.GA21852@suse.de>
- <20040102163024.GS5523@suse.de> <Pine.LNX.4.58.0401030830360.407@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/03/2004
- 09:09:09 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/03/2004
- 09:09:12 AM,
-	Serialize complete at 01/03/2004 09:09:12 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 Jan 2004 20:22:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:3223 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265880AbUACBWp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 20:22:45 -0500
+Date: Fri, 2 Jan 2004 17:23:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Calin Szonyi <caszonyi@rdslink.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory management problem with 2.6.0
+Message-Id: <20040102172340.130f75ba.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.53.0401030252510.5448@grinch.ro>
+References: <Pine.LNX.4.53.0312271912350.511@grinch.ro>
+	<20031227194144.54d052d1.akpm@osdl.org>
+	<Pine.LNX.4.53.0401010559330.687@grinch.ro>
+	<20040101020406.4bbb2fdd.akpm@osdl.org>
+	<Pine.LNX.4.53.0401030252510.5448@grinch.ro>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Jan 2004, Jeff Chua wrote:
-
-> The log showed "Illegal Request: invalid command operation code" when I
-> issued "tstdvd".
-
-> Jan  3 08:17:48 boston kernel: usb-storage: -- code: 0x70, key: 0x5, ASC: 0x20, ASCQ: 0x0
-> Jan  3 08:17:48 boston kernel: usb-storage: Illegal Request: invalid command operation code
+caszonyi@rdslink.ro wrote:
+>
+> see atached file
 
 
-Ok, I applied Jens's patch, rmmod sg, rmmod cdrom, and retest "tstdvd".
+> mplayer: page allocation failure. order:1, mode:0x21
+> Call Trace:
+>  [<c013a3fc>] __alloc_pages+0x30c/0x350
+>  [<c013a45f>] __get_free_pages+0x1f/0x50
+>  [<c036fd5d>] sound_alloc_dmap+0x9d/0x1a0
+>  [<c0377ec0>] ad_mute+0x20/0x40
+>  [<c0370116>] open_dmap+0x26/0x100
+>  [<c0370554>] DMAbuf_open+0x174/0x1a0
+>  [<c036e0c2>] audio_open+0xc2/0x250
+>  [<c036d2e4>] sound_open+0xf4/0x120
+>  [<c036c5b5>] soundcore_open+0x1e5/0x330
+>  [<c036c3d0>] soundcore_open+0x0/0x330
+>  [<c015c3e8>] chrdev_open+0xe8/0x210
+>  [<c0161fdc>] open_namei+0xac/0x3f0
+>  [<c015c300>] chrdev_open+0x0/0x210
+>  [<c0152425>] dentry_open+0x145/0x210
+>  [<c01522d8>] filp_open+0x68/0x70
+>  [<c015276b>] sys_open+0x5b/0x90
+>  [<c0109367>] syscall_call+0x7/0xb
+> 
+> Sound error: Couldn't allocate DMA buffer
+> esd: page allocation failure. order:4, mode:0x21
+> Call Trace:
+>  [<c013a3fc>] __alloc_pages+0x30c/0x350
+>  [<c013a45f>] __get_free_pages+0x1f/0x50
+>  [<c036fd5d>] sound_alloc_dmap+0x9d/0x1a0
+>  [<c0377ec0>] ad_mute+0x20/0x40
+>  [<c0370116>] open_dmap+0x26/0x100
+>  [<c0370554>] DMAbuf_open+0x174/0x1a0
+>  [<c036e0c2>] audio_open+0xc2/0x250
+>  [<c036d2e4>] sound_open+0xf4/0x120
+>  [<c036c5b5>] soundcore_open+0x1e5/0x330
+>  [<c036c3d0>] soundcore_open+0x0/0x330
+>  [<c015c3e8>] chrdev_open+0xe8/0x210
+>  [<c0161fdc>] open_namei+0xac/0x3f0
+>  [<c015c300>] chrdev_open+0x0/0x210
+>  [<c0152425>] dentry_open+0x145/0x210
+>  [<c01522d8>] filp_open+0x68/0x70
+>  [<c015276b>] sys_open+0x5b/0x90
+>  [<c0109367>] syscall_call+0x7/0xb
 
-This time, debug still shows the same "Illegal Request", BUT the drive
-successfully authenticated.
+sound_alloc_dmap() is trying to perform a 4-order GFP_ATOMIC allocation.
 
-I tried the following command, but still couldn't get scsi log ...
+There is just nothing the MM system can do about that - it is a basic
+design problem in that part of the OSS sound system.
 
-echo "scsi log error,scan,mlqueue,mlcomplete,llqueue,llcomplete,hlqueue,hlcomplete 9"
->/proc/scsi/scsi
+I'm not sure what to suggest - development and maintenance of OSS seems to
+have come to a stop.
 
-
-Thanks,
-Jeff
-
+Can you use ALSA instead?  If not, increasing /proc/sys/vm/min_free_kbytes
+by quite a lot will probably decrease the frequency at which this occurs.
 

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282962AbRLMBBR>; Wed, 12 Dec 2001 20:01:17 -0500
+	id <S282966AbRLMBCH>; Wed, 12 Dec 2001 20:02:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282966AbRLMBBG>; Wed, 12 Dec 2001 20:01:06 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:13838 "HELO palrel13.hp.com")
-	by vger.kernel.org with SMTP id <S282962AbRLMBAz>;
-	Wed, 12 Dec 2001 20:00:55 -0500
-Message-ID: <C5C45572D968D411A1B500D0B74FF4A80418D5E7@xfc01.fc.hp.com>
-From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
-To: "Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
-Cc: "PATTERSON,ANDREW (HP-Loveland,ex2)" <andrew_patterson@hp.com>
-Subject: kernel panic with 2.4.16 and blockhighmem patch
-Date: Wed, 12 Dec 2001 17:00:39 -0800
+	id <S282967AbRLMBB4>; Wed, 12 Dec 2001 20:01:56 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:38314 "EHLO
+	phalynx") by vger.kernel.org with ESMTP id <S282966AbRLMBBq>;
+	Wed, 12 Dec 2001 20:01:46 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: "David C. Hansen" <haveblue@us.ibm.com>
+Subject: Re: [RFC] Change locking in block_dev.c:do_open()
+Date: Wed, 12 Dec 2001 17:01:43 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3C17F8B2.6080700@us.ibm.com>
+In-Reply-To: <3C17F8B2.6080700@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16EKFr-000305-00@phalynx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting a kernel panic when running specSFS on a 4x700PIII xeon highmem
-system with 4GB RAM.  We connect to our storage with a qlogicfc card and
-have dual Gig Nics to the network.  The filesystem is xfs.
+On December 12, 2001 16:39, David C. Hansen wrote:
+> Let's assume that the BKL is not held here, at least over the whole
+> thing.  First, what do we need to do to keep the module from getting
+> unloaded after the request_module() in get_blkfops()?
+>
+> We can add a semaphore which must be acquired before a module can be
+> unloaded, and hold it over the area where the module must not be
+> unloaded.  We could replace the unload_lock spinlock with a semaphore,
+> which I'll call it unload_sem here.  It would look something like this:
 
-The final message is:
-scsi_free:Bad offset
-In interrupt handler - not syncing
+Why not use a read-write semaphore? The sections that require the module to 
+stay resident use a read lock, and module unloading aquires a write lock. In 
+addition to containing the evil, evil BKL, you might actually get a tangiable 
+scalability gain out of it. 
 
-I complete the test fine with vanilla 2.4.16, and am wondering if this has
-been seen elsewhere.  Any ideas what would be causing this or, how I should
-fix it, would be appreciated.
-
-Cary
-
+-Ryan

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267493AbTALUWR>; Sun, 12 Jan 2003 15:22:17 -0500
+	id <S267390AbTALUhN>; Sun, 12 Jan 2003 15:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267497AbTALUUt>; Sun, 12 Jan 2003 15:20:49 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:25099
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267489AbTALUUH>; Sun, 12 Jan 2003 15:20:07 -0500
-Subject: Re: [PATCH] add explicit Pentium II support
-From: Robert Love <rml@tech9.net>
-To: Thomas Tonino <ttonino@users.sourceforge.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E21CFA1.7020607@users.sf.net>
-References: <20030112194008$7d7e@gated-at.bofh.it>
-	 <20030112202011$498d@gated-at.bofh.it>  <3E21CFA1.7020607@users.sf.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042403326.834.86.camel@phantasy>
+	id <S267393AbTALUhN>; Sun, 12 Jan 2003 15:37:13 -0500
+Received: from holomorphy.com ([66.224.33.161]:24229 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267390AbTALUhM>;
+	Sun, 12 Jan 2003 15:37:12 -0500
+Date: Sun, 12 Jan 2003 12:45:15 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Rob Wilkens <robw@optonline.net>, Christoph Hellwig <hch@infradead.org>,
+       Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*?
+Message-ID: <20030112204515.GA9727@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Tomas Szepe <szepe@pinerecords.com>,
+	Rob Wilkens <robw@optonline.net>,
+	Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <1042400219.1208.29.camel@RobsPC.RobertWilkens.com> <20030112195347.GJ3515@louise.pinerecords.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 12 Jan 2003 15:28:47 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030112195347.GJ3515@louise.pinerecords.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 15:27, Thomas Tonino wrote:
+[robw@optonline.net]
+>> Am I wrong that the above would do the same thing without generating the
+>> sphagetti code that a goto would give you.  Gotos are BAD, very very
+>> bad.
 
-> Would a reference to clock frequency be useful? It seems the old
-> Celeron went up to 1200 MHz, and the P4 Celeron started at 1700
-> MHz.
+On Sun, Jan 12, 2003 at 08:53:47PM +0100, Tomas Szepe wrote:
+> Whom do I pay to have this annoying clueless asshole shot?
+> OH MY GOD, I really can't take any more.
 
-I think the current text is descriptive enough without venturing into
-over-engineering an otherwise simple feature.
+>From the looks of it you forgot to procmail the idiot to /dev/null
 
-	Robert Love
+There are a lot more where he came from; you can't get rid of them
+all, it'd be genocide. procmail and get it over with. It's been a sad
+fact of life since they let those AOL and compuserve FPOS's on the net.
 
 
+Bill

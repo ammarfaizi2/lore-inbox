@@ -1,70 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265437AbSJaWbk>; Thu, 31 Oct 2002 17:31:40 -0500
+	id <S265414AbSJaW0c>; Thu, 31 Oct 2002 17:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265441AbSJaWbk>; Thu, 31 Oct 2002 17:31:40 -0500
-Received: from almesberger.net ([63.105.73.239]:62471 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S265437AbSJaWa6>; Thu, 31 Oct 2002 17:30:58 -0500
-Date: Thu, 31 Oct 2002 19:37:05 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+	id <S265415AbSJaW0c>; Thu, 31 Oct 2002 17:26:32 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:45529 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265414AbSJaW0b>; Thu, 31 Oct 2002 17:26:31 -0500
 Subject: Re: What's left over.
-Message-ID: <20021031193705.C2599@almesberger.net>
-References: <Pine.LNX.4.44.0210310918260.1410-100000@penguin.transmeta.com> <3DC19A4C.40908@pobox.com>
+From: john stultz <johnstul@us.ibm.com>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021031184933.B2599@almesberger.net>
+References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
+	<Pine.LNX.4.44L.0210310105160.1697-100000@imladris.surriel.com>
+	<20021031031932.GQ15886@ns> <1036098562.12714.50.camel@cog> 
+	<20021031184933.B2599@almesberger.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 31 Oct 2002 14:32:12 -0800
+Message-Id: <1036103533.12714.71.camel@cog>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DC19A4C.40908@pobox.com>; from jgarzik@pobox.com on Thu, Oct 31, 2002 at 04:02:04PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> That said, I used to be an LKCD cheerleader until a couple people made 
-> some good points to me:  it is not nearly low-level enough to truly be 
-> of use in crash situations.
+On Thu, 2002-10-31 at 13:49, Werner Almesberger wrote:
+> john stultz wrote:
+> > groups for each project, I have no clue how anyone would be able to
+> > handle the (unix)group management required. ACLs let the users
+> > themselves manage what people got what access to their data.
+> 
+> Note that POSIX ACLs don't seem to solve this either: they only
+> let you control access in terms of existing users or groups.
 
-I'm not so convinced about this. I like the Mission Critical
-approach: save the dump to memory, then either boot through the
-firmware or through bootimg (nowadays, that would be kexec),
-then retrieve the dump from memory, and do whatever you like
-with it.
+I've never looked at the POSIX ACL spec, so forgive my ignorance.
+ 
+> IMHO, this is one of the standard pitfalls of ACLs: if they don't
+> let you aggregate information, you quickly end up with huge ACLs
+> hanging off every file, and each of those ACLs wants to be
+> carefully maintained. I've seen a lot of this in my VMS days.
+> (Unix is a bit better, because you can control access at a
+> directory level, while VMS needs the ACL on each file, because
+> you can open files directly by VMS' equivalent to an inode
+> number, without traversing the directory hierarchy. Of course,
+> many users didn't know that :-)
 
-The huge advantage here is that you don't need a ton of
-specialized dump drivers and/or have much of the original kernel
-infrastructure to be in a usable state. The rebooted system will
-typically be stable enough to offer the full range of utilities,
-including up to date drivers for all possible devices, so you
-can safely write to disk, scp all the mess to your support
-critter, or post an automatic flame to linux-kernel :-)
+While it would be nice to have user-definable ACL groups ("my friends"
+or "History 255 TAs") in addition to existing users and groups, I still
+don't find this to be critical. Sure, it adds (possibly quite a bit of)
+extra data to every file, but it gives you the granularity you need for
+the situation I described.  It seems like user-definable ACL groups
+would be a nice extra feature on top of existing users or groups, but
+not a necessity.
 
-The weak points of the Mission Critical design are that early
-memory allocation in the kernel needs to be tightly controlled,
-that architectures that wipe CPU caches on reboot need to
-commit them to memory before the firmware restart, and that
-drivers need to be able to recover from an "unclean" hardware
-state. (I think we'll see much of the latter happen as kexec
-advances. The other two issues aren't really special.)
+> To make ACLs truly scalable, it would be nice to be able to
+> express permissions in terms of access to other filesystem
+> objects. E.g. "everybody who can read file ~me/acls/my_friends
+> can write the directory on which this ACE hangs". This should
+> work like a symlink, i.e. if I add new friends to my_friends, I
+> don't have to update all my ACLs.
 
-Actually, at the RAS BOF I thought that IBM were developing LKCD
-in this direction, and had also eliminated a few not so elegant
-choices of Mission Critical's original design. I haven't looked
-at the LKCD code, but the descriptions sound as if all the
-special-case cruft seems to be back again, which I would find a
-little disappointing.
+Ugh, that seems dangerous. Too many forgotten ACL links and then I could
+accidentally give a vague acquaintance access to all my data meant for
+close friends. 
 
-There might be a case for specialized low-overhead dump handlers
-for small embedded systems and such, but they're probably better
-maintained outside of the mainstream kernel. (They're more like
-firmware anyway.)
+Regardless, while ACLs do result in extra data per file being used, it
+is my understanding that ACLs allow you to solve problems that currently
+aren't solvable w/o administrator intervention. In my experience using
+them w/ AFS, they have been extremely useful. 
 
-- Werner
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+-john
+
+

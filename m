@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279632AbRJ0ATh>; Fri, 26 Oct 2001 20:19:37 -0400
+	id <S279607AbRJ0AN5>; Fri, 26 Oct 2001 20:13:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279633AbRJ0AT1>; Fri, 26 Oct 2001 20:19:27 -0400
-Received: from kullstam.ne.mediaone.net ([66.30.137.210]:3973 "HELO
-	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
-	id <S279632AbRJ0ATQ>; Fri, 26 Oct 2001 20:19:16 -0400
-From: "Johan Kullstam" <kullstam@ne.mediaone.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: old bug in sym53c8xx still lurks in 2.2.20pre
-In-Reply-To: <20011024235950.A25854@mail.harddata.com>
-Organization: none
-Date: 26 Oct 2001 20:19:32 -0400
-In-Reply-To: <20011024235950.A25854@mail.harddata.com>
-Message-ID: <m21yjqdje3.fsf@euler.axel.nom>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S279632AbRJ0ANs>; Fri, 26 Oct 2001 20:13:48 -0400
+Received: from four.malevolentminds.com ([216.177.76.238]:44303 "EHLO
+	four.malevolentminds.com") by vger.kernel.org with ESMTP
+	id <S279607AbRJ0AN2>; Fri, 26 Oct 2001 20:13:28 -0400
+Date: Sat, 27 Oct 2001 00:14:08 +0000 (GMT)
+From: Khyron <khyron@khyron.com>
+X-X-Sender: <khyron@four.malevolentminds.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.8+6.2.4 unable to mount root fs on 08:05
+Message-ID: <Pine.BSF.4.33.0110270013520.43580-100000@four.malevolentminds.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Jaegermann <michal@harddata.com> writes:
+I am using an AIC-7896 SCSI card in a VA Linux 2230.
+In a previous post, I had problems with getting the
+6.2.4 driver from Justin Gibbs to work at all. Now
+that I have moved past that one, this one is a little
+more esoteric.
 
-> Gerard Roudier posted at the beginning of an April a fix to a queue
-> handling in that driver which seems to be forgotten.  I was looking
-> through 2.2.20pre and found that the bug is still there.
-> 
-> There are two things about the bug - it may actually hit (some got it
-> while running cdparanoia) and if you look closer at the original code
-> you will see that it is quite suspicious. :-)
-> 
-> Here it is again the fix as posted by Gerard re-diffed against
-> 2.2.19something sources.  It still applies cleanly to 2.2.20pre11.
-> 
-> 
-> --- linux-2.2.19aa2/drivers/scsi/sym53c8xx.c.symx	Sun Mar 25 09:31:33 2001
-> +++ linux-2.2.19aa2/drivers/scsi/sym53c8xx.c	Fri Apr 27 10:39:16 2001
-> @@ -10125,14 +10125,13 @@
->  				if (i >= MAX_START*2)
->  					i = 0;
->  			}
-> -			assert(k != -1);
-> -			if (k != 1) {
-> +			if (k != -1) {
->  				np->squeue[k] = np->squeue[i]; /* Idle task */
->  				np->squeueput = k; /* Start queue pointer */
-> -				cp->host_status = HS_ABORTED;
-> -				cp->scsi_status = S_ILLEGAL;
-> -				ncr_complete(np, cp);
->  			}
-> +			cp->host_status = HS_ABORTED;
-> +			cp->scsi_status = S_ILLEGAL;
-> +			ncr_complete(np, cp);
->  		}
->  		break;
->  	/*
-> 
-> Hm, I should possibly check the latest 2.4s as well.
+The 2.4.8+6.2.4 kernel is installed and configured
+correctly. The 6.2.4 driver is statically linked into the
+kernel and all SCSI information displays fine at system
+boot. However, I am getting the message:
 
-i just checked 2.4.14-pre2 and this patch is in there.  i didn't check
-on older version or when it arrived so it may be in 2.4.X going way
-back.
+"Unable to mount root fs on 08:05"
 
--- 
-J o h a n  K u l l s t a m
-[kullstam@mediaone.net]
+and associated panic at boot.
+
+So, since I can see the driver, and the same driver is
+being used for the installation kernel image (same kernel
+release too), I can't come up with an explanation for
+the kernel's failure to find the root fs.
+
+What can I do to troubleshoot this? What information would
+be helpful?
+
+Thoughts/comments/suggestions welcome. Thanks in advance!
+
+
+"Everyone's got a story to tell, and everyone's got some pain.
+ And so do you. Do you think you are invisble?
+ And everyone's got a story to sell, and everyone is strange.
+ And so are you. Did you think you were invincible?"
+ 	- "Invisible", Majik Alex
+
+

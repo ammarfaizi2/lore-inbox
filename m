@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbTHTTDw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 15:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTHTTDw
+	id S262169AbTHTTbM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 15:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbTHTTbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 15:03:52 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:58857
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262148AbTHTTDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 15:03:50 -0400
-Message-ID: <3F43C5D4.9010704@redhat.com>
-Date: Wed, 20 Aug 2003 12:02:44 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
-X-Accept-Language: en-us, en
+	Wed, 20 Aug 2003 15:31:11 -0400
+Received: from webmail.altiris.com ([64.90.198.5]:16989 "EHLO
+	webmail.altiris.com") by vger.kernel.org with ESMTP id S262169AbTHTTbK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 15:31:10 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: trond.myklebust@fys.uio.no
-CC: Andries Brouwer <aebr@win.tue.nl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS regression in 2.6
-References: <3F4268C1.9040608@redhat.com>	<shszni499e9.fsf@charged.uio.no>	<20030820192409.A2868@pclin040.win.tue.nl> <16195.49464.935754.526386@charged.uio.no>
-In-Reply-To: <16195.49464.935754.526386@charged.uio.no>
-X-Enigmail-Version: 0.81.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: 48-bit Drives Incorrectly reporting 255 Heads?
+Date: Wed, 20 Aug 2003 13:31:08 -0600
+Message-ID: <88A7BC80FA2797498AF6D865CAD3EA43180E95@iceman.altiris.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 48-bit Drives Incorrectly reporting 255 Heads?
+Thread-Index: AcNnUZHIlzrV20pMQz2H5RAqp7PARg==
+From: "John Riggs" <jriggs@altiris.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Aug 2003 19:31:09.0328 (UTC) FILETIME=[9B600900:01C36751]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+  With the 2.4.20 kernel, I have a 40GB disk with 240 heads, with 48-bit
+mode enabled. The Linux ide driver automatically declares that anything
+with 48-bit mode enabled has 255 heads. This is a problem, as I am
+writing a utility to fix up a Windows PBR, and the PBR relies on the
+head count as counted by the BIOS.
+  The Linux code in question is in ide-disk.c:
 
-Trond Myklebust wrote:
+  if (id->cfs_enable_2 & 0x0400) {
+    .
+    drive->head = drive->bios_head = 255;
+    .
+  }
 
-> In short the scenario should be that
-> 
->   - mkstemp() does an open(O_EXCL) -> nfs_lookup() creates hashed
->     negative dentry -> nfs_create() then does an O_EXCL call to the
->     server and instantiates the dentry.
-> 
->   - unlink() walks the pathname -> finds the existing dentry using
->     cached_lookup() and only calls down to nfs_lookup_revalidate().
+  What I would like to do is change the above to:
 
-Sounds reasonable especially since the dup() call in my original example
-isn't necessary.  So, the shortened test case is this:
+  if (id->cfs_enable_2 & 0x0400) {
+    .
+    drive->head = 255;
+    .
+  }
 
-#include <errno.h>
-#include <error.h>
-#include <stdlib.h>
-#include <unistd.h>
-int
-main (void)
-{
-  char tmp[] = "estale-test.XXXXXX";
-  int fd = mkstemp (tmp);
-  if (fd == -1)
-    error (EXIT_FAILURE, errno, "mkstemp failed");
-  if (unlink (tmp) != 0)
-    error (EXIT_FAILURE, errno, "unlink '%s' failed", tmp);
-  if (ftruncate (fd, 0) != 0)
-    error (EXIT_FAILURE, errno, "ftruncate failed");
-  return 0;
-}
+  Thereby not changing the bios head count. My initial tests seem to
+have worked okay, with the correct geometry getting reported. Can
+anybody point out to me why this will break something else?
+  Two more specific questions are:
+    1) Will this break drives > 137 GB?
+    2) Why would the head count be set to 255 in the first place?
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD4DBQE/Q8XU2ijCOnn/RHQRAtMYAJ9CgabR0FdQFG8Sobkrfv9aKloDmQCWN28G
-QUj8oMiKWM7v61yupENQ+Q==
-=fzKm
------END PGP SIGNATURE-----
-
+Thank you,
+John Riggs

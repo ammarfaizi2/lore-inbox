@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132770AbRDDITj>; Wed, 4 Apr 2001 04:19:39 -0400
+	id <S132771AbRDDI1V>; Wed, 4 Apr 2001 04:27:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132773AbRDDIT3>; Wed, 4 Apr 2001 04:19:29 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:266 "EHLO se1.cogenit.fr")
-	by vger.kernel.org with ESMTP id <S132771AbRDDITQ>;
-	Wed, 4 Apr 2001 04:19:16 -0400
-Date: Wed, 4 Apr 2001 10:18:11 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
+	id <S132772AbRDDI1L>; Wed, 4 Apr 2001 04:27:11 -0400
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:64269 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S132771AbRDDI05>; Wed, 4 Apr 2001 04:26:57 -0400
+Date: Wed, 4 Apr 2001 09:26:10 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Juan <piernas@ditec.um.es>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: configuring net interfaces
-Message-ID: <20010404101811.A6803@se1.cogenit.fr>
-In-Reply-To: <Pine.LNX.3.96.1010401165413.28121X-100000@mandrakesoft.mandrakesoft.com> <m31yrbce2m.fsf@intrepid.pm.waw.pl> <20010403102734.A27344@se1.cogenit.fr> <m3g0fq9loq.fsf@intrepid.pm.waw.pl>
+Subject: Re: [SOLVED]Re: 2.2.19 && ppa: total lockup. No problem with 2.2.17
+Message-ID: <20010404092610.P9355@redhat.com>
+In-Reply-To: <20010330152921.Q10553@redhat.com> <Pine.LNX.4.21.0103310156530.23634-100000@ditec.um.es> <20010403173839.I9355@redhat.com> <3ACA55D5.FC2E444C@ditec.um.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="i7KxW38SoMauyveo"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3g0fq9loq.fsf@intrepid.pm.waw.pl>; from khc@intrepid.pm.waw.pl on Tue, Apr 03, 2001 at 03:07:01PM +0200
-X-Organisation: Marie's fan club - I
+In-Reply-To: <3ACA55D5.FC2E444C@ditec.um.es>; from piernas@ditec.um.es on Wed, Apr 04, 2001 at 12:59:33AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa <khc@intrepid.pm.waw.pl> écrit :
-[...]
-> But it's still more complicated than the first one and I'm not sure 
-> if doing that is worth it
-> 
-> > struc sub_req {
-> > 	int sub_ioctl;
-> 
-> ... as we lose 4 bytes here (currently the union of structs in ifreq
-> is limited to 16 bytes)
 
-I missed that. Point taken.
+--i7KxW38SoMauyveo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-[...]
-> struct ifreq {
->         char name[16];
->         union {
->                 ...
->                 struct {
->                         int sub_command;
->                         int data_length;
->                         void *data;
->                 }
->         }ifru;
-> }
-> 
-> ... while "data" would be fr_protocol, eth_physical etc.
-> 
-> It's (of course) more complicated, but there is a gain:
-> - we can have different size requests (from 0 bytes to, say, 100KB)
+On Wed, Apr 04, 2001 at 12:59:33AM +0200, Juan wrote:
 
-Fine with me (some day we'll surely end passing those data via a read if we
-need 300Mo but we're not there :o) ).
+> I have the same problem in two different machines but they both are UP.
+> However, my kernel configuration has SMP support enabled.
 
-[Other points]
+Could you build a kernel without SMP support and see if the problem
+still happens?
 
-Yes.
+> options parport_pc io=0x378 irq=7
 
--- 
-Ueimor
+You could remove this line, just to see if it makes a difference (it
+shouldn't, but it might).
+
+> I stop klogd and syslogd services (that causes to display all kernel
+> messages on screen, doesn't it?
+
+Better is something like 'dmesg -n 8'.
+
+Thanks,
+Tim.
+*/
+
+--i7KxW38SoMauyveo
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6ytqiONXnILZ4yVIRAi2hAKCdG5STL5jOvzIi/XuXPc103kSPxQCfUpeQ
+zHOG6/dz+o5EVPH050Bs41s=
+=aMoH
+-----END PGP SIGNATURE-----
+
+--i7KxW38SoMauyveo--

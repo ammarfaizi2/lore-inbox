@@ -1,86 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262901AbSKHXOn>; Fri, 8 Nov 2002 18:14:43 -0500
+	id <S262887AbSKHXTS>; Fri, 8 Nov 2002 18:19:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262914AbSKHXOn>; Fri, 8 Nov 2002 18:14:43 -0500
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:56454 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262901AbSKHXOm> convert rfc822-to-8bit; Fri, 8 Nov 2002 18:14:42 -0500
+	id <S262914AbSKHXTS>; Fri, 8 Nov 2002 18:19:18 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34323 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262887AbSKHXTR>; Fri, 8 Nov 2002 18:19:17 -0500
+Date: Fri, 8 Nov 2002 23:25:55 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Martin Diehl <lists@mdiehl.de>
+Cc: Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [Serial 2.5]: packet drop problem (FE ?)
+Message-ID: <20021108232555.E24905@flint.arm.linux.org.uk>
+Mail-Followup-To: Martin Diehl <lists@mdiehl.de>,
+	Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20021108024058.GA1266@bougret.hpl.hp.com> <Pine.LNX.4.44.0211081308190.1320-100000@notebook.home.mdiehl.de>
 Mime-Version: 1.0
-Message-Id: <p05111b00b9f1ef8c20e1@[193.251.15.192]>
-In-Reply-To: <200211081956.26946.faure@kde.org>
-References: <200211081956.26946.faure@kde.org>
-Date: Sat, 9 Nov 2002 00:20:30 +0100
-To: David Faure <faure@kde.org>, Paul Larson <plars@linuxtestproject.org>,
-       Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-From: Waldo Bastian <bastian@kde.org>
-Subject: Re: 2.5.46-mm1: CONFIG_SHAREPTE do not work with KDE 3
-Cc: Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="iso-8859-1" ; format="flowed"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0211081308190.1320-100000@notebook.home.mdiehl.de>; from lists@mdiehl.de on Fri, Nov 08, 2002 at 11:34:18PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Am Freitag, 8. November 2002 19:18 schrieb Paul Larson:
->>  On Wed, 2002-11-06 at 22:53, Andrew Morton wrote:
->>  > Dieter Nützel wrote:
->>  > > When I enable shared 3rd-level pagetables between processes KDE 3.0.x
->>  > > and KDE 3.1 beta2 at least do not work.
->>  >
->>  > Yup.  That's a bug which happens to everyone in the world
->>  > except Dave :(
->>
->>  I've tried to reproduce this also on a RH 7.3 box.  ksmserver is
->>  running, but strace says it's stuck on a select() call.  There are no
->>  kernel messages, but I got this from startx:
->>
->>  DCOPServer up and running.
->>  Warning: connect() failed: : Connection refused
->
->That's similar to mine.
+On Fri, Nov 08, 2002 at 11:34:18PM +0100, Martin Diehl wrote:
+> The next to know is whether irtty_receive_buf() reports any "Framing or 
+> parity error"? IIRC with IGNPAR set we should neither get parity nor 
+> framing errors reported and it seems this is how serial8250_change_speed()
+> deals with ignore_status_mask. But wait - yes, 8250's receive_chars() 
+> seems to accept the character,
 
-Not sure where that comes from, it's either someone who tries to make 
-connection to ksmserver for the purpose of session management or it 
-is someone who tries to connect to the dcop server. It would surprise 
-me somewhat if it is the dcop server because the dcopserver has a 
-self-test and that apparently has succeeded.
+Correct.
 
-It says "KDE does not work" but it doesn't mention to what degree. 
-Does nothing show up? By the time ksmserver gets executed already a 
-bunch of KDE processes should be running, what happens with them?
+> but set TTY_FRAME anyway.
 
-You may want to try to start the various KDE components one by one:
+Only if INPCK is set.  If it's clear, then it will ignore framing and
+parity errors.  (Irrespective of this, it will still internally count
+them for statistical purposes, just like 2.4 used to.)
 
-* dcopserver, it's workings can be tested by running the dcop command.
-* kbuildsycoca, it should build/verify the sycoca database (see 
-/tmp/kde-$USER/ksycoca)
-* kdeinit, this should start another 4 processes or so
-* kedit, simple application
-* kwin, window manager, your kedit should now get a window border
-* 'kdeinit_wrapper kedit', the same application but now started through kdeinit
-* ksmserver
-* 'kdeinit_wrapper kedit', the same application but it should now 
-connect to ksmserver for session management purposes.
+However, since INPCK is clear (from the info Jean's already sent) you'll
+receive the character a TTY_NORMAL flag, even though the hardware flagged
+an error.
 
-You may also want to test what happens when you start ksmserver with 
-'kdeinit_wrapper ksmserver'
+> Ok, I think what might happen is you are receiving some kind of IR-noise 
+> (maybe environment, maybe reflected, maybe dongle echo) causing bytes with 
+> framing errors to get passed to and handled by irtty in one go with the 
+> beginning of the first byte(s) from the next incoming frame. Thus we 
+> discard the BOF and the whole frame is missed :-(
 
-ksmserver, when idle, hangs in a select() waiting for input on some 
-sockets, including the connection with the X server, (as part of the 
-Qt event loop) not sure if that select call sets a timeout as well. 
-You say it "hangs in select", I'm not sure if you mean with that "is 
-stuck in select()" or just "waits for select to return", but the 
-latter would be the normal idle state for most KDE applications. They 
-often (always?) have a timeout set though.
+Maybe the problem is that you want to discard the bad byte (by flagging
+it with a non-TTY_NORMAL flag.)
 
-Since you guys seems to be working page-tables the problems may be 
-related to kdeinit which forks and then loads applications in the 
-form of libraries. That usage pattern is somewhat different from the 
-more common fork() + exec() combination. The exec() basically never 
-happens.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Hope this helps a bit.
-
-Cheers,
-Waldo

@@ -1,33 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVAHNVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVAHNY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVAHNVn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 08:21:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVAHNVm
+	id S261162AbVAHNY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 08:24:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVAHNY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 08:21:42 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:18630 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S261161AbVAHNVi (ORCPT
+	Sat, 8 Jan 2005 08:24:58 -0500
+Received: from mail.sf-mail.de ([62.27.20.61]:37845 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S261162AbVAHNYo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 08:21:38 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andreas Hartmann <andihartmann@01019freenet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ksymoops 2.4.10 segfaults 
-In-reply-to: Your message of "Sat, 08 Jan 2005 12:01:57 BST."
-             <croej5$5b8$1@pD9F86D6F.dip0.t-ipconnect.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 09 Jan 2005 00:21:29 +1100
-Message-ID: <29969.1105190489@ocs3.ocs.com.au>
+	Sat, 8 Jan 2005 08:24:44 -0500
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] s/driverfs/sysfs/ in init/do_mounts.c
+Date: Fri, 7 Jan 2005 13:49:07 +0100
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501071349.08553.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 08 Jan 2005 12:01:57 +0100, 
-Andreas Hartmann <andihartmann@01019freenet.de> wrote:
->ksymoops segfaults in object.c while computing cmd_strlen, because
->options->target is defined 'null':
+Hi,
 
-I have a fix for this in my ksymoops inbox.  It will be released as
-part of ksymoops 2.4.11 later today my time.
+since driverfs has been renamed to sysfs long time ago this comments should 
+be fixed.
 
+Eike
+
+Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+
+--- linux-2.6.10/init/do_mounts.c	2004-12-24 22:34:31.000000000 +0100
++++ linux-2.6.10/init/do_mounts.c.fixed	2005-01-07 13:42:02.406392368 +0100
+@@ -127,10 +127,10 @@ fail:
+  *	   used when disk name of partitioned disk ends on a digit.
+  *
+  *	If name doesn't have fall into the categories above, we return 0.
+- *	Driverfs is used to check if something is a disk name - it has
++ *	Sysfs is used to check if something is a disk name - it has
+  *	all known disks under bus/block/devices.  If the disk name
+- *	contains slashes, name of driverfs node has them replaced with
+- *	bangs.  try_name() does the actual checks, assuming that driverfs
++ *	contains slashes, name of sysfs node has them replaced with
++ *	bangs.  try_name() does the actual checks, assuming that sysfs
+  *	is mounted on rootfs /sys.
+  */
+ 

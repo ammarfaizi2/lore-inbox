@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbTIXQia (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 12:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbTIXQi3
+	id S261480AbTIXQdm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 12:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTIXQdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 12:38:29 -0400
-Received: from lpbproductions.com ([68.98.208.147]:25018 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S261488AbTIXQi2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 12:38:28 -0400
-From: Matt Heler <lkml@lpbproductions.com>
-To: Scott Robert Ladd <coyote@coyotegulch.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minimizing the Kernel
-Date: Wed, 24 Sep 2003 09:39:01 -0700
-User-Agent: KMail/1.5.9
-References: <3F71C712.9070503@coyotegulch.com>
-In-Reply-To: <3F71C712.9070503@coyotegulch.com>
+	Wed, 24 Sep 2003 12:33:42 -0400
+Received: from lvs00-fl-n06.valueweb.net ([216.219.253.152]:34988 "EHLO
+	ams006.ftl.affinity.com") by vger.kernel.org with ESMTP
+	id S261480AbTIXQdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 12:33:41 -0400
+Message-ID: <3F71C712.9070503@coyotegulch.com>
+Date: Wed, 24 Sep 2003 12:32:18 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030908 Debian/1.4-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Minimizing the Kernel
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200309240939.02316.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well for starters dont use gcc 3 or above.. code size has increased 
-dramatically with thoose versions. sure they give you more optimization , but 
-if your looking for a small kernel use anything below 3..
+I want to created the smallest, fastest kernel that supports all the 
+necessary features of a given system.
 
-Matt H.
+Obviously, the answer is very system dependent, requiring a keen 
+knowledge of the relationships between hardware and Linux components.
 
-On Wednesday 24 September 2003 09:32 am, Scott Robert Ladd wrote:
-> I want to created the smallest, fastest kernel that supports all the
-> necessary features of a given system.
->
-> Obviously, the answer is very system dependent, requiring a keen
-> knowledge of the relationships between hardware and Linux components.
->
-> Unless I'm missing something (always a possibility), the kernel
-> configurations do not provide a clear idea of component size. In other
-> words, if I include "burfulgunk port support" in my kernel build, I'd
-> like to have a rough idea of the component's size. I might not need to
-> support the "burfulgunk", especially if it's a large component (for,
-> say, a legacy port.)
->
-> I'm well aware that code sizes differ between platforms; I'm looking for
-> general information, as a guideline to generating a small kernel.
+Unless I'm missing something (always a possibility), the kernel 
+configurations do not provide a clear idea of component size. In other 
+words, if I include "burfulgunk port support" in my kernel build, I'd 
+like to have a rough idea of the component's size. I might not need to 
+support the "burfulgunk", especially if it's a large component (for, 
+say, a legacy port.)
+
+I'm well aware that code sizes differ between platforms; I'm looking for 
+general information, as a guideline to generating a small kernel.
+
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
+Software Invention for High-Performance Computing
+

@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290828AbSAaB5i>; Wed, 30 Jan 2002 20:57:38 -0500
+	id <S290825AbSAaB5s>; Wed, 30 Jan 2002 20:57:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290827AbSAaB53>; Wed, 30 Jan 2002 20:57:29 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:39394 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S290825AbSAaB5Q>;
-	Wed, 30 Jan 2002 20:57:16 -0500
-Date: Wed, 30 Jan 2002 20:57:14 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
-Message-ID: <20020130205714.B20698@havoc.gtf.org>
-In-Reply-To: <20020130201754.B18730@havoc.gtf.org> <7417.1012441910@kao2.melbourne.sgi.com>
+	id <S290827AbSAaB5i>; Wed, 30 Jan 2002 20:57:38 -0500
+Received: from bitmover.com ([192.132.92.2]:60844 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S290825AbSAaB5a>;
+	Wed, 30 Jan 2002 20:57:30 -0500
+Date: Wed, 30 Jan 2002 17:57:29 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Rob Landley <landley@trommello.org>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Eli Carter <eli.carter@inet.com>,
+        Georg Nikodym <georgn@somanetworks.com>, Ingo Molnar <mingo@elte.hu>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020130175729.N22323@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Rob Landley <landley@trommello.org>, Larry McVoy <lm@bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Eli Carter <eli.carter@inet.com>,
+	Georg Nikodym <georgn@somanetworks.com>,
+	Ingo Molnar <mingo@elte.hu>, Rik van Riel <riel@conectiva.com.br>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Alexander Viro <viro@math.psu.edu>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C586C8D.2C100509@inet.com> <Pine.LNX.4.33.0201301408290.2618-100000@penguin.transmeta.com> <20020130143608.I22323@work.bitmover.com> <20020130231701.FKGV22669.femail15.sdc1.sfba.home.com@there>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <7417.1012441910@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, Jan 31, 2002 at 12:51:50PM +1100
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020130231701.FKGV22669.femail15.sdc1.sfba.home.com@there>; from landley@trommello.org on Wed, Jan 30, 2002 at 06:18:11PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 12:51:50PM +1100, Keith Owens wrote:
-> tend not to live very long.  Christoph Hellwig suggested a Makefile
-> change that prevents kernel code including user space headers, it is
-> included in kbuild 2.5 and there is a 2.4 version in
+On Wed, Jan 30, 2002 at 06:18:11PM -0500, Rob Landley wrote:
+> > And you just lost some useful information.  The fact that so-and-so did
+> > fix A and then did B is actually useful.  It tells me that A didn't work
+> > and B does.  You think it's "crap" and by tossing it dooms all future
+> > developers to rethink the A->B transition.
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=100321690511549&w=2
+> <rant>
 
-Patch looks ok to me...  The only thing I wonder is if we should put
-kernel includes before gcc includes, just in case we want to override
-something.
+I'll see your rant and raise you a nickel.
 
-I would support putting this in the default cflags for 2.4 and 2.5...
+> If developers can't ever make temporary changes to their tree which they do 
+> NOT intend to send to linus, they can't FUNCTION.  (Except my not doing 
+> development in said tree.)
 
-	Jeff
+Of course they can do that.  They get to decide what they push and
+what they don't.  I don't think you understand BK.  What we are talking
+about is the problem that the change has been committed to CVS, other
+changes are built on top of it, and now Linus realizes that the change
+was bad news.  The problem is extracting stuff out of the middle which
+has already been built upon for more stuff.  How would you propose solving
+that problem because that is the problem statement?
 
-
-
+If someone sends Linus a patch, he checks into BK or CVS or whatever,
+he then gets 5 other patches and applies them in BK/CVS, and THEN he
+wants to take out the first patch, how would you suggest we do that?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

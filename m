@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270359AbRHHGoP>; Wed, 8 Aug 2001 02:44:15 -0400
+	id <S270361AbRHHGqF>; Wed, 8 Aug 2001 02:46:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270358AbRHHGoF>; Wed, 8 Aug 2001 02:44:05 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:44680 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270361AbRHHGnw>; Wed, 8 Aug 2001 02:43:52 -0400
-Date: Wed, 8 Aug 2001 00:43:58 -0600
-Message-Id: <200108080643.f786hwk15743@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: devfsd-v1.3.13 available
+	id <S270358AbRHHGp4>; Wed, 8 Aug 2001 02:45:56 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:4883 "EHLO neon-gw.transmeta.com")
+	by vger.kernel.org with ESMTP id <S270361AbRHHGpt>;
+	Wed, 8 Aug 2001 02:45:49 -0400
+Date: Tue, 7 Aug 2001 23:43:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [PATCH] total_free_shortage() using zone_free_shortage()
+In-Reply-To: <Pine.LNX.4.33.0108072248070.925-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0108072327550.920-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. I've just released version 1.3.13 of my devfsd (devfs
-daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
 
-Tarball directly available from:
-ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
+On Tue, 7 Aug 2001, Linus Torvalds wrote:
+>
+> The current patch "zone_free_plenty()" logic also happens to be just at
+> the corner of what __alloc_pages() thinks is good, so the anti-hysteresis
+> doesn't actually end up working in that sense - we end up bouncing around
+> that magic "pages_high" value.
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
+The same, it seems, is true of "total_free_shortage()", and the zone
+"pages_low" corner.
 
-This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
-(or later).
+We start up kswapd when the free count shrinks below "pages_low", so we
+should keep kswapd running for longer than that, and I think your version
+of "zone_free_shortage()" was thus the better one - using pages_high as
+the point where we no longer think there is a shortage.
 
-The main changes are:
+We should really document the ranges clearly. Right now (with these
+changes), the ranges would be (with users in parenthesis):
 
-- Added support for DELETE event
+ inactive (free + inactive_clean + inactive_dirty):
 
-- Added debug trace to <action_modload>
+	low water mark: zone->pages_high	(zone_inactive_shortage, total_inactive_shortage)
+	high water mark: zone->size / 3		(zone_inactive_plenty)
 
-- Added compatibility entry support for SCSI discs 16 to 127
+ free (free + inactive_clean):
 
-- Added support for recursively reading config directories
+	low water mark: zone->pages_high	(__alloc_pages, zone_free_shortage)
+	high water mark: zone->pages_high*2	(zone_free_plenty)
 
-- Documentation updates.
+ reclaim (free):
 
-				Regards,
+	low water mark: zone->pages_min		(__alloc_pages)
+	high water mark: zone->pages_low	(kreclaimd)
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+and they now sem to (a) always have a nice hysteresis region (ie low is
+clearly smaller than high, once the free+inactive_clean case has been
+fixed) and (b) the different low/high water mark users seem to agree.
+
+Looks reasonably sane to me. Can anybody find a case where we use
+conflicting low/high watermarks?
+
+		Linus
+

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317159AbSEXOxx>; Fri, 24 May 2002 10:53:53 -0400
+	id <S317160AbSEXOya>; Fri, 24 May 2002 10:54:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317158AbSEXOxw>; Fri, 24 May 2002 10:53:52 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34558 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S317149AbSEXOxu>; Fri, 24 May 2002 10:53:50 -0400
-Date: Fri, 24 May 2002 10:53:48 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: negative dentries wasting ram
-Message-ID: <20020524105348.T13411@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <20020524071657.GI21164@dualathlon.random> <Pine.LNX.4.44.0205240737400.26171-100000@home.transmeta.com>
+	id <S317161AbSEXOy3>; Fri, 24 May 2002 10:54:29 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:61106 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317160AbSEXOy0>;
+	Fri, 24 May 2002 10:54:26 -0400
+Date: Fri, 24 May 2002 16:54:17 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Oleg Drokin <green@namesys.com>,
+        "Gryaznova E." <grev@namesys.botik.ru>, martin@dalecki.de,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: [reiserfs-dev] Re: IDE problem: linux-2.5.17
+Message-ID: <20020524165417.C10656@ucw.cz>
+In-Reply-To: <3CECF59B.D471F505@namesys.botik.ru> <3CECFC5B.3030701@evision-ventures.com> <20020523193959.A2613@namesys.com> <3CED004A.6000109@evision-ventures.com> <20020524005057.F27005@ucw.cz> <3CEE1DFE.4080500@evision-ventures.com> <20020524151536.C636@ucw.cz> <3CEE2EE2.1040407@evision-ventures.com> <20020524152054.F636@ucw.cz> <3CEE42D0.8090004@evision-ventures.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 07:43:32AM -0700, Linus Torvalds wrote:
+On Fri, May 24, 2002 at 03:40:32PM +0200, Martin Dalecki wrote:
+> U¿ytkownik Vojtech Pavlik napisa³:
 > 
+> >>Hey what I'm talking about is the "physics" of the hardware.
+> >>But I would rather expect sane hardware to deal with it transparently
+> >>to the programmer of the setup registers.
+> > 
+> > 
+> > Well, when I hear "timer" I think "engineering", not "physics". And a
+> > timer would have to be visible somewhere. I really don't think the
+> > controller can tell how many drives it sees unless it measures the
+> > termination resistance or somesuch.
 > 
-> On Fri, 24 May 2002, Andrea Arcangeli wrote:
-> >
-> > Negative dentries should be only temporary entities, for example between
-> > the allocation of the dentry and the create of the inode, they shouldn't
-> > be left around waiting the vm to collect them.
+> Jak siê zwa³ tak siê zwa³, byle by siê dobrze mia³ :-).
 > 
-> Wrong. Negative dentries are very useful for caching negative lookups:
-> look at the average startup sequence of any program linked with glibc, and
-> depending on your setup you will notice how it tries to open a _lot_ of a
-> files that do not exist (the "depending on your setup" comes from the fact
-> that it depends on things like how quickly it finds your "locale" setup
-> from its locale path - you may have one of the setups that puts it in the
-> first location glibc searches etc).
+> Anyway measuring the termination resistance is rather trivial
+> from the electrical point of view...
 
-In glibc 2.3 this will be open("/usr/lib/locale/locale-archive", ), so
-negative dentries won't be useful for glibc locale handling (that
-doesn't mean negative dentries won't be useful for other things, including
-exec?p or searching libraries if $LD_LIBRARY_PATH is used).
+Yes, but trust me that if they don't absolutely have to do it to make it
+work, they won't do it. IDE hardware is cheap in the first place.
 
-	Jakub
+-- 
+Vojtech Pavlik
+SuSE Labs

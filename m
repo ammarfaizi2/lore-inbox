@@ -1,34 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318778AbSICNhO>; Tue, 3 Sep 2002 09:37:14 -0400
+	id <S317984AbSICONE>; Tue, 3 Sep 2002 10:13:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318780AbSICNhO>; Tue, 3 Sep 2002 09:37:14 -0400
-Received: from 62-190-219-194.pdu.pipex.net ([62.190.219.194]:30727 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S318778AbSICNhN>; Tue, 3 Sep 2002 09:37:13 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209031348.g83Dm0Jb003201@darkstar.example.net>
-Subject: Re: [kde-linux] Can't find qt libs...
-To: gene_heskett@iolinc.net (Gene Heskett)
-Date: Tue, 3 Sep 2002 14:48:00 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, kde-linux@mail.kde.org
-In-Reply-To: <200209030904.49101.gene_heskett@iolinc.net> from "Gene Heskett" at Sep 03, 2002 09:04:49 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S318284AbSICONE>; Tue, 3 Sep 2002 10:13:04 -0400
+Received: from [208.33.57.99] ([208.33.57.99]:25048 "EHLO
+	radioflyer.ibocradio.com") by vger.kernel.org with ESMTP
+	id <S317984AbSICONE>; Tue, 3 Sep 2002 10:13:04 -0400
+Message-ID: <3D74C45F.7040006@ieee.org>
+Date: Tue, 03 Sep 2002 10:17:03 -0400
+From: "D. Sen" <dsen@ieee.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: sfr@canb.auug.org.au
+CC: "D. Sen" <dsen@ieee.org>, hy0 <hy0@ipoline.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: laptop screen apm problems
+References: <3D6E418A.6010903@ieee.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Sep 2002 14:17:31.0865 (UTC) FILETIME=[A44CCC90:01C25354]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And its not just kde. I have several things that won't configure 
-> because the *&%&^%$ libqt-mt.so in >= qt-3.0.2 can't be found.  
-> There are 4 copies of 3.0.4 scattered about my system.  Its a real 
-> problem that so far evertone seems to think will go away if our 
-> $QTDIR is set correctly, and/or we use the --with-qt-libs= options.
+Hi Steve,
+
+Not having heard from you, I decided to tinker with apm.c to see if I 
+could solve the problem. In particular I compared it with the 2.4.18 
+apm.c (I had no problems with 2.4.18). The following seems to fix my 
+problem.
+
+Changing line 1786 in apm.c (from the 2.4.19 kernel tree) from:
+			idle_period = simple_strtol(str + 12, NULL, 0);
+
+to:
+			idle_period = simple_strtol(str + 15, NULL, 0);
+
+solves the problem.
+
+DS
+
+D. Sen wrote:
+> Hi Steve,
 > 
-> It doesn't go away no matter how much the rest of this list wishes 
-> *we* would.
+> I am experiencing some intermittent problems trying to suspend my 
+> laptop. The laptop (IBM Thinkpad T30) seems to suspend fine after using 
+> 'apm -s' or the Fn+F4 key stroke, but a miniscule of a second later, the 
+> LCD screen turns back on with a weird display. Going through the 
+> resume-suspend cycle a few times, I can usually get the machine to 
+> eventually suspend correctly.
+> 
+> It seems like not enough time is given for the LCD to turn off correctly.
+> 
+> In fact, when the problem happens if I do an 'apm -S' (or Fn+F3, to just 
+> turn the screen off) and then quickly follow it up using an 'apm -s' or 
+> Fn+F4, I usually get the correct suspend behaviour.
+> 
+> Any ideas?
+> 
+> Thanks,
+> DS
+> 
 
-Err, it sounds to me like you are not running ldconfig after installing a library.  Are you?
 
-John.

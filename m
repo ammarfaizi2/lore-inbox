@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262798AbTJJO0U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 10:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbTJJO0P
+	id S261735AbTJJOZk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 10:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbTJJOZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 10:26:15 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:30928 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262785AbTJJO0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 10:26:11 -0400
-Subject: Re: Linksys/Cisco GPL Violations
-From: David Woodhouse <dwmw2@infradead.org>
-To: Florian Schirmer <jolt@tuxbox.org>
-Cc: linux-kernel@vger.kernel.org, David Turner <novalis@fsf.org>,
-       andrew@mikl.as, rob@nocat.net
-In-Reply-To: <02b001c38f39$72baabd0$9602010a@jingle>
-References: <1064859766.20847.33983.camel@banks>
-	 <1065428944.22491.169.camel@hades.cambridge.redhat.com>
-	 <01f301c38f2f$b1a7e0b0$9602010a@jingle>
-	 <1065791790.24015.238.camel@hades.cambridge.redhat.com>
-	 <023501c38f32$2b83caa0$9602010a@jingle>
-	 <1065793144.24015.274.camel@hades.cambridge.redhat.com>
-	 <02b001c38f39$72baabd0$9602010a@jingle>
-Content-Type: text/plain
-Message-Id: <1065795953.24015.329.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Fri, 10 Oct 2003 15:25:54 +0100
+	Fri, 10 Oct 2003 10:25:40 -0400
+Received: from WARSL402PIP8.highway.telekom.at ([195.3.96.97]:40513 "HELO
+	email01.aon.at") by vger.kernel.org with SMTP id S261735AbTJJOZi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 10:25:38 -0400
+From: Gregor Burger <gregor.burger@aon.at>
+To: linux-kernel@vger.kernel.org
+Subject: nforce2 unknown memory device
+Date: Fri, 10 Oct 2003 16:25:57 +0200
+User-Agent: KMail/1.5.9
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <dwmw2@infradead.org>
+Message-Id: <200310101625.57372.gregor.burger@aon.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-10-10 at 16:18 +0200, Florian Schirmer wrote:
-> Dont get me wrong. I agreee that there are still issues with the wireless
-> driver. IMHO binary modules aren't legal at all. I just don't wanted to
-> start the binary discussion and therefore posted the misleading statement.
+hi
 
-OK. Let's agree that your statement was indeed slightly misleading (it
-certainly misled me) and drop the discussion, lest we incur the wrath of
-davem again :)
+linux is not able to detect all the memory installed on my mainboard.
+my kernel is 2.4.22 but i tried 2.4.23pre2, 2.6.0-test3-6[mm3].
+i tried with 4gb and without. 
 
--- 
-dwmw2
+lspci schows:
+00:00.0 Host bridge: nVidia Corporation: Unknown device 01e0 (rev c1)
+00:00.1 RAM memory: nVidia Corporation: Unknown device 01eb (rev c1)
+00:00.2 RAM memory: nVidia Corporation: Unknown device 01ee (rev c1)
+00:00.3 RAM memory: nVidia Corporation: Unknown device 01ed (rev c1)
+00:00.4 RAM memory: nVidia Corporation: Unknown device 01ec (rev c1)
+00:00.5 RAM memory: nVidia Corporation: Unknown device 01ef (rev c1)
+00:01.0 ISA bridge: nVidia Corporation nForce2 ISA Bridge (rev a3)
+00:01.1 SMBus: nVidia Corporation nForce2 SMBus (MCP) (rev a2)
+00:02.0 USB Controller: nVidia Corporation nForce2 USB Controller (rev a3)
+00:02.1 USB Controller: nVidia Corporation nForce2 USB Controller (rev a3)
+00:02.2 USB Controller: nVidia Corporation nForce2 USB Controller (rev a3)
+00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet Controller 
+(rev a1)
+00:06.0 Multimedia audio controller: nVidia Corporation nForce2 AC97 Audio 
+Controler (MCP) (rev a1)
+00:08.0 PCI bridge: nVidia Corporation: Unknown device 006c (rev a3)
+00:09.0 IDE interface: nVidia Corporation nForce2 IDE (rev a2)
+00:1e.0 PCI bridge: nVidia Corporation nForce2 AGP (rev c1)
+
+i tried to switch the memory sticks but nothing. when i install 1024 MB 
+ram linux detects 1008; with 512 i get 502.
+
+the xserver can't init agp with the error xf86_ENOMEM; but i think this
+is a couse of the missing memory that is not detected.
+
+is that a problem of my hardware (defect) or are the nforce2 chipsets
+not yet fully supported?
+
+thanks for your help.
+
+Gregor Burger
+
+
 

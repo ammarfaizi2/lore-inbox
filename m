@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269464AbUI3Tx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269462AbUI3TzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269464AbUI3Tx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 15:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269462AbUI3Txz
+	id S269462AbUI3TzA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 15:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269469AbUI3TzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 15:53:55 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:31659 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S269464AbUI3TxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 15:53:25 -0400
-Date: Thu, 30 Sep 2004 21:52:28 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Pavel Machek <pavel@suse.cz>, Nigel Cunningham <ncunningham@linuxmail.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: mlock(1)
-Message-ID: <20040930195228.GA1100@openzaurus.ucw.cz>
-References: <1096060045.10800.4.camel@localhost.localdomain> <20040924225900.GY3309@dualathlon.random> <1096069581.3591.23.camel@desktop.cunninghams> <20040925010759.GA3309@dualathlon.random> <1096114881.5937.18.camel@desktop.cunninghams> <20040925145315.GJ3309@dualathlon.random> <20040928084850.GA18819@elf.ucw.cz> <20040930174244.GL22008@dualathlon.random> <20040930185447.GC475@openzaurus.ucw.cz> <20040930191720.GB32279@dualathlon.random>
+	Thu, 30 Sep 2004 15:55:00 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:14494
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269462AbUI3Ty3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 15:54:29 -0400
+Date: Thu, 30 Sep 2004 12:53:17 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, franz_pletz@t-online.de, michal@rokos.info,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, manfred@colorfullife.com
+Subject: Re: [PATCH 2.6] Natsemi - remove compilation warnings
+Message-Id: <20040930125317.5622a909.davem@davemloft.net>
+In-Reply-To: <415C4EC5.4040603@pobox.com>
+References: <200409230958.31758.michal@rokos.info>
+	<200409231618.56861.michal@rokos.info>
+	<415C37D8.20203@t-online.de>
+	<Pine.LNX.4.58.0409300951150.2403@ppc970.osdl.org>
+	<415C4EC5.4040603@pobox.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040930191720.GB32279@dualathlon.random>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 30 Sep 2004 14:21:57 -0400
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-> > Actually if your cipher is not resistant to known plaintext attack,
-> 
-> AFIK the only way to make it resistent to a brute force is to make it
-> slow, like adding lots of bits of salt.
+> Wouldn't it be better to just phase out the base of dev->base_addr 
+> completely?  I tend to prefer adding a "void __iomem *regs" to struct 
+> netdev_private, and ignore dev->base_addr completely.
 
-No. If you want it resistent to brute force, use big key. Actually 128bit should be enough.
+Yes, this is the way to go.
 
-If user's password has at least 128 bits of entropy, you should be safe, too.
-
-salt only helps with "lets create 1TB of all common encrypted passwords" attack.
-
-> My point is very simple, that is if you leave a zero as part of the API,
-> then you're making things less secure.
-
-This is same as saying that starting encrypted email with
-"Hi!" is bad idea. It is not. Don't worry about brute-force, it is not
-practical. (Okay, you probably should not limit password length to 8 chars).
-
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+(BTW, Jeff, technically it's the 'ifmap' that the user uses
+ to pass base_addr into the kernel.  The kernel drivers use
+ the netdev struct one, which is an unsigned long)

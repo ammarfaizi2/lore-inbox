@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVB1OnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVB1OqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbVB1OnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 09:43:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVB1OnI
+	id S261615AbVB1OqT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 09:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVB1OqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 09:43:08 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10928 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261205AbVB1OnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 09:43:04 -0500
-Date: Mon, 28 Feb 2005 15:43:06 +0100
-From: Martin Mares <mj@ucw.cz>
+	Mon, 28 Feb 2005 09:46:18 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:59147 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261604AbVB1Op4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 09:45:56 -0500
+Date: Mon, 28 Feb 2005 15:45:46 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
 To: colbuse@ensisun.imag.fr
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/2] drivers/char/vt.c: remove unnecessary code
-Message-ID: <20050228144306.GA16596@atrey.karlin.mff.cuni.cz>
-References: <1109596437.422319158044b@webmail.imag.fr> <20050228132849.B16460@flint.arm.linux.org.uk> <1109599275.4223242b6b560@webmail.imag.fr>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [patch 2/2] drivers/chat/vt.c: remove unnecessary code
+Message-ID: <20050228144546.GB2753@pclin040.win.tue.nl>
+References: <1109595328.422314c031b5f@webmail.imag.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1109599275.4223242b6b560@webmail.imag.fr>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1109595328.422314c031b5f@webmail.imag.fr>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: SINECTIS: kweetal.tue.nl 1114; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Feb 28, 2005 at 01:55:28PM +0100, colbuse@ensisun.imag.fr wrote:
 
-> I agree :) . But, if we look to the code, we can notice that there is actually
-> no reason for npar to be unsigned. What do you think of this version?
+> Avoid changing the state of the console two times in some cases.
 
-What does it try to solve?  Your version is in no way better than the previous one.
-The previous one was more readable and it's quite possible that both
-will be compiled to the same sequence of instructions.
+A bad change for several reasons.
 
-Also, as Arjan noted, if you want to improve the code, use memset.
+(i) more object code is generated
+(ii) the code is slower
+(iii) you change something
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-American patent law: two monkeys, fourteen days.
+Straight line code is cheap, jumps are expensive.
+Replacing an assignment by a jump is not an improvement.
+
+But far worse: this is a purposeless microoptimization.
+At least one out of every hundred trivial patches is broken.
+Thus, a stream of trivial changes will only break the kernel, for no gain.
+
+Andries

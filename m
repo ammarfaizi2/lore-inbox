@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316569AbSGQTXG>; Wed, 17 Jul 2002 15:23:06 -0400
+	id <S316582AbSGQTZ6>; Wed, 17 Jul 2002 15:25:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316579AbSGQTXG>; Wed, 17 Jul 2002 15:23:06 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:37895 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316569AbSGQTXF>; Wed, 17 Jul 2002 15:23:05 -0400
-Date: Wed, 17 Jul 2002 16:25:56 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Guillaume Boissiere <boissiere@adiglobal.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  July 17, 2002
-In-Reply-To: <3D34C75C.13697.11D651E4@localhost>
-Message-ID: <Pine.LNX.4.44L.0207171625140.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S316585AbSGQTZ5>; Wed, 17 Jul 2002 15:25:57 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:6046 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S316582AbSGQTZy> convert rfc822-to-8bit; Wed, 17 Jul 2002 15:25:54 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-rc1|rc2 -> err, what? 
+Date: Wed, 17 Jul 2002 21:28:27 +0200
+X-Mailer: KMail [version 1.4]
+Organization: Linux-Systeme GmbH
+X-PRIORITY: 2 (High)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200207172128.27292.mcp@linux-systeme.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jul 2002, Guillaume Boissiere wrote:
+Hi there,
 
-> New week, new status update...
-> The details are at http://www.kernelnewbies.org/status/
->
-> With the code freeze date approaching soon, it is obvious that many
-> of these projects will not get merged in the next 3 months.
-> What would you rather me do?  Keep them in here just for reference,
-> mark them as post-code freeze or just delete them?
+--- linux.orig/Makefile 2002-06-24 16:13:49.000000000 +0000
++++ linux/Makefile      2002-06-24 15:23:35.000000000 +0000
+@@ -201,10 +204,15 @@
+        drivers/zorro/devlist.h drivers/zorro/gen-devlist \
+        drivers/sound/bin2hex drivers/sound/hex2hex \
+        drivers/atm/fore200e_mkfirm drivers/atm/{pca,sba}*{.bin,.bin1,.bin2} \
++       drivers/scsi/aic7xxx/aicasm/aicasm \
+        drivers/scsi/aic7xxx/aicasm/aicasm_gram.c \
++       drivers/scsi/aic7xxx/aicasm/aicasm_gram.h \
++       drivers/scsi/aic7xxx/aicasm/aicasm_macro_gram.c \
++       drivers/scsi/aic7xxx/aicasm/aicasm_macro_gram.h \
++       drivers/scsi/aic7xxx/aicasm/aicasm_macro_scan.c \
+        drivers/scsi/aic7xxx/aicasm/aicasm_scan.c \
++       drivers/scsi/aic7xxx/aicasm/aicdb.h \
+        drivers/scsi/aic7xxx/aicasm/y.tab.h \
+-       drivers/scsi/aic7xxx/aicasm/aicasm \
+        drivers/scsi/53c700_d.h \
+        net/khttpd/make_times_h \
+        net/khttpd/times.h \
 
-Please keep them as post-code freeze.  They might not go into
-2.5 and early 2.6, but that doesn't mean we should throw away
-our TODO list ;)
+please, where are those files? aicdb.h, *_macro_* ?
 
-Rik
+
+Please CC, i am not subscribed!
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
+Kind regards
+        Marc-Christian Petersen
 
-http://www.surriel.com/		http://distro.conectiva.com/
+http://sourceforge.net/projects/wolk
 
+PGP/GnuPG Key: 1024D/408B2D54947750EC
+Fingerprint: 8602 69E0 A9C2 A509 8661 2B0B 408B 2D54 9477 50EC
+Key available at www.keyserver.net. Encrypted e-mail preferred.

@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281030AbRKCT7k>; Sat, 3 Nov 2001 14:59:40 -0500
+	id <S281028AbRKCT4c>; Sat, 3 Nov 2001 14:56:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281031AbRKCT7a>; Sat, 3 Nov 2001 14:59:30 -0500
-Received: from holomorphy.com ([216.36.33.161]:33210 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S281030AbRKCT7W>;
-	Sat, 3 Nov 2001 14:59:22 -0500
-Date: Sat, 3 Nov 2001 11:58:07 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] bootmem for 2.5
-Message-ID: <20011103115807.A26577@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011102140207.V31822@w-wli.des.beaverton.ibm.com> <20011102214308.A8217@kroah.com>
+	id <S281029AbRKCT4V>; Sat, 3 Nov 2001 14:56:21 -0500
+Received: from are.twiddle.net ([64.81.246.98]:4794 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S281028AbRKCT4H>;
+	Sat, 3 Nov 2001 14:56:07 -0500
+Date: Sat, 3 Nov 2001 11:55:56 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Juergen Doelle <jdoelle@de.ibm.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Pls apply this spinlock patch to the kernel
+Message-ID: <20011103115556.A5984@twiddle.net>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Juergen Doelle <jdoelle@de.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15yG7P-0003Kb-00@the-village.bc.nu> <Pine.LNX.4.33.0110290930540.8904-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20011102214308.A8217@kroah.com>; from greg@kroah.com on Fri, Nov 02, 2001 at 09:43:08PM -0800
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0110290930540.8904-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Oct 29, 2001 at 09:32:52AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 02, 2001 at 02:02:07PM -0800, William Irwin wrote:
->> The following patch features space usage proportional only to the number
->> of distinct fragments of memory, tracking available memory at address
->> granularity up until the point of initializing per-page data structures,
->> and the use of segment trees in order to support efficient searches on
->> those rare machines where this is an issue. According to testing, this
->> patch appears to save somewhere between 8KB and 2MB on i386 PC's versus
->> the bitmap-based bootmem allocator.
+On Mon, Oct 29, 2001 at 09:32:52AM -0800, Linus Torvalds wrote:
+> On Mon, 29 Oct 2001, Alan Cox wrote:
+> > spinlock_t pagecache_lock ____cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
+> > cache_line_pad;
+> >
+> > where cache_line_pad is an asm(".align") - I would assume that is
+> > sufficient - Linus ?
 
-On Fri, Nov 02, 2001 at 09:43:08PM -0800, Greg KH wrote:
-> How will I see the difference in memory available between your patch and
-> the in kernel version?  Can it be seen by merely comparing free(1)
-> values?
+The "cache_line_pad" is useless.  The __attribute__((aligned(N)))
+is completely sufficient.
 
-Not sure what ate my original reply, so here I go again.
+> Gcc won't guarantee that it puts different variables adjacently - the
+> linker (or even the compiler) can move things around to make them fit
+> better. Which is why it would be better to use the separate section trick.
 
-Yes, it will be visible in free(1) and dmesg. The amount of available
-physical memory will be increased. For the most part because of the
-ability of the stock bootmem to merge sub-page allocations while
-otherwise tracking things at page granularity (using bdata->last_offset)
-is limited. On the other hand, I track things at address granularity and
-so achieve a "tightest packing" regardless of the order in which
-allocations are done.
+Separate sections are also not needed.  While you can't guarantee
+adjacency, the object file *does* record the required alignment 
+and that must be honored by the linker.
+
+Now, separate sections do make sense for minimizing accumulated 
+padding, but that is a separate issue.
 
 
-Cheers,
-Bill
+r~

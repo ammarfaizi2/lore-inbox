@@ -1,43 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317363AbSGXOpE>; Wed, 24 Jul 2002 10:45:04 -0400
+	id <S317359AbSGXOsj>; Wed, 24 Jul 2002 10:48:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317378AbSGXOpE>; Wed, 24 Jul 2002 10:45:04 -0400
-Received: from kiruna.synopsys.com ([204.176.20.18]:62933 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S317363AbSGXOpC>; Wed, 24 Jul 2002 10:45:02 -0400
-Date: Wed, 24 Jul 2002 16:48:04 +0200
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5.28 (linus' bk): conflicting KEY_xxx macros
-Message-ID: <20020724144804.GE14143@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S317371AbSGXOsj>; Wed, 24 Jul 2002 10:48:39 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:3087 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S317359AbSGXOsh>;
+	Wed, 24 Jul 2002 10:48:37 -0400
+Message-ID: <3D3EBDC6.3060601@evision.ag>
+Date: Wed, 24 Jul 2002 16:46:30 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: cpqarray broken since 2.5.19
+References: <Pine.SOL.4.30.0207241632350.15605-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-include/linux/input.h has this:
+Bartlomiej Zolnierkiewicz wrote:
+> On Wed, 24 Jul 2002, Jens Axboe wrote:
+> 
+> 
+>>On Wed, Jul 24 2002, Marcin Dalecki wrote:
+>>
+>>>>Jens, the same is in cciss.c.
+>>>>Please remove locking from blk_stop_queue() (as you suggested) or intrduce
+>>>>unlocking in request_functions.
+>>>>
+>>>
+>>>Bartek I think the removal is just for reassertion that the
+>>>locking is the problem. You can't remove it easly from
+>>>blk_stop_queue() unless you make it mandatory that blk_stop_queue
+>>>has to be run with the lock already held. Or in other words
+>>>basically -> Don't use blk_stop_queue() outside of ->request_fn.
+>>
+>>Of couse Bart is advocating just making sure that every caller of
+>>blk_stop_queue() _has_ the queue_lock before calling it, not removing
+>>the locking there.
+>>
+>>--
+>>Jens Axboe
+> 
+> 
+> And I'm also advocating for __blk_start_queue() ideal for usage in
+> ata_end_request(). And moving spin_lock scope to cover test_and_set_bit()
+> in blk_start_queue() (for coherency and avoiding spurious calls to
+> q->request_fn() )
 
-#define KEY_PLAY	207
-#define KEY_FASTFORWARD	    208
+You mean this:
 
-#define KEY_PLAY	0x197
-#define KEY_FASTFORWARD	    0x19b
+void blk_start_queue(request_queue_t *q)
+{
+	if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
+		unsigned long flags;
 
-which one is where?
+		spin_lock_irqsave(q->queue_lock, flags);
+		if (!test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
+			spin_unlock_irqrestore(q->queue_lock, flags);
+			return;
+		}
+		clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags);
+		if (!elv_queue_empty(q))
+			q->request_fn(q);
+		spin_unlock_irqrestore(q->queue_lock, flags);
+	}
+}
 
+Becouse this is avoiding checking for spinlock in the case
+the queue is not stopped.
 
-  CC     drivers/input/input.o
-                 from input.c:31:
-In file included from input.c:32:
-include/linux/input.h:457: warning: `KEY_PLAY' redefined
-include/linux/input.h:310: warning: this is the location of the previous definition
-include/linux/input.h:461: warning: `KEY_FASTFORWARD' redefined
-include/linux/input.h:311: warning: this is the location of the previous definition
+The spinlock free variant isn't needed right.
+
+> However IDE_BUSY -> QUEUE_STOPPED_FLAG is braindamaged idea.
+
+You should never see it. Think of it as a mind bridge between
+IDE_BUSY and queue plug and unplug please. Becouse the purpose
+of IDE_BUSY *is* to effectively stall queue processing for
+the time of internally issued request. OK?
 

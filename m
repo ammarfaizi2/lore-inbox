@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbUBOXDa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 18:03:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265231AbUBOXDa
+	id S265215AbUBOXCR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 18:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbUBOXCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 18:03:30 -0500
-Received: from nan-smtp-14.noos.net ([212.198.2.122]:4525 "EHLO smtp.noos.fr")
-	by vger.kernel.org with ESMTP id S265225AbUBOXDF (ORCPT
+	Sun, 15 Feb 2004 18:02:17 -0500
+Received: from mail.riseup.net ([216.162.217.191]:42129 "EHLO mail.riseup.net")
+	by vger.kernel.org with ESMTP id S265215AbUBOXCP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 18:03:05 -0500
-Subject: Re: JFS default behavior
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qfoU1Cqq0T6GaxVEGIEo"
-Organization: Adresse personelle
-Message-Id: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr>
+	Sun, 15 Feb 2004 18:02:15 -0500
+Date: Sun, 15 Feb 2004 17:02:09 -0600
+From: Micah Anderson <micah@riseup.net>
+To: Ryan Reich <ryanr@uchicago.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: stable/vanilla+(O)1
+Message-ID: <20040215230209.GP14140@riseup.net>
+References: <1pCCK-5S4-23@gated-at.bofh.it> <402FF424.4050902@uchicago.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
-Date: Mon, 16 Feb 2004 00:03:03 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <402FF424.4050902@uchicago.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am aware that -ck patches have this, however it has a lot of other
+things that I am not interested in entertaining. I want to isolate
+variables, and getting preemptible, low latency and CK interactivity
+in addition to O(1) makes it hard for me to gauge what is going on.
+I prefer to change one thing at a time. 
 
---=-qfoU1Cqq0T6GaxVEGIEo
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-| Linus Torvalds pointed the way of Tux :
-
-| In short: the kernel talks bytestreams, and that implies that if you=20
-| want to talk to the kernel, you HAVE TO USE UTF-8.
-
-In that case :
-- should the kernel allow apps to write filenames that are invalid=20
-  UTF-8 and will crash UTF-8 apps ?
-- should this UTF-8 rule be noted somewhere (in a FAQ/man page/LSB spec/
-whatever) so apps authors know they are supposed to read and write UTF-8
-filenames and not apply locale rules to kernel objects ?
-- what happens to already existing invalid UTF-8 filenames ? Should the
-kernel forcibly rewrite them (in 2.7.0...) to remove legacy mess ? What
-should happen if someone plug an unconverted FS in such a system
-afterwards ?
-
-These are the questions people have been asking.
+Micah
 
 
+On Sun, 15 Feb 2004, Ryan Reich wrote:
 
---=-qfoU1Cqq0T6GaxVEGIEo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAL/qmI2bVKDsp8g0RAtrmAKDoQ9x6J83db/hKs4UDKFBWAHq/LgCgnB4M
-nDfNDtVspDJqJMlUChHrCF0=
-=8/ps
------END PGP SIGNATURE-----
-
---=-qfoU1Cqq0T6GaxVEGIEo--
-
+> Micah Anderson wrote:
+> >Is there a patch to the stable/vanilla 2.4 kernel tree which provides
+> >the O(1) scheduler code from 2.6? The closest thing I can find is:
+> >
+> >http://people.redhat.com/mingo/O(1)-scheduler/sched-HT-2.4.22-ac1-A0
+> >
+> >which is for AC (and is also A0), is there a newer 2.4.23/24 patch
+> >that works against stock? The above patch fails miserably against a
+> >stock 2.4.22 kernel.
+> >
+> >There is ftp://ftp.kernel.org/pub/linux/kernel/people/rml/sched/ingo-O1/
+> >the latest which is sched-O1-rml-2.4.20-rc3-1.patch, but that too
+> >fails horribly on a stock 2.4.22.
+> >
+> >I've been crawling through list archives, but have yet to find
+> >anything, so I am reduced to asking. :)
+> 
+> The -ck patchset has this and numerous other fun things in it. It can be
+> found at http://www.plumlocosoft.com/kernel/ .
+> 
+> -- 
+> Ryan Reich
+> ryanr@uchicago.edu

@@ -1,54 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267879AbTAMQjX>; Mon, 13 Jan 2003 11:39:23 -0500
+	id <S267822AbTAMQkt>; Mon, 13 Jan 2003 11:40:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267882AbTAMQjW>; Mon, 13 Jan 2003 11:39:22 -0500
-Received: from [195.20.32.236] ([195.20.32.236]:33973 "HELO euro.verza.com")
-	by vger.kernel.org with SMTP id <S267879AbTAMQjV>;
-	Mon, 13 Jan 2003 11:39:21 -0500
-Date: Mon, 13 Jan 2003 17:10:45 +0100
-From: Alexander Kellett <lypanov@kde.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Rob Wilkens <robw@optonline.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*? -> goto example
-Message-ID: <20030113161045.GA19270@groucho.verza.com>
-Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
-	Rob Wilkens <robw@optonline.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301121208020.14031-100000@home.transmeta.com> <1042404503.1208.95.camel@RobsPC.RobertWilkens.com> <20030112224829.GA29534@alpha.home.local> <1042419236.3162.257.camel@RobsPC.RobertWilkens.com> <20030113013133.GA31596@alpha.home.local>
+	id <S267882AbTAMQks>; Mon, 13 Jan 2003 11:40:48 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20097 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267827AbTAMQkY>; Mon, 13 Jan 2003 11:40:24 -0500
+Date: Mon, 13 Jan 2003 11:49:08 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Make prof_counter use per-cpu areas patch 4/4 -- sparc arch
+Message-ID: <20030113114908.B18786@devserv.devel.redhat.com>
+References: <20030113122835.GC2714@in.ibm.com> <20030113123825.GF2714@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030113013133.GA31596@alpha.home.local>
-User-Agent: Mutt/1.4i
-X-Disclaimer: My opinions do not necessarily represent those of my employer
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030113123825.GF2714@in.ibm.com>; from kiran@in.ibm.com on Mon, Jan 13, 2003 at 06:08:25PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 02:31:33AM +0100, Willy Tarreau wrote:
-> Oh and if you have complaints about comments after the 80th column, remove them.
-> And if the order of the declaration doesn't match your habits, just know that
-> this is the order which gives me best performance, since swapping any 2 of its
-> members induces a loss of about 20%. You know, L1, cache line size... all the
-> things that your teachers didn't tell you because the story of the evil goto was
-> better to keep children quiet !
+> Date: 	Mon, 13 Jan 2003 18:08:25 +0530
+> From: Ravikiran G Thirumalai <kiran@in.ibm.com>
 
-:)
+> This one's for sparc
+> -unsigned int prof_counter[NR_CPUS];
+> +DEFINE_PER_CPU(unsigned int, prof_counter);
 
-As much as I absolutely love the utility of this 
-piece of code you really do have to admit that it 
-_is_ rather difficult to understand :)
+Thanks. I'll apply at next pull, or Dave will.
 
-Is it so flawed of me to expect that some day this
-code could be rewritten in an extremely clean
-fashion and compilers made to do the work that
-was put in to make this fast?
-
-mvg,
-Alex
-
--- 
-"[...] Konqueror open source project. Weighing in at less than
-            one tenth the size of another open source renderer"
-Apple,  Jan 2003 (http://www.apple.com/safari/)
+-- Pete

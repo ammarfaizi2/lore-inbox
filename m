@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271311AbTHRHJG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 03:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271310AbTHRHJG
+	id S271308AbTHRHW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 03:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271310AbTHRHW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 03:09:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41194 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S271311AbTHRHJC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 03:09:02 -0400
-Date: Mon, 18 Aug 2003 00:01:39 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: willy@w.ods.org, alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, davidsen@tmr.com, bloemsaa@xs4all.nl,
-       marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030818000139.6964cd04.davem@redhat.com>
-In-Reply-To: <20030818065652.GA15098@alpha.home.local>
-References: <200308171516090038.0043F977@192.168.128.16>
-	<1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk>
-	<200308171555280781.0067FB36@192.168.128.16>
-	<1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk>
-	<200308171759540391.00AA8CAB@192.168.128.16>
-	<1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk>
-	<200308171827130739.00C3905F@192.168.128.16>
-	<1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk>
-	<20030817224849.GB734@alpha.home.local>
-	<20030817222258.257694b9.davem@redhat.com>
-	<20030818065652.GA15098@alpha.home.local>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Aug 2003 03:22:29 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:30727 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S271308AbTHRHW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 03:22:28 -0400
+Date: Mon, 18 Aug 2003 03:10:36 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>,
+       Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: NMI appears to be stuck! (2.4.22-rc2 on dual Athlon)
+In-Reply-To: <20030818001616.GA4761@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.53.0308180300250.11674@montezuma.mastecende.com>
+References: <20030817212824.GA9025@www.13thfloor.at> <20030817221114.GA734@alpha.home.local>
+ <20030817222843.GB10967@www.13thfloor.at> <Pine.LNX.4.53.0308171822391.9067@montezuma.mastecende.com>
+ <20030818001616.GA4761@mail.jlokier.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003 08:56:52 +0200
-Willy Tarreau <willy@w.ods.org> wrote:
+On Mon, 18 Aug 2003, Jamie Lokier wrote:
 
-> But I'm willing to try arpfilter if you show me where to start from.
+> > nmi_watchdog=2 will work on the majority of i686+ (performance 
+> > counters with NMI delivery mode) boxes and you can check whether it's 
+> > enabled by doing cat /proc/interrupts and watching if the NMI line ticks 
+> > at a decent rate. nmi_watchdog=1 tends to be harder for hardware 
+> > manufacturers to get right (for some reason or other).
+> 
+> Is it possible to try both at boot time and pick the one which works?
 
-There are tools at:
-
-	http://ebtables.sourceforge.net/
+I believe we currently already do that if you do nmi_watchdog=2

@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272370AbRIFBRJ>; Wed, 5 Sep 2001 21:17:09 -0400
+	id <S272383AbRIFBnq>; Wed, 5 Sep 2001 21:43:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272372AbRIFBQ7>; Wed, 5 Sep 2001 21:16:59 -0400
-Received: from mx3out.umbc.edu ([130.85.253.53]:11999 "EHLO mx3out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S272370AbRIFBQx>;
-	Wed, 5 Sep 2001 21:16:53 -0400
-Date: Wed, 5 Sep 2001 21:17:11 -0400
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: <joe@mathewson.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OFFTOPIC] Secure network fileserving Linux <-> Linux
-In-Reply-To: <200109052212.RAA64901@tomcat.admin.navo.hpc.mil>
-Message-ID: <Pine.SGI.4.31L.02.0109052116010.3586235-100000@irix2.gl.umbc.edu>
+	id <S272375AbRIFBng>; Wed, 5 Sep 2001 21:43:36 -0400
+Received: from 63-151-64-156.hsacorp.net ([63.151.64.156]:15120 "EHLO
+	boojiboy.eorbit.net") by vger.kernel.org with ESMTP
+	id <S272383AbRIFBn1>; Wed, 5 Sep 2001 21:43:27 -0400
+From: chris@boojiboy.eorbit.net
+Message-Id: <200109060149.SAA13180@boojiboy.eorbit.net>
+Subject: Re: Solo sound - 2.4.10-pre build fails
+To: linux-kernel@vger.kernel.org
+Date: Wed, 5 Sep 2001 18:49:40 -0700 (PDT)
+Cc: alan@lxorguk.ukuu.org.uk
+In-Reply-To: <200109051900.MAA04249@boojiboy.eorbit.net> from "chris@boojiboy.eorbit.net" at Sep 05, 2001 12:00:51 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Sep 2001, Jesse Pollard wrote:
+> I have a laptop with an ESS solo sound chip.
+> I tried compiling 2.4.10-pre4 and
+> the build fails on the sound code.
 
-> 	Not possible.
-> 	1. You pose an unsecured network (anyone can plug in a host)
-> 	2. Physical access to the hosts (anyone could reconfigure a host)
-> 	3. No physical security (anyone can get in the room, with unauthorized
-> 	   equipment).
 
-Did you consider AFS?
+The linux kernel 2.4.9-ac9 does build while
+using the esssolo.c code.  
 
-Might be overkill for his environment, but it does do ACLs.
+Somehow this code is broken in 2.4.10-pre
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
-
+--Chris

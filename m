@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265146AbUBEArA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 19:47:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUBEAqd
+	id S264566AbUBDXoE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 18:44:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbUBDXlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 19:46:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32899 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265178AbUBEAnH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 19:43:07 -0500
-Date: Wed, 4 Feb 2004 16:43:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>, kmannth@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving
- X  (fwd)
-In-Reply-To: <64260000.1075941399@flay>
-Message-ID: <Pine.LNX.4.58.0402041639420.2086@home.osdl.org>
-References: <51080000.1075936626@flay> <Pine.LNX.4.58.0402041539470.2086@home.osdl.org>
- <60330000.1075939958@flay> <64260000.1075941399@flay>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Feb 2004 18:41:16 -0500
+Received: from dsl081-085-091.lax1.dsl.speakeasy.net ([64.81.85.91]:43659 "EHLO
+	mrhankey.megahappy.net") by vger.kernel.org with ESMTP
+	id S264566AbUBDXez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 18:34:55 -0500
+To: ctindel@users.sourceforge.net
+Subject: [PATCH 2.6.2] drivers/net/bonding/bond_alb.c
+Cc: bonding-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Message-Id: <20040204233356.485BBFA5F1@mrhankey.megahappy.net>
+Date: Wed,  4 Feb 2004 15:33:56 -0800 (PST)
+From: driver@megahappy.net (Bryan Whitehead)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Building with gcc 3.3.2 on gentoo linux on Athlon x86 system I get
+a warning:
+  CC [M]  drivers/net/bonding/bond_alb.o
+drivers/net/bonding/bond_alb.c: In function `bond_alb_xmit':
+drivers/net/bonding/bond_alb.c:1340: warning: comparison is always true due to limited range of data type                                                                                                         
+This is due to using __constant_htons for endian issues. This is a byte so there
+is no point in using __constant_htons in the first place. Unless I'm mistaken using
+__constant_htons makes this statment always true as the compiler states.
+ 
+if ipx_type = IPX_TYPE_NCP then the intended logic will not happen?
+
+--- linux-2.6.2/drivers/net/bonding/bond_alb.c.orig     2004-02-04 15:08:04.228336168 -0800
++++ linux-2.6.2/drivers/net/bonding/bond_alb.c  2004-02-04 15:26:03.769221008 -0800
+@@ -1336,8 +1336,7 @@ bond_alb_xmit(struct sk_buff *skb, struc
+                        break;
+                }
+  
+-               if (ipx_hdr(skb)->ipx_type !=
+-                   __constant_htons(IPX_TYPE_NCP)) {
++               if (ipx_hdr(skb)->ipx_type != IPX_TYPE_NCP) {
+                        /* The only protocol worth balancing in
+                         * this family since it has an "ARP" like
+                         * mechanism
 
 
-On Wed, 4 Feb 2004, Martin J. Bligh wrote:
-> 
-> Oh hell ... I remember what's wrong with this whole bit. pfn_valid is
-> used inconsistently in different places, IIRC. Linus / Andrew ... what
-> do you actually want it to mean? Some things seem to use it to say
-> "the memory here is valid accessible RAM", some things "there is a 
-> valid struct page for this pfn". I was aiming for the latter, but a
-> few other arches seemed to disagree.
-> 
-> Could I get a ruling on this? ;-)
-
-It _definitely_ means "there is a valid 'struct page' for this pfn". 
-
-To test for "there is RAM" here, you need to first check that the pfn is
-valid, and then you can check what the page type is (usually that would be
-PageReserved(), but it could be a highmem check or something like that
-too).
-
-		Linus
+--
+Bryan Whitehead
+Email:driver@megahappy.net
+WorkE:driver@jpl.nasa.gov

@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266472AbUAVXJp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 18:09:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266475AbUAVXJp
+	id S266242AbUAVLwl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 06:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUAVLwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 18:09:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:1454 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266472AbUAVXJn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 18:09:43 -0500
-Date: Thu, 22 Jan 2004 15:09:37 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Nico Schottelius <nico-kernel@schottelius.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: security patches / lsm
-Message-ID: <20040122150937.A8720@osdlab.pdx.osdl.net>
-References: <20040122191158.GA1207@schottelius.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Jan 2004 06:52:41 -0500
+Received: from mail012.syd.optusnet.com.au ([211.29.132.66]:43725 "EHLO
+	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266242AbUAVLwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 06:52:40 -0500
+From: Christian Unger <chakkerz@optusnet.com.au>
+Reply-To: chakkerz@optusnet.com.au
+Organization: naiv.sourceforge.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia drivers and 2.6.x kernel
+Date: Thu, 22 Jan 2004 22:52:41 +1100
+User-Agent: KMail/1.5.4
+References: <200401221004.06645.chakkerz@optusnet.com.au> <400FB4AA.8000109@yahoo.com.br>
+In-Reply-To: <400FB4AA.8000109@yahoo.com.br>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040122191158.GA1207@schottelius.org>; from nico-kernel@schottelius.org on Thu, Jan 22, 2004 at 08:11:58PM +0100
+Message-Id: <200401222252.41853.chakkerz@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nico Schottelius (nico-kernel@schottelius.org) wrote:
-> What about the LSM framework in the kernel and the arguments at
->    http://www.rsbac.org/lsm.htm
->    http://www.grsecurity.net/lsm.php
+> Hi, i have this drive working great for me.
+> I aply a patch, then i recompile the source.
+> If you prefer, i can send the source for you.
+>
 
-It's been fairly functional for something as comprehenseive as SELinux,
-and supports other users as well, LIDS, DTE come to mind.  There are
-probably some improvements we could make from a few of the complaints
-from these projects, however they haven't contacted the lsm list in years.
+Well ... i've applied the patch and downloaded the pre-patched drivers, 
+sacrificed a virgin, installed the module loading stuff (just in case) and 
+still no joy. 
 
-> Are you working together with those maintainers to enable their
-> patches?
+So i think the fault is not with NVidia. or the patch. Maybe it's a flaw in 
+Slackware 9.1, or i'm just too thick. 
 
-No.  They've both said they don't want to spend any time on such
-endeavor.  I think it would be time well spent, perhaps you'd like to
-help?
+I did get X to work with nv, but since i have a dodgy old monitor i can't get 
+the vertical alignment right (there probably is a way to do it -- SAX in SuSE 
+does the trick).
 
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+with kind regards,
+  Christian Unger
+
+"You don't need eyes to see, you need vision" (Faithless - Reverence)
+
+  Mobile:            0402 268904
+  Internet:          http://naiv.sourceforge.net
+  NAIV Status:
+     Stable       Testing       Development
+      0.2.3r2      0.3.0         0.3.1 - File Handling
+
+"May there be mercy on man and machine for their sins" (Animatrix)
+

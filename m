@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269879AbRHEBGn>; Sat, 4 Aug 2001 21:06:43 -0400
+	id <S269890AbRHEBRy>; Sat, 4 Aug 2001 21:17:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269890AbRHEBGd>; Sat, 4 Aug 2001 21:06:33 -0400
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:56704 "EHLO
-	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
-	id <S269879AbRHEBGR>; Sat, 4 Aug 2001 21:06:17 -0400
-Message-ID: <3B6C9B0E.EF55EF8@randomlogic.com>
-Date: Sat, 04 Aug 2001 18:02:06 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S269891AbRHEBRo>; Sat, 4 Aug 2001 21:17:44 -0400
+Received: from NS.iNES.RO ([193.230.220.1]:8926 "EHLO smtp.ines.ro")
+	by vger.kernel.org with ESMTP id <S269890AbRHEBR0>;
+	Sat, 4 Aug 2001 21:17:26 -0400
+Message-ID: <3B6C9CC0.819CA53C@interplus.ro>
+Date: Sun, 05 Aug 2001 04:09:20 +0300
+From: Mircea Ciocan <mirceac@interplus.ro>
+Organization: Home Office
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-ac2 i686)
+X-Accept-Language: ro, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: MTRR and Athlon Processors
-In-Reply-To: <E15TCIm-0005i6-00@the-village.bc.nu>
+To: linux-kernel@vger.kernel.org
+Subject: ip_conntrack bigger, better and yellow ;) !!!
+In-Reply-To: <20010804113841.A2196@zero> <3B6C7F9B.30303@yahoo.co.nz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Is the mtrr code supposed to work properly for Athlon (Model 4) in
-> > kernel 2.4.7?
-> >
-> > I still get mtrr errors/warnings.
-> 
-> Mismatched mtrr warnings indicate bios writers who cannot read
-> specifications. 
+	Ok, the pressure for a netflow like stuff in kernel is big, examining
+the the netflow structure at:
 
-This does not surprise me. In fact, I need to check Tyan's web site for
-a BIOS update.
+ http://sgi.rdscv.ro/~ionuts/netflowv5.h
 
-> The kernel will fix up after it
+it seem that ip_conntrak has allmost everything that is needed to
+emulate Cisco netflow EXCEPT ( a big except :) the information about
+data bytes/packets that flow via that connexion and the question is how
+could be added with minimum damages, for example at the end of the
+existing ip_conntrack structure, so a nice little userspace daemon could
+parse the /proc/net/ip_conntrack and generate the damned netflow packets
+that everybody seem to want now :( !!!
+	Me and a couple of friends are ready to cut our teeth in kernel
+programing and have available some machines to crash test and debug the
+damned thing and while not aiming for inclusion in stable series maybe
+it will mature enough for inclusion in 2.6 series or it will remain a
+forever unofficial pach :).
+	While we think that we know enough C and we can dig throu kernel
+sources we need some mentoring, kickstart and stuff from you network
+gurus to tell us where is the best this code to be inserted ( is your
+stack after all ;) and some best design ideeas.
+	We promise to do the grunt work and keep the "bothering level" at a
+minimum :).
+	So Alexey, DaveM, Alan and the other network gurus, please help us to
+put our name somewhere in the CREDITS file ;).
 
-I also get this message:
+		Thank you,
 
-Jul 29 03:33:00 keroon kernel: mtrr: type mismatch for f8000000,4000000
-old: write-back new: write-combining
-
-This happens quite often, especially with the agpgart and NVdriver
-modules.
-
-PGA
-
--- 
-Paul G. Allen
-UNIX Admin II/Network Security
-Akamai Technologies, Inc.
-www.akamai.com
+		Mircea C.

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268675AbRH0URl>; Mon, 27 Aug 2001 16:17:41 -0400
+	id <S268835AbRH0UTK>; Mon, 27 Aug 2001 16:19:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268614AbRH0URa>; Mon, 27 Aug 2001 16:17:30 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:53000 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S268792AbRH0URU>; Mon, 27 Aug 2001 16:17:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+	id <S268813AbRH0UTA>; Mon, 27 Aug 2001 16:19:00 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:14993 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S268691AbRH0USv>;
+	Mon, 27 Aug 2001 16:18:51 -0400
+Date: Mon, 27 Aug 2001 21:19:04 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Rik van Riel <riel@conectiva.com.br>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
 Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Date: Mon, 27 Aug 2001 22:24:04 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-In-Reply-To: <20010827155621Z16272-32385+261@humbolt.nl.linux.org> <516781015.998944596@[169.254.198.40]>
-In-Reply-To: <516781015.998944596@[169.254.198.40]>
+Message-ID: <519324650.998947144@[169.254.198.40]>
+In-Reply-To: <200108272013.WAA20853@ns.cablesurf.de>
+In-Reply-To: <200108272013.WAA20853@ns.cablesurf.de>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010827201728Z16121-32383+1728@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 27, 2001 09:36 pm, Alex Bligh - linux-kernel wrote:
-> --On Monday, 27 August, 2001 6:02 PM +0200 Daniel Phillips 
-> <phillips@bonn-fries.net> wrote:
-> 
-> > On the other hand, we
-> > will penalize faster streams that way
-> 
-> Penalizing faster streams for the same number
-> of pages is probably a good thing
-> as they cost less time to replace.
+Oliver,
 
-Let me clarify, the stream is fast because its client is fast.  The disk will 
-service the reads at the same speed for all the streams.  (Let's not go into 
-the multi-disk case just now, ok?)
+--On Monday, 27 August, 2001 10:03 PM +0200 Oliver Neukum 
+<Oliver.Neukum@lrz.uni-muenchen.de> wrote:
+
+> what leads you to this conclusion ?
+> A task that needs little time to process data it reads in is hurt much
+> more  by added latency due to a disk read.
+
+I meant that dropping readahed pages from dd from a floppy (or
+slow network connection) is going to cost more to replace
+than dropping the same number of readahead pages from dd from
+a fast HD. By fast, I meant fast to read in from the file.
+
+If the task is slow, because it's CPU bound (or bound by
+other I/O), and /that/ causes the stream to be slow to
+empty, then as you say, we have the opposite problem.
+On the other hand, it might only be a fast reading task
+compared to others as other tasks are blocking on stuff
+requiring memory, and all the memory is allocated to that
+stream's readahead buffer. So penalizing slow tasks and
+prioritizing fast ones may cause an avalanche effect.
+
+Complicated.
 
 --
-Daniel
+Alex Bligh

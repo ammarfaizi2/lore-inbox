@@ -1,37 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVC2Ntk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbVC2OPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbVC2Ntk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 08:49:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVC2Ntk
+	id S262288AbVC2OPu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 09:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbVC2OPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 08:49:40 -0500
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:59603 "EHLO
-	certainkey.com") by vger.kernel.org with ESMTP id S262282AbVC2Nth
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 08:49:37 -0500
-Date: Tue, 29 Mar 2005 08:48:19 -0500
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Andrew Morton <akpm@osdl.org>,
-       James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-       cryptoapi@lists.logix.cz, Jeff Garzik <jgarzik@pobox.com>,
-       David McCullough <davidm@snapgear.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050329134819.GA24697@certainkey.com>
-References: <1111728804.23532.137.camel@uganda> <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <20050329102104.GB6496@elf.ucw.cz> <20050329103049.GB19541@gondor.apana.org.au> <1112093428.5243.88.camel@uganda> <20050329104627.GD19468@gondor.apana.org.au> <1112096525.5243.98.camel@uganda> <20050329113921.GA20174@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050329113921.GA20174@gondor.apana.org.au>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 29 Mar 2005 09:15:50 -0500
+Received: from indonesia.procaptura.com ([193.214.130.21]:6791 "EHLO
+	indonesia.procaptura.com") by vger.kernel.org with ESMTP
+	id S262288AbVC2OPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 09:15:38 -0500
+Message-ID: <42496309.3080007@procaptura.com>
+Date: Tue, 29 Mar 2005 16:15:37 +0200
+From: Toralf Lund <toralf@procaptura.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: insmod segfault in pci_find_subsys()
+References: <423A9B65.1020103@procaptura.com> <20050318170709.GD14952@kroah.com>
+In-Reply-To: <20050318170709.GD14952@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 09:39:21PM +1000, Herbert Xu wrote:
-> Well when you get 55mb/s from /dev/random please get back to me.
+Greg KH wrote:
 
-I will add you to my list for notification of Fortuna Patch to /dev/random
-(/dev/urandom)
+>On Fri, Mar 18, 2005 at 10:12:05AM +0100, Toralf Lund wrote:
+>  
+>
+>>Am I seeing an issue with the PCI functions here, or is it just that I 
+>>fail to spot an obvious mistake in the module itself?
+>>    
+>>
+>
+>I think it's a problem in your code.  I built and ran the following
+>example module just fine (based on your example, which wasn't the
+>smallest or cleanest...), with no oops.  Does this code work for you?
+>  
+>
+OK, I've finally been able to test this, and no, it does not work. 
+insmod segfaults and the system log says
 
-JLC
+kernel: Unable to handle kernel paging request at virtual address 533e3762
+
+
+
+>Oh, and the pci_find* functions are depreciated, do not use them, they
+>are going away in the near future.  Please use the pci_get* functions
+>instead.
+>
+>thanks,
+>
+>greg k-h
+>
+>-----------------
+>#include <linux/pci.h>
+>#include <linux/module.h>
+>
+>MODULE_LICENSE("GPL");
+>
+>	
+>static void __exit exit(void)
+>{  
+>}
+>
+>static __init int init(void)
+>{
+>	struct pci_dev *dev;
+> 
+>	printk(KERN_DEBUG "Scanning all devices...\n");
+> 
+>	dev = NULL;
+>	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev))) {
+>		printk(KERN_DEBUG "Device %04hx:%04hx\n",
+>			dev->vendor, dev->device);
+>	}
+>	return 0;
+>}
+>
+>module_init(init);
+>module_exit(exit);
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
+
+

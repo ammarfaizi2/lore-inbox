@@ -1,113 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317652AbSGOVc1>; Mon, 15 Jul 2002 17:32:27 -0400
+	id <S317651AbSGOVeg>; Mon, 15 Jul 2002 17:34:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317651AbSGOVc1>; Mon, 15 Jul 2002 17:32:27 -0400
-Received: from freenet1.carleton.ca ([134.117.136.20]:8104 "EHLO
-	freenet.carleton.ca") by vger.kernel.org with ESMTP
-	id <S317652AbSGOVcY>; Mon, 15 Jul 2002 17:32:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Richard Sembera <es034@freenet.carleton.ca>
-Reply-To: es034@freenet.carleton.ca
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x kernels cause random launch of xscreensaver?
-Date: Mon, 15 Jul 2002 17:26:00 -0500
-X-Mailer: KMail [version 1.2]
+	id <S317657AbSGOVef>; Mon, 15 Jul 2002 17:34:35 -0400
+Received: from 217-13-24-22.dd.nextgentel.com ([217.13.24.22]:3247 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S317651AbSGOVed>;
+	Mon, 15 Jul 2002 17:34:33 -0400
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.24 IDE 96
+References: <Pine.SOL.4.30.0207022341410.18786-200000@mion.elka.pw.edu.pl>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 15 Jul 2002 22:09:13 +0200
+In-Reply-To: <Pine.SOL.4.30.0207022341410.18786-200000@mion.elka.pw.edu.pl>
+Message-ID: <m3ptxog3di.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Message-Id: <02071517260100.00186@cooper>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+I'm running 2.5.25-dj2 with IDE 97 and there are two problems with it
+when running it all as modules, here's some info:
 
-I asked around in the Slackware NG about this problem last week and got 
-redirected here. I hope someone can help. I'm not subscribed to the mailing 
-list so please cc me copies of your replies.
+[root@lapper root]# lsmod | grep ide
+ide-scsi                7936   0  (unused)
+scsi_mod               97944   1  [ide-scsi]
+ide-cd                 29376   0 
+cdrom                  31904   0  [ide-cd]
+ide-disk               10880   4 
+ide-mod                79152 -12  [ide-scsi ide-cd ide-disk]
+[root@lapper root]# 
 
-On Slackware 8.0, when I try to install the 2.4.5 kernel, I get a problem 
-with X, namely, xscreensaver starts up at random intervals. Sometimes the 
-problem shows up immedately, sometimes it takes longer (the longest period so 
-far has been 2 days). While I'm working, xscreensaver will suddenly go off, 
-complain about not being able to grab the mose pointer, and launch a random 
-screen saver. After typing in my password to unlock the screen, xscreensaver 
-launches again after an interval of about 2-10 seconds.
+and,
 
-If I disable xscreensaver in my .xinitrc file (or try fvwm2 instead of my 
-standard xfce), then instead of xscreensaver I just get a blank screen, as if 
-there were no video signal. Moving the mouse gets me a normal display, but at 
-2-5 second intervals the screen will simply black out as described.
+[root@lapper root]# grep _IDE /home/alexh/src/linux/linux-2.5-misc/.config
+CONFIG_IDE=m
+# CONFIG_IDE_24 is not set
+CONFIG_IDE_25=y
+CONFIG_BLK_DEV_IDE=m
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=m
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_IDEDISK_STROKE=y
+CONFIG_BLK_DEV_IDECS=m
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDETAPE=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_IDEDMA_ONLYDISK=y
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_BLK_DEV_IDE_TCQ is not set
+# CONFIG_BLK_DEV_IDE_TCQ_DEFAULT is not set
+CONFIG_IDEDMA_NEW_DRIVE_LISTINGS=y
+# CONFIG_IDE_CHIPSETS is not set
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_CD_NO_IDESCSI is not set
+[root@lapper root]# 
 
-I've tried installing the 2.4.18 kernel but got the same problem. The 2.2.19 
-kernel works just fine, however. I've also experienced the same problem with 
-SuSE 7.1 and a 2.4.0 kernel.
+The two problems are:
 
-It was suggested in the Slackware NG that it might be a clock problem. I do 
-have the "clock timer configuration lost--probably a VIA686" message coming 
-up intermittently at boot time and during shutdown, although I don't have a 
-VIA chipset (in fact, this is why I switched to Slack, which by default 
-doesn't log or display kernel messages).
+1. devices.c doesn't export two symbols, so depmod -a will not resolv
+   all symbols after compile, patch for it is here:
 
-I hope someone can offer suggestions or advice. I'm including as much 
-trechnical information as seems relevant, though I'm just a hobbyist, so 
-please ask if something's not quite clear.
+--- linux-2.5-clean/drivers/ide/device.c	Wed Jun 19 04:11:52 2002
++++ linux-2.5-misc/drivers/ide/device.c	Mon Jul 15 09:29:20 2002
+@@ -79,6 +79,8 @@
+ 		ch->maskproc(drive);
+ }
+ 
++EXPORT_SYMBOL(ata_mask);
++
+ /*
+  * Spin until the drive is no longer busy.
+  *
+@@ -232,6 +234,8 @@
+ 	OUT_BYTE(rf->high_cylinder, ch->io_ports[IDE_HCYL_OFFSET]);
+ }
+ 
++EXPORT_SYMBOL(ata_out_regfile);
++
+ /*
+  * Input a complete register file.
+  */
 
-Thanks in advance,
+2. From above, refcounting of module use is rather b0rken. ide-mod is
+   used -12 times for example.
 
-Richard Sembera.
+Apart from that, the machines disk system will lock solid after about
+2-3 hrs of up uptime, I'm trying to get some logs from that, but I
+need to sort out the laptop keyboard to get to the SysRq key :)
 
-Technical Info:
+mvh,
+A
 
-Monitor: old 14" el cheapo non-PnP
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> writes:
 
-Graphics Card: (SuperProbe output):
-	First video: Super-VGA
-        Chipset: S3 ViRGE/DX (PCI Probed)
-        Memory:  4096 Kbytes
-        RAMDAC:  Generic 8-bit pseudo-color DAC
-                 (with 6-bit wide lookup tables (or in 6-bit mode))
-
-Mouse: standard serial mouse on ttyS0
-
-CPU: Intel Pentium MMX 166 MHz
-
-Motherboard: AOpenAP57
-Chipset: SiS 5571 PCIset
-(I recall that there is an issue with these boards, they were supposed to be 
-USB-enabled, but the company goofed something up and they were sold as 
-non-USB boards. See below:)
-
-lspci -v output:
-
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 5571
-	Flags: bus master, medium devsel, latency 255
-
-00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 01)
-	Flags: bus master, medium devsel, latency 0
-
-00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev c0) 
-(prog-if 8a [Master SecP PriP])
-	Subsystem: Unknown device 0058:0000
-	Flags: bus master, fast devsel, latency 64, IRQ 14
-	I/O ports at 01f0
-	I/O ports at 03f4
-	I/O ports at 0170
-	I/O ports at 0374
-	I/O ports at 4000
-
-00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev b0) 
-(prog-if 10 [OHCI])
-	Flags: bus master, medium devsel, latency 64, IRQ 10
-	Memory at e4000000 (32-bit, non-prefetchable)
-	I/O ports at 6000
-
-00:0c.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX (rev 01) (prog-if 
-00 [VGA])
-	Subsystem: S3 Inc. ViRGE/DX
-	Flags: bus master, medium devsel, latency 64, IRQ 11
-	Memory at e0000000 (32-bit, non-prefetchable)
+> Ok, this should fix some pending issues...
+> 
+> Tue Jul  2 21:27:44 CEST 2002 ide-clean-96
+> 
+> - revert to previous (2.4.x + channel->lock) locking scheme
+> 
+> - bring back ide__sti() calls
+> 
+> - fix bug introduced in IDE 63 in ide_do_drive_cmd(), if action is ide_end
+>   request should be added to end of queue not next to current request,
+>   fortunately it is used only by ide-tape which is broken anyway
+> 
+> - fix bug introduced in IDE 94 in idedisk_do_request(), removal of
+>   rq->special = ar; probably needed by PMAC and TCQ
+> 
+> - fix bug introduced in IDE 94 in do_request(), always setting IDE_BUSY
+>   bit could lead to deadlock
+> 
+> - in check_crc_errors() do strict checking for UDMA modes
+> 
+> - clean double setting handler/timer hack
+> 
+> - remove CAP_SYS_ADMIN check from HDIO_GET* ioctls
+> 
+> 
 
 -- 
-Richard Sembera, Ph.D.
-es034@ncf.carleton.ca
-http://ncf.carleton.ca/~es034
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

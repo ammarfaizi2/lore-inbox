@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269922AbUJEQTC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270084AbUJEQAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269922AbUJEQTC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 12:19:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270163AbUJEQJu
+	id S270084AbUJEQAf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 12:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269196AbUJEPwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 12:09:50 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:39074 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S269992AbUJEQBM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 12:01:12 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: Core scsi layer crashes in 2.6.8.1
-Date: Tue, 5 Oct 2004 18:01:03 +0200
-User-Agent: KMail/1.6.2
-Cc: Mark Lord <lsml@rtr.ca>, Anton Blanchard <anton@samba.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-References: <1096401785.13936.5.camel@localhost.localdomain> <200410051749.22245.oliver@neukum.org> <1096991666.2064.25.camel@mulgrave>
-In-Reply-To: <1096991666.2064.25.camel@mulgrave>
+	Tue, 5 Oct 2004 11:52:10 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:48831 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269549AbUJEPp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 11:45:28 -0400
+Message-ID: <4162C192.1020402@namesys.com>
+Date: Tue, 05 Oct 2004 08:45:22 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jeffrey Mahoney <jeffm@novell.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/4] I/O Error Handling for ReiserFS v3
+References: <20041005150819.GA30046@locomotive.unixthugs.org>
+In-Reply-To: <20041005150819.GA30046@locomotive.unixthugs.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410051801.03677.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 5. Oktober 2004 17:54 schrieb James Bottomley:
-> On Tue, 2004-10-05 at 10:49, Oliver Neukum wrote:
-> > Then let the driver tell the upper layers whether the device is still
-> > connected or not.
-> 
-> Do we have to go over this again?
-> 
-> It would add quite a bit of complexity to the reference counted
-> aynchronous model to try and force synchronicity between queuecommand
-> and scsi_remove_host in the mid-layer.  Therefore it's much easier to
-> let the LLD decide what to do with the command.
+Jeffrey Mahoney wrote:
 
-Why is it in any way difficult to decide whether to issue a command in the
-first place? The command is generated upon being notified by the lower layer.
-There is no issue of synchronisation here. It is simply stupid to give
-commands that are bound to fail, if the information is already available.
-
-	Regards
-		Oliver
+>Hey all -
+>
+>One of the most common complaints I've heard about ReiserFS is how
+>graceless it is in handling critical I/O errors.
+>
+>  
+>
+I would like to thank Jeff for writing these.  They are much needed.

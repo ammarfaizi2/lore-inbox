@@ -1,78 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129858AbRBLUyu>; Mon, 12 Feb 2001 15:54:50 -0500
+	id <S130069AbRBLVCA>; Mon, 12 Feb 2001 16:02:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130069AbRBLUyj>; Mon, 12 Feb 2001 15:54:39 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:18706 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129858AbRBLUya>; Mon, 12 Feb 2001 15:54:30 -0500
-Message-ID: <3A884D72.E0F3D354@transmeta.com>
-Date: Mon, 12 Feb 2001 12:54:10 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S130268AbRBLVBu>; Mon, 12 Feb 2001 16:01:50 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:50439 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130069AbRBLVBi>; Mon, 12 Feb 2001 16:01:38 -0500
+Date: Mon, 12 Feb 2001 17:11:14 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Chris Mason <mason@suse.com>
+cc: Hans Reiser <reiser@namesys.com>, Daniel Stone <daniel@kabuki.eyep.net>,
+        Chris Wedgwood <cw@f00f.org>, David Rees <dbr@spoke.nols.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>,
+        Alexander Zarochentcev <zam@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+In-Reply-To: <107980000.981939371@tiny>
+Message-ID: <Pine.LNX.4.21.0102121707350.29656-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: James Sutherland <jas88@cam.ac.uk>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: LILO and serial speeds over 9600
-In-Reply-To: <Pine.SOL.4.21.0102122025320.22949-100000@yellow.csi.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Sutherland wrote:
+
+On Sun, 11 Feb 2001, Chris Mason wrote:
+
 > 
-> Excellent plan: data centre sysadmins the world over will worship your
-> name if it works...
 > 
-> What exactly do you have in mind: a bidirectional connection you could
-> use to control everything from LILO/Grub onwards? Should be feasible,
-> anyway.
+> On Sunday, February 11, 2001 10:00:11 AM +0300 Hans Reiser
+> <reiser@namesys.com> wrote:
 > 
-> I'd go with UDP for this, rather than raw Ethernet. Use DHCP to get the IP
-> address(es) to connect to as console hosts? (That or a command line
-> option...)
+> > Daniel Stone wrote:
+> >> 
+> >> On 11 Feb 2001 02:02:00 +1300, Chris Wedgwood wrote:
+> >> > On Thu, Feb 08, 2001 at 05:34:44PM +1100, Daniel Stone wrote:
+> >> > 
+> >> >     I run Reiser on all but /boot, and it seems to enjoy corrupting my
+> >> >     mbox'es randomly.
+> >> > 
+> >> > what kind of corruption are you seeing?
+> >> 
+> >> Zeroed bytes.
+> > 
+> > This sounds like the same bug as the syslog bug, please try to help Chris
+> > reproduce it.
+> > 
+> > zam, if Chris can't reproduce it by Monday, please give it a try.
+> > 
 > 
+> I had a bunch of scripts running over the weekend to try and reproduce
+> this, but the results were ruined when a major storm killed the power (no,
+> still haven't gotten around to configuring my UPS to shut things down ;-).
+> 
+> So, I'll try again.
 
-Yes, that's my thinking too.  A DHCP/BOOTP option seems to be the obvious
-way, and I'd hate to use non-obvious ways when there is a perfectly good
-obvious way.
+Chris,
 
-> The first thing is the kernel: just wrap around printk so as soon as eth0
-> is up, you set up a session and start sending packets.
+Do you know if the people reporting the corruption with reiserfs on
+2.4 were using IDE drives with PIO mode and IDE multicount turned on?
 
-My thinking at the moment is to require kernel IP configuration (either
-ip= or RARP/BOOTP/DHCP).  It seems to be the only practical way;
-otherwise you miss too much at the beginning.  However, that mechanism is
-already in place, and shouldn't be too hard to piggy-back on.
+If so, it may be caused by the problem fixed by Russell King on
+2.4.2-pre2. 
 
-> I'll do a server to receive these sessions - simple text (no vt100 etc),
-> one window per session - and work on the protocol spec. Anyone willing
-> to do the client end of things - lilo, grub, kernel, etc??
+Without his fix, I was able to corrupt ext2 while using PIO+multicount
+very very easily.
 
-I'll do PXELINUX, for sure.  I'd prefer to do the protocol spec, if you
-don't mind -- having done PXELINUX I think I know the kinds of pitfalls
-that you run into doing an implementation in firmware or firmware-like
-programming (PXELINUX isn't firmware, but it might as well be.)
 
-Doing it in LILO would be extremely difficult, since LILO has no ability
-to handle networking, and no reasonable way to graft it on (you need a
-driver for networking.)  GRUB I can't really comment on.
 
-I might just decide to do the kernel as well.
 
-Hmmm... this sounds like it's turning into a group effort.  Would you (or
-someone else) like to set up a sourceforge project for this?  I would
-prefer not to have to deal with that end myself.
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268099AbTB1T02>; Fri, 28 Feb 2003 14:26:28 -0500
+	id <S268101AbTB1Tlw>; Fri, 28 Feb 2003 14:41:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268101AbTB1T02>; Fri, 28 Feb 2003 14:26:28 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35858 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268099AbTB1T01>; Fri, 28 Feb 2003 14:26:27 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Older bk snapshots not found on www.kernel.org (fwd)
-Date: 28 Feb 2003 11:36:27 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b3odnr$ia3$1@cesium.transmeta.com>
-References: <Pine.LNX.4.44.0302220158540.16168-100000@cam029208.student.utwente.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	id <S268105AbTB1Tlw>; Fri, 28 Feb 2003 14:41:52 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53517 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268101AbTB1Tlv>; Fri, 28 Feb 2003 14:41:51 -0500
+Date: Fri, 28 Feb 2003 19:52:10 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Deepak Saxena <dsaxena@mvista.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Proposal: Eliminate GFP_DMA
+Message-ID: <20030228195210.C10968@flint.arm.linux.org.uk>
+Mail-Followup-To: Deepak Saxena <dsaxena@mvista.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	"Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>,
+	linux-kernel@vger.kernel.org
+References: <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <Pine.SGI.4.10.10302282138180.244855-100000@Sky.inp.nsk.su> <20030228155841.GA4678@gtf.org> <20030228181729.GA8366@xanadu.az.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030228181729.GA8366@xanadu.az.mvista.com>; from dsaxena@mvista.com on Fri, Feb 28, 2003 at 11:17:29AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0302220158540.16168-100000@cam029208.student.utwente.nl>
-By author:    Martijn Uffing <mp3project@cam029208.student.utwente.nl>
-In newsgroup: linux.dev.kernel
-> 
-> And if the maintainer of www.kernel.org reads this. May I suggest to keep 
-> the bk snaphots of let's say the last 4/5 linus releases. Then people like 
-> me who test the kernel a couple of days after release can start a bug hunt 
-> and test bk snaphots from the past.
-> 
+On Fri, Feb 28, 2003 at 11:17:29AM -0700, Deepak Saxena wrote:
+> This discussion raises an issue that I've been meaning to bring up for
+> a bit.  Currently, the DMA-API is defined as returning a cpu physical
+> address [1]
 
-Don't ask me -- I don't deal with that (in fact, I *couldn't*, because
-of the asinine BK license.)
+The DMA-API should reflect the same as the PCI-DMA API, namely:
 
-	-hpa
+|  pci_alloc_consistent returns two values: the virtual address which you
+|  can use to access it from the CPU and dma_handle which you pass to the
+|  card.
 
+Translated: not a physical address.  "Physical" address to me means
+the address that appears on the outside of the CPU after it has passed
+through the MMU and is heading for the local CPUs system RAM.
+
+So yes, I think this is a bug that exists in the DMA-API document.
+
+It must be an offsetable cookie that the card on its own bus knows how
+to deal with to access the memory associated with the mapping.  In plain
+speak, the bus address for that device.
+
+> One easy answer is to provide bus-specific bus_map/unmap/etc functions
+> such as is done with PCI, but this seems rather ugly to me as now every
+> custom bus needs a new set of functions which IMNHO defeats the purpose
+> of a Generic DMA API.
+
+You can do this today with the API - test dev->bus_type to determine
+the type of the bus, convert to the correct device type and grab the
+bus information.
+
+The API hasn't really changed - its just that bugs exist in the
+documentation that need fixing before 2.6 comes out.  Submit a
+patch. 8)
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

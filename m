@@ -1,63 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129146AbRBCB4O>; Fri, 2 Feb 2001 20:56:14 -0500
+	id <S129355AbRBCCWg>; Fri, 2 Feb 2001 21:22:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129468AbRBCB4E>; Fri, 2 Feb 2001 20:56:04 -0500
-Received: from snowbird.megapath.net ([216.200.176.7]:48903 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S129146AbRBCBzq>;
-	Fri, 2 Feb 2001 20:55:46 -0500
-Message-ID: <3A7B65BD.1E5E33A8@megapathdsl.net>
-Date: Fri, 02 Feb 2001 17:58:21 -0800
-From: Miles Lane <miles@megapathdsl.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac1 i686)
-X-Accept-Language: en
+	id <S129468AbRBCCW1>; Fri, 2 Feb 2001 21:22:27 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:46517 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129355AbRBCCWK>; Fri, 2 Feb 2001 21:22:10 -0500
+Date: Sat, 3 Feb 2001 02:22:02 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Hans Reiser <reiser@namesys.com>
+cc: Alan Cox <alan@redhat.com>, John Morrison <john@vmlinux.net>,
+        Chris Mason <mason@suse.com>, Jan Kasprzak <kas@informatics.muni.cz>,
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>
+Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
+In-Reply-To: <3A7B2E94.F52C4342@namesys.com>
+Message-ID: <Pine.SOL.4.21.0102030216140.12570-100000@orange.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>, newsreader@mediaone.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: did 2.4 messed up lilo?
-In-Reply-To: <786060000.981147343@tiny> <3A7B63D1.2588963B@megapathdsl.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm.  I just downloaded the lilo 21.6 source and the patch appears to
-have
-already been applied.  I got 21.6 from:
+On Sat, 3 Feb 2001, Hans Reiser wrote:
+> Alan Cox wrote:
+> > 
+> > > It makes sense to refuse to build a piece of the kernel if it break's
+> > > a machine - anything else is a timebomb waiting to explode.
+> > 
+> > The logical conclusion of that is to replace the entire kernel tree with
+> > 
+> > #error "compiler or program might have a bug. Aborting"
+> 
+> No, this is a compiler that DOES have a bug.  ReiserFS is, as best as
+> I can make it, for mission critical servers where some sysadmin
+> doesn't want to explain it to the CEO.  There are plenty of ways that
+> I fail at this, but not intentionally.
 
-	http://ftp.cnr.it/Linux/system/boot/lilo/lilo-21.6.1.tar.gz
+Yep. For once, I agree with Hans here: if you *KNOW* the current compiler
+is fatally broken, the best thing to do is blow up. As hard as possible,
+as soon as possible. Anything else is just hiding the problem.
 
-Miles Lane wrote:
-> 
-> Chris Mason wrote:
-> >
-> > On Friday, February 02, 2001 03:36:18 PM -0500 newsreader@mediaone.net
-> > wrote:
-> >
-> > > I'm not sure whether this problem is related
-> > > to 2.4 kernel.
-> > >
-> >
-> > I suspect it is a reiserfs problem, and that you are using lilo older than
-> > 21.6.  Are you mounting /boot with -o notail?
-> >
-> > Regardless, I'm willing to bet upgrading to lilo 21.6 will solve this.  It
-> > calls an ioctl reiserfs provides to unpack small files, and I've seen it
-> > fix this exact problem on one of my devel boxes (no lilo prompt, append
-> > lines in lilo.conf ignored).
-> 
-> I also found this patch for lilo 21.6:
-> 
-> http://industrial-linux.org/distro/download/lilo-21.6-glibc-2.2-reiserfs.patch
-> 
-> Perhaps someone familiar with the lilo and reiserfs code could explain
-> whether or not this patch is really needed.
-> 
->         Miles
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+(snip)
+> My design objective in ReiserFS is not to say that it wasn't my fault
+> they had that bug because they are so ignorant about a filesystem that
+> really isn't very important to them unless it screws up.  My design
+> objective is to ensure they don't have that bug.  They are more
+> important than me.
+
+Hrm... better idiot-proofing just tends to produce better idiots.
+
+> > The kernel is NOT some US home appliance festooned with 'do not eat this
+> > furniture' and 'do not expose your laserwrite to naked flame' messages.
+> > The readme says its been tested with egcs-1.1.2 and gcc 2.95.
+
+Hrm. Ever wonder which country Alan lives in? :-)
+
+(Alan: Visit the next McDonalds you pass, and buy a coffee. Look at the
+warning on the side about the coffee being hot... then complain it isn't, 
+after a suitable delay...)
+
+> > Large numbers of people routinely build the kernel with 'unsupported' compilers
+> > notably the pgcc project people and another group you will cause problems for
+> > - the GCC maintainers. They use the kernel tree as part of the test set for
+> > their kernel, something putting #ifdefs all over it will mean they have to
+> > mess around to fix too.
+
+If it's specific enough to that particular gcc, it won't trip the gcc
+people up - unless they're really using that specific version, in which
+case it SHOULD blow up anyway!
+
+> A moment of precision here.  We won't test to see if the right
+> compiler is used, we will just test for the wrong one.
+
+Which is fine, IMO. "Warning: your compiler MIGHT be broken - please look
+at README" is OK, as is "Error: this compiler *IS* broken - it's gcc X.XX,
+which we know is broken because (foo)". "Error: this compiler looks like
+version foo, which we think might be broken" isn't, as Alan says...
+
+
+James.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,101 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267873AbTBKOZU>; Tue, 11 Feb 2003 09:25:20 -0500
+	id <S267876AbTBKOZB>; Tue, 11 Feb 2003 09:25:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267868AbTBKOZU>; Tue, 11 Feb 2003 09:25:20 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:11502 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267878AbTBKOZN>; Tue, 11 Feb 2003 09:25:13 -0500
-Date: Tue, 11 Feb 2003 20:10:29 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-Message-ID: <20030211201029.A3148@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org> <3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org> <20030210174243.B11250@in.ibm.com> <m18ywoyq78.fsf@frodo.biederman.org> <20030211182508.A2936@in.ibm.com> <20030211191027.A2999@in.ibm.com> <3E490374.1060608@mvista.com>
+	id <S267878AbTBKOZA>; Tue, 11 Feb 2003 09:25:00 -0500
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:47631 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id <S267876AbTBKOY6>; Tue, 11 Feb 2003 09:24:58 -0500
+Message-Id: <200302111434.h1BEYiPY067260@sirius.nix.badanka.com>
+Date: Tue, 11 Feb 2003 15:34:01 +0100
+From: Henrik Persson <nix@socialism.nu>
+To: Gianni Tedesco <gianni@ecsc.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via rhine bug? (timeouts and resets)
+In-Reply-To: <1044973108.1118.89.camel@lemsip>
+References: <200302111344.h1BDiMPY067070@sirius.nix.badanka.com>
+	<1044973108.1118.89.camel@lemsip>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E490374.1060608@mvista.com>; from cminyard@mvista.com on Tue, Feb 11, 2003 at 08:06:44AM -0600
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="'K0f0:bZB=.:2Mde"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 11, 2003 at 08:06:44AM -0600, Corey Minyard wrote:
-> |
-> |We could just reserve a memory area of reasonable size (how
-> |much ?) which would be used by the new kernel for all its
-> |allocations. We already have the infrastructure to tell the
-> |new kernel which memory areas not to use, so its simple
-> |enough to ask it exclude all but the reserved area.
-> |By issuing the i/o as early as possible during bootup
-> |(for lkcd all we need is the block device to be setup for
-> |i/o requests), we can minimize the amount of memory to
-> |reserve in this manner.
-> 
-> DMA can occur almost anywhere.  If you restrict the area of DMA, that
-> means you have to copy the contents to the final destination.  I don't think
-> we want to do that in many cases.
+--'K0f0:bZB=.:2Mde
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-The scope here was just the case that Eric seemed to be 
-trying to address, the way I understood it, and hence a much 
-simpler subset of the problem at hand, since it is not really
-tackling the rouge/buggy cases. There is no restriction on 
-where DMA can happen, just a block of memory area set aside 
-for the dormant kernel to use when it is instantiated. 
-So this is an area that the current kernel will not use or 
-touch and not specify as a DMA target during "regular" 
-operation. 
+On 11 Feb 2003 14:18:28 +0000
+Gianni Tedesco <gianni@ecsc.co.uk> wrote:
 
-> |
-> |That might address a large percentage of the regular cases,
-> |i.e. except where statically allocated buffers could be
-> |targets for DMA. If we are using in-use (user) pages
-> |for saving the dump, then there is a possibility of a dump
-> |getting corrupted by a DMA, but there may be a way to
-> |minimize that when we chose destination pages to use.
-> 
-> Unless you have some way to mark pages as current DMA targets, you,
-> you won't be able to do this.  And the problem Ken and I are seeing is
-> happening after the new kernel has booted. An old DMA operation is
-> occuring after the new kernel has booted.  That means two kernels would
-> have to choose the same DMA target areas, and that's fairly unreasonable
-> to ask, IMHO.
+GT> On Tue, 2003-02-11 at 13:43, Henrik Persson wrote:
+GT> > The problem is that my Via Rhine-NIC when transmitting alot of data fast
+GT> > (like.. ftp:ing large files over the network at 100mbit/s) gets an error
+GT> > (frame dropped, transmit error, reset).. As a cause of this the speed
+GT> > drops to about 3-4MB/s and the rest of the communication trough the
+GT> > network isn't working very well..
+GT> > 
+GT> > Note that this ONLY happens when there's alot of traffic (i.e. speeds at
+GT> > ~100mbit/s)..
+GT> 
+GT> Have you tried connecting directly to the other device with a crossover
+GT> cable, do problems still occur?
 
-Not really, this isn't about matching DMA target areas. Its
-about the new kernel ignoring memory that the old kernel was 
-using and only using the reserved area of memory which the
-old kernel was expected to have left alone in normal operation.
-
-This is not the entire spectrum of situations where any physical
-address could be a potential DMA target, due to a buggy kernel
-which could have passed any address to the device concerned.
-For that case, of course, quiescing the devices seems like the 
-best way out so far.
-
-So whether such reservation would solve the case you see
-would depend on whether the old DMA operation is targetted at
-a valid buffer in the old kernel, or if it is indeed a buggy
-scenario where DMA is happening into an address it shouldn't
-really be overwriting.
-
-> 
-> The only reasonable way I can think of to do this is to quiesce the devices
-> before dumping memory or doing a kexec.  It's not that hard to do, it's just
-> that a lot of DMA capable device drivers exist that don't do this.
-
-Yes, this is indeed what we need eventually.	
-What would it take to get there ? The main difficulty is making
-sure all device drivers do this ..
-
-Regards
-Suparna
+Yes, exactly the same problems occurs.
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+Henrik Persson
+e-mail: nix@socialism.nu  WWW: http://nix.badanka.com
+ICQ: 26019058             PGP/GPG: http://nix.badanka.com/pgp
+PGP-Key-ID: 0x43B68116    PGP-Keyserver: pgp.mit.edu
 
+--'K0f0:bZB=.:2Mde
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+SQne+uW4/EO2gRYRAmAgAJ0TVcbPH/55zioAUKzJQH9ExfNIfwCfcWyU
+ps+rjzRThnojOOCw/VI8s/U=
+=Aj8E
+-----END PGP SIGNATURE-----
+
+--'K0f0:bZB=.:2Mde--

@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262404AbSI2Gv6>; Sun, 29 Sep 2002 02:51:58 -0400
+	id <S262405AbSI2GzA>; Sun, 29 Sep 2002 02:55:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262405AbSI2Gv6>; Sun, 29 Sep 2002 02:51:58 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:64010
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S262404AbSI2Gv6>; Sun, 29 Sep 2002 02:51:58 -0400
-Date: Sat, 28 Sep 2002 23:55:32 -0700 (PDT)
-From: Andre Hedrick <andre@serialata.org>
-To: james <jdickens@ameritech.net>
-cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
-       Jeff Garzik <jgarzik@pobox.com>, Larry Kessler <kessler@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: Re: v2.6 vs v3.0
-In-Reply-To: <200209290114.15994.jdickens@ameritech.net>
-Message-ID: <Pine.LNX.4.10.10209282352110.13669-100000@master.linux-ide.org>
+	id <S262406AbSI2Gy7>; Sun, 29 Sep 2002 02:54:59 -0400
+Received: from web14602.mail.yahoo.com ([216.136.224.82]:57352 "HELO
+	web14602.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S262405AbSI2Gy6>; Sun, 29 Sep 2002 02:54:58 -0400
+Message-ID: <20020929070021.7735.qmail@web14602.mail.yahoo.com>
+Date: Sun, 29 Sep 2002 00:00:21 -0700 (PDT)
+From: Arvind Gopalan <arvind_gopalan@yahoo.com>
+Subject: Re: 4 byte mem alignment
+To: linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020928.232326.43409659.davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Sep 2002, james wrote:
+Thanks Dave, for confirming my doubt. I have some user
+level code that uses raw sockets on
+linux. The code ran on several dual PIII x86 machines
+without any issues. But since the time we started
+running (the same code with no changes) on the dual
+x86 xeons, i have seen some wierd corruption issues
+with the packets. This kernel already has the patch
+for the xeon TLB flush bug. On some of the eth packets
+that I dumped, i found that 8 bytes of data being
+"copied and inserted"!. As in after a certain offset
+into the packet, there would be a sequence of 8 bytes
+that would be an exact copy of the 8 bytes that
+appeared just before. All other following bytes were
+literally shifted down by 8. How can i proceed to
+debug this sort of a problem. if its a xeon specific
+issue, how can i isolate it?. 
 
-> How many people are sitting on the sidelines waiting for guarantee that ide is 
-> not going to blow up on our filesystems and take our data with it. Guarantee 
-> that ide is working and not dangerous to our data, then I bet a lot more 
-> people will come back and bang on 2.5. 
+Thanks
+-Arvind 
+
+--- "David S. Miller" <davem@redhat.com> wrote:
+>    From: Arvind Gopalan <arvind_gopalan@yahoo.com>
+>    Date: Sat, 28 Sep 2002 23:26:46 -0700 (PDT)
 > 
-> I know this whole ide mess have taken me away from the devolemental series. 
-> And I bet a lot of others. 
+>    how strong the requirements are for
+> copy_to_user().
+>    does it fault to byte-by-byte mode gracefully
+> when
+>    given a non-4byte aligned buffer?.
+> 
+> The x86 processor handles unaligned memory accesses
+> in hw.
+> 
+> On any platform, copy_to_user() must handle any user
+> and kernel buffer
+> alignment.
 
-Your points are noted and taken, and once AC and I bang out the details in
-2.4-ac series they are easily brought forward.  I am staying off 2.5
-until I can ramp back up the learning curve on the changing API's.
 
-I really do not want to go in and change what Jens has port forwarded
-until I have a complete grasp again.  There are no more major changes at
-this point and only delta's as needed to constrain concerns.
-
-The only change could be the addition of SATA II support as soon as I
-receive the WG's documents.
-
-Cheers,
-
-Andre Hedrick
-Linux Serial ATA Solutions
-LAD Storage Consulting Group
-
+__________________________________________________
+Do you Yahoo!?
+New DSL Internet Access from SBC & Yahoo!
+http://sbc.yahoo.com

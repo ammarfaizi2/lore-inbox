@@ -1,70 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264349AbUFEGcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbUFEGnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264349AbUFEGcl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 02:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbUFEGbf
+	id S262103AbUFEGnH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 02:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbUFEGnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 02:31:35 -0400
-Received: from mxout2.iskon.hr ([213.191.128.16]:46049 "HELO mxout2.iskon.hr")
-	by vger.kernel.org with SMTP id S264349AbUFEGbb (ORCPT
+	Sat, 5 Jun 2004 02:43:07 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:62952 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262103AbUFEGnC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 02:31:31 -0400
-X-Remote-IP: 213.191.128.14
-X-Remote-IP: 213.191.148.150
-Date: Sat, 5 Jun 2004 08:08:28 +0200
-From: Vid Strpic <vms@bofhlet.net>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: 2xPS2 -> USB converter works flawlessly
-Message-ID: <20040605060828.GE2894@home.bofhlet.net>
+	Sat, 5 Jun 2004 02:43:02 -0400
+Date: Fri, 4 Jun 2004 23:48:26 -0700
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
+       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+       Simon.Derr@bull.net
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
+ implementation
+Message-Id: <20040604234826.7f13b000.pj@sgi.com>
+In-Reply-To: <20040604184214.GJ21007@holomorphy.com>
+References: <16576.17673.548349.36588@alkaid.it.uu.se>
+	<20040604095929.GX21007@holomorphy.com>
+	<16576.23059.490262.610771@alkaid.it.uu.se>
+	<20040604112744.GZ21007@holomorphy.com>
+	<20040604113252.GA21007@holomorphy.com>
+	<20040604092316.3ab91e36.pj@sgi.com>
+	<20040604162853.GB21007@holomorphy.com>
+	<20040604104756.472fd542.pj@sgi.com>
+	<20040604181233.GF21007@holomorphy.com>
+	<20040604114219.40e50737.pj@sgi.com>
+	<20040604184214.GJ21007@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rJwd6BRFiFCcLxzm"
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.6
-X-Editor: VIM - Vi IMproved 6.3b BETA (2004 May 16, compiled May 23 2004 09:37:42)
-X-I-came-from: scary devil monastery
-X-Politics: UNIX fundamentalist
-X-Face: -|!t[0Pql@=P`A=@?]]hx(Oh!2jK='NQO#A$ir7jYOC*/4DA~eH7XpA/:vM>M@GLqAYUg9$ n|mt)QK1=LZBL3sp?mL=lFuw3V./Q&XotFmCH<Rr(ugDuDx,mM*If&mJvqtb3BF7~~Guczc0!G0C`2 _A.v7)%SGk:.dgpOc1Ra^A$1wgMrW=66X|Lyk
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 04, 2004 at 11:42:19AM -0700, Paul Jackson wrote:
+> I don't see why user code needs to determine NR_CPUS exactly.
 
---rJwd6BRFiFCcLxzm
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+William Lee Irwin III replied:
+> Wrong. Apps that want to reconfigure the system to e.g. online more cpus
+> in response to heightened load want to know.
 
-On Fri, Jun 04, 2004 at 02:38:53PM +0300, Denis Vlasenko wrote:
-> I never used USB devices under Linux, and barely used them
-> at all. But couple of days ago a friend of mine gave
-> me almost for free a mobo with fried PS2 mouse and
-> keyboard ports.
->=20
-> I bought 2xPS2 -> USB converter, compiled in USB
-> and USB HID support in 2.6.7-rc1-bk2 and you know what?
-> It works! Both keyboard and mouse! Even in X!
+Earlier, Andrew Morton wrote:
+> Sometimes userspace wants to know NR_CPUS.  Sometimes it wants ...
 
-Same here, but I'm so used to things working in Linux, that it really
-didn't surprise me ;-)
 
-OK, 2.6.6 here ... I'm lazy, waiting for 2.6.7 ;)
+I disagree, Andrew and William.
 
---=20
-           vms@bofhlet.net, IRC:*@Martin, /bin/zsh. C|N>K
-Linux moria 2.6.6 #1 Tue May 25 21:55:21 CEST 2004 i686
- 08:07:03 up 13:30,  1 user,  load average: 0.57, 0.89, 1.36
+What the kernel should provide user space is:
 
---rJwd6BRFiFCcLxzm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+ * cpu_possible_map - which CPU's are possible at all
+ * cpu_present_map  - which CPU's are presently plugged in
+ * cpu_online_map   - which CPU's are online for scheduling
+ * other more specific maps, such as perhaps perfctr stuff
+ * the size of these maps, for dynamic allocation
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+See further the include/linux/cpumask.h file in my recent patch set for
+consolidated documentation of these maps.
 
-iD8DBQFAwWNcq1AzG0/iPGMRAm8/AJ0WbO5yWV1gDgMaVsqH5IVixqpk9gCdFwts
-MCkXCMJPpj+x2E6bMRsOnEw=
-=9hvb
------END PGP SIGNATURE-----
+Currently, in the HOTPLUG configuration, cpu_possible_map happens to be
+just all the CPUs from 0 to NR_CPUS-1 (i.e. CPU_MASK_ALL), but that is a
+detail of the current implementation that should _not_ be used to drive
+the design of what we expose to user space.
 
---rJwd6BRFiFCcLxzm--
+The other stuff Andrew mentions, such as max CPU number possible or
+whatever, can and should be computed by user space code, from the above.
+
+Just knowing NR_CPUS won't be much use to hotplug user code,
+except as an overly specific way to determine the size of these maps.
+
+The size of the CPU maps could be in bytes (the usual sizeof unit) or
+for the present format, in number of unsigned longs.  Probably bytes is
+less surprising, even though it's slightly overly specified (the bottom
+2 or 3 bits will always be zero).
+
+I see no reason why user space needs to distinguish between NR_CPUS == 8
+and NR_CPUS == 4, say, beyond what is visible in such maps as above. And
+if at any time one of the maps is sparse, then a single small integer
+such as NR_CPUS is immediately inadequate.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

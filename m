@@ -1,59 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261409AbSKNDSF>; Wed, 13 Nov 2002 22:18:05 -0500
+	id <S261460AbSKNDVU>; Wed, 13 Nov 2002 22:21:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSKNDSF>; Wed, 13 Nov 2002 22:18:05 -0500
-Received: from dp.samba.org ([66.70.73.150]:1977 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261409AbSKNDSD>;
-	Wed, 13 Nov 2002 22:18:03 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Module parameters reimplementation 0/4
-Date: Thu, 14 Nov 2002 15:23:00 +1100
-Message-Id: <20021114032456.3337E2C057@lists.samba.org>
+	id <S261451AbSKNDVP>; Wed, 13 Nov 2002 22:21:15 -0500
+Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.11.87]:3332
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S261460AbSKNDUM>; Wed, 13 Nov 2002 22:20:12 -0500
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: linux-kernel@vger.kernel.org
+Subject: [COMPILE ERROR]: 2.5.46,47 - In Function acpi_system_suspend
+Date: Wed, 13 Nov 2002 22:32:17 -0500
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200211132232.17723.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was going to feed this more slowly, to get feedback at every stage,
-but I'm being mailbombed by angry developers 8(
+A7M266-D Athlon MP 2000+ (BIOS 1009 release)
 
-Explanation: (Not that anyone read my previous ones, it seems)
+drivers/built-in.o(.text+0x28fae): In function `acpi_system_suspend':
+: undefined reference to `do_suspend_lowlevel'
+make: *** [.tmp_vmlinux1] Error 1
 
-1) MODULE_PARM() is not typesafe: it doesn't even check that the
-   variable exists.  There are dozens of completely bogus uses in
-   drivers.
-2) Everyone who wants to implement module parameters *and* boot
-   parameters had to implement MODULE_PARM() and __setup() and roll
-   their own parsing.
-3) MODULE_PARM() is not extensible.
 
-This patch series introduces "PARAM(var, type, perm)".  This does
-several things:
-1) Checks the type of "var" matches "type".
-2) If built-in, adds a boot parameter called <modulename>.var.
-3) If modular, adds a module parameter called var.
-4) The third arg is for exposure through sysfs once it stabilizes, 000
-   means don't expose.
+This occurs when enabling "Sleep States" for ACPI.
 
-PARAM() is implemented in terms of PARAM_CALL(), similar to __setup()
-except it (depending on the perm field) might be readable too.
-
-Types "short", "ushort", "int", "ulong", "bool", "invbool" etc are
-implemented pre-canned.  You can define your own, see linux/params.h
-for how.
-
-Finally, if you do not use your own types, PARAM() can be #defined
-into a MODULE_PARM statement for 2.4 kernels (ie. backwards
-compatible).  Patch 4/4 also translates old-style MODULE_PARM() into
-PARAMs at load time, for existing modules.
-
-Why now?
---------
-This kind of change shows why you need an in-kernel linker: this kind
-of change would break userspace with the current modutils.
-
-Sorry for any inconvenience,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Shawn.

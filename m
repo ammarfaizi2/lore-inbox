@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262625AbTCIVEq>; Sun, 9 Mar 2003 16:04:46 -0500
+	id <S262626AbTCIVFu>; Sun, 9 Mar 2003 16:05:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262626AbTCIVEq>; Sun, 9 Mar 2003 16:04:46 -0500
-Received: from home.linuxhacker.ru ([194.67.236.68]:54167 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id <S262625AbTCIVEp>;
-	Sun, 9 Mar 2003 16:04:45 -0500
-Date: Mon, 10 Mar 2003 00:14:34 +0300
-From: Oleg Drokin <green@linuxhacker.ru>
-To: alan@redhat.com, linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: Memleak in ircomm_core
-Message-ID: <20030309211434.GA31791@linuxhacker.ru>
-Mime-Version: 1.0
+	id <S262627AbTCIVFu>; Sun, 9 Mar 2003 16:05:50 -0500
+Received: from mail.scsiguy.com ([63.229.232.106]:52490 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S262626AbTCIVFO>; Sun, 9 Mar 2003 16:05:14 -0500
+Date: Sun, 09 Mar 2003 14:15:47 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: mzyngier@freesurf.fr
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] EISA aic7770 broken
+Message-ID: <301080000.1047244547@aslan.scsiguy.com>
+In-Reply-To: <wrp1y1gcv96.fsf@hina.wild-wind.fr.eu.org>
+References: <wrp65qscwxx.fsf@hina.wild-wind.fr.eu.org>	<229560000.1047229710@aslan.scsiguy.com>
+ <wrp1y1gcv96.fsf@hina.wild-wind.fr.eu.org>
+X-Mailer: Mulberry/3.0.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> Justin> Take a look in kernel/resource.c.  request_region returns
+> Justin> *non-zero* if the region is already in use.  The driver
+> Justin> doesn't want to try and probe a region that is in use by
+> Justin> another device. Your patch is incorrect.
+> 
+> request_region returns a pointer to the newly allocated resource when
+> it succeds, and NULL when it failed. It's the opposite logic
+> check_region uses.
 
-   There seems to be a memleak on error exit path. The same patch should apply
-   to 2.5 and 2.4
+Sorry.  I missread the comment in kernel/resource.c.
 
-   Found with help of smatch + enhanced unfree script.
+> 
+>>> But the driver crashes badly while probing the card, somewhere in
+>>> ahc_runq_tasklet.
+>>> 
+>>> Any idea ?
+> 
+> Justin> Not without more information.
+> 
+> Ok, what can I do ?
 
-Bye,
-    Oleg
+Define crashes badly.  Driver messages or kernel panic strings typically
+help.
 
-===== net/irda/ircomm/ircomm_core.c 1.5 vs edited =====
---- 1.5/net/irda/ircomm/ircomm_core.c	Tue Aug  6 22:23:24 2002
-+++ edited/net/irda/ircomm/ircomm_core.c	Mon Mar 10 00:10:10 2003
-@@ -121,8 +121,10 @@
- 	} else
- 		ret = ircomm_open_tsap(self);
- 
--	if (ret < 0)
-+	if (ret < 0) {
-+		kfree(self);
- 		return NULL;
-+	}
- 
- 	self->service_type = service_type;
- 	self->line = line;
+--
+Justin
+

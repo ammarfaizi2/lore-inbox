@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267965AbTAHXGL>; Wed, 8 Jan 2003 18:06:11 -0500
+	id <S267970AbTAHXRi>; Wed, 8 Jan 2003 18:17:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267964AbTAHXGL>; Wed, 8 Jan 2003 18:06:11 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:26375 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267965AbTAHXGJ>;
-	Wed, 8 Jan 2003 18:06:09 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301082314.h08NEe56003842@darkstar.example.net>
-Subject: Re: Undelete files on ext3 ??
-To: john@grabjohn.com (John Bradford)
-Date: Wed, 8 Jan 2003 23:14:40 +0000 (GMT)
-Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200301082303.h08N3bvI003752@darkstar.example.net> from "John Bradford" at Jan 08, 2003 11:03:37 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267974AbTAHXRi>; Wed, 8 Jan 2003 18:17:38 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:23468 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267970AbTAHXRh>;
+	Wed, 8 Jan 2003 18:17:37 -0500
+Subject: [PATCH] linux-2.4.21-pre3_lost-tick_A0
+From: john stultz <johnstul@us.ibm.com>
+To: marcelo <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042068113.1048.150.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 08 Jan 2003 15:21:54 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > | > > What I was thinking of was a virtual device that allocated
-> > > | > > a new sector whenever an old one was overwritten - kind of
-> > > | > > like a journaled filesystem, but without the filesystem,
-> > > | > > (I.E. just the journal) :-).
-> > > | >
-> > > | > $ DIR FOO.TXT;*
-> > > | > FOO.TXT;1   FOO.TXT;2   FOO.TXT;2
-> > > | >
-> > > | > VMS-style file versioning, anybody? ;)
-> > > |
-> > > | Brilliant!
-> > > 
-> > > re-read the archives from 6-8 months ago.
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=101914252421742&w=2
-> 
-> So basically the idea already already exists:
-> 
-> http://www.netcraft.com.au/geoffrey/katie/
-> 
-> Brilliant!  :-)
+Marcelo, 
+	
+	Occasionally due to SMIs issued by the service processor, x440s will
+lose an interrupt or two. This can cause gettimeofday time
+discontinuities as well as clock skew (due to jiffies not being
+incremented when needed).  This patch uses the cyclone timer to notice
+these lost ticks and compensate for them. It only affects systems using
+the cyclone timer (x440s only at the moment). 
 
-Although I was originally thinking of doing it at sector level, rather
-than at filesystem level.
+Please apply. 
 
-John.
+thanks
+-john
+
+diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+--- a/arch/i386/kernel/time.c	Wed Jan  8 11:37:13 2003
++++ b/arch/i386/kernel/time.c	Wed Jan  8 11:37:13 2003
+@@ -279,6 +279,7 @@
+ static inline void mark_timeoffset_cyclone(void)
+ {
+ 	int count;
++	unsigned long delta = last_cyclone_timer;
+ 	spin_lock(&i8253_lock);
+ 	/* quickly read the cyclone timer */
+ 	if(cyclone_timer)
+@@ -291,6 +292,13 @@
+ 	count |= inb(0x40) << 8;
+ 	spin_unlock(&i8253_lock);
+ 
++	/*lost tick compensation*/
++	delta = last_cyclone_timer - delta;
++	if(delta > loops_per_jiffy+2000){
++		delta = (delta/loops_per_jiffy)-1;
++		jiffies += delta;
++	}
++               
+ 	count = ((LATCH-1) - count) * TICK_SIZE;
+ 	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
+ }
+
+
+

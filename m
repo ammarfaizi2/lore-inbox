@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261593AbSJFMeW>; Sun, 6 Oct 2002 08:34:22 -0400
+	id <S261590AbSJFMaO>; Sun, 6 Oct 2002 08:30:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbSJFMeW>; Sun, 6 Oct 2002 08:34:22 -0400
-Received: from mail.zedat.fu-berlin.de ([130.133.1.48]:57458 "EHLO
-	Mail.ZEDAT.FU-Berlin.DE") by vger.kernel.org with ESMTP
-	id <S261593AbSJFMeV>; Sun, 6 Oct 2002 08:34:21 -0400
-Message-Id: <m17yAhF-006i5XC@Mail.ZEDAT.FU-Berlin.DE>
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: "John Tyner" <jtyner@cs.ucr.edu>, "Greg KH" <greg@kroah.com>
-Subject: Re: Vicam/3com homeconnect usb camera driver
-Date: Sun, 6 Oct 2002 12:11:17 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-References: <001c01c26ce4$39b67f80$0a00a8c0@refresco>
-In-Reply-To: <001c01c26ce4$39b67f80$0a00a8c0@refresco>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S261593AbSJFMaO>; Sun, 6 Oct 2002 08:30:14 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:42506 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S261590AbSJFMaN>; Sun, 6 Oct 2002 08:30:13 -0400
+Date: Sun, 6 Oct 2002 05:35:43 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: BK MetaData License Problem?
+Message-ID: <20021006123543.GF31878@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20021006.045201.26534685.davem@redhat.com> <200210061218.g96CIAjY001906@darkstar.example.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210061218.g96CIAjY001906@darkstar.example.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 October 2002 04:58, John Tyner wrote:
-> This time with the patch actually attached!
+Please learn how to use the carriage return.
 
-In vicam_v4l_open:
+On Sun, Oct 06, 2002 at 01:18:10PM +0100, jbradford@dial.pipex.com wrote:
+> > BitMover et al. can't take your copyright powers away
+> > from you.
+> 
+> No, but since you own the copyright, you can give rights
+> to the material to the operator of the Open Logging
+> server.
+> 
+> Why don't we have a system whereby we automatically assign
+> copyright to one person, (I.E. Linus), who can then assign
+> us GPL rights in return, so that by submitting material to
+> any server, we are not able to assign anything other than
+> GPL rights to it's owner.
 
-Why is only the first control message checked for errors?
+For good or ill by having the copyrights not held by one
+person but instead held by so many is that no-one can
+arbitrarily change the license or relicense under other
+terms without the permission of all of the copyright
+holders.  However much you might trust Linus, do you want to
+trust his grandchildren?  Or the foundation after corporate
+interests have subverted it?
 
-vicam_usb_probe:
+> This is, I believe, although I could be wrong, the reason
+> that the Free Software Foundation allows you to assign
+> copyrights to them.
 
-__devinit ???
+The reason to assign your copyright to the FSF is to give
+them standing in court to defend the copyright.
 
-vicam_usb_disconnect:
 
-__devexit ???
-And you should probably kill the tasklet before you unregister the video 
-device.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-	Regards
-		Oliver
-
-PS: Is that just me, or did diff produce particularly unreadable output this 
-time?
+		Remember Cernan and Schmitt

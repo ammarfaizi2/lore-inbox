@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266035AbUFPAiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266038AbUFPAlT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266035AbUFPAiM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 20:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266038AbUFPAiM
+	id S266038AbUFPAlT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 20:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbUFPAlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 20:38:12 -0400
-Received: from conure.mail.pas.earthlink.net ([207.217.120.54]:26758 "EHLO
-	conure.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S266035AbUFPAiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 20:38:09 -0400
-From: Eric <eric@cisu.net>
-Reply-To: eric@cisu.net
-To: Christoph Hellwig <hch@lst.de>
-Subject: Re: more files with licenses that aren't GPL-compatible
-Date: Tue, 15 Jun 2004 19:38:02 -0500
-User-Agent: KMail/1.6.2
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <20040615205753.GA24380@lst.de>
-In-Reply-To: <20040615205753.GA24380@lst.de>
-MIME-Version: 1.0
+	Tue, 15 Jun 2004 20:41:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7567 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266038AbUFPAlS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 20:41:18 -0400
+Date: Tue, 15 Jun 2004 17:39:51 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Atul Sabharwal <atul_sabharwal@linux.jf.intel.com>
+Cc: linux-kernel@vger.kernel.org, atul.sabharwal@intel.com
+Subject: Re: [Announce] Non Invasive Kernel Monitor for threads/processes
+Message-ID: <20040615173951.E22989@build.pdx.osdl.net>
+References: <40CF4233.70709@linux.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406151938.02613.eric@cisu.net>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <40CF4233.70709@linux.jf.intel.com>; from atul_sabharwal@linux.jf.intel.com on Tue, Jun 15, 2004 at 11:38:43AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 June 2004 03:57 pm, Christoph Hellwig wrote:
-> While I don't want to jump into the usual Debian wankfest whether Linux
-> as GPL'ed project can distribute hex-images of firmware at all there are
-> a few firmware C headers files that have a license statement that aren't
-> GPL-compatible at all, namely the keyspan firmware in
-> drivers/usb/serial/keyspan*_fw.h with the following license text:
+* Atul Sabharwal (atul_sabharwal@linux.jf.intel.com) wrote:
+> We have been working with a solution for non-intrusively trapping on lifetime
+> of processes/threads. This is useful for management applications running in
+> telecom and enterprise data centers that need to monitor a set of threads/
+> processes.
+> 
+> Project Goal::
+> ~~~~~~~~~~~~~~
+> To create a kernel patch that  shall support methods to non-intrusively monitor
+> processes/threads at the kernel level.  It would use a notfication mechanism in
+> the kernel that allows registration of events of interest regarding processes/
+> threads.  Events of interest could be the following : Process creation (fork), 
+> Process exit(exit), Process calls(exec), thread creation & thread exit. 
 
---*snip*--
+These spots are already hooked via LSM and audit (the latter is capable
+of communicating such events to userspace via netfilter) Was that not
+sufficient somehow?  In fact, the netfilter queuing will probably fair
+better than sigqueue which fairly limited.  Might be worth looking into
+that.  Did you look at the task ornament patch floating about from David
+Howells?  If new code is needed, that patch looks more generically useful.
 
-> 	Permission is hereby granted for the distribution of this firmware
-> 	image as part of a Linux or other Open Source operating system kernel
-> 	in text or binary form as required.
-
-> 	This firmware may not be modified and may only be used with
-> 	Keyspan hardware.  Distribution and/or Modification of the
-> 	keyspan.c driver which includes this firmware, in whole or in
-> 	part, requires the inclusion of this statement."
-> ---------------------------- snip ----------------------------
->
-> which makes the kernel as whole unredistributable.  A similar license
-> was according to Greg also recently granted for
-> drivers/usb/misc/emi62_fw_*.h which currently has even worse license
-> statements in there.
-
-Unredistributable? Am I mistaken? It says permission is given to redistribute 
-this piece as part of the linux kernel. You just can't modify it. Although it 
-is unquestionably not a very permissive license, it's inclusion is not 
-detrimental to the kernel.
-
-Please correct me if I am wrong.
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

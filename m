@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbUJXUZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbUJXU0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbUJXUZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 16:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbUJXUZ0
+	id S261672AbUJXU0n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 16:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbUJXU0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 16:25:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51633 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261674AbUJXUYu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 16:24:50 -0400
-Date: Sun, 24 Oct 2004 13:24:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Thomas Meyer <thomas.mey3r@arcor.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [2.6.10-rc1] Segmentation fault in program "X"
-In-Reply-To: <417BF02F.20704@arcor.de>
-Message-ID: <Pine.LNX.4.58.0410241323140.13209@ppc970.osdl.org>
-References: <417B6A17.8010904@arcor.de> <200410241313.31151.vda@port.imtp.ilyichevsk.odessa.ua>
- <417BF02F.20704@arcor.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 24 Oct 2004 16:26:42 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:2835 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261672AbUJXU02
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 16:26:28 -0400
+Date: Mon, 25 Oct 2004 00:26:30 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin Schlemmer <azarah@nosferatu.za.org>, torvalds@osdl.org,
+       sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.9-bk7] Select cpio_list or source directory for initramfs image updates [u]
+Message-ID: <20041024222630.GA10963@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Martin Schlemmer <azarah@nosferatu.za.org>, torvalds@osdl.org,
+	sam@ravnborg.org, linux-kernel@vger.kernel.org
+References: <200410200849.i9K8n5921516@mail.osdl.org> <1098533188.668.9.camel@nosferatu.lan> <20041024030844.18f2fedd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041024030844.18f2fedd.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 24 Oct 2004, Thomas Meyer wrote:
+On Sun, Oct 24, 2004 at 03:08:44AM -0700, Andrew Morton wrote:
+> "Martin Schlemmer [c]" <azarah@nosferatu.za.org> wrote:
+ 
+> hmm.  You have a patch in the email body and two slightly different patches
+> as attachments.  All bases covered ;)
 > 
-> Denis Vlasenko wrote:
-> > On Sunday 24 October 2004 11:38, Thomas Meyer wrote:
-> > 
-> >>Hello.
-> >>
-> >>X doesn't work under 2.6.10-rc1. i'm using the framebuffer X server. 
-> >>Kernel 2.6.9 works. How could that be?
-> > 
-> > 
-> > Details?
-> > --
-> > vda
-> > 
-> > 
-> 
-> Hi.
-> 
-> Signal SIGSEGV happens while doing sys function
-> "ioctl(5, FBIOBLANK <unfinished ...>"
-> 
-> seems to be some changes between 2.6.9 and 2.6.10-rc1 in file "fbmem.c"
+> I'll stick
+> "select-cpio_list-or-source-directory-for-initramfs-image-v7.patch" into
+> -mm but would prefer that this patch come in via Sam's tree please.
 
-Do you have radeon hardware? Is there any oops in your logs?
+Fighting with my backlog..
+While being away from Linux for a while my kernel suddenly would not compile.
+A make mrproper was needed.
+This was no good and I realised that generating asm_offsets.h for i386 did 
+not check all dependencies.
 
-It definitely sounds like it's due to this one:
+My fix involve all architectures and I want that pushed -mm before anything else.
+And it get rid of the annoying print "asm_offsets.h is up to date"
+I do not want to think what horor it could trigger if we change a constant and asm_offsets.h
+was not re-generated when it should.
 
-	ChangeSet@1.1988.69.186, 2004-10-19 08:09:17-07:00, benh@kernel.crashing.org
-	  [PATCH] rework radeonfb blanking
-	  
-	  This patch cleans up some old cruft in the manipulation of the LVDS
-	  interface registers and fixes the blanking code to work with various DVI
-	  flat panels.
-	  
-	  Since this is all very sensitive stuff, I'm posting the patch here for
-	  testing before submitting it upstream, though Andrew is welcome to put it
-	  in -mm.
-	  
-	  It also fix some problems with getting the right PLL setup on recent Mac
-	  laptops, replacing the old hard coded list of values with cleaner code that
-	  "probes" the PLL setup done by the firmware.
-	  
-	  Signed-off-by: Andrew Morton <akpm@osdl.org>
-	  Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-Ben, any suggestions for Thomas? 
-
-		Linus
+	Sam

@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264766AbSJVQMA>; Tue, 22 Oct 2002 12:12:00 -0400
+	id <S264768AbSJVQOB>; Tue, 22 Oct 2002 12:14:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264755AbSJVQKv>; Tue, 22 Oct 2002 12:10:51 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14610 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264760AbSJVQKp>; Tue, 22 Oct 2002 12:10:45 -0400
-Date: Tue, 22 Oct 2002 17:16:51 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linuxguruguy <linuxguruguy@aaahawk.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44 : move files from drivers/media/* ?
-Message-ID: <20021022171651.B19251@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0210212136030.900-100000@localhost.localdomain> <1035173920.6385.1.camel@nofuture.deadbodies.net> <1035214293.24166.1.camel@nofuture.deadbodies.net> <1035215567.24166.3.camel@nofuture.deadbodies.net>
-Mime-Version: 1.0
+	id <S264769AbSJVQOB>; Tue, 22 Oct 2002 12:14:01 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:28877 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S264768AbSJVQOA>; Tue, 22 Oct 2002 12:14:00 -0400
+Date: Tue, 22 Oct 2002 09:14:41 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+Message-ID: <2666588581.1035278080@[10.10.2.3]>
+In-Reply-To: <Pine.LNX.4.44L.0210221405260.1648-100000@duckman.distro.conectiva>
+References: <Pine.LNX.4.44L.0210221405260.1648-100000@duckman.distro.conectiva>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1035215567.24166.3.camel@nofuture.deadbodies.net>; from linuxguruguy@aaahawk.com on Mon, Oct 21, 2002 at 11:52:46AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 11:52:46AM -0400, linuxguruguy wrote:
-> On Mon, 2002-10-21 at 11:31, grstuhrberg wrote:
-> > 
-> > > On Mon, 2002-10-21 at 21:45, Frank Davis wrote:
-> > > > Hello all,
-> > > >   There are video and radio drivers within
-> > > > drivers/media/video and drivers/media/radio respectively.
-> > > > 
-> > > > Shouldn't those drivers move from drivers/media/video to drivers/video ? 
-> > > > and same with radio (either a new directory or within an existing 
-> > > > directory). It just seems that the drivers/media/ directory is unneeded. 
-> > > > Thoughts?
-> > > > 
-> > > > Regards,
-> > > > Frank
+> Actually, per-object reverse mappings are nowhere near as good
+> a solution as shared page tables.  At least, not from the points
+> of view of space consumption and the overhead of tearing down
+> the mappings at pageout time.
 > 
->  I agree This gets very annoying and repetitive when trying to find files 
+> Per-object reverse mappings are better for fork+exec+exit speed,
+> though.
+> 
+> It's a tradeoff: do we care more for a linear speedup of fork(),
+> exec() and exit() than we care about a possibly exponential
+> slowdown of the pageout code ?
 
-By that same argument, we should only have one directory containing all the
-.c and .h files in the entire kernel source tree.
+As long as the box doesn't fall flat on it's face in a jibbering
+heap, that's the first order of priority ... ie I don't care much
+for now ;-)
 
-The files in drivers/media/video are _completely_ unrelated to
-drivers/video.  If anything, drivers/video should become drivers/framebuffer,
-which is what it really is.  This would get rid of the "video" confusion.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+M.
 

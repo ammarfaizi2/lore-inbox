@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262101AbSITKa1>; Fri, 20 Sep 2002 06:30:27 -0400
+	id <S262137AbSITKeq>; Fri, 20 Sep 2002 06:34:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262126AbSITKa1>; Fri, 20 Sep 2002 06:30:27 -0400
-Received: from ppp-217-133-217-84.dialup.tiscali.it ([217.133.217.84]:52942
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S262101AbSITKa0>; Fri, 20 Sep 2002 06:30:26 -0400
+	id <S262173AbSITKeq>; Fri, 20 Sep 2002 06:34:46 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:43694 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262137AbSITKep>;
+	Fri, 20 Sep 2002 06:34:45 -0400
+Date: Fri, 20 Sep 2002 12:47:12 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D8A6EC1.1010809@redhat.com>
-References: <3D8A6EC1.1010809@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-1jhhxx3CSYZtRYU8yWDm"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 20 Sep 2002 12:35:23 +0200
-Message-Id: <1032518123.2024.6.camel@ldb>
-Mime-Version: 1.0
+In-Reply-To: <20020920102031.GA4744@gnuppy.monkey.org>
+Message-ID: <Pine.LNX.4.44.0209201231430.2954-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-1jhhxx3CSYZtRYU8yWDm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Fri, 20 Sep 2002, Bill Huey wrote:
 
-Great, but how about using code similar to the following rather than
-hand-coded asm operations?
+> You might like to try a context switching/thread wakeup performance
+> measurement against FreeBSD's libc_r. I'd imagine that it's difficult to
+> beat a system like that since they keep all of that stuff in userspace
+> since it's just 2 context switches and a call to their thread-kernel.
 
-extern struct pthread __pt_current_struct asm("%gs:0");
-#define __pt_current (&__pt_current_struct)
+our kernel thread context switch latency is below 1 usec on a typical P4
+box, so our NPT library should compare pretty favorably even in such
+benchmarks. We get from the pthread_create() call to the first user
+instruction of the specified thread-function code in less than 2 usecs,
+and we get from pthread_exit() to the thread that does the pthread_join()
+in less than 2 usecs as well - all of these operations are done via a
+single system-call and a single context switch.
 
-#define THREAD_GETMEM(descr, member) (__pt_current->member)
-#define THREAD_SETMEM(descr, member, value) ((__pt_current->member) =3D
-value)
-#define THREAD_MASKMEM(descr, member, mask) ((__pt_current->member) &=3D
-mask)
-...
+also consider the fact that the true cost of M:N threading does not show
+up with just one or two threads running. The true cost comes when
+thousands of threads are running, each of them doing nontrivial work that
+matters, ie. IO. The true cost of M:N shows up when threading is actually
+used for what it's intended to be used :-) And basically nothing offloads
+work to threads for them to just do userspace synchronization - real,
+useful work always involves some sort of IO and kernel calls. At which
+point M:N loses out badly.
 
-Of course, it doesn't work if you try to take the address of a member.
+M:N's big mistake is that it concentrates on what matters the least:  
+user<->user context switches. Nothing really wants to do that. And if it
+does, it's contended on some userspace locking object, at which point it
+doesnt really matter whether the cost of switching is 1 usec or 0.5 usecs,
+the main application cost is the lost paralellism and increased cache
+trashing due to the serialization - independently of what kind of
+threading abstraction is used.
 
+and since our NPT library uses futexes for *all* userspace synchronization
+primitives (including internal glibc locks), all uncontended
+synchronization is done purely in user-space. [and for the contended case
+we *want* to switch into the kernel.]
 
---=-1jhhxx3CSYZtRYU8yWDm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+	Ingo
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9ivnrdjkty3ft5+cRAmMSAJ9v470NIJzcj+54n1xTht8FSg40mACgx7Lh
-Zkzp+pWyB9+bT0S1WbCd00U=
-=U7hZ
------END PGP SIGNATURE-----
-
---=-1jhhxx3CSYZtRYU8yWDm--

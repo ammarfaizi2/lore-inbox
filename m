@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316585AbSHJEQM>; Sat, 10 Aug 2002 00:16:12 -0400
+	id <S316599AbSHJF6z>; Sat, 10 Aug 2002 01:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316587AbSHJEQM>; Sat, 10 Aug 2002 00:16:12 -0400
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:15749 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S316585AbSHJEQL>; Sat, 10 Aug 2002 00:16:11 -0400
-Date: Fri, 9 Aug 2002 21:19:41 -0700
-To: Greg Fitzgerald <gregf@closeedge.net>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, adilger@clusterfs.com
-Subject: Re: ext3 journal/IDE problems ?
-Message-ID: <20020810041941.GA4192@gnuppy.monkey.org>
-References: <20020809040456.GA786@gnuppy.monkey.org> <20020809110938.24de8a00.gregf@closeedge.net>
-Mime-Version: 1.0
+	id <S316601AbSHJF6z>; Sat, 10 Aug 2002 01:58:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51718 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316599AbSHJF6z>;
+	Sat, 10 Aug 2002 01:58:55 -0400
+Message-ID: <3D54AED6.708F247F@zip.com.au>
+Date: Fri, 09 Aug 2002 23:12:38 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+References: <3D548E3D.4F8DC107@zip.com.au> <Pine.LNX.4.44.0208092046430.1354-100000@home.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020809110938.24de8a00.gregf@closeedge.net>
-User-Agent: Mutt/1.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 09, 2002 at 11:09:38AM -0400, Greg Fitzgerald wrote:
-> I have been having problems with ext3 hardlocking while in X and in
-> Console. Symptom one is while in console moving large ammounts of data
-> around between partions it will hardlock. Symptom two is sometimes I
-> will leave my computer for a few minutes (on a very rar occasion :P )
-> when i return x is hardlocked. Was running XFS and Resierfs before I
-> tried ext3 and never had these problems. Any information I can provide
-> let me know.
+Linus Torvalds wrote:
+> 
+> ...
+> > We'll need need to manually fault in the user page on the
+> > generic_file_read() path before taking the kmap, because reading
+> > into an unmapped page is a common case: malloc/read.
+> 
+> I actually suspect that most reads are fairly small, and the page already
+> exists. But who knows.. pre-loading is certainly easy (a single
+> instruction).
 
-I use to get those hard locks, but I wasn't sure if was my hardware or
-the kernel using preempt. After using 2.5.30 for a while, those lock ups
-went away, but the progression to this bug happen first with a scheduler
-crash in the TCP/IP stack being triggered and then after that application of
-Mingo's patch (from a previous email) that fixed the crashes, it started
-to trigger ext3 assertions.
+These things can be measured ;)
 
-It's a very strange bug. Not sure what to say about it.
+Across a `make -j6 bzImage' the kernel reads 166,000 pages via
+file_read_actor().  And 31,000 of those generated a fault in
+the copy_*_user.  (It wrote 14,400 pages and, of course, none
+of those faulted).
 
-bill
+And if gcc is getting a fault 20% of the time, some other apps will
+get many more.  Which implies that we must prefault the page in
+file_read_actor to get full benefit.
 
+And if we do that, I'll bet you Victor's dollar that the fixup path
+is never executed.   I'd have to disable the prefault even to be able
+to test it.
+
+What would be nice is a way of formalising the prefault, to pin
+the mm's pages across the copy_*_user() in some manner, perhaps?

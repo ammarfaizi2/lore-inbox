@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264247AbUESPno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264272AbUESPno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264247AbUESPno (ORCPT <rfc822;willy@w.ods.org>);
+	id S264272AbUESPno (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 19 May 2004 11:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbUESPkz
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUESPlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:40:55 -0400
-Received: from mail.tmr.com ([216.238.38.203]:12443 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S264251AbUESPiX (ORCPT
+	Wed, 19 May 2004 11:41:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35535 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264247AbUESPiP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:38:23 -0400
-Message-ID: <40AB8147.5080404@tmr.com>
-Date: Wed, 19 May 2004 11:46:15 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
+	Wed, 19 May 2004 11:38:15 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] implement TIOCGSERIAL in sn_serial.c
+Date: Wed, 19 May 2004 11:38:04 -0400
+User-Agent: KMail/1.6.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, pfg@sgi.com,
+       Erik Jacobson <erikj@sgi.com>
+References: <200405191109.51751.jbarnes@engr.sgi.com> <20040519163129.A27714@infradead.org>
+In-Reply-To: <20040519163129.A27714@infradead.org>
 MIME-Version: 1.0
-To: Jan De Luyck <lkml@kcore.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.6] eepro100 vs e100?
-References: <200405190858.44632.lkml@kcore.org>
-In-Reply-To: <200405190858.44632.lkml@kcore.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405191138.04086.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan De Luyck wrote:
+On Wednesday, May 19, 2004 11:31 am, Christoph Hellwig wrote:
+> On Wed, May 19, 2004 at 11:09:51AM -0400, Jesse Barnes wrote:
+> > The sn2 console driver behaves something like a serial port, but was
+> > missing some of the ioctls that userland apps expected.  This patch
+> > implements the TIOCGSERIAL ioctl, which allows applications to identify
+> > the console as a serial port.
+>
+> And whats the point for this one?  TIOCGSERIAL is just some messy internals
+> of the old serial.c driver (and serial_core now) that's exposed for the
+> sake of setserial.  Given that the sn console is quite different I don't
+> see the point to emulate all the mess of a real serial driver - and if you
+> want to do so use the serial_core framework.
 
-> I'm currently in the process of cleaning up my 2.6 kernel configuration on my 
-> trusty SMP HP Netserver LC3, which comes shipped with 2 identical intel Pro 
-> Ethernet 100 mbit cards:
+Pat is working on that and should have a patch ready to post soon (is that 
+right Pat?).  In the meantime, we need this little bit.
 
-While initially there did seem to be lockups with multiple e100 devices, 
-I haven't seen that in some versions. I have several servers which run 
-the NICs at 70-80 Mbit all the time and see no issues with the e100 at 
-this time.
-
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Jesse

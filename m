@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265170AbUFATnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265175AbUFATtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265170AbUFATnP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 15:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbUFATnO
+	id S265175AbUFATtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 15:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265184AbUFATtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 15:43:14 -0400
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:64004 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S265170AbUFATnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 15:43:14 -0400
-From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Organization: Linux-Systeme GmbH
-To: linux-kernel@vger.kernel.org, orders@nodivisions.com
-Subject: Re: swappiness ignored
-Date: Tue, 1 Jun 2004 21:42:54 +0200
-User-Agent: KMail/1.6.2
-References: <40B43B5F.8070208@nodivisions.com> <200406011136.17055@WOLK> <40BCDB3E.3050705@nodivisions.com>
-In-Reply-To: <40BCDB3E.3050705@nodivisions.com>
-X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406012142.54909@WOLK>
+	Tue, 1 Jun 2004 15:49:09 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:59561 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S265175AbUFATtG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 15:49:06 -0400
+Message-Id: <200406011948.i51JmajD006349@eeyore.valparaiso.cl>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] explicitly mark recursion count 
+In-Reply-To: Message from =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de> 
+   of "Tue, 01 Jun 2004 15:37:53 +0200." <20040601133753.GC14572@wohnheim.fh-wedel.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Tue, 01 Jun 2004 15:48:36 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 June 2004 21:38, Anthony DiSante wrote:
+=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de> said:
 
-Hi Anthony,
+[...]
 
-> > I bet you have /proc/sys/vm/autoswappiness or the previous version of it
-> > w/o /proc stuff.
+> What I need is:
+> 1. Recursion count
 
-> Ah, yes, I do, and it's set to one.  So if I set that to zero, then the
-> kernel won't automatically adjust /proc/sys/vm/swappiness?
+How do you know the limit is enforced? By guessing?
 
-right :)
+> 2. All functions involved in the recursion in the correct order (a
+>    calls b calls c calls d calls a, something like that).
 
-ciao, Marc
+But also b calls f calls g...
+
+Maintaining the full possible-call-graph is a _huge_ job, better done
+automatically (because somebody _will_screw up when doing it by hand). Plus
+the fun "structure spicked with all sorts of function pointers" object
+implementation in the kernel... note that your carefully maintained call
+graph/counts can be screwed up royally by any random third-party device
+driver or filesystem module.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,114 +1,271 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273855AbRIRFWP>; Tue, 18 Sep 2001 01:22:15 -0400
+	id <S273853AbRIRFYp>; Tue, 18 Sep 2001 01:24:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273854AbRIRFWF>; Tue, 18 Sep 2001 01:22:05 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:3556 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S273853AbRIRFVw>; Tue, 18 Sep 2001 01:21:52 -0400
-Date: Tue, 18 Sep 2001 01:22:16 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
+	id <S273854AbRIRFYg>; Tue, 18 Sep 2001 01:24:36 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:29452 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273853AbRIRFYU>; Tue, 18 Sep 2001 01:24:20 -0400
+Date: Tue, 18 Sep 2001 01:00:15 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Hugh Dickins <hugh@veritas.com>
 Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010918012216.C1249@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0109171608310.1108-100000@penguin.transmeta.com> <20010917211834.A31693@redhat.com> <20010918035055.J698@athlon.random> <20010917221653.B31693@redhat.com> <20010918052201.N698@athlon.random> <20010918000132.C885@redhat.com> <20010918063910.U698@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010918063910.U698@athlon.random>; from andrea@suse.de on Tue, Sep 18, 2001 at 06:39:10AM +0200
+        Rik van Riel <riel@conectiva.com.br>, Christoph Rohland <cr@sap.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: 2.4.10pre VM changes: Potential race
+In-Reply-To: <Pine.LNX.4.21.0109151236270.1155-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0109180057480.7152-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 06:39:10AM +0200, Andrea Arcangeli wrote:
-> On Tue, Sep 18, 2001 at 12:01:32AM -0400, Benjamin LaHaise wrote:
-> > Every single kernel since the dawn of 1.0 has died under OOM.  Optimizing for 
+
+
+On Sat, 15 Sep 2001, Hugh Dickins wrote:
+
+> Marcelo,
 > 
-> try 2.2 once.
-
-There are still loads that 2.2 can die under (think fast network cards and 
-you'll realise that you can't protect against it).  Yes, 2.2 is in far better 
-state than anything else ever has been, but it's not perfect.
-
-> > 2.2 doesn't matter any more.  Any work I'm doing now is 2.4 based.
+> I've done little testing of patch below (just SMP build on UP machine),
+> and uncertain whether I'll be able to do more over the weekend.  Better
+> for me to think backwards and forwards over it instead.  Please check
+> it out and give it a try, or take pieces for a patch of your own.
+> I won't be online, but will fetch mail from time to time.
 > 
-> It still matters for me. Critical servers with very high vm loads still
-> have to run 2.2 to be stable and fast unfortunately.
+> It's an all-in-one patch of various things, which I'd want to
+> divide up into separate parts if I were submitting to Linus.
+> There's something in Documentation should be updated too.
 
-That's where I want 2.4 to get to.
+Hugh, 
 
-> > I am being real.  I don't expect single massive patches to ever be applied, 
-> > and am shocked I've even had to comment on this.
-> 
-> Your aio patch is massive too.
-> 
-> andrea@athlon:~ > wc -l aio-v2.4.0-20010123.diff 
->    2951 aio-v2.4.0-20010123.diff
-> 
-> Now if you think I'm unreal and you are real, feed me the aio patch in
-> self contained pieces of 10 lines each as you expect from me. And note
-> that if they're not self contained they will just make my life harder.
+Here is my patch (mostly reaped your code) to fix the
+add_to_swap_cache/try_to_swap_out() race. I've tested it for quite some
+time on an SMP box. 
 
-Not 10 lines, but several hundred here and there.  Aio actually splits up 
-very well since thing like the wait_queue changes are all isolated bits 
-of functionality.  Even the brw_kiovec_async bit is standalone since it 
-only matters to itself and brw_kiovec.  Yes, the current patch is not 
-seperated, but that was my plan from the beginning on merging.
+Christoph, can you please check if the shmem patch is OK? 
 
-> I'd be glad to be proved wrong and to get aio from you in small self
-> contained pieces really, I planned to look into aio as one of the next
-> things to merge in -aa but as usual the size of the patch makes things
-> harder to merge due the larger implications. feel free to cc l-k, I'm
-> sure other people is interested in aio too.
+Note: this is against 2.4.10pre10, its not going to apply against pre11.
 
-It's not ready yet.  Most of the development has been on hold waiting for 
-2.5 to start for cementing the ABI in stone.
+Just need to fix some hunks, though. 
 
-> > I want robust and not likely to corrupt my data randomly.  The latter is more 
-> 
-> Forget the corruption. So far the only scary report I had is from
-> Marcelo's 2G machine which is nothin compared to corruption, I don't
-> have x86 machines with more than 1G, I tested alpha with 3G (but it has
-> only 1 zone). I think Marcelo identified the problematic part before
-> even testing it, so the fix should be fairly immediate, I'll address it
-> ASAP unless he beats me on it (at the moment I'm still resynching).
+diff -Nur --exclude-from=exclude linux.orig/mm/shmem.c linux/mm/shmem.c
+--- linux.orig/mm/shmem.c	Mon Sep 17 17:01:19 2001
++++ linux/mm/shmem.c	Mon Sep 17 21:49:10 2001
+@@ -241,14 +241,17 @@
+ 	
+ 	inode = page->mapping->host;
+ 	info = &inode->u.shmem_i;
++
++	spin_lock(&info->lock);
++	swap_list_lock();
+ 	swap = __get_swap_page(2);
+ 	error = -ENOMEM;
+ 	if (!swap.val) {
++		swap_list_unlock();
+ 		activate_page(page);
+ 		goto out;
+ 	}
+ 
+-	spin_lock(&info->lock);
+ 	entry = shmem_swp_entry(info, page->index);
+ 	if (IS_ERR(entry))	/* this had been allocted on page allocation */
+ 		BUG();
+@@ -268,8 +271,10 @@
+ 	page_cache_release(page);
+ 	info->swapped++;
+ 
+-	spin_unlock(&info->lock);
++	swap_list_unlock();
++
+ out:
++	spin_unlock(&info->lock);
+ 	set_page_dirty(page);
+ 	UnlockPage(page);
+ 	return error;
+diff -Nur --exclude-from=exclude linux.orig/mm/swap_state.c linux/mm/swap_state.c
+--- linux.orig/mm/swap_state.c	Mon Sep 17 17:01:19 2001
++++ linux/mm/swap_state.c	Mon Sep 17 22:29:32 2001
+@@ -94,7 +94,6 @@
+ void __delete_from_swap_cache(struct page *page)
+ {
+ 	struct address_space *mapping = page->mapping;
+-	swp_entry_t entry;
+ 
+ #ifdef SWAP_CACHE_INFO
+ 	swap_cache_del_total++;
+@@ -104,11 +103,9 @@
+ 	if (!PageSwapCache(page) || !PageLocked(page))
+ 		BUG();
+ 
+-	entry.val = page->index;
+ 	PageClearSwapCache(page);
+ 	ClearPageDirty(page);
+ 	__remove_inode_page(page);
+-	swap_free(entry);
+ }
+ 
+ /*
+@@ -117,15 +114,20 @@
+  */
+ void delete_from_swap_cache_nolock(struct page *page)
+ {
++	swp_entry_t entry;
++
+ 	if (!PageLocked(page))
+ 		BUG();
+ 
+ 	if (block_flushpage(page, 0))
+ 		lru_cache_del(page);
+ 
++	entry.val = page->index;
++
+ 	spin_lock(&pagecache_lock);
+ 	__delete_from_swap_cache(page);
+ 	spin_unlock(&pagecache_lock);
++	swap_free(entry);
+ 	page_cache_release(page);
+ }
+ 
+@@ -215,11 +217,17 @@
+ 	if (!new_page)
+ 		goto out;		/* Out of memory */
+ 
++	if (TryLockPage(new_page))
++		BUG();
++
+ 	/*
+ 	 * Check the swap cache again, in case we stalled above.
+-	 * The BKL is guarding against races between this check
++	 * swap_list_lock is guarding against races between this check
+ 	 * and where the new page is added to the swap cache below.
++	 * It is also guarding against race where try_to_swap_out
++	 * allocates entry with get_swap_page then adds to cache.
+ 	 */
++	swap_list_lock();
+ 	found_page = __find_get_page(&swapper_space, entry.val, hash);
+ 	if (found_page)
+ 		goto out_free_page;
+@@ -235,13 +243,14 @@
+ 	/* 
+ 	 * Add it to the swap cache and read its contents.
+ 	 */
+-	if (TryLockPage(new_page))
+-		BUG();
+ 	add_to_swap_cache(new_page, entry);
++	swap_list_unlock();
+ 	rw_swap_page(READ, new_page);
+ 	return new_page;
+ 
+ out_free_page:
++	swap_list_unlock();
++	UnlockPage(new_page);
+ 	page_cache_release(new_page);
+ out:
+ 	return found_page;
+diff -Nur --exclude-from=exclude linux.orig/mm/swapfile.c linux/mm/swapfile.c
+--- linux.orig/mm/swapfile.c	Mon Sep 17 17:01:19 2001
++++ linux/mm/swapfile.c	Mon Sep 17 18:39:40 2001
+@@ -108,6 +108,9 @@
+ 	return 0;
+ }
+ 
++/*
++ * Caller needs swap_list_lock() held.
++ */
+ swp_entry_t __get_swap_page(unsigned short count)
+ {
+ 	struct swap_info_struct * p;
+@@ -118,7 +121,6 @@
+ 	entry.val = 0;	/* Out of memory */
+ 	if (count >= SWAP_MAP_MAX)
+ 		goto bad_count;
+-	swap_list_lock();
+ 	type = swap_list.next;
+ 	if (type < 0)
+ 		goto out;
+@@ -154,7 +156,6 @@
+ 				goto out;	/* out of swap space */
+ 	}
+ out:
+-	swap_list_unlock();
+ 	return entry;
+ 
+ bad_count:
+diff -Nur --exclude-from=exclude linux.orig/mm/vmscan.c linux/mm/vmscan.c
+--- linux.orig/mm/vmscan.c	Mon Sep 17 17:01:19 2001
++++ linux/mm/vmscan.c	Mon Sep 17 22:18:40 2001
+@@ -166,16 +166,16 @@
+ 	 * we have the swap cache set up to associate the
+ 	 * page with that swap entry.
+ 	 */
++	swap_list_lock();
+ 	entry = get_swap_page();
+-	if (!entry.val)
+-		goto out_unlock_restore; /* No swap space left */
+-
+-	/* Add it to the swap cache and mark it dirty */
+-	add_to_swap_cache(page, entry);
+-	set_page_dirty(page);
+-	goto set_swap_pte;
+-
+-out_unlock_restore:
++	if (entry.val) {
++		/* Add it to the swap cache and mark it dirty */
++		add_to_swap_cache(page, entry);
++		swap_list_unlock();
++		set_page_dirty(page);
++		goto set_swap_pte;
++	}
++	swap_list_unlock();
+ 	set_pte(page_table, pte);
+ 	UnlockPage(page);
+ 	return;
+@@ -384,6 +384,7 @@
+ {
+ 	struct page * page = NULL;
+ 	struct list_head * page_lru;
++	swp_entry_t entry = {0};
+ 	int maxscan;
+ 
+ 	/*
+@@ -429,6 +430,7 @@
+ 
+ 		/* OK, remove the page from the caches. */
+ 		if (PageSwapCache(page)) {
++			entry.val = page->index;
+ 			__delete_from_swap_cache(page);
+ 			goto found_page;
+ 		}
+@@ -444,21 +446,26 @@
+ 		zone->inactive_clean_pages--;
+ 		UnlockPage(page);
+ 	}
+-	/* Reset page pointer, maybe we encountered an unfreeable page. */
+-	page = NULL;
+-	goto out;
++
++	spin_unlock(&pagemap_lru_lock);
++	spin_unlock(&pagecache_lock);
++	return NULL;
+ 
+ found_page:
+ 	memory_pressure++;
+ 	del_page_from_inactive_clean_list(page);
++	spin_unlock(&pagemap_lru_lock);
++	spin_unlock(&pagecache_lock);
++	if (entry.val)
++		swap_free(entry);
+ 	UnlockPage(page);
+ 	page->age = PAGE_AGE_START;
+ 	if (page_count(page) != 1)
+ 		printk("VM: reclaim_page, found page with count %d!\n",
+ 				page_count(page));
++
++	
+ out:
+-	spin_unlock(&pagemap_lru_lock);
+-	spin_unlock(&pagecache_lock);
+ 	return page;
+ }
+ 
 
-Sure.  That's why it should remain seperate for at least a little bit.
-
-> 
-> > That isn't the one I'm talking about.  You changed the swapcache code.  That 
-> > code is fragile.  These changes aren't documented.
-> 
-> I didn't changed the swapcache locking rules. I only fixed the VM to
-> properly clear the dirty bit before freeing a page. Anybody freeing a
-> page that is dirty was a plain vm bug. That was quite strightforward and
-> correct change. Infact I was horrified by seeing __free_pages_ok
-> clearing the dirty bit (not to talk about the referenced bit which was
-> useless to change).
-
-So why not split that fix out as a seperate patch that can then be applied 
-alone?
-
-> 
-> > The vm rewrite was not posted in public, nor described in public.  It just 
-> 
-> It obviously was. How do you think Linus got it? I said I didn't sent it
-> to Linus privately.
-
-*nod*
-
-> > appeared and got merged.  Could you at least describe *ALL* of the changes?
-> 
-> I'll be glad to do that over the time, right now I'm strict in time and
-> I also needed to go to sleep a few hours ago so I won't inline the reply
-> to this email right now, sorry.
-
-Thanks!  I think we'll all be a bit calmer in the morning and better able to 
-think clearly.  I'll even try to break things down a bit as there are bits 
-in your patches which I think are very good.
-
-Cheers,
-
-		-ben

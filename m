@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262909AbUE1NYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbUE1NZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbUE1NYE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 09:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbUE1NYD
+	id S262963AbUE1NZA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 09:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbUE1NY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 09:24:03 -0400
-Received: from colin2.muc.de ([193.149.48.15]:9990 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262909AbUE1NX7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 09:23:59 -0400
-Date: 28 May 2004 15:23:58 +0200
-Date: Fri, 28 May 2004 15:23:58 +0200
-From: Andi Kleen <ak@muc.de>
-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@muc.de>,
-       Andrey Panin <pazke@donpac.ru>, Andrew Morton <akpm@osdl.org>,
+	Fri, 28 May 2004 09:24:59 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:38074 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S262963AbUE1NYn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 09:24:43 -0400
+Date: Fri, 28 May 2004 06:24:36 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "Theodore Ts'o" <tytso@mit.edu>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>,
+       Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/13] 2.6.7-rc1-mm1, Simplify DMI matching data
-Message-ID: <20040528132358.GA78847@colin2.muc.de>
-References: <20Oc4-HT-25@gated-at.bofh.it> <m3zn7su4lv.fsf@averell.firstfloor.org> <20040528125447.GB11265@redhat.com>
+Subject: Re: [RFD] Explicitly documenting patch submission
+Message-ID: <20040528132436.GA11497@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Theodore Ts'o <tytso@mit.edu>,
+	"La Monte H.P. Yarroll" <piggy@timesys.com>,
+	Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <20040527062002.GA20872@work.bitmover.com> <20040527010409.66e76397.akpm@osdl.org> <40B6591C.80901@timesys.com> <20040527214638.GA18349@thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040528125447.GB11265@redhat.com>
+In-Reply-To: <20040527214638.GA18349@thunk.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 28, 2004 at 01:54:47PM +0100, Dave Jones wrote:
-> On Fri, May 28, 2004 at 02:18:52PM +0200, Andi Kleen wrote:
+> ChangeSet@1.1743.1.52, 2004-05-25 08:43:49-07:00, akpm@osdl.org
+>   [PATCH] minor sched.c cleanup
 > 
->  > > simplify DMI blacklist table by removing the need to fill
->  > > unused slots with NO_MATCH macro.
->  > 
->  > Can you please delay that patch for 2.7?
->  > 2.6 is for bug fixes, not for cleanups.
->  > 
->  > There are large third party patchkits for DMI and "cleaning up" 
->  > the format will just cause lots of rejects and pain. 
+>   Signed-off-by: Christian Meder <chris@onestepahead.de>
+>   Signed-off-by: Ingo Molnar <mingo@elte.hu>
 > 
-> Alternatively, those third parties could get their act
-> together and submit those patches back upstream.
+>   The following obviously correct patch from Christian Meder simplifies the
+>   DELTA() define.
+> 
+> Which do show the original author.  
 
-Often this is not the best thing to do - e.g. for upstream it is 
-better to track down the bugs and try to fix them, even if that
-takes a long time or find some other cleaner solution that doesn't
-involve blacklisting. For a third party there are often time constraints 
-(e.g. for a release) where there is no time to track down everything and 
-blacklisting has to be more extensively used.
+Not in any useful way.  If I go look at the file history, which is what
+I'm going to do when tracking down a bug, all I see on the files included
+in this changeset is akpm@osdl.org.
 
-My point stays that kernel interfaces should stay stable in the stable
-series as far as possible (= unless terminally broken, but that's
-clearly not the case here).  If you feel the need to clean up
-something better wait for the unstable series.
+That means any annotated listing (BK or CVS blame) shows the wrong author.
 
--Andi
+ChangeSet@1.1743.2.52, 2004-05-25 08:43:49-07:00, akpm@osdl.org +1 -0
+  [PATCH] minor sched.c cleanup
+  
+  Signed-off-by: Christian Meder <chris@onestepahead.de>
+  Signed-off-by: Ingo Molnar <mingo@elte.hu>
+  
+  The following obviously correct patch from Christian Meder simplifies the
+  DELTA() define.
+
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+  kernel/sched.c@1.302, 2004-05-25 02:58:45-07:00, akpm@osdl.org +1 -2
+    minor sched.c cleanup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

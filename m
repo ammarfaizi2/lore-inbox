@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274815AbRJJFSc>; Wed, 10 Oct 2001 01:18:32 -0400
+	id <S274806AbRJJFTc>; Wed, 10 Oct 2001 01:19:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274813AbRJJFSN>; Wed, 10 Oct 2001 01:18:13 -0400
-Received: from eunhasu.kjist.ac.kr ([203.237.32.200]:24551 "EHLO
-	eunhasu.kjist.ac.kr") by vger.kernel.org with ESMTP
-	id <S274806AbRJJFSE>; Wed, 10 Oct 2001 01:18:04 -0400
-Message-ID: <3BC3DA1E.6060806@kjist.ac.kr>
-Date: Wed, 10 Oct 2001 14:18:22 +0900
-From: "G. Hugh Song" <ghsong@kjist.ac.kr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: ko, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Idle bug net yet solved in 2.4.11-pre6(aa1)
-Content-Type: text/plain; charset=EUC-KR
-Content-Transfer-Encoding: 7bit
+	id <S274803AbRJJFT1>; Wed, 10 Oct 2001 01:19:27 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:30100 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S274806AbRJJFSa>; Wed, 10 Oct 2001 01:18:30 -0400
+Date: Tue, 9 Oct 2001 23:18:50 -0600
+Message-Id: <200110100518.f9A5Io516155@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Matt_Domsch@Dell.com
+Cc: adilger@turbolabs.com, torvalds@transmeta.com, alan@redhat.com,
+        Martin.Wilck@Fujitsu-Siemens.com, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] EFI GUID Partition Tables
+In-Reply-To: <71714C04806CD51193520090272892178BD6DB@ausxmrr502.us.dell.com>
+In-Reply-To: <71714C04806CD51193520090272892178BD6DB@ausxmrr502.us.dell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just realized that
-since around 2.4.10-pre8aa1, I have been having the idle-bug trouble which
-have been actively addressed at the moment.
+Matt Domsch writes:
+> Richard and Andreas, thanks for your feedback.
+> > Would it be possible to put this somewhere else and/or rename it?  It
+> > appears that GUIDs are really DCE UUIDs (which are used by 
+> > other things
+> > like ext2, XFS, MD RAID, etc) so if we are "advertising" 
+> > UUIDs from the
+> > kernel, we may as well make it "sensible" for other users.  How about
+> > "/dev/dis[ck]s/uuid", unless there are other users of UUID 
+> > identifiers?
+> 
+> Yes, UUIDs and GUIDs are the same thing, fortunately.
+> I'll have to defer this to the author of this piece of code.  Martin, any
+> reason why it shouldn't be renamed?  Richard, any preferred name?
 
-In patch-2.4.11.log file, I was able to find:
+I'd prefer /dev/volumes/uuids/
+Similarly, if label reading code is added, I'd like to see that put in
+/dev/volumes/labels/
 
-Under pre6
-- Peter Rival: update alpha SMP bootup to match wait_init_idle fixes
+				Regards,
 
-Apparently, it has not been fixed even in 2.4.11-pre6(aa1).
-"top" showed the idle percentage upsurdly high around 10^8 %.
-Then the machine freezed completely.
-
-Configuration:
-SuSE-7.1 (for alpha) running on UP2000 SMP with 2GB main memory.
-5GB swap space all together in three hard disks.
-Reasonably high mem usage which does not actually need any
-swap space.
-
-I am now using 2.2.20pre9aa2. I have not had much luck with
-2.4 kernels yet. Every time I tried 2.4 kernels, I have had all
-those vm-related troubles. I sincerely hope that the situation will soon
-be corrected all together. Then, we can say linux-2.4 is truly 2.4 (even
-numbered version).
-
-
-Best regards,
-
-G. Hugh Song
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

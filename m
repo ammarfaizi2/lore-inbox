@@ -1,64 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264790AbTBRK1m>; Tue, 18 Feb 2003 05:27:42 -0500
+	id <S267200AbTBRKft>; Tue, 18 Feb 2003 05:35:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267133AbTBRK1m>; Tue, 18 Feb 2003 05:27:42 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:48394 "EHLO
+	id <S267289AbTBRKft>; Tue, 18 Feb 2003 05:35:49 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:4107 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264790AbTBRK1l>; Tue, 18 Feb 2003 05:27:41 -0500
-Date: Tue, 18 Feb 2003 10:37:41 +0000
+	id <S267200AbTBRKfr>; Tue, 18 Feb 2003 05:35:47 -0500
+Date: Tue, 18 Feb 2003 10:45:47 +0000
 From: Christoph Hellwig <hch@infradead.org>
 To: Osamu Tomita <tomita@cinet.co.jp>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (2/26) APM
-Message-ID: <20030218103741.A11969@infradead.org>
+Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (5/26) char device
+Message-ID: <20030218104547.C11969@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Osamu Tomita <tomita@cinet.co.jp>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20030217134333.GA4734@yuzuki.cinet.co.jp> <20030217134955.GB4799@yuzuki.cinet.co.jp>
+References: <20030217134333.GA4734@yuzuki.cinet.co.jp> <20030217135603.GE4799@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030217134955.GB4799@yuzuki.cinet.co.jp>; from tomita@cinet.co.jp on Mon, Feb 17, 2003 at 10:49:55PM +0900
+In-Reply-To: <20030217135603.GE4799@yuzuki.cinet.co.jp>; from tomita@cinet.co.jp on Mon, Feb 17, 2003 at 10:56:03PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 17, 2003 at 10:49:55PM +0900, Osamu Tomita wrote:
-> +#include "io_ports.h"
+> +static struct lp_struct lp = {
+> +	/* Following `TAG: INITIALIZER' notations are GNU CC extension. */
 
-Isn't this introduced in a later patch?  Please make sure your patchkit
-never breaks the compile of the existing subarches when applied in order.
+This comment doesn't make sense anymore :)
 
->  		"pushl %%edi\n\t"
->  		"pushl %%ebp\n\t"
-> +#ifdef CONFIG_X86_PC9800
-> +		"pushfl\n\t"
+> +	.flags	= LP_EXIST | LP_ABORTOPEN,
+> +	.chars	= LP_INIT_CHAR,
+> +	.time	= LP_INIT_TIME,
+> +	.wait	= LP_INIT_WAIT,
+> +};
+> +
+> +static	int	dc1_check	= 0;
+> +static spinlock_t lp_old98_lock = SPIN_LOCK_UNLOCKED;
+> +
+> +
+> +#undef LP_OLD98_DEBUG
+> +
+> +#ifdef CONFIG_PC9800_OLDLP_CONSOLE
+> +static struct console lp_old98_console;		/* defined later */
+> +static __typeof__(lp_old98_console.flags) saved_console_flags;
+
+Please directly use the actual type here.
+
 > +#endif
->  		"lcall *%%cs:apm_bios_entry\n\t"
->  		"setc %%al\n\t"
->  		"popl %%ebp\n\t"
-> @@ -682,6 +687,9 @@
->  		__asm__ __volatile__(APM_DO_ZERO_SEGS
->  			"pushl %%edi\n\t"
->  			"pushl %%ebp\n\t"
-> +#ifdef CONFIG_X86_PC9800
-> +			"pushfl\n\t"
-> +#endif
+> +
+> +static DECLARE_WAIT_QUEUE_HEAD (lp_old98_waitq);
+> +
+> +static void lp_old98_timer_function(unsigned long data);
 
-Maybe add a
+This prototype is superflous.
 
-#ifdef CONFIG_X86_PC9800
-#define COND_PUSHFL	"pushfl\n\t"
-#else
-#define COND_PUSHFL	"pushfl\n\t"
-#endif
+> +	__const_udelay(lp.wait * 4);
 
-to the top of this file and then use it?
+Why do you use __const_udelay instead of udelay?
 
-> +#ifndef CONFIG_X86_PC9800
+> +#if LINUX_VERSION_CODE < 0x20200
+> +static long lp_old98_write(struct inode * inode, struct file * file,
+> +			   const char * buf, unsigned long count)
+> +#else
+> +static ssize_t lp_old98_write(struct file * file,
+> +			      const char * buf, size_t count,
+> +			      loff_t *dummy)
+> +#endif    
 
-Once again please always use #ifdef instead of #ifndef where possible.
+Do you really need that compat code?  I don't think it makes much sense to
+keep 2.0 code around in 2.5.
+
+> +static int lp_old98_open(struct inode * inode, struct file * file)
+> +{
+> +	if (minor(inode->i_rdev) != 0)
+> +		return -ENXIO;
+> +
+> +	if (!try_module_get(THIS_MODULE))
+> +		return -EBUSY;
+
+This is broken - the upper layer does this for you swhen you set the owner fild
+of struct file_operations.
+
+> +	module_put(THIS_MODULE);
+
+Dito.
+
+> +static struct file_operations lp_old98_fops = {
+> +	.owner		= THIS_MODULE,
+
+See, you already set it..
+
+> +	.llseek		= no_llseek,
+> +	.read		= NULL,
+
+Remove this line.
+
+> +	if (request_region(LP_PORT_DATA,   1, "lp_old98")) {
+> +	    if (request_region(LP_PORT_STATUS, 1, "lp_old98")) {
+> +		if (request_region(LP_PORT_STROBE, 1, "lp_old98")) {
+> +		    if (request_region(LP_PORT_EXTMODE, 1, "lp_old98")) {
+> +			if (register_chrdev(LP_MAJOR, "lp", &lp_old98_fops)) {
+
+Using gotos for error handling here might make the code quite a bit more
+readable :)
 

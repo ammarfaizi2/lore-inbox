@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265355AbTAWPeA>; Thu, 23 Jan 2003 10:34:00 -0500
+	id <S265400AbTAWPfO>; Thu, 23 Jan 2003 10:35:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265361AbTAWPd7>; Thu, 23 Jan 2003 10:33:59 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:41176 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265355AbTAWPd5>;
-	Thu, 23 Jan 2003 10:33:57 -0500
-Date: Thu, 23 Jan 2003 15:43:04 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: {sys_,/dev/}epoll waiting timeout
-Message-ID: <20030123154304.GA7665@bjl1.asuk.net>
-References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net> <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com>
+	id <S265423AbTAWPfO>; Thu, 23 Jan 2003 10:35:14 -0500
+Received: from pluvier.ens-lyon.fr ([140.77.167.5]:33682 "EHLO
+	mailhost.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id <S265400AbTAWPfN>; Thu, 23 Jan 2003 10:35:13 -0500
+Date: Thu, 23 Jan 2003 16:44:07 +0100
+From: Brice Goglin <bgoglin@ens-lyon.fr>
+To: viro@math.psu.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.5.59] Export get_sb_pseudo
+Message-ID: <20030123154407.GC27044@ens-lyon.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="uh9ZiVrAOUUm9fzH"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> >From a mathematical point of view this is a ceil(v)+1, so this is wrong.
-> It should be :
-> 
-> t = (t * HZ + 999) / 1000;
-> 
-> The +999 already gives you the round up.  Different is if we want to be
-> sure to sleep at least that amount of jiffies ( the rounded up ), in that
-> case since the timer tick might arrive immediately after we go to sleep by
-> making us to lose immediately a jiffie, we need another +1. Anyway I'll do
-> the round up. Same for the overflow check.
 
-I wonder if it's appropriate to copy sys_poll(), which has the +1, or
-sys_select(), which doesn't!
+--uh9ZiVrAOUUm9fzH
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-> > And that the prototypes for ep_poll() and sys_epoll_wait() be changed
-> > to take a "long timeout" instead of an "int", just like sys_poll().
-> 
-> I don't see why. The poll(2) timeout is an int.
+Hi,
 
-poll(2) takes an int, but sys_poll() takes a long.
-I think everyone is confused :)
+This very little patch exports the get_sb_pseudo symbol
+(defined in fs/libfs.c) in kernel/ksyms.c to allow people
+to create their own pseudo filesystem.
 
-The reason I suggested "long timeout" for ep_poll is because the
-multiply in the expression:
+Regards
 
-	jtimeout = (unsigned long)(timeout*HZ+999)/1000;
+Brice Goglin
+============
+Ph.D Student
+Laboratoire de l'Informatique et du Parallélisme
+ENS Lyon
+France
 
-can overflow if you don't.  If you stick with the int, you'll need to
-write:
+--uh9ZiVrAOUUm9fzH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="export_get_sb_pseudo-2.5.59.diff"
 
-	jtimeout = (((unsigned long)timeout)*HZ+999)/1000;
+diff -ruN v2.5.59/kernel/ksyms.c v2.5.59a/kernel/ksyms.c
+--- v2.5.59/kernel/ksyms.c     Thu Jan 23 16:17:45 2003
++++ v2.5.59a/kernel/ksyms.c    Thu Jan 23 16:18:12 2003
+@@ -332,6 +332,7 @@
+ EXPORT_SYMBOL(sget);
+ EXPORT_SYMBOL(set_anon_super);
+ EXPORT_SYMBOL(do_select);
++EXPORT_SYMBOL(get_sb_pseudo);
 
--- Jamie
+ /* for stackable file systems (lofs, wrapfs, cryptfs, etc.) */
+ EXPORT_SYMBOL(default_llseek);
+
+--uh9ZiVrAOUUm9fzH--

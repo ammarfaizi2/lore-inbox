@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313557AbSEJLnj>; Fri, 10 May 2002 07:43:39 -0400
+	id <S315557AbSEJLuB>; Fri, 10 May 2002 07:50:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315557AbSEJLni>; Fri, 10 May 2002 07:43:38 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:32626 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S313557AbSEJLnh>; Fri, 10 May 2002 07:43:37 -0400
-Message-Id: <5.1.0.14.2.20020510114609.01f66c60@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 10 May 2002 12:43:43 +0100
-To: Peter Chubb <peter@chubb.wattle.id.au>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [PATCH] remove 2TB block device limit
-Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org,
-        martin@dalecki.de, neilb@cse.unsw.edu.au
-In-Reply-To: <15579.39081.528187.280027@wombat.chubb.wattle.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S315559AbSEJLuA>; Fri, 10 May 2002 07:50:00 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:4480 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S315557AbSEJLt7>;
+	Fri, 10 May 2002 07:49:59 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15579.46033.278561.40777@kim.it.uu.se>
+Date: Fri, 10 May 2002 13:49:37 +0200
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: 2.5.15 warnings
+In-Reply-To: <26949.1021006885@kao2.melbourne.sgi.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:53 10/05/02, Peter Chubb wrote:
-> >>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
->
->Jens> On Fri, May 10 2002, Anton Altaparmakov wrote:
-> >> Why not the even dumber one? Forget FMT_SECTOR_T and always use %Lu
-> >> and typecast (unsigned long long)sector_t_variable in the printk.
->
->Jens> I like that better too, it's what I did in the block layer too.
->
->That's exactly what I did in the patch....
->
->Except most places I used u64 not unsigned long long (it's the same
->thing on all architectures, and much shorter to type).
+Keith Owens wrote:
+ > drivers/char/ftape/zftape/zftape-init.c: In function `zft_open':
+ > drivers/char/ftape/zftape/zftape-init.c:116: warning: passing arg 2 of `test_and_set_bit' from incompatible pointer type
+ > drivers/char/ftape/zftape/zftape-init.c:122: warning: passing arg 2 of `clear_bit' from incompatible pointer type
+ > drivers/char/ftape/zftape/zftape-init.c:130: warning: passing arg 2 of `clear_bit' from incompatible pointer type
+ > drivers/char/ftape/zftape/zftape-init.c: In function `zft_close':
+ > drivers/char/ftape/zftape/zftape-init.c:149: warning: passing arg 2 of `constant_test_bit' from incompatible pointer type
+ > drivers/char/ftape/zftape/zftape-init.c:159: warning: passing arg 2 of `clear_bit' from incompatible pointer type
+ > drivers/char/ftape/zftape/zftape-init.c: In function `zft_ioctl':
+ > drivers/char/ftape/zftape/zftape-init.c:172: warning: passing arg 2 of `constant_test_bit' from incompatible pointer type
+ > drivers/char/ftape/zftape/zftape-init.c: In function `zft_mmap':
+ > drivers/char/ftape/zftape/zftape-init.c:192: warning: passing arg 2 of `constant_test_bit' from incompatible pointer type
+ > drivers/char/ftape/zftape/zftape-init.c: In function `zft_read':
+ > drivers/char/ftape/zftape/zftape-init.c:222: warning: passing arg 2 of `constant_test_bit' from incompatible pointer type
+ > drivers/char/ftape/zftape/zftape-init.c: In function `zft_write':
+ > drivers/char/ftape/zftape/zftape-init.c:245: warning: passing arg 2 of `constant_test_bit' from incompatible pointer type
 
-I have been told that this is wrong (it was on this list but I can't 
-remember who said it - it was one of the prominent kernel hackers... (-;).
+This patch silences the zftape warnings. (Dave: please include in the next -dj)
 
-u64 is not necesssarily unsigned long long type and this causes compilation 
-problems on some architectures (apparently).
+/Mikael
 
-Anton
-
-
->Peter C
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+--- linux-2.5.15/drivers/char/ftape/zftape/zftape-init.c.~1~	Wed Feb 20 03:11:00 2002
++++ linux-2.5.15/drivers/char/ftape/zftape/zftape-init.c	Fri May 10 01:54:40 2002
+@@ -67,7 +67,7 @@
+ 
+ /*      Local vars.
+  */
+-static int busy_flag;
++static unsigned long busy_flag;
+ 
+ static sigset_t orig_sigmask;
+ 

@@ -1,82 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263368AbTHVU1J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 16:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263290AbTHVU1J
+	id S263679AbTHVUpn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 16:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbTHVUpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 16:27:09 -0400
-Received: from vsmtp3.tin.it ([212.216.176.223]:7381 "EHLO vsmtp3.tin.it")
-	by vger.kernel.org with ESMTP id S263402AbTHVU1D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 16:27:03 -0400
-Message-ID: <3F468ABD.1EBAD831@tin.it>
-Date: Fri, 22 Aug 2003 21:27:25 +0000
-From: "A.D.F." <adefacc@tin.it>
-Reply-To: adefacc@tin.it
-Organization: Private
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.2.24 i686)
-X-Accept-Language: en
+	Fri, 22 Aug 2003 16:45:43 -0400
+Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:3247 "HELO
+	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263679AbTHVUpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 16:45:35 -0400
+Message-ID: <3F468181.5020605@sbcglobal.net>
+Date: Fri, 22 Aug 2003 15:48:01 -0500
+From: Wes Janzen <superchkn@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.2 future?
-Content-Type: text/plain; charset=us-ascii
+To: Mike Galbraith <efault@gmx.de>
+CC: Con Kolivas <kernel@kolivas.org>, Voluspa <lista1@comhem.se>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] O17int
+References: <5.2.1.1.2.20030821154224.01990b48@pop.gmx.net> <5.2.1.1.2.20030821090657.00b45af8@pop.gmx.net> <200308210723.42789.kernel@kolivas.org> <5.2.1.1.2.20030821090657.00b45af8@pop.gmx.net> <5.2.1.1.2.20030821154224.01990b48@pop.gmx.net> <5.2.1.1.2.20030822072356.01a22be0@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20030822072356.01a22be0@pop.gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wednesday 20 August 2003 14:3, Ruben Puettman wrote:
->> On Wednesday 20 August 2003 13:59, Marc-Christian Petersen wrote:
->> 
->> Hi Alan,
->> 
->>> On Wednesday 20 August 2003 13:46, Alan Cox wrote:
->>> he 2.2 tree needs a new maintainer, someone who can spend their entire
->>> life refusing patches, being ignored by the mainstream (because 2.2 is
->>> boring) and by vendors (who don't ship 2.2 any more). 
->> 
->> I want to take 2.2.
->>
-> What's up with linux-2.2 now? Who will do Alan's job in the next year?
+Yep, those are very bad stalls, much worse than the normal temporary 
+stalls when something is running in the background.  I think part of 
+that can be attributed to mozilla, which likes to do very little for a 
+while, then jump up to 5% for a little bit and then up to 35% for 5 
+seconds or so. 
+With something running in the background, things get very bad.  Those 
+vmstat were supposed to be reported at 5 second intervals, but they were 
+not being reported at the rate during the problem.  Those represent 
+about 5 minutes of stalling.  I could live with a short stall, but 5 
+minutes where the computer barely takes input is crazy.  X becomes 
+totally unresponsive to the point I cannot switch to a VT. 
+
+I started a shutdown one time with the acipd daemon watching for power 
+button events.  It took 1 hour 30 minutes from the time it said that it 
+was shutting down (I could hear the beep from the shutdown process) to 
+the point I got to "Stopping at daemon" which is barely into the 
+shutdown cycle.  Even then I waited another 10 minutes for it to 
+complete the shutdown and it never did.  All I was doing there was 
+compiling in a gnome-terminal, and had just clicked on a bug-buddy 
+window to get it to show debugging information.  I couldn't get to a VT 
+so I wasn't able to get a vmstat log of that one. 
+
+Even if this is due to a bad interaction between a program and X, it 
+shouldn't be able to bring the system to its knees.
+
+Kernel version:
+2.6.0-test3-mm2 + O16.3int
+
+
+
+Mike Galbraith wrote:
+
 >
-> Marc is intrested doing this job. I know Marc from linux-2.2.x-secure
-> and from the wolk project, see http://wolk.sourceforge.net. Why not
-> Marc? He can surely differentiate between mainstream and a private kernel fork
-> tree. Or do you think, Marc will merge every single bit out of his kernel tree
-> into mainstream? I bet he won't 
+> Those high interrupt counts are all stalls?  What kernel is that?
 >
-> I can't see postings from other people who want to take 2.2.
->
-> I think 2.2 is not dead. I often see 2.2 kernels running on systems like
-> wlan access points or dsl routers from different vendors. 2.2 is often
-> used where stability is a must-have. At least security fixes have to go in.
 
-I agree.
-
-> What do you think?
-
-Well, I think that 2.2.24 and 2.2.25 kernels are really stable (at least on
-UP), but that the most weak side is on IDE disk drivers.
-
-They seem to have DMA problems when using recent hard disks (i.e. Maxtor,
-etc.)
-that lead to serious file system corruption problems.
-
-Maybe there are also geometry problems because all troubles have been
-observed
-on disks with more than 32 GB of capacity (i.e. 40 GB).
-
-This is a pity because, up to now, 2.2.x kernels have been
-a valid choice for small / semi-embedded systems 80x86
-(yes, I know that 2.4 should be better, but I'm still waiting for
- a stable rock kernel).
-
-In conclusion, I hope that next maintainer will think about
-these matters:
-	IDE drivers;
-	security fixes;
-	micro-optimizations;
-	compatibility with newer compilers.
-
-After all if 2.0 seems to be still alive also 2.2 should be.
-
-		A. De Faccio

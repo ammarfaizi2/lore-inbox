@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272087AbRHVTBS>; Wed, 22 Aug 2001 15:01:18 -0400
+	id <S272084AbRHVTAi>; Wed, 22 Aug 2001 15:00:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272086AbRHVTBA>; Wed, 22 Aug 2001 15:01:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54444 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S272087AbRHVTAj>;
-	Wed, 22 Aug 2001 15:00:39 -0400
-Date: Wed, 22 Aug 2001 12:00:51 -0700 (PDT)
-Message-Id: <20010822.120051.25423285.davem@redhat.com>
-To: kakadu_croc@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: brlock_is_locked()?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010822185351.55288.qmail@web10904.mail.yahoo.com>
-In-Reply-To: <20010822.114735.128125464.davem@redhat.com>
-	<20010822185351.55288.qmail@web10904.mail.yahoo.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S272086AbRHVTA3>; Wed, 22 Aug 2001 15:00:29 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:13323 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S272084AbRHVTAR>; Wed, 22 Aug 2001 15:00:17 -0400
+Message-ID: <3B84014C.6DFEA362@delusion.de>
+Date: Wed, 22 Aug 2001 21:00:28 +0200
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-ac9 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Alan Cox <laughing@shared-source.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.8-ac9
+In-Reply-To: <20010822124856.A5395@lightning.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Brad Chapman <kakadu_croc@yahoo.com>
-   Date: Wed, 22 Aug 2001 11:53:51 -0700 (PDT)
+Alan Cox wrote:
+> 
+>         ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/
+> 
+>                  Intermediate diffs are available from
+>                         http://www.bzimage.org
+> 
+> 2.4.8-ac9
+> o       Possible usb -110 error fix                     (me)
 
-   	It's not really a deficiency. Rusty apparently decided that in
-   order to be SMP-compliant and to prevent Oopses, that the unregistration
-   function should grab the brlock so that all the packets would pass through
-   the protocol-handling functions.
+It's still broken.
 
-So arrange you code such that you aren't holding the netproto
-lock when you call the unregistration function.
-
-It is possible to shut down all references to whatever you
-are unregistering, safely drop the lock, then call the
-netfilter unregister routine.
-
-   (I checked the brlock code and didn't find any schedule()s; there's
-    probably a reason for that).
-
-Ummm, this is SMP 101, you can't sleep with a lock held.
-The global kernel lock is special in this regard, but all
-other SMP locking primitives may not sleep.
-
-Later,
-David S. Miller
-davem@redhat.com
+Regards,
+-Udo.

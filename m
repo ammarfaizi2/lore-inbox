@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288124AbSA0QvV>; Sun, 27 Jan 2002 11:51:21 -0500
+	id <S288153AbSA0QzB>; Sun, 27 Jan 2002 11:55:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288248AbSA0QvM>; Sun, 27 Jan 2002 11:51:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21253 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288153AbSA0Qu7>;
-	Sun, 27 Jan 2002 11:50:59 -0500
-Message-ID: <3C542FE6.7C56D6BD@mandrakesoft.com>
-Date: Sun, 27 Jan 2002 11:50:46 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.3-pre5 i686)
-X-Accept-Language: en
+	id <S288188AbSA0Qyw>; Sun, 27 Jan 2002 11:54:52 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:10127 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288153AbSA0Qyd>;
+	Sun, 27 Jan 2002 11:54:33 -0500
+Date: Sun, 27 Jan 2002 18:26:04 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [patch] [sched] avoid %fs/%gs reloading on x86.
+Message-ID: <Pine.LNX.4.33.0201271817310.5713-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: CRAP in 2.4.18-pre7
-In-Reply-To: <20020126171545.GB11344@fefe.de> <3C52E671.605FA2F3@mandrakesoft.com> <3C540A90.5020904@evision-ventures.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
-> I would like to notice that the changes in 2.4.18-pre7 to the
-> tulip eth driver are apparently causing absymal performance drops
-> on my version of this card. Apparently the performance is dropping
-> from the expected 10MB/s to about 10kB/s. The only special
-> thing about the configuration in question is the fact that it's
-> a direct connection between two hosts. Well, more precisely it's
-> a cross-over link between my notebook and desktop.
 
-Are you seeing collisions?
-What is the other side configured as?
-What type of cabling?
+the patch below further optimizes the x86 context-switch code. On P6 class
+CPUs it takes 36 cycles to reload %fs and %gs, while both registers are
+zero in most of the cases. (exceptions are LinuxThreads, Wine, DOSEMU,
+etc.) It's much cheaper to check whether any non-zero %fs or %gs selector
+is involved, and do the segment reload in that case only.
 
+when applied to 2.5.3-pre5, the patch achieves a 2.5% improvement in
+2-task lat_ctx context-switch performance.
 
-> Here is an excerpt from the lspci command:
-> 
-> 00:0b.0 Ethernet controller: Digital Equipment Corporation DECchip 21041
+(i've also added unlikely() constructs to context-switch slow paths. The
+performance improvement was measured on kernel compiled with a 2.x gcc
+compiler that does not use the unlikely() extension yet.)
 
-This is interesting considering that for most people, 21041 did not work
-at all until 2.4.18-preXX tulip patches.
+	Ingo
 
-	Jeff
+--- linux/arch/i386/kernel/process.c.orig	Sun Jan 27 15:33:29 2002
++++ linux/arch/i386/kernel/process.c	Sun Jan 27 16:07:45 2002
+@@ -689,15 +689,17 @@
+ 	asm volatile("movl %%gs,%0":"=m" (*(int *)&prev->gs));
 
+ 	/*
+-	 * Restore %fs and %gs.
++	 * Restore %fs and %gs if needed.
+ 	 */
+-	loadsegment(fs, next->fs);
+-	loadsegment(gs, next->gs);
++	if (unlikely(prev->fs | prev->gs | next->fs | next->gs)) {
++		loadsegment(fs, next->fs);
++		loadsegment(gs, next->gs);
++	}
 
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+ 	/*
+ 	 * Now maybe reload the debug registers
+ 	 */
+-	if (next->debugreg[7]){
++	if (unlikely(next->debugreg[7])) {
+ 		loaddebug(next, 0);
+ 		loaddebug(next, 1);
+ 		loaddebug(next, 2);
+@@ -707,7 +709,7 @@
+ 		loaddebug(next, 7);
+ 	}
+
+-	if (prev->ioperm || next->ioperm) {
++	if (unlikely(prev->ioperm || next->ioperm)) {
+ 		if (next->ioperm) {
+ 			/*
+ 			 * 4 cachelines copy ... not good, but not that
+

@@ -1,43 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288259AbSAUVDo>; Mon, 21 Jan 2002 16:03:44 -0500
+	id <S288302AbSAUVNR>; Mon, 21 Jan 2002 16:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288276AbSAUVDf>; Mon, 21 Jan 2002 16:03:35 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:29711 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S288262AbSAUVDZ>;
-	Mon, 21 Jan 2002 16:03:25 -0500
-Date: Mon, 21 Jan 2002 13:49:57 -0700
-From: yodaiken@fsmlabs.com
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: yodaiken@fsmlabs.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020121134957.A17094@hq.fsmlabs.com>
-In-Reply-To: <20020121084344.A13455@hq.fsmlabs.com> <Pine.LNX.3.96.1020121151224.23079A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.3.96.1020121151224.23079A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Mon, Jan 21, 2002 at 03:35:35PM -0500
-Organization: FSM Labs
+	id <S288342AbSAUVNI>; Mon, 21 Jan 2002 16:13:08 -0500
+Received: from echo.sound.net ([205.242.192.21]:36787 "HELO echo.sound.net")
+	by vger.kernel.org with SMTP id <S288302AbSAUVMv>;
+	Mon, 21 Jan 2002 16:12:51 -0500
+Date: Mon, 21 Jan 2002 15:05:57 -0600 (CST)
+From: Hal Duston <hald@sound.net>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH ps2esdi fix
+Message-ID: <Pine.GSO.4.10.10201211502250.20324-100000@sound.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21, 2002 at 03:35:35PM -0500, Bill Davidsen wrote:
-> However, since we have art, food, and wine critics making a living giving
-> their meaningless opinions, I guess the majority of us recognize that even
-> without a number produced by a benchmark there is "subjectively better." I
-> don't know of anyone who doesn't feel that the rmap patches, even with
-> some admited imprefections, make the system more responsive. I haven't
-> seen one person who questioned this after trying it.
+Get Ps2esdi compiling/working again
 
-Thanks for stating the case so clearly.
+bio fixes.
+kdev_t fixes.
 
+Hal Duston
+hald@sound.net
 
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+--- linux-2.5.2/drivers/block/ps2esdi.c	Mon Jan 14 15:06:38 2002
++++ linux-2.5.2-ps2esdi/drivers/block/ps2esdi.c	Mon Jan 14 15:43:27 2002
+@@ -422,7 +422,7 @@
+ 	blk_queue_max_sectors(BLK_DEFAULT_QUEUE(MAJOR_NR), 128);
+ 
+ 	for (i = 0; i < ps2esdi_drives; i++) {
+-		register_disk(&ps2esdi_gendisk,MKDEV(MAJOR_NR,i<<6),1<<6,
++		register_disk(&ps2esdi_gendisk,mk_kdev(MAJOR_NR,i<<6),1<<6,
+ 				&ps2esdi_fops,
+ 				ps2esdi_info[i].head * ps2esdi_info[i].sect *
+ 				ps2esdi_info[i].cyl);
+@@ -466,7 +466,7 @@
+ #if 0
+ 	printk("%s:got request. device : %d minor : %d command : %d  sector : %ld count : %ld, buffer: %p\n",
+ 	       DEVICE_NAME,
+-	       CURRENT_DEV, MINOR(CURRENT->rq_dev),
++	       CURRENT_DEV, minor(CURRENT->rq_dev),
+ 	       CURRENT->cmd, CURRENT->sector,
+ 	       CURRENT->current_nr_sectors, CURRENT->buffer);
+ #endif
+@@ -481,12 +481,12 @@
+ 	}			/* check for above 16Mb dmas */
+ 	else if ((CURRENT_DEV < ps2esdi_drives) &&
+ 	    (CURRENT->sector + CURRENT->current_nr_sectors <=
+-	     ps2esdi[MINOR(CURRENT->rq_dev)].nr_sects) &&
++	     ps2esdi[minor(CURRENT->rq_dev)].nr_sects) &&
+ 	    	CURRENT->flags & REQ_CMD) {
+ #if 0
+ 		printk("%s:got request. device : %d minor : %d command : %d  sector : %ld count : %ld\n",
+ 		       DEVICE_NAME,
+-		       CURRENT_DEV, MINOR(CURRENT->rq_dev),
++		       CURRENT_DEV, minor(CURRENT->rq_dev),
+ 		       CURRENT->cmd, CURRENT->sector,
+ 		       CURRENT->current_nr_sectors);
+ #endif
+@@ -510,7 +510,7 @@
+ 	/* is request is valid */ 
+ 	else {
+ 		printk("Grrr. error. ps2esdi_drives: %d, %lu %lu\n", ps2esdi_drives,
+-		       CURRENT->sector, ps2esdi[MINOR(CURRENT->rq_dev)].nr_sects);
++		       CURRENT->sector, ps2esdi[minor(CURRENT->rq_dev)].nr_sects);
+ 		end_request(FAIL);
+ 	}
+ 
+@@ -849,7 +849,7 @@
+ 	switch (int_ret_code & 0x0f) {
+ 	case INT_TRANSFER_REQ:
+ 		ps2esdi_prep_dma(CURRENT->buffer, CURRENT->current_nr_sectors,
+-		    (CURRENT->cmd == READ)
++		    (rq_data_dir(CURRENT) == READ)
+ 		    ? MCA_DMA_MODE_16 | MCA_DMA_MODE_WRITE | MCA_DMA_MODE_XFER
+ 		    : MCA_DMA_MODE_16 | MCA_DMA_MODE_READ);
+ 		outb(CTRL_ENABLE_DMA | CTRL_ENABLE_INTR, ESDI_CONTROL);
 

@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286647AbSABCna>; Tue, 1 Jan 2002 21:43:30 -0500
+	id <S286650AbSABCta>; Tue, 1 Jan 2002 21:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286665AbSABCnU>; Tue, 1 Jan 2002 21:43:20 -0500
-Received: from myfilelocker.comcast.net ([24.153.64.6]:8378 "EHLO mtaout45-02")
-	by vger.kernel.org with ESMTP id <S286647AbSABCnJ>;
-	Tue, 1 Jan 2002 21:43:09 -0500
-Date: Tue, 01 Jan 2002 17:57:37 -0500
-From: Brian <hiryuu@envisiongames.net>
-Subject: Re: ATHLON HELP ME ON THIS PLZ!!!!
-In-Reply-To: <200201012107.QAA10138@mah21awu.cas.org>
-To: Mike Harrold <mharrold@cas.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <0GPA001897RYFT@mtaout45-02.icomcast.net>
-MIME-version: 1.0
-X-Mailer: KMail [version 1.3.2]
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-In-Reply-To: <200201012107.QAA10138@mah21awu.cas.org>
+	id <S286654AbSABCtU>; Tue, 1 Jan 2002 21:49:20 -0500
+Received: from [208.179.59.195] ([208.179.59.195]:22868 "EHLO
+	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
+	id <S286650AbSABCtG>; Tue, 1 Jan 2002 21:49:06 -0500
+Message-ID: <3C327489.5030905@blue-labs.org>
+Date: Tue, 01 Jan 2002 21:46:33 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011231
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
+In-Reply-To: <200201010635.g016ZR6X014712@sleipnir.valparaiso.cl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 January 2002 04:07 pm, Mike Harrold wrote:
-> Actually, I'm interested in this as well. The only thing stopping me
-> from buying a dual Athlon MP is the problems I keep reading about here
-> on lkml. I don't want to spend the money only to have problems.
 >
-> So, if anyone is running dual Athlon MPs *flawlessly*, I'd appreciate a
-> hardware listing (MB, Bios version, RAM type & manufacturer, etc.).
+>
+>It is not for anybody who handles large amounts of mail. I have yet to see
+>a browser which does even a half-assed attempt at doing email right.
+>
 
-We have 8 running dual-Athlons which are basically Einux 1200s 
-(http://www.einux.com/A1200.html).  We have our first pair of MP1700-based 
-systems going in this week, so I can't say much about those yet.
+I handle thousands of emails a day, over a hundred emails distinctly to 
+me, not a list.  I like mozilla most, but don't think I like the 
+footprint or everything about it ;)
 
-We had some trouble with a couple of bad boards from Tyan's first batch or 
-so.  Also, more than 2 Kentron 256MB modules didn't work well together.  
-Those first couple weeks were rough, but we switched to 512MB modules and 
-they have been rock solid ever since.
+>Here (emacs + mh-e): ^ on the message, RET to confirm the folder. Managing?
+>No sweat, it is just another mail folder, to be handled by the same
+>commands my fingers do on their own now.
+>
 
-The XP processors may or may not work, but I would have a tough time 
-justifying it to customers if we had system problems from us cheaping out 
-on unsupported configs.
+As I mentioned to DJ, this is fine for you, your personal database, but 
+it serves no purpose for anyone else and doesn't scale well for large 
+amounts of reference material.
 
-	-- Brian
+>Plus the problem that thousands of (well meaning, but completely useless)
+>reports clog up bug<foo>, rquiring hand-cleaning by somebody who _really_
+>knows about the system. I.e., exactly the person whose work you want to
+>spare.
+>
+
+Untidied bug reports can be flushed out of the system, they can be 
+<insert action>.  By making a more intuitive system, these bug reports 
+could be fleshed out better or coallated when appropriate.  By having an 
+open system, anyone can do the maintenance.  You can choose different 
+pools for the entries and keep the chaff "outside" until it is weeded 
+through or discarded.
+
+>Look at the FAQ for the kernel (helpfully compiled by this list). Problems
+>that get identified tend to get fixed fast, so working at documenting them
+>in detail makes no sense at al.
+>
+>If you want to know what is broken in _development_ kernels, you have to
+>read this list.
+>
+
+Not everything needs to be documented or documented in detail. 
+ Sometimes a simple "loopback compile err, 'loopback.c:417:foo is not 
+defined' is fixed in 2.2.2." is quite sufficient.  People with 2.2.1 
+will recognize the need to upgrade or generate a patch to solve their 
+problem.  The FAQ doesn't address everything and not everything is 
+broken.  A 'bug' database is sometimes a misnomer.
+
+Neither the DB nor the list replace each other.  They augment each other.
+
+David
+
+
+

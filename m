@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVBBOOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVBBOQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262483AbVBBOOG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 09:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbVBBONh
+	id S262536AbVBBOQU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 09:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVBBOPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 09:13:37 -0500
-Received: from gprs215-137.eurotel.cz ([160.218.215.137]:5301 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262674AbVBBONZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 09:13:25 -0500
-Date: Wed, 2 Feb 2005 15:11:05 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick, version 050127-1
-Message-ID: <20050202141105.GA1316@elf.ucw.cz>
-References: <20050127212902.GF15274@atomide.com> <20050201110006.GA1338@elf.ucw.cz> <20050201204008.GD14274@atomide.com> <20050201212542.GA3691@openzaurus.ucw.cz> <20050201230357.GH14274@atomide.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050201230357.GH14274@atomide.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 2 Feb 2005 09:15:49 -0500
+Received: from alog0535.analogic.com ([208.224.223.72]:16768 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262571AbVBBOOj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 09:14:39 -0500
+Date: Wed, 2 Feb 2005 09:14:53 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Vineet Joglekar <vintya@excite.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>,
+       linux-c-programming@vger.kernel.org
+Subject: Re: when and where shall I encrypt dentry?
+In-Reply-To: <20050202134901.9926C3E12@xprdmailfe6.nwk.excite.com>
+Message-ID: <Pine.LNX.4.61.0502020905330.16140@chaos.analogic.com>
+References: <20050202134901.9926C3E12@xprdmailfe6.nwk.excite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi!
+The correct place to encrypt or decrypt ANYTHING is
+just before access to the "outside" world, i.e., in the
+case of a file-system, the reads and writes to the
+storage device (disk drive). You are in a world of
+hurt if you intend to encrypt 'data' and directories
+separately.
 
-> > > > I used your config advices from second mail, still it does not work as
-> > > > expected: system gets "too sleepy". Like it takes a nap during boot
-> > > > after "dyn-tick: Maximum ticks to skip limited to 1339", and key is
-> > > > needed to make it continue boot. Then cursor stops blinking and
-> > > > machine is hung at random intervals during use, key is enough to awake
-> > > > it.
-> > > 
-> > > Hmmm, that sounds like the local APIC does not wake up the PIT
-> > > interrupt properly after sleep. Hitting the keys causes the timer
-> > > interrupt to get called, and that explains why it keeps running. But
-> > > the timer ticks are not happening as they should for some reason.
-> > > This should not happen (tm)...
-> > 
-> > :-). Any ideas how to debug it? Previous version of patch seemed to work better...
-> 
-> I don't think it's HPET timer, or CONFIG_SMP. It also looks like your
-> local APIC timer is working.
+If you need to use an existing file-system and then
+encrypt it, you use the same technique but your
+"storage device" is a "container file" that you mount
+using the loop device. This allows you to have an
+encrypted file-system below some mount-point and
+a normal file-system above.
 
-I turned off CONFIG_PREEMPT, but nothing changed :-(.
-									Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+FYI, there are existing tools/code that allow one to
+mount an encrypted file-system. Perhaps your masters
+project just got easier?
+
+
+On Wed, 2 Feb 2005, Vineet Joglekar wrote:
+
+>
+> Hi all,
+>
+> I am trying to add some cryptographic functionality to ext2 file system for my masters project. I am working with kernel 2.4.21
+>
+> Along with regular files, I intend to encrypt directory contents too. For reading I guess the function ext2_get_page in fs/ext2/dir.c is used. Hence I can put my decryption routine in that function. Is that correct?
+>
+> I was trying to look for the routine which writes the dentry on disk, but was unable to find it. I found out that the function d_instantiate is used to fill in inode information for a dentry, but unable to see when it is written on disk. I suppose that I have to encrypt the dentry just before writing on to the disk, as if i encrypt it before, other functions using it wont be able to access until they decrypt. So please help me with this, that when and where shall I encrypt the directory contents.
+>
+> Thanks and regards,
+>
+> Vineet
+>
+> _______________________________________________
+> Join Excite! - http://www.excite.com
+> The most personalized portal on the Web!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

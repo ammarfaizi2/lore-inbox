@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVAJLZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVAJLaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbVAJLZa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 06:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVAJLZa
+	id S262209AbVAJLaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 06:30:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262210AbVAJLaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 06:25:30 -0500
-Received: from ozlabs.org ([203.10.76.45]:11160 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262208AbVAJLZ0 (ORCPT
+	Mon, 10 Jan 2005 06:30:25 -0500
+Received: from [63.171.133.66] ([63.171.133.66]:47882 "HELO MSLEE")
+	by vger.kernel.org with SMTP id S262209AbVAJLaR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 06:25:26 -0500
-Date: Mon, 10 Jan 2005 22:20:51 +1100
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc64: Fix NUMA build
-Message-ID: <20050110112051.GO14239@krispykreme.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 10 Jan 2005 06:30:17 -0500
+Date: Tue, 11 Jan 2005 19:44:05 +0100
+From: Music Download Newsletter <gal@satyam.net.in>
+Subject: Downl0ad Christmas with the Kranks movie
+To: linux-kernel@vger.kernel.org
+Cc: majordomo@vger.kernel.org
+Message-ID: <8353121132.66102@cais.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-We were missing an include of the new nodemask.h and NUMA enabled builds
-broke.
+Un limited
+Music and MP 3 songs
+Movies
+Games
+Software
+TV Shows
+Song Lyrics
+Audio Books
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
+Download anything you could possibly want 
+in three simple, fast, and easy steps
+START DOWNLOADING NOW
+This service is Safe, Secure and Legal
 
-diff -puN arch/ppc64/mm/init.c~fix_bustage arch/ppc64/mm/init.c
---- foobar2/arch/ppc64/mm/init.c~fix_bustage	2005-01-10 20:53:31.346572046 +1100
-+++ foobar2-anton/arch/ppc64/mm/init.c	2005-01-10 20:53:43.131521404 +1100
-@@ -37,6 +37,7 @@
- #include <linux/bootmem.h>
- #include <linux/highmem.h>
- #include <linux/idr.h>
-+#include <linux/nodemask.h>
- 
- #include <asm/pgalloc.h>
- #include <asm/page.h>
-_
+http://www.2oo5-downloading.com/gr8.html
+
+If you are a beginner, no need to worry,
+we will show you how to do it from start to finish
+We have made it so easy, you will be downloading anything 
+you could possibly want  
+This Service Comes with
+
+More  Bonuses
+
+DVD Copying Software
+MP3 Burning Software
+Anti-Virus Software
+Game Copying Software
+Pop-Up, Spyware, Adware Killer Software
+
+http://www.2oo5-downloading.com/gr8.html
+
+Even More Benefits : 
+
+Latest FileSharing Software
+In-Depth Visual Tutorials
+Internet History Cleaner
+Privacy Protection Software
+Access to 90000000 Songs
+Unlimited Technical Support
+Stay Legal  Do not Get Sued
+
+Check out to Join Now and Start Downloading in Minutes
+
+http://www.2oo5-downloading.com/gr8.html
+
+
+regards
+Ollie Henry
+Promotional Manager
+Internet Download Center

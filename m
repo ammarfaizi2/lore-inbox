@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129382AbRBIVTj>; Fri, 9 Feb 2001 16:19:39 -0500
+	id <S129569AbRBIVTR>; Fri, 9 Feb 2001 16:19:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130113AbRBIVTS>; Fri, 9 Feb 2001 16:19:18 -0500
-Received: from esteel10.client.dti.net ([209.73.14.10]:14465 "EHLO
-	nynews01.e-steel.com") by vger.kernel.org with ESMTP
-	id <S129292AbRBIVTK>; Fri, 9 Feb 2001 16:19:10 -0500
+	id <S129382AbRBIVTI>; Fri, 9 Feb 2001 16:19:08 -0500
+Received: from KMLinux.fjfi.cvut.cz ([147.32.8.9]:55558 "EHLO
+	KMLinux.fjfi.cvut.cz") by vger.kernel.org with ESMTP
+	id <S129292AbRBIVSz>; Fri, 9 Feb 2001 16:18:55 -0500
+Date: Fri, 9 Feb 2001 22:18:05 +0100 (CET)
+From: Henryk Paluch <paluch@KMLinux.fjfi.cvut.cz>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Mathieu Chouquet-Stringer <mchouque@e-steel.com>
-Newsgroups: e-steel.mailing-lists.linux.linux-kernel
-Subject: Re: problem in BOGOmips
-Date: 09 Feb 2001 16:19:04 -0500
-Organization: e-STEEL Netops news server
-Message-ID: <m3ae7vlflj.fsf@shookay.e-steel.com>
-In-Reply-To: <3A6C802C.9380961A@earthlink.net> <Pine.LNX.4.04.10102100210150.12228-100000@csews12.cse.iitk.ac.in>
-NNTP-Posting-Host: shookay.e-steel
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: nynews01.e-steel.com 981753457 19563 192.168.3.43 (9 Feb 2001 21:17:38 GMT)
-X-Complaints-To: news@nynews01.e-steel.com
-NNTP-Posting-Date: 9 Feb 2001 21:17:38 GMT
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+Subject: [RESOLVED]: kernel hangs on CD-R HP8100i if compiled w/ VIA IDE
+In-Reply-To: <Pine.LNX.4.10.10101211333300.17469-100000@KMLinux.fjfi.cvut.cz>
+Message-ID: <Pine.LNX.4.10.10102092200350.11205-100000@KMLinux.fjfi.cvut.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gashish@cse.iitk.ac.in (Ashish Gupta) writes:
+Hi folks!
+ 
+Shortly: kernel (2.2.x, 2.4.x) hangs on CD-R HP8100i, VIA KT133 chipset
+(w/ ATA100 support) if kernel is compiled with VIA IDE chipset support.
+Please, see my previous post from 21 Jan 2001 for full description.
 
-> Hi,
-> 	I want to use bogomips as the indicator of CPU capability for
-> different architectures. I have found following values from /proc/cpuinfo
-> for different CPUs.
+ After little tweaking via82cxxx.c driver I found, that the cause is
+'Prefetch Buffer: ' (/proc/ide/via) - if disabled for appropriate IDE
+channel, everything works well. It also explains, why the kernel works
+properly if VIA IDE support is not compiled in - BIOS leaves Prefetch
+disabled (I hacked that driver a bit more to show chipset configuration
+either before and after modification).
 
-You got your answer. Try pronounce bogomips and you will hear bogo like in
-bogus. The Bogomips don't represent anything but a way to have a good delay
-mechanism... So you can't compare them between CPUs!
--- 
-Mathieu CHOUQUET-STRINGER              E-Mail : mchouque@e-steel.com
-     Learning French is trivial: the word for horse is cheval, and
-               everything else follows in the same way.
-                        -- Alan J. Perlis
+So I have a little question: What could be a clean way, to make a kernel
+option to disable prefetch for VIA (use something like 'ide1=noprefetch'?)
+Any idea?
+
+Sincerely
+    Henryk Paluch, paluch@kmlinux.fjfi.cvut.cz
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

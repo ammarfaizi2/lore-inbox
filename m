@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267230AbUHaTcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267223AbUHaTcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267230AbUHaTcW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 15:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUHaTbz
+	id S267223AbUHaTcX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 15:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268988AbUHaTba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:31:55 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:47066 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269031AbUHaT2v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:28:51 -0400
-Date: Tue, 31 Aug 2004 21:30:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Charbonnel <thomas@undata.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Daniel Schmitt <pnambic@unu.nu>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
-Message-ID: <20040831193029.GA29912@elte.hu>
-References: <1093727453.8611.71.camel@krustophenia.net> <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net> <1093737080.1385.2.camel@krustophenia.net> <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu> <20040830090608.GA25443@elte.hu> <1093875939.5534.9.camel@localhost> <20040830180011.GA7419@elte.hu> <1093980227.8005.14.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 31 Aug 2004 15:31:30 -0400
+Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:60854 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S269019AbUHaT0f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:26:35 -0400
+From: Norberto Bensa <nbensa@gmx.net>
+To: gene.heskett@verizon.net
+Subject: Re: 2.6.9-rc1-mm2 nvidia breakage
+Date: Tue, 31 Aug 2004 16:26:21 -0300
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org, jason@stdbev.com,
+       Sid Boyce <sboyce@blueyonder.co.uk>, akpm@osdl.org
+References: <4134A5EE.5090003@blueyonder.co.uk> <200408311448.55974.norberto+linux-kernel@bensa.ath.cx> <200408311459.12426.gene.heskett@verizon.net>
+In-Reply-To: <200408311459.12426.gene.heskett@verizon.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1093980227.8005.14.camel@localhost>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200408311626.22004.nbensa@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gene Heskett wrote:
+> On Tuesday 31 August 2004 13:48, Norberto Bensa wrote:
+> >Jason Munro wrote:
+> >> I also had to change calls to pci_find_class in nv.c to
+> >> pci_get_class to get the module to load with 2.6.9-rc1-mm2.
+> >
+> >Yup. But KDE 3.3 doesn't load with this kernel. No oops, no crash.
+> > It just hangs at "Initializing peripherals..." and stays there
+> > forever...
+>
+> Odd, I'm running kde3.3 built by konstruct, and linux-2.6.9-rc1-mm2
+> without any quickly noticeable problems, for about 15 minutes now.
 
-* Thomas Charbonnel <thomas@undata.org> wrote:
+kbuildsycoca hangs. Again, no crash, no oops, no strange messages except 
+kbuildsycoca hangs and ksplash's "initializing peripherals" icon keeps 
+blinking.
 
-> As you can see ~1ms was probably an accident, and the latency does not
-> always come from do_timer. The constant is do_IRQ interrupting the
-> idle thread.
+I don't know what to report since there are no strange messages; I'm stuck.
 
-(do you have any sort of powersaving mode (ACPI/APM) enabled? If yes,
-could you try to tune it down as much as possible - disable any
-powersaving option in the BIOS and in the .config - kill apmd, etc.)
+Thanks Gene.
 
-but i dont think it's powersaving - why would such an overhead show up
-in those functions. The only common thing seems to be that both
-mark_offset_tsc() and mask_and_ack_8259A() does port IO, which is slow -
-but still it shouldnt take ~0.5 msecs!
-
-	Ingo
+Best regards,
+Norberto

@@ -1,83 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbTKDWje (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 17:39:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbTKDWje
+	id S261190AbTKDWbR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 17:31:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTKDWbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 17:39:34 -0500
-Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:16805
-	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S261988AbTKDWjc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 17:39:32 -0500
-Date: Tue, 4 Nov 2003 17:38:33 -0500
-Subject: Re: [PATCH] amd76x_pm on 2.6.0-test9 cleanup
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: psavo@iki.fi, lkml <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>
-To: Tony Lindgren <tony@atomide.com>
-From: Charles Lepple <clepple@ghz.cc>
-In-Reply-To: <20031104200517.GD1042@atomide.com>
-Message-Id: <9F0055D6-0F17-11D8-A943-003065DC6B50@ghz.cc>
+	Tue, 4 Nov 2003 17:31:17 -0500
+Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:16824
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S261190AbTKDWbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 17:31:15 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Chris Vine <chris@cvine.freeserve.co.uk>, Rik van Riel <riel@redhat.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Date: Wed, 5 Nov 2003 09:30:56 +1100
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com> <200311041355.08731.kernel@kolivas.org> <200311042208.05748.chris@cvine.freeserve.co.uk>
+In-Reply-To: <200311042208.05748.chris@cvine.freeserve.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+Content-Disposition: inline
+Message-Id: <200311050930.56909.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, November 4, 2003, at 03:05 PM, Tony Lindgren wrote:
-
-> * Charles Lepple <clepple@ghz.cc> [031104 11:45]:
->> On Tuesday 04 November 2003 02:15 pm, Tony Lindgren wrote:
->>> I've heard of timing problems if it's compiled in, but supposedly 
->>> they
->>> don't happen when loaded as module.
->>
->> In some of the earlier testX versions of the kernel, I did not see any
->> difference between compiling as a module, and compiling into the 
->> kernel. (It
->> is currently a module on my system.)
->>
->> I did, however, manage to keep ntpd happy by reducing HZ to 100. Even 
->> raising
->> HZ to 200 is enough to throw off its PLL. The machine is idle for 90% 
->> of the
->> day, though, so I don't know if the PLL is adapting to the fact that 
->> the
->> system is idling, but the values for tick look reasonable.
+On Wed, 5 Nov 2003 09:08, Chris Vine wrote:
+> Your diagnosis looks right, but two points -
 >
-> Interesting, sounds like the idling causes missed timer interrupts? 
-> Can you
-> briefly describe what's the easiest way to reproduce the timer 
-> problem, just
-> change HZ to 200 and look at the system time?
+> 1.  The test compile was not of the kernel but of a file in a C++ program
+> using quite a lot of templates and therefore which is quite memory
+> intensive (for the sake of choosing something, it was a compile of
+> src/main.o in
+> http://www.cvine.freeserve.co.uk/efax-gtk/efax-gtk-2.2.2.src.tgz).  It
+> would be a sad day if the kernel could not be compiled under 2.6 in 32MB of
+> memory, and I am glad to say that it does compile - my 2.6.0-test9 kernel
+> compiles on the 32MB machine in on average 45 minutes 13 seconds under
+> kernel 2.4.22, and in 54 minutes 11 seconds under 2.6.0-test9 with your
+> latest patch, which is not an enormous difference.  (As a digression, in
+> the 2.0 days the kernel would compile in 6 minutes on the machine in
+> question, and at the time I was very impressed.)
 
-Weird. On -test9-bk at HZ=1000, with amd76x_pm loaded as a module 
-(lazy_idle=800, the default), the system clock is running fast.
+Phew. It would be sad if it couldn't compile a kernel indeed.
+>
+> 2.  Being able to choose a manual setting for swappiness is not "futile". 
+> As I mentioned in an earlier post, a swappiness of 10 will enable
+> 2.6.0-test9 to compile the things I threw at it on a low end machine,
+> albeit slowly, whereas with dynamic swappiness it would not compile at all.
+>  So the difference is between being able to do something and not being able
+> to do it.
 
-With ntpd running, the clock was stepped back 2.5 seconds twice in 20 
-minutes.
+I agree with you on that; I meant it would be futile trying to get the compile 
+times back to 2.4 levels with just this tunable modified alone (statically or 
+dynamically)... which means we should look elsewhere for ways to tackle this.
 
-Here's what I get from adjtimexconfig (after stopping ntpd, of course):
-
-# adjtimexconfig
-Comparing clocks (this will take 70 sec)... adjusting system time by  
--126.211  sec/day
-Done
-
-Now tick is 9985. I distinctly remember it being somewhat over 10,000 
-the last time I ran with HZ=1000 and amd_76x_pm active. With HZ=100, 
-adjtimexconfig sets tick=10002.
-
-I'm not entirely sure what the "acpi" interrupt is doing-- it 
-increments about once every two seconds when the system is idle, and 
-various types of system activity make it happen more frequently. At 
-least I'm not getting any "irq 9: nobody cared!" messages anymore (the 
-button module is loaded, so I guess it is handling it). If I don't have 
-amd76x_pm loaded, the acpi interrupt is triggered a couple of times 
-after button is loaded, but then it doesn't happen again until I 
-actually press a button.
-
--- 
-Charles Lepple
-ghz.cc! clepple
+Con
 

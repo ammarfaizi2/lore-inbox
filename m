@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267934AbUJNWOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267769AbUJNWOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267934AbUJNWOv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 18:14:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbUJNWNx
+	id S267769AbUJNWOu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 18:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUJNWNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 18:13:53 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:36000 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267769AbUJNVym (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 17:54:42 -0400
-Message-ID: <9625752b04101414544ac90e1f@mail.gmail.com>
-Date: Thu, 14 Oct 2004 14:54:40 -0700
-From: Danny <dannydaemonic@gmail.com>
-Reply-To: Danny <dannydaemonic@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: mm kernel oops with r8169 & named, PREEMPT
-Cc: "netdev@oss.sgi.com Jon Mason" <jdmason@us.ibm.com>
-In-Reply-To: <200410131703.21726.jdmason@us.ltcfwd.linux.ibm.com>
+	Thu, 14 Oct 2004 18:13:49 -0400
+Received: from smtp.terra.es ([213.4.129.129]:39633 "EHLO tsmtp2.mail.isp")
+	by vger.kernel.org with ESMTP id S267638AbUJNV4w convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 17:56:52 -0400
+Date: Thu, 14 Oct 2004 23:57:02 +0200
+From: Diego Calleja <diegocg@teleline.es>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announcing Binary Compatibility/Testing
+Message-Id: <20041014235702.43586f70.diegocg@teleline.es>
+In-Reply-To: <Pine.LNX.4.58.0410141129200.3897@ppc970.osdl.org>
+References: <1097705813.6077.52.camel@wookie-zd7>
+	<416DAEB7.4050108@pobox.com>
+	<1097709855.5411.20.camel@localhost>
+	<Pine.LNX.4.58.0410141129200.3897@ppc970.osdl.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9625752b041012230068619e68@mail.gmail.com>
-	 <200410131129.05657.jdmason@us.ltcfwd.linux.ibm.com>
-	 <9625752b04101313283f035423@mail.gmail.com>
-	 <200410131703.21726.jdmason@us.ltcfwd.linux.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Oct 2004 17:03:21 -0500, Jon Mason wrote:
-> The only thing that jumps out at me is the fact that you are running with
-> Reiser4, but I don't want to point any fingers yet.  Please try recreating
-> the error without NAPI and preemptable kernel, and if possible without
-> Reiser4.
+El Thu, 14 Oct 2004 11:32:14 -0700 (PDT) Linus Torvalds <torvalds@osdl.org> escribió:
 
-I can recreate it without NAPI and without the preemptable kernel, but
-I have no means of recreating this with out Reiser4.  Would an oops
-without the NAPI and preemptable kernel be more useful than the one I
-already provided?  If so I can make another oops.
+> No we don't.
+> 
+> Yes, we "have the technology". But it's not actually used for libc (which
+> is most of the problematic stuff), so we do not actually have library
+> versioning.
 
-I spoke with Nikita shortly on OFTC and he said the oops "is not
-related to reiser4, at least not directly. Maybe reiser4 corrupted
-some internal data-structures some where in the kernel which caused
-oops later."
+is that a solvable problem?
+quoting some dragonfly thread (whose aim is to implement something which 
+would solve that)
 
-Shrug.
+    [...] via VFS 'environments', causes any particular package to see only
+    the dependancies that it depends on, and the proper version of said
+    dependancies as well.  Multiple versions of third party apps that normally
+    conflict with each other could be installed simultaniously.  The
+    packaging-system-controlled VFS environment would also hide everything a
+    package does not depend on, like other libraries in the system, in order
+    to guarentee that the dependancies listed in the packaging system are in
+    fact what the application depends on.  There's no point in having a
+    packaging system that can't detect broken and incorrect dependancies or
+    we wind up with the same mess that we have with ports.
+
+Diego Calleja (who wonders if this is feasible/worth of it)

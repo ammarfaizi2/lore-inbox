@@ -1,60 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289829AbSAKBw1>; Thu, 10 Jan 2002 20:52:27 -0500
+	id <S289835AbSAKCDN>; Thu, 10 Jan 2002 21:03:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289828AbSAKBwR>; Thu, 10 Jan 2002 20:52:17 -0500
-Received: from mail.myrio.com ([63.109.146.2]:33519 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S289830AbSAKBwG> convert rfc822-to-8bit;
-	Thu, 10 Jan 2002 20:52:06 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [RFC] klibc requirements, round 2
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-Date: Thu, 10 Jan 2002 17:50:52 -0800
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CB2C@mail0.myrio.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC] klibc requirements, round 2
-Thread-Index: AcGaOac5WmRnA/34SsaQ0VgjWeZwYgABTpBg
-From: "Torrey Hoffman" <torrey.hoffman@myrio.com>
-To: "Tom Rini" <trini@kernel.crashing.org>, "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>, <felix-dietlibc@fefe.de>,
-        <andersen@codepoet.org>
+	id <S289833AbSAKCDA>; Thu, 10 Jan 2002 21:03:00 -0500
+Received: from [205.230.108.42] ([205.230.108.42]:55058 "EHLO
+	dawntreader.inetmedia.com") by vger.kernel.org with ESMTP
+	id <S289831AbSAKCCr>; Thu, 10 Jan 2002 21:02:47 -0500
+Message-ID: <MDAEMON-F200201101730.AA304764md80000318665@dawntreader.inetmedia.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 10 Jan 2002 16:02:37 -0500
+To: newsletter@mail.motioncontrol.com
+From: "Editors at MotionControl.com" <editor@mail.motioncontrol.com>
+Subject: Hot Products & More on MotionControl.com Next Week
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-OriginalArrivalTime: 10 Jan 2002 21:02:37.0863 (UTC) FILETIME=[2250C370:01C19A1A]
+X-MDRcpt-To: newsletter@mail.motioncontrol.com
+X-MDRemoteIP: 192.168.0.40
+X-Return-Path: email@mail.motioncontrol.com
+X-MDMailing-List: newsletter@mail.motioncontrol.com
+X-MDSend-Notifications-To: email@mail.motioncontrol.com
+Reply-To: email@mail.motioncontrol.com (email bounce-back)
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> On Thu, Jan 10, 2002 at 03:18:49PM -0800, Greg KH wrote:
-... 
-> > 	- image viewer
-> > 	- mkreiserfs
-> 
-> I think these are examples of misunderstanding what initramfs _can do_
-> with what we (might) need a klibc to do.  
-...
-> These programs _might_ compile with a klibc, but I wouldn't 
-> worry about
-> it.  uClibc is what should be used for many of these custom 
-> applications
+Welcome to Motioncontrol.com's weekly update!
 
-Well, as the person who first mentioned mkreiserfs and the like,
-I agree with you.  For the majority of systems out there which 
-aren't using initrd now, a minimal klibc for an unmodified 
-initramfs makes sense.
+MOTIONCONTROL.com is the most direct path for the engineers to find
+motion control manufacturers and their products!
 
-My concern is with the minority who are using initrd, and in
-some cases a very customized initrd.  
 
-The important thing, I think, is that it should be easy for
-less-than-guru level hackers to add programs to the initramfs,
-even if the program they want can't be linked with klibc.
+NEXT WEEK'S scheduled NEW PRODUCT RELEASES are:
 
-This really comes down to: What will the build process be for
-these initramfs images?
 
-By the way, is initramfs intended to supercede initrd, or will 
-they co-exist?  
+Monday: ORIENTAL MOTOR USA CORP has a New Size 34 Stepping Motor & Board 
+Level Driver for Applications With High Speed and Torque
+http://www.motioncontrol.com/newsletter/new.cfm?id=1273
 
-Torrey
+Tuesday: PARKER HANNIFIN's DAEDAL DIVISION Releases the HLE-Z Endless 
+Travel Linear Module for Applications with Long Travels, High Performance, 
+and Maintenance Free Operation
+http://www.motioncontrol.com/newsletter/new.cfm?id=1265
+
+Wednesday: HEIDENHAIN CORPORATION Presents New Low-Priced Rotary Encoders 
+as an Alternative to Resolvers
+http://www.motioncontrol.com/newsletter/new.cfm?id=1258
+
+Thursday: STEGMANN has a Absolute Rotary Encoder with Interbus Interface
+http://www.motioncontrol.com/newsletter/new.cfm?id=529
+
+Friday: NEUGART USA has a Catalog featuring the PLS, PLE, WPLS and WPLE 
+product lines
+http://www.motioncontrol.com/newsletter/new.cfm?id=371
+
+
+Is your company a registered manufacturer of Motors, Motor-Gearheads,
+Motion Controllers, Motion Systems, Encoders, Sensors, Ball Screws,
+Drive Amplifiers, Gearheads, Hydraulics, Pneumatics, Linear Slides,
+XY Positioning or a related motion control industry components?
+If not go to
+http://www.motioncontrol.com/advertising,
+it's simple and produces immediate results!
+
+
+******************************ADVERTISEMENT**************************
+Our newest Premier member:
+
+DAEDAL DIVISION of PARKER HANNIFIN
+Visit us at http://www.motioncontrol.com/company/company.cfm?id=5095
+
+Our newest Classic member:
+
+CALIFORNIA LINEAR DEVICES
+Visit us at http://www.motioncontrol.com/companies/default.cfm?letter=C
+
+
+*********************************************************************
+
+
+NEXT WEEK'S scheduled HOT JOB POSTING is for a:
+
+Independent Sales Representatives
+http://www.motioncontrol.com/newsletter/job.cfm?id=127
+
+
+COMPANY in the SPOTLIGHT:
+*********************************************************************
+
+TRILOGY SYSTEMS CORP.
+Since 1987, Trilogy has been the leader in the design and manufacture of 
+Linear Motor Components and Positioners.
+
+http://www.motioncontrol.com/newsletter/company.cfm?id=6964
+
+
+Recent TECHNICAL NEWS:
+
+International Rectifier Introduces Compact, High Current, Three-Phase 
+Bridge Rectifier for Space-Restricted, Industrial Applications
+http://www.motioncontrol.com/news/detail.cfm?id=1270
+
+Moog Wins Best Fluid Power Product of the Year Award
+http://www.motioncontrol.com/news/detail.cfm?id=1261
+
+Lattice Releases Second ispMACH 5000VG SuperBIG CPLDs
+http://www.motioncontrol.com/news/detail.cfm?id=1251
+
+
+Archived TECHNICAL NEWS:
+http://www.motioncontrol.com/news
+
+
+To Subscribe to the MotionControl.com Weekly update go to
+http://motioncontrol.com/login/users and register as a USER.
+
+You can Unsubscribe to this newsletter by going to
+http://motioncontrol.com/newsletter/manage.cfm
+
+

@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129153AbQKYCMK>; Fri, 24 Nov 2000 21:12:10 -0500
+        id <S129091AbQKYC3P>; Fri, 24 Nov 2000 21:29:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130868AbQKYCL7>; Fri, 24 Nov 2000 21:11:59 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:53771 "HELO mail.ocs.com.au")
-        by vger.kernel.org with SMTP id <S129153AbQKYCLk>;
-        Fri, 24 Nov 2000 21:11:40 -0500
+        id <S129153AbQKYC2z>; Fri, 24 Nov 2000 21:28:55 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:58891 "HELO mail.ocs.com.au")
+        by vger.kernel.org with SMTP id <S129091AbQKYC2o>;
+        Fri, 24 Nov 2000 21:28:44 -0500
 X-Mailer: exmh version 2.1.1 10/15/1999
 From: Keith Owens <kaos@ocs.com.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch(?): isapnp_card_id tables for all isapnp drivers in 2.4.0-test11 
-In-Reply-To: Your message of "Fri, 24 Nov 2000 15:37:33 -0800."
-             <20001124153733.A1876@baldur.yggdrasil.com> 
+To: ebiederm@xmission.com (Eric W. Biederman)
+cc: linux-kernel@vger.kernel.org, "Matt D. Robinson" <yakker@alacritech.com>
+Subject: Re: LKCD from SGI 
+In-Reply-To: Your message of "24 Nov 2000 16:40:50 PDT."
+             <m1ofz5vszh.fsf@frodo.biederman.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 25 Nov 2000 12:41:32 +1100
-Message-ID: <4906.975116492@ocs3.ocs-net>
+Date: Sat, 25 Nov 2000 12:58:37 +1100
+Message-ID: <5009.975117517@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2000 15:37:33 -0800, 
-"Adam J. Richter" <adam@yggdrasil.com> wrote:
->	Note that this is not a "final" version.  I plan to go
->through all of the changes and bracket all of these new tables
->with #ifdef MODULE...#endif so they do not result in complaints
->about the table being defined static and never used in cases where
->the driver is compiled directly into the kernel.
+On 24 Nov 2000 16:40:50 -0700, 
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+>Peter Samuelson <peter@cadcamlab.org> writes:
+>
+>> [Matt D. Robinson]
+>> > Any way we can standardize 'make install' in the kernel?  It's
+>> > disturbing to have different install mechanisms per platform ...
+>> > I can make the changes for a few platforms.
+>> 
+>> 2.5 material, already on the todo list.
+>
+>What is the thought on this.  There is an issue with different
+>boot loaders needing rather dramatically different formats...
 
-This is cleaner.  Append MODULE_ONLY after __initdata and remove the
-ifdef.  It increases the size of initdata in the kernel, compared to
-ifdef, but since initdata is promptly reused as scratch space it should
-not be a problem.
+2.5 kernel build wish list[1] has a couple of entries for standardising
+the install targets.  My thinking (and I know that some people disagree
+with this) is that the standard targets of a linux compile are only
 
-Index: 0-test11.1/include/linux/module.h
---- 0-test11.1/include/linux/module.h Sun, 12 Nov 2000 14:59:01 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.3 644)
-+++ 0-test11.1(w)/include/linux/module.h Sat, 25 Nov 2000 12:40:10 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.3 644)
-@@ -261,6 +261,7 @@ extern struct module __this_module;
- #define MOD_INC_USE_COUNT	__MOD_INC_USE_COUNT(THIS_MODULE)
- #define MOD_DEC_USE_COUNT	__MOD_DEC_USE_COUNT(THIS_MODULE)
- #define MOD_IN_USE		__MOD_IN_USE(THIS_MODULE)
-+#define MODULE_ONLY		__attribute__ ((unused))
- 
- #include <linux/version.h>
- static const char __module_kernel_version[] __attribute__((section(".modinfo"))) =
-@@ -286,6 +287,7 @@ static const char __module_using_checksu
- #define MOD_INC_USE_COUNT	do { } while (0)
- #define MOD_DEC_USE_COUNT	do { } while (0)
- #define MOD_IN_USE		1
-+#define MODULE_ONLY
- 
- extern struct module *module_list;
- 
+* vmlinux
+* System.map
+* modules in the kernel tree (not installed yet)
+* any other bits and pieces that are required to compile external
+  modules against this config.
+
+The install phases are many and varied, depending on whether you are
+installing on this machine, on another machine, does your boot loader
+understand ELF, do you have to do the [b]zImage fiddling first, are you
+doing a network boot from ROM, a network boot over tftp etc.
+
+In current kernels the install phases are mixed in with the compile
+phase which makes it difficult to handle different install targets.
+2.5 will have a default make target which does the compile phase but
+does nothing that is install related, i.e. default is no [b]zImage, no
+modules_install etc.  There will be separate install targets for any
+combination that is required and for which people can be bothered
+writing the make scripts.
+
+[1] ftp://ftp.<country>.kernel.org/pub/linux/kernel/projects/kbuild/makefile-wishlist-2.5-...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,22 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317180AbSGHVz3>; Mon, 8 Jul 2002 17:55:29 -0400
+	id <S317182AbSGHV74>; Mon, 8 Jul 2002 17:59:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317182AbSGHVz2>; Mon, 8 Jul 2002 17:55:28 -0400
-Received: from fe5.rdc-kc.rr.com ([24.94.163.52]:39941 "EHLO mail5.wi.rr.com")
-	by vger.kernel.org with ESMTP id <S317180AbSGHVz1>;
-	Mon, 8 Jul 2002 17:55:27 -0400
-Message-ID: <000d01c226ca$cc5ea840$8a981d41@wi.rr.com>
-From: "Ted Kaminski" <mouschi@wi.rr.com>
+	id <S317184AbSGHV7z>; Mon, 8 Jul 2002 17:59:55 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:11838 "EHLO
+	devil.stev.org") by vger.kernel.org with ESMTP id <S317182AbSGHV7z>;
+	Mon, 8 Jul 2002 17:59:55 -0400
+Message-ID: <006101c226ca$d0c9a380$0501a8c0@Stev.org>
+From: "James Stevenson" <mistral@stev.org>
 To: <jbradford@dial.pipex.com>
 Cc: <linux-kernel@vger.kernel.org>
-References: <200207082150.WAA03372@darkstar.example.net>
-Subject: Re: ISAPNP SB16 card with IDE interface
-Date: Mon, 8 Jul 2002 16:59:56 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+References: <200207082159.WAA03443@darkstar.example.net>
+Subject: Re: ATAPI + cdwriter problem
+Date: Mon, 8 Jul 2002 23:00:03 +0100
 X-Priority: 3
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook Express 6.00.2600.0000
@@ -24,31 +20,66 @@ X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-From: <jbradford@dial.pipex.com>
-> Are you sure that the CD-ROM drive is jumpered correctly, because Windows
-may well not complain if
->it is set to 'slave', but alone on the bus.
+> What's the make and model of your CD-writer?  There are known firmware
+bugs with a lot of them.
+
+its a Benq 32x10x40 CD/RW
+running with the Promise ATA/133 controller
+
+
+seems strange ide-scsi is the only thing i have ever had problems with.
+i know it also does not work with the other 2 cd drives in the machine as
+well.
+1 is an old HP 2x2x6 7200+ writer (writes ok reading problems)
+and a normall 44x reader(will causes opps on reading bad media)
+
+i have sent the oppen to the list before but they have always been ignored.
+
+> John.
 >
+> > Hi
+> >
+> > i have  bunch of messages like these and a hung cd writer
+> >
+> > scsi : aborting command due to timeout : pid 28231, scsi0, channel 0, id
+2,
+> > lun 0 Test Unit Ready 00 00 00 00 00
+> > SCSI host 0 abort (pid 28231) timed out - resetting
+> > SCSI bus is being reset for host 0 channel 0.
+> > hdg: ATAPI reset timed-out, status=0xd0
+> > PDC202XX: Secondary channel reset.
+> > ide3: reset: success
+> > hdg: irq timeout: status=0xc0 { Busy }
+> > hdg: status timeout: status=0xd0 { Busy }
+> > hdg: drive not ready for command
+> >
+> >
+> > anyone be able to suggest any action to help prevent it in the future ?
+> >
+> > thanks
+> >     James
+> >
+> > --------------------------
+> > Mobile: +44 07779080838
+> > http://www.stev.org
+> >   7:10pm  up 57 min,  3 users,  load average: 2.05, 1.84, 1.10
+> >
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-In fact, it was originally set to slave during its years of windows use...
-I've moved it over to master (and tried both) after I encountered this
-problem.
-
-> Also, maybe I'm just being stupid, but why is it being recognised as ide3?
-The numbering starts at 0, so if
->this is your third interface, it should be ide2.  Could you post a
-less-trimmed copy of your dmesg output to
->the list, (or just to me, if it'll annoy the list people).
-
-IDE numbers apparently work just like HD numbers... its not order, it "how
-its connected."  In this case, that means the ISAPNP driver sees that the
-card requests the IRQ/ports associated with ide3.
-
-and this would be the second interface, not third... (nit-picking...) I'd
-have to put together a special boot disk to get a full dmesg, however...
-We'll see... (I think... Unless boot messages are in /proc someplace, which
-I doubt)
-
-Ted Kaminski
 

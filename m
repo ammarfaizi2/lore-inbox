@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267024AbTBHPJx>; Sat, 8 Feb 2003 10:09:53 -0500
+	id <S267022AbTBHPI2>; Sat, 8 Feb 2003 10:08:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267027AbTBHPJx>; Sat, 8 Feb 2003 10:09:53 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:64654 "EHLO
-	yeti.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S267024AbTBHPJw>; Sat, 8 Feb 2003 10:09:52 -0500
-Date: Sun, 9 Feb 2003 02:19:11 +1100
-From: CaT <cat@zip.com.au>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.59: loadavg shows 1.0 1.0 1.0 on idle system.(no APM enabled)
-Message-ID: <20030208151911.GH940@zip.com.au>
-References: <200302081611.49069.roy@karlsbakk.net>
+	id <S267023AbTBHPI2>; Sat, 8 Feb 2003 10:08:28 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:18601
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267022AbTBHPI1>; Sat, 8 Feb 2003 10:08:27 -0500
+Subject: Re: Bug Report (more information)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "John W. M. Stevens" <john@betelgeuse.us>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030208010124.GA30737@morningstar.nowhere.lie>
+References: <20030208010124.GA30737@morningstar.nowhere.lie>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044720991.17882.5.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302081611.49069.roy@karlsbakk.net>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 08 Feb 2003 16:16:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 08, 2003 at 04:11:49PM +0100, Roy Sigurd Karlsbakk wrote:
-> hi all
+On Sat, 2003-02-08 at 01:01, John W. M. Stevens wrote:
 > 
-> I've got this computer running 2.5.59, and after some time (dunno how
-> long) it starts getting the load average stably at 1.0 while still
-> being idle. check below for more info:
+> [6.] A small shell script or example program which triggers the
+> 	      problem (if possible)
+> 
+>    Two steps: 1) enable support for AMD Viper chipset and using
+>    DMA by default.  2) Using IDE-SCSI, attemp to burn a CD.
 
-Any processes in D state? (ps aux | grep D)
+Strange question but do you have a PS/2 mouse plugged into that
+system ?
 
--- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to         kill my dad."
-        - George W. Bush Jr, 'President' of the United States
-          September 26, 2002 (from a political fundraiser in Huston, Texas)
-
+> 

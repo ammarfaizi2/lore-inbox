@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131028AbRAXOoI>; Wed, 24 Jan 2001 09:44:08 -0500
+	id <S130508AbRAXOoJ>; Wed, 24 Jan 2001 09:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130508AbRAXOn6>; Wed, 24 Jan 2001 09:43:58 -0500
-Received: from vulcan.datanet.hu ([194.149.0.156]:26517 "EHLO relay.datanet.hu")
-	by vger.kernel.org with ESMTP id <S131636AbRAXOnt>;
-	Wed, 24 Jan 2001 09:43:49 -0500
-From: "Bakonyi Ferenc" <fero@drama.obuda.kando.hu>
-Organization: Datakart Geodzia KFT.
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-Date: Wed, 24 Jan 2001 15:42:28 +0100
+	id <S130382AbRAXOn6>; Wed, 24 Jan 2001 09:43:58 -0500
+Received: from sls.lcs.mit.edu ([18.27.0.167]:34812 "EHLO sls.lcs.mit.edu")
+	by vger.kernel.org with ESMTP id <S131028AbRAXOnu>;
+	Wed, 24 Jan 2001 09:43:50 -0500
+Message-ID: <3A6EEA1B.87732D70@sls.lcs.mit.edu>
+Date: Wed, 24 Jan 2001 09:43:39 -0500
+From: I Lee Hetherington <ilh@sls.lcs.mit.edu>
+Organization: MIT Laboratory for Computer Science
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.18-4.smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH]: hgafb crash on MDA only cards
-CC: geert@linux-m68k.org, linux-kernel@vger.kernel.org
-In-Reply-To: <3A6EDDD3.1509716C@yahoo.com>
-X-mailer: Pegasus Mail for Win32 (v3.01d)
-Message-Id: <E14LR8X-0007eR-00@aleph0.datakart.hu>
+To: Matt_Domsch@Dell.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: No SCSI Ultra 160 with Adaptec Controller
+In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9C0C@ausxmrr501.us.dell.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matt_Domsch@Dell.com wrote:
 
+> Something to note, however: the media transfer rate for those disks is at
+> most ~20MB/sec.
 
-Paul Gortmaker wrote:
-> Current (2.4.0pre8) hgafb will misdetect MDA only cards and
-> then crash - last message briefly seen before screen clears is
-> 
-> hgafb: <NULL> with 32K of memory detected.
-> 
-> A comparison to the detection code in XFree86 shows that hgafb 
-> forgets to return failure if the status port doesn't show 
-> any active changes associated with counting vertical syncs.
+Hmm...
 
-Hi!
+     scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI)
+     5.1.31/3.2.4
+            <Adaptec AIC-7899 Ultra 160/m SCSI host adapter>
+     Vendor: QUANTUM   Model: ATLAS10K2-TY092L  Rev: DA40
+       Type:   Direct-Access                      ANSI SCSI revision: 03
 
-I'm happy to see I'm not the only one using theese old beasts. :)
-Your patch looks good, thanks for it! I'll test it tonight.
+     /dev/sda:
+      Timing buffered disk reads:  64 MB in  1.59 seconds =40.25 MB/sec
 
-Best regards,
-	Ferenc Bakonyi
+They can do more like 40MB/s, so only two disks could saturate the 80MB/s.
+
+This is in a Dell Precision 620.
+
+--Lee Hethernigton
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261365AbSKRFkM>; Mon, 18 Nov 2002 00:40:12 -0500
+	id <S261492AbSKRFv5>; Mon, 18 Nov 2002 00:51:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbSKRFkM>; Mon, 18 Nov 2002 00:40:12 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2131 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S261365AbSKRFkL>; Mon, 18 Nov 2002 00:40:11 -0500
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: Andy Pfiffer <andyp@osdl.org>, Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [ANNOUNCE] kexec-tools-1.6 released
-References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>
-	<m1vg349dn5.fsf@frodo.biederman.org> <1037055149.13304.47.camel@andyp>
-	<m1isz39rrw.fsf@frodo.biederman.org> <1037148514.13280.97.camel@andyp>
-	<m1k7jb3flo.fsf_-_@frodo.biederman.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Nov 2002 22:46:44 -0700
-In-Reply-To: <m1k7jb3flo.fsf_-_@frodo.biederman.org>
-Message-ID: <m1el9j2zwb.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S261495AbSKRFv5>; Mon, 18 Nov 2002 00:51:57 -0500
+Received: from almesberger.net ([63.105.73.239]:58897 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S261492AbSKRFv5>; Mon, 18 Nov 2002 00:51:57 -0500
+Date: Mon, 18 Nov 2002 02:58:43 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: "David S. Miller" <davem@redhat.com>, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <20021118025843.A17062@almesberger.net>
+References: <20021115.133004.65979948.davem@redhat.com> <467166910.1037370147@[10.10.2.3]> <20021117.113319.126503551.davem@redhat.com> <20021117233104.M1407@almesberger.net> <20021118044614.GB20171@waste.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021118044614.GB20171@waste.org>; from oxymoron@waste.org on Sun, Nov 17, 2002 at 10:46:14PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
+Oliver Xymoron wrote:
+> There's a good example extant where this isn't a problem: Wikipedia.
+> In their example, vandalism increases, but so does clean-up.
 
-> The kernel interface has finally as stabilized enough I managed to put
-> some work into the user space side of things.
-> 
-> The new release is at:
-> http://www.xmission.com/~ebiederm/kexec-tools-1.6.tar.gz
+Oh, don't get me wrong - I'm not advocating iron-clad control with
+a big bureaucracy. I simply suspect that the clean-up might be
+a lot more work that the act of stupidity. (So, if Bugzilla
+doesn't already track actions by user, with some convenient batch
+undo function, this would be a feature request :-)
 
-Make that:
-http://www.xmission.com/~ebiederm/files/kexec/kexec-tools-1.6.tar.gz
-And the latest patches can be found at:
+- Werner
 
-http://www.xmission.com/~ebiederm/files/kexec/
-
-The basic breakout is 
-linux-2.4.47.x86kexec.diff is the core patch.
-linux-2.4.47.x86kexec-hwfixes.diff 
-       applies on top and is has some hardware fixes that
-       shutdown kernel code, and make things work better.
-       Mostly this is the code to get SMP to shutdown properly.
-
-And it looks like .48 is out so I need to do another patch update.
-
-Eric
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

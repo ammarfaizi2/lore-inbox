@@ -1,90 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263771AbUA0Xdk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 18:33:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbUA0Xdk
+	id S265656AbUA0Xaw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 18:30:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265658AbUA0Xaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 18:33:40 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:432 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263771AbUA0Xd3 (ORCPT
+	Tue, 27 Jan 2004 18:30:52 -0500
+Received: from colin2.muc.de ([193.149.48.15]:51719 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S265656AbUA0Xau (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 18:33:29 -0500
-In-Reply-To: <401026CD.2030600@us.ibm.com>
-References: <401026CD.2030600@us.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v609)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <0041A388-5121-11D8-B18F-000A95A0560C@us.ibm.com>
-Content-Transfer-Encoding: 7bit
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, mochel@digitalimplant.org,
-       Andrew Morton <akpm@osdl.org>
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Subject: Re: (driver model) bus kset list manipulation bug
-Date: Tue, 27 Jan 2004 17:31:58 -0600
-To: Greg KH <greg@kroah.com>
-X-Mailer: Apple Mail (2.609)
+	Tue, 27 Jan 2004 18:30:50 -0500
+Date: 28 Jan 2004 00:29:50 +0100
+Date: Wed, 28 Jan 2004 00:29:50 +0100
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, eric@cisu.net, stoffel@lucent.com,
+       Valdis.Kletnieks@vt.edu, bunk@fs.tum.de, cova@ferrara.linux.it,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+Message-ID: <20040127232950.GA63863@colin2.muc.de>
+References: <200401232253.08552.eric@cisu.net> <200401261326.09903.eric@cisu.net> <20040126115614.351393f2.akpm@osdl.org> <200401262343.35633.eric@cisu.net> <20040126215056.4e891086.akpm@osdl.org> <20040127162043.GA98702@colin2.muc.de> <20040127125447.31631e14.akpm@osdl.org> <20040127223009.GA81095@colin2.muc.de> <20040127151644.1fb378c2.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040127151644.1fb378c2.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 22, 2004, at 1:38 PM, Hollis Blanchard wrote:
->
-> I've found a bug in drivers/base/bus.c, where the 
-> bus_type.devices.list is treated as a list of device structs. 
-> bus_type.devices is a kset though, so devices.list should contain 
-> kobjects rather than devices. Here is the diff I've come up with:
->
-[big snip]
+> I'll turn it on for gcc-3.3 and higher.  We can change that if someone has
+> tested earlier compilers.
 
-> @@ -405,7 +405,7 @@
->         if (bus) {
->                 down_write(&dev->bus->subsys.rwsem);
->                 pr_debug("bus %s: add device 
-> %s\n",bus->name,dev->bus_id);
-> -               list_add_tail(&dev->bus_list,&dev->bus->devices.list);
-> +               
-> list_add_tail(&dev->kobj.entry,&dev->bus->devices.list);
->                 device_attach(dev);
->                 up_write(&dev->bus->subsys.rwsem);
+Earlier compilers never supported -funit-at-a-time. The option 
+was first implemented in gcc 3.3-hammer and later merged into 3.4.
 
-Here's the problem: dev->kobj is already in use; it's part of the 
-global devices_subsys kset.
+> Also, I do think this should remain a per-arch decision.  Other
+> architectures could well have similar problems to this and we don't want to
+> be mysteriously breaking their kernels for them.
 
-devices_subsys looks like it's only used for two things: global hotplug 
-policy and suspend. Of the 3 hotplug functions it provides 
-(dev_hotplug_filter, dev_hotplug_name, and dev_hotplug), 2 of them 
-refer to bus data or code anyways.
+That's fine by me. While you're at it could you enable it for x86-64 too?
 
-I'm very surprised to see it's used by device_shutdown(). I thought one 
-of the points of the device tree was to do depth-first-suspend, so e.g 
-we don't try to suspend a PCI bridge and *then* try to suspend children 
-of that bridge. Instead we're walking a global list in the reverse 
-order they were registered. I guess this works because busses are 
-discovered from the root down, so going backwards will give you the 
-deepest first.
-
-I see three options, and I like the last best:
-- add another kobject to struct device. This will allow a device to be 
-registered with the global devices_subsys as well as a bus.devices kset 
-simultaneously.
-- change the kset "bus_type.devices" to a normal "list_head*" (which is 
-how it's being used today, incorrectly). This will preclude some of the 
-nice kobject/kset functionality however (e.g. see last paragraph 
-below).
-- remove devices_subsys. The hotplug policy is already entirely 
-bus-specific anyways. The suspend code can be made to use bus 
-structures as well instead of a global device list (can it?).
-
-The point of all of this is I want to be able to call
-	device_find("mydevice", &my_bus_type)
-device_find() uses kset_find_obj() on the bus_type.devices kset, and 
-that doesn't work because bus_type.devices isn't a real kset, and it's 
-not a real kset because you can't register device kobjects in it, and 
-you can't because those kobjects have already been registered with 
-devices_subsys. I could call
-	device_find("mydevice", &devices_subsys.kset)
-instead, but I already know what bus my device is on; no need to search 
-them all...
-
--- 
-Hollis Blanchard
-IBM Linux Technology Center
-
+-Andi

@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135556AbRAHRiC>; Mon, 8 Jan 2001 12:38:02 -0500
+	id <S135655AbRAHRiX>; Mon, 8 Jan 2001 12:38:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135195AbRAHRhp>; Mon, 8 Jan 2001 12:37:45 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:12299 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135469AbRAHRha>; Mon, 8 Jan 2001 12:37:30 -0500
-Date: Mon, 8 Jan 2001 09:37:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: Shane Nay <shane@agendacomputing.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cramfs is ro only, so honour this in inode->mode
-In-Reply-To: <20010108152904.K10035@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.10.10101080930410.3750-100000@penguin.transmeta.com>
+	id <S135669AbRAHRiP>; Mon, 8 Jan 2001 12:38:15 -0500
+Received: from snowstorm.mail.pipex.net ([158.43.192.97]:26263 "HELO
+	snowstorm.mail.pipex.net") by vger.kernel.org with SMTP
+	id <S135655AbRAHRiG>; Mon, 8 Jan 2001 12:38:06 -0500
+From: Chris Rankin <rankinc@zip.com.au>
+Message-Id: <200101081733.f08HXoe02651@wittsend.ukgateway.net>
+Subject: Re: PATCH for 2.4.0: assign ad1848 mixer operations to correct module
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Mon, 8 Jan 2001 17:33:49 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
+Reply-To: rankinc@zip.com.au
+In-Reply-To: <E14FdQR-0004fZ-00@the-village.bc.nu> from "Alan Cox" at Jan 08, 2001 02:37:29 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 8 Jan 2001, Ingo Oeser wrote:
-
-> On Mon, Jan 08, 2001 at 12:13:39PM +0000, Shane Nay wrote:
-> > This may not initially seem like such a great thing..., but imagine a base 
-> > distro being distributed as a cramfs file.  Copy the thing over to your HD 
-> > and you're done, otherwise the distro packaging has to keep track of 
-> > permisions for each file, etc.
+> > +
+> > + if (owner)
+> > +   ad1848_mixer_operations.owner = owner;
+> > +
+> >   if ((e = sound_install_mixer(MIXER_DRIVER_VERSION,
+> >              dev_name,
+> >              &ad1848_mixer_operations,
+> > 
+> > BTW Isn't it ever-so-slightly dodgy modifying the static
 > 
-> You can use (GNU-)tar for this. It even keeps track of other bits like
-> ext2fs attributes, AFAIK.
+> Very.
+> 
+> > operations in exactly the same way as the ad1848_audio_driver
+> > structure, but doesn't this mean that the ad1848_init() function now
+> > "remembers" the owner from the previous call?
+> 
+> Yeah
+> 
+> > Or maybe the sound_install_XXXX() functions should accept "owner"
+> > parameters, so that the static structs could become "const"?
+> 
+> I think you either need owner as a parameter or to make a copy of the
+> ad1848_mixer_operations in your sscape driver and pass that ?
 
-Ehh.. And how were you going to mount it?
+I thought about both of these, but the impact of adding an owner
+parameter to sound_install_mixer() was too great, and the
+ad1848_mixer_operations structure was declared static rather than
+extern in ad1848.c. (Probably rightly so, too). Fortunately, I found
+alternative inspiration in mpu401.c.
 
-The advantage of cramfs is that you can make a cramfs CD-ROM, and you can
-_run_ off that CD while you unpack it to your harddisk.
+It might be "interesting" to redeclare all the static struct
+mixer_operations as "const", along with the argument in
+sound_install_mixer(), and see exactly how many sound modules scream
+in pain. Maybe too interesting for 2.4.1... :-) ?
 
-Using "tar" is not very practical. Doing a "tarfs" is probably not that
-bad, but doing a "compressed-tar-fs" is a horrible pain in the neck
-without big double buffers etc.
-
-The advantage of cramfs is that it actually is a reasonably efficient
-filesystem - becasue of the fairly small compression block-size it doesn't
-compress as well as doing a bzip2 on a tar-file, but that small
-compression block is also what makes random-access easy. And that's what
-makes it easy to use cramfs as a "live" filesystem, very much unlike some
-compressed tar-balls.
-
-I've been thinking of doing a cramfs2, and the only thing I'd change is
-(a) slightly bigger blocksize (maybe 8k or 16k) and (b) re-order the
-meta-data and the real data so that I could easily compress the metadata
-too. cramfs doesn't have any traditional meta-data (no bitmap blocks or
-anything like that), but it wouldn't be that hard to put the directory
-structure in the page cache and just compress the directories the same way
-the real data is compressed.
-
-		Linus
-
+Chris
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264380AbTH2At0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 20:49:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbTH2AtZ
+	id S264291AbTH2BTM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 21:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbTH2BTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 20:49:25 -0400
-Received: from mail.vtc.edu.hk ([202.75.80.229]:33624 "EHLO pandora.vtc.edu.hk")
-	by vger.kernel.org with ESMTP id S264380AbTH2AtY (ORCPT
+	Thu, 28 Aug 2003 21:19:12 -0400
+Received: from codepoet.org ([166.70.99.138]:13701 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S264291AbTH2BTJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 20:49:24 -0400
-Message-ID: <3F4EA30C.CEA49F2F@vtc.edu.hk>
-Date: Fri, 29 Aug 2003 08:49:16 +0800
-From: Nick Urbanik <nicku@vtc.edu.hk>
-Organization: Institute of Vocational Education (Tsing Yi)
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Single P4, many IDE PCI cards == trouble??
+	Thu, 28 Aug 2003 21:19:09 -0400
+Date: Thu, 28 Aug 2003 19:19:10 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>
+Subject: Re: [RFC] /proc/ide/hdx/settings with ide-default pseudo-driver is a 2.6/2.7 show-stopper
+Message-ID: <20030829011910.GA19351@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andre Hedrick <andre@linux-ide.org>
+References: <200308281646.16203.bzolnier@elka.pw.edu.pl> <1062083581.24982.21.camel@dhcp23.swansea.linux.org.uk> <200308281747.11359.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Junkmail-Whitelist: YES (by domain whitelist at pandora.vtc.edu.hk)
+Content-Disposition: inline
+In-Reply-To: <200308281747.11359.bzolnier@elka.pw.edu.pl>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Folks,
+On Thu Aug 28, 2003 at 05:47:11PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> Problem is when integrating ide with driverfs.
+> Then you need to register/unregister ide-default as driverfs driver
+> and now it can "steal" devices, ie. you have cd drive owned by ide-default,
+> later you load ide-cdrom driver and your cd drive needs to be unregistered
+> from ide-default driver first before it can be registered with ide-cdrom
+> driver - you need to add code to do this or device will be "stealed".
+> Its not very hard to do but it adds complexity.
 
-With a single 2.26GHz P4, an Asus P4B533-E motherboard, is it possible
-to reliably use two additional PCI IDE cards (using SI680), one hard
-disk per channel, and have the thing work reliably?
+Make an interface whereby ide-cdrom (and ide-disk, etc) can walk
+the list of all unclaimed devices (i.e. devices owned by
+ide-default), check they are of the correct type, and claim them
+(thereby removing them from the ide-default driver).  When
+unregistering, reverse the process and give the device back to
+ide-default...  i.e. make ide-default a holding pen for unclaimed
+devices,
 
-Could this be the cause of my lockups?  I have a total of 6 ATA133
-hard disks, one DVD player all connected to the two IDE channels on
-the motherboard, and one disk to each of the channels of the SI680
-cards.
-
-Some people have told me that this is just asking for trouble, and
-that I should buy a 3ware card instead.
-
-I am also using software RAID1, RAID5 with LVM on top.
-
-My machine locks solid at unpredictable intervals with no response
-from keyboard lights, no Alt-Sysrq-x response, etc, with a wide
-variety of 2.4.x kernels, including 2.4.22.
+ -Erik
 
 --
-Nick Urbanik   RHCE                               nicku(at)vtc.edu.hk
-Dept. of Information & Communications Technology
-Hong Kong Institute of Vocational Education (Tsing Yi)
-Tel:   (852) 2436 8576, (852) 2436 8713          Fax: (852) 2436 8526
-PGP: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B     ID: 7529555D
-GPG: 7FFA CDC7 5A77 0558 DC7A 790A 16DF EC5B BB9D 2C24   ID: BB9D2C24
-
-
-
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

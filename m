@@ -1,41 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262266AbSKHTbC>; Fri, 8 Nov 2002 14:31:02 -0500
+	id <S262296AbSKHTgQ>; Fri, 8 Nov 2002 14:36:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262276AbSKHTbC>; Fri, 8 Nov 2002 14:31:02 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48652 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262266AbSKHTbB>; Fri, 8 Nov 2002 14:31:01 -0500
-Message-ID: <3DCC126F.6020507@zytor.com>
-Date: Fri, 08 Nov 2002 11:37:19 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en, sv
+	id <S262298AbSKHTgQ>; Fri, 8 Nov 2002 14:36:16 -0500
+Received: from mail016.mail.bellsouth.net ([205.152.58.36]:11320 "EHLO
+	imf16bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S262296AbSKHTgP>; Fri, 8 Nov 2002 14:36:15 -0500
+Date: Fri, 8 Nov 2002 14:42:36 -0500 (EST)
+From: Burton Windle <bwindle@fint.org>
+X-X-Sender: bwindle@morpheus
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.46-bk3: BUG in skbuff.c:178
+Message-ID: <Pine.LNX.4.43.0211081440130.317-100000@morpheus>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Evms-announce] EVMS announcement
-References: <02110516191004.07074@boiler>	<20021106001607.GJ27832@marowsky-bree.de>	<103	 6590957.9803.24.camel@irongate.swansea.linux.org.uk>	<aqbv2d$tvd$1@cesium.transmeta.com>	<1036617718.9781.73.camel@irongate.swansea.linux.org.uk> 	<3DC9909A.6040905@zytor.com> <1036778770.16651.70.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Wed, 2002-11-06 at 21:58, H. Peter Anvin wrote:
-> 
->>>ataraid is just driving dumb ide controllers in the way bios raid does
->>
->>I guess I meant it as a more general question than those specific devices.
->
-> Our current software MD driver doesn't support doing that in hardware.
-> It has the neccessary infrastructure to consider using hardware xor
-> engines but I doubt its every actually more efficient to do so on low
-> end devices. 
+Single-CPU system, running 2.5.46-bk3. Whiling compiling bk4, and running
+a script that was pinging every host on my subnet (I was running arp -a
+to see what was in the arp table at the time), I hit this BUG.
 
-Probably not.  The only case where I can imagine it helps is when you
-get to push less data across the bus.
+Debug: sleeping function called from illegal context at mm/slab.c:1305
+Call Trace:
+ [<c011247c>] __might_sleep+0x54/0x58
+ [<c012a3e2>] kmem_flagcheck+0x1e/0x50
+ [<c012ab6a>] kmem_cache_alloc+0x12/0xc8
+ [<c0226e0c>] sock_alloc_inode+0x10/0x68
+ [<c014cb65>] alloc_inode+0x15/0x180
+ [<c014d397>] new_inode+0xb/0x78
+ [<c0227093>] sock_alloc+0xf/0x68
+ [<c0227d65>] sock_create+0x8d/0xe4
+ [<c0227dd9>] sys_socket+0x1d/0x58
+ [<c0228a13>] sys_socketcall+0x5f/0x1f4
+ [<c0108903>] syscall_call+0x7/0xb
 
-	-hpa
+bad: scheduling while atomic!
+Call Trace:
+ [<c01110b1>] schedule+0x3d/0x2c8
+ [<c010892a>] work_resched+0x5/0x16
+
+alloc_skb called nonatomically from interrupt c022966e
+------------[ cut here ]------------
+kernel BUG at net/core/skbuff.c:178!
+invalid operand: 0000
+CPU:    0
+EIP:    0060:[<c022a073>]    Not tainted
+EFLAGS: 00010202
+EIP is at alloc_skb+0x43/0x1a4
+eax: 0000003a   ebx: c27d1044   ecx: c3fff360   edx: c0343e50
+esi: 00000000   edi: 000001d0   ebp: c27d1ca4   esp: c1ad3e90
+ds: 0068   es: 0068   ss: 0068
+Process arp (pid: 5029, threadinfo=c1ad2000 task=c3fff360)
+Stack: c02bf140 c022966e c27d1044 00000000 0000006e c022966e 00000001 000001d0
+       c6bb65e4 c02679a1 c27d1044 00000001 00000000 000001d0 c6bb65e4 c1ad3f14
+       0000006e bffff78c 00000018 7fffffff 00000000 c27d1044 fffffff4 bffff71c
+Call Trace:
+ [<c022966e>] sock_wmalloc+0x26/0x50
+ [<c022966e>] sock_wmalloc+0x26/0x50
+ [<c02679a1>] unix_stream_connect+0xb1/0x3e8
+ [<c0228177>] sys_connect+0x5b/0x78
+ [<c0228a40>] sys_socketcall+0x8c/0x1f4
+ [<c0108903>] syscall_call+0x7/0xb
+
+Code: 0f 0b b2 00 e3 f0 2b c0 83 c4 08 83 e7 ef 31 c0 9c 59 fa be
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+
+--
+Burton Windle                           burton@fint.org
+Linux: the "grim reaper of innocent orphaned children."
+          from /usr/src/linux-2.4.18/init/main.c:461
+
 

@@ -1,96 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290634AbSA3Vwb>; Wed, 30 Jan 2002 16:52:31 -0500
+	id <S290639AbSA3V6K>; Wed, 30 Jan 2002 16:58:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290635AbSA3VwV>; Wed, 30 Jan 2002 16:52:21 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:4486 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S290634AbSA3VwP>; Wed, 30 Jan 2002 16:52:15 -0500
-Date: Wed, 30 Jan 2002 16:54:46 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Rob Landley <landley@trommello.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: TCP/IP Speed
-In-Reply-To: <20020130212344.ZLSQ25963.femail43.sdc1.sfba.home.com@there>
-Message-ID: <Pine.LNX.3.95.1020130163406.21490A-100000@chaos.analogic.com>
+	id <S290640AbSA3V6B>; Wed, 30 Jan 2002 16:58:01 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60689 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S290639AbSA3V5y>; Wed, 30 Jan 2002 16:57:54 -0500
+Date: Wed, 30 Jan 2002 16:56:29 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: jacob@chaos2.org
+cc: Russell King <rmk@arm.linux.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.LNX.4.21.0201301152350.21054-100000@inbetween.blorf.net>
+Message-ID: <Pine.LNX.3.96.1020130164627.5584A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Rob Landley wrote:
+On Wed, 30 Jan 2002, Jacob Luna Lundberg wrote:
 
-> On Wednesday 30 January 2002 11:07 am, Richard B. Johnson wrote:
-> > When I ping two linux machines on a private link, I get 0.1 ms delay.
-> > When I send large TCP/IP stream data between them, I get almost
-> > 10 megabytes per second on a 100-base link. Wonderful.
-> >
-> > However, if I send 64 bytes from one machine and send it back, simple
-> > TCP/IP strean connection, it takes 1 millisecond to get it back? There
-> > seems to be some artifical delay somewhere.  How do I turn this OFF?
 > 
-> This is just a guess, but it sounds to me like a scheduling issue.  When 
-> you're sending data from one network stack to another, how often the 
-> receiving program scoops data out of the incoming file descriptor isn't too 
-> much of a limiting factor, as long as you've got enough buffer space in the 
-> receiving network stack that the sender doesn't have to pause.
+> On Wed, 30 Jan 2002, Russell King wrote:
+> > There's one problem with that though - if someone maintains many files,
+> > and his email address changes, you end up with a large patch changing all
+> > those email addresses in every file.
 > 
-> But to bounce the data back, the program at the far end doing the receive and 
-> resend has be woken up and handed a time slice with which to receive, 
-> process, and return the packet.
-> 
-> Have you tried ingo's O(1) scheduler? :)
+> Why not have real fun and give out e-mail@vger.kernel.org (or @kernel.org) 
+> to people who make it into MAINTAINERS then?  Of course, someone would
+> have to maintain the accounts...  ;)
 
-No. I set all sockets, even the original listen() socket to
-TCP_NODELAY. Nothing makes any difference. I tried it on a
-600+ MHz machine with and a 133 MHz machine with no aparent
-difference in the turn-around time. Of course the 600 MHz
-machine sends large buffers of data faster:
+Just as a talking point, it should be possible to have a daemon scan mail
+the lkml for [PATCH] and read the filenames from the patch itself, and do
+a file to maintainer lookup followed by a mail. Obviously it would have to
+have a human for some cases, but that's not all that bad, at least the
+patch program could assign a number and post a list of patches to lkml on
+a regular basis.
 
-   With a 64k buffer:
+The hard part is the file to maintainer map, so the program can pick the
+best maintainer, and possibly on a regular (daily) basis a single list of
+patches to other maintainers: "this patch was sent to XXX bacause most of
+the files are hers,but some are yours so you might want to check." And of
+course XXX would be told that the patch changed other's files as well.
 
-   600 MHz  133MHz RAM  ~ 9.98 Megabytes/second.
-   133 MHz  100MHz RAM  ~ 6.50 Megabytes/second.
+All patches would be given a number for discussion, after eyeball of the
+first 20 patches I saw, I guess that 60-80% could unambiguously go to the
+correct maintainer.
 
-   With a 4 k buffer:
+I realize this is less complex and wonderful than the schemes proposed,
+therefore it might easily actually happen... and it takes no effort except
+reading the mail, if the maintainer doesn't care to use the notification
+s/he can ignore it, at least the submitter can be sure it was remailed and
+to whom.
 
-   600 MHz  133MHz RAM  ~ 5.15 Megabytes/second.
-   133 MHz  100MHz RAM  ~ 3.30 Megabytes/second.
-
-   With 64 bytes:
-
-   600 MHz  133MHz RAM  ~ 1.2 kilobytes/second.
-   133 MHz  100MHz RAM  ~ 1.1 kilobytes/second.
-
-   Time from transmission to reception of a small buffer
-   from the simplist echo server (read, write, no select):
-
-   600 MHz  133MHz RAM  ~ 0.9 millisecond.
-   133 MHz  100MHz RAM  ~ 1.0 millisecond.
-
-   This is with two eepro100 network boards and two
-   pairs of machines.
-
-   The turn-around time for small buffers is about
-   1 millisecond for both.
-
-   `ping` shows low microseconds in all cases.
-
-   The problem was discovered on an embedded system at
-   a customer site so I set up two pairs of machines to
-   see what performance is possible. I though first that
-   there was a half/full/duplex problem or a hub problem.
-   These two pair are connected with a X-over cable, no
-   hubs.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

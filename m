@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284542AbRLESVg>; Wed, 5 Dec 2001 13:21:36 -0500
+	id <S284553AbRLESX0>; Wed, 5 Dec 2001 13:23:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284543AbRLESV0>; Wed, 5 Dec 2001 13:21:26 -0500
-Received: from mustard.heime.net ([194.234.65.222]:56725 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S284542AbRLESVQ>; Wed, 5 Dec 2001 13:21:16 -0500
-Date: Wed, 5 Dec 2001 19:20:55 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+	id <S284546AbRLESXQ>; Wed, 5 Dec 2001 13:23:16 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:53261 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S284543AbRLESXD>;
+	Wed, 5 Dec 2001 13:23:03 -0500
+Date: Wed, 5 Dec 2001 16:22:38 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: /proc/sys/vm/(max|min)-readahead effect????
-In-Reply-To: <Pine.LNX.4.21.0112051454530.20519-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.30.0112051917430.3021-100000@mustard.heime.net>
+In-Reply-To: <Pine.LNX.4.21.0112051450310.20481-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33L.0112051622050.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I've got a lot of memory (some 380 megs), but what is VM pressure?
+On Wed, 5 Dec 2001, Marcelo Tosatti wrote:
+> On Wed, 5 Dec 2001, Roy Sigurd Karlsbakk wrote:
 >
-> VM pressure means that there is not enough free memory on the system...
-> Allocators have to reclaim memory.
-
-There's more than enough memory on the system, as far as I can see
-
-[root@linuxserver ext2]# free
-             total       used       free     shared    buffers     cached
-Mem:        381500     378136       3364          0       3552     333348
--/+ buffers/cache:      41236     340264
-Swap:       522104      11440     510664
-
-> Basically you cannot simply expect an increase in readahead size to
-> increase performance:
+> > I've just upgraded to 2.4.16 to get /proc/sys/vm/(max|min)-readahead
+> > available. I've got this idea...
+> >
+> > If lots of files (some hundered) are read simultaously, I waste all the
+> > i/o time in seeks. However, if I increase the readahead, it'll read more
+> > data at a time, and end up with seeking a lot less.
 >
-> 1) The files you created may not be sequential
+> Do you also have VM pressure going on or do you have lots of free memory ?
 
-Beleive me - they are! Created with 'dd' secuentially
+I suspect the per-device readahead for IDE is limiting the
+effect of vm_max_readahead ...
 
-> 2) The lack of memory on the system may be interfering in weird ways, and
-> maybe _INCREASING_ the readahead may decrease performance.
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
 
-Anyway - I beleive I should have seen some change by trying virtually any
-value from 31 to 4095.
-
-If the readahead is what I beleive it is, It'll read further out in the
-file when a request comes. It looks like either this never happens, or the
-next request doesn't 'know' how much is cached.
-
-roy
-
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+http://www.surriel.com/		http://distro.conectiva.com/
 

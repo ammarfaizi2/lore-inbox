@@ -1,178 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266161AbUFIPSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266160AbUFIPX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266161AbUFIPSN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 11:18:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUFIPSN
+	id S266160AbUFIPX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 11:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUFIPX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 11:18:13 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:57866 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S266161AbUFIPR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 11:17:57 -0400
-Subject: Re: 2.6.7-rc3: waiting for eth0 to become free
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: NetDev Mailinglist <netdev@oss.sgi.com>,
-       Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040608140200.2ddaa6f4@dell_ss3.pdx.osdl.net>
-References: <1086722310.1682.1.camel@teapot.felipe-alfaro.com>
-	 <20040608124215.291a7072@dell_ss3.pdx.osdl.net>
-	 <1086725369.1806.1.camel@teapot.felipe-alfaro.com>
-	 <20040608140200.2ddaa6f4@dell_ss3.pdx.osdl.net>
-Content-Type: multipart/mixed; boundary="=-u2PIj7ufbPZjZ2ZX0Uxe"
-Date: Wed, 09 Jun 2004 17:18:02 +0200
-Message-Id: <1086794282.1706.2.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
+	Wed, 9 Jun 2004 11:23:27 -0400
+Received: from gort.metaparadigm.com ([203.117.131.12]:64486 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S266160AbUFIPXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 11:23:22 -0400
+Message-ID: <40C72B68.1030404@metaparadigm.com>
+Date: Wed, 09 Jun 2004 23:23:20 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040528 Debian/1.6-7
+X-Accept-Language: en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [STACK] >3k call path in ide
+References: <20040609122921.GG21168@wohnheim.fh-wedel.de>
+In-Reply-To: <20040609122921.GG21168@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jorn,
 
---=-u2PIj7ufbPZjZ2ZX0Uxe
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Noticed that try_to_free_pages, sync_inodes_sb and wakeup_bdflush features
+in almost all of these traces and although at 284, 308 and 256 respectively
+their not huge but together their neither that small (considering they
+occur all in the same stack trace).
 
-On Tue, 2004-06-08 at 14:02 -0700, Stephen Hemminger wrote:
-> On Tue, 08 Jun 2004 22:09:29 +0200
-> Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+This is consumed mostly by a struct page_state which is 148 bytes big
+although looking at the code get_page_state(struct page_state *ret)
+only populates the first 6 fields or 24 bytes. get_full_page_state
+which is hardly used updates these other fields.
+
+Is this a candidate for splitting into 2 structs? 1 containing just the
+first 6 fields needed by the majority of users: try_to_free_pages,
+shrink_all_memory, kswapd, get_dirty_limits, wakeup_bdflush, sync_inodes_sb
+
+mclark@monty:/usr/src/linux$ find . -name '*.c' | xargs grep get_page_state
+./fs/proc/proc_misc.c:  get_page_state(&ps);
+./fs/fs-writeback.c:    get_page_state(&ps);
+./mm/page_alloc.c:void __get_page_state(struct page_state *ret, int nr)
+./mm/page_alloc.c:void get_page_state(struct page_state *ret)
+./mm/page_alloc.c:      __get_page_state(ret, nr + 1);
+./mm/page_alloc.c:      __get_page_state(ret, sizeof(*ret) / sizeof(unsigned long));
+./mm/page_alloc.c:      get_page_state(&ps);
+./mm/vmscan.c:          get_page_state(&ps);
+./mm/vmscan.c:          get_page_state(&ps);
+./mm/vmscan.c:          get_page_state(&ps);
+./mm/page-writeback.c:  get_page_state(ps);
+./mm/page-writeback.c: * On really big machines, get_page_state is expensive, so try to avoid calling
+./mm/page-writeback.c:          get_page_state(&ps);
+./mm/page-writeback.c:  get_page_state(&ps);
+./mm/page-writeback.c: * If it is too low then SMP machines will call the (expensive) get_page_state
+
+mclark@monty:/usr/src/linux$ find . -name '*.c' | xargs grep get_full_page_state
+./drivers/parisc/led.c: get_full_page_state(&pgstat); /* get no of sectors in & out */
+./arch/s390/appldata/appldata_base.c:void get_full_page_state(struct page_state *ps)
+./arch/s390/appldata/appldata_base.c:EXPORT_SYMBOL_GPL(get_full_page_state);
+./arch/s390/appldata/appldata_mem.c:    get_full_page_state(&ps);
+./mm/page_alloc.c:void get_full_page_state(struct page_state *ret)
+./mm/page_alloc.c:      get_full_page_state(ps);
+
+~mc
+
+On 06/09/04 20:29, Jörn Engel wrote:
+> Bartlomiej, can you put ide_config on a diet?
 > 
-> > On Tue, 2004-06-08 at 12:42 -0700, Stephen Hemminger wrote:
-> > > On Tue, 08 Jun 2004 21:18:30 +0200
-> > > Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
-> > > 
-> > > > Hi!
-> > > > 
-> > > > On my laptop, when using a CardBus 3c59x-based NIC, I need to run
-> > > > "cardctl eject" so the system won't freeze when resuming. "cardctl
-> > > > eject" worked fine in 2.6.7-rc2-mm2, even when there were programs with
-> > > > network sockets opened (for example, Evolution mantaining a connection
-> > > > against an IMAP server): the card is ejected (well, not physically),
-> > > > even when there are ESTABLISHED connections.
-> > > > 
-> > > > However, starting with 2.6.7-rc3, "cardctl eject" hangs if a program
-> > > > holds any socket open. After a while the "unregister_netdevice: waiting
-> > > > for eth0 to become free" message starts appearing on the kernel message
-> > > > ring. The only apparent solution is killing that program, ejecting the
-> > > > card from its slot and wait until 3c59x.o usage count reaches zero.
-> > > > 
-> > > > Can someone tell me what's going on here?
-> > > > Thank you very much.
-> > > 
-> > > What protocols are you running? Is IPV6 loaded?
-> > 
-> > I'm using IPv4, IPv6 and IPSec ESP with AES/CBC.
-> > Do you want .config?
+> stackframes for call path too long (3052):
+>     size  function
+>        0  client_reg_t->event_handler
+>     1168  ide_config
+>       12  ide_register_hw
+>       44  ide_unregister
+>       12  ide_unregister_subdriver
+>        0  pnpide_init
+>        0  pnp_register_driver
+>        0  driver_register
+>       20  bus_add_driver
+>       16  driver_attach
+>       72  tty_register_device
+>        0  class_simple_device_add
+>        0  class_device_register
+>       16  class_device_add
+>        0  kobject_add
+>        0  kobject_hotplug
+>      132  call_usermodehelper
+>       80  wait_for_completion
+>       84  schedule
+>       16  __put_task_struct
+>       20  audit_free
+>       36  audit_log_start
+>       16  __kmalloc
+>        0  __get_free_pages
+>       28  __alloc_pages
+>      284  try_to_free_pages
+>        0  out_of_memory
+>        0  mmput
+>       16  exit_aio
+>        0  __put_ioctx
+>       16  do_munmap
+>        0  split_vma
+>       36  vma_adjust
+>        0  fput
+>        0  __fput
+>        0  locks_remove_flock
+>       12  panic
+>        0  sys_sync
+>        0  sync_inodes
+>      308  sync_inodes_sb
+>        0  do_writepages
+>      128  mpage_writepages
+>        4  write_boundary_block
+>        0  ll_rw_block
+>       28  submit_bh
+>        0  bio_alloc
+>       88  mempool_alloc
+>      256  wakeup_bdflush
+>       20  pdflush_operation
+>        0  printk
+>        0  preempt_schedule
+>       84  schedule
 > 
-> Not really, could you see if it is an IPv6 vs IPSec problem by not running/loading
-> one or the other.
+> Jörn
 > 
-> What is happening is that some subsystem is holding a reference to the device (calling dev_hold())
-> but not cleaning up (calling dev_put).  It can be a hard to track which of the many
-> things routing, etc are not being cleared properly.  Look for routes that still
-> get stuck (ip route) and neighbor cache entries.  Most of these end up being
-> protocol bugs.
 
-The two attached patches, one for net/ipv4/route.c, the other for net/
-ipv6/route.c fix all my problems when running "cardctl eject" while a
-program mantains an open network socket (ESTABLISHED).
-
-Both patches apply cleanly against 2.6.7-rc3 and 2.6.7-rc3-mm1.
-I'm not completely sure what has changed in 2.6.7-rc3 that is breaking
-cardctl for me, as it Just Worked(TM) fine in 2.6.7-rc2.
-
-Hope this can throw some light at this issue.
-Thanks!
-
-
---=-u2PIj7ufbPZjZ2ZX0Uxe
-Content-Disposition: attachment; filename=IPV4.patch
-Content-Type: text/x-patch; name=IPV4.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
---- linux/net/ipv4/route.c	2004-06-09 16:10:40.612487739 +0200
-+++ linux/net/ipv4/route.c	2004-06-09 16:47:34.927939813 +0200
-@@ -1040,8 +1040,6 @@
- 				rt->u.dst.child		= NULL;
- 				if (rt->u.dst.dev)
- 					dev_hold(rt->u.dst.dev);
--				if (rt->idev)
--					in_dev_hold(rt->idev);
- 				rt->u.dst.obsolete	= 0;
- 				rt->u.dst.lastuse	= jiffies;
- 				rt->u.dst.path		= &rt->u.dst;
-@@ -1496,7 +1494,6 @@
- 	rth->fl.iif	= dev->ifindex;
- 	rth->u.dst.dev	= &loopback_dev;
- 	dev_hold(rth->u.dst.dev);
--	rth->idev	= in_dev_get(rth->u.dst.dev);
- 	rth->fl.oif	= 0;
- 	rth->rt_gateway	= daddr;
- 	rth->rt_spec_dst= spec_dst;
-@@ -1706,7 +1703,6 @@
- 	rth->fl.iif	= dev->ifindex;
- 	rth->u.dst.dev	= out_dev->dev;
- 	dev_hold(rth->u.dst.dev);
--	rth->idev	= in_dev_get(rth->u.dst.dev);
- 	rth->fl.oif 	= 0;
- 	rth->rt_spec_dst= spec_dst;
- 
-@@ -1786,7 +1782,6 @@
- 	rth->fl.iif	= dev->ifindex;
- 	rth->u.dst.dev	= &loopback_dev;
- 	dev_hold(rth->u.dst.dev);
--	rth->idev	= in_dev_get(rth->u.dst.dev);
- 	rth->rt_gateway	= daddr;
- 	rth->rt_spec_dst= spec_dst;
- 	rth->u.dst.input= ip_local_deliver;
-@@ -2170,7 +2165,6 @@
- 	rth->rt_iif	= oldflp->oif ? : dev_out->ifindex;
- 	rth->u.dst.dev	= dev_out;
- 	dev_hold(dev_out);
--	rth->idev	= in_dev_get(dev_out);
- 	rth->rt_gateway = fl.fl4_dst;
- 	rth->rt_spec_dst= fl.fl4_src;
- 
-
---=-u2PIj7ufbPZjZ2ZX0Uxe
-Content-Disposition: attachment; filename=IPV6.patch
-Content-Type: text/x-patch; name=IPV6.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
---- linux/net/ipv6/route.c	2004-06-09 15:10:03.000000000 +0200
-+++ linux/net/ipv6/route.c	2004-06-09 16:52:51.219867318 +0200
-@@ -584,14 +584,14 @@
- 	if (unlikely(rt == NULL))
- 		goto out;
- 
--	dev_hold(dev);
-+	if(dev)
-+		dev_hold(dev);
- 	if (neigh)
- 		neigh_hold(neigh);
- 	else
- 		neigh = ndisc_get_neigh(dev, addr);
- 
- 	rt->rt6i_dev	  = dev;
--	rt->rt6i_idev     = in6_dev_get(dev);
- 	rt->rt6i_nexthop  = neigh;
- 	rt->rt6i_expires  = 0;
- 	rt->rt6i_flags    = RTF_LOCAL;
-@@ -882,7 +882,6 @@
- 	if (!rt->u.dst.metrics[RTAX_ADVMSS-1])
- 		rt->u.dst.metrics[RTAX_ADVMSS-1] = ipv6_advmss(dst_pmtu(&rt->u.dst));
- 	rt->u.dst.dev = dev;
--	rt->rt6i_idev = in6_dev_get(dev);
- 	return rt6_ins(rt, nlh, _rtattr);
- 
- out:
-@@ -1301,7 +1300,6 @@
- 	rt->u.dst.input = ip6_input;
- 	rt->u.dst.output = ip6_output;
- 	rt->rt6i_dev = &loopback_dev;
--	rt->rt6i_idev = in6_dev_get(&loopback_dev);
- 	rt->u.dst.metrics[RTAX_MTU-1] = ipv6_get_mtu(rt->rt6i_dev);
- 	rt->u.dst.metrics[RTAX_ADVMSS-1] = ipv6_advmss(dst_pmtu(&rt->u.dst));
- 	rt->u.dst.metrics[RTAX_HOPLIMIT-1] = ipv6_get_hoplimit(rt->rt6i_dev);
-
---=-u2PIj7ufbPZjZ2ZX0Uxe--
-
+-- 
+Michael Clark,  . . . . . . . . . . . .  michael@metaparadigm.com
+Managing Director,  . . . . . . . . . http://www.metaparadigm.com
+Metaparadigm Pte. Ltd.  . . . . . . . . . .  phone: +65 6395 6277
+25F Paterson Road,  . . . . . . . . . . . . mobile: +65 9645 9612
+Singapore 238515  . . . . . . . . . . . . . .  fax: +65 6234 4043

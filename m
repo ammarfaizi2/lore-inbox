@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276687AbRJBVKw>; Tue, 2 Oct 2001 17:10:52 -0400
+	id <S276699AbRJBVMM>; Tue, 2 Oct 2001 17:12:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276693AbRJBVKm>; Tue, 2 Oct 2001 17:10:42 -0400
-Received: from f283.law10.hotmail.com ([64.4.14.158]:49937 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S276687AbRJBVKb>;
-	Tue, 2 Oct 2001 17:10:31 -0400
-X-Originating-IP: [209.213.222.214]
-From: "captain smp" <captainsmp@hotmail.com>
+	id <S276695AbRJBVMC>; Tue, 2 Oct 2001 17:12:02 -0400
+Received: from dan0494.urh.uiuc.edu ([130.126.245.249]:35985 "HELO
+	dan0494.urh.uiuc.edu") by vger.kernel.org with SMTP
+	id <S276690AbRJBVLu>; Tue, 2 Oct 2001 17:11:50 -0400
+Date: Tue, 2 Oct 2001 16:16:22 -0500
+From: Anh Lai <anhlai@students.uiuc.edu>
 To: linux-kernel@vger.kernel.org
-Subject: sock_sendmsg() from a kernel thread question
-Date: Tue, 02 Oct 2001 21:10:54 +0000
+Subject: old aic7xxx does not compile on 2.4.10-ac[1&4]
+Message-ID: <20011002161622.A7438@students.uiuc.edu>
+Mail-Followup-To: Anh Lai <anhlai@students.uiuc.edu>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F283XKGoyufRev86cl300004950@hotmail.com>
-X-OriginalArrivalTime: 02 Oct 2001 21:10:54.0632 (UTC) FILETIME=[B91AB280:01C14B86]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to call sock_sendmsg() from a kernel thread
-and it seems to work fine on a UP system but on SMP system
-it hangs up and the thread can't even accept a SIGKILL.
-It it stuck after the following calls happen:
+old aic7xxx driver does not compile on 2.4.10-ac4
 
-sock_sendmsg()
-sock->ops->sendmsg()
-tcp_do_sendmsg()
+I am attempting to use the old aic7xxx driver, and get this on compile:
 
-then tcp_do_sendmsg() calls:
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.9/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=2 -march=athlon     -c -o aic7xxx_old.o
+aic7xxx_old.c
+aic7xxx_old.c:11966: parse error before string constant
+aic7xxx_old.c:11966: warning: type defaults to `int' in declaration of
+`MODULE_LICENSE'
+aic7xxx_old.c:11966: warning: function declaration isn't a prototype
+aic7xxx_old.c:11966: warning: data definition has no type or storage class
+make[3]: *** [aic7xxx_old.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.9/drivers/scsi'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.9/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.9/drivers'
+make: *** [_dir_drivers] Error 2
 
-skb = sock_wmalloc(sk, tmp, 0, GFP_KERNEL);
+last known working compile for me was on 2.4.9-ac16
 
-but that call never returns.  It doesn't get to
-the code where the comment says: "If we didn't get
-any memory, we need to sleep."
+-- 
 
-I've mucked with sock->sk->allocation flavors but to no avail.
+Anh Lai <anhlai@students.uiuc.edu, anhlai@uminds.com>
+University of Illinois at Urbana-Champaign
+Student of Computer Engineering
 
-BTW, this is 2.2.16-22 (stock red hat 6.2 kernel)
-
-Is this fixed in later kernels, or is there some semaphore/spinlock
-needed to call sock_sendmsg()/recvmsg() from kernel threads?
-
-Is there a race with skbuff allocation/deallocation from the
-NET_BH network bottom half handler or NIC interrupt handler
-that I can prevent from happening somehow?
-
--Captain
-
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
-
+   ~            yeah, i'm a Pimpin-Penguin
+  'v'
+ // \\
+/(   )\
+ ^`~'^
+Linux, ain't it cool?
+			

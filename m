@@ -1,83 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbUCRTiy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 14:38:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbUCRTiy
+	id S261879AbUCRTmB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 14:42:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbUCRTmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 14:38:54 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:41093
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262896AbUCRTit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 14:38:49 -0500
-Date: Thu, 18 Mar 2004 20:39:37 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Takashi Iwai <tiwai@suse.de>, mjy@geizhals.at,
-       linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040318193936.GB2022@dualathlon.random>
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <s5hlllycgz3.wl@alsa2.suse.de> <20040318110159.321754d8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040318110159.321754d8.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 18 Mar 2004 14:42:01 -0500
+Received: from mail44-s.fg.online.no ([148.122.161.44]:32701 "EHLO
+	mail44-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S261879AbUCRTl6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 14:41:58 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] alignment problem in net/core/flow.c:flow_key_compare
+References: <yw1x8yhyv33l.fsf@kth.se> <yw1x4qsmv1kq.fsf@kth.se>
+	<20040318103004.2cf4de34.davem@redhat.com>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Thu, 18 Mar 2004 20:41:48 +0100
+In-Reply-To: <20040318103004.2cf4de34.davem@redhat.com> (David S. Miller's
+ message of "Thu, 18 Mar 2004 10:30:04 -0800")
+Message-ID: <yw1xhdwmhrib.fsf@kth.se>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 11:01:59AM -0800, Andrew Morton wrote:
-> weird situations in which the kernel fails to make any forward progress. 
+"David S. Miller" <davem@redhat.com> writes:
 
-definitely agreed.
+> On Thu, 18 Mar 2004 12:25:57 +0100
+> mru@kth.se (Måns Rullgård) wrote:
+>
+>> mru@kth.se (Måns Rullgård) writes:
+>> 
+>> > The solutions I see are either to force the alignment of struct flowi
+>> > to 64 bits, or to use 32-bit access in flow_key_compare.
+>> 
+>> I forgot to mention that this is kernel 2.6.4.
+>
+> Yes, just add an alignment attribute of some kind to the struct
+> is probably the best idea.
 
-the old lowlatency patches had the same issue too and that's why I
-rejected it for some time, but eventually I changed them to go stright
-the second time.
+What's the proper way of doing that in kernel code?  Should I use gcc
+__attribute__ directly or is there some macro that's preferred?
 
-breaking the loop _once_ (and having to restart from scratch) is ok,
-because we may be starting the loop with only 1msec of timeslice left
-for example. Second time in the loop (or at some point) we can ignore
-need_resched, to guarantee forwards progress.
-
-> I've been meaning to do another round of latency tuneups for ages, so I'll
-> check this one out, thanks.
-
-thanks Andrew!
-
-> There's also the SMP problem: this CPU could be spinning on a lock with
-> need_resched() true, but the other CPU is hanging on the lock for ages
-> because its need_resched() is false.  In the 2.4 ll patch I solved that via
-> the scary hack of broadcasting a reschedule instruction to all CPUs if an
-> rt-prio task just became runnable.  In 2.6-preempt we use
-> preempt_spin_lock().
-> 
-> But in 2.6 non-preempt we have no solution to this, so worst-case
-> scheduling latencies on 2.6 SMP CONFIG_PREEMPT=n are high.
-> 
-> 
-> Last time I looked the worst-case latency is in fact over in the ext3
-> checkpoint code.  It's under spinlock and tricky to fix.
-
-preempt_spin_lock is the wrong way to go, the right way to go is to
-fix the broken code that is "hanging on the lock for ages" ;). More
-seriously: if you need a lock for ages, you must use a semaphore not a
-spinlock.
-
-spinlocked critical sections must be small, oh and you can always
-trivially add a spin_lock_schedule() API that is doing the same thing of
-preempt_spin_lock if you really want because you've an obscure lock
-taken inside other locks, but some "quick" reader that could sleep
-happens to have to wait the writer to do the bulk of the work.
-
-The only difference is that spin_lock_schedule must be called in a place
-where you're sure you can sleep.
-
-So a spin_lock_schedule is doable just fine, but if you need it, it's
-possible the code could be written better with a semaphore or by
-avoiding big loops holding locks.
-
-> low-latency developers from O(2) to O(lots).  If some user is complaining
-
-;)
+-- 
+Måns Rullgård
+mru@kth.se

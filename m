@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264866AbRFTJSG>; Wed, 20 Jun 2001 05:18:06 -0400
+	id <S264867AbRFTJYQ>; Wed, 20 Jun 2001 05:24:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264867AbRFTJR4>; Wed, 20 Jun 2001 05:17:56 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:30091 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S264866AbRFTJRi>;
-	Wed, 20 Jun 2001 05:17:38 -0400
-Date: Wed, 20 Jun 2001 11:17:24 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106200917.LAA326522.aeb@vlet.cwi.nl>
-To: linux-kernel@vger.kernel.org, vii@users.sourceforge.net
-Subject: Re: [PATCH] setuid(2) buggy or bad docs
-Cc: torvalds@transmeta.com
+	id <S264868AbRFTJYH>; Wed, 20 Jun 2001 05:24:07 -0400
+Received: from [202.54.39.145] ([202.54.39.145]:53767 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S264867AbRFTJXx>; Wed, 20 Jun 2001 05:23:53 -0400
+Date: Wed, 20 Jun 2001 15:11:56 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: linux-kernel@vger.kernel.org
+Subject: filldir() function
+In-Reply-To: <Pine.LNX.4.10.10106181324110.11158-100000@blrmail>
+Message-ID: <Pine.LNX.4.10.10106201509560.27257-100000@blrmail>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> setuid(2) differs from the OpenBSD setuid(2)
-> Either I am non compos or the thing is very wrong.
-> The docs (man-pages-1.35) say ...
+Hi,
 
-Yes, setuid() has a behaviour that varies a bit from system to system.
-Moreover, it has varied in the history of Linux. The manpage may have
-been correct when it was written, but it is not today, and I just
-fixed it.
+Please someone tell me what is the function of filldir() function. I
+could not understand it from the code. Just give me an outline of what it
+will do.
 
-ERRORS
-       EPERM  The  user  is  not the super-user, and uid does not
-              match the real or saved user ID of the calling pro­
-              cess.
+Thanks in advance,
+Regards,
+sathish.j
 
-Our norm is the coming POSIX standard, roughly the Austin 7 draft,
-which again is based on the SUSv2. According to this, the current
-kernel code is correct here.
 
-Andries
+

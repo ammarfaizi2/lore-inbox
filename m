@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291569AbSBAGob>; Fri, 1 Feb 2002 01:44:31 -0500
+	id <S291574AbSBAHE1>; Fri, 1 Feb 2002 02:04:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291570AbSBAGoV>; Fri, 1 Feb 2002 01:44:21 -0500
-Received: from zok.sgi.com ([204.94.215.101]:58244 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S291569AbSBAGoH>;
-	Fri, 1 Feb 2002 01:44:07 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "David S. Miller" <davem@redhat.com>
-Cc: garzik@havoc.gtf.org, alan@lxorguk.ukuu.org.uk, vandrove@vc.cvut.cz,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org, paulus@samba.org,
-        davidm@hpl.hp.com, ralf@gnu.org
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does 
-In-Reply-To: Your message of "Thu, 31 Jan 2002 22:26:43 -0800."
-             <20020131.222643.85689058.davem@redhat.com> 
+	id <S291577AbSBAHES>; Fri, 1 Feb 2002 02:04:18 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:3341 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S291574AbSBAHEH>;
+	Fri, 1 Feb 2002 02:04:07 -0500
+Date: Fri, 1 Feb 2002 08:04:05 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-mips@oss.sgi.com,
+        Linux ARM mailing list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: Re: [PATCH] Migration to input api for keyboards
+Message-ID: <20020201080405.B15571@suse.cz>
+In-Reply-To: <20020131004041.K19292@flint.arm.linux.org.uk> <Pine.LNX.4.10.10201311159380.23385-100000@www.transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Feb 2002 17:43:57 +1100
-Message-ID: <7507.1012545837@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10201311159380.23385-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Thu, Jan 31, 2002 at 12:06:36PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jan 2002 22:26:43 -0800 (PST), 
-"David S. Miller" <davem@redhat.com> wrote:
->If you have a dependency concern, you put yourself in the
->right initcall group.  You don't depend ever on the order within the
->group, thats the whole idea.  You can't depend on that, so you must
->group things correctly.
+On Thu, Jan 31, 2002 at 12:06:36PM -0800, James Simmons wrote:
 
-Again this is exactly what I argued back in 2000.  I have long held
-that the kernel link order is over defined where it should be fuzzy.
-Defining an order between groups but not within groups is exactly what
-I wanted but I was told that the initialization order must be
-explicitly and fully specified for the entire kernel.  Nice to see that
-I have been proved right, pity it took this long.  C'est la vie.
+> > >    As some on you know the input api drivers for the PS/2 keyboard/mice
+> > > have gone into the dj tree for 2.5.X. I need people on other platforms
+> > > besides ix86 to test it out. I made the following patch that forces the
+> > > use of the new input drivers so people can test it. Shortly this patch
+> > > will be placed into the DJ tree but before I do this I want to make sure
+> > > it works for all platforms. Here is the patch to do this. Thank you.  
+> > 
+> > Oops.
+> 
+> Oops?
+> 
+> > Out of those 3 ARM machines, only 1 or maybe 2 has an 8042-compatible
+> > port.
+> > 
+> > CONFIG_PC_KEYB != i8042 controller present.  Please look more closely
+> > at stuff in include/asm-arm/arch-*/keyboard.h
+> 
+> I posted to find out which ones. BTW we have a driver for the acorn
+> keyboard controller. No acorn keyboard but we do have support the acorn
 
-The Makefiles still control order within the .text.init section
-(__init, module_init).  Many drivers depend on the Makefile getting
-that order correct, otherwise probes stuff up.  But which entries are
-order sensitive and which ones are from a developer picking a random
-place to insert obj-$(CONFIG) is anyone's guess.
+The acorn RiscPC keyboard controller has a connector for the standard AT
+keyboard, so it's rpckbd.c + atkbd.c doing the trick there.
 
+> mouse. I can create a patch so you can give the mouse driver a try. Also
+> help on porting the acorn keyboard driver would be helpful, any docs on
+> it. 
+
+Not needed. It's atkbd.c. And that way it'll be for a lot of other
+hardware - AT keyboards are used everywhere, only the controllers
+differ. That's the main reason for the keyboard (input) and keyboard
+controller (serio) driver split!
+
+-- 
+Vojtech Pavlik
+SuSE Labs

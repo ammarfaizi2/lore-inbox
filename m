@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262168AbSJNUSL>; Mon, 14 Oct 2002 16:18:11 -0400
+	id <S262169AbSJNUSj>; Mon, 14 Oct 2002 16:18:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262169AbSJNUSL>; Mon, 14 Oct 2002 16:18:11 -0400
-Received: from tapu.f00f.org ([66.60.186.129]:47522 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S262168AbSJNUSK>;
-	Mon, 14 Oct 2002 16:18:10 -0400
-Date: Mon, 14 Oct 2002 13:24:04 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Daniele Lugli <genlogic@inrete.it>
-Cc: linux-kernel@vger.kernel.org
+	id <S262176AbSJNUSi>; Mon, 14 Oct 2002 16:18:38 -0400
+Received: from inrete-46-20.inrete.it ([81.92.46.20]:47341 "EHLO
+	pdamail1-pdamail.inrete.it") by vger.kernel.org with ESMTP
+	id <S262169AbSJNUSh>; Mon, 14 Oct 2002 16:18:37 -0400
+Message-ID: <3DAB27F2.F8A00FE1@inrete.it>
+Date: Mon, 14 Oct 2002 22:24:18 +0200
+From: Daniele Lugli <genlogic@inrete.it>
+Organization: General Logic srl
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rthal5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Frank Davis <fdavis112@juno.com>, linux-kernel@vger.kernel.org
 Subject: Re: unhappy with current.h
-Message-ID: <20021014202404.GA10777@tapu.f00f.org>
-References: <3DAB1F00.667B82B5@inrete.it>
-Mime-Version: 1.0
+References: <20021014.161535.17120.336861@webmail4.nyc.untd.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DAB1F00.667B82B5@inrete.it>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 09:46:08PM +0200, Daniele Lugli wrote:
+Frank Davis wrote:
+> 
+> Daniele,
+>   Its easier for you to modify your code than to ask the kernel developers to modify a commonly used, intangled macro within the Linux kernel. :)
+> 
+> Regards,
+> Frank
 
-> I recently wrote a kernel module which gave me some mysterious
-> problems. After too many days spent in blood, sweat and tears, I found the cause:
+Thank you for your calm reply. You're right, and in fact that's what I
+did before sending my mail. I'm not asking to modify an existing and
+(unhappily) well-established kernel file; I am only giving a suggestion
+for the future - if a common mortal human being can give suggestions.
 
-> *** one of my data structures has a field named 'current'. ***
-
-gcc -Wshadow
-
-
-
-  --cw
+Regards, Daniele Lugli

@@ -1,32 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316982AbSGHPiS>; Mon, 8 Jul 2002 11:38:18 -0400
+	id <S312938AbSGHPqa>; Mon, 8 Jul 2002 11:46:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316979AbSGHPiR>; Mon, 8 Jul 2002 11:38:17 -0400
-Received: from h0002b3889ac1.ne.client2.attbi.com ([66.30.33.81]:19466 "HELO
-	DKESOVB3.ne1.client2.attbi.com") by vger.kernel.org with SMTP
-	id <S316958AbSGHPiQ>; Mon, 8 Jul 2002 11:38:16 -0400
-From: specialtytools@netzero.net
-To: <>
-Subject: Perfectly clean automotive glass and mirrors
-Date: Mon, 08 Jul 2002 11:40:57 -0400
-X-Mailer: QUALCOMM Windows Eudora Pro Version 4.1
-Content-Type: text/plain; charset="us-ascii"
-X-Priority: 3
-X-MSMail-Priority: Normal
-Message-Id: <20020708153816Z316958-685+4720@vger.kernel.org>
+	id <S315619AbSGHPq3>; Mon, 8 Jul 2002 11:46:29 -0400
+Received: from addr-mx01.addr.com ([209.249.147.145]:21765 "EHLO
+	addr-mx01.addr.com") by vger.kernel.org with ESMTP
+	id <S312938AbSGHPq2>; Mon, 8 Jul 2002 11:46:28 -0400
+Subject: Re: simple handling of module removals Re: [OKS] Module removal
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Daniel Phillips <phillips@arcor.de>, Pavel Machek <pavel@ucw.cz>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Bill Davidsen <davidsen@tmr.com>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0207080750510.10105-100000@hawkeye.luckynet.adm>
+References: <Pine.LNX.4.44.0207080750510.10105-100000@hawkeye.luckynet.adm>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 08 Jul 2002 11:48:19 -0400
+Message-Id: <1026143302.4840.4.camel@athena.fprintf.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cleaning windows can be a hassle - getting them streak-free and perfectly clean can be 
-almost impossible without the right cleaner.
+Okay, maybe this is a bit naive, but isn't this problem already solved? 
+Couldn't we just put a read/write lock on the module, where using is
+reading, and removing is writing?  As I understand it, this should
+impose little overhead on the use (read) case, and ensure that, when a
+context has the remove (write) lock there are no no users (readers) and
+cannot be any?
 
-If you would like to receive more information about how to make your automotive and home
-glass and mirrors so clean they become almost invisible, please REPLY to this email and
-enter "glass cleaner" in the SUBJECT line - make sure it's the SUBJECT line otherwise our
-system will not recognize your request!
+Daniel
 
-If you are not interested in these products please accept our apologies for this intrusion. To stop
-further emails from us, please reply to this email and enter "remove" in the subject line.
+On Mon, 2002-07-08 at 09:58, Thunder from the hill wrote:
+> Hi,
+> 
+> Still, we shouldn't lock everything. I could do awful lots of interesting 
+> things while the only thing that is being done is to remove a module. It 
+> doesn't make sense IMO to lock things that are completely unrelated to 
+> modules.
+> 
+> And BTW, what's so much of an overhead if we tell everyone who tries to 
+> mess around with a certain module that he'd better wait until we unloaded 
+> it? It could be done like your schedule hack, but cleaner in that respect 
+> that those who got nothing to do with the module can keep on running.
+> 
+> > Good point. Member usecount could be anything. A 'long' isn't the
+> > correct pad for all types, but it will probably handle everything that
+> > was intended.
+> 
+> But as I mentioned - atomic_t is changed (e.g. to long long) -> 
+> module->pad blows up, because the sizeof(struct module) is different, 
+> depending on which part of the union we're using.
+> 
+> 							Regards,
+> 							Thunder
+> -- 
+> (Use http://www.ebb.org/ungeek if you can't decode)
+> ------BEGIN GEEK CODE BLOCK------
+> Version: 3.12
+> GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+> N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+> e++++ h* r--- y- 
+> ------END GEEK CODE BLOCK------
 
-Thank you.
+-- 
+Recursion n.:
+        See Recursion.
+                        -- Random Shack Data Processing Dictionary
+
+

@@ -1,27 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315630AbSGXAsy>; Tue, 23 Jul 2002 20:48:54 -0400
+	id <S315709AbSGXAyY>; Tue, 23 Jul 2002 20:54:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315634AbSGXAsy>; Tue, 23 Jul 2002 20:48:54 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:59834 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S315630AbSGXAsx>;
-	Tue, 23 Jul 2002 20:48:53 -0400
-Date: Wed, 24 Jul 2002 02:51:58 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200207240051.CAA16434@harpo.it.uu.se>
-To: kevin@koconnor.net, neilb@cse.unsw.edu.au
-Subject: Re: PATCH: type safe(r) list_entry repacement: generic_out_cast
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S315762AbSGXAyY>; Tue, 23 Jul 2002 20:54:24 -0400
+Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:33806 "EHLO
+	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S315709AbSGXAyX>;
+	Tue, 23 Jul 2002 20:54:23 -0400
+Message-ID: <3D3DFC3B.677AFDD7@tv-sign.ru>
+Date: Wed, 24 Jul 2002 05:00:43 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] big IRQ lock removal, 2.5.27-G0
+References: <Pine.LNX.4.44.0207240137190.3812-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jul 2002 18:58:52 -0400, Kevin O'Connor wrote:
->#define BackPtr(ptr, type, member) ({                                         \
->        typeof( ((type *)0)->member ) *__mptr = (ptr);                        \
->        ((type *)( (char *)__mptr - (unsigned long)(&((type *)0)->member) ));})
+Hello.
 
-I've seen this sort of code several times now in the Linux kernel,
-and I've never liked it. Is there some reason why you guys avoid
-offsetof() like the plague?
+> > Then local_bh_enable() has a small preemptible window between
+>
+> i dont think getting a preemption before softirqs are processed is a big
+> problem. Such type of preemption comes in form of an interrupt, which
 
-/Mikael
+Ah, yes...
+
+> > But in irq_exit() case interrupt context may be preempted
+>
+> okay - i've fixed irq_exit() once more in -G4
+
+found G5, your forgot to add preempt_disable() in irq_exit()
+
+ #define irq_exit()
+ do {
++               preempt_disable();
+                preempt_count() -= IRQ_EXIT_OFFSET;
+                if (!in_interrupt() && softirq_pending(smp_processor_id()))
+
+Oleg.

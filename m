@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264814AbUD1OPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264821AbUD1OUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264814AbUD1OPP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 10:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264789AbUD1OOU
+	id S264821AbUD1OUE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 10:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264822AbUD1OUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 10:14:20 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49386 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264802AbUD1ONA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 10:13:00 -0400
-Date: Wed, 28 Apr 2004 11:14:02 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Mikael Pettersson <mikpe@user.it.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc-3.4.0 patches for 2.4.27?
-Message-ID: <20040428141402.GA14403@logos.cnet>
-References: <16527.45935.480630.490196@alkaid.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16527.45935.480630.490196@alkaid.it.uu.se>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 28 Apr 2004 10:20:04 -0400
+Received: from everest.2mbit.com ([24.123.221.2]:54754 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S264821AbUD1OTv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 10:19:51 -0400
+Message-ID: <408FBD68.4090002@greatcn.org>
+Date: Wed, 28 Apr 2004 22:19:20 +0800
+From: Coywolf Qi Hunt <coywolf@greatcn.org>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: akpm@osdl.org, rddunlap@osdl.org
+X-Scan-Signature: 12165b451e859f13a791ef2235c53444
+X-SA-Exim-Connect-IP: 218.24.185.115
+X-SA-Exim-Mail-From: coywolf@greatcn.org
+Subject: [PATCH] Update KT link in SubmittingDrivers and kernel-docs.txt
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+X-SA-Exim-Version: 4.0 (built Tue, 16 Mar 2004 14:56:42 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 03:36:47PM +0200, Mikael Pettersson wrote:
-> Marcelo,
-> 
-> Will you accept patches allowing gcc-3.4.0 to compile
-> 2.4.27 or not? I can understand if you want to be
-> conservative and not change _anything_ if you don't have to.
-> 
-> gcc-3.4.0 errors out in 2.4.27-pre1 due to (a) inconsistent
-> FASTCALL declarations, (b) uninlinable inlines, and (c)
-> -funit-at-a-time which seems to leave unresolved calls to
-> strcpy() around [gcc optimises sprintf "%s" to strcpy()].
-> There are also tons of warnings due to cast-as-lvalue
-> and "+m" asm() constraints.
-> 
-> I currently have a 40KB+ patch for 2.4.27-pre1 which works
-> for me on i386, UP and SMP. The changes are all backports
-> from 2.6. I'll do x86_64 and ppc(32) in a few days.
-> 
-> http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-2.4.27-pre1
-> is the location of the current version.
+Hi,
 
-Hi Mikael,
+This update the kerneltraffic url link found in 
+Documentation/SubmittingDrivers and Documentation/kernel-docs.txt.
 
-The patch looks alright for me, but I better see reviews from 
-other people.
+    -- coywolf
 
-Since v2.4 is in feature freeze, I have a reason not to apply it.
+==========================================================================================
+diff -ur linux-2.6.5/Documentation/SubmittingDrivers 
+linux/Documentation/SubmittingDrivers
+--- linux-2.6.5/Documentation/SubmittingDrivers    Mon Mar  8 10:31:40 2004
++++ linux/Documentation/SubmittingDrivers    Wed Apr 28 21:45:34 2004
+@@ -119,7 +119,7 @@
+ 
+ Kernel traffic:
+     Weekly summary of kernel list activity (much easier to read)
+-    [http://kt.zork.net/kernel-traffic]
++    http://www.kerneltraffic.org/kernel-traffic/
+ 
+ Linux USB project:
+     http://sourceforge.net/projects/linux-usb/
+diff -ur linux-2.6.5/Documentation/kernel-docs.txt 
+linux/Documentation/kernel-docs.txt
+--- linux-2.6.5/Documentation/kernel-docs.txt    Wed Feb 18 11:58:33 2004
++++ linux/Documentation/kernel-docs.txt    Wed Apr 28 22:04:43 2004
+@@ -694,7 +694,7 @@
+        produced during the week. Published every Thursday.
+       
+      * Name: "Kernel Traffic"
+-       URL: http://kt.zork.net/kernel-traffic/
++       URL: http://www.kerneltraffic.org/kernel-traffic/
+        Keywords: linux-kernel mailing list, weekly kernel news.
+        Description: Weekly newsletter covering the most relevant
+        discussions of the linux-kernel mailing list.
 
-I'm not sure. Lets wait a while and see.
+-- 
+Coywolf Qi Hunt
+Admin of http://GreatCN.org and http://LoveCN.org
+

@@ -1,162 +1,368 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTFJXBR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 19:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTFJXBR
+	id S261568AbTFJXHP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 19:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTFJXHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 19:01:17 -0400
-Received: from 216-42-72-151.ppp.netsville.net ([216.42.72.151]:14766 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S261823AbTFJXBL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 19:01:11 -0400
-Subject: Re: [PATCH] io stalls (was: -rc7   Re: Linux 2.4.21-rc6)
-From: Chris Mason <mason@suse.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-In-Reply-To: <20030609221950.GF26270@dualathlon.random>
-References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva>
-	 <200306041235.07832.m.c.p@wolk-project.de> <20030604104215.GN4853@suse.de>
-	 <200306041246.21636.m.c.p@wolk-project.de>
-	 <20030604104825.GR3412@x30.school.suse.de>
-	 <3EDDDEBB.4080209@cyberone.com.au>
-	 <1055194762.23130.370.camel@tiny.suse.com>
-	 <20030609221950.GF26270@dualathlon.random>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055286825.24111.155.camel@tiny.suse.com>
+	Tue, 10 Jun 2003 19:07:15 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:21951 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S261568AbTFJXHB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 19:07:01 -0400
+From: Andreas Hartmann <andihartmann@freenet.de>
+X-Newsgroups: fa.linux.kernel
+Subject: [2.4.21rc7] big problems with DMA on via KT333 board
+Date: Wed, 11 Jun 2003 01:26:39 +0200
+Organization: privat
+Message-ID: <bc5pff$6vp$1@ID-44327.news.dfncis.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 10 Jun 2003 19:13:45 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: susi.maya.org 1055287599 7161 192.168.1.3 (10 Jun 2003 23:26:39 GMT)
+X-Complaints-To: abuse@fu-berlin.de
+User-Agent: KNode/0.7.2
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-09 at 18:19, Andrea Arcangeli wrote:
+Hello all,
 
-> I spent last Saturday working on this too. This is the status of my
-> current patches, would be interesting to compare them. they're not very
-> well tested yet though.
-> 
-> They would obsoletes the old fix-pausing and the old elevator-lowlatency
-> (I was going to release a new tree today, but I delayed it so I fixed
-> uml today too first [tested with skas and w/o skas]).
-> 
-> those backout the rc7 interactivity changes (the only one that wasn't in
-> my tree was the add_wait_queue_exclusive, that IMHO would better stay
-> for scalability reasons).
-> 
-> Of course I would be very interested to know if those two patches (or
-> Chris's one, you also retained the exclusive wakeup) are still greatly
-> improved by removing the _exclusive weakups and going wake-all (in
-> theory they shouldn't).
+there are a lot of problems with this kernel on KT333 boards. This kernel
+can't be called stable at all. Sorry.
 
-Ok, I merged these into rc7 along with the __get_request_wait stats
-patch.  All numbers below were on ext2...I'm calling your patches -aa,
-even though it's just a small part of the real -aa ;-) After a dbench 50
-run, the -aa __get_request_wait latencies look like this:
+The last problem I saw was this problem during writing datas to the hd
+coming via nfs:
 
-device 08:01: num_req 6029, total jiffies waited 213475
-        844 forced to wait
-        2 min wait, 806 max wait
-        252 average wait
-        357 < 100, 29 < 200, 110 < 300, 111 < 400, 82 < 500
-        155 waits longer than 500 jiffies
+Jun 11 00:31:16 athlon kernel: hda: dma_timer_expiry: dma status == 0x61
+Jun 11 00:31:30 athlon kernel: hda: timeout waiting for DMA
+Jun 11 00:31:30 athlon kernel: hda: timeout waiting for DMA
+Jun 11 00:31:30 athlon kernel: hda: (__ide_dma_test_irq) called while not
+waiting
+Jun 11 00:31:30 athlon kernel: hda: status error: status=0x51 { DriveReady
+SeekComplete Error }
+Jun 11 00:31:30 athlon kernel: hda: status error: error=0x04 {
+DriveStatusError }
+Jun 11 00:31:30 athlon kernel: hda: no DRQ after issuing MULTWRITE
+Jun 11 00:31:30 athlon kernel: hda: status error: status=0x51 { DriveReady
+SeekComplete Error }
+Jun 11 00:31:30 athlon kernel: hda: status error: error=0x04 {
+DriveStatusError }
+Jun 11 00:31:30 athlon kernel: hda: no DRQ after issuing MULTWRITE
+Jun 11 00:31:30 athlon kernel: via_audio: ignoring drain playback error -11
+Jun 11 00:31:30 athlon kernel: hda: status error: status=0x51 { DriveReady
+SeekComplete Error }
+Jun 11 00:31:30 athlon kernel: hda: status error: error=0x04 {
+DriveStatusError }
+Jun 11 00:31:30 athlon kernel: hda: no DRQ after issuing MULTWRITE
+Jun 11 00:31:30 athlon kernel: hda: status error: status=0x51 { DriveReady
+SeekComplete Error }
+Jun 11 00:31:30 athlon kernel: hda: status error: error=0x04 {
+DriveStatusError }
+Jun 11 00:31:30 athlon kernel: hdb: DMA disabled
+Jun 11 00:31:30 athlon kernel: hda: no DRQ after issuing WRITE
+Jun 11 00:31:30 athlon kernel: ide0: reset: success
+Jun 11 00:31:30 athlon kernel: blk: queue c029e0e0, I/O limit 4095Mb (mask
+0xffffffff)
+Jun 11 00:31:50 athlon kernel: hda: dma_timer_expiry: dma status == 0x21
+Jun 11 00:32:05 athlon kernel: hda: timeout waiting for DMA
+Jun 11 00:32:05 athlon kernel: hda: timeout waiting for DMA
+Jun 11 00:32:05 athlon kernel: hda: (__ide_dma_test_irq) called while not
+waiting
+Jun 11 00:32:05 athlon kernel: hda: status error: status=0x58 { DriveReady
+SeekComplete DataRequest }
+Jun 11 00:32:05 athlon kernel:
+Jun 11 00:32:05 athlon kernel: hda: drive not ready for command
+Jun 11 00:32:05 athlon kernel: hda: status timeout: status=0xd0 { Busy }
+Jun 11 00:32:05 athlon kernel:
+Jun 11 00:32:05 athlon kernel: hda: drive not ready for command
+Jun 11 00:32:05 athlon kernel: ide0: reset: success
+Jun 11 00:32:25 athlon kernel: hda: dma_timer_expiry: dma status == 0x21
+Jun 11 00:32:40 athlon kernel: hda: timeout waiting for DMA
+Jun 11 00:32:40 athlon kernel: hda: timeout waiting for DMA
+Jun 11 00:32:40 athlon kernel: hda: (__ide_dma_test_irq) called while not
+waiting
+Jun 11 00:32:40 athlon kernel: hda: status error: status=0x58 { DriveReady
+SeekComplete DataRequest }
+Jun 11 00:32:40 athlon kernel:
+Jun 11 00:32:40 athlon kernel: hda: drive not ready for command
+Jun 11 00:32:40 athlon kernel: hda: status timeout: status=0xd0 { Busy }
+Jun 11 00:32:40 athlon kernel:
+Jun 11 00:32:40 athlon kernel: hda: drive not ready for command
+Jun 11 00:32:40 athlon kernel: ide0: reset: success
+Jun 11 00:33:00 athlon kernel: hda: dma_timer_expiry: dma status == 0x21
+Jun 11 00:33:15 athlon kernel: hda: timeout waiting for DMA
+Jun 11 00:33:15 athlon kernel: hda: timeout waiting for DMA
+Jun 11 00:33:15 athlon kernel: hda: (__ide_dma_test_irq) called while not
+waiting
+Jun 11 00:33:15 athlon kernel: hda: status error: status=0x58 { DriveReady
+SeekComplete DataRequest }
+Jun 11 00:33:15 athlon kernel:
+Jun 11 00:33:15 athlon kernel: hda: drive not ready for command
+Jun 11 00:33:15 athlon kernel: hda: status timeout: status=0xd0 { Busy }
+Jun 11 00:33:15 athlon kernel:
+Jun 11 00:33:15 athlon kernel: hda: drive not ready for command
+Jun 11 00:33:15 athlon kernel: ide0: reset: success
 
-I changed my patch to have q->nr_requests at 1024 like yours, and reran
-the dbench 50:
-
-device 08:01: num_req 11122, total jiffies waited 121573
-        8782 forced to wait
-        1 min wait, 237 max wait
-        13 average wait
-        8654 < 100, 126 < 200, 2 < 300, 0 < 400, 0 < 500
-        0 waits longer than 500 jiffies
-
-So, I had 5000 more requests for the same workload, and 8000 of my
-requests were forced to wait (compared to 844 of yours).  But the total
-number of jiffies spent waiting on my patch was lower, as were the
-average and max waits.  Increasing the number of requests with my patch
-make the system feel slower, even though the __get_request_wait latency
-numbers didn't change.
-
-On this dbench run, you got a throughput of 118mb/s and I got 90mb/s. 
-The __get_request_wait latency numbers were reliable across runs, but I
-might as well have thrown a dart to pick throughput numbers.  So, next
-tests were done with iozone.
-
-On aa after iozone -s 100M -i 0 -t 20 (20 procs each doing streaming
-writes to a private 100M file)
-
-device 08:01: num_req 167133, total jiffies waited 872566
-        6424 forced to wait
-        4 min wait, 507 max wait
-        135 average wait
-        2619 < 100, 2020 < 200, 1433 < 300, 325 < 400, 26 < 500
-        1 waits longer than 500 jiffies
-
-And the iozone throughput numbers looked like so (again -aa patches)
-
-        Children see throughput for 20 initial writers  =   13824.22 KB/sec
-        Parent sees throughput for 20 initial writers   =    6811.29 KB/sec
-        Min throughput per process                      =     451.99 KB/sec
-        Max throughput per process                      =     904.14 KB/sec
-        Avg throughput per process                      =     691.21 KB/sec
-        Min xfer                                        =   51136.00 KB
-
-The avg throughput per process with vanilla rc7 is 3MB/s, the best I've
-been able to do was with nr_requests at higher levels was 1.3MB/s.  With
-smaller of iozone threads (10 and lower so far) I can match rc7 speeds,
-but not with 20 procs.
-
-Anyway, my latency numbers for iozone -s 100M -i 0 -t 20:
-
-device 08:01: num_req 146049, total jiffies waited 434025
-        130670 forced to wait
-        1 min wait, 65 max wait
-        3 average wait
-        130671 < 100, 0 < 200, 0 < 300, 0 < 400, 0 < 500
-        0 waits longer than 500 jiffies
-
-And the iozone reported throughput:
-
-        Children see throughput for 20 initial writers  =   19828.92 KB/sec
-        Parent sees throughput for 20 initial writers   =    7003.36 KB/sec
-        Min throughput per process                      =     526.61 KB/sec
-        Max throughput per process                      =    1353.45 KB/sec
-        Avg throughput per process                      =     991.45 KB/sec
-        Min xfer                                        =   39968.00 KB
-
-The patch I was working on today was almost the same as the one I posted
-yesterday, the only difference being the hunk below and changes to
-nr_requests (256 balanced nicely on my box, all numbers above were at
-1024).
-
-This hunk against my patch yesterday just avoids an unplug in
-__get_request_wait if there are still available requests.  A process
-might be waiting in __get_request_wait just because the queue was full,
-which has little do to with the queue needing an unplug.  He'll get
-woken up later by get_request_wait_wakeup if nobody else manages to wake
-him (I think).
-
-diff -u edited/drivers/block/ll_rw_blk.c edited/drivers/block/ll_rw_blk.c
---- edited/drivers/block/ll_rw_blk.c	Mon Jun  9 17:13:16 2003
-+++ edited/drivers/block/ll_rw_blk.c	Tue Jun 10 16:46:50 2003
-@@ -661,7 +661,8 @@
- 		set_current_state(TASK_UNINTERRUPTIBLE);
- 		spin_lock_irq(&io_request_lock);
- 		if ((!waited && queue_full(q, rw)) || q->rq[rw].count == 0) {
--			__generic_unplug_device(q);
-+			if (q->rq[rw].count == 0)
-+				__generic_unplug_device(q);
- 			spin_unlock_irq(&io_request_lock);
- 			schedule();
- 			spin_lock_irq(&io_request_lock);
+During this time, the machine seemed to be dead. It reacts to nothing.
 
 
+Afterwards, the hd had the following config:
+/dev/hda:
+ multcount    = 0 (off)
+ I/O support  =  0 (32-bit)
+ unmaskirq    =  0 (on)
+ using_dma    =  0 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 2494/255/63, sectors = 40079088, start = 0
+
+The systemload was very high while copying after this great hang. 
+It took a long time too to get this information from hdparm - I really
+thought, the machine would be dead again.
 
 
+this should be:
+
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 2494/255/63, sectors = 40079088, start = 0
+
+I had to reboot to get this config running again because reconfigure didn't
+work at all.
+
+
+The other problem I reported some days ago: APIC is unuseable too (sound is
+broken).
+I tested therefore 2.4.21rc7-ac1: this kernel is totally broken when using
+sound. The module crashes and the screen doesn't stop with printing kernel
+oops'es. One logentry I found was in /var/log/messages:
+Jun  8 20:10:49 athlon kernel: Unable to handle kernel paging request at
+virtual address 2deb2120
+Jun  10 20:10:49 athlon kernel:  printing eip:
+Jun  10 20:10:49 athlon kernel: df3de02b
+Jun  10 20:10:49 athlon kernel: *pde = 00000000
+Jun  10 20:10:49 athlon kernel: Oops: 0000
+Jun  10 20:10:49 athlon kernel: CPU:    0
+
+The sound-modules (ac97_codec, via82cxxx_audio) crashed during initializing
+no matter if APIC was activated or not.
+
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Region 0: Memory at d0000000 (32-bit, prefetchable) [size=128M]
+        Capabilities: [a0] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW+ Rate=x1,x2,x4
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333
+AGP] (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 0000c000-0000cfff
+        Memory behind bridge: dc000000-ddffffff
+        Prefetchable memory behind bridge: d8000000-dbffffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:09.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100
+Ethernet (rev 02)
+        Subsystem: Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet
+Adapter
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (13000ns min, 2750ns max)
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at d000 [size=256]
+        Region 1: Memory at df022000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [40] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
+PME(D0+,D1+,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 10)
+        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (8000ns min, 16000ns max)
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at d400 [size=256]
+        Region 1: Memory at df020000 (32-bit, non-prefetchable) [size=256]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+
+00:0c.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev
+0c)
+        Subsystem: Intel Corp. EtherExpress PRO/100 S Desktop Adapter
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min, 14000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at df021000 (32-bit, non-prefetchable) [size=4K]
+        Region 1: I/O ports at d800 [size=64]
+        Region 2: Memory at df000000 (32-bit, non-prefetchable) [size=128K]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80) (prog-if 00
+[UHCI])
+        Subsystem: VIA Technologies, Inc. USB
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 4: I/O ports at dc00 [size=32]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80) (prog-if 00
+[UHCI])
+        Subsystem: VIA Technologies, Inc. USB
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin B routed to IRQ 5
+        Region 4: I/O ports at e000 [size=32]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80) (prog-if 00
+[UHCI])
+        Subsystem: VIA Technologies, Inc. USB
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin C routed to IRQ 11
+        Region 4: I/O ports at e400 [size=32]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82) (prog-if 20
+[EHCI])
+        Subsystem: VIA Technologies, Inc. USB 2.0
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 10
+        Region 0: Memory at df023000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
+        Subsystem: VIA Technologies, Inc. VT8235 ISA Bridge
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.1 IDE interface: VIA Technologies, Inc.
+VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
+(prog-if 8a [Master SecP PriP])
+        Subsystem: VIA Technologies, Inc.
+VT82C586/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Interrupt: pin A routed to IRQ 0
+        Region 4: I/O ports at e800 [size=16]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235
+AC97 Audio Controller (rev 50)
+        Subsystem: Unknown device 1695:3005
+        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin C routed to IRQ 11
+        Region 0: I/O ports at ec00 [size=256]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF/PRO AGP
+4x TMDS (prog-if 00 [VGA])
+        Subsystem: ATI Technologies Inc Rage Fury Pro/Xpert 2000 Pro
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at d8000000 (32-bit, prefetchable) [size=64M]
+        Region 1: I/O ports at c000 [size=256]
+        Region 2: Memory at dd000000 (32-bit, non-prefetchable) [size=16K]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [50] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2,x4
+                Command: RQ=0 SBA+ AGP- 64bit- FW- Rate=<none>
+        Capabilities: [5c] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+
+
+Kind regards,
+Andreas Hartmann

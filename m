@@ -1,49 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289080AbSAUJCQ>; Mon, 21 Jan 2002 04:02:16 -0500
+	id <S289074AbSAUJBP>; Mon, 21 Jan 2002 04:01:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289098AbSAUJCH>; Mon, 21 Jan 2002 04:02:07 -0500
-Received: from rzcomm4.rz.tu-bs.de ([134.169.9.55]:9734 "EHLO
-	rzcomm4.rz.tu-bs.de") by vger.kernel.org with ESMTP
-	id <S289097AbSAUJCD>; Mon, 21 Jan 2002 04:02:03 -0500
-Message-ID: <3C4BD854.3010104@aei.mpg.de>
-Date: Mon, 21 Jan 2002 09:59:00 +0100
-From: Carsten Aulbert <aulbert@aei.mpg.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: FYI: Kernel boot-stall on Asus A7V266-D (AMD MPX 762&768)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S289080AbSAUJBE>; Mon, 21 Jan 2002 04:01:04 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37899 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S289074AbSAUJA4>;
+	Mon, 21 Jan 2002 04:00:56 -0500
+Date: Mon, 21 Jan 2002 10:00:42 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-pre1-aia1
+Message-ID: <20020121100042.P27835@suse.de>
+In-Reply-To: <20020121090156.O27835@suse.de> <Pine.LNX.4.10.10201210031300.13727-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10201210031300.13727-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-here a small "bug" report with kernel 2.4.18pre4 (also with 2.4.17):
+(have read up on mult now)
 
-Asus BIOS allows setting of MPS 1.4 and MP Table, if MP Table is 
-disabled, the second processor is not recognized (but I suppose that's 
-guessable), if both are enabled the kernel boot until it stops with the 
-following lines:
-[...]
-ENABLING IO-APIC IRQs
-Setting 2 in the phys_id_present map
-...changing IO-APIC physical APIC ID to 2...ok
-...TIMER: vector=0x31 pin1=2 pin2=0
+On Mon, Jan 21 2002, Andre Hedrick wrote:
+> > On Sun, Jan 20 2002, Andre Hedrick wrote:
+> > > > No it's not. By your standards, that would mean that if the device is
+> > > > setup for 16 sector multi mode, then I could never ever issue requests
+> > > > less than that (without doing some crap 'toss away extra data' stuff).
+> > > > How else would you handle, eg, 2 sector requests with multi mode set?
+> > > 
+> > > Change the opcode in the command block to single sector, if
+> > > rq->current_nr_sectors != drive->multcount.
+> > 
+> > That crossed my mind too, however that's not what we've been doing in
+> > the past and multi mode has worked fine.
+> 
+> And we have not done a lot of things in the past.
+> Mind the fact, before you changed max-sectors from 128 to 255 != 256, he
+> problems maybe a direct result.  Mind the fact, it is my fault for not
+> telling you about the issue.
+> 
+> Since 128 and 256 are clearly 2,4,8,16 divisable and clean, as a result we
+> kind of masked the problem, but 255 is not at all the same issue.
 
-that's basically all I can tell you (Board: Asus A7v266-D, Chipset: AMD 
-MPX, Northbridge AMD 762, Southbridge AMD768; Processors: 2x MP1800+, 
-memory: Infineon 2x512 PC2100 CL2). Sorry if this does not suffice.
+But, eg, 24 sectors is not and we would still be starting a multi
+read/write for that...
 
-Please CC to me, since I'm not subscribed.
-Cheers
+> Mind you Mark Lord did get this correct in the copy buffer issue, but the
+> bug introduced by 255 is the only problem I can trace to be suspect.
 
-Carsten
+255 is effectively 248 (256 - 8), however that is still not correct when
+modulo a 16 multi sector setting.
+
+> > > the hardware to what you are sending down.  The question you need to
+> > > answer is issuing a request for multi-sector transfers less than what the
+> > > device is expecting, sane and correct.  If you tell me it is correct,
+> > > please show me where I read something wrong in the specification.
+> > 
+> > You are saying that even when I do:
+> > 
+> > 	/* this is our request */
+> > 	rq->nr_sectors = 48;
+> > 	rq->current_nr_sectors = 8;
+> > 
+> > 	/* drive->mult_count has been programmed to 16 */
+> 
+> You exectute WIN_MULTREAD and it behaves based on what the device has been
+> programmed to do respond.
+> 
+> If you want 8 sectors only, by golly you had better tell it expect 8
+> sectors and then you can interrupt upon completion.
+> 
+> If it expects 16 sectors and you stop at 8, and issue a new command,
+> expect the device to go south.
+
+This really sucks, it means we cannot safely use multi mode for a
+variety of request sizes. I agree with your earlier comment. Here's what
+I think we should be doing: when requesting multi mode, limit to 8
+sectors like in your patch. This is by far the most commen multiple,
+that's why. When starting a request, use WIN_MULT* only for cases where
+(rq->nr_sectors % drive->mult_count) == 0. If that doesn't hold, simply
+use WIN_READ or WIN_WRITE.
+
+Applied the 2.5.3-pre2 sched SMP fix, booting -pre2 and then hacking up
+a patch.
+
 -- 
-office: Am Mühlenberg 5, 14476 Potsdam, +331-5677253, Fax: +33-5677298
-	aulbert@aei-potsdam.mpg.de
-priv. : Clara-Zetkin-Strasse 9, 14471 Potsdam, +331-9513352
-	carsten@welcomes-you.com
+Jens Axboe
 

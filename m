@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264954AbRFZOQn>; Tue, 26 Jun 2001 10:16:43 -0400
+	id <S261700AbRFZOTN>; Tue, 26 Jun 2001 10:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264956AbRFZOQe>; Tue, 26 Jun 2001 10:16:34 -0400
-Received: from mail.nep.net ([12.23.44.24]:61967 "HELO nep.net")
-	by vger.kernel.org with SMTP id <S264954AbRFZOQS>;
-	Tue, 26 Jun 2001 10:16:18 -0400
-Message-ID: <19AB8F9FA07FB0409732402B4817D75A0389B5@FILESERVER.SRF.srfarms.com>
-From: "Ryan C. Bonham" <Ryan@srfarms.com>
+	id <S264879AbRFZOTD>; Tue, 26 Jun 2001 10:19:03 -0400
+Received: from isdn360.s.netic.de ([212.9.163.104]:7941 "EHLO solfire")
+	by vger.kernel.org with ESMTP id <S261700AbRFZOSz>;
+	Tue, 26 Jun 2001 10:18:55 -0400
 To: linux-kernel@vger.kernel.org
-Subject: RAID Controller Card
-Date: Tue, 26 Jun 2001 10:22:03 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Problems with 2.4.5ac1[78]
+From: Meino Christian Cramer <mccramer@s.netic.de>
+X-Mailer: Mew version 1.94.2 on XEmacs 21.4 (Academic Rigor)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010626161854G.mccramer@s.netic.de>
+Date: Tue, 26 Jun 2001 16:18:54 +0200
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I am getting ready to install a new server and am planning an installing
-Linux on it. My Question is Does the 2.4.5 kernel support the Promise
-SuperTrak100? I know there were problems with this card and Linux, I saw AC
-was working on fixes for I2O in the 2.4.4 kernels. I just want to know if it
-was fixed now. Sorry for cluttering up the list, I couldn't find the answer
-in the archives, dejanews, or goggle.. 
+ I tried to compile linux-2.4.5ac17 with processor type "Athlon"
+ settings.
 
-Ryan C. Bonham
-System Administrator
-Summit Ridge Farms
-ryan@srfarms.com
+ Compilation/Install was successful. But boot produces dozens of
+ "unresolved symbols" if trying to insmod any of the modules.
+
+ Not one module was insmodded successfully.
+
+ I tried PENTIUM III setting, which works fine.
+ 
+ What's goiing on here ;-)
+
+ What is it, what I am doing wrong.
+
+ The modutils version is 2.4.6
+
+ Any help VERY welcone ;-)
+ Thank you very much in advance !
+
+   keep hacking the right site of life ! :-)
+  Meino  
+

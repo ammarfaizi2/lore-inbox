@@ -1,91 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262931AbUCPCgT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 21:36:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbUCPBWV
+	id S262894AbUCPBV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 20:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbUCPBUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 20:22:21 -0500
-Received: from mail.kroah.org ([65.200.24.183]:48559 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262931AbUCPADG convert rfc822-to-8bit
+	Mon, 15 Mar 2004 20:20:09 -0500
+Received: from mail.kroah.org ([65.200.24.183]:52655 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262936AbUCPADL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:03:06 -0500
+	Mon, 15 Mar 2004 19:03:11 -0500
 Subject: Re: [PATCH] i2c driver fixes for 2.6.4
-In-Reply-To: <10793913942653@kroah.com>
+In-Reply-To: <10793913941866@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 15 Mar 2004 14:56:34 -0800
-Message-Id: <107939139468@kroah.com>
+Message-Id: <10793913942653@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1608.74.12, 2004/03/15 10:28:32-08:00, greg@kroah.com
+ChangeSet 1.1608.74.11, 2004/03/15 10:27:53-08:00, greg@kroah.com
 
-[PATCH] I2C: add CONFIG_I2C_DEBUG_ALGO to be consistant.
-
-
- drivers/i2c/Kconfig              |    9 +++++++++
- drivers/i2c/algos/Makefile       |    4 ++++
- drivers/i2c/algos/i2c-algo-bit.c |    2 --
- drivers/i2c/algos/i2c-algo-pcf.c |    2 --
- 4 files changed, 13 insertions(+), 4 deletions(-)
+[PATCH] I2C: fix up CONFIG_I2C_DEBUG_CORE logic to be simpler on the .c files.
 
 
-diff -Nru a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
---- a/drivers/i2c/Kconfig	Mon Mar 15 14:34:18 2004
-+++ b/drivers/i2c/Kconfig	Mon Mar 15 14:34:18 2004
-@@ -46,6 +46,15 @@
- 	  messages to the system log.  Select this if you are having a
- 	  problem with I2C support and want to see more of what is going on.
- 
-+config I2C_DEBUG_ALGO
-+	bool "I2C Algorithm debugging messages"
-+	depends on I2C
-+	help
-+	  Say Y here if you want the I2C algorithm drivers to produce a bunch
-+	  of debug messages to the system log.  Select this if you are having
-+	  a problem with I2C support and want to see more of what is going
-+	  on.
+ drivers/i2c/Makefile     |    4 ++++
+ drivers/i2c/i2c-core.c   |    4 ----
+ drivers/i2c/i2c-dev.c    |    4 ----
+ drivers/i2c/i2c-sensor.c |    4 ----
+ 4 files changed, 4 insertions(+), 12 deletions(-)
+
+
+diff -Nru a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+--- a/drivers/i2c/Makefile	Mon Mar 15 14:34:23 2004
++++ b/drivers/i2c/Makefile	Mon Mar 15 14:34:23 2004
+@@ -6,3 +6,7 @@
+ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
+ obj-$(CONFIG_I2C_SENSOR)	+= i2c-sensor.o
+ obj-y				+= busses/ chips/ algos/
 +
- config I2C_DEBUG_BUS
- 	bool "I2C Bus debugging messages"
- 	depends on I2C
-diff -Nru a/drivers/i2c/algos/Makefile b/drivers/i2c/algos/Makefile
---- a/drivers/i2c/algos/Makefile	Mon Mar 15 14:34:18 2004
-+++ b/drivers/i2c/algos/Makefile	Mon Mar 15 14:34:18 2004
-@@ -5,3 +5,7 @@
- obj-$(CONFIG_I2C_ALGOBIT)	+= i2c-algo-bit.o
- obj-$(CONFIG_I2C_ALGOPCF)	+= i2c-algo-pcf.o
- obj-$(CONFIG_I2C_ALGOITE)	+= i2c-algo-ite.o
-+
-+ifeq ($(CONFIG_I2C_DEBUG_ALGO),y)
++ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
 +EXTRA_CFLAGS += -DDEBUG
 +endif
-diff -Nru a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
---- a/drivers/i2c/algos/i2c-algo-bit.c	Mon Mar 15 14:34:18 2004
-+++ b/drivers/i2c/algos/i2c-algo-bit.c	Mon Mar 15 14:34:18 2004
-@@ -21,8 +21,6 @@
- /* With some changes from Frodo Looijaard <frodol@dds.nl>, Kyösti Mälkki
-    <kmalkki@cc.hut.fi> and Jean Delvare <khali@linux-fr.org> */
+diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+--- a/drivers/i2c/i2c-core.c	Mon Mar 15 14:34:23 2004
++++ b/drivers/i2c/i2c-core.c	Mon Mar 15 14:34:23 2004
+@@ -22,10 +22,6 @@
+    SMBus 2.0 support by Mark Studebaker <mdsxyz123@yahoo.com>                */
  
--/* #define DEBUG 1 */
+ #include <linux/config.h>
+-#ifdef CONFIG_I2C_DEBUG_CORE
+-#define DEBUG	1
+-#endif
+-
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/errno.h>
+diff -Nru a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+--- a/drivers/i2c/i2c-dev.c	Mon Mar 15 14:34:23 2004
++++ b/drivers/i2c/i2c-dev.c	Mon Mar 15 14:34:23 2004
+@@ -30,10 +30,6 @@
+    <pmhahn@titan.lahn.de> */
+ 
+ #include <linux/config.h>
+-#ifdef CONFIG_I2C_DEBUG_CORE
+-#define DEBUG	1
+-#endif
 -
  #include <linux/kernel.h>
  #include <linux/module.h>
- #include <linux/delay.h>
-diff -Nru a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
---- a/drivers/i2c/algos/i2c-algo-pcf.c	Mon Mar 15 14:34:18 2004
-+++ b/drivers/i2c/algos/i2c-algo-pcf.c	Mon Mar 15 14:34:18 2004
-@@ -27,8 +27,6 @@
-    messages, proper stop/repstart signaling during receive,
-    added detect code */
+ #include <linux/fs.h>
+diff -Nru a/drivers/i2c/i2c-sensor.c b/drivers/i2c/i2c-sensor.c
+--- a/drivers/i2c/i2c-sensor.c	Mon Mar 15 14:34:23 2004
++++ b/drivers/i2c/i2c-sensor.c	Mon Mar 15 14:34:23 2004
+@@ -20,10 +20,6 @@
+ */
  
--/* #define DEBUG 1 */		/* to pick up dev_dbg calls */
+ #include <linux/config.h>
+-#ifdef CONFIG_I2C_DEBUG_CORE
+-#define DEBUG	1
+-#endif
 -
- #include <linux/kernel.h>
  #include <linux/module.h>
- #include <linux/delay.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
 

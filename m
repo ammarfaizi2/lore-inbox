@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281609AbRLQRFB>; Mon, 17 Dec 2001 12:05:01 -0500
+	id <S281663AbRLQRV4>; Mon, 17 Dec 2001 12:21:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281663AbRLQREv>; Mon, 17 Dec 2001 12:04:51 -0500
-Received: from [64.209.222.100] ([64.209.222.100]:60423 "HELO
-	mx1.gc.ny.otec.com") by vger.kernel.org with SMTP
-	id <S281609AbRLQREm>; Mon, 17 Dec 2001 12:04:42 -0500
-Date: Mon, 17 Dec 2001 12:03:55 -0500 (EST)
-From: dan kelley <dkelley@otec.com>
-X-X-Sender: <djk@nixon.bos.otec.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.17rc1 reiserfs/aacraid
-Message-ID: <Pine.LNX.4.33.0112171156510.30691-100000@nixon.bos.otec.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281678AbRLQRVq>; Mon, 17 Dec 2001 12:21:46 -0500
+Received: from mail.gmx.net ([213.165.64.20]:20490 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S281663AbRLQRVc>;
+	Mon, 17 Dec 2001 12:21:32 -0500
+Date: Mon, 17 Dec 2001 18:23:43 +0100
+From: Sebastian =?ISO-8859-1?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-Id: <20011217182343.7aea2048.sebastian.droege@gmx.de>
+In-Reply-To: <Pine.LNX.4.33.0112171755060.28670-100000@Appserv.suse.de>
+In-Reply-To: <20011217175206.193d02e0.sebastian.droege@gmx.de>
+	<Pine.LNX.4.33.0112171755060.28670-100000@Appserv.suse.de>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.QmtTog?6kiEPJ9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=.QmtTog?6kiEPJ9
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-hi-
+Thanks
+This does work
+What do you think was exactly the problem?
 
-with the above combination, i'm experiencing some strange behavior.  i
-have the following layout:
+Bye
 
-root@mail:/home/djk > df -T
-Filesystem    Type   1k-blocks      Used Available Use% Mounted on
-/dev/sda5     ext2     7566400     77008   7105040   2% /
-/dev/sda1     ext2       54416      5750     45857  12% /boot
-/dev/sdb6 reiserfs     8329408    200324   8129084   3% /opt
-/dev/sdb5 reiserfs     9437828   1162232   8275596  13% /usr
-/dev/sda7 reiserfs     9253120    112272   9140848   2% /var
-shmfs          shm      127552         0    127552   0% /dev/shm
+On Mon, 17 Dec 2001 17:57:01 +0100 (CET)
+Dave Jones <davej@suse.de> wrote:
 
-everything you see is mounted at boot, with the 3 resiserfs partitions
-being mounted with a standard suse 7.2 boot (/etc/init.d/boot):
+> On Mon, 17 Dec 2001, Sebastian Dröge wrote:
+> 
+> > 2.4.16-2.4.17-rc1 works perfectly
+> > 2.5.0-2.5.1 works perfectly
+> > Only 2.5.1-dj1 has this 2 errors (ISA-PnP non-detection and USB only root hub detection)
+> > All have the same .config
+> > If you need some more information feel free to ask me ;)
+> 
+> Ok, can you try backing out this patch.. (just patch as normal but with -R)
+> http://www.codemonkey.org.uk/patches/2.5/small-bits/early-cpuinit-1.diff
+> 
+> regards,
+> Dave.
+> 
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> 
 
-mount -av -t nonfs,noproc,nodevpts
+--=.QmtTog?6kiEPJ9
+Content-Type: application/pgp-signature
 
-they system comes up ok, but i'm unable to unmount any of the reiserfs
-partitions:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
-root@mail:/home/djk > umount -f /opt
-umount2: Device or resource busy
-umount: /opt: device is busy
+iD8DBQE8HiohvIHrJes3kVIRAtPVAKCscabhKjpmPSyZccFYDwvr3rSmhgCgpNfu
+nLzkwv2BjBvxQL43xOFwVsk=
+=jWZX
+-----END PGP SIGNATURE-----
 
-what's weird is that it looks like the kernel is stuck on the mount of the
-partition:
-
-root@mail:/home/djk > fuser -v /opt
-
-                     USER        PID ACCESS COMMAND
-/opt                 root     kernel mount  /opt
-
-
-same thing for the other two reiserfs partitions.
-
-if i remove any of the resier partitions from /etc/fstab, i'm able to
-mount them and umount them without a problem once the system is up.
-
-so, on first glance, there appears to be some type of weird interaction
-between the new aacraid code and reiser.
-
-thanks-
-
-dan
+--=.QmtTog?6kiEPJ9--
 

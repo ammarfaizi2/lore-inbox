@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264991AbTFCMz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 08:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbTFCMz5
+	id S264992AbTFCM6r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 08:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbTFCM6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 08:55:57 -0400
-Received: from holomorphy.com ([66.224.33.161]:2982 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264991AbTFCMz4 (ORCPT
+	Tue, 3 Jun 2003 08:58:47 -0400
+Received: from [211.167.76.68] ([211.167.76.68]:51357 "HELO soulinfo")
+	by vger.kernel.org with SMTP id S264992AbTFCM6p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 08:55:56 -0400
-Date: Tue, 3 Jun 2003 06:09:12 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Giuliano Pochini <pochini@shiny.it>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 100Hz v 1000Hz with contest
-Message-ID: <20030603130912.GS8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Con Kolivas <kernel@kolivas.org>,
-	Giuliano Pochini <pochini@shiny.it>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <XFMail.20030603100038.pochini@shiny.it> <200306032036.49790.kernel@kolivas.org>
+	Tue, 3 Jun 2003 08:58:45 -0400
+Date: Tue, 3 Jun 2003 21:11:56 +0800
+From: hugang <hugang@soulinfo.com>
+To: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: software suspend in 2.5.70-mm3.
+Message-Id: <20030603211156.726366e7.hugang@soulinfo.com>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200306032036.49790.kernel@kolivas.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+ =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= Pavel Machek <pavel@suse.cz>
+ =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jun 2003 18:00, Giuliano Pochini wrote:
->> Is there any problem using a frequency other than 100 and 1000Hz ?
+Hi Pavel Machek:
 
-On Tue, Jun 03, 2003 at 08:36:49PM +1000, Con Kolivas wrote:
-> Not at all. These were chosen because they were the default 2.4 (100) and 2.5 
-> (1000) frequencies. The large difference in Hz was postulated to increase the 
-> in-kernel overhead and the amount of time spent tearing down and building up 
-> the cpu cache again. 2.4 running at 1000Hz shows poor performance at high 
-> (>4) loads whereas 2.5 doesn't seem to do this. I originally thought it was 
-> cache thrashing/trashing responsible. However since 2.5 performance is almost 
-> comparable at 100/1000 it seems to be that the pure interrupt overhead in 2.5 
-> is lower?
+I try the 2.5.70-mm3 with software suspend function. When suspend it will oops at ide-disk.c 1526 line
+   BUG_ON (HWGROUP(drive)->handler);
 
-You could try profiling cache misses etc.
+I'm disable this check, The software suspend can work, and also can resumed. But this fix is not best way. I found in ide-io.c 1196
+   hwgroup->handler = NULL;
+is the problem.
 
-I blame count_active_tasks(). =)
+thanks.
 
-
--- wli
+-- 
+Hu Gang / Steve
+Email        : huagng@soulinfo.com, steve@soulinfo.com
+GPG FinePrint: 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
+http://soulinfo.com/~hugang/HuGang.asc
+ICQ#         : 205800361
+Registered Linux User : 204016

@@ -1,64 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263083AbUJ1XW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262950AbUJ1XX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263083AbUJ1XW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 19:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263047AbUJ1XSW
+	id S262950AbUJ1XX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 19:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbUJ1XXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 19:18:22 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32274 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262950AbUJ1XQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:16:47 -0400
-Date: Fri, 29 Oct 2004 01:16:13 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] scsi/ahci.c: remove an unused function
-Message-ID: <20041028231613.GF3207@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 28 Oct 2004 19:23:19 -0400
+Received: from mo.optusnet.com.au ([203.10.68.101]:61920 "EHLO
+	mo.optusnet.com.au") by vger.kernel.org with ESMTP id S262950AbUJ1XTx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:19:53 -0400
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: michael@optusnet.com.au,
+       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
+       Ed Tomlinson <edt@aei.ca>, Massimo Cetra <mcetra@navynet.it>,
+       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
+       "'Bill Davidsen'" <davidsen@tmr.com>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: My thoughts on the "new development model"
+References: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
+	<200410261719.56474.edt@aei.ca>
+	<Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt>
+	<417F315A.9060906@comcast.net> <m1sm7znxul.fsf@mo.optusnet.com.au>
+	<41811AF2.2000503@comcast.net>
+From: michael@optusnet.com.au
+Date: 29 Oct 2004 09:19:05 +1000
+In-Reply-To: <41811AF2.2000503@comcast.net>
+Message-ID: <m1oeimo2hi.fsf@mo.optusnet.com.au>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+John Richard Moser <nigelenki@comcast.net> writes:
+> michael@optusnet.com.au wrote:
+[...]
+> | There seems to be a lot of strange notions on this concept of 'stable'.
+> | The only thing that makes a kernel 'stable' is time. Not endless
+> | bugfixes. Just time. The idea of stable software is software that not
+> | going to give you any suprises, software that you can trust.
+> |
+> 
+> Right.  Bugfixing the "Stable" branch ONLY will make sure it does not
+> surprise you with sudden new features (which may surprise you by. . .
+> breaking your own patches!).
 
-The patch below removes an unused function from drivers/scsi/ahci.c
+You've missed the point. 'Bugfixing' introduces code changes, and new
+bugs. Having made 'bugfix', you now need to go back and re-do much,
+if not all of your testing to ensure that you haven't introduced a brand
+new bug. At a simple level, to 'bugfix' means to remove 1 known bug
+and introduce a random number of unknown bugs. (Could be zero with reasonable
+probability; could be 50 with low probabilty. The point is that you don't
+know).
 
+This isn't helping to reduce your 'suprise' rate.
 
-diffstat output:
- drivers/scsi/ahci.c |    9 ---------
- 1 files changed, 9 deletions(-)
+[...] 
+> | Now you've got a kernel that tests clean with your app. DON'T
+> | CHANGE IT!!
+> |
+> | Ta-Dah! You've got a stable kernel.
+> |
+> 
+> That if I keep my realtime patches or my security enhancements or my new
+> drivers or my new filesystems on and don't continuously upgrade will
+> cause me to stagnate and be left behind and ignored.
 
+Ahh. Now I get it. You don't want a stable kernel at all. You
+just want to pick and chose which new features you get.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+In what way is 'security enchancements', or 'new drivers', or 'new
+filesystems' not the very feature enchancements you're complaining
+about in 2.6?
 
-- --- linux-2.6.10-rc1-mm1-full/drivers/scsi/ahci.c.old	2004-10-28 23:28:09.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/scsi/ahci.c	2004-10-28 23:28:17.000000000 +0200
-@@ -504,15 +504,6 @@
- 	ahci_fill_sg(qc);
- }
- 
-- -static inline void ahci_dma_complete (struct ata_port *ap,
-- -                                     struct ata_queued_cmd *qc,
-- -				     int have_err)
-- -{
-- -	/* get drive status; clear intr; complete txn */
-- -	ata_qc_complete(ata_qc_from_tag(ap, ap->active_tag),
-- -			have_err ? ATA_ERR : 0);
-- -}
-- -
- static void ahci_intr_error(struct ata_port *ap, u32 irq_stat)
- {
- 	void *mmio = ap->host_set->mmio_base;
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBgX29mfzqmE8StAARAgGOAJ4n5TTw8dyMqfXbwGgY1yZnoaHtdwCfWpHq
-O6Innq1eA5acFXUHQJ5syng=
-=GUWn
------END PGP SIGNATURE-----
+Michael.

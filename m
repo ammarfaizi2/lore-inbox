@@ -1,51 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264078AbSIVMNg>; Sun, 22 Sep 2002 08:13:36 -0400
+	id <S264125AbSIVMdY>; Sun, 22 Sep 2002 08:33:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264090AbSIVMNf>; Sun, 22 Sep 2002 08:13:35 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:6166 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S264078AbSIVMNe>;
-	Sun, 22 Sep 2002 08:13:34 -0400
-Date: Sun, 22 Sep 2002 14:18:43 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.37 won't run X?
-Message-ID: <20020922121843.GA15967@win.tue.nl>
-References: <20020921161702.GA709@iucha.net> <597384533.1032600316@[10.10.2.3]> <20020921185939.GA1771@iucha.net> <20020921202353.GA15661@win.tue.nl> <20020922043050.GU3530@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264139AbSIVMdY>; Sun, 22 Sep 2002 08:33:24 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:17563 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S264125AbSIVMdX>; Sun, 22 Sep 2002 08:33:23 -0400
+Message-ID: <20020922123738.30022.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Disposition: inline
-In-Reply-To: <20020922043050.GU3530@holomorphy.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 22 Sep 2002 20:37:38 +0800
+Subject: Re: [chatroom benchmark version 1.0.1] Results
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 21, 2002 at 09:30:50PM -0700, William Lee Irwin III wrote:
+Hi all,
+someone suggested me to report other information and not only the average (I have no time to write a script in order to evaluate the dev...any help?)
 
-> On Sat, Sep 21, 2002 at 10:23:53PM +0200, Andries Brouwer wrote:
-> > I noticed that the pgrp-related behaviour of some programs changed.
-> > Some programs hang, some programs loop. The hang occurs when they
-> > are stopped by SIGTTOU. The infinite loop occurs when they catch SIGTTOU
-> > (and the same signal is sent immediately again when they leave the
-> > signal routine).
-> > Have not yet investigated details.
-> 
-> Linus seems to have put out 2.5.38 with some X lockup fixes. Can you
-> still reproduce this? If so, are there non-X-related testcases where
-> you can trigger this? My T21 Thinkpad doesn't see this at all.
-> 
-> I'm still prodding the SIGTTOU path trying to trigger it until then.
+Therefore here it goes the full log:
 
-Yes, 2.5.38 behaves differently again, but the statement that
-pgrp-related behaviour of some programs changed is still true.
+2.5.33_total.results:Average throughput : 60402 messages per second
+2.5.33_total.results:Average throughput : 63981 messages per second
+2.5.33_total.results:Average throughput : 60271 messages per second
+2.5.33_total.results:Average throughput : 61403 messages per second
+2.5.33_total.results:Average throughput : 61235 messages per second
+2.5.33_total.results:Average throughput : 60603 messages per second
+2.5.33_total.results:Average throughput : 61258 messages per second
+2.5.33_total.results:Average throughput : 61675 messages per second
+2.5.33_total.results:Average throughput : 62447 messages per second
+2.5.33_total.results:Average throughput : 64523 messages per second
 
-For example: "emacs -nw foo.c" in an xterm window
-will start emacs fine. Now put this line in a shell script:
-	#!/bin/sh
-	emacs -nw $@
-so that pid and pgrp of the started emacs differ. Under 2.5.33
-this works, but under 2.5.3[78] this hangs.
+2.5.36-preemption_total.results:Average throughput : 58717 messages per second
+2.5.36-preemption_total.results:Average throughput : 62171 messages per second
+2.5.36-preemption_total.results:Average throughput : 63255 messages per second
+2.5.36-preemption_total.results:Average throughput : 60643 messages per second
+2.5.36-preemption_total.results:Average throughput : 61854 messages per second
+2.5.36-preemption_total.results:Average throughput : 63547 messages per second
+2.5.36-preemption_total.results:Average throughput : 55841 messages per second
+2.5.36-preemption_total.results:Average throughput : 62911 messages per second
+2.5.36-preemption_total.results:Average throughput : 55490 messages per second
+2.5.36-preemption_total.results:Average throughput : 64343 messages per second
 
-Andries
+2.5.36_total.results:Average throughput : 60695 messages per second
+2.5.36_total.results:Average throughput : 60356 messages per second
+2.5.36_total.results:Average throughput : 59959 messages per second
+2.5.36_total.results:Average throughput : 61132 messages per second
+2.5.36_total.results:Average throughput : 60486 messages per second
+2.5.36_total.results:Average throughput : 60378 messages per second
+2.5.36_total.results:Average throughput : 63030 messages per second
+2.5.36_total.results:Average throughput : 60431 messages per second
+2.5.36_total.results:Average throughput : 60063 messages per second
+2.5.36_total.results:Average throughput : 62057 messages per second
+
+2.5.37-preemption_total.results:Average throughput : 60660 messages per second
+2.5.37-preemption_total.results:Average throughput : 62788 messages per second
+2.5.37-preemption_total.results:Average throughput : 61604 messages per second
+2.5.37-preemption_total.results:Average throughput : 62324 messages per second
+2.5.37-preemption_total.results:Average throughput : 63011 messages per second
+2.5.37-preemption_total.results:Average throughput : 61596 messages per second
+2.5.37-preemption_total.results:Average throughput : 61944 messages per second
+2.5.37-preemption_total.results:Average throughput : 59562 messages per second
+2.5.37-preemption_total.results:Average throughput : 62385 messages per second
+2.5.37-preemption_total.results:Average throughput : 63087 messages per second
+
+2.5.38-preemption_total.results:Average throughput : 63051 messages per second
+2.5.38-preemption_total.results:Average throughput : 60065 messages per second
+2.5.38-preemption_total.results:Average throughput : 61488 messages per second
+2.5.38-preemption_total.results:Average throughput : 63471 messages per second
+2.5.38-preemption_total.results:Average throughput : 62200 messages per second
+2.5.38-preemption_total.results:Average throughput : 61631 messages per second
+2.5.38-preemption_total.results:Average throughput : 64894 messages per second
+2.5.38-preemption_total.results:Average throughput : 63893 messages per second
+2.5.38-preemption_total.results:Average throughput : 63127 messages per second
+2.5.38-preemption_total.results:Average throughput : 61565 messages per second
+
+And here it goes the average:
+2.5.33-preemption.average:Average throughput: 60943.9 messages per second
+2.5.33.average:Average throughput: 61779.8 messages per second
+2.5.36-preemption.average:Average throughput: 60877.2 messages per second
+2.5.36.average:Average throughput: 60858.7 messages per second
+2.5.37-preemption.average:Average throughput: 61896.1 messages per second
+2.5.38-preemption.average:Average throughput: 62538.5 messages per second
+
+Ciao,
+          Paolo
+
+-- 
+Get your free email from www.linuxmail.org 
+
+
+Powered by Outblaze

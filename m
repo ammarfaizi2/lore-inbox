@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317738AbSFLQ1n>; Wed, 12 Jun 2002 12:27:43 -0400
+	id <S317733AbSFLQeh>; Wed, 12 Jun 2002 12:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317739AbSFLQ1m>; Wed, 12 Jun 2002 12:27:42 -0400
-Received: from mail.lmcg.wisc.edu ([144.92.101.145]:7304 "EHLO
-	mail.lmcg.wisc.edu") by vger.kernel.org with ESMTP
-	id <S317738AbSFLQ1l>; Wed, 12 Jun 2002 12:27:41 -0400
-Date: Wed, 12 Jun 2002 11:27:41 -0500 (CDT)
-Message-Id: <200206121627.LAA24760@radium.lmcg.wisc.edu>
-From: Daniel Forrest <forrest@lmcg.wisc.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] lockd hangs during host lookup garbage collection
-Reply-to: Daniel Forrest <forrest@lmcg.wisc.edu>
+	id <S317734AbSFLQeg>; Wed, 12 Jun 2002 12:34:36 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:18919 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S317733AbSFLQef>; Wed, 12 Jun 2002 12:34:35 -0400
+Date: Wed, 12 Jun 2002 18:34:53 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+        Ravikiran G Thirumalai <kiran@in.ibm.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: question: i/o port 0x61 on x86 archs
+In-Reply-To: <20020612180325.E22429@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.GSO.3.96.1020612183253.8068D-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A deadlock occurs under the following sequence:
+On Wed, 12 Jun 2002, Ingo Oeser wrote:
 
-->nlmsvc_lock				calls down(&file->f_sema)
- ->nlmsvc_create_block
-  ->nlmclnt_lookup_host
-   ->nlm_lookup_host			may do garbage collection
-    ->nlm_gc_hosts
-     ->nlmsvc_mark_resources
-      ->nlm_traverse_files		action = NLM_ACT_MARK
-       ->nlm_inspect_file		loops over all files
-        ->nlmsvc_traverse_blocks	calls down(&file->f_sema)
+> > Port 0x61 is the NMI status and control register.
+> 
+> So it should exist a '#define' for this somewhere. 
+> 
+> People who tend to disagree here, may try to use *.i files
+> instead of *.c and *.h files next time.
 
-Under heavy load (i.e. >32 client machines locking/unlocking the same
-NFS mounted file repeatedly) this happens within seconds.
+ Feel free to submit a patch.
 
-I discussed this with Trond Myklebust a couple of months ago, but the
-question became one of why f_sema was being used at all.  I don't know
-the answer to that question.  Until someone else removes f_sema, the
-following patch will avoid the problem.
-
-Please apply.
-
-Dan
-
---- fs/lockd/svclock.c.ORIG     Thu Oct 11 09:52:18 2001
-+++ fs/lockd/svclock.c  Tue Jun 11 17:06:01 2002
-@@ -176,8 +176,14 @@
-        struct nlm_rqst         *call;
- 
-        /* Create host handle for callback */
-+       /* We must up the semaphore in case the host lookup does
-+        * garbage collection (which calls nlmsvc_traverse_blocks),
-+        * but this shouldn't be a problem because nlmsvc_lock has
-+        * to retry the lock after this anyway */
-+       up(&file->f_sema);
-        host = nlmclnt_lookup_host(&rqstp->rq_addr,
-                                rqstp->rq_prot, rqstp->rq_vers);
-+       down(&file->f_sema);
-        if (host == NULL)
-                return NULL;
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

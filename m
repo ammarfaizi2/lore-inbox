@@ -1,86 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264888AbUDWR5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264895AbUDWR6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264888AbUDWR5G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 13:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUDWR5G
+	id S264895AbUDWR6V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 13:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUDWR6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 13:57:06 -0400
-Received: from email-out2.iomega.com ([147.178.1.83]:36568 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S264888AbUDWR5B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 13:57:01 -0400
-Subject: Re: Unable to read UDF fs on a DVD
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: kronos@kronoz.cjb.net
-Cc: linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040423162801.GA5396@dreamland.darkstar.lan>
-References: <20040423162801.GA5396@dreamland.darkstar.lan>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1082743002.3099.23.camel@patibmrh9>
+	Fri, 23 Apr 2004 13:58:21 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:61380 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264895AbUDWR6R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 13:58:17 -0400
+Date: Fri, 23 Apr 2004 19:57:41 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "Theodore Ts'o" <tytso@mit.edu>,
+       Miquel van Smoorenburg <miquels@cistron.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: File system compression, not at the block layer
+Message-ID: <20040423175741.GB29705@wohnheim.fh-wedel.de>
+References: <408951CE.3080908@techsource.com> <c6bjrd$pms$1@news.cistron.nl> <20040423174146.GB5977@thunk.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Apr 2004 11:56:42 -0600
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Apr 2004 17:57:00.0026 (UTC) FILETIME=[602935A0:01
-	C4295C]
-X-imss-version: 2.0
-X-imss-result: Passed
-X-imss-scores: Clean:3.55468 C:49 M:1 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040423174146.GB5977@thunk.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> DVD+RW ... UDF ... can mount (kernel 2.6.5) w/o problems:
-> ...# mount -t udf -oro /dev/hdc /cdrom
-> dmesg:
-> udf: registering filesystem
-> ...
-> UDF-fs INFO UDF 0.9.8.1 (2004/29/09) Mounting volume 'CDROM', timestamp 2004/04/20 10:06 (1078)
-> ...
-
-So far so good.
-
-> But ... unable to stat/read/whatever the files:
+On Fri, 23 April 2004 13:41:47 -0400, Theodore Ts'o wrote:
 > 
-> ....# ls /cdrom
-> /bin/ls: /cdrom/Bakuretsu Tenshi - 01.avi: No such file or directory
-> /bin/ls: /cdrom/Bakuretsu Tenshi - 02.avi: No such file or directory
-> [etc]
-> 
-> I can mount the disk and read it using ISO9660 instead of UDF (filenames
-> are 8+3, no Joliet it seems), and I can read it under WinXP. It
-> shouldn't be damaged.
+> It's been done (see the above URL), but given how cheap disk space has
+> gotten, and how the speed of CPU has gotten faster much more quickly
+> than disk access has, many/most people have not be interested in
+> trading off performance for space.
 
-Q1) Any Linux dmesg as you try to read or umount?
+Also, most diskspace today is filled by data that is already
+compressed.
 
-Q2) What text does the DIR /S command of Windows produce?
+Jörn
 
-> created under Windows, using Easy CD Creator
-> (don't know the details).
-
-Q3) What does Linux fsck tell you, before you mount -o ro (or after you
-umount)?
-
-Pat LaVarre
-
-P.S. The subscriber-only archives of linux_udf@h... currently show
-Linux-2.6.5 issues now under discussion, including an issue people have
-reproduced by downloading a huge trial .exe into Windows and then
-copying a file of more than 2 GiB to the disc.
-
------Forwarded Message-----
-From: Pat LaVarre
-Cc: linux_udf@h...
-Subject: Re: Bug with UDF file system
-Date: 20 Apr 2004 10:34:47 -0600
-...
-
-My own most recent blog re the mystery of install & run of the phg fsck
-in Linux from virus-free source is:
-
-phg fsck of UDF for Linux
-http://udfko.blog-city.com/read/577369.htm
-...
-
-
+-- 
+Ninety percent of everything is crap.
+-- Sturgeon's Law

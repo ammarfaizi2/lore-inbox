@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285418AbRLGFtI>; Fri, 7 Dec 2001 00:49:08 -0500
+	id <S285420AbRLGF5i>; Fri, 7 Dec 2001 00:57:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285419AbRLGFs6>; Fri, 7 Dec 2001 00:48:58 -0500
-Received: from www.wen-online.de ([212.223.88.39]:46346 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S285418AbRLGFst>;
-	Fri, 7 Dec 2001 00:48:49 -0500
-Date: Fri, 7 Dec 2001 06:51:06 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Christian Lavoie <clavoie@bmed.mcgill.ca>
-cc: Dave Jones <davej@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17-pre5 will not boot
-In-Reply-To: <20011207051939Z282747-752+9102@vger.kernel.org>
-Message-ID: <Pine.LNX.4.33.0112070649260.747-100000@mikeg.weiden.de>
+	id <S285423AbRLGF5a>; Fri, 7 Dec 2001 00:57:30 -0500
+Received: from kullstam.ne.mediaone.net ([66.30.137.210]:4992 "HELO
+	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
+	id <S285421AbRLGF5Z>; Fri, 7 Dec 2001 00:57:25 -0500
+From: "Johan Kullstam" <kullstam@ne.mediaone.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.17-pre3
+In-Reply-To: <Pine.LNX.4.21.0112051532140.20543-100000@freak.distro.conectiva>
+Organization: none
+Date: 07 Dec 2001 00:57:24 -0500
+In-Reply-To: <Pine.LNX.4.21.0112051532140.20543-100000@freak.distro.conectiva>
+Message-ID: <m24rn3d12z.fsf@euler.axel.nom>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Dec 2001, Christian Lavoie wrote:
+Marcelo Tosatti <marcelo@conectiva.com.br> writes:
 
-> The kernel was more or less1024kb large (can't remember the exact number),
-> and my loadlin can't seem to handle that.
+> Hi, 
+> 
+> Here goes pre3.
+> 
+> People with Pentium Pro, please test if the workaround is really working
+> correctly... 
+> 
+> pre3:
+> 
+> - Enable ppro errata workaround                 (Dave Jones)
 
-Yes, loadlin has always croaked on >1MB kernels here.
+what is it you want us to test exactly?
 
-	-Mike
+afaict my ppro boxen have been working fine for years.
 
+i am happy to try it out on my systems if i only knew what to look for.
+
+-- 
+J o h a n  K u l l s t a m
+[kullstam@mediaone.net]

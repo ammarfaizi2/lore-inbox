@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbTJJIho (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 04:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbTJJIho
+	id S262659AbTJJIhq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 04:37:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbTJJIhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 04:37:44 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20400 "EHLO
+	Fri, 10 Oct 2003 04:37:46 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23472 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262655AbTJJIhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 04:37:43 -0400
-Date: Tue, 7 Oct 2003 12:49:26 +0200
+	id S262659AbTJJIho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 04:37:44 -0400
+Date: Thu, 9 Oct 2003 21:07:42 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Pascal Schmidt <der.eremit@email.de>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-Message-ID: <20031007104926.GA1659@openzaurus.ucw.cz>
-References: <DIre.Cy.15@gated-at.bofh.it> <DIre.Cy.17@gated-at.bofh.it> <DIre.Cy.19@gated-at.bofh.it> <DIre.Cy.13@gated-at.bofh.it> <DIAQ.2Hh.5@gated-at.bofh.it> <E1A6aWv-0000rJ-00@neptune.local> <Pine.LNX.4.53.0310061605001.733@chaos>
+To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.7 thoughts
+Message-ID: <20031009190742.GF1659@openzaurus.ucw.cz>
+References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0310061605001.733@chaos>
+In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> A company makes a new device that could run under Linux.
-> This device uses some standard gate-arrays. Because of
-> this, some gate-array bits need to be loaded upon startup.
-> 
-> The company knows that if the competition learns that a
-> gate-array was used, instead of an ASIC, the competition
-> could clone the whole device in a few weeks, thereby
-> stealing a few million dollars of development effort.
+> 	Some thoughts for 2.7.Someone has other ideas, comments ?
+> 	
 
+* mosix-like clustering support
+* network char device for using remote soundcards etc.
+* whole-system snapshot / rollback
+* ACLs
 
-Since when is creating compatible hw called stealing?!
-If this was such a big problem, nothing prevents you
-from putting ROM with those magic bits... How much is
-that? _5?
+				Pavel
 -- 
 				Pavel
 Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...

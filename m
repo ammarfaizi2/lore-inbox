@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286351AbRLTTuJ>; Thu, 20 Dec 2001 14:50:09 -0500
+	id <S286350AbRLTTt7>; Thu, 20 Dec 2001 14:49:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286357AbRLTTt7>; Thu, 20 Dec 2001 14:49:59 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4746
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S286351AbRLTTtm>; Thu, 20 Dec 2001 14:49:42 -0500
-Date: Thu, 20 Dec 2001 14:37:19 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Steven Cole <scole@lanl.gov>
-Cc: linux-kernel@vger.kernel.org
+	id <S286357AbRLTTto>; Thu, 20 Dec 2001 14:49:44 -0500
+Received: from quechua.inka.de ([212.227.14.2]:18272 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S286350AbRLTTt1>;
+	Thu, 20 Dec 2001 14:49:27 -0500
+From: Bernd Eckenfels <usenet2001-12@lina.inka.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-Message-ID: <20011220143719.A19803@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Steven Cole <scole@lanl.gov>, linux-kernel@vger.kernel.org
-In-Reply-To: <200112201721.KAA05522@tstac.esa.lanl.gov> <20011220135213.B18128@thyrsus.com> <200112201851.LAA05800@tstac.esa.lanl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200112201851.LAA05800@tstac.esa.lanl.gov>; from scole@lanl.gov on Thu, Dec 20, 2001 at 12:32:40PM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+In-Reply-To: <200112201721.KAA05522@tstac.esa.lanl.gov>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E16H9C4-0005ST-00@sites.inka.de>
+Date: Thu, 20 Dec 2001 20:49:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole <scole@lanl.gov>:
-> I've obviously been wrong all along on this, but I had always assumed
-> (incorrectly) that mega when applied to binary things really meant 
-> 2 to the 20th, and that the confusion came from disk manufacturers who
-> chose whatever definition made their products seem bigger.
-> 
-> So, if we really want to be pedantically correct, let's all swallow 
-> _really_ hard, and go all the way on this.  Or, are the UGLY changes
-> below actually technically wrong?
+In article <200112201721.KAA05522@tstac.esa.lanl.gov> you wrote:
+> Eric has decided to follow the following standard:
+> IEC 60027-2, Second edition, 2000-11, 
+> Letter symbols to be used in electrical technology -
+> Part 2: Telecommunications and electronics.
+> and has changed all the abbreviations for Kilobyte (KB) to KiB,
+> Megabyte (MB) to MiB, etc, etc.
 
-Alas, I don't know.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+I did this for nettools (i.e. ifconfig), too:
 
-No kingdom can be secured otherwise than by arming the people.  The possession
-of arms is the distinction between a freeman and a slave. 
-        -- "Political Disquisitions", a British republican tract of 1774-1775
+          RX bytes:2120660294 (1.9 GiB)  TX bytes:341183013 (325.3 MiB)
+
+man page:
+
+       Since net-tools 1.60-4 ifconfig is printing byte  counters
+       with  SI  units. So 1 KiB are 2^10 byte. Note, the numbers
+       are truncated to one decimal (which can by quite  a large
+       error if you consider 0.1 PiB is 112.589.990.684.262 bytes :)
+...
+SEE ALSO
+       route(8), netstat(8), arp(8), rarp(8), ipchains(8)
+       http://physics.nist.gov/cuu/Units/binary.html  -  Prefixes
+       for binary multiples
+				   

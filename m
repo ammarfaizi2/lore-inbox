@@ -1,516 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265022AbUGKFpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266203AbUGKFwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265022AbUGKFpl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 01:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266203AbUGKFpl
+	id S266203AbUGKFwV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 01:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266242AbUGKFwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 01:45:41 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:63895 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265022AbUGKFpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 01:45:11 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [RFT/PATCH 2.6] ALPS touchpad driver
-Date: Sun, 11 Jul 2004 00:45:02 -0500
-User-Agent: KMail/1.6.2
-Cc: Peter Osterlund <petero2@telia.com>, Vojtech Pavlik <vojtech@suse.cz>
-MIME-Version: 1.0
+	Sun, 11 Jul 2004 01:52:21 -0400
+Received: from colin2.muc.de ([193.149.48.15]:30729 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S266203AbUGKFwR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 01:52:17 -0400
+Date: 11 Jul 2004 07:52:16 +0200
+Date: Sun, 11 Jul 2004 07:52:16 +0200
+From: Andi Kleen <ak@muc.de>
+To: Alexandre Oliva <aoliva@redhat.com>
+Cc: ncunningham@linuxmail.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GCC 3.4 and broken inlining.
+Message-ID: <20040711055216.GA87770@muc.de>
+References: <2fFzK-3Zz-23@gated-at.bofh.it> <2fG2F-4qK-3@gated-at.bofh.it> <2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it> <2fPfF-2Dv-19@gated-at.bofh.it> <m34qohrdel.fsf@averell.firstfloor.org> <1089349003.4861.17.camel@nigel-laptop.wpcb.org.au> <orr7rjo8cr.fsf@livre.redhat.lsd.ic.unicamp.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407110045.08208.dtor_core@ameritech.net>
+In-Reply-To: <orr7rjo8cr.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Jul 10, 2004 at 06:33:40PM -0300, Alexandre Oliva wrote:
+> On Jul  9, 2004, Nigel Cunningham <ncunningham@linuxmail.org> wrote:
+> 
+> > I do think that functions being declared inline when they can't be
+> > inlined is wrong
+> 
+> The problem is not when they can or cannot be inlined.  The inline
+> keyword has nothing to do with that.  It's a hint to the compiler,
+> that means that inlining the function is likely to be profitable.
+> But, like the `register' keyword, it's just a hint.  And, unlike the
+> `register' keyword, it doesn't make certain operations on objects
+> marked with it ill-formed (e.g., you can't take the address of an
+> register variable, but you can take the address of an inline
+> function).
 
-I lifted some code off tpconfig and merged it with Peter's/Neil's ALPS driver.
-The driver will try to auto-detect presence of an ALPS touchpad by issuing
-E6/E7 requests and matching responses with known ALPS signatures. It will
-also try disabling hardware tapping so taps could be controlled by either
-userspace drivers (X/GPM) or future version of mousedev (2.6.8 I hope will
-have it).
+The main reason always_inline was added is that gcc 3.3 stopped
+inlining copy_from/to_user, which generated horrible code bloat
+(because it consists of a lot of code that was supposed to be optimized away,
+and putting it in a static into every module generated a lot of useless code) 
 
-Please give it a try.
-  
--- 
-Dmitry
+At this time the poor person blessed with this compiler y took the easy way out - 
+just define inline as always_inline.
 
-diff -urN 2.6.7/drivers/input/mouse/alps.c linux-2.6.7/drivers/input/mouse/alps.c
---- 2.6.7/drivers/input/mouse/alps.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.7/drivers/input/mouse/alps.c	2004-06-26 02:10:13.000000000 -0500
-@@ -0,0 +1,359 @@
-+/*
-+ * ALPS touchpad PS/2 mouse driver
-+ *
-+ * Copyright (c) 2003 Neil Brown <neilb@cse.unsw.edu.au>
-+ * Copyright (c) 2003 Peter Osterlund <petero2@telia.com>
-+ * Copyright (c) 2004 Dmitry Torokhov <dtor@mail.ru>
-+ *
-+ * ALPS detection, tap switching and status querying info is taken from
-+ * tpconfig utility (by C. Scott Ananian and Bruce Kall).
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/input.h>
-+#include <linux/serio.h>
-+
-+#include "psmouse.h"
-+#include "alps.h"
-+
-+#define DEBUG
-+#ifdef DEBUG
-+#define dbg(format, arg...) printk(KERN_INFO "alps.c: " format "\n", ## arg)
-+#else
-+#define dbg(format, arg...) do {} while (0)
-+#endif
-+
-+#define ALPS_MODEL_GLIDEPOINT	1
-+#define ALPS_MODEL_DUALPOINT	2
-+
-+struct alps_model_info {
-+	unsigned char signature[3];
-+	unsigned char model;
-+} alps_model_data[] = {
-+	{ { 0x33, 0x02, 0x0a },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x53, 0x02, 0x0a },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x53, 0x02, 0x14 },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x63, 0x02, 0x0a },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x63, 0x02, 0x14 },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x73, 0x02, 0x0a },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x73, 0x02, 0x14 },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x63, 0x02, 0x28 },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x63, 0x02, 0x3c },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x63, 0x02, 0x50 },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x63, 0x02, 0x64 },	ALPS_MODEL_GLIDEPOINT },
-+	{ { 0x20, 0x02, 0x0e },	ALPS_MODEL_DUALPOINT },
-+	{ { 0x22, 0x02, 0x0a },	ALPS_MODEL_DUALPOINT },
-+	{ { 0x22, 0x02, 0x14 }, ALPS_MODEL_DUALPOINT },
-+};
-+
-+/*
-+ * ALPS abolute Mode
-+ * byte 0:  1    1    1    1    1  mid0 rig0 lef0
-+ * byte 1:  0   x6   x5   x4   x3   x2   x1   x0
-+ * byte 2:  0   x10  x9   x8   x7  up1  fin  ges
-+ * byte 3:  0   y9   y8   y7    1  mid1 rig1 lef1
-+ * byte 4:  0   y6   y5   y4   y3   y2   y1   y0
-+ * byte 5:  0   z6   z5   z4   z3   z2   z1   z0
-+ *
-+ * On a dualpoint, {mid,rig,lef}0 are the stick, 1 are the pad.
-+ * We just 'or' them together for now.
-+ *
-+ * We used to send 'ges'tures as BTN_TOUCH but this made it impossible
-+ * to disable tap events in the synaptics driver since the driver
-+ * was unable to distinguish a gesture tap from an actual button click.
-+ * A tap gesture now creates an emulated touch that the synaptics
-+ * driver can interpret as a tap event, if MaxTapTime=0 and
-+ * MaxTapMove=0 then the driver will ignore taps.
-+ *
-+ * The touchpad on an 'Acer Aspire' has 4 buttons:
-+ *   left,right,up,down.
-+ * This device always sets {mid,rig,lef}0 to 1 and
-+ * reflects left,right,down,up in lef1,rig1,mid1,up1.
-+ */
-+
-+static void alps_process_packet(struct psmouse *psmouse, struct pt_regs *regs)
-+{
-+	unsigned char *packet = psmouse->packet;
-+	struct input_dev *dev = &psmouse->dev;
-+	int x, y, z;
-+	int left = 0, right = 0, middle = 0;
-+
-+	input_regs(dev, regs);
-+
-+	x = (packet[1] & 0x7f) | ((packet[2] & 0x78)<<(7-3));
-+	y = (packet[4] & 0x7f) | ((packet[3] & 0x70)<<(7-4));
-+	z = packet[5];
-+
-+	if (z > 30) input_report_key(dev, BTN_TOUCH, 1);
-+	if (z < 25) input_report_key(dev, BTN_TOUCH, 0);
-+
-+	if (z > 0) {
-+		input_report_abs(dev, ABS_X, x);
-+		input_report_abs(dev, ABS_Y, y);
-+	}
-+	input_report_abs(dev, ABS_PRESSURE, z);
-+	input_report_key(dev, BTN_TOOL_FINGER, z > 0);
-+
-+	left  |= (packet[2]     ) & 1;
-+	left  |= (packet[3]     ) & 1;
-+	right |= (packet[3] >> 1) & 1;
-+	if (packet[0] == 0xff) {
-+		int back    = (packet[3] >> 2) & 1;
-+		int forward = (packet[2] >> 2) & 1;
-+		if (back && forward) {
-+			middle = 1;
-+			back = 0;
-+			forward = 0;
-+		}
-+		input_report_key(dev, BTN_BACK,    back);
-+		input_report_key(dev, BTN_FORWARD, forward);
-+	} else {
-+		left   |= (packet[0]     ) & 1;
-+		right  |= (packet[0] >> 1) & 1;
-+		middle |= (packet[0] >> 2) & 1;
-+		middle |= (packet[3] >> 2) & 1;
-+	}
-+
-+	input_report_key(dev, BTN_LEFT, left);
-+	input_report_key(dev, BTN_RIGHT, right);
-+	input_report_key(dev, BTN_MIDDLE, middle);
-+
-+	input_sync(dev);
-+}
-+
-+static psmouse_ret_t alps_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
-+{
-+	/* ALPS absolute mode packets start with 0b11111mrl */
-+	if ((psmouse->packet[0] & 0xf8) != 0xf8)
-+		return PSMOUSE_BAD_DATA;
-+
-+	/* Bytes 2 - 6 should have 0 in the highest bit */
-+	if (psmouse->pktcnt > 1 && psmouse->pktcnt <= 6 &&
-+	    (psmouse->packet[psmouse->pktcnt] & 0x80))
-+		return PSMOUSE_BAD_DATA;
-+
-+	if (psmouse->pktcnt == 6) {
-+		alps_process_packet(psmouse, regs);
-+		return PSMOUSE_FULL_PACKET;
-+	}
-+
-+	return PSMOUSE_GOOD_DATA;
-+}
-+
-+int alps_get_model(struct psmouse *psmouse)
-+{
-+	unsigned char param[4];
-+	int i;
-+
-+	/*
-+	 * First try "E6 report".
-+	 * ALPS should return 0x00,0x00,0x0a or 0x00,0x00,0x64
-+	 */
-+	param[0] = 0;
-+	if (psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES) ||
-+	    psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11) ||
-+	    psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11) ||
-+	    psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11))
-+		return -1;
-+
-+	param[0] = param[1] = param[2] = 0xff;
-+	if (psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO))
-+		return -1;
-+
-+	dbg("E6 report: %2.2x %2.2x %2.2x", param[0], param[1], param[2]);
-+
-+	if (param[0] != 0x00 || param[1] != 0x00 || (param[2] != 0x0a && param[2] != 0x64))
-+		return -1;
-+
-+	/* Now try "E7 report". ALPS should return 0x33 in byte 1 */
-+	param[0] = 0;
-+	if (psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES) ||
-+	    psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE21) ||
-+	    psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE21) ||
-+	    psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE21))
-+		return -1;
-+
-+	param[0] = param[1] = param[2] = 0xff;
-+	if (psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO))
-+		return -1;
-+
-+	dbg("E7 report: %2.2x %2.2x %2.2x", param[0], param[1], param[2]);
-+
-+	for (i = 0; i < ARRAY_SIZE(alps_model_data); i++)
-+		if (!memcmp(param, alps_model_data[i].signature, sizeof(alps_model_data[i].signature)))
-+			return alps_model_data[i].model;
-+
-+	return -1;
-+}
-+
-+static int alps_absolute_mode(struct psmouse *psmouse)
-+{
-+	/* Try ALPS magic knock - 4 disable before enable */
-+	if (psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE) ||
-+	    psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE) ||
-+	    psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE) ||
-+	    psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE) ||
-+	    psmouse_command(psmouse, NULL, PSMOUSE_CMD_ENABLE))
-+		return -1;
-+
-+	/*
-+	 * Switch mouse to poll (remote) mode so motion data will not
-+	 * get in our way
-+	 */
-+	return psmouse_command(psmouse, NULL, PSMOUSE_CMD_SETPOLL);
-+}
-+
-+static int alps_get_status(struct psmouse *psmouse, char *param)
-+{
-+	/* Get status: 0xF5 0xF5 0xF5 0xE9 */
-+	if (psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE) ||
-+	    psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE) ||
-+	    psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE) ||
-+	    psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO))
-+		return -1;
-+
-+	dbg("Status: %2.2x %2.2x %2.2x", param[0], param[1], param[2]);
-+
-+	return 0;
-+}
-+
-+/*
-+ * For DualPint devices select the device that should respond to
-+ * subsequent commands. It looks like glidepad is behind stickpointer,
-+ * I'd thought it would be other way around...
-+ */
-+static int alps_passthrough_mode(struct psmouse *psmouse, int enable)
-+{
-+	unsigned char param[3];
-+	int cmd = enable ? PSMOUSE_CMD_SETSCALE21 : PSMOUSE_CMD_SETSCALE11;
-+
-+	if (psmouse_command(psmouse, NULL, cmd) ||
-+	    psmouse_command(psmouse, NULL, cmd) ||
-+	    psmouse_command(psmouse, NULL, cmd) ||
-+	    psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE))
-+		return -1;
-+
-+	/* we may get 3 more bytes, just ignore them */
-+	psmouse_command(psmouse, param, 0x0300);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Turn touchpad tappinig on or off. The sequence are:
-+ * 0xE9 0xF5 0xF5 0xF3 0x0A to enable,
-+ * 0xE9 0xF5 0xF5 0xE8 0x00 to disable.
-+ * My guess that 0xE9 (GetInfo) is here as a sync point.
-+ * For models that also have stickpointer (DualPoints) its tapping
-+ * is controlled separately (0xE6 0xE6 0xE6 0xF3 0x14|0x0A) but
-+ * we don't fiddle with it.
-+ */
-+static int alps_tap_mode(struct psmouse *psmouse, int model, int enable)
-+{
-+	int rc = 0;
-+	int cmd = enable ? PSMOUSE_CMD_SETRATE : PSMOUSE_CMD_SETRES;
-+	unsigned char tap_arg = enable ? 0x0A : 0x00;
-+	unsigned char param[4];
-+
-+	if (model == ALPS_MODEL_DUALPOINT && alps_passthrough_mode(psmouse, 1))
-+		return -1;
-+
-+	if (psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO) ||
-+	    psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE) ||
-+	    psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE) ||
-+	    psmouse_command(psmouse, &tap_arg, cmd))
-+		rc = -1;
-+
-+	if (model == ALPS_MODEL_DUALPOINT && alps_passthrough_mode(psmouse, 0))
-+		return -1;
-+
-+	if (alps_get_status(psmouse, param))
-+		return -1;
-+
-+
-+	return rc;
-+}
-+
-+static int alps_reconnect(struct psmouse *psmouse)
-+{
-+	int model;
-+	unsigned char param[4];
-+
-+	if ((model = alps_get_model(psmouse)) < 0)
-+		return -1;
-+
-+	if (alps_get_status(psmouse, param))
-+		return -1;
-+
-+	if ((model == ALPS_MODEL_DUALPOINT ? param[2] : param[0]) & 0x04)
-+		alps_tap_mode(psmouse, model, 0);
-+
-+	if (alps_absolute_mode(psmouse)) {
-+		printk(KERN_ERR "alps.c: Failed to enable absolute mode\n");
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+static void alps_disconnect(struct psmouse *psmouse)
-+{
-+	psmouse_reset(psmouse);
-+}
-+
-+int alps_init(struct psmouse *psmouse)
-+{
-+	unsigned char param[4];
-+	int model;
-+
-+	if ((model = alps_get_model(psmouse)) < 0)
-+		return -1;
-+
-+	if (alps_get_status(psmouse, param)) {
-+		printk(KERN_ERR "alps.c: touchpad status report request failed\n");
-+		return -1;
-+	}
-+
-+	printk(KERN_INFO "ALPS Touchpad (%s) detected\n",
-+		model == ALPS_MODEL_GLIDEPOINT ? "Glidepoint" : "Dualpoint");
-+
-+	if ((model == ALPS_MODEL_DUALPOINT ? param[2] : param[0]) & 0x04) {
-+		printk(KERN_INFO "  Disabling hardware tapping\n");
-+		if (alps_tap_mode(psmouse, model, 0))
-+			printk(KERN_WARNING "alps.c: Failed to disable hardware tapping\n");
-+	}
-+
-+	if (alps_absolute_mode(psmouse)) {
-+		printk(KERN_ERR "alps.c: Failed to enable absolute mode\n");
-+		return -1;
-+	}
-+
-+	psmouse->dev.evbit[LONG(EV_REL)] &= ~BIT(EV_REL);
-+	psmouse->dev.relbit[LONG(REL_X)] &= ~BIT(REL_X);
-+	psmouse->dev.relbit[LONG(REL_X)] &= ~BIT(REL_X);
-+
-+	psmouse->dev.evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
-+	input_set_abs_params(&psmouse->dev, ABS_X, 0, 0, 0, 0);
-+	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 0, 0, 0);
-+	input_set_abs_params(&psmouse->dev, ABS_PRESSURE, 0, 127, 0, 0);
-+
-+	psmouse->dev.keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
-+	psmouse->dev.keybit[LONG(BTN_TOOL_FINGER)] |= BIT(BTN_TOOL_FINGER);
-+	psmouse->dev.keybit[LONG(BTN_FORWARD)] |= BIT(BTN_FORWARD);
-+	psmouse->dev.keybit[LONG(BTN_BACK)] |= BIT(BTN_BACK);
-+
-+	psmouse->protocol_handler = alps_process_byte;
-+	psmouse->disconnect = alps_disconnect;
-+	psmouse->reconnect = alps_reconnect;
-+
-+	return 0;
-+}
-+
-+int alps_detect(struct psmouse *psmouse)
-+{
-+	return alps_get_model(psmouse) < 0 ? 0 : 1;
-+}
-+
-diff -urN 2.6.7/drivers/input/mouse/alps.h linux-2.6.7/drivers/input/mouse/alps.h
---- 2.6.7/drivers/input/mouse/alps.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.7/drivers/input/mouse/alps.h	2004-06-26 02:12:51.000000000 -0500
-@@ -0,0 +1,17 @@
-+/*
-+ * ALPS touchpad PS/2 mouse driver
-+ *
-+ * Copyright (c) 2003 Peter Osterlund <petero2@telia.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#ifndef _ALPS_H
-+#define _ALPS_H
-+
-+int alps_detect(struct psmouse *psmouse);
-+int alps_init(struct psmouse *psmouse);
-+
-+#endif
-diff -urN 2.6.7/drivers/input/mouse/Makefile linux-2.6.7/drivers/input/mouse/Makefile
---- 2.6.7/drivers/input/mouse/Makefile	2004-06-22 01:23:15.000000000 -0500
-+++ linux-2.6.7/drivers/input/mouse/Makefile	2004-06-26 02:08:00.000000000 -0500
-@@ -15,4 +15,4 @@
- obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
- obj-$(CONFIG_MOUSE_VSXXXAA)	+= vsxxxaa.o
- 
--psmouse-objs  := psmouse-base.o logips2pp.o synaptics.o
-+psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o
-diff -urN 2.6.7/drivers/input/mouse/psmouse-base.c linux-2.6.7/drivers/input/mouse/psmouse-base.c
---- 2.6.7/drivers/input/mouse/psmouse-base.c	2004-06-22 01:23:15.000000000 -0500
-+++ linux-2.6.7/drivers/input/mouse/psmouse-base.c	2004-06-26 02:08:00.000000000 -0500
-@@ -2,6 +2,7 @@
-  * PS/2 mouse driver
-  *
-  * Copyright (c) 1999-2002 Vojtech Pavlik
-+ * Copyright (c) 2003-2004 Dmitry Torokhov
-  */
- 
- /*
-@@ -21,6 +22,7 @@
- #include "psmouse.h"
- #include "synaptics.h"
- #include "logips2pp.h"
-+#include "alps.h"
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
- MODULE_DESCRIPTION("PS/2 mouse driver");
-@@ -53,7 +55,7 @@
- __obsolete_setup("psmouse_resetafter=");
- __obsolete_setup("psmouse_rate=");
- 
--static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
-+static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2", "AlpsPS/2" };
- 
- /*
-  * psmouse_process_byte() analyzes the PS/2 data stream and reports
-@@ -442,6 +444,26 @@
- 		synaptics_reset(psmouse);
- 	}
- 
-+/*
-+ * Try ALPS TouchPad
-+ */
-+	if (max_proto > PSMOUSE_PS2 && alps_detect(psmouse)) {
-+
-+		if (set_properties) {
-+			psmouse->vendor = "ALPS";
-+			psmouse->name = "TouchPad";
-+		}
-+
-+		if (max_proto > PSMOUSE_IMEX)
-+			if (!set_properties || alps_init(psmouse) == 0)
-+				return PSMOUSE_ALPS;
-+
-+/*
-+ * Don't try anything fancy, just basic Intellimouse/Explorer protocols
-+ */
-+		max_proto = PSMOUSE_IMEX;
-+	}
-+
- 	if (max_proto > PSMOUSE_IMEX && genius_detect(psmouse)) {
- 
- 		if (set_properties) {
-diff -urN 2.6.7/drivers/input/mouse/psmouse.h linux-2.6.7/drivers/input/mouse/psmouse.h
---- 2.6.7/drivers/input/mouse/psmouse.h	2004-06-22 01:23:15.000000000 -0500
-+++ linux-2.6.7/drivers/input/mouse/psmouse.h	2004-06-26 02:08:00.000000000 -0500
-@@ -2,13 +2,16 @@
- #define _PSMOUSE_H
- 
- #define PSMOUSE_CMD_SETSCALE11	0x00e6
-+#define PSMOUSE_CMD_SETSCALE21	0x00e7
- #define PSMOUSE_CMD_SETRES	0x10e8
- #define PSMOUSE_CMD_GETINFO	0x03e9
- #define PSMOUSE_CMD_SETSTREAM	0x00ea
-+#define PSMOUSE_CMD_SETPOLL	0x00f0
- #define PSMOUSE_CMD_POLL	0x03eb
- #define PSMOUSE_CMD_GETID	0x02f2
- #define PSMOUSE_CMD_SETRATE	0x10f3
- #define PSMOUSE_CMD_ENABLE	0x00f4
-+#define PSMOUSE_CMD_DISABLE	0x00f5
- #define PSMOUSE_CMD_RESET_DIS	0x00f6
- #define PSMOUSE_CMD_RESET_BAT	0x02ff
- 
-@@ -72,6 +75,7 @@
- #define PSMOUSE_IMPS		5
- #define PSMOUSE_IMEX		6
- #define PSMOUSE_SYNAPTICS 	7
-+#define PSMOUSE_ALPS		8
- 
- int psmouse_command(struct psmouse *psmouse, unsigned char *param, int command);
- int psmouse_sliced_command(struct psmouse *psmouse, unsigned char command);
+It may have been possible to do it only for selected functions, but that
+would have been a lot of work: you cannot really expect that the
+kernel goes through a large effort just to work around compiler
+bugs in specific compiler versions.
+
+The gcc 3.4/3.5 inliner seem to be better, but is still quite bad in cases
+(e.g. 3.5 stopped to inline the three line fix_to_virt() which requires 
+inlining). For 3.4/3.5 it's probably feasible to do this, but I doubt
+it is worth someone's time for 3.3. 
+
+> The issue with inlining that makes it important for the compiler to
+> have something to say on the decision is that several aspects of the
+> profit from expanding the function inline is often machine-dependent.
+> It depends on the ABI (calling conventions), on how slow call
+> instructions are, on how important instruction cache hits are, etc.
+> Sure enough, GCC doesn't take all of this into account, so its
+> heuristics sometimes get it wrong.  But it's getting better.
+
+gcc is extremly dumb at that currently. Linux has a lot of inline
+functions like
+
+static inline foo(int arg) 
+{ 
+	if (__builtin_constant_p(arg)) { 
+		/* lots of code that checks for arg and does different things */
+	} else { 
+		/* simple code */
+	}
+} 
+
+(e.g. take a look at asm/uaccess.h for extreme examples) 
+
+The gcc inliner doesn't know that all the stuff in the constant case
+will be optimized away and it assumes the function is big. That's 
+really a bug in the inliner.
+
+But even without that it seems to do badly - example is asm/fixmap.h:fix_to_virt()
+
+#define __fix_to_virt(x)        (FIXADDR_TOP - ((x) << PAGE_SHIFT))
+static inline unsigned long fix_to_virt(const unsigned int idx)
+{
+        if (idx >= __end_of_fixed_addresses)
+                __this_fixmap_does_not_exist();
+
+        return __fix_to_virt(idx);
+}
+
+
+This three liner is _not_ inlined in current gcc mainline.
+I cannot describe this in any other way than badly broken.
+
+> Meanwhile, you should probably distinguish between must-inline,
+> should-inline, may-inline, should-not-inline and must-not-inline
+> functions.  Attribute always_inline covers the must-inline case; the
+
+You're asking us to do a lot of work just to work around compiler bugs?
+
+I can see the point of having must-inline - that's so rare that
+it can be declared by hand. May inline is also done, except
+for a few misguided people who use -O3. should not inline seems
+like overkill.
+
+-Andi

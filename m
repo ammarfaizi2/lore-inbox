@@ -1,74 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264397AbUE3VEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264426AbUE3VG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264397AbUE3VEg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 17:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUE3VEg
+	id S264426AbUE3VG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 17:06:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbUE3VEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 17:04:36 -0400
-Received: from main.gmane.org ([80.91.224.249]:39376 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264397AbUE3VAh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 17:00:37 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Fw: Re: keyboard problem with 2.6.6
-Date: Sun, 30 May 2004 22:51:18 +0200
-Message-ID: <MPG.1b2467af841573119896ae@news.gmane.org>
-References: <20040529070953.GB850@ucw.cz> <MPG.1b22ab00a1ccd0799896a3@news.gmane.org> <20040529133704.GA6258@ucw.cz> <MPG.1b22c626ab9fcdc79896a5@news.gmane.org> <20040529154443.GA15651@ucw.cz> <MPG.1b23d2eba99fff039896a6@news.gmane.org> <20040530114332.GA1441@ucw.cz> <MPG.1b23f41bee99410e9896a8@news.gmane.org> <20040530125918.GA1611@ucw.cz> <MPG.1b2424ed871e68c89896aa@news.gmane.org> <20040530203146.GA1941@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-113-140.29-151.libero.it
-X-Newsreader: MicroPlanet Gravity v2.60
+	Sun, 30 May 2004 17:04:46 -0400
+Received: from mail-ext.curl.com ([66.228.88.132]:35338 "HELO
+	mail-ext.curl.com") by vger.kernel.org with SMTP id S264398AbUE3VDC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 17:03:02 -0400
+From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Message-ID: <s5g8yf9ljb3.fsf@patl=users.sf.net>
+To: "Andries Brouwer" <Andries.Brouwer@cwi.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x partition breakage and dual booting
+References: <40BA2213.1090209@pobox.com> <20040530183609.GB5927@pclin040.win.tue.nl> <40BA2E5E.6090603@pobox.com> <20040530200300.GA4681@apps.cwi.nl>
+In-Reply-To: <20040530200300.GA4681@apps.cwi.nl>
+Date: 30 May 2004 17:02:59 -0400
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Sun, May 30, 2004 at 06:08:39PM +0200, Giuseppe Bilotta wrote:
-> 
-> > > The Linux kernel reports them as KEY_LEFTMETA, KEY_RIGHTMETA and
-> > > KEY_COMPOSE.
-> > 
-> > In X standard keyboards Meta is mapped as the second symbol for 
-> > Alt.
+Andries Brouwer <Andries.Brouwer@cwi.nl> writes:
+
+> (i) Hardware:
 
 [snip]
 
-> Interesting. Nevertheless it's just a naming difference, and thus
-> shouldn't be a problem.
+> SCSI disks never had this geometry nonsense.
 
-Well, it's not just that, not if we want Meta kernel keys to 
-become Meta X keys. Which wouldn't be a bad thing, since it 
-would mean we'd have the keyboard acting the same under console 
-and X. But in this case it would be nice if Linux knew about 
-more modifiers than just shift, ctrl, alt, meta.
+Not in hardware, no.  But they very much have a geometry in the BIOS.
+So do RAID controllers.  And all of this matters for a dual boot
+system.
 
-> > > I'm not very familiar with xkb configuration. Perhaps you'd be willing
-> > > to write that definition file? I'll certainly help you from the kernel
-> > > side - I can even generate a list of keycode - scancode - meaning
-> > > relations for you.
-> > 
-> > If you do generate a list of keycode - scancode - meaning pairs 
-> > it will surely make my life easier.
-> > 
-> > I'm not particularly familiar with xkb configuration either. I 
-> > can *probably* make it work (i.e. test it as functional) on my 
-> > Dell Inspiron 8200 keyboard and on a standard pc104 keyboard 
-> > only. You probably need somebody else to work out the details 
-> > for other keyboards, though.
-> 
-> Ok, I'll try to produce something.
+> All kinds of translation schemes were invented to give the BIOS
+> interface a geometry different from that used at the ATA
+> interface. The user chooses a translation scheme in the BIOS setup.
+> The geometry is now unrelated to the disk, but is known to the BIOS.
 
-Thanks.
+But you better not change it, because it shows up in the partition
+table.  And if the partition table geometry does not match the BIOS,
+Windows will not boot.  (Perhaps there is a way to convince the
+Windows boot loader to use LBA mode and ignore the partition table
+geometry completely.  But I have not found it.)
 
--- 
-Giuseppe "Oblomov" Bilotta
+> Various BIOS calls exist that report on various versions of the
+> geometry.
 
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
+"Various"?  I know of two, the legacy INT13 interface and the extended
+INT13 interface.  Are there others?
 
+> The fdisk aspect has also disappeared - after this geometry business
+> had become infinitely complicated, nobody any longer tried to
+> understand geometry, but just inferred from the partition table
+> what geometry was used by the program that last wrote it.
+
+Which is a terrible idea, because it does not work at all on blank
+disks and it gives the wrong answer if you move a disk between
+machines.  I may have mentioned this before.
+
+> It didnt always work, but often it worked. (And only on i386 of
+> course.)  Examples of failure: The code we had only asked the BIOS
+> for info on the first two disks.
+
+Today, right now, the kernel invokes both the legacy and the extended
+INT13 interfaces for all disks which are visible to the BIOS.  The EDD
+module makes all of these data available.
+
+> Linux no longer makes any attempt to invent a geometry.
+> If someone needs a geometry, he is responsible himself
+> for choosing one of the many concepts of geometry, and
+> determining a value. What most software does is looking
+> at the partition table, and that works.
+
+No, that does not work.  Not all the time, anyway.  And when it fails,
+the failure is ugly.
+
+> Maybe parted has not yet been updated to do this,
+> that is why I conjectured that Fedora problems might be
+> due to the use of parted.
+
+Actually, Parted DOES infer geometry from the partition table.
+Perhaps Disk Druid does not use Parted, or perhaps it uses distinct
+invocations of Parted to 1) erase the old partition table and 2)
+replace it with a new one?
+
+> Was this a loss? I don't think so, but there is at least
+> one use of the old situation that fails today:
+> the installation of Windows systems from Linux media
+> on a completely blank disk.
+
+Actually, *any* attempt to install Windows after installing Linux will
+run into this problem.
+
+This is really very simple.  If you move a disk from a machine with a
+different BIOS and you preserve the partition table geometry, you will
+NEVER be able to install Windows on the drive.  If you partition a
+blank drive and use the wrong geometry, you will NEVER be able to
+install Windows on the drive.
+
+The correct solution is to use the legacy INT13 geometry when
+partitioning the disk, regardless of what you already find there.
+(For partition table purposes, the cylinder count is irrelevant; only
+"heads" and "sectors" matter.)
+
+Yes, this means you have to map between BIOS disk numbers and Linux
+devices, which may require heuristics.  But those heuristics can be
+improved over time, whereas relying on the existing partition table
+will always be just plain wrong.
+
+ - Pat

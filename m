@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130140AbRABMqB>; Tue, 2 Jan 2001 07:46:01 -0500
+	id <S129737AbRABM7X>; Tue, 2 Jan 2001 07:59:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130749AbRABMpm>; Tue, 2 Jan 2001 07:45:42 -0500
-Received: from renata.irb.hr ([161.53.129.148]:2577 "EHLO renata.irb.hr")
-	by vger.kernel.org with ESMTP id <S130140AbRABMpf>;
-	Tue, 2 Jan 2001 07:45:35 -0500
-From: Vedran Rodic <vedran@renata.irb.hr>
-Date: Tue, 2 Jan 2001 13:15:07 +0100
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-prerelease problems (it corrupted my ext2 filesystem)
-Message-ID: <20010102131507.A7573@renata.irb.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129773AbRABM7N>; Tue, 2 Jan 2001 07:59:13 -0500
+Received: from [203.200.144.37] ([203.200.144.37]:30988 "HELO
+	nest.stpt.soft.net") by vger.kernel.org with SMTP
+	id <S129737AbRABM6z>; Tue, 2 Jan 2001 07:58:55 -0500
+Organization: NeST India
+Message-ID: <F6E1228667B6D411BAAA00306E00F2A5546DB5@pdc2.nestec.net>
+From: MOHAMMED AZAD <mohammedazad@nestec.net>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: reg: Using mmap in 2.0.32 kernel..
+Date: Tue, 2 Jan 2001 17:56:36 +0530 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi all,
 
-I was using 2.4.0-prerelease without extra patches and I experienced some
-heavy (ext2) file system corruption. I was grabbing some video using bttv at 
-the time. Kernel didn't oops, but processess just started terminating.
+I am trying to mmap some kernel ram into user space... These r the steps i
+followed..
+
+1) Allocate memory in kernel using get_free_pages..
+2) reserve these pages using mem_map_reserve macro
+3) In the mmap () implementation i use remap_page_range to export the buffer
+to user space..
 
 
-Here is a the interesting part from my logs:
+All this works well in kernel ver 2.2.14 but i am not getting it right in
+2.0.32... any idea why???
 
-Bad swap file entry 5c5b6256
-VM: killing process qtvidcap
-swap_free: Trying to free nonexistent swap-page
-last message repeated 23 times
-swap_free: Trying to free swap from unused swap-device
-swap_free: Trying to free nonexistent swap-page
-last message repeated 266 times
-Bad swap file entry 272c2e24
-VM: killing process pppd
-swap_free: Trying to free nonexistent swap-page
-last message repeated 30 times
+thanks in advance
 
-Vedran Rodic
+azad
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

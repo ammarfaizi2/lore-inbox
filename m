@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbTFOJlA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 05:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTFOJlA
+	id S262073AbTFOJwX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 05:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTFOJwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 05:41:00 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:14084 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S262066AbTFOJk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 05:40:59 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: module-init-tools and chained aliases
-Date: Sun, 15 Jun 2003 13:52:36 +0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
+	Sun, 15 Jun 2003 05:52:23 -0400
+Received: from tag.witbe.net ([81.88.96.48]:19212 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S262073AbTFOJwW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 05:52:22 -0400
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: [2.5.71] Oops
+Date: Sun, 15 Jun 2003 12:06:12 +0200
+Message-ID: <009201c33325$c0306730$2101a8c0@witbe>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306151352.36226.arvidjaar@mail.ru>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apparently modprobe from module-init-tools 0.9.11a does not support chained 
-aliases like modutils did, i.e.
+Just compiled a 2.5.71 with the same config as a previously
+OK 2.5.70....
 
-alias foo bar
-alias bar baz
+Unable to handle kernel NULL pointer dereference at virtual address 0000002c
+ printing eip:
+c03ae559
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c03ae559>]    Not tainted
+EFLAGS: 00010202
+EIP is at register_netdevice+0x33/0x1b6
+eax: 00000001   ebx: 00000000   ecx: c05070a0   edx: 00000000
+esi: 00000000   edi: df899800   ebp: dd1edf68   esp: dd1edf1c
+ds: 007b   es: 007b   ss: 0068
+Process vtund (pid: 606, threadinfo=dd1ec000 task=de7e1900)
+Stack: df899800 c028cf0a 00000000 df899a20 00000000 df899800 dd1edf68 c02e31f6 
+       00000000 df899800 c02e3036 ddeac380 bffffb70 dd1ec000 dd1edf68 c02e3302 
+       ddeac380 dd1edf68 00000020 00000000 00000000 00000000 00000000 00001002 
+Call Trace:
+ [<c028cf0a>] misc_open+0x0/0x2b6
+ [<c02e31f6>] tun_set_iff+0x15a/0x18a
+ [<c02e3036>] tun_setup+0x0/0x66
+ [<c02e3302>] tun_chr_ioctl+0xdc/0x134
+ [<c0161411>] sys_ioctl+0x115/0x29c
+ [<c010a9c7>] syscall_call+0x7/0xb
 
-will result in error doing "modprobe foo" instead of loading "baz".
+I've seen some changes in TUN in the release notes...
 
-This is a real problem when converting modules.devfs, because customary
-
-alias /dev/tts* /dev/tts
-alias /dev/tts serial
-
-simply does not work for accessing /dev/tts/*. modprobe.devfs as shipped with 
-modue-init-tools has exactly the problem in parts.
-
-It is possible to partially work around it by using
-
-install foo /sbin/modprobe bar
-
-consistently instead of alias but it means extra forks every time, besided it 
-breaks parsing for many tools (initscripts or mkinitrd make heavy use of 
-parsing sometimes, at least on Mandrake).
-
-Is the behaviour intentional? Fixing it is just a one line patch and I fail to 
-see why current state would be preferred.
-
-regards
-
--andrey
-
---- modprobe.c.orig     2003-06-15 01:32:21.000000000 +0400
-+++ modprobe.c  2003-06-15 13:46:25.000000000 +0400
-@@ -1021,8 +1021,11 @@ static char *read_config(const char *fil
-
-                        if (!wildcard || !realname)
-                                grammar(cmd, filename, linenum);
--                       else if (fnmatch(wildcard,name,0) == 0)
--                               result = NOFAIL(strdup(realname));
-+                       else if (fnmatch(wildcard,name,0) == 0) {
-+                               if (result)
-+                                       free(result);
-+                               name = result = NOFAIL(strdup(realname));
-+                       }
-                } else if (strcmp(cmd, "include") == 0) {
-                        char *newresult, *newfilename;
-
+Paul
 

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbTHSVaO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 17:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTHSV1Z
+	id S261637AbTHSVlO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 17:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbTHSViu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 17:27:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36265 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261623AbTHSVYm (ORCPT
+	Tue, 19 Aug 2003 17:38:50 -0400
+Received: from holomorphy.com ([66.224.33.161]:24705 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261499AbTHSVip (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 17:24:42 -0400
-Date: Tue, 19 Aug 2003 14:10:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test3-mm3
-Message-Id: <20030819141000.7df20405.akpm@osdl.org>
-In-Reply-To: <20030819183249.GD19465@matchmail.com>
-References: <20030819013834.1fa487dc.akpm@osdl.org>
-	<20030819183249.GD19465@matchmail.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 19 Aug 2003 17:38:45 -0400
+Date: Tue, 19 Aug 2003 14:39:37 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Chuck Luciano <chuck@mrluciano.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: redhat 2.4.20 kernel 3.5G patch, bug report on my previous 2.4.18 kernel 3.5G patch
+Message-ID: <20030819213937.GA4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Dave Hansen <haveblue@us.ibm.com>,
+	Chuck Luciano <chuck@mrluciano.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <NFBBKNADOLMJPCENHEALCENAGLAA.chuck@mrluciano.com> <1061327818.25944.48.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1061327818.25944.48.camel@nighthawk>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->
-> On Tue, Aug 19, 2003 at 01:38:34AM -0700, Andrew Morton wrote:
-> > +disable-athlon-prefetch.patch
-> > 
-> >  Disable prefetch() on all AMD CPUs.  It seems to need significant work to
-> >  get right and we're currently getting rare oopses with K7's.
-> 
-> Is this going to stay in -mm, or will it eventually propogate to stock?
+On Tue, Aug 19, 2003 at 02:16:58PM -0700, Dave Hansen wrote:
+> Actually, I would just do what we did in 2.5 and throw away *_pgd_fast()
+> functions and just use a slab constructor and destructor to handle it
+> for you.
 
-That depends if someone does any work on it in the next few days I guess. 
-Right now we're getting mysterious oopses down inside fine_inode_fast,
-which is unacceptable.
+Please be patient for the preconstruction that works with highpte; I
+have code, but am holding back to keep the number of potentially
+destabilizing changes simultaneously in the air down to a reasonable
+number.
 
-> If it does, can this be added to the to-do list of things to fix before 2.6.0?
-> 
-> I'd hate to see this feature lost...
 
-Show me a workload in which it makes a measurable difference.
-
-But no, it won't get forgotten.
+-- wli

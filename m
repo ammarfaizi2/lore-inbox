@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273736AbRIQWye>; Mon, 17 Sep 2001 18:54:34 -0400
+	id <S273716AbRIQWyZ>; Mon, 17 Sep 2001 18:54:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273747AbRIQWyZ>; Mon, 17 Sep 2001 18:54:25 -0400
-Received: from smtp5.us.dell.com ([143.166.83.100]:36106 "EHLO
-	smtp5.us.dell.com") by vger.kernel.org with ESMTP
-	id <S273736AbRIQWyH>; Mon, 17 Sep 2001 18:54:07 -0400
-Date: Mon, 17 Sep 2001 17:54:30 -0500 (CDT)
-From: Robert Macaulay <robert_macaulay@dell.com>
-X-X-Sender: <robert@ping.us.dell.com>
-Reply-To: Robert Macaulay <robert_macaulay@dell.com>
-To: Erik Andersen <andersen@codepoet.org>
-cc: Colonel <klink@clouddancer.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/partitions hosed in 2.4.9-ac10
-In-Reply-To: <20010917164824.A27116@codepoet.org>
-Message-ID: <Pine.LNX.4.33.0109171753400.24019-100000@ping.us.dell.com>
+	id <S273754AbRIQWyP>; Mon, 17 Sep 2001 18:54:15 -0400
+Received: from forge.redmondlinux.org ([209.81.49.42]:56290 "EHLO
+	forge.redmondlinux.org") by vger.kernel.org with ESMTP
+	id <S273716AbRIQWyC>; Mon, 17 Sep 2001 18:54:02 -0400
+Message-ID: <3BA67E95.6090206@cheek.com>
+Date: Mon, 17 Sep 2001 15:52:05 -0700
+From: Joseph Cheek <joseph@cheek.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010802
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: mrsam@courier-mta.com
+CC: linux-kernel@vger.kernel.org
+Subject: disregard: Re: ide zip 100 won't mount
+In-Reply-To: <Pine.LNX.4.10.10109171434550.9815-100000@forge.redmondlinux.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the problem as well, and my physical sector size is 512. I'll try 
-the patch
+hmm, i went into windows *one more time* just to make sure it was still 
+working, and not a hardware problem.  well... looks like it doesn't work 
+in windows either.  must be hardware.
 
-On Mon, 17 Sep 2001, Erik Andersen wrote:
+funny thing it shows up in dmesg and in "My Computer", just can't read 
+from it.
 
-> 
-> On Mon Sep 17, 2001 at 03:32:03PM -0700, Colonel wrote:
-> >
-> > Works fine here:
-> 
-> But none of your devices have 2048 byte physical sectors,
-> which is the case with my MO drives, and that appears to
-> be the root of the problem,
-> 
->  -Erik
-> 
-> --
-> Erik B. Andersen   email:  andersee@debian.org, formerly of Lineo
-> --This message was written using 73% post-consumer electrons--
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> 
+Joseph Cheek wrote:
+
+>i've tried 2.4.7-ac10 and 2.4.9-ac10.  same results.  at boot i get:
+>
+>Sep 17 11:02:48 seattle kernel: ide-floppy driver 0.97.sv
+>Sep 17 11:02:48 seattle kernel: hdd: No disk in drive
+>Sep 17 11:02:48 seattle kernel: hdd: 98304kB, 96/64/32 CHS, 4096 kBps, 512
+>sector size, 2941 rpm
+>
+>looks good, right?  but i put a disk in and i get:
+>
+>Sep 17 14:36:23 seattle kernel: ide-floppy: hdd: I/O error, pc =  0, key =
+>2, asc = 30, ascq =  0
+>Sep 17 14:36:23 seattle kernel: ide-floppy: hdd: I/O error, pc = 1b, key =
+>2, asc = 30, ascq =  0
+>Sep 17 14:36:23 seattle kernel: hdd: No disk in drive
+>
+>not hardware, as it works in windows on the same machine.
+>
+>any ideas?
+>
+>thanks!
+>
+>joe
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+
 

@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbTKZCBL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 21:01:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbTKZCBL
+	id S263930AbTKZCLU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 21:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263934AbTKZCLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 21:01:11 -0500
-Received: from holomorphy.com ([199.26.172.102]:27324 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263893AbTKZCBJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 21:01:09 -0500
-Date: Tue, 25 Nov 2003 18:01:03 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-rc5
-Message-ID: <20031126020103.GD8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-References: <20031125190442.GB1357@mis-mike-wstn.matchmail.com> <Pine.LNX.4.44.0311251802400.6489-100000@logos.cnet>
+	Tue, 25 Nov 2003 21:11:20 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:26571 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263930AbTKZCLS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 21:11:18 -0500
+Date: Tue, 25 Nov 2003 18:11:11 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: "Mr. BOFH" <icerbofh@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Fire Engine??
+Message-ID: <20031126021111.GA10193@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Nick Piggin <piggin@cyberone.com.au>,
+	"Mr. BOFH" <icerbofh@hotmail.com>, linux-kernel@vger.kernel.org
+References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com> <3FC40663.6050602@cyberone.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311251802400.6489-100000@logos.cnet>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <3FC40663.6050602@cyberone.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Nov 2003, Mike Fedyk wrote:
->> Will 2.4.23 have the oom killer?
+On Wed, Nov 26, 2003 at 12:48:19PM +1100, Nick Piggin wrote:
+> 
+> 
+> Mr. BOFH wrote:
+> 
+> >Sun has announced that they have redone their TCP/IP stack and is showing
+> >for some instances a 30% improvement over Linux....
+> >
+> >http://www.theregister.co.uk/content/61/33440.html
+> >
+> >
+> 
+> Thats odd. Since when did Linux's TCP/IP stack become the benchmark? :)
+> 
+> PS. This isn't really appropriate for this list. I'm sure an open and
+>    verifiable comparison would be welcomed though.
 
-On Tue, Nov 25, 2003 at 06:06:31PM -0200, Marcelo Tosatti wrote:
-> No. Andrea removed the oom killer because it had problems (deadlocks, it
-> can "guess" wrong in some cases).
-> It seems that in most cases killing the allocator (what 2.4.23 does)  
-> works fine.
-> Having it configurable might be desired. 
+And not to dis my Alma Mater but I tend think the whole TOE idea is a lose.
+I used to think otherwise, while I was a Sun employee, and Sun employee #1
+pointed out to me that CPUs and memory were getting faster more quickly than
+the TOE type answers could come to market.  He was right then and he seems
+to still be right.
 
-Some of the bad behavior was due to races that disturbed the heuristics.
-2.6 got those fixed and it made a large difference wrt. correcting its
-bad behaviors. It's not infallible, but relatively well-behaved. (Not
-that I could be arsed to debate whether that makes it worth keeping.)
+Maybe throwing processors at the problem will make him (and me now) wrong
+but I have to think I could do better things with a CPU than offload some
+TCP packets.
 
+Linux has it right.  Make the normal case fast and lightweight and ignore
+the other cases.  There are no other cases if the normal path is fast.
 
--- wli
+Another way to say "fast path" is "our normal path sucks".
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

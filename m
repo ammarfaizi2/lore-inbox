@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293160AbSBYQZb>; Mon, 25 Feb 2002 11:25:31 -0500
+	id <S293423AbSBYQ1V>; Mon, 25 Feb 2002 11:27:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292708AbSBYQZV>; Mon, 25 Feb 2002 11:25:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52239 "EHLO
+	id <S293424AbSBYQ1M>; Mon, 25 Feb 2002 11:27:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54799 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291450AbSBYQZP>; Mon, 25 Feb 2002 11:25:15 -0500
-Subject: Re: Boot problem with PDC20269
-To: h.lubitz@internet-factory.de (Holger Lubitz)
-Date: Mon, 25 Feb 2002 16:39:17 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C7A61BD.22F4CDAF@internet-factory.de> from "Holger Lubitz" at Feb 25, 2002 05:09:33 PM
+	id <S293423AbSBYQ1C>; Mon, 25 Feb 2002 11:27:02 -0500
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Mon, 25 Feb 2002 16:39:56 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rusty@rustcorp.com.au (Rusty Russell),
+        mingo@elte.hu, matthew@hairy.beasts.org (Matthew Kirkwood),
+        bcrl@redhat.com (Benjamin LaHaise), david@mysql.com (David Axmark),
+        wli@holomorphy.com (William Lee Irwin III),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0202250808150.3268-100000@home.transmeta.com> from "Linus Torvalds" at Feb 25, 2002 08:11:36 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16fO9l-0005Mf-00@the-village.bc.nu>
+Message-Id: <E16fOAO-0005Ml-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > http://www.tecchannel.de/hardware/817/index.html
+> > 	fd = open("/dev/shm/sem....");
 > 
-> Interesting article. After the stability issues with VIA that are
-> believed to be solved, we are now getting to performance issues. Any
-> chance of the "magic performance booster workaround" done by VIAs 1.04
-> driver finding its way into linux?
+> Hmm.. Yes. Except I would allow a NULL backing store name for the
+> normal(?) case of just wanting private anonymous memory.
 
-Only if someone can find out what it actually does, or VIA document it
+unlink()
 
-Alan
+> At the same time, I have to admit that I like the notion that Rusty had of
+> libraries being able to just put their semaphores anywhere (on the stack
+> etc), as it does work for many architectures. Ugh.
+
+_alloca
+mmap
+
+Still fits on the stack 8)
+

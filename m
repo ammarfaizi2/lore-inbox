@@ -1,64 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVAFGyW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVAFHLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbVAFGyW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 01:54:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbVAFGyW
+	id S262762AbVAFHLV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 02:11:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbVAFHLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 01:54:22 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:13573 "EHLO
-	bne.snapgear.com") by vger.kernel.org with ESMTP id S262193AbVAFGyS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 01:54:18 -0500
-Message-ID: <41DCE08B.5010507@snapgear.com>
-Date: Thu, 06 Jan 2005 16:54:03 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+	Thu, 6 Jan 2005 02:11:21 -0500
+Received: from mail.coware.com ([63.236.49.244]:47234 "EHLO CoWare.com")
+	by vger.kernel.org with ESMTP id S262762AbVAFHLS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 02:11:18 -0500
+Message-ID: <41DCE48E.5010604@coware.com>
+Date: Thu, 06 Jan 2005 08:11:10 +0100
+From: Harald Dunkel <harald@CoWare.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.10-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: 2.6.10: "[permanent]" modules?
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-An update of the uClinux (MMU-less) fixups against 2.6.10.
+Hi folks,
 
-I have completely reworked the startup code for the m68knommu
-architectures. What was dozens of files is now a few common
-varients for the obviously different sub-families (coldfire,
-68x328 and 68360).
+Seems that for 2.6.10 I cannot unload ide modules.
+'lsmod | grep permanent" lists
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.10-uc0.patch.gz
+ide_generic             1152  0 [permanent]
+siimage                12480  0 [permanent]
+aec62xx                 7296  0 [permanent]
+trm290                  4228  0 [permanent]
+alim15x3               10572  0 [permanent]
+hpt34x                  5184  0 [permanent]
+hpt366                 20032  0 [permanent]
+cmd64x                 11996  0 [permanent]
+piix                   10052  0 [permanent]
+rz1000                  2496  0 [permanent]
+slc90e66                5568  0 [permanent]
+generic                 3968  0 [permanent]
+cs5530                  4672  0 [permanent]
+cs5520                  4672  0 [permanent]
+sc1200                  7168  0 [permanent]
+triflex                 3648  0 [permanent]
+atiixp                  6032  0 [permanent]
+pdc202xx_old           11264  0 [permanent]
+pdc202xx_new            9088  0 [permanent]
+opti621                 4420  0 [permanent]
+ns87415                 3720  0 [permanent]
+cy82c693                4416  0 [permanent]
+amd74xx                12508  0 [permanent]
+sis5513                14280  0 [permanent]
+via82cxxx              11996  0 [permanent]
+serverworks             7624  0 [permanent]
 
+Is this on purpose?
 
-Change log:
-
-. import of linux-2.6.10                       <gerg@snapgear.com>
-. rework head start code for m68knommu         <gerg@snapgear.com>
-. auto-detect SDRAM size on most platforms     <gerg@snapgear.com>
-. combine common 68x328 config code            <gerg@snapgear.com>
-. remove duplicate M5275EVB entry in Kconfig   <gerg@snapgear.com>
-. auto-generate m68knommu/entry.S offsets      <phdm@macqel.be>
-. remove duplication with KTHREAD_SIZE         <phdm@macqel.be>
-. fix stack alignment on trap return           <phdm@macqel.be>
-. reduce code size in FEC ethernet driver      <phdm@macqel.be>
-. export lib udelay symbold                    <gerg@snapgear.com>
-. cleanup atomic and bitops macros             <phdm@macqel.be>
-. remove unused io_hw_swap.h                   <domen@coderock.org>
+2bsure, module unloading is enabled in my .config
 
 
 Regards
-Greg
 
+Harri
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
-
+iD8DBQFB3OSOUTlbRTxpHjcRAkKXAKCPu+7E4L/XxNTE1skyTvy7NUUcdACbBSu9
+sAxceT0jHylMiEmL9KBkWXA=
+=t0JI
+-----END PGP SIGNATURE-----

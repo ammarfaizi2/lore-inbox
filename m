@@ -1,61 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUIUVDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268070AbUIUVCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268069AbUIUVDH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 17:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268048AbUIUVDH
+	id S268070AbUIUVCx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 17:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268053AbUIUVCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 17:03:07 -0400
-Received: from gprs214-135.eurotel.cz ([160.218.214.135]:44933 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268069AbUIUVCj (ORCPT
+	Tue, 21 Sep 2004 17:02:52 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:505 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268081AbUIUVCH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 17:02:39 -0400
-Date: Tue, 21 Sep 2004 23:02:18 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Alex Williamson <alex.williamson@hp.com>
-Cc: Andi Kleen <ak@suse.de>, acpi-devel <acpi-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: [ACPI] Re: [PATCH/RFC] exposing ACPI objects in sysfs
-Message-ID: <20040921210218.GJ30425@elf.ucw.cz>
-References: <1095716476.5360.61.camel@tdi> <20040921122428.GB2383@elf.ucw.cz> <1095785315.6307.6.camel@tdi> <20040921172625.GA30425@elf.ucw.cz> <20040921190606.GE18938@wotan.suse.de> <1095794035.24751.54.camel@tdi> <20040921191826.GF18938@wotan.suse.de> <1095795954.24751.74.camel@tdi> <20040921195802.GF30425@elf.ucw.cz> <1095799248.24751.103.camel@tdi>
+	Tue, 21 Sep 2004 17:02:07 -0400
+Message-ID: <9e47339104092114025e763da8@mail.gmail.com>
+Date: Tue, 21 Sep 2004 17:02:00 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
+Cc: Michael Hunold <hunold-ml@web.de>, Greg KH <greg@kroah.com>,
+       LM Sensors <sensors@stimpy.netroedge.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040921223325.66b07f78.khali@linux-fr.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095799248.24751.103.camel@tdi>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <414F111C.9030809@linuxtv.org> <20040921154111.GA13028@kroah.com>
+	 <41506099.8000307@web.de> <9e4733910409211039273d5a2f@mail.gmail.com>
+	 <20040921223325.66b07f78.khali@linux-fr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is the special wake code for older monitors.  ATI supplied it and
+it is in the radeon driver.
 
-> > If I were you, I'd just replace read and write with ioctl, and leave
-> > the rest of design as it was. If we find that someone who bypasses
-> > your userspace library, at least we have a way to deal with it. (And
-> > "cat a file and kill machine" issue is gone, too).
-> 
->    Again, I don't think that solves the problem (and there's no ioctl
-> support in sysfs).  The pointer in the command structure is easy to work
-> around, nothing uses it and data could easily be stuffed after the
-> architected entries.  Switching to an ioctl would not solve the problem
-> of passing ACPI data back and forth.  We don't just want to execute
+My understanding that this is a generic problem with old DDC monitors
+so the code should be in a DDC I2C driver instead of being added to
+all of the video drivers. I don't want the DDC driver to decode the
+EDID data, it just needs to handle this problem.
 
-At least we would know we are passing ACPI data from ioctl() argument.
+I can say that even my current monitors don't always return the EDID
+data without being woken up. The only way to see this is to have
+multiple video cards in your PC. The secondary cards won't be reset by
+the kernel. Reseting the card will run the BIOS which wakes the
+monitors up. If you try to get the EDID from the secondary cards
+before they are reset you won't be able to reliably read it.
 
-> methods, we want to be able to provide arguments and get data back.
-> That data is where I see the biggest 32/64 bit issue.  I'll switch to an
-> evaluate on write model, but I'm not sold that an ioctl would solve
-> enough problems to be worth it.  Is anyone even open to adding ioctls to
-> sysfs bin files?  Thanks,
+int radeon_probe_i2c_connector(struct radeonfb_info *rinfo, int conn,
+u8 **out_edid)
+{
+	u32 reg = rinfo->i2c[conn-1].ddc_reg;
+	u8 *edid = NULL;
+	int i, j;
 
-I do not know what the right solution is. ioctl() is ugly, passing
-structures using write() is ugly, too. I think adding ioctl() to sysfs
-is less dangerous, because writes can not be translated using compat
-layer. Both solutions are ugly and you'll get flamed for both :-(.
+	OUTREG(reg, INREG(reg) & 
+			~(VGA_DDC_DATA_OUTPUT | VGA_DDC_CLK_OUTPUT));
 
-Andrew, can you help? We want to call AML methods from userspace, and
-defining interface is not fun.
-								Pavel
+	OUTREG(reg, INREG(reg) & ~(VGA_DDC_CLK_OUT_EN));
+	(void)INREG(reg);
+
+	for (i = 0; i < 3; i++) {
+		/* For some old monitors we need the
+		 * following process to initialize/stop DDC
+		 */
+		OUTREG(reg, INREG(reg) & ~(VGA_DDC_DATA_OUT_EN));
+		(void)INREG(reg);
+		msleep(13);
+
+		OUTREG(reg, INREG(reg) & ~(VGA_DDC_CLK_OUT_EN));
+		(void)INREG(reg);
+		for (j = 0; j < 5; j++) {
+			msleep(10);
+			if (INREG(reg) & VGA_DDC_CLK_INPUT)
+				break;
+		}
+		if (j == 5)
+			continue;
+
+		OUTREG(reg, INREG(reg) | VGA_DDC_DATA_OUT_EN);
+		(void)INREG(reg);
+		msleep(15);
+		OUTREG(reg, INREG(reg) | VGA_DDC_CLK_OUT_EN);
+		(void)INREG(reg);
+		msleep(15);
+		OUTREG(reg, INREG(reg) & ~(VGA_DDC_DATA_OUT_EN));
+		(void)INREG(reg);
+		msleep(15);
+
+		/* Do the real work */
+		edid = radeon_do_probe_i2c_edid(&rinfo->i2c[conn-1]);
+
+		OUTREG(reg, INREG(reg) | 
+				(VGA_DDC_DATA_OUT_EN | VGA_DDC_CLK_OUT_EN));
+		(void)INREG(reg);
+		msleep(15);
+		
+		OUTREG(reg, INREG(reg) & ~(VGA_DDC_CLK_OUT_EN));
+		(void)INREG(reg);
+		for (j = 0; j < 10; j++) {
+			msleep(10);
+			if (INREG(reg) & VGA_DDC_CLK_INPUT)
+				break;
+		}
+
+		OUTREG(reg, INREG(reg) & ~(VGA_DDC_DATA_OUT_EN));
+		(void)INREG(reg);
+		msleep(15);
+		OUTREG(reg, INREG(reg) |
+				(VGA_DDC_DATA_OUT_EN | VGA_DDC_CLK_OUT_EN));
+		(void)INREG(reg);
+		if (edid)
+			break;
+	}
+	if (out_edid)
+		*out_edid = edid;
+	if (!edid) {
+		RTRACE("radeonfb: I2C (port %d) ... not found\n", conn);
+		return MT_NONE;
+	}
+	if (edid[0x14] & 0x80) {
+		/* Fix detection using BIOS tables */
+		if (rinfo->is_mobility /*&& conn == ddc_dvi*/ &&
+		    (INREG(LVDS_GEN_CNTL) & LVDS_ON)) {
+			RTRACE("radeonfb: I2C (port %d) ... found LVDS panel\n", conn);
+			return MT_LCD;
+		} else {
+			RTRACE("radeonfb: I2C (port %d) ... found TMDS panel\n", conn);
+			return MT_DFP;
+		}
+	}
+       	RTRACE("radeonfb: I2C (port %d) ... found CRT display\n", conn);
+	return MT_CRT;
+}
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jon Smirl
+jonsmirl@gmail.com

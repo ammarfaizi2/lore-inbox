@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbULaWau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbULaWgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262162AbULaWau (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 17:30:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbULaWau
+	id S262163AbULaWgs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 17:36:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbULaWgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 17:30:50 -0500
-Received: from server133-han.de-nserver.de ([81.3.17.173]:24236 "EHLO
-	server133-han.de-nserver.de") by vger.kernel.org with ESMTP
-	id S262162AbULaWao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 17:30:44 -0500
-Date: Fri, 31 Dec 2004 23:30:29 +0100
-From: markus reichelt <ml@bitfalle.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROJECT STRAIT GATE: Vigil for Peace, Sunday
-Message-ID: <20041231223029.GA4896@dantooine>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <D4B16B8F.F13879F@straitgateministry.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-Content-Disposition: inline
-In-Reply-To: <D4B16B8F.F13879F@straitgateministry.org>
-Organization: still stuck in reorganization mode
-X-PGP-Key: 0xC2A3FEE4
-X-PGP-Fingerprint: FFB8 E22F D2BC 0488 3D56  F672 2CCC 933B C2A3 FEE4
-X-Request-PGP: http://bitfalle.org/keys/c2a3fee4.asc
-User-Agent: Mutt/1.5.6i
+	Fri, 31 Dec 2004 17:36:48 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:12550 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S262163AbULaWgr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 17:36:47 -0500
+Message-ID: <41D5D478.2080902@domdv.de>
+Date: Fri, 31 Dec 2004 23:36:40 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: markus reichelt <ml@bitfalle.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re:[OT]  PROJECT STRAIT GATE: Vigil for Peace, Sunday
+References: <D4B16B8F.F13879F@straitgateministry.org> <20041231223029.GA4896@dantooine>
+In-Reply-To: <20041231223029.GA4896@dantooine>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+markus reichelt wrote:
+> 
+>>>COME HOLD UP A SIGN AND HELP ANSWER QUESTIONS FROM PASSERSBY
+> 
+> 
+> all I will say is this:
+> 
+> make bzImage, not war
+> 
 
-> COME HOLD UP A SIGN AND HELP ANSWER QUESTIONS FROM PASSERSBY
+<evil grin (by AC/DC)>
+beating around the bush!
+</evin grin>
 
-all I will say is this:
-
-make bzImage, not war
-
-- -- 
-Bastard Administrator in $hell
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFB1dMFLMyTO8Kj/uQRAhgnAJ4/GlE9E5w7bOAS0f3U5zlvuJCzGwCeKK6s
-OpJfJlrES2OMPTLfE6/Todk=
-=Vu7e
------END PGP SIGNATURE-----
+(And that's my one and only OT post for this year)
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

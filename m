@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266930AbTAJTej>; Fri, 10 Jan 2003 14:34:39 -0500
+	id <S266434AbTAJTSo>; Fri, 10 Jan 2003 14:18:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267029AbTAJTej>; Fri, 10 Jan 2003 14:34:39 -0500
-Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:40967 "HELO
-	ritz.dnsalias.org") by vger.kernel.org with SMTP id <S266930AbTAJTeh>;
-	Fri, 10 Jan 2003 14:34:37 -0500
-Subject: Re: [PATCH 2.5] speedup kallsyms_lookup
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: Robert Love <rml@tech9.net>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       William Lee Irwin III <wli@holomorphy.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1042218917.722.15.camel@phantasy>
-References: <Pine.LNX.4.44.0301101628460.1434-100000@localhost.localdomain>
-	 <1042218917.722.15.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 10 Jan 2003 20:44:00 +0100
-Message-Id: <1042227852.1404.2.camel@cast2.alcatel.ch>
-Mime-Version: 1.0
+	id <S266425AbTAJTSo>; Fri, 10 Jan 2003 14:18:44 -0500
+Received: from web20502.mail.yahoo.com ([216.136.226.137]:37641 "HELO
+	web20502.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266417AbTAJTSm>; Fri, 10 Jan 2003 14:18:42 -0500
+Message-ID: <20030110192727.63417.qmail@web20502.mail.yahoo.com>
+Date: Fri, 10 Jan 2003 11:27:27 -0800 (PST)
+From: Manish Lachwani <m_lachwani@yahoo.com>
+Subject: Re: FW: Fastest possible UDMA - how? 
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org, Michael.Knigge@set-software.de
+In-Reply-To: <200301101921.h0AJLFLK012541@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hmm...i don't see why i want wchan. tell me.
-but you're right, for some reason linus merged it. so i think (if it's
-kept) we should restrict it a bit and make the kallsyms_lookup a bit
-faster. not a super fast complex algorithm, but at least not that
-braindead as it currently is...
+If the drives support UDMA 2, then the controller will
+operate in UDMA 2. In that case, the IDENTIFY
+information will show UDMA 2 for UDMA mode selected
+and UDMA 2 for UDMA mode supported.
 
-btw. does my ugly early-in-the-moring-hack work right?
+Now, say that I have a drive that supports UDMA 6 and
+the controller supports UDMA 5. Then, from the
+IDENTIFY information, the UDMA selected would be UDMA
+5 while the UDMA supported would be UDMA 6.
 
-On Fri, 2003-01-10 at 18:15, Robert Love wrote:
-> On Fri, 2003-01-10 at 11:34, Hugh Dickins wrote:
+Thanks
+manish
+--- Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 10 Jan 2003 11:04:03 PST, Manish Lachwani
+> <m_lachwani@yahoo.com>  said:
+> > Take a look at the drive IDENTIFY data. From the
+> ATA
+> > spec, it can be seen that word# 88 in the IDENTIFY
+> > data can help you find out the UDMA mode selected
+> and
+> > UDMA mode supported. 
+> > 
+> > The UDMA mode supported is the maximum supported
+> by
+> > the drive. 
 > 
-> > Indeed!  I think that was Andi volunteering :-}
-> > But we should let rml defend his wchan.
-> 
-> Well, of course I want to keep it - but I am biased :)
-> 
-> I think its a simple export that gives us a neat feature.  Additionally,
-> from the procps perspective, it saves us from having to parse System.map
-> for each process.  In fact, it means we do not need a System.map at all
-> for any procps functionality.
-> 
-> I guess Linus at least mildly liked it too, since he merged it.
-> 
-> But if its such a performance crippling item perhaps it does need to be
-> removed (or somehow restricted).
-> 
-> I do agree that, if possible, wchan should be kept simple... so, is
-> everyone else for the removal of /proc/pid/wchan ? :-(
-> 
-> 	Robert Love
+> Will this DTRT if the IDE *controller* does UDMA-5
+> but the drives are UDMA-2
+> at best?
 > 
 
+> ATTACHMENT part 2 application/pgp-signature 
 
+
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

@@ -1,73 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbUCTCE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 21:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbUCTCE0
+	id S263199AbUCTCIW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 21:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbUCTCIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 21:04:26 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:442 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262193AbUCTCEZ
+	Fri, 19 Mar 2004 21:08:22 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:33421 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263199AbUCTCIT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 21:04:25 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Johannes Stezenbach <js@convergence.de>
-Subject: Re: [PATCH] barrier patch set
-Date: Sat, 20 Mar 2004 03:13:05 +0100
-User-Agent: KMail/1.5.3
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040319153554.GC2933@suse.de> <200403200102.39716.bzolnier@elka.pw.edu.pl> <20040320014837.GB11865@convergence.de>
-In-Reply-To: <20040320014837.GB11865@convergence.de>
+	Fri, 19 Mar 2004 21:08:19 -0500
+Date: Fri, 19 Mar 2004 18:08:47 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: gerg@snapgear.com, greg@kroah.com, hannal@us.ibm.com
+Subject: [PATCH 2.6 stallion.c] RFT added class support to stallion.c
+Message-ID: <68680000.1079748527@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200403200313.05681.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 of March 2004 02:48, Johannes Stezenbach wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Saturday 20 of March 2004 00:01, Matthias Andree wrote:
-> > > BTW, speaking of identify-device, hdparm -i (which uses
-> > > HDIO_GET_IDENTITY) always returns "WriteCache=enabled" while hdparm -I
-> > > that uses HDIO_DRIVE_CMD with WIN_PIDENTIFY reports the "correct" state
-> > > that I've previously set with -W0. This is an i386 machine w/
-> > > 2.6.5-rc1.
-> > >
-> > > Is HDIO_GET_IDENTITY working correctly?
-> >
-> > There were reports that on some drives you can't disable write cache
-> > and even (?) that some drives lie (WC still enabled but marked as
-> > disabled).
 
-Doh, I misunderstood the question.
+Here is a patch to add class support to the Stallion multiport 
+serial driver.
 
-Correct answer is: everything is fine, RTFM (man hdparm). ;-)
+I have verified it compiles but do not have the hardware. 
+If you can please verify, thanks.
 
-> hdparm -i and -I ultimately both interpret WIN_IDENTIFY result, and both
-> test bit 0x0020 of word 85. So it's unclear to me why they report a
-> different write cache setting. I added a hexdump to dump_identity()
-> in hdparm.c, and found that bit 0x0020 of word 85 is always set.
+Please consider for Inclusion or Testing.
 
-or WIN_PIDENTIFY to be strict but
-
--i returns _cached_ (read when the device was probed) identify data
-(uses HDIO_GET_IDENTIFY ioctl)
--I reads _current_ data directly from the device
-(uses HDIO_DRIVE_CMD ioctl)
-
-> BTW, 'cat /proc/ide/hda/identify' or 'hdparm -Istdin
-> </dev/ide/hda/identify' reports the same value as hdparm -I, and that is
-> consistent with
-> the value I set with hdparm -W x.
->
->
-> So, is HDIO_GET_IDENTITY broken?
-
-No.
-
-Regards,
-Bartlomiej
+Hanna
+---
+diff -Nrup linux-2.6.4/drivers/char/stallion.c linux-2.6.4p/drivers/char/stallion.c
+--- linux-2.6.4/drivers/char/stallion.c	2004-03-10 18:55:37.000000000 -0800
++++ linux-2.6.4p/drivers/char/stallion.c	2004-03-19 17:28:08.000000000 -0800
+@@ -41,6 +41,7 @@
+ #include <linux/init.h>
+ #include <linux/smp_lock.h>
+ #include <linux/devfs_fs_kernel.h>
++#include <linux/device.h>
+ 
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+@@ -732,6 +733,8 @@ static struct file_operations	stl_fsiome
+ 
+ /*****************************************************************************/
+ 
++static struct class_simple *stallion_class;
++
+ #ifdef MODULE
+ 
+ /*
+@@ -788,12 +791,15 @@ static void __exit stallion_module_exit(
+ 		restore_flags(flags);
+ 		return;
+ 	}
+-	for (i = 0; i < 4; i++)
++	for (i = 0; i < 4; i++) {
+ 		devfs_remove("staliomem/%d", i);
++		class_simple_device_remove(MKDEV(STL_SIOMEMMAJOR, i));
++	}
+ 	devfs_remove("staliomem");
+ 	if ((i = unregister_chrdev(STL_SIOMEMMAJOR, "staliomem")))
+ 		printk("STALLION: failed to un-register serial memory device, "
+ 			"errno=%d\n", -i);
++	class_simple_destroy(stallion_class);
+ 
+ 	if (stl_tmpwritebuf != (char *) NULL)
+ 		kfree(stl_tmpwritebuf);
+@@ -3181,10 +3187,12 @@ int __init stl_init(void)
+ 		printk("STALLION: failed to register serial board device\n");
+ 	devfs_mk_dir("staliomem");
+ 
++	stallion_class = class_simple_create(THIS_MODULE, "staliomem");
+ 	for (i = 0; i < 4; i++) {
+ 		devfs_mk_cdev(MKDEV(STL_SIOMEMMAJOR, i),
+ 				S_IFCHR|S_IRUSR|S_IWUSR,
+ 				"staliomem/%d", i);
++		class_simple_device_add(stallion_class, MKDEV(STL_SIOMEMMAJOR, i), NULL, "staliomem/%d", i);
+ 	}
+ 
+ 	stl_serial->owner = THIS_MODULE;
 

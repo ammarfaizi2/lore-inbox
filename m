@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267497AbUI1CaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267508AbUI1CfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267497AbUI1CaB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 22:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267509AbUI1CaA
+	id S267508AbUI1CfH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 22:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267509AbUI1CfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 22:30:00 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:20151 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S267497AbUI1C3C convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 22:29:02 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: suspend/resume support for driver requires an external firmware
-Date: Tue, 28 Sep 2004 10:28:46 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD579D@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: suspend/resume support for driver requires an external firmware
-Thread-Index: AcSk5rWBJ01Cs6ZeRhu2KPVvfHQEtQAGFpiw
-From: "Zhu, Yi" <yi.zhu@intel.com>
-To: "Dmitry Torokhov" <dtor_core@ameritech.net>,
-       <linux-kernel@vger.kernel.org>
-Cc: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>,
-       "Oliver Neukum" <oliver@neukum.org>,
-       "Patrick Mochel" <mochel@digitalimplant.org>
-X-OriginalArrivalTime: 28 Sep 2004 02:28:47.0205 (UTC) FILETIME=[E1EBA150:01C4A502]
+	Mon, 27 Sep 2004 22:35:07 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:27991 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267508AbUI1CfB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 22:35:01 -0400
+Message-ID: <8e6f9472040927193565a21c7d@mail.gmail.com>
+Date: Mon, 27 Sep 2004 22:35:00 -0400
+From: Will Dyson <will.dyson@gmail.com>
+Reply-To: Will Dyson <will.dyson@gmail.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [Patch] i386: Xbox support
+Cc: Ed Schouten <ed@il.fontys.nl>, linux-kernel@vger.kernel.org,
+       alan@redhat.com
+In-Reply-To: <4158AA5B.8090601@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <65184.217.121.83.210.1096308147.squirrel@217.121.83.210>
+	 <4158AA5B.8090601@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Where do you load your firmware from so that you can bring up
-> the network so you can mount everything via NFS in the first place?
+On Tue, 28 Sep 2004 10:03:39 +1000, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Ed Schouten wrote:
+> > Added support for Microsoft Xbox gaming consoles by adding the config
+> > option 'CONFIG_X86_XBOX'. This patch is very minimalistic and should give
+> > the fellows at xbox-linux.org a starting point.
+> 
+> Any real point to merging this? (I honestly don't know, I don't follow the
+> xbox hacking scene).
 
-The firmware locates together w/ the driver in the initrd which could be
-either in the remote PXE server or the local diskettes. It should be
-also
-placed somewhere on the NFS root so that it can be picked up to
-memory during suspend.
+As someone who owns a modchipped xbox (used mainly for media center
+stuff), I would appreciate having fewer out of tree patches to apply
+in order to run a new kernel. I can't vouch for any kind of critical
+mass of users, however.
 
-Thanks,
--yi
+-- 
+Will Dyson

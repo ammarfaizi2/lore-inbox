@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264922AbSJ3Wfh>; Wed, 30 Oct 2002 17:35:37 -0500
+	id <S264930AbSJ3WkA>; Wed, 30 Oct 2002 17:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264930AbSJ3Wfh>; Wed, 30 Oct 2002 17:35:37 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:24216 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S264922AbSJ3Wfg>;
-	Wed, 30 Oct 2002 17:35:36 -0500
-Subject: Re: [CFT] [PATCH] kexec 2.5.44 (minimal)
-From: Andy Pfiffer <andyp@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
-       Werner Almesberger <wa@almesberger.net>, Pavel Machek <pavel@ucw.cz>,
-       "Ph. Marek" <marek@bmlv.gv.at>, Pavel Roskin <proski@gnu.org>,
-       Torrey Hoffman <thoffman@arnor.net>,
-       Rob Landley <landley@trommello.org>,
-       Kasper Dupont <kasperd@daimi.au.dk>
-In-Reply-To: <m1lm4jj7v5.fsf_-_@frodo.biederman.org>
-References: <m1lm4jj7v5.fsf_-_@frodo.biederman.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 Oct 2002 14:41:54 -0800
-Message-Id: <1036017717.1726.7.camel@andyp>
+	id <S264932AbSJ3WkA>; Wed, 30 Oct 2002 17:40:00 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:24766 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264930AbSJ3Wj7>;
+	Wed, 30 Oct 2002 17:39:59 -0500
+Date: Wed, 30 Oct 2002 14:36:15 -0800 (PST)
+Message-Id: <20021030.143615.10738219.davem@redhat.com>
+To: yoshfuji@linux-ipv6.org
+Cc: boissiere@adiglobal.com, kuznet@ms2.inr.ac.ru,
+       linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5] October 30, 2002
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021031.005535.67557509.yoshfuji@linux-ipv6.org>
+References: <3DBFB0D2.21734.21E3A6B@localhost>
+	<20021031.005535.67557509.yoshfuji@linux-ipv6.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-28 at 00:16, Eric W. Biederman wrote:
-> And is currently kept in two pieces.
-> The pure system call.
-> http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.44.x86kexec-2.diff
-> 
-> And the set of hardware fixes known to help kexec.
-> http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.44.x86kexec-hwfixes.diff
+   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
+   Date: Thu, 31 Oct 2002 00:55:35 +0900 (JST)
 
-Eric,
+   > o in 2.5.45  IPsec support  (Alexey Kuznetsov, Dave Miller, USAGI team)  
+   
+   How is the status of IPsec for IPv6?
+   
+It will be done after ipv4 side is fully functional.
+   
+     - IPv6 source address selection; which will be mandated by the 
+       node requirement.
 
-Hmmm... I'm having a lot more problems on my troublesome machine with
-this patchset than I did with the previous iteration.  I've
-triple-checked the application of the patches, but I can't even get
-kexec_test to start, much less run to completion.
+We told you several times how this USAGI patch is not currently in an
+acceptable form and needs to be reimplemented via the routing code.
 
-The new behavior is that the system appears to hang immediately after
-invoking "kexec kexec_test".
+     - IPsec for IPv6
 
-What could I have done wrong?
+Alexey and I will implement this, it is basically reading RFCs and
+typing at the keyboard, no more.
 
-Thanks,
-Andy
+     - several enhancements on specification conformity
+       (neighbour discovery etc.)
 
-
+Where are these patches?  I've applied everything you've submitted.

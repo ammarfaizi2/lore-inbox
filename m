@@ -1,88 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273888AbRJJCER>; Tue, 9 Oct 2001 22:04:17 -0400
+	id <S273881AbRJJCFR>; Tue, 9 Oct 2001 22:05:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273854AbRJJCEI>; Tue, 9 Oct 2001 22:04:08 -0400
-Received: from mail.courier-mta.com ([66.92.103.29]:31422 "EHLO
-	mail.courier-mta.com") by vger.kernel.org with ESMTP
-	id <S273818AbRJJCD5>; Tue, 9 Oct 2001 22:03:57 -0400
-From: "Sam Varshavchik" <mrsam@courier-mta.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-smp@vger.kernel.org
-Subject: [BUG] [PATCH] Infinite loop in arch/i386/kernel/io_apic.c
-Date: Wed, 10 Oct 2001 02:04:26 GMT
+	id <S273904AbRJJCE7>; Tue, 9 Oct 2001 22:04:59 -0400
+Received: from cx739861-a.dt1.sdca.home.com ([24.5.164.61]:54535 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S273854AbRJJCEi>; Tue, 9 Oct 2001 22:04:38 -0400
+Date: Tue, 9 Oct 2001 19:04:49 -0700
+To: Robert Love <rml@tech9.net>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
+        kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: [CFT][PATCH *] faster cache reclaim
+Message-ID: <20011009190449.A25261@gnuppy>
+In-Reply-To: <Pine.LNX.4.33L.0110082032070.26495-100000@duckman.distro.conectiva> <1002670160.862.15.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_0_2220_1002679466"; charset="iso-8859-1"
-Message-ID: <courier.3BC3ACAA.000008AE@ny.email-scan.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1002670160.862.15.camel@phantasy>
+User-Agent: Mutt/1.3.22i
+From: Bill Huey <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-mail software cannot handle MIME-formatted messages.
+On Tue, Oct 09, 2001 at 07:29:13PM -0400, Robert Love wrote:
+> For example, starting a `dbench 16' would sometimes cause a brief stall
+> (especially if it is the second run of dbench).  It's better now, but
+> still not perfect.  The VM holds a lot of locks for a long time.
+> 
+> Good work.  I hope Alan sees it soon.
 
---=_0_2220_1002679466
-Content-Type: text/plain; format=flowed; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Yeah, but overall the performance of his recent patch is pretty amazing.
 
-Good morning/afternoon/evening/night, 
+It's really good that Linux is finally getting a VM that behaves well and
+can keep the working set in memory without heavy IO activity flushing out
+critical process pages. The performance of Riel's VM system should hold for
+server activity too. And adding something like thrash control to help make
+sure aging still works (without statistical scattering) under heavy load
+should allow Riel's VM to progress under loads that would freeze previous VMs.
 
-I see that there was some debug code added to io_apic.c in kernel 2.4.6, 
-that's compiled by default. 
+;-)
 
-It looks to me like there's a typo in the APIC_LOCKUP_DEBUG code that 
-results in certain hardware setups potentially triggering an infinite loop, 
-while holding the ioapic spinlock: namely when the irq_2_pin list contains 
-more than one list member: the loop pointer gets reinitialized each time at 
-the top of the loop - kablooey. 
+bill
 
-After upgrading from 2.4.3 to 2.4.7, my 440GX motherboard (with a couple of 
-PCI devices) keels over fast enough that even the NMI watchdog doesn't help, 
-and the following patch fixes it. 
-
--- 
-Sam 
-
-
---=_0_2220_1002679466
-Content-Disposition: inline; filename="linux-2.4.6-ioapicdebugfix.patch"
-Content-Type: text/plain; charset="iso-8859-1"; name="linux-2.4.6-ioapicdebugfix.patch"
-Content-Transfer-Encoding: 7bit
-
-*** linux/arch/i386/kernel/io_apic.c.orig	Tue Oct  9 21:11:10 2001
---- linux/arch/i386/kernel/io_apic.c	Tue Oct  9 21:13:03 2001
-***************
-*** 1248,1261 ****
-  	ack_APIC_irq();
-  
-  	if (!(v & (1 << (i & 0x1f)))) {
-  #ifdef APIC_MISMATCH_DEBUG
-  		atomic_inc(&irq_mis_count);
-  #endif
-  		spin_lock(&ioapic_lock);
-  		__mask_and_edge_IO_APIC_irq(irq);
-  #ifdef APIC_LOCKUP_DEBUG
-! 		for (;;) {
-! 			struct irq_pin_list *entry = irq_2_pin + irq;
-  			unsigned int reg;
-  
-  			if (entry->pin == -1)
---- 1248,1264 ----
-  	ack_APIC_irq();
-  
-  	if (!(v & (1 << (i & 0x1f)))) {
-+ #ifdef APIC_LOCKUP_DEBUG
-+ 		struct irq_pin_list *entry;
-+ #endif
-+ 
-  #ifdef APIC_MISMATCH_DEBUG
-  		atomic_inc(&irq_mis_count);
-  #endif
-  		spin_lock(&ioapic_lock);
-  		__mask_and_edge_IO_APIC_irq(irq);
-  #ifdef APIC_LOCKUP_DEBUG
-! 		for (entry = irq_2_pin + irq;;) {
-  			unsigned int reg;
-  
-  			if (entry->pin == -1)
-
---=_0_2220_1002679466--

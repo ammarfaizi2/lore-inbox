@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270913AbTGPPGh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 11:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270914AbTGPPGh
+	id S270914AbTGPPHw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 11:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270922AbTGPPHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 11:06:37 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10954
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S270913AbTGPPGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 11:06:34 -0400
-Subject: Re: please help - kernel OOPS
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Deon George <kernel@wurley.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030716120856.M31641@wurley.net>
-References: <20030716120856.M31641@wurley.net>
+	Wed, 16 Jul 2003 11:07:52 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:41221 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S270914AbTGPPHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 11:07:45 -0400
+Subject: Re: [PATCH] O6int for interactivity
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Zwane Mwaikambo <zwane@arm.linux.org.uk>
+In-Reply-To: <200307170030.25934.kernel@kolivas.org>
+References: <200307170030.25934.kernel@kolivas.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058368734.6633.21.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1058368952.873.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Jul 2003 16:18:54 +0100
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 16 Jul 2003 17:22:33 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-16 at 13:08, Deon George wrote:
-> I have been trying some mini-ITX v8000 systems and can get a kernel oops quite 
-> easily - most times it is to do with making file systems (reiserfs or ext2/3) or 
-> copying via the network (using rsync). Sometimes it happens when the box is 
-> booting, and other times it has gone for serveral days before it happened.
+On Wed, 2003-07-16 at 16:30, Con Kolivas wrote:
+> O*int patches trying to improve the interactivity of the 2.5/6 scheduler for 
+> desktops. It appears possible to do this without moving to nanosecond 
+> resolution.
+> 
+> This one makes a massive difference... Please test this to death.
 
-I've got a set of EPIA boxes running these kernels - reliably. I would
-suggest checking the RAM you used is up to spec first - I had a real
-pain of a time with EPIA stuff until I used decent RAM. The stuff that
-gave me problems worked fine on some other boards but only at 100Mhz bus
-speed on the EPIA.
-
-> I have captured two oops - one when I used mke2fs and one for mkreiserfs (since it 
-> oops quite frequently when I make a file system). Does this mean anything to 
-> anybody?
-
-Are you within power budget for your system if its a tiny little PSU
-brick ?
+Oh, my god... This is nearly perfect! :-)
+On 2.6.0-test1-mm1 with o6int.patch, I can't reproduce XMMS initial
+starvation anymore and X feels smoother under heavy load.
+Nice... ;-)
 

@@ -1,86 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265608AbSKTDYn>; Tue, 19 Nov 2002 22:24:43 -0500
+	id <S265612AbSKTDaI>; Tue, 19 Nov 2002 22:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265612AbSKTDYm>; Tue, 19 Nov 2002 22:24:42 -0500
-Received: from mail-02.iinet.net.au ([203.59.3.34]:45832 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id <S265608AbSKTDYl>;
-	Tue, 19 Nov 2002 22:24:41 -0500
-Message-ID: <3DDAF40B.9000002@iinet.net.au>
-Date: Wed, 20 Nov 2002 13:31:39 +1100
-From: Nero <neroz@iinet.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: IDE performance slowdown in 2.5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265628AbSKTDaI>; Tue, 19 Nov 2002 22:30:08 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:33927 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265612AbSKTDaH>;
+	Tue, 19 Nov 2002 22:30:07 -0500
+Date: Wed, 20 Nov 2002 03:37:47 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Luca Barbieri <ldb@ldb.ods.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading enhancements, tid-2.5.47-C0
+Message-ID: <20021120033747.GB9007@bjl1.asuk.net>
+References: <Pine.LNX.4.44.0211181303240.1639-100000@localhost.localdomain> <3DDAE822.1040400@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DDAE822.1040400@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.5.47, I get 22mb/s using hdparm -t /dev/hda, and close to 40mb/s
-when running 2.4.x
-Is this at all expected?
-Info from hdparm:
+Ulrich Drepper wrote:
+> Ingo's last patch has two pointer, one for the parent and one for the
+> child.  The is necessary (despite what Jamie tried to argue) if we want
+> to have a cfork() implementation which works in MT applications.
+> cfork() is IMO really necessary if you want to mix threads and fork().
 
-[13:19:08] root@debian:/proc# hdparm -v /dev/hda
-/dev/hda:
-   multcount    =  0 (off)
-   IO_support   =  1 (32-bit)
-   unmaskirq    =  1 (on)
-   using_dma    =  1 (on)
-   keepsettings =  0 (off)
-   readonly     =  0 (off)
-   readahead    = 256 (on)
-   geometry     = 50765/16/63, sectors = 117231408, start = 0
+Hi Ulrich,
 
+This is "int cfork(pid_t * user_tid_ptr)", yes?  I've searched google for
+cfork and not found anything fruitful - just references to solaris
+patches about a function of the same name.
 
-[13:18:51] root@debian:/proc# hdparm -i /dev/hda
-/dev/hda:
+I agree with you, if you need this functionality:
 
-   Model=ST360021A, FwRev=3.05, SerialNo=3HR01F5W
-   Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
-   RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
-   BuffType=unknown, BuffSize=2048kB, MaxMultSect=16, MultSect=off
-   CurCHS=4047/16/255, CurSects=16511760, LBA=yes, LBAsects=117231408
-   IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
-   PIO modes:  pio0 pio1 pio2 pio3 pio4
-   DMA modes:  mdma0 mdma1 mdma2
-   UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
-   AdvancedPM=no WriteCache=enabled
-   Drive conforms to: device does not report version:  1 2 3 4 5
+    1. cfork(ptr) equivalent to { pid_t p = fork(); if (p > 0) *ptr = p; }
+    2. The pid is stored in the parent before any signals can be handled.
+    3. Don't want to block signals temporarily (of course).
 
-Info from dmesg:
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller at PCI slot 00:07.1
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
-      ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-      ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
-hda: C/H/S=28733/16/255 from BIOS ignored
-hda: ST360021A, ATA DISK drive
-hda: DMA disabled
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: RICOH CD-R/RW MP7163A, ATAPI CD/DVD-ROM drive
-hdd: CD-ROM 32X/AKU, ATAPI CD/DVD-ROM drive
-hdc: DMA disabled
-hdd: DMA disabled
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63,
-UDMA(100)
-   hda: hda1 < hda5 > hda2 hda3
-hdc: ATAPI 32X CD-ROM CD-R/RW drive, 2048kB Cache, DMA
+Then yes, you need two pointers, one for the parent's cfork() argument
+for SETTID in the parent, and one for the child's thread descriptor
+for CLEARTID in the child.  Strictly speaking, SETTID does not need to
+affect the child (because the child can store the tid itself), but it
+would make a lot of sense to do it.
 
+> Assume you have an application which forks children and assosicates
+> certain actions with the termination of a child.  When SIGCHLD is
+> received one of the threads of the app searches, using the PID of the
+> terminated child, which action has to be performed.  It wouldn't find
+> anything if the thread, which created the child, hasn't yet written the
+> PID of the child in the appropriate memory location.  This can very well
+> happen and can only be fixed by the kernel writing the PID values.
 
-(Why does it say DMA disabled there [for hda], yet hdparm says its
-enabled? I checked that there is no init script changing settings on the
-drives.)
+If the application is using cfork() and requires the pid stored
+atomically at _its_ address, which is separate from the thread
+libraries current_thread->tid address, then I agree with Ulrich: two
+pointers are best.
 
+It's possible to get by with one pointer, but then you're back to
+blocking signals in the cfork() implementation, or making the thread
+library horrendous in other ways (complicating ->tid reads everywhere).
 
+(That said, I'm not entirely convinced that blocking signals in cfork()
+is so bad, if we assume that cfork() is a relatively expensive
+operation anyway...)
 
-
-
+-- Jamie

@@ -1,38 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUE1NJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUE1NJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263093AbUE1NJh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 09:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUE1NJg
+	id S263095AbUE1NJt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 09:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUE1NJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 09:09:36 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:1789 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263093AbUE1NJa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 09:09:30 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Auzanneau Gregory <mls@reolight.net>
-Subject: Re: idebus setup problem (2.6.7-rc1)
-Date: Fri, 28 May 2004 15:10:25 +0200
-User-Agent: KMail/1.5.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0405281244220.22881-100000@mazda.sh.intel.com> <200405281450.22879.bzolnier@elka.pw.edu.pl> <40B7362B.8050905@reolight.net>
-In-Reply-To: <40B7362B.8050905@reolight.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+	Fri, 28 May 2004 09:09:48 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:58271 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S263100AbUE1NJh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 09:09:37 -0400
+Date: Fri, 28 May 2004 15:09:35 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, arnd@arndb.de, drepper@redhat.com,
+       linux-kernel@vger.kernel.org, mingo@redhat.com, schwidefsky@de.ibm.com
+Subject: DOCUMENTATION Re: [PATCH] Add FUTEX_CMP_REQUEUE futex op
+Message-ID: <20040528130935.GA16819@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Jakub Jelinek <jakub@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	arnd@arndb.de, drepper@redhat.com, linux-kernel@vger.kernel.org,
+	mingo@redhat.com, schwidefsky@de.ibm.com
+References: <20040520093817.GX30909@devserv.devel.redhat.com> <20040520233639.126125ef.akpm@osdl.org> <20040521074358.GG30909@devserv.devel.redhat.com> <200405221858.44752.arnd@arndb.de> <20040524073407.GC4736@devserv.devel.redhat.com> <20040524011203.3be81d0a.akpm@osdl.org> <20040524081958.GD4736@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405281510.25256.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040524081958.GD4736@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 of May 2004 14:52, Auzanneau Gregory wrote:
-> Bartlomiej Zolnierkiewicz a écrit :
-> > OK, now please explain why do you use 'idebus=66'. :-)
->
-> Because my SIS 5513 southbridge seems to run by default to 33Mhz.
+> > It's a bit of a shame that you need to be a rocket scientist to 
+> > understand the futex syscall interface.  Bert, are you still maintaining
+> > the manpage?  If so, is there enough info here to update it?
+> 
+> The latest futex(2) or futex(4) manpage I saw doesn't mention FUTEX_REQUEUE
+> at all.
 
-and you run PCI bus at 66MHz?
+Now fixed, please see http://ds9a.nl/futex-manpages - but please realise I'm
+somewhat out of my depth. Comments welcome.
 
-SiS IDE driver completely ignores 'idebus' parameter.
+Futexes have mutated into complicated things, I wonder if this was the last
+of the changes needed.
 
+The big change in the manpages is the addition of FUTEX_REQUEUE and
+FUTEX_CMP_REQUEUE. Furthermore, I realised that the futex system call does
+not return EAGAIN etc, it returns -EAGAIN. I guesstimated that CMP_REQUEUE
+will be merged before 2.6.7.
+
+To clarify the overloaded situation wrt the futex syscall, I split it up in
+three prototypes. 
+
+Ulrich, does/will glibc provide a futex(2) function? Or should people just
+call the syscall themselves? 
+
+There were also some complaints I did not address futexfs but as far as I
+can see, it is a kernel internal matter of no interest to userspace coders?
+
+> Also, any futex man page should probably SEE ALSO Ulrich's futex paper:
+> http://people.redhat.com/drepper/futex.pdf
+
+Referenced, thanks!
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

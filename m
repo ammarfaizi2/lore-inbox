@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135856AbRDYMjm>; Wed, 25 Apr 2001 08:39:42 -0400
+	id <S135858AbRDYMkE>; Wed, 25 Apr 2001 08:40:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135855AbRDYMjd>; Wed, 25 Apr 2001 08:39:33 -0400
-Received: from [195.6.125.97] ([195.6.125.97]:6413 "EHLO looping.sycomore.fr")
-	by vger.kernel.org with ESMTP id <S135854AbRDYMjU>;
-	Wed, 25 Apr 2001 08:39:20 -0400
-Date: Wed, 25 Apr 2001 14:36:36 +0200
-From: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
-To: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: Fw: where can I find the IP address ?
-Message-Id: <20010425143636.038539aa.sebastien.person@sycomore.fr>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S135857AbRDYMjy>; Wed, 25 Apr 2001 08:39:54 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:54923 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135854AbRDYMjk>;
+	Wed, 25 Apr 2001 08:39:40 -0400
+Date: Wed, 25 Apr 2001 08:39:38 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: linux-kernel@vger.kernel.org
+cc: linux-fsdevel@vger.kernel.org
+Subject: Re: [CFT][PATCH] namespaces patch (2.4.4-pre6)
+In-Reply-To: <Pine.GSO.4.21.0104231758300.4968-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0104250836270.10935-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Début du message transféré :
+New version of patch is on ftp.math.psu.edu/pub/viro/namespaces-d-S4-pre6.gz
 
-Date: Tue, 24 Apr 2001 16:43:18 +0200
-From: sébastien person <sebastien.person@sycomore.fr>
-To: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: where can I find the IP address ?
+	* Fixed idiotic bug in do_add_mount() - the thing forgot
+to pass error value back to the caller.
 
+> News:
+> 	* ported to 2.4.4-pre6
+> 	* fixes for d_flags races (already in -ac, hopefully will go into
+> the main tree soon)
+> 	* fixes for sync_inodes()/kill_super() races (submitted to Linus
+> and Alan, hopefully will go into the tree soon)
+> 	* killed low-memory deadlocks between {u,re,}mount and kswapd.
+> 	* further cleanup of fs/super.c
+> 
+> It works here. Please, help with testing. Patch had somewhat grown, but
+> new pieces are fixes for the bugs present in the main tree and these
+> fixes had been submitted for inclusion in 2.4, so hopefully it will
+> shrink again.
+>  							Cheers,
+>  								Al
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I'm dealing with a driver wich need the IP address for specifics using.
-
-I've read in the linux device driver (o'reilly) that I can use the field
-pa_addr in the struct device. but it doesn't exist on my computer.
-
-so I don't understand why ? Is anybody could tell me where finding the
-IP address in the kernel ?
-
-thanks a lot.
-
-nb : 	my kernel version is 2.2.14, as it is my first driver I am starting
-	on the current kernel I've got but I'll also need informations
-	for kernel 2.4.X
-
-sebastien person
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,84 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315923AbSFETN2>; Wed, 5 Jun 2002 15:13:28 -0400
+	id <S315943AbSFETQC>; Wed, 5 Jun 2002 15:16:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316089AbSFETN1>; Wed, 5 Jun 2002 15:13:27 -0400
-Received: from waste.org ([209.173.204.2]:39390 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S315923AbSFETNX>;
-	Wed, 5 Jun 2002 15:13:23 -0400
-Date: Wed, 5 Jun 2002 14:13:19 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Mark Mielke <mark@mark.mielke.cc>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-In-Reply-To: <E17FfU7-0001dP-00@starship>
-Message-ID: <Pine.LNX.4.44.0206051330060.2614-100000@waste.org>
+	id <S316070AbSFETQB>; Wed, 5 Jun 2002 15:16:01 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:60040 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S315943AbSFETP7>;
+	Wed, 5 Jun 2002 15:15:59 -0400
+Date: Wed, 5 Jun 2002 12:11:56 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+cc: <linux-kernel@vger.kernel.org>,
+        <linux-hotplug-devel@lists.sourceforge.net>,
+        <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: device model documentation 2/3
+In-Reply-To: <200206051253.g55Crs331876@fachschaft.cup.uni-muenchen.de>
+Message-ID: <Pine.LNX.4.33.0206051205150.654-100000@geena.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jun 2002, Daniel Phillips wrote:
 
-> On Wednesday 05 June 2002 20:06, Mark Mielke wrote:
-> > On Wed, Jun 05, 2002 at 07:32:34PM +0200, Daniel Phillips wrote:
-> > > On Wednesday 05 June 2002 17:37, Oliver Xymoron wrote:
-> > > > No, the mistake is assuming that loosely coupling UNIX to RT lets you
-> > > > leverage much of anything from UNIX.
-> > >    - Compiler
-> > >    - Debugger
-> > >    - Editor
-> > >    - GUI
-> > >    - IPC
-> > >    - Any program that doesn't require realtime response
-> > >    - Memory protection
-> > >    - Physical hardware can be shared
-> > >    - I could go on...
-> >
-> > So... an RT .mp3 player task that receives asynchronous signals from a
-> > non-RT .mp3 player GUI front-end? So, we assume that the .mp3 data
-> > gets sent from the non-RT file system to the RT task (via the non-RT
-> > GUI front-end) in its entirety before it begins playing...
-> >
-> > Other than as a play RT project, seems like a waste of effort to me... :-)
->
-> Your opinion is noted, however it's also noted that you didn't support it in
-> any way.
+On Wed, 5 Jun 2002, Oliver Neukum wrote:
 
-Neither have you, at least aside from hand-waving. I've actually built a
-bunch of systems that were originally spec'ed to be hybrids. Wouldn't be
-surprised if Mark had too, given his Nortel address.
+> 
+> > SUSPEND_DISABLE tells the device to stop I/O transactions. When it
+> > stops transactions, or what it should do with unfinished transactions
+> > is a policy of the driver. After this call, the driver should not
+> > accept any other I/O requests.
+> 
+> Does this mean that memory allocations in the suspend/resume
+> implementations must be made with GFP_NOIO respectively
+> GFP_ATOMIC ?
+> It would seem so.
 
-> Also, it appears you didn't read the post you responded to.  Two alternatives
-> were presented:
->
->   1) Load the whole mp3 into memory before playing it
+Why would you allocate memory on a resume transition? 
 
-And that alternative sucks. Think scalability.
+As for suspending, this is something that has been discussed a few times 
+before. No definitive decision has come out of it because it hasn't been 
+implemented yet. It hasn't been implemented yet because the infrastructure 
+isn't complete. It's real close, but still not quite there. 
 
->   2) Implement a filesystem with realtime response
+Nonetheless, you have to do one of a couple things: use GFP_NOIO or
+special case the swap device(s) so they don't stop I/O when everything
+else does. (Of course, you have to eventually stop it)
 
-And your shared fs alternative sucks. Think abysmal disk throughput for
-the rest of the system. Think starvation. Think all the reasons we've been
-trying to clean up the elevator code times ten. And that's just for the
-device queue, never mind the deadlock avoidance problems. See "priority
-inversion".
+Check the archives; there are lots of ideas there wrt this topic. But, 
+there are bigger fish to fry in the meantime ;)
 
-> Both approaches have their uses.  The second is the one I'm interested in,
-> if that isn't already obvious.  The first is just a quick hack that will
-> give you guaranteed-skipless audio playback, something that Linux is
-> currently unable to do.
-
-Umm, neither can your CD player. But if you take the proper precautions to
-avoid it being jostled, clean your discs, and give it decent buffering, it
-will be more than satisfactory. Can we bring Linux up to the same
-standard with the pre-empt and low-latency approaches? Yes. Is this a
-better approach than grafting quixotic kernels onto the side of the box?
-Definitely.
-
-There is a place for hard realtime. But desktop MP3 playing is not it.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+	-pat
 

@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288576AbSADKTN>; Fri, 4 Jan 2002 05:19:13 -0500
+	id <S288577AbSADKVx>; Fri, 4 Jan 2002 05:21:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288577AbSADKTD>; Fri, 4 Jan 2002 05:19:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35599 "EHLO
+	id <S288581AbSADKVn>; Fri, 4 Jan 2002 05:21:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36879 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288576AbSADKSt>; Fri, 4 Jan 2002 05:18:49 -0500
-Subject: Re: ISA slot detection on PCI systems?
-To: cate@dplanet.ch (Giacomo A. Catenazzi)
-Date: Fri, 4 Jan 2002 10:29:44 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
-        esr@thyrsus.com (Eric S. Raymond)
-In-Reply-To: <3C357C50.6168947B@dplanet.ch> from "Giacomo A. Catenazzi" at Jan 04, 2002 10:56:32 AM
+	id <S288577AbSADKVW>; Fri, 4 Jan 2002 05:21:22 -0500
+Subject: Re: 53c810 SCSI controller not accessible on type-2 config PCI [Kerne
+To: Christian.Bartels@airbus.dasa.de (Bartels, Christian)
+Date: Fri, 4 Jan 2002 10:32:11 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <ADC649D6283BD511B2A90008C71E93BF33A430@s02mks8.ham.airbus.dasa.de> from "Bartels, Christian" at Jan 04, 2002 10:38:14 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16MRbc-0003Qx-00@the-village.bc.nu>
+Message-Id: <E16MRe0-0003RT-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I check the .config of main distributions [could
-> someone send to me the latest official .config],
-> and I'll find what are the common/default ISA cards.
+>     Non-VGA device: NCR 53c810 (rev 1).
+>       Medium devsel.  IRQ 10.  Master Capable.  Latency=80.  
+>       I/O at 0xd000 [0xd001].
 
-We enable almost all - but as modules. Non ISAPnP/PCI/otherwise detectable
-devices require user intervention via the GUI config tools or by editing
-modules.conf
-
-Except for the sound configuration the number of people this hits is very
-low indeed.
+What does this device look like in 2.2.18 ?

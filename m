@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313087AbSGYNFO>; Thu, 25 Jul 2002 09:05:14 -0400
+	id <S312962AbSGYNHZ>; Thu, 25 Jul 2002 09:07:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313181AbSGYNFO>; Thu, 25 Jul 2002 09:05:14 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:1947 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S313087AbSGYNFO>; Thu, 25 Jul 2002 09:05:14 -0400
-Date: Thu, 25 Jul 2002 15:26:06 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-rc3-ac2 SMP
-In-Reply-To: <200207242034.01605.jamesclv@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0207251458380.18907-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313508AbSGYNGV>; Thu, 25 Jul 2002 09:06:21 -0400
+Received: from 64-238-252-21.kmcmail.net ([64.238.252.21]:35391 "EHLO
+	kermit.unets.com") by vger.kernel.org with ESMTP id <S313563AbSGYNGS>;
+	Thu, 25 Jul 2002 09:06:18 -0400
+Subject: insmod error
+From: Adam Voigt <adam.voigt@cryptocomm.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 25 Jul 2002 09:09:31 -0400
+Message-Id: <1027602571.1673.10.camel@beowulf.cryptocomm.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 25 Jul 2002 13:09:31.0908 (UTC) FILETIME=[83EEC440:01C233DC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jul 2002, James Cleverdon wrote:
+I'm trying to run an "insmod ipt_state.o" to load the IPTABLES State
+module and it says:
 
-> Ah ha!  Note that while the CPU records in the {MPS,ACPI/MADT} table are in 
-> numerical order (as preserved in raw_phys_apicid), the boot CPU is # 02.  The 
-> flat code in smp_boot_cpus assumes that the boot CPU will be the first record 
-> in the list.  Oops.
-> 
-> Try the attached patch and see if it helps.
+ipt_state.o: unresolved symbol ip_conntrack_get_Rc5444256
+ipt_state.o: unresolved symbol ip_conntrack_module_Rb0361033
 
-Ok that one goes all the way, but i don't think i've covered everything 
-(e.g. tested all the IPI functions). But otherwise looks good, i'll give 
-it a go on a bigger box later (tested on 4-way, i'll try 12)
+IPTables itself works, and is loaded as a module already, and obviously
+the Kernel has module support On because iptables works, but for some
+reason these won't insert.
 
-Cheers,
-	Zwane
--- 
-function.linuxpower.ca
+I'm running Kernel 2.4.18-5 on Redhat 7.3.
 
+Adam Voigt
+adam.voigt@cryptocomm.com
 

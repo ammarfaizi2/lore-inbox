@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132776AbRDDKUd>; Wed, 4 Apr 2001 06:20:33 -0400
+	id <S132785AbRDDLEy>; Wed, 4 Apr 2001 07:04:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132784AbRDDKUX>; Wed, 4 Apr 2001 06:20:23 -0400
-Received: from tilde.ookhoi.dds.nl ([194.109.10.165]:57472 "HELO
-	humilis.ookhoi.dds.nl") by vger.kernel.org with SMTP
-	id <S132776AbRDDKUL>; Wed, 4 Apr 2001 06:20:11 -0400
-Date: Wed, 4 Apr 2001 12:18:52 +0200
-From: Ookhoi <ookhoi@dds.nl>
-To: Harald Dunkel <harri@synopsys.COM>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: ReiserFS? How reliable is it? Is this the future?
-Message-ID: <20010404121852.A2284@humilis>
-Reply-To: ookhoi@dds.nl
-In-Reply-To: <3AC9BE5A.DE079EE1@Synopsys.COM>
-Mime-Version: 1.0
+	id <S132789AbRDDLEo>; Wed, 4 Apr 2001 07:04:44 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8973 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132785AbRDDLEd>; Wed, 4 Apr 2001 07:04:33 -0400
+Subject: Re: a question about block device driver
+To: alexjoy@sis.com.tw (Alex Huang)
+Date: Wed, 4 Apr 2001 12:06:16 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <004701c0bcd2$e2f90ae0$d9d113ac@sis.com.tw> from "Alex Huang" at Apr 04, 2001 02:45:49 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3AC9BE5A.DE079EE1@Synopsys.COM>; from harri@synopsys.COM on Tue, Apr 03, 2001 at 02:13:14PM +0200
-X-Uptime: 12:07:48 up 12:54,  5 users,  load average: 0.16, 0.04, 0.01
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14kl7C-0001iI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Harald,
+>  Thank you very much for your help.
+>  In the linux kernel version 2.4.X,
+>  Does anybody mount a hard drive with MSDOS type file system ??
 
-> If I get the DVD stuff working, then I won't need NT anymore, i.e.
-> I will have an empty disk.
+yes
+
 > 
-> What is your impression about ReiserFS? Does it work? Is it stable
-> enough for my daily work, or is it something to try out and watch
-> carefully? Do you use ReiserFS for your boot partition?
-> 
-> Or should I try ext3 instead?
+> When I mount this hard drive using the command :
+>     mount -t msdos /dev/hda1 /mnt/hd -o blocksize=1024
+>  After mounting a hard disk, I read a file , and the system occours errors.
+>  After I check the msdos file system in "usr/src/linux/fs/fat/cvf.c"
 
-For me it is very stable on several servers and workstations, and for
-quite some time now (since the kernel 2.3 series, had to watch the lists
-for faulty combinations though). I never used kernel 2.2 with reiserfs
-(3.5), but only 2.3 and 2.4 (and thus rfs 3.6). My newest workstation
-and notebook have one partition (/) and thus reiserfs is root and boot
-partition. On older ones it was necessary to have a small /boot
-partition because of an older version of lilo. It is no use to have
-reiserfs on /boot if it is small (which usually is the case), due to the
-journal which is 32 meg.
-The bigest point so far where the fsck tools, but they seem to be quite
-usefull these days, and under active development.
+Block sizes != media block size are broken for FAT in all 2.4 kernels. Use
+2.2.19 if you want to get any work done. 
 
-	Ookhoi

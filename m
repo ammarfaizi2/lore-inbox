@@ -1,57 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUIOAYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266854AbUIOA1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266867AbUIOAYG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 20:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUIOAXV
+	id S266854AbUIOA1s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 20:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUIOAZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 20:23:21 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:2978 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265805AbUIOAW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 20:22:26 -0400
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Robert Love <rml@ximian.com>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1095189593.16988.72.camel@localhost.localdomain>
-References: <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au>
-	 <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au>
-	 <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au>
-	 <20040914150316.GN4180@dualathlon.random>
-	 <1095185103.23385.1.camel@betsy.boston.ximian.com>
-	 <20040914185212.GY9106@holomorphy.com>
-	 <1095188569.23385.11.camel@betsy.boston.ximian.com>
-	 <20040914192104.GB9106@holomorphy.com>
-	 <1095189593.16988.72.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1095207749.2406.36.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 14 Sep 2004 20:22:29 -0400
+	Tue, 14 Sep 2004 20:25:05 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:26091 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264954AbUIOAXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 20:23:05 -0400
+Message-ID: <41478B56.90607@kolivas.org>
+Date: Wed, 15 Sep 2004 10:22:46 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+References: <413CB661.6030303@sgi.com> <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <1095186713.6309.15.camel@stantz.corp.sgi.com> <20040914201558.GA32254@logos.cnet> <41477661.9030204@kolivas.org> <20040914214158.GA363@logos.cnet>
+In-Reply-To: <20040914214158.GA363@logos.cnet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-14 at 15:19, Alan Cox wrote:
-> Fix the data structure locking starting at the lowest level is how I've
-> always tackled these messes. When the low level locking is right the
-> rest just works (usually 8)).
+Marcelo Tosatti wrote:
+> On Wed, Sep 15, 2004 at 08:53:21AM +1000, Con Kolivas wrote:
 > 
-> 	"Lock data not code"
+>>Marcelo Tosatti wrote:
+>>
+>>>On Tue, Sep 14, 2004 at 11:31:53AM -0700, Florin Andrei wrote:
+>>>
+>>>
+>>>>On Mon, 2004-09-06 at 16:27, Andrew Morton wrote:
+>>>>
+>>>>
+>>>>>Con Kolivas <kernel@kolivas.org> wrote:
+>>>>
+>>>>>>The change was not deliberate but there have been some other people 
+>>>>>>report significant changes in the swappiness behaviour as well (see 
+>>>>>>archives). It has usually been of the increased swapping variety 
+>>>>>>lately. It has been annoying enough to the bleeding edge desktop users 
+>>>>>>for a swag of out-of-tree hacks to start appearing (like mine).
+>>>>>
+>>>>>All of which is largely wasted effort.
+>>>>
+>>>>>From a highly-theoretical, ivory-tower perspective, maybe; i am not the
+>>>>one to pass judgement.
+>>>>>From a realistic, "fix it 'cause it's performing worse than MSDOS
+>>>>without a disk cache" perspective, definitely not true.
+>>>>
+>>>>I've found a situation where the vanilla kernel has a behaviour that
+>>>>makes no sense:
+>>>>
+>>>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109237941331221&w=2
+>>>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109237959719868&w=2
+>>>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109238126314192&w=2
+>>>>
+>>>>A patch by Con Kolivas fixed it:
+>>>>
+>>>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109410526607990&w=2
+>>>>
+>>>>I cannot offer more details, i have no time for experiments, i just need
+>>>>a system that works. The vanilla kernel does not.
+>>>
+>>>
+>>>Have you tried to decrease the value of /proc/sys/vm/swappiness 
+>>>to say 30 and see what you get?
+>>>
+>>>Andrew's point is that we should identify the problem - Con's patch
+>>>rewrites swapping policy.  
+>>
+>>I already answered this. That hard swappiness patch does not really 
+>>rewrite swapping policy. It identifies exactly what has changed because 
+>>it does not count "distress in the swap tendency". Therefore if the 
+>>swappiness value is the same, the mapped ratio is the same (in the 
+>>workload) yet the vm is swappinig more, it is getting into more 
+>>"distress". The mapped ratio is the same but the "distress" is for some 
+>>reason much higher in later kernels, meaning the priority of our 
+>>scanning is getting more and more intense. This should help direct your 
+>>searches.
 > 
+> 
+>>These are the relevant lines of code _from mainline_:
+>>
+>>distress = 100 >> zone->prev_priority
+>>mapped_ratio = (sc->nr_mapped * 100) / total_memory;
+>>swap_tendency = mapped_ratio / 2 + distress + vm_swappiness
+>>if (swap_tendency >= 100)
+>>-		reclaim_mapped = 1;
+>>
+>>
+>>That hard swappiness patch effectively made "distress == 0" always.
+> 
+> So isnt it true that decreasing vm_swappiness should compensate 
+> distress and have the same effect of your patch? 
 
-Although, there is at least one case (reiser3) where we know which data
-structures the BKL is supposed to be protecting, because the code does
-something like reiserfs_write_lock(foo_data_structure) which gets
-define'd away to lock_kernel().  And apparently some of the best and
-brightest on LKML have tried and failed to fix it, and even Hans says
-"it's HARD, the fix is reiser4".
+Nope. We swap large amounts with the wrong workload at swappiness==0 
+where we wouldn't before at swappiness==60. ie there is no workaround 
+possible without changing the code in some way.
 
-So, maybe some of the current uses should be tagged as WONTFIX.
+> To be fair I'm just arguing, haven't really looked at the code.
 
-Lee
+Thats cool ;)
 
+Cheers,
+Con

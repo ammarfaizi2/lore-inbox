@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318036AbSG2GML>; Mon, 29 Jul 2002 02:12:11 -0400
+	id <S318038AbSG2GPx>; Mon, 29 Jul 2002 02:15:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318038AbSG2GML>; Mon, 29 Jul 2002 02:12:11 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49672 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318036AbSG2GML>; Mon, 29 Jul 2002 02:12:11 -0400
-Date: Sun, 28 Jul 2002 23:16:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: akpm@zip.com.au, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2/13] remove pages from the LRU in __free_pages_ok()
-In-Reply-To: <20020728.224302.36837419.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0207282256460.872-100000@home.transmeta.com>
+	id <S318039AbSG2GPx>; Mon, 29 Jul 2002 02:15:53 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:13971 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318038AbSG2GPx>;
+	Mon, 29 Jul 2002 02:15:53 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15684.56787.18191.406577@argo.ozlabs.ibm.com>
+Date: Mon, 29 Jul 2002 16:16:51 +1000 (EST)
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix include/linux/timer.h compile
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+include/linux/timer.h needs to include <linux/stddef.h>
+to get the definition of NULL.
 
+Paul.
 
-On Sun, 28 Jul 2002, David S. Miller wrote:
->
->    But the thing is, nobody should normally have a reference to such a
->    page anyway. The only way they happen is by something mapping a
->    page from user space, and saving it away, while the user space goes
->    away and drops its references to the page.
->
-> Ignoring for a moment whether you agree with the idea of zero-copying
-> userspace pages over sockets, I would at least like to retain the
-> ability to experiment with something like this.
-
-Oh, you misunderstand.. (probably because I'm unclear)
-
-I'm not saying that getting a page from a user space mapping is bad: a lot
-of places do that independently of zero-copy.
-
-But hopefully nobody should have the problematic last reference to a LRU
-page _except_ the user space itself. That should be safe for page cache
-pages thanks to the truncate change.
-
-And for anonymous pages, I really think that the right solution is to do
-the same remove-from-LRU thing for the "last unmap" (which should be
-trivial to notice with rmap).
-
-I'm trying to come up with what kept us safe in 2.4.x for anonymous pages,
-and I get this sinking feeling that we really aren't.
-
-Which may imply that Andrew's irq-safe LRU list is the right thing to do
-after all. At least on 2.4.x (and if you do it there, then my arguments
-about it being unnecessary on 2.5.x due to "design" just totally cruble
-away, since clearly Andrew was rigth and the "design argument" was total
-crud.
-
-Let me sleep on this. Does anybody have any intelligent thoughts?
-
-			Linus
-
+diff -urN linux-2.5/include/linux/timer.h pmac-2.5/include/linux/timer.h
+--- linux-2.5/include/linux/timer.h	Mon Jun 24 23:59:11 2002
++++ pmac-2.5/include/linux/timer.h	Thu Jul 25 21:58:42 2002
+@@ -2,6 +2,7 @@
+ #define _LINUX_TIMER_H
+ 
+ #include <linux/config.h>
++#include <linux/stddef.h>
+ #include <linux/list.h>
+ 
+ /*

@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318128AbSHZQ4Z>; Mon, 26 Aug 2002 12:56:25 -0400
+	id <S318133AbSHZRDG>; Mon, 26 Aug 2002 13:03:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318131AbSHZQ4Z>; Mon, 26 Aug 2002 12:56:25 -0400
-Received: from web40210.mail.yahoo.com ([66.218.78.71]:39480 "HELO
-	web40210.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318128AbSHZQ4Z>; Mon, 26 Aug 2002 12:56:25 -0400
-Message-ID: <20020826170037.69164.qmail@web40210.mail.yahoo.com>
-Date: Mon, 26 Aug 2002 10:00:37 -0700 (PDT)
-From: mike heffner <mdheffner@yahoo.com>
+	id <S318134AbSHZRDG>; Mon, 26 Aug 2002 13:03:06 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:41981 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318133AbSHZRDF>; Mon, 26 Aug 2002 13:03:05 -0400
 Subject: Re: PROBLEM:  conflict between apm and system clock on Inspiron 8100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: mike heffner <mdheffner@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1030355753.16767.35.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20020826170037.69164.qmail@web40210.mail.yahoo.com>
+References: <20020826170037.69164.qmail@web40210.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 26 Aug 2002 18:08:45 +0100
+Message-Id: <1030381725.1750.10.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-08-26 at 18:00, mike heffner wrote:
+> Well, isn't that a nice feature.  Is there a
+> workaround for this hardware?
 
-> 
-> The 8100 seems to turn off interrupts itself and
-> read the battery very
-> slowly causing lost ticks (its taking > 1/100th of a
-> second to do the
-> read). 
+A thinkpad ;)
 
-Well, isn't that a nice feature.  Is there a
-workaround for this hardware?
+In theory you could try writing some code to measure the elapsed time by
+other means and then correct the kernel for the number of lost ticks.
+Not trivial. Or for that matter dont run battstat
 
-Thanks
-Mike
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com

@@ -1,76 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264544AbTFQCB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 22:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTFQCAI
+	id S264537AbTFQB6m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 21:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTFQB5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 22:00:08 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:29931 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264535AbTFQB7P (ORCPT
+	Mon, 16 Jun 2003 21:57:13 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:13765 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264537AbTFQBzj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 21:59:15 -0400
-Subject: Re: patch for common networking error messages
-To: "David S. Miller" <davem@redhat.com>
-Cc: Daniel Stekloff <stekloff@us.ibm.com>, janiceg@us.ibm.com,
-       jgarzik@pobox.com, Larry Kessler <lkessler@us.ibm.com>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFCA1A4F38.D782F1D3-ON85256D48.000A5CED@us.ibm.com>
-From: Janice Girouard <girouard@us.ibm.com>
-Date: Mon, 16 Jun 2003 21:12:50 -0500
-X-MIMETrack: Serialize by Router on D01ML063/01/M/IBM(Release 6.0.1 w/SPRs JHEG5JQ5CD, THTO5KLVS6, JHEG5HMLFK, JCHN5K5PG9|March
- 27, 2003) at 06/16/2003 22:12:56
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Mon, 16 Jun 2003 21:55:39 -0400
+Date: Mon, 16 Jun 2003 19:09:32 -0700
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4] Mask C/R bit from connection address
+Message-ID: <20030617020932.GI30944@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ir241_caddr_mask.diff :
+		<Patch from Jan Kiszka>
+	o [CORRECT] ignore the C/R bit in the LAP connection address.
 
 
-
-
-  From: Janice Girouard <girouard@us.ibm.com>
-   Date: Mon, 16 Jun 2003 19:44:22 -0500
-
-   It sounds like you are proposing a new family for the netlink
-   subsystem.
-
-   From: "David S. Miller" <davem@redhat.com>
-
-   Date:06/16/2003 08:19 PM
-
-
-   Exactly, you have to create this.
-
-
-
-Okay.  That solves the issue of events generated in a plethora of formats
-for the same event.  Any suggestions on what should be included in this new
-family?  I can present a patch to suggest a starting point. However, it
-would be great to hear from everyone that has any initial thoughts.
-
-
-
-One question that comes to mind, since there is some overlap with netdev
-notifier events, should we include those events in the new family?  I can
-envision a couple of approaches:
-
-
-
-1) keep the two interfaces (netdev notifier and netlink), with separate end
-users in mind and duplicate the events to each interface.  Possibly
-thinking about migrating to just one interface over time.  Applications
-would then just receive one set of events.
-
-
-
-2) keep the two interfaces, with no duplication of messages, clarifying the
-uses for the two interfaces.  An application would then register, and
-obtain events from the two separate mechanisms.
-
-p.s. thanks for all the input so far.
-
-
-
-
-
+--- linux/net/irda/irlap_frame.d0.c	Fri Apr 11 18:38:03 2003
++++ linux/net/irda/irlap_frame.c	Fri Apr 11 18:38:15 2003
+@@ -162,8 +162,8 @@ static void irlap_recv_snrm_cmd(struct i
+ 	frame = (struct snrm_frame *) skb->data;
+ 	
+ 	if (skb->len >= sizeof(struct snrm_frame)) {
+-		/* Copy the new connection address */
+-		info->caddr = frame->ncaddr;
++		/* Copy the new connection address ignoring the C/R bit */
++		info->caddr = frame->ncaddr & 0xFE;
+ 
+ 		/* Check if the new connection address is valid */
+ 		if ((info->caddr == 0x00) || (info->caddr == 0xfe)) {

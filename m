@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261425AbSJHScD>; Tue, 8 Oct 2002 14:32:03 -0400
+	id <S261448AbSJHSiu>; Tue, 8 Oct 2002 14:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261424AbSJHScD>; Tue, 8 Oct 2002 14:32:03 -0400
-Received: from mx04.stofanet.dk ([212.10.30.234]:60077 "EHLO mx04.stofanet.dk")
-	by vger.kernel.org with ESMTP id <S261425AbSJHScC>;
-	Tue, 8 Oct 2002 14:32:02 -0400
-Message-ID: <3DA3260D.2030908@mail1.stofanet.dk>
-Date: Tue, 08 Oct 2002 20:38:05 +0200
-From: Tommy Vestermark <tov@mail1.stofanet.dk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en
+	id <S261452AbSJHSiu>; Tue, 8 Oct 2002 14:38:50 -0400
+Received: from packet.digeo.com ([12.110.80.53]:12261 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261448AbSJHSiR>;
+	Tue, 8 Oct 2002 14:38:17 -0400
+Message-ID: <3DA32767.1F0C582F@digeo.com>
+Date: Tue, 08 Oct 2002 11:43:51 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Status of UDF CD packet writing?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Matti Annala <gval@mbnet.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] page_alloc.c and mincore.c
+References: <001101c26ef8$fcd41f20$4fa564c2@windows>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Oct 2002 18:43:51.0446 (UTC) FILETIME=[A5549B60:01C26EFA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Will Jens Axboes patch for CD packet writing for CD-R/RW make it in
-before the feature freeze? I know Jens Axboe is busy with more basic I/O
-stuff, but i sincerely hope it can be squeezed in before 2.6/3.0 is
-released.
+Matti Annala wrote:
+> 
+> This one removes a strange unused parameter in balance_classzone() and
+> also slightly cleans up __alloc_pages().
+> 
 
-Most new machines are fitted with a CD burner and some have finally even
-dropped the floppy drive!. Good desktop support is not only about
-low-latency and scheduler issues (Good work though!).
+You're right.  We've significantly redone that code in
+the -mm patchset, including cleaning up that stuff.
 
-Looking forward to 2.6/3.0 (or whatever the name may be ;-)
-Tommy Vestermark
+> ------------------------------
+> 
+> This one fixes a typo in mm/mincore.c
 
-
-
-
+barf.  Nasty bug.  Thanks.

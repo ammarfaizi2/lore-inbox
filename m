@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273019AbTHPObK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 10:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273021AbTHPObK
+	id S273004AbTHPO3i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 10:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273015AbTHPO3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 10:31:10 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:41602 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S273019AbTHPOa6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 10:30:58 -0400
-Date: Sat, 16 Aug 2003 15:29:33 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rob Landley <rob@landley.net>
-Cc: George Anzinger <george@mvista.com>, LKML <linux-kernel@vger.kernel.org>,
-       Stephen Rothwell <sfr@canb.auug.org.au>, linux-laptop@vger.kernel.org
-Subject: APM and 2.5.75 not resuming properly
-Message-ID: <20030816142933.GE23646@mail.jlokier.co.uk>
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200308132024.36967.rob@landley.net> <3F3B41C7.1000906@mvista.com> <200308160510.44627.rob@landley.net>
-Mime-Version: 1.0
+	Sat, 16 Aug 2003 10:29:38 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:21477 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S273004AbTHPO3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 10:29:37 -0400
+Date: Sat, 16 Aug 2003 06:51:17 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: axel@pearbough.net
+Subject: [Bug 1116] New: build error in drivers/scsi/ide-scsi.c
+Message-ID: <32230000.1061041877@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200308160510.44627.rob@landley.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> (APM suspends, and then never comes back until you yank the #*%(&#
-> battery.  Great.  Trying it with the real mode bios calls next
-> reboot...)
+http://bugme.osdl.org/show_bug.cgi?id=1116
 
-Similar here.  Using 2.5.75.  APM with no local APIC (kernel is unable
-to enable it anyway).
+           Summary: build error in drivers/scsi/ide-scsi.c
+    Kernel Version: 2.6.0-test3-bk
+            Status: NEW
+          Severity: high
+             Owner: andmike@us.ibm.com
+         Submitter: axel@pearbough.net
 
-It suspends.  On resume, the screen is blank and the keyboard doesn't
-respond (no Caps Lock or SysRq).  Occasionally when it resumes the
-keyboard does respond, but the screen stays blank.  At least it is
-possible to do SysRq-S SysRq-B in this state.  Sometimes, if I'm
-lucky, I can make it reboot by holding down the power key for 5 seconds.
 
-2.4 APM works great.  ACPI doesn't do anything useful except give me
-more control over the screen brightness.
+Distribution:Slackware-9.0
+Hardware Environment:
+Software Environment:
+Problem Description:build fails at drivers/scsi/ide-scsi.c:951
+drivers/scsi/ide-scsi.c:951: error: unknown field `name' specified in initializer
+Steps to reproduce:drivers/scsi/ide-scsi.c:951: warning: missing braces around initializer
+drivers/scsi/ide-scsi.c:951: warning: (near initialization for `idescsi_primary.node')
+drivers/scsi/ide-scsi.c:951: warning: initialization from incompatible pointer type
 
---- Jamie
+

@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267452AbUIJPOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267478AbUIJPQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267452AbUIJPOG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 11:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUIJPOE
+	id S267478AbUIJPQo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 11:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUIJPQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 11:14:04 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:63387
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S267452AbUIJPN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 11:13:57 -0400
-Subject: Re: [PATCH] sis5513 fix for SiS962 chipset
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux-IDE <linux-ide@vger.kernel.org>
-In-Reply-To: <4141BFDF.1050200@inet6.fr>
-References: <1094826555.7868.186.camel@thomas.tec.linutronix.de>
-	 <4141BFDF.1050200@inet6.fr>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1094828803.13450.4.camel@thomas.tec.linutronix.de>
+	Fri, 10 Sep 2004 11:16:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10159 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267478AbUIJPQJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 11:16:09 -0400
+Date: Fri, 10 Sep 2004 17:15:38 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrea Arcangeli <andrea@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wedgwood <cw@f00f.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+Message-ID: <20040910151538.GA24434@devserv.devel.redhat.com>
+References: <593560000.1094826651@[10.10.2.4]> <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 10 Sep 2004 17:06:43 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-10 at 16:53, Lionel Bouton wrote:
-> Thomas Gleixner wrote the following on 09/10/2004 04:29 PM :
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, Sep 10, 2004 at 04:07:21PM +0100, Hugh Dickins wrote:
+> On Fri, 10 Sep 2004, Martin J. Bligh wrote:
+> > 
+> > I agree about killing anything but 4K stacks though - having the single
+> > page is very compelling - not only can we allocate it easier, but we can
+> > also use cache-hot pages from the hot list.
 > 
-> >Hi,
-> >
-> >1. If the fake 5513 id bit is not set by the BIOS we must have the 5518
-> >id in the device table.
-> >
-> >2. If the register remapping is not set by the BIOS then the enable bit
-> >check in ide_pci_setup_ports will fail. It's safe to switch to the
-> >remapping mode here. Keeping the not remapped mode would need quite big
-> >changes AFAICS.
->
-> I was worried about these when 5518 was introduced but couldn't test on 
-> the hardware I had at hand and nobody reported hitting this so it went 
-> under the carpet. What hardware did you use to test ?
+> I think we all agree that's a promising future, and a good discipline.
+> But I'm not the only one to doubt we're there yet.
+> 
 
-Compact PCI ICP-P4 from Inova Computers.
+> Chris's patch seems eminently sensible to me.  Why should having separate
+> interrupt stack depend on whether you're configured for 4K or 8K stacks?
 
-They have not set the 5513 fake id bit and the remapping bit isn't set
-either. I did thorough testing both on 2.4 and 2.6 and encountered no
-problems yet. I suspect there are more boards around with similar
-settings.
+because it gives people a reason to do sloppy coding.
 
-tglx
+> Wasn't Andrea worried, a couple of months back, about nested interrupts
+> overflowing the 4K interrupt stack?  
+
+I don't think so; interrupts seem to behave quite ok in this regard.
+What we should consider regardless is disable the nesting of irqs for
+performance reasons but that's an independent matter
 
 
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBQcUZxULwo51rQBIRApKcAKCeYEWHGoAbCcbrWwpfDXHzch/4bACfbn7/
+ic8vva+T0hN0C87P+MTbf4M=
+=ntVb
+-----END PGP SIGNATURE-----
+
+--Q68bSM7Ycu6FN28Q--

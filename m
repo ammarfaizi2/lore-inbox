@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269057AbUJUMcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268982AbUJUMmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269057AbUJUMcb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 08:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268436AbUJTQ1P
+	id S268982AbUJUMmN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 08:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268703AbUJUMio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 12:27:15 -0400
-Received: from fire.osdl.org ([65.172.181.4]:41606 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S268534AbUJTQR4 (ORCPT
+	Thu, 21 Oct 2004 08:38:44 -0400
+Received: from fbxmetz.linbox.com ([81.56.128.63]:28932 "EHLO xiii.metz")
+	by vger.kernel.org with ESMTP id S267362AbUJUMdD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 12:17:56 -0400
-Date: Wed, 20 Oct 2004 09:18:46 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, LARTC@mailman.ds9a.nl
-Subject: Re: [ANNOUNCE] iproute2 2.6.9-041019
-Message-Id: <20041020091846.5151604e@zqx3.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.61.0410200805110.8475@boston.corp.fedex.com>
-References: <41758014.4080502@osdl.org>
-	<Pine.LNX.4.61.0410200805110.8475@boston.corp.fedex.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-suse-linux)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Oct 2004 08:33:03 -0400
+Message-ID: <4177AC6C.6000704@linbox.com>
+Date: Thu, 21 Oct 2004 14:32:44 +0200
+From: Ludovic Drolez <ludovic.drolez@linbox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9: linux logo not display in vga16fb
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Similar problem to ss in iptunnel. It was including asm/byteorder.h
-a kernel header that it didn't need to.
+Hi !
 
-diff -Nru a/ip/iptunnel.c b/ip/iptunnel.c
---- a/ip/iptunnel.c	2004-10-20 09:18:36 -07:00
-+++ b/ip/iptunnel.c	2004-10-20 09:18:36 -07:00
-@@ -26,7 +26,6 @@
- #include <netinet/in.h>
- #include <arpa/inet.h>
- #include <sys/ioctl.h>
--#include <asm/byteorder.h>
- #include <linux/if.h>
- #include <linux/if_arp.h>
- #include <linux/ip.h>
+I used to have a nice vga boot logo with my 2.6.7 kernel, but with the 2.6.9, my 
+boot logo has disappeared (same .config)...
+It seems to switch to VGA, and some space is reserved but, the logo is not 
+displayed.
+
+Any idea / patch welcome !
+
+Cheers,
+
+-- 
+Ludovic DROLEZ                              Linbox / Free&ALter Soft
+152 rue de Grigy - Technopole Metz 2000                   57070 METZ
+tel : 03 87 50 87 90                            fax : 03 87 75 19 26

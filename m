@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbTESUny (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 16:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbTESUny
+	id S262783AbTESUpa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 16:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbTESUpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 16:43:54 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22022 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262547AbTESUnx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 16:43:53 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [PATCH] Exception trace for i386
-Date: 19 May 2003 20:56:48 GMT
-Organization: Transmeta Corp
-Message-ID: <1053377808.588720@palladium.transmeta.com>
-References: <20030519192814.GA975@averell>
-X-Trace: palladium.transmeta.com 1053377808 19728 127.0.0.1 (19 May 2003 20:56:48 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 19 May 2003 20:56:48 GMT
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: torvalds@penguin.transmeta.com (Linus Torvalds)
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	Mon, 19 May 2003 16:45:30 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:63115 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S262783AbTESUp2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 16:45:28 -0400
+X-Comment-To: "Stephen C. Tweedie"
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Alex Tomas <bzzz@tmi.comex.ru>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Subject: Re: [Ext2-devel] [RFC] probably bug in current ext3/jbd
+Date: Tue, 20 May 2003 00:58:48 +0000
+In-Reply-To: <1053377493.11943.32.camel@sisko.scot.redhat.com> (Stephen C.
+ Tweedie's message of "19 May 2003 21:51:33 +0100")
+Message-ID: <87el2ue8mv.fsf@gw.home.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
+References: <87d6igmarf.fsf@gw.home.net>
+	<1053376482.11943.15.camel@sisko.scot.redhat.com>
+	<87he7qe979.fsf@gw.home.net>
+	<1053377493.11943.32.camel@sisko.scot.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030519192814.GA975@averell>, Andi Kleen  <ak@muc.de> wrote:
->
->x86-64 had printks for user level faults for a long time. This
->proved to be very useful to trace otherwise hidden faults, e.g.
->on a normal kernel there is no way to see a segfault in a process
->that runs in a write protected directory, even when core dumps
->are enabled. Also it's useful as an early warning that something
->is wrong with your system.
->
->There was a request to port this to i386. Done with this patch.
 
-Please don't do it this way. For one thing, there are valid uses where
-you want to enable tracing for just one process. For another, there are
-actually cases where you may want to trace all page faults, even the
-ones that don't cause signals - kind of like normal system calls. After
-all, from a behavioural standpoint, that is what they are: implied
-system calls.
+aha. now it's clear. thank you. I catched J_ASSERT(b_committed_data != NULL)
+in ext3_free_blocks() with de-BKL'ed JBD. hence, my solution is to have a
+tid journal_head indicating which transaction uses b_committed_data.
 
-So I think you want to make it per-process, and expose it as a ptrace
-thing (imaging seeing all the page faults a process is taking with
-"strace". Potentially quite useful for performance tuning).
+I don't want to look intrusive, but .. what do you think about new locking
+schema I'm trying to implement?
 
-I don't think it's ever really valid to expose it as a global option, as
-some programs use page faults (even the signalling kind) to do their own
-memory management, and making it a global option just makes it hard to
-work with such programs.
 
-		Linus
+>>>>> Stephen C Tweedie (SCT) writes:
+
+ >> access for
+ >> b_committed_data == NULL ?
+
+ SCT> Not with BKL.  Without it, yes, that's definitely a risk, and you need
+ SCT> some locking for the access to b_committed_data.  Without that, even if
+ SCT> you keep the jh->b_committed_data field valid, you risk freeing the old
+ SCT> copy that another thread is using.
+
+ SCT> Cheers,
+ SCT>  Stephen
+

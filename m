@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314829AbSGQOQw>; Wed, 17 Jul 2002 10:16:52 -0400
+	id <S314835AbSGQO0e>; Wed, 17 Jul 2002 10:26:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314835AbSGQOQw>; Wed, 17 Jul 2002 10:16:52 -0400
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:20132 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id <S314829AbSGQOQv>; Wed, 17 Jul 2002 10:16:51 -0400
-Message-ID: <180577A42806D61189D30008C7E632E879399D@boca213a.boca.ssc.siemens.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: "'irfan_hamid@softhome.net'" <irfan_hamid@softhome.net>,
-       linux-kernel@vger.kernel.org
-Subject: RE: None
-Date: Wed, 17 Jul 2002 10:19:48 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315119AbSGQO0e>; Wed, 17 Jul 2002 10:26:34 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1030 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314835AbSGQO0d>; Wed, 17 Jul 2002 10:26:33 -0400
+Date: Wed, 17 Jul 2002 15:29:29 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org, jsimmons@transvirtual.com
+Subject: Link errors with CONFIG_VT=n, CONFIG_SYSRQ=y
+Message-ID: <20020717152929.A5856@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the answer.
+lkml, James,
 
-Jack Bloch
-Siemens Carrier Networks
-e-mail    : jack.bloch@icn.siemens.com
-phone     : (561) 923-6550
+When building 2.5.26 with CONFIG_VT=n and CONFIG_SYSRQ=y, the resulting
+kernel can't be linked:
 
+drivers/built-in.o: In function `sysrq_handle_unraw':
+drivers/built-in.o(.text+0x14694): undefined reference to `fg_console'
+drivers/built-in.o(.text+0x14698): undefined reference to `kbd_table'
 
------Original Message-----
-From: irfan_hamid@softhome.net [mailto:irfan_hamid@softhome.net]
-Sent: Wednesday, July 17, 2002 10:15 AM
-To: linux-kernel@vger.kernel.org
-Cc: Bloch, Jack
-Subject: Re: None
+The following is a work-around for this problem.  There is probably
+a cleaner solution to this.
 
+--- orig/drivers/char/sysrq.c	Wed Jul 17 15:10:39 2002
++++ linux/drivers/char/sysrq.c	Wed Jul 17 15:27:18 2002
+@@ -81,10 +81,12 @@
+ static void sysrq_handle_unraw(int key, struct pt_regs *pt_regs,
+ 			       struct tty_struct *tty) 
+ {
++#ifdef CONFIG_VT
+ 	struct kbd_struct *kbd = &kbd_table[fg_console];
+ 
+ 	if (kbd)
+ 		kbd->kbdmode = VC_XLATE;
++#endif
+ }
+ static struct sysrq_key_op sysrq_unraw_op = {
+ 	handler:	sysrq_handle_unraw,
 
-On Wednesday 17 July 2002 13:35, Bloch, Jack wrote:
-> I load my own device driver into a 2.4.18-3 Kernel and get the following
-> message. 
->
-> "Warning Loading Icdeva0s.o will taint the Kernel : No Licence" 
->
-> How do you stop this
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Plz read FAQ #18, Section 1 of linux-kernel archives:
-www.tux.org/lkml 
-
-Irfan Hamid

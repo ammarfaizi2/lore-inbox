@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264472AbUAVRgV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 12:36:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266271AbUAVRgV
+	id S266352AbUAVRdx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 12:33:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266354AbUAVRdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 12:36:21 -0500
-Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:61602
-	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
-	id S264472AbUAVRfS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 12:35:18 -0500
-Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed
-	to public posts
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David Ford <david+hb@blue-labs.org>
-Cc: Jes Sorensen <jes@wildopensource.com>, Zan Lynx <zlynx@acm.org>,
-       Andreas Jellinghaus <aj@dungeon.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4010040C.6020505@blue-labs.org>
-References: <ecartis-01212004203954.14209.1@mail.convergence2.de>
-	 <20040121194315.GE9327@redhat.com>
-	 <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
-	 <1074717499.18964.9.camel@localhost.localdomain>
-	 <20040121211550.GK9327@redhat.com>
-	 <20040121213027.GN23765@srv-lnx2600.matchmail.com>
-	 <pan.2004.01.21.23.40.00.181984@dungeon.inka.de>
-	 <1074731162.25704.10.camel@localhost.localdomain>
-	 <yq0hdyo15gt.fsf@wildopensource.com>  <401000C1.9010901@blue-labs.org>
-	 <1074790901.2055.109.camel@nidelv.trondhjem.org>
-	 <4010040C.6020505@blue-labs.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1074792912.11998.125.camel@nidelv.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 22 Jan 2004 12:35:12 -0500
+	Thu, 22 Jan 2004 12:33:53 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:23967 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S266352AbUAVRdv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 12:33:51 -0500
+Message-ID: <40100962.4040306@blue-labs.org>
+Date: Thu, 22 Jan 2004 12:33:22 -0500
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040121
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Georg C. F. Greve" <greve@gnu.org>
+CC: Karol Kozimor <sziwan@hell.org.pl>, acpi-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] PROBLEM: LCD display dead after ACPI suspend to RAM (S3)
+References: <m3hdyo2kce.fsf@reason.gnu-hamburg>	<20040122140155.GC5194@hell.org.pl>	<m3d69cj8hb.fsf@reason.gnu-hamburg>	<20040122154638.GA11867@hell.org.pl> <m365f3dhtv.fsf@reason.gnu-hamburg>
+In-Reply-To: <m365f3dhtv.fsf@reason.gnu-hamburg>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På to , 22/01/2004 klokka 12:10, skreiv David Ford:
-> Unfortunately, 99% of emails that I have received in a foreign language 
-> are spam.  Spam has no language boundaries.
+Try hitting the hardware function key that swaps the CRT/LCD and/or the 
+function key that changes the font.
 
-I beg to differ. Looking at my Bayesian filter dumps, I see something
-quite different. All the words are English (if you will allow me to
-count those various dyslectic spellings as being "English")...
+Works on my laptop.  Really annoying two-fold issue.  First, the screen 
+is blank, second, I have to blindly run setfont to change the garbage 
+font to a readable font.
 
-I do on occasion get the odd oriental, French or Turkish(???) spam, but
-the volumes are so small, it doesn't even register on the filters.
+I'm not running an fb, just an nvidia card in text mode on a Dell 
+Inspiron 8200.
 
-I have yet to receive any spam in my native Norwegian tongue. 8-)
+David
 
-Cheers,
-  Trond
+Georg C. F. Greve wrote:
+
+> || On Thu, 22 Jan 2004 16:46:38 +0100
+> || Karol Kozimor <sziwan@hell.org.pl> wrote: 
+>
+> kk> Does it work before the suspend (i.e. does the backlight switch
+> kk> on and off)? 
+>
+>Yes.
+>
+>
+> kk> If so, your problem is probably a video driver issue and I'm
+> kk> afraid I can't be of further help.
+>
+>Where would the people maintaining the video driver have to look?
+>
+>
+> kk> Also, are you using a framebuffer? 
+>
+>Yes.
+>
+>
+> kk> If so, try not, i.e. use a simple VGA console -> s3_bios works
+> kk> fine for me on a VGA console, but produces a blank (though
+> kk> backlit) screen with radeonfb.  Best regards,
+>
+>Interesting. I'll try that.
+>
+>May this be a problem of the fb driver then?
+>
+>Thanks for your input,
+>Georg
+>
+>  
+>

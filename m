@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUEGKoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263149AbUEGLC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUEGKoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 06:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUEGKoQ
+	id S263149AbUEGLC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 07:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUEGLC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 06:44:16 -0400
-Received: from verein.lst.de ([212.34.189.10]:47310 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S263107AbUEGKoO (ORCPT
+	Fri, 7 May 2004 07:02:27 -0400
+Received: from verein.lst.de ([212.34.189.10]:9679 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S263149AbUEGLC0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 06:44:14 -0400
-Date: Fri, 7 May 2004 12:44:06 +0200
+	Fri, 7 May 2004 07:02:26 -0400
+Date: Fri, 7 May 2004 13:02:17 +0200
 From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
+To: rth@twiddle.net, ink@jurassic.park.msu.ru
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] kill useless MOD_{INC,DEC}_USE_COUNT in sound/oss/msnd.c
-Message-ID: <20040507104406.GB10873@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
+Subject: alpha fp-emu vs module refcounting
+Message-ID: <20040507110217.GA11366@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, rth@twiddle.net,
+	ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,28 +25,12 @@ X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-callers are exported register/unregister handlers so the module is
-locked in core by users of said exports.
+arch/alpha/math-emu/math.c still uses MOD_{INC,DEC}_USE_COUNT to protect
+from unloading which is
 
+ a) unsafe
+ b) in the way of nuking them as soon as 2.7 is out
 
---- 1.7/sound/oss/msnd.c	Thu Feb 19 04:42:59 2004
-+++ edited/sound/oss/msnd.c	Mon May  3 13:30:22 2004
-@@ -59,9 +59,6 @@
- 
- 	devs[i] = dev;
- 	++num_devs;
--
--	MOD_INC_USE_COUNT;
--
- 	return 0;
- }
- 
-@@ -80,8 +77,6 @@
- 
- 	devs[i] = NULL;
- 	--num_devs;
--
--	MOD_DEC_USE_COUNT;
- }
- 
- int msnd_get_num_devs(void)
+any chance we could either do a try_module_get on a struct module
+*fp_emul_module in alpha core code before or completely disallow module
+unloading for it (by removing the cleanup_module() callback)?

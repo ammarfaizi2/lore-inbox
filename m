@@ -1,37 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265520AbSJSEFW>; Sat, 19 Oct 2002 00:05:22 -0400
+	id <S265490AbSJSECM>; Sat, 19 Oct 2002 00:02:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265521AbSJSEFW>; Sat, 19 Oct 2002 00:05:22 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:39954 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265520AbSJSEFU>;
-	Sat, 19 Oct 2002 00:05:20 -0400
-Date: Fri, 18 Oct 2002 21:10:47 -0700
-From: Greg KH <greg@kroah.com>
-To: Nicolas Pitre <nico@cam.org>
-Cc: pavel@bug.ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: Zaurus support for usbnet.c
-Message-ID: <20021019041047.GG12716@kroah.com>
-References: <20021018210224.GB9777@kroah.com> <Pine.LNX.4.44.0210182137130.5873-100000@xanadu.home>
-Mime-Version: 1.0
+	id <S265505AbSJSECM>; Sat, 19 Oct 2002 00:02:12 -0400
+Received: from cse.ogi.edu ([129.95.20.2]:2955 "EHLO church.cse.ogi.edu")
+	by vger.kernel.org with ESMTP id <S265490AbSJSECL>;
+	Sat, 19 Oct 2002 00:02:11 -0400
+To: jgmyers@netscape.com (John Myers)
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+References: <Pine.LNX.4.44.0210171121390.1631-100000@blue1.dev.mcafeelabs.com>
+	<3DB05AB2.3010907@netscape.com> <xu465vzo417.fsf@brittany.cse.ogi.edu>
+	<3DB0AFCE.5030205@netscape.com>
+From: "Charles 'Buck' Krasic" <krasic@acm.org>
+Date: 18 Oct 2002 21:07:49 -0700
+In-Reply-To: <3DB0AFCE.5030205@netscape.com>
+Message-ID: <xu4of9r6pgq.fsf@brittany.cse.ogi.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210182137130.5873-100000@xanadu.home>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 09:38:49PM -0400, Nicolas Pitre wrote:
-> On Fri, 18 Oct 2002, Greg KH wrote:
-> 
-> > Doesn't the usbdnet.c driver support the Zaurus?
-> 
-> Both the Zaurus and the iPAQ are using a SA1110 which is already supported 
-> by usbnet.
 
-Yes, but that's on the client side of USB, right?  Pavel's patch is for
-the host side, which I think was supported by usbdnet for the Zaurus.
+jgmyers@netscape.com (John Myers) writes:
 
-Or am I just really confused?
+> Close.  What we would have is a modification of the epoll_addf()
+> semantics such that it would have an additional postcondition that if
+> the new_fd is in the ready state (has data available) then at least
+> one notification has been generated.  In the code above, the three
+> lines comprising the if statement labeled "7*" would be removed.
 
-greg k-h
+I see.
+
+I assume the kernel implementation is no big deal: epoll_addf() has to
+call the kernel internal equivalent to poll() with a zero timeout.
+
+This wouldn't break the first "solution" in my earlier post, but it
+would cause every new connection to experience one extra EAGAIN.  
+
+I see three possibilities:
+
+  1) keep the current epoll_addf()
+  2) modify it as John suggests, posting the initial ready state in 
+     the next epoll_getevents()
+  3) both: add an option to epoll_addf() that says which of 1 or 2 is desired.
+
+-- Buck
+
+
+
+
+
+
+
+
+
+
+
+
+
+How hard would it be to modify the current epoll code to work that
+way?  I'd assume it's just a matter having epoll_addf call the legacy
+poll() code to check the condition (with a zero timeout).
+
+
+
+-- Buck
+
+
+
+
+
+

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264482AbRFOStF>; Fri, 15 Jun 2001 14:49:05 -0400
+	id <S264484AbRFOSuz>; Fri, 15 Jun 2001 14:50:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264484AbRFOSsz>; Fri, 15 Jun 2001 14:48:55 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:51729 "HELO
+	id <S264485AbRFOSup>; Fri, 15 Jun 2001 14:50:45 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:15122 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264482AbRFOSsr>; Fri, 15 Jun 2001 14:48:47 -0400
-Date: Fri, 15 Jun 2001 15:46:59 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: "Michael Nguyen" <mnguyen@ariodata.com>,
-        "David S. Miller" <davem@redhat.com>,
-        "Petko Manolov" <pmanolov@Lnxw.COM>, <linux-kernel@vger.kernel.org>
-Subject: Re: RE2: kmalloc
-Message-ID: <20010615154659.A942@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Anton Altaparmakov <aia21@cam.ac.uk>,
-	"Michael Nguyen" <mnguyen@ariodata.com>,
-	"David S. Miller" <davem@redhat.com>,
-	"Petko Manolov" <pmanolov@Lnxw.COM>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <8A098FDFC6EED94B872CA2033711F86F01A9A2@orion.ariodata.com> <8A098FDFC6EED94B872CA2033711F86F01A9A2@orion.ariodata.com> <20010615145856.C960@conectiva.com.br> <5.1.0.14.2.20010615192508.00afe540@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <5.1.0.14.2.20010615192508.00afe540@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Fri, Jun 15, 2001 at 07:26:16PM +0100
-X-Url: http://advogato.org/person/acme
+	id <S264484AbRFOSuk>; Fri, 15 Jun 2001 14:50:40 -0400
+Date: Fri, 15 Jun 2001 15:50:33 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Ivan Schreter <is@zapwerk.com>
+Cc: John Clemens <john@deater.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Buffer management - interesting idea
+In-Reply-To: <200106151705.TAA07359@borg4.zapnet.de>
+Message-ID: <Pine.LNX.4.33.0106151550010.2262-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Jun 15, 2001 at 07:26:16PM +0100, Anton Altaparmakov escreveu:
-> At 18:58 15/06/2001, Arnaldo Carvalho de Melo wrote:
-> >Em Fri, Jun 15, 2001 at 10:41:59AM -0700, Michael Nguyen escreveu:
-> > > >>Petko Manolov writes:
-> > > >> kmalloc fails to allocate more than 128KB of
-> > > >> memory regardless of the flags (GFP_KERNEL/USER/ATOMIC)
-> > > >>
-> > > >> Any ideas?
-> > >
-> > > >Yes, this is the limit.
-> > >
-> > > Im relatively new to Linux. I would like to ask.
-> > > Is this limit per kmalloc()? Can I do this multiple times?
-> >
-> >the limit is for a single invocation of kmalloc, yes, you can do it multiple
-> >times.
-> 
-> But if you need that much memory it would be better that you use vmalloc AFAIK.
+On Fri, 15 Jun 2001, Ivan Schreter wrote:
 
-Yup, like I suggested to Petko in a previous message :)
+> In 2Q, when a page is present in LRU queue, you move it to the front of
+> LRU queue as usual. Otherwise, if it is in memory, it must be in A1 queue
+> (the FIFO one), so you DON'T do anything. When the page is NOT in memory,
+> you load it conditionally to Am LRU queue (if it is present in A1out
+> queue) or to A1 queue (FIFO), if not.
+>
+> It gets interesting when you need to swap out a page from memory. When the
+> size of A1 FIFO is greater than limit (e.g., 10% of buffer space), a page
+> from A1 is swapped out (and put into A1out list), otherwise a page from Am
+> LRU is swapped out (and NOT put into A1out, since it hasn't been accessed
+> for long time).
 
-- Arnaldo
+This description has me horribly confused. Do you have
+any pointers to state diagrams of this thing? ;)
+
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

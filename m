@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268429AbRHKQEQ>; Sat, 11 Aug 2001 12:04:16 -0400
+	id <S268140AbRHKQIg>; Sat, 11 Aug 2001 12:08:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268434AbRHKQEG>; Sat, 11 Aug 2001 12:04:06 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:25870 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S268429AbRHKQD5>;
-	Sat, 11 Aug 2001 12:03:57 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: s0mbre <johnpol@2ka.mipt.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [insmod don't work corrctly] /dev/hands damaged system 
-In-Reply-To: Your message of "Sat, 11 Aug 2001 19:08:17 +0400."
-             <8797.010811@2ka.mipt.ru> 
+	id <S268434AbRHKQI0>; Sat, 11 Aug 2001 12:08:26 -0400
+Received: from pc2-camb6-0-cust223.cam.cable.ntl.com ([213.107.107.223]:49541
+	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S268140AbRHKQIR>; Sat, 11 Aug 2001 12:08:17 -0400
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available. 
+In-Reply-To: Message from Russell King <rmk@arm.linux.org.uk> 
+   of "Sat, 11 Aug 2001 16:20:28 BST." <20010811162028.A2732@flint.arm.linux.org.uk> 
+In-Reply-To: <1904.997542180@ocs3.ocs-net>  <20010811162028.A2732@flint.arm.linux.org.uk> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 12 Aug 2001 02:04:03 +1000
-Message-ID: <2310.997545843@ocs3.ocs-net>
+Content-Type: multipart/signed; boundary="==_Exmh_-1641692016P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 11 Aug 2001 17:08:08 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E15VbJ2-0000y8-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Aug 2001 19:08:17 +0400, 
-s0mbre <johnpol@2ka.mipt.ru> wrote:
->After recompiling -ac1( and -ac10, and -ac9, and -ac7) with
->gcc-2.95.2( instead of 3.0 that doesn't work in principle), i collide
->with strange behavior of lsmod:
->
->[root@Sombre s0mbre]# insmod /lib/modules/2.4.7-ac1/kernel/drivers/net/dummy.o
->/lib/modules/2.4.7-ac1/kernel/drivers/net/dummy.o: unresolved symbol __kfree_skb
+--==_Exmh_-1641692016P
+Content-Type: text/plain; charset=us-ascii
 
-http://www.tux.org/lkml/#s8-8
+>I'm sorry, the ARM version of GCC does not support %c0 in a working
+>state.  The way we generate the offsets on ARM is here to stay for
+>the next few years until GCC 3 has stabilised well enough for use
+>with the kernel, and the ARM architecture specifically.
 
+I should think it can be made to work in 2.95.4.  Did you try the patch I sent 
+you a few months ago?
+
+p.
+
+
+--==_Exmh_-1641692016P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999 (debian)
+
+iD8DBQE7dVhoVTLPJe9CT30RAgR4AKDNW7IKm+i1vogXgRLOF7YVA9pjFwCffHq5
+IT5Cxtpn9TQXjssfwFmJN4Q=
+=Wxml
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1641692016P--

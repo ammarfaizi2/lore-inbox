@@ -1,29 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbUKRCB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbUKRCB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbUKRCB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 21:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUKRCBF
+	id S262389AbUKRCB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 21:01:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbUKRCBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 21:01:05 -0500
-Received: from [84.32.38.8] ([84.32.38.8]:9412 "EHLO mx.ktv.lt")
-	by vger.kernel.org with ESMTP id S262451AbUKQUkd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 15:40:33 -0500
-Date: Wed, 17 Nov 2004 22:40:23 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Marvell SATA driver
-To: linux-kernel@vger.kernel.org
+	Wed, 17 Nov 2004 21:01:17 -0500
+Received: from alog0084.analogic.com ([208.224.220.99]:31616 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262516AbUKQUlb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 15:41:31 -0500
+Date: Wed, 17 Nov 2004 15:41:03 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Grzegorz Piotr Jaskiewicz <gj@kde.org.uk>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: pid_max madness
+In-Reply-To: <419BB097.8030405@kde.org.uk>
+Message-ID: <Pine.LNX.4.61.0411171538110.9491@chaos.analogic.com>
+References: <419BB097.8030405@kde.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-X-Mailer: Mahogany 0.66.0 'Clio', compiled for Linux 2.6.8-1.521 i686
-Message-Id: <20041117203837.D65C450800C@mx.ktv.lt>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 17 Nov 2004, Grzegorz Piotr Jaskiewicz wrote:
 
-What is a status of Marvell libata driver? A month ago it was almost finished IIRC...
+> Let's do:
+> #echo "-1" >/proc/sys/kernel/pid_max
+> #cat /proc/sys/kernel/pid_max
+> -1
+> #
+>
+> Madness, isn't ?
+>
+> I guess that isn't what author ment it to behave like.
+> Anyway, does it mean that after max unsigned value is reached pids are going 
+> to be negative in value ??
+>
+> --
+> GJ
+> -
 
-Regards,
-Nerijus
+Seems to set them back to 300 on this system Linux-2.6.9. That's
+an interesting side-effect. I like it! They never get much over
+300 either!
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262228AbTCHVkm>; Sat, 8 Mar 2003 16:40:42 -0500
+	id <S262224AbTCHVhG>; Sat, 8 Mar 2003 16:37:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262229AbTCHVkm>; Sat, 8 Mar 2003 16:40:42 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:50362 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262228AbTCHVkl>; Sat, 8 Mar 2003 16:40:41 -0500
-Message-ID: <3E6A5D76.9090704@us.ibm.com>
-Date: Sat, 08 Mar 2003 13:15:34 -0800
-From: Nivedita Singhvi <niv@us.ibm.com>
-Reply-To: niv@us.ibm.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S262228AbTCHVhG>; Sat, 8 Mar 2003 16:37:06 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:52745 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S262224AbTCHVhG>; Sat, 8 Mar 2003 16:37:06 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303082142.h28Lgfok003005@81-2-122-30.bradfords.org.uk>
+Subject: Re: 2.4.21-pre5-ac2:  kernel oops with "swapoff -a"
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Sat, 8 Mar 2003 21:42:41 +0000 (GMT)
+Cc: wa1ter@myrealbox.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1047163205.26745.1.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Mar 08, 2003 10:40:06 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: rsf@flying-dove.com, linux-kernel@vger.kernel.org
-Subject: Re:  OLS2003 Performance BOF Proposals
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I would very much appreciate comments (even one-liners) on any  
-> community interest in these two OLS Performance BoF sessions.  I  
-> believe the topics are dissimilar and relevant enough to justify both:
-
-> PROPOSAL FOR LINUX BENCHMARK AUTOMATION
-> This BOF will include a discussion on Linux benchmark automation. We  
-> will discuss the features needed to provide an effective benchmark  
-> automation process for Linux. This will include, defining the  
-> configuration, input files, benchmark execution, output files, etc.  We  
-> will also discuss the types of benchmarks that are tailored for rapid  
-> execution and results analysis, for maximum development impact.
+> > Plain 2.4.21-pre5 does NOT show this problem, so it seems to be a
+> > patch that was specifically introduced in -pre4-ac7 and I don't
+> > know enough to narrow it any further than that.  I'm not an
+> > accomplished kernel debugger so I can't offer much more info than
+> > that, but I'd like to help if you can give me some hints what kind
+> > of information you might need to find the problem.
 > 
-> PROPOSAL FOR LINUX PERFORMANCE
-> Linux changes occur very quickly in the open source community. There is  
-> a strong need to quickly collect and share performance data and  
-> analysis. However, there may be some instances where good, quality  
-> performance data collection and analysis take longer than the short  
-> turnaround required for maximum impact regarding newly released  
-> patches. We plan to discuss the most effective methodology for  
-> impacting Linux performance in a rapidly changing Linux open source  
-> community environment.
+> The patch is staying in -ac until I find out why you hit it. I've had no
+> other reports so far, but it just be the way your system is calling it.
 
-While the first is fairly clear on what the content might be,
-its not very clear what the second is referring to..At first
-I figured they were going to be discussing techniques like
-how to automate the benchmark process to make it faster
-(which would overlap with the first, I imagine?), but if not,
-is it going to be about which benchmarks to run etc? or how to
-avoid benchmark legalese miseries that can make them a big
-headache?? :)
+Just a thought - maybe he is using type 0 swap space?  That could
+explain the lack of other reports...
 
-thanks,
-Nivedita
-
+John.

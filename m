@@ -1,105 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269221AbRH2Xnd>; Wed, 29 Aug 2001 19:43:33 -0400
+	id <S268598AbRH3ADg>; Wed, 29 Aug 2001 20:03:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269712AbRH2XnX>; Wed, 29 Aug 2001 19:43:23 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:19204 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269221AbRH2XnI>; Wed, 29 Aug 2001 19:43:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: David Lang <david.lang@digitalinsight.com>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-Date: Thu, 30 Aug 2001 01:49:54 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108290858410.19372-100000@dlang.diginsite.com>
-In-Reply-To: <Pine.LNX.4.33.0108290858410.19372-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010829234316Z16134-32384+1075@humbolt.nl.linux.org>
+	id <S268971AbRH3AD1>; Wed, 29 Aug 2001 20:03:27 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:60553 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268598AbRH3ADV>;
+	Wed, 29 Aug 2001 20:03:21 -0400
+Date: Wed, 29 Aug 2001 17:03:15 -0700 (PDT)
+Message-Id: <20010829.170315.28787631.davem@redhat.com>
+To: bcrl@redhat.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] blkgetsize64 ioctl
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0108291840310.28439-100000@toomuch.toronto.redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0108291840310.28439-100000@toomuch.toronto.redhat.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 29, 2001 06:02 pm, David Lang wrote:
-> one question that I thought of in context with the other e-mails in this
-> thread.
-> 
-> when you write a signed/unsigned comparison is it defined in any standard
-> which type the compiler should generate or is it somethign that could be
-> different in different compilers (and versions)
+   From: Ben LaHaise <bcrl@redhat.com>
+   Date: Wed, 29 Aug 2001 18:45:20 -0400 (EDT)
 
-Yes, in the signed/unsigned case the comparison generated is always
-unsigned.  This is something that all c programmers are supposed to have 
-tattoed on the insides of their eyelids, because if you don't know it
-there are all kinds of situations that can bite you, not just min and
-max.
+   The patch below reserves an ioctl for getting the size in blocks of a
+   device as a long long instead of long as the old ioctl did.  The patch for
+   this to e2fsprogs sneaked in a bit too early.  There is a conflict with
+   the ia64 get/set sector ioctls, but I that's less common than e2fsprogs.
 
-> (also when comparing different size items same question)
+Any problems with using "u64" or some other more strictly portable
+type?  "long long" and other non-fixed sized types cause grief for
+many dual-API platforms.
 
-The narrower is expanded to the size of the wider before being compared.
-
-> if there are cases that are not defined in a standard and could vary by
-> compiler/version then we definantly need to have the current version with
-> the type argument.
-
-No, these cases are defined perfectly clearly and have been at least
-since K&R.
-
-> David Lang
-> 
-> 
->  On Wed, 29 Aug 2001,
-> Daniel Phillips wrote:
-> 
-> > Date: Wed, 29 Aug 2001 17:42:39 +0200
-> > From: Daniel Phillips <phillips@bonn-fries.net>
-> > To: Linus Torvalds <torvalds@transmeta.com>
-> > Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-> > Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-> >
-> > On August 29, 2001 03:13 am, Linus Torvalds wrote:
-> > > On Wed, 29 Aug 2001, Daniel Phillips wrote:
-> > > >
-> > > >     min(host->scsi.SCp.this_residual, (unsigned) DMAC_BUFFER_SIZE / 
-2);
-> > >
-> > > Sure.
-> > >
-> > > If you put the type information explicitly, you can get it right.
-> > >
-> > > Which is, btw, _exactly_ why the min() function takes the type 
-explicitly.
-> >
-> > My point is that proper programming discipline would have prevented the
-> > problem from arising in the first place.  It would be far more appropriate
-> > for kernel programmers to exercise such discpline than to treat them like
-> > babies, breaking well-known syntax in the process.
-> >
-> > It seems trivial to pick up all potential min/max problems with the 
-Stanford
-> > Checker in the case some programmer has been too clueless to think about
-> > their code as they write it.  A simple policy statement for users of 
-min/max
-> > would have avoided this entire mess.
-> >
-> > Not that I you're going to back down, it just made me feel better to get 
-this
-> > off my chest ;-)
-> >
-> > --
-> > Daniel
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Later,
+David S. Miller
+davem@redhat.com

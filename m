@@ -1,110 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314680AbSHFRk7>; Tue, 6 Aug 2002 13:40:59 -0400
+	id <S314278AbSHFRiV>; Tue, 6 Aug 2002 13:38:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314634AbSHFRk6>; Tue, 6 Aug 2002 13:40:58 -0400
-Received: from MAILGW01.bang-olufsen.dk ([193.89.221.116]:8974 "EHLO
-	mailgw01.bang-olufsen.dk") by vger.kernel.org with ESMTP
-	id <S315259AbSHFRkz>; Tue, 6 Aug 2002 13:40:55 -0400
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: driverfs and ieee1394
-References: <Pine.LNX.4.44.0208051216090.1241-100000@cherise.pdx.osdl.net>
-From: Kristian Hogsberg <hogsberg@users.sf.net>
-Date: 06 Aug 2002 19:44:29 +0200
-In-Reply-To: <Pine.LNX.4.44.0208051216090.1241-100000@cherise.pdx.osdl.net>
-Message-ID: <m34re7zxtu.fsf@dhcp-17-1.bang-olufsen.dk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S314529AbSHFRiV>; Tue, 6 Aug 2002 13:38:21 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:59818 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S314278AbSHFRiT>;
+	Tue, 6 Aug 2002 13:38:19 -0400
+Date: Tue, 6 Aug 2002 10:43:41 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Rob Landley <landley@trommello.org>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Policy vs API (was Re: [PATCH] integrate driverfs and devfs
+ (2.5.28))
+In-Reply-To: <20020806055922.26D48644@merlin.webofficenow.com>
+Message-ID: <Pine.LNX.4.44.0208061013560.1241-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on BeoSmtp/Bang & Olufsen/DK(Release 5.0.9 |November
- 16, 2001) at 06-08-2002 19:44:29,
-	Serialize by Router on dzln11/Bang & Olufsen/DK(Release 5.0.9 |November 16, 2001) at
- 06-08-2002 19:44:34,
-	Serialize complete at 06-08-2002 19:44:34
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Patrick,
 
-I've been reading through your driverfs and device model code, and
-trying to change the ieee1394 subsystem over to use it.  The ieee1394
-subsystem has some bus and device management functionality which works
-much like the general device model code, and I think we could replace
-much of this in the end.  But for now, I was just trying to hook it up
-to the driverfs and use this to expose the subsystem status.
+> The user needs some kind of API.  Some way for a program to say "Could I 
+> please talk to the slave drive on the second IDE controller".  What I'm 
+> wondering is where's the line between "policy" and "API"?  You can't have a 
+> standard API without SOME level of "policy".
 
-An ieee1394 device can have several programming interfaces
-(i.e. several supported protocols for the same device), and I'm not
-sure how to express this in the device model.  Ideally, you would
-register a driver and specify which programming interface it supports
-and the device model code would call probe for unmanaged devices that
-has that interface (among others, possibly) .  Conversely, when a new
-device is plugged in, the device model code should try to find a
-driver that would work with one of the devices programming interfaces.
+There is a difference between policy and mechanism. The mechanism provides 
+the infrastructure to develop policy. 
 
-Likewise, many drivers support several programming interfaces - this
-is supported in the PCI driver system, the usb subsystem and also in
-the ieee1394 system (this was actually lifted from the PCI code).
+It is definitely difficult to _not_ build in some sort of default policy,
+because we want to make assumptions about what we know is true. We need 
+default policy, but the argument is that it should reside in the kernel. 
 
-I looked briefly at the usb solution, and it seems that they register
-programming interfaces as subdevices of the actual device.  This has
-the advantage of letting the general code do the work of iterating
-through the interfaces, but it doesn't seem like the right way to use
-the driverfs.  Another approach is to not register the actual devices
-but only the interfaces like dev0:if0, dev0:if1, dev1:if0, etc. but
-this doesn't express the structure of the bus in the directory
-structure.  Finally, you could choose not to expose the interfaces at
-all, and let the bus' match callback iterate through the supported
-interfaces for drivers and devices, as is the case with the PCI
-subsystem.
+Note that in order to boot, we need default policy in either the kernel or 
+initramfs. We also need compatibility for some time, so it's not like the 
+in-kernel policy is going away right immediately. 
 
-I know that the bus matching algorithm necessarily is bus specific,
-but I think the concept of interfaces, as exposed by devices and
-supported by drivers, is universal, so maybe the device model should
-be extended to also incorporate interfaces in some way.
+> I've noticed a bias against actually using strings to interface the kernel 
+> with userspace (the module autoloader being one relatively obvious example), 
+> but it's still done in a bunch of places anyway ("/sbin/init", "linuxrc", 
+> "hotplug", "modprobe", the text command line for kernel booting with "init=", 
+> "root=", "initrd="...).  The kernel talks to other parts of the kernel by 
+> exporting text symbols, userspace talks to userspace with strings, why is 
+> kernel to userspace fundamentally different?  The problem with the horror 
+> that is /proc is that it's not ORGANIZED, not that it's text.  People put so 
+> much stuff into /proc because they WANT a text API, and for a long time that 
+> was their only real outlet.
 
-Anyway, for now I'll just implement the interface matching in the
-match callback for the bus, and I plan to expose the interfaces of a
-device by using the device_attribute mechanism.  In the ieee1394
-subsystem, a device has a list of structs attached, each representing
-an programming interface.  To implement a device_attribute entry per
-interface in the directory for the device the show callback needs to
-know which interface it is supposed to show.  As I see it, there are
-basically two ways to do this and they both break the current API: 1)
-include a void *user_data field in the device_attribute struct and
-pass this as an extra argument to the show() and store() callbacks or
-2) pass the pointer to the device_attribute struct to the callbacks
-and let the callbacks use container_of() to figure out what they're
-contained in.  I prefer the last solution, since you save the pointer
-and I plan to embed the device_attribute structs in the struct
-representing the interface anyway.  It requires only minimal changes
-to the device model code but it breaks the API:
+ASCII is good. We want ASCII interfaces. Period. If there are any doubts 
+or objections, please read the archives. 
 
-static ssize_t
-dev_attr_show(struct driver_dir_entry * dir, struct attribute * attr,
-	      char * buf, size_t count, loff_t off)
-{
-	struct device_attribute * dev_attr = to_dev_attr(attr);
-	struct device * dev = to_device(dir);
-	ssize_t ret = 0;
+> The problems with devfs are, well, numerous, but the fundamental idea of 
+> automatically mounting a /dev directory with the available devices into it 
+> rather than a MAKEDEV script to create 8 zillion nodes for devices you might 
+> conceivably want to borrow from a museum someday...  Implementation issues 
+> aside, what was wrong with the idea itself?  
 
-	if (dev_attr->show)
-		ret = dev_attr->show(dev,dev_attr,buf,count,off);
-	return ret;
-}
+It depends on what your idea of the idea is. The idea of exposing only the 
+hardware that is present is good. But, that's about all the praise about 
+it you'll get from me. 
 
-Another issue is device naming (bus_id) - what's the convention?  I
-can see from the PCI names that they use bus position, but this is
-probably a bad idea for ieee1394.  Devices on the ieee1394 bus are
-enumerated by a tree traversal algorithm, and hotplug events change or
-even re-root the tree (the linux box isn't necessarily the root), and
-thus, the bus addresses change.  Instead I was planning to using the
-extended unique id (EUI) of the devices as device names.  The EUI is a
-64 bit globally unique number, much like the MAC address of ethernet
-cards.  However, there's only allocated 16 chars for the
-bus_id... could you make it 20 chars, or do you have another
-suggestion for device naming?
+> I'm under the vague impression that devicefs may somehow become the new 
+> driver API at some point after Buck Rogers returns from his frozen orbit.  
+> The whole POINT of devicefs seems to be to expose new data through a fresh 
+> API that's designed to grow without getting disorganized.  This implies (to 
+> me) a move towards a device API defined in the context of a text namespace.
 
-Kristian
+Remember that there are two pieces to this movement: the device model and
+driverfs.  Everyone calls it driverfs because it's cute, catchy, and what
+is actually visible to people. 'The device model' is a crappy name, but I
+don't exactly have a better name for it (besides 'Rita', but that doesn't
+really make much sense).
+
+The device model is a consolidation of the device and driver
+infrastructure. It's purely internal and invisible to the user (excluding
+the problem of device naming and /sbin/hotplug).
+
+driverfs is simply the window into the organization of these internal
+structures, the relationships between them, and their attributes (via an
+ASCII interface).
+
+The distinction is important, and I encourage you to read the
+documentation at the link Greg posted (and continue asking questions).
+
+
+
+	-pat
+
+
 

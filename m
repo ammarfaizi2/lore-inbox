@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317028AbSEWWCK>; Thu, 23 May 2002 18:02:10 -0400
+	id <S317031AbSEWWEp>; Thu, 23 May 2002 18:04:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317029AbSEWWCJ>; Thu, 23 May 2002 18:02:09 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62218 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S317028AbSEWWCJ>; Thu, 23 May 2002 18:02:09 -0400
-Date: Fri, 24 May 2002 00:02:11 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Gross, Mark" <mark.gross@intel.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "'Erich Focht'" <focht@ess.nec.de>,
-        mgross@unix-os.sc.intel.com,
-        "Vamsi Krishna S." <vamsi_krishna@in.ibm.com>,
-        linux-kernel@vger.kernel.org, r1vamsi@in.ibm.com
-Subject: swsusp and Multithreaded core dumps for the 2.5.17 kernel  was ... .RE:    PATCH Multithreaded...
-Message-ID: <20020523220211.GC11615@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C057B48AE@orsmsx111.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S317034AbSEWWEo>; Thu, 23 May 2002 18:04:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24583 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317031AbSEWWEm>; Thu, 23 May 2002 18:04:42 -0400
+Date: Thu, 23 May 2002 15:04:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Q: backport of the free_pgtables tlb fixes to 2.4
+In-Reply-To: <20020523204101.GY21164@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0205231459230.29160-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> I don't understand what lock problems software suspend has to worry about so
-> I cannot comment.
-> 
-> However; your design has ALL the processes getting suspended.  To use the
-> phantom run queue and migrate them all to it, even with semaphore locks,
-> makes good sense to me.
 
-That can not be done, because I'll need to do write-to-swapspace with those
-processes frozen, and if they hold some semaphores, that may not be
-possible.
+On Thu, 23 May 2002, Andrea Arcangeli wrote:
+>
+> If the userspace tlb lookup is started during munmap the tlb can contain
+> garabge before invalidate_tlb.
 
-> This would allow the software suspend to work with RT processes and SMP
-> systems as well.  Further such a feature "could" enable a type of
-> warm-swapping of hardware to a large system.  
+No.
 
-I believe it should work with RT as-is. SMP is another issue, I'll
-probably wait for hotplug-cpu patches for that. (I do not want to save
-state of secondary cpu's). 
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+If we wait until after the TLB fill to actually free the page tables
+pages, there is _no_ way the TLB can contain garbage, because the page
+directories will never have had garbage in it while any TLB lookup could
+be active.
+
+Which is the whole _point_ of the patches.
+
+> What I don't understand is how the BTB can invoke random userspace tlb
+> fills when we are running do_munmap, there's no point at all in doing
+> that. If the cpu see a read of an user address after invalidate_tlb,
+> the tlb must not be started because it's before an invalidate_tlb.
+
+Take a course in CPU design if you want to understand why a CPU front-end
+might speculatively start accessing something before the back-end has
+actually told it what the "something" actually is.
+
+But don't argue with the patch.
+
+> And if it's true not even irq are barriers for the tlb fills invoked by
+> this p4-BTB thing
+
+It has nothing to do with the BTB - the BTB is just a source of
+speculative addresses to start looking at.
+
+But yes, Intel tells me that the only thing that is guaranteed to
+serialize a TLB lookup is a TLB invalidate. NOTHING else.
+
+>	so if leave_mm is really necessary, then 2.5 is as
+> well wrong in UP, because the pagetable can be scribbled by irqs in a UP
+> machine, and so the fastmode must go away even in 1 cpu systems.
+
+Yes. Except I will make the 2.5.x code use the pmd quicklists instead
+(both fast and slow mode), since that actually ends up being "nicer" from
+a cross-architecture standpoint (right now the i386 careful mode depends
+on the fact that page directories are regular pages - which is not true on
+other CPU's).
+
+		Linus
+

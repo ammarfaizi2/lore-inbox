@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263566AbTICQkT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 12:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263710AbTICQkT
+	id S263846AbTICQnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 12:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263848AbTICQnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 12:40:19 -0400
-Received: from molly.vabo.cz ([160.216.153.99]:48648 "EHLO molly.vabo.cz")
-	by vger.kernel.org with ESMTP id S263566AbTICQjo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 12:39:44 -0400
-Date: Wed, 3 Sep 2003 18:40:03 +0200 (CEST)
-From: Tomas Konir <moje@vabo.cz>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22 + XFS oops with palm usb sync
-In-Reply-To: <20030903160420.GB2634@kroah.com>
-Message-ID: <Pine.LNX.4.53.0309031826210.16942@moje.vabo.cz>
-References: <Pine.LNX.4.53.0309022000260.7734@moje.vabo.cz>
- <20030903002743.GA21349@kroah.com> <Pine.LNX.4.53.0309030826060.26355@moje.vabo.cz>
- <20030903160420.GB2634@kroah.com>
+	Wed, 3 Sep 2003 12:43:16 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:44474 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263846AbTICQnH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 12:43:07 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] IDE: Enable LED support for PowerMac
+Date: Wed, 3 Sep 2003 18:43:59 +0200
+User-Agent: KMail/1.5
+Cc: Jens Axboe <axboe@suse.de>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1062605698.1780.33.camel@gaston>
+In-Reply-To: <1062605698.1780.33.camel@gaston>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309031843.59366.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003, Greg KH wrote:
 
-> > 2.6.0-test4 sometimes hang up complete USB and all processes trying 
-> > to work with modules stay in D state. This is not very usable.
-> > (no messages in log).
-> 
-> Do you have ACPI enabled?  If so, see the many emails on this list about
-> that problem.
-> 
-> If not, please let us know.  Where are the USB modules hung at?
+On Wednesday 03 of September 2003 18:14, Benjamin Herrenschmidt wrote:
+> Hi Bart !
 
-ACPI was disabled and it's hard to say where the modules hung. I have no 
-oopses in log. For first i lost mouse after end of synchronization with 
-palm (same samtimes happend with 2.4 kernels). I tried to unload and load 
-all usb modules (it restarts USB and help on 2.4). But after exec rmmod 
-visor the rmmod process stay in D state and all attempts to work with 
-modules (lsmod) too. At last i shutdown and reboot back to 2.4.
-I tried uhci instead of usb-uhci and for the present all is OK.
+Hi Ben !
 
-	MOJE   
+> @@ -993,6 +1000,15 @@
+>
+>  endchoice
+>
+> +config BLK_DEV_IDE_STB04xxx
+> +	bool "STB04xxx (Redwood-5) IDE support"
+> +	depends on BLK_DEV_IDE && REDWOOD_5
+> +	help
+> +	  This option provides support for IDE on IBM STB04xxx Redwood-5
+> +	  systems.
+> +
+> +	  If unsure, say N.
+> +
 
--- 
-Konir Tomas
-Czech Republic
-Brno
-ICQ 25849167
+Whats this?  I am dropping this chunk.
+
+--bartlomiej
 

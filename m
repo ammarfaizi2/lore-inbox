@@ -1,56 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271977AbSISR3S>; Thu, 19 Sep 2002 13:29:18 -0400
+	id <S271932AbSISRYt>; Thu, 19 Sep 2002 13:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271997AbSISR3S>; Thu, 19 Sep 2002 13:29:18 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:10744
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S271977AbSISR3Q>; Thu, 19 Sep 2002 13:29:16 -0400
-Subject: Re: 2.4.18 serial drops characters with 16654
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: dchristian@mail.arc.nasa.gov, linux-kernel@vger.kernel.org
-In-Reply-To: <200209191027.46127.dchristian@mail.arc.nasa.gov>
-References: <11E89240C407D311958800A0C9ACF7D13A7992@EXCHANGE>
-	<3D7FCDE0.200@domdv.de>
-	<1031818855.2994.47.camel@irongate.swansea.linux.org.uk> 
-	<200209191027.46127.dchristian@mail.arc.nasa.gov>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Sep 2002 18:38:52 +0100
-Message-Id: <1032457132.27721.45.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S271977AbSISRYt>; Thu, 19 Sep 2002 13:24:49 -0400
+Received: from dsl093-058-082.blt1.dsl.speakeasy.net ([66.93.58.82]:61422 "EHLO
+	beohost.scyld.com") by vger.kernel.org with ESMTP
+	id <S271932AbSISRYp>; Thu, 19 Sep 2002 13:24:45 -0400
+Date: Thu, 19 Sep 2002 13:29:31 -0400 (EDT)
+From: Donald Becker <becker@scyld.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: netdev@oss.sgi.com, Jason Lunz <lunz@falooley.org>,
+       Richard Gooch <rgooch@ras.ucalgary.ca>,
+       "Patrick R. McManus" <mcmanus@ducksong.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <edward_peng@dlink.com.tw>
+Subject: Re: PATCH: sundance #2
+In-Reply-To: <3D8A056C.2000605@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44.0209191316300.29420-100000@beohost.scyld.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-19 at 18:27, Dan Christian wrote:
-> The problem seems to be related to the RTS/CTS flow control handling.  
-> The 16654 handles flow control in hardware, but the 16550 does it in 
-> software (I've verified this with a digital oscilloscope).  I don't 
-> currently have the equipment to compare when the lines drop and which 
-> characters are lost.
+On Thu, 19 Sep 2002, Jeff Garzik wrote:
 
-Actually you can do it in hardware on the 16550 depending how its wired.
-Take a look at the usenet-2 serial port design some day. The software
-mode we do does in theory mean heavy delay to the bh handling might
-delay the assertion excessively. That I think may be the real
-explanation here.
+> Thanks to Donald for his comments.  This patch addresses the first of 
+> his two emails.
+> 
+> This patch is _cumulative_ with the last one I sent (sundance 1.04), so 
+> do not discard that one.
+> 
+> Again additional testing is appreciated.  Keep the feedback coming, 
+> there will be more sundance bugfixes (patch #3, #4, etc.)
 
-Its
-         buffer full
-         bh handler delayed by bh load (tasklet nowdays I guess I mean)
-         overrun
-         overrun
-         ...
-         ksoftirqd
-         Oh look I should do carrier
++	- If no phy is found, fail to load that board
++	- Always start phy id scan at id 1 to avoid problems (Donald Becker)
++	- Autodetect where mii_preable_required is needed,
++	default to not needed.  (Donald Becker)
+...
++
++/* Set iff a MII transceiver on any interface requires mdio preamble.
++   This only set with older tranceivers, so the extra
++   code size of a per-interface flag is not worthwhile. */
++static int mii_preamble_required = 0;
 
-Russell - does that sound reasonable.
+You can get rid of this as a module option, and make it a per-interface
+setting. 
+The transceiver on the Kendin chip requires this (rather old-fashioned)
+access method, while none of the previous Sundance-based boards with
+external transceivers did.
 
-If so the answer yet again (as with the gige performance and some
-others) might be to make it much much harder for stuff tofall back to
-ksoftirqd.
+I added it as a module parameter as a back-up over-ride, but I'm certain
+that the automatic detection works.
+
+This is a module parameter because I recently had a bad experience
+with a specific 3Com 3c905B chip rev.  It claimed to not need
+transceiver preamble, but would not work without it.
+
+> 				Theory of Operation
+
+Whoever changed the transmit path should update the TOO.  
+
+-	{"Sundance Technology Alta", {0x020113F0, 0xffffffff,},
+-	 PCI_IOTYPE, 128, CanHaveMII},
++	{"D-Link DFE-550TX FAST Ethernet Adapter"},
++	{"D-Link DFE-550FX 100Mbps Fiber-optics Adapter"},
+
+Yeah, you should probably throw away the rest of the changes.
+You are probably going to want to keep the drv_flags field.  I know
+that all of the current chips have the same flag (CanHaveMII), but...
 
 
 
+-- 
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
 

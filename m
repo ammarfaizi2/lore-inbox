@@ -1,104 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317450AbSHHL1Y>; Thu, 8 Aug 2002 07:27:24 -0400
+	id <S317457AbSHHL1o>; Thu, 8 Aug 2002 07:27:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317457AbSHHL1Y>; Thu, 8 Aug 2002 07:27:24 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:38922 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S317450AbSHHL1W>; Thu, 8 Aug 2002 07:27:22 -0400
-Date: Thu, 8 Aug 2002 15:30:42 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Grant Grundler <grundler@dsl2.external.hp.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: PCI<->PCI bridges, transparent resource fix
-Message-ID: <20020808153042.B14158@jurassic.park.msu.ru>
-References: <20020807055456.61265482A@dsl2.external.hp.com> <20020806210220.24665@192.168.4.1> <benh@kernel.crashing.org> <20020807183025.BCB65482A@dsl2.external.hp.com>
+	id <S317462AbSHHL1o>; Thu, 8 Aug 2002 07:27:44 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:61152 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S317457AbSHHL1m>; Thu, 8 Aug 2002 07:27:42 -0400
+Date: Thu, 8 Aug 2002 13:31:12 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: David Miller <davem@redhat.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix HIPQUAD macro in kernel.h
+Message-ID: <20020808133112.E11828@sunbeam.de.gnumonks.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HQbpMUFNRY4iYVZ3"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020807183025.BCB65482A@dsl2.external.hp.com>; from grundler@dsl2.external.hp.com on Wed, Aug 07, 2002 at 12:30:25PM -0600
+User-Agent: Mutt/1.3.17i
+X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.19-pre10-newnat-pptp
+X-Date: Today is Boomtime, the 71st day of Confusion in the YOLD 3168
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 12:30:25PM -0600, Grant Grundler wrote:
-> Send me a patch for 2.4.19 and I'll try it on the laptop.
 
-Appended - please do.
+--HQbpMUFNRY4iYVZ3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Ivan wrote:
-> | ...subtractive decoding bridge _MUST_ have bit 0 in the ProgIf set to 1.
-> 
-> It sounds easy to check at the top and in that case DTRT.
-> The "else" parts of later resource checks can go away.
+Hi Dave!
 
-Exactly.
+Below is a fix for the HIPQUAD macro in kernel.h.  The macro is currently
+not endian-aware - it just assumes running on a little-endian machine.
 
-> What you suggest implies the bridge waits for someone else to "claim"
-> the transaction and I'm not convinced PCI spec would allow that.
+If you don't like the #ifdefs in kernel.h, the macros could be moved into=
+=20
+include/linux/byteorder/.
 
-It allows that as a matter of fact.
+Please apply, thanks
 
-> Performance would certainly suffer if that were the case.
+--- linux-2.4.19-rc5-plain/include/linux/kernel.h	Wed Aug  7 22:55:03 2002
++++ linux-2.4.19-rc5-endian/include/linux/kernel.h	Thu Aug  8 11:34:13 2002
+@@ -12,6 +12,7 @@
+ #include <linux/stddef.h>
+ #include <linux/types.h>
+ #include <linux/compiler.h>
++#include <asm/byteorder.h>
+=20
+ /* Optimization barrier */
+ /* The "volatile" is due to gcc bugs */
+@@ -128,11 +129,17 @@
+ 	((unsigned char *)&addr)[2], \
+ 	((unsigned char *)&addr)[3]
+=20
++#if defined(__LITTLE_ENDIAN)
+ #define HIPQUAD(addr) \
+ 	((unsigned char *)&addr)[3], \
+ 	((unsigned char *)&addr)[2], \
+ 	((unsigned char *)&addr)[1], \
+ 	((unsigned char *)&addr)[0]
++#elif defined(__BIG_ENDIAN)
++#define HIPQUAD	NIPQUAD
++#else
++#error "Please fix asm/byteorder.h"
++#endif /* __LITTLE_ENDIAN */
+=20
+ /*
+  * min()/max() macros that also do
 
-Sure, performance sucks, and there are other bad side effects,
-like impossibility of the peer-to-peer DMA behind such bridge.
+--=20
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+=
+=20
+V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)
 
-Ivan.
+--HQbpMUFNRY4iYVZ3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
---- linux/drivers/pci/pci.c~	Fri Jun 28 14:46:21 2002
-+++ linux/drivers/pci/pci.c	Thu Aug  8 14:57:25 2002
-@@ -1073,6 +1073,14 @@ void __devinit pci_read_bridge_bases(str
- 	if (!dev)		/* It's a host bus, nothing to read */
- 		return;
- 
-+	if (dev->class & 1) {
-+		printk("Subtractive decoding bridge %s -"
-+			" assuming transparent\n", dev->name);
-+		for(i = 0; i < 3; i++)
-+			child->resource[i] = child->parent->resource[i];
-+		return;
-+	}
-+
- 	for(i=0; i<3; i++)
- 		child->resource[i] = &dev->resource[PCI_BRIDGE_RESOURCES+i];
- 
-@@ -1095,13 +1103,6 @@ void __devinit pci_read_bridge_bases(str
- 		res->start = base;
- 		res->end = limit + 0xfff;
- 		res->name = child->name;
--	} else {
--		/*
--		 * Ugh. We don't know enough about this bridge. Just assume
--		 * that it's entirely transparent.
--		 */
--		printk(KERN_ERR "Unknown bridge resource %d: assuming transparent\n", 0);
--		child->resource[0] = child->parent->resource[0];
- 	}
- 
- 	res = child->resource[1];
-@@ -1114,10 +1115,6 @@ void __devinit pci_read_bridge_bases(str
- 		res->start = base;
- 		res->end = limit + 0xfffff;
- 		res->name = child->name;
--	} else {
--		/* See comment above. Same thing */
--		printk(KERN_ERR "Unknown bridge resource %d: assuming transparent\n", 1);
--		child->resource[1] = child->parent->resource[1];
- 	}
- 
- 	res = child->resource[2];
-@@ -1145,10 +1142,6 @@ void __devinit pci_read_bridge_bases(str
- 		res->start = base;
- 		res->end = limit + 0xfffff;
- 		res->name = child->name;
--	} else {
--		/* See comments above */
--		printk(KERN_ERR "Unknown bridge resource %d: assuming transparent\n", 2);
--		child->resource[2] = child->parent->resource[2];
- 	}
- }
- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9UlZ/XaXGVTD0i/8RArgWAJ9v+OI9pUwvTFy5Cojwkr1Ks3+qsQCffIuQ
+6Xs89gLqtxxuRoMB4rJeSF0=
+=PdjG
+-----END PGP SIGNATURE-----
+
+--HQbpMUFNRY4iYVZ3--

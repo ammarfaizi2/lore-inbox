@@ -1,53 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbULUV2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbULUV3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbULUV2L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 16:28:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbULUV2L
+	id S261861AbULUV3E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 16:29:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbULUV27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 16:28:11 -0500
-Received: from waste.org ([216.27.176.166]:10414 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261796AbULUV2H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 16:28:07 -0500
-Date: Tue, 21 Dec 2004 13:27:37 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Mark Broadbent <markb@wetlettuce.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
-Message-ID: <20041221212737.GK5974@waste.org>
-References: <20041217215752.GP2767@waste.org> <20041217233524.GA11202@electric-eye.fr.zoreil.com> <36901.192.102.214.6.1103535728.squirrel@webmail.wetlettuce.com> <20041220211419.GC5974@waste.org> <20041221002218.GA1487@electric-eye.fr.zoreil.com> <20041221005521.GD5974@waste.org> <52121.192.102.214.6.1103624620.squirrel@webmail.wetlettuce.com> <20041221123727.GA13606@electric-eye.fr.zoreil.com> <49295.192.102.214.6.1103635762.squirrel@webmail.wetlettuce.com> <20041221204853.GA20869@electric-eye.fr.zoreil.com>
+	Tue, 21 Dec 2004 16:28:59 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64436 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261858AbULUV2o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 16:28:44 -0500
+Date: Tue, 21 Dec 2004 21:28:39 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, willy@debian.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH] add legacy resources to sysfs
+Message-ID: <20041221212839.GF31261@parcelfarce.linux.theplanet.co.uk>
+References: <200412211247.44883.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041221204853.GA20869@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200412211247.44883.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 21, 2004 at 09:48:53PM +0100, Francois Romieu wrote:
-> Mark Broadbent <markb@wetlettuce.com> :
-> [...]
-> > Using the patch supplied I get no hang, just the message 'netconsole
-> > raced' output to the console and the packet capture proceeds as normal.
-> > Thanks
-> 
-> The patch is more a bandaid for debugging than a real fix. The netconsole
-> will drop some messages until its locking is fixed
+On Tue, Dec 21, 2004 at 12:47:44PM -0800, Jesse Barnes wrote:
+> + * Find the base of legacy memory for @dev.  This is typically the first
+> + * megabyte of bus address space for @dev or is simply 0 on platforms whose
+> + * chipsets support legacy I/O and memory routing.  Returns 0 on success
+> + * or a standard error code on failure.
+> +int ia64_pci_get_legacy_mem(struct pci_bus *bus, unsigned long *addr)
+> +{
+> +	*addr = 0;
+> +	return 0;
+> +}
 
-Unfortunately there's no good way to fix its locking in this
-circumstance (or the harder case of driver-private locks). I think
-I'll just have to come up with some scheme for queueing messages that
-arrive when the queue lock is held.
+This is a slightly klunky interface.  How about:
 
-> If you can issue one more test, I'd like to know if some messages appear
-> on the VGA console around the time at which tcpdump is started (the test
-> assumes that netconsole is not used/insmoded at all). Please check that
-> the console log_level is set high enough as it will be really disappointing
-> if nothing appears :o)
+ * Find the base of legacy memory for @dev.  This is typically the first
+ * megabyte of bus address space for @dev or is simply 0 on platforms whose
+ * chipsets support legacy I/O and memory routing.  Returns the base address
+ * or an error pointer if an error occurred
 
-I think it's the promiscuous mode message itself that's the problem
-but I've not had time to reproduce it.
+The generic one is too trivial to demonstrate with, but the sn2 one
+makes more sense:
+
+> ===== arch/ia64/sn/pci/pci_dma.c 1.2 vs edited =====
+> +int sn_pci_get_legacy_mem(struct pci_bus *bus, unsigned long *addr)
+> +{
+> +	if (!SN_PCIBUS_BUSSOFT(bus))
+> +		return -ENODEV;
+> +
+> +	*addr = SN_PCIBUS_BUSSOFT(bus)->bs_legacy_mem | __IA64_UNCACHED_OFFSET;
+> +
+> +	return 0;
+> +}
+
+int sn_pci_get_legacy_mem(struct pci_bus *bus)
+{
+	if (!SN_PCIBUS_BUSSOFT(bus))
+		return ERR_PTR(-ENODEV);
+	return SN_PCIBUS_BUSSOFT(bus)->bs_legacy_mem | __IA64_UNCACHED_OFFSET;
+}
+
+>  	b->class_dev.class = &pcibus_class;
+>  	sprintf(b->class_dev.class_id, "%04x:%02x", pci_domain_nr(b), bus);
+>  	error = class_device_register(&b->class_dev);
+> +
+>  	if (error)
+>  		goto class_dev_reg_err;
+
+Actually, I rather dislike having the newline there.  It implies a logical
+separation between registering and testing for the error, whereas the logical
+separation is much more like this:
+
+        b->class_dev.class = &pcibus_class;
+        sprintf(b->class_dev.class_id, "%04x:%02x", pci_domain_nr(b), bus);
+	error = class_device_register(&b->class_dev);
+	if (error)
+		goto class_dev_reg_err;
+
+	error = class_device_create_file(...)
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

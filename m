@@ -1,33 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265828AbTBCAUY>; Sun, 2 Feb 2003 19:20:24 -0500
+	id <S265843AbTBCA1U>; Sun, 2 Feb 2003 19:27:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265843AbTBCAUY>; Sun, 2 Feb 2003 19:20:24 -0500
-Received: from ns.suse.de ([213.95.15.193]:50188 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265828AbTBCAUX>;
-	Sun, 2 Feb 2003 19:20:23 -0500
-To: "Carlos Velasco" <carlosev@newipnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 Broken Path MTU Discovery?
-References: <200302021958160177.2A4B5622@192.168.128.16.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 03 Feb 2003 01:29:51 +0100
-In-Reply-To: "Carlos Velasco"'s message of "2 Feb 2003 20:03:18 +0100"
-Message-ID: <p738ywyqk8w.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S265854AbTBCA1U>; Sun, 2 Feb 2003 19:27:20 -0500
+Received: from B5b18.pppool.de ([213.7.91.24]:44432 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S265843AbTBCA1T>; Sun, 2 Feb 2003 19:27:19 -0500
+Subject: Re: Compactflash cards dying?
+From: Daniel Egger <degger@fhm.edu>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030202223009.GA344@elf.ucw.cz>
+References: <20030202223009.GA344@elf.ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-nd+AD57FJhjfeIxG6Gwy"
+Organization: 
+Message-Id: <1044232591.545.8.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 03 Feb 2003 01:36:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Carlos Velasco" <carlosev@newipnet.com> writes:
-> 
-> ¿May be the Linux box is giving up PMTU? ¿Why? it now knows MTU is 400.
-> I have others windows boxes in the network, they work fine with PMTU.
 
-A MTU of 400 is illegal, IPv4 requires a minimum MTU of 576 bytes. Below
-it linux uses the minimum MTU and turns off path mtu discovery (=
-drops DF)
+--=-nd+AD57FJhjfeIxG6Gwy
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-You can change that minimum mtu by changing the ip_rt_min_pmtu variable
-(no sysctl, you have to change it in /dev/kmem or recompile) 
+Am Son, 2003-02-02 um 23.30 schrieb Pavel Machek:
 
--Andi
+> First time I repartitioned it; now I only did mke2fs, and data
+> corruption can be seen by something as simple as
+
+> cat /mnt/cf/mp3/* > /mnt/cf/delme; md5sum /mnt/cf/delme.
+
+> Anyone seen something similar? Are there some known-good
+> compactflash-es?
+
+CF has limited write cycles. A few hundred if you're lucky.
+And depending on the type of flash it's quite likely that every
+changed byte will result in a whole block being written back.
+
+I'm running dotzends of CF cards and due to some care not a single
+one has developped bad blocks as of yet.
+
+--=20
+Servus,
+       Daniel
+
+--=-nd+AD57FJhjfeIxG6Gwy
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+PbmPchlzsq9KoIYRAtigAKDkYnDnCE5O8Gp4jOT0xLUli3daxwCg0ns3
+cXWyisZpuJtwSoI+X8O3L5s=
+=3xiW
+-----END PGP SIGNATURE-----
+
+--=-nd+AD57FJhjfeIxG6Gwy--
+

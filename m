@@ -1,89 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263207AbTDIMQK (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 08:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263286AbTDIMQK (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 08:16:10 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:44246 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP id S263207AbTDIMQG (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 08:16:06 -0400
-From: Arun Dharankar <ADharankar@ATTBI.Com>
-To: Piet Delaney <piet@www.piet.net>
-Subject: Re: Linux kernel crash dumps (LKCD) and PowerPC ports.
-Date: Wed, 9 Apr 2003 08:26:36 -0400
-User-Agent: KMail/1.5
-Cc: piet <piet@www.piet.net>, "Matt D. Robinson" <yakker@alacritech.com>,
-       linux-kernel@vger.kernel.org, Dave Anderson <anderson@redhat.com>
-References: <200304081647.32146.ADharankar@ATTBI.Com> <200304082349.27844.ADharankar@ATTBI.Com> <1049875702.22212.6634.camel@www.piet.net>
-In-Reply-To: <1049875702.22212.6634.camel@www.piet.net>
+	id S263204AbTDIMXK (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 08:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263286AbTDIMXK (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 08:23:10 -0400
+Received: from tomts15.bellnexxia.net ([209.226.175.3]:46998 "EHLO
+	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S263204AbTDIMXJ (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 08:23:09 -0400
+Date: Wed, 9 Apr 2003 08:30:34 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: what means duplicate "config" entries in Kconfig file?
+Message-ID: <Pine.LNX.4.44.0304090826470.25330-100000@dell>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304090826.36304.ADharankar@ATTBI.Com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Piet, thanks for the reply!
 
-Some of the points that I found attractive (among other points):
+  [i just tried to email the Kconfig maintainer, but sendmail
+suggested that that mail might not have gotten through, so i'll
+toss this out here.]
 
-  - Overall a smaller time to reboot and save the dump, and bring the
-    system back to working state.
-  - Does not require local disk to save the dump on the way down during
-    a panic - works on a diskless system.
-  - No need for a dump/swap device.
+  in my quest to clean up even more kernel config menus,
+i ran across the following oddity in arch/i386/Kconfig:
 
+-----
 
-Looking at the MCLX site, the last patch is on 2.4.17 only. Also, the
-PowerPC port is a bit broken. Is anyone maintaining this part of the
-MCLX scheme, and is available else where?
+config MCA
+	bool "MCA support"
+	depends on !(X86_VISWS || X86_VOYAGER)
+	help
+	  MicroChannel Architecture is found in some IBM PS/2 machines and
+	  laptops.  It is a bus system similar to PCI or ISA. See
+	  <file:Documentation/mca.txt> (and especially the web page given
+	  there) before attempting to build an MCA bus kernel.
 
+config MCA
+	depends on X86_VOYAGER
+	default y if X86_VOYAGER
 
-Best regards,
--Arun.
+source "drivers/mca/Kconfig"
 
+-----
 
-> > Looking at those sites, it appears that the development at
-> > "http://lists.insecure.org/lists/linux-kernel/2003/Feb/0987.html."
-> > which I had pointed is based on the SGI's dump scheme. Same
-> > for the one you pointed to.
-> >
-> > The other scheme I poinited to (from Mission Critical Linux/MCLX)
-> > seems to have some strong points too. Any pointers to discussions
-> > about why the LKCD work seems to more active than the
-> > MCLX one?
->
-> I don't think there has been such a discussion. The Mission Critical
-> hackers were hired by RedHat and Dave Anderson continues to work on
-> crash and making it available at:
->
-> 	ftp://people.redhat.com/anderson
->
-> He's had about a release per month. I thought MCLX crash has some
-> strong points also. After I enhanced LKCD to support the ia64 I
-> fixed MCLX crash so it could read the new LKCD crash dumps which
-> are no longer monotonically increasing in memory. I did this to
-> support NUMA systems which can have more memory than swap space.
-> This way the most important memory can be saved first.
->
-> If you read the lkcd-devel mailing list you can read our discussion
-> on maintaining MLCX crash on the lkcd cvs tree.
->
->
-> 	"And imnsho, debugging the kernel on a source
-> 	 level is the way to do it."
-> 					Linus
->
-> -piet
->
-> > Best regards,
-> > -Arun.
-> >
-> > On Tuesday 08 April 2003 07:14 pm, Matt D. Robinson wrote:
-> > > Please look at the lkcd-devel mailing archives.  There is
-> > > at least one group working on a PPC port of LKCD
-> > >
-> > > 	http://sourceforge.net/mail/?group_id=2726
-> > >
-> > > --Matt
+  i'm not sure what it means to have two config entries with 
+identical symbols.  can someone clarify this?  i'm just confused
+(which should not come as a surprise at this point).
+
+rday
+
+p.s.  and i'm open to where i should be emailing those patches
+if this list is not the right place.
 

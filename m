@@ -1,45 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129683AbQL0UOn>; Wed, 27 Dec 2000 15:14:43 -0500
+	id <S129729AbQL0UWe>; Wed, 27 Dec 2000 15:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129729AbQL0UOe>; Wed, 27 Dec 2000 15:14:34 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:12619 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129683AbQL0UO0>; Wed, 27 Dec 2000 15:14:26 -0500
-Date: Wed, 27 Dec 2000 20:43:42 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Gregory Maxwell <greg@linuxpower.cx>,
-        Michael Rothwell <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: Re: high load & poor interactivity on fast thread creation
-Message-ID: <20001227204342.D19378@athlon.random>
-In-Reply-To: <3A266895.F522A0E2@austin.ibm.com> <20001130081443.A8118@bach.iverlek.kotnet.org> <3A266895.F522A0E2@austin.ibm.com> <4.3.2.7.2.20001227110018.00e5ba90@cam-pop.cambridge.arm.com> <3A4A22A8.D434B7F@holly-springs.nc.us> <20001227122508.A29579@xi.linuxpower.cx> <20001227093236.A1409@work.bitmover.com>
+	id <S129778AbQL0UWO>; Wed, 27 Dec 2000 15:22:14 -0500
+Received: from dusdi5-212-144-140-003.arcor-ip.net ([212.144.140.3]:33549 "EHLO
+	al.romantica.wg") by vger.kernel.org with ESMTP id <S129729AbQL0UWG>;
+	Wed, 27 Dec 2000 15:22:06 -0500
+Date: Wed, 27 Dec 2000 15:06:24 +0100
+From: Jens Taprogge <taprogge@idg.rwth-aachen.de>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        acpi@phobos.fachschaften.tu-muenchen.de
+Subject: Re: test13-pre4-ac2 -- The cardbus/pcmcia sockets no longer work with two devices present at boot time.
+Message-ID: <20001227150623.A19813@al.romantica.wg>
+Mail-Followup-To: Jens Taprogge <taprogge@idg.rwth-aachen.de>,
+	Miles Lane <miles@megapathdsl.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	acpi@phobos.fachschaften.tu-muenchen.de
+In-Reply-To: <3A49AB66.1000607@megapathdsl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20001227093236.A1409@work.bitmover.com>; from lm@bitmover.com on Wed, Dec 27, 2000 at 09:32:36AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A49AB66.1000607@megapathdsl.net>; from miles@megapathdsl.net on Wed, Dec 27, 2000 at 12:42:14AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 27, 2000 at 09:32:36AM -0800, Larry McVoy wrote:
-> [..] You do
-> pay a price for not sharing TLB entries if the OS is stupid (Linux' is
-> not).
+This seems to be a problem that was introduced with the big ACPI update
+as pointed out earlier by Andrew Morton.  Try disabling ACPI (since your
+BIOS does not seem to have ACPI support anyway it should not be a
+disadvantage) and see if PCMCIA support works again on bootup.
 
-Even assuming all segments are attached at the same virtual address on all MM
-(this can be enforced with MAP_FIXED of course), we can't use the same tlb
-entries for accessing the same shared sement from different MM. That's not even
-possible on hardware with address space numbers (on x86 it's obvious it's not
-possible even with future x86 chips that can tag the TLB entries
-with the phisical address of the pgd to skip the full tlb flush during
-switch_mm).
+Jens
 
-I think the main point of using threads instead of shared mappings is
-performance.
+On Wed, Dec 27, 2000 at 12:42:14AM -0800, Miles Lane wrote:
+> When I boot with the following inserted:
+> 
+> Socket 0:
+>    product info: "3Com Corporation", "3CCFE575BT", "LAN Cardbus Card", "001"
+>    manfid: 0x0101, 0x5157
+>    function: 6 (network)
+> Socket 1:
+>    product info: "PCMCIA  ", "56K V.90 Fax Modem (LK)  ", "FM560LK  "
+>    manfid: 0x0175, 0x0000
+>    function: 2 (serial)
+> 
+> both sockets fail to set up properly and work.
+> 
+> Linux PCMCIA Card Services 3.1.22
+>    options:  [pci] [cardbus] [pm]
+> PCI: Enabling device 00:04.0 (0000 -> 0002)
+> PCI: Assigned IRQ 11 for device 00:04.0
+> PCI: Enabling device 00:04.1 (0000 -> 0002)
+> PCI: Assigned IRQ 11 for device 00:04.1
+> Intel PCIC probe: not found.
+> Yenta IRQ list 0698, PCI irq11
+> Socket status: 30000020
+> Yenta IRQ list 0698, PCI irq11
+> Socket status: 30000010
+> ACPI: System description tables not found
+> cs: socket c118b000 timed out during reset.  Try increasing setup_delay.
+> cs: socket c118b800 timed out during reset.  Try increasing setup_delay.
+> 
+> If I then run "cardctl eject" and then eject and reinsert the two
+> cards, the cards get set up correctly.
+> 
+> Note that I am not using the PCMCIA drivers.  I am using Yenta
+> and its native development kernel friends. I am using modutils
+> 2.3.22.
+-- 
+Jens Taprogge
 
-Andrea
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

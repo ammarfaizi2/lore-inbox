@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315509AbSECAcA>; Thu, 2 May 2002 20:32:00 -0400
+	id <S315507AbSECAcl>; Thu, 2 May 2002 20:32:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315507AbSECAb7>; Thu, 2 May 2002 20:31:59 -0400
-Received: from [194.234.65.222] ([194.234.65.222]:45727 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S315509AbSECAb6>; Thu, 2 May 2002 20:31:58 -0400
-Date: Fri, 3 May 2002 02:31:40 +0200 (CEST)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-X-X-Sender: roy@mustard.heime.net
-To: Samuel Flory <sflory@rackable.com>
-cc: =?ISO-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Pavel Machek <pavel@suse.cz>, <linux-kernel@vger.kernel.org>
+	id <S315510AbSECAck>; Thu, 2 May 2002 20:32:40 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27155 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315507AbSECAcg>; Thu, 2 May 2002 20:32:36 -0400
 Subject: Re: IDE hotplug support?
-In-Reply-To: <3CD19D16.7070605@rackable.com>
-Message-ID: <Pine.LNX.4.44.0205030230030.31927-100000@mustard.heime.net>
+To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
+Date: Fri, 3 May 2002 01:51:25 +0100 (BST)
+Cc: dalecki@evision-ventures.com (Martin Dalecki),
+        pavel@suse.cz (Pavel Machek), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0205030223520.31927-100000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at May 03, 2002 02:25:41 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E173RID-0005Ii-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Why not just grab a pair of 8 port 3ware cards?  Run raid 5 on each 
-> card, and throw 0 or linear via the md driver on top?
+> > The request aliasing effects will be almost for sure disasterous
+> > to overall system performance.
+> 
+> hm. all I want is lots of space. I don't need speed here. What is 
+> 'disasterous' here?
 
-because I don't need the speed. and because they cost $1200 a piece
-
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Halve the expected throughput and subtract a bit. Since you can put 8
+ports on a 3ware card one drive per port at 160Gb a drive I suspect you
+don't need master/slave pairs 8)

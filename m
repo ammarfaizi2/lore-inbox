@@ -1,92 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263384AbTJQKrv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 06:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbTJQKrv
+	id S262948AbTJQKuf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 06:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbTJQKuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 06:47:51 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:44928 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263384AbTJQKrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 06:47:49 -0400
-Date: Fri, 17 Oct 2003 11:49:11 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310171049.h9HAnBbO000594@81-2-122-30.bradfords.org.uk>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Norman Diamond <ndiamond@wta.att.ne.jp>
-Cc: Hans Reiser <reiser@namesys.com>, Wes Janzen <superchkn@sbcglobal.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20031017102436.GB10185@bitwizard.nl>
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60>
- <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
- <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
- <20031014064925.GA12342@bitwizard.nl>
- <3F8BA037.9000705@sbcglobal.net>
- <3F8BBC08.6030901@namesys.com>
- <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>
- <20031017102436.GB10185@bitwizard.nl>
-Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
+	Fri, 17 Oct 2003 06:50:35 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:2010 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262948AbTJQKud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 06:50:33 -0400
+Subject: Re: [Linux-fbdev-devel] Re: FBDEV 2.6.0-test7 updates.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Carlo E. Prelz" <fluido@fluido.as>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031017100412.GA1639@casa.fluido.as>
+References: <20031015162056.018737f1.akpm@osdl.org>
+	 <Pine.LNX.4.44.0310160022210.13660-100000@phoenix.infradead.org>
+	 <20031016091918.GA1002@casa.fluido.as> <1066298431.1407.119.camel@gaston>
+	 <20031016101905.GA7454@casa.fluido.as> <1066300935.646.136.camel@gaston>
+	 <20031017100412.GA1639@casa.fluido.as>
+Content-Type: text/plain
+Message-Id: <1066387778.661.226.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 17 Oct 2003 12:49:38 +0200
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Rogier Wolff <R.E.Wolff@BitWizard.nl>:
-> On Fri, Oct 17, 2003 at 06:40:01PM +0900, Norman Diamond wrote:
-> > I explained to them why the LBA sector number should still get
-> > reallocated even though the data are lost.
+
+> Ok. I got the code (it is mvista, not mivsta...). My card is
+> recognized without modifications:
+
+Good.
+
+> Then, when changing to 1280x1024, with command
 > 
-> This is unbelievably bad: Sometimes it is worth it, to try and read
-> the block again and again. We've seen blocks getting read after we've
-> retried over 1000 times from "userspace". That doesn't include the
-> retries that the drive did for us "behind the scenes". 
-
-That's moving in to the realms of more advanced data recovery.  You
-shouldn't really expect to be able to do those kind of forensics on
-intellegent drives using standard filesystem system calls.
-
-Besides, are you positive that you always got the correct data off the
-disk?  See the discussions about hashing algorithms - maybe the drive
-simply returned data that had an additional bit flipped and wasn't
-identified as bad.  If you are having to try over 1000 times from
-userspace, the drive is in a bad way.  You shouldn't really make
-assumptions that you do usually, (that the error correction is good
-enough to ensure bad data isn't returned as good data).  If you are
-recovering data from a spreadsheet, for example, the errors could go
-unnoticed, but have catastrophic results.
-
-> If you manage to convince Toshiba to remap the sector on a "bad read",
-> we'll never ever be able to recover the sector.
-
-Of course you will - it's remapped, the data isn't overwritten!  You
-may need more advanced tools, but you can still seek the heads to that
-part of the platter and get data from the head-amp.  Just because you
-couldn't use your simple method anymore is real reason to argue
-against fixing the problem.
-
-> We've also been able to provide a different environment (e.g. other
-> ambient temperature) to a drive so that previously bad sectors could
-> be read.
+> /usr/sbin/fbset  -depth 32 1280x1024-60
 > 
-> No, the only way is to realloc on write.
+> the actual console changes correctly, but when switching to other VCs,
+> the monitor again complains saying it gets bad frequencies: 103.1 kHz
+> horizontal and 197.8 Hz vertical.
 
-This may be more sensible, but not for the reasons you are suggesting,
-and not in the way that you are suggesting.  I have nothing really
-against not re-allocating on read, although ideally, it should be an
-option, but marking the sector as "don't touch, don't even re-map in
-case we confuse the OS", after a bad read is NOT acceptable in my
-opinion.
+Not sure what's up here. The driver is quite passive regarding
+the mode for other VCs, it sort of expect the fbcon layer do pick up
+the default mode and use it for other consoles. I'm not sure what's
+wrong here.
 
-In any case, a S.M.A.R.T. test should remap all suspect sectors - if
-an admin has deliberately run a S.M.A.R.T. test, I think we can assume
-they know what they are doing.
+In a more general way, I really lack the ability to change the console
+size with fbset like I could do with 2.4. I don't know if James revived
+that feature in his latest patches though. The stty thing isn't very
+reliable imho. Especially on monitors that don't like the standard
+modedb.
 
-> (but it should remember that
-> the data was bad, and treat the physical area with extra caution. It's
-> possible that something happened while writing that sector, so that
-> rewriting it this time will fix the problem for good, but on the other
-> hand, that area of the drive demonstrated the abilitty to lose data,
-> so you shouldn't trust any data to it!)
+> And on a similar topic, could you write a couple of examples about how
+> to use the parameters included in radeon_base.c? I am thinking
+> especially of the "mirror" and "monitor_layout" parameters, that I
+> believe would allow me to use the two or three video outputs of the
+> card independently. I currently read
 
-Suspect drive?  Bin it.  Do you really not value your data enough to
-do that?
+I have to see what I'll do of these parameters first. For now, the
+driver only really use the first head. I haven't yet implemented support
+for the second one, though it's on my list of things to do.
 
-John.
+> 0 ATI Radeon Yd 
+> 
+> in /proc/fb. I should read two or three lines there, I believe...
+
+Well... /proc is evil :)
+

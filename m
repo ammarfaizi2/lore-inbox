@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130793AbQJ1UKB>; Sat, 28 Oct 2000 16:10:01 -0400
+	id <S131309AbQJ1Ubo>; Sat, 28 Oct 2000 16:31:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130852AbQJ1UJv>; Sat, 28 Oct 2000 16:09:51 -0400
-Received: from laguna.tiscalinet.it ([195.130.224.86]:2297 "EHLO
-	laguna.tiscalinet.it") by vger.kernel.org with ESMTP
-	id <S130793AbQJ1UJp>; Sat, 28 Oct 2000 16:09:45 -0400
-Message-Id: <3.0.1.32.20001028221127.008b6460@pop.tiscalinet.it>
-X-Mailer: Windows Eudora Light Version 3.0.1 (32)
-Date: Sat, 28 Oct 2000 22:11:27 +0200
-To: linux-kernel@vger.kernel.org
-From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Subject: 2.2.17 & ASUS CD-S500/A (again)
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S130854AbQJ1Ubf>; Sat, 28 Oct 2000 16:31:35 -0400
+Received: from mail.bilboul.com ([193.117.73.30]:40044 "EHLO www.bilboul.com")
+	by vger.kernel.org with ESMTP id <S130478AbQJ1UbR>;
+	Sat, 28 Oct 2000 16:31:17 -0400
+Newsgroups: localnet.mail.linux.kernel
+Path: sweh
+From: sweh@spuddy.mew.co.uk (Stephen Harris)
+Subject: Re: syslog() blocks on glibc 2.1.3 with kernel 2.2.x
+Message-ID: <G35ns0.3rD@spuddy.mew.co.uk>
+Organization: Spud's Public Usenet Domain
+X-Newsreader: TIN [version 1.2 PL2]
+In-Reply-To: <G31psL.73r@spuddy.mew.co.uk>
+Date: Sat, 28 Oct 2000 19:36:00 GMT
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A lot of talk here has been about syslog and DNS blocking, but the
+original message mentioned:
 
-I've got this while trying to play an audio CD by cdplay.
+> If you send SIGSTOP to syslogd on a Red Hat 6.2 system (glibc 2.1.3,
+> kernel 2.2.x), within a few minutes you will find your entire machine
+> grinds to a halt.  For example, nobody can log in.
 
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x54
-ATAPI device hdc:
-  Error: Illegal request -- (Sense key=0x05)
-  Invalid command operation code -- (asc=0x20, ascq=0x00)
-  The failed "Play Audio TrackIndex" packet command was:
-  "48 00 00 00 01 01 00 0a 63 00 00 00 "
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x54
-ATAPI device hdc:
-  Error: Illegal request -- (Sense key=0x05)
-  Invalid command operation code -- (asc=0x20, ascq=0x00)
-  The failed "Play Audio TrackIndex" packet command was:
-  "48 00 00 00 01 01 00 0a 01 00 00 00 "
-cdplay: ioctl cdromplaytrkind
+Has this been addressed (and I missed it) or did the question get
+diverted?  If it has been addressed, just please mail me personally to
+save traffic on the list.
 
-I can't play any CD under 2.2.17
-
-2.2.17 bug or "Yet Another Bug Of S500/A" ? :-)
-
-NOTE:
-2.4.0-test9 works without problems.
-
---
-Lorenzo
+Thanks!
+-- 
+                                 Stephen Harris
+                 sweh@spuddy.mew.co.uk   http://www.spuddy.org/
+      The truth is the truth, and opinion just opinion.  But what is what?
+       My employer pays to ignore my opinions; you get to do it for free.      
+  * Meeeeow ! Call  Spud the Cat on > 01708 442043 < for free Usenet access *
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264724AbTAENN0>; Sun, 5 Jan 2003 08:13:26 -0500
+	id <S264739AbTAEN1g>; Sun, 5 Jan 2003 08:27:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264739AbTAENN0>; Sun, 5 Jan 2003 08:13:26 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:32773 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S264724AbTAENNZ>;
-	Sun, 5 Jan 2003 08:13:25 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301051321.h05DLuTs001257@darkstar.example.net>
-Subject: Re: PROBLEM: sound is stutter, sizzle with lasts kernel releases
-To: xizard@enib.fr (XI)
-Date: Sun, 5 Jan 2003 13:21:56 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3E183D04.8040405@enib.fr> from "XI" at Jan 05, 2003 02:11:16 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S264743AbTAEN1g>; Sun, 5 Jan 2003 08:27:36 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:30474 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S264739AbTAEN1f>;
+	Sun, 5 Jan 2003 08:27:35 -0500
+Message-ID: <3E183494.9030501@walrond.org>
+Date: Sun, 05 Jan 2003 13:35:16 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: menuconfig Bug in 2.5.54
+References: <3E156D61.2040105@walrond.org> <3E15EDD4.98FF8EBF@linux-m68k.org>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>SBline doesn't share interrupts well.  Usually, changing PCI slots in
->>>>order to affect what interrupt is used can help a lot.  The problem is,
->>>>depending on the motherboard, figuring out what a particular PCI slot
->>>>shares an interrupt with can be difficult.
->>>
->>>After some time, I have tested ALL possibilities with my PCI graphic
->>>card and my sound blaster live. (4 PCI slots => 12 possibilities).
->>>
->>>The problem is always the same, sound still stutter.
->>>
->>>
->>>Sum-up of my problem:
->>>The sound of my computer stutter when I move a window, watch a movie,
->>>... with a kernel 2.4.19 and 2.4.20 ; whereas with a kernel 2.4.8, it
->>>works fine.
->>>I use a sound blaster live! with a Matrox G200 PCI, and an AMD 760MPX
->>>chipset.
->>
->>
->> Try adding this line to the "Device" section of your XF86Config file:
->>
->> Option	"PciRetry"	"true"
->>
->> and let us know if it stops the stuttering or not.
->>
-> This option is already set in my XF86Config-4 file. It doesn't solve the
-> problem.
+Roman,
 
-Try setting it to false.
+I cannot reproduce this myself now. Please disregard.
 
-Also, try both settings for "PciBurst".
+Andrew
 
-John.
+Roman Zippel wrote:
+> Hi,
+> 
+> Andrew Walrond wrote:
+> 
+> 
+>>In the PCI Bus section, setting the pci access method to BIOS or direct
+>>does not get saved on exit. It always defaults back to "Any" on next
+>>make menuconfig
+> 
+> 
+> Can you send me your .config? I cannot reproduce it here.
+> 
+> bye, Roman
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+

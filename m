@@ -1,69 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291948AbSCMBrs>; Tue, 12 Mar 2002 20:47:48 -0500
+	id <S291780AbSCMBx6>; Tue, 12 Mar 2002 20:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291780AbSCMBrj>; Tue, 12 Mar 2002 20:47:39 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:61703 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S291745AbSCMBrW>; Tue, 12 Mar 2002 20:47:22 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A76F7@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
-        Russell King <rmk@arm.linux.org.uk>
-Cc: "'linux-serial'" <linux-serial@vger.kernel.org>,
-        "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] serial.c procfs kudzu 2nd try - discussion
-Date: Tue, 12 Mar 2002 17:47:20 -0800
+	id <S291787AbSCMBxs>; Tue, 12 Mar 2002 20:53:48 -0500
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:8709 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S291780AbSCMBxm>;
+	Tue, 12 Mar 2002 20:53:42 -0500
+Date: Tue, 12 Mar 2002 20:43:22 -0500 (EST)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+cc: <fdavis@si.rr.com>
+Subject: 2.5.7-pre1: net/ipv4/ipmr.c compile error
+Message-ID: <Pine.LNX.4.33.0203122041390.11115-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> Russell King wrote:
-> 
-> >On Mon, Mar 11, 2002 at 05:41:09PM -0800, Ed Vance wrote:
-> >
-> >>2. Does anybody know of anything that will break because of the leading 
-> >>   zeros that are now present on the address field? 
-> >>
-> >
-> >I'm not overly happy with this idea - there isn't anything that says an
-> >ioport address has 4 digits.  I know of machines where an ioport address
-> >has 8, and I'm sure on the Alpha or Sparc64 its probably 16 digits.
-> >
-> Agreed.  Standard portability convention seems to say that one treats io 
-> ports and io mem both as unsigned long, including when printing...
+Hello all,
+   While 'make bzImage', I received the following error.
+Regards,
+Frank
 
-Yeah. It was pretty ugly. My brain was caught in an x86-think well. I will
-resubmit with serinfo back to 1.0, all addresses in free form as they were
-before, proper lines for memory mapped ports (tagged "port:"), and no lines
-generated for nonexistent ports. 
+ipmr.c: In function `ip_mroute_setsockopt':
+ipmr.c:858: structure has no member named `num'
+make[3]: *** [ipmr.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/net/ipv4'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/net/ipv4'
+make[1]: *** [_subdir_ipv4] Error 2
+make[1]: Leaving directory `/usr/src/linux/net'
+make: *** [_dir_net] Error 2
 
-Russell King wrote:
-> 
-> Then file a bug against kudzu and get them to fix that so it doesn't
-> SEGV when it finds something it doesn't like, and teach it about the
-> 'mem' tag.
-> 
-> If kudzu ignores the serinfo: line as well, that's also another kudzu
-> bug.
-
-Kudzu ignores all lines that do not contain "uart", including the serinfo
-line. I will ask Red Hat to change pciserial.c to look for "mem" if "port"
-is not found and handle them interchangeably, so we can use the "mem" tag
-later, and to check the returned values of the string functions before
-attempting a de-reference.
-
-Thanks for the good input.
-
-Ed
-
----------------------------------------------------------------- 
-Ed Vance              serial24@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
 

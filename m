@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267772AbTAIVpx>; Thu, 9 Jan 2003 16:45:53 -0500
+	id <S267749AbTAIVpD>; Thu, 9 Jan 2003 16:45:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267984AbTAIVpx>; Thu, 9 Jan 2003 16:45:53 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:8452 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267772AbTAIVpp>;
-	Thu, 9 Jan 2003 16:45:45 -0500
-Date: Thu, 9 Jan 2003 22:52:52 +0100
+	id <S267772AbTAIVpD>; Thu, 9 Jan 2003 16:45:03 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:7940 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267749AbTAIVpB>;
+	Thu, 9 Jan 2003 16:45:01 -0500
+Date: Thu, 9 Jan 2003 22:51:54 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: acpi_button misses some static's
-Message-ID: <20030109215252.GA13474@elf.ucw.cz>
+       kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+Subject: Drain local pages to make swsusp work
+Message-ID: <20030109215154.GA13464@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,39 +22,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This adds them, please apply.
+With local pages present, swsusp's accounting goes wrong and you get
+nice BUG(). This fixes it, please apply.
 								Pavel
---- clean/drivers/acpi/button.c	2002-12-25 23:59:15.000000000 +0100
-+++ linux-swsusp/drivers/acpi/button.c	2003-01-06 00:11:23.000000000 +0100
-@@ -68,8 +68,8 @@
- MODULE_LICENSE("GPL");
+
+--- clean/kernel/suspend.c	2002-12-18 22:21:13.000000000 +0100
++++ linux-swsusp/kernel/suspend.c	2002-12-23 18:58:51.000000000 +0100
+@@ -680,6 +680,8 @@
+ 	struct sysinfo i;
+ 	unsigned int nr_needed_pages = 0;
  
++	drain_local_pages();
++
+ 	pagedir_nosave = NULL;
+ 	printk( "/critical section: Counting pages to copy" );
+ 	nr_copy_pages = count_and_copy_data_pages(NULL);
+@@ -714,6 +716,7 @@
+ 	nr_copy_pages_check = nr_copy_pages;
+ 	pagedir_order_check = pagedir_order;
  
--int acpi_button_add (struct acpi_device *device);
--int acpi_button_remove (struct acpi_device *device, int type);
-+static int acpi_button_add (struct acpi_device *device);
-+static int acpi_button_remove (struct acpi_device *device, int type);
- static int acpi_button_open_fs(struct inode *inode, struct file *file);
++	drain_local_pages();	/* During allocating of suspend pagedir, new cold pages may appear. Kill them */
+ 	if (nr_copy_pages != count_and_copy_data_pages(pagedir_nosave))	/* copy */
+ 		BUG();
  
- static struct acpi_driver acpi_button_driver = {
-@@ -236,7 +236,7 @@
- }
- 
- 
--int
-+static int
- acpi_button_add (
- 	struct acpi_device	*device)
- {
-@@ -386,7 +386,7 @@
- }
- 
- 
--int
-+static int
- acpi_button_remove (struct acpi_device *device, int type)
- {
- 	acpi_status		status = 0;
 
 -- 
 Worst form of spam? Adding advertisment signatures ala sourceforge.net.

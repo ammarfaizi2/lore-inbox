@@ -1,71 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265082AbTFRHnY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 03:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265084AbTFRHnX
+	id S265084AbTFRHqk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 03:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265085AbTFRHqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 03:43:23 -0400
-Received: from smtp4.pacifier.net ([64.255.237.174]:40397 "EHLO
-	smtp4.pacifier.net") by vger.kernel.org with ESMTP id S265082AbTFRHnS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 03:43:18 -0400
-Date: Wed, 18 Jun 2003 00:57:12 -0700
-From: "B. D. Elliott" <bde@nwlink.com>
-To: linux-kernel@vger.kernel.org
-Subject: Sparc64-2.5.72: A Serious Time Problem
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-Message-Id: <20030618073556.94E966A4FC@smtp4.pacifier.net>
+	Wed, 18 Jun 2003 03:46:40 -0400
+Received: from smtp.pentapharm.com ([194.209.245.131]:9991 "HELO
+	fire0002.pentapharm.com") by vger.kernel.org with SMTP
+	id S265084AbTFRHqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 03:46:39 -0400
+MIME-Version: 1.0
+Subject: AW: Kernel 2.5.71 cannot unmount nfs
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+Date: Wed, 18 Jun 2003 09:59:48 +0200
+Message-ID: <0557B834CB410E4EB692BC78504D4C2C02F3F4@dc0011.pefade.pefa.local>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Kernel 2.5.71 cannot unmount nfs
+Thread-Index: AcMz4+/TIlSbqsyGSAurmhkwXxoyAgBi3xUQ
+From: "Seifert Guido, gse" <Guido.Seifert@pentapharm.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Jun 2003 07:59:49.0916 (UTC) FILETIME=[97B1CDC0:01C3356F]
+Content-Type: multipart/mixed; boundary="----=_NextPartTM-000-63a556b7-ad1b-4ff7-9606-136905e1fe51"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a serious bug in setting time on 64-bit sparcs (and probably other
-64-bit systems).  The symptom is that ntpdate or date set the time back to
-1969 or 1970.  The underlying problems are that stime is broken, and any
-settimeofday call fails with a bad fractional value.  Ntpdate falls back to
-stime when settimeofday fails.
+This is a multipart message in MIME format
 
-The settimeofday problem is that the timeval and timespec structures are not
-the same size.  In particular, the fractional part is an int in timeval, and
-a long in timespec.  The stime problem is that the argument is not an int,
-but a time_t, which is long on at least some 64-bit systems.
+------=_NextPartTM-000-63a556b7-ad1b-4ff7-9606-136905e1fe51
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-The following patch appears to fix this on my sparc64.
+> Seifert Guido, gse, Mon, Jun 16, 2003 10:22:08 +0200:
+>> Sorry for the incomplete and unprofessional bugreport, I don't have=20
+>> more info. I tried Kernel 2.5.71. Everything seems to work fine until
 
-===================================================================
---- ./kernel/time.c.orig	2003-06-16 22:36:04.000000000 -0700
-+++ ./kernel/time.c	2003-06-18 00:00:43.000000000 -0700
-@@ -66,7 +66,7 @@
-  * architectures that need it).
-  */
-  
--asmlinkage long sys_stime(int * tptr)
-+asmlinkage long sys_stime(time_t * tptr)
- {
- 	struct timespec tv;
- 
-@@ -162,13 +162,15 @@
- 
- asmlinkage long sys_settimeofday(struct timeval __user *tv, struct timezone __user *tz)
- {
-+	struct timeval user_tv;
- 	struct timespec	new_tv;
- 	struct timezone new_tz;
- 
- 	if (tv) {
--		if (copy_from_user(&new_tv, tv, sizeof(*tv)))
-+		if (copy_from_user(&user_tv, tv, sizeof(*tv)))
- 			return -EFAULT;
--		new_tv.tv_nsec *= NSEC_PER_USEC;
-+		new_tv.tv_sec = user_tv.tv_sec;
-+		new_tv.tv_nsec = user_tv.tv_usec * NSEC_PER_USEC;
- 	}
- 	if (tz) {
- 		if (copy_from_user(&new_tz, tz, sizeof(*tz)))
-===================================================================
+>> I shut down or try to unmount a mountend nfs filesystem. For several=20
+>> minutes nothing happens, then I get something what looks like a=20
+>> backtrace from the nfs related code section. Unfortunately there is=20
+>> nothing in the log files afterwards.
 
--- 
-B. D. Elliott   bde@nwlink.com
+>See the patch at http://bugme.osdl.org/show_bug.cgi?id=3D805
+
+Works great. Thank you.
+
+G.
+
+
+
+------=_NextPartTM-000-63a556b7-ad1b-4ff7-9606-136905e1fe51
+Content-Type: text/plain;
+	name="InterScan_SafeStamp.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="InterScan_SafeStamp.txt"
+
+****** Message from InterScan E-Mail VirusWall NT ******
+
+** No virus found in attached file noname.htm
+
+E-mail is virus checked, Pentapharm Group, Switzerland, Support@pentapharm.com
+*****************     End of message     ***************
+
+
+------=_NextPartTM-000-63a556b7-ad1b-4ff7-9606-136905e1fe51--
+
+------=_NextPartTM-000-63a556b7-ad1b-4ff7-9606-136905e1fe51--

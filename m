@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318109AbSHPDoX>; Thu, 15 Aug 2002 23:44:23 -0400
+	id <S318111AbSHPEAH>; Fri, 16 Aug 2002 00:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318111AbSHPDoX>; Thu, 15 Aug 2002 23:44:23 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53769 "EHLO
+	id <S318112AbSHPEAH>; Fri, 16 Aug 2002 00:00:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38922 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318109AbSHPDoW>; Thu, 15 Aug 2002 23:44:22 -0400
-Date: Thu, 15 Aug 2002 20:50:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, <linux-kernel@vger.kernel.org>,
-       <linux-aio@kvack.org>
-Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re:
- async-io API registration for 2.5.29)]
-In-Reply-To: <Pine.LNX.4.44.0208152041120.1271-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208152045330.1271-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318111AbSHPEAH>; Fri, 16 Aug 2002 00:00:07 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: ptrace/select/signal errno weirdness
+Date: 15 Aug 2002 21:03:52 -0700
+Organization: Transmeta Corporation
+Message-ID: <ajhtj8$ns6$1@cesium.transmeta.com>
+References: <Pine.LNX.4.44.0208151508060.21876-100000@spratly.nominum.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.44.0208151508060.21876-100000@spratly.nominum.com>,
+Brian Wellington  <bwelling@xbill.org> wrote:
+>When sending a SIGINT to a ptraced process (run under gdb), an interrupted 
+>select() call returns with errno==514.  linux/include/linux/errno.h says:
+>
+>/* Should never be seen by user programs */
+>#define ERESTARTSYS     512
+>#define ERESTARTNOINTR  513
+>#define ERESTARTNOHAND  514     /* restart if no handler.. */
+>#define ENOIOCTLCMD     515     /* No ioctl command */
+>
+>As gdb is a user program, and the printf is printing it, there's something
+>wrong.
 
-On Thu, 15 Aug 2002, Linus Torvalds wrote:
-> 
-> My bet is that we'll never do it due to performance issues. It's just 
-> simpler to make the high pages end up being some special stuff (ie the old 
-> "swap victim cache" etc that wouldn't show up to the VM proper).
+No, there's nothing wrong.
 
-Actually, the simplest schenario is to just make an arbitrary cut-off at
-8G or 16G of RAM, and make anything above it default to the hugetlb zone,
-and make that use a separate hugetlb map which does refcounts at 2MB
-granularity). And create fake "struct page" entries for those things that
-have to have it, along with a separate kmap area that holds a few of the 
-big mappings.
-
-There's an almost complete overlap between people who want hugetlb and 
-64GB x86 machines anyway, so I doubt you'd find people to complain.
-
-And the advantage of the hugetlb stuff is exactly the fact that the normal 
-VM doesn't need to worry about it. It's nonswappable, and doesn't get IO 
-done into it through any of the normal paths.
-
-Minimal impact.
+The process _itself_ never sees these magic error numbers, because they
+are internal to the kernel, and the only time they are seen is by a
+tracer that sees them - at the same time as the kernel backed up the
+instruction pointer so that the traced process will not actually return
+from the system call, it will re-do the system call.
 
 		Linus
-

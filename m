@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280669AbRKJOix>; Sat, 10 Nov 2001 09:38:53 -0500
+	id <S280671AbRKJOt0>; Sat, 10 Nov 2001 09:49:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280670AbRKJOin>; Sat, 10 Nov 2001 09:38:43 -0500
-Received: from d-dialin-1115.addcom.de ([62.96.163.163]:18670 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S280669AbRKJOi1>; Sat, 10 Nov 2001 09:38:27 -0500
-Date: Sat, 10 Nov 2001 15:38:27 +0100 (CET)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: <pinguin@wanadoo.nl>
-cc: <linux-kernel@vger.kernel.org>, <isdn4linux@listserv.isdn4linux.de>
-Subject: Re: modprobe hangs on isdn (2.4.10 and 1.4.13)
-In-Reply-To: <200111092318.fA9NIc619331@t-rex.pinguins.dyn.dhs.org>
-Message-ID: <Pine.LNX.4.33.0111101533480.3310-100000@vaio>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280678AbRKJOtP>; Sat, 10 Nov 2001 09:49:15 -0500
+Received: from pc1-camb5-0-cust171.cam.cable.ntl.com ([62.253.134.171]:21642
+	"EHLO fenrus.demon.nl") by vger.kernel.org with ESMTP
+	id <S280671AbRKJOtN>; Sat, 10 Nov 2001 09:49:13 -0500
+From: arjan@fenrus.demon.nl
+To: oktay.akbal@s-tec.de (Oktay Akbal)
+Subject: Re: Numbers: ext2/ext3/reiser Performance (ext3 is slow)
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.40.0111101516050.14500-100000@omega.hbh.net>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+Message-Id: <E162ZQN-00069u-00@fenrus.demon.nl>
+Date: Sat, 10 Nov 2001 14:47:59 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.40.0111101516050.14500-100000@omega.hbh.net> you wrote:
 
-[please continue this on the isdn4linx list, remove the CC to l-k]
+> Hello !
 
-On Sat, 10 Nov 2001 arjen@pinguins.dyn.dhs.org wrote:
+> Anyone has an idea, why this ext3 "fails" at this specific test while on
+> normal fs-benchmarks it is much better ?
 
-> after a period of instability due to SMP and a
-> 3Com ethernet card I upgraded to 2.4.10. But
-> now the system consistantly hangs on boot
-> during the modprobe of the hisax/isdn module.
-> Hanging means total lockup of the system (no
-> dump, nothing).
+ext3 by default imposes stricter ordering than the other journalling
+filesystems in order to improve _data_ consistency (as opposed to just
+the guarantee of consistent metadata as most other filesystems do).
+if you mount the filesystem with
 
-When exactly does the hang happen?
-Can you try
-modprobe isdn
-modprobe hisax type=27 [or any wrong type]
-modprobe hisax type=21 [or whichever card type is right for you]
+mount -t ext3 -o data=writeback /dev/foo /mnt/bar
 
-I suppose the hang happens during the last modprobe, right?
+will make it use the same level of guarantee as reiserfs does.
 
-Which was the last kernel version which worked for you?
+mount -t ext3 -o data=journal /dev/foo /mnt/bar
 
---Kai
+will do FULL data journalling and will also guarantee data integrety after a
+crash...
 
+Greetings,
+   Arjan van de Ven

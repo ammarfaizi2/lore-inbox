@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262886AbSJaQ3x>; Thu, 31 Oct 2002 11:29:53 -0500
+	id <S265230AbSJaQj3>; Thu, 31 Oct 2002 11:39:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263193AbSJaQ3w>; Thu, 31 Oct 2002 11:29:52 -0500
-Received: from main.gmane.org ([80.91.224.249]:16063 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S262886AbSJaQ3K>;
-	Thu, 31 Oct 2002 11:29:10 -0500
-To: linux-kernel@vger.kernel.org
-X-Injected-Via-Gmane: http://gmane.org/
-Path: not-for-mail
-From: Nicholas Wourms <nwourms@netscape.net>
-Subject: Re: The Ext3sj Filesystem
-Date: Thu, 31 Oct 2002 11:36:36 -0500
-Message-ID: <aprm29$flg$2@main.gmane.org>
-References: <200210301434.17901.mattf@mattjf.com> <Pine.LNX.4.44L.0210301826410.1697-100000@imladris.surriel.com>
-Reply-To: nwourms@netscape.net
-NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: main.gmane.org 1036082057 16048 130.127.121.177 (31 Oct 2002 16:34:17 GMT)
-X-Complaints-To: usenet@main.gmane.org
-NNTP-Posting-Date: Thu, 31 Oct 2002 16:34:17 +0000 (UTC)
-User-Agent: KNode/0.7.2
+	id <S265234AbSJaQj2>; Thu, 31 Oct 2002 11:39:28 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:26501 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265230AbSJaQjW>; Thu, 31 Oct 2002 11:39:22 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 31 Oct 2002 08:54:29 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Zach Brown <zab@zabbo.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>, <lse-tech@lists.sourceforge.net>
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+In-Reply-To: <20021030135920.K4044@bitchcake.off.net>
+Message-ID: <Pine.LNX.4.44.0210310853560.1562-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Wed, 30 Oct 2002, Zach Brown wrote:
 
-> On Wed, 30 Oct 2002, Matthew J. Fanto wrote:
-> 
->> I am annoucing the development of the ext3sj filesystem. Ext3sj is a new
->> encrypted filesystem based off ext3. Ext3sj is an improvement over the
->> current loopback solution because we do not in fact require a loopback
->> device.  [snip]  Instead, every file is encrypted seperately
-> 
-> Very nice, for exactly the reasons you outlined ;)
-> 
->> Currently, ext3sj supports the following algorithms: AES, 3DES, Twofish,
->> Serpent, RC6, RC5, RC2, Blowfish, CAST-256, XTea, Safer+, SHA1, SHA256,
->> SHA384, SHA512, MD5, with more to come.  If anyone has any comments,
-> 
-> How about using the algorithms that are already in the kernel
-> via the crypto API so all of the kernel can share the same
-> crypto algorithms ?
+> > It is very easy for me to remain calm here. You're a funny guy. You're in
+> > the computer science by many many years and still you're not able to
+> > understand how edge triggered events works. And look, this apply to every
+> > field, form ee to cs. Book suggestions would be requested here, but since
+> > I believe grasping inside a technical library to be pretty fun, I'll leave
+> > you this pleasure.
+>
+> 	http://www.infidels.org/news/atheism/logic.html#hominem
+>
+> I know its hard, but can we try and avoid the most pathetic pitfalls of
+> arguing over email?
 
-I agree, as this seems like the logical approach.  However, why not just add 
-the missing algorithms in the list above to the CryptoAPI while your at it?  
-That way, we really give users a choice over which algorithm they prefer to 
-use, but also maintaining a centralized API for them.
+Zach, it's just me or I received this one twice :)
 
-Cheers,
-Nicholas
+
+- Davide
 
 

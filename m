@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVAQQaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVAQQbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbVAQQaA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 11:30:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVAQQaA
+	id S262213AbVAQQbf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 11:31:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbVAQQbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 11:30:00 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63755 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262246AbVAQQ3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 11:29:45 -0500
-Date: Mon, 17 Jan 2005 17:29:38 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mark Watts <m.watts@eris.qinetiq.com>
-Cc: linux-kernel@vger.kernel.org, Klaus Dittrich <kladit@t-online.de>
+	Mon, 17 Jan 2005 11:31:35 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:51414 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S262213AbVAQQbb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 11:31:31 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
 Subject: Re: brought up 4 cpu's
-Message-ID: <20050117162938.GS4274@stusta.de>
-References: <20050117153646.GA25273@xeon2.local.here> <200501171609.15054.m.watts@eris.qinetiq.com> <41EBE54B.1010401@xeon2.local.here> <200501171632.26443.m.watts@eris.qinetiq.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: Mon, 17 Jan 2005 16:31:26 +0000
+User-Agent: KMail/1.7.2
+References: <20050117153646.GA25273@xeon2.local.here> <41EBE54B.1010401@xeon2.local.here> <200501171632.26443.m.watts@eris.qinetiq.com>
 In-Reply-To: <200501171632.26443.m.watts@eris.qinetiq.com>
-User-Agent: Mutt/1.5.6+20040907i
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501171631.26633.andrew@walrond.org>
+X-Spam-Score: -2.8 (--)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 17, 2005 at 04:32:26PM +0000, Mark Watts wrote:
-> 
-> > Mark Watts wrote:
-> > >
-> > >>kernel-2.6.11-rc1-bk5 stops booting after the message
-> > >>"Brought up 4 CPU'S"
-> > >>
-> > >>System is Dual-P4.
-> > >
-> > >With HyperThreading?
-> >
-> > Yes, 2 XEON/P4.
-> 
-> Thats your answer then. HyperThreading makes one cpu act as two (with a 
+On Monday 17 January 2005 16:32, Mark Watts wrote:
+>
+> Thats your answer then. HyperThreading makes one cpu act as two (with a
 > suitable performance increase for some workloads)
+>
 
-This doesn't explain why it stopped booting on his computer...
+Me thinks you should reread the original message ;)
 
-> Mark.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Andrew

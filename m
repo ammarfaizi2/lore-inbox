@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbUCEEww (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 23:52:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbUCEEww
+	id S262212AbUCEFCu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 00:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUCEFCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 23:52:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7391 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262210AbUCEEwu
+	Fri, 5 Mar 2004 00:02:50 -0500
+Received: from mx11.sac.fedex.com ([199.81.193.118]:32528 "EHLO
+	mx11.sac.fedex.com") by vger.kernel.org with ESMTP id S262212AbUCEFCs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 23:52:50 -0500
-Message-ID: <40480795.5000402@pobox.com>
-Date: Thu, 04 Mar 2004 23:52:37 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Fri, 5 Mar 2004 00:02:48 -0500
+Date: Fri, 5 Mar 2004 13:02:56 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Stuart Young <sgy-lkml@amc.com.au>
+cc: David Ford <david+challenge-response@blue-labs.org>, jason@stdbev.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI battery info failure after some period of time, 2.6.3-x
+ and up
+In-Reply-To: <200403051543.04300.sgy-lkml@amc.com.au>
+Message-ID: <Pine.LNX.4.58.0403051259480.387@boston.corp.fedex.com>
+References: <4047756D.2050402@blue-labs.org> <200403051520.40341.sgy-lkml@amc.com.au>
+ <4048015D.6070308@blue-labs.org> <200403051543.04300.sgy-lkml@amc.com.au>
 MIME-Version: 1.0
-To: "Brown, Len" <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Hyper-threaded pickle
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/05/2004
+ 01:02:40 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/05/2004
+ 01:02:46 PM,
+	Serialize complete at 03/05/2004 01:02:46 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-So,
+On Fri, 5 Mar 2004, Stuart Young wrote:
 
-Just now getting my dual athlon going under 2.6.x.  It _really_ doesn't 
-like ACPI.
+> ...and it just failed then, using 2.6.4-rc2 still.
 
-ACPI specifications dictate some hardware characteristics, as well as 
-specifying table structures and such.  One of those characteristics is 
-the 4-second poweroff:  if you hold down the power button for 4-5 
-seconds, your motherboard is required to poweroff the machine.  This is 
-supposed to be a hard poweroff, and on most machines this works even 
-when various pieces of hardware are frozen/locked-up.
+have you tried applying patch from ...
 
-Turning on ACPI kills my 4-second poweroff, which is pretty darn 
-impressive.  So I proceed to disable ACPI...  but CONFIG_ACPI_BOOT 
-doesn't want to disable.  I am trying to restore my working, non-ACPI 
-configuration under 2.6, but this seems to be preventing me from doing so:
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.4/
+acpi-20040220-2.6.4.diff.bz2
 
-drivers/acpi/Kconfig:
-config ACPI_BOOT
-         bool
-         depends on ACPI || X86_HT
-         default y
 
-arch/i386/Kconfig:
-config X86_HT
-         bool
-         depends on SMP && !(X86_VISWS || X86_VOYAGER)
-         default y
+I'm on IBM X30, linux 2.6.4-rc2. No problem.
 
-My dual athlon _definitely_ doesn't have hyperthreading, and I am 
-willing to bet that force-enabling the ACPI boot and HT code for all SMP 
-machines breaks other older-SMP boxes as well.
 
-	Jeff
+# uptime
+ 13:02:07 up  3:31,  4 users,  load average: 0.08, 0.07, 0.08
+
+# cat /proc/acpi/battery/BAT0/state
+present:                 yes
+capacity state:          ok
+charging state:          unknown
+present rate:            0 mW
+remaining capacity:      31780 mWh
+present voltage:         12419 mV
 
 
 
+Jeff.
 

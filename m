@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbUK3RBC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbUK3RAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbUK3RBC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 12:01:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUK3RAm
+	id S262199AbUK3RAb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 12:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbUK3Q7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 12:00:42 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:51613 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262192AbUK3Q7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 11:59:34 -0500
-Subject: Re: [2.6 patch] move OSS ac97_codec.h to sound/oss/
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041130013750.GQ26051@parcelfarce.linux.theplanet.co.uk>
-References: <20041130013139.GC19821@stusta.de>
-	 <20041130013750.GQ26051@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
+	Tue, 30 Nov 2004 11:59:05 -0500
+Received: from mail4.utc.com ([192.249.46.193]:9909 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S262192AbUK3Q53 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 11:57:29 -0500
+Message-ID: <41ACA668.3090809@cybsft.com>
+Date: Tue, 30 Nov 2004 10:57:12 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-13
+References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <200411292354.05995.gene.heskett@verizon.net> <41AC9121.8020001@cybsft.com> <200411301124.18628.gene.heskett@verizon.net>
+In-Reply-To: <200411301124.18628.gene.heskett@verizon.net>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1101830044.25603.49.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 30 Nov 2004 15:54:07 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-11-30 at 01:37, Al Viro wrote:
-> On Tue, Nov 30, 2004 at 02:31:39AM +0100, Adrian Bunk wrote:
-> > As far as I can see, there's no good reason why the OSS ac97_codec.h 
-> > lives in include/linux/ .
+Gene Heskett wrote:
+> On Tuesday 30 November 2004 10:26, K.R. Foley wrote:
 > 
-> Except for a bunch of constants defined there.  Are you sure that they
-> are not exposed to userland?
+>>"<some process> is being piggy... Read missed before next interrupt"
+>>
+>>2) tvtime is probably running at a RT priority of 99. The IRQ
+>>handler for the rtc defaults to 48-49 (I think). If you didn't
+>>already do so, you should bump the priority up as in:
+>>
+>>chrt -f -p 99 `/sbin/pidof 'IRQ 8'`
+> 
+> 
+> [root@coyote root]# chrt -f -p 99 `/sbin/pidof 'IRQ 8'`
+> bash: chrt: command not found
+> 
+> chrt is an unknown command here. WTH?  Basicly an FC2 system.
 
-OSS never really exposed raw AC97 to user space. Probably it should have
-for the whacky corner cases and for stuff like AC97 digitizers.
+It's part of schedutils pkg.
 
-Acked-by: Alan Cox <alan@redhat.com>
-
+kr

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263523AbUAMEMC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 23:12:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263545AbUAMEMC
+	id S263545AbUAMEoi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 23:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUAMEoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 23:12:02 -0500
-Received: from brain.sedal.usyd.edu.au ([129.78.24.68]:62425 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S263523AbUAMEMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 23:12:00 -0500
-Message-ID: <40040983.2090508@sedal.usyd.edu.au>
-Date: Wed, 14 Jan 2004 02:06:43 +1100
-From: sena <auntvini@sedal.usyd.edu.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robin Holt <holt@sgi.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: uid- /proc/loadavg
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 23:44:38 -0500
+Received: from [12.177.129.25] ([12.177.129.25]:52675 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S263545AbUAMEoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 23:44:37 -0500
+Message-Id: <200401130505.i0D55XS4026774@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: uml-patch-2.6.0
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Jan 2004 00:05:33 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robin,
+This patch updates UML to 2.6.0 and pulls in all the changes that have 
+accumulated in my 2.4 tree.
 
-I tested it again and there is no hanging on as far as the kernel module 
-is concerned.
+The 2.6.0 UML patch is available at
+	http://www.user-mode-linux.org/mirror/uml-patch-2.6.0-1.bz2
 
-What happens is that the other user hosts are getting a message saying 
-that thet there is a message at syslogd@sena
+BK users can pull my 2.5 repository from
+	http://www.user-mode-linux.org:5000/uml-2.5
 
-Thanks
-Sena Seneviratne
-Computer Engineering Lab
-Sydney University
+For the other UML mirrors and other downloads, see 
+        http://user-mode-linux.sourceforge.net/dl-sf.html
+ 
+Other links of interest:
+ 
+        The UML project home page : http://user-mode-linux.sourceforge.net
+        The UML Community site : http://usermodelinux.org
+
+				Jeff
 

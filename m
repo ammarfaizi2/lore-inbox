@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316644AbSE3OJO>; Thu, 30 May 2002 10:09:14 -0400
+	id <S316655AbSE3OOi>; Thu, 30 May 2002 10:14:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316652AbSE3OJN>; Thu, 30 May 2002 10:09:13 -0400
-Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:38793 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S316644AbSE3OJM>;
-	Thu, 30 May 2002 10:09:12 -0400
-Subject: Re: KBuild 2.5 Impressions
-From: Kenneth Johansson <ken@canit.se>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Keith Owens <kaos@ocs.com.au>
-In-Reply-To: <3CF62020.2030704@evision-ventures.com>
-Content-Type: text/plain
+	id <S316656AbSE3OOh>; Thu, 30 May 2002 10:14:37 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:10501 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S316655AbSE3OOg>; Thu, 30 May 2002 10:14:36 -0400
+Message-ID: <3CF6342D.7060905@loewe-komp.de>
+Date: Thu, 30 May 2002 16:16:13 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+CC: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: missing bit from signal patches
+In-Reply-To: <20020530220828.3c3192cd.sfr@canb.auug.org.au> <20020530232636.09d7b7eb.sfr@canb.auug.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 May 2002 16:08:55 +0200
-Message-Id: <1022767735.4032.5.camel@tiger>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-05-30 at 14:50, Martin Dalecki wrote:
-> Daniel Phillips wrote:
+Stephen Rothwell wrote:
+> Hi Roman,
 > 
-> > Along the way, old kbuild did the usual wrong things:
-> > 
-> >   - In the incremental build, 6 files rebuilt that should not have been
-> > 
-> >   - Once, when I interrupted the make dep, subsequent make deps would
-> >     no longer work, forcing me to do make mrproper and start again.
-> > 
-> >   - Way too much output to the screen
+> On Thu, 30 May 2002 14:46:20 +0200 (CEST) Roman Zippel <zippel@linux-m68k.org> wrote:
 > 
-> Bull shit: make -s helps.
+>>On Thu, 30 May 2002, Stephen Rothwell wrote:
+>>
+>>
+>>>Is the following a more ugly hack than yours?
+>>>
+>>Yes. :)
+>>The problem is copy_siginfo(), which wants to access struct siginfo.
+>>Copy the m68k version of siginfo.h and try to compile that.
+>>
+> 
+> OK, sorry, brain fart :-)
+> 
+> It seems that is an architecture defines its own siginfo_t then it must
+> also define its own copy_siginfo function (for now anyway).
+> 
+> Try this ...
+> 
 
-In that case it's way to little. In kbuild2.5 it's actually easy to spot
-if the correct files get compiled after a change.
+Why is that done so complicated?
+Why not just copy the struct over?
+When the kernel generates the signal, I hope the mem is zeroed
+and we copy it to user. When a user sends a signal, you want to
+prevent sending of arbitrary data? Why is that not done where
+the permission check happens?
+
+What do I miss?
+
+
+
+
+
+
 

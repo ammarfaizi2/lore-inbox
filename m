@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273748AbRJIIvg>; Tue, 9 Oct 2001 04:51:36 -0400
+	id <S273729AbRJIIuh>; Tue, 9 Oct 2001 04:50:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273787AbRJIIvb>; Tue, 9 Oct 2001 04:51:31 -0400
-Received: from web11801.mail.yahoo.com ([216.136.172.155]:38161 "HELO
-	web11801.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S273748AbRJIIvK>; Tue, 9 Oct 2001 04:51:10 -0400
-Message-ID: <20011009085140.85739.qmail@web11801.mail.yahoo.com>
-Date: Tue, 9 Oct 2001 10:51:40 +0200 (CEST)
-From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
-Subject: Re: [PATCH] change name of rep_nop
-To: linux-kernel@vger.kernel.org
+	id <S273748AbRJIIu0>; Tue, 9 Oct 2001 04:50:26 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:168 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S273729AbRJIIuQ>;
+	Tue, 9 Oct 2001 04:50:16 -0400
+Date: Tue, 9 Oct 2001 04:50:35 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: Re: [PATCH] devfs v194 available
+In-Reply-To: <200110090604.f99644D23291@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.GSO.4.21.0110090445340.13381-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
-> 	__asm__ __volatile__("rep;nop");
 
-"The behavior of the REP prefix is undefined when used with non-string
-instructions." page 3-404 of Intel documentation, in "CHAPTER 3,
-INSTRUCTION SET REFERENCE"...
 
-  How about: __asm__ __volatile__("loop ." : "+c" (nbloop)); ?
+On Tue, 9 Oct 2001, Richard Gooch wrote:
 
-  Etienne.
+>   Hi, all. Version 194 of my devfs patch is now available from:
+> http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+> The devfs FAQ is also available here.
+> 
+> Patch directly available from:
+> ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+> 
+> AND:
+> ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+> 
+> This is against 2.4.11-pre6. Highlights of this release:
+> 
+> - Fixed overrun in <devfs_link> by removing function (not needed)
 
-___________________________________________________________
-Un nouveau Nokia Game commence. 
-Allez sur http://fr.yahoo.com/nokiagame avant le 3 novembre
-pour participer à cette aventure tous médias.
+... doesn't fix _under_run in try_modload() (see what happens if namelen is
+255 and parent is devfs root)
+
+... doesn't fix the deadlock introduced into -pre6 in place of symlink
+races. That
+
+    /*  Need to follow the link: this is a stack chomper  */
+    down_read (&symlink_rwsem);
+    retval = curr->registered ?
+        search_for_entry (parent, curr->u.symlink.linkname,
+                          curr->u.symlink.length, FALSE, FALSE, NULL,
+                          TRUE) : NULL;
+    up_read (&symlink_rwsem);
+
+is a fairly bad idea.  Think what happens if somebody else tries to
+acquire symlink_rwsem for write between two calls of down_read() in
+that recursion.
+

@@ -1,48 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129847AbRCATtd>; Thu, 1 Mar 2001 14:49:33 -0500
+	id <S129840AbRCATuX>; Thu, 1 Mar 2001 14:50:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129848AbRCATtY>; Thu, 1 Mar 2001 14:49:24 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:7435 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129847AbRCATtL> convert rfc822-to-8bit; Thu, 1 Mar 2001 14:49:11 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Escape sequences & console
-Date: 1 Mar 2001 11:48:39 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <97m92n$hpm$1@cesium.transmeta.com>
-In-Reply-To: <"3a9e8dcd3b72e6a5@amyris.wanadoo.fr> <Pine.LNX.4.31.0103011919490.23240-100000@phobos.fachschaften.tu-muenchen.de>
+	id <S129845AbRCATuO>; Thu, 1 Mar 2001 14:50:14 -0500
+Received: from smtp-rt-5.wanadoo.fr ([193.252.19.159]:58504 "EHLO
+	caroubier.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S129840AbRCATuE>; Thu, 1 Mar 2001 14:50:04 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: The IO problem on multiple PCI busses
+Date: Thu, 1 Mar 2001 20:49:41 +0100
+Message-Id: <19350124132125.27547@smtp.wanadoo.fr>
+In-Reply-To: <15006.40524.929644.25622@pizda.ninka.net>
+In-Reply-To: <15006.40524.929644.25622@pizda.ninka.net>
+X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id LAA28653
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.31.0103011919490.23240-100000@phobos.fachschaften.tu-muenchen.de>
-By author:    Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-In newsgroup: linux.dev.kernel
+> > I'm, of course open to any comments about this (in fact, I'd really like
+> > some feedback). One thing is that we also need to find a way to pass
+> > those infos to userland. Currently, we implement an arch-specific syscall
+> > that allow to retreive the IO physical base of a given PCI bus. That may
+> > be enough, but we may also want something that match more closely what we
+> > do in the kernel.
 >
-> On Thu, 1 Mar 2001, Sébastien HINDERER wrote:
-> 
-> > Could someone tell me where I can find a document listing all the
-> > escape-sequences that could be sent to the console (/dev/console) and what
-> > they do.
-> 
-> Please don't use those sequences directly, as not everyone has
-> /dev/console on a vt. You can find the information you want in your local
-> terminfo database under "linux".
-> 
+>Same problem on sparc64.  Using a special PCI syscall is fine, _if_ we
+>all end up using the same one.  However, I would prefer another
+>mechanism...
 
-Well, don't use them directly without checking that $TERM is "linux".
-Also, normally they should be sent to the current terminal (/dev/tty,
-or just stdout) rather than /dev/console.
+Right, I remember we discussed this some monthes ago. Currently, we have
+a syscall that is slightly different from the sparc/alpha ones but very
+similar.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+>I think a cleaner scheme is to allow mmap() on
+>/proc/bus/pci/${BUS}/${DEVICE} nodes, that is much cleaner and solves
+>transparently any "different word size between userland and kernel"
+>issues (specifically 32-bit userlands executing on 64-bit kernels).
+>
+>I played around with something akin to this, and some of the necessary
+>Xfree86-4.0.x hackery needed, some time ago.  But I never finished
+>this.
+
+I do agree with you on this. I didn't have time to really work on it so
+far, I remember you posted a test patch but I was busy at that time with
+other PCI issues we had with multiple bus systems.
+
+Note that this is only the userland side of the story. For now, I'm more
+concerned about finding a good solution to the kernel side.
+
+Also, the problem of finding where the legacy ISA IOs of a given PCI bus
+are is a bit different that simply mmap'ing a BAR. Some video cards
+require some access to their VGA IOs without having a BAR covering them,
+in some case it's necessary to switch the chip from VGA to MMIO mode.
+
+I've looked at the parisc code (thanks Alan for pointing that out), and
+it seem they implement all inb/outb as quite big functions that decypher
+the address, retreive the bus, and do the proper IO call. Unfortunately,
+that's a bit bloated, and I don't think I'll ever get other PPC
+maintainers to agree with such a mecanism (everybody seem to be quite
+concerned with IO speed, I admit including me).
+
+Also, that wouldn't really help the case of legacy drivers or video
+drivers using legacy addresses for VGA. In all cases, whatever solution
+we end up having, those will have to be adapted. What I'd like is a
+smooth path that allow unchanged drivers to still work with the default
+bus, while adapted driver can be done so with minimum changes (mostly
+ending up storing an io base and creating a virtual "ISA bus number"). 
+
+That way, an ISA-like (legacy IO bus) can be mapped to either a PCI bus,
+or whatever. Maybe "ISA" is not a proper word for it, it could be
+"basic_io_bus" maybe.
+
+Alan also pointed out that there may be similar issues with MMIOs. In
+fact, as long as we are working with PCI devices, we can easily get
+things fixed up by munging the resource structures at fixup time. The
+_is_ however a similar issue with legacy ISA memory, especially since
+some platform can simply not let you access it.
+
+Looking at those in more details (other archs), it appears that the
+problem happens on most non-x86 archs and is handled differently for each
+of them, when it's handled at all.
+
+So what would be a preferred way ? Create that fake ISA bus number and
+provide functions for looking them up, getting their IO and mem bases,
+and eventually mapping PCI busses to ISA busses ? Or does someone have a
+better idea ? The goal is to try not to change the semantics of inb/outb
+and friends so that most legacy drivers can still work using the
+"default" IO bus if they are not upgraded to the new scheme.
+
+Thanks for your feedback,
+
+Regards, 
+Ben.

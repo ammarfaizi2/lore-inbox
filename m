@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266414AbUBFEau (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 23:30:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266453AbUBFEat
+	id S266416AbUBFE23 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 23:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266453AbUBFE23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 23:30:49 -0500
-Received: from may.nosdns.com ([207.44.240.96]:26262 "EHLO may.nosdns.com")
-	by vger.kernel.org with ESMTP id S266414AbUBFEas (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 23:30:48 -0500
-Date: Thu, 5 Feb 2004 21:27:14 -0700
-From: Elikster <elik@webspires.com>
-X-Mailer: The Bat! (v2.02.3 CE) Personal
-Reply-To: Elikster <elik@webspires.com>
-Organization: WebSpires Technologies
-X-Priority: 3 (Normal)
-Message-ID: <584993969.20040205212714@webspires.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux Capabilities and Other Security Models Documentation?
-In-Reply-To: <200402060351.i163ptpB010350@turing-police.cc.vt.edu>
-References: <200402060351.i163ptpB010350@turing-police.cc.vt.edu>
-MIME-Version: 1.0
+	Thu, 5 Feb 2004 23:28:29 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:15800
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S266416AbUBFE2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 23:28:17 -0500
+Date: Fri, 6 Feb 2004 05:28:15 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Andi Kleen <ak@suse.de>,
+       johnstul@us.ibm.com, drepper@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+Message-ID: <20040206042815.GO31926@dualathlon.random>
+References: <20040205214348.GK31926@dualathlon.random> <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - may.nosdns.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - webspires.com
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings folks.
+On Thu, Feb 05, 2004 at 11:15:00PM -0500, Rik van Riel wrote:
+> On Thu, 5 Feb 2004, Andrea Arcangeli wrote:
+> 
+> > However I'm unsure if you want all applications to be relocated
+> > ranodmly, and in turn if you want the vsyscalls relocated for all apps,
+> > exactly because this carry a cost. I think it should be optional.
+> 
+> If you think extra security should be optional, please don't
+> argue against it completely.
 
-   I got it compiled and working on my box running 9.0 Redhat.  However, there is one little problem.  There seems to be lack of documenation regarding the security model that is added to 2.6 series Kernel and it is not found in the documenation section.  
-
-   Anyone mind give me some urls links or pointers on 2 different areas regarding SELinux and Capabilities so I can see how it is used so I can learn from it and implement it into use for our production webservers boxes?  I sure appreciate the help.
-
--- 
-Best regards,
- Elikster                            mailto:elik@webspires.com
-
+I don't think I was arguing against it completely, exactly because I'm
+just saying it should be optional.

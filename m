@@ -1,79 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbULJQI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbULJQNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbULJQI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 11:08:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbULJQFr
+	id S261758AbULJQNM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 11:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbULJQCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 11:05:47 -0500
-Received: from wylie.me.uk ([82.68.155.89]:33223 "EHLO mail.wylie.me.uk")
-	by vger.kernel.org with ESMTP id S261750AbULJQE7 (ORCPT
+	Fri, 10 Dec 2004 11:02:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43977 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261751AbULJPqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 11:04:59 -0500
-From: "Alan J. Wylie" <alan@wylie.me.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16825.51489.430624.918561@devnull.wylie.me.uk>
-Date: Fri, 10 Dec 2004 16:04:49 +0000
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Cc: "EC" <wingman@waika9.com>, "Jeff Garzik" <jgarzik@pobox.com>,
-       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-Subject: Re: 2.4.29-pre1 OOPS early in boot with Intel ICH5 SATA controller
-In-Reply-To: <16824.8109.697757.673632@devnull.wylie.me.uk>
-References: <16824.8109.697757.673632@devnull.wylie.me.uk>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+	Fri, 10 Dec 2004 10:46:17 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20041209141718.6acec9ee.akpm@osdl.org>
+References: <20041209141718.6acec9ee.akpm@osdl.org>  <7ad0b24c-4955-11d9-8e19-0002b3163499@redhat.com> <200412082012.iB8KCTBK010123@warthog.cambridge.redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davidm@snapgear.com, gerg%snapgear.com.wli@holomorphy.com,
+       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+Subject: Re: [PATCH 2/5] NOMMU: High-order page management overhaul
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.3
+Date: Fri, 10 Dec 2004 15:45:53 +0000
+Message-ID: <30544.1102693553@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Dec 2004 09:49:33 +0000, "Alan J. Wylie" <alan@wylie.me.uk> said:
+Andrew Morton <akpm@osdl.org> wrote:
 
-> See also: <http://lkml.org/lkml/2004/12/3/68>
+> > The attached patch overhauls high-order page handling.
+>
+> This patch (which is actually twelve patches)
 
-> With 2.4.27 patched with
+How did you work that one out? Just because there're twelve points in my list
+doesn't mean the patch can be split twelve ways. If you really want it
+dissociating into sub-patches, I'm sure I can do that, but not all the
+intermediate stages would be compilable and testable.
 
-> <http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.27-rc3-libata1.patch.bz2>
+> seems to be taking out old code and replacing it with new code for no
+> apparent reason.
 
-> the system works. I have not been able to make it work with any
-> later 2.4 kernel
+ (1) I've been moaned at by a lot of people for:
 
-> Motherboard: Supermicro X6DA8-G2
+     (a) #ifdefs in page_alloc.c... This gets rid of some of them, even if I
+       	 didn't add them.
 
-Changing the BIOS settings from the default:
-With BIOS setting  "Native Mode Operation: [Auto]"
- to:
-With BIOS setting  "Native Mode Operation: [Both]"
+     (b) The way page_alloc.c was handling page refcounting differently under
+     	 nommu conditions. All I did was to fix it, but it seems it's my
+     	 fault:-/ This fixes it to use compound pages "as [I] should've done
+     	 in the first place".
 
-results in the system working OK with the later kernel.
+ (2) Splitting high-order pages has to be done differently on MMU vs
+     NOMMU. Part of this makes it simpler by providing convenience functions
+     for the job.
 
-There is still an issue, however with trying to use two drives and
-software RAID. With both drives, or with one drive pulled, the system
-boots OK. If the other drive (Channel 3 Master) is pulled, however,
-the system fails to boot, after producing the following error messages
-- both 2.4.29-pre1-bk5 and 2.6.9 kernels produce very similar messages.
+ (3) More robust nommu high-order page handling. I'm wary of the current way
+     the individual secondary pages of a high-order page are handled in nomuu
+     conditions. I can see ways it can go wrong all too easily (the existence
+     of the whole thing is contingent on the count on the first page, but
+     pinning the secondary pages doesn't affect that).
 
-With BIOS setting  "Native Mode Operation: [Both]"
+ (4) Making it easier to debug problems with compound pages (bad_page
+     changes).
 
-ACPI:PCI interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 18
-ata1: SATA max UDMA/133 cmd 0x1C00 ctl 0x18F6 bmdma 0x18E0 irq 18
-ata2: SATA max UDMA/133 cmd 0x18F8 ctl 0x18F2 bmdma 0x18E8 irq 18
-ata1: SATA port has no device.
-scsi0: ata_piix
-ATA abnormal status 0x7F on port 0x18FF
-scsi1: ata_piix
+ (5) Abstraction of some compound page related functions, including a way to
+     make it more efficient to access the first page (PG_compound_slave).
 
-With BIOS setting  "Native Mode Operation: [Auto]"
+> I mean, what is the *objective* of doing all of this stuff?  What problems
+> does it cause if the patch is simply dropped???
 
-ACPI:PCI interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 18
-ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0x18E0 irq 14
-ata1: SATA port has no device.
-scsi0: ata_piix
-Using anticpatory io scheduler
-ata2: SATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0x18E8 irq 15
-ata2: SATA port has no device.
-scsi1: ata_piix
+Objectives? Well:
 
--- 
-Alan J. Wylie                                          http://www.wylie.me.uk/
-"Perfection [in design] is achieved not when there is nothing left to add,
-but rather when there is nothing left to take away."
-  -- Antoine de Saint-Exupery
+ (1) More robust high-order page handling in nommu conditions.
+
+ (2) Use compound pages to achieve (1) as per the numerous suggestions.
+
+ (3) Remove #ifdefs as per the numerous suggestions.
+
+I think the drivers need a good auditing too. A lot of them allocate
+high-order pages for various uses, some for use as single units, and some for
+use as arrays of pages.
+
+David

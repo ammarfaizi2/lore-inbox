@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287588AbSAPVKj>; Wed, 16 Jan 2002 16:10:39 -0500
+	id <S287633AbSAPVMM>; Wed, 16 Jan 2002 16:12:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287619AbSAPVKe>; Wed, 16 Jan 2002 16:10:34 -0500
-Received: from ns.suse.de ([213.95.15.193]:40721 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287629AbSAPVKV> convert rfc822-to-8bit;
-	Wed, 16 Jan 2002 16:10:21 -0500
-Date: Wed, 16 Jan 2002 22:10:19 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Rik spreading bullshit about VM
-In-Reply-To: <200201162058.g0GKwC405826@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0201162209040.15064-100000@Appserv.suse.de>
+	id <S287627AbSAPVKl>; Wed, 16 Jan 2002 16:10:41 -0500
+Received: from paloma14.e0k.nbg-hannover.de ([62.181.130.14]:20633 "HELO
+	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S287630AbSAPVKZ>; Wed, 16 Jan 2002 16:10:25 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Ingo Molnar <mingo@elte.hu>
+Subject: I3 sched brakes "realtime" task
+Date: Wed, 16 Jan 2002 22:10:21 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Davide Libenzi <davidel@xmailserver.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020116211027Z287630-13997+6243@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Richard Gooch wrote:
+Hello Ingo,
 
-> > 	[..] La nuova VM ha migliori performance rispetto alla vecchia sui
-> > 	tipici sistemi desktop ... ma fa fiasco terribilmente su più sistemi di
-> > 	quanto non lo facesse la vecchia VM. Redhat, per esempio, non ha potuto
-> > 	inserire la nuova VM nella sua distribuzione perché cadrebbe a pezzi per
-> > 	i database server, [..]
+running I3 on top of 2.4.18-pre3-I3-VM-22-preempt-lock ;-)
+This combination rouks!
 
-> I don't know why you're so upset. As far as I can tell, Rik has warmly
-> praised your VM in the above message. Of course, since you didn't
-> provide an English translation, I can't really be sure.
+But my reported "smooth" KDE-2.2.2 artsd Ogg-Vorbis/MP3 playback is hurt with 
+I3 (both artsd processes reniced to -16/19). H7 worked OK.
 
-English (Well, some crazy moon-language dialect of english) translation:-
-http://linux.html.it/articoli/rik_van_riel_en1.htm
-
+-Dieter
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Dieter Nützel
+Graduate Student, Computer Science
 
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

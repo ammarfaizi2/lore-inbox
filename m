@@ -1,130 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263860AbTDDREe (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263858AbTDDREK (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:04:10 -0500
-Received: from mail.hot.ee ([194.126.101.94]:5546 "EHLO hot.ee")
-	by vger.kernel.org with ESMTP id S263860AbTDDQzg (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 11:55:36 -0500
-From: Nestor Aaro <lkernel@hot.ee> (by way of Nestor Aaro
-	<lkernel@hot.ee>)
-Reply-To: lkernel@hot.ee
-Subject: Problem with PPPoE on 2.5.65-66.bk9
-Date: Fri, 4 Apr 2003 20:07:01 +0300
-User-Agent: KMail/1.5
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	id S263870AbTDDRPe (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263874AbTDDROf (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:14:35 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:254 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263870AbTDDRIs (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 12:08:48 -0500
+Date: Fri, 4 Apr 2003 09:14:24 -0800
+From: Greg KH <greg@kroah.com>
+To: CaT <cat@zip.com.au>
+Cc: linux-kernel@vger.kernel.org, frodol@dds.nl, phil@netroedge.com
+Subject: Re: 2.5.66: The I2C code ate my grandma...
+Message-ID: <20030404171424.GA1380@kroah.com>
+References: <20030404021152.GE466@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304042007.01159.lkernel@hot.ee>
+In-Reply-To: <20030404021152.GE466@zip.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all!
-I have problem starting ADSL connection on 2.5.65-66.bk9 kernels. Using 
-roaring
-penguins software (rp-pppoe).
-Configuration:
-Slackware linux.
-GCC-3.2.2
-GlibC-2.3.1
-module-init-tools-0.9.10
-Kernel Config:
-----------------
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-# CONFIG_MODVERSIONS is not set
-# CONFIG_KMOD is not set
------------------
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-# CONFIG_MII is not set
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNGEM is not set
-CONFIG_NET_VENDOR_3COM=y
-# CONFIG_EL1 is not set
-# CONFIG_EL2 is not set
-# CONFIG_ELPLUS is not set
-# CONFIG_EL16 is not set
-CONFIG_EL3=m
-# CONFIG_3C515 is not set
-# CONFIG_VORTEX is not set
-# CONFIG_TYPHOON is not set
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
---------------
-CONFIG_PPP=m
-# CONFIG_PPP_MULTILINK is not set
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-# CONFIG_PPPOE is not set
-# CONFIG_SLIP is not set
------------------------------------------------------------------------------
--
+On Fri, Apr 04, 2003 at 12:11:52PM +1000, CaT wrote:
+> 
+> I2C components that were compiled in:
+> 
+> -CONFIG_I2C=y
+> -CONFIG_I2C_CHARDEV=y
+> -CONFIG_I2C_PIIX4=y
+> -CONFIG_I2C_PROC=y
+> -CONFIG_SENSORS_ADM1021=y
+> 
+> Please help. I like knowing what temp my cpu is at. :)
 
-Logs:
-kernelmessages:
-Mar 30 20:01:13 localhost kernel: 3c509.c:1.19b 08Nov2002 becker@scyld.com
-Mar 30 20:01:13 localhost kernel: http://www.scyld.com/network/3c509.html
-Mar 30 20:01:13 localhost kernel: loop: loaded (max 8 devices)
-Mar 30 20:01:13 localhost kernel: Linux video capture interface: v1.00
-Mar 30 20:01:13 localhost kernel: Gemtek PCI Radio (rev. 1) found at
-0x9800-0x9803.
-Mar 30 20:01:13 localhost kernel: i2c-proc.o version 2.7.0 (20021208)
-Mar 30 20:01:13 localhost kernel: i2c-piix4 version 2.7.0 (20021208)
-Mar 30 20:01:13 localhost kernel: piix4 smbus 00:07.3: Found Intel Corp.
-82371AB/EB/MB PIIX4  device
-Mar 30 20:01:13 localhost kernel: spurious 8259A interrupt: IRQ7.
-Mar 30 20:01:25 localhost kernel: eth0: Setting 3c5x9/3c5x9B half-duplex mode
-if_port: 0, sw_info: 1321
-Mar 30 20:01:25 localhost kernel: CSLIP: code copyright 1989 Regents of the
-University of California
-Mar 30 20:01:25 localhost kernel: PPP generic driver version 2.4.2
-Mar 30 20:01:25 localhost kernel: Module ppp_async cannot be unloaded due to
-unsafe usage in include/linux/module.h:432
+So if you disable the I2C config items, everything works just fine?
 
-messages:
-Mar 30 20:01:25 localhost kernel: eth0: Setting 3c5x9/3c5x9B half-duplex mode
-if_port: 0, sw_info: 1321
-Mar 30 20:01:25 localhost kernel: CSLIP: code copyright 1989 Regents of the
-University of California
-Mar 30 20:01:25 localhost kernel: PPP generic driver version 2.4.2
-Mar 30 20:01:25 localhost pppd[154]: pppd 2.4.1 started by root, uid 0
-Mar 30 20:01:25 localhost kernel: Module ppp_async cannot be unloaded due to
-unsafe usage in include/linux/module.h:428
-Mar 30 20:01:25 localhost pppd[154]: Using interface ppp0
-Mar 30 20:01:25 localhost pppd[154]: Connect: ppp0 <--> /dev/pts/0
-Mar 30 20:01:56 localhost pppd[154]: LCP: timeout sending Config-Requests
-Mar 30 20:01:56 localhost pppd[154]: Connection terminated.
-Mar 30 20:02:00 localhost pppoe[155]: Timeout waiting for PADO packets
-Mar 30 20:02:00 localhost pppd[154]: Exit.
+I did send out a bugfix for the i2c code for a problem in 2.5.66, it's
+now included in the latest -bk tree.  Could you grab that patch and see
+if it fixes your problem?
 
-syslog:
-Mar 30 20:01:25 localhost kernel: eth0: Setting 3c5x9/3c5x9B half-duplex mode
-if_port: 0, sw_info: 1321
-Mar 30 20:01:25 localhost kernel: Module ppp_async cannot be unloaded due to
-unsafe usage in include/linux/module.h:428
-Mar 30 20:01:56 localhost pppd[154]: LCP: timeout sending Config-Requests
-Mar 30 20:02:00 localhost pppoe[155]: Timeout waiting for PADO packets
+thanks,
 
------------------------------------------------------------------------------
-Compiling ppp modules in to the kernel gives the same result.
-I have no problems on 2.4.20
-
-
-Nestor
-
-
-
-
+greg k-h

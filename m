@@ -1,126 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275387AbTHSGdd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 02:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275486AbTHSGdc
+	id S272160AbTHSG2c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 02:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275365AbTHSG2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 02:33:32 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:4078 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S275387AbTHSGdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 02:33:21 -0400
-Date: Tue, 19 Aug 2003 16:34:34 +1000
-From: CaT <cat@zip.com.au>
+	Tue, 19 Aug 2003 02:28:31 -0400
+Received: from [61.135.132.105] ([61.135.132.105]:4184 "EHLO smtp01.sohu.com")
+	by vger.kernel.org with ESMTP id S272160AbTHSG2b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 02:28:31 -0400
+From: r6144 <r6k@sohu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16193.50055.259400.303737@localhost.localdomain>
+Date: Tue, 19 Aug 2003 14:28:23 +0800
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/10] 2.6.0-t3: struct C99 initialiser conversion
-Message-ID: <20030819063434.GH643@zip.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="DSayHWYpDlRfCAAQ"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+Subject: [2.6.0-test3] Sun JDK 1.4.2 doesn't exit properly using NPTL
+X-Mailer: VM 7.14 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sun JDK works fine with stock RH9 kernel with or without NPTL, and
+under 2.6.0-test3 without NPTL.
 
---DSayHWYpDlRfCAAQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+When running it under 2.6.0-test3 with NPTL, the parent process (for
+example bash) locks up after the java process exits.  Strace shows
+that the parent had been waiting in wait4(), but isn't woken up when
+the children (the java process) exits via exit_group().  Sending the
+parent a SIGINT makes wait4() return -ECHILD and the parent continues
+as normal.  The java process runs perfectly normally during its own
+lifetime.
 
-linux/arch/ia64/ patch
-
--- 
-"How can I not love the Americans? They helped me with a flat tire the
-other day," he said.
-	- http://tinyurl.com/h6fo
-
---DSayHWYpDlRfCAAQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="2.6.0-t3.c99.arch.ia64.patch"
-
-diff -aur linux.backup/arch/ia64/hp/common/sba_iommu.c linux/arch/ia64/hp/common/sba_iommu.c
---- linux.backup/arch/ia64/hp/common/sba_iommu.c	Sat Aug 16 15:02:36 2003
-+++ linux/arch/ia64/hp/common/sba_iommu.c	Sat Aug 16 17:56:19 2003
-@@ -1935,10 +1935,10 @@
- }
- 
- static struct acpi_driver acpi_sba_ioc_driver = {
--	name:		"IOC IOMMU Driver",
--	ids:		"HWP0001,HWP0004",
--	ops: {
--		add:	acpi_sba_ioc_add,
-+	.name		= "IOC IOMMU Driver",
-+	.ids		= "HWP0001,HWP0004",
-+	.ops		= {
-+		.add	= acpi_sba_ioc_add,
- 	},
- };
- 
-diff -aur linux.backup/arch/ia64/kernel/perfmon.c linux/arch/ia64/kernel/perfmon.c
---- linux.backup/arch/ia64/kernel/perfmon.c	Sat Aug 16 15:02:16 2003
-+++ linux/arch/ia64/kernel/perfmon.c	Sat Aug 16 15:44:59 2003
-@@ -2122,7 +2122,7 @@
- 	return 1;
- }
- static struct dentry_operations pfmfs_dentry_operations = {
--	d_delete:	pfmfs_delete_dentry,
-+	.d_delete	= pfmfs_delete_dentry,
- };
- 
- 
-diff -aur linux.backup/arch/ia64/sn/io/drivers/ioconfig_bus.c linux/arch/ia64/sn/io/drivers/ioconfig_bus.c
---- linux.backup/arch/ia64/sn/io/drivers/ioconfig_bus.c	Thu Jun 26 23:48:30 2003
-+++ linux/arch/ia64/sn/io/drivers/ioconfig_bus.c	Sat Aug 16 17:57:14 2003
-@@ -346,9 +346,9 @@
- }
- 
- struct file_operations ioconfig_bus_fops = {
--	ioctl:ioconfig_bus_ioctl,
--	open:ioconfig_bus_open,		/* open */
--	release:ioconfig_bus_close	/* release */
-+	.ioctl = ioconfig_bus_ioctl,
-+	.open = ioconfig_bus_open,		/* open */
-+	.release = ioconfig_bus_close	/* release */
- };
- 
- 
-diff -aur linux.backup/arch/ia64/sn/io/sn2/shub.c linux/arch/ia64/sn/io/sn2/shub.c
---- linux.backup/arch/ia64/sn/io/sn2/shub.c	Sat Aug 16 15:02:37 2003
-+++ linux/arch/ia64/sn/io/sn2/shub.c	Sat Aug 16 15:45:00 2003
-@@ -243,7 +243,7 @@
- }
- 
- struct file_operations shub_mon_fops = {
--	        ioctl:          shubstats_ioctl,
-+	        .ioctl          = shubstats_ioctl,
- };
- 
- /*
-diff -aur linux.backup/arch/ia64/sn/kernel/setup.c linux/arch/ia64/sn/kernel/setup.c
---- linux.backup/arch/ia64/sn/kernel/setup.c	Sat Aug 16 15:02:37 2003
-+++ linux/arch/ia64/sn/kernel/setup.c	Sat Aug 16 17:57:36 2003
-@@ -117,14 +117,14 @@
-  * VGA color display.
-  */
- struct screen_info sn_screen_info = {
--	orig_x:			 0,
--	orig_y:			 0,
--	orig_video_mode:	 3,
--	orig_video_cols:	80,
--	orig_video_ega_bx:	 3,
--	orig_video_lines:	25,
--	orig_video_isVGA:	 1,
--	orig_video_points:	16
-+	.orig_x			= 0,
-+	.orig_y			= 0,
-+	.orig_video_mode	= 3,
-+	.orig_video_cols	= 80,
-+	.orig_video_ega_bx	= 3,
-+	.orig_video_lines	= 25,
-+	.orig_video_isVGA	= 1,
-+	.orig_video_points	= 16
- };
- 
- /*
-
---DSayHWYpDlRfCAAQ--

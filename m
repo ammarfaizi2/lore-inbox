@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130231AbRAIT46>; Tue, 9 Jan 2001 14:56:58 -0500
+	id <S129778AbRAIUID>; Tue, 9 Jan 2001 15:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131876AbRAIT4m>; Tue, 9 Jan 2001 14:56:42 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:23286 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S131848AbRAIT4U>; Tue, 9 Jan 2001 14:56:20 -0500
-Date: Tue, 9 Jan 2001 16:05:24 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] ide-features.c: unchecked kmalloc
-Message-ID: <20010109160524.B24523@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Url: http://advogato.org/person/acme
+	id <S129733AbRAIUHn>; Tue, 9 Jan 2001 15:07:43 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:32268 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129729AbRAIUHi>;
+	Tue, 9 Jan 2001 15:07:38 -0500
+Date: Tue, 9 Jan 2001 21:07:17 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <93fnve$250$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0101092058090.8236-100000@e2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-	Please consider applying.
+On 9 Jan 2001, Linus Torvalds wrote:
 
-- Arnaldo
+> I told David that he can fix the network zero-copy code two ways: either
+> he makes it _truly_ scatter-gather (an array of not just pages, but of
+> proper page-offset-length tuples), or he makes it just a single area and
+> lets the low-level TCP/whatever code build up multiple segments
+> internally.  Either of which are good designs.
 
---- linux-2.4.0-ac4/drivers/ide/ide-features.c	Mon Jan  8 20:39:17 2001
-+++ linux-2.4.0-ac4.acme/drivers/ide/ide-features.c	Tue Jan  9 16:02:11 2001
-@@ -189,6 +189,10 @@
- 	__cli();		/* local CPU only; some systems need this */
- 	SELECT_MASK(HWIF(drive), drive, 0);
- 	id = kmalloc(SECTOR_WORDS*4, GFP_ATOMIC);
-+	if (!id) {
-+		__restore_flags(flags);	/* local CPU only */
-+		return 0;
-+	}
- 	ide_input_data(drive, id, SECTOR_WORDS);
- 	(void) GET_STAT();	/* clear drive IRQ */
- 	ide__sti();		/* local CPU only */
+it's actually truly zero-copy internally, we use an array of
+(page,offset,length) tuples, with proper per-page usage counting. We did
+this for than half a year. I believe the array-of-pages solution you refer
+to went only from the pagecache layer into the highest level of TCP - then
+it got converted into the internal representation. These tuples right now
+do not have their own life, they are always associated with actual
+outgoing packets (and in fact are allocated together with skb's and are at
+the end of the header area).
+
+the lowlevel networking drivers (and even midlevel networking code) knows
+nothing about kiovecs or arrays of pages, it's using the array-of-tuples
+representation:
+
+typedef struct skb_frag_struct skb_frag_t;
+
+struct skb_frag_struct
+{
+        struct page *page;
+        __u16 page_offset;
+        __u16 size;
+};
+
+/* This data is invariant across clones and lives at
+ * the end of the header data, ie. at skb->end.
+ */
+struct skb_shared_info {
+        atomic_t        dataref;
+        unsigned int    nr_frags;
+        struct sk_buff  *frag_list;
+        skb_frag_t      frags[MAX_SKB_FRAGS];
+};
+
+(the __u16 thing is more of a cache footprint paranoia than real
+necessity, it could be int as well.). So i do believe that the networking
+code is properly designed in this respect, and this concept goes to the
+highest level of the networking code.
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129847AbRBWP3A>; Fri, 23 Feb 2001 10:29:00 -0500
+	id <S129577AbRBWP3K>; Fri, 23 Feb 2001 10:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129624AbRBWP2v>; Fri, 23 Feb 2001 10:28:51 -0500
-Received: from [212.140.58.138] ([212.140.58.138]:52229 "EHLO
-	mail.helpmagic.com") by vger.kernel.org with ESMTP
-	id <S129847AbRBWP2q>; Fri, 23 Feb 2001 10:28:46 -0500
-From: "Jon Evans" <evansj@helpmagic.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: usb / hub / usb-storage problem with 2.4.2
-Date: Fri, 23 Feb 2001 15:24:44 -0000
+	id <S129624AbRBWP3B>; Fri, 23 Feb 2001 10:29:01 -0500
+Received: from mail2.megatrends.com ([155.229.80.11]:21011 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S129577AbRBWP2u>; Fri, 23 Feb 2001 10:28:50 -0500
+Message-ID: <1355693A51C0D211B55A00105ACCFE64E9529C@ATL_MS1>
+From: Venkatesh Ramamurthy <Venkateshr@ami.com>
+To: "'nite@hq.alert.sk'" <nite@hq.alert.sk>
+Cc: Peter Jarrett <Peterj@ami.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE:[PATCH] megaraid port from 2.2.19pre14 to 2.4.2
+Date: Fri, 23 Feb 2001 10:24:14 -0500
 MIME-Version: 1.0
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
-X-MIMETrack: Itemize by SMTP Server on helpmagic-notes/Helpmagic/UK(Release 5.0 (Intl)|30
- March 1999) at 02/23/2001 03:24:34 PM,
-	Serialize by Router on helpmagic-notes/Helpmagic/UK(Release 5.0 (Intl)|30
- March 1999) at 02/23/2001 03:24:41 PM,
-	Serialize complete at 02/23/2001 03:24:41 PM
-Message-ID: <NEBBJPFEMKMMDGBIMIADGEOKCAAA.evansj@helpmagic.com>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset="iso-8859-1"
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
-
-My Iomega Jaz USB drive has stopped working.  I'm not sure when, I know it
-has worked since 2.4.0 but I haven't used it for a couple of weeks.
-
-The problem is:
-
-Feb 23 15:13:47 evansj kernel: hub.c: USB new device connect on bus1/2,
-assigned device number 5
-Feb 23 15:13:47 evansj kernel: usb.c: USB device not accepting new address=5
-(error=-32)
-Feb 23 15:13:48 evansj kernel: hub.c: USB new device connect on bus1/2,
-assigned device number 6
-Feb 23 15:13:48 evansj kernel: usb.c: USB device not accepting new address=6
-(error=-32)
-
-These mesages appear whenever the device is plugged in.
-
-My USB mouse, in the other USB port, continues to work fine.
-
-Jon.
-
-Apologies if Outlook screws up the line wrapping...
-
+I have submitted the latest 1.14g driver patch for both 2.4.1pre and
+2.2.19pre series. Hopefully waiting for Linus and Alan to integrate into the
+standard tree.
+Thanks
+Venkatesh

@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVCTXd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVCTXfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVCTXd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 18:33:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVCTXd0
+	id S261355AbVCTXfq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 18:35:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVCTXfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 18:33:26 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:4516 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261335AbVCTXdH (ORCPT
+	Sun, 20 Mar 2005 18:35:45 -0500
+Received: from fire.osdl.org ([65.172.181.4]:57046 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261355AbVCTXfa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 18:33:07 -0500
-Date: Sun, 20 Mar 2005 18:32:03 -0500
-From: Dave Jones <davej@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386/x86_64 mpparse.c: kill maxcpus
-Message-ID: <20050320233203.GC26230@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-References: <20050320192549.GP4449@stusta.de> <20050320224233.GB26230@redhat.com> <20050320231232.GY4449@stusta.de>
+	Sun, 20 Mar 2005 18:35:30 -0500
+Date: Sun, 20 Mar 2005 15:34:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, christoph@graphe.net
+Subject: Re: [patch] del_timer_sync scalability patch
+Message-Id: <20050320153446.32a9215a.akpm@osdl.org>
+In-Reply-To: <200503202319.j2KNJXg29946@unix-os.sc.intel.com>
+References: <200503202319.j2KNJXg29946@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050320231232.GY4449@stusta.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 12:12:32AM +0100, Adrian Bunk wrote:
- > On Sun, Mar 20, 2005 at 05:42:34PM -0500, Dave Jones wrote:
- > > On Sun, Mar 20, 2005 at 08:25:49PM +0100, Adrian Bunk wrote:
- > >  > Do we really need a global variable that does only hold the value of 
- > >  > NR_CPUS?
- > > 
- > > Yes.
- > >  
- > > NR_CPUS = compile time
- > > maxcpus = boot command line at runtime.
- > 
- > If this is how is was expected to work - it isn't exactly what is 
- > currently implemented.
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>
+> We did exactly the same thing about 10 months back.  Nice to
+> see that independent people came up with exactly the same
+> solution that we proposed 10 months back.
 
-It's ugly, as its setting the same thing in two different places, but
-I don't see any obvious reason why it won't work.
+Well the same question applies.  Christoph, which code is calling
+del_timer_sync() so often that you noticed?
 
- > The function maxcpus in init/main.c sets a static variable max_cpus -
- > not the global variable maxcpus in the mpparse.c files.
+>  In fact, this patch
+> is line-by-line identical to the one we post.
 
-Both variables are used differently. The arch specific var is only
-used for HT descrimination. The init/main.c one is used for smp bringup.
+I assume that's not a coincidence.
 
- > How should it be?
- > 
- > Should max_cpus in init/main.c become global and replace the maxcpus 
- > from the mpparse.c files?
+> Hope Andrew is going to take the patch this time.
 
-I'd just leave it as it is, as it seems to be working right now.
+Hope Kenneth is going to test the alternate del_timer_sync patches in next
+-mm ;)
 
-		Dave

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129284AbRB0VTs>; Tue, 27 Feb 2001 16:19:48 -0500
+	id <S129563AbRB0V1I>; Tue, 27 Feb 2001 16:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129537AbRB0VTj>; Tue, 27 Feb 2001 16:19:39 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55818 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129339AbRB0VTd>; Tue, 27 Feb 2001 16:19:33 -0500
-Message-ID: <3A9C19CB.7176092B@transmeta.com>
-Date: Tue, 27 Feb 2001 13:19:07 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129574AbRB0V0t>; Tue, 27 Feb 2001 16:26:49 -0500
+Received: from hilbert.umkc.edu ([134.193.4.60]:11528 "HELO tesla.umkc.edu")
+	by vger.kernel.org with SMTP id <S129563AbRB0V0l>;
+	Tue, 27 Feb 2001 16:26:41 -0500
+Message-ID: <3A9C1B59.2492E5C9@kasey.umkc.edu>
+Date: Tue, 27 Feb 2001 15:25:45 -0600
+From: "David L. Nicol" <david@kasey.umkc.edu>
+Organization: University of Missouri - Kansas City   supercomputing infrastructure
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Thorsten Glaser Geuer <eccesys@topmail.de>
-CC: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: ISO-8859-1 completeness of kernel fonts?
-In-Reply-To: <F281raFC8XymNMDdckH00012e6f@hotmail.com> <000001c0a0ed$1ea188d0$742c9c3e@tp.net> <97h0bq$kdc$1@cesium.transmeta.com> <036601c0a0f8$bd0ad070$742c9c3e@tp.net>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: another Linux-2.4.2 splat: *** target pattern contains no `%'.  Stop.
+In-Reply-To: <Pine.LNX.3.95.1010221182554.14140C-100000@scsoftware.sc-software.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thorsten Glaser Geuer wrote:
-> 
-> I always do it by a BASIC programme under DOS (yep I know
-> this isn't pure but I have a font editor from S-DOS aka
-> PTS-DOS (the free version)). The SFE.COM allows me to design
-> 8x8 8x12 8x14 8x16 fonts; the unicode table I write in the
-> MC or VC (NC clone for DOS) editor; my BASIC pgm converts
-> them together to PSFU. It's very easy once you read the psf
-> docs.
-> It's a pity that I've to mkfs the DOS partitions of my HDDs
-> every handfull of weeks, otherwise I'd put them onto a ftp
-> server somewhere. But I call you to try it by yourself.
-> (perl prolly isn't that easy coz it goes to binary values,
-> but GW-BASIC is fine)
-> 
+[david@nicol1 linux]$ make dep
 
-I published a DOS-based PSF editor a long, long time ago (look for
-fontedit.exe; if it isn't on the net anywhere remind me and I'll put it
-back up.)  Use psfaddtable then to combine it into PSFU.
+make[3]: Entering directory `/mnt/sdb2/src/linux-2.4.2/drivers'
+make -C acpi fastdep
+make[4]: Entering directory `/mnt/sdb2/src/linux-2.4.2/drivers/acpi'
+Makefile:29: *** target pattern contains no `%'.  Stop.
+make[4]: Leaving directory `/mnt/sdb2/src/linux-2.4.2/drivers/acpi'
+make[3]: *** [_sfdep_acpi] Error 2
+make[3]: Leaving directory `/mnt/sdb2/src/linux-2.4.2/drivers'
+make[2]: *** [fastdep] Error 2
+make[2]: Leaving directory `/mnt/sdb2/src/linux-2.4.2/drivers'
+make[1]: *** [_sfdep_drivers] Error 2
+make[1]: Leaving directory `/mnt/sdb2/src/linux-2.4.2'
+make: *** [dep-files] Error 2
 
-However, having something running under Linux would make more sense.
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt

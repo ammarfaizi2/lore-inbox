@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277176AbRJ0VN1>; Sat, 27 Oct 2001 17:13:27 -0400
+	id <S277135AbRJ0VWm>; Sat, 27 Oct 2001 17:22:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277135AbRJ0VNZ>; Sat, 27 Oct 2001 17:13:25 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:31249 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277183AbRJ0VLB>;
-	Sat, 27 Oct 2001 17:11:01 -0400
-Date: Sat, 27 Oct 2001 18:51:35 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Igor Mozetic <igor.mozetic@uni-mb.si>, <linux-kernel@vger.kernel.org>
-Subject: Re: Any stable 2.4 kernel?
-In-Reply-To: <E15xVZh-0003an-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0110271851130.32445-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S277144AbRJ0VWc>; Sat, 27 Oct 2001 17:22:32 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:10950 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S277135AbRJ0VWR>;
+	Sat, 27 Oct 2001 17:22:17 -0400
+Date: Sat, 27 Oct 2001 17:22:52 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ryan Cumming <bodnar42@phalynx.dhs.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: more devfs fun (Piled Higher and Deeper)
+In-Reply-To: <E15xaiJ-0001Na-00@localhost>
+Message-ID: <Pine.GSO.4.21.0110271712520.21545-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Oct 2001, Alan Cox wrote:
 
-> The 440GX problems we've seen have been incorrect IRQ routing and related
-> problems that generally screw you right from boot up. In that sense the
-> 440GX boards are sometimes "winputers" rather than PC compatibles.
->
-> It doesn't fit the random crash report
 
-Urghhh, should learn not to respond to stuff I haven't
-had the time to research ;)
+On Sat, 27 Oct 2001, Ryan Cumming wrote:
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+> It might be more productive to provide patches or at least generate 
+> constructive ideas as how to fix these problems, as you are obviously quite 
+> capable of doing so. Digging through the code and sending a new email to this 
+> list for every few flaws you find is doing little good, and your personal 
+> attacks on the maintainer are even less benefical. Cooperation will get you a 
+> lot farther than conflict.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Been there, tried that, had been told by Richard that he would rather fix
+devfs bugs himself.  Quite a few months ago.  If you have better suggestions
+they would be more than welcome.
+
+As far as I can see, if maintainer doesn't fix the bugs himself and tells
+that patches are not welcome there are only two things that can be done -
+going into full-disclosure mode in hope that it will change the situation or
+taking over the code in question.
+
+By that point I'm sorely tempted to do the latter (i.e. full-blown fork,
+maintained with no regard to Richard's preferences + sumbitting [very
+massive] fixes directly to Linus), but I want to give a try to less
+drastic approach first.
 

@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273870AbRJDLxT>; Thu, 4 Oct 2001 07:53:19 -0400
+	id <S273836AbRJDLw3>; Thu, 4 Oct 2001 07:52:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273883AbRJDLxA>; Thu, 4 Oct 2001 07:53:00 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:46521 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S273846AbRJDLww>;
-	Thu, 4 Oct 2001 07:52:52 -0400
-Date: Thu, 4 Oct 2001 07:50:32 -0400 (EDT)
+	id <S273846AbRJDLwT>; Thu, 4 Oct 2001 07:52:19 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:44473 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S273836AbRJDLwI>;
+	Thu, 4 Oct 2001 07:52:08 -0400
+Date: Thu, 4 Oct 2001 07:49:46 -0400 (EDT)
 From: jamal <hadi@cyberus.ca>
 To: Ingo Molnar <mingo@elte.hu>
-cc: Ben Greear <greearb@candelatech.com>, <linux-kernel@vger.kernel.org>,
+cc: Simon Kirby <sim@netnation.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Ben Greear <greearb@candelatech.com>, <linux-kernel@vger.kernel.org>,
         Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
         Robert Olsson <Robert.Olsson@data.slu.se>,
         Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.LNX.4.33.0110040851280.2166-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.30.0110040749590.9341-100000@shell.cyberus.ca>
+In-Reply-To: <Pine.LNX.4.33.0110040749120.1727-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.30.0110040747560.9341-100000@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,20 +28,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 On Thu, 4 Oct 2001, Ingo Molnar wrote:
 
 >
-> On Wed, 3 Oct 2001, Ben Greear wrote:
+> On Wed, 3 Oct 2001, jamal wrote:
 >
-> > > so far your appraoch is that of a shotgun i.e  "let me fire in
-> > > that crowd and i'll hit my target but dont care if i take down a few
-> > > more"; regardless of how noble the reasoning is, it's  as Linus described
-> > > it -- a sledge hammer.
-> >
-> > Aye, but by shooting this target and getting a few bystanders, you save
-> > everyone else...  (And it's only a flesh wound!!)
+> > I think you can save yourself a lot of pain today by going to a
+> > "better driver"/hardware. Switch to a tulip based board; [...]
 >
-> especially considering that the current code nukes the whole city ;)
+> This is not an option in many cases. (eg. where a company standardizes on
+> something non-tulip, or due to simple financial/organizational reasons.)
+> What you say is the approach i see in the FreeBSD camp frequently: "use
+> these [limited set of] wonderful cards and drivers, the rest sucks
+> hardware-design-wise and we dont really care about them", which elitist
+> attitude i strongly disagree with.
 >
 
-Ingo, cut down on the bad mushrooms ;->
+It is not elitist. Maybe we can force people to use the API now. it
+exists. And hardware flow control does not require special hardware
+features. As well NAPI kills the requirement for mitigation in the future.
 
 cheers,
 jamal

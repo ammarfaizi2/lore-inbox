@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263106AbTI3Ejd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 00:39:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTI3Ejd
+	id S263113AbTI3Eli (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 00:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbTI3Eli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 00:39:33 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:59075 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263106AbTI3Ejc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 00:39:32 -0400
-Date: Tue, 30 Sep 2003 06:39:25 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Karol Kozimor <sziwan@hell.org.pl>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PM][INPUT] keyboard dead after resuming from S3
-Message-ID: <20030930043925.GA20603@ucw.cz>
-References: <20030929211344.GC12894@hell.org.pl> <20030929212925.GA19916@ucw.cz> <20030929231508.GA5963@hell.org.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030929231508.GA5963@hell.org.pl>
-User-Agent: Mutt/1.5.4i
+	Tue, 30 Sep 2003 00:41:38 -0400
+Received: from mail01.hansenet.de ([213.191.73.61]:14044 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S263113AbTI3Elg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 00:41:36 -0400
+From: Malte =?iso-8859-1?q?Schr=F6der?= <MalteSch@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] [2.6.0-test6] Stale NFS file handle
+Date: Tue, 30 Sep 2003 06:41:24 +0200
+User-Agent: KMail/1.5.3
+References: <200309282031.54043.MalteSch@gmx.de> <20030928204753.GA28255@oscar.prima.de> <20030929185834.GA31748@oscar.prima.de>
+In-Reply-To: <20030929185834.GA31748@oscar.prima.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_3lQe/SwnjhJ4yMt";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309300641.27616.MalteSch@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2003 at 01:15:08AM +0200, Karol Kozimor wrote:
 
-> Thus wrote Vojtech Pavlik:
-> > > with this by reloading atkbd.ko. However, for newer ones (2.6.0-test5-mm4,
-> > > specifically), I can't do that, as the following appears:
-> > > 
-> > > atkbd: Unknown symbol dump_i8042_history
-> > > 
-> > > A similar warning is issued at depmod stage.
-> > You probably have the atkbd module from a different kernel version.
-> > Rebuild your atkbd module.
-> 
-> Definitely not, and I've just done a make mrproper to ensure that. Will try
-> with a different version, though.
-> Best regards,
+--Boundary-02=_3lQe/SwnjhJ4yMt
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-Ok, then it's some patch that's in -mm4 and isn't in -test6 and -bk* trees.
+On Monday 29 September 2003 20:58, Patrick Mau wrote:
+> Hallo Malte,
+>
+> I accidently deleted your original mail. Did you try exporting your
+> filesystems with "no_subtree_check", like this ?
+>
+> /dvd \
+>   tony.local.net(rw,async,no_subtree_check)
+This makes the messages go away :)
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+>
+> If not, could you please try and tell me if that helps ?
+>
+> Thanks,
+> Patrick
+
+=2D-=20
+=2D--------------------------------------
+Malte Schr=F6der
+MalteSch@gmx.de
+ICQ# 68121508
+=2D--------------------------------------
+
+
+--Boundary-02=_3lQe/SwnjhJ4yMt
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/eQl34q3E2oMjYtURAnKeAKDK3qvfJxCrkrafo/i2tock+KeZugCcCr3y
+tmQAYY7uuBdpOR6OgRRvccE=
+=L3iV
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_3lQe/SwnjhJ4yMt--
+

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263494AbRFANGr>; Fri, 1 Jun 2001 09:06:47 -0400
+	id <S263497AbRFANV2>; Fri, 1 Jun 2001 09:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263495AbRFANGi>; Fri, 1 Jun 2001 09:06:38 -0400
-Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:23730 "EHLO
-	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S263494AbRFANGZ>; Fri, 1 Jun 2001 09:06:25 -0400
-Date: Fri, 1 Jun 2001 15:06:22 +0200 (CEST)
-From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
-        Pete Zaitcev <zaitcev@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (for
- realthis
-In-Reply-To: <E155oW2-0000Ta-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106011503030.18082-100000@kenzo.iwr.uni-heidelberg.de>
+	id <S263501AbRFANVS>; Fri, 1 Jun 2001 09:21:18 -0400
+Received: from tower.t16.ds.pwr.wroc.pl ([156.17.209.1]:52677 "HELO
+	tower.t16.ds.pwr.wroc.pl") by vger.kernel.org with SMTP
+	id <S263497AbRFANVF>; Fri, 1 Jun 2001 09:21:05 -0400
+Date: Fri, 1 Jun 2001 15:21:00 +0200 (CEST)
+From: Przemyslaw Wegrzyn <czajnik@tower.t16.ds.pwr.wroc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.19 SMP - timing problems
+Message-ID: <Pine.LNX.4.21.0106011515560.10353-100000@tower.t16.ds.pwr.wroc.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Jun 2001, Alan Cox wrote:
 
-> I am sure that to an unpriviledged application reporting back the same result
-> as we saw last time we asked the hardware unless it is over 30 seconds old
-> will work fine. Maybe 10 for link partner ?
+After adding second  CPU to my server, I get the following strange
+behavior:
 
-No way! If I implement a HA application which depends on link status, I
-want the info to be accurate, I don't want to know that 30 seconds ago I
-had good link.
+earth:/home/czajnik# ping -s 10000 213.25.174.24
+PING 213.25.174.24 (213.25.174.24): 10000 data bytes
+10008 bytes from 213.25.174.24: icmp_seq=0 ttl=255 time=10551.5 ms
+10008 bytes from 213.25.174.24: icmp_seq=6 ttl=255 time=535.8 ms
+10008 bytes from 213.25.174.24: icmp_seq=7 ttl=255 time=660.6 ms
+10008 bytes from 213.25.174.24: icmp_seq=8 ttl=255 time=18.1 ms
+10008 bytes from 213.25.174.24: icmp_seq=9 ttl=255 time=9890.6 ms
+10008 bytes from 213.25.174.24: icmp_seq=10 ttl=255 time=9765.5 ms
+10008 bytes from 213.25.174.24: icmp_seq=11 ttl=255 time=1160.6 ms
+10008 bytes from 213.25.174.24: icmp_seq=12 ttl=255 time=1285.6 ms
+10008 bytes from 213.25.174.24: icmp_seq=13 ttl=255 time=1410.6 ms
 
-IMHO, rate limiting is the only solution.
+Every ping comes back in below one second, it seems to be a problem with
+time measurement. It started to happen after adding second CPU.
+We use 2.2.19 + Openwall patch + new AIC7xxx drivers + latest ReiserFS
 
--- 
-Bogdan Costescu
+What can It be ? How can I do any tests ?
 
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
+-=Czaj-nick=- 
 

@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265614AbTF2Jsi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 05:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265617AbTF2Jsi
+	id S265618AbTF2KKT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 06:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265619AbTF2KKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 05:48:38 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:37761 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S265614AbTF2Jsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 05:48:37 -0400
-Date: Sun, 29 Jun 2003 11:11:26 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
-To: linux-kernel@vger.kernel.org, mlmoser@comcast.net
-Subject: Re: File System conversion -- ideas
+	Sun, 29 Jun 2003 06:10:19 -0400
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:17559 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id S265618AbTF2KKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 06:10:15 -0400
+Date: Sun, 29 Jun 2003 06:24:28 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Daniel Egger <degger@fhm.edu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+In-Reply-To: <1056867876.11843.1.camel@sonja>
+Message-ID: <Pine.LNX.4.56.0306290619560.24286@filesrv1.baby-dragons.com>
+References: <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> 
+ <20030627163720.GF357@zip.com.au>  <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk>
+  <20030627235150.GA21243@work.bitmover.com>  <20030627165519.A1887@beaverton.ibm.com>
+  <20030628001625.GC18676@work.bitmover.com>  <20030627205140.F29149@newbox.localdomain>
+  <20030628031920.GF18676@work.bitmover.com>  <1056827655.6295.22.camel@dhcp22.swansea.linux.org.uk>
+  <20030628191847.GB8158@work.bitmover.com>  <20030628193857.GH841@gallifrey>
+  <1056832290.6289.44.camel@dhcp22.swansea.linux.org.uk> <1056867876.11843.1.camel@sonja>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anyhow, I'm thinking still about when reiser4 comes out.  I want to
-> convert to it from reiser3.6.  It came to my attention that a user-space
-> tool to convert between filesystems is NOT the best way to deal with
-> this. Seriously, you'd think it would be, right?  Wrong, IMHO.
->
-> You have the filesystem code for every filesystem Linux supports.  It's
-> there, in the kernel.  So why maintain a kludgy userspace tool that has
-> to be rewritten to understand them all?  I have a better idea.
->
-> How about a kernel syscall?  It's possible to do this on a running
-> filesystem but it's far too difficult for a start, so let's start with
-> unmounted filesystems mmkay?
+	Hello Daniel ,
 
-Apart from the special case of converting from one major version of a
-filesystem to another major version of the same filesystem, I think
-the performance of an on-the-fly filesystem conversion utility is
-going to be so much worse than just creating a new partition and
-copying the data across, that the only reason to do it would be if you
-could do it on a read-write filesystem without unmounting it.
+On Sun, 29 Jun 2003, Daniel Egger wrote:
+> Am Sam, 2003-06-28 um 22.31 schrieb Alan Cox:
+> > I'm testing the USB2 disk idea at the moment. Big problem is performance
+> > - 5Mbytes/second isnt the best backup rate in the world.
+> Which are 300Mbytes/minute, still faster than many tapes.
+            ^^^^^^^^^^^^^^^^
+	5MB/Sec is faster than MOST tapes drivs ?  Or ???
+	If you are talking older scsi-2 or 1 drives yes .
+	But on a properly tuned system any of the newer tape drives s/b
+	able beat that hands down .
 
-What I'd like to see is union mounts which allowed you to mount a new
-filesystem of a different type over the original one, and have all new
-writes go to the new fileystem.  I.E. as files were modified, they
-would be re-written to the new FS.  That would be one way of avoiding
-the performance hit on a busy server.
-
-John.
+> I've also made the experience that IEEE1394 (aka Firewire/iLink) is
+> always faster than USB2.
+	I'd like to see a raising hands that have this functional at
+	anywhere near line (60% is close enough) rate ?
+		Tia ,  JimL
+-- 
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266970AbTAITYD>; Thu, 9 Jan 2003 14:24:03 -0500
+	id <S266975AbTAITa7>; Thu, 9 Jan 2003 14:30:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266975AbTAITX6>; Thu, 9 Jan 2003 14:23:58 -0500
-Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:16903 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id <S266970AbTAITX4>;
-	Thu, 9 Jan 2003 14:23:56 -0500
-Date: Thu, 9 Jan 2003 11:27:27 -0800
-From: carbonated beverage <ramune@net-ronin.org>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] module-init-tools update
-Message-ID: <20030109192727.GA18727@net-ronin.org>
+	id <S266978AbTAITa7>; Thu, 9 Jan 2003 14:30:59 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:38380 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266975AbTAITa7>;
+	Thu, 9 Jan 2003 14:30:59 -0500
+Date: Thu, 9 Jan 2003 19:37:10 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Corey Minyard <minyard@acm.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PATCH: IPMI driver
+Message-ID: <20030109193710.GA6740@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Corey Minyard <minyard@acm.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200301090332.h093WML05981@hera.kernel.org> <20030109164407.GA26195@codemonkey.org.uk> <1042135594.27796.37.camel@irongate.swansea.linux.org.uk> <20030109172229.GA27288@codemonkey.org.uk> <1042135971.27796.44.camel@irongate.swansea.linux.org.uk> <3E1DCA8D.4040005@acm.org> <20030109192022.GA5693@codemonkey.org.uk> <1042143476.27796.66.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1042143476.27796.66.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Thu, Jan 09, 2003 at 08:17:57PM +0000, Alan Cox wrote:
+ > On Thu, 2003-01-09 at 19:20, Dave Jones wrote:
+ > > time_diff = ((jiffies_now - kcs_info->last_timeout_jiffies)
+ > 
+ > Thats valid for unsigned maths
+ > 	0x00000001 - 0xFFFFFFFF = 0x00000002
 
-	Here's a small patch for Documentation/Changes and scripts/ver_linux
-to use depmod instead of rmmod as per Rusty's suggestion.
+Doh, I've made this mistake before.. Thanks for clarifying.
 
-	rmmod will exec the old version of the modutils depending on the
-command-line, whereas depmod will give its own version instead.
+		Dave
 
-	Please apply.
-
--- DN
-Daniel
-
---- Documentation/Changes.old	Thu Jan  9 10:51:36 2003
-+++ Documentation/Changes	Thu Jan  9 11:27:54 2003
-@@ -52,7 +52,7 @@
- o  Gnu make               3.78                    # make --version
- o  binutils               2.9.5.0.25              # ld -v
- o  util-linux             2.10o                   # fdformat --version
--o  module-init-tools      0.9                     # rmmod -V
-+o  module-init-tools      0.9                     # depmod -V
- o  e2fsprogs              1.29                    # tune2fs
- o  jfsutils               1.0.14                  # fsck.jfs -V
- o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
---- scripts/ver_linux.old	Thu Jan  9 10:52:10 2003
-+++ scripts/ver_linux		Thu Jan  9 11:27:57 2003
-@@ -28,7 +28,7 @@
- 
- mount --version | awk -F\- '{print "mount                 ", $NF}'
- 
--rmmod -V  2>&1 | awk 'NR==1 {print "module-init-tools     ",$NF}'
-+depmod -V  2>&1 | awk 'NR==1 {print "module-init-tools     ",$NF}'
- 
- tune2fs 2>&1 | grep "^tune2fs" | sed 's/,//' |  awk \
- 'NR==1 {print "e2fsprogs             ", $2}'
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

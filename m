@@ -1,94 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbUK3OcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbUK3OfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262088AbUK3OcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 09:32:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbUK3OcQ
+	id S262091AbUK3OfR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 09:35:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbUK3OfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 09:32:16 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:65495 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262088AbUK3OcJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 09:32:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=dNyLnyQcB9sGKKn8At/GBkAQppMMf5UANSGM1CaKCEdtZdjLe1oAYIXGAe+UBwbSLg7LkfXuTj0JZMWFRvLt8kMtjZpBg8rSzoyQ4mMlbjuUV02YNOh7O7g2BWvrshy2rr4plemLYOTMKC6PmeQU+6JuuKyC/R/vZHsHDyX51/M=
-Message-ID: <8783be6604113006318d40ea4@mail.gmail.com>
-Date: Tue, 30 Nov 2004 09:31:59 -0500
-From: Ross Biro <ross.biro@gmail.com>
-Reply-To: Ross Biro <ross.biro@gmail.com>
-To: Jagadeesh Bhaskar P <jbhaskar@hclinsys.com>
-Subject: Re: usage of WIN_SMART
-Cc: Edward Falk <efalk@google.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1101784239.3789.7.camel@myLinux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1101290068.3787.26.camel@myLinux>
-	 <8783be6604112611137bcbfb61@mail.gmail.com>
-	 <41ABB93F.8060206@google.com> <1101784239.3789.7.camel@myLinux>
+	Tue, 30 Nov 2004 09:35:17 -0500
+Received: from dfw-gate1.raytheon.com ([199.46.199.230]:35204 "EHLO
+	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S262091AbUK3OfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 09:35:06 -0500
+Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: "Amit Shah" <amit.shah@codito.com>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>,
+       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
+       emann@mrv.com, "Gunther Persoons" <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       "Rui Nuno Capela" <rncbc@rncbc.org>,
+       "Florian Schmidt" <mista.tapas@gmx.net>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Lee Revell" <rlrevell@joe-job.com>, "Shane Shrybman" <shrybman@aei.ca>,
+       "Esben Nielsen" <simlo@phys.au.dk>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFF4F89D90.B89E0767-ON86256F5C.004C735C@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Tue, 30 Nov 2004 08:33:05 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/30/2004 08:33:07 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As Ed said, you need the ATA spec to make sense of all that. 
-Fortunately, a draft copy is available online at t13.org.  In
-particular at http://www.t13.org/#Project_drafts  The docs will
-explain the register settings, but not the meanings of the output.
+I have results from two builds of -V0.7.31-9. The first
+build is CONFIG_RT (RT) and the second is CONFIG_DESKTOP (PK or
+as described in .config help - Preempt Kernel).
 
-You can avoid the driver is you wish, but it's a really bad idea to do
-so since you will change the state of the drive when the driver is not
-expecting it.  To safely access the drive from user space, you would
-have to make sure the driver is disabled, disable interrupts, and then
-poll the controller directly.  The exact method would of course be
-controller specific.  You need to look at the ioperm man page and
-/dev/port.
+Both booted OK - so the SMP lockup on _DESKTOP appears to
+be fixed. Both ran my test series faster than previous 2.6
+kernels. I was seeing run times over 30 minutes before
+(mainly due to starvation of non-RT tasks) but both completed
+in about 20 minutes.
 
-Finally, if all you want to do is access the SMART data, you should
-look at smartsuite http://sourceforge.net/projects/smartsuite/  or
-something similiar.  It already includes much of the vendor specific
-information and knows how to get along with the kernel.
+General notes:
 
-    Ross
+[1] Audio duration was much more variable on the PK than the
+RT kernel. The variability on PK audio duration is about 30%
+of nominal time. The RT kernel was less variable but tended to
+finish well before the nominal time (and you could hear the
+difference). The PK results look like buffering inside ALSA
+that was not present in OSS?. Not sure why the RT kernel
+is almost always finishing too soon.
 
+[2] The PK kernel has much longer latencies as measured by
+the in kernel tracing code. The RT kernel basically had NO
+latencies > 50 usec where the PK kernel had several over a
+millisecond (usually related to disk writes). By this measure
+the RT kernel is clearly better.
 
-On Tue, 30 Nov 2004 08:40:40 +0530, Jagadeesh Bhaskar P
-<jbhaskar@hclinsys.com> wrote:
-> Dear Edward,
->         I am grateful for such a descriptive reply. I was exploring through the
-> ide-disk driver interface, which provides the SMART readings through the
-> ioctl, using WIN_SMART. At the end its calling an inb and an outb to the
-> regs, like u said, feature regs and all. Is it possible to do it
-> directly with an inb and outb from a C program, avoiding the
-> complexities involved in the WIN_SMART command.
-> 
-> And, can u help me out with the syntax of WIN_SMART class of ioctl?
-> I know that a buffer like
-> 
->         buffer = {WIN_SMART, 0, SMART_READ_VALUES, 1};
-> and it is passed to the ioctl.
-> 
-> I have seen the significance of 1st element(WIN_SMART) and 3rd element
-> (SMART_READ_VALUES) in the ide-disk module's code.
-> 
-> What does the second argument and the fourth argument signify?
-> 
-> Can u help me with this also, coz I've been digging for this a long
-> time, and haven't been that successfull!!
-> 
-> --
-> Thanks & Regards,
-> 
-> Jagadeesh Bhaskar P
-> R&D Engineer
-> HCL Infosystems Ltd
-> Pondicherry
-> INDIA
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+[3] The overhead of RT (as measured by the CPU loop timing and
+by pings from remote systems) is more than the PK kernel. I
+believe this is due to the IRQ threading overhead. By these
+measures, the PK kernel is better. By elapsed time, the 2.4
+kernel is far superior.
+
+More specifics:
+The 2.4 numbers are from 2.4.24 w/ low latency / preempt patches.
+
+      within 100 usec
+       CPU loop (%)   Elapsed Time (sec)    2.4
+Test    PK     RT       PK      RT   |   CPU  Elapsed
+X     99.69  99.34      90      70   |  97.20   70
+top   99.31  98.33      30      31   |  97.48   29
+neto  97.28  97.69     205     315   |  96.23   36
+neti  97.76  98.11     198     325   |  95.86   41
+diskw 69.16* 94.98      51     115   |  77.64   29
+diskc 96.44  98.39     230     250   |  84.12   77
+diskr 99.60  98.77     240     180   |  90.66   86
+total                 1044    1286   |         368
+
+* several multiple millisecond latencies measured by the
+tracing code. Will send traces separately.
+
+           min     ave       max     mdev
+PK ping - 0.100 / 0.176 /   1.009 / 0.053
+RT ping - 0.194 / 0.322 / 527.635 / 2.263
+[not sure why the high max on RT, but I did see a few
+1 msec or longer ping responses and many over 400 usec]
+
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
+

@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288402AbSAVJQG>; Tue, 22 Jan 2002 04:16:06 -0500
+	id <S289214AbSAVJVP>; Tue, 22 Jan 2002 04:21:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289212AbSAVJPr>; Tue, 22 Jan 2002 04:15:47 -0500
-Received: from dial-up-2.energonet.ru ([195.16.109.101]:37504 "EHLO
-	dial-up-2.energonet.ru") by vger.kernel.org with ESMTP
-	id <S288402AbSAVJPk>; Tue, 22 Jan 2002 04:15:40 -0500
-Date: Tue, 22 Jan 2002 12:16:48 +0000 (GMT)
-From: ertzog <ertzog@bk.ru>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] KernelConf
-In-Reply-To: <20020122145723.A19935@bee.lk>
-Message-ID: <Pine.LNX.4.21.0201221214050.5327-100000@dial-up-2.energonet.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288395AbSAVJUz>; Tue, 22 Jan 2002 04:20:55 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:12302 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S289213AbSAVJUr>;
+	Tue, 22 Jan 2002 04:20:47 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Giacomo Catenazzi <cate@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CML2-2.1.3 is available 
+In-Reply-To: Your message of "Tue, 22 Jan 2002 10:11:10 BST."
+             <3C4D2CAE.5000702@debian.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 22 Jan 2002 20:20:33 +1100
+Message-ID: <14937.1011691233@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 22 Jan 2002 10:11:10 +0100, 
+Giacomo Catenazzi <cate@debian.org> wrote:
+>If autoconfigure will go in the kernel, I have not problems on
+>filenames, but when I initially created it, I thinked ev. to
+>distribuite it as a package. Here the name matter.
+>
+>IMHO longer filename ia a good things (iff normal user should
+>not type it).
 
-And what if to write in C with lex and yacc. IMHO it is very easy 
-and beautiful to write, using them. Or the problem is maingly
-in creating compiller itself.
+autoconf autoconfigure: symlinks
+        $(CONFIG_SHELL) scripts/....
 
-Best regards.
+make autoconf == make autoconfigure.
 
-On Tue, 22 Jan 2002, Anuradha Ratnaweera wrote:
-
-> It isn't.  It is an entirely new system.  I'd love to write a CML2 compiler in
-> C, but it doesn't look like a viable alternative.
-> 
-> 	Anuradha
+Watch out for the generated autoconf.h file, it might confuse some
+people.
 

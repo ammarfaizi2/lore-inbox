@@ -1,59 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbULVKfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbULVKxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261831AbULVKfD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 05:35:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbULVKfD
+	id S261960AbULVKxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 05:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbULVKxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 05:35:03 -0500
-Received: from host245-95.pool217223.interbusiness.it ([217.223.95.245]:5509
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261831AbULVKe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 05:34:59 -0500
-Subject: Re: ATARAID and KERNEL-2.6.9
-From: Sasa Ostrouska <sasa.ostrouska@volja.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41C879E8.4040001@pobox.com>
-References: <1103642333.5591.5.camel@localhost> <41C879E8.4040001@pobox.com>
-Content-Type: text/plain
-Date: Wed, 22 Dec 2004 11:33:02 +0100
-Message-Id: <1103711582.5608.6.camel@localhost>
+	Wed, 22 Dec 2004 05:53:09 -0500
+Received: from cantor.suse.de ([195.135.220.2]:38600 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261960AbULVKxC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 05:53:02 -0500
+Date: Wed, 22 Dec 2004 11:53:01 +0100
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Increase page fault rate by prezeroing V1 [1/3]: Introduce __GFP_ZERO
+Message-ID: <20041222105301.GE15894@wotan.suse.de>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com.suse.lists.linux.kernel> <41C20E3E.3070209@yahoo.com.au.suse.lists.linux.kernel> <Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com.suse.lists.linux.kernel> <Pine.LNX.4.58.0412211155340.1313@schroedinger.engr.sgi.com.suse.lists.linux.kernel> <p73mzw7cm1p.fsf@verdi.suse.de> <Pine.LNX.4.58.0412211452110.2541@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0412211452110.2541@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-21 at 14:30 -0500, Jeff Garzik wrote:
-> Sasa Ostrouska wrote:
-> > Dear Sirs,
-> > 
-> >         I have a little problem or maybe big one. I try to 
-> > put to work the kernel-2.6.9 on my machine. I have a slackware
-> > current install and the following hardware.
+On Tue, Dec 21, 2004 at 02:54:46PM -0800, Christoph Lameter wrote:
+> On Tue, 21 Dec 2004, Andi Kleen wrote:
 > 
-> use dmraid for 2.6.x.
+> > Christoph Lameter <clameter@sgi.com> writes:
+> > > @@ -0,0 +1,52 @@
+> > > +/*
+> > > + * Zero a page.
+> > > + * rdi	page
+> > > + */
+> > > +	.globl zero_page
+> > > +	.p2align 4
+> > > +zero_page:
+> > > +	xorl   %eax,%eax
+> > > +	movl   $4096/64,%ecx
+> > > +	shl	%ecx, %esi
+> >
+> > Surely must be shl %esi,%ecx
 > 
-> 	Jeff
+> Ahh. Thanks.
 > 
+> > But for the one instruction it seems overkill to me to have a new
+> > function. How about you just extend clear_page with the order argument?
 > 
+> We can just
 > 
-Dear Jeff, 
+> #define clear_page(__p) zero_page(__p, 0)
+> 
+> and remove clear_page?
 
-	Many thanks for your reply. I would like to ask you if 
-you have some experience with this ? This means if you can point me to a
-good how to or some documentation on the net, or maybe 
-describe how to do the steps. This just because I tried to instal the
-lilo but it gave me an error when I did /sbin/lilo and the root option
-was set to /dev/ataraid/d0. I tried once to 
-boot the machine with the options like noinitrd root=/dev/hde and it
-booted up but then complained that the partitiona are mounted rw and to
-give the root password for correcting the errors. After that I rebooted
-to give the ro option and it never had booted again. 
+It depends. If you plan to do really big zero_page then it
+may be worth experimenting with cache bypassing clears 
+(movntq) or even SSE2 16 byte stores (movntdq %xmm..,..) 
+and take out the rep ; stosq optimization. I tried it all
+long ago and it wasn't a win for only 4K. 
 
-Many many thanks for your help.
+For normal 4K clear_page that's definitely not a win (tested) 
+and especially cache bypassing is a loss.
 
-Best Regards
-Sasa Ostrouska
+> 
+> >
+> > BTW I think Andrea has been playing with prezeroing on x86 and
+> > he found no benefit at all. So it's doubtful it makes any sense
+> > on x86/x86-64.
+> 
+> Andrea's approach was:
+> 
+> 1. Zero hot pages
+> 2. Zero single pages
+> 
+> which simply results in shifting the processing time somewhere else.
 
+Yours too at least on non Altix no? Can you demonstrate any benefit? 
+Where are the numbers? 
+
+I'm sceptical for example that there will be enough higher orders
+to make the batch clearing worthwhile after the system is up for a days. 
+Normally memory tends to fragment rather badly in Linux.
+I suspect after some time your approach will just degenerate to be 
+the same as Andrea's, even if it should be a win at the beginning (is it?)
+
+-Andi
 

@@ -1,35 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267335AbUIARBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUIAQuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267335AbUIARBj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 13:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267344AbUIARBg
+	id S267259AbUIAQuE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 12:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267283AbUIAP4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 13:01:36 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:38148 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267335AbUIARAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 13:00:51 -0400
-Date: Wed, 1 Sep 2004 18:00:50 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix leaks in ISOFS.
-Message-ID: <20040901180050.A13768@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-References: <200409011551.i81FpMUY000655@delerium.codemonkey.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200409011551.i81FpMUY000655@delerium.codemonkey.org.uk>; from davej@redhat.com on Wed, Sep 01, 2004 at 04:51:22PM +0100
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 1 Sep 2004 11:56:55 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:60850 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S267341AbUIAPvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 11:51:45 -0400
+Date: Wed, 1 Sep 2004 16:51:21 +0100
+Message-Id: <200409011551.i81FpLJO000620@delerium.codemonkey.org.uk>
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] More PNP leaks.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    MAYBE_CONTINUE(repeat,inode);
-> +  if (buffer) kfree(buffer);
+Spotted with the source checker from Coverity.com.
 
-kfree(NULL) is just fine
+Signed-off-by: Dave Jones <davej@redhat.com>
 
+
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pnp/pnpbios/proc.c linux-2.6/drivers/pnp/pnpbios/proc.c
+--- bk-linus/drivers/pnp/pnpbios/proc.c	2004-06-04 12:08:32.000000000 +0100
++++ linux-2.6/drivers/pnp/pnpbios/proc.c	2004-06-07 11:07:05.000000000 +0100
+@@ -90,8 +90,10 @@ static int proc_read_escd(char *buf, cha
+ 	tmpbuf = pnpbios_kmalloc(escd.escd_size, GFP_KERNEL);
+ 	if (!tmpbuf) return -ENOMEM;
+ 
+-	if (pnp_bios_read_escd(tmpbuf, escd.nv_storage_base))
++	if (pnp_bios_read_escd(tmpbuf, escd.nv_storage_base)) {
++		kfree(tmpbuf);
+ 		return -EIO;
++	}
+ 
+ 	escd_size = (unsigned char)(tmpbuf[0]) + (unsigned char)(tmpbuf[1])*256;
+ 
+@@ -168,8 +170,10 @@ static int proc_read_node(char *buf, cha
+ 
+ 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
+ 	if (!node) return -ENOMEM;
+-	if (pnp_bios_get_dev_node(&nodenum, boot, node))
++	if (pnp_bios_get_dev_node(&nodenum, boot, node)) {
++		kfree(node);
+ 		return -EIO;
++	}
+ 	len = node->size - sizeof(struct pnp_bios_node);
+ 	memcpy(buf, node->data, len);
+ 	kfree(node);

@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272738AbTG1IaR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 04:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272740AbTG1IaR
+	id S272742AbTG1IfA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 04:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272744AbTG1Ie7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 04:30:17 -0400
-Received: from mail.gmx.de ([213.165.64.20]:51655 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S272738AbTG1IaM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 04:30:12 -0400
-Message-Id: <5.2.1.1.2.20030728104825.01beb7e0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Mon, 28 Jul 2003 10:49:34 +0200
-To: Con Kolivas <kernel@kolivas.org>
-From: Mike Galbraith <efault@gmx.de>
+	Mon, 28 Jul 2003 04:34:59 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:30882
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272742AbTG1Ieu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 04:34:50 -0400
+Message-ID: <1059382204.3f24e3bc32d56@kolivas.org>
+Date: Mon, 28 Jul 2003 18:50:04 +1000
+From: Con Kolivas <kernel@kolivas.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1059381752.3f24e1f8ad4b5@kolivas.org>
-References: <5.2.1.1.2.20030728100955.01bf5410@pop.gmx.net>
- <5.2.1.1.2.20030728093215.01be8f68@pop.gmx.net>
- <5.2.1.1.2.20030728100955.01bf5410@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+References: <Pine.LNX.4.44.0307280921360.3537-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0307280921360.3537-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:42 PM 7/28/2003 +1000, Con Kolivas wrote:
->Quoting Mike Galbraith <efault@gmx.de>:
->
-> > At 09:44 AM 7/28/2003 +0200, Ingo Molnar wrote:
-> >
-> > >On Mon, 28 Jul 2003, Mike Galbraith wrote:
-> > >
-> > > > >Yes I can reproduce it, but we need the Kirk approach and cheat. Some
-> > > > >workaround for tasks that have fallen onto the expired array but
-> > > shouldn't be
-> > > > >there needs to be created. But first we need to think of one before we
-> > can
-> > > > >create one...
-> > > >
-> > > > Oh good, it's not my poor little box.  My experimental tree already has
-> > > > a "Kirk" ;-)
-> > >
-> > >could you give -G7 a try:
-> > >
-> > >         redhat.com/~mingo/O(1)-scheduler/sched-2.6.0-test1-G7
-> >
-> > The dd case is improved.  The dd if=/dev/zero is now prio 25, but it's
-> > of=/dev/null partner remains at 16.  No change with the xmms gl thread.
->
->Well O10 is not prone to the dd/of problem (obviously since it doesn't use
->nanosecond timing [yet?]) but I can exhibit your second weird one if I try 
->hard
->enough.
+Quoting Ingo Molnar <mingo@elte.hu>:
 
-Try setting the gl thread to SCHED_RR.  That causes X to lose priority here 
-too.
+> 
+> On Mon, 28 Jul 2003, Con Kolivas wrote:
+> 
+> > On Sun, 27 Jul 2003 23:40, Ingo Molnar wrote:
+> > >  - further increase timeslice granularity
+> > 
+> > For a while now I've been running a 1000Hz 2.4 O(1) kernel tree that
+> > uses timeslice granularity set to MIN_TIMESLICE which has stark
+> > smoothness improvements in X. I've avoided promoting this idea because
+> > of the theoretical drop in throughput this might cause. I've not been
+> > able to see any detriment in my basic testing of this small granularity,
+> > so I was curious to see what you throught was a reasonable lower limit?
+> 
+> it's a hard question. The 25 msecs in -G6 is probably too low.
 
-         -Mike 
+Just another thought on that is to make sure they don't get requeued to start 
+with just 2 ticks left - which would happen to all nice 0 tasks running their 
+full timeslice. Here is what I'm doing in O10:
 
++	} else if (!((task_timeslice(p) - p->time_slice) %
++		TIMESLICE_GRANULARITY) && (p->time_slice > MIN_TIMESLICE) &&
++		(p->array == rq->active)) {
+
+Con

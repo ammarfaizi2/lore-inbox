@@ -1,59 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265960AbSL3CpQ>; Sun, 29 Dec 2002 21:45:16 -0500
+	id <S266101AbSL3DOY>; Sun, 29 Dec 2002 22:14:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265987AbSL3CpQ>; Sun, 29 Dec 2002 21:45:16 -0500
-Received: from mnh-1-01.mv.com ([207.22.10.33]:6149 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S265960AbSL3CpP>;
-	Sun, 29 Dec 2002 21:45:15 -0500
-Message-Id: <200212300245.VAA04199@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Werner Almesberger <wa@almesberger.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       Anomalous Force <anomalous_force@yahoo.com>, ebiederm@xmission.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: holy grail 
-In-Reply-To: Your message of "Sun, 29 Dec 2002 22:32:47 -0300."
-             <20021229223247.C1363@almesberger.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 29 Dec 2002 21:45:52 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S266108AbSL3DOY>; Sun, 29 Dec 2002 22:14:24 -0500
+Received: from eriador.apana.org.au ([203.14.152.116]:48144 "EHLO
+	eriador.apana.org.au") by vger.kernel.org with ESMTP
+	id <S266101AbSL3DOX>; Sun, 29 Dec 2002 22:14:23 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: jwbaker@acm.org (Jeffrey Baker), linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 oops mounting iso9660 fs as hfs
+In-Reply-To: <20021230005457.GA15680@noodles>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.5.14-20020917 ("Chop Suey!") (UNIX) (Linux/2.4.20-686-smp (i686))
+Message-Id: <E18SqVf-0005xV-00@gondolin.me.apana.org.au>
+Date: Mon, 30 Dec 2002 14:22:35 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-wa@almesberger.net said:
-> I see a certain trend towards mechanisms that can be useful for
-> process migration. E.g. the address space manipulations discussed for
-> UML seem to allow almost perfect reconstruction of processes. PIDs,
-> signals, anything with externally visible changes in kernel state
+Jeffrey Baker <jwbaker@acm.org> wrote:
+> Using kernel 2.4.20 on ix86 and an HP IEEE1394 DVD+RW drive, I
+> encountered this BUG/oops when attempting to mount a CD-ROM.  I at
+> first could not mount the disc, so I attempted to mount it as HFS:
 
-With a UML running in skas mode, the process address space is identical to
-what it would be on the host.  Migrating one to the host would be a matter
-of
-	Sticking a process in it
-	Releasing that process from ptrace
-	Recreating the required kernel state in the host kernel
-	Kicking the process out of the UML kernel and into userspace somehow
-	Letting it run
-
-Step 3 is obviously where the meat of the problem is.  The process needs
-to have available on it all the resources it had in UML -
-	the same files
-	network connections (puntable on a first pass)
-	process relationships (I have no idea what to do about a parent
-process on the host, nor what to do with children whose parent has been
-migrated, or ipc mechanisms, except to do the Mosix thing and have little
-proxies sitting around passing information between UML and the host).
-
-And since I've brought up Mosix, as did Werner, the fastest way to get
-this working is probably to finish off the OpenMosix/UML port (which was
-close from what I heard), and cluster a UML and its host.  You should get
-process migration for free.
-
-Just remember to prevent the host from trying to migrate a UML to itself.
-That would be very bad.
-
-				Jeff
-
+HFS wants 512 blocks while sr sets hardsect size to 2048.  You can
+work around it by reading it via loopback (losetup or mount -o loop).
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

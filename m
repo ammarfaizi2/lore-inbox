@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSKKM1B>; Mon, 11 Nov 2002 07:27:01 -0500
+	id <S264705AbSKKMhO>; Mon, 11 Nov 2002 07:37:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262430AbSKKM1B>; Mon, 11 Nov 2002 07:27:01 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:20354 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262414AbSKKM1A>; Mon, 11 Nov 2002 07:27:00 -0500
-Date: Mon, 11 Nov 2002 07:35:10 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Module loader against 2.5.46: 8/9 
-In-Reply-To: <200211111203.gABC3FfJ001901@eeyore.valparaiso.cl>
-Message-ID: <Pine.LNX.3.95.1021111073018.9690A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264709AbSKKMhO>; Mon, 11 Nov 2002 07:37:14 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:29859 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264705AbSKKMhM>; Mon, 11 Nov 2002 07:37:12 -0500
+Subject: Re: [PATCH] sysfs stuff for eisa bus [1/3]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: mzyngier@freesurf.fr
+Cc: Andries Brouwer <aebr@win.tue.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+In-Reply-To: <wrpwunkfq8m.fsf@hina.wild-wind.fr.eu.org>
+References: <wrpbs4xgke4.fsf@hina.wild-wind.fr.eu.org>
+	<20021110233206.GA3988@win.tue.nl> 
+	<wrpwunkfq8m.fsf@hina.wild-wind.fr.eu.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Nov 2002 13:08:34 +0000
+Message-Id: <1037020114.2887.24.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Nov 2002, Horst von Brand wrote:
-
-> Bill Davidsen <davidsen@tmr.com> said:
+On Mon, 2002-11-11 at 08:46, Marc Zyngier wrote:
+> Andries> What use is a very long and very incomplete list?
 > 
-> [...]
-> 
-> > Sure, we have people mentally translating English into totally dissimilar
-> > languages like Finnish, German, Russian, Czech, and British.
-                                                        ^^^^^^^^
-English into British, I love it! 
+> A big part of this database contains in fact ISA cards for which an
+> EISA config file exists. So it could be trimmed down to 50%, I think.
+> I was thinking the database could be useful for ISAPNP (since it uses
+> the same IDs).
 
-> "Mentally translating" doesn't work, you have to learn to think in the
-> "foreign" language(s).
-> --
-> Dr. Horst H. von Brand                   User #22616 counter.li.org
-> Departamento de Informatica                     Fono: +56 32 654431
-> Universidad Tecnica Federico Santa Maria              +56 32 654239
-> Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-> -
+I think a ".ids" file list is valuable. It can be used for things like
+EISA card identification obviously but it also has a big value for
+"lseisa" "lspnp" and friends (and hopefully when someone fixes the
+device model "lsdev"
 
---- and the first thing you learn, when learning a new language,
-is how to swear. It's important to align your thought processes!
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
+Alan
 

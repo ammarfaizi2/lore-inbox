@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289809AbSAKAjh>; Thu, 10 Jan 2002 19:39:37 -0500
+	id <S289806AbSAKAjr>; Thu, 10 Jan 2002 19:39:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289808AbSAKAj1>; Thu, 10 Jan 2002 19:39:27 -0500
-Received: from basket.ball.reliam.net ([213.91.6.7]:43023 "HELO
-	basket.ball.reliam.net") by vger.kernel.org with SMTP
-	id <S289806AbSAKAjQ>; Thu, 10 Jan 2002 19:39:16 -0500
-Message-ID: <3C3E343E.9030903@gmx.net>
-Date: Fri, 11 Jan 2002 01:39:26 +0100
-From: Michael Klose <mkmail@gmx.net>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.7+) Gecko/20020110
-X-Accept-Language: en-us
+	id <S289808AbSAKAjh>; Thu, 10 Jan 2002 19:39:37 -0500
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:13989 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S289806AbSAKAj2>; Thu, 10 Jan 2002 19:39:28 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+In-Reply-To: <E16OpWJ-00061v-00@the-village.bc.nu>
+From: Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>
+Date: 11 Jan 2002 01:39:26 +0100
+In-Reply-To: <E16OpWJ-00061v-00@the-village.bc.nu>
+Message-ID: <m2sn9dn2kh.fsf@goliath.csn.tu-chemnitz.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Strange: load=stable, running idle=unstable
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 11 Jan 2002 00:26:07 +0000 (GMT), Alan Cox wrote:
 
-I recently had problems with 2 eepro100 cards in my system. I could 
-crash the kernel (only reboot helped) if I copied a 700 MB file to the 
-server. It crashed after 100 MB or so.
+>> > hard to get emulations right. I grant that this wasn't helped by the fact
+>> > the gcc x86 folks also couldnt read the pentium pro manual correctly.
+>> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^       
+>> What do you mean with this? Explain, please!
 
-I experimented a bit with the intel eepro drivers, the kernel drivers as 
-a loadable module, compiled in etc, but it all didn't make much difference.
+> gcc told to generate i686 binaries uses cmov unconditionally. The intel
+> PPro handbook explicitly says that cmov must be checked for.
 
-I had the most problems with 2.4.17 (vanilla). The most stable kernel 
-seemed to be 2.4.15pre5.
+The compiler doesn't know, where the binary runs later. Or do you mean,
+that it has to insert some code that checks for the existance of these
+instructions during program start? Ok that would be a solution, but how
+do you do this for libraries that are not run in itself?
 
-I found out that the kernel stays absolutely stable if it is under load. 
-I first tried compiling a kernel non stop for 3 days in a loop. System 
-was absolutely stable.
+>> myself but I have also some older machines here that have a k6 or a
+>> pentium. For mistake I installed the wrong rpm and had a non working
+>> system. An emulation for such cases would be a _real_ feature at least
 
-I switched from non-stop compiling to running setiathome. Also makes the 
-kernel run beautifully.
+> So you have a buggy rpm program. Get the rpm program fixed so it correctly
+> stops you from doing that.
 
-But as soon as the kenel is doing nothing except light routing of the 
-768/128kbit DSL into the 100 MBit LAN and mainly running idle, as soon 
-as you try and copy a large file via SMB - kaboom - kernel crashes.
+Maybe, ok. But why should such a mistake prevent me from workin with the
+system when it could be easily catched? Ok, the emulation code may not
+be easy, I dunno, but the infrastructure for emulation of instructions
+is already there (FPU emulation). To say its the admins fault is easy
+but the costs of automatically catching such errors are little in
+respect of the benefit you get. A running system is always better than
+a unusable one even if it was the admins fault.
 
-Hardware: Soyo BX Dual PII motherboard with a single PII 266. 2 IDE HDDs 
-(Maxtor) and a ATI PCI graphics card (no framebuffer or so compiled in, 
-and no X, it is a server). SMB support is not compiled in, neither is 
-any form of power management.
+ron
 
-I thought this may be interesting to some people.
-
-
+-- 
+/\/\  Dipl.-Inf. Ronald Wahl                /\/\        C S N         /\/\
+\/\/  ronald.wahl@informatik.tu-chemnitz.de \/\/  ------------------  \/\/
+/\/\  http://www.tu-chemnitz.de/~row/       /\/\  network and system  /\/\
+\/\/  GnuPG/PGP key available               \/\/    administration    \/\/

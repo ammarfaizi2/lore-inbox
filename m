@@ -1,49 +1,229 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265420AbTFSEYR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 00:24:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265421AbTFSEYR
+	id S265421AbTFSE3k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 00:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265423AbTFSE3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 00:24:17 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:14070 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S265420AbTFSEYQ convert rfc822-to-8bit
+	Thu, 19 Jun 2003 00:29:39 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:31442 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S265421AbTFSE3f
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 00:24:16 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780DD16D68@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Joe Korty'" <joe.korty@ccur.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
-	 sks
-Date: Wed, 18 Jun 2003 21:38:12 -0700
+	Thu, 19 Jun 2003 00:29:35 -0400
+Date: Wed, 18 Jun 2003 21:43:25 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.72-mjb1
+Message-ID: <8640000.1055997805@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: 'joe.korty@ccur.com' [mailto:joe.korty@ccur.com]
->
-> On Wed, Jun 18, 2003 at 06:44:42PM -0700, Perez-Gonzalez, Inaky wrote:
-> >
-> > Now that we are at that, it might be wise to add a higher-than-anything
-> > priority that the kernel code can use (what would be 100 for user space,
-> > but off-limits), so even FIFO 99 code in user space cannot block out
-> > the migration thread, keventd and friends.
-> 
-> I would prefer users have the ability to put one or two truly critical RT
-> tasks above keventd & family.  Such tasks would have to follow certain
-rules
-> .. run & sleep quick .. limited or no device IO ..  most communication to
-> other tasks through shared memory .. possibly others.
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-Agreed - see my answers to George Anzinger and Robert Love; I wasn't
-precise enough on meaning "yeah, you should be able to reprioritize it
-at will". My point is that user programs have a limit that they cannot
-use, while kernel threads can use the user's priority space and their
-highest priority space.
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.72/patch-2.5.72-mjb1.bz2
+
+additional patches that can be applied if desired:
+
+(these two form the qlogic feral driver)
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67-mm1/broken-out/linux-isp.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67-mm1/broken-out/isp-update-1.patch
+
+Since 2.5.71-mjb1 (~ = changed, + = added, - = dropped)
+
+Notes: Just a merge forward. Very boring
+
+Now in Linus' tree:
+- flow_compile					Everyone and his dog.
+- ppc_kmalloc_bug				paulus
+
+
+New:
+~ proc_lock					Martin J. Bligh
+	Half merged.
+~ early_printk					Dave Hansen / Keith Mannthey
+	Fixes from Gerd Knorr via Andi Kleen
+	Fix wierd ppc kmalloc bug
+
+Dropped:
+
+Pending:
+Hyperthreaded scheduler (Ingo Molnar)
+scheduler callers profiling (Anton or Bill Hartner)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Update the lost timer ticks code
+pidmaps_nodepages (Dave Hansen)
+update membind code (Matt Dobson)
+update config debug (Dave) 
+update percpu_loadavg (Dave)
+object based rmap list-o-lists (Martin / Dave Mc)
+Locking obliteration (Dave Mc)
+
+Present in this patch:
+
+proc_lock					Martin J. Bligh
+	Fix proc_lock handling and SDET hangs.
+
+early_printk					Dave Hansen / Keith Mannthey
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/schedstat
+
+schedstat2					Rick Lindsley
+	Provide more stats about the scheduler under /proc/schedstat
+
+schedstat-scripts				Rick Lindsley
+	Provide some scripts for schedstat analysis under scripts/
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+kgdb						Andrew Morton
+	The older version of kgdb, synched with 2.5.54-mm1
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+4k_stacks_vs_kgdb				Dave Hansen
+	Fix interaction between kgdb and 4K stacks
+
+stacks_from_slab				William Lee Irwin
+	Take kernel stacks from the slab cache, not page allocation.
+
+thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+
+percpu_loadavg					Martin J. Bligh
+	Provide per-cpu loadaverages, and real load averages
+
+spinlock_inlining				Andrew Morton & Martin J. Bligh
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+lockmeter					John Hawkes / Hanna Linder
+	Locking stats.
+
+reiserfs_dio					Mingming Cao
+	DIO for Reiserfs
+
+sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+
+kgdb_cleanup					Martin J. Bligh
+	Stop kgdb renaming schedule to do_schedule when it's not even enabled
+
+acenic_fix					Martin J. Bligh
+	Fix warning in acenic driver
+
+local_balance_exec				Martin J. Bligh
+	Modify balance_exec to use node-local queues when idle
+
+tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+ppc64 fixes					Anton Blanchard
+	Various PPC64 fixes / updates
+
+numameminfo fix					Martin J. Bligh
+	Correct /proc/meminfo.numa for zholes_size.
+
+config_debug					Dave Hansen
+	Make '-g' for the kernel a config option
+
+akpm_bear_pit					Andrew Morton
+	Add a printk for some buffer error I was hitting
+
+32bit_dev_t					Andries Brouwer
+	Make dev_t 32 bit
+
+dynamic_hd_struct				Badari Pulavarty
+	Allocate hd_structs dynamically
+
+lotsa_sds					Badari Pulavarty
+	Create some insane number of sds
+
+iosched_hashes					Badari Pulavarty
+	Twiddle with the iosched hash tables for fun & profit
+
+per_node_idt					Zwane Mwaikambo
+	Per node IDT so we can do silly numbers of IO-APICs on NUMA-Q
+
+config_numasched				Dave Hansen
+	Turn NUMA scheduler into a config option
+
+lockmeter_tytso					Ted Tso
+	Fix lockmeter
+
+aiofix2						Mingming Cao
+	fixed a bug in ioctx_alloc()
+
+config_irqbal					Keith Mannthey
+	Make irqbalance a config option
+
+fs_aio_1_retry					Suparna Bhattacharya
+	Filesystem aio. Chapter 1
+
+fs_aio_2_read					Suparna Bhattacharya
+	Filesystem aio. Chapter 2
+
+fs_aio_3_write					Suparna Bhattacharya
+	Filesystem aio. Chapter 3
+
+fs_aio_4_down_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 4
+
+fs_aio_5_wrdown_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 5
+
+fs_aio_6_bread_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 6
+
+fs_aio_7_ext2getblk_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 7
+
+fs_aio_8_down_wq-ppc64				Suparna Bhattacharya
+	Filesystem aio. Chapter 8
+
+fs_aio_9_down_wq-x86_64				Suparna Bhattacharya
+	Filesystem aio. Chapter 9
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+

@@ -1,117 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVADTw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVADUJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbVADTw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 14:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbVADTwP
+	id S262052AbVADUJs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 15:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVADUH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 14:52:15 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:7115 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262020AbVADTjG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 14:39:06 -0500
-Date: Tue, 4 Jan 2005 11:38:46 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: page fault scalability patch V14 [6/7]: s390 atomic pte operationsw
-In-Reply-To: <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0501041138200.805@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
- <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 Jan 2005 15:07:59 -0500
+Received: from grendel.firewall.com ([66.28.58.176]:8587 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S262100AbVADT4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 14:56:45 -0500
+Date: Tue, 4 Jan 2005 20:56:36 +0100
+From: Marek Habersack <grendel@caudium.net>
+To: linux-kernel@vger.kernel.org
+Subject: Very high load on P4 machines with 2.4.28
+Message-ID: <20050104195636.GA23034@beowulf.thanes.org>
+Reply-To: grendel@caudium.net
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+Content-Disposition: inline
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-        * Provide atomic pte operations for s390
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Index: linux-2.6.10/include/asm-s390/pgtable.h
-===================================================================
---- linux-2.6.10.orig/include/asm-s390/pgtable.h	2005-01-03 10:31:31.000000000 -0800
-+++ linux-2.6.10/include/asm-s390/pgtable.h	2005-01-03 12:12:03.000000000 -0800
-@@ -569,6 +569,15 @@
- 	return pte;
- }
+Hello,
 
-+#define ptep_xchg_flush(__vma, __address, __ptep, __pteval)            \
-+({                                                                     \
-+	struct mm_struct *__mm = __vma->vm_mm;                          \
-+	pte_t __pte;                                                    \
-+	__pte = ptep_clear_flush(__vma, __address, __ptep);             \
-+	set_pte(__ptep, __pteval);                                      \
-+	__pte;                                                          \
-+})
-+
- static inline void ptep_set_wrprotect(pte_t *ptep)
- {
- 	pte_t old_pte = *ptep;
-@@ -780,6 +789,14 @@
+ We have several machines with similar configurations
 
- #define kern_addr_valid(addr)   (1)
+0000:00:00.0 Host bridge: Intel Corp. 82875P Memory Controller Hub (rev 02)
+0000:00:01.0 PCI bridge: Intel Corp. 82875P Processor to AGP Controller (re=
+v 02)
+0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev c2)
+0000:00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Bridge (re=
+v 02)
+0000:00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150 Stora=
+ge Controller (rev 02)
+0000:00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (r=
+ev 02)
+0000:02:09.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 2=
+7)
+0000:02:0a.0 Ethernet controller: Intel Corp. 82541EI Gigabit Ethernet Cont=
+roller (Copper)
+0000:02:0b.0 Ethernet controller: Intel Corp. 82541EI Gigabit Ethernet Cont=
+roller (Copper)
 
-+/* Atomic PTE operations */
-+#define __HAVE_ARCH_ATOMIC_TABLE_OPS
-+
-+static inline int ptep_cmpxchg (struct vm_area_struct *vma, unsigned long address, pte_t *ptep, pte_t oldval, pte_t newval)
-+{
-+	return cmpxchg(ptep, pte_val(oldval), pte_val(newval)) == pte_val(oldval);
-+}
-+
- /*
-  * No page table caches to initialise
-  */
-@@ -793,6 +810,7 @@
- #define __HAVE_ARCH_PTEP_CLEAR_DIRTY_FLUSH
- #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
- #define __HAVE_ARCH_PTEP_CLEAR_FLUSH
-+#define __HAVE_ARCH_PTEP_XCHG_FLUSH
- #define __HAVE_ARCH_PTEP_SET_WRPROTECT
- #define __HAVE_ARCH_PTEP_MKDIRTY
- #define __HAVE_ARCH_PTE_SAME
-Index: linux-2.6.10/include/asm-s390/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-s390/pgalloc.h	2004-12-24 13:35:00.000000000 -0800
-+++ linux-2.6.10/include/asm-s390/pgalloc.h	2005-01-03 12:12:03.000000000 -0800
-@@ -97,6 +97,10 @@
- 	pgd_val(*pgd) = _PGD_ENTRY | __pa(pmd);
- }
+and
 
-+static inline int pgd_test_and_populate(struct mm_struct *mm, pdg_t *pgd, pmd_t *pmd)
-+{
-+	return cmpxchg(pgd, _PAGE_TABLE_INV, _PGD_ENTRY | __pa(pmd)) == _PAGE_TABLE_INV;
-+}
- #endif /* __s390x__ */
+0000:00:00.0 Host bridge: Intel Corp. 82845G/GL[Brookdale-G]/GE/PE DRAM Con=
+troller/Host-Hub Interface (rev 03)
+0000:00:02.0 VGA compatible controller: Intel Corp. 82845G/GL[Brookdale-G]/=
+GE Chipset Integrated Graphics Device (rev 03)
+0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 82)
+0000:00:1f.0 ISA bridge: Intel Corp. 82801DB/DBL (ICH4/ICH4-L) LPC Bridge (=
+rev 02)
+0000:00:1f.1 IDE interface: Intel Corp. 82801DB/DBL (ICH4/ICH4-L) UltraATA-=
+100 IDE Controller (rev 02)
+0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus =
+Controller (rev 02)
+0000:01:05.0 Ethernet controller: Intel Corp. 82540EM Gigabit Ethernet Cont=
+roller (rev 02)
+0000:01:06.0 Ethernet controller: Intel Corp. 82540EM Gigabit Ethernet Cont=
+roller (rev 02)
 
- static inline void
-@@ -119,6 +123,18 @@
- 	pmd_populate_kernel(mm, pmd, (pte_t *)((page-mem_map) << PAGE_SHIFT));
- }
+equipped with 2.6Ghz P4 CPUs, 1Gb of ram, 2-4gb of swap, the kernel config
+is attached. The machines have normal load averages hovering not higher than
+7.0, depending on the time of the day etc. Two of the machines run 2.4.25,
+one 2.4.27 and they work fine. When booted with 2.4.28, though (compiled
+with Debian's gcc 2.3.5, with p3 or p4 CPU selected in the config), the load
+is climbing very fast and hovers around a value 3-4 times higher than with
+the older kernels. Booted back in the old kernel, the load comes to its
+usual level. The logs suggest nothing, no errors, nothing unusual is
+happening.=20
 
-+static inline int
-+pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *page)
-+{
-+	int rc;
-+	spin_lock(&mm->page_table_lock);
-+
-+	rc=pte_same(*pmd, _PAGE_INVALID_EMPTY);
-+	if (rc) pmd_populate(mm, pmd, page);
-+	spin_unlock(&mm->page_table_lock);
-+	return rc;
-+}
-+
- /*
-  * page table entry allocation/free routines.
-  */
+Has anyone had similar problems with 2.4.28 in an environment resembling the
+above? Could it be a problem with highmem i/o?
 
+tia,
+
+marek
+
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFB2vT0q3909GIf5uoRAmBhAJ4hpWBaqm/Sq8duzmVuOe3pBlZ6KQCfW8W/
+2ds6MkkgCaiukWh7DLAsZAg=
+=D+FT
+-----END PGP SIGNATURE-----
+
+--WIyZ46R2i8wDzkSu--

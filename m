@@ -1,45 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315923AbSHRUJh>; Sun, 18 Aug 2002 16:09:37 -0400
+	id <S315942AbSHRULJ>; Sun, 18 Aug 2002 16:11:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315928AbSHRUJh>; Sun, 18 Aug 2002 16:09:37 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:29458
+	id <S315988AbSHRULJ>; Sun, 18 Aug 2002 16:11:09 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:29970
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315923AbSHRUJg>; Sun, 18 Aug 2002 16:09:36 -0400
-Date: Sun, 18 Aug 2002 13:03:42 -0700 (PDT)
+	id <S315942AbSHRULH>; Sun, 18 Aug 2002 16:11:07 -0400
+Date: Sun, 18 Aug 2002 13:05:13 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Erik Andersen <andersen@codepoet.org>
-cc: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-pre3 boot hang
-In-Reply-To: <20020818184251.GA23266@codepoet.org>
-Message-ID: <Pine.LNX.4.10.10208181303170.23171-100000@master.linux-ide.org>
+To: Shane <shane@zeke.yi.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18-rc3aa3: dma_intr: status=0x51 errors
+In-Reply-To: <1029697810.2904.15.camel@mars.goatskin.org>
+Message-ID: <Pine.LNX.4.10.10208181304310.23171-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Turn of APM first please, if anyone knows the game you do :-P
+Because it is a hardware error.
+Your drive is attempting to reallocate sectors and is failing.
 
-On Sun, 18 Aug 2002, Erik Andersen wrote:
+On 18 Aug 2002, Shane wrote:
 
-> On Sun Aug 18, 2002 at 05:31:45PM +0200, Klaus Dittrich wrote:
-> > SMP, P-III, Intel-BX
-> > 
-> > booting Linux 2.4.20-pre3 stops after 
-> > 
-> > Linux NET4.0 for Linux 2.4 
-> > Based upon Swansea University Computer Society NET3.039 
-> > Initializing RT netlink socket 
+> Hello,
 > 
-> On my UP Athlon, booting 2.4.20-pre3 hangs right after 
-> the "apm: BIOS version" message...
+> I just tried running Cerberus for 15-20s and I got these errors in the
+> logs. I do use the nasty binary drivers but I replicated the errors from
+> a fresh boot without them ever being loaded. Can someone tell me what
+> these errors mean? And are they dangerous? Are there some docs on these
+> error codes such that I could translate them myself without having to
+> bother you guys?
 > 
->  -Erik
+> The motherboard is an MSI KT133A
+> I use LVM on that drive and ext3
+> The controller the drive is on is a Promise Ultra 133 TX2
+> The drive is:
 > 
-> --
-> Erik B. Andersen             http://codepoet-consulting.com/
-> --This message was written using 73% post-consumer electrons--
+> /dev/hdg:
+> 
+>  Model=MAXTOR 6L080J4, FwRev=A93.0500, SerialNo=664133005196
+>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+>  RawCHS=16383/16/63, TrkSize=32256, SectSize=21298, ECCbytes=4
+>  BuffType=DualPortCache, BuffSize=1819kB, MaxMultSect=16, MultSect=off
+>  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=156355584
+>  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes: pio0 pio1 pio2 pio3 pio4 
+>  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 udma5 *udma6
+>  AdvancedPM=no WriteCache=enabled
+>  Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-1 ATA-2 ATA-3
+> ATA-4 ATA-5 
+> 
+> 
+> Aug 18 14:49:58 mars kernel: invalidate: busy buffer
+> Aug 18 14:49:58 mars last message repeated 21 times
+> Aug 18 14:50:01 mars CROND[1863]: (root) CMD (/usr/lib/sa/sa1 1 1)
+> Aug 18 14:50:50 mars kernel: hdg: dma_intr: status=0x51 { DriveReady
+> SeekComplete Error }
+> Aug 18 14:50:50 mars kernel: hdg: dma_intr: error=0x40 {
+> UncorrectableError }, LBAsect=61193, sector=61192
+> Aug 18 14:50:50 mars kernel: end_request: I/O error, dev 22:00 (hdg),
+> sector 61192
+> Aug 18 14:50:55 mars kernel: hdg: dma_intr: status=0x51 { DriveReady
+> SeekComplete Error }
+> Aug 18 14:50:55 mars kernel: hdg: dma_intr: error=0x40 {
+> UncorrectableError }, LBAsect=61195, sector=61194
+> Aug 18 14:50:55 mars kernel: end_request: I/O error, dev 22:00 (hdg),
+> sector 61194
+> 
+> I also ran badblocks -v -s -n -b 4096 -c 128 /dev/hdg1 65000 55000 and
+> it found nothing.
+> 
+> More info:
+> 
+> 00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133]
+> (rev 03)
+> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+> (rev 40)
+> 00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+> 00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
+> 00:07.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
+> 00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+> (rev 40)
+> 00:0a.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink]
+> (rev 74)
+> 00:0c.0 Multimedia video controller: Brooktree Corporation Bt848 TV with
+> DMA push (rev 12)
+> 00:0d.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev
+> 05)
+> 00:0d.1 Input device controller: Creative Labs SB Live! (rev 05)
+> 00:0e.0 Unknown mass storage controller: Promise Technology, Inc.:
+> Unknown device 4d69 (rev 02)
+> 01:00.0 VGA compatible controller: nVidia Corporation NV11 (GeForce2 MX)
+> (rev a1)
+> 
+> Regards,
+> 
+> Shane
+> 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

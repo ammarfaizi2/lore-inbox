@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265633AbUFTOjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265878AbUFTOlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265633AbUFTOjq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 10:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265878AbUFTOjq
+	id S265878AbUFTOlP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 10:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265884AbUFTOlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 10:39:46 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:28146 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265633AbUFTOje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 10:39:34 -0400
-Subject: RE: [PATCH] Handle non-readable binfmt misc executables
-From: Albert Cahalan <albert@users.sf.net>
-To: "Zach, Yoav" <yoav.zach@intel.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <2C83850C013A2540861D03054B478C060416BC0E@hasmsx403.ger.corp.intel.com>
-References: <2C83850C013A2540861D03054B478C060416BC0E@hasmsx403.ger.corp.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1087733836.9831.965.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Jun 2004 08:17:16 -0400
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Jun 2004 10:41:15 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:47014 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S265878AbUFTOlK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 10:41:10 -0400
+Date: Sun, 20 Jun 2004 16:41:05 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Memory and rsync problem with vanilla 2.6.7
+In-Reply-To: <Pine.LNX.4.58.0406201543520.22369@alpha.polcom.net>
+Message-ID: <Pine.LNX.4.58.0406201636380.29262@alpha.polcom.net>
+References: <20040426013944.49a105a8.akpm@osdl.org>
+ <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net>
+ <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net>
+ <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org>
+ <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net>
+ <Pine.LNX.4.58.0406191841050.6160@alpha.polcom.net>
+ <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org> <40D508E8.2050407@yahoo.com.au>
+ <Pine.LNX.4.58.0406201543520.22369@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-06-20 at 06:36, Zach, Yoav wrote:
-> Albert,
-> I'm a little bit confused - I see myself in the CC: list, with no
-> recipient in the To: list. I'm not sure this reply will get to all
-> the recipients of your message. Will you please forward it to all
-> the rest ?
+> > Well it doesn't seem to have caused too much trouble as yet... But it
+> > is the obvious candidate if your problems continue. If you are not a
+> > bk user, the attached patch will also revert that change.
+> 
+> Thanks, I will test it soon and I will report results. But I am not saying 
+> it is a bug - maybe it is simply change that can lead to problems with 
+> insane debug options but itself is good?
 
-I don't know if I did send it elsewhere. Maybe I had
-intended to add linux-kernel.
+Are you sure that this is good patch against vanilla 2.6.7? It gives me 
+2 failed hunks (both normal and -R)... Should I merge it manually?
 
-> Anyways, the problem with the info in /proc can be solved by
-> the translator itself in userland. The way it is done in the IA-32
-> Execution Layer is by shifting the arguments vector two positions to
-> the left, so the user can see the original argument list without the
-> additional information the kernel uses for the binfmt_misc mechanism.
 
-So the content of /proc/*/cmdline is correct?
+Thanks,
 
-At a minimum, you will have a problem at startup.
-The process might be observed before you fix argv.
-
-What about apps that walk off the end of argv to get
-at the environment?
-
-It seems cleaner to use some other mechanism.
-Assuming your interpreter is ELF, ELF notes are good.
-You might use prctl().
-
+Grzegorz Kulewski 
 

@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265886AbUGIVy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265945AbUGIV6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265886AbUGIVy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 17:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbUGIVy2
+	id S265945AbUGIV6W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 17:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUGIV6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 17:54:28 -0400
-Received: from colin2.muc.de ([193.149.48.15]:33800 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S265886AbUGIVyS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 17:54:18 -0400
-Date: 9 Jul 2004 23:54:15 +0200
-Date: Fri, 9 Jul 2004 23:54:15 +0200
-From: Andi Kleen <ak@muc.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
-Subject: Re: GCC 3.4 and broken inlining.
-Message-ID: <20040709215415.GA56272@muc.de>
-References: <2fFzK-3Zz-23@gated-at.bofh.it> <2fG2F-4qK-3@gated-at.bofh.it> <2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it> <2fPfF-2Dv-19@gated-at.bofh.it> <m34qohrdel.fsf@averell.firstfloor.org> <20040709184050.GR28324@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040709184050.GR28324@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+	Fri, 9 Jul 2004 17:58:22 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:36736 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265945AbUGIV6U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 17:58:20 -0400
+Date: Fri, 9 Jul 2004 17:57:57 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Qiuyu Zhang <qiuyu.zhang@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: strange about copy_from_user
+In-Reply-To: <c26fd828040709143843b3143f@mail.gmail.com>
+Message-ID: <Pine.LNX.4.53.0407091752360.2731@chaos>
+References: <c26fd828040709143843b3143f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Runtime errors caused with gcc 3.4 are IMHO much worse than such a small 
-> improvement or three dozen compile errors with gcc 3.4 .
+On Fri, 9 Jul 2004, Qiuyu Zhang wrote:
 
-What runtime errors? 
+> Hi all,
+> I am working on writing a module driver.
+>
+> I am trying to use API copy_from_user to copy a bunch of memory from
+> user space to kernel space. I write a ioctl function to register the
+> pointer of the memory to kernel. And in the ioctl function I can use
+> copy_from_user to get the correct data, but the strange thing is that
+> when I use copy_from_user in other kernel function such as
+> dev_hard_xmit function , I cannot
+> get the correct result. I don't konw what the reason is . Thx.
+> -
 
-Actually requiring inlining is extremly rare and such functions should
-get that an explicit always inline just for documentation purposes.
-(another issue is not optimized away checks, but that shows at link time) 
+Without looking at the code it's hard to figure out what you
+may be doing. However, copy_from_user() and copy_to_user() may
+not ever be executed with a spin-lock held. Generally, if
+you need to put user data into kernel "things", you need
+to buffer it, i.e., copy_from_user() into a kmalloc(ed) buffer,
+then work with it in kernel space.
 
-In the x86-64 case it was vsyscalls, in Nigel's case it was swsusp.
-Both are quite exceptional in what they do.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-> Wouldn't it be a better solution if you would audit the existing inlines 
-> in the kernel for abuse of inline and fix those instead?
 
-I don't see any point in going through ~1.2MLOC of code by hand
-when a compiler can do it for me.
-
--Andi

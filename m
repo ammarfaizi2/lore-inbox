@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287373AbSALT5x>; Sat, 12 Jan 2002 14:57:53 -0500
+	id <S287386AbSALUBD>; Sat, 12 Jan 2002 15:01:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287381AbSALT5n>; Sat, 12 Jan 2002 14:57:43 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21265 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287373AbSALT5c>; Sat, 12 Jan 2002 14:57:32 -0500
+	id <S287388AbSALUAy>; Sat, 12 Jan 2002 15:00:54 -0500
+Received: from zero.tech9.net ([209.61.188.187]:47120 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287386AbSALUAp>;
+	Sat, 12 Jan 2002 15:00:45 -0500
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: ed.sweetman@wmich.edu (Ed Sweetman)
-Date: Sat, 12 Jan 2002 20:09:08 +0000 (GMT)
-Cc: arjan@fenrus.demon.nl, alan@lxorguk.ukuu.org.uk (Alan Cox),
-        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
-In-Reply-To: <005b01c19b9e$90a5af40$0501a8c0@psuedogod> from "Ed Sweetman" at Jan 12, 2002 02:23:00 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: arjan@fenrus.demon.nl, Rob Landley <landley@trommello.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E16PURC-000321-00@the-village.bc.nu>
+In-Reply-To: <E16PURC-000321-00@the-village.bc.nu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16PUSi-00032N-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 12 Jan 2002 15:03:29 -0500
+Message-Id: <1010865810.2152.41.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hardware to hardware could have a higher priority than normal programs being
-> run.   That way they're not preempted by simple programs, it would have to
-> be purposely preempted by the user.
+On Sat, 2002-01-12 at 15:07, Alan Cox wrote:
 
-How do you know they are there. How do you detect the situation, or do you
-plan to audit every driver ?
+> > We don't preempt while IRQ are disabled.
+> 
+> I must have missed that in the code. I can see you check __cli() status but
+> I didn't see anywhere you check disable_irq(). Even if you did it doesnt
+> help when I mask the irq on the chip rather than using disable_irq() calls.
 
-> Lowering the latency, sure the low latency code probably does nearly as well
-> as the preempt patch.  that's fine.  Shortening the time locks are held by
+Well, if IRQs are disabled we won't have the timer... would not the
+system panic anyhow if schedule() was called while in an interrupt
+handler?
 
-Not nearly as well. The tests I've seen it runs _better_ than just pre-empt
-and pre-empt + low latency is the same as pure low latency - 1mS
+	Robert Love
 
-Alan

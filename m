@@ -1,53 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318231AbSHSJEm>; Mon, 19 Aug 2002 05:04:42 -0400
+	id <S318229AbSHSJBG>; Mon, 19 Aug 2002 05:01:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318240AbSHSJEm>; Mon, 19 Aug 2002 05:04:42 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:36622 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S318231AbSHSJEl>; Mon, 19 Aug 2002 05:04:41 -0400
-Message-ID: <3D60B628.CC5BB5E3@aitel.hist.no>
-Date: Mon, 19 Aug 2002 11:11:04 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.31 i686)
-X-Accept-Language: no, en, en
+	id <S318230AbSHSJBG>; Mon, 19 Aug 2002 05:01:06 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:54678 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S318229AbSHSJBF>;
+	Mon, 19 Aug 2002 05:01:05 -0400
+Message-ID: <3D60B508.B8ABABC6@alphalink.com.au>
+Date: Mon, 19 Aug 2002 19:06:16 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd.
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Scott Bronson <bronson@rinspin.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE?  IDE-TNG driver
-References: <Pine.LNX.4.44.0208172353330.3111-100000@sharra.ivimey.org> <1029630519.1541.11.camel@emma>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kernel Build Mailing List 
+	<kbuild-devel@lists.sourceforge.net>
+Subject: ANNOUNCE: gcml2 0.7
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Bronson wrote:
-> 
-> On Sat, 2002-08-17 at 15:57, Ruth Ivimey-Cook wrote:
-> >  a) some people want basically module-less kernels
-> 
-> Everyone I've heard advocating a moduleless kernel uses an argument that
-> boils down to "it's slightly more secure."  Does anybody have a GOOD
-> reason for not using modules?  
+G'day,
 
-1. "No need".  Doesn't apply to everybody of course, but
-   many have enough memory and don't plug in much new stuff.
-   Recompiling & booting for the rare occation where you
-   bought a new usb device is ok.  
+gcml2 is (among other things) a Linux kconfig language syntax
+checker.  Version 0.7 is available at
 
-2. A simpler setup.  No /etc/modules.conf to worry about.
-   Compiling ALSA into the kernel surely made life easier.
-   even more so when also using devfs...
+http://sourceforge.net/project/showfiles.php?group_id=18813&release_id=106023
 
-3. Performance.  Compiled-in stuff is always there, and
-   on x86 it exists in the kernel's 4M page so no
-   TLB loading overhead either.
+and
 
-> Someone replied off-list saying that initrds are too hard to create.
-Actually, that isn't an argument for linking everything in.
-All you need is the drivers for your root fs and root device.
-The rest may still be modular, loaded from /lib/modules on
-that root fs.
+http://www.alphalink.com.au/~gnb/gcml2/download.html
+
+There's also an online summary of the warnings and errors from the
+syntax checker, with real examples, from
+
+http://www.alphalink.com.au/~gnb/gcml2/checker.html
+
+Here's the change log
 
 
-Helge Hafting
+*  Warnings can be individually enabled.  Default set depends
+   on whether the parser is in merge mode. API functions to
+   enable/disable warnings by index and convert a string name
+   to an index.
+
+*  Added check for define to nonliteral expression.
+
+*  More precise check for ambiguous comparison against "n" only
+   complains for symbols which are forward-declared at the point
+   when compared.
+
+*  Made inconsistent-tag warnings more precise; doesn't
+   emit spurious warnings about define_bool not having an
+   (EXPERIMENTAL) tag.
+
+*  More precise check for forward references and forward
+   dependencies can tell the difference between forward and
+   undeclared, at the cost of some storage.
+
+*  Check for overlapping definitions by reducing conditions to
+   disjunctive normal forms.
+
+*  Added check for forward dependencies.
+
+*  Added check for misuse of and dependency on arch-constant
+   symbols like CONFIG_X86.
+
+*  Renamed summarise-warnings.awk -> summarize.awk and installed
+   it.
+
+*  Added cml-summarize shell script, which runs summarize.awk.
+
+*  Added cml-check-all shell script, based on old dochecks.sh,
+   but now also handles running cml-summarize.
+
+*  Added manpages for cml-check, cml-check-all and
+   cml-summarize. Description of errors and warnings for the
+   cml-check manpage is controlled in HTML and shared with the
+   web page.
+
+*  RPM package support: added spec file, rpm: target.
+
+
+Greg.
+-- 
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.

@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVAGQOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVAGQPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbVAGQOq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 11:14:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVAGQOq
+	id S261485AbVAGQPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 11:15:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVAGQPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 11:14:46 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:33448 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S261481AbVAGQOp
+	Fri, 7 Jan 2005 11:15:09 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:52699 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261485AbVAGQPA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 11:14:45 -0500
-Message-Id: <200501071614.j07GEgEC018705@localhost.localdomain>
-To: Martin Mares <mj@ucw.cz>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Jack O'Quin" <joq@io.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
-In-reply-to: Your message of "Fri, 07 Jan 2005 17:08:08 +0100."
-             <20050107160808.GB6529@ucw.cz> 
-Date: Fri, 07 Jan 2005 11:14:42 -0500
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.197.185.179] at Fri, 7 Jan 2005 10:14:44 -0600
+	Fri, 7 Jan 2005 11:15:00 -0500
+Subject: [RFC] 2.4 and stack reduction patches
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1105112886.4000.87.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Jan 2005 07:48:06 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Sure, filesystem capabilities would be nice, but for the stuff Paul
->mentions they aren't needed -- what you need is to grant capabilities
->to the user's session, which can be easily done by a PAM module.
+Hi Marcelo,
 
-i think this is true only if the kernel comes with capabilities
-enabled.
+Few of the product groups are running into stack overflow problems
+on latest 2.4 distribution releases, especially on z-Series.
 
-various media-centric distributions (CCRMA, demudi, dyne:bolic and
-others) enabled them for their 2.4 kernels, but not the major
-desktop-centric ones. then the impression began to be received that in
-2.6, capabilities were even more questionable of a mechanism to use.
-In addition, the LSM system appeared, and seemed to offer a much
-better solution entirely: no need to patch the kernel at all, or at
-least it appeared to be so in the beginning. Hence the "realtime" LSM.
+While poking thro the 2.4 code, I realized the 2.6 stack reduction
+work did not get merged into 2.4. 
 
---p
+Biggest offender seems to be "struct linux_binprm" in do_execve().
+Converting structure on the stack to malloc() (like 2.6 does)
+solved majority of problems. There are other places, but savings
+are smaller. (But after bunch of changes, we were able to reduce
+stack by 1K).
+
+I am wondering, if there is any interest in merging stack reduction
+patches into 2.4 mainline ? If so, I will rework the patches on
+latest 2.4 and submit them. 
+
+Thanks,
+Badari
+

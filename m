@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbTLOWAj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 17:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTLOWAj
+	id S263904AbTLOV4u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 16:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTLOV4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 17:00:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43977 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264147AbTLOWAi (ORCPT
+	Mon, 15 Dec 2003 16:56:50 -0500
+Received: from zero.aec.at ([193.170.194.10]:21514 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263904AbTLOV4t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 17:00:38 -0500
-Date: Mon, 15 Dec 2003 14:00:32 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
+	Mon, 15 Dec 2003 16:56:49 -0500
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Subject: Re: PCI Express support for 2.4 kernel
-In-Reply-To: <3FDE1391.7030306@pobox.com>
-Message-ID: <Pine.LNX.4.58.0312151359300.1631@home.osdl.org>
-References: <3FDC9DC5.2070302@intel.com> <Pine.LNX.4.58.0312151023570.1488@home.osdl.org>
- <3FDE1391.7030306@pobox.com>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 15 Dec 2003 22:56:15 +0100
+In-Reply-To: <137wc-q1-23@gated-at.bofh.it> (Vladimir Kondratiev's message
+ of "Mon, 15 Dec 2003 21:30:24 +0100")
+Message-ID: <m3fzflpwxs.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <12InT-wQ-5@gated-at.bofh.it> <135Nw-5gv-3@gated-at.bofh.it>
+	<137wc-q1-23@gated-at.bofh.it>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 15 Dec 2003, Jeff Garzik wrote:
+Vladimir Kondratiev <vladimir.kondratiev@intel.com> writes:
 >
-> neat.  dumb question though...  how portable is set_fixmap_nocache()?
+> As alternative between 1 page and 256M, I see also lazy allocation on
+> per-bus basis: when bus is first accessed, ioremap 1Mb for it. On real
+> system, it is no more then 3-4 buses. This way, we will end with
+> several 1MB mappings. Finer granularity do not looks feasible, since
+> bus scanning procedure tries to access all devices.
 
-Not very. Although it should generally be trivial to port if you need it.
+For bus scanning fixmaps are fine, but for the normal use of the
+config space in the driver just doing ioremap once (e.g. at
+pci_enable_device time) and caching it is preferable.  The number of
+PCI-E devices in a given system should be bounded, so e.g. when you
+have 100 devices you will only lose 400kB of vmalloc space this way
+which is quite reasonable.
 
-> I only see it on four architectures, and I'm sure PCI Express will
-> appear on more than that eventually.
+I don't think dynamic fixmaps at each access would be a good idea.
 
-On 64-bit architectures you're not likely to ever need to worry about it,
-and then you can just map the whole thing directly (and use some special
-large-page mapping for it, at that).
-
-		Linus
+-Andi

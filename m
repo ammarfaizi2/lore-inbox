@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVCRRVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbVCRRY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbVCRRVB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 12:21:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVCRRVB
+	id S261995AbVCRRY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 12:24:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVCRRY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 12:21:01 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:14759 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S261997AbVCRRUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 12:20:38 -0500
-Date: Fri, 18 Mar 2005 12:20:35 -0500
-From: Jason Davis <jason@rightthere.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, natalie.protasevich@unisys.com,
-       jason.davis@unisys.com
-Subject: Re: [PATCH] ES7000 Legacy Mappings Update
-Message-ID: <20050318172035.GA23140@righTThere.net>
-References: <20050314183533.GA28889@righTThere.net> <20050314180554.10455185.akpm@osdl.org> <20050315152756.GA28799@righTThere.net> <20050315113746.2484c773.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20050315113746.2484c773.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 18 Mar 2005 12:24:58 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:43184 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261995AbVCRRYy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 12:24:54 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PCI Error Recovery API Proposal. (WAS:: [PATCH/RFC]PCIErrorRecovery)
+Date: Fri, 18 Mar 2005 09:24:02 -0800
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024081326E8@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PCI Error Recovery API Proposal. (WAS:: [PATCH/RFC]PCIErrorRecovery)
+Thread-Index: AcUrbx9GAm0oAQboQtazaw+VtE0PaAAb2ABg
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Paul Mackerras" <paulus@samba.org>
+Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Hidetoshi Seto" <seto.hidetoshi@jp.fujitsu.com>,
+       "Greg KH" <greg@kroah.com>, <linux-kernel@vger.kernel.org>, <ak@muc.de>,
+       "linuxppc64-dev" <linuxppc64-dev@ozlabs.org>,
+       <linux-pci@atrey.karlin.mff.cuni.cz>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 18 Mar 2005 17:24:04.0360 (UTC) FILETIME=[487A4080:01C52BDF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is an update to the ES7000 Legacy Mappings patch.
+On Thursday, March 17, 2005 8:01 PM Paul Mackerras wrote:
+> Does the PCI Express AER specification define an API for drivers?
 
----------------------------------------------------------------------
+No. That is why we agree a general API that works for all platforms.
 
-This update only affects Unisys' ES7000 machines. The patch reflects a change needed to determine which generation of ES7000 is currently running. The next generation of ES7000s will have conventional legacy support so the patch accommodates for this. This patch has been tested and verified on both an authentic 5xx ES7000 box and the next generation ES7000 box.
+>Likewise, with EEH the device driver could take recovery action on its
+>own.  But we don't want to end up with multiple sets of recovery code
+>in drivers, if possible.  Also we want the recovery code to be as
+>simple as possible, otherwise driver authors will get it wrong.
 
-Signed-off-by: Natalie Protasevich <natalie.protasevich@unisys.com>
-Signed-off-by: Jason Davis <jason.davis@unisys.com>
+Drivers own their devices register sets.  Therefore if there are any
+vendor unique actions that can be taken by the driver to recovery we
+expect the driver to do so.  For example, if the drivers see "xyz" error
+and there is a known errata and workaround that involves resetting some
+registers on the card.  From our perspective we see drivers taking care
+of their own cards but the AER driver and your platform code will take
+care of the bus/link interfaces.
 
-diff -Nuarp linux-2.6.11.3/arch/i386/kernel/mpparse.c linux-2.6.11.3-legacy/arch/i386/kernel/mpparse.c
---- linux-2.6.11.3/arch/i386/kernel/mpparse.c	2005-03-13 01:44:19.000000000 -0500
-+++ linux-2.6.11.3-legacy/arch/i386/kernel/mpparse.c	2005-03-18 11:19:10.000000000 -0500
-@@ -996,9 +996,9 @@ void __init mp_config_acpi_legacy_irqs (
- 	Dprintk("Bus #%d is ISA\n", MP_ISA_BUS);
- 
- 	/*
--	 * ES7000 has no legacy identity mappings
-+	 * Older generations of ES7000 have no legacy identity mappings
- 	 */
--	if (es7000_plat)
-+	if (es7000_plat == 1) 
- 		return;
- 
- 	/* 
-diff -Nuarp linux-2.6.11.3/arch/i386/mach-es7000/es7000plat.c linux-2.6.11.3-legacy/arch/i386/mach-es7000/es7000plat.c
---- linux-2.6.11.3/arch/i386/mach-es7000/es7000plat.c	2005-03-13 01:44:41.000000000 -0500
-+++ linux-2.6.11.3-legacy/arch/i386/mach-es7000/es7000plat.c	2005-03-18 11:00:03.000000000 -0500
-@@ -138,7 +138,19 @@ parse_unisys_oem (char *oemptr, int oem_
- 		es7000_plat = 0;
- 	} else {
- 		printk("\nEnabling ES7000 specific features...\n");
--		es7000_plat = 1;
-+		/*
-+		 * Determine the generation of the ES7000 currently running.
-+		 * 
-+		 * es7000_plat = 0 if the machine is NOT a Unisys ES7000 box
-+		 * es7000_plat = 1 if the machine is a 5xx ES7000 box
-+		 * es7000_plat = 2 if the machine is a x86_64 ES7000 box
-+		 *
-+		 */
-+		if (!(boot_cpu_data.x86 <= 15 && boot_cpu_data.x86_model <= 2))
-+			es7000_plat = 2;
-+		else
-+			es7000_plat = 1;
-+
- 		ioapic_renumber_irq = es7000_rename_gsi;
- 	}
- 	return es7000_plat;
+>I would see the AER driver as being included in the "platform" code.
+>The AER driver would be be closely involved in the recovery process.
+
+Our goal is to have the AER driver be part of the general code base
+because it is based on a PCI SIG specification that can be implemented
+across all architectures.   
+
+>What is the state of a link during the time between when an error is
+>detected and when a link reset is done?  Is the link usable?  What
+>happens if you try to do a MMIO read from a device downstream of the
+>link?
+
+For a FATAL error the link is "unreliable".  This means MMIO operations
+may or may not succeed.  That is why the reset is performed by the
+upstream port driver.  The interface to that is reliable.  A reset of an
+upstream port will propagate to all downstream links.  So we need an
+interface to the bus/port driver to request a reset on its downstream
+link.  We don't want the AER driver writing port bus driver bridge
+control registers.  We are trying to keep the ownership of the devices
+register read/write within the domain of the devices driver.  In our
+case the port bus driver.
+
+Thanks,
+Long

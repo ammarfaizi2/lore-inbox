@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbUEJVh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbUEJVre@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261865AbUEJVh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 17:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbUEJVh5
+	id S261931AbUEJVre (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 17:47:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUEJVre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 17:37:57 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:25360 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261865AbUEJVh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 17:37:56 -0400
-Date: Mon, 10 May 2004 22:37:55 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-Message-ID: <20040510223755.A7773@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040510024506.1a9023b6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040510024506.1a9023b6.akpm@osdl.org>; from akpm@osdl.org on Mon, May 10, 2004 at 02:45:06AM -0700
+	Mon, 10 May 2004 17:47:34 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:32148 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261931AbUEJVrc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 17:47:32 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 10 May 2004 14:47:30 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Andre Ben Hamou <andre@bluetheta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Multithread select() bug
+In-Reply-To: <409FF38C.7080902@bluetheta.com>
+Message-ID: <Pine.LNX.4.58.0405101446570.1156@bigblue.dev.mdolabs.com>
+References: <409FF38C.7080902@bluetheta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +hugetlb_shm_group-sysctl-patch.patch
-> 
->  Add /proc/sys/vm/hugetlb_shm_group: this holds the group ID of users who may
->  allocate hugetlb shm segments without CAP_IPC_LOCK.  For Oracle.
-> 
-> +mlock_group-sysctl.patch
-> 
->  /proc/sys/vm/mlock_group: group ID of users who can do mlock() without
->  CAP_IPC_LOCK.  Not sure that we need this.
+On Mon, 10 May 2004, Andre Ben Hamou wrote:
 
-These two just introduced a subtile behaviour change during stable series,
-possibly (not likely) leading to DoS opportunities from applications running
-as gid 0.  Really, with capabilities first and now selinux we have moved
-away from treating uid 0 special, so introducing special casing of a gid
-now is more than just braindead.
+> void *threadFuntion (void *sockets) {
+>      int socket = ((int *)sockets)[0];
+>      struct timeval timeout = {tv_sec: 5, tv_usec: 0};
+> 
+>      // Allocate a file descriptor set with the passed socket
+>      fd_set fds;
+>      FD_ZERO (&fds);
+>      FD_SET (socket, &fds);
+> 
+>      // Select to read / register exceptions on the FD set
+>      select (socket + 1, &fds, NULL, &fds, &timeout);
+
+Try:
+
+	select (socket + 1, &fds, &fds, &fds, &timeout);
+                                 ^^^^^
+
+
+- Davide
 

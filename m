@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130606AbRCLUeE>; Mon, 12 Mar 2001 15:34:04 -0500
+	id <S130619AbRCLUhe>; Mon, 12 Mar 2001 15:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130618AbRCLUdz>; Mon, 12 Mar 2001 15:33:55 -0500
-Received: from jalon.able.es ([212.97.163.2]:19864 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130606AbRCLUdp>;
-	Mon, 12 Mar 2001 15:33:45 -0500
-Date: Mon, 12 Mar 2001 21:33:16 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>
-Subject: [jamagallon@able.es: Re: Linux 2.4.2ac19]
-Message-ID: <20010312213316.A1039@werewolf.able.es>
-In-Reply-To: <20010312211917.A2461@werewolf.able.es> <E14cYvZ-0002Zt-00@the-village.bc.nu> <20010312212738.C2461@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010312212738.C2461@werewolf.able.es>; from jamagallon@able.es on Mon, Mar 12, 2001 at 21:27:38 +0100
-X-Mailer: Balsa 1.1.2
+	id <S130623AbRCLUhY>; Mon, 12 Mar 2001 15:37:24 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:2294 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S130619AbRCLUhQ>; Mon, 12 Mar 2001 15:37:16 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103122035.f2CKZdA00650@webber.adilger.int>
+Subject: Re: linux localization
+In-Reply-To: <Pine.LNX.4.21.0103120946220.2102-100000@imladris.rielhome.conectiva>
+ from Rik van Riel at "Mar 12, 2001 09:47:26 am"
+To: Rik van Riel <riel@conectiva.com.br>
+Date: Mon, 12 Mar 2001 13:35:39 -0700 (MST)
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, XingFei <xing.fei@fujixerox.co.jp>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03.12 J . A . Magallon wrote:
+XingFei writes:
+> My work will concern with the internationalization of Linux
+> So, could anybody tell me what kinds of features should be in the
+> consideration when linux be localized from english to Japanese or chinese,
+> say using 2 bytes character set.
 
-On 03.12 Alan Cox wrote:
-> But then I have to remember to change it each time
-> 
+Is this for Linux console i18n?  TurboLinux has a kernel patch (2.2)
+for Unicode support on the console (with CJK input):
 
-I am not used to smileys, but obviously there was one missing in my mail...
+http://www.turbolinux.com.cn/TLDN/chinese/project/unicon/
 
+Cheers, Andreas
 -- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.2-ac18 #1 SMP Sun Mar 11 01:21:35 CET 2001 i686
-
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

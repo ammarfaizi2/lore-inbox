@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132130AbRANLAG>; Sun, 14 Jan 2001 06:00:06 -0500
+	id <S131373AbRANLIJ>; Sun, 14 Jan 2001 06:08:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132168AbRANK74>; Sun, 14 Jan 2001 05:59:56 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:54170 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S132130AbRANK7m>;
-	Sun, 14 Jan 2001 05:59:42 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S131833AbRANLH7>; Sun, 14 Jan 2001 06:07:59 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:51204 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S131373AbRANLHx>; Sun, 14 Jan 2001 06:07:53 -0500
+Date: Sun, 14 Jan 2001 12:07:36 +0100 (MET)
+From: Armin Schindler <mac@melware.de>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: SMP Problem with RTL8139
+Message-ID: <Pine.LNX.4.31.0101141152400.2684-100000@phoenix.melware.de>
+Organization: Cytronics & Melware
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14945.34414.185794.396720@pizda.ninka.net>
-Date: Sun, 14 Jan 2001 02:58:54 -0800 (PST)
-To: Petru Paler <ppetru@ppetru.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-pre3+zerocopy: weird messages
-In-Reply-To: <20010114124549.D1394@ppetru.net>
-In-Reply-To: <20010114121105.B1394@ppetru.net>
-	<14945.32886.671619.99921@pizda.ninka.net>
-	<20010114124549.D1394@ppetru.net>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-Petru Paler writes:
- > Ok. Should I keep reporting new syslog messages as they appear ?
+  I need help with the following problem on my
+Dual Pentium III 550Mhz with kernel 2.2.17 SMP
+and RTL8139 as eth0 :
 
-Not the "Undo ***" and "Disorder ***" ones".
+Sometimes the message
 
-But this one is curious:
+ eth0: RTL8139 Interrupt line blocked, status 1.
 
- > udp v4 hw csum failure.                                                                   
-Oh, I think I know why this happens.  Can you add this patch, and next
-time the UDP bad csum message appears, tell me if it says "UDP packet
-with bad csum was fragmented." in the next line of your syslog
-messages?  Thanks.
+appears which doesn't seem to cause problems, but
+yesterday the message
 
-Later,
-David S. Miller
-davem@redhat.com
+ eth0: SMP simultanous entry of an interrupt handler.
+
+appeared just after it. From this moment the
+network performance goes down to just a few bytes per
+second until system restart.
+
+Is this a known problem ?
+
+Thanks for any hint.
+
+Armin
+
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

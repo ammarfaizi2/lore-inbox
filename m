@@ -1,61 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVAGBGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVAGBBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVAGBGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 20:06:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVAGBD1
+	id S261191AbVAGBBb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 20:01:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVAGA71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 20:03:27 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:32203 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261163AbVAGBBj (ORCPT
+	Thu, 6 Jan 2005 19:59:27 -0500
+Received: from relay01.pair.com ([209.68.5.15]:52485 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S261191AbVAGAs5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 20:01:39 -0500
-Date: Thu, 6 Jan 2005 17:01:19 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com, greghk@us.ibm.com
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050107010119.GS1292@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Thu, 6 Jan 2005 19:48:57 -0500
+X-pair-Authenticated: 24.241.238.70
+Message-ID: <41DDDC73.5040209@cybsft.com>
+Date: Thu, 06 Jan 2005 18:48:51 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark_H_Johnson@raytheon.com
+CC: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: Real-Time Preemption, comparison to 2.6.10-mm1
+References: <OF904F641A.CB09BC81-ON86256F80.007E3761-86256F80.007E37F5@raytheon.com>
+In-Reply-To: <OF904F641A.CB09BC81-ON86256F80.007E3761-86256F80.007E37F5@raytheon.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 09:24:17PM +0000, Al Viro wrote:
-> On Thu, Jan 06, 2005 at 01:04:08PM -0800, Paul E. McKenney wrote:
-> > On Thu, Jan 06, 2005 at 08:32:59PM +0000, Al Viro wrote:
-> > > On Thu, Jan 06, 2005 at 12:15:31PM -0800, Paul E. McKenney wrote:
-> > > > Yep, you win the prize, it is MVFS.
-> > > > 
-> > > > This is the usual port of an existing body of code to the Linux kernel.
-> > > > It is not asking for a new export, only restoration of a previously existing
-> > > > export.
-> > > 
-> > > Sorry, but "our code is badly misdesigned" does not make a valid excuse
-> > > when you have been told, repeatedly, by many people, for at least a year
-> > > that you needed to sanitize your design.
-> > 
-> > The obvious searches did not find this for me.  Any pointers so that
-> > I can bring to the MVFS guys' attention any alternatives that might
-> > have been recommended?
+Mark_H_Johnson@raytheon.com wrote:
+>>Do you have a simple way of triggering and trapping the starvation? That
+>>of course is probably asking for a lot. :)
 > 
-> "Use recursive bindings instead of trying to take over the entire mount tree
-> and mirroring it within your fs code.  And do that explicitly from userland".
+> 
+> What I have been doing is now recorded as bug #3997 at
+>   http://bugme.osdl.org/show_bug.cgi?id=3997
+> Running latencytest has the advantage of generating some charts
+> that I can show others how well (or poorly) the system runs.
+> 
+> I just rebooted in SMP and did a few other tests with the following
+> steps that should be simpler to set up and run.
+> 
+> [1] Create cpu_test.c as follows:
+> 
+> #define LOOPS 100000000
+> int main() {
+>   int u, v, k, l;
+>   for (v=0; v<100; v++) {
+>     for (u=0; u<LOOPS; u++) {
+>       k += 1;
+>       if (!(u%100)) {
+>       l += 1;
+>       k = 0;
+>       }
+>     }
+>   }
+>   return k;
+> }
+> 
+> On my 866 Mhz Pentium III, it runs for about 3 minutes, 45 seconds.
+> Adjust the outer loop in the code if you need to run shorter or
+> longer. I would not run more than 5 minutes - you should easily
+> get the symptom before then. This also puts a limit of how long
+> you have to wait if the system gets "stuck" and does not respond
+> to your keyboard or mouse.
+> 
+> [2] Build the application
+>   gcc -o cpu_test cpu_test.c
+> 
+> [3] On a two CPU system (or repeat this step N-1 times for
+> your N cpu system). Run in a separate window...
+>   chrt -f 10 ./cpu_test
+> 
+> [4] In a separate window...
+>   nice ./cpu_test
+> 
+> At this point, you should have the system 100% utilized with N-1
+> real time applications & 1 nice application. I used top to confirm
+> this result.
+> 
+> [5] In a separate window do one or more of the following:
+>   a. head -c $1 /dev/zero >tmpfile
+>   (replacing $1 with about 1.5x your physical memory size
+>    - this is my "disk write" test)
+>   b. cp tmpfile tmpfile2
+>   (this is my "disk copy" test)
+>   c. cat tmpfile tmpfile2 >/dev/null
+>   (this is my "disk read" test)
+> delete the files when done.
+> 
+> It appears (at least on my system) that disk I/O triggers the
+> problem more than the other tests (x11perf, top [with no delay]).
+> 
+> I was however in an odd situation [just before I sent this message]
+> where it appeared that the disk copy was OK but I could not
+> type on any of my windows - mouse entries were OK but not the
+> keyboard. That may be a different variant of my "starvation
+> problem".
+> 
+>   --Mark
+> 
+> 
 
-Thank you for the pointer!  By this, you mean do mount operations in
-conjunction with namespaces, right?
+I have been able to reproduce this on my system. Actually I can pretty 
+much put the system to sleep, at least to all external input/output, for 
+a period of time. I haven't had time to look into this further but will 
+try to later tonight.
 
-I will follow up with more detail as I learn more.  The current issue
-seems to be with removeable devices.  Their users want to be accessing
-a particular version, but still see a memory stick that was subsequently
-mounted outside of the view.  Straightforward use of mounts and namespaces
-would prevent the memory stick from being visible to users that were
-already in view.
-
-							Thanx, Paul
+kr

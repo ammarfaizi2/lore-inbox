@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275378AbTHIUDI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 16:03:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275413AbTHIUDI
+	id S275397AbTHIUBs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 16:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275395AbTHIUBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 16:03:08 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:49417 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S275378AbTHIUDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 16:03:04 -0400
-Date: Sat, 9 Aug 2003 15:51:15 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jasper Spaans <jasper@vs19.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix up fs/nfs/inode.c wrt flavo[u]r
-In-Reply-To: <20030809195607.GA8171@spaans.vs19.net>
-Message-ID: <Pine.LNX.4.53.0308091550010.32166@montezuma.mastecende.com>
-References: <shsisp7fzkg.fsf@charged.uio.no> <Pine.LNX.4.44.0308081738380.3739-100000@home.osdl.org>
- <20030809004559.GA17257@spaans.vs19.net> <20030809195607.GA8171@spaans.vs19.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Aug 2003 16:01:48 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:48837 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S275397AbTHIUBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 16:01:46 -0400
+Date: Sat, 9 Aug 2003 22:01:39 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm2: BTTV build error
+Message-ID: <20030809200139.GO16091@fs.tum.de>
+References: <20030730223810.613755b4.akpm@osdl.org> <20030731150648.GG22991@fs.tum.de> <20030804091302.GH24453@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030804091302.GH24453@bytesex.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Aug 2003, Jasper Spaans wrote:
+On Mon, Aug 04, 2003 at 11:13:02AM +0200, Gerd Knorr wrote:
+> > > +bttv-driver-update.patch
+> 
+> >   CC      drivers/media/video/bttv-cards.o
+> > drivers/media/video/bttv-cards.c: In function `pvr_boot':
+> > drivers/media/video/bttv-cards.c:2549: error: incompatible types in 
+> > initialization
+> > drivers/media/video/bttv-cards.c:2552: warning: implicit declaration of 
+> > function `request_firmware'
+> 
+> Hmm, must investigate.  Any change if you toggle CONFIG_FW_LOADER?
+>...
 
-> On Sat, Aug 09, 2003 at 02:45:59AM +0200, Jasper Spaans wrote:
-> > As I stated before, I'll whip up a patch. However, it's 2:45 localtime here
-> > right now, and I need to catch some sleep.
-> 
-> Here goes; this is the least intrusive version I could make which still
-> makes sense.
-> 
-> 
->  fs/nfs/inode.c             |   16 ++++++++--------
->  include/linux/nfs4_mount.h |    4 ++--
->  include/linux/nfs_mount.h  |    2 +-
->  3 files changed, 11 insertions(+), 11 deletions(-)
-> 
-> For those who want to look at this without using bitkeeper, a plaintext
-> patch is available at 
-> 
-> http://jsp.vs19.net/tmp/flavour.txt
-> 
+I can't reproduce it in >= -mm3 and I don't have my -mm2 tree anymore.
 
-<whine> *sigh* why not just attach it inline into your email? </whine>
+I assume that whatever caused it, it's fixed.
 
-> This BitKeeper patch contains the following changesets:
-> 1.1150
-> ## Wrapped with uu ##
+>   Gerd
 
-uu *mumble*
+cu
+Adrian
 
-	Zwane
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263593AbUCYTz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 14:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbUCYTz7
+	id S263589AbUCYT6S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 14:58:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbUCYT6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 14:55:59 -0500
-Received: from [199.243.65.9] ([199.243.65.9]:58402 "EHLO
-	STHA37000.ca.ecamericas") by vger.kernel.org with ESMTP
-	id S263593AbUCYTz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 14:55:56 -0500
-Subject: linux-2.6.4 drivers/s390/net/qeth.c:7538: structure has no member named `dev_id'
+	Thu, 25 Mar 2004 14:58:17 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:16652 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S263589AbUCYT6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 14:58:13 -0500
+Date: Thu, 25 Mar 2004 14:10:57 -0600
+From: mike.miller@hp.com
+To: axboe@suse.de, jgarzik@pobox.com
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3  March 21, 2000
-Message-ID: <OF2F3E046F.667A25FD-ON85256E62.006CF192@ca.ecamericas>
-From: Jean-Francois.Martel@belairdirect.com
-Date: Thu, 25 Mar 2004 14:55:18 -0500
-X-MIMETrack: Serialize by Router on INGCSTHEXT01/SRV/ING-CANADA-Connect(Release 5.0.12
-  |February 13, 2003) at 25/03/2004 02:50:26 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-To: unlisted-recipients:; (no To-header on input)
+Subject: cciss update to replace 1 of 2 earlier patches
+Message-ID: <20040325201057.GC4456@beardog.cca.cpqcorp.net>
+Reply-To: mike.miller@hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-2.6.4 kernel.org
+This patch is meant to replace the patch from earlier that mask off SATA drives. After Arjan's question about one for 2.6 I got back in the code and realized this has to be done in 2 places for the 2.4.x driver, but only in one place for 2.6.
+Also, to answer Jeff's question: if it's not a SCSI tape we don't care.
 
-drivers/s390/net/qeth.c: In function `qeth_ipv6_generate_eui64':
-drivers/s390/net/qeth.c:7538: structure has no member named `dev_id'
-drivers/s390/net/qeth.c:7539: structure has no member named `dev_id'
-drivers/s390/net/qeth.c: In function `qeth_ipv6_init_card':
-drivers/s390/net/qeth.c:7557: structure has no member named `dev_id'
-drivers/s390/net/qeth.c:7559: structure has no member named
-`generate_eui64'
-make[2]: *** [drivers/s390/net/qeth.o] Error 1
-make[1]: *** [drivers/s390/net] Error 2
-make: *** [drivers/s390] Error 2
+This change is required to support the new MSA30 storage enclosure.
+If you do a SCSI inquiry to a SATA disk bad things happen. This patch prevents the inquiry from going to SATA disks.
 
-
-
-Linux 2.4.21-107-default #1 SMP Thu Mar 11 17:20:12 UTC 2004 s390 unknown
-
-Gnu C                  3.2.2
-Gnu make               3.79.1
-mount                  2.11u
-module-init-tools      writing
-e2fsprogs              1.28
-jfsutils               1.0.24
-nfs-utils              1.0.1
-Linux C Library        26 11:37 /lib/libc.so.6
-Dynamic linker (ldd)   2.2.5
-Linux C++ Library      5.0.2
-Procps                 3.1.11
-Net-tools              1.60
-Kbd                    76:
-Sh-utils               2.0
-Modules Loaded         qeth ipv6 key qdio reiserfs dm-mod dasd_eckd_mod
-dasd_mod ext3 jbd
-
-
+ cciss_scsi.c |    3 +++
+ 1 files changed, 3 insertions(+)
+------------------------------------------------------------------------------
+diff -burpN lx2425.orig/drivers/block/cciss_scsi.c lx2425/drivers/block/cciss_scsi.c
+--- lx2425.orig/drivers/block/cciss_scsi.c	2003-11-28 12:26:19.000000000 -0600
++++ lx2425/drivers/block/cciss_scsi.c	2004-03-25 13:45:47.000000000 -0600
+@@ -589,6 +589,8 @@ cciss_find_non_disk_devices(int cntl_num
+ 
+ 	for(i=0; i<num_luns; i++) {
+ 		/* Execute an inquiry to figure the device type */
++		/* Skip over masked devices */
++		if (ld_buff->LUN[i][3] & 0xC0) continue;
+ 		memset(inq_buff, 0, sizeof(InquiryData_struct));
+ 		memcpy(scsi3addr, ld_buff->LUN[i], 8); /* ugly... */
+ 		return_code = sendcmd(CISS_INQUIRY, cntl_num, inq_buff,
+@@ -1148,6 +1150,7 @@ cciss_update_non_disk_devices(int cntl_n
+ 		int devtype;
+ 
+ 		/* for each physical lun, do an inquiry */
++		if (ld_buff->LUN[i][3] & 0xC0) continue;
+ 		memset(inq_buff, 0, sizeof(InquiryData_struct));
+ 		memcpy(&scsi3addr[0], &ld_buff->LUN[i][0], 8);
+ 

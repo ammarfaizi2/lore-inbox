@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288664AbSATPOZ>; Sun, 20 Jan 2002 10:14:25 -0500
+	id <S288677AbSATPTZ>; Sun, 20 Jan 2002 10:19:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288677AbSATPOP>; Sun, 20 Jan 2002 10:14:15 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:47620 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288664AbSATPOH>;
-	Sun, 20 Jan 2002 10:14:07 -0500
-Date: Sun, 20 Jan 2002 13:13:46 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Shawn <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <3C4AD24D.4050206@namesys.com>
-Message-ID: <Pine.LNX.4.33L.0201201229100.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S288736AbSATPTQ>; Sun, 20 Jan 2002 10:19:16 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:55773 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S288677AbSATPS7>; Sun, 20 Jan 2002 10:18:59 -0500
+Date: Sun, 20 Jan 2002 16:17:47 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Momchil Velikov <velco@fadata.bg>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __linux__ and cross-compile
+In-Reply-To: <87sn919i15.fsf@fadata.bg>
+Message-ID: <Pine.NEB.4.44.0201201611030.20948-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jan 2002, Hans Reiser wrote:
+On 20 Jan 2002, Momchil Velikov wrote:
 
-> Write clustering is one thing it achieves.
+> >> The following patch fixes compilation/miscompilation problems, which
+> >> may happend iwtg variuos cross compile configuration, wherte the
+> >> compiler used to compile the kernel does not necessarily define
+> >> __linux__. The patch replaces __linux__ with __KERNEL__, using
 >
-> Flushing everything involved in a transaction ... is another thing.
+> Adrian> Isn't this a compiler bug?
+>
+> Why would it be ? I may want to cross-compile from, e.g., NetBSD with
+> the host compiler, or I may want compile from GNU/Linux, but with a
+>...
 
-Agreed on these points, but you really HAVE TO work towards
-flushing the page ->writepage() gets called for.
+If your compiler is configured as a cross-compiler everything should work
+as expected. If you are trying to compile a Linux kernel with a gcc that
+is configured to build binaries for NetBSD this sounds evil.
 
-Think about your typical PC, with memory in ZONE_DMA,
-ZONE_NORMAL and ZONE_HIGHMEM. If we are short on DMA pages
-we will end up calling ->writepage() on a DMA page.
+> >> __KERNEL_ as an indication that the source is compiled as a part of
+> >> ...
+>
+> Adrian> This is definitely wrong in files that are not Linux-specific and that are
+> Adrian> used on FreeBSD (and BSDI) as well (you would know that if you'd looked at
+> Adrian> the files your patch changes)...
+>
+> *BSD define _KERNEL, don't they ?
 
-If the filesystem ends up writing completely unrelated pages
-and marking the DMA page in question referenced the VM will
-go in a loop until the filesystem finally gets around to
-making a page in the (small) DMA zone freeable ...
+I don't know (I never tried to compile a *BSD kernel).
+But if yes please consider what the following parts of your patch change:
 
-regards,
+-#ifndef __linux__
++#ifndef __KERNEL__
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+> Regards,
+> -velco
 
-http://www.surriel.com/		http://distro.conectiva.com/
+cu
+Adrian
+
+
 

@@ -1,96 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbULCTzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbULCTzC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262500AbULCTzE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 14:55:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbULCTxg
+	id S262482AbULCTzC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 14:55:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbULCTyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 14:53:36 -0500
-Received: from pool-151-203-6-248.bos.east.verizon.net ([151.203.6.248]:13828
-	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S262470AbULCT1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 14:27:50 -0500
-Message-Id: <200412032143.iB3LhpZW004683@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, Blaisorblade <blaisorblade_spam@yahoo.it>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Subject: [PATCH] UML - small vsyscall fixes
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 03 Dec 2004 16:43:51 -0500
-From: Jeff Dike <jdike@addtoit.com>
+	Fri, 3 Dec 2004 14:54:07 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:27802 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262482AbULCTvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 14:51:14 -0500
+Date: Fri, 3 Dec 2004 20:51:03 +0100 (CET)
+From: franz_pletz@t-online.de (Franz Pletz)
+X-X-Sender: thorus@sgx.home
+To: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Ludwig Schmidt <ludoschmidt@web.de>
+Subject: [PATCH] loopback device can't act as its backing store
+Message-ID: <Pine.LNX.4.61.0412032028220.10184@sgx.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-ID: XVWSncZdYer0JjfKTsNYD3TBqJygIlDK9JuIz9NSNRpvsnTfNKdUUr
+X-TOI-MSGID: ffad04f0-5ca3-472f-aa9a-38e146dd35ed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+The patch below fixes a bug in loop which apparently causes the kernel to call
+the initialization routine of a loopback device recursively while trying to set
+the backing store to the loopback device it's being mapped to.
 
-As Jeff pointed out, the check for address wrapping in access_ok_skas
-was wrong. Also, change vsyscall_ehdr and vsyscall_end to be
-unsigned long and export them, since modules need them for access_ok_skas
+Ludwig Schmidt <ludoschmidt@web.de> found this misbehaviour by accident. After
+having been informed by him, I analyzed the problem and wrote this patch.
 
-Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+You can verify this bug for instance by issuing the following command
+     # mount -o loop /dev/loop0 /mnt
+with /dev/loop0 being the first free loop device. You should sync before. ;-)
 
-diff -puN arch/um/kernel/skas/include/uaccess-skas.h~fix-vsyscall arch/um/kernel/skas/include/uaccess-skas.h
---- linux-2.6.10-rc2/arch/um/kernel/skas/include/uaccess-skas.h~fix-vsyscall	2004-11-25 16:41:08.466254313 +0100
-+++ linux-2.6.10-rc2-root/arch/um/kernel/skas/include/uaccess-skas.h	2004-11-25 16:41:08.478250517 +0100
-@@ -14,9 +14,9 @@
- 	 (((unsigned long) (addr) < TASK_SIZE) && \
- 	  ((unsigned long) (addr) + (size) <= TASK_SIZE)) || \
- 	 ((type == VERIFY_READ ) && \
--	  (size <= (FIXADDR_USER_END - FIXADDR_USER_START)) && \
- 	  ((unsigned long) (addr) >= FIXADDR_USER_START) && \
--	  ((unsigned long) (addr) + (size) <= FIXADDR_USER_END)))
-+	  ((unsigned long) (addr) + (size) <= FIXADDR_USER_END) && \
-+	  ((unsigned long) (addr) + (size) >= (unsigned long)(addr))))
- 
- static inline int verify_area_skas(int type, const void * addr,
- 				   unsigned long size)
-diff -puN arch/um/os-Linux/elf_aux.c~fix-vsyscall arch/um/os-Linux/elf_aux.c
---- linux-2.6.10-rc2/arch/um/os-Linux/elf_aux.c~fix-vsyscall	2004-11-25 16:41:08.469253364 +0100
-+++ linux-2.6.10-rc2-root/arch/um/os-Linux/elf_aux.c	2004-11-25 16:41:08.478250517 +0100
-@@ -20,10 +20,10 @@ typedef Elf64_auxv_t elf_auxv_t;
- char * elf_aux_platform;
- long elf_aux_hwcap;
- 
--long vsyscall_ehdr;
--long vsyscall_end;
-+unsigned long vsyscall_ehdr;
-+unsigned long vsyscall_end;
- 
--long __kernel_vsyscall;
-+unsigned long __kernel_vsyscall;
- 
- 
- __init void scan_elf_aux( char **envp)
-diff -puN arch/um/os-Linux/user_syms.c~fix-vsyscall arch/um/os-Linux/user_syms.c
---- linux-2.6.10-rc2/arch/um/os-Linux/user_syms.c~fix-vsyscall	2004-11-25 16:41:08.471252731 +0100
-+++ linux-2.6.10-rc2-root/arch/um/os-Linux/user_syms.c	2004-11-25 16:41:08.478250517 +0100
-@@ -26,6 +26,9 @@ EXPORT_SYMBOL(printf);
- 
- EXPORT_SYMBOL(strstr);
- 
-+EXPORT_SYMBOL(vsyscall_ehdr);
-+EXPORT_SYMBOL(vsyscall_end);
+However, if you try setting the backing file of the loopback device using the
+losetup utility, you won't experience any crash. For example:
+     # losetup /dev/loop0 /dev/loop0
+
+But as a matter of fact, the device will be busy until the next reboot. Forced
+unloading of loop will succeed. But after reloading, the kernel will lock up on
+any attempt accessing a loop device.
+Consequently this bug needs to be resolved in any case, although it seems that
+there may also be a bug in the mount utility. By looking at the source code of
+mount, which ironically shares the same codebase as losetup within the
+util-linux package, I couldn't find anything suspicious.
+
+This bug is fully reproduceable on at least all recent 2.6 series kernels.
+The patch below applies cleanly on 2.6.10-rc2.
+
+Comments would be graciously appreciated as this being my first serious kernel
+patch. ;-)
+
+
+Signed-off-by: Franz Pletz <franz_pletz@t-online.de>
+
+  linux/drivers/block/loop.c |    7 +++++++
+   1 files changed, 7 insertions(+)
+
+--- linux-2.6.10-rc2/drivers/block/loop.c	2004-11-25 19:56:32.000000000 +0100
++++ linux/drivers/block/loop.c	2004-12-02 23:39:43.516913144 +0100
+@@ -596,6 +596,9 @@
+  	old_file = lo->lo_backing_file;
+
+  	error = -EINVAL;
++	/* new backing store mustn't be the loop device it's being mapped to */
++	if(inode->i_rdev == bdev->bd_dev)
++		goto out_putf;
+
+  	if (!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))
+  		goto out_putf;
+@@ -652,6 +655,10 @@
+  		lo_flags |= LO_FLAGS_READ_ONLY;
+
+  	error = -EINVAL;
++	/* new backing store mustn't be the loop device it's being mapped to */
++	if(inode->i_rdev == bdev->bd_dev)
++		goto out_putf;
 +
- /* Here, instead, I can provide a fake prototype. Yes, someone cares: genksyms.
-  * However, the modules will use the CRC defined *here*, no matter if it is
-  * good; so the versions of these symbols will always match
-diff -puN include/asm-um/archparam-i386.h~fix-vsyscall include/asm-um/archparam-i386.h
---- linux-2.6.10-rc2/include/asm-um/archparam-i386.h~fix-vsyscall	2004-11-25 16:41:08.474251782 +0100
-+++ linux-2.6.10-rc2-root/include/asm-um/archparam-i386.h	2004-11-25 16:41:08.479250201 +0100
-@@ -58,9 +58,9 @@ typedef elf_greg_t elf_gregset_t[ELF_NGR
- } while(0);
- 
- 
--extern long vsyscall_ehdr;
--extern long vsyscall_end;
--extern long __kernel_vsyscall;
-+extern unsigned long vsyscall_ehdr;
-+extern unsigned long vsyscall_end;
-+extern unsigned long __kernel_vsyscall;
- 
- #define VSYSCALL_BASE vsyscall_ehdr
- #define VSYSCALL_END vsyscall_end
-_
-
+  	if (S_ISREG(inode->i_mode) || S_ISBLK(inode->i_mode)) {
+  		struct address_space_operations *aops = mapping->a_ops;
+  		/*

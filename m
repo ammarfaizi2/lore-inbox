@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264449AbTFKU6z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 16:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbTFKU6z
+	id S264477AbTFKVIl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 17:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTFKVIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 16:58:55 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:12456 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S264449AbTFKU6y (ORCPT
+	Wed, 11 Jun 2003 17:08:41 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:10667 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264477AbTFKVIb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 16:58:54 -0400
-Date: Wed, 11 Jun 2003 23:12:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: oprofile broken by sysfs updates
-Message-ID: <20030611211220.GA634@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Wed, 11 Jun 2003 17:08:31 -0400
+Date: Wed, 11 Jun 2003 14:23:57 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: oprofile broken by sysfs updates
+In-Reply-To: <20030611211220.GA634@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0306111421200.11379-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I only tried reading the diffs, but:
+> I only tried reading the diffs, but:
 
-arch/i386/oprofile/nmi_int.c must be suspended before
-arch/i386/kernel/apic.c is.
+Then maybe you should
 
-How is that guaranteed with new code?
+a) Read the entire initial thread (which you participated in), esp this 
+message:
 
--static struct device device_nmi = {
--       .name   = "oprofile",
--       .bus_id = "oprofile",
--       .driver = &nmi_driver,
--       .parent = &device_lapic.dev,
-+static struct sys_device device_oprofile = {
-+       .id     = 0,
-+       .cls    = &oprofile_sysclass,
- };
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105518049424749&w=2
+
+b) Read the comments in the code (from drivers/base/sys.c):
+
+/**
+ *      sysdev_shutdown - Shut down all system devices.
+ *
+ *      Loop over each class of system devices, and the devices in each
+ *      of those classes. For each device, we call the shutdown method for
+ *      each driver registered for the device - the globals, the auxillaries,
+ *      and the class driver. 
+ *
+ *      Note: The list is iterated in reverse order, so that we shut down
+ *      child devices before we shut down thier parents. The list ordering
+ *      is guaranteed by virtue of the fact that child devices are registered
+ *      after their parents. 
+ */
+
+c) Try using the code and stop being a troll.
 
 
-							Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Thanks,
+
+	-pat
+
+

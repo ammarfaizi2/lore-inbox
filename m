@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314097AbSDQOpr>; Wed, 17 Apr 2002 10:45:47 -0400
+	id <S314096AbSDQOpg>; Wed, 17 Apr 2002 10:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314098AbSDQOpr>; Wed, 17 Apr 2002 10:45:47 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:61968 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S314097AbSDQOpp>;
-	Wed, 17 Apr 2002 10:45:45 -0400
-Date: Wed, 17 Apr 2002 06:44:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] USB device support for 2.5.8 (take 2)
-Message-ID: <20020417134453.GE32370@kroah.com>
-In-Reply-To: <20020417035236.GC29897@kroah.com> <Pine.LNX.4.33.0204162203510.15675-100000@home.transmeta.com>
+	id <S314097AbSDQOpf>; Wed, 17 Apr 2002 10:45:35 -0400
+Received: from kiruna.synopsys.com ([204.176.20.18]:54158 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S314096AbSDQOpe>; Wed, 17 Apr 2002 10:45:34 -0400
+Date: Wed, 17 Apr 2002 16:45:19 +0200
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: Martin Rode <martin.rode@programmfabrik.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Callbacks to userspace from VFS ?
+Message-ID: <20020417164519.A16717@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+Mail-Followup-To: Martin Rode <martin.rode@programmfabrik.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1019053273.8655.109.camel@marge>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 20 Mar 2002 11:34:51 -0800
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 10:08:48PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 16 Apr 2002, Greg KH wrote:
-> >
-> > It's code to be a USB client device, not a USB host device, which is
-> > what we currently have.  It is used in embedded devices that run Linux,
-> > like the new Sharp device (can't remember the name right now...)
-> 
-> Ahhh.. A dim light goes on.
-> 
-> It would have made more sense (I think) to call it "usb/client" instead of
-> "usb/device", but maybe that's just because I didn't understand what the
-> thing was all about.
+Hi,
 
-We (the linux-usb-devel list) talked about different names for this
-stuff, and tried to follow the naming convention used in the USB spec.
-However 99% of kernel developers will never read that spec, and 100% of
-users never will, and the name "devices" failed to convey any good
-meaning to the first person that saw the tree outside of the USB
-developers, so changing the name to "client" makes a lot more sense :)
+try reading Documentation/dnotify.txt. Maybe it'll be enough for you.
 
-thanks,
+-alex
 
-greg k-h
+On Wed, Apr 17, 2002 at 04:21:13PM +0200, Martin Rode wrote:
+> Dear kernel hackers,
+> 
+> after programming at least 10 scripts polling a what we call
+> "hot-folder" for new files I had the idea to integrate call backs into
+> the file system layer of the linux kernel.
+> 
+> I would like to tell the kernel to callback my program whenever a file
+> or directory is being inserted, updated or deleted.
+> 
+> A simple approach could look like this (from the users POV):
+> 
+> mount -o callback=/tmp/myprogram callback_options=some_options
+> callback_folder=hotfolder callback_folder=hotfolder2 /dev/some /home
+> 
+> depending on what has happend in "hotfolder" or "hotfolder2" the
+> "myprogram" would be started and receive the two arguments:
+> 
+> DELETE filename of the file deleted
+> UPDATE filename
+> INSERT filename
+> 
+> It would be neat if one could change the mount options while the
+> filesystem is mounted.
+> 
+> If you could implement such a feature we had another great argument why
+> the linux kernel has something to offer which others haven't. With such
+> a feature one could program solutions for the real world which are
+> always annoying to program (cue: "hotfolder"!).
+> 
+> What do you people think about the idea? Please reply to me personally,
+> too, I'm not a subscriber.
+> 
+> Thanks for taking a look at the idea.
+> 
+> ;Martin

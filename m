@@ -1,45 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264447AbTEaTnL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 15:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTEaTnL
+	id S264416AbTEaUAs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 16:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbTEaUAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 15:43:11 -0400
-Received: from fed1mtao02.cox.net ([68.6.19.243]:7617 "EHLO fed1mtao02.cox.net")
-	by vger.kernel.org with ESMTP id S264447AbTEaTnK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 15:43:10 -0400
-Message-ID: <3ED908F0.40901@cox.net>
-Date: Sat, 31 May 2003 12:56:32 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4a) Gecko/20030401
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: LKML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] include/linux/sysctl.h needs linux/compiler.h
-References: <3ED8D5E4.6030107@cox.net> <20030531203242.B4202@infradead.org>
-In-Reply-To: <20030531203242.B4202@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 31 May 2003 16:00:48 -0400
+Received: from smtp-out.comcast.net ([24.153.64.116]:31011 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S264416AbTEaUAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 16:00:45 -0400
+Date: Sat, 31 May 2003 16:07:11 -0400
+From: Albert Cahalan <albert@users.sf.net>
+Subject: [ANNOUNCE] procps 3.1.9
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <1054411631.22103.725.camel@cube>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.4
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Sat, May 31, 2003 at 09:18:44AM -0700, Kevin P. Fleming wrote:
-> 
->>Adding patch below solves the problem (yes, I know, userspace is not 
->>supposed to use kernel headers...)
-> 
-> 
-> So why do you try it anyway?
-> 
+This release fixes memory usage reporting when gcc 3.x
+is used on IA-64 and Alpha. Other 64-bit platforms may
+be affected. Documentation has improved a bit. Thanks to
+Fabian Frederick, vmstat now lets you choose display units.
+See the change log for details.
 
-Until someone addresses this issue with a permanent fix, is there 
-another choice? How can any userspace library that needs to issue 
-syscalls compile against the existing sysctl.h without this change? I'm 
-open to suggestions, obviously this was a quick and dirty fix (copied 
-from other existing headers in .../linux already, which is certainly no 
-excuse).
+For those of you still upgrading from procps 2.0.xx releases,
+you can expect:
+
+* vmstat lets you choose units you like: 1000, 1024, 1000000...
+* top can sort by any column (old sort keys available too)
+* top can select a single user to display
+* top can be put in multi-window mode and/or color mode
+* vmstat has the -s option, as found on UNIX and BSD systems
+* vmstat has the -f option, as found on UNIX and BSD systems
+* watch doesn't eat the first blank line by mistake
+* vmstat uses a fast O(1) algorithm on 2.5.xx kernels
+* pmap command is SunOS-compatible
+* vmstat shows IO-wait time
+* pgrep and pkill can find the oldest matching process
+* sysctl handles the Linux 2.5.xx VLAN interfaces
+* top shows IO-wait time if-and-only-if your kernel computes it
+* ps has a new "-F" format (very nice, like DYNIX/ptx has)
+* ps with proper BSD process selection
+* better handling of very long uptimes
+
+There's a procps-feedback@lists.sf.net mailing list you can
+use for feature requests, bug reports, and so on. Use it!
+Feedback makes things happen.
+
+http://procps.sf.net/
+http://procps.sf.net/procps-3.1.9.tar.gz
+
+------------- recent changes -------------
+
+procps-3.1.8 --> procps-3.1.9
+
+memory sizes fixed for 64-bit w/ gcc 3.x      #194376 #191933
+ps: detect broken OS install w/o /proc mounted        #172735
+top: fix suspend/resume behavior
+top: ditch warning until a GOOD interface is found    #188271
+kill: more info in the man page                       #182414
+ps: document the -o, o, -O, and O options             #169301
+vmstat: choose units you like: 1000, 1024, 1000000...
+
+procps-3.1.7 --> procps-3.1.8
+
+top: fix keyboard handling (help screen, etc.)
+
+procps-3.1.6 --> procps-3.1.7
+
+Makefile: made SKIP feature easier to use
+watch: --help now explains -t, --no-title    #182246
+ps: warning directs users to the FAQ
+top: batch mode can refresh by fractional seconds
+top: faster start-up
+top: do not refresh like crazy
+ps: better crash message
+
+procps-3.1.5 --> procps-3.1.6
+
+handle the 2.5.61 kernel
+top: memory leak fixed
+ps: new --ppid option selects by PPID
+watch: new --no-title option             #179862
+handle SPARC Linux badness
+rare crash fixed
+compile with gcc 2.91.xx again
+more informative "ps --info"
+README update
+ps: compare more with "ps -C verylongname"     #178127
+
+procps-3.1.4 --> procps-3.1.5
+
+ancient (2.x.xx era) data corruption fixed
+serious hidden-process problem (3.1.3+) fixed
+w: escape sequence vulnerability fixed
+
+procps-3.1.3 --> procps-3.1.4
+
+top: was trashing every "3" in a command name
+top: when killing a process, the PID was cut at a "3"
+top: more reliable %CPU
+update copyright dates (GPL & LGPL require this)
+RPM generation works now
+
 

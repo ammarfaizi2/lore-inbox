@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbUBUWFi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 17:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbUBUWFi
+	id S261629AbUBUXTt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 18:19:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbUBUXTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 17:05:38 -0500
-Received: from web21202.mail.yahoo.com ([216.136.130.18]:26515 "HELO
-	web21202.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261620AbUBUWFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 17:05:37 -0500
-Message-ID: <20040221220536.34801.qmail@web21202.mail.yahoo.com>
-Date: Sat, 21 Feb 2004 14:05:36 -0800 (PST)
-From: Konstantin Kudin <konstantin_kudin@yahoo.com>
-Subject: 2.4.24 - unload/load network module -> unstable network
-To: linux-kernel@vger.kernel.org
+	Sat, 21 Feb 2004 18:19:49 -0500
+Received: from mail6.speakeasy.net ([216.254.0.206]:52909 "EHLO
+	mail6.speakeasy.net") by vger.kernel.org with ESMTP id S261629AbUBUXTs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 18:19:48 -0500
+From: NoTellin <notellin@speakeasy.net>
+Organization: --NA--
+To: Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: Multiple NIC cards in the same machine and 2.5/2.6
+Date: Sat, 21 Feb 2004 17:39:31 -0500
+User-Agent: KMail/1.6
+References: <200402210815.55770.notellin@speakeasy.net> <pan.2004.02.21.15.33.18.150094@altlinux.ru>
+In-Reply-To: <pan.2004.02.21.15.33.18.150094@altlinux.ru>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200402211739.31305.notellin@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- I do not know if this is significant, but I'll report
-this just in case.
+On Saturday 21 February 2004 10:33, Sergey Vlasov wrote:
+> There is no need to load two copies of the ne module.  Just
+> use:
+>
+> alias eth0 ne
+> alias eth1 ne
+> options ne io=0x300,0x200 irq=3,5
 
- I was troubleshooting a network problem that
-eventually turned out to be unrelated to the linux
-box.
-
- While doing that I unloaded the standard kernel
-module for the Broadcom chip {tg3} and loaded
-{bcm5700} from the vendor instead. At first things
-seemed fine, but after a few hours the box lost the
-network and did not respond to ping. The network came
-up after a network restart (no reboot). I thought that
-there was a problem with bcm5700, so I unloaded it,
-and loaded tg3 back. Again, after a few hours the
-network went down. So I had to reboot to make network
-stable again.
-
- When the tg3 module is loaded during the boot
-sequence, things are stable for indefinite amount of
+Ah-HAH. This must be one of those fundamental differences between 
+2.4 and 2.6. At the risk of sounding utterly incompetent, could 
+you enlighten me as to what I should have been looking for in 
+terms of seach terms. I like to think I'm a decent googler and I 
+generally RTFM, but I was totally unable to help myself this 
 time.
 
- Konstantin
+I was aware that the driver layer is completely different between 
+the 2.4 and 2.6 series, but I have difficulty in finding out what 
+that means from a practical standpoint. Hence the questions.
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail SpamGuard - Read only the mail you want.
-http://antispam.yahoo.com/tools
+Thank you very much for your answer BTW. I play with it later this 
+weekend. 
+
+Guy
+
+
+-- 
+Free Speech is better than Free Beer

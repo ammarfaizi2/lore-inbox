@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263707AbUJ3Lo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263708AbUJ3LrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263707AbUJ3Lo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 07:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263708AbUJ3Lo0
+	id S263708AbUJ3LrF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 07:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUJ3LrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 07:44:26 -0400
-Received: from mproxy.gmail.com ([216.239.56.247]:27449 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263707AbUJ3LoX (ORCPT
+	Sat, 30 Oct 2004 07:47:04 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:51369 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263708AbUJ3LpJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 07:44:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Z7siXQLK5KB87jeFmFlcPMYq1r5sJttRPXfiVTmTQs1ObJzp7LT8JozlvyuM1+A3S4vt3e71qta2EgSmQiFKv+UmAaq3cDZV9E5EWdjs4YgiaKXs5CqEmnuPwk4RKrHslMDioWuhNErFsopPlcgL0e+/mfcnoYtzVBceFkq9aLY=
-Message-ID: <21d7e99704103004445605730d@mail.gmail.com>
-Date: Sat, 30 Oct 2004 21:44:22 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.10-mm1, class_simple_* and GPL addition
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20041029205505.GB30638@kroah.com>
+	Sat, 30 Oct 2004 07:45:09 -0400
+Date: Sat, 30 Oct 2004 13:46:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5
+Message-ID: <20041030114615.GA28331@elte.hu>
+References: <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <417F7D7D.5090205@stud.feec.vutbr.cz> <20041027134822.GA7980@elte.hu> <417FD9F2.8060002@stud.feec.vutbr.cz> <20041028115719.GA9563@elte.hu> <20041030000234.GA20986@nietzsche.lynx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041027135052.GE32199@gamma.logic.tuwien.ac.at>
-	 <20041027153715.GB13991@kroah.com>
-	 <200410272012.44361.dtor_core@ameritech.net>
-	 <20041029205505.GB30638@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041030000234.GA20986@nietzsche.lynx.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+* Bill Huey <bhuey@lnxw.com> wrote:
+
+> On Thu, Oct 28, 2004 at 01:57:19PM +0200, Ingo Molnar wrote: > 
+> > * Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
+> > 
+> > > > i've uploaded -V0.4.1 with a fix that could fix this networking
+> > > > deadlock. Does it work any better?
+> > > 
+> > > Unfortunately, no. It's only slightly different:
+> > 
+> > ok. I've uploaded -RT-V0.5 which includes a different approach to
+> > solving these netfilter related deadlocks. It can be downloaded from the 
+> > usual place:
 > 
-> So we can change things, little things like this can help everyone out,
-> even if I'm going to get a ton of nvidia user hate mail directed to me
-> after the next kernel comes out...
-> 
-> Remember, binary kernel modules are a leach on our community.
+> This is in -V5.14
 
-True, but now with this code change, you have (acceptable or not) made
-binary modules second class citizens of the kernel, they cannot use
-the hotplugging or any of the new device model type code, they are
-always going to be second best and more of a problem for users, udev
-for binary modules is now probably not possible, if you take Linus's
-view that binary modules that are not derived from the kernel are not
-necessarily GPL then we've made them not able to be as good as other
-kernel modules, I don't think we'll annoy any binary module vendors
-we'll just piss off users...
+thanks - excellent trace - i hopefully fixed this in -V0.5.16, freshly
+uploaded. This also made me notice an upstream buglet.
 
-personally I thought the whole _GPL thing was meant to denote
-interfaces that showed that code was derived from the kernel so should
-be under the GPL, interfaces that all drivers should use to work with
-Linux are not IMHO proving the code is derived from the kernel, they
-still could be derived from another project but just want to be a 2.6
-device driver and use hotplug or sysfs.... so they can without fear
-lie about their status to use these interfaces... as Linus has said
-previously these interfaces are advisory, only lawyers/judges can
-decide if they are enforceable....
-
-Dave.
+	Ingo

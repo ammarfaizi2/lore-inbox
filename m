@@ -1,26 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275126AbRJYQcy>; Thu, 25 Oct 2001 12:32:54 -0400
+	id <S274255AbRJYQeh>; Thu, 25 Oct 2001 12:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275270AbRJYQco>; Thu, 25 Oct 2001 12:32:44 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6417 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275126AbRJYQck>; Thu, 25 Oct 2001 12:32:40 -0400
-Subject: Re: dvd and filesystem errors under 2.4.13
-To: imaginos@imaginos.net (Jim Hull)
-Date: Thu, 25 Oct 2001 17:35:12 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0110250907210.425-100000@rosebud> from "Jim Hull" at Oct 25, 2001 09:08:32 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15wnTN-0005MC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S275270AbRJYQe1>; Thu, 25 Oct 2001 12:34:27 -0400
+Received: from vena.lwn.net ([206.168.112.25]:20487 "HELO eklektix.com")
+	by vger.kernel.org with SMTP id <S274520AbRJYQeU>;
+	Thu, 25 Oct 2001 12:34:20 -0400
+Message-ID: <20011025163450.706.qmail@eklektix.com>
+To: Patrick Ouellet <patrick.ouellet@microtecsecurite.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: In great need 
+From: corbet@lwn.net (Jonathan Corbet)
+In-Reply-To: Your message of "Thu, 25 Oct 2001 11:32:45 EDT."
+             <56261134684.20011025113245@microtecsecurite.com> 
+Date: Thu, 25 Oct 2001 10:34:50 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are you saying this is possibly a hardware issue ?
+> Were should I start.
 
-Could be a cabling or RAM issue,could also be a driver bug of some
-kind
+KernelNewbies.org is intended to be a starting place for kernel hackers.
+
+May I also humbly suggest _Linux_Device_Drivers_?  It's online at 
+
+	http://www.xml.com/ldd/chapter/book/index.html
+
+But, of course, you'll want to buy a copy at the bookstore of your choice
+as well :)
+
+jon
+
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbUL0Ww4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbUL0WxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262002AbUL0Ww4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 17:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUL0Wwy
+	id S261995AbUL0WxS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 17:53:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbUL0WxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 17:52:54 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:28836
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261998AbUL0WwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 17:52:19 -0500
-Date: Mon, 27 Dec 2004 14:50:57 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: arjan@infradead.org, paulus@samba.org, clameter@sgi.com, akpm@osdl.org,
-       linux-ia64@vger.kernel.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Prezeroing V2 [0/3]: Why and When it works
-Message-Id: <20041227145057.4c5cd651.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.58.0412241018430.2654@ppc970.osdl.org>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
-	<41C20E3E.3070209@yahoo.com.au>
-	<Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
-	<16843.13418.630413.64809@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0412231325420.2654@ppc970.osdl.org>
-	<1103879668.4131.15.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.58.0412241018430.2654@ppc970.osdl.org>
-X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 27 Dec 2004 17:53:17 -0500
+Received: from h80ad25c6.async.vt.edu ([128.173.37.198]:40369 "EHLO
+	h80ad25c6.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261995AbUL0Wuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 17:50:50 -0500
+Message-Id: <200412272250.iBRMo2Qb011114@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Patrick McHardy <kaber@trash.net>, alan@lxorguk.ukuu.org.uk,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: PATCH: kmalloc packet slab 
+In-Reply-To: Your message of "Mon, 27 Dec 2004 14:23:50 PST."
+             <20041227142350.1cf444fe.davem@davemloft.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <1104156983.20944.25.camel@localhost.localdomain> <41D043AC.2070203@trash.net>
+            <20041227142350.1cf444fe.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_-1419475951P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 27 Dec 2004 17:50:01 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Dec 2004 10:21:24 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
+--==_Exmh_-1419475951P
+Content-Type: text/plain; charset=us-ascii
 
-> Absolutely. I would want to see some real benchmarks before we do this.  
-> Not just some microbenchmark of "how many page faults can we take without
-> _using_ the page at all".
+On Mon, 27 Dec 2004 14:23:50 PST, "David S. Miller" said:
 
-Here's my small contribution.  I did three "make -j3 vmlinux" timed
-runs, one running a kernel without the pre-zeroing stuff applied,
-one with it applied.  It did shave a few seconds off the build
-consistently.  Here is the before:
+> If we are really going to do something like this, it should
+> be calculated properly and be determined per-interface
+> type as netdevs are registered.
 
-real	8m35.248s
-user	15m54.132s
-sys	1m1.098s
+Would you prefer to see this done for all interface types if we do it
+at all, or would a special-case for 1 or 2 types that can use a slab
+without being wasteful be an acceptable solution? (Let's face it - if
+3.95 objects fit in each slab, we may not want to do it...)
 
-real	8m32.202s
-user	15m54.329s
-sys	1m0.229s
+--==_Exmh_-1419475951P
+Content-Type: application/pgp-signature
 
-real	8m31.932s
-user	15m54.160s
-sys	1m0.245s
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-and here is the after:
+iD8DBQFB0JGZcC3lWbTT17ARAtkPAKDjhu4Ocy8aQbbY8GwpjCG9aaTu+wCgybsg
+s31h8DjurnRR1B6j4DuSr7Y=
+=3OVm
+-----END PGP SIGNATURE-----
 
-real	8m29.375s
-user	15m43.296s
-sys	0m59.549s
-
-real	8m28.213s
-user	15m39.819s
-sys	0m58.790s
-
-real	8m26.140s
-user	15m44.145s
-sys	0m58.872s
+--==_Exmh_-1419475951P--

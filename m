@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbTLWSpz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 13:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTLWSpz
+	id S262356AbTLWSvK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 13:51:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTLWSvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 13:45:55 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39825 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262188AbTLWSoc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 13:44:32 -0500
-Date: Tue, 23 Dec 2003 18:44:30 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>, Mitchell Blank Jr <mitch@sfgoth.com>,
-       "Giacomo A. Catenazzi" <cate@pixelized.ch>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "Eric S. Raymond" <esr@thyrsus.com>
-Subject: Re: SCO's infringing files list
-Message-ID: <20031223184430.GB4176@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0312221337010.6868@home.osdl.org> <20031223002641.GD28269@pegasys.ws> <20031223092847.GA3169@deneb.enyo.de> <3FE811E3.6010708@debian.org> <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch> <20031223160425.GB45620@gaz.sfgoth.com> <20031223163926.GC45620@gaz.sfgoth.com> <Pine.LNX.4.58.0312230914090.14184@home.osdl.org> <20031223124024.A30934@discworld.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 23 Dec 2003 13:51:09 -0500
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:30872 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262356AbTLWSup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 13:50:45 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: jcwren@jcwren.com, linux-kernel@vger.kernel.org
+Subject: Re: Prevailence of PS/2 Active Muxed devices?
+Date: Tue, 23 Dec 2003 13:50:39 -0500
+User-Agent: KMail/1.5.4
+References: <20031223180429.GA11198@dreamland.darkstar.lan> <200312231325.39712.jcwren@jcwren.com>
+In-Reply-To: <200312231325.39712.jcwren@jcwren.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031223124024.A30934@discworld.dyndns.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200312231350.39160.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 12:40:24PM -0600, Charles Cazabon wrote:
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> > 
-> > Bingo!
-> [...]
-> > Can anybody find the actual libc _sources_? Not the kernel headers that
-> > hjl mentions (those are the old ones from _before_ the change), but the
-> > file "libc-2.2.2.tar.Z"?
-> 
-> Well, it's been recompressed with gzip, but it's here (among other places):
-> ftp://ftp.uni-kassel.de/Mirrors/prep.ai.mit.edu/pub/gnu/glibc/glibc-2.2.2.tar.gz
+On Tuesday 23 December 2003 01:25 pm, J.C. Wren wrote:
+>         Looking through the kernel sources, I see no handling for this.
+>  From a big picture perspective, how does Linux handle a system with an
+> integrated mouse pad, and an external PS/2 mouse port?  Is this whole
+> Synaptics idea dead, or is support for this planned, or even
+> considered?  Does any one have any knowledge the number of KBCs with
+> this muxing?
 
-Completely different animal.  glibc2 is at least 5 years later.
+No, it's alive and kicking... see drivers/input/serio/i8042.c -
+i8042_check_mux()
+
+Dmitry

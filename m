@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbTHWAMv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 20:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTHWAMv
+	id S263203AbTHWAWM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 20:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbTHWAWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 20:12:51 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:60568 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261342AbTHWAMt (ORCPT
+	Fri, 22 Aug 2003 20:22:12 -0400
+Received: from mail.kroah.org ([65.200.24.183]:40073 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263203AbTHWAWJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 20:12:49 -0400
-From: Andrew Theurer <habanero@us.ibm.com>
-Reply-To: habanero@us.ibm.com
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [Lse-tech] Re: [patch] scheduler fix for 1cpu/node case
-Date: Fri, 22 Aug 2003 19:12:38 -0500
-User-Agent: KMail/1.5
-Cc: Bill Davidsen <davidsen@tmr.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Erich Focht <efocht@hpce.nec.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, Andi Kleen <ak@muc.de>,
-       torvalds@osdl.org, mingo@elte.hu
-References: <Pine.LNX.3.96.1030813163849.12417I-100000@gatekeeper.tmr.com> <200308221046.31662.habanero@us.ibm.com> <3F469FA4.6020203@cyberone.com.au>
-In-Reply-To: <3F469FA4.6020203@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Aug 2003 20:22:09 -0400
+Date: Fri, 22 Aug 2003 17:22:03 -0700
+From: Greg KH <greg@kroah.com>
+To: Luis Medinas <metalgodin@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with 2.6-testXX and alcatel speedtouch usb modem
+Message-ID: <20030823002203.GA11633@kroah.com>
+References: <20030822110830.15262.qmail@linuxmail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308221912.38184.habanero@us.ibm.com>
+In-Reply-To: <20030822110830.15262.qmail@linuxmail.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 August 2003 17:56, Nick Piggin wrote:
-> Andrew Theurer wrote:
-> >On Wednesday 13 August 2003 15:49, Bill Davidsen wrote:
-> >>On Mon, 28 Jul 2003, Andrew Theurer wrote:
-> >>>Personally, I'd like to see all systems use NUMA sched, non NUMA systems
-> >>>being a single node (no policy difference from non-numa sched), allowing
-> >>>us to remove all NUMA ifdefs.  I think the code would be much more
-> >>>readable.
-> >>
-> >>That sounds like a great idea, but I'm not sure it could be realized
-> >> short of a major rewrite. Look how hard Ingo and Con are working just to
-> >> get a single node doing a good job with interactive and throughput
-> >> tradeoffs.
-> >
-> >Actually it's not too bad.  Attached is a patch to do it.  It also does
-> >multi-level node support and makes all the load balance routines
-> >runqueue-centric instead of cpu-centric, so adding something like shared
-> >runqueues (for HT) should be really easy.  Hmm, other things: inter-node
-> >balance intervals are now arch specific (AMD is "1").  The default
-> > busy/idle balance timers of 200/1 are not arch specific, but I'm thinking
-> > they should be.  And for non-numa, the scheduling policy is the same as
-> > it was with vanilla O(1).
->
-> I'm not saying you're wrong, but do you have some numbers where this
-> helps? ie. two architectures that need very different balance numbers.
-> And what is the reason for making AMD's balance interval 1?
+On Fri, Aug 22, 2003 at 07:08:30PM +0800, Luis Medinas wrote:
+> >I try to make this modem working.
+> >It works very well on kernel 2.4 series.
+> >It work with some kernel 2.6 until test2-mm1.
+> >But since test2-mm1, the newer kernel doesn't work anymore.
+> >There is 2 related drivers for this modem.
+> >The one which is included in the kernel and which can be found here :
+> >http://www.linux-usb.org/SpeedTouch/
+> >and the one which I've always used until now :
+> >speedtouch.sourceforge.net
+> 
+> >when I notice that the old one doesn't work anymore, I try with the driver 
+> >which included in the kernel, without success.
+> 
+> >It crashed when I do "pppd call adsl".
+> >I can load the firmware.
+> 
+> Looks like this is happening to all 2.6.0-test3 users with speedtouch
+> usb modems And i heard that speedtouch.sf.net developers want to leave
+> 2.6 tree stabilize more a little bit to continue develop drivers with
+> the correct support.
 
-AMD is 1 because there's no need to balance within a node, so I want the 
-inter-node balance frequency to be as often as it was with just O(1).  This 
-interval would not work well with other NUMA boxes, so that's the main reason 
-to have arch specific intervals.  And, as a general guideline, boxes with 
-different local-remote latency ratios will probably benefit from different 
-inter-node balance intervals.  I don't know what these ratios are, but I'd 
-like the kernel to have the ability to change for one arch and not affect 
-another.
+Um, as you have helped narrow down where the problem happened, I would
+_really_ suggest they get involved in order to get the 2.6 tree to a
+"stable" state.  Otherwise this bug is not going to get fixed due to the
+fact that this is the only driver having problems right now.
 
-> Also, things like nr_running_inc are supposed to be very fast. I am
-> a bit worried to see a loop and CPU shared atomics in there.
+thanks,
 
-That has concerned me, too.  So far I haven't been able to see a measurable 
-difference either way (within noise level), but it's possible.  The other 
-alternative is to sum up node load at sched_best_cpu and find_busiest_node.
-
-> node_2_node is an odd sounding conversion too ;)
-
-I just went off the toplogy already there, so I left it.
-
-> BTW. you should be CC'ing Ingo if you have any intention of scheduler
-> stuff getting into 2.6.
-
-OK, thanks!
-
+greg k-h

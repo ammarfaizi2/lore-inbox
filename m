@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317215AbSHJSp1>; Sat, 10 Aug 2002 14:45:27 -0400
+	id <S317253AbSHJTAW>; Sat, 10 Aug 2002 15:00:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317217AbSHJSp1>; Sat, 10 Aug 2002 14:45:27 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:19653 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S317215AbSHJSp0>; Sat, 10 Aug 2002 14:45:26 -0400
-Date: Sat, 10 Aug 2002 19:48:13 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Paul Larson <plars@austin.ibm.com>, Hubertus Franke <frankeh@us.ibm.com>,
-       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
-       Andrew Morton <akpm@zip.com.au>, andrea@suse.de,
-       Dave Jones <davej@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-Message-ID: <20020810194813.D306@kushida.apsleyroad.org>
-References: <20020810182317.A306@kushida.apsleyroad.org> <Pine.LNX.4.44.0208101132490.2197-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208101132490.2197-100000@home.transmeta.com>; from torvalds@transmeta.com on Sat, Aug 10, 2002 at 11:33:10AM -0700
+	id <S317257AbSHJTAV>; Sat, 10 Aug 2002 15:00:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59151 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317253AbSHJTAV>;
+	Sat, 10 Aug 2002 15:00:21 -0400
+Message-ID: <3D5563A5.2050007@mandrakesoft.com>
+Date: Sat, 10 Aug 2002 15:04:05 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+References: <Pine.LNX.4.44.0208101134510.2197-100000@home.transmeta.com> <3D556101.8080006@mandrakesoft.com> <20020810200116.A15236@infradead.org>
+X-Enigmail-Version: 0.65.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> > Oh dear -- what of programs that assume duplicate inode numbers are hard
-> > links, and therefore assume the same contents will be found in each
-> > duplicate?
+Christoph Hellwig wrote:
+> On Sat, Aug 10, 2002 at 02:52:49PM -0400, Jeff Garzik wrote:
 > 
-> Well, anybody who tries to back up /proc with "tar" is in for some 
-> surprises anyway ;)
+>>While working on a race-free rewrite of cp/mv/rm (suggested by Al), I 
+>>did overall-time benchmarks on read+write versus sendfile/stat versus 
+>>mmap/stat, and found that pretty much the fastest way under Linux 2.2, 
+>>2.4, and solaris was read+write of PAGE_SIZE, or PAGE_SIZE*2 chunks. 
+>>[obviously, 2.2 and solaris didn't do sendfile test]
+> 
+> 
+> Solaris 9 (and Solaris 8 with a certain patch) support Linux-style
+> sendfile().  Linux 2.5 on the other hand doesn't support sendfile to
+> files anymore..
 
-I was thinking of an over-intelligent `find'.  But hey, as long as this
-is only for the weird and wonderful /proc :-)
 
--- Jamie
+
+Really?  Bummer :)  That was a useful hack for some cases...
+

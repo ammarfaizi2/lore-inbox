@@ -1,92 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUEXT5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUEXT62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbUEXT5h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 15:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUEXT5h
+	id S264113AbUEXT62 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 15:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264430AbUEXT60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 15:57:37 -0400
-Received: from zero.aec.at ([193.170.194.10]:35077 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264430AbUEXT5e (ORCPT
+	Mon, 24 May 2004 15:58:26 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:12211 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264113AbUEXT6N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 15:57:34 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFD] Explicitly documenting patch submission
-References: <1YUY7-6fF-11@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 24 May 2004 21:57:31 +0200
-In-Reply-To: <1YUY7-6fF-11@gated-at.bofh.it> (Linus Torvalds's message of
- "Sun, 23 May 2004 08:50:07 +0200")
-Message-ID: <m3fz9pd2dw.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Mon, 24 May 2004 15:58:13 -0400
+Message-ID: <40B2534E.3040302@watson.ibm.com>
+Date: Mon, 24 May 2004 15:55:58 -0400
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Rik van Riel <riel@redhat.com>
+CC: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Erik Jacobson <erikj@subway.americas.sgi.com>,
+       Paul Jackson <pj@sgi.com>, kanderso@redhat.com, limin@sgi.com,
+       jlan@sgi.com, jh@sgi.com, Vivek Kashyap <kashyapv@us.ibm.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>, gh@us.ibm.com, peterw@aurema.com,
+       ralf@suse.de, mason@suse.com
+Subject: Re: Minutes from 5/19 CKRM/PAGG discussion
+References: <Pine.LNX.4.44.0405241404080.22438-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0405241404080.22438-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Rik van Riel wrote:
 
-> Hola!
+>On Mon, 24 May 2004, Hanna Linder wrote:
 >
-> This is a request for discussion..
+>  
+>
+>>Minutes from LSE call on CKRM and PAGG on May 19, 2004. 
+>>    
+>>
+>
+>Thanks for organising this call, Hanna!
+>
+Thanks 2.. sorry I couldn't make it ...
 
-What's not completely clear to me is how the Signed-off-by
-header is related to this:
+>
+>  
+>
+>>Conclusion:
+>>
+>>	CSA/PAGG look at CKRM 
+>>	CKRM look at PAGG
+>>    
+>>
+>
+>I really hope the projects will be able to agree on one
+>framework.  As long as there are multiple competing
+>frameworks the chance of any of them being merged into
+>the upstream kernel is exceedingly low...
+>
+>  
+>
+Agreed, so let's get the ball rolling.
 
-> 	Developer's Certificate of Origin 1.0
-[...]
+We (CKRM team) will look at PAGG (again) ... Actually we did
+last year and basically assumed due to the inactivity that
+PAGG was not actively persued anymore.
 
-I assume you're not expecting that people actually print out and sign
-this and send it somewhere?
+I believe at our end we will come to the conclusion that CKRM can serve
+as the base for CSA, as PAGG seems to be lowest level layer of
+this management silo. The level CSA would hook to is that of
+the CKRM event hooking which is part of the CKRM core.
 
-You're just asking that they read it and confirm to the maintainer
-that they did, right?
+One important input the PAGG team could give is some real
+examples where actually multiple associations to different groups
+is required and help us appreciate that position and let us
+see how this would/could be done in CKRM.
 
-e.g. consider some first contributor sends a maintainer a patch to be
-incorporated.  Do you expect people now to send them this
-Certification of Origin back and ask "Do you agree to this?"  
-and only add the patch after they sent back an email "Yes I agree to this"?
+ From our point of view we don't see this requirement. In contrast
+we use the modified rbce (CRBCE) to push the "interesting" kernel events
+to userspace where any kind of accounting aggregation can take place.
+Yet, we believe the integrated resource scheduling (e.g. cpu) will
+always happen at the dominant class - object association in the kernel.
 
-That sounds quite involved to me. I bet in some companies this 
-Certificate would first be sent to the legal department for approval,
-delaying the patch for a long time
+Another point that has not been made is that CKRM's philosophy
+is to manage any kind of objects wrt to some class type.
+By definition, PAGG is a Process Aggregation, which is a subset
+of what CKRM needs namely (obj->class) associations.
 
-Even without such an explicit agreement it could get quite
-complicated to figure out what to put into the Signed-off-by
-lines if they're not already there.
+In our hooking scheme we therefore provide the ability to attach
+to so called kernel events a callback function. Any kernel code
+can attach a callback function. This is part of our core.
 
-e.g. normally the maintainer would just answer "ok, looks good,
-applied". Now they would need to ask "ok, did you write this. if not
-through which hands did it pass"? and wait for a reply and then only
-add the patch when you know whom to put into all these Signed-off-by
-lines.
+Any classtype (not part of the core) can register a callback at
+any of those events, so typically only limited
+events are "hooked" for a particular type. Regardless, we have
+function stacking, rather then object stacking.
 
-This is not unrealistic, For example for patches that are "official
-projects" by someone it often happens that not the actual submitter
-sends the patch, but his manager (often not even cc'ing the original
-developer). In some cases companies even go through huge efforts to
-keep the original developers secret (I won't give names here, but it
-happens). That's of course not because they stole anything, but
-because they have some silly NDAs in place regarding not giving out
-names of partners they're talking to or they just don't want you to
-learn too much about their internals.
+PAGG by itself manages the proper association of a (or several)
+"transparent" group object with the task. The functionality
+hidden behind the group object
+still needs to be implemented by the group object itself.
 
-I would have no problems with just putting a Signed-Off-By for me
-and for the person who sent me the patch, but trying to find out
-all the people through whose mailboxes the patch travelled earlier
-is potentially quite a lot of work. I am not sure I really 
-want to get into that business.
+In CKRM this is similar, yet, the class object is associated with
+a particular class type. All interactions with the user component
+and classification engine are architected by the higher layers of CKRM,
+in that classes have automatic representation in RCFS and RBCE if
+those are loaded.
 
-I also don't think it's realistic to expect that everybody who
-submits patches will put in all the right Signed-Off-Bys on their own,
-so requiring the full path would put the maintainers into the 
-situation outlined above.
+So here are some of the stickling points, we need to work on ...
 
-Just alone asking them to agree to the Certificate of Origin would 
-be probably a lot of work.
+(a) how can PAGG be made general enough so we can provide generic
+       KernelObject <-> ClassObject associations .. not just tasks groups.
 
-I don't think any solution that requires significantly more work
-on part of the maintainer will be a good idea.
+(b) Can CSA use the extended rbce (CRBCE) instead of PAGG to
+       do its accounting ?
 
--Andi
+-- Hubertus Franke
+
+
+
+ 
 

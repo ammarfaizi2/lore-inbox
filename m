@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbQKKDED>; Fri, 10 Nov 2000 22:04:03 -0500
+	id <S129147AbQKKDJp>; Fri, 10 Nov 2000 22:09:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129316AbQKKDDx>; Fri, 10 Nov 2000 22:03:53 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:39686 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129057AbQKKDDn>; Fri, 10 Nov 2000 22:03:43 -0500
-Message-ID: <3A0CB6FD.D4CCE09F@transmeta.com>
-Date: Fri, 10 Nov 2000 19:03:25 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129198AbQKKDJf>; Fri, 10 Nov 2000 22:09:35 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:54719 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129147AbQKKDJa>; Fri, 10 Nov 2000 22:09:30 -0500
+Message-ID: <3A0CB871.B660B938@uow.edu.au>
+Date: Sat, 11 Nov 2000 14:09:37 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Max Inux <maxinux@bigfoot.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: bzImage ~ 900K with i386 test11-pre2
-In-Reply-To: <Pine.LNX.4.30.0011101822120.10847-100000@shambat>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
+Subject: Re: Wild thangs, was: sendmail fails to deliver mail with attachments in 
+ /var/spool/mqueue
+In-Reply-To: <20001110095227.A15010@sendmail.com> <3A0C37FF.23D7B69@timpanogas.org> <20001110101138.A15087@sendmail.com> <3A0C3F30.F5EB076E@timpanogas.org> <20001110133431.A16169@sendmail.com> <3A0C6B7C.110902B4@timpanogas.org> <3A0C6E01.EFA10590@timpanogas.org> <3A0C929B.EE6F7137@linux.com> <3A0C9277.273FA907@timpanogas.org> <3A0C96FD.8441F995@linux.com>,
+			<3A0C96FD.8441F995@linux.com>; from david@linux.com on Fri, Nov 10, 2000 at 04:46:53PM -0800 <20001110202527.A3342@vger.timpanogas.org> <3A0CB2D8.EA3E3DA4@uow.edu.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Max Inux wrote:
+Andrew Morton wrote:
 > 
-> On 10 Nov 2000, H. Peter Anvin wrote:
-> >Different compile options?
+> "Jeff V. Merkey" wrote:
 > >
-> >Why is a 900K kernel unusable?
-> >
-> >       -hpa
+> > They're not modprobes, they're misnamed processes sleeping from NWFS.
+> > I got the fix from someone so now they display their proper names.
+> > top displays the names correctly, ps does not.  Several people have
+> > verified this problem, and all you are saying is that your servers
+> > are never heavily loaded for long periods of time, say 200 hours
+> > at a stretch of consatnt ftp traffic?
 > 
-> My guess would be it not actually bzipping the kernel.  Id run make
-> bzImage again and making sure  it is bzipping it.
+> Kernel threads?  Do this:
 > 
-
-gzip, actually.  I can verify here "make bzImage" does the expected thing
-and it looks normal-sized to me.
-
+>      strcpy(current->comm, "threadname");                       /* 16 char array!! */
+>      current->mm->arg_start = current->mm->arg_end = 0;         /* black magic */
 > 
-> On x86 machines there is a size limitation on booting.  Though I thought
-> it was 1024K as the max, 900K should be fine.
-> 
+> and `ps' should be happy.
 
-No, there isn't.  There used to be, but it has been fixed.
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Even better, use sched.c:daemonize().
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

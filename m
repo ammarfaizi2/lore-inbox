@@ -1,28 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316953AbSFWBcB>; Sat, 22 Jun 2002 21:32:01 -0400
+	id <S316954AbSFWBfH>; Sat, 22 Jun 2002 21:35:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316954AbSFWBcB>; Sat, 22 Jun 2002 21:32:01 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49169 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316953AbSFWBcA>; Sat, 22 Jun 2002 21:32:00 -0400
-Subject: Re: 2.5.21 : PCI DMA conversions needed
-To: fdavis@si.rr.com (Frank Davis)
-Date: Sun, 23 Jun 2002 02:54:26 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, fdavis@si.rr.com
-In-Reply-To: <Pine.LNX.4.33.0206131418530.927-100000@localhost.localdomain> from "Frank Davis" at Jun 13, 2002 02:23:41 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S316955AbSFWBfG>; Sat, 22 Jun 2002 21:35:06 -0400
+Received: from bitmover.com ([192.132.92.2]:28139 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S316954AbSFWBfG>;
+	Sat, 22 Jun 2002 21:35:06 -0400
+Date: Sat, 22 Jun 2002 18:35:07 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: sean darcy <seandarcy@hotmail.com>
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: piggy broken in 2.5.24 build
+Message-ID: <20020622183507.B26425@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	sean darcy <seandarcy@hotmail.com>,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	linux kernel <linux-kernel@vger.kernel.org>
+References: <linux.kernel.Pine.LNX.4.44.0206221501430.7338-100000@chaos.physics.uiowa.edu> <3D152513.8010801@hotmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17LwaA-0003f7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D152513.8010801@hotmail.com>; from seandarcy@hotmail.com on Sat, Jun 22, 2002 at 09:32:03PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   The following files have been identified as requiring conversions to the 
-> current DMA API, as defined in Documentation/DMA-mapping.txt . If anyone 
-> has a conversion process, please let me know. Thanks.
+On Sat, Jun 22, 2002 at 09:32:03PM -0400, sean darcy wrote:
+> Kai Germaschewski wrote:
+> > On Sat, 22 Jun 2002, sean darcy wrote:
+> > 
+> > 
+> >>At the end of make bzImage I get:
+> >>
+> ...................
+> > So the question is why does the objcopy ... line not generate the tmp_xx
+> > file. I don't see it spitting out any error either, but could you check
+> > the obvious, like remaining free space on that filesystem and /tmp?
+> > 
+> ........................
+> > --Kai
+> > 
+> 20 gigs free. Aren't these big new disks great?
+> 
+> Glad it's not a build problem. Just wish I could figure out what kind of 
+> problem it is.
 
-The i2o ones are on my list. Once a 2.5 kernel actuallty boots and runson
-my i2o test box I'll look into it
+I just checked in some changes that changed all the find commands to 
+disregard the BK directories.  Is there any chance that that could 
+screw it up?  
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

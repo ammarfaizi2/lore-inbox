@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280462AbRKJFEh>; Sat, 10 Nov 2001 00:04:37 -0500
+	id <S280457AbRKJE65>; Fri, 9 Nov 2001 23:58:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280460AbRKJFE1>; Sat, 10 Nov 2001 00:04:27 -0500
-Received: from ohiper1-207.apex.net ([209.250.47.222]:10506 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S280462AbRKJFEQ>; Sat, 10 Nov 2001 00:04:16 -0500
-Date: Fri, 9 Nov 2001 23:04:39 -0600
-From: Steven Walter <srwalter@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Cc: andrea@e-mind.com
-Subject: Insanely high "Cached" value
-Message-ID: <20011109230439.A13013@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	linux-kernel@vger.kernel.org, andrea@e-mind.com
+	id <S280460AbRKJE6r>; Fri, 9 Nov 2001 23:58:47 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:16147 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S280457AbRKJE6h>;
+	Fri, 9 Nov 2001 23:58:37 -0500
+Date: Sat, 10 Nov 2001 15:56:03 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Andi Kleen <ak@suse.de>
+Cc: "David S. Miller" <davem@redhat.com>, mingo@elte.hu,
+        linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives?
+Message-ID: <20011110155603.B767@krispykreme>
+In-Reply-To: <p731yj8kgvw.fsf@amdsim2.suse.de> <20011109110532.B6822@krispykreme> <20011109064540.A13498@wotan.suse.de> <20011108.220444.95062095.davem@redhat.com> <20011109073946.A19373@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 11:01pm  up 12 days,  5:38,  0 users,  load average: 1.30, 1.68, 1.52
+In-Reply-To: <20011109073946.A19373@wotan.suse.de>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My system has been running a little over twelve days now, and I just
-noticed that the "Cached" value in both 'free' and /proc/meminfo is
-insanely high.  This wasn't the case the last time I checked, which was
-probably a day ago.
+ 
+Hi,
 
-Just before checking it this time, I ran a "du -s *" in /usr, which
-generated a lot of I/O, as it to be expected.  Perhaps the large amount
-of I/O has uncovered a bug of some sort?
+> I'm assuming that walking on average 5-10 pages on a lookup is not too big a 
+> deal, especially when you use prefetch for the list walk. It is a tradeoff
+> between a big hash table thrashing your cache and a smaller hash table that
+> can be cached but has on average >1 entries/buckets. At some point the the 
+> smaller hash table wins, assuming the hash function is evenly distributed.
+> 
+> It would only get bad if the average chain length would become much bigger.
+> 
+> Before jumping to real conclusions it would be interesting to gather
+> some statistics on Anton's machine, but I suspect he just has an very
+> unevenly populated table.
 
-This is kernel 2.4.13 (hopefully it's not something that's already been
-reported and fixed; I haven't seen it if is has) patched with ext3, kdb,
-lm_sensors, and the pre-empt patch.  Seems likely to be only a simple VM
-problem, however, and an asthetic one at that.
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
-Freedom is slavery. Ignorance is strength. War is peace.
-			-- George Orwell
-Those that would give up a necessary freedom for temporary safety
-deserver neither freedom nor safety.
-			-- Ben Franklin
-He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
-Well, who's mad now?
-			-- Montgomery C. Burns
+You can find the raw data here:
+
+http://samba.org/~anton/linux/pagecache/pagecache_data_gfp.gz
+http://samba.org/~anton/linux/pagecache/pagecache_data_vmalloc.gz
+
+You can see the average depth of the get_free_page hash is way too deep.
+I agree there are a lot of pagecache pages (17GB in the gfp test and 21GB
+in the vmalloc test), but we have to make use of the 32GB of RAM :)
+
+I did some experimentation with prefetch and I dont think it will gain
+you anything here. We need to issue the prefetch many cycles before
+using the data which we cannot do when walking the chain.
+
+Anton

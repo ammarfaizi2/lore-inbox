@@ -1,78 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262613AbVBYAOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVBYAOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262613AbVBYAOU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 19:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVBYALM
+	id S262611AbVBYAOX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 19:14:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVBYAL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 19:11:12 -0500
-Received: from 78.Red-217-126-86.pooles.rima-tde.net ([217.126.86.78]:62699
-	"EHLO pcecito.jbrinx.dyndns.org") by vger.kernel.org with ESMTP
-	id S262611AbVBYAG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 19:06:27 -0500
-Message-ID: <421E6B84.606@gmail.com>
-Date: Fri, 25 Feb 2005 01:04:20 +0100
-From: =?ISO-8859-1?Q?Jordi_Br=EDnquez?= <jordi.brinquez@gmail.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: ca, es-es, en
+	Thu, 24 Feb 2005 19:11:56 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:39091 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S262609AbVBYAGY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 19:06:24 -0500
+Date: Fri, 25 Feb 2005 00:06:15 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.11-rc4-mm1
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+References: <20050223014233.6710fd73.akpm@osdl.org>
+	<1109198320l.7018l.0l@werewolf.able.es>
+	<200502231812.07882.tomlins@cam.org>
+	<200502231840.06017.dtor_core@ameritech.net>
+In-Reply-To: <200502231840.06017.dtor_core@ameritech.net> (from
+	dtor_core@ameritech.net on Thu Feb 24 00:40:05 2005)
+X-Mailer: Balsa 2.3.0
+Message-Id: <1109289975l.6462l.0l@werewolf.able.es>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Possible bug on signal.h
-References: <61d439b050224063362ab1465@mail.gmail.com> <Pine.LNX.4.61.0502240953470.14909@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0502240953470.14909@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to modify UML so I'm using kernel headers
 
-but anyway there is a problem on sigaction definition on signal.h
+On 02.24, Dmitry Torokhov wrote:
+> On Wednesday 23 February 2005 18:12, Ed Tomlinson wrote:
+> > On Wednesday 23 February 2005 17:38, J.A. Magallon wrote:
+> > > 
+> > > On 02.23, Andrew Morton wrote:
+> > > > 
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc4/2.6.11-rc4-mm1/
+> > > > 
+> > > > 
+> > > > - Various fixes and updates all over the place.  Things seem to have slowed
+> > > >   down a bit.
+> > > > 
+> > > > - Last, final, ultimate call: if anyone has patches in here which are 2.6.11
+> > > >   material, please tell me.
+> > > > 
+> > > 
+> > > Two points:
+> > > 
+> > > - I lost my keyboard :(. USB, but plugged into PS/2 with an adapter.
+> > 
+> > Mine too.  Details sent in another message...
+> > 
+> 
+> Does i8042.nopnp help?
+> 
 
-Jordi
+Yes, that makes things work.
+Even better than ever before, now an USB mouse and a PS/2 logitech
+trackball work fine both at the same time. In console and in X.
+In previous kernels PS/2 was dead or jumped heavily when an usb mouse
+was plugged. The keyboard works both in PS/2 (with adapter) and in USB.
+
+Now a tricky question: the mouse and the trackball move the pointer in X
+at different speeds. Is there any way to tell the kernel they have
+the same DPI ? Or can I tweak the speed/DPI settings for them separately
+to get a more or less similar movement ?
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-jam11 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
 
 
-
-linux-os wrote:
-
-> On Thu, 24 Feb 2005, Jordi Brinquez wrote:
->
->> Hi,
->>
->> I think I found a possible bug on file signal.h.
->>
->> The problem comes when you define a struct sigaction on a user program
->> and then you use the function sigaction to remap a signal handler (in
->> my case a page_fault) for my own function, this system call is
->> compiled as __NR_sigaction system call (by default this routine is
->> managed by sys_sigaction routine) and if the architecture defines
->> __ARCH_WANT_SYS_RT_SIGACTION kernel uses the routine sys_rt_sigaction
->> on the file kernel/signal.c that instead of copying the fields from
->> one structure to the other it just uses copy_from_user and
->> copy_to_user with the consequent mess with the fields.
->>
->
-> You NEVER use kernel headers for user code.... EVER. If you
-> are making something strange, like as you said a page-fault
-> handler, then you make an in-kernel driver (module).
->
-> FYI, no page-fault handler could ever work in user-mode
-> anyway. A page-fault occurs because the user accesses some
-> page it doesn't own (probably because it isn't in memory).
-> The kernel page-fault handler checks to see if the page was
-> promised. If not, it terminates the user-mode task with
-> a signal. If so, it finds some free page or makes one
-> available and maps it into the user's address-space before
-> returning control to the user. Since the user doesn't own
-> any free pages, it can't map in any.
->
->
-> [SNIPPED...]
->
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
->  Notice : All mail here is now cached for review by Dictator Bush.
->                  98.36% of all statistics are fiction.
->

@@ -1,71 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbUKWSD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUKWSGL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbUKWSD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 13:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUKWSDU
+	id S261443AbUKWSGL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 13:06:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbUKWSEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 13:03:20 -0500
-Received: from pop.gmx.net ([213.165.64.20]:58859 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261384AbUKWRz1 (ORCPT
+	Tue, 23 Nov 2004 13:04:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40629 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261429AbUKWSCt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 12:55:27 -0500
-Date: Tue, 23 Nov 2004 18:55:22 +0100 (MET)
-From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mtk-lkml@gmx.net, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com, hugh@veritas.com
-MIME-Version: 1.0
-References: <20041123090449.1672494f.akpm@osdl.org>
-Subject: Re: [PATCH 2.6.10-rc2] RLIMIT_MEMLOCK accounting of shmctl() SHM_LOCK is broken
-X-Priority: 3 (Normal)
-X-Authenticated: #2864774
-Message-ID: <14793.1101232522@www8.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Nov 2004 13:02:49 -0500
+Date: Tue, 23 Nov 2004 10:02:47 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: greg@kroah.com
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: ub: oops with preempt ("Sahara Workshop")
+Message-ID: <20041123100247.2ea47e2d@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "Michael Kerrisk" <mtk-lkml@gmx.net> wrote:
-> >
-> > The accounting of shmctl() SHM_LOCK memory locks against the
-> >  user structure is broken.  The problem is that the check
-> >  of the size of the to-be-locked region is based on 
-> >  the size of the segment as specified when it was created
-> >  by shmget() (this size is *not* rounded up to a page 
-> >  boundary).  This size is then rounded down (>> PAGE_SHIFT)
-> >  to PAGE_SIZE during the check in 
-> >  mm/mlock.c::user_shm_lock().
-> 
-> True.  We should make the same change to user_shm_unlock(), and we may as
-> well tweak the excessive spinlock coverage in there too.
+I admit that the code should be locked properly instead, but the global plan
+is to drop all P3 tagged printks anyway. So let it be guarded for the moment.
 
-Thanks for the confirmation Andrew.
+Signed-off-by: Pete Zaitcev <zaitcev@yahoo.com>
 
-[...]
-
-> and then ask Hugh and Manfred to double-check.
-> 
-> Looking at the callers, we do:
-> 
-> 	user_shm_lock(inode->i_size, ...);
-> 
-> then, later:
-> 
-> 	user_shm_unlock(inode->i_size, ...);
-> 
-> which does make one wonder "what happens if the file got larger while it
-> was locked"?
-
-Not sure if I'm missing your point, but, just considering it from 
-the point of view of System V shared memory, the segment can't 
-change in size after it has been created.
-
-Cheers,
-
-Michael
-
--- 
-Geschenkt: 3 Monate GMX ProMail + 3 Top-Spielfilme auf DVD
-++ Jetzt kostenlos testen http://www.gmx.net/de/go/mail ++
+--- linux-2.6.10-rc2-bk8-ub/drivers/block/ub.c	2004-11-16 17:03:02.000000000 -0800
++++ linux-2.6.10-rc1-ub/drivers/block/ub.c	2004-11-07 19:01:03.000000000 -0800
+@@ -1535,8 +1535,11 @@
+ 
+ 	ub_revalidate(sc);
+ 	/* This is pretty much a long term P3 */
+-	printk(KERN_INFO "%s: device %u capacity nsec %ld bsize %u\n",
+-	    sc->name, sc->dev->devnum, sc->capacity.nsec, sc->capacity.bsize);
++	if (!atomic_read(&sc->poison)) {		/* Cover sc->dev */
++		printk(KERN_INFO "%s: device %u capacity nsec %ld bsize %u\n",
++		    sc->name, sc->dev->devnum,
++		    sc->capacity.nsec, sc->capacity.bsize);
++	}
+ 
+ 	/* XXX Support sector size switching like in sr.c */
+ 	blk_queue_hardsect_size(disk->queue, sc->capacity.bsize);

@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278041AbRJOTPo>; Mon, 15 Oct 2001 15:15:44 -0400
+	id <S278030AbRJOTQy>; Mon, 15 Oct 2001 15:16:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278040AbRJOTPe>; Mon, 15 Oct 2001 15:15:34 -0400
-Received: from cs181088.pp.htv.fi ([213.243.181.88]:15488 "EHLO
-	cs181088.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S278030AbRJOTPS>; Mon, 15 Oct 2001 15:15:18 -0400
-Message-ID: <3BCB35CA.4D9D2952@welho.com>
-Date: Mon, 15 Oct 2001 22:15:22 +0300
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
-X-Accept-Language: en
+	id <S278040AbRJOTQp>; Mon, 15 Oct 2001 15:16:45 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:53720
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S278030AbRJOTQa>; Mon, 15 Oct 2001 15:16:30 -0400
+Date: Mon, 15 Oct 2001 15:16:39 -0400
+From: Chris Mason <mason@suse.com>
+To: linux-kernel@vger.kernel.org
+cc: alan@redhat.com
+Subject: [PATCH] (ac only) quota deadlocks on unmount
+Message-ID: <136890000.1003173399@tiny>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: ak@muc.de, davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: TCP acking too fast
-In-Reply-To: <200110151840.WAA24000@ms2.inr.ac.ru>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> > Well, I think this "problem" is way overstated.
-> 
-> Understated. :-)
-> 
-> Actually, people who designed all this engine always kept in the mind
-> only two cases: ftp and telnet. Who did care that some funny
-> protocols sort of smtp work thousand times slower than they could?
 
-Well, if you ask me, it's smtp that is a prime example of braindead
-protocol design. It's a wonder we're still using it. If you put that
-many request-reply interactions into a protocol that could easily be
-done in one you're simply begging for a bloody nose. Nagle or not, smtp
-sucks. :)
+Hello everyone,
 
-Anyway, Minshall's version of Nagle is ok with smtp as long as the smtp
-implementation isn't stupid enough to emit two remants in one go (yeah,
-right).
+Alan, you're cc'd as an FYI, don't apply this until you get
+verification from someone who knows the quota code ;-)
 
-Anyway, it would be interesting to try a (even more) relaxed version of
-Nagle that would allow a maximum of two remnants in flight. This would
-basically cover all TCP request/reply cases (leading AND trailing
-remnant). Coupled with large initial window to get rid of  small-cwnd
-interactions, it might be almost be all right.
+dqput_blocks can return 0 when dqput might decide to call
+commit_dqout.  This is bad because remove_inode_dquot_ref
+is called with the inode_lock held, and commit_dquot can
+trigger schedules or another attempt on the inode_lock.
 
-Assuming the above, we woulnd't need your ack-every-pushed-remnant
-policy, except for the following pathological bidirection case:
+This is working for me:
 
-A and B send two remnants to each other at the same time. Then both
-block waiting for ack, until finally one of them sends a delay ack. You
-could break this deadlock by using the following rule:
+-chris
 
-- if we're blocked on Nagle (two remnants out) and the received segment
-has PSH, send ACK immediately
+Index: 0.43/fs/dquot.c
+--- 0.43/fs/dquot.c Mon, 15 Oct 2001 03:51:05 -0400
++++ 0.43(w)/fs/dquot.c Mon, 15 Oct 2001 14:12:57 -0400
+@@ -1246,6 +1246,8 @@
+ {
+ 	if (dquot->dq_dup_ref && dquot->dq_count - dquot->dq_dup_ref <= 1)
+ 		return 1;
++	if (dquot->dq_count <= 1 && dquot->dq_flags & DQ_MOD) 
++		return 1; 
+ 	return 0;
+ }
+ 
 
-In other cases you wouldn't need to ack pushed segments. What do you
-think? :-) 
-
-> Alexey
-
-Regards,
-
-	MikaL

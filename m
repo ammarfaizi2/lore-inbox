@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131823AbRCUXWe>; Wed, 21 Mar 2001 18:22:34 -0500
+	id <S131819AbRCUXbe>; Wed, 21 Mar 2001 18:31:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131824AbRCUXWY>; Wed, 21 Mar 2001 18:22:24 -0500
-Received: from [213.97.199.90] ([213.97.199.90]:12548 "HELO roku.redroom.com")
-	by vger.kernel.org with SMTP id <S131823AbRCUXWR> convert rfc822-to-8bit;
-	Wed, 21 Mar 2001 18:22:17 -0500
-From: davidge@jazzfree.com
-Date: Thu, 22 Mar 2001 01:17:35 +0100 (CET)
-To: Chuck Campbell <campbell@neosoft.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ata100 controller question
-In-Reply-To: <20010319151345.B3939@helium.inexs.com>
-Message-ID: <Pine.LNX.4.21.0103220115450.2477-100000@roku.redroom.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S131829AbRCUXbY>; Wed, 21 Mar 2001 18:31:24 -0500
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:20241 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S131819AbRCUXbM>;
+	Wed, 21 Mar 2001 18:31:12 -0500
+Message-ID: <00a201c0b25e$767198c0$0ac809c0@hotmail.com>
+From: "Anthony Barbachan" <barbacha@Hinako.AMBusiness.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200103192134.VAA01785@raistlin.arm.linux.org.uk> <3AB927D0.F152717D@inet.com>
+Subject: Question on binutils release to use
+Date: Wed, 21 Mar 2001 18:27:14 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Mar 2001, Chuck Campbell wrote:
+Hi all,
 
-
-Looked at the config of the kernel and you'll see with cards/chipsets are
-supported for ata100. I'm using the Promise ATA100 and works great with
-ata100 disks and linux 2.4.x.
-
-
-> I've searched the kernel Documentation directory (linux 2.4.x) and I can't 
-> find anything about which IDE - ata100 pci cards are supported.  I also
-> looked in the Doc directory for my 2.2.12 kernel with no luck either.
-> 
-> I've purchased the only one I could find at the comp-usa near me (Maxtor)
-> and their web site doesn't even tell me what chipset it uses.
-> 
-> I wanted to verify that it will work before I open it up, or they won't take 
-> it back for a refund.
-> 
-> Next I searched the linux-kernel archives for maxtor, and saw some things
-> about disks, but nothing about the controller, so I guess it has never
-> come up???
-> 
-> Where am I supposed to find this kind of information?
-> 
-> thanks,
-> -chuck
-> 
-> 
-> -- 
-> ACCEL Services, Inc.| Specialists in Gravity, Magnetics |  1(713)993-0671 ph.
-> 1980 Post Oak Blvd. |   and Integrated Interpretation   |  1(713)960-1157 fax
->     Suite 2050      |                                   |
->  Houston, TX, 77056 |          Chuck Campbell           | campbell@neosoft.com
->                     |  President & Senior Geoscientist  |
-> 
->      "Integration means more than having all the maps at the same scale!"
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
+    I'm looking into upgrading my binutils to the latest stable release.  I
+do kernel work so I'm guessing from previous experience that I have to get
+the Linux specific one.  I tracked the linux specific versions down to
+ftp.kernel.org but am not certain as to which one is the latest stable
+release.  The frequency of releases posted there make it look like the
+snapshot released are interposed with the stable releases and the release
+notes don't appear to be helpful as all the releases have been labeled as
+"beta".  Checking into a couple of distributions in development I also
+notice they are not using anything beyond 2.10.1.x so I'm a bit concerned
+about just getting the latest binutils package from the ftp directory.  May
+someone please point me to the latest release considered as stable and which
+will work with all kernel compiles (2.2.x and 2.4.x).  Or if I can safely
+use the latest release in the binutils directory please let me know as well.
+Thank you.
 
 

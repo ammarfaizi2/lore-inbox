@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262715AbTELU6y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 16:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTELU6y
+	id S262706AbTELVBK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 17:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbTELVBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 16:58:54 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:46790 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262715AbTELU6x (ORCPT
+	Mon, 12 May 2003 17:01:10 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:9424 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262706AbTELVBI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 16:58:53 -0400
-Date: Mon, 12 May 2003 14:11:59 -0700
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-bk7: multiple definition of `usb_gadget_get_string'
-Message-ID: <20030512211159.GA29716@kroah.com>
-References: <20030512205848.GU1107@fs.tum.de>
+	Mon, 12 May 2003 17:01:08 -0400
+Date: Mon, 12 May 2003 14:09:59 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Douglas Gilbert <dgilbert@interlog.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: removing a single device?
+Message-ID: <20030512140959.A2762@beaverton.ibm.com>
+References: <3EBC43CC.3090808@interlog.com> <20030512141255.GA30094@rdlg.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030512205848.GU1107@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030512141255.GA30094@rdlg.net>; from Robert.L.Harris@rdlg.net on Mon, May 12, 2003 at 10:12:55AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 10:58:48PM +0200, Adrian Bunk wrote:
-> <--  snip  -->
+Robert -
+
+On Mon, May 12, 2003 at 10:12:55AM -0400, Robert L. Harris wrote:
+
+> /proc/scsi/scsi does still show the device:
 > 
-> ...
->    ld -m elf_i386  -r -o drivers/usb/gadget/built-in.o 
-> drivers/usb/gadget/net2280.o drivers/usb/gadget/g_zero.o 
-> drivers/usb/gadget/g_ether.o
-> drivers/usb/gadget/g_ether.o(.text+0x1f60): In function 
-> `usb_gadget_get_string':
-> : multiple definition of `usb_gadget_get_string'
-> drivers/usb/gadget/g_zero.o(.text+0x0): first defined here
-> make[2]: *** [drivers/usb/gadget/built-in.o] Error 1
+> Host: scsi1 Channel: 00 Id: 01 Lun: 00
+>   Vendor: 3ware    Model: 3w-xxxx          Rev: 1.0 
+>   Type:   Direct-Access                    ANSI SCSI revision: ffffffff
+> 
+> and the echo, remove below doesn't remove it.  It does happily though
+> work on some other systems with SCA interfaces.
 
-I don't think that g_zero and g_ether are allowed to be built into the
-kernel at the same time.  David, want to send a patch to fix the Kconfig
-file to prevent this?
+> > > echo "scsi add-single-device 0 0 11 0" > /proc/scsi/scsi
+> > > echo "scsi remove-single-device 0 0 11 0" > /proc/scsi/scsi
 
-thanks,
+If this is for the host/channel/id/lun as per your cat /proc/scsi/scsi,
+you are specifying id (target) 11, where you should have used 1.
 
-greg k-h
+You can also check the result of the write to see if it worked, not sure
+if it does anything on 2.4 when the device does not exist, on 2.5 trying to
+remove a non-existent device gives me:
+
+[root@elm3b79 root]# echo "scsi remove-single-device 1 2 3 4" > /proc/scsi/scsi
+[root@elm3b79 root]# echo $?
+1
+
+-- Patrick Mansfield

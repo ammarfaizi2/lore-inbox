@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbULGNjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbULGN4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbULGNjg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 08:39:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbULGNjg
+	id S261814AbULGN4t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 08:56:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbULGN4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 08:39:36 -0500
-Received: from gate.corvil.net ([213.94.219.177]:12548 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S261612AbULGNje (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 08:39:34 -0500
-Message-ID: <41B5B282.9040909@draigBrady.com>
-Date: Tue, 07 Dec 2004 13:39:14 +0000
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+	Tue, 7 Dec 2004 08:56:48 -0500
+Received: from knserv.hostunreachable.de ([212.72.163.70]:46789 "EHLO
+	mail.hostunreachable.de") by vger.kernel.org with ESMTP
+	id S261814AbULGN4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 08:56:46 -0500
+Message-ID: <41B5B699.2020206@syncro-community.de>
+Date: Tue, 07 Dec 2004 14:56:41 +0100
+From: Hendrik Wiese <7.e.Q@syncro-community.de>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: hadi@cyberus.ca
-CC: Karsten Desler <kdesler@soohrt.org>,
-       Robert Olsson <Robert.Olsson@data.slu.se>,
-       "David S. Miller" <davem@davemloft.net>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
-References: <20041206205305.GA11970@soohrt.org>	 <20041206134849.498bfc93.davem@davemloft.net>	 <20041206224107.GA8529@soohrt.org> <41B58A58.8010007@draigBrady.com>	 <20041207112139.GA3610@soohrt.org> <16821.42080.932184.167780@robur.slu.se>	 <20041207125001.GA26644@soohrt.org> <1102424673.1093.124.camel@jzny.localdomain>
-In-Reply-To: <1102424673.1093.124.camel@jzny.localdomain>
+To: Roland Dreier <roland@topspin.com>
+Cc: LKLM <linux-kernel@vger.kernel.org>
+Subject: Re: wait_event_interruptible
+References: <41B56798.4070505@syncro-community.de> <52is7ecjxx.fsf@topspin.com>
+In-Reply-To: <52is7ecjxx.fsf@topspin.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
-> On Tue, 2004-12-07 at 07:50, Karsten Desler wrote:
-> 
-> 
->>Currently I'm having problems capturing packets with tcpdump (lots of
->>"packets dropped by kernel") which indicates to me that there's
->>genuinely not much (enough) idle time sitting around.
->>
-> 
-> Ah, more hints. So you are not trying to forward - rather just packet
-> capturing?
-> Are you using a tcpdump patched with mmaped packet socket?
-> 
-> The 230-240Kpps you are reporting as a capture dont seem as unreasonable
-> as i thought then. Neither would the CPU use.
+Roland Dreier wrote:
 
-Yes this is vital Karsten, otherwise tcpdump
-will do 2 syscalls per packet, which is the
-bottleneck in my experience.
+>    Hendrik> Hello, I created a kernel thread inside of my driver by
+>    Hendrik> calling the function kernel_thread with a function
+>    Hendrik> pointer. Now this thread calls daemonize and allow_signal
+>    Hendrik> and then it runs a forever loop until it is terminated by
+>    Hendrik> the kernel (unloading the driver etc). And because it is
+>    Hendrik> written in the documentation I put the thread asleep by
+>    Hendrik> calling wait_event_interruptible with a wait queue called
+>    Hendrik> "dpn_wq_run" inside the forever loop. Now is it right
+>    Hendrik> that a wake_up_interruptible in the ISR has to wake up
+>    Hendrik> the thread so it continues its work? If yes... why isn't
+>    Hendrik> that working for me? I called wait_event_interruptible
+>    Hendrik> with that dpn_wq_run inside the kernel thread and do a
+>    Hendrik> wake_up_interruptible inside the ISR with the same
+>    Hendrik> dpn_wq_run. But my kernel thread won't wake up. Is there
+>    Hendrik> anything else I have to do to the wait queue, but calling
+>    Hendrik> init_wait_queue on it?
+>
+>wait_event_interruptible() will sleep until your ISR wakes it up, but
+>for your thread to run, you also need to make sure that the condition
+>being tested by wait_event_interruptible() is true (otherwise it will
+>go back to sleep).  For example, if your thread does:
+>
+>	wait_event_interruptible(&my_wait, work != 0);
+>
+>then your ISR needs to do
+>
+>	work = 1;
+>	wake_up_interruptible(&my_wait);
+>
+>If you don't set work, the wake_up will have no effect.
+>
+> - R.
+>
+>  
+>
+Ah, yes. That works. Thanks a lot.
 
-You may want to try a simpler capture program that
-uses the kernel PACKET_MMAP feature directly:
-http://www.scaramanga.co.uk/code-fu/lincap.c
+Is it the right way checking for available data inside the kernel 
+thread? I experimentally put the
+code that checks and reads data from the hardware from the kernel thread 
+into a function
+directly called by the ISR and that works too. Now what is the better 
+way of receiving data?
+Within the kernel thread woken up by the ISR or within the ISR itself 
+(or a sub function
+called by the ISR)?
 
--- 
-Pádraig Brady - http://www.pixelbeat.org
---
+Thanks again

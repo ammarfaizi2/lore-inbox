@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265401AbUBJBbo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 20:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265433AbUBJBbo
+	id S265468AbUBJBlM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 20:41:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265526AbUBJBlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 20:31:44 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:45468 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S265401AbUBJBbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 20:31:43 -0500
-Message-ID: <4028356B.8010504@comcast.net>
-Date: Mon, 09 Feb 2004 19:35:39 -0600
-From: Karl Tatgenhorst <ketatgenhorst@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Mon, 9 Feb 2004 20:41:12 -0500
+Received: from rrcs-midsouth-24-172-39-10.biz.rr.com ([24.172.39.10]:37045
+	"EHLO maunzelectronics.com") by vger.kernel.org with ESMTP
+	id S265468AbUBJBlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 20:41:11 -0500
+From: Mark Rutherford <mark@justirc.net>
+To: linux-kernel@vger.kernel.org
+Subject: ite8212/gigaraid controller?
+Date: Mon, 9 Feb 2004 20:42:19 -0500
+User-Agent: KMail/1.6
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Does anyone still care about BSD ptys?
-References: <c07c67$vrs$1@terminus.zytor.com> <40282A37.4090502@comcast.net> <40282B32.9010302@zytor.com>
-In-Reply-To: <40282B32.9010302@zytor.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402092042.19184.mark@justirc.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->LOL :)
->
->If the changes I'm working on work out you should be able to have
->hundreds of thousands of ptys if you have enough memory.
->
->	-hpa
->
->
->  
->
-Sounds sweet, I am limited though by 4 GB of RAM on a dual PIV 2.8 Ghz 
-IBM server. Legacy character apps need so much more :-)
-
+There is a driver for the 2.4 series kernel available to download... and 
+googling, and searching various archives, I see that noone has done any ports 
+for 2.6 series kernels. has anyone on list done it?
+I dont know enough about kernel programming to attempt it :/
+or, is this controller supported in another driver?

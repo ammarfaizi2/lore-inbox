@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130669AbRANE5p>; Sat, 13 Jan 2001 23:57:45 -0500
+	id <S130645AbRANFMX>; Sun, 14 Jan 2001 00:12:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130645AbRANE5f>; Sat, 13 Jan 2001 23:57:35 -0500
-Received: from smtp.hattaway-associates.com ([203.79.82.65]:21219 "EHLO
-	server01.hattaway-associates.com") by vger.kernel.org with ESMTP
-	id <S130357AbRANE5W>; Sat, 13 Jan 2001 23:57:22 -0500
-Message-ID: <3A61315C.37318059@hattaway-associates.com>
-Date: Sun, 14 Jan 2001 17:55:56 +1300
-From: Godfrey Livingstone <godfrey@hattaway-associates.com>
-Organization: Hattaway & Associates
-X-Mailer: Mozilla 4.72 [en] (Win98; I)
-X-Accept-Language: en-GB,en
+	id <S130812AbRANFMO>; Sun, 14 Jan 2001 00:12:14 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:43535 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130645AbRANFMA>; Sun, 14 Jan 2001 00:12:00 -0500
+Date: Sun, 14 Jan 2001 01:21:22 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: set_page_dirty/page_launder deadlock
+Message-ID: <Pine.LNX.4.21.0101140108430.11917-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Jens Petersohn <jkp@mccoy.penguinpowered.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Ingo's RAID patch for 2.2.18 final?
-In-Reply-To: <200101112136.PAA07626@mccoy.penguinpowered.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi,
 
-There is as yet no official patch for raid 0.90 for 2.2.18
+While taking a look at page_launder()...
 
-This question would be better asked on  linux raid list
-linux-raid@vger.kernel.org.
-
-You can apply the patches below.
-
-If you apply the following you get the raid patched kernel.
-
- http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre25/VM-global-2.2.18pre25-7.bz2
-
-You MUST apply this patch before the two raid patches. The VM patch stablises
-the 2.2.18 virtual memory system and if you don't apply my two repackaged
-patches will fail. The above VM patch has been accepted into 2.2.19pre3 and
-many people are using it so is not untested.
-
-Raid patches.
-
- http://www.hattaway-associates.com/raidpatches/raid-2.2.18-A2.bz2
-
-For faster raid 1
-
- http://www.hattaway-associates.com/raidpatches/raid1readbalance-2.2.18.bz2
-
-Hope this helps
-
-Godfrey Livingstone
+                 /* And re-start the thing.. */
+                 spin_lock(&pagemap_lru_lock); 	<----------
+                 if (result != 1)
+                 	continue;
+                 /* writepage refused to do anything */
+                 set_page_dirty(page);
+	      	 ^^^^^^^^^^^^^^^^^^^^
+       		 goto page_active;
+            }
 
 
+set_page_dirty() may lock the pagecache_lock which means potential
+deadlock since we have the pagemap_lru_lock locked.
 
-Jens Petersohn wrote:
-
-> My appologies if this has been asked before. I'm looking for
-> Ingo Molnar's RAID patch for 2.2.18-final. I tried applying A2, but
-> it has a number of conflicts in raid1.c which I cannot resolve in
-> my meager spare time.
->
-> Thanks in advance,
->
-> --Jens Petersohn
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

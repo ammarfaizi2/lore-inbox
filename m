@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273620AbRIYVNO>; Tue, 25 Sep 2001 17:13:14 -0400
+	id <S273644AbRIYVUq>; Tue, 25 Sep 2001 17:20:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273806AbRIYVNE>; Tue, 25 Sep 2001 17:13:04 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:49123 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S273620AbRIYVM7>;
-	Tue, 25 Sep 2001 17:12:59 -0400
-Message-ID: <3BB0F4C8.124B6576@candelatech.com>
-Date: Tue, 25 Sep 2001 14:19:04 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Ethernet Error Correction
-In-Reply-To: <Pine.LNX.3.95.1010925164155.11921A-100000@chaos.analogic.com>
+	id <S273806AbRIYVUg>; Tue, 25 Sep 2001 17:20:36 -0400
+Received: from smtp-server6.tampabay.rr.com ([65.32.1.43]:60150 "EHLO
+	smtp-server6.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S273502AbRIYVUY>; Tue, 25 Sep 2001 17:20:24 -0400
+Date: Tue, 25 Sep 2001 17:20:16 -0400
+From: Rick Haines <rick@kuroyi.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10 VM: what avoids from having lots of unwriteable inactive pages
+Message-ID: <20010925172016.B860@sasami.kuroyi.net>
+In-Reply-To: <Pine.LNX.4.33.0109250849480.7353-100000@penguin.transmeta.com> <Pine.LNX.4.33L.0109251311340.26091-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0109251311340.26091-100000@duckman.distro.conectiva>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Tue, 25 Sep 2001, Karel Kulhavy wrote:
-> 
-> > What about implementing an Ethernet error correction in Linux kernel?
+On Tue, Sep 25, 2001 at 01:13:37PM -0300, Rik van Riel wrote:
+> On Tue, 25 Sep 2001, Linus Torvalds wrote:
+> > On Tue, 25 Sep 2001, Rik van Riel wrote:
+> > > >
+> > > > swap_out() will deactivate everything it finds to be not-recently used,
+> > > > and that's how the inactive list ends up getting replenished.
+> > >
+> > > mlock()
 > >
-> 
-> Ethernet uses hardware error detection. Only good packets get through.
-> Therefore there is nothing that a driver in the kernel could do to
-> recover an otherwise errored packet because the packet doesn't exist.
-> 
+> > Hey, if you've mlock'ed more than your available memory, there's nothing
+> > the VM layer can do. Except maybe a nice printk("Kiss your *ss goodbye");
 
-That's probably the default of most chipsets, but I wonder if you could
-tell it to send the busted packets up the stack anyway.  Then, the driver
-could make the decision in software whether or not to correct/foward, or
-discard the packet...  I assume that in order to detect a CRC error,
-the NIC already has the packet in it's buffers somewhere...
+Shouldn't there be a threshold where mlock will fail?
+Or are you saying that in general mlocking lots of memory will screw the
+VM?
+
+> But if you've mlock()ed enough to clog up the inactive
+> list, the VM could just move the pages it cannot free
+> back to the active list and it will come across those
+> pages which are freeable eventually.
+> 
+> Note that the maximum amount of mlock()ed memory is way
+> higher than the maximum amount of pages the system puts
+> on the inactive list.
+> 
+> (at least, it was last I looked at the maximum number
+> of mlocked pages)
+> 
+> regards,
+> 
+> Rik
+> --
+> IA64: a worthy successor to the i860.
+> 
+> 		http://www.surriel.com/
+> http://www.conectiva.com/	http://distro.conectiva.com/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Rick (rick@kuroyi.net)
+http://dxr3.sourceforge.net
+
+I think the slogan of the fansubbers puts
+it best: "Cheaper than crack, and lots more fun."

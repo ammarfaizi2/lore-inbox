@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbUJZGI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbUJZGMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbUJZGI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 02:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbUJZGIz
+	id S261918AbUJZGMF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 02:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUJZGL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 02:08:55 -0400
-Received: from siaag1ae.compuserve.com ([149.174.40.7]:51900 "EHLO
-	siaag1ae.compuserve.com") by vger.kernel.org with ESMTP
-	id S261918AbUJZGFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 02:05:13 -0400
-Date: Tue, 26 Oct 2004 02:03:03 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: The naming wars continue...
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Bill Davidsen <davidsen@tmr.com>
-Message-ID: <200410260204_MC3-1-8D25-E041@compuserve.com>
+	Tue, 26 Oct 2004 02:11:56 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:25270 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261918AbUJZGLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 02:11:42 -0400
+Message-ID: <417DEA8D.4080307@intel.com>
+Date: Tue, 26 Oct 2004 02:11:25 -0400
+From: Len Brown <len.brown@intel.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: "Li, Shaohua" <shaohua.li@intel.com>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       Pavel Machek <pavel@suse.cz>
+Subject: Re: [ACPI] [Proposal]Another way to save/restore PCI config space
+ for suspend/resume
+References: <1098766257.8433.7.camel@sli10-desk.sh.intel.com> <20041026051100.GA5844@wotan.suse.de>
+In-Reply-To: <20041026051100.GA5844@wotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+What this comes down to is that extended config space is device-specific.
+Generic solutions will fail.  Only device drivers will work.
 
->       Ok,
->        trying to make ready for the real 2.6.9 in a week or so, so please give
->       this a beating, and if you have pending patches, please hold on to them
->       for a bit longer, until after the 2.6.9 release. It would be good to have
->       a 2.6.9 that doesn't need a dot-release immediately ;)
->
-> which is a hell of a lot more descriptive, in my opinion.
+If there are no drivers for PCI bridges to properly save/restore
+their config space, then should create them, even if this is all the 
+drivers do.
 
-  Yes, but -rc is (was?) (should have been?) shorthand for exactly that.
-
-  Nobody but the fanatics read the actual messages.  The rest rely on abstractions.
+-Len
 
 
---Chuck Ebbert  26-Oct-04  02:03:05

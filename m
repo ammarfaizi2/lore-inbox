@@ -1,92 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266004AbUGOA0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266003AbUGOAa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266004AbUGOA0C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 20:26:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUGOAYy
+	id S266003AbUGOAa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 20:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266048AbUGOAYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 20:24:54 -0400
-Received: from mail.kroah.org ([69.55.234.183]:56811 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266004AbUGOAJJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 20:09:09 -0400
-Subject: Re: [PATCH] I2C update for 2.6.8-rc1
-In-Reply-To: <10898500301403@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 14 Jul 2004 17:07:10 -0700
-Message-Id: <10898500302358@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
+	Wed, 14 Jul 2004 20:24:39 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55787 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266003AbUGOAJI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 20:09:08 -0400
+Date: Wed, 14 Jul 2004 17:05:31 -0700
 From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: [BK PATCH] I2C update for 2.6.8-rc1
+Message-ID: <20040715000527.GA18923@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1784.13.8, 2004/07/09 14:47:23-07:00, khali@linux-fr.org
+Hi,
 
-[PATCH] I2C: remove Documentation for i2c-pport
+Here are some i2c driver fixes and updates for 2.6.8-rc1.  There are a
+few new i2c chip drivers, and the biggest chunk is the new w1 (1-wire)
+driver subsystem contributed by Evgeniy Polyakov.  The sysfs interface
+for w1 isn't finished quite yet (just need to create some more sysfs
+files, nothing major), but the main functionality is there, and this
+allows more w1 drivers to be contributed easier.
 
-> > This also raises a question about Documentation/i2c/i2c-pport.
-> > Should we keep a document about a driver which is not in the kernel
-> > tree (and hasn't even been ported to 2.6 yet)?
->
-> No we should not.
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
 
-Signed-off-by: Jean Delvare <khali at linux-fr dot org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Individual patches will follow, sent to the sensors and linux-kernel
+lists.
 
+thanks,
 
- Documentation/i2c/i2c-pport |   45 --------------------------------------------
- 1 files changed, 45 deletions(-)
+greg k-h
 
+ Documentation/i2c/i2c-pport      |   45 -
+ Documentation/i2c/i2c-velleman   |   20 
+ Documentation/i2c/i2c-parport    |  156 +++++
+ MAINTAINERS                      |   12 
+ drivers/Kconfig                  |    2 
+ drivers/Makefile                 |    1 
+ drivers/i2c/busses/i2c-elektor.c |    6 
+ drivers/i2c/busses/i2c-ibm_iic.c |  132 ++++-
+ drivers/i2c/busses/scx200_acb.c  |    1 
+ drivers/i2c/chips/Kconfig        |   42 +
+ drivers/i2c/chips/Makefile       |    3 
+ drivers/i2c/chips/adm1025.c      |  570 +++++++++++++++++++++
+ drivers/i2c/chips/adm1031.c      | 1021 ++++++++++++++++++++++++++++++++++++++-
+ drivers/i2c/chips/lm75.c         |   37 +
+ drivers/i2c/chips/lm77.c         |  413 +++++++++++++++
+ drivers/i2c/chips/lm78.c         |   88 ---
+ drivers/i2c/chips/lm90.c         |   69 +-
+ drivers/i2c/i2c-dev.c            |   33 -
+ drivers/pci/quirks.c             |   58 +-
+ drivers/w1/Kconfig               |   31 +
+ drivers/w1/Makefile              |    9 
+ drivers/w1/matrox_w1.c           |  246 +++++++++
+ drivers/w1/w1.c                  |  623 +++++++++++++++++++++++
+ drivers/w1/w1.h                  |  112 ++++
+ drivers/w1/w1_family.c           |  133 +++++
+ drivers/w1/w1_family.h           |   65 ++
+ drivers/w1/w1_int.c              |  207 +++++++
+ drivers/w1/w1_int.h              |   36 +
+ drivers/w1/w1_io.c               |  138 +++++
+ drivers/w1/w1_io.h               |   35 +
+ drivers/w1/w1_log.h              |   38 +
+ drivers/w1/w1_netlink.c          |   55 ++
+ drivers/w1/w1_netlink.h          |   44 +
+ drivers/w1/w1_therm.c            |  177 ++++++
+ 34 files changed, 4411 insertions(+), 247 deletions(-)
+-----
 
-diff -Nru a/Documentation/i2c/i2c-pport b/Documentation/i2c/i2c-pport
---- a/Documentation/i2c/i2c-pport	2004-07-14 16:59:45 -07:00
-+++ /dev/null	Wed Dec 31 16:00:00 196900
-@@ -1,45 +0,0 @@
--Primitive parallel port is driver for i2c bus, which exploits 
--features of modern bidirectional parallel ports. 
--
--Bidirectional ports have particular bits connected in following way:
--   
--                        |
--            /-----|     R
--         --o|     |-----|
--      read  \-----|     /------- Out pin
--                      |/
--                   - -|\
--                write   V
--                        |
--                       ---  
--
--
--It means when output is set to 1 we can read the port. Therefore 
--we can use 2 pins of parallel port as SDA and SCL for i2c bus. It 
--is not necessary to add any external - additional parts, we can 
--read and write the same port simultaneously.
--	I only use register base+2 so it is possible to use all 
--8 data bits of parallel port for other applications (I have 
--connected EEPROM and LCD display). I do not use bit Enable Bi-directional
-- Port. The only disadvantage is we can only support 5V chips.
--
--Layout:
--
--Cannon 25 pin
--
--SDA - connect to pin 14 (Auto Linefeed)
--SCL - connect to pin 16 (Initialize Printer)
--GND - connect to pin 18-25
--+5V - use external supply (I use 5V from 3.5" floppy connector)
--      
--no pullups  requied
--
--Module parameters:
--
--base = 0xXXX
--XXX - 278 or 378
--
--That's all.
--
--Daniel Smolik
--marvin@sitour.cz
+<alex:alexdalton.org>:
+  o I2C: small ADM1030 fix
+  o I2C: ADM1030 and Co sensors chips support
+
+<drewie:freemail.hu>:
+  o I2C: Add support for LM77
+
+<orange:fobie.net>:
+  o I2C: patch quirks.c - SMBus hidden on hp laptop
+
+Eugene Surovegin:
+  o I2C PPC4xx IIC driver: 0-length transactions bit-banging implementation
+
+Greg Kroah-Hartman:
+  o 1 Wire: add Dallas 1-wire protocol driver subsystem
+  o I2C: sparse cleanups for a few i2c drivers
+
+Jean Delvare:
+  o I2C: Refine detection of LM75 chips
+  o I2C: adm1025 driver ported to 2.6
+  o I2C: remove Documentation for i2c-pport
+  o I2C: Documentation for i2c-parport
+  o I2C: Add support for LM86, MAX6657 and MAX6658 to lm90
+  o I2C: Class of scx200_acb
+
+Luiz Capitulino:
+  o I2C: i2c/i2c-dev.c::i2c_dev_init() cleanup
+
+Mark M. Hoffman:
+  o I2C: Remove extra inits from lm78 driver
 

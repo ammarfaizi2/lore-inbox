@@ -1,67 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317468AbSGJCTf>; Tue, 9 Jul 2002 22:19:35 -0400
+	id <S317470AbSGJC1X>; Tue, 9 Jul 2002 22:27:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317470AbSGJCTe>; Tue, 9 Jul 2002 22:19:34 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:57362 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S317468AbSGJCTd>; Tue, 9 Jul 2002 22:19:33 -0400
-Date: Wed, 10 Jul 2002 03:22:08 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
-       Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Richard Moore <richardj_moore@uk.ibm.com>,
-       bob <bob@watson.ibm.com>
-Subject: Re: Enhanced profiling support (was Re: vm lock contention reduction)
-Message-ID: <20020710022208.GA56823@compsoc.man.ac.uk>
-References: <Pine.LNX.4.44.0207081039390.2921-100000@home.transmeta.com> <3D29DCBC.5ADB7BE8@opersys.com>
+	id <S317472AbSGJC1W>; Tue, 9 Jul 2002 22:27:22 -0400
+Received: from pool-129-44-58-21.ny325.east.verizon.net ([129.44.58.21]:11271
+	"EHLO arizona.localdomain") by vger.kernel.org with ESMTP
+	id <S317470AbSGJC1V>; Tue, 9 Jul 2002 22:27:21 -0400
+Date: Tue, 9 Jul 2002 22:30:21 -0400
+From: "Kevin O'Connor" <kevin@koconnor.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: O(1) batch scheduler
+Message-ID: <20020709223021.A4567@arizona.localdomain>
+References: <Pine.LNX.4.44.0207011137330.4167-100000@e2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D29DCBC.5ADB7BE8@opersys.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Boards of Canada - Geogaddi
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207011137330.4167-100000@e2>; from mingo@elte.hu on Mon, Jul 01, 2002 at 11:45:32AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 08, 2002 at 02:41:00PM -0400, Karim Yaghmour wrote:
+Hi Ingo,
 
-> dentry + offset: on a 32bit machine, this is 8 bytes total per event being
-> profiled. This is a lot of information if you are trying you have a high
-> volume throughput.
+I looked through your sched-2.5.25-A5 patch, and I'm confused by the
+idle_count array.  It calculates the idle average of the last 9 seconds -
+but why not just use a weighted average.  A weighted average is going to be
+very close to the true average, and where it differs the weighted average
+should be preferable.
 
-I haven't found that to be significant in profiling overhead, mainly
-because the hash table removes some of the "sting" of high sampling
-rates (and the interrupt handler dwarfs all other aspects). The
-situation is probably different for more general tracing purposes, but
-I'm dubious as to the utility of a general tracing mechanism.
+Incremental patch (untested):
 
-(besides, a profile buffer needs a sample context value too, for things
-like CPU number and perfctr event number).
-
-> You can almost always skip the dentry since you know scheduling
-> changes and since you can catch a system-state snapshot at the begining of
-> the profiling. After that, the eip is sufficient and can easily be correlated
-> to a meaningfull entry in a file in user-space.
-
-But as I point out in my other post, dentry-offset alone is not as
-useful as it could be...
-
-I just don't see a really good reason to introduce insidious tracing
-throughout. Both tracing and profiling are ugly ugly things to be doing
-by their very nature, and I'd much prefer to keep such intrusions to a
-bare minimum.
-
-The entry.S examine-the-registers approach is simple enough, but it's
-not much more tasteful than sys_call_table hackery IMHO
-
-regards
-john
+--- kernel/sched.c	Tue Jul  9 22:06:38 2002
++++ ../linux-2.5.25-a/kernel/sched.c	Tue Jul  9 22:23:41 2002
+@@ -171,7 +171,7 @@
+ 	#define IDLE_TICKS (HZ)
+ 
+ 	int idle_ticks_left;
+-	int idle_count[IDLE_SLOTS];
++	int idle_count;
+ 	int idle_avg;
+ 
+ } ____cacheline_aligned;
+@@ -886,17 +886,6 @@
+ #define BUSY_REBALANCE_TICK (HZ/4 ?: 1)
+ #define IDLE_REBALANCE_TICK (HZ/1000 ?: 1)
+ 
+-static inline int recalc_idle_avg(runqueue_t *rq)
+-{
+-	int i, count = 0, avg;
+-
+-	for (i = 1; i < IDLE_SLOTS; i++)
+-		count += rq->idle_count[i];
+-
+-	avg = count / (IDLE_SLOTS - 1);
+-	return avg;
+-}
+-
+ static inline void idle_tick(runqueue_t *rq)
+ {
+ 	if (jiffies % IDLE_REBALANCE_TICK)
+@@ -938,17 +927,13 @@
+ 		 * This code is rare, triggered only once per second:
+ 		 */
+ 		if (--rq->idle_ticks_left <= 0) {
+-			int i;
+-
+-			rq->idle_ticks_left = IDLE_TICKS;
+-			for (i = IDLE_SLOTS-1; i > 0; i--)
+-				rq->idle_count[i] = rq->idle_count[i-1];
+-			rq->idle_count[0] = 0;
+-			rq->idle_avg = recalc_idle_avg(rq);
++			rq->idle_avg = (rq->idle_avg * (IDLE_SLOTS - 1)
++					+ rq->idle_count) / IDLE_SLOTS;
++			rq->idle_count = 0;
+ 		}
+ 	}
+ 	if (p == rq->idle || p->policy == SCHED_BATCH)
+-		rq->idle_count[0]++;
++		rq->idle_count++;
+ #endif
+ 	if (p == rq->idle) {
+ 		if (local_bh_count(cpu) || local_irq_count(cpu) > 1)
 
 -- 
-"I know I believe in nothing but it is my nothing"
-	- Manic Street Preachers
+ ------------------------------------------------------------------------
+ | Kevin O'Connor                     "BTW, IMHO we need a FAQ for      |
+ | kevin@koconnor.net                  'IMHO', 'FAQ', 'BTW', etc. !"    |
+ ------------------------------------------------------------------------

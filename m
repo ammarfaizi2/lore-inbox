@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282818AbRLWR7W>; Sun, 23 Dec 2001 12:59:22 -0500
+	id <S282799AbRLWR7M>; Sun, 23 Dec 2001 12:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282941AbRLWR7N>; Sun, 23 Dec 2001 12:59:13 -0500
-Received: from embolism.psychosis.com ([216.242.103.100]:42258 "EHLO
-	embolism.psychosis.com") by vger.kernel.org with ESMTP
-	id <S282818AbRLWR7C>; Sun, 23 Dec 2001 12:59:02 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Date: Sun, 23 Dec 2001 12:57:09 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: otto.wyss@bluewin.ch,
-        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org'),
-        rusty@rustcorp.com.au (Rusty Russell)
-In-Reply-To: <E16I8zQ-0000d9-00@the-village.bc.nu>
-In-Reply-To: <E16I8zQ-0000d9-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ICrx-0000WN-00@schizo.psychosis.com>
+	id <S282941AbRLWR7C>; Sun, 23 Dec 2001 12:59:02 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:24595 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S282799AbRLWR6x>; Sun, 23 Dec 2001 12:58:53 -0500
+Date: Sun, 23 Dec 2001 17:58:46 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Total system lockup with Alt-SysRQ-L
+Message-ID: <20011223175846.B27993@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 December 2001 8:48, Alan Cox wrote:
->
-> And vendors who've shipped GRUB still have to ship Lilo because Grub plain
-> doesn't work on some machines. 
+Ok, alt-sysrq-l is a pretty major thing to do, as it has the effect of
+killing everything, including init.
 
-This is an issue with how GRUB deals with a FUBAR BIOS, and not 
-necessarily a core GRUB design flaw. 
+When pid1 exits (maybe due to a kill signal), we lockup hard in (iirc)
+exit_notify.  I don't remember the details I'm afraid.
 
-Syslinux, seems to win hands down (IMO) when it comes to dealing with
-flacky BIOS's, but it's not because it's a dynamic loading design; it's
-because HPA knew enough and spent the time refining that 1% of the
-program that deals with bad BIOSes.
+Back in 2.3, I had a go at fixing this, Linus rejected the patch saying
+that it was doing the wrong thing.  To this day, the kernel still suffers
+from this, and I've not had the inclination to spend any more time on it.
 
-Should HPA and Werner take a day of their time to review and
-correct GRUB, I'm sure this issue would vanish overnight.
+So, I'm just letting people know that alt-sysrq-l is rather fatal,
+especially if you want to do the following sequence to avoid a fsck:
 
-> Lilo has the virtue that its extremely
-> simple in what it does and how it does it. It works in a suprisingly large
-> number of cases and can handle interesting setups that GRUB really
-> struggles with.
+	alt-sysrq-l
+	alt-sysrq-s
+	alt-sysrq-u
+	alt-sysrq-b
 
-Where GRUB struggles LILO throws up brickwalls.
+IMHO either alt-sysrq-l should be removed, or someone who knows the logic
+behind the linking of tasks together needs to fix exit_notify so it doesn't
+enter an infinite loop when init exits.
 
-Coolest thing is the world you can do with grub:
-	Load a *partition* as your initrd
-With this in mind it makes using images/archives for initrd for
-non-embedded systems seem rather clunky. It's much cleaner
-to just have an 8/16/32MB partition you dedicate to initrd. Users of
-GRUB have been able to do this for YEARS.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-And something to say here: Yes I hate lilo, but not because I think
-Werner coded it lousy. A boot loader that uses a static block offset
-to find it's target is a bad idea, that should have died with M$-DOS.
-
-That said, it's still a wonder to me why GRUB, or another loader similar
-in approach, was not adopted as the 'prefered' linux loader years ago. 
-
-Dave
-
--- 
-The time is now 22:54 (Totalitarian)  -  http://www.ccops.org/

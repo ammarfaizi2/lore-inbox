@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263280AbSKCV5A>; Sun, 3 Nov 2002 16:57:00 -0500
+	id <S262450AbSKCWO2>; Sun, 3 Nov 2002 17:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263320AbSKCV5A>; Sun, 3 Nov 2002 16:57:00 -0500
-Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:37797 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S263280AbSKCV4x>; Sun, 3 Nov 2002 16:56:53 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 3 Nov 2002 14:03:14 -0800
-Message-Id: <200211032203.OAA08254@adam.yggdrasil.com>
-To: joe@fib011235813.fsnet.co.uk
-Subject: Re: Patch(2.5.45): move io_restrictions to blkdev.h
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+	id <S262472AbSKCWO2>; Sun, 3 Nov 2002 17:14:28 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:17656 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S262450AbSKCWO1>;
+	Sun, 3 Nov 2002 17:14:27 -0500
+Date: Sun, 3 Nov 2002 23:20:54 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Jos Hulzink <josh@stack.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Petition against kernel configuration options madness...
+Message-ID: <20021103222054.GC20338@pasky.ji.cz>
+Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
+	Jeff Garzik <jgarzik@pobox.com>, Jos Hulzink <josh@stack.nl>,
+	linux-kernel@vger.kernel.org
+References: <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com> <20021103200704.A8377@ucw.cz> <20021103193734.GC2516@pasky.ji.cz> <20021103211308.B8636@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021103211308.B8636@ucw.cz>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Sun, Nov 03, 2002 at 12:48:30AM -0800, Adam J. Richter wrote:
->> 	Great.  The only thing I was going to do that might depend
->> on this patch is try to port /dev/loop to device mapper, and I may
->> be able to eliminate the affected code anyhow.
+Dear diary, on Sun, Nov 03, 2002 at 09:13:08PM CET, I got a letter,
+where Vojtech Pavlik <vojtech@suse.cz> told me, that...
+> On Sun, Nov 03, 2002 at 08:37:34PM +0100, Petr Baudis wrote:
+> > Dear diary, on Sun, Nov 03, 2002 at 08:07:05PM CET, I got a letter,
+> > where Vojtech Pavlik <vojtech@suse.cz> told me, that...
+> > > Too bad you don't have any suggestions. I completely agree this should
+> > > be simplified, while I wouldn't be happy to lose the possibility of not
+> > > compiling AT keyboard support in.
+> > 
+> > Well, why can't it be enabled by default? Other options are as well, and it's
+> > IMHO sane to enable keyboard and mice support by default. It should clear up
+> > the initial confusion as well.
+> 
+> All the needed options ARE enabled by default. (check arch/i386/defconfig)
 
->This makes me uneasy, do you mean you want to:
+Yes, but if this will be in the Kconfig as well (I mean adding "default y"
+lines, I can make a patch, if there's a desire), it will be offered as default
+even when doing make oldconfig, which is what most of the people is going to do
+(not make defconfig, most of people doesn't even know it exists and the rest
+probably wants to configure 2.5 based on their 2.4 configuration anyway).
 
->i) make a 'loop' target, if so why ?
-
-	I believe I can eliminate some block device initialization
-code and also eliminate some ioctls that allow for a lot of number
-configured states for a loop device and bloat loop.c with some
-features nobody uses (for example, there is an unused facility to
-"name" each loop device).  I would like to invent as little new API as
-possible.  Also, of much less importance, adopting this change would
-relinquish a major device number.
-
-	I was going to have the map function always return 0 (i.e., it
-will submit the IO itself).  Given device-mapper with linear mapping,
-I don't think anyone will need to use loop just to map a device to a
-device with no data transformation, so there is no need for loop
-optimize for that case.
-
-	If you want to point out specific technical problems with this
-or have other advice, great.  Otherwise, I expect that just trying to
-implement it will either show me some problem with it or will result
-in a patch that should clarify what I am talking about for you.
-
-	By the way, one change to DM that might be useful for other
-targets as well as loop.c would be to move the map function from
-target_type to dm_target.  This can potentially be used to eliminate
-some branches in the IO path based on configuration options that were
-passed to the constructor function.  For loop.c, I am thinking of
-file backed versus device backed.  I could also imagine raid schemes
-that might optimize their map functions differently for different
-segment sizes.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+-- 
+ 
+				Petr "Pasky" Baudis
+.
+This host is a black hole at HTTP wavelengths. GETs go in, and nothing
+comes out, not even Hawking radiation.
+                -- Graaagh the Mighty on rec.games.roguelike.angband
+.
+Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/

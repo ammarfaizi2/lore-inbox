@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264715AbTBOJEy>; Sat, 15 Feb 2003 04:04:54 -0500
+	id <S264673AbTBOJ2o>; Sat, 15 Feb 2003 04:28:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264724AbTBOJEy>; Sat, 15 Feb 2003 04:04:54 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:10756 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S264715AbTBOJEx>;
-	Sat, 15 Feb 2003 04:04:53 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302150913.h1F9Du9q000369@darkstar.example.net>
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-To: cort@fsmlabs.com (Cort Dougan)
-Date: Sat, 15 Feb 2003 09:13:56 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, rusty@linux.co.intel.com, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org, mochel@osdl.org, davej@codemonkey.org.uk,
-       daniel@rimspace.net
-In-Reply-To: <20030215082707.GE13148@host109.fsmlabs.com> from "Cort Dougan" at Feb 15, 2003 01:27:07 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S264724AbTBOJ2o>; Sat, 15 Feb 2003 04:28:44 -0500
+Received: from mail.scram.de ([195.226.127.117]:20425 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S264673AbTBOJ2n>;
+	Sat, 15 Feb 2003 04:28:43 -0500
+Date: Sat, 15 Feb 2003 10:35:33 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.61: tms380tr.c no longer compiles
+In-Reply-To: <20030215090733.GV20159@fs.tum.de>
+Message-ID: <Pine.LNX.4.44.0302151034060.1719-100000@gfrw1044.bocc.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> } > The watchdog infrastructure would just show what ever integer the driver
-> } > provides via the watchdog_ops.get_temperature() function pointer, so it
-> } > would be up to the driver developer to decide if the data is really
-> } > Fahrenheit or whatever.
-> } 
-> } We do need to be sure they all agree about it however 8)
-> 
-> Just to make sure no-one is happy except physicists, I suggest
-> Kelvin.
+Hi Adrian,
 
-Degrees C is the best choice, because the range of values that fit in
-to a signed int is then useful (-127 -> 128).  Storing as K or F means
-that you can't store a useful range in a single byte.
+> drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+> drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+> drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+> drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+> drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+> drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+> drivers/net/tokenring/tms380tr.c: In function `tms380tr_init_adapter':
+> drivers/net/tokenring/tms380tr.c:1461: warning: long unsigned int
 
-> I also suggest we spell disk/disc as "disck".
+I wonder why my version of gcc didn't catch that one on my Alpha...
 
-Magnetic media                       -> disk
-Optical media                        -> disc
-Combination media, (magneto-optical) -> disk
+Please try this one:
 
-John.
+--- tms380tr.c.orig     2003-02-15 09:28:42.000000000 +0100
++++ tms380tr.c  2003-02-15 10:35:16.000000000 +0100
+@@ -257,7 +257,7 @@
+        int err;
+
+        /* init the spinlock */
+-       spin_lock_init(tp->lock);
++       spin_lock_init(&tp->lock);
+
+        /* Reset the hardware here. Don't forget to set the station address. */
+
+@@ -1458,7 +1458,7 @@
+        if(tms380tr_debug > 3)
+        {
+                printk(KERN_DEBUG "%s: buffer (real): %lx\n", dev->name, (long) &tp->scb);
+-               printk(KERN_DEBUG "%s: buffer (virt): %lx\n", dev->name, (long) ((char *)&tp->scb - (char *)tp) + tp->dmabuffer);
++               printk(KERN_DEBUG "%s: buffer (virt): %lx\n", dev->name, (long) ((char *)&tp->scb - (char *)tp) + (long) tp->dmabuffer);
+                printk(KERN_DEBUG "%s: buffer (DMA) : %lx\n", dev->name, (long) tp->dmabuffer);
+                printk(KERN_DEBUG "%s: buffer (tp)  : %lx\n", dev->name, (long) tp);
+        }
+
+Thanks,
+--jochen
+

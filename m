@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282907AbRLBUWc>; Sun, 2 Dec 2001 15:22:32 -0500
+	id <S284307AbRLBUZx>; Sun, 2 Dec 2001 15:25:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282920AbRLBUWW>; Sun, 2 Dec 2001 15:22:22 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:16063 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S282907AbRLBUWP>; Sun, 2 Dec 2001 15:22:15 -0500
-Date: Sun, 2 Dec 2001 13:22:11 -0700
-Message-Id: <200112022022.fB2KMBQ12728@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@borntraeger.net (Christian =?iso-8859-1?q?Borntr=E4ger?=),
-        acmay@acmay.homeip.net (andrew may),
-        ajschrotenboer@lycosmail.com (Adam Schrotenboer),
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17pre2: devfs: devfs_mk_dir(printers): could not append to dir: dffe45c0 "", err: -17
-In-Reply-To: <E16Ad0j-0004Qg-00@the-village.bc.nu>
-In-Reply-To: <200112022001.fB2K16Q12503@vindaloo.ras.ucalgary.ca>
-	<E16Ad0j-0004Qg-00@the-village.bc.nu>
+	id <S282920AbRLBUZn>; Sun, 2 Dec 2001 15:25:43 -0500
+Received: from bitmover.com ([192.132.92.2]:27852 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S284308AbRLBUZ1>;
+	Sun, 2 Dec 2001 15:25:27 -0500
+Date: Sun, 2 Dec 2001 12:25:26 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Cc: Victor Yodaiken <yodaiken@fsmlabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue
+Message-ID: <20011202122526.A2622@work.bitmover.com>
+Mail-Followup-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+	Victor Yodaiken <yodaiken@fsmlabs.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011130200239.A28131@hq2> <200112012318.fB1NI6sW020423@sleipnir.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200112012318.fB1NI6sW020423@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Sat, Dec 01, 2001 at 08:18:06PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > I wouldn't say it's not back compatible. If you want to use a new
-> > devfsd feature, then you need the new devfs. The key difference
-> > between the old and new devfs core (aside from fixing those races) is
-> > that the new devfs core will spit out an EEXIST warning message
-> > whereas before it didn't. But his system still worked. It didn't
-> > break.
+On Sat, Dec 01, 2001 at 08:18:06PM -0300, Horst von Brand wrote:
+> Victor Yodaiken <yodaiken@fsmlabs.com> said:
+> > Linux is what it is because of design, not accident. And you know
+> > that better than anyone.
 > 
-> Ok so the old devfsd works but spews a few errors. Right - then I
-> agree with you.
+> I'd say it is better because the mutations themselves (individual patches)
+> go through a _very_ harsh evaluation before being applied in the "official"
+> sources. 
 
-It's not simply the version of devfsd that matters. Upgrading to a new
-devfsd won't cause the errors. It's the new devfs core that's issuing
-the warnings. These warnings happen because Mandrake populates devfs
-with a bunch of inodes early in the boot scripts, then later the
-drivers are loaded. When the drivers try to register entries, devfs
-spits out the EEXIST warnings.
-
-The point of the new devfsd is that you can use the new RESTORE
-directive instead of some kludged-up boot scripts to restore
-inodes. The RESTORE directive will only re-create *manually created*
-inodes (i.e. when the admin goes "ln -s misc/psaux mouse"), and not
-ones created by drivers or devfsd (it does however restore permissions
-for any changed inodes). This avoids the duplicates that you otherwise
-get with Mandrake's boot scripts.
-
-However, for the new RESTORE directive to do what you want, you need
-the new devfs core. Otherwise RESTORE will end up re-creating inodes
-created by devfsd (i.e. from MKOLDCOMPAT), which is undesirable.
-
-I hope that explains it clearly.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Which is exactly Victor's point.  That evaluation is the design.  If the 
+mutation argument held water then Linus would apply *ALL* patches and then
+remove the bad ones.  But he doesn't.  Which just goes to show that on this
+mutation nonsense, he's just spouting off.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

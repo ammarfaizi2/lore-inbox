@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268721AbTBZLrz>; Wed, 26 Feb 2003 06:47:55 -0500
+	id <S268718AbTBZLlf>; Wed, 26 Feb 2003 06:41:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268722AbTBZLrz>; Wed, 26 Feb 2003 06:47:55 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:24074 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S268721AbTBZLrx>; Wed, 26 Feb 2003 06:47:53 -0500
-Message-Id: <200302261151.h1QBp2s23777@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: wyleus <coyote1@cytanet.com.cy>, linux-kernel@vger.kernel.org
-Subject: Re: syslog full of kernel BUGS, frequent intermittent instability
-Date: Wed, 26 Feb 2003 13:48:03 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <20030226041214.71e1ddc7.coyote1@cytanet.com.cy>
-In-Reply-To: <20030226041214.71e1ddc7.coyote1@cytanet.com.cy>
+	id <S268722AbTBZLlf>; Wed, 26 Feb 2003 06:41:35 -0500
+Received: from webmail18.rediffmail.com ([203.199.83.28]:56752 "HELO
+	rediffmail.com") by vger.kernel.org with SMTP id <S268718AbTBZLlb>;
+	Wed, 26 Feb 2003 06:41:31 -0500
+Date: 26 Feb 2003 11:50:36 -0000
+Message-ID: <20030226115036.20594.qmail@webmail18.rediffmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+From: "Diksha B Bhoomi" <dikshabhoomi@rediffmail.com>
+Reply-To: "Diksha B Bhoomi" <dikshabhoomi@rediffmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>
+Subject: Re: Re: Writing new filesystem
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 February 2003 11:12, wyleus wrote:
-> Hi folks,
->
-> My recently installed Mandrake 9.0 has been unstable since day one. 
-> The syslog is full of kernel BUG lines (see below), the crashes are
-> frequent, and I don't know how to reproduce them - recognize no
-> pattern to them.
->
-> I have run memtest86 overnight (~13 hours) - it reported no errors. 
-> So would I be correct in assuming that my RAM can be ruled out?  I
-> have also passed both the "noapic" and "mem=nopentium" parameters to
-> lilo, but that hasn't resulted in any noticeable improvement.
+Thanks
 
-cpuburn will help you rule out defective CPU theory.
-Also you can start removing/swapping hardware parts.
+I tried that as well butnothing much seems to happing. I searched 
+the fs/Makefile for "ext2" It comes in the All_SUB_DIRS variable 
+setting. I already have added myfs entry for this varible. That is 
+the reason why it went to fs/myfs in make dep. But that does not 
+solve the purpose.
 
-> I would appreciate any insight anyone can provide.  Let me know if I
-> can provide any more info.
+I once again tell you what am I doing.
 
-Test with some vanilla 2.4 kernels, not a distro one. If 2.4.20 crashes,
-try some of the earlier kernels too. Compile them for 386 uniprocessor
-with debugging and magic SysRq enabled. Provide your .config
+I created a directory as fs/myromfs. I copioed into this folder 
+everything that was present in fs/romfs. Then I changed the 
+romfs_fs.h to myromfs_fs.h with all MACROS changed appropriatly. I 
+included this file in namei.c. I even made changes to all ROMxxx 
+to MYxxx in inode.c file.
+I changed the Makefile for myromfs as well.
 
-Run your klogd with -x to make it stop decoding oopses.
-Run oopses thru ksymoops and provide result.
-Provide lsmod, lspci output, some of /proc/* files (interrupts etc)
+Now my problem is  how do i compile it.
 
-> I haven't suscribed to this ML because I don't want the volume in my
-> mailbox - but will monitor this thread through google groups.
+I tried make from myromfs dir. but it gave error as TOPDIR not 
+set. So in the Makefile of myromfs I added a entry as 
+$TOPDIR=/usr/src/linux/
+That started the compilation but proper gcc params were not set so 
+gcc failed. That made me confirmed that $TOPDIR must be 
+comented.
 
-People are going to CC you I believe, so don't worry.
---
-vda
+Now I tried to compile from fs dir but again same mesage 
+appared.
 
+So I went one level up and tried to do make at /usr/src/linux
+This is I suppose making kernel. It did work but with out much 
+results.
+
+I then went on to make dep here only.
+This time it did go to fs/myromfs and displayed the message
+'leaving the dir /usr/src/linux/fs/myromfs'
+
+
+Now what should I do.
+
+In otherwords, How do i create the new filesysytem using the given 
+src and makefiles?
+
+Thanks a lot for your Time and Space.
+
+Diksha
+
+
+Atta Dipa Bhava

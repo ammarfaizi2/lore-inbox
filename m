@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265863AbTBTQeu>; Thu, 20 Feb 2003 11:34:50 -0500
+	id <S265815AbTBTQeV>; Thu, 20 Feb 2003 11:34:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265898AbTBTQet>; Thu, 20 Feb 2003 11:34:49 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:39327 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S265863AbTBTQeq>;
-	Thu, 20 Feb 2003 11:34:46 -0500
-Date: Thu, 20 Feb 2003 17:44:26 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <Pine.LNX.4.44.0302200717230.2142-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0302201743270.30865-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265854AbTBTQeU>; Thu, 20 Feb 2003 11:34:20 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:6805 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S265815AbTBTQeU>;
+	Thu, 20 Feb 2003 11:34:20 -0500
+Date: Thu, 20 Feb 2003 11:44:20 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Shaya Potter <spotter@cs.columbia.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hard lockup on 2.4.20 w/ nfs over frees/wan
+Message-ID: <20030220164420.GA9800@gtf.org>
+References: <1045634189.4761.44.camel@zaphod> <1045686971.8084.2.camel@zaphod> <1045757772.31762.13.camel@zaphod>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045757772.31762.13.camel@zaphod>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 20, 2003 at 11:16:13AM -0500, Shaya Potter wrote:
+> moved from the netfinity's onboard pcnet32 adapter to an IBM branded
+> Intel epro/100 w/ the intel driver in 2.4.20 and it appears very
+> stable.  Is it possible the pcnet/32 adapter is broken or the driver is
+> buggy?
 
-On Thu, 20 Feb 2003, Linus Torvalds wrote:
+I have gotten reports the 2.4.20 pcnet32 is buggy.
 
-> Ok, this is definitely a stack overflow:
-
-> Does anybody have an up-to-date "use -gp and a special 'mcount()'
-> function to check stack depth" patch? The CONFIG_DEBUG_STACKOVERFLOW
-> thing is quite possibly too stupid to find things like this (it only
-> finds interrupts that overflow the stack, not deep call sequences).
-
-i had CONFIG_DEBUG_STACKOVERFLOW on, but i'll make it more agressive. It's
-fairly easy to reproduce the oops. (at least it was when i was trying to
-avoid them :-)
-
-	Ing
+Can you test 2.4.20 with 2.4.19 version of pcnet32.c?
 

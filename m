@@ -1,110 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269670AbRHMB35>; Sun, 12 Aug 2001 21:29:57 -0400
+	id <S269676AbRHMBaf>; Sun, 12 Aug 2001 21:30:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269649AbRHMB2E>; Sun, 12 Aug 2001 21:28:04 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:42637 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269645AbRHMB1g>;
-	Sun, 12 Aug 2001 21:27:36 -0400
-Date: Sun, 12 Aug 2001 21:27:47 -0400 (EDT)
+	id <S269646AbRHMBa3>; Sun, 12 Aug 2001 21:30:29 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:49040 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269669AbRHMB3n>;
+	Sun, 12 Aug 2001 21:29:43 -0400
+Date: Sun, 12 Aug 2001 21:29:55 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fs/super.c fixes - second series (5/11)
-In-Reply-To: <Pine.GSO.4.21.0108122127030.7092-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0108122127320.7092-100000@weyl.math.psu.edu>
+Subject: [PATCH] fs/super.c fixes - second series (11/11)
+In-Reply-To: <Pine.GSO.4.21.0108122129210.7092-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0108122129420.7092-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Part 5/11
+Part 11/11
 
-First step of 4-parter that corrects the idiotic misdesign I've done a
-year ago when I was doing FS_SINGLE/kern_mount()/kern_umount(). Here we
-go:
-	* all superblocks of given type are placed on a list anchored in
-struct file_system_type. It starts at ->fs_supers and goes through the
-->s_instances of superblocks in question. Protected by sb_lock.
+Cleanup: we move decrementing ->s_active into put_super(). Callers updated.
 
-diff -urN S9-pre1-do_remount_sb/fs/super.c S9-pre1-fs_supers/fs/super.c
---- S9-pre1-do_remount_sb/fs/super.c	Sun Aug 12 20:45:50 2001
-+++ S9-pre1-fs_supers/fs/super.c	Sun Aug 12 20:45:50 2001
-@@ -122,6 +122,7 @@
- 		return -EINVAL;
- 	if (fs->next)
- 		return -EBUSY;
-+	INIT_LIST_HEAD(&fs->fs_supers);
- 	write_lock(&file_systems_lock);
- 	p = find_filesystem(fs->name);
- 	if (*p)
-@@ -792,6 +793,7 @@
- 		INIT_LIST_HEAD(&s->s_dirty);
- 		INIT_LIST_HEAD(&s->s_locked_inodes);
- 		INIT_LIST_HEAD(&s->s_files);
-+		INIT_LIST_HEAD(&s->s_instances);
- 		init_rwsem(&s->s_umount);
- 		sema_init(&s->s_lock, 1);
- 		s->s_count = 1;
-@@ -819,6 +821,7 @@
- 	s->s_type = type;
- 	spin_lock(&sb_lock);
- 	list_add (&s->s_list, super_blocks.prev);
-+	list_add (&s->s_instances, &type->fs_supers);
- 	spin_unlock(&sb_lock);
- 	down_write(&s->s_umount);
- 	lock_super(s);
-@@ -839,6 +842,7 @@
- 	atomic_dec(&s->s_active);
+diff -urN S9-pre1-s_count/fs/super.c S9-pre1-put_super/fs/super.c
+--- S9-pre1-s_count/fs/super.c	Sun Aug 12 20:45:52 2001
++++ S9-pre1-put_super/fs/super.c	Sun Aug 12 20:45:52 2001
+@@ -666,6 +666,7 @@
+ 
+ static void put_super(struct super_block *sb)
+ {
++	atomic_dec(&sb->s_active);
+ 	up_write(&sb->s_umount);
+ 	__put_super(sb);
+ }
+@@ -832,7 +833,6 @@
+ 	s->s_bdev = 0;
+ 	s->s_type = NULL;
+ 	unlock_super(s);
+-	atomic_dec(&s->s_active);
  	spin_lock(&sb_lock);
  	list_del(&s->s_list);
-+	list_del(&s->s_instances);
- 	spin_unlock(&sb_lock);
- 	put_super(s);
- 	return NULL;
-@@ -969,6 +973,7 @@
- 	s->s_flags = flags;
- 	s->s_type = fs_type;
- 	list_add (&s->s_list, super_blocks.prev);
-+	list_add (&s->s_instances, &fs_type->fs_supers);
- 
- 	spin_unlock(&sb_lock);
- 
-@@ -991,6 +996,7 @@
- 	atomic_dec(&s->s_active);
+ 	list_del(&s->s_instances);
+@@ -885,7 +885,6 @@
+ 		}
+ 		spin_unlock(&sb_lock);
+ 	}
+-	atomic_dec(&sb->s_active);
+ 	put_super(sb);
+ 	return 0;
+ }
+@@ -950,13 +949,11 @@
+ 		if (old->s_type != fs_type ||
+ 		    ((flags ^ old->s_flags) & MS_RDONLY)) {
+ 			spin_unlock(&sb_lock);
+-			atomic_dec(&s->s_active);
+ 			put_super(s);
+ 			goto out1;
+ 		}
+ 		if (!grab_super(old))
+ 			goto restart;
+-		atomic_dec(&s->s_active);
+ 		put_super(s);
+ 		blkdev_put(bdev, BDEV_FS);
+ 		path_release(&nd);
+@@ -988,7 +985,6 @@
+ 	s->s_bdev = 0;
+ 	s->s_type = NULL;
+ 	unlock_super(s);
+-	atomic_dec(&s->s_active);
  	spin_lock(&sb_lock);
  	list_del(&s->s_list);
-+	list_del(&s->s_instances);
- 	spin_unlock(&sb_lock);
- 	put_super(s);
- out1:
-@@ -1088,6 +1094,7 @@
- 		put_unnamed_dev(dev);
- 	spin_lock(&sb_lock);
+ 	list_del(&s->s_instances);
+@@ -1044,14 +1040,12 @@
+ 				s_instances);
+ 		if (!grab_super(old))
+ 			goto retry;
+-		atomic_dec(&s->s_active);
+ 		put_super(s);
+ 		do_remount_sb(old, flags, data);
+ 		return old;
+ 	} else {
+ 		kdev_t dev = get_unnamed_dev();
+ 		if (!dev) {
+-			atomic_dec(&s->s_active);
+ 			put_super(s);
+ 			up(&mount_sem);
+ 			return ERR_PTR(-EMFILE);
+@@ -1075,7 +1069,6 @@
+ 		s->s_bdev = 0;
+ 		s->s_type = NULL;
+ 		unlock_super(s);
+-		atomic_dec(&s->s_active);
+ 		spin_lock(&sb_lock);
+ 		list_del(&s->s_list);
+ 		list_del(&s->s_instances);
+@@ -1142,6 +1135,7 @@
  	list_del(&sb->s_list);
-+	list_del(&sb->s_instances);
+ 	list_del(&sb->s_instances);
  	spin_unlock(&sb_lock);
++	atomic_inc(&sb->s_active);
  	put_super(sb);
  }
-diff -urN S9-pre1-do_remount_sb/include/linux/fs.h S9-pre1-fs_supers/include/linux/fs.h
---- S9-pre1-do_remount_sb/include/linux/fs.h	Sun Aug 12 20:22:36 2001
-+++ S9-pre1-fs_supers/include/linux/fs.h	Sun Aug 12 20:45:50 2001
-@@ -688,6 +688,7 @@
- 	struct list_head	s_files;
  
- 	struct block_device	*s_bdev;
-+	struct list_head	s_instances;
- 	struct quota_mount_options s_dquot;	/* Diskquota specific options */
- 
- 	union {
-@@ -915,6 +916,7 @@
- 	struct module *owner;
- 	struct vfsmount *kern_mnt; /* For kernel mount, if it's FS_SINGLE fs */
- 	struct file_system_type * next;
-+	struct list_head fs_supers;
- };
- 
- #define DECLARE_FSTYPE(var,type,read,flags) \
 
 

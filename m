@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261609AbSJ2GID>; Tue, 29 Oct 2002 01:08:03 -0500
+	id <S261615AbSJ2GKf>; Tue, 29 Oct 2002 01:10:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261608AbSJ2GIC>; Tue, 29 Oct 2002 01:08:02 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:37531 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261609AbSJ2GIB>;
-	Tue, 29 Oct 2002 01:08:01 -0500
-Date: Mon, 28 Oct 2002 22:10:39 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: <chrisl@vmware.com>, Christoph Rohland <cr@sap.com>,
-       Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
-       <chrisl@gnuchina.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: writepage return value check in vmscan.c
-In-Reply-To: <20021028192214.GI13972@dualathlon.random>
-Message-ID: <Pine.LNX.4.33L2.0210282204030.13622-100000@dragon.pdx.osdl.net>
+	id <S261618AbSJ2GKf>; Tue, 29 Oct 2002 01:10:35 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:20208 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S261615AbSJ2GKe>;
+	Tue, 29 Oct 2002 01:10:34 -0500
+Message-ID: <3DBE27BB.E1A99E6@mvista.com>
+Date: Mon, 28 Oct 2002 22:16:27 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: "landley@trommello.org" <landley@trommello.org>,
+       Jim Houston <jim.houston@ccur.com>, "ak@suse.de" <ak@suse.de>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: [PATCH 1/3] High-res-timers part 1 (core) take 7
+References: <3DB9A311.9B0D832D@mvista.com> <1035849209.1157.242.camel@dell_ss3.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Oct 2002, Andrea Arcangeli wrote:
+Stephen Hemminger wrote:
+> 
+> This patch does not apply cleanly against 2.5.44.
+> 
+>   ------------------------------------------------------------
+>                   Name: timer.c.rej
+>    timer.c.rej    Type: application/x-reject
+>               Encoding: base64
 
-| On Mon, Oct 28, 2002 at 10:44:20AM -0800, chrisl@vmware.com wrote:
-| > They are the same as shmfs to linux kernel. Why does vmware not use it
-| > in the first place? It is possible due to some the history reason.
-| >
-| > BTW, I have another question. For the 8G memory machine, do we need
-| > to setup 16G swap space? Think about the time it take to write 16G
-| > data, does it still make sense that swap space is twice  as big as
-| > memory?
-|
-| swap space doesn't need to be twice as big as ram. That's fixed long
-| ago.
-|
-| swap+ram is the total amount of virtual memory that you can use in
-| vmware.
-|
-| > And the swap partition has limit as 2G. So we need to setup 8 swap
-| > partitions if we want 16G swap.
-|
-| that's a silly restriction of mkswap, the kernel doesn't care, it can
-| handle way more than 2G (however there's an high bound at some
-| unpractical level, to go safe the math limit should be re-encoded in
-| mkswap, of course it changes for every arch because the pte layout is
-| different).
+I suspect that you did not apply the posix patch first.  Did
+you see:
+"This patch depends on the
+POSIX clocks & timers patch in that it assumes the changes
+that patch made to timer.c to remove timer_t.  This
+dependency can be removed if needed."
 
-Heh, you hit one of my personal todo list items (larger swap spaces :),
-so I'll be looking into it, or trying to help anyone else on it
-if they want it.
+in the referenced posting?  
+
+The POSIX patch needed to remove timer_t as it is the type
+the standard uses for a timer id where as timer.c was/is
+using it to refer to a timer_struct.  I had to choose an
+application order (or make yet another patch that would need
+to preceed application of either of them :(.
+
+I choose this order, but it can be changed if that is what
+is desired.  My choice was made because I think the POSIX
+clocks & timers API is more important than high-res.  It is
+usable without high-res, however, high-res is of little use
+with out the POSIX API patch.
+
+If you did apply the posix patch prior to this one and still
+have this failure, please do let me know.
+
 
 -- 
-~Randy
-
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

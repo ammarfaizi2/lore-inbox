@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262970AbTIRFZS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 01:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbTIRFZR
+	id S262982AbTIRF3L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 01:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbTIRF3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 01:25:17 -0400
-Received: from mail.tofy.com ([64.115.21.107]:3854 "EHLO server.tofy.com")
-	by vger.kernel.org with ESMTP id S262970AbTIRFZN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 01:25:13 -0400
-Date: Thu, 18 Sep 2003 05:25:03 GMT
-From: davidabdullah@netscape.net
-X-Priority: 3
-To: linux-kernel@vger.kernel.org
-Subject: HELLO
+	Thu, 18 Sep 2003 01:29:11 -0400
+Received: from zcamail04.zca.compaq.com ([161.114.32.104]:26886 "EHLO
+	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S262982AbTIRF3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 01:29:07 -0400
+Subject: Re: [PATCH] 2.4 force_successful_syscall()
+From: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: "Helgaas, Bjorn (HP)" <bjorn.helgaas@hp.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, linux-ia64@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0309171659510.3994-100000@logos.cnet>
+References: <Pine.LNX.4.44.0309171659510.3994-100000@logos.cnet>
+Content-Type: text/plain
+Organization: Digital India
+Message-Id: <1063863741.1801.34.camel@satan.xko.dec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 18 Sep 2003 11:12:21 +0530
 Content-Transfer-Encoding: 7bit
-Message-Id: <S262970AbTIRFZN/20030918052513Z+12943@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend. 
+On Thu, 2003-09-18 at 01:30, Marcelo Tosatti wrote:
+> On Wed, 10 Sep 2003, Bjorn Helgaas wrote:
+> 
+> > Here's a 2.4 backport of this change to 2.5:
+> > 
+> >
+> http://linux.bkbits.net:8080/linux-2.5/cset@1.1046.238.7?nav=index.html
+> > 
+> > Alpha, ppc, and sparc64 define force_successful_syscall_return() in
+> 2.5,
+> > but since it's not obvious to me how to do it correctly in 2.4, I left
+> > them unchanged.
+> 
+> Whats the reasoning behing this patch?
 
-As you read this, I don't want you to feel sorry for 
-me, because, I believe everyone will die someday. 
+IIRC those changes were added to 2.5 by David. Architecture like Ia64
+and Alpha support error return via a different register set ( $19 for
+Alpha ). But syscalls like ptrace can have negative return value for
+successful returns. So in that particular case $19 is forced to be zero
+to indicate it is a successful return. IIUC
+force_successful_syscall_return  is a wrapper around doing that. On
+alpha actually r0 in the stack (regs.r0 ) is made zero which is  read in
+entry.S and put in $19. 
 
-My name is DAVID ABDULLAH, a merchant in Dubai, in the 
-U.A.E.I have been diagnosed with Esophageal cancer .It has defiled all forms of medical treatment, and right now I have only about a few 
-months to live, according to medical experts. 
-
-I have not particularly lived my life so well, as I 
-never really cared for anyone(not even myself)but my 
-business. Though I am very rich, I was never 
-generous, I was always hostile to people and only 
-focused on my business as that was the only thing I 
-cared for. But now I regret all this as I now know 
-that there is more to life than just wanting to have 
-or make all the money in the world. 
-
-I believe when God gives me a second chance to come 
-to this world I would live my life a different way 
-from how I have lived it. Now that God  has called 
-me, I have willed and given most of my property 
-and assets to my immediate and extended family 
-members as well as a few close friends. 
-
-I want God to be merciful to me and accept my soul 
-so, I have decided to give alms to charity 
-organizations, as I want this to be one of the last 
-good deeds I do on earth. So far, I have distributed 
-money to some charity organizations in the U.A.E, 
-Algeria and Malaysia. Now that my health has 
-deteriorated so badly, I cannot do this myself 
-anymore. I once asked members of my family to close one 
-of my accounts and distribute the money which I have 
-there to charity organization in Bulgaria and 
-Pakistan, they refused and kept the money to 
-themselves. Hence, I do not trust them anymore, as 
-they seem not to be contended with what I have left 
-for them. 
-
-The last of my money which no one knows of is the 
-huge cash deposit of twenty two million dollars 
-$22,000,000,that I have with a finance/Security Company 
-abroad. I will want you to help me collect this deposit 
-and dispatched it to charity organizations.
-
-
-I have set aside 10% for you for your time and 
-patience.please send a reply through this email address with your full contact information for more private and confidential communication. 
-
-God be with you. 
+-aneesh 
 

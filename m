@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261550AbTCGNMX>; Fri, 7 Mar 2003 08:12:23 -0500
+	id <S261570AbTCGNUH>; Fri, 7 Mar 2003 08:20:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261563AbTCGNMX>; Fri, 7 Mar 2003 08:12:23 -0500
-Received: from mail.gmx.net ([213.165.65.60]:27891 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261550AbTCGNMX>;
-	Fri, 7 Mar 2003 08:12:23 -0500
-Message-Id: <5.2.0.9.2.20030307142155.00c90050@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Fri, 07 Mar 2003 14:27:31 +0100
-To: Ingo Molnar <mingo@elte.hu>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [patch] "interactivity changes", sched-2.5.64-B2
-Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <5.2.0.9.2.20030307134220.00c80740@pop.gmx.net>
-References: <5.2.0.9.2.20030307111755.00ce7848@pop.gmx.net>
- <Pine.LNX.4.44.0303071049500.7326-100000@localhost.localdomain>
- <5.2.0.9.2.20030307103430.00c87df8@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S261574AbTCGNUH>; Fri, 7 Mar 2003 08:20:07 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:1221 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S261570AbTCGNUG>;
+	Fri, 7 Mar 2003 08:20:06 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15976.40680.424597.305633@gargle.gargle.HOWL>
+Date: Fri, 7 Mar 2003 14:30:16 +0100
+To: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+Cc: perfctr-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       hardmeter-users@lists.sourceforge.jp
+Subject: Re: [Perfctr-devel] perfctr and Linus' tree?
+In-Reply-To: <20030307153354J.hyoshiok@miraclelinux.com>
+References: <20030307153354J.hyoshiok@miraclelinux.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:54 PM 3/7/2003 +0100, Mike Galbraith wrote:
->Spiffy :)  /Me thinks desktop users will like this patch a bunch.
+Hiro Yoshioka writes:
+ > I have a question. Is there any progress on merging the
+ > perfctr patch to Linus' kernel tree?
+ > 
+ > http://www.uwsg.iu.edu/hypermail/linux/kernel/0303.0/0647.html
+ > 
+ > I found the DCL patch set includes the perfctr patch.
+ > http://lists.osdl.org/pipermail/dcl_developer/2003-March/000009.html
 
-(I can even play asteroids [fly little rocket ship around, shoot at and ram 
-space rocks] with make -j25 bzImage and some swapping [sucks when you hit 
-heavy swap of course, but quite playable as long as swap is light]) 
+No progress since Linus totally ignored it, but at least two
+perfctr-patched trees exist. OSDL does one for the development
+kernel, and Jack Perdue has pre-patched RedHat kernel .rpms.
+(For Jack's stuff, check out PAPI -> Links -> Related Software.)
 
+I'm planning to simplify the kernel <--> user-space interface in
+perfctr-2.6 (drop /proc/pid/perfctr and go back to /dev/perfctr),
+and then I _think_ I can do a version that doesn't require patching
+kernel source. (It will do binary code patching at module load-time
+instead. Horrible as that sounds, it's easier to deal with for users.)
+
+/Mikael

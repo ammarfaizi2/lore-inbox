@@ -1,89 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316576AbSHGARz>; Tue, 6 Aug 2002 20:17:55 -0400
+	id <S316592AbSHGAmi>; Tue, 6 Aug 2002 20:42:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316578AbSHGARz>; Tue, 6 Aug 2002 20:17:55 -0400
-Received: from jalon.able.es ([212.97.163.2]:59355 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S316576AbSHGARy>;
-	Tue, 6 Aug 2002 20:17:54 -0400
-Date: Wed, 7 Aug 2002 02:21:26 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre1
-Message-ID: <20020807002126.GG2733@werewolf.able.es>
-References: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="17pEHd4RhPHOinZp"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Aug 06, 2002 at 00:40:56 +0200
-X-Mailer: Balsa 1.3.6
+	id <S316594AbSHGAmi>; Tue, 6 Aug 2002 20:42:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24845 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316592AbSHGAmh>;
+	Tue, 6 Aug 2002 20:42:37 -0400
+Message-ID: <3D506D43.890EA215@zip.com.au>
+Date: Tue, 06 Aug 2002 17:43:47 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org, riel@surriel.com
+Subject: Re: fix CONFIG_HIGHPTE
+References: <20020806231522.GJ6256@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
+> 
+> Minimalistic fix. Perhaps rough at the edges but I can clean the
+> ugliness ppl care about when they complain. 2.5.30 successfully booted
+> & ran userspace on a 16-way NUMA-Q with 16GB of RAM with this patch
+> and CONFIG_HIGHPTE enabled.
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Thanks, Bill.  It doesn't seem any uglier than anything else highmem-related.
 
+> ...
+> +#define rmap_ptep_map(pte_paddr)                                       \
+> +({                                                                     \
+> +       unsigned long pfn = (unsigned long)(pte_paddr >> PAGE_SHIFT);   \
+> +       unsigned long idx = __pte_offset(((unsigned long)pte_paddr));   \
+> +       (pte_t *)kmap_atomic(pfn_to_page(pfn), KM_PTE2) + idx;          \
+> +})
 
-On 2002.08.06 Marcelo Tosatti wrote:
->
->So here goes -pre1, with a big -ac and x86-64 merges, plus other smaller
->stuff.
->
->
-><jgarzik@mandrakesoft.com> (02/08/03 1.596.3.6)
->	Add Intel e100 net driver.
->
-><jgarzik@mandrakesoft.com> (02/08/03 1.596.3.7)
->	Add e1000 gige net driver.
->
+Could be an inline?
 
-Configure.help missing for those. Attached.
+> +static inline rmap_ptep_map(pte_addr_t pte_paddr)
+> +{
+> +       return (pte_t *)pte_paddr;
+> +}
 
-btw, I don't like this also, but is the official one...
+Better try compiling that ;)
 
--- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-jam0, Mandrake Linux 9.0 (Cooker) for i586
-gcc (GCC) 3.2 (Mandrake Linux 9.0 3.2-0.2mdk)
+> ...
+> --- 1.66/include/linux/mm.h     Thu Aug  1 12:30:06 2002
+> +++ edited/include/linux/mm.h   Fri Aug  2 22:24:40 2002
+> @@ -161,7 +161,7 @@
+>         union {
+>                 struct pte_chain * chain;       /* Reverse pte mapping pointer.
+>                                          * protected by PG_chainlock */
+> -               pte_t            * direct;
+> +               pte_addr_t               direct;
+>         } pte;
 
---17pEHd4RhPHOinZp
-Content-Type: application/x-gzip
-Content-Disposition: attachment; filename="intel-eth-help.diff.gz"
-Content-Transfer-Encoding: base64
+Four more bytes into struct page.  I bet that hurt.
 
-H4sICCJnUD0AA2ludGVsLWV0aC1oZWxwLmRpZmYA1VnZbts4FH0ef8V9GiTwJlJ70AmqaRYE
-aNKgDYq+BbRF20RkUdASJ38/l1psRfGShIMZlMiDZPEenruIvEcJxWwGwyK9SYCOrBHx06k9
-PpPTYsnjnOVCxuMvMp6JeZHy0YJHrWmMkb0ze8Ph8I2gf9wtCgiKOQAB4pxQ/4R6QA2D9vr9
-/ttXbMNQ48Qw8a+C+fwZhoSYpjlwoI8XLhkQagL+/OXbzcXV5f35+e33b8QwegDAYCnDIuID
-yNgzXMOCpxxYHELKWQifZiLiJy9pVPOzUf6UnwLLFMiKRxFebp0e83wl0wcRz9XlsG096kGv
-f57jkudPScqzDG5TOUZikBVJItMcjjjeDSCIcp7GLOdwFec8gjAVjzw97vUbh5QzfYC7hcjq
-hw1EVpkcfT8GdLoEn7GliJ5BzoCFLEHkbACrhZguQGGIeBoVIc9Oen11iwPjnqcyihAUgsoC
-btiSw/bxt2RpCFdnWW0+XI/2tbrbOtbP1+t71La9+mntQx9uv1ytybwcjuMZHhk+PT0NoEZ4
-53A833FKhH0MrlnM5lwlukvE8bH6LB0GrkFc0ysRPghAiemZh1w4K1gEt6rQfvBUFc3aEZdY
-pmFquUAIdXwdhIB61HUO+aAKocu+YWDYttGxN17aw48dxsreplaVhJa9/w7+tuOZWoUYoAeO
-qVEGAaHE1aRATaqPYGgiELedyHcO1/IwFZr29sFCOuPZQy6T15Xk2sR13I8Xklrfp7oRrBjo
-ZJF42gi6HEiVh4/uiiqR5Z4EWzKx3lJ27gi4rfquvSuTm0rYeTSUBBytbVUhWIdrcdfOvtmU
-WvakY3+9u5YDPFx9d8e7tFk/CB9ZPOXhtlB81HHXs7ReAtey682waWxuvr+i/vN8p++4G5ue
-VvIQwaW23ploeobmduy7xDmQwJ+7KyDAzoBqdQaKwf8eBYpD71Ciputv4lh1q3cS8GUTs2fI
-FyyHZ1mkTZMN2JrXPTkPBzATqDGw9YdJ3S5DXCwn9dsh4/JRbTmCr1I+wEwiFkRsggKgRF+g
-4mAwYelUhpVmYW0QUYGg2RIn4+Zr2c7QMAgcZeIJQjEXKA4Wz8mCq4kp5/VvxyN8afNaDeRK
-UeSyRIpElivVUK2Ba0/kIx9Vjl8guaVE6STiakGUPsqNhVwpcxHiBqDC0o7IAOaywVYYTaX9
-CWeVhMGgXBZC+Zav1cgiz5OT8biO5EgocTOaymXzS6O3xvUi4ySVWNFj7Id9d7TIlxu+pU8o
-qtCrSlY11V9DNEpKBf6riAsslYzzLhOWJFna5jFNRZJnw3DWULqvHrIsqUyvVZyyhE/FTEy7
-AZvWIhf1Ykmw5oBZwHwq6wMaUwnGWlz2u5IQr1iUSWCPTGAdRRzKCqokKRzBX1BWUqUFpyyG
-Ca8KKeOqaBWDShkvMfEhzFK5LDmmRRwrvg8oUjGMK6wortbDZMOKxfnxqGLCm6VWAvXyhOMa
-qCpDKDnLEcDVbG2jCgPDmaCzIPKSqALRFOulUlc4HxHrGM+uljbgUszZBAmWMh5tmnf8hTZ/
-uzg3YF4D8gZwLddL3h3Frq3WtfX6C8Ve3mNHYdH62as4beutXMOgDtXo65TWcw2z05hZZpfE
-xb7WDs92y9AiEZgejkMk7vaQwKPRs3Q6XEXC9K0uCatL4tceFoFNbM84iLAnmIFtWJ51COFu
-d5cJgUN9q5tPo4twvQciwHbR6MbB3oKw2wu/kRstBGcbh53NNiIQcpDDvkj6xKH03QhHX38d
-txG6uXjtxcU+LxDBqFXTv3DYv/Ws/6R91p9u+M7xTErRwTZldXLUUO1epGoG1vu4+rw7yUT+
-Jmqn/9ER/1ue8b/HIQ/ncRm3W7lC/zb6tdf998H97bX6+I8znuuaefktv+4m1QfKpqOc4lGL
-TqYqLIlapfcPWYrB/ZQZAAA=
+> ...
+>  struct pte_chain {
+>         struct pte_chain * next;
+> -       pte_t * ptep;
+> +       pte_addr_t ptep;
+>  };
 
---17pEHd4RhPHOinZp--
+We'll get fifteen pte_addr_t's per pte_chain on a P4 with the
+array-of-pteps-per-pte_chain patch.
+
+And we'll need that, to reduce load on KM_PTECHAIN.  Because
+there's no point in pte_highmem without also having pte_chain_highmem,
+yes?
+
+Which means either going back to a custom allocator or teaching
+slab about highmem and kmap_atomic.  (Probably a custom allocator;
+internal fragmentation on 32/64/128 byte pte_chains won't be tooooo
+bad, presumably).
+
+We're piling more and more crap in there to support these pte_chains.
+How much is too much?
+
+Is it likely that large pages and/or shared pagetables would allow us to
+place pagetables and pte_chains in the direct-mapped region, avoid all
+this?

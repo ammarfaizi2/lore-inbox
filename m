@@ -1,80 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282691AbRK0AyY>; Mon, 26 Nov 2001 19:54:24 -0500
+	id <S282694AbRK0A6O>; Mon, 26 Nov 2001 19:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282693AbRK0AyP>; Mon, 26 Nov 2001 19:54:15 -0500
-Received: from gw.sw-stusie.uni-freiburg.de ([132.230.131.220]:58617 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S282691AbRK0AyG>; Mon, 26 Nov 2001 19:54:06 -0500
-Date: Tue, 27 Nov 2001 01:53:59 +0100 (CET)
-From: Jochen Eisinger <jochen.eisinger@gmx.de>
-X-X-Sender: <charles@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.14-pre7+ fs/proc/inode.c breaks chardevs in /proc
-Message-ID: <Pine.LNX.4.33.0111270114140.30432-100000@localhost.localdomain>
+	id <S282693AbRK0A6F>; Mon, 26 Nov 2001 19:58:05 -0500
+Received: from host113.south.iit.edu ([216.47.130.113]:51585 "EHLO
+	lostlogicx.com") by vger.kernel.org with ESMTP id <S282696AbRK0A5x>;
+	Mon, 26 Nov 2001 19:57:53 -0500
+Message-ID: <3C02E504.4090501@lostlogicx.com>
+Date: Mon, 26 Nov 2001 18:57:40 -0600
+From: Lost Logic <lostlogic@lostlogicx.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Unresponiveness of 2.4.16
+In-Reply-To: <1006812135.1420.0.camel@cygnusx-1.okcforum.org> <3C02E1F8.8090407@lostlogicx.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Lost Logic wrote:
 
-Hi!
+> I'm running 2.4.16 with 2 IDE UDMA mode 4 drives, and I have 
+> experienced no such pausing no matter what I do.  (which usually 
+> includes patching, extracting, and generally messing with kernels from 
+> Eterm with XMMS playing, and a couple mozillas open)
 
-Since 2.4.15-pre7 char-major devices located in the proc fs report
-major/minor 0 instead of the correct values.
+Ignore that, I know why I have no problems, I can extract kernels, make 
+kernels, etc w/o paging...
 
-I figured out this is due to an incorrect patch in fs/proc/inode.c which
-allows inode and/or file operations to be set for character device. The
-problem occured with alsa which provides in /proc/asound/dev/ character
-devices for accessing the sound cards. Since -pre7 these where all
-char major/minor 0, although the sound driver still worked through the
-oss/lite interface.
+>
+> Nathan G. Grennan wrote:
+>
+>> 2.4.16 becomes very unresponsive for 30 seconds or so at a time during
+>> large unarchiving of tarballs, like tar -zxf mozilla-src.tar.gz. The
+>> file is about 36mb. I run top in one window, run free repeatedly in
+>> another window and run the tar -zxf in a third window. I had many
+>> suspects, but still not sure what it is. I have tried
+>>
+>> ext2 vs ext3
+>> preemptive vs non-preemptive
+>> tainted vs non-tainted
+>>
+>> Nothing seems to help 2.4.16.
+>>
+>> I tried switching to Redhat's 2.4.9-13 kernel and it acts Alot better.
+>> Not only does 2.4.9-13 not get the 30 second delay, but it also seems to
+>> take advantage of caching. 2.4.16 takes the same moment of time each
+>> time, even tho it should have cached it all into memory the first time.
+>> 2.4.9-13 takes a while the first time(without the 30 second new process
+>> freezing), but then takes almost no time the times after that. One
+>> interesting thing I noticed is that with and without preemptive a
+>> already started mp3 playing had no disruption even during the 30 second
+>> windows where any new commands would get stuck with 2.4.16. I am not
+>> using custom
+>>
+>> I plan to do more testing to see how say 2.4.9, 2.4.13ac7, etc.
+>> Any ideas of how to fix this for 2.4.16?
+>>
+>> I have attached my .config.
+>>
+>> My system:
+>>
+>> Redhat 7.2 with all updates
+>>
+>> Athlon Thunderbird 1.33ghz
+>> 768mb(512mb, 256mb) PC133 SDRAM
+>> Abit KT7A-RAID v1.0(KT133A chipset)
+>> Bios 64
+>> HPT370(bios v1.2.0604)
+>>   Primary Master   Quantum Fireball AS40.0
+>>   Secondary Master IBM-DTLA-307045
+>> VIA686B   Primary Master   CREATIVE DVD-ROM DVD6240E
+>>   Secondary Master CR-2801TE
+>>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
-reverting the function proc_get_inode to -pre6 solves this problem:
 
-- --- ./fs/proc/inode.c   Tue Nov 27 00:21:06 2001
-+++ ./fs/proc/inode.c-pre6      Sun Sep 30 21:26:08 2001
-@@ -160,12 +160,14 @@
-                        inode->i_nlink = de->nlink;
-                if (de->owner)
-                        __MOD_INC_USE_COUNT(de->owner);
-- -               if (de->proc_iops)
-- -                       inode->i_op = de->proc_iops;
-- -               if (de->proc_fops)
-- -                       inode->i_fop = de->proc_fops;
-- -               else if (S_ISBLK(de->mode)||S_ISCHR(de->mode)||S_ISFIFO(de->mode))
-+               if (S_ISBLK(de->mode)||S_ISCHR(de->mode)||S_ISFIFO(de->mode))
-                        init_special_inode(inode,de->mode,kdev_t_to_nr(de->rdev));
-+               else {
-+                       if (de->proc_iops)
-+                               inode->i_op = de->proc_iops;
-+                       if (de->proc_fops)
-+                               inode->i_fop = de->proc_fops;
-+               }
-        }
-
- out:
-
-regards
-- -- jochen
-
-- -- 
-  "I'd rather die before using Micro$oft Word"
-    -- Donald E. Knuth
-     (asked whether he'd reinvent TeX in the light of M$ Word)
-
-  GnuGP public key for jochen.eisinger@gmx.de:
-      http://home.nexgo.de/jochen.eisinger/pubkey.asc (0x8AEB7AE3)
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Weitere Infos: siehe http://www.gnupg.org
-
-iD8DBQE8AuQr8OF76YrreuMRAv5MAJwKvauDrXe5LCgAW5uEvoI0jCO6rgCfZnln
-GrVAbUMTjo72mv8Bqj6dDNU=
-=RevS
------END PGP SIGNATURE-----
 

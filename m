@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265180AbRF0UZ4>; Wed, 27 Jun 2001 16:25:56 -0400
+	id <S265268AbRF0UZg>; Wed, 27 Jun 2001 16:25:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265242AbRF0UZq>; Wed, 27 Jun 2001 16:25:46 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:32015
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S265180AbRF0UZe>; Wed, 27 Jun 2001 16:25:34 -0400
-Date: Wed, 27 Jun 2001 16:24:10 -0400
-From: Chris Mason <mason@suse.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Xuan Baldauf <xuan--lkml@baldauf.org>, linux-kernel@vger.kernel.org,
-        andrea@suse.de,
-        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
-Subject: Re: VM deadlock
-Message-ID: <933130000.993673450@tiny>
-In-Reply-To: <Pine.LNX.4.33L.0106271641570.23373-100000@duckman.distro.conectiva>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S265242AbRF0UZ0>; Wed, 27 Jun 2001 16:25:26 -0400
+Received: from umail.unify.com ([204.163.170.2]:41891 "EHLO umail.unify.com")
+	by vger.kernel.org with ESMTP id <S265180AbRF0UZR>;
+	Wed, 27 Jun 2001 16:25:17 -0400
+Message-ID: <419E5D46960FD211A2D5006008CAC79902E5C326@pcmailsrv1.sac.unify.com>
+From: "Manuel A. McLure" <mmt@unify.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Oops at boot with 2.4.5
+Date: Wed, 27 Jun 2001 13:25:08 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When I use an initrd, sometimes when warm-booting I get an "Unable to handle
+kernel NULL pointer dereference"  OOPS just after the "Trying to unmount old
+root ..." message. I ran gdb on vmlinux and got the following stack trace:
+
+0xc0180516 <rd_ioctl+118>:      mov    0x10(%eax),%eax
+0xc0137c37 <ioctl_by_bdev+135>: mov    %edi,0xc(%ebx)
+0xc01861a0 <start_request+384>: add    $0xc,%esp
+0xc01864d3 <ide_do_request+659>:        mov    %eax,%ebx
+0xc0112949 <schedule+617>:      pop    %ebp
+0xc0132be1 <__refile_buffer+97>:        pop    %ecx
+0xc018047a <rd_make_request+266>:       xor    %eax,%eax
+0xc01347eb <try_to_free_buffers+267>:   mov    $0x1,%eax
+0xc0133062 <block_flushpage+114>:       test   %eax,%eax
+0xc0123905 <truncate_list_pages+357>:   mov    $0x1,%eax
+0xc01431af <destroy_inode+47>:  pop    %eax
+0xc01447b0 <iput+320>:  pop    %ecx
+0xc0137e46 <blkdev_put+118>:    add    $0xc,%esp
+0xc0135edc <kill_super+236>:    add    $0xc,%esp
+0xc0105000 <do_linuxrc>:        push   %edi
+0xc0117ba3 <sys_waitpid+19>:    add    $0x10,%esp
+0xc0105000 <do_linuxrc>:        push   %edi
+0xc01051e8 <prepare_namespace+264>:     pop    %edx
+0xc010520e <init+14>:   call   0xc0111a60 <free_initmem>
+0xc0105000 <do_linuxrc>:        push   %edi
+0xc01056c6 <kernel_thread+38>:  mov    $0x1,%eax
+0xc0105200 <init>:      push   %ebp
+
+A reset at this point usually (but not always) succeeds in booting, and once
+the machine succeeds in booting it is completely stable (for my admittedly
+low load).
+
+Hardware is an Athlon Tbird 900MHz (not overclocked) on an MSI K7T Turbo-R
+motherboard. I've worked around this by building my SCSI driver into the
+kernel and removing the need for an initrd.
+
+Kernel is official 2.4.5 built with Athlon optimizations.
+
+--
+Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
+Zathras is used to being beast of burden to other peoples needs. Very sad
+life. Probably have very sad death, but at least there is symmetry.
+ 
 
 
-On Wednesday, June 27, 2001 04:43:28 PM -0300 Rik van Riel
-<riel@conectiva.com.br> wrote:
-
-> On Wed, 27 Jun 2001, Chris Mason wrote:
-> 
->> Reiserfs expects write_inode() calls initiated by kswapd to
->> always have sync==0.  Otherwise, kswapd ends up waiting on the
->> log, which isn't what we want at all.
-> 
-> If you don't have free memory, you are limited to 2 choices:
-> 
-> 1) wait on IO
-> 2) spin endlessly, wasting CPU until the IO is done
-> 
-> If (1) isn't possible in reiserfs, I'd say something in
-> reiserfs needs to be fixed, otherwise you will always
-> have problems when the system has lots of dirty mappings
-> that need to be written out.
-> 
-
-Ok, I need to describe the problem a little better.  reiserfs inodes need
-to be logged, which means you have to join/start a transaction in order to
-write them.
-
-So, if kswapd tries to write them, it might end up waiting on the log.
-Normally this is not a big deal, but almost allocations in reiserfs use
-GFP_BUFFER, which means we never end up doing i/o ourselves in
-page_launder, and always end up waiting on kswapd.  So, kswapd waits on
-reiserfs and reiserfs waits on kswapd (none of these are spin locks ;-)
-
-The work around I've been using is the dirty_inode method.  Whenever
-mark_inode_dirty is called, reiserfs logs the dirty inode.  This means
-inode changes are _always_ reflected in the buffer cache right away, and
-the inode itself is never actually dirty.
-
-So, the only time reiserfs_write_inode needs to do something is for fsync
-and/or O_SYNC writes, and all it needs to do is commit the transaction.  
-
-Any time kswapd is calling write_inode, it is just trying to free the inode
-struct, and reiserfs can safely ignore the write request, regardless of if
-a sync is requested.
-
--chris
 

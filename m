@@ -1,90 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261672AbTCaOoH>; Mon, 31 Mar 2003 09:44:07 -0500
+	id <S261665AbTCaOrW>; Mon, 31 Mar 2003 09:47:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261674AbTCaOoH>; Mon, 31 Mar 2003 09:44:07 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:54792 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S261672AbTCaOoD>;
-	Mon, 31 Mar 2003 09:44:03 -0500
-Date: Mon, 31 Mar 2003 16:55:19 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PTRACE_KILL doesn't (2.5.44 and others)
-Message-ID: <20030331145519.GA12984@win.tue.nl>
-References: <20030330205126.G7414@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030330205126.G7414@almesberger.net>
-User-Agent: Mutt/1.3.25i
+	id <S261674AbTCaOrW>; Mon, 31 Mar 2003 09:47:22 -0500
+Received: from 62-177-202-82.bbeyond.nl ([62.177.202.82]:39034 "EHLO
+	exch2k-01.infopart.nl") by vger.kernel.org with ESMTP
+	id <S261665AbTCaOrU> convert rfc822-to-8bit; Mon, 31 Mar 2003 09:47:20 -0500
+content-class: urn:content-classes:message
+Subject: PCMCIA IRQ Problems
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Date: Mon, 31 Mar 2003 16:58:36 +0200
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Message-ID: <D502122A1694B04EAE0F53D53CC2F7640175B8@exch2k-01.infopart.nl>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PCMCIA IRQ Problems
+Thread-Index: AcL3lgIUUGefDMOQRsWNI3dazafs+g==
+From: "Ferry van Steen" <ferry.van.steen@InfoPart.nl>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 30, 2003 at 08:51:26PM -0300, Werner Almesberger wrote:
+Hey there,
 
-> If the process being ptraced is running, PTRACE_KILL will have no
-> effect. I've seen this in 2.5.44, and the code in 2.4.18 and 2.5.66
-> seems to be equivalent.
-> 
-> According to the ptrace(2) man page (as of man-pages-1.56),
-> PTRACE_KILL doesn't require the process to be stopped for this to
-> work.
-> 
-> Who is right ?
+with the 2.4.21-pre4 kernel everything was working fine. However, since
+pre5 (and pre6 thus) my PCMCIA card won't work (tried 2 different ones,
+both networking). The error I get is that the IRQ is in use.
 
-First of all, it is dangerous to depend on subtle properties
-of obscure calls like ptrace. Only the part that is common to
-all Unix implementations of ptrace is somewhat reliable.
+Now there are several things I don't get on this. A couple of years ago
+I was still into hardware a little, not too much now. Anyways from those
+days I know IRQ's can be shared on PCI devices, only this is really
+nuts. Almost all devices that don't have any of the standard IRQ's (like
+parallel = 7) appearantly are on the same IRQ. I've heared several
+things about this, but don't know what to believe...
 
-A random non-Linux man page says
+Some say ACPI (the power management feature) needs all PCI devices on
+the same IRQ for the power management. This I've seen before (and HATE
+it's crap on both windows and linux) and has caused me many problems
+with machines with like 5 cards or more. This machine (a Dell Inspiron
+5000e) however works fine on windows with all the devices on the same
+IRQ (which I still don't like :-)). Anyways, it's a phoenix bios which
+doesn't allow me to do much in opposite to award/ami bios'es. Anyways, I
+tried enabling ACPI in the kernel, but it still gives me IRQ errors.
 
------
-     The ptrace() function allows a parent process to control the
-     execution  of  a  child  process. Its primary use is for the
-     implementation of breakpoint debugging.  The  child  process
-     behaves   normally   until   it  encounters  a  signal  (see
-     signal(3HEAD)), at which time it enters a stopped state  and
-     its  parent  is  notified via the wait(2) function. When the
-     child is in the stopped state, its parent  can  examine  and
-     modify its "core image" using ptrace(). Also, the parent can
-     cause the child either to terminate or  continue,  with  the
-     possibility of ignoring the signal that caused it to stop.
-...
-     8     This request causes the child to  terminate  with  the
-           same consequences as exit(2).
------
+Others say it has to do with APIC (Advanced Programmable Interrupt
+Controller) which allows for 'virtual' IRQ's. I've seen machines with
+this feature having IRQ's up till 24, however, this machine does NOT
+have an APIC, so enabling it for single processor did nothing at all.
 
-so, this suggests that ptrace only does something when the child
-is stopped.
+In the 2.4.21-pre4 kernel atleast I could things working (that is, after
+using the network card (the PCMCIA one :-)) intensively for 15-20
+minutes the machine would lock up) now I can't do anything :-(
 
-The Linux man page says
+Anyways, if anyone could help me with this problem I would really
+appreciate it. Also, if anyone has nice links to the 'why are all PCI
+devices that don't have some pre-defined IRQ to the old standards on the
+same IRQ' answers/docs/useful info I would really appreciate that too as
+I've had a whole bundle of problems with it so far on both windows and
+linux and never seem to be able to solve them (that is, without
+disabling ACPI in the bios, which works, but is impossible on this
+notebook).
 
------
-       While being traced, the child will stop each time a signal
-       is  delivered,  even if the signal is being ignored.  (The
-       exception is SIGKILL, which has its  usual  effect.)   The
-       parent  will  be  notified  at  its  next  wait(2) and may
-       inspect and modify the child process while it is  stopped.
-       The  parent  then causes the child to continue, optionally
-       ignoring the delivered signal (or even delivering  a  dif-
-       ferent signal instead).
+For the convenience attached is a text file with in there the output of
+dmesg right after kernelboot (and after starting cardmgr -f) and the
+output of lspci -v. Gcc is 3.2.1 btw on gentoo linux 1.4rc2 pretty
+updated, stage 1.
 
-       When  the parent is finished tracing, it can terminate the
-       child with PTRACE_KILL or cause it to  continue  executing
-       in a normal, untraced mode via PTRACE_DETACH.
------
+If you guys require any info at all I'll be glad to supply it. I'm new
+to programming, but I pick up things quick so let me know...
 
-Here is is not completely clear whether the start of a new paragraph
-means that PTRACE_KILL functions also when the child is not stopped.
-
-For Linux, inspection of the kernel source suggests that the intention
-of the author was to make PTRACE_KILL work also when the child is not
-stopped, but indeed, as you say, it doesnt work that way.
-
-Since it is not clear what the right behaviour is, it is not clear
-whether there is something to fix. Maybe the man page could use an
-additional sentence, or removal of whitespace.
-
-Andries
-
+Kind regards

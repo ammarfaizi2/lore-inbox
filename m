@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267943AbUIJVk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267926AbUIJVl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267943AbUIJVk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 17:40:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267926AbUIJVk3
+	id S267926AbUIJVl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 17:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUIJVl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 17:40:29 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:4786 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S267920AbUIJVkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 17:40:13 -0400
-Subject: Changes to the SCSI sysfs tree
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 10 Sep 2004 17:39:57 -0400
-Message-Id: <1094852403.2553.257.camel@mulgrave>
-Mime-Version: 1.0
+	Fri, 10 Sep 2004 17:41:56 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:19363 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S267926AbUIJVlu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 17:41:50 -0400
+X-Ironport-AV: i="3.84,150,1091422800"; 
+   d="scan'208"; a="74103803:sNHT24024072"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: flock/posix lock question
+Date: Fri, 10 Sep 2004 16:41:50 -0500
+Message-ID: <7A8F92187EF7A249BF847F1BF4903C046306E5@ausx2kmpc103.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: flock/posix lock question
+Thread-Index: AcSXfr0aomLk/XJMTCOZBH5sE5sjQgAABNRQ
+From: <Stuart_Hayes@Dell.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <Stuart_Hayes@Dell.com>
+X-OriginalArrivalTime: 10 Sep 2004 21:41:50.0262 (UTC) FILETIME=[FACCDD60:01C4977E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patches effecting the changes listed below are at
 
-bk://linux-scsi.bkbits.net/scsi-target-2.6
+Hello--
 
-Andrew, could you add this to the -mm tree so it gets some wide testing
-before I submit it for inclusion in the kernel proper?  Thanks...
+This question regards file locks and code in fs/locks.c.
 
-What I'm actually doing is:
+I am seeing the kernel get stuck in posix_locks_deadlock() checking for 
+deadlocks.  It appears that samba (smbd) is getting both an flock and a 
+posix lock for the same file, which results in a circular dependency in 
+the blocked_list... and posix_locks_deadlock() is getting stuck in that
+circle.  
+The circular dependency gets into the blocked_list because deadlock 
+situations aren't checked for when inserting flock requests into the 
+blocked_list.
 
-I'd like to change the layout of the SCSI sysfs tree to add a target
-generic device.  This is essential because we need to hang certainl
-device class attributes off the target not replicate them throughout the
-LUNs of the individual device.
+Since flocks aren't supposed to do any deadlock checking, it seems like
+the 
+right solution to this would be to modify posix_locks_deadlock() to only
 
-This means that a current SCSI sysfs device like:
+check for deadlock situations with other posix locks and lock requests,
+and 
+ignore flocks.  Of course, samba should also probably be fixed so that
+it 
+doesn't do that, too... but it shouldn't be able to cause a kernel hang
+by 
+doing so.
 
-lrwxrwxrwx  1 root root 0 Sep 10 09:44 /sys/block/sda/device ->
-../../devices/parisc8/parisc8:0/pci0000:00/0000:00:13.0/host0/0:0:5:0/
+Does this sound correct?  Am I missing something?
 
-will instead become:
+(I am seeing this on a RHEL3 update 3 (2.4.21-20) kernel.)
 
-lrwxrwxrwx  1 root root 0 Sep 10 09:44 /sys/block/sda/device ->
-../../devices/parisc8/parisc8:0/pci0000:00/0000:00:13.0/host0/target0:0:5/0:0:5:0/
+Thanks!
+Stuart
 
-(note the extra target).
 
-James
 
 

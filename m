@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbTILRqk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 13:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTILRqk
+	id S261781AbTILRqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 13:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbTILRqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 13:46:40 -0400
-Received: from pf138.torun.sdi.tpnet.pl ([213.76.207.138]:40205 "EHLO
-	centaur.culm.net") by vger.kernel.org with ESMTP id S261782AbTILRqd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 13:46:33 -0400
-From: Witold Krecicki <adasi@kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SII SATA request size limit
-Date: Fri, 12 Sep 2003 19:46:31 +0200
-User-Agent: KMail/1.5.9
-References: <200309112357.41592.eu@marcelopenna.org> <1063363288.5330.1.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1063363288.5330.1.camel@dhcp23.swansea.linux.org.uk>
+	Fri, 12 Sep 2003 13:46:09 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41805 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261781AbTILRqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 13:46:03 -0400
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: How do I track TG3 peculiarities?
+References: <m31xuss0ht.fsf@maxwell.lnxi.com>
+	<20030907220926.G18482@schatzie.adilger.int>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 12 Sep 2003 11:45:57 -0600
+In-Reply-To: <20030907220926.G18482@schatzie.adilger.int>
+Message-ID: <m1r82llx2i.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200309121946.31810.adasi@kernel.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia pi± 12. wrze¶nia 2003 12:41, Alan Cox napisa³:
-> On Gwe, 2003-09-12 at 03:57, Marcelo Penna Guerra wrote:
-> > In recent kernels, the siimage driver limits the max kb per request size
-> > to 15 (7.5kb). As I was having no problems with rqsize of 128 (64kb), I
-> > decided to comment out this part of the code and my system is rock solid.
->
-> It will depend what disks you have.
->
-> > kernels, so people can try to see if it's stable. I really don't beleive
-> > that I have such an unique hardware configuration, so this should benefit
-> > other people.
->
-> You can up it again at runtime.
-I've lost some of mails about siimage on LKML, but Im' getting more and more 
-confused about 'hangs' probably caused by siimage driver. I was using 15 
-rqsize, now 128 - doesn't matter. It happens in random moments - sometimes at 
-boot time when drive is fscked, sometimes when I'm trying to copy large 
-amount of data and sometimes without any particular reason after several 
-hours. I've updated MB (a7n8x deluxe rev 2.0) BIOS but controller (which is 
-on-board) bios seems to be untouched (4.1.25 or so ). Is there any controller 
-BIOS update which I could miss? what can be other reason? 
--- 
-Witold Krêcicki (adasi) adasi [at] culm.net
-GPG key: 7AE20871
-http://www.culm.net
+Andreas Dilger <adilger@clusterfs.com> writes:
+
+> On Sep 07, 2003  16:21 -0600, Eric W. Biederman wrote:
+> > Below is one good oops we have captured.  I would have to check but
+> > I believe we have updated the tg3 driver in this instance to the
+> > one that comes with 2.4.23-pre3.
+> > 
+> > The very puzzling part is that in the crashes I don't see the tg3
+> > driver at all just the network stack.  All module addresses according
+> > to /proc/ksyms started with at 0xf8, and the tg3 driver was built as
+> > a module.
+> > 
+> > I have been having trouble understanding why skb_clone would be called
+> > to transmit a packet.  Any ideas?
+> 
+> Do you have the stack overflow checking enabled?  
+No. 
+> That has been a source
+> of problems for us.  It was especially difficult to reproduce, because it
+> only happened during a double interrupt.
+
+
+So a quick update on what I am seeing.
+
+I have now tried with a myriad of driver and kernel versions watching very
+carefully for a pattern.
+
+What I have observed is memory corruption in what looks like it may
+be a confined area of memory.  The ECC SDRAM is being closely
+monitored and I am not getting as much as a correctable error much
+less and uncorrectable error that would show up so memory is ruled
+out.  When I am connected to a particular Extreme Networks gigabit
+switch.  (The switch has some problems and it is hypothesized the
+switch is injecting problematic packets into the network).
+
+Bad packets should not be a problem but it looks like they are
+triggering the problem whatever it is.
+
+Eric

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269799AbRHDEuQ>; Sat, 4 Aug 2001 00:50:16 -0400
+	id <S269796AbRHDEyq>; Sat, 4 Aug 2001 00:54:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269798AbRHDEuG>; Sat, 4 Aug 2001 00:50:06 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:41745 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269796AbRHDEtu>; Sat, 4 Aug 2001 00:49:50 -0400
-Date: Fri, 3 Aug 2001 21:47:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ben LaHaise <bcrl@redhat.com>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-In-Reply-To: <Pine.LNX.4.33.0108040026490.14842-100000@touchme.toronto.redhat.com>
-Message-ID: <Pine.LNX.4.33.0108032141370.894-100000@penguin.transmeta.com>
+	id <S269797AbRHDEyg>; Sat, 4 Aug 2001 00:54:36 -0400
+Received: from ns3.keyaccesstech.com ([209.47.245.85]:19979 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S269796AbRHDEyc>; Sat, 4 Aug 2001 00:54:32 -0400
+Date: Sat, 4 Aug 2001 00:54:38 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: UMSDOS symlink fix
+In-Reply-To: <MPBBLFNMFLHJNJCJDPMCGEOLDMAA.Delbert@Matlock.com>
+Message-ID: <Pine.LNX.4.33.0108040053560.27750-100000@terbidium.openservices.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 3 Aug 2001, Delbert Matlock wrote:
 
-On Sat, 4 Aug 2001, Ben LaHaise wrote:
+> Enclosed is a one line fix for symlinks under the UMSDOS filesystem.  Under
+> stock 2.4.7 (and 2.4.7-ac4), if you create a symlink the last letter of the
+> original file will be left off the link.  This will fix it.
 >
-> Using the number of queued sectors in the io queues is, imo, the right way
-> to throttle io.  The high/low water marks give us decent batching as well
-> as the delays that we need for throttling writers.  If we remove that,
-> we'll need another way to wait for io to complete.
+> Now, if I can just get the blasted thing to mount as root.
+>
+> -- Delbert Matlock
+> -- Delbert@Matlock.com
+> -- http://delbert.matlock.com/
 
-Well, we actually _do_ have that other way already - that should be, after
-all, the whole point in the request allocation.
+I'm going to take this opportunity to slip in a small question.
 
-It's when we allocate the request that we know whether we already have too
-many requests pending.. And we have the batching there too. Maybe the
-current maximum number of requests is just way too big?
+Which is faster, UMSDOS or VFAT?
 
-[ Quick grep later ]
-
-On my 1GB machine, we apparently allocate 1792 requests for _each_ queue.
-Considering that a single request can have hundreds of buffers allocated
-to it, that is just _ridiculous_.
-
-How about capping the number of requests to something sane, like 128? Then
-the natural request allocation (together with the batching that we already
-have) should work just dandy.
-
-Ben, willing to do some quick benchmarks?
-
-			Linus
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 

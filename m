@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270572AbUJTX3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270439AbUJUBFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270572AbUJTX3j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 19:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270278AbUJTXXd
+	id S270439AbUJUBFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 21:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270617AbUJUBFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 19:23:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19367 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270572AbUJTXTE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 19:19:04 -0400
-Message-ID: <4176F25B.2040905@pobox.com>
-Date: Wed, 20 Oct 2004 19:18:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Wed, 20 Oct 2004 21:05:07 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:45309 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S270439AbUJUBDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 21:03:25 -0400
+Message-ID: <41770AC6.7090604@nortelnetworks.com>
+Date: Wed, 20 Oct 2004 19:03:02 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andreas Tscharner <starfire@dplanet.ch>
-CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: ICH6R and PCI - E working
-References: <20041020223920.604a69f0@akasha.yshara.ch>
-In-Reply-To: <20041020223920.604a69f0@akasha.yshara.ch>
+To: davids@webmaster.com
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+References: <MDEHLPKNGKAHNMBLJOLKOEIDPCAA.davids@webmaster.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOEIDPCAA.davids@webmaster.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Tscharner wrote:
-> Hello World,
-> 
-> I'm about to buy a new computer and the ASUS P5GD1 mainboard looks good
-> for me. My questions:
-> 
-> It has the Intel 915P chipset. Does it work with the current Linux
-> kernel?
-> 
-> It has also SATA with ICH6R chiptset. The SATA Linux status report page
-> says: " "looks like ICH5" support available in ata_piix ". What does
-> that mean? Does it work or not?
+David Schwartz wrote:
 
-SATA works but doesn't use spiffy new high performance features.
+> 	Perhaps I missed the details, but under your proposal, how do you predict
+> at 'select' time what mode the socket will be in at 'recvmsg' time?!
 
-	Jeff
+Well, if you've got a blocking socket, and do a nonblocking read with 
+MSG_DONTWAIT, everything works fine.  You lose a bit of performance, but it works.
 
+The problem case is if you create a socket, set O_NONBLOCK, do select, clear 
+O_NONBLOCK, then do a recvmsg().
 
+I suspect it's not a very common thing to do, so my proposal would still help 
+the vast majority of existing apps.
 
+Chris

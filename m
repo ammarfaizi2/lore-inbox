@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266136AbRF2RxQ>; Fri, 29 Jun 2001 13:53:16 -0400
+	id <S266137AbRF2R5p>; Fri, 29 Jun 2001 13:57:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266135AbRF2RxF>; Fri, 29 Jun 2001 13:53:05 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:24526 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S266132AbRF2Rwo>; Fri, 29 Jun 2001 13:52:44 -0400
-Message-ID: <3B3CC111.5F53C7CD@kegel.com>
-Date: Fri, 29 Jun 2001 10:55:29 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: darx_kies@gmx.net,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: re: CLOSE_WAIT Problem
+	id <S266135AbRF2R5f>; Fri, 29 Jun 2001 13:57:35 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:6404 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266132AbRF2R5X>;
+	Fri, 29 Jun 2001 13:57:23 -0400
+Message-ID: <20010629005116.F525@bug.ucw.cz>
+Date: Fri, 29 Jun 2001 00:51:16 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is it useful to support user level drivers
+In-Reply-To: <20010621104132.91801.qmail@web13609.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010621104132.91801.qmail@web13609.mail.yahoo.com>; from Balbir Singh on Thu, Jun 21, 2001 at 03:41:32AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chriss wrote:
-> I wrote a simple server application and installed it on a linux machine
-> in Slovakia, running Mandrake 7.2 (2.2.18).
-> That machine loses tcp/ip packages, as it uses a Microwave connection.
-> So my server works all the time, and the tcp/ip connections are set to
-> TIME_WAIT, but after a couple of hours
-> my server application won't get any connections anymore and the netstat
-> shows a lot of CLOSE_WAITs that belong to the server.
-> I've installed the same server on two SuSE 7.1 (2.2.18) machines in
-> Austria, and the problem never occured.
-> So does anyone know how to avoid that CLOSE_WAITs, or at least how to
-> get rid of  them?
+Hi!
 
-Dunno if this will help, but:
+> I realize that the Linux kernel supports user
+> level drivers (via ioperm, etc). However interrupts
+> at user level are not supported, does anyone think
+> it would be a good idea to add user level interrupt
+> support ? I have a framework for it, but it still
+> needs
+> a lot of work.
+> 
+> Depending on the response I get, I can send out
+> more email. Please cc me to the replies as I am no
+> longer a part of the Linux kernel mailing list - due
+> to the humble size of my mail box.
 
-They're supposed to go away by themselves after 2MSL (about 120 seconds).
-Other people (on many operating systems) have reported similar problems, btw:
-
-http://uwsg.iu.edu/hypermail/linux/net/9611.2/0043.html
-http://www.sunmanagers.org/pipermail/sunmanagers/2001-April/002894.html
-http://www2.real-time.com/tclug-list/1999/Jun/msg00254.html
-http://mail-index.netbsd.org/netbsd-bugs/1996/04/16/0004.html
-
-The last one has a fix for an old bug in netbsd that could cause this.
-- Dan
+I'd like to see that done for userspace ltmodem
+driver... Unfortunately it can not be easily done for shared PCI
+interrupts.
+								Pavel
+PS: Next needed thing is to make it possible for usermode driver to
+"mimic" kernel one, including ioctls.
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

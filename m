@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315236AbSELBMt>; Sat, 11 May 2002 21:12:49 -0400
+	id <S315274AbSELBQv>; Sat, 11 May 2002 21:16:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315272AbSELBMp>; Sat, 11 May 2002 21:12:45 -0400
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:31756 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S315236AbSELBMn>; Sat, 11 May 2002 21:12:43 -0400
-Date: Sun, 12 May 2002 11:14:26 +1000
-From: john slee <indigoid@higherplane.net>
-To: Ian Molton <spyro@armlinux.org>
+	id <S315275AbSELBQu>; Sat, 11 May 2002 21:16:50 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:8904 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S315274AbSELBQt>;
+	Sat, 11 May 2002 21:16:49 -0400
+Date: Sun, 12 May 2002 03:16:44 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200205120116.DAA26360@harpo.it.uu.se>
+To: davej@suse.de, madkiss@madkiss.org
+Subject: Re: [PATCH] Trivial bugfix in 3c509.c
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020512011426.GI3855@higherplane.net>
-In-Reply-To: <20020512010709.7a973fac.spyro@armlinux.org> <20020512010959.GH3855@higherplane.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 12, 2002 at 11:09:59AM +1000, john slee wrote:
-> On Sun, May 12, 2002 at 01:07:09AM +0100, Ian Molton wrote:
-> > I dont know who to write to about this, but the changelogs for
-> > 2.4.19-pre on kernel.org are COMPLETELY illegible.
-> 
-> you seem to be the only one publicly complaining.  go write a procmail
-> recipe to fix them up.
+Dave & Martin,
 
-duh, that was a bit of a thinko.  of course you could apply the same to
-a shell script.  :-)
+I noticed you guys included Kasper Dupont's patch in your
+2.5.15 patch kits:
+>With 3c509 compiled in kernel calling ifup after lots of
+>diskaccess causes an Oops.
+>
+>read_eeprom was incorrectly marked as __init. This patch
+>applies against 2.4.19-pre8-ac1 and maybee also 2.4.19-pre8:
 
-i suspect that some people sufficiently "one with BK" might want the
-version-number-looking-things for each item in the changelog, not just
-per person.
+Note that 2.4.19-pre8-ac1 has a newer version of 3c509.c than
+either 2.4.19-pre8 vanilla or 2.5.15, and it's only the newer
+version that calls read_eeprom() from non-__init code.
+This patch is not needed for 2.5.15.
 
-j.
+(The only calls to read_eeprom() in 2.5.15 are from el3_probe(),
+which is __init.)
 
--- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+/Mikael

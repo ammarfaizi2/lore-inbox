@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281214AbRLIRaZ>; Sun, 9 Dec 2001 12:30:25 -0500
+	id <S283667AbRLIRfP>; Sun, 9 Dec 2001 12:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283667AbRLIRaP>; Sun, 9 Dec 2001 12:30:15 -0500
-Received: from www.wen-online.de ([212.223.88.39]:13831 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S281214AbRLIRaE>;
-	Sun, 9 Dec 2001 12:30:04 -0500
-Date: Sun, 9 Dec 2001 18:32:57 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Leigh Orf <orf@mailbag.com>
-cc: "M.H.VanLeeuwen" <vanl@megsinet.net>, Mark Hahn <hahn@physics.mcmaster.ca>,
-        Andrew Morton <akpm@zip.com.au>, Ken Brownfield <brownfld@irridia.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.16 memory badness (fixed?)
-In-Reply-To: <200112091607.fB9G7mj01944@orp.orf.cx>
-Message-ID: <Pine.LNX.4.33.0112091828090.473-100000@mikeg.weiden.de>
+	id <S283672AbRLIRfG>; Sun, 9 Dec 2001 12:35:06 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:51909 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S283667AbRLIRet>;
+	Sun, 9 Dec 2001 12:34:49 -0500
+From: Jack Steiner <steiner@sgi.com>
+Message-Id: <200112091734.LAA45393@fsgi055.americas.sgi.com>
+Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
+To: pj@engr.sgi.com (Paul Jackson)
+Date: Sun, 9 Dec 2001 11:34:43 -0600 (CST)
+Cc: steiner@sgi.com (Jack Steiner), dipankar@in.ibm.com (Dipankar Sarma),
+        nchr@us.ibm.com (Niels Christiansen), kiran@linux.ibm.com,
+        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SGI.4.21.0112082027310.203252-100000@sam.engr.sgi.com> from "Paul Jackson" at Dec 08, 2001 08:44:37 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Dec 2001, Leigh Orf wrote:
+> 
+> I think Jack got his attribution wrong.  Which is good for me,
+> since I wrote what Jack just gently demolished <grin>.
+  
+And I probably should not have been reading mail while I
+debugged a weird system hang. :-)  I missed the earlier
+part of the thread - I though you were refering to local
+allocation.
 
-> buffer_head       220278 220350    128 7344 7345    1
+I dont think I have a strong opinion yet about kmem_cache_alloc_node()
+vs kmem_cache_alloc_cpu(). I would not be surprised to find that 
+both interfaces make sense.  
 
-P.S.
+If code want to allocate close to a cpu, then kmem_cache_alloc_cpu()
+is the best choice. However, I would also expect that some code
+already knows the node. Then kmem_cache_alloc_node() is best.
 
-These don't bother my box much.. a little though.
+Conversion of cpu->node is easy. Conversion of node->cpu
+is slightly more difficult (currently) and has the ambiguity
+that there may be multiple cpus on the node - which one should
+you select? And does it matter?
 
-	-Mike
+As precident, the page allocation routines are all node-based.
+(ie., alloc_pages_node(), etc...)
+
+
+-- 
+Thanks
+
+Jack Steiner    (651-683-5302)   (vnet 233-5302)      steiner@sgi.com
 

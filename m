@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264218AbTFIMkg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 08:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264226AbTFIMkg
+	id S264226AbTFIMoR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 08:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTFIMoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 08:40:36 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:30100 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264218AbTFIMkd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 08:40:33 -0400
-Date: Mon, 9 Jun 2003 14:54:04 +0200
-From: Vojtech Pavlik <vojtech@ucw.cz>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Fix PS/2 keyboard and mouse on I2000
-Message-ID: <20030609145404.E25395@ucw.cz>
-References: <16090.39595.933087.45491@wombat.chubb.wattle.id.au>
+	Mon, 9 Jun 2003 08:44:17 -0400
+Received: from [209.167.240.9] ([209.167.240.9]:53757 "EHLO
+	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
+	id S264226AbTFIMoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 08:44:14 -0400
+Subject: Re: Linux and IBM : "unauthorized" mini-PCI : TCPA updates
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: Martin List-Petersen <martin@list-petersen.dk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1054940371.3044.40.camel@loke>
+References: <1054940371.3044.40.camel@loke>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 09 Jun 2003 08:57:52 -0400
+Message-Id: <1055163473.25882.13.camel@dlacoste.ottawa.loran.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <16090.39595.933087.45491@wombat.chubb.wattle.id.au>; from peter@chubb.wattle.id.au on Mon, Jun 02, 2003 at 10:30:35AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 02, 2003 at 10:30:35AM +1000, Peter Chubb wrote:
-> 
-> Hi,
-> 	 The appended fix is needed on I2000 machines, to map the
-> legacy ISA interrupt onto the actual interrupt provided.  Otherwise
-> the mouse and keyboard won't work.  Patch against 2.5.70.
+On Fri, 2003-06-06 at 18:59, Martin List-Petersen wrote:
+> Eerh, dumb question here: Is this MiniPCI Wlan cards in general or how ?
+> I ask, because i've seen MiniPCI Wlan cards and i've seen cards that in
+> fact are PC-Card Wlan cards and a PC-Card-to-PCI bridge put together on
+> a MiniPCI card, just adding another PC-Card slot to your notebook and
+> inserting a Wlan card there (Dell TrueMobile 1150).
 
-Thanks, applied.
+IIRC, it's the antenna PLUS the WLan card that gets FCC licensed,
+so you violate FCC rules by allowing a card without an antenna,
+and this is why even 'regular' pcmcia cards all have their own
+'unique' antenna jacks, so you can't plug in an off the shelf antenna
+and boost your signal.
 
-> # This is a BitKeeper generated patch for the following project:
-> # Project Name: Linux kernel tree
-> # This patch format is intended for GNU patch command version 2.5 or higher.
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.1101  -> 1.1102 
-> #	drivers/input/serio/i8042-io.h	1.4     -> 1.5    
-> #
-> # The following is the BitKeeper ChangeSet Log
-> # --------------------------------------------
-> # 03/05/27	peterc@gelato.unsw.edu.au	1.1102
-> # IA64: Fix  I2000 no keyboard interrupt problem.
-> # --------------------------------------------
-> #
-> diff -Nru a/drivers/input/serio/i8042-io.h b/drivers/input/serio/i8042-io.h
-> --- a/drivers/input/serio/i8042-io.h	Tue May 27 14:07:29 2003
-> +++ b/drivers/input/serio/i8042-io.h	Tue May 27 14:07:29 2003
-> @@ -20,11 +20,14 @@
->   */
->  
->  #ifdef __alpha__
-> -#define I8042_KBD_IRQ	1
-> -#define I8042_AUX_IRQ	(RTC_PORT(0) == 0x170 ? 9 : 12)	/* Jensen is special */
-> +# define I8042_KBD_IRQ	1
-> +# define I8042_AUX_IRQ	(RTC_PORT(0) == 0x170 ? 9 : 12)	/* Jensen is special */
-> +#elif defined(__ia64__)
-> +# define I8042_KBD_IRQ isa_irq_to_vector(1)
-> +# define I8042_AUX_IRQ isa_irq_to_vector(12)
->  #else
-> -#define I8042_KBD_IRQ	1
-> -#define I8042_AUX_IRQ	12
-> +# define I8042_KBD_IRQ	1
-> +# define I8042_AUX_IRQ	12
->  #endif
->  
->  /*
-> 
+So the theory that the IBM laptops with built in antennas can't
+use just any mini-PCI card makes sense, even if it is stupid.
+They would have been licensed for specific cards only, and would
+be violating the FCC license to use other cards.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I hope that's all it is.  If they had some other reason I'd be very
+pissed off if I bought a stinkpad.  (Wait a minute, I did buy a
+stinkpad :)
+
+Dana Lacoste
+Ottawa, Canada
+

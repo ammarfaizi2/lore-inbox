@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280474AbRKGK4s>; Wed, 7 Nov 2001 05:56:48 -0500
+	id <S279233AbRKGLJK>; Wed, 7 Nov 2001 06:09:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280510AbRKGK4h>; Wed, 7 Nov 2001 05:56:37 -0500
-Received: from hazard.jcu.cz ([160.217.1.6]:42906 "HELO hazard.jcu.cz")
-	by vger.kernel.org with SMTP id <S280474AbRKGK43>;
-	Wed, 7 Nov 2001 05:56:29 -0500
-Date: Wed, 7 Nov 2001 11:55:09 +0100
-From: Jan Marek <linux@hazard.jcu.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Cannot unlock spinlock... Was: Problem in yenta.c, 2nd edition
-Message-ID: <20011107115509.F11351@hazard.jcu.cz>
-In-Reply-To: <20011107111056.E11351@hazard.jcu.cz> <E161Pyh-0003hb-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E161Pyh-0003hb-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23i
+	id <S279917AbRKGLJA>; Wed, 7 Nov 2001 06:09:00 -0500
+Received: from cnxt10002.conexant.com ([198.62.10.2]:54761 "EHLO
+	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
+	id <S279233AbRKGLIv>; Wed, 7 Nov 2001 06:08:51 -0500
+Date: Wed, 7 Nov 2001 12:08:34 +0100 (CET)
+From: Rui Sousa <rui.p.m.sousa@clix.pt>
+X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
+To: Mike Kasick <ic382@apk.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: EMU10K1 and High Memory conflict in 2.4.13/2.4.14
+In-Reply-To: <20011106235430.1e0df1d4.ic382@apk.net>
+Message-ID: <Pine.LNX.4.33.0111071206240.1005-100000@sophia-sousar2.nice.mindspeed.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+On Tue, 6 Nov 2001, Mike Kasick wrote:
 
-On Wed, Nov 07, 2001 at 10:30:39AM +0000, Alan Cox wrote:
+Edit linux/drivers/sound/emu10k1/main.c and change:
+
+/* FIXME: is this right? */
+/* does the card support 32 bit bus master?*/
+#define EMU10K1_DMA_MASK                0xffffffff      /* DMA buffer mask for pci_alloc_consist */
+
+to
+
+/* FIXME: is this right? */
+/* does the card support 32 bit bus master?*/
+#define EMU10K1_DMA_MASK                0x7fffffff      /* DMA buffer mask for pci_alloc_consist */
+
+I believe the comments say it all...
+
+Rui Sousa
+
+
+> I've been having problems with the EMU10K1 Sound Blaster Live! driver since the release of 2.4.13.  Though I get no errors, all the sounds play garbled and distorted, or not at all.  I didn't have this problem with 2.4.12 and below.  After not hearing anything on the issue I checked over my entire configuration tonight and found that with 4GB or 64GB High Memory Support enabled in my otherwise stock kernel I get these distortions, however with High Memory Support off, everything seems ok.
 > 
-> Can you disable the winmodem in the BIOS at all. I've seen similar reports
-> of audio hangs where the IRQ was shared by a lucent winmodem - no idea
-> why since it ought to be passive and minding its own business.
+> Among other things, my hardware includes:
+> Abit KT7 Motherboard (KT-133 chipset)
+> AMD Athlon Thunderbird 800 MHz processor
+> 1.0 GB PC133 SD-RAM (I think its all Micron, but I'm not sure)
+> Soundblaster Live! Value
+> 
+> This is my first time posting to the mailing list so forgive me for not being very familiar with the formalities, particularly I have no idea who to mail this to so I'm just posting it to the list in hopes someone reads it.  Also, my primary email address isn't subscribed, so I would appreciate it if all replies were CC'ed to ic382@apk.net -- Thanks.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I'm sorry, but this is the Compaq Armada notebook and in its BIOS
-I can't disable even ACPI or this device :-((( Maybe it is
-possible in special "BIOS setup program" which can be load from
-Compaq rescue partition: however I remove this partition :-(
-
-I can only remove this device physically from notebook...
-
-But I have good news (maybe): when I switch off ACPI in the
-kernel config, I can work with PCMCIA w/o David's patch...
-(New kernel fetched from sgi CVS, because I have xfs on the root
-filesystem, version is 2.4.14-xfs) ;-))))
-
-Thank you for advice...
-
-Sincerely
-Jan Marek
--- 
-Ing. Jan Marek
-University of South Bohemia
-Academic Computer Centre
-Phone: +420-38-7772080

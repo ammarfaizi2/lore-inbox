@@ -1,64 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129077AbQJ3N5e>; Mon, 30 Oct 2000 08:57:34 -0500
+	id <S129120AbQJ3OCe>; Mon, 30 Oct 2000 09:02:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129120AbQJ3N5Y>; Mon, 30 Oct 2000 08:57:24 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:61964 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129077AbQJ3N5J>;
-	Mon, 30 Oct 2000 08:57:09 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux_developer@hotmail.com (Linux Kernel Developer),
+	id <S129240AbQJ3OCY>; Mon, 30 Oct 2000 09:02:24 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30530 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129120AbQJ3OCH>; Mon, 30 Oct 2000 09:02:07 -0500
+Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17
+To: kaos@ocs.com.au (Keith Owens)
+Date: Mon, 30 Oct 2000 14:02:38 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux_developer@hotmail.com (Linux Kernel Developer),
         linux-kernel@vger.kernel.org
-Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17 
-In-Reply-To: Your message of "Mon, 30 Oct 2000 13:41:40 -0000."
-             <E13qFC1-0006t5-00@the-village.bc.nu> 
-Mime-Version: 1.0
+In-Reply-To: <4572.972914218@ocs3.ocs-net> from "Keith Owens" at Oct 31, 2000 12:56:58 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 31 Oct 2000 00:56:58 +1100
-Message-ID: <4572.972914218@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13qFWK-0006uI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000 13:41:40 +0000 (GMT), 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->Keith Owens wrote
->> >You may find that creating your own wrappers for these files that do
->> >
->> >extern "C" {
->> >#define new new_
->> >#define private private_
->> >#include <linux/foo.h>
->> >#undef new
->> >#undef private
->> >}
->> >
->> >safer, since you won't break anything
->> 
->> It breaks module symbol versions, see earlier mail to l-k.
->
->I don't believe that is the case.
->
->You compute the modversions against the C header files. You include the C++
->header files in a C++ module and you include the module version file directly.
->Your symbols match providing you don't have an object called private or new
->that is globally exported. We don't seem to have any of those
+> As part of the 2.5 kbuild redesign, symbol versions will be completely
+> redone.  One of the things on my todo list is to detect this mismatch.
+> There are some problems in doing that which I may or may not be able to
+> overcome, but if the field names are different between C and C++ then I
+> can never detect this mismatch correctly.
 
-There is a deficiency in modversions which has been there since the
-start.  Symbol versions assume that the kernel header files and the
-module version file are in sync but this has never been guaranteed.  I
-have seen people compile (outside the kernel) with headers from kernel
-2.2.x and modversions from kernel 2.3.x, the checksums "match" the 2.3
-kernel so the module loaded but they used the wrong headers, splat!
-
-As part of the 2.5 kbuild redesign, symbol versions will be completely
-redone.  One of the things on my todo list is to detect this mismatch.
-There are some problems in doing that which I may or may not be able to
-overcome, but if the field names are different between C and C++ then I
-can never detect this mismatch correctly.
-
-Please do not use different structure field names in kernel and modules.
+The symbol generation code never sees the C++ names, never will and never can.
+I still don't see any problem.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

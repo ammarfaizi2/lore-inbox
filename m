@@ -1,238 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbTLTW7r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 17:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTLTW7r
+	id S261812AbTLTXRz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 18:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTLTXRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 17:59:47 -0500
-Received: from abyss.devicen.de ([217.6.173.34]:58814 "EHLO abyss.devicen.de")
-	by vger.kernel.org with ESMTP id S261779AbTLTW7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 17:59:41 -0500
-Message-ID: <3FE4D27B.8060201@devicen.de>
-Date: Sat, 20 Dec 2003 23:51:39 +0100
-From: Oliver Teuber <teuber@devicen.de>
-Organization: DEVICE/N GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20030821
-X-Accept-Language: de-at, de, en-us, en
+	Sat, 20 Dec 2003 18:17:55 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:25501 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261812AbTLTXRx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 18:17:53 -0500
+Message-ID: <3FE4D89C.2050605@cyberone.com.au>
+Date: Sun, 21 Dec 2003 10:17:48 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 4 Oops with 2.4.23
-References: <3FE240F9.5040703@devicen.de> <1071820223.15127.45.camel@tribesman.namesys.com> <3FE2BDD5.2020801@namesys.com> <3FE2D58D.8050804@devicen.de> <Pine.LNX.4.58L.0312191053100.27334@logos.cnet>
-In-Reply-To: <Pine.LNX.4.58L.0312191053100.27334@logos.cnet>
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/5] 2.6.0 sched fork cleanup
+References: <3FE46885.2030905@cyberone.com.au> <3FE468BF.9000102@cyberone.com.au> <20031220195542.GA32320@elte.hu>
+In-Reply-To: <20031220195542.GA32320@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti schrieb:
 
->On Fri, 19 Dec 2003, Oliver Teuber wrote:
+
+Ingo Molnar wrote:
+
+>* Nick Piggin <piggin@cyberone.com.au> wrote:
 >
->  
 >
->>Hans Reiser schrieb:
->>
->>    
->>
->>>Vladimir Saveliev wrote:
->>>
->>>      
->>>
->>>>>hi
->>>>>
->>>>>i had 4 Oops while running 2.4.23.
->>>>>
->>>>>all 4 Oops occured at the same address.
->>>>>
->>>>>two traces attached ...
->>>>>
->>>>>ksymoops 2.4.9 on i686 2.4.23.  Options used
->>>>>    -v /usr/src/linux/vmlinux (specified)
->>>>>    -k /proc/ksyms (default)
->>>>>    -l /proc/modules (default)
->>>>>    -o /lib/modules/2.4.23/ (default)
->>>>>    -m /usr/src/linux/System.map (default)
->>>>>
->>>>>Reading Oops report from the terminal
->>>>>Oops: 0000
->>>>>CPU:    0
->>>>>EIP:    0010:[<c0119780>]    Not tainted
->>>>>Using defaults from ksymoops -t elf32-i386 -a i386
->>>>>EFLAGS: 00010086
->>>>>eax: c83a643c   ebx: 00000000   ecx: 00000001   edx: 00000001
->>>>>esi: ce6d2980   edi: c83a643c   ebp: cdb61a6c   esp: cdb61a54
->>>>>ds: 0018   es: 0018   ss: 0018
->>>>>Process lpd (pid: 4136, stackpage=cdb61000)
->>>>>Stack: 00000001 00000286 00000001 c41c1680 ce6d2980 00000000 00000046
->>>>>c02282d4
->>>>>      cfca1400 00000000 00000202 c41c1680 c022789b c41c1680 c8c9b180
->>>>>c02288d1
->>>>>      ce6d2980 cfca1560 fffffffd c022c7cb ce6d2980 cdb61af0 00000001
->>>>>c033aa88
->>>>>Call Trace:    [<c02282d4>] [<c022789b>] [<c02288d1>] [<c022c7cb>]
->>>>>[<c0120bb1>]
->>>>> [<c010aa19>] [<c010cf18>] [<d094c782>] [<d094cbe4>] [<d094c3c0>]
->>>>>[<d094d048>]
->>>>> [<d094ead2>] [<d094f0f2>] [<d095e82f>] [<d093d719>] [<d095e83d>]
->>>>>[<d0955057>]
->>>>> [<d093ebd0>] [<d095e83d>] [<c0150356>] [<c013e224>] [<c013cd7d>]
->>>>>[<c013ce0b>]
->>>>> [<c0108f27>]
->>>>>Code: 8b 13 0f 18 02 39 c3 74 76 8d b4 26 00 00 00 00 8b 4b fc 8b
->>>>>
->>>>>
->>>>>
->>>>>
->>>>>          
->>>>>
->>>>>>>EIP; c0119780 <__wake_up+20/b0>   <=====
->>>>>>>
->>>>>>>eax; c83a643c <_end+80372e8/1057bf0c>
->>>>>>>esi; ce6d2980 <_end+e36382c/1057bf0c>
->>>>>>>edi; c83a643c <_end+80372e8/1057bf0c>
->>>>>>>ebp; cdb61a6c <_end+d7f2918/1057bf0c>
->>>>>>>esp; cdb61a54 <_end+d7f2900/1057bf0c>
->>>>>>>
->>>>>>>              
->>>>>>>
->>>>>Trace; c02282d4 <sock_def_write_space+64/90>
->>>>>Trace; c022789b <sock_wfree+3b/40>
->>>>>Trace; c02288d1 <__kfree_skb+41/100>
->>>>>Trace; c022c7cb <net_tx_action+2b/b0>
->>>>>Trace; c0120bb1 <do_softirq+51/a0>
->>>>>Trace; c010aa19 <do_IRQ+99/b0>
->>>>>Trace; c010cf18 <call_do_IRQ+5/d>
->>>>>Trace; d094c782 <[reiserfs]comp_keys+362/3f0>
->>>>>Trace; d094cbe4 <[reiserfs]is_tree_node+64/70>
->>>>>Trace; d094c3c0 <[reiserfs]__constant_memcpy+c0/120>
->>>>>Trace; d094d048 <[reiserfs]search_for_position_by_key+f8/4c0>
->>>>>Trace; d094ead2 <[reiserfs]reiserfs_cut_from_item+222/4b0>
->>>>>Trace; d094f0f2 <[reiserfs]reiserfs_do_truncate+322/580>
->>>>>Trace; d095e82f <[reiserfs].rodata.end+5ab0/5ca1>
->>>>>Trace; d093d719 <[reiserfs]reiserfs_truncate_file+e9/230>
->>>>>Trace; d095e83d <[reiserfs].rodata.end+5abe/5ca1>
->>>>>Trace; d0955057 <[reiserfs]journal_end+27/30>
->>>>>Trace; d093ebd0 <[reiserfs]reiserfs_file_release+3a0/450>
->>>>>          
->>>>>
->>>>        
->>>>
->>>I would prefer that you first determine the likely cause of his
->>>needing to use fsck....  Did  he ever use write caching, command
->>>queueing, what exactly is the nature of the on-disk corruptio
->>>      
->>>
->>i don't think that this oops is related to reiserfs. i am not a kernel
->>hacker but
->>every oops occurred in wake_up called from <sock_def_write_space+64/90> ?!
->>
->>attached is a system description created with hwinfo from suse.
->>
->>the system is in production but i can originate an fsck to see if the
->>filesystem
->>is damaged.
->>    
+>>Move some fork related scheduler policy from fork.c to sched.c where
+>>it belongs.
 >>
 >
->Oliver,
+>this only makes sense if all the other fork-time initializations are
+>done in sched.c too - these are scattered all around copy_process(). 
+>The attached patch (it compiles & boots) does this. All the lowlevel
+>scheduler logic (that was done in fork.c) is now in sched.c - fork.c
+>only sees the higher level primitives. I've also updated a couple of
+>comments that relate to the affected code.
 >
->Can you run the setup on a ext2 filesystem?
->
->  
->
-hi
 
-there is one external raid subsystem attached to the server.
-
-server:~ # df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/hda2             29494432   8175704  21318728  28% /
-/dev/sda1            309655092  74835000 219090452  26% /array1
-/dev/sda2            265932584  27000232 225423696  11% /array2
-tmpfs                   127744         0    127744   0% /dev/shm
-
-ext3 is used on sda1 and sda2.
-
-i will try to re-install the server on monday to use ext2 on /
-
-the server-crash occurres often while our users try to
-print via the printer-spooler on that server. the printer-
-spooler is part of an apple mac fileserver named helios.
-
-printing via the spooler -> network and filesystem load ...
-
-any other things i could do to spot the problem/bug?
-
-please take a look at this oops too ...
-(i have two more oops with the same eip)
-
-ksymoops 2.4.9 on i686 2.4.23.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.23/ (default)
-     -m /usr/src/linux/System.map (default)
-
-Reading Oops report from the terminal
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0119780>]     Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010086
-eax: c86ef23c   ebx: 00000000  ecx: 00000001  edx: 00000001
-esi: ce074e80   edi: c86ef23c  ebp: cee19f40  esp: cee19f28
-ds: 0018   es: 0018   ss: 0018
-Process if (pid: 4571, stackpage=cee19000)
-Stack: 00000001 00000286 00000001 cd876c80 ce074e80 00000000 00000046 
-c02282d4
-       00001000 00000000 00000202 cd876c80 c022789b cd876c80 cb01ca80 
-c02288d1
-       ce074e80 cfcbcd60 fffffffd c022c7cb ce074e80 cee19fc4 00000001 
-c033aa88
-Call Trace:    [<c02282d4>] [<c022789b>] [<c02288d1>] [<c022c7cb>] 
-[<c0120bb1>]
-  [<c010aa19>] [<c010cf18>]
-Code: 8b 13 0f 18 02 39 c3 74 76 8d b4 26 00 00 00 00 8b 4b fc 8b
-
-
- >>EIP; c0119780 <__wake_up+20/b0>   <=====
-
- >>eax; c86ef23c <_end+83800e8/1057bf0c>
- >>esi; ce074e80 <_end+dd05d2c/1057bf0c>
- >>edi; c86ef23c <_end+83800e8/1057bf0c>
- >>ebp; cee19f40 <_end+eaaadec/1057bf0c>
- >>esp; cee19f28 <_end+eaaadd4/1057bf0c>
-
-Trace; c02282d4 <sock_def_write_space+64/90>
-Trace; c022789b <sock_wfree+3b/40>
-Trace; c02288d1 <__kfree_skb+41/100>
-Trace; c022c7cb <net_tx_action+2b/b0>
-Trace; c0120bb1 <do_softirq+51/a0>
-Trace; c010aa19 <do_IRQ+99/b0>
-Trace; c010cf18 <call_do_IRQ+5/d>
-
-Code;  c0119780 <__wake_up+20/b0>
-00000000 <_EIP>:
-Code;  c0119780 <__wake_up+20/b0>   <=====
-   0:   8b 13                     mov    (%ebx),%edx   <=====
-Code;  c0119782 <__wake_up+22/b0>
-   2:   0f 18 02                  prefetchnta (%edx)
-Code;  c0119785 <__wake_up+25/b0>
-   5:   39 c3                     cmp    %eax,%ebx
-Code;  c0119787 <__wake_up+27/b0>
-   7:   74 76                     je     7f <_EIP+0x7f>
-Code;  c0119789 <__wake_up+29/b0>
-   9:   8d b4 26 00 00 00 00      lea    0x0(%esi,1),%esi
-Code;  c0119790 <__wake_up+30/b0>
-  10:   8b 4b fc                  mov    0xfffffffc(%ebx),%ecx
-Code;  c0119793 <__wake_up+33/b0>
-  13:   8b 00                     mov    (%eax),%eax
-
- <0>Kernel panic: Aiee, killing interrupt handler!
-
+OK I missed those bits. Looks good, of course. Thanks Ingo
 
 

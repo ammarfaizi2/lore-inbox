@@ -1,66 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262997AbUJ1MCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262993AbUJ1MCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262997AbUJ1MCr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 08:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbUJ1MCO
+	id S262993AbUJ1MCq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 08:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbUJ1MCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 08:02:14 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:13012 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S262997AbUJ1L7c
+	Thu, 28 Oct 2004 08:02:04 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:45535 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S262992AbUJ1L7B
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 07:59:32 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9bk6 msdos fs OOPS
-Date: Thu, 28 Oct 2004 07:59:28 -0400
-User-Agent: KMail/1.7
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Nigel Kukard <nkukard@lbsd.net>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-References: <41809921.10200@lbsd.net> <873bzzw60c.fsf@devron.myhome.or.jp> <200410280714.40033.gene.heskett@verizon.net>
-In-Reply-To: <200410280714.40033.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410280759.28282.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.91.102] at Thu, 28 Oct 2004 06:59:28 -0500
+	Thu, 28 Oct 2004 07:59:01 -0400
+Subject: [PATCH] Fix deprecated MODULE_PARM for CAPI subsystem
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Karsten Keil <kkeil@suse.de>
+Content-Type: multipart/mixed; boundary="=-ZOZPI/6PjeHzY/j3mJH3"
+Date: Thu, 28 Oct 2004 13:58:40 +0200
+Message-Id: <1098964720.6636.21.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 October 2004 07:14, Gene Heskett wrote:
->On Thursday 28 October 2004 05:23, OGAWA Hirofumi wrote:
->>Nigel Kukard <nkukard@lbsd.net> writes:
->>> OOPS is 100% reproducable. I boot into X, and run    eog
->>> /mnt/camera/dcim/100cresi    and BANG.
->>
->>This is known problem. Can you please try the following patch?
->>Then, please send debugging output.
->>
->>Thanks.
->
->This still applies cleanly to 2.6.10-rc1-bk6, so I'm building it to
->test also.  I have an Olympus C-3020 that mounts as a vfat file
->system over usb.  It has been somewhat of a problem if the card has
->quite a few pix on it, I must copy, and delete, from the bottom of
->the dirlisting else it goes read-only on me.  When the build is
-> done, I'll try mounting it to see if this also gives an Oops, then
-> reboot and try again, and report the results.
 
-OGAWA;  I didn't notice I wasn't running gnome, but use kde.  I have 
-been able to mount, read the empty card in it, and unmount it 3 times 
-with no Oops with the unpatched 2.6.10-rc1-bk6 kernel.  Now I'll 
-reboot and retest tour patch.
+--=-ZOZPI/6PjeHzY/j3mJH3
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+The MODULE_PARM is deprecated now and should be replaced by
+module_param() or module_param_named().
+
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+
+
+--=-ZOZPI/6PjeHzY/j3mJH3
+Content-Disposition: attachment; filename=patch
+Content-Type: text/plain; name=patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+===== drivers/isdn/capi/capi.c 1.61 vs edited =====
+--- 1.61/drivers/isdn/capi/capi.c	2004-10-21 19:03:22 +02:00
++++ edited/drivers/isdn/capi/capi.c	2004-10-28 13:22:23 +02:00
+@@ -38,6 +38,7 @@
+ #include <linux/kernelcapi.h>
+ #include <linux/init.h>
+ #include <linux/device.h>
++#include <linux/moduleparam.h>
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/isdn/capiutil.h>
+ #include <linux/isdn/capicmd.h>
+@@ -67,10 +68,10 @@
+ int capi_ttyminors = CAPINC_NR_PORTS;
+ #endif /* CONFIG_ISDN_CAPI_MIDDLEWARE */
+ 
+-MODULE_PARM(capi_major, "i");
++module_param_named(major, capi_major, uint, 0);
+ #ifdef CONFIG_ISDN_CAPI_MIDDLEWARE
+-MODULE_PARM(capi_ttymajor, "i");
+-MODULE_PARM(capi_ttyminors, "i");
++module_param_named(ttymajor, capi_ttymajor, uint, 0);
++module_param_named(ttyminors, capi_ttyminors, uint, 0);
+ #endif /* CONFIG_ISDN_CAPI_MIDDLEWARE */
+ 
+ /* -------- defines ------------------------------------------------- */
+===== drivers/isdn/capi/capidrv.c 1.31 vs edited =====
+--- 1.31/drivers/isdn/capi/capidrv.c	2004-08-27 21:27:24 +02:00
++++ edited/drivers/isdn/capi/capidrv.c	2004-10-28 13:25:40 +02:00
+@@ -29,6 +29,7 @@
+ #include <linux/kernelcapi.h>
+ #include <linux/ctype.h>
+ #include <linux/init.h>
++#include <linux/moduleparam.h>
+ 
+ #include <linux/isdn/capiutil.h>
+ #include <linux/isdn/capicmd.h>
+@@ -40,7 +41,7 @@
+ MODULE_DESCRIPTION("CAPI4Linux: Interface to ISDN4Linux");
+ MODULE_AUTHOR("Carsten Paeth");
+ MODULE_LICENSE("GPL");
+-MODULE_PARM(debugmode, "i");
++module_param(debugmode, uint, 0);
+ 
+ /* -------- type definitions ----------------------------------------- */
+ 
+===== drivers/isdn/capi/kcapi.c 1.55 vs edited =====
+--- 1.55/drivers/isdn/capi/kcapi.c	2004-10-19 11:40:35 +02:00
++++ edited/drivers/isdn/capi/kcapi.c	2004-10-28 13:25:56 +02:00
+@@ -24,6 +24,7 @@
+ #include <linux/capi.h>
+ #include <linux/kernelcapi.h>
+ #include <linux/init.h>
++#include <linux/moduleparam.h>
+ #include <linux/delay.h>
+ #include <asm/uaccess.h>
+ #include <linux/isdn/capicmd.h>
+@@ -41,7 +42,7 @@
+ MODULE_DESCRIPTION("CAPI4Linux: kernel CAPI layer");
+ MODULE_AUTHOR("Carsten Paeth");
+ MODULE_LICENSE("GPL");
+-MODULE_PARM(showcapimsgs, "i");
++module_param(showcapimsgs, uint, 0);
+ 
+ /* ------------------------------------------------------------- */
+ 
+
+--=-ZOZPI/6PjeHzY/j3mJH3--
+

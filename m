@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267975AbTGIARw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 20:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267976AbTGIARw
+	id S267981AbTGIAVU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 20:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267988AbTGIAVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 20:17:52 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:25348 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267975AbTGIARv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 20:17:51 -0400
-Subject: Re: 2.5.74-mm2 [kernel BUG at include/linux/list.h:148!]
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030709001803.GC16488@matchmail.com>
-References: <20030705132528.542ac65e.akpm@osdl.org>
-	 <1057455650.3119.3.camel@debian> <20030706134926.GA472@nikolas.hn.org>
-	 <20030708004350.GA16488@matchmail.com> <1057706251.922.1.camel@debian>
-	 <20030709001803.GC16488@matchmail.com>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1057710738.1003.14.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 09 Jul 2003 02:32:19 +0200
-Content-Transfer-Encoding: 8bit
+	Tue, 8 Jul 2003 20:21:20 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:25841 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S267981AbTGIAVP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 20:21:15 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCH] idle using PNI monitor/mwait
+Date: Tue, 8 Jul 2003 17:35:51 -0700
+Message-ID: <3014AAAC8E0930438FD38EBF6DCEB5640204345B@fmsmsx407.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] idle using PNI monitor/mwait
+Thread-Index: AcNFqX3qi1nwW1fkQe2bDmwduQI3HQABEMPQ
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+X-OriginalArrivalTime: 09 Jul 2003 00:35:51.0675 (UTC) FILETIME=[0CBD8CB0:01C345B2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El mi? 09-07-2003 a las 02:18, Mike Fedyk escribió:
-> On Wed, Jul 09, 2003 at 01:17:32AM +0200, Ram?n Rey Vicente???? wrote:
-> > Call Trace: [<c0116ea0>]  [<c013bb2e>]  [<c013f522>]  [<c011894e>] 
-> > [<c011c44d>]
-> >   [<c0109a20>]  [<c01097d3>]  [<c0109ab1>]  [<c0118599>]  [<c0130259>] 
-> > [<c01621
-> > 8e>]  [<c01307f8>]  [<c01091ad>]  [<c0118599>]  [<c0193e05>] 
-> > [<c0116f20>]  [<c0
-> > 116f20>]  [<c0156924>]  [<c0156dae>]  [<c0157a2a>]  [<c014892c>] 
-> > [<c0148db9>]  
-> > [<c0108f47>] 
+That's right. If we have a lot of high-contention locks in the kernel,
+we need to fix the code first, to get benefits for the other
+architectures. 
+
+"mwait" granularity (64-byte, for example) is given by the cpuid
+instruction, and we did not use it because 1) it's unlikely that the
+other fields of the task structure are modified when it's idle, 2) the
+processor needs to check the flag after mwait anyway, to avoid waking up
+with a false signal caused by other break events (i.e. mwait is a hint).
+
+Jun
+
+> -----Original Message-----
+> From: Linus Torvalds [mailto:torvalds@osdl.org]
+> Sent: Tuesday, July 08, 2003 4:34 PM
+> To: Nakajima, Jun
+> Cc: linux-kernel@vger.kernel.org; Saxena, Sunil; Mallick, Asit K;
+> Pallipadi, Venkatesh
+> Subject: Re: [PATCH] idle using PNI monitor/mwait
 > 
-> Now run it through ksymoops.  You should consider using the in kernel oops
-> decoding.  Just turn kksymoops on in the debugging menu.
-
-I'm currently doing that :), my pc is not a Sun 10000, so I try to build
-the kernel only de necessary. 
-
-Whenever I get the errors, I'll report it inmediately
--- 
-/================================================\
-| Ramón Rey Vicente <ramon.rey at hispalinux.es> |
-|                                                |
-| Jabber ID <rreylinux at jabber.org>            |
-|                                                |
-| Public GPG Key http://pgp.escomposlinux.org    |
-|                                                |
-| GLiSa http://glisa.hispalinux.es               |
-\================================================/
+> 
+> On Tue, 8 Jul 2003, Nakajima, Jun wrote:
+> >
+> > Attached is a patch that enables PNI (Prescott New Instructions)
+> > monitor/mwait in kernel idle (opcodes are now public). Basically
+MWAIT
+> > is similar to hlt, but you can avoid IPI to wake up the processor
+> > waiting. A write (by another processor) to the address range
+specified
+> > by MONITOR would wake up the processor waiting on MWAIT.
+> 
+> How about spinlocks? Does it make sense to make the contention code
+use
+> mwait too, or are the latencies too high? Not that we have a lot of
+> high-contention locks any more, so maybe it doesn't much matter.
+> 
+> Also, wasn't there some flag to set the "mwait" granularity? I don't
+see
+> anything like that in the patch..
+> 
+> 		Linus
 

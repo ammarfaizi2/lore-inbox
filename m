@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263589AbSJJVPq>; Thu, 10 Oct 2002 17:15:46 -0400
+	id <S263438AbSJJVJ1>; Thu, 10 Oct 2002 17:09:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263608AbSJJVPq>; Thu, 10 Oct 2002 17:15:46 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:52214 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S263589AbSJJVPp>; Thu, 10 Oct 2002 17:15:45 -0400
-Date: Thu, 10 Oct 2002 17:21:30 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: Fork timing numbers for shared page tables
-Message-ID: <20021010172130.A11796@redhat.com>
-References: <167610000.1034278338@baldur.austin.ibm.com> <3DA5D893.CDD2407C@digeo.com> <175360000.1034279947@baldur.austin.ibm.com>
+	id <S263475AbSJJVJ1>; Thu, 10 Oct 2002 17:09:27 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:41119 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263438AbSJJVJ0>;
+	Thu, 10 Oct 2002 17:09:26 -0400
+Subject: Re: Patch?: linux-2.5.41 multiprocessor vs. CONFIG_X86_TSC
+From: john stultz <johnstul@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       "Adam J. Richter" <adam@yggdrasil.com>, mingo@redhat.com,
+       James.Bottomley@HansenPartnership.com,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1034284641.6463.26.camel@irongate.swansea.linux.org.uk>
+References: <20021010050212.A383@baldur.yggdrasil.com> 
+	<20021010121757.GY12432@holomorphy.com>  <1034274158.19093.28.camel@cog> 
+	<1034284641.6463.26.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 10 Oct 2002 14:07:27 -0700
+Message-Id: <1034284047.19981.43.camel@cog>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <175360000.1034279947@baldur.austin.ibm.com>; from dmccr@us.ibm.com on Thu, Oct 10, 2002 at 02:59:07PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 02:59:07PM -0500, Dave McCracken wrote:
-> I don't know why exec introduces a small penalty for small tasks. I'm
-> working on some optimizations that might help.
+On Thu, 2002-10-10 at 14:17, Alan Cox wrote:
+> On Thu, 2002-10-10 at 19:22, john stultz wrote:
+> > Actually, the TSC is only guaranteed to be a valid time source on
+> > uniprocessor machines. Linux tries its best to synchronize the TSCs
+> > across cpus at boot, however larger systems where all the cups are not
+> 
+> On a subset of uniprocessor machines...
 
-Compare against vfork() to see what kind of best case is possible, and 
-how much of the overhead in small tasks is just in non-vm overhead.
+Ah, very true, good catch. 
 
-		-ben
+thanks
+-john
+

@@ -1,102 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272050AbTHRPwN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 11:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272132AbTHRPwF
+	id S272161AbTHRQAN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 12:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272162AbTHRQAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 11:52:05 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:56331 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S272050AbTHRPuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 11:50:44 -0400
-Message-ID: <3F40F98F.8060103@techsource.com>
-Date: Mon, 18 Aug 2003 12:06:39 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Mon, 18 Aug 2003 12:00:13 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:17929 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S272161AbTHRQAJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 12:00:09 -0400
+From: "Krishnakumar. R" <krishnakumar@naturesoft.net>
+Reply-To: krishnakumar@naturesoft.net
+Organization: Naturesoft
+To: trivial@rustcorp.com.au
+Subject: [TRIVIAL][PATCH-2.6.0-test3]removes the unused variable in drivers/char/esp.c
+Date: Mon, 18 Aug 2003 21:33:12 +0530
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
-CC: "'Willy Tarreau'" <willy@w.ods.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: generic strncpy - off-by-one error
-References: <D069C7355C6E314B85CF36761C40F9A42E20BB@mailse02.se.axis.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308182133.12378.krishnakumar@naturesoft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+This patch would remove the 'unused variable' 
+error in drivers/char/esp.c
+
+Regards
+KK
+
+=============================================
+diffstat output:
+
+esp.c |    2 +-
+1 files changed, 1 insertion(+), 1 deletion(-)
+
+=============================================
+The following is the patch:
 
 
-Peter Kjellerstedt wrote:
 
-> 
-> For loops       2.867568    5.620561    8.128734   28.286289  
-> Multi byte fill 2.868031    5.670782    6.312027   11.336015  
-> 
-> And here are the numbers for my P4:
-> 
-> For loops       3.060262    5.927378    8.796814   30.659818  
-> Multi byte fill 3.126607    5.898459    7.096685   13.135379  
-> 
-> So there is no doubt that the multi byte version is a clear
-> winner (which was expected, I suppose).
+--- linux-2.6.0-test3/drivers/char/esp.orig.c	2003-08-18 21:19:20.000000000 +0530
++++ linux-2.6.0-test3/drivers/char/esp.c	2003-08-18 21:20:01.000000000 +0530
+@@ -2632,7 +2632,7 @@
+ static void __exit espserial_exit(void) 
+ {
+ 	unsigned long flags;
+-	int e1, e2;
++	int e1;
+ 	unsigned int region_start, region_end;
+ 	struct esp_struct *temp_async;
+ 	struct esp_pio_buffer *pio_buf;
 
-Cool!  Hey, is this just an exercise, or are we actually going to use 
-this?  I would be very happy to have something I contributed to put into 
-the kernel.  :)
 
-> 
-> Here is the code that I used:
-> 
-> char *strncpy(char *dest, const char *src, size_t count)
-> {
-> 	char *tmp = dest;
-> 
-> 	while (count && *src) {
-> 		*tmp++ = *src++;
-> 		count--;
-> 	}
-> 
-> 	if (count) {
-
-Good idea... bad to do so many checks if count is zero.  On the other 
-hand, if count is rarely zero, then it's a loss.  Maybe benchmark with 
-and without?
-
-> 		size_t count2;
-> 
-> 		while (count & (sizeof(long) - 1)) {
-> 			*tmp++ = '\0';
-> 			count--;
-> 		}
-> 
-> 		count2 = count / sizeof(long);
-
-I know that a good compiler should migrate code to help the CPU 
-pipeline, but how about moving this "count2 = " line up to before the 
-first fill loop.  See if that helps any.  Always good to precompute well 
-in advance.
-
-> 		while (count2) {
-> 			*((long *)tmp)++ = '\0';
-> 			count2--;
-> 		}
-> 
-> 		count &= (sizeof(long) - 1);
-
-And move this to before the middle fill loop.
-
-> 		while (count) {
-> 			*tmp++ = '\0';
-> 			count--;
-> 		}
-> 	}
-> 
-> 	return dest;
-> }
-> 
-> //Peter
-> 
-> 
 
 

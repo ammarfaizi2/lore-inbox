@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261449AbSKHUXE>; Fri, 8 Nov 2002 15:23:04 -0500
+	id <S262354AbSKHU1A>; Fri, 8 Nov 2002 15:27:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262335AbSKHUXE>; Fri, 8 Nov 2002 15:23:04 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:10637 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id <S261449AbSKHUXE>; Fri, 8 Nov 2002 15:23:04 -0500
-Message-ID: <3DCC1EB5.4020303@google.com>
-Date: Fri, 08 Nov 2002 12:29:41 -0800
-From: Ross Biro <rossb@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262358AbSKHU1A>; Fri, 8 Nov 2002 15:27:00 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:58034 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S262354AbSKHU07>;
+	Fri, 8 Nov 2002 15:26:59 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Andrew Morton <akpm@digeo.com>
+Date: Fri, 8 Nov 2002 21:33:24 +0200
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] Failed writes marked clean?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.5.46-bk3: BUG in skbuff.c:178
+Cc: linux-kernel@vger.kernel.org, bwindle@fint.org, acme@conectiva.com.br
+X-mailer: Pegasus Mail v3.50
+Message-ID: <6F45EB551A2@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On  8 Nov 02 at 12:01, Andrew Morton wrote:
+> > Single-CPU system, running 2.5.46-bk3. Whiling compiling bk4, and running
+> > a script that was pinging every host on my subnet (I was running arp -a
+> > to see what was in the arp table at the time), I hit this BUG.
+> 
+> I'd be suspecting the seq_file conversion in arp.c.  The read_lock_bh()
+> stuff in there looks, umm, unclear ;)
 
-Perhaps I'm reading the code incorrectly, but in kernel versions 2.4.18 
-and 2.5.46 it looks to me like in the case of a write, ll_rw_block 
-always clears the dirty bit.  In the event of an error, nothing resets 
-the dirty bit and the uptodate flag is cleared.  This means that if the 
-same block needs to be read again, the buffer cache will see that the 
-buffer is not uptodate and attempt to read the old contents of the 
-buffer off of the device.  If the read suceeds the kernel ends up 
-corrupting data.
+Yes, see my emails from 23th Oct, 25th Oct (2.5.44: Strange oopses from 
+userspace), from Nov 6th + Nov 7th: Preempt count check when leaving
+IRQ.
 
-It seems to me that a better solution would be to mark the buffer as 
-dirty and uptodate and then attempt to propogate the error as far back 
-as possible.  Ideally something can be done to correct the problem at a 
-higher level.  Before I dive in and attempt to do something about this, 
-I wanted to make sure I was not missing anything important.  So am I 
-full of it, or could this really be a problem?
+But while yesterday I had no idea, today I have one (it looks like that
+nobody else is going to fix it for me :-( ) :
+seq subsystem can call arp_seq_start/next/stop several times, but
+state->is_pneigh is set to 0 only once, by memset in arp_seq_open :-(
 
-    Ross
+I think that arp_seq_start should do
 
+  {
++   struct arp_iter_state* state = seq->private;
++   seq->is_pneigh = 0;
++   seq->bucket = 0;
+    read_lock_bh(&arp_tbl.lock);
+    return *pos ? arp_get_bucket(seq, pos) : (void *)1;
+  }
 
+and we can drop memset from arp_seq_open. I'll try it, and if it will
+survive my tests, I'll send real patch.  
+  
+                                        Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

@@ -1,24 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263638AbTLJPSa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 10:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTLJPSa
+	id S263609AbTLJPOr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 10:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbTLJPOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 10:18:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60562 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263638AbTLJPS3 (ORCPT
+	Wed, 10 Dec 2003 10:14:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42383 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263609AbTLJPOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 10:18:29 -0500
-Date: Wed, 10 Dec 2003 07:18:12 -0800 (PST)
+	Wed, 10 Dec 2003 10:14:41 -0500
+Date: Wed, 10 Dec 2003 07:14:31 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
 To: Andre Hedrick <andre@linux-ide.org>
-cc: Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-       Kendall Bennett <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
+cc: Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
 Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.58.0312100714390.29676@home.osdl.org>
-References: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10312100419220.3805-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.58.0312100711460.29676@home.osdl.org>
+References: <Pine.LNX.4.10.10312100419220.3805-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,21 +26,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Wed, 10 Dec 2003, Andre Hedrick wrote:
 >
-> So why not do the removal of the inlines to real .c files and quit playing
-> games with bogus attempts to bleed taint into the inprotectable api?
+> So basically anyone in the past-present-future who worked on-with-about
+> the linux kernel is now tainted forever.
 
-The inlines have nothing to do with _anything_.
+Andre - before you get involved in a flame war, take a deep breath. You
+know you get too excited about things.
 
-Trust me, a federal judge couldn't care less about some very esoteric
-technical detail. I don't know who brought up inline functions, but they
-aren't what would force the GPL.
+Go back and read what I said. I said _nothing_ like the above. Quite the
+reverse.
 
-What has meaning for "derived work" is whether it stands on its own or
-not, and how tightly integrated it is. If something works with just one
-particular version of the kernel - or depends on things like whether the
-kernel was compiled with certain options etc - then it pretty clearly is
-very tightly integrated.
-
-Don't think that copyright would depend on any technicalities.
+Also, I don't see what the "API" discussion is. That's a _total_ red
+herring. There is no "module API", and never has been. Modules have always
+been about linking against internal kernel functions, and it's always been
+very clear that there is no API, and that those internal kernel interfaces
+change _all_ the time.
 
 		Linus

@@ -1,63 +1,324 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVAGWr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVAGWzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbVAGWr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:47:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVAGWq5
+	id S261696AbVAGWzd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVAGWy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:46:57 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:13587 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261676AbVAGWoh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:44:37 -0500
-Message-ID: <41DF10BA.6040301@domdv.de>
-Date: Fri, 07 Jan 2005 23:44:10 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Lee Revell <rlrevell@joe-job.com>, paul@linuxaudiosystems.com,
-       arjanv@redhat.com, hch@infradead.org, mingo@elte.hu, chrisw@osdl.org,
-       alan@lxorguk.ukuu.org.uk, joq@io.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <200501071620.j07GKrIa018718@localhost.localdomain>	<1105132348.20278.88.camel@krustophenia.net> <20050107134941.11cecbfc.akpm@osdl.org>
-In-Reply-To: <20050107134941.11cecbfc.akpm@osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 17:54:59 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.16]:53270 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261686AbVAGWux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:50:53 -0500
+Date: Fri, 7 Jan 2005 23:50:48 +0100
+Message-Id: <200501072250.j07MomZo012294@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 537] M68k: Update defconfigs for 2.6.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> 
->>Really, I think Linux has owned the server space for so long that some
->>folks on this list are getting hubristic.  Just because you have the
->>best server OS does not mean it's the best at everything.
-> 
-> 
-> nah, the requirement is clearly valid, and longstanding.  We need to
-> satisfy it.  It's just a matter of working out the best way.
-> 
-> Chris Wright <chrisw@osdl.org> wrote:
-> 
->>...
->>Last I checked they could be controlled separately in that module.  It
->>has been suggested (by me and others) that one possible solution would
->>be to expand it to be generic for all caps.
-> 
-> 
-> Maybe this is the way?
+M68k: Update defconfigs for 2.6.10
 
-This could give an advantage for e.g. networked daemons, too. No more 
-root privilege necessary for applications just to bind to a privileged 
-port which does make life easier (CAP_NET_BIND_SERVICE). Other ideas for 
-e.g. CAP_NET_RAW or CAP_SYS_RAWIO come to mind. Using the current 
-capabilties in this design as all incuding supersets that can be defined 
-more fine grained in a later step I guess should suit others, too. The 
-remaining problem would then be the design of an extensible interface 
-that is backwards compatible.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+--- linux-2.6.10/arch/m68k/configs/amiga_defconfig	2004-12-26 11:04:51.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/amiga_defconfig	2004-12-26 11:22:54.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:25 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:22:54 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -734,6 +734,11 @@ CONFIG_DMASOUND=m
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ CONFIG_AMIGA_BUILTIN_SERIAL=y
+--- linux-2.6.10/arch/m68k/configs/apollo_defconfig	2004-12-26 10:46:32.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/apollo_defconfig	2004-12-26 11:22:58.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:29 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:22:58 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -591,6 +591,11 @@ CONFIG_DUMMY_CONSOLE=y
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ CONFIG_DN_SERIAL=y
+--- linux-2.6.10/arch/m68k/configs/atari_defconfig	2004-12-26 10:46:32.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/atari_defconfig	2004-12-26 11:23:11.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:34 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:23:11 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -644,6 +644,11 @@ CONFIG_DMASOUND=m
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ CONFIG_ATARI_MFPSER=m
+--- linux-2.6.10/arch/m68k/configs/bvme6000_defconfig	2004-12-26 11:04:51.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/bvme6000_defconfig	2004-12-26 11:23:15.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:38 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:23:15 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -592,6 +592,11 @@ CONFIG_DUMMY_CONSOLE=y
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ CONFIG_BVME6000_SCC=y
+--- linux-2.6.10/arch/m68k/configs/hp300_defconfig	2004-12-26 10:46:32.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/hp300_defconfig	2004-12-26 11:23:40.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:44 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:23:40 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -592,6 +592,11 @@ CONFIG_DUMMY_CONSOLE=y
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ 
+--- linux-2.6.10/arch/m68k/configs/mac_defconfig	2004-12-26 10:46:32.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/mac_defconfig	2004-12-26 11:23:44.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:47 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:23:44 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -653,6 +653,11 @@ CONFIG_LOGO_MAC_CLUT224=y
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ CONFIG_MAC_SCC=y
+--- linux-2.6.10/arch/m68k/configs/mvme147_defconfig	2004-12-26 10:46:32.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/mvme147_defconfig	2004-12-26 11:23:49.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:49 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:23:49 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -607,6 +607,11 @@ CONFIG_LOGO_LINUX_CLUT224=y
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ CONFIG_MVME147_SCC=y
+--- linux-2.6.10/arch/m68k/configs/mvme16x_defconfig	2004-12-26 11:04:51.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/mvme16x_defconfig	2004-12-26 11:23:53.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:52 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:23:53 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -608,6 +608,11 @@ CONFIG_LOGO_LINUX_CLUT224=y
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ CONFIG_MVME162_SCC=y
+--- linux-2.6.10/arch/m68k/configs/q40_defconfig	2004-12-26 10:46:32.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/q40_defconfig	2004-12-26 11:23:57.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:55 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:23:57 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -683,6 +683,11 @@ CONFIG_DMASOUND=y
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ 
+--- linux-2.6.10/arch/m68k/configs/sun3_defconfig	2004-12-26 10:46:32.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/sun3_defconfig	2004-12-26 11:24:01.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:58 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:24:01 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -596,6 +596,11 @@ CONFIG_LOGO_LINUX_CLUT224=y
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ 
+--- linux-2.6.10/arch/m68k/configs/sun3x_defconfig	2004-12-26 10:46:32.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/configs/sun3x_defconfig	2004-12-26 11:24:05.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:22:01 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:24:05 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -606,6 +606,11 @@ CONFIG_LOGO_LINUX_CLUT224=y
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ 
+--- linux-2.6.10/arch/m68k/defconfig	2004-12-26 11:04:51.000000000 +0100
++++ linux-m68k-2.6.10/arch/m68k/defconfig	2004-12-26 11:23:36.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.10-rc3-m68k
+-# Sun Dec  5 14:21:41 2004
++# Linux kernel version: 2.6.10-m68k
++# Sun Dec 26 11:23:36 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -464,6 +464,11 @@ CONFIG_DUMMY_CONSOLE=y
+ # CONFIG_USB_GADGET is not set
+ 
+ #
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
+ # Character devices
+ #
+ CONFIG_AMIGA_BUILTIN_SERIAL=y
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

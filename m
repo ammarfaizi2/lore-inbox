@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261255AbRERRdS>; Fri, 18 May 2001 13:33:18 -0400
+	id <S261274AbRERRfs>; Fri, 18 May 2001 13:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261274AbRERRdI>; Fri, 18 May 2001 13:33:08 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:9993 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S261255AbRERRcw>; Fri, 18 May 2001 13:32:52 -0400
-Date: Fri, 18 May 2001 13:32:51 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010518133250.O32405@sventech.com>
-In-Reply-To: <20010515145830.Y5599@sventech.com> <Pine.LNX.4.21.0105151208540.2339-100000@penguin.transmeta.com> <20010515154325.Z5599@sventech.com> <20010517102029.A44@toy.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <20010517102029.A44@toy.ucw.cz>; from Pavel Machek on Thu, May 17, 2001 at 10:20:30AM +0000
+	id <S261280AbRERRfi>; Fri, 18 May 2001 13:35:38 -0400
+Received: from www.wen-online.de ([212.223.88.39]:26638 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261274AbRERRfe>;
+	Fri, 18 May 2001 13:35:34 -0400
+Date: Fri, 18 May 2001 19:35:07 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Jonathan Morton <chromi@cyberspace.org>
+cc: <esr@thyrsus.com>, Arjan van de Ven <arjanv@redhat.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: CML2 design philosophy heads-up
+In-Reply-To: <l03130303b72af49d4f0a@[192.168.239.105]>
+Message-ID: <Pine.LNX.4.33.0105181919190.480-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 17, 2001, Pavel Machek <pavel@suse.cz> wrote:
-> > > But no, I don't actually like sockets all that much myself. They are hard
-> > > to use from scripts, and many more people are familiar with open/close and
-> > > read/write.
-> > 
-> > Agreed.
-> > 
-> > It would be nice to use open/close/read/write for control and bulk and
-> > sockets for interrupt and isochronous.
-> 
-> What makes interrupt so different? Last time I checked int pipes were very
-> similar to bulk pipes... Do you care about "packet boundaries"? You can
-> somehow emulate with read, too...
+On Fri, 18 May 2001, Jonathan Morton wrote:
 
-We probably could. It would have interesting semantics however. We would
-have to have an ioctl or something else to specify period, and if it's
-one shot, etc.
+> As for the language CML2 is written in, surely C would work just as well as
+> Python if the config-ruleset file is in a known format.  GCC is required
+> for the kernel to build, I don't see why anything else should be required
+> simply to configure it.
 
-We could probably shoehorn isochronous semantics onto read/write as
-well, but I don't want to begin to think how ugly that'll be.
+Menuconfig is fairly popular, and requires curses.. etc. etc.  There isn't
+a configurator which doesn't require something more than gcc is there?
 
-The reason I don't favor the read/write idea for interrupt and
-isochronous are the fact that they are so different. We could shoehorn
-the semantics onto it, but we'd just be moving the problem from one
-place to somewhere else.
+OTOH, python here says: Python 1.3 (Dec 19 1995)  [GCC 2.7.2]. I didn't
+have it built at all during the years prior to 1995, so I'm sure you can
+imagine how enthusiastic I am about upgrading that old turd ;-)
 
-A completely ioctl solution would work better in that case since it's
-cleaner. The only problem would be the fact it's called ioctl.
-
-JE
+	-Mike
 

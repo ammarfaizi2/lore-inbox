@@ -1,193 +1,301 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284136AbRLFQfv>; Thu, 6 Dec 2001 11:35:51 -0500
+	id <S284140AbRLFQmb>; Thu, 6 Dec 2001 11:42:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284138AbRLFQfm>; Thu, 6 Dec 2001 11:35:42 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:32270 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S284136AbRLFQfa>;
-	Thu, 6 Dec 2001 11:35:30 -0500
-Date: Thu, 6 Dec 2001 17:34:55 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: erich@uruk.org
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
-Subject: Re: Loadable drivers [was SMP/cc Cluster description ]
-Message-Id: <20011206173455.104b6a02.skraw@ithnet.com>
-In-Reply-To: <E16BjQJ-0005EA-00@trillium-hollow.org>
-In-Reply-To: <20011205212844.451f8781.skraw@ithnet.com>
-	<E16BjQJ-0005EA-00@trillium-hollow.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S284139AbRLFQmN>; Thu, 6 Dec 2001 11:42:13 -0500
+Received: from web12304.mail.yahoo.com ([216.136.173.102]:8197 "HELO
+	web12304.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S284140AbRLFQmI>; Thu, 6 Dec 2001 11:42:08 -0500
+Message-ID: <20011206164206.58598.qmail@web12304.mail.yahoo.com>
+Date: Thu, 6 Dec 2001 08:42:06 -0800 (PST)
+From: Stephen Cameron <smcameron@yahoo.com>
+Subject: [PATCH] cpqfc driver for 2.5.1-pre5 tree
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Dec 2001 13:17:47 -0800
-erich@uruk.org wrote:
 
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
-> > You can only be plain kidding with this statement. If you split the
-> > drivers from the rest of the kernel, you managed to get rid of this
-> > nice (yes, I really meant nice) monolithic design, where I only need
-> > a simple config file to _update_ to a new kernel revision (_up_, not
-> > _down_) and be happy (including all the drivers).
-> 
-> Hmm.  There is little fundamentally incompatible with having splits in
-> the core kernel and sets of drivers, and getting most of what you want
-> here.
+Hi folks, 
 
-There is. You double the administrational work. Most updates are performed
-because you want the latest bugfixes. If you get more bugfixes than you
-intended - lucky.
-Currently you draw the latest kernel-tree (or the latest _you_ like to use),
-use your old .config and it works out - as long as you do not use closed-source
-drivers.
-If you split things up, you draw _two_ archives, compile and install both.
+Here is a patch for the cpqfc driver to make it compile and run in the 2.5.1-pre5
+tree.  I feel obligated to mention that I did see messages along the lines
+of "running *really* low on DMA buffers" coming from scsi_merge.c, but
+Jens told me not to worry about that, so here's the patch.  
 
-> However, the comment about being "happy (including all the drivers)"
-> seems a bit naive in my experience.  That makes the assumption that the
-> drivers in the new/old/whatever kernel you change to are necessarily of
-> the same caliber as the ones you came from, and that is not always true
-> by any means.
+It gets rid of the io_request_lock dependency, and silences a few
+annoying printks that the driver has been spewing on startup.
 
-Oops. Then you have a severe problem in understanding how linux _should_ be
-worked with. Obviously you can go and buy some distribution and it may work out
-pretty well. But being a serious administrator you _will_ do kernel updates
-apart from the distro (sooner or later). If there are drivers in a newer kernel
-release, that do not work any longer, compared to an older release, you should
-say so. Best place would be the listed maintainer. Because if it doesn't do the
-job for your configuration any longer, chances are high others were hit, too.
-The maintainer cannot know, if you do not tell him.
-I guess we have the mutual agreement here, that maintained drivers should get
-better not worse through the revisions. This means configurations once
-successful are not meant to break later on.
-This basically is what I intended to say with "being happy" :-)
+-- steve
 
-> Also, in a world where one values stability, being able to rev
-> backward is quite important also.  The lack of software package tools
-> like rpm being able to "downgrade" software easily is a serious one in
-> my mind.  What do you do when you install something major and it
-> breaks, but it has interdependencies on multiple other things?
+diff -urN linux-2.5.1-pre4/drivers/scsi/cpqfc.Readme
+linux-2.5.1-pre4-cpqfc_2.5.0/drivers/scsi/cpqfc.Readme
+--- linux-2.5.1-pre4/drivers/scsi/cpqfc.Readme	Thu Oct 25 14:53:50 2001
++++ linux-2.5.1-pre4-cpqfc_2.5.0/drivers/scsi/cpqfc.Readme	Fri Nov 30 22:26:00 2001
+@@ -7,6 +7,11 @@
+ SEST size 512 Exchanges (simultaneous I/Os) limited by module kmalloc() 
+ 	max of 128k bytes contiguous.
+ 
++Ver 2.5.0  Nov 29, 2001
++   * eliminated io_request_lock.  This change makes the driver specific
++     to the 2.5.x kernels.
++   * silenced excessively noisy printks.
++
+ Ver 2.1.1  Oct 18, 2001
+    * reinitialize Cmnd->SCp.sent_command (used to identify commands as
+      passthrus) on calling scsi_done, since the scsi mid layer does not
+diff -urN linux-2.5.1-pre4/drivers/scsi/cpqfcTScontrol.c
+linux-2.5.1-pre4-cpqfc_2.5.0/drivers/scsi/cpqfcTScontrol.c
+--- linux-2.5.1-pre4/drivers/scsi/cpqfcTScontrol.c	Thu Oct 25 14:53:50 2001
++++ linux-2.5.1-pre4-cpqfc_2.5.0/drivers/scsi/cpqfcTScontrol.c	Fri Nov 30 22:19:39 2001
+@@ -97,11 +97,11 @@
+   fcChip->Exchanges = NULL;
+   cpqfcHBAdata->fcLQ = NULL;
+   
+-  printk("Allocating %u for %u Exchanges ", 
+-	  (ULONG)sizeof(FC_EXCHANGES), TACH_MAX_XID);
++  /* printk("Allocating %u for %u Exchanges ", 
++	  (ULONG)sizeof(FC_EXCHANGES), TACH_MAX_XID); */
+   fcChip->Exchanges = pci_alloc_consistent(cpqfcHBAdata->PciDev, 
+ 			sizeof(FC_EXCHANGES), &fcChip->exch_dma_handle);
+-  printk("@ %p\n", fcChip->Exchanges);
++  /* printk("@ %p\n", fcChip->Exchanges); */
+ 
+   if( fcChip->Exchanges == NULL ) // fatal error!!
+   {
+@@ -112,10 +112,10 @@
+   memset( fcChip->Exchanges, 0, sizeof( FC_EXCHANGES));  
+ 
+ 
+-  printk("Allocating %u for LinkQ ", (ULONG)sizeof(FC_LINK_QUE));
++  /* printk("Allocating %u for LinkQ ", (ULONG)sizeof(FC_LINK_QUE)); */
+   cpqfcHBAdata->fcLQ = pci_alloc_consistent(cpqfcHBAdata->PciDev,
+ 				 sizeof( FC_LINK_QUE), &cpqfcHBAdata->fcLQ_dma_handle);
+-  printk("@ %p (%u elements)\n", cpqfcHBAdata->fcLQ, FC_LINKQ_DEPTH);
++  /* printk("@ %p (%u elements)\n", cpqfcHBAdata->fcLQ, FC_LINKQ_DEPTH); */
+   memset( cpqfcHBAdata->fcLQ, 0, sizeof( FC_LINK_QUE));
+ 
+   if( cpqfcHBAdata->fcLQ == NULL ) // fatal error!!
+@@ -222,8 +222,8 @@
+   // power-of-2 boundary
+   // LIVE DANGEROUSLY!  Assume the boundary for SEST mem will
+   // be on physical page (e.g. 4k) boundary.
+-  printk("Allocating %u for TachSEST for %u Exchanges\n", 
+-		 (ULONG)sizeof(TachSEST), TACH_SEST_LEN);
++  /* printk("Allocating %u for TachSEST for %u Exchanges\n", 
++		 (ULONG)sizeof(TachSEST), TACH_SEST_LEN); */
+   fcChip->SEST = fcMemManager( cpqfcHBAdata->PciDev,
+ 		  &cpqfcHBAdata->dynamic_mem[0],
+ 		  sizeof(TachSEST),  4, 0L, &SESTdma );
+@@ -289,7 +289,7 @@
+ 
+   // set the Host's pointer for Tachyon to access
+ 
+-  printk("  cpqfcTS: writing IMQ BASE %Xh  ", fcChip->IMQ->base );
++  /* printk("  cpqfcTS: writing IMQ BASE %Xh  ", fcChip->IMQ->base ); */
+   writel( fcChip->IMQ->base, 
+     (fcChip->Registers.ReMapMemBase + IMQ_BASE));
+ 
+@@ -315,9 +315,9 @@
+     return -1;  // failed
+   }
+ #endif
+-//#if DBG
++#if DBG
+   printk("  PI %Xh\n", (ULONG)ulAddr );
+-//#endif
++#endif
+   writel( (ULONG)ulAddr, 
+     (fcChip->Registers.ReMapMemBase + IMQ_PRODUCER_INDEX));
+ 
+@@ -337,9 +337,9 @@
+   writel( fcChip->SEST->base,
+     (fcChip->Registers.ReMapMemBase + TL_MEM_SEST_BASE));
+ 
+-  printk("  cpqfcTS: SEST %p(virt): Wrote base %Xh @ %p\n",
++  /* printk("  cpqfcTS: SEST %p(virt): Wrote base %Xh @ %p\n",
+     fcChip->SEST, fcChip->SEST->base, 
+-    fcChip->Registers.ReMapMemBase + TL_MEM_SEST_BASE);
++    fcChip->Registers.ReMapMemBase + TL_MEM_SEST_BASE); */
+ 
+   writel( fcChip->SEST->length,
+     (fcChip->Registers.ReMapMemBase + TL_MEM_SEST_LENGTH));
+@@ -1723,7 +1723,7 @@
+ 	UCHAR Minor = (UCHAR)(RevId & 0x3);
+ 	UCHAR Major = (UCHAR)((RevId & 0x1C) >>2);
+   
+-        printk("  HBA Tachyon RevId %d.%d\n", Major, Minor);
++        /* printk("  HBA Tachyon RevId %d.%d\n", Major, Minor); */
+   	if( (Major == 1) && (Minor == 2) )
+         {
+ 	  sprintf( cpqfcHBAdata->fcChip.Name, STACHLITE66_TS12);
+diff -urN linux-2.5.1-pre4/drivers/scsi/cpqfcTSinit.c
+linux-2.5.1-pre4-cpqfc_2.5.0/drivers/scsi/cpqfcTSinit.c
+--- linux-2.5.1-pre4/drivers/scsi/cpqfcTSinit.c	Thu Oct 25 14:53:50 2001
++++ linux-2.5.1-pre4-cpqfc_2.5.0/drivers/scsi/cpqfcTSinit.c	Fri Nov 30 22:11:47 2001
+@@ -188,7 +188,7 @@
+   DEBUG_PCI(printk("    IOBaseU = %x\n", 
+     cpqfcHBAdata->fcChip.Registers.IOBaseU));
+   
+-  printk(" ioremap'd Membase: %p\n", cpqfcHBAdata->fcChip.Registers.ReMapMemBase);
++  /* printk(" ioremap'd Membase: %p\n", cpqfcHBAdata->fcChip.Registers.ReMapMemBase); */
+   
+   DEBUG_PCI(printk("    SFQconsumerIndex.address = %p\n", 
+     cpqfcHBAdata->fcChip.Registers.SFQconsumerIndex.address));
+@@ -242,7 +242,7 @@
+   cpqfcHBAdata->notify_wt = &sem;
+ 
+   /* must unlock before kernel_thread(), for it may cause a reschedule. */
+-  spin_unlock_irq(&io_request_lock);
++  spin_unlock_irq(&HostAdapter->host_lock);
+   kernel_thread((int (*)(void *))cpqfcTSWorkerThread, 
+                           (void *) HostAdapter, 0);
+   /*
+@@ -250,7 +250,7 @@
+ 
+    */
+   down (&sem);
+-  spin_lock_irq(&io_request_lock);
++  spin_lock_irq(&HostAdapter->host_lock);
+   cpqfcHBAdata->notify_wt = NULL;
+ 
+   LEAVE("launch_FC_worker_thread");
+@@ -312,8 +312,8 @@
+       }
+ 
+       // NOTE: (kernel 2.2.12-32) limits allocation to 128k bytes...
+-      printk(" scsi_register allocating %d bytes for FC HBA\n",
+-		      (ULONG)sizeof(CPQFCHBA));
++      /* printk(" scsi_register allocating %d bytes for FC HBA\n",
++		      (ULONG)sizeof(CPQFCHBA)); */
+ 
+       HostAdapter = scsi_register( ScsiHostTemplate, sizeof( CPQFCHBA ) );
+       
+@@ -403,9 +403,11 @@
+       DEBUG_PCI(printk("  Requesting 255 I/O addresses @ %x\n",
+         cpqfcHBAdata->fcChip.Registers.IOBaseU ));
+ 
+-      
++     
++ 
+       // start our kernel worker thread
+ 
++      spin_lock_irq(&HostAdapter->host_lock);
+       launch_FCworker_thread(HostAdapter);
+ 
+ 
+@@ -445,15 +447,16 @@
+ 	
+ 	unsigned long stop_time;
+ 
+-        spin_unlock_irq(&io_request_lock);
++        spin_unlock_irq(&HostAdapter->host_lock);
+ 	stop_time = jiffies + 4*HZ;
+         while ( time_before(jiffies, stop_time) ) 
+ 	  	schedule();  // (our worker task needs to run)
+ 
+-	spin_lock_irq(&io_request_lock);
+       }
+       
++      spin_lock_irq(&HostAdapter->host_lock);
+       NumberOfAdapters++; 
++      spin_unlock_irq(&HostAdapter->host_lock);
+     } // end of while()
+   }
+ 
+@@ -1593,9 +1596,9 @@
+   int retval;
+   Scsi_Device *SDpnt = Cmnd->device;
+   // printk("   ENTERING cpqfcTS_eh_device_reset() \n");
+-  spin_unlock_irq(&io_request_lock);
++  spin_unlock_irq(&Cmnd->host->host_lock);
+   retval = cpqfcTS_TargetDeviceReset( SDpnt, 0);
+-  spin_lock_irq(&io_request_lock);
++  spin_lock_irq(&Cmnd->host->host_lock);
+   return retval;
+ }
+ 
+@@ -1650,8 +1653,7 @@
+   UCHAR IntPending;
+   
+   ENTER("intr_handler");
+-
+-  spin_lock_irqsave( &io_request_lock, flags);
++  spin_lock_irqsave( &HostAdapter->host_lock, flags);
+   // is this our INT?
+   IntPending = readb( cpqfcHBA->fcChip.Registers.INTPEND.address);
+ 
+@@ -1700,7 +1702,7 @@
+       }
+     }      
+   }
+-  spin_unlock_irqrestore( &io_request_lock, flags);
++  spin_unlock_irqrestore( &HostAdapter->host_lock, flags);
+   LEAVE("intr_handler");
+ }
+ 
+diff -urN linux-2.5.1-pre4/drivers/scsi/cpqfcTSstructs.h
+linux-2.5.1-pre4-cpqfc_2.5.0/drivers/scsi/cpqfcTSstructs.h
+--- linux-2.5.1-pre4/drivers/scsi/cpqfcTSstructs.h	Thu Oct 25 14:53:50 2001
++++ linux-2.5.1-pre4-cpqfc_2.5.0/drivers/scsi/cpqfcTSstructs.h	Fri Nov 30 20:42:28 2001
+@@ -32,8 +32,8 @@
+ #define CPQFCTS_DRIVER_VER(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
+ // don't forget to also change MODULE_DESCRIPTION in cpqfcTSinit.c
+ #define VER_MAJOR 2
+-#define VER_MINOR 1
+-#define VER_SUBMINOR 1
++#define VER_MINOR 5
++#define VER_SUBMINOR 0
+ 
+ // Macros for kernel (esp. SMP) tracing using a PCI analyzer
+ // (e.g. x86).
+diff -urN linux-2.5.1-pre4/drivers/scsi/cpqfcTSworker.c
+linux-2.5.1-pre4-cpqfc_2.5.0/drivers/scsi/cpqfcTSworker.c
+--- linux-2.5.1-pre4/drivers/scsi/cpqfcTSworker.c	Thu Oct 25 14:53:50 2001
++++ linux-2.5.1-pre4-cpqfc_2.5.0/drivers/scsi/cpqfcTSworker.c	Fri Nov 30 21:52:28 2001
+@@ -227,7 +227,7 @@
+     PCI_TRACE( 0x90)
+     // first, take the IO lock so the SCSI upper layers can't call
+     // into our _quecommand function (this also disables INTs)
+-    spin_lock_irqsave( &io_request_lock, flags); // STOP _que function
++    spin_lock_irqsave( &HostAdapter->host_lock, flags); // STOP _que function
+     PCI_TRACE( 0x90)
+          
+     CPQ_SPINLOCK_HBA( cpqfcHBAdata)
+@@ -241,7 +241,7 @@
+     PCI_TRACE( 0x90)
+ 
+     // release the IO lock (and re-enable interrupts)
+-    spin_unlock_irqrestore( &io_request_lock, flags);
++    spin_unlock_irqrestore( &HostAdapter->host_lock, flags);
+ 
+     // disable OUR HBA interrupt (keep them off as much as possible
+     // during error recovery)
+@@ -3077,7 +3077,8 @@
+   if( cpqfcHBAdata->BoardLock) // Worker Task Running?
+     goto Skip;
+ 
+-  spin_lock_irqsave( &io_request_lock, flags); // STOP _que function
++  // STOP _que function
++  spin_lock_irqsave( &cpqfcHBAdata->HostAdapter->host_lock, flags); 
+ 
+   PCI_TRACE( 0xA8)
+ 
+@@ -3085,7 +3086,7 @@
+   cpqfcHBAdata->BoardLock = &BoardLock; // stop Linux SCSI command queuing
+   
+   // release the IO lock (and re-enable interrupts)
+-  spin_unlock_irqrestore( &io_request_lock, flags);
++  spin_unlock_irqrestore( &cpqfcHBAdata->HostAdapter->host_lock, flags);
+   
+   // Ensure no contention from  _quecommand or Worker process 
+   CPQ_SPINLOCK_HBA( cpqfcHBAdata)
 
-This isn't kernel-related, is it? You can always boot the previous kernel (and
-drivers), if you updated correctly. I am talking about revision-updates, not
-major updates (like from 2.0 to 2.2). Major update will break mostly. But -
-frankly spoken - it should. If you are using a bunch of very old binaries, you
-should be driven to update these anyway.
 
-> I don't object to producing well-tested full sets of driver source that
-> go with kernel versions, I just don't want them to be tied if I have
-> a need to pull something apart (a driver from one version and from
-> another are the only ones that run stably), which frankly happens too
-> often for my taste.  Even if it didn't I'd still want it as much as
-> possibly for the fall-back options it provides.
 
-Can you give a striking example for this? (old driver ok, new driver broken,
-both included in kernel releases)
-
-> I didn't go far enough with my comment.  I should have said that the
-> lack of a common driver framework base that works between *all* (or nearly
-> all, some obsolescence is ok) their Windows versions is a problem.
-
-Which means: it does not work there.
-
-> In the consumer line (win3.1/95/98/me) where they were keeping very good
-> compatibility across some kinds of drivers (it had it's problems, to be
-> sure), they were trying the hardest because they recognized that the
-> most important thing was to just have things work in the first place.
-
-I honour they were _trying_, only it was not successful. I wrote drivers for
-all noted versions above and can tell you: it is a _mess_.
-
-> NOTE:  I'm not endorsing their overall API convenience (driver or
-> Win16/Win32), stability, suitability, merchantability, whatever, I'm
-> just talking about drivers and their distribution model at the moment.
-
-Ok, lets put it this way: they use a completely split up model of driver
-maintenance to get the most out of the market (anybody can release anything at
-anytime and any quality and interoperability), and therefore everything tends
-to be severly broken and complex in administration. You have to draw the latest
-drivers for your graphics card, scsi card, scanner, printer, USB equipment,
-even monitor from the respective source (manufacturer), install it seperately
-and pray it does not shoot your last driver installation from different
-hardware component - which it does in a significant percentage. And if you
-upgrade from (e.g.) win95 to win98, you will draw all drivers again and
-completely reinstall everything.
-To tell the pure truth: nobody cares about anything on w*indoze.
-
-> > Reading between your lines, I can well see that you are most probably
-> > talking about closed-source linux-drivers breaking with permanently
-> > released new kernel revisions. But, in fact, this is the closed-source
-> > phenomenon, and _not_ linux.
-> 
-> No, though I don't object to closed-source in general per se.  I hate it
-> for myself and businesses I've worked for because I like to be able to
-> fix/improve/whatever code, but I recognize that the majority of users
-> out there would never touch code.
-
-They _should_ not do that. And they _need_ not do that today. The distros
-really got very far on the path to the real lusers, that don't know much and
-don't want to learn anything. This is ok.
-I mean have you had a look at the latest distros, I found it amazing how far
-things have already come. You can install client systems under linux in 20% of
-the time you would need for _any_ windows.
-
-> My general feeling is that binary drivers are ok/should be supported well
-> across versions since that is the thing you load in at boot/bring-system-
-> up time.  Having separate (and usually many) step(s) to getting a driver
-> and having it load on your system is a major and I'm thinking artificial
-> pain.
-
-I have learned something over the recent years: I guess RMS pointed in the
-right direction. I _don't_ think binary drivers are ok. I want to control my
-environment, and don't let _anybody_ control it _for_ me. And if something goes
-wrong, I have a look. And if I am too dumb, I can ask somebody who isn't. And
-there may be a lot of those.
-
-> In general my argument stems from the same basis that the kernel/user-level
-> interface does:  keeping interfaces stable and removing packaging/bundling
-> requirements across major boundaries almost always yield a win somewhere.
-
-Carl Sagan "The Demon Haunted World":
-"If there is a chain of argument every link in the chain must work."
-
-> In the case of MS and drivers, the win they have in convenience to end-users
-> of all types, and the ability to mix and match drivers forward or backward
-> up to some limitations in API revisions.
-
-Ah, yes. Indeed I am one of those thinking that a driver should _work_, I do
-not measure its quality on the number of versions available - and loadable in
-my environment. If I have to this, the driver is _broken_.
-But yes, you are right: 99% of all w-users obviously think internet is designed
-for downloading the latest w-drivers, and it is a definitive must to have all
-revisions to find one working.
-
-> > I tend to believe we could just wait another two MS cycles to have even
-> > the biggest MS-fans converted to kernel-hackers, only because of being
-> > real fed up with the brilliant, long term driver design.
-> 
-> Most people will never touch code or a compiler, and just want a simple
-> obvious formula or even to have the system automagically do the Right
-> Things for you.  Even many programmers have limitations of curiousity or
-> energy, and it isn't a bad thing to organize even core system things to
-> be easy.
-
-I talked about the developers, but even talking about users, I do believe that
-...
-
-> MS may be stupid/annoying in other ways, but they know this and have
-> moved toward it, albeit sluggishly at times.
-
-... it is not their ultimate goal to let MS control their lives. You think this
-is over-estimation? They are already handing out electronic _passports_, sorry,
-but in my understanding of democracy this is not done by commercial companies.
-This is what a state is all about - knowing and identifying its citizens - and
-no one _else_.
-
-MS is not stupid. I won't tell you what it is though, find out yourself.
-
-Regards,
-Stephan
-
+__________________________________________________
+Do You Yahoo!?
+Send your FREE holiday greetings online!
+http://greetings.yahoo.com

@@ -1,37 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261389AbREQKB1>; Thu, 17 May 2001 06:01:27 -0400
+	id <S261390AbREQKJH>; Thu, 17 May 2001 06:09:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261391AbREQKBR>; Thu, 17 May 2001 06:01:17 -0400
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:59911 "EHLO
-	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-	id <S261389AbREQKBG>; Thu, 17 May 2001 06:01:06 -0400
-Date: Thu, 17 May 2001 05:42:20 -0400
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: Willem Konynenberg <wfk@xos.nl>
-Cc: linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010517054220.B17562@munchkin.spectacle-pond.org>
-In-Reply-To: <UTC200105170018.CAA30316.aeb@vlet.cwi.nl> <200105170246.EAA12820@rabbit.xos.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200105170246.EAA12820@rabbit.xos.nl>; from wfk@xos.nl on Thu, May 17, 2001 at 04:46:33AM +0200
+	id <S261391AbREQKI5>; Thu, 17 May 2001 06:08:57 -0400
+Received: from news.lucky.net ([193.193.193.102]:63755 "EHLO news.lucky.net")
+	by vger.kernel.org with ESMTP id <S261390AbREQKIr>;
+	Thu, 17 May 2001 06:08:47 -0400
+From: "Mike Gorchak" <mike@malva.com.ua>
+To: linux-kernel@vger.kernel.org
+Subject: Routing problem in 2.4.1 kernel, Help, please !!!
+Date: Thu, 17 May 2001 12:46:26 +0300
+Organization: Unknown
+Message-ID: <9e06ml$c42$1@news.lucky.net>
+X-Trace: news.lucky.net 990092823 12418 193.193.194.126 (17 May 2001 09:47:03 GMT)
+X-Complaints-To: usenet@news.lucky.net
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 17, 2001 at 04:46:33AM +0200, Willem Konynenberg wrote:
-> I think here we might learn from the comments that people made
-> about how AIX and OSF/1/Tru64 have been doing this.
 
-However, I suspect that generally AIX and OSF/1 Tru64 systems come with system
-managers.  Many Linux system do not (well presumably anybody who reads this
-mailing list has enough of a clue....).  Also, I bet the number of USB and
-Firewire devices used on the above two systems is probably vanishingly small.
+                           -------------------------      PPP
+                          |                         |   --------     POS 1
+                          |                         |  /
+10.10.28.10/30
+                          |                         | /
+                          |                         |/    PPP
+                          |           10.10.28.9/30 |  ---------     POS 2
+                          |                         | /
+10.10.28.14/30
+                          |                         |/
+                          |           10.10.28.13/30|     PPP
+                          |                         | ----------     POS 3
+                          |                         |/
+10.10.28.18/30
+                          |           10.10.28.17/30|
+                          |                         |
+                          |                         |     PPP
+                          |           10.10.28.21/30|----------      POS 4
+                          |                         |
+10.10.28.22/30
+                          |                         |
+ --------------           |              . . .      |  . . .
+|    Server    | Ethernet |    Router               |
+| 10.10.0.1/24 |----------| 10.10.0.2/24 . . .      |  . . .
+|              |          |                         |
+ --------------           |              . . .      |  . . .
+                          |                         |
+                          |                         |
+                          |                         |    PPP
+                          |           10.10.28.57/30|---------     POS NN -
+1
+                          |                         |
+10.10.28.58/30
+                          |                         |
+                          |                         |
+                          |           10.10.28.61/30|    PPP
+                          |                         |\__________     POS NN
+                          |                         |
+10.10.28.62/30
+                          | def. gateway 10.10.0.1  |
+                           -------------------------
 
--- 
-Michael Meissner, Red Hat, Inc.  (GCC group)
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+Legend:
+
+PPP    - leased line connected by two modems (async, 19200 bps)
+Router - Access server with default gateway to Server (10.10.0.1).
+         Based on unmodified linux kernel 2.4.1.
+Server - Application server based on Windows NT 4.0.
+POS    - Remote terminal based on unmodified linux kernel 2.2.16.
+
+
+   Sometimes one of the POS (random) couldn't ping 10.10.0.1,
+but 10.10.0.2 (router) can ping both sides 10.10.0.1 (Server)
+and that crazy POS. But in 15-30 minutes this trouble gone, and
+POS work fine.
+   We have this trouble 1-5 times every day. What that ?
+
+
+--
+----------------------------
+Mike Gorchak
+CJSC Malva
+System Programmer
+
+

@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262614AbRFBQYY>; Sat, 2 Jun 2001 12:24:24 -0400
+	id <S262611AbRFBQap>; Sat, 2 Jun 2001 12:30:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262615AbRFBQYO>; Sat, 2 Jun 2001 12:24:14 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25871 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262614AbRFBQX6>; Sat, 2 Jun 2001 12:23:58 -0400
-Subject: Re: Problem with kernel 2.2.19 Ultra-DMA and SMP, once more
-To: Magnus.Sandberg@bluelabs.se
-Date: Sat, 2 Jun 2001 17:21:29 +0100 (BST)
-Cc: andre@aslab.com (Andre Hedrick), magnus.sandberg@test.bluelabs.se,
-        linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
-In-Reply-To: <OF9113DCEA.9630D3AB-ONC1256A5F.00425B56@bluelabs.se> from "Magnus.Sandberg@bluelabs.se" at Jun 02, 2001 02:04:48 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262617AbRFBQag>; Sat, 2 Jun 2001 12:30:36 -0400
+Received: from server1.cosmoslink.net ([208.179.167.101]:54089 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S262615AbRFBQaY>; Sat, 2 Jun 2001 12:30:24 -0400
+Message-ID: <003f01c0eb81$50a6ef80$42a6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: <Andries.Brouwer@cwi.nl>, <linux-kernel@vger.kernel.org>
+Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <UTC200106021230.OAA182199.aeb@vlet.cwi.nl>
+Subject: Re: rtl8139too in 2.4.5
+Date: Sat, 2 Jun 2001 09:30:18 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E156E9Z-0001tB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Andre,
-> The motherboard has VIA-chipset.
 
-2.2 does not support VIA SMP. 2.4 should get it right. 2.2.20 may support it
-but I'm working on a 3 month schedule for 2.2.20
+<Andries.Brouwer@cwi.nl> wrote :
+
+
+> My RTL8139 (Identified 8139 chip type 'RTL-8139A')
+> was fine in 2.4.3 and doesnt work in 2.4.5.
+> Copying the 2.4.3 version of 8139too.c makes things work again.
+> 
+
+but my old RTL8139 is working fine under 2.4.5 , without any changes.
+
+Jaswinder.
+-- 
+These are my opinions not 3Di.
+
+
 

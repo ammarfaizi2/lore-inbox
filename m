@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316644AbSFQRTl>; Mon, 17 Jun 2002 13:19:41 -0400
+	id <S316899AbSFQR1T>; Mon, 17 Jun 2002 13:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316786AbSFQRTk>; Mon, 17 Jun 2002 13:19:40 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:64940 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S316644AbSFQRTj>;
-	Mon, 17 Jun 2002 13:19:39 -0400
-Date: Mon, 17 Jun 2002 19:17:38 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sti() preemption fix, 2.5.22
-In-Reply-To: <Pine.LNX.4.44.0206171003290.2580-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0206171907430.20309-100000@e2>
+	id <S316886AbSFQR1S>; Mon, 17 Jun 2002 13:27:18 -0400
+Received: from exchange.macrolink.com ([64.173.88.99]:43525 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S316803AbSFQR1R>; Mon, 17 Jun 2002 13:27:17 -0400
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A7881@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'rwhite@pobox.com'" <rwhite@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org,
+       "'Russell King'" <rmk@arm.linux.org.uk>,
+       "'Theodore Tso'" <tytso@mit.edu>
+Subject: RE: n_tty.c driver patch (semantic and performance correction) (a
+	ll recent versions)
+Date: Mon, 17 Jun 2002 10:27:15 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 17 Jun 2002, Linus Torvalds wrote:
-
-> > correct patch attached.
+On Sat, June 15, 2002 at 9:01 PM, Robert White wrote:
+> Kernel Versions: 2.2, 2.4, 2.5 (all of them since 1996 really 8-)
 > 
-> Ingo, please use "get_cpu()/put_cpu()" instead, which does exactly the
-> preempt-disable etc, and is more readable.
+> The n_tty line discipline module contains a "semantic error" that 
+> limits its speed and usefulness in many uses.  The attached patch 
+> directly addresses serial performance in a completely backwards-
+> compatible way.
+> 
+> In particular, the current handling of VMIN hugely limits, 
+> complicates, and/or slows down optimal serial use.  The most 
+> obvious example is that if you call read(2) with a buffer size less 
+> than the current value of VMIN, the line discipline will insist 
+> that the read call wait for characters that can not be returned to 
+> that call.  The POSIX standard is silent on the subject of whether 
+> this is right or wrong.  Common sense says it is wrong.
 
-done, attached. (and pushed to my BK tree.)
+Hi,
 
-(the cli() fix is special, there we can take advantage of the 'free' cli.)
+IIRC, the way VMIN>0,VTIME=0 is supposed to work is to make characters 
+available to the top level queue to be read when the low level input 
+queue contains VMIN or more characters. Until that moment, there are 
+no characters available to a read of any buffer size regardless of how 
+many characters have been received at the low level. This is why a 
+single character read blocks when at least one character has been 
+received but not yet VMIN characters. Only data in the top level queue 
+can be read. If the line discipline has not yet released data to the 
+top level queue because of VMIN, then no data can be read, but this is 
+not an error. 
 
-	Ingo
+Many have been tempted to change the behavior of this part of the 
+system. IMHO, it is not worth tossing away application portability. 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.510   -> 1.511  
-#	arch/i386/kernel/irq.c	1.10    -> 1.11   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/06/17	mingo@elte.hu	1.511
-# - sti() preemption fix.
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
---- a/arch/i386/kernel/irq.c	Mon Jun 17 19:09:15 2002
-+++ b/arch/i386/kernel/irq.c	Mon Jun 17 19:09:15 2002
-@@ -366,11 +366,12 @@
- 
- void __global_sti(void)
- {
--	int cpu = smp_processor_id();
-+	int cpu = get_cpu();
- 
- 	if (!local_irq_count(cpu))
- 		release_irqlock(cpu);
- 	__sti();
-+	put_cpu();
- }
- 
- /*
+Standards compliance can feel a bit like vertigo while instrument 
+flying. Sometimes one has to just stare at the artificial horizon and 
+say "I believe it" to one's self until the gut is convinced. 
 
+Best regards,
+Ed
+
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271449AbRHOVVr>; Wed, 15 Aug 2001 17:21:47 -0400
+	id <S268017AbRHOVW1>; Wed, 15 Aug 2001 17:22:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271458AbRHOVVh>; Wed, 15 Aug 2001 17:21:37 -0400
-Received: from mail.erisksecurity.com ([208.179.59.234]:56364 "EHLO
-	Tidal.eRiskSecurity.com") by vger.kernel.org with ESMTP
-	id <S271449AbRHOVV0>; Wed, 15 Aug 2001 17:21:26 -0400
-Message-ID: <3B7AE7D2.3070900@erisksecurity.com>
-Date: Wed, 15 Aug 2001 17:21:22 -0400
-From: David Ford <david@erisksecurity.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010815
-X-Accept-Language: en-us
+	id <S268611AbRHOVWS>; Wed, 15 Aug 2001 17:22:18 -0400
+Received: from vti01.vertis.nl ([145.66.4.26]:11015 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S271458AbRHOVWE>;
+	Wed, 15 Aug 2001 17:22:04 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rolf Fokkens <fokkensr@linux06.vertis.nl>
+To: hahn@physics.mcmaster.ca
+Subject: Re: FW: [BUG] Total freeze of 2.4 kernel
+Date: Wed, 15 Aug 2001 22:15:44 -0700
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <938F7F15145BD311AECE00508B7152DB06515F50@vts007.vertis.nl>
+In-Reply-To: <938F7F15145BD311AECE00508B7152DB06515F50@vts007.vertis.nl>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: VM and N-order allocation failed.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <01081522154400.06257@home01>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've a friend who has a small box doing routing/firewalling/nat for a 
-/27 and the bandwidth is pretty tiny.  The machine has 32megs of ram and 
-100 in swap.
+On Wednesday 15 August 2001 14:12, Mark Hahn wrote:
+> 2.4.7 has hung for various people for no obvious reason;
+> I'd suggest testing some other kernel (recent 2.4.9-pre's
+> seem quite fine.)
+Upgraded to 2.4.8-pre7. The system has been up for a week now.
 
-It dies anywhere from an hour after reboot to 12 hours later, on console 
-are messages like so "__alloc_pages: 0-order allocation failed." and 
-"ip_conntrack: table full, dropping packet."
+However, a collegue noted that the mouse wasn't connected well to the 
+mouse/keyboard switch. This was corrected the day before I upgraded to 
+2.4.8-pre7. This may be related.
 
-His prior kernel was 2.4.7, nothing special, he's using 3com 
-3cSOHO100-TX and Cpq Neteligent 10/100.  I just upped him to 2.4.8 as a 
-starter and we'll see how it's going.  I don't have direct access to the 
-box so I can't give complete information.
-
-Comments and suggestions welcomed,
-
-David
-
-
+Rolf

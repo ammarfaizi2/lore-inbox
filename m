@@ -1,66 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVBKWfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVBKWvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVBKWfP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 17:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbVBKWfO
+	id S261388AbVBKWvA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 17:51:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVBKWvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 17:35:14 -0500
-Received: from mail.linicks.net ([217.204.244.146]:56460 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S262373AbVBKWfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 17:35:06 -0500
-From: Nick Warne <nick@linicks.net>
-To: Terence Ripperda <tripperda@nvidia.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to disable slow agpgart in kernel config?
-Date: Fri, 11 Feb 2005 22:34:59 +0000
-User-Agent: KMail/1.7.2
-References: <200502111804.06899.nick@linicks.net> <20050211184821.GC15721@redhat.com> <20050211221956.GO24747@hygelac>
-In-Reply-To: <20050211221956.GO24747@hygelac>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Feb 2005 17:51:00 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:16772 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S261388AbVBKWuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 17:50:50 -0500
+Date: Fri, 11 Feb 2005 15:50:47 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       "Theodore Ts'o" <tytso@mit.edu>, Alex Tomas <alex@clusterfs.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Ext2/3 32-bit stat() wrap for ~2TB files
+Message-ID: <20050211225047.GF16520@schnapps.adilger.int>
+Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
+	"ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+	Theodore Ts'o <tytso@mit.edu>, Alex Tomas <alex@clusterfs.com>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <1108155135.1944.196.camel@sisko.sctweedie.blueyonder.co.uk> <20050211212736.GD16520@schnapps.adilger.int> <1108157964.1944.209.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DO5DiztRLs659m5i"
 Content-Disposition: inline
-Message-Id: <200502112234.59690.nick@linicks.net>
+In-Reply-To: <1108157964.1944.209.camel@sisko.sctweedie.blueyonder.co.uk>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 February 2005 22:19, Terence Ripperda wrote:
 
-> >  > I just read through the nVidia readme file, and there is a
-> >  > comprehensive section on what module to use for what chipset (and
-> >  > card).  It recommends using the nVagp for my setup,
->
-> is that the "CONFIGURING AGP" appendix? I didn't think that we
-> recommended which agp driver to use. the intention was just to
-> document which chipsets are supported by nvagp and point out that
-> agpgart may/probably supports more chipsets. that section also
-> documents some hardware 'issues' that we work around. we work around
-> these issues regardless of which agp driver is being used.
+--DO5DiztRLs659m5i
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thats the one.  I read this in APPENDIX F:
+On Feb 11, 2005  21:39 +0000, Stephen C. Tweedie wrote:
+> ...i_blocks is counted in fs blocksize units, so we're nowhere near
+> overflowing that.  It's only when stat() converts it to st_blocks'
+> 512-byte units that we get into trouble within the kernel.
 
-"The following AGP chipsets are supported by NVIDIA's AGP; for all other
-chipsets it is recommended that you use the AGPGART module."
+Umm, I don't think so.  ext3 i_blocks is sectors and not fs blocks (one of
+my pet peeves actually).  In 2.4 it is as below, 2.6 has one more copy.
 
-as saying 'if you have one of these chipsets use nVagp' else use agpgart.
+ext3_read_inode()
+{
+	:
+	inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
 
-> for this via kt133 issue, I looked through the agpgart and nvagp
-> initializations and didn't see anything much different. both
-> initialize and flush gart mappings the same way. both seem to allocate
-> memory the same way (nvagp uses __get_free_pages, which eventually
-> calls alloc_pages) with the GFP_KERNEL flag.  I'm not sure why there
-> would be much difference between the two.
+cp_new_stat()
+{
+	:
+	tmp.st_blocks = inode->i_blocks;
 
-I have had no issue at all running agpgart on Slackware 10 with KDE 3.3.x.  It 
-was just when I read this thread I didn't realise there was another option of 
-a different NV module.  I just tried it after reading deeper in the 
-readme.txt ref. the Quake2 OpenGL 'rippling wave' I get every 5 minutes or 
-so.  It fixed it, BTW.  I now have a constant clear display 100% in Quake2 :)  
-I haven't noticed any difference at all in 2d desktop stuff (except maybe it 
-is slightly brighter).
 
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+I've wondered at times whether it might make sense to store i_blocks in
+fs blocksize units when we add some new feature (e.g. high bits for
+i_blocks if we overflow 2^32) but I'm not sure the increased complexity
+makes up for the minor increase in dynamic range.
+
+In the end, we hit the 2^64 fs size limit before we would run out of
+range for i_blocks (assuming 64 bits there) so changing it doesn't help
+much.  The only reason to change would be to store up to 2^48 fs blocks
+(only using 16 bits in the core inode, e.g. i_frag + i_fsize) and assume
+we need to use 2^16 blocksize for the largest files with extents.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+
+
+--DO5DiztRLs659m5i
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFCDTbHpIg59Q01vtYRApNJAJ4txmrWESZH3KokjyNajW990DWCcwCghJaX
+AEPVMnOheapfAwk8XEFFet8=
+=IoaY
+-----END PGP SIGNATURE-----
+
+--DO5DiztRLs659m5i--

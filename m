@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262917AbUBZSyl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 13:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbUBZSyd
+	id S262922AbUBZS43 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 13:56:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbUBZS43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 13:54:33 -0500
-Received: from mail.kroah.org ([65.200.24.183]:49092 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262917AbUBZSxj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 13:53:39 -0500
-Date: Thu, 26 Feb 2004 10:53:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Deepak Saxena <dsaxena@plexity.net>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Fix dev_printk to work with unclaimed devices
-Message-ID: <20040226185324.GA11980@kroah.com>
-References: <20040226183439.GA17722@plexity.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040226183439.GA17722@plexity.net>
-User-Agent: Mutt/1.4.1i
+	Thu, 26 Feb 2004 13:56:29 -0500
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:39303 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S262922AbUBZS4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 13:56:24 -0500
+Message-ID: <403E4363.2070908@am.sony.com>
+Date: Thu, 26 Feb 2004 11:05:07 -0800
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Why no interrupt priorities?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 11:34:39AM -0700, Deepak Saxena wrote:
-> 
-> I need to do some fixup in platform_notify() and when trying to 
-> use the dev_* print functions for informational messages, they OOPs 
-> b/c the current code assumes that dev->driver exists. This is not the 
-> case since platform_notify() is called before a device has been attached
-> to any driver. 
+What's the rationale for not supporting interrupt priorities
+in the kernel?
 
-Yeah, this "limitation" of the dev_* printks have been known for a
-while, and it was determined that for situations like this, it's not
-worth using those calls.
+We're having a discussion of this in one of our CELF working
+groups, and it would help if someone could explain why an
+interrupt priority system has never been adopted in the
+mainstream Linux kernel. (I know that some implementations
+have been written and proposed).
 
-I have a patch somewhere in my tree that will give you a nice WARN()
-output if this ever happens, so as to help when trying to port a new bus
-to the driver model, but it's too ugly for mainline.  Ah, found it, it's
-below...
+Is there a strong policy against such a thing, or is it just
+that the right implementation has not come along?
 
-thanks,
+Thanks,
 
-greg k-h
+=============================
+Tim Bird
+Architecture Group Co-Chair
+CE Linux Forum
+Senior Staff Engineer
+Sony Electronics
+E-mail: Tim.Bird@am.sony.com
+=============================
 
-
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	Thu Feb 26 10:48:37 2004
-+++ b/include/linux/device.h	Thu Feb 26 10:48:37 2004
-@@ -394,8 +394,20 @@
- extern void firmware_unregister(struct subsystem *);
- 
- /* debugging and troubleshooting/diagnostic helpers. */
-+#ifdef CONFIG_DEBUG_DEV_PRINTK
-+#define dev_printk(level, dev, format, arg...)			\
-+	do {							\
-+		if (!(dev) || !(dev)->driver)			\
-+			WARN_ON(1);				\
-+		else						\
-+			printk(level "%s %s: " format , 	\
-+				(dev)->driver->name , 		\
-+				(dev)->bus_id , ## arg);	\
-+	} while (0)
-+#else
- #define dev_printk(level, dev, format, arg...)	\
- 	printk(level "%s %s: " format , (dev)->driver->name , (dev)->bus_id , ## arg)
-+#endif
- 
- #ifdef DEBUG
- #define dev_dbg(dev, format, arg...)		\

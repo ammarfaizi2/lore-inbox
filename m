@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261714AbTCLKVP>; Wed, 12 Mar 2003 05:21:15 -0500
+	id <S263139AbTCLKco>; Wed, 12 Mar 2003 05:32:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263134AbTCLKVP>; Wed, 12 Mar 2003 05:21:15 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:8393 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261714AbTCLKVO>;
-	Wed, 12 Mar 2003 05:21:14 -0500
-Date: Wed, 12 Mar 2003 11:31:55 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@work.bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312103155.GN811@suse.de>
-References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org> <20030312085517.GK811@suse.de> <20030312032614.G12806@schatzie.adilger.int>
-Mime-Version: 1.0
+	id <S263140AbTCLKco>; Wed, 12 Mar 2003 05:32:44 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:26090 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S263139AbTCLKcn>;
+	Wed, 12 Mar 2003 05:32:43 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312032614.G12806@schatzie.adilger.int>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15983.3857.705211.851663@gargle.gargle.HOWL>
+Date: Wed, 12 Mar 2003 11:42:25 +0100
+From: mikpe@csd.uu.se
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: mikpe@csd.uu.se, Andrew Fleming <afleming@motorola.com>,
+       Segher Boessenkool <segher@koffie.nl>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       oprofile-list@lists.sourceforge.net, linuxppc-dev@lists.linuxppc.org,
+       o.oppitz@web.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch] oprofile for ppc
+In-Reply-To: <1047427855.5973.80.camel@cube>
+References: <3E6D469C.8060209@koffie.nl>
+	<FEB94991-540B-11D7-BAD1-000393C30512@motorola.com>
+	<15982.29106.674299.704117@gargle.gargle.HOWL>
+	<1047427855.5973.80.camel@cube>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12 2003, Andreas Dilger wrote:
-> Some people will just never be happy no matter what you give them.
+Albert Cahalan writes:
+ > > Is this bug restricted to 7400/7410 only, or does it
+ > > affect the 750 (and relatives) and 604/604e too?
+ > >
+ > > I'm thinking about ppc support for my perfctr driver,
+ > > and whether overflow interrupts are worth supporting
+ > > or not given the errata.
+ > 
+ > 604/604e doesn't even have performance monitoring AFAIK.
 
-I've been very happy with BK, been using it shortly after Linus started
-doing so. Mostly out of curiosity at first, later because it was
-actually quite useful. I even see myself as a fairly pragmatic
-individual, but even so I do find it increasingly difficult to defend my
-BK usage.
+Yes they do. 604 has two counters, 604e has four.
 
-So please stop thinking you can judge that easily by pushing me into
-your nice little 'some people will never be happy bla bla' category.
+ > I've heard nothing to suggest that the 750 is affected.
 
--- 
-Jens Axboe
+I seem to recall hearing something about some temperature
+monitoring interrupt interacting badly with the performance
+monitor interupt due to an errata, but that may not have been
+the 750.
 
+ > I'll give you a hand; point me to the latest perfctr code
+ > and explain how it is supposed to interact with oprofile.
+
+They're not supposed to interact, but there is currently no
+mechanism in place for preventing both from being activated
+at the same time. What's needed is some form of kernel API
+for reserving and releasing the performance counter hardware,
+and updating oprofile to use that API.

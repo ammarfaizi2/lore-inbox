@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287319AbRL3Del>; Sat, 29 Dec 2001 22:34:41 -0500
+	id <S287321AbRL3DiV>; Sat, 29 Dec 2001 22:38:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287321AbRL3Dec>; Sat, 29 Dec 2001 22:34:32 -0500
-Received: from mail.mbi-berlin.de ([194.95.11.12]:4047 "EHLO
-	mail.mbi-berlin.de") by vger.kernel.org with ESMTP
-	id <S287319AbRL3DeL>; Sat, 29 Dec 2001 22:34:11 -0500
-Date: Sun, 30 Dec 2001 04:34:58 +0100
-From: Viktor Rosenfeld <rosenfel@informatik.hu-berlin.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: State of the new config & build system
-Message-ID: <20011230043458.E2434@bart>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E16K0yL-0001Ad-00@the-village.bc.nu> <7974.1009590240@ocs3.intra.ocs.com.au> <20011228230924.C7801@havoc.gtf.org>
+	id <S287322AbRL3DiL>; Sat, 29 Dec 2001 22:38:11 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:29459 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287321AbRL3Dhx>;
+	Sat, 29 Dec 2001 22:37:53 -0500
+Date: Sun, 30 Dec 2001 01:30:33 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Kernel Janitor Project 
+	<kernel-janitor-discuss@lists.sourceforge.net>
+Subject: [ANNOUNCE] include dependency graph script
+Message-ID: <20011230013033.A2856@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Kernel Janitor Project <kernel-janitor-discuss@lists.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ghzN8eJ9Qlbqn3iT"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011228230924.C7801@havoc.gtf.org>
 User-Agent: Mutt/1.3.23i
-X-GPG-Key: http://www.informatik.hu-berlin.de/~rosenfel/public_key.asc
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---ghzN8eJ9Qlbqn3iT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	For the people that like me, Daniel Phillips and Manfred Spraul are
+working on pruning the include dependencies in the kernel sources I made a
+simple script to make a graphviz file to plot the dependencies in a nice
+graphic, its availabe at:
 
-Legacy Fishtank wrote:
+http://www.kernel.org/pub/linux/kernel/people/acme/hviz
 
-> Kernel building is not for newbies.
+usage:
 
-Crap.  Back in 1995, I had to compile a kernel to get Linux installed,
-because the packaged kernel did not include support for ATAPI CD-ROM
-drives.  I had no Unix experience whatsoever, basically what you call a
-newbie.
+hviz include/net/sock.h 2 | dotty -
 
-And, no, the situation has not changed.  There are
+or
 
-- people/cooperations without Linux kernel compilation experience, who
-  might need a feature that's only available in a development kernel,
-- *newbies*, that are generally interested in learning Linux in all its
-  ways.
+hviz include/net/sock.h 2 > /tmp/sock.dot
+dot -Tps /tmp/sock.dot > /tmp/sock.ps
+gv /tmp/sock.ps
 
-Your attitude strikes me as unnessicarily elitist.
+Yes, one can do that with pipes and not with the temporary sock.dot file,
+but this is just so that you can see how the intermediate graphviz file
+look like.
 
-Cheers,
-Viktor
---=20
-Viktor Rosenfeld
-WWW: http://www.informatik.hu-berlin.de/~rosenfel/
+this example is also available at:
 
---ghzN8eJ9Qlbqn3iT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+http://www.kernel.org/pub/linux/kernel/people/acme/sock_include_deps.ps
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+So that people can see how it looks :-)
 
-iD8DBQE8LotikWI06CMxQ0ARAv4jAJ0bICBVUGXUendSfDT/G/Pgfj2dbQCeLbdi
-krJKqbCiEVipfab1GHnW08U=
-=3U7E
------END PGP SIGNATURE-----
+the graphviz package is available at:
+http://www.research.att.com/sw/tools/graphviz/
 
---ghzN8eJ9Qlbqn3iT--
+Comments and patches for the script are welcome.
+
+- Arnaldo

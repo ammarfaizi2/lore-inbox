@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265227AbUGGRKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265236AbUGGRPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbUGGRKi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 13:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265236AbUGGRKi
+	id S265236AbUGGRPD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 13:15:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUGGRPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 13:10:38 -0400
-Received: from imap.gmx.net ([213.165.64.20]:16040 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265227AbUGGRKg (ORCPT
+	Wed, 7 Jul 2004 13:15:03 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:15257 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S265236AbUGGRO7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 13:10:36 -0400
-X-Authenticated: #4512188
-Message-ID: <40EC2E84.400@gmx.de>
-Date: Wed, 07 Jul 2004 19:10:28 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
-X-Accept-Language: en-us, en
+	Wed, 7 Jul 2004 13:14:59 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Willy Weisz <weisz@vcpc.univie.ac.at>
+Subject: Re: APIC error on CPU0:60(60)
+Date: Wed, 7 Jul 2004 19:14:41 +0200
+User-Agent: KMail/1.6.2
+References: <40EBFAF7.1080505@vcpc.univie.ac.at>
+In-Reply-To: <40EBFAF7.1080505@vcpc.univie.ac.at>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kaya <kaya@emailkaya.com>
 MIME-Version: 1.0
-To: P@draigBrady.com
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-ck5
-References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net> <40EC1B0A.8090802@kolivas.org> <40EC1C85.9030008@gmx.de> <40EC20A0.8000101@draigBrady.com>
-In-Reply-To: <40EC20A0.8000101@draigBrady.com>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Message-Id: <200407071914.44496.mbuesch@freenet.de>
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P@draigBrady.com wrote:
-> Prakash K. Cheemplavam wrote:
-> 
->> I don't know whether this was already discussed, but what about adding 
->> framework so that (like io-schedulers) the cpu scheduler could be 
->> chosen on boot time? This would make it easy to test different cpu 
->> schedulers.
-> 
-> 
-> Discussed today actually :-)
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=108875642724907&w=2
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Oh Ok. :-) Great!
+Search the archives for the subject "APIC Error on CPU 0"
+I posted it to the list some months ago.
 
-Prakash
+I get these messages every three minutes on 2.6.7.
+On 2.6.7-mm6 I get the messages lets say every hour
+once. So it's better, but not completely away.
+
+I can't say if the reason is not a faulty CPU. Maybe,
+maybe not. Who knows.
+
+But the point is, that its actually is _better_ in -mm.
+
+
+Quoting Willy Weisz <weisz@vcpc.univie.ac.at>:
+> From time to time we get the error message:
+>
+>      APIC error on CPU0:60(60)
+>
+> from the kernel.
+>
+> We are running Linux kernel version 2.6.6 patches with
+> Mike Peterson's perfctr.
+>
+> What does this message tell?
+>
+> Reagrds
+>
+> Willy
+
+- --
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA7C+BFGK1OIvVOP4RAgRyAKCImdmKe3MetLuRUqYgXeBhTn7FvwCeKWnh
+uPN/imDauTTDZw4pGAjp0xU=
+=GE8C
+-----END PGP SIGNATURE-----

@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275931AbSIUSh7>; Sat, 21 Sep 2002 14:37:59 -0400
+	id <S275933AbSIUSp1>; Sat, 21 Sep 2002 14:45:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275932AbSIUSh7>; Sat, 21 Sep 2002 14:37:59 -0400
-Received: from [204.60.230.251] ([204.60.230.251]:21377 "EHLO karaya.com")
-	by vger.kernel.org with ESMTP id <S275931AbSIUSh7>;
-	Sat, 21 Sep 2002 14:37:59 -0400
-Message-Id: <200209211845.g8LIjhC04844@karaya.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Martin Hermanowski <martin@martin.mh57.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: UML error message clone failed/new thread failed 
-In-Reply-To: Your message of "Sat, 21 Sep 2002 20:21:27 +0200."
-             <20020921182127.GK15310@martin.mh57.net> 
+	id <S275934AbSIUSp1>; Sat, 21 Sep 2002 14:45:27 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:60171 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S275933AbSIUSp1>; Sat, 21 Sep 2002 14:45:27 -0400
+Date: Sat, 21 Sep 2002 20:50:13 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: problems building bzImage with 2.5.*
+Message-ID: <20020921185013.GA1320@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <20020921183527.GL22811@kruhft.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 21 Sep 2002 14:45:42 -0400
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+In-Reply-To: <20020921183527.GL22811@kruhft.dyndns.org>
+User-Agent: Mutt/1.4i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-martin@martin.mh57.net said:
->  No new processes could be started in the uml, but why?
-> Is this a problem with the process limits of the host linux? 
+From: Burton Samograd <kruhft@kruhft.dyndns.org>
+Date: Sat, Sep 21, 2002 at 11:35:27AM -0700
+> Hi all,
+> 
+> I'm quite new to the list and I'm not sure if this has been posted
+> already but I thought I would give it a shot. I've been trying to
+> build the 2.5.* kernels (2.5.37 at the moment but this has happened
+> with previous version as well) and when doing a make bzImage i keep
+> getting the following error during the final linkage:
+> 
+> drivers/built-in.o(.data+0xac34): undefined reference to `local
+> symbols in discarded section .text.exit'
+> make: *** [vmlinux] Error 1
+> 
+I think this means you need to update your binutils.
 
-Host and UML versions?
-
-				Jeff
-
+Kind regards,
+Jurriaan
+-- 
+A man's silence is wonderful to listen to.
+        THOMAS HARDY
+GNU/Linux 2.5.37 SMP/ReiserFS 2x1380 bogomips load av: 0.05 0.03 0.05

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbTJIQdx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 12:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbTJIQdx
+	id S262187AbTJIQek (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 12:34:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTJIQek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 12:33:53 -0400
-Received: from [80.88.36.193] ([80.88.36.193]:41635 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261743AbTJIQdv (ORCPT
+	Thu, 9 Oct 2003 12:34:40 -0400
+Received: from colin2.muc.de ([193.149.48.15]:4619 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262187AbTJIQei (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 12:33:51 -0400
-Date: Thu, 9 Oct 2003 18:33:43 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Paul Mundt <lethal@linux-sh.org>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] net/sunrpc/clnt.c compile fix
-In-Reply-To: <20031009161350.GA9170@linux-sh.org>
-Message-ID: <Pine.GSO.4.21.0310091829220.7430-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 9 Oct 2003 12:34:38 -0400
+Date: 9 Oct 2003 18:34:54 +0200
+Date: Thu, 9 Oct 2003 18:34:53 +0200
+From: Andi Kleen <ak@colin2.muc.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       bos@serpentine.com
+Subject: Re: [PATCH] Fix mlockall for PROT_NONE mappings
+Message-ID: <20031009163453.GA977@colin2.muc.de>
+References: <20031009153317.GA3096@averell> <Pine.LNX.4.44.0310090837490.10041-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310090837490.10041-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Oct 2003, Paul Mundt wrote:
-> Not sure if anyone has submitted this already, but as the subject implies,
-> net/sunrpc/clnt.c does not compile in either stock test7 or in current BK:
+On Thu, Oct 09, 2003 at 08:40:09AM -0700, Linus Torvalds wrote:
 > 
->   CC      net/sunrpc/clnt.o
->   net/sunrpc/clnt.c: In function `call_verify':
->   net/sunrpc/clnt.c:965: structure has no member named `tk_pid'
->   net/sunrpc/clnt.c:970: structure has no member named `tk_pid'
->   net/sunrpc/clnt.c:976: structure has no member named `tk_pid'
->   make[1]: *** [net/sunrpc/clnt.o] Error 1
->   make: *** [net/sunrpc/clnt.o] Error 2
+> On Thu, 9 Oct 2003, Andi Kleen wrote:
+> > 
+> > Ok, here's a new version.
 > 
-> This is due to the fact that tk_pid is protected by RPC_DEBUG. Wrapping
-> through dprintk() fixes this.
+> Still won't work.
+> 
+> You need to call mlock_fixup() to split the vma properly (it might not 
+> cover the whole vma, and we _do_ want to keep track of the VM_LOCKED flag 
+> correctly.
 
-Since it compiled in my m68k-build-all-that-builds kernel, I decided to jump
-into this.
+I don't think so. mlockall() should never split anything.
 
-Apparently RPC_DEBUG is set if CONFIG_SYSCTL is defined
-(<linux/sunrpc/debug.h>), so it builds or not depending on CONFIG_SYSCTL.
+mlock may, but I didn't change its behaviour. 
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-Andi
 

@@ -1,97 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbUE3QLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264044AbUE3QQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbUE3QLG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 12:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264044AbUE3QLF
+	id S264044AbUE3QQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 12:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbUE3QQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 12:11:05 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:53513 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261937AbUE3QKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 12:10:41 -0400
-Date: Sun, 30 May 2004 17:10:32 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Bjorn Wesen <bjorn.wesen@axis.com>, Christoph Rohland <cr@sap.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] tmpfs surplus page miscounted
-Message-ID: <Pine.LNX.4.44.0405301656500.2275-100000@localhost.localdomain>
+	Sun, 30 May 2004 12:16:38 -0400
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:14680 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264044AbUE3QQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 12:16:34 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: SERIO_USERDEV patch for 2.6
+Date: Sun, 30 May 2004 11:16:31 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org,
+       Sau Dan Lee <danlee@informatik.uni-freiburg.de>, tuukkat@ee.oulu.fi
+References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de> <200405301009.21202.dtor_core@ameritech.net> <20040530155821.GC1479@ucw.cz>
+In-Reply-To: <20040530155821.GC1479@ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405301116.31356.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Wesen reports BUG_ON(inode->i_blocks) after sendfile or loop has
-primed page cache with a tmpfs page, but the subsequent shmem_readpage
-or shmem_prepare_write failed because filesystem max size was exceeded:
-the surplus page has not been accounted, yet truncation assumes it has.
+On Sunday 30 May 2004 10:58 am, Vojtech Pavlik wrote:
+> On Sun, May 30, 2004 at 10:09:18AM -0500, Dmitry Torokhov wrote:
+> 
+> > On Sunday 30 May 2004 08:42 am, Vojtech Pavlik wrote:
+> > > 
+> > > Anyway, looking at the patch, it's not bad, and it's quite close to what
+> > > I was considering to write. I'd like to keep it separate from the
+> > > serio.c file, although it's obvious it'll require to be linked to it
+> > > statically, because it needs hooks there - it cannot be a regular serio
+> > > driver.
+> > > 
+> > 
+> > Do we really have to have this stuff directly in serio? How about being able
+> > to mark some serio ports as working in raw mode (i8042.raw=0,1,1,0) and have
+> > separate (serio_raw?) module bind to such ports
+> 
+> We don't have to. But it'd be rather convenient to have it. It would
+> work for all serio ports, not just i8042, etc, etc.
+> 
+> And if kept in a separate file (serio-dev.c), it wouldn't mess up things
+> too much.
+> 
 
-The obvious fix, to check Page_Uptodate in shmem_removepage, does not
-work: because it has anyway been cleared by the time that is called.
-We could rearrange, but it might be safer to avoid subtle dependency,
-and just fix this up within shmem.c: using the PageError flag instead.
+Well, my argument is that we only have immediate need for raw access to 
+PC-style AUX ports because of wide variety of connected devices. Serial
+ports have other historical means of accessing them, busmice ports have
+well known devices attached.
 
-This is not an issue for 2.6, which uses shmem_recalc_inode instead of
-2.4's removepage method, and so is ready for nrpages to drift a little.
+Once we have sysfs integration in place I imagine we will be able to
+implement dynamic binding of serio drivers and ports, atkbd and psmouse
+being default ones and user will be able to rebind a specific port to
+let's say serio-raw or some other driver that does not have automatic
+hardware detection yet.
 
-Hugh
-
---- 2.4.27-pre3/mm/shmem.c	2003-11-28 18:26:21.000000000 +0000
-+++ linux/mm/shmem.c	2004-05-30 16:20:49.374589600 +0100
-@@ -86,7 +86,7 @@ static void shmem_free_block(struct inod
+But in the meantime marking several ports raw will allow most of the users
+use old means of communicating with their pointing devices without too
+much effort.
  
- static void shmem_removepage(struct page *page)
- {
--	if (!PageLaunder(page))
-+	if (!PageLaunder(page) && !PageError(page))
- 		shmem_free_block(page->mapping->host);
- }
- 
-@@ -626,8 +626,11 @@ static int shmem_getpage(struct inode *i
- 	swp_entry_t swap;
- 	int error = 0;
- 
--	if (idx >= SHMEM_MAX_INDEX)
--		return -EFBIG;
-+	if (idx >= SHMEM_MAX_INDEX) {
-+		error = -EFBIG;
-+		goto failed;
-+	}
-+
- 	/*
- 	 * Normally, filepage is NULL on entry, and either found
- 	 * uptodate immediately, or allocated and zeroed, or read
-@@ -781,18 +784,24 @@ repeat:
- 	}
- done:
- 	if (!*pagep) {
--		if (filepage) {
-+		if (filepage)
- 			UnlockPage(filepage);
--			*pagep = filepage;
--		} else
--			*pagep = ZERO_PAGE(0);
-+		else
-+			filepage = ZERO_PAGE(0);
-+		*pagep = filepage;
- 	}
-+	if (PageError(filepage))
-+		ClearPageError(filepage);
- 	return 0;
- 
- failed:
--	if (*pagep != filepage) {
--		UnlockPage(filepage);
--		page_cache_release(filepage);
-+	if (filepage) {
-+		if (*pagep == filepage)
-+			SetPageError(filepage);
-+		else {
-+			UnlockPage(filepage);
-+			page_cache_release(filepage);
-+		}
- 	}
- 	return error;
- }
-
+-- 
+Dmitry

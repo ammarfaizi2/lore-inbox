@@ -1,66 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263773AbTKFRWx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 12:22:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTKFRWx
+	id S263796AbTKFRUv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 12:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTKFRUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 12:22:53 -0500
-Received: from thunk.org ([140.239.227.29]:32923 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S263773AbTKFRWv (ORCPT
+	Thu, 6 Nov 2003 12:20:51 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:20409 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S263715AbTKFRUr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 12:22:51 -0500
-Date: Thu, 6 Nov 2003 12:22:39 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Robert Gyazig <juliarobertz_fan@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: undo an mke2fs !!
-Message-ID: <20031106172239.GA24360@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Pavel Machek <pavel@ucw.cz>,
-	Robert Gyazig <juliarobertz_fan@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <20031106055601.75420.qmail@web21505.mail.yahoo.com> <20031106133442.GB23624@thunk.org> <20031106150148.GA27873@atrey.karlin.mff.cuni.cz>
+	Thu, 6 Nov 2003 12:20:47 -0500
+Date: Thu, 6 Nov 2003 09:20:17 -0800
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [DMESG] cpumask_t in action
+Message-ID: <20031106172017.GA28613@sgi.com>
+Mail-Followup-To: Matthew Wilcox <willy@debian.org>,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+	acpi-devel@lists.sourceforge.net
+References: <20031105222202.GA24119@sgi.com> <20031106165159.GE26869@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031106150148.GA27873@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20031106165159.GE26869@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.5.4i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 06, 2003 at 04:01:48PM +0100, Pavel Machek wrote:
-> Hi!
+On Thu, Nov 06, 2003 at 04:51:59PM +0000, Matthew Wilcox wrote:
+> The arch/ia64 code is not the only offender; ACPI is terribly verbose too.
+> I'm going to cc the acpi list too.  See comments below.
 > 
-> > If you had backed up the metadata using an e2image command, you would
-> > have been fine, but that command takes a while to run, so most people
-> > don't bother to do this.  (Not a bad idea for the absolute paranoids
-> > in the house would be to run e2image out of a cron script and save the
-> > image file on some *other* filesystem.)
+> > ACPI: SRAT Processor (id[0x00] eid[0x00]) in proximity domain 0 enabled
+[snip[
+> > ACPI: SRAT Processor (id[0x20] eid[0x5e]) in proximity domain 47 enabled
 > 
-> Assuming I have e2image (I'm actually started to thinking it is pretty
-> good idea)... how do I restore it?
+> ... for example ;-)  96 lines which honestly tell me nothing.
+> 
+> > ACPI: SRAT Memory (0x0000003000000000 length 0x0000001000000000 type 0x1) in proximity domain 0 enabled
+> > ACPI: SRAT Memory (0x000000b000000000 length 0x0000001000000000 type 0x1) in proximity domain 1 enabled
+> [ snip 44 lines ]
+> > ACPI: SRAT Memory (0x0000173000000000 length 0x0000001000000000 type 0x1) in proximity domain 46 enabled
+> > ACPI: SRAT Memory (0x000017b000000000 length 0x0000001000000000 type 0x1) in proximity domain 47 enabled
 
-<Blush> The libext2fs library routines are there, but the userspace
-tools haven't been written yet.  What I've done the few times when
-I've used it is to let debugfs access the image file, and use it
-mostly for examination purposes.  
+Here's one for those two.
 
-What I'll probably do is add debugfs commands that allow you to copy
-the superblock/block group descriptors, or the inode table, or the
-block/inode allocation bitmaps from the image file back to the
-filesystem.  As I said, the library routines are there, but debugfs
-front ends haven't been written yet.  If someone has a critical
-situation requiring them, I could probably throw together patches
-within a day or so.
+Jesse
 
-						- Ted
-
+===== drivers/acpi/numa.c 1.5 vs edited =====
+--- 1.5/drivers/acpi/numa.c	Tue Feb 18 12:56:05 2003
++++ edited/drivers/acpi/numa.c	Thu Nov  6 09:18:50 2003
+@@ -31,6 +31,13 @@
+ #include <linux/acpi.h>
+ #include <acpi/acpi_bus.h>
+ 
++#undef ACPI_NUMA_DEBUG
++#ifdef ACPI_NUMA_DEBUG
++#define Dprintk(x...) printk(x)
++#else
++#define Dprintk(x...)
++#endif
++
+ extern int __init acpi_table_parse_madt_family (enum acpi_table_id id, unsigned long madt_size, int entry_id, acpi_madt_entry_handler handler);
+ 
+ void __init
+@@ -46,7 +53,7 @@
+ 	{
+ 		struct acpi_table_processor_affinity *p =
+ 			(struct acpi_table_processor_affinity*) header;
+-		printk(KERN_INFO PREFIX "SRAT Processor (id[0x%02x] eid[0x%02x]) in proximity domain %d %s\n",
++		Dprintk(KERN_INFO PREFIX "SRAT Processor (id[0x%02x] eid[0x%02x]) in proximity domain %d %s\n",
+ 		       p->apic_id, p->lsapic_eid, p->proximity_domain,
+ 		       p->flags.enabled?"enabled":"disabled");
+ 	}
+@@ -56,7 +63,7 @@
+ 	{
+ 		struct acpi_table_memory_affinity *p =
+ 			(struct acpi_table_memory_affinity*) header;
+-		printk(KERN_INFO PREFIX "SRAT Memory (0x%08x%08x length 0x%08x%08x type 0x%x) in proximity domain %d %s%s\n",
++		Dprintk(KERN_INFO PREFIX "SRAT Memory (0x%08x%08x length 0x%08x%08x type 0x%x) in proximity domain %d %s%s\n",
+ 		       p->base_addr_hi, p->base_addr_lo, p->length_hi, p->length_lo,
+ 		       p->memory_type, p->proximity_domain,
+ 		       p->flags.enabled ? "enabled" : "disabled",

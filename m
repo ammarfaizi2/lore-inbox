@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUEGAOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbUEGAgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUEGAOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 20:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUEGAOR
+	id S261817AbUEGAgd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 20:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUEGAgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 20:14:17 -0400
-Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:47120 "EHLO
-	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
-	id S261752AbUEGAOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 20:14:15 -0400
-Date: Thu, 6 May 2004 21:14:07 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
-To: Zhenmin Li <zli4@cs.uiuc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OPERA] Potential bugs detected by static analysis tool in 2.6.4
-Message-ID: <20040507001407.GK9037@lorien.prodam>
-Mail-Followup-To: Zhenmin Li <zli4@cs.uiuc.edu>,
-	linux-kernel@vger.kernel.org
-References: <002701c4331c$092a3b40$76f6ae80@Turandot>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <002701c4331c$092a3b40$76f6ae80@Turandot>
-User-Agent: Mutt/1.4.2i
+	Thu, 6 May 2004 20:36:32 -0400
+Received: from www.amthinking.net ([65.104.119.37]:34358 "EHLO
+	ex0.amthinking.net") by vger.kernel.org with ESMTP id S261817AbUEGAg3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 20:36:29 -0400
+Message-ID: <409AD9F8.5080400@appliedminds.com>
+Date: Thu, 06 May 2004 17:36:08 -0700
+From: James Lamanna <jamesl@appliedminds.com>
+User-Agent: Mozilla Thunderbird 0.6+ (X11/20040421)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Getting i815 Framebuffer working?!
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 May 2004 00:36:28.0701 (UTC) FILETIME=[55F984D0:01C433CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Some more info I just dug out.
+The following call chain fails:
 
- Hi Zhenmin,
+i810fb_init_pci()
+   i810fb_check_var()
+     i810_check_params()
+       fb_get_mode()
 
-Em Wed, May 05, 2004 at 10:41:37PM -0500, Zhenmin Li escreveu:
+fb_get_mode returns -EINVAL from the if statement at line 1079:
+if (!(flags & FB_IGNOREMON) &&
+      (timings.vfreq < vfmin || timings.vfreq > vfmax ||
+       timings.hfreq < hfmin || timings.hfreq > hfmax ||
+       timings.dclk < dclkmin || timings.dclk > dclkmax))
 
-| 9. /drivers/pci/hotplug/shpchp_ctrl.c, Line 1575:
-| err("%s: Failed to disable slot, error code(%d)\n", __FUNCTION__, rc);
-| 
-| Maybe change to:
-| err("%s: Failed to disable slot, error code(%d)\n", __FUNCTION__, retval);
+values:
+flags: 0x00000000
+timings.vfreq 38 vfmin 60 vfmax 60
+timings.hfreq 30000 hfmin 30000 hfmax 30000
+timings.dclk 38400000 dclkmin 15000000 dclkmax 234000000
 
- This seems right to me.
 
-| 
-| 10. /sound/oss/swarm_cs4297a.c, Line 2019:
-| s->dma_adc.blocks = s->dma_dac.wakeup = 0;
-| 
-| Maybe change to:
-| s->dma_adc.blocks = s->dma_adc.wakeup = 0;
+-------- Original Message --------
+Subject: Getting i815 Framebuffer working?!
+Date: Thu, 06 May 2004 16:57:22 -0700
+From: James Lamanna <jamesl@appliedminds.com>
+To: linux-kernel@vger.kernel.org
+CC: adaplas@pol.net
 
- This don't. At a first look seems that 'dma_adc' and 'dma_dac' is the some
-thing typed wrong, but don't, they are not the some thing.
+Using stock 2.6.5, I'm trying to get the Intel i810/5 framebuffer driver
+to work. So far I have had no success.
 
--- 
-Luiz Fernando N. Capitulino
-<http://www.telecentros.sp.gov.br>
+
+-- James Lamanna
+

@@ -1,69 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275363AbTHSFuK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 01:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275384AbTHSFuK
+	id S275357AbTHSGAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 02:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275365AbTHSGAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 01:50:10 -0400
-Received: from mail.cid.net ([193.41.144.34]:49290 "EHLO mail.cid.net")
-	by vger.kernel.org with ESMTP id S275363AbTHSFuG (ORCPT
+	Tue, 19 Aug 2003 02:00:16 -0400
+Received: from anumail3.anu.edu.au ([150.203.2.43]:18862 "EHLO anu.edu.au")
+	by vger.kernel.org with ESMTP id S275357AbTHSGAK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 01:50:06 -0400
-Date: Tue, 19 Aug 2003 07:43:27 +0200
-From: Stefan Foerster <stefan@stefan-foerster.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Very bad interactivity with 2.6.0 and SCSI disks (aic7xxx)
-Message-ID: <20030819054327.GA8674@in-ws-001.cid-net.de>
-References: <20030818013243.GB21665@in-ws-001.cid-net.de> <20030817192103.798994d8.akpm@osdl.org> <20030818054851.GA5252@in-ws-001.cid-net.de> <20030817230325.2887ca49.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030817230325.2887ca49.akpm@osdl.org>
-X-Now-Playing: Sting - Desert Rose
-User-Agent: Mutt/1.5.4i
+	Tue, 19 Aug 2003 02:00:10 -0400
+Message-ID: <3F41B8D0.8060709@cyberone.com.au>
+Date: Tue, 19 Aug 2003 15:42:40 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.2.1) Gecko/20021217
+MIME-Version: 1.0
+To: "Anthony R." <russo.lutions@verizon.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: cache limit
+References: <3F41AA15.1020802@verizon.net>
+In-Reply-To: <3F41AA15.1020802@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Sender-Domain: cyberone.com.au
+X-Spam-Score: (-2.9)
+X-Spam-Tests: EMAIL_ATTRIBUTION,IN_REP_TO,REFERENCES,SPAM_PHRASE_03_05,USER_AGENT,USER_AGENT_MOZILLA_UA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I've sent this mail aleready, but got an error from my MAILER-DAEMON.
-Perhaps ist was too large vor lkml, so I'm moving the oprofile output
-to a webserver]
+Anthony R. wrote:
 
-* Andrew Morton <akpm@osdl.org> wrote:
-> Stefan Foerster <stefan@stefan-foerster.de> wrote:
-> > * Andrew Morton <akpm@osdl.org> wrote:
-> > > Stefan Foerster <stefan@stefan-foerster.de> wrote:
-> > > A kernel profile would be needed to diagnose this.  You could use
-> > > readprofile, but as it may be an interrupt problem, the NMI-based oprofile
-> > > output would be better.
-> > 
-> > Is this procedure documented anywhere?
+>Hi,
+>  
+>
+>
+>I would like to tune my kernel not to use as much memory for cache
+>as it currently does. I have 2GB RAM, but when I am running one program
+>that accesses a lot of files on my disk (like rsync), that program uses
+>most of the cache, and other programs wind up swapping out. I'd prefer to
+>have just rsync run slower because less of its data is cached, rather
+>than have
+>all my other programs run more slowly. rsync is not allocating memory,
+>but the kernel is caching it at the expense of other programs.
+>
+>With 2GB on a system, I should never page out, but I consistently do and I
+>need to tune the kernel to avoid that. Cache usage is around 1.4 GB!
+>I never had this problem with earlier kernels. I've read a lot of comments
+>where so-called experts poo-poo this problem, but it is real and
+>repeatable and I am
+>ready to take matters into my own hands to fix it. I am told the cache
+>is replaced when
+>another program needs more memory, so it shouldn't swap, but that is not
+>the
+>behaviour I am seeing.
+>
+>Can anyone help point me in the right direction?
+>Do any kernel developers care about this?
+>
+>My kernel is stock 2.4.21, I run Redhat 9 on a 3GHz P4. I'd give you MB
+>info but I've seen
+>this behaviour on other motherboards as well.
+>
+>Thank you very much for your help.
+>
+>-- tony
+>"Surrender to the Void." 
+>-- John Lennon
+>
+>
 
-[every information I needed]
+Hi Anthony,
+If you're up for a bit of work, give the "aa" series kernels a try, also
+see how 2.6-test goes and be sure to report any problems you encounter.
 
-I did the following steps:
+The VM in stock 2.4 is slow to pick up updates due to being a stable series.
+The problems definitely won't get poo-pooed here. Be sure you include a
+good description of your workload and probably a log of vmstat 1 to start
+with.
 
 
-opcontrol --setup --vmlinux=/usr/src/linux/vmlinux --event=RETIRED_INSNS:100000:0:1:1
-
-Then I used your shell source:
-
-~/shells/oprofileit dd if=/dev/zero of=test bs=1024 count=1048576
-
-opreport -l  /usr/src/linux/vmlinux  > /tmp/1
-opreport -ld -D /usr/src/linux/vmlinux  > /tmp/2
-
-During the dd, again the xmms playing a file from an tmpfs froze and
-even screen redrawing was very, very slow.
-
-The output of these commands kan be found at:
-
-http://home.in.tum.de/foerstes/oprofile-1
-http://home.in.tum.de/foerstes/oprofile-2
-
-Is this information useful in debugging my problem, or should I go and
-try again with readprofile or other tools?
-
-Ciao,
-Stefan
 

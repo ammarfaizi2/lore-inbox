@@ -1,47 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269598AbUIRRqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268964AbUIRR2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269598AbUIRRqs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 13:46:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269597AbUIRRqs
+	id S268964AbUIRR2f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 13:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269584AbUIRR2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 13:46:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11487 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269609AbUIRRq2
+	Sat, 18 Sep 2004 13:28:35 -0400
+Received: from undl.funcitec.rct-sc.br ([200.135.30.197]:63361 "HELO
+	mail.undl.org.br") by vger.kernel.org with SMTP id S268964AbUIRR2c
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 13:46:28 -0400
-Date: Sat, 18 Sep 2004 12:05:06 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] trivial patch for 2.4: always inline __constant_*
-Message-ID: <20040918150505.GC3435@logos.cnet>
-References: <200409161428.27425.vda@port.imtp.ilyichevsk.odessa.ua> <200409171532.58898.vda@port.imtp.ilyichevsk.odessa.ua> <200409172155.29561.vda@port.imtp.ilyichevsk.odessa.ua> <200409181657.23833.vda@port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409181657.23833.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.5.5.1i
+	Sat, 18 Sep 2004 13:28:32 -0400
+Message-ID: <414C6FFC.6060604@undl.org.br>
+Date: Sat, 18 Sep 2004 14:27:24 -0300
+From: Carlos Eduardo Medaglia Dyonisio <medaglia@undl.org.br>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: medaglia@undl.org.br
+Subject: [PATCH][2.6.9-rc2] Fix types.h
+Content-Type: multipart/mixed;
+ boundary="------------010307090504010108060903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------010307090504010108060903
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Applied, thanks Denis.
+Hi!
 
-> Most of them can be fixed with a single #include <compiler.h>
-> in <string.h>. Along the way, I fixed some non-compilation buglets.
-> I will submit those patches as replies now.
-> --
-> vda
+This patch fixes troubles when compiling some applications that include 
+<linux/byteorder/little_endian.h>, like xmms. When I was compiling xmms 
+I've got:
+In file included from /usr/include/asm/byteorder.h:57,
+                  from /usr/include/linux/cdrom.h:14,
+                  from cdaudio.h:60,
+                  from cdaudio.c:21:
+/usr/include/linux/byteorder/little_endian.h:43: error: parse error 
+before "__cpu_to_le64p"
+/usr/include/linux/byteorder/little_endian.h: In function `__cpu_to_le64p':
+/usr/include/linux/byteorder/little_endian.h:45: error: `__le64' 
+undeclared (first use in this function)
+...etc...
 
-> diff -urpN linux-2.4.27-pre3.org/include/linux/string.h linux-2.4.27-pre3.fix/include/linux/string.h
-> --- linux-2.4.27-pre3.org/include/linux/string.h	Sat Sep 18 16:52:10 2004
-> +++ linux-2.4.27-pre3.fix/include/linux/string.h	Fri Sep 17 23:19:23 2004
-> @@ -7,6 +7,7 @@
->  
->  #include <linux/types.h>	/* for size_t */
->  #include <linux/stddef.h>	/* for NULL */
-> +#include <linux/compiler.h>	/* for inline ((always_inline)) */
->  
->  #ifdef __cplusplus
->  extern "C" {
+I've put the __le(16|32|64) and __be(16|32|64) typedefs out of #ifndef 
+__KERNEL_STRICT_NAMES and now everything is working. Xmms is compiling 
+fine, and linux kernel too. :)
 
+Maybe I made something wrong, because this is my first patch to linux 
+kernel... But everything is working fine for me.
+
+Regards,
+Cadu
+
+--------------010307090504010108060903
+Content-Type: text/plain;
+ name="patch-types.h.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-types.h.diff"
+
+--- linux-2.6.9-rc2/include/linux/types.h	2004-09-13 02:33:23.000000000 -0300
++++ linux/include/linux/types.h	2004-09-18 14:16:27.000000000 -0300
+@@ -140,6 +140,13 @@
+ #define pgoff_t unsigned long
+ #endif
+ 
++#endif /* __KERNEL_STRICT_NAMES */
++
++/*
++ * Below are truly Linux-specific types that should never collide with
++ * any application/library that wants linux/types.h.
++ */
++
+ #ifdef __CHECKER__
+ #define __bitwise __attribute__((bitwise))
+ #else
+@@ -153,13 +160,6 @@
+ typedef __u64 __bitwise __le64;
+ typedef __u64 __bitwise __be64;
+ 
+-#endif /* __KERNEL_STRICT_NAMES */
+-
+-/*
+- * Below are truly Linux-specific types that should never collide with
+- * any application/library that wants linux/types.h.
+- */
+-
+ struct ustat {
+ 	__kernel_daddr_t	f_tfree;
+ 	__kernel_ino_t		f_tinode;
+
+--------------010307090504010108060903--

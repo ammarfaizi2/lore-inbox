@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264107AbUDRIRI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 04:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUDRIRI
+	id S263027AbUDRJUm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 05:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbUDRJUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 04:17:08 -0400
-Received: from verein.lst.de ([212.34.189.10]:7114 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S264107AbUDRIRG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 04:17:06 -0400
-Date: Sun, 18 Apr 2004 10:17:00 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] lockfs - vfs bits
-Message-ID: <20040418081659.GA8972@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040417220632.GA2573@lst.de> <20040417163007.67d23c10.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040417163007.67d23c10.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Sun, 18 Apr 2004 05:20:42 -0400
+Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:18057 "HELO
+	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263027AbUDRJUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 05:20:41 -0400
+Message-ID: <40824864.7060106@yahoo.com.au>
+Date: Sun, 18 Apr 2004 19:20:36 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: markw@osdl.org
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: 2.6.5-mm5
+References: <200404162303.i3GN3h231348@mail.osdl.org>
+In-Reply-To: <200404162303.i3GN3h231348@mail.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 17, 2004 at 04:30:07PM -0700, Andrew Morton wrote:
-> Christoph Hellwig <hch@lst.de> wrote:
-> >
-> >  These are the generic lockfs bits.  Basically it takes the XFS freezing
-> >  statemachine into the VFS.  It's all behind the kernel-doc documented
-> >  freeze_bdev and thaw_bdev interfaces.
+markw@osdl.org wrote:
+
 > 
-> Do we expect to see snapshotting patches for other filesystems arise as a
-> result of this?
+> I do already have CONFIG_IRQBALANCE=y.  Is that the interrupt balancing?
+> I'll go ahead and get that schedstat data for you.
+> 
 
-Other filesystems already implement the write_super_lockfs and unlockfs
-methods and should just work.  An earlier version of this patch is in
-SuSE's tree and I think they've tested it with ext3 and reiserfs.
-Similarly even earlier variants are in the 2.4 vendor trees.  Those
-filesystem don't really use the state machine to avoid starting new
-transactions, so to get results as reliable as XFS they need soem more
-work.
-
+Hi Mark,
+Just another question (I think you've already told me once
+but I can't remember :P). Do you have HT enabled on your
+system? If so, you should have CONFIG_SCHED_SMT=y with -mm
+kernels. If not, did you get to the bottom of why oprofile
+with linus kernels says the system is P4 / Xeon, while with
+mm kernels, it is a P4 / Xeon with 2 hyper-threads?

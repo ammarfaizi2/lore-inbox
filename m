@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268253AbSIRU3l>; Wed, 18 Sep 2002 16:29:41 -0400
+	id <S268251AbSIRUc7>; Wed, 18 Sep 2002 16:32:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268261AbSIRU3l>; Wed, 18 Sep 2002 16:29:41 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:14588 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S268253AbSIRU3j>; Wed, 18 Sep 2002 16:29:39 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 18 Sep 2002 14:32:47 -0600
-To: "H. J. Lu" <hjl@lucon.org>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Support tera byte disk
-Message-ID: <20020918203247.GS13929@clusterfs.com>
-Mail-Followup-To: "H. J. Lu" <hjl@lucon.org>,
-	linux kernel <linux-kernel@vger.kernel.org>
-References: <20020918131120.A5120@lucon.org>
+	id <S268261AbSIRUc7>; Wed, 18 Sep 2002 16:32:59 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:56839 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268251AbSIRUc5>;
+	Wed, 18 Sep 2002 16:32:57 -0400
+Date: Wed, 18 Sep 2002 13:37:58 -0700
+From: Greg KH <greg@kroah.com>
+To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux hot swap support
+Message-ID: <20020918203757.GC10970@kroah.com>
+References: <180577A42806D61189D30008C7E632E8793A64@boca213a.boca.ssc.siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020918131120.A5120@lucon.org>
+In-Reply-To: <180577A42806D61189D30008C7E632E8793A64@boca213a.boca.ssc.siemens.com>
 User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 18, 2002  13:11 -0700, H. J. Lu wrote:
-> For a 1.8TB SCSI HD, kernel reports:
-> 
-> SCSI device sda: -773086208 512-byte hdwr sectors (-395819 MB)
-> 
-> Here is a patch to fix it. BTW, I don't think it will work with > 2TB,
-> which requires bigger changes.
+Cced back to lkml as I hate taking things off-line unless it's
+necessary, archives are your friend.
 
-There's also a limit where statfs() overflows at 16TB for 4kB block
-filesystems...  Ask me how I noticed this ;-)
+On Wed, Sep 18, 2002 at 07:50:49AM -0400, Bloch, Jack wrote:
+> Thanks for the response. In my driver init routine, I use the
+> pci_module_init( ) to register my driver with the PCI subsystem. Is this
+> enough?
 
-Luckily, it is easy to upshift f_blksz and downshift f_blocks, f_bfree,
-and f_bavail to get the data through the statfs interface, and df does
-the reverse on the other side.  It makes sense to show a larger block
-size anyways, so apps potentially do larger I/O requests.
+No, that's enough to register your driver as a PCI driver.  I'm guessing
+your pci hotplug controller looks like a PCI device?
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+> What exactly is the hotplug_core and or pcihpfs?
 
+See drivers/hotplug/pci_hotplug.h for the interface that a pci hotplug
+controller driver needs to interface with (specifcly the
+pci_hp_register() and pci_hp_unregister() functions are what you need).
+
+> Do I have to implement the pci_insert_device/pci_remove_device methods
+> or does the kernel simply call the probe_one/remove_one which I
+> specify during my initialization. 
+
+I'm confused, are you talking about a normal PCI card driver, or a PCI
+Hotplug controller driver?  What exactly does your driver do?  Does it
+talk to a specific PCI card, or does it control power to PCI slots?
+
+thanks,
+
+greg k-h

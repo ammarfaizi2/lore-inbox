@@ -1,80 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268372AbTAMWLR>; Mon, 13 Jan 2003 17:11:17 -0500
+	id <S268373AbTAMW1e>; Mon, 13 Jan 2003 17:27:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268368AbTAMWLR>; Mon, 13 Jan 2003 17:11:17 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:18577 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S268377AbTAMWLN>; Mon, 13 Jan 2003 17:11:13 -0500
-Subject: Re: Linux 2.4.21-pre3-ac3 and KT400
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: ed@efix.biz
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042495829.1223.10.camel@sun>
-Mime-Version: 1.0
-Date: 13 Jan 2003 23:10:30 +0100
+	id <S268374AbTAMW1e>; Mon, 13 Jan 2003 17:27:34 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:1552 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S268373AbTAMW1d>; Mon, 13 Jan 2003 17:27:33 -0500
+Message-ID: <3E23297A.46A57515@linux-m68k.org>
+Date: Mon, 13 Jan 2003 22:02:50 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Levon <levon@movementarian.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: make xconfig broken in bk current
+References: <200301121512.59840.tomlins@cam.org> <20030112203150.GA53199@compsoc.man.ac.uk> <3E2200C6.665A12CA@linux-m68k.org> <20030113012032.GA73639@compsoc.man.ac.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
-> I am running Linux on an ASUS A7V8X, VIA KT400 chipset motherboard.
-> The processor is a 1.5GHz Athlon XP. I started experimenting with
-> new-ish kernels again because of the general lack of kernel support
-> for this chipset in stock kernels. 3 questions below:
+Hi,
 
-Hey finally someone with my setup :-))
+John Levon wrote:
 
-> 1) I have 1GB ram, but I cannot get high memory support to work. It
-> falls over during boot. I've seen discussions about AMD cache issues,
-> but has it been fixed yet? Is it supposed to work?
+> > We can discuss this during 2.7, until then I prefer to keep it close to
+> > the kernel, as the config system still has to mature a bit more.
+> 
+> OK, so you're fine with the moving to a different package when the
+> config library reaches a stable API ? Fair enough.
 
-I am using older kernels (2.4.20) and it seems to work...
+Yes, my main requirement is that the separate package is working fine in
+a few distributions.
 
+> You don't seem to set MOC correctly if you guess a Qt dir. It doesn't
+> cater for binaries called moc2 or libraries called qt3 or qt2[1]
 
-> 2) The audio driver. It works and this is the main reason why I use
-> this version of the kernel. The issue I have with it, is that if I
-> start certain applications (gaim, macromedia flash player 6 for
-> example), esd gets itself into some kind of hung/blocked state. When
-> this happens, I need to kill -9 esd and re-start it. Games and xmms
-> work however. The reason I ask about this is that the downloaded
-> driver from the viaarena works on a stock kernel without this glitch.
-> Is this a known problem?
+I haven't seen this yet and I would expect (sym)links to the default
+version.
 
-I use the alsa 0.9 driver and never had a problem like that...
+bye, Roman
 
-3) I get the following messages at boot-time:
-[...]
-> Jan 13 18:23:05 wires kernel: hda: dma_intr: error=0x84 {
-> DriveStatusError BadCRC }
-> Jan 13 18:23:05 wires kernel: blk: queue c0437940, I/O limit 4095Mb
-> (mask 0xffffffff)
-> Jan 13 18:23:05 wires kernel: hdb: DMA disabled
-> Jan 13 18:23:05 wires kernel: ide0: reset: success
-> Jan 13 18:23:05 wires kernel: spurious 8259A interrupt: IRQ7.
-
-> Naturally, this is quite alarming. Everything works though, so am I
-> safe in just ignoring this noise?
-
-That sounds like a bad cable. Do you use 80wires ide cables, connectors
-attached to the ends ?
-
-however I also get this spurious interrupt and it might be alarming...
-
-> 4) Does anyone know whether I can get the ethernet interface to work
-> using stock kernel net device drivers (yes VIA supply the source, but
-> I'd rather use stock drivers)? I thought it was the via-rhine driver,
-> but it doesn't seem to recognise the chip. Anyone got it working?
-
-just have a look at the cdrom supplied with your mainboard. there is a
-GPLed bcm4400 driver on that disk... 
-
-> I'd appreciate some help with this (great) motherboard.
-
-well I have all kinds of trouble here (-> freezes)... I still hope that
-it is not the via chipset nor the mainboard causing it this time.
-
-Soeren.
 

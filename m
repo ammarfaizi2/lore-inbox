@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280787AbRKOJQ1>; Thu, 15 Nov 2001 04:16:27 -0500
+	id <S280792AbRKOJTq>; Thu, 15 Nov 2001 04:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280790AbRKOJQQ>; Thu, 15 Nov 2001 04:16:16 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:44815 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S280787AbRKOJQE>;
-	Thu, 15 Nov 2001 04:16:04 -0500
-Date: Thu, 15 Nov 2001 20:13:40 +1100
-From: Anton Blanchard <anton@samba.org>
-To: reiserfs-dev@namesys.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] reiserfs gcc alias bug only on ppc32
-Message-ID: <20011115201340.I22552@krispykreme>
-Mime-Version: 1.0
+	id <S280794AbRKOJTg>; Thu, 15 Nov 2001 04:19:36 -0500
+Received: from mail.loewe-komp.de ([62.156.155.230]:40462 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S280790AbRKOJTa>; Thu, 15 Nov 2001 04:19:30 -0500
+Message-ID: <3BF388B9.33CFDBDB@loewe-komp.de>
+Date: Thu, 15 Nov 2001 10:19:53 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Adam Harvey <matlhdam@iinet.net.au>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14 fails to boot on a MediaGX
+In-Reply-To: <E163y2Z-0004OH-00@the-village.bc.nu> <01111513115600.00812@blackbox.local>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adam Harvey wrote:
+> 
+> On Wed, 14 Nov 2001 19:17, Alan Cox wrote:
+> > Ok on my box it boots fine. As an experiment can you build a kerne with no
+> > PCI support (Im not saying it'll be useful production wise but it will tell
+> > me if its a PCI issue)
+> 
+> And, interestingly enough, it does boot with PCI switched off.
+> 
+> Given that it's a somewhat unusual motherboard, I'm pretty willing to just
+> put an ISA network card in there and write it off as flaky hardware, but it's
+> odd that it boots under 2.2 with PCI support on.
+> 
 
-Hi,
+What kind of motherboard and peripherals are you using?
+AKAIK the mediagx only supports one external pci busmaster and only
+on a specific "device".
 
-The workaround in reiserfs for a gcc bug in some ppc32 compilers does
-not affect the ppc64 compiler. A quick test to see stack usage for both
-options shows:
+We are using mediaGXm on ETX and had problems with the wiring of the
+TVIA CyberPro5050 (combined video+audio controller, audio as busmaster)
 
-gcc -O1
-reiserfs_delete_solid_item: 976
-reiserfs_rename: 960
-reiserfs_cut_from_item: 880
-
-gcc -O2
-reiserfs_rename: 1008
-reiserfs_delete_solid_item: 976
-reiserfs_cut_from_item: 896
-
-So there is no reason to compile reiserfs using -O1 on ppc64.
-
-Anton
-
-
---- 2.4.15-pre4/fs/reiserfs/Makefile	Thu Nov 15 20:06:13 2001
-+++ 2.4.15-pre4_work/fs/reiserfs/Makefile	Thu Nov 15 20:05:26 2001
-@@ -13,13 +13,13 @@
- 
- obj-m   := $(O_TARGET)
- 
--# gcc -O2 (the kernel default)  is overaggressive on ppc when many inline
-+# gcc -O2 (the kernel default)  is overaggressive on ppc32 when many inline
- # functions are used.  This causes the compiler to advance the stack
- # pointer out of the available stack space, corrupting kernel space,
--# and causing a panic. Since this behavior only affects ppc, this ifeq
-+# and causing a panic. Since this behavior only affects ppc32, this ifeq
- # will work around it. If any other architecture displays this behavior,
- # add it here.
--ifeq ($(shell uname -m),ppc) 
-+ifeq ($(CONFIG_PPC32),y)
- EXTRA_CFLAGS := -O1
- endif
- 
+Then there are also tweaks in the PCI IDE configuration for mediaGX.
+Did you enable that?

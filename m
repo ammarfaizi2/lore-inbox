@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317661AbSHCSOB>; Sat, 3 Aug 2002 14:14:01 -0400
+	id <S317674AbSHCSYe>; Sat, 3 Aug 2002 14:24:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317638AbSHCSM6>; Sat, 3 Aug 2002 14:12:58 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8976 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317639AbSHCSMx>; Sat, 3 Aug 2002 14:12:53 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: <linux-kernel@vger.kernel.org>
-From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] 7: 2.5.29-mmap
-Message-Id: <E17b3Rp-0006wV-00@flint.arm.linux.org.uk>
-Date: Sat, 03 Aug 2002 19:16:17 +0100
+	id <S317675AbSHCSYe>; Sat, 3 Aug 2002 14:24:34 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:50672 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S317674AbSHCSYc>; Sat, 3 Aug 2002 14:24:32 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200208021738.g72HcCm02802@fachschaft.cup.uni-muenchen.de> 
+References: <200208021738.g72HcCm02802@fachschaft.cup.uni-muenchen.de>  <Pine.LNX.4.44.0208020920120.18265-100000@home.transmeta.com> 
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       David Howells <dhowells@redhat.com>, alan@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: manipulating sigmask from filesystems and drivers 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 03 Aug 2002 19:27:58 +0100
+Message-ID: <19180.1028399278@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch has been verified to apply cleanly to 2.5.30
 
-This patch goes back almost 2 years.  First sent on: 30 September 2000
-Ignored every time.
+Oliver.Neukum@lrz.uni-muenchen.de said:
+>  So IMHO it would be better to limit this new kind of waiting to
+> reading. 
 
-The following patch is required so that munmap(0x8000, *) does not cause
-ARM kernels to crash.  The problem is that the machine vectors are at
-virtual address 0.  Unfortunately, when free_pgtables() is called, it
-clears first level page tables starting at 0 in this case, and takes
-out the machine vectors.  This then results in an unrecoverable hang.
+You can do it for write() in the case where no data have yet been written, 
+i.e. in prepare_write() first time round the loop. In fact, you can even 
+return -ERESTARTNOINTR in that case, just as you can for read() where no 
+data have yet been copied into userspace. Whether we want to special-case 
+the first time round the loop just to give better responsiveness in the 
+common case is debatable though.
 
-We already have FIRST_USER_PGD_NR to define the first entry in the pgd
-which may be cleared, so we use this to clamp "start_index"
-appropriately.  The following patch does this.  Tested on ARM.
+You can also do it for open() in 2.5. (in 2.4 the read_inode API gave the
+file system no choice but to return a full real inode or a bad one which
+remained and prevented subsequent lookups of the same inode.)
 
- mm/mmap.c |    2 ++
- 1 files changed, 2 insertions
+--
+dwmw2
 
-diff -urN orig/mm/mmap.c linux/mm/mmap.c
---- orig/mm/mmap.c	Sat Jul 27 13:55:25 2002
-+++ linux/mm/mmap.c	Sat Jul 27 14:14:43 2002
-@@ -888,6 +888,8 @@
- 	 * old method of shifting the VA >> by PGDIR_SHIFT doesn't work.
- 	 */
- 	start_index = pgd_index(first);
-+	if (start_index < FIRST_USER_PGD_NR)
-+		start_index = FIRST_USER_PGD_NR;
- 	end_index = pgd_index(last);
- 	if (end_index > start_index) {
- 		clear_page_tables(tlb, start_index, end_index - start_index);
 

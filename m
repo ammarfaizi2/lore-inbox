@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266720AbUBMDcV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 22:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266751AbUBMDcV
+	id S266706AbUBMEGx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 23:06:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266711AbUBMEGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 22:32:21 -0500
-Received: from mail.shareable.org ([81.29.64.88]:30082 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266720AbUBMDcU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 22:32:20 -0500
-Date: Fri, 13 Feb 2004 03:32:18 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Ulrich Windl <Ulrich.Windl@RZ.Uni-Regensburg.DE>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2: "filp->f_mode & 2..."
-Message-ID: <20040213033218.GJ25499@mail.shareable.org>
-References: <402B4FB2.mailxG23119XFU@pc5234.klinik.uni-regensburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <402B4FB2.mailxG23119XFU@pc5234.klinik.uni-regensburg.de>
-User-Agent: Mutt/1.4.1i
+	Thu, 12 Feb 2004 23:06:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:18658 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266706AbUBMEGw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 23:06:52 -0500
+From: Randy Dunlap <rddunlap@osdl.org>
+Message-ID: <2181.4.5.45.142.1076645210.squirrel@www.osdl.org>
+Date: Thu, 12 Feb 2004 20:06:50 -0800 (PST)
+Subject: Re: getting usb mass storage to finish before running init?
+To: <der.eremit@email.de>
+In-Reply-To: <E1ArSm1-0003ei-Pv@localhost>
+References: <1oAMR-6St-13@gated-at.bofh.it>
+        <E1ArSm1-0003ei-Pv@localhost>
+X-Priority: 3
+Importance: Normal
+Cc: <spam99@2thebatcave.com>, <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Windl wrote:
-> filp->f_mode & 2 || permission(filp->f_dentry->d_inode,2,NULL)
-> 
-> It's obvious to some, likely for others that "2" there really stands for
-> "002", the good old UNIX write permission.
+> On Fri, 13 Feb 2004 03:00:21 +0100, you wrote in linux.kernel:
+>
+>> I can put a sleep in there but that is sloppy, and can not really be
+>> relied apon (since technically there is no way I can know how long the
+>> detection phase will take), and also I may be waisting time (which I
+>> don't want to, I want a fast booting router).
+>
+> Check available devices for root filesystem (in case you're booting from
+> IDE). If it's not there, wait a moment, then look for additional
+> devices. If nothing shows up, repeat.
 
-That's FMODE_WRITE (= 2).  It isn't related at all to the Unix write
-permission of 002, as you'll notice FMODE_READ is 1, not 4.
+That's basically what my usb-boot patch for 2.4.22 does:
+  http://www.xenotime.net/linux/usb/usbboot-2422.patch
 
--- Jamie
+I haven't tried to port it to 2.6.x.
+---
+~Randy
+
+
+

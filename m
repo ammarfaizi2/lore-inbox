@@ -1,77 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283693AbRK3QFH>; Fri, 30 Nov 2001 11:05:07 -0500
+	id <S283688AbRK3QH3>; Fri, 30 Nov 2001 11:07:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283694AbRK3QE6>; Fri, 30 Nov 2001 11:04:58 -0500
-Received: from [138.15.150.16] ([138.15.150.16]:34579 "HELO abasin.nj.nec.com")
-	by vger.kernel.org with SMTP id <S283693AbRK3QEm>;
-	Fri, 30 Nov 2001 11:04:42 -0500
-From: Sven Heinicke <sven@research.nj.nec.com>
-MIME-Version: 1.0
+	id <S283691AbRK3QHS>; Fri, 30 Nov 2001 11:07:18 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:19205 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S283688AbRK3QHJ>;
+	Fri, 30 Nov 2001 11:07:09 -0500
+Message-ID: <XFMail.20011130170443.ast@domdv.de>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15367.44557.930845.66428@abasin.nj.nec.com>
-Date: Fri, 30 Nov 2001 11:04:29 -0500 (EST)
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16 freezed up with eepro100 module
-In-Reply-To: <20011130114506.A4789@bee.lk>
-In-Reply-To: <15366.21354.879039.718967@abasin.nj.nec.com>
-	<20011129095107.A17457@conwaycorp.net>
-	<3C070FEC.3602CB49@pobox.com>
-	<20011130114506.A4789@bee.lk>
-X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <E169pzm-0003sq-00@the-village.bc.nu>
+Date: Fri, 30 Nov 2001 17:04:43 +0100 (CET)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Deadlock on kernels > 2.4.13-pre6
+Cc: linux-kernel@vger.kernel.org, <emmanuele.bassi@iol.it (Emmanuele Bassi)>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I had this kind of deadlock on a MSI-6215 (i815) running in console mode (no X).
+It always happened during screen blanking while there was interrupt load
+(networking via ISDN). APM based screen blanking didn't work so I suspected APM
+but at least this is only half true at maximum. The system does run fine with
+APM but no APM screen blanking, if you disable console blanking completely by
+issuing:
 
-I have eepro100's on other systems and never had a problem.  They
-never have been made to work as hard as the DELLs though.  I am
-trying the same DELL with a 3C996-T 1000Bt card using the driver from
-3COM (we plan on moving that system to a 1000Bt system but the switch
-hasn't arrived yet) and it is running at 100Bt with the same
-software.  If you don't hear form me assume it surrived.  Been up a
-day so far, took the DELL like 3 days of heavy use to crash before.
+echo -n -e "\033[9;0]\033[10;0]\033[11;0]\033[14;0]"
 
-	   Sven
+during the boot sequence, i.e. output to /dev/console (beeps silenced too but I
+do believe this can be ignored). By now I do suspect the console blanking code
+to be the trigger of the lockup, not the APM code.
 
- > Has anybody got the same issue with non Dell machines?
- > 
- > I am running 2.4.16 on a Compaq proliant ML 370 without problems (machine has
- > been up for 2+ days with the new kernels, though).  Trafic is not very high.
- > 
- > The driver is built into the kernel.
- > 
- > /proc/pci shows
- > 
- >   Bus  0, device   2, function  0:
- >     Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 8).
- >       IRQ 5.
- >       Master Capable.  Latency=64.  Min Gnt=8.Max Lat=56.
- >       Non-prefetchable 32 bit memory at 0xc4fff000 [0xc4ffffff].
- >       I/O at 0x2400 [0x243f].
- >       Non-prefetchable 32 bit memory at 0xc4e00000 [0xc4efffff].
- >   Bus  0, device   5, function  0:
- >     Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (#2) (rev 8).
- >       IRQ 10.
- >       Master Capable.  Latency=64.  Min Gnt=8.Max Lat=56.
- >       Non-prefetchable 32 bit memory at 0xc4dfd000 [0xc4dfdfff].
- >       I/O at 0x2c00 [0x2c3f].
- >       Non-prefetchable 32 bit memory at 0xc4c00000 [0xc4cfffff].
- > 
- > Regards,
- > 
- > Anuradha
- > 
- > -- 
- > 
- > Debian GNU/Linux (kernel 2.4.16)
- > 
- > First Law of Bicycling:
- > 	No matter which way you ride, it's uphill and against the wind.
- > 
- > -
- > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > Please read the FAQ at  http://www.tux.org/lkml/
+On 30-Nov-2001 Alan Cox wrote:
+>> So far, I've excluded everything but a bug in the OSS sound drivers,
+>> but, according to the ChangeLogs, they did not change from 2.4.13-pre6
+>> (the last working kernel) to 2.4.13.
+> 
+> The OSS core and SB AWE driver have to all intents not changed since before
+> 2.4 was released.
+> 
+> You might want to check when the  various VIA chipset fixes went in if you
+> are using a VIA chipset
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

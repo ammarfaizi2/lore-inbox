@@ -1,70 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264826AbUEPVRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264821AbUEPVTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264826AbUEPVRI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 17:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264821AbUEPVRH
+	id S264821AbUEPVTi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 17:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264825AbUEPVTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 17:17:07 -0400
-Received: from smtpq3.home.nl ([213.51.128.198]:56550 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S264824AbUEPVRC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 17:17:02 -0400
-Message-ID: <40A7D9E6.1090900@keyaccess.nl>
-Date: Sun, 16 May 2004 23:15:18 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en
+	Sun, 16 May 2004 17:19:37 -0400
+Received: from nacho.zianet.com ([216.234.192.105]:28689 "HELO
+	nacho.zianet.com") by vger.kernel.org with SMTP id S264817AbUEPVTe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 17:19:34 -0400
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
+Date: Sun, 16 May 2004 15:19:03 -0600
+User-Agent: KMail/1.6.1
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       adi@bitmover.com, scole@lanl.gov, support@bitmover.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200405132232.01484.elenstev@mesatop.com> <200405160928.22021.elenstev@mesatop.com> <20040516203818.GY3044@dualathlon.random>
+In-Reply-To: <20040516203818.GY3044@dualathlon.random>
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [RFT][PATCH] ide-disk.c: more write cache fixes
-References: <200405132116.44201.bzolnier@elka.pw.edu.pl> <40A4B482.3040706@keyaccess.nl> <20040516195811.GH20505@devserv.devel.redhat.com> <200405162220.23971.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200405162220.23971.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Message-Id: <200405161519.03834.elenstev@mesatop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-
-> On Sunday 16 of May 2004 21:58, Alan Cox wrote:
+On Sunday 16 May 2004 02:38 pm, Andrea Arcangeli wrote:
+> On Sun, May 16, 2004 at 09:28:21AM -0600, Steven Cole wrote:
+> > Andrea, I did see a significant slowdown with Andy's test script (with DMA on)
+> > on my timed test of 2.6.6-current vs 2.6.3.
 > 
->>On Fri, May 14, 2004 at 01:58:58PM +0200, Rene Herman wrote:
->>
->>>Have again attached a 'rollup' patch against vanilla 2.6.6, including
->>>this, Andrew's SYSTEM_SHUTDOWN split and the quick "don't switch of
->>>spindle if rebooting" hack. Again, just in case anyone finds it useful.
->>
->>This reintroduces corruption on my thinkpad 600.
+> 2.6.3 is quite old, as Andrew is wondering about, this is more likely a
+> vm heuristic issue if something, it cannot be anon-vma related.
 > 
-> [ this corruption was fixed by kernel 2.6.6 ]
+> btw, if you've 2.6.3 you should download just two patches to go to
+> 2.6.5.
 > 
-> Please see if reverting changes to ide_device_shutdown() helps.
+> 
+Sure, but I also wanted to beat the ppp paths while I did other things.
+I've been using bk to keep a current kernel, and my older source
+trees were sitting on another (disconnected) disk.  The 2.6.3 is
+the vendor kernel.
 
-Bart, could something like:
+That download succeeded, better than I've experienced for a long
+time, possibly due to not having PREEMPT set.  With PREEMPT and
+2.6.x kernels, I had been getting this, and ppp would stop moving data.
 
-if (system_state == SYSTEM_RESTART) {
-	ide_cache_flush_p(drive)
-	return;
-}
+May 13 18:09:30 spc kernel: serial8250: too much work for irq10
 
-(as opposed to just the return in that patch and -mm3) possibly help? I 
-sort of expect that ide_cache_flush_p() is already called further on up?
+I did build boot and run 2.6.5-aa5 (which had -aa4 in the EXTRAVERSION),
+but the results for the bk exerciser script were similar to 2.6.6-current:
 
-Alan, if you know, that drive fails ide_id_has_flush_cache()?
+-----------------------------
+2.6.6-current:
 
-Note, very aware I don't know what the fuck I'm doing here (and equally 
-aware I don't _want_ to be here :-) Having the drive spin down on each 
-reboot is totally unacceptable though. Not only does spinning up again 
-take significant time and noise, it's also actively bad for the drive.
+time bk clone -qlr40514130hBbvgP4CvwEVEu27oxm46w testing-2.6 foo
+290.48user 96.76system 15:00.85elapsed 42%CPU 
 
-If there's no sane way to fix this, an explicit blacklist for drives 
-that really need to be shutdown? Eew.
+(cd foo; time bk pull -q)
+402.74user 254.98system 23:25.43elapsed 46%CPU 
+------------------------------
+2.6.5-aa5:
 
-Rene.
+time bk clone -qlr40514130hBbvgP4CvwEVEu27oxm46w testing-2.6 foo
+290.78user 94.29system 16:06.73elapsed 39%CPU 
+
+(cd foo; time bk pull -q)
+401.82user 234.05system 23:36.32elapsed 44%CPU 
+
+------------------------------
+2.6.3-4mdk (repeated run)
+
+time bk clone -qlr40514130hBbvgP4CvwEVEu27oxm46w testing-2.6 foo
+288.71user 58.47system 10:57.37elapsed 52%CPU 
+
+(cd foo; time bk pull -q)
+397.94user 186.18system 17:24.73elapsed 55%CPU 
+
+Anyway, although the regression for my particular machine for this
+particular load may be interesting, the good news is that I've seen
+none of the failures which started this whole thread, which are relatively
+easily reproduceable with PREEMPT set.  
+
+Perhaps  PREEMPT should be renamed to BUG_FLUSH. :)
+
+Steven

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263617AbTCUNpa>; Fri, 21 Mar 2003 08:45:30 -0500
+	id <S263621AbTCUOFZ>; Fri, 21 Mar 2003 09:05:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263619AbTCUNpa>; Fri, 21 Mar 2003 08:45:30 -0500
-Received: from angband.namesys.com ([212.16.7.85]:62604 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S263617AbTCUNp3>; Fri, 21 Mar 2003 08:45:29 -0500
-Date: Fri, 21 Mar 2003 16:56:28 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kswapd oops in 2.4.20 SMP+NFS
-Message-ID: <20030321165628.K17440@namesys.com>
-References: <1048170204.5161.11.camel@calculon> <20030321112834.A17330@namesys.com> <1048240247.9345.19.camel@fortknox> <20030321130402.C17440@namesys.com> <1048243299.9338.23.camel@fortknox> <20030321135841.D17440@namesys.com> <1048245614.9338.41.camel@fortknox>
+	id <S263622AbTCUOFZ>; Fri, 21 Mar 2003 09:05:25 -0500
+Received: from bitmover.com ([192.132.92.2]:42155 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S263621AbTCUOFY>;
+	Fri, 21 Mar 2003 09:05:24 -0500
+Date: Fri, 21 Mar 2003 06:16:20 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>, Roman Zippel <zippel@linux-m68k.org>,
+       Nicolas Pitre <nico@cam.org>, Ben Collins <bcollins@debian.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <20030321141620.GA25142@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+	Roman Zippel <zippel@linux-m68k.org>, Nicolas Pitre <nico@cam.org>,
+	Ben Collins <bcollins@debian.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0303161341520.5348-100000@xanadu.home> <Pine.LNX.4.44.0303162014090.12110-100000@serv> <20030316215219.GX1252@dualathlon.random> <20030317215639.GG15658@atrey.karlin.mff.cuni.cz> <20030317220830.GM1324@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1048245614.9338.41.camel@fortknox>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <20030317220830.GM1324@dualathlon.random>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Mar 17, 2003 at 11:08:30PM +0100, Andrea Arcangeli wrote:
+> > Actually, fact that "longest path" algorithm may well choose
+> > non-mainline branch because it likes it more worries me a bit.
+> 
+> AFIK it's supposed to be the "longest path" of Linus's and Marcelo's
+> branches which means it'll reproduce all the modifcations of the
+> mainline trees only.
 
-On Fri, Mar 21, 2003 at 12:20:14PM +0100, Soeren Sonnenburg wrote:
+By the way, we've been incrementally updating both trees and while in 
+theory the incremental could result in shorter paths with less detail,
+so far the incremental export and the one pass export result in exactly
+the same path:
 
+    slovax $ bk _eventpath 1.0 + | wc -l
+       8498
+    slovax $ cd ../linux-2.5-cvs/linux-2.5
+    slovax $ rlog -r -N ChangeSet | grep revision
+    revision 1.8498
 
-> I just checked the logs... It seems that the oops occurs 24 seconds
-> after the backup script was started (which is run hourly). 
-> This script first mounts the nfs share, then looks for modified files
-> and tar's them over, then umounts the share.
-> So it is probably the umount of that nfs partion.
+I've actually reimported the data in one pass and diffed the RCS files,
+it's the same.
 
-Well, then I think NFS people may be interested in that oops.
-Resend it to them please and state that this is most likely from NFS.
-
-Thank you.
-
-Bye,
-    Oleg
+HPA, should we be mirroring the CVS tarballs to kernel.org?
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

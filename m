@@ -1,75 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131723AbRCXRXU>; Sat, 24 Mar 2001 12:23:20 -0500
+	id <S131726AbRCXR0K>; Sat, 24 Mar 2001 12:26:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131724AbRCXRXK>; Sat, 24 Mar 2001 12:23:10 -0500
-Received: from avalon.student.liu.se ([130.236.230.76]:15091 "EHLO
-	mail.student.liu.se") by vger.kernel.org with ESMTP
-	id <S131723AbRCXRW7>; Sat, 24 Mar 2001 12:22:59 -0500
-Date: Sat, 24 Mar 2001 18:28:53 +0100
-From: Jorgen Cederlof <jorgen.cederlof@cendio.se>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: torvalds@transmeta.com, alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bug in do_mount()
-Message-ID: <20010324182853.A4090@ondska>
-In-Reply-To: <20010324145822.B1353@ondska> <Pine.GSO.4.21.0103240904140.11914-100000@weyl.math.psu.edu>
+	id <S131724AbRCXR0B>; Sat, 24 Mar 2001 12:26:01 -0500
+Received: from mout03.kundenserver.de ([195.20.224.218]:29715 "EHLO
+	mout03.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S131726AbRCXRZx>; Sat, 24 Mar 2001 12:25:53 -0500
+Date: Sat, 24 Mar 2001 18:25:16 +0100
+From: Alex Riesen <vmagic@users.sourceforge.net>
+To: linux-kernel@vger.kernel.org
+Subject: ACPI power-off doesn't work on Asus CUV4X (VIA Apollo 133)
+Message-ID: <20010324182516.A1255@steel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.GSO.4.21.0103240904140.11914-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Mar 24, 2001 at 09:13:46AM -0500
-X-god-play-dice: No
-X-eric-conspiracy: There is no conspiracy
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >       if (list_empty(&sb->s_mounts))
-> >               kill_super(sb, 0);
-> > +     else
-> > +             put_filesystem(fstype);
-> >       goto unlock_out;
- 
-> Reference acquired by get_fs_type() is
-> released by put_filesystem() (near fs_out), _NOT_ by kill_super().
+Hi, dear all
 
-Yes.
+As i recompiled 2.4.2-ac20 with ACPI support
+the system cannot switch itself off.
+With APM it work without any problem.
 
-> kill_super() releases the reference stored in ->s_type (created
-> by get_sb_...()). If superblock stays alive you should not release it.
+I get a message "Couldn't switch to S5" if
+try to call reboot(2).
+At load it shows that the mode is supported.
 
-get_sb_...() will do get_filesystem() even if superblock stays alive.
+Alex Riesen
 
-We get the filesystem twice, in get_fs_type() and get_sb_...(), but if
-we goto 'fail:' and don't call kill_super(), we put the filesystem
-only once (near fs_out). 
+P.S.
+Motheboard Asus CUV4X
 
-> What bug are you trying to fix?
+/proc/cpuinfo:
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 8
+model name	: Pentium III (Coppermine)
+stepping	: 3
+cpu MHz		: 701.605
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 3
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips	: 1399.19
 
-foofs is a FS_SINGLE filesystem: 
-(but the !nd.dentry->d_inode case should be no different)
-
-# grep foofs /proc/modules 
-foofs                 6736   0 (unused)
-# mount NONE /mnt -t foofs
-# grep foofs /proc/modules 
-foofs                 6736   1
-# mount NONE /mnt -t foofs
-mount: NONE already mounted or /mnt busy
-mount: according to mtab, NONE is already mounted on /mnt
-# grep foofs /proc/modules 
-foofs                 6736   2
-# mount NONE /mnt -t foofs
-mount: NONE already mounted or /mnt busy
-mount: according to mtab, NONE is already mounted on /mnt
-# grep foofs /proc/modules 
-foofs                 6736   3
-# umount /mnt
-# grep foofs /proc/modules 
-foofs                 6736   2
-# umount /mnt
-umount: /mnt: not mounted
-# grep foofs /proc/modules 
-foofs                 6736   2
-# rmmod foofs
-foofs: Device or resource busy
 

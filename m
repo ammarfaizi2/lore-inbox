@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAOSo7>; Mon, 15 Jan 2001 13:44:59 -0500
+	id <S129789AbRAOSr3>; Mon, 15 Jan 2001 13:47:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129485AbRAOSok>; Mon, 15 Jan 2001 13:44:40 -0500
-Received: from smtp9.xs4all.nl ([194.109.127.135]:35837 "EHLO smtp9.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S129431AbRAOSoi>;
-	Mon, 15 Jan 2001 13:44:38 -0500
-Date: Mon, 15 Jan 2001 18:42:33 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, har
-Message-ID: <20010115184233.A635@grobbebol.xs4all.nl>
-In-Reply-To: <12A9B4484604@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <12A9B4484604@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Mon, Jan 15, 2001 at 06:45:06PM +0000
-X-OS: Linux grobbebol 2.4.0 
+	id <S129485AbRAOSrU>; Mon, 15 Jan 2001 13:47:20 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:61195 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129745AbRAOSrK>; Mon, 15 Jan 2001 13:47:10 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Is sendfile all that sexy?
+Date: 15 Jan 2001 10:46:41 -0800
+Organization: Transmeta Corporation
+Message-ID: <93vgih$640$1@penguin.transmeta.com>
+In-Reply-To: <14947.5703.60574.309140@leda.cam.zeus.com> <Pine.LNX.4.30.0101150753010.30402-100000@twinlark.arctic.org> <14947.17050.127502.936533@leda.cam.zeus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2001 at 06:45:06PM +0000, Petr Vandrovec wrote:
-> I think that on BP6 hardware there is no way around except using 'noapic', 
-> or passing board through Abit replacement program. There is only two bit 
-> checksum which guards 8 or 22 data bits. I have no idea how frequent two 
-> bits errors are, but, as your example shows, they definitely happen on 
-> your hardware.
+In article <14947.17050.127502.936533@leda.cam.zeus.com>,
+Jonathan Thackray  <jthackray@zeus.com> wrote:
+>
+>> how would sendpath() construct the Content-Length in the HTTP header?
+>
+>You'd still stat() the file to decide whether to use sendpath() to
+>send it or not, if it was Last-Modified: etc. Of course, you'd cache
+>stat() calls too for a few seconds. The main thing is that you save
+>a valuable fd and open() is expensive, even more so than stat().
 
-thanks for the explanation. I run noapic right now and didn't die yet. I
-looked at the irq stuff and decided that I probably don't need it
-anyways.
+"open" expensive?
 
-are there new(er) boards known that do not have this problem ?
-(pls reply to bengel@grobbebol.xs4all.nl)
+Maybe on HP-UX and other platforms. But give me numbers: I seriously
+doubt that
 
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+	int fd = open(..)
+	fstat(fd..);
+	sendfile(fd..);
+	close(fd);
+
+is any slower than
+
+	.. cache stat() in user space based on name ..
+	sendpath(name, ..);
+
+on any real load. 
+
+>> TCP_CORK is useful for FAR more than just sendfile() headers and
+>> footers.  it's arguably the most correct way to write server code.
+>
+>Agreed -- the hard-coded Nagle algorithm makes no sense these days.
+
+The fact I dislike about the HP-UX implementation is that it is so
+_obviously_ stupid. 
+
+And I have to say that I absolutely despise the BSD people.  They did
+sendfile() after both Linux and HP-UX had done it, and they must have
+known about both implementations.  And they chose the HP-UX braindamage,
+and even brag about the fact that they were stupid and didn't understand
+TCP_CORK (they don't say so in those exact words, of course - they just
+show that they were stupid and clueless by the things they brag about). 
+
+Oh, well. Not everybody can be as goodlooking as me. It's a curse.
+
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

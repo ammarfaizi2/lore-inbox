@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263504AbTH0QA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 12:00:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263530AbTH0QA0
+	id S263509AbTH0QAa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 12:00:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbTH0QAa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 12:00:26 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:60689
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S263504AbTH0QAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 12:00:22 -0400
-Date: Wed, 27 Aug 2003 09:00:20 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, John Stultz <johnstul@us.ibm.com>
-Subject: Re: Compile problem with CONFIG_X86_CYCLONE_TIMER Re: 2.6.0-test4-mm1
-Message-ID: <20030827160020.GA4119@matchmail.com>
-Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-mm <linux-mm@kvack.org>, John Stultz <johnstul@us.ibm.com>
-References: <20030827010849.GA5280@matchmail.com> <1061959279.12881.6.camel@nighthawk>
+	Wed, 27 Aug 2003 12:00:30 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:6049 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263509AbTH0QAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 12:00:23 -0400
+Subject: Re: porting driver to 2.6, still unknown relocs... :(
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: LGW <large@lilymarleen.de>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F4CCF85.1020502@lilymarleen.de>
+References: <3F4CB452.2060207@lilymarleen.de>
+	 <20030827081312.7563d8f9.rddunlap@osdl.org>
+	 <3F4CCF85.1020502@lilymarleen.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1061999977.22825.71.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061959279.12881.6.camel@nighthawk>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 27 Aug 2003 16:59:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 09:41:19PM -0700, Dave Hansen wrote:
-> On Tue, 2003-08-26 at 18:08, Mike Fedyk wrote:
-> > This patch to my .config makes it compile:
-> 
-> I tried 2.6.0-test4-mm1 with your config and didn't have any problems. 
-> Could you check with your old config to make sure I'm not missing
-> something?
+On Mer, 2003-08-27 at 16:34, LGW wrote:
+> The driver is mostly a wrapper around a generic driver released by the 
+> manufacturer, and that's written in C++. But it worked like this for the 
+> 2.4.x kernel series, so I think it has something todo with the new 
+> module loader code. Possibly ld misses something when linking the object 
+> specific stuff like constructors?
 
-did you try with gcc 2.95?
+The new module loader is kernel side, it may well not know some of the
+C++ specific relocation types. 
+
+

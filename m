@@ -1,381 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbUKCPxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbUKCQBC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbUKCPxL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 10:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbUKCPxL
+	id S261651AbUKCQBC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 11:01:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbUKCQBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 10:53:11 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35564 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261630AbUKCPwt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 10:52:49 -0500
-Date: Wed, 3 Nov 2004 15:52:48 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] compat syscalls naming standardisation
-Message-ID: <20041103155248.GH24690@parcelfarce.linux.theplanet.co.uk>
-References: <20041103035453.GR24690@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041103035453.GR24690@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Wed, 3 Nov 2004 11:01:02 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:49803 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261651AbUKCQAo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 11:00:44 -0500
+Date: Wed, 3 Nov 2004 17:00:35 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Horms <horms@verge.net.au>
+cc: LKML <linux-kernel@vger.kernel.org>, Siep Kroonenberg <siepo@cybercomm.nl>,
+       278068@bugs.debian.org
+Subject: Re: chmod messes up permissions on hfs filesystem
+In-Reply-To: <20041102035635.GA28481@verge.net.au>
+Message-ID: <Pine.LNX.4.61.0411031639250.877@scrub.home>
+References: <20041101043559.GA12500@verge.net.au> <Pine.LNX.4.61.0411011721560.877@scrub.home>
+ <20041102035635.GA28481@verge.net.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On PA-RISC, we have a unified syscall table for 32 and 64 bit that uses
-macros to generate the appropriate syscall names (native vs compat).
-For this to work, we need consistent compat syscall names.  Unfortunately,
-some recent additions drop the 'sys_'.  This patch adds it back and fixes
-up all the architectures to use the new names.
+Hi,
 
-diff -urpNX dontdiff linux-2.6.10-rc1-bk13/arch/ia64/ia32/ia32_entry.S parisc-2.6-bk/arch/ia64/ia32/ia32_entry.S
---- linux-2.6.10-rc1-bk13/arch/ia64/ia32/ia32_entry.S	Fri Oct 22 15:39:40 2004
-+++ parisc-2.6-bk/arch/ia64/ia32/ia32_entry.S	Wed Nov  3 06:18:47 2004
-@@ -470,16 +470,16 @@ ia32_syscall_table:
- 	data8 sys_remap_file_pages
- 	data8 sys_set_tid_address
-  	data8 sys32_timer_create
-- 	data8 compat_timer_settime	/* 260 */
-- 	data8 compat_timer_gettime
-+ 	data8 compat_sys_timer_settime	/* 260 */
-+ 	data8 compat_sys_timer_gettime
-  	data8 sys_timer_getoverrun
-  	data8 sys_timer_delete
-- 	data8 compat_clock_settime
-- 	data8 compat_clock_gettime /* 265 */
-- 	data8 compat_clock_getres
-- 	data8 compat_clock_nanosleep
--	data8 compat_statfs64
--	data8 compat_fstatfs64
-+ 	data8 compat_sys_clock_settime
-+ 	data8 compat_sys_clock_gettime /* 265 */
-+ 	data8 compat_sys_clock_getres
-+ 	data8 compat_sys_clock_nanosleep
-+	data8 compat_sys_statfs64
-+	data8 compat_sys_fstatfs64
-  	data8 sys_tgkill	/* 270 */
-  	data8 compat_sys_utimes
-  	data8 sys32_fadvise64_64
-diff -urpNX dontdiff linux-2.6.10-rc1-bk13/arch/ppc64/kernel/misc.S parisc-2.6-bk/arch/ppc64/kernel/misc.S
---- linux-2.6.10-rc1-bk13/arch/ppc64/kernel/misc.S	Wed Nov  3 05:57:44 2004
-+++ parisc-2.6-bk/arch/ppc64/kernel/misc.S	Wed Nov  3 06:18:53 2004
-@@ -935,27 +935,27 @@ _GLOBAL(sys_call_table32)
- 	.llong .sys_epoll_wait
- 	.llong .sys_remap_file_pages
- 	.llong .ppc32_timer_create	/* 240 */
--	.llong .compat_timer_settime
--	.llong .compat_timer_gettime
-+	.llong .compat_sys_timer_settime
-+	.llong .compat_sys_timer_gettime
- 	.llong .sys_timer_getoverrun
- 	.llong .sys_timer_delete
--	.llong .compat_clock_settime	/* 245 */
--	.llong .compat_clock_gettime
--	.llong .compat_clock_getres
--	.llong .compat_clock_nanosleep
-+	.llong .compat_sys_clock_settime	/* 245 */
-+	.llong .compat_sys_clock_gettime
-+	.llong .compat_sys_clock_getres
-+	.llong .compat_sys_clock_nanosleep
- 	.llong .ppc32_swapcontext
- 	.llong .sys32_tgkill		/* 250 */
- 	.llong .sys32_utimes
--	.llong .compat_statfs64
--	.llong .compat_fstatfs64
-+	.llong .compat_sys_statfs64
-+	.llong .compat_sys_fstatfs64
- 	.llong .ppc32_fadvise64_64	/* 32bit only fadvise64_64 */
- 	.llong .ppc_rtas		/* 255 */
- 	.llong .sys_ni_syscall		/* 256 reserved for sys_debug_setcontext */
- 	.llong .sys_ni_syscall		/* 257 reserved for vserver */
- 	.llong .sys_ni_syscall		/* 258 reserved for new sys_remap_file_pages */
--	.llong .compat_mbind
--	.llong .compat_get_mempolicy	/* 260 */
--	.llong .compat_set_mempolicy
-+	.llong .compat_sys_mbind
-+	.llong .compat_sys_get_mempolicy	/* 260 */
-+	.llong .compat_sys_set_mempolicy
- 	.llong .compat_sys_mq_open
- 	.llong .sys_mq_unlink
- 	.llong .compat_sys_mq_timedsend
-diff -urpNX dontdiff linux-2.6.10-rc1-bk13/arch/s390/kernel/compat_wrapper.S parisc-2.6-bk/arch/s390/kernel/compat_wrapper.S
---- linux-2.6.10-rc1-bk13/arch/s390/kernel/compat_wrapper.S	Fri Oct 22 15:40:29 2004
-+++ parisc-2.6-bk/arch/s390/kernel/compat_wrapper.S	Wed Nov  3 06:18:53 2004
-@@ -1262,19 +1262,19 @@ sys32_fadvise64_64_wrapper:
- sys32_clock_settime_wrapper:
- 	lgfr	%r2,%r2			# clockid_t (int)
- 	llgtr	%r3,%r3			# struct compat_timespec *
--	jg	compat_clock_settime
-+	jg	compat_sys_clock_settime
- 
- 	.globl	sys32_clock_gettime_wrapper
- sys32_clock_gettime_wrapper:
- 	lgfr	%r2,%r2			# clockid_t (int)
- 	llgtr	%r3,%r3			# struct compat_timespec *
--	jg	compat_clock_gettime
-+	jg	compat_sys_clock_gettime
- 
- 	.globl	sys32_clock_getres_wrapper
- sys32_clock_getres_wrapper:
- 	lgfr	%r2,%r2			# clockid_t (int)
- 	llgtr	%r3,%r3			# struct compat_timespec *
--	jg	compat_clock_getres
-+	jg	compat_sys_clock_getres
- 
- 	.globl	sys32_clock_nanosleep_wrapper
- sys32_clock_nanosleep_wrapper:
-@@ -1282,7 +1282,7 @@ sys32_clock_nanosleep_wrapper:
- 	lgfr	%r3,%r3			# int
- 	llgtr	%r4,%r4			# struct compat_timespec *
- 	llgtr	%r5,%r5			# struct compat_timespec *
--	jg	compat_clock_nanosleep
-+	jg	compat_sys_clock_nanosleep
- 
- 	.globl	sys32_timer_create_wrapper
- sys32_timer_create_wrapper:
-@@ -1297,13 +1297,13 @@ sys32_timer_settime_wrapper:
- 	lgfr	%r3,%r3			# int
- 	llgtr	%r4,%r4			# struct compat_itimerspec *
- 	llgtr	%r5,%r5			# struct compat_itimerspec *
--	jg	compat_timer_settime
-+	jg	compat_sys_timer_settime
- 
- 	.globl	sys32_timer_gettime_wrapper
- sys32_timer_gettime_wrapper:
- 	lgfr	%r2,%r2			# timer_t (int)
- 	llgtr	%r3,%r3			# struct compat_itimerspec *
--	jg	compat_timer_gettime
-+	jg	compat_sys_timer_gettime
- 
- 	.globl	sys32_timer_getoverrun_wrapper
- sys32_timer_getoverrun_wrapper:
-@@ -1354,14 +1354,14 @@ compat_sys_statfs64_wrapper:
- 	llgtr	%r2,%r2			# const char *
- 	llgfr	%r3,%r3			# compat_size_t
- 	llgtr	%r4,%r4			# struct compat_statfs64 *
--	jg	compat_statfs64
-+	jg	compat_sys_statfs64
- 
- 	.globl compat_sys_fstatfs64_wrapper
- compat_sys_fstatfs64_wrapper:
- 	llgfr	%r2,%r2			# unsigned int fd
- 	llgfr	%r3,%r3			# compat_size_t
- 	llgtr	%r4,%r4			# struct compat_statfs64 *
--	jg	compat_fstatfs64
-+	jg	compat_sys_fstatfs64
- 
- 	.globl	compat_sys_mq_open_wrapper
- compat_sys_mq_open_wrapper:
-diff -urpNX dontdiff linux-2.6.10-rc1-bk13/arch/sparc64/kernel/sys32.S parisc-2.6-bk/arch/sparc64/kernel/sys32.S
---- linux-2.6.10-rc1-bk13/arch/sparc64/kernel/sys32.S	Fri Oct 22 15:38:39 2004
-+++ parisc-2.6-bk/arch/sparc64/kernel/sys32.S	Wed Nov  3 06:18:54 2004
-@@ -84,9 +84,9 @@ SIGN2(sys32_fadvise64_64, compat_sys_fad
- SIGN2(sys32_bdflush, sys_bdflush, %o0, %o1)
- SIGN1(sys32_mlockall, sys_mlockall, %o0)
- SIGN1(sys32_nfsservctl, compat_sys_nfsservctl, %o0)
--SIGN1(sys32_clock_settime, compat_clock_settime, %o1)
--SIGN1(sys32_clock_nanosleep, compat_clock_nanosleep, %o1)
--SIGN1(sys32_timer_settime, compat_timer_settime, %o1)
-+SIGN1(sys32_clock_settime, compat_sys_clock_settime, %o1)
-+SIGN1(sys32_clock_nanosleep, compat_sys_clock_nanosleep, %o1)
-+SIGN1(sys32_timer_settime, compat_sys_timer_settime, %o1)
- SIGN1(sys32_io_submit, compat_sys_io_submit, %o1)
- SIGN1(sys32_mq_open, compat_sys_mq_open, %o1)
- SIGN1(sys32_select, compat_sys_select, %o0)
-diff -urpNX dontdiff linux-2.6.10-rc1-bk13/arch/sparc64/kernel/systbls.S parisc-2.6-bk/arch/sparc64/kernel/systbls.S
---- linux-2.6.10-rc1-bk13/arch/sparc64/kernel/systbls.S	Wed Nov  3 05:57:44 2004
-+++ parisc-2.6-bk/arch/sparc64/kernel/systbls.S	Wed Nov  3 06:18:54 2004
-@@ -60,19 +60,19 @@ sys_call_table32:
- 	.word sys32_setpgid, sys32_fremovexattr, sys32_tkill, sys32_exit_group, sparc64_newuname
- /*190*/	.word sys32_init_module, sparc64_personality, sys_remap_file_pages, sys32_epoll_create, sys32_epoll_ctl
- 	.word sys32_epoll_wait, sys_nis_syscall, sys_getppid, sys32_sigaction, sys_sgetmask
--/*200*/	.word sys32_ssetmask, sys_sigsuspend, compat_sys_newlstat, sys_uselib, compat_old_readdir
-+/*200*/	.word sys32_ssetmask, sys_sigsuspend, compat_sys_newlstat, sys_uselib, compat_sys_old_readdir
- 	.word sys32_readahead, sys32_socketcall, sys32_syslog, sys32_lookup_dcookie, sys32_fadvise64
- /*210*/	.word sys32_fadvise64_64, sys32_tgkill, sys32_waitpid, sys_swapoff, sys32_sysinfo
- 	.word sys32_ipc, sys32_sigreturn, sys_clone, sys_nis_syscall, sys32_adjtimex
- /*220*/	.word sys32_sigprocmask, sys_ni_syscall, sys32_delete_module, sys_ni_syscall, sys32_getpgid
- 	.word sys32_bdflush, sys32_sysfs, sys_nis_syscall, sys32_setfsuid16, sys32_setfsgid16
--/*230*/	.word sys32_select, sys_time, sys_nis_syscall, sys_stime, compat_statfs64
--	.word compat_fstatfs64, sys_llseek, sys_mlock, sys_munlock, sys32_mlockall
-+/*230*/	.word sys32_select, sys_time, sys_nis_syscall, sys_stime, compat_sys_statfs64
-+	.word compat_sys_fstatfs64, sys_llseek, sys_mlock, sys_munlock, sys32_mlockall
- /*240*/	.word sys_munlockall, sys32_sched_setparam, sys32_sched_getparam, sys32_sched_setscheduler, sys32_sched_getscheduler
- 	.word sys_sched_yield, sys32_sched_get_priority_max, sys32_sched_get_priority_min, sys32_sched_rr_get_interval, compat_sys_nanosleep
- /*250*/	.word sys32_mremap, sys32_sysctl, sys32_getsid, sys_fdatasync, sys32_nfsservctl
--	.word sys_ni_syscall, sys32_clock_settime, compat_clock_gettime, compat_clock_getres, sys32_clock_nanosleep
--/*260*/	.word compat_sys_sched_getaffinity, compat_sys_sched_setaffinity, sys32_timer_settime, compat_timer_gettime, sys_timer_getoverrun
-+	.word sys_ni_syscall, sys32_clock_settime, compat_sys_clock_gettime, compat_sys_clock_getres, sys32_clock_nanosleep
-+/*260*/	.word compat_sys_sched_getaffinity, compat_sys_sched_setaffinity, sys32_timer_settime, compat_sys_timer_gettime, sys_timer_getoverrun
- 	.word sys_timer_delete, sys32_timer_create, sys_ni_syscall, compat_sys_io_setup, sys_io_destroy
- /*270*/	.word sys32_io_submit, sys_io_cancel, compat_sys_io_getevents, sys32_mq_open, sys_mq_unlink
- 	.word sys_mq_timedsend, sys_mq_timedreceive, compat_sys_mq_notify, compat_sys_mq_getsetattr, compat_sys_waitid
-diff -urpNX dontdiff linux-2.6.10-rc1-bk13/arch/x86_64/ia32/ia32entry.S parisc-2.6-bk/arch/x86_64/ia32/ia32entry.S
---- linux-2.6.10-rc1-bk13/arch/x86_64/ia32/ia32entry.S	Wed Nov  3 05:57:44 2004
-+++ parisc-2.6-bk/arch/x86_64/ia32/ia32entry.S	Wed Nov  3 06:18:55 2004
-@@ -562,22 +562,22 @@ ia32_sys_call_table:
- 	.quad sys_remap_file_pages
- 	.quad sys_set_tid_address
- 	.quad sys32_timer_create
--	.quad compat_timer_settime	/* 260 */
--	.quad compat_timer_gettime
-+	.quad compat_sys_timer_settime	/* 260 */
-+	.quad compat_sys_timer_gettime
- 	.quad sys_timer_getoverrun
- 	.quad sys_timer_delete
--	.quad compat_clock_settime
--	.quad compat_clock_gettime	/* 265 */
--	.quad compat_clock_getres
--	.quad compat_clock_nanosleep
--	.quad compat_statfs64
--	.quad compat_fstatfs64
-+	.quad compat_sys_clock_settime
-+	.quad compat_sys_clock_gettime	/* 265 */
-+	.quad compat_sys_clock_getres
-+	.quad compat_sys_clock_nanosleep
-+	.quad compat_sys_statfs64
-+	.quad compat_sys_fstatfs64
- 	.quad sys_tgkill		/* 270 */
- 	.quad compat_sys_utimes
- 	.quad sys32_fadvise64_64
- 	.quad quiet_ni_syscall	/* sys_vserver */
- 	.quad sys_mbind
--	.quad compat_get_mempolicy	/* 275 */
-+	.quad compat_sys_get_mempolicy	/* 275 */
- 	.quad sys_set_mempolicy
- 	.quad compat_sys_mq_open
- 	.quad sys_mq_unlink
-diff -urpNX dontdiff linux-2.6.10-rc1-bk13/fs/compat.c parisc-2.6-bk/fs/compat.c
---- linux-2.6.10-rc1-bk13/fs/compat.c	Fri Oct 22 15:39:07 2004
-+++ parisc-2.6-bk/fs/compat.c	Wed Nov  3 06:19:13 2004
-@@ -205,7 +205,7 @@ static int put_compat_statfs64(struct co
- 	return 0;
- }
- 
--asmlinkage long compat_statfs64(const char __user *path, compat_size_t sz, struct compat_statfs64 __user *buf)
-+asmlinkage long compat_sys_statfs64(const char __user *path, compat_size_t sz, struct compat_statfs64 __user *buf)
- {
- 	struct nameidata nd;
- 	int error;
-@@ -224,7 +224,7 @@ asmlinkage long compat_statfs64(const ch
- 	return error;
- }
- 
--asmlinkage long compat_fstatfs64(unsigned int fd, compat_size_t sz, struct compat_statfs64 __user *buf)
-+asmlinkage long compat_sys_fstatfs64(unsigned int fd, compat_size_t sz, struct compat_statfs64 __user *buf)
- {
- 	struct file * file;
- 	struct kstatfs tmp;
-diff -urpNX dontdiff linux-2.6.10-rc1-bk13/kernel/compat.c parisc-2.6-bk/kernel/compat.c
---- linux-2.6.10-rc1-bk13/kernel/compat.c	Fri Oct 22 15:39:19 2004
-+++ parisc-2.6-bk/kernel/compat.c	Wed Nov  3 06:19:24 2004
-@@ -484,7 +485,7 @@ static int put_compat_itimerspec(struct 
- 	return 0;
- } 
- 
--long compat_timer_settime(timer_t timer_id, int flags, 
-+long compat_sys_timer_settime(timer_t timer_id, int flags, 
- 			  struct compat_itimerspec __user *new, 
- 			  struct compat_itimerspec __user *old)
- { 
-@@ -507,7 +508,7 @@ long compat_timer_settime(timer_t timer_
- 	return err;
- } 
- 
--long compat_timer_gettime(timer_t timer_id,
-+long compat_sys_timer_gettime(timer_t timer_id,
- 		struct compat_itimerspec __user *setting)
- { 
- 	long err;
-@@ -524,7 +525,7 @@ long compat_timer_gettime(timer_t timer_
- 	return err;
- } 
- 
--long compat_clock_settime(clockid_t which_clock,
-+long compat_sys_clock_settime(clockid_t which_clock,
- 		struct compat_timespec __user *tp)
- {
- 	long err;
-@@ -541,7 +542,7 @@ long compat_clock_settime(clockid_t whic
- 	return err;
- } 
- 
--long compat_clock_gettime(clockid_t which_clock,
-+long compat_sys_clock_gettime(clockid_t which_clock,
- 		struct compat_timespec __user *tp)
- {
- 	long err;
-@@ -558,7 +559,7 @@ long compat_clock_gettime(clockid_t whic
- 	return err;
- } 
- 
--long compat_clock_getres(clockid_t which_clock,
-+long compat_sys_clock_getres(clockid_t which_clock,
- 		struct compat_timespec __user *tp)
- {
- 	long err;
-@@ -575,7 +576,7 @@ long compat_clock_getres(clockid_t which
- 	return err;
- } 
- 
--long compat_clock_nanosleep(clockid_t which_clock, int flags,
-+long compat_sys_clock_nanosleep(clockid_t which_clock, int flags,
- 			    struct compat_timespec __user *rqtp,
- 			    struct compat_timespec __user *rmtp)
- {
-diff -urpNX dontdiff linux-2.6.10-rc1-bk13/kernel/sys_ni.c parisc-2.6-bk/kernel/sys_ni.c
---- linux-2.6.10-rc1-bk13/kernel/sys_ni.c	Wed Nov  3 05:57:51 2004
-+++ parisc-2.6-bk/kernel/sys_ni.c	Wed Nov  3 08:18:49 2004
-@@ -68,9 +68,9 @@ cond_syscall(compat_sys_mq_getsetattr)
- cond_syscall(sys_mbind)
- cond_syscall(sys_get_mempolicy)
- cond_syscall(sys_set_mempolicy)
--cond_syscall(compat_mbind)
--cond_syscall(compat_get_mempolicy)
--cond_syscall(compat_set_mempolicy)
-+cond_syscall(compat_sys_mbind)
-+cond_syscall(compat_sys_get_mempolicy)
-+cond_syscall(compat_sys_set_mempolicy)
- cond_syscall(sys_add_key)
- cond_syscall(sys_request_key)
- cond_syscall(sys_keyctl)
-diff -urpNX dontdiff linux-2.6.10-rc1-bk13/mm/mempolicy.c parisc-2.6-bk/mm/mempolicy.c
---- linux-2.6.10-rc1-bk13/mm/mempolicy.c	Wed Nov  3 05:57:51 2004
-+++ parisc-2.6-bk/mm/mempolicy.c	Wed Nov  3 06:19:26 2004
-@@ -530,7 +530,7 @@ asmlinkage long sys_get_mempolicy(int __
- 
- #ifdef CONFIG_COMPAT
- 
--asmlinkage long compat_get_mempolicy(int __user *policy,
-+asmlinkage long compat_sys_get_mempolicy(int __user *policy,
- 				     compat_ulong_t __user *nmask,
- 				     compat_ulong_t maxnode,
- 				     compat_ulong_t addr, compat_ulong_t flags)
-@@ -558,7 +558,7 @@ asmlinkage long compat_get_mempolicy(int
- 	return err;
- }
- 
--asmlinkage long compat_set_mempolicy(int mode, compat_ulong_t __user *nmask,
-+asmlinkage long compat_sys_set_mempolicy(int mode, compat_ulong_t __user *nmask,
- 				     compat_ulong_t maxnode)
- {
- 	long err = 0;
-@@ -581,7 +581,7 @@ asmlinkage long compat_set_mempolicy(int
- 	return sys_set_mempolicy(mode, nm, nr_bits+1);
- }
- 
--asmlinkage long compat_mbind(compat_ulong_t start, compat_ulong_t len,
-+asmlinkage long compat_sys_mbind(compat_ulong_t start, compat_ulong_t len,
- 			     compat_ulong_t mode, compat_ulong_t __user *nmask,
- 			     compat_ulong_t maxnode, compat_ulong_t flags)
- {
+On Tue, 2 Nov 2004, Horms wrote:
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+> Thanks for the patch, though the behaviour of the umask still seems
+> rather odd. I would like to offer an updated patch which I believe
+> makes the umask behave in the expected way. It also ensures
+> that the write_lock bit is read from/written to disk correctly.
+
+You apply the umask before updating the write bit, which is incorrect.
+
+> @@ -196,6 +197,11 @@ struct inode *hfs_new_inode(struct inode
+>  		HFS_I(inode)->cached_blocks = 0;
+>  		memset(HFS_I(inode)->first_extents, 0, sizeof(hfs_extent_rec));
+>  		memset(HFS_I(inode)->cached_extents, 0, sizeof(hfs_extent_rec));
+> +		inode->i_mode = (mode & ~0777) | (~hsb->s_file_umask & 0777);
+> +		if (mode & S_IWUSR)
+> +			inode->i_mode |= S_IWUGO;
+> +		else
+> +			inode->i_mode &= ~S_IWUGO;
+>  	}
+>  	insert_inode_hash(inode);
+>  	mark_inode_dirty(inode);
+
+Thanks, for reminding me to fix hfs_new_inode here, but the above applies.
+
+> ===== fs/hfs/super.c 1.32 vs edited =====
+> --- 1.32/fs/hfs/super.c	2004-10-26 05:06:47 +09:00
+> +++ edited/fs/hfs/super.c	2004-11-01 20:01:54 +09:00
+> @@ -149,8 +149,8 @@ static int parse_options(char *options, 
+>  	/* initialize the sb with defaults */
+>  	hsb->s_uid = current->uid;
+>  	hsb->s_gid = current->gid;
+> -	hsb->s_file_umask = 0644;
+> -	hsb->s_dir_umask = 0755;
+> +	hsb->s_file_umask = 0111;
+> +	hsb->s_dir_umask = 0000;
+>  	hsb->s_type = hsb->s_creator = cpu_to_be32(0x3f3f3f3f);	/* == '????' */
+>  	hsb->s_quiet = 0;
+>  	hsb->part = -1;
+
+This may be closer to the mac default, where everyone can access anything, 
+but I'd rather keep a safe default.
+Below is my updated patch.
+
+bye, Roman
+
+Index: fs/hfs/inode.c
+===================================================================
+RCS file: /home/other/cvs/linux/linux-2.6/fs/hfs/inode.c,v
+retrieving revision 1.1.1.5
+diff -u -p -r1.1.1.5 inode.c
+--- fs/hfs/inode.c	17 Jun 2004 08:39:32 -0000	1.1.1.5
++++ fs/hfs/inode.c	3 Nov 2004 15:51:43 -0000
+@@ -172,14 +172,16 @@ struct inode *hfs_new_inode(struct inode
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 	HFS_I(inode)->flags = 0;
+ 	HFS_I(inode)->rsrc_inode = NULL;
+-	if (S_ISDIR(inode->i_mode)) {
++	if (S_ISDIR(mode)) {
+ 		inode->i_size = 2;
+ 		HFS_SB(sb)->folder_count++;
+ 		if (dir->i_ino == HFS_ROOT_CNID)
+ 			HFS_SB(sb)->root_dirs++;
+ 		inode->i_op = &hfs_dir_inode_operations;
+ 		inode->i_fop = &hfs_dir_operations;
+-	} else if (S_ISREG(inode->i_mode)) {
++		inode->i_mode |= S_IRWXUGO;
++		inode->i_mode &= ~HFS_SB(inode->i_sb)->s_dir_umask;
++	} else if (S_ISREG(mode)) {
+ 		HFS_I(inode)->clump_blocks = HFS_SB(sb)->clumpablks;
+ 		HFS_SB(sb)->file_count++;
+ 		if (dir->i_ino == HFS_ROOT_CNID)
+@@ -187,6 +189,10 @@ struct inode *hfs_new_inode(struct inode
+ 		inode->i_op = &hfs_file_inode_operations;
+ 		inode->i_fop = &hfs_file_operations;
+ 		inode->i_mapping->a_ops = &hfs_aops;
++		inode->i_mode |= S_IRUGO|S_IXUGO;
++		if (mode & S_IWUSR)
++			inode->i_mode |= S_IWUGO;
++		inode->i_mode &= ~HFS_SB(inode->i_sb)->s_file_umask;
+ 		HFS_I(inode)->phys_size = 0;
+ 		HFS_I(inode)->alloc_blocks = 0;
+ 		HFS_I(inode)->first_blocks = 0;
+@@ -313,7 +319,7 @@ int hfs_read_inode(struct inode *inode, 
+ 		inode->i_mode = S_IRUGO | S_IXUGO;
+ 		if (!(rec->file.Flags & HFS_FIL_LOCK))
+ 			inode->i_mode |= S_IWUGO;
+-		inode->i_mode &= hsb->s_file_umask;
++		inode->i_mode &= ~hsb->s_file_umask;
+ 		inode->i_mode |= S_IFREG;
+ 		inode->i_ctime = inode->i_atime = inode->i_mtime =
+ 				hfs_m_to_utime(rec->file.MdDat);
+@@ -326,7 +332,7 @@ int hfs_read_inode(struct inode *inode, 
+ 		inode->i_ino = be32_to_cpu(rec->dir.DirID);
+ 		inode->i_blocks = 0;
+ 		inode->i_size = be16_to_cpu(rec->dir.Val) + 2;
+-		inode->i_mode = S_IFDIR | (S_IRWXUGO & hsb->s_dir_umask);
++		inode->i_mode = S_IFDIR | (S_IRWXUGO & ~hsb->s_dir_umask);
+ 		inode->i_ctime = inode->i_atime = inode->i_mtime =
+ 				hfs_m_to_utime(rec->file.MdDat);
+ 		inode->i_op = &hfs_dir_inode_operations;
+Index: fs/hfs/super.c
+===================================================================
+RCS file: /home/other/cvs/linux/linux-2.6/fs/hfs/super.c,v
+retrieving revision 1.1.1.5
+diff -u -p -r1.1.1.5 super.c
+--- fs/hfs/super.c	10 May 2004 15:02:37 -0000	1.1.1.5
++++ fs/hfs/super.c	1 Nov 2004 16:03:14 -0000
+@@ -150,8 +150,8 @@ static int parse_options(char *options, 
+ 	/* initialize the sb with defaults */
+ 	hsb->s_uid = current->uid;
+ 	hsb->s_gid = current->gid;
+-	hsb->s_file_umask = 0644;
+-	hsb->s_dir_umask = 0755;
++	hsb->s_file_umask = 0133;
++	hsb->s_dir_umask = 0022;
+ 	hsb->s_type = 0x3f3f3f3f;	/* == '????' */
+ 	hsb->s_creator = 0x3f3f3f3f;	/* == '????' */
+ 	hsb->s_quiet = 0;

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262709AbREOJoW>; Tue, 15 May 2001 05:44:22 -0400
+	id <S262716AbREOJzM>; Tue, 15 May 2001 05:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262710AbREOJoM>; Tue, 15 May 2001 05:44:12 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43790 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262709AbREOJoD>; Tue, 15 May 2001 05:44:03 -0400
-Subject: Re: Memory Access Problem
-To: Rich.Liu@ite.com.tw
-Date: Tue, 15 May 2001 10:40:41 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <412C066DD818D3118D4300805FD4667902090B77@ITEMAIL> from "Rich.Liu@ite.com.tw" at May 15, 2001 02:36:51 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262715AbREOJzC>; Tue, 15 May 2001 05:55:02 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:42480 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262718AbREOJyy>;
+	Tue, 15 May 2001 05:54:54 -0400
+Date: Tue, 15 May 2001 05:54:52 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Lars Brinkhoff <lars.spam@nocrew.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
+        Larry McVoy <lm@bitmover.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Getting FS access events
+In-Reply-To: <85vgn3lz8k.fsf@junk.nocrew.org>
+Message-ID: <Pine.GSO.4.21.0105150550110.21081-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14zbJp-0002Gu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I use readw to access memory below 1MB , report "Segmentation fault"
-> and stall in memory
+
+
+On 15 May 2001, Lars Brinkhoff wrote:
+
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> > > Larry, go read up on TOPS-20. :-) SunOS did give unix mmap(), but it
+> > > did not come up the idea.
+> > Seems to be TOPS-10 ....
+> > http://www.opost.com/dlm/tenex/fjcc72/ 
 > 
-> simple code below (this will get paraller port)
-> ==
-> int init_module(void){
-> 	unsigned int   *BIOS_Data=(unsigned int *)0x400;
-> 	u32 test;
->                 test = readw(BIOS_Data);
+> TENEX is not TOPS-10.  TOPS-10 didn't get virtual memory until around
+> 1974.  By then, TENEX had been around for years.
 > 
-> 	 printk(KERN_CRIT  "0x400:%x\n",test);
-> }
-> ==
-> but those can work in kernel 2.2.19 , no problem .
-> 
-> can anyone help me ?
+> TOPS-20 was developed from TENEX starting around 1973.
 
-2.2 had back compatibility support for old drivers that did this 2.4 does
-not.
-
-	readb() is for bus accesses after mapping with ioremap
-	isa_readb() is a quick form for ISA bus which is always mapped
-
-For main memory you want to use
-	phys_to_virt()
-
-to get the virtual mapping of the page. That will work for the BIOS page but
-not for arbitary higher pages which may not even be mapped.
-
-
+... and Multics had all access to files through equivalent of mmap()
+in 60s. "Segments" in ls(1) got that name for a good reason.
 

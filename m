@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266994AbTAFPjp>; Mon, 6 Jan 2003 10:39:45 -0500
+	id <S266991AbTAFPhT>; Mon, 6 Jan 2003 10:37:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266995AbTAFPjp>; Mon, 6 Jan 2003 10:39:45 -0500
-Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:17326
-	"HELO ghanima.endorphin.org") by vger.kernel.org with SMTP
-	id <S266994AbTAFPjo>; Mon, 6 Jan 2003 10:39:44 -0500
-Date: Mon, 6 Jan 2003 16:41:39 +0100
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20aa1 ide-scsi crashes
-Message-ID: <20030106154138.GA2588@ghanima.endorphin.org>
+	id <S266993AbTAFPhT>; Mon, 6 Jan 2003 10:37:19 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:46090
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S266991AbTAFPhT>; Mon, 6 Jan 2003 10:37:19 -0500
+Subject: Re: Why do some net drivers require __OPTIMIZE__?
+From: Robert Love <rml@tech9.net>
+To: root@chaos.analogic.com
+Cc: Alex Bennee <alex@braddahead.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1030106095704.1580A-100000@chaos.analogic.com>
+References: <Pine.LNX.3.95.1030106095704.1580A-100000@chaos.analogic.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041867947.730.8.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Fruhwirth Clemens <clemens@endorphin.org>
-X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 06 Jan 2003 10:45:48 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-under heavy I/O load for my scsi-emulated cdrom 2.4.20aa1 crashes at
+On Mon, 2003-01-06 at 10:04, Richard B. Johnson wrote:
 
-drivers/scsi/scsi_dma:155 with 
-panic("scsi_free:Trying to free unused memory")
+> You need to optimize in order enable inline code generation. It is
+> essential to use in-line code in many places because, if the compiler
+> actually calls these functions they would have to be protected
+> from reentry.
 
-panic(..) somehow refuses to print the call trace because "IEEE in interrupt
-handler - no sync".
+I do not think this is correct.
 
-The only scsi module I'm using is ide-scsi. As I browsed the aa patch I
-recognized that a few &io_request_lock have been exchanged for
-"q->queue_lock". But ide-scsi is still locking on io_request_lock. This is
-probably the source of the race condition. However I'm not sure because I
-think q->queue_lock is being initialized to &io_request_lock, so it should
-still be the same lock.
+Concurrency concerns would not change wrt calling the function vs.
+inlining it.
 
-See drivers/scsi/ide-scsi:295 or 
-    drivers/scsi/ide-scsi:850 (Why isn't there a lock in that case?)
+More likely some code, i.e. asm, just assumes inlining is taking place.
 
-(done) referrs to sr.c:rw_intr which calls scsi_io_completion which calls
-the panic(..)-ing scsi_free)
+	Robert Love
 
-Any guesses?
-
-Regards, Clemens
-Please CC answers, /me not on list.

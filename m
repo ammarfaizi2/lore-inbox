@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbTHYJgg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 05:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTHYJgg
+	id S261701AbTHYJ7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 05:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbTHYJ7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 05:36:36 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:11941 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S261903AbTHYJfu (ORCPT
+	Mon, 25 Aug 2003 05:59:16 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:30433 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261701AbTHYJ7J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 05:35:50 -0400
-Date: Mon, 25 Aug 2003 11:35:56 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: paul.devriendt@amd.com
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org, aj@suse.de,
-       mark.langsdorf@amd.com, richard.brunner@amd.com
-Subject: Re: Cpufreq for opteron
-Message-ID: <20030825093556.GA3020@elf.ucw.cz>
-References: <99F2150714F93F448942F9A9F112634C080EF00E@txexmtae.amd.com>
+	Mon, 25 Aug 2003 05:59:09 -0400
+Date: Mon, 25 Aug 2003 11:58:57 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Paul Clements <Paul.Clements@SteelEye.com>
+Cc: Lou Langholtz <ldl@aros.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.0 NBD driver: remove send/recieve race for request
+Message-ID: <20030825095857.GI863@suse.de>
+References: <3F2FE078.6020305@aros.net> <3F300760.8F703814@SteelEye.com> <3F303430.1080908@aros.net> <3F30510A.E918924B@SteelEye.com> <3F30AF81.4070308@aros.net> <3F332ED7.712DFE5D@SteelEye.com> <3F334396.7030008@aros.net> <20030808065908.GB18823@suse.de> <3F33BB2A.94599C5C@SteelEye.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <99F2150714F93F448942F9A9F112634C080EF00E@txexmtae.amd.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <3F33BB2A.94599C5C@SteelEye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Aug 08 2003, Paul Clements wrote:
+> Jens Axboe wrote:
+> > 
+> > On Fri, Aug 08 2003, Lou Langholtz wrote:
+> > > >@@ -499,12 +508,14 @@ static void do_nbd_request(request_queue
+> > > >                                     lo->disk->disk_name);
+> > > >                     spin_lock(&lo->queue_lock);
+> > > >                     list_del_init(&req->queuelist);
+> > > >+                    req->ref_count--;
+> > > >                     spin_unlock(&lo->queue_lock);
+> > > >                     nbd_end_request(req);
+> > > >                     spin_lock_irq(q->queue_lock);
+> > > >                     continue;
+> > > >             }
+> > > >
+> > > >+            req->ref_count--;
+> > > >             spin_lock_irq(q->queue_lock);
+> > > >
+> > > Since ref_count isn't atomic, shouldn't ref_count only be changed while
+> > > the queue_lock is held???
+> > 
+> > Indeed, needs to be done after regrabbing the lock.
+> 
+> But req is pulled off of nbd's main request queue at this point, so I
+> don't think anyone else could be touching it, could they?
 
-> It appears to me that the BUG_ON() macro will take the machine
-> down ? The BUG_ON() checks in this code (a sample below, but 
-> this applies to all of the driver) are not fatal conditions - 
-> execution can continue if an error is returned. Taking the 
-> machine down to report on a non-fatal condition seems somewhat 
-> rude.
+In that case you are right, and it would probably be best not to touch
+the reference count at all (just leave it at 1).
 
-It is somewhat rude, but it makes sure that the error gets fixed. [And
-it also appears safer to me: if we know error already happened we opt
-to stop the system so nothing bad happens.]
-
-Questions:
-
-1) is it possible to do hardware damage from powernow-k8 driver?
-
-2) should some of those checks be fatal?
-
-3) for nonfatal checks, is it possible to use WARN_ON() -- warn and
-continue?
-
-4) given good hardware and debugged driver, will any of those
-BUG_ON()s ever trigger?
-
-							Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Jens Axboe
+

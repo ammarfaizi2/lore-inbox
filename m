@@ -1,101 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbTJUQe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 12:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTJUQe1
+	id S263176AbTJUQlW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 12:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTJUQlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 12:34:27 -0400
-Received: from mail.kroah.org ([65.200.24.183]:16314 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263184AbTJUQeX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 12:34:23 -0400
-Date: Tue, 21 Oct 2003 09:28:56 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] udev 004 release
-Message-ID: <20031021162856.GA1030@kroah.com>
-Reply-To: linux-hotplug-devel@lists.sourceforge.net
+	Tue, 21 Oct 2003 12:41:22 -0400
+Received: from astra.telenet-ops.be ([195.130.132.58]:62094 "EHLO
+	astra.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S263176AbTJUQlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 12:41:20 -0400
+Subject: Re: LVM on md0: raid0_make_request bug: can't convert block across
+	chunks or bigger than 64k
+From: Karl Vogel <karl.vogel@seagha.com>
+To: Kevin Corry <kevcorry@us.ibm.com>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Joe Thornber <thornber@sistina.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1066753760.1161.4.camel@kvo.local.org>
+References: <1066682115.1799.15.camel@kvo.local.org>
+	 <1066686755.1146.6.camel@kvo.local.org>
+	 <16276.31028.9351.994009@notabene.cse.unsw.edu.au>
+	 <200310210841.45452.kevcorry@us.ibm.com>
+	 <1066753760.1161.4.camel@kvo.local.org>
+Content-Type: text/plain
+Message-Id: <1066754478.1205.2.camel@kvo.local.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
+Date: Tue, 21 Oct 2003 18:41:19 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > >  ----------- Diffstat output ------------
+> > >  ./drivers/md/dm-table.c |    5 +++++
+> > >  1 files changed, 5 insertions(+)
+> > >
+> > > diff ./drivers/md/dm-table.c~current~ ./drivers/md/dm-table.c
+> > > --- ./drivers/md/dm-table.c~current~	2003-10-21 10:05:29.000000000 +1000
+> > > +++ ./drivers/md/dm-table.c	2003-10-21 10:06:27.000000000 +1000
+> > > @@ -489,6 +489,11 @@ int dm_get_device(struct dm_target *ti,
+> > >  		rs->max_sectors =
+> > >  			min_not_zero(rs->max_sectors, q->max_sectors);
+> > >
+> > > +		if (q->merge_bvec_fn)
+> > > +			rs->max_sectors =
+> > > +				min_not_zero(rs->max_sectors, PAGE_SIZE>>9);
+> > > +
+> > > +
+> > >  		rs->max_phys_segments =
+> > >  			min_not_zero(rs->max_phys_segments,
+> > >  				     q->max_phys_segments);
+> > 
+> > This will probably work, as long as raid0 can split a one-page request that 
+> > spans a chunk boundary. I'll be interested to see if this solves Karl's 
+> > problem.
+> 
+> Good news... it solves the problem with my setup. I was able to copy
+> files off the logical volume (did an md5sum compare to make sure I got
+> the complete files.)
 
-I've released the 004 version of udev.  It can be found at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-004.tar.gz
+Forgot to mention that it generates a compiler warning:
 
-Thanks to Robert Love, there are now rpms available at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-004-1.i386.rpm
-with the source rpm at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-004-1.src.rpm
+  CC      drivers/md/dm-table.o
+drivers/md/dm-table.c: In function `dm_get_device':
+drivers/md/dm-table.c:494: warning: comparison of distinct pointer types
+lacks a cast
 
-udev is a implementation of devfs in userspace using sysfs and
-/sbin/hotplug.  It requires a 2.6 kernel to run properly.
+Using:
+$ gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/3.3.1/specs
+Configured with: ../configure --prefix=/usr --mandir=/usr/share/man
+--infodir=/usr/share/info --enable-shared --enable-threads=posix
+--disable-checking --with-system-zlib --enable-__cxa_atexit
+--host=i386-redhat-linux
+Thread model: posix
+gcc version 3.3.1 20030930 (Red Hat Linux 3.3.1-6)
 
-The major changes since the 003 release are:
-	- MAJOR speedups over the previous version.  No more "sleep(1)"
-	  always, we now wait for the "dev" file to show up, and not
-	  blindly guess.
-	- partitions now work again.
-	- removal of devices that were named differently from the kernel
-	  name work properly.
-	- proper spec file.
-	- a man page with real content.
-	- sync up with current version of libsysfs.
-
-Many thanks to Dan Stekloff, Kay Sievers, and Robert Love for their help
-with patches for this release.  I really appreciate it.
-
-The full ChangeLog can be found below.
- 
-The udev FAQ can be found at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
- 
-Development of udev is done in a BitKeeper tree available at:
-	bk://kernel.bkbits.net/gregkh/udev/
-
-If anyone ever wants a snapshot of the current tree, due to not using
-BitKeeper, or other reasons, is always available at any time by asking.
-
-thanks,
-
-greg k-h
-
-
-Summary of changes from v003 to v004
-============================================
-
-
-Daniel E. F. Stekloff:
-  o new version of libsysfs patch
-
-Greg Kroah-Hartman:
-  o 004 release
-  o major database cleanups
-  o Changed test.block and test.tty to take ACTION from the command line
-  o don't sleep if 'dev' file is already present on device add
-  o fix comment about how the "dev" file is made up
-  o more database work.  Now we only store the info we really need right now
-  o add BUS= bug to TODO list so it will not get forgotten
-  o spec file changes
-  o test.block changes
-  o ok, rpm likes the "_" character instead of "-" better
-  o change the version to 003-bk to keep things sane with people using the bk tree
-  o got "remove of named devices" working
-  o fix segfaults when dealing with partitions
-
-Kay Sievers:
-  o man file update
-  o man page update
-
-Robert Love:
-  o udev: mode should be mode_t
-  o udev: trivial trivialities
-  o udev: cool test scripts again
-  o udev spec file symlink support
-  o udev: cool test scripts
-  o udev spec file bits
 

@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271845AbTHHTGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 15:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271807AbTHHTEN
+	id S271843AbTHHTGi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 15:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271824AbTHHTGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 15:04:13 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:4627 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S271808AbTHHS6O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 14:58:14 -0400
-Date: Fri, 8 Aug 2003 20:58:09 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Surprising Kconfig depends semantics
-In-Reply-To: <20030808183020.GD16091@fs.tum.de>
-Message-ID: <Pine.LNX.4.44.0308082052460.24676-100000@serv>
-References: <20030808144408.GX16091@fs.tum.de> <Pine.LNX.4.44.0308081708390.714-100000@serv>
- <20030808183020.GD16091@fs.tum.de>
+	Fri, 8 Aug 2003 15:06:23 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:6044 "EHLO
+	myware.akkadia.org") by vger.kernel.org with ESMTP id S271843AbTHHTFa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 15:05:30 -0400
+Message-ID: <3F33F45E.3030706@redhat.com>
+Date: Fri, 08 Aug 2003 12:05:02 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Frank Cusack <fcusack@fcusack.com>
+CC: lkml <linux-kernel@vger.kernel.org>, phil-list@redhat.com
+Subject: Re: NPTL v userland v LT (RH9+custom kernel problem)
+References: <20030807013930.A26426@google.com> <20030808103745.B30702@google.com>
+In-Reply-To: <20030808103745.B30702@google.com>
+X-Enigmail-Version: 0.81.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Fri, 8 Aug 2003, Adrian Bunk wrote:
+Frank Cusack wrote:
 
-> > This is probably the easiest solution:
-> > 
-> > 	default INPUT_KEYBOARD && SERIO
-> > 
-> > (INPUT_KEYBOARD already depends on INPUT)
+> Even without pam_ldap, I see it getting stuck.  'groups: files ldap' in
+> nsswitch.conf sets it off.  Here's an sshd that's hung, does this light
+> the a-ha bulb for anyone?
 > 
-> I'll send a
->   default INPUT && INPUT_KEYBOARD && SERIO
-> patch (to address the things James said, in any cases it doesn't do any 
-> harm).
+> (gdb) bt
+> #0  0x40564845 in __pthread_sigsuspend () from /lib/i686/libpthread.so.0
+> #1  0x40564318 in __pthread_wait_for_restart_signal ()
+>    from /lib/i686/libpthread.so.0
+> #2  0x40565d30 in __pthread_alt_lock () from /lib/i686/libpthread.so.0
 
-His comment didn't make much sense, INPUT_KEYBOARD is still independent of 
-SERIO.
+This has nothing to do with NPTL as you can clearly see from the file
+names and the functions used to implement locking.
 
-> But it stays strange that a default can assign a value that isn't 
-> allowed by the depends, and you therefore have to write the depends 
-> twice in this case:
-> 
-> config KEYBOARD_ATKBD
->         tristate "AT keyboard support" if EMBEDDED || !X86 
->         default INPUT && INPUT_KEYBOARD && SERIO
->         depends on INPUT && INPUT_KEYBOARD && SERIO
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-The easier solution is probably to force SERIO to 'y' as well, as the 
-point of hiding it behind EMBEDDED is to get it compiled into the kernel.
-
-bye, Roman
+iD8DBQE/M/Re2ijCOnn/RHQRAinJAJ98U1aBMe6CNNS92MQhv+Y8Qcs01wCdG3H2
+M2n00ZHMbZpFnrDNyezDYcg=
+=T8u5
+-----END PGP SIGNATURE-----
 

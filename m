@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261367AbSIZPIy>; Thu, 26 Sep 2002 11:08:54 -0400
+	id <S261347AbSIZPAY>; Thu, 26 Sep 2002 11:00:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261369AbSIZPIy>; Thu, 26 Sep 2002 11:08:54 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:49675 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S261367AbSIZPIx>; Thu, 26 Sep 2002 11:08:53 -0400
-Date: Fri, 27 Sep 2002 01:13:37 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Roberto Nibali <ratz@drugphish.ch>
-cc: "David S. Miller" <davem@redhat.com>, Andi Kleen <ak@suse.de>,
-       <niv@us.ibm.com>, <linux-kernel@vger.kernel.org>,
-       jamal <hadi@cyberus.ca>
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-In-Reply-To: <3D92D243.6060808@drugphish.ch>
-Message-ID: <Mutt.LNX.4.44.0209270051180.12285-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261349AbSIZPAY>; Thu, 26 Sep 2002 11:00:24 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:17657
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261347AbSIZPAY>; Thu, 26 Sep 2002 11:00:24 -0400
+Subject: Re: [PATCH] fix ide-iops for big endian archs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+In-Reply-To: <20020925123223.16082@192.168.4.1>
+References: <20020925123223.16082@192.168.4.1>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Sep 2002 16:09:26 +0100
+Message-Id: <1033052967.1348.30.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Sep 2002, Roberto Nibali wrote:
+On Wed, 2002-09-25 at 13:32, Benjamin Herrenschmidt wrote:
+> I enclosed the patch as an attachement too in case the mailer screws
+> it up...
 
-> Yes, we're doing tests in this field now (as with evlog) but as it seems 
-> from preliminary testing netlink transportation of binary data is not 
-> 100% reliable either.
-
-Non-blocking netlink delivery is reliable, although you can overrun the 
-userspace socket buffer (this can be detected, however).  The fundamental 
-issue remains: sending more data to userspace than can be handled.
-
-A truly reliable transport would also involve an ack based protocol .  
-Under certain circumstances (e.g. log every forwarded packet for audit
-purposes), packets would need to be dropped if the logging mechanism
-became overloaded.  This would in turn involve some kind of queuing
-mechanism and introduce a new set of performance problems.  Reliable
-logging is a challenging problem area in general, probably better suited
-to dedicated hardware environments where the software can be tuned to
-known system capabilities.
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+Please do one thing. For the stuff that needs weird powerpcisms put all
+the seperate stuff in one block with its own copy of the static inlines
+so we dont have in ifdef in half the functions in the file
 

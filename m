@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129538AbQLBS37>; Sat, 2 Dec 2000 13:29:59 -0500
+	id <S129631AbQLBSfT>; Sat, 2 Dec 2000 13:35:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129700AbQLBS3s>; Sat, 2 Dec 2000 13:29:48 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:28404 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129538AbQLBS3o>;
-	Sat, 2 Dec 2000 13:29:44 -0500
-Date: Sat, 2 Dec 2000 12:59:16 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        Jonathan Hudson <jonathan@daria.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: corruption
-In-Reply-To: <20001202173959.A10166@vana.vc.cvut.cz>
-Message-ID: <Pine.GSO.4.21.0012021255330.28923-100000@weyl.math.psu.edu>
+	id <S129700AbQLBSfJ>; Sat, 2 Dec 2000 13:35:09 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:29469 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129631AbQLBSe4>; Sat, 2 Dec 2000 13:34:56 -0500
+Date: Sat, 2 Dec 2000 12:03:56 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: Igmar Palsenberg <maillist@chello.nl>
+cc: Matthew Kirkwood <matthew@hairy.beasts.org>, folkert@vanheusden.com,
+        "Theodore Y Ts'o" <tytso@mit.edu>,
+        Kernel devel list <linux-kernel@vger.kernel.org>, vpnd@sunsite.auc.dk
+Subject: Re: /dev/random probs in 2.4test(12-pre3)
+In-Reply-To: <Pine.LNX.4.21.0012021955570.11787-100000@server.serve.me.nl>
+Message-ID: <Pine.LNX.3.96.1001202115753.27887T-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2 Dec 2000, Igmar Palsenberg wrote:
+> > Indeed, you are correct.  Is vpnd broken then, for assuming
+> > that it can gather the required randomness in one read?
+> 
+> Yep. It assumes that if the required randommness numbers aren't met a read
+> to /dev/random will block.
+> 
+> And it's not the only program that assumes this : I also did. 
+> 
+> /dev/random is called a blocking random device, which more or less implies
+> that it will totally block. I suggest we put this somewhere in the kernel
+> docs, since lots of people out there assume that it totally blocks.
+
+"totally block"?
+
+For a blocking fd, read(2) has always blocked until some data is
+available.  There has never been a guarantee, for any driver, that
+a read(2) will return the full amount of bytes requested.
+
+There is no need to document this...  man read(2)  ;-)
+
+	Jeff
 
 
-On Sat, 2 Dec 2000, Petr Vandrovec wrote:
-
-[I wrote:]
-
-> > ed fs/buffer.c <<EOF
-> > /unmap_buffer/
-> > /}/i
-		spin_lock(&lru_list_lock);
-> > 		remove_inode_queue(bh);
-		spin_unlock(&lru_list_lock);
-> > .
-> > wq
-> > EOF
-
-Damn. I claim the sudden idiocy attack - didn't look at the locking
-rules for the ->b_inode_buffers. My apologies.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

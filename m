@@ -1,71 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbUKOBc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbUKOBfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbUKOBc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 20:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbUKOB2K
+	id S261390AbUKOBfN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 20:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbUKOBdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 20:28:10 -0500
-Received: from pop.gmx.net ([213.165.64.20]:37609 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261439AbUKOB1E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 20:27:04 -0500
-X-Authenticated: #4399952
-Date: Mon, 15 Nov 2004 02:27:38 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
-Message-ID: <20041115022738.56b9e9b6@mango.fruits.de>
-In-Reply-To: <20041114141551.GA17043@elte.hu>
-References: <20041025104023.GA1960@elte.hu>
-	<20041027001542.GA29295@elte.hu>
-	<20041103105840.GA3992@elte.hu>
-	<20041106155720.GA14950@elte.hu>
-	<20041108091619.GA9897@elte.hu>
-	<20041108165718.GA7741@elte.hu>
-	<20041109160544.GA28242@elte.hu>
-	<20041111144414.GA8881@elte.hu>
-	<20041111215122.GA5885@elte.hu>
-	<20041114135656.7aa3b95b@mango.fruits.de>
-	<20041114141551.GA17043@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Nov 2004 20:33:45 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:36880 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261394AbUKOBcP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 20:32:15 -0500
+Date: Mon, 15 Nov 2004 01:32:13 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] i386: apic_printk() used before initialized
+Message-ID: <Pine.LNX.4.58L.0411150122160.22313@blysk.ds.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Nov 2004 15:15:51 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
+Hello,
 
-> > i just build and booted into 26-3 (w/o debugging stuff) and put a
-> > little load on the system (find /'s plus kernel compile plus
-> > rtc_wakeup -f 8192). Got this on the console:
-> > 
-> > `IRQ 8` [14] is being piggy. need_resched=0, cpu=0
-> > 
-> > and the machine locked. will build with debugging and try to
-> > reproduce.
-> 
-> hm, i tried and couldnt reproduce this, so i'm curious what your
-> debugging build yields.
+ Both detect_init_APIC() and init_apic_mappings() it's called from are 
+invoked early, before the command line has been processed.  Therefore its 
+meaningless to call apic_printk() from them as that depends on 
+apic_verbosity which is initialized from the command line.
 
-not mch sadly. I tried booting into it once more and had to wait quite a
-while (around 30minutes) until the lock. I got this around 10 minutes before
-the lock though:
+ I could move apic_verbosity initialization to parse_cmdline_early(), but 
+I think that would be an overkill, the point being we are initerested in 
+feedback from detect_init_APIC() anyway.  Without that it's hard to tell 
+what's really going on as it's been the case with the recent report of the 
+local APIC being non-functional despite the whole setup being apparently 
+correct.  So I converted these calls to ordinary printk() invocations.  
+The init_apic_mappings() are less interesting, so I've made them output at 
+the debug level.
 
-Nov 15 00:09:23 mango kernel: bug in rtc_read(): called in state S_IDLE!
+ While at it I've made some obvious nearby formatting clean-up.
 
-The system locked up quitly again. no console dump. sys rq kept working (i
-could sync, remount ro and reboot). Does sys rq offer diagnosis which would
-be useful for you?
+ The changes have been successfully tested at the run-time on my system.  
+Andrew, please apply.
 
-flo
+  Maciej
+
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+
+patch-2.6.10-rc1-mm5-i386-apic_printk-0
+diff -up --recursive --new-file linux-2.6.10-rc1-mm5.macro/arch/i386/kernel/apic.c linux-2.6.10-rc1-mm5/arch/i386/kernel/apic.c
+--- linux-2.6.10-rc1-mm5.macro/arch/i386/kernel/apic.c	2004-11-14 16:01:48.000000000 +0000
++++ linux-2.6.10-rc1-mm5/arch/i386/kernel/apic.c	2004-11-15 00:55:22.000000000 +0000
+@@ -760,9 +760,8 @@ static int __init detect_init_APIC (void
+ 		 * APIC only if "lapic" specified.
+ 		 */
+ 		if (enable_local_apic <= 0) {
+-			apic_printk(APIC_VERBOSE,
+-				    "Local APIC disabled by BIOS -- "
+-				    "you can enable it with \"lapic\"\n");
++			printk("Local APIC disabled by BIOS -- "
++			       "you can enable it with \"lapic\"\n");
+ 			return -1;
+ 		}
+ 		/*
+@@ -773,8 +772,7 @@ static int __init detect_init_APIC (void
+ 		 */
+ 		rdmsr(MSR_IA32_APICBASE, l, h);
+ 		if (!(l & MSR_IA32_APICBASE_ENABLE)) {
+-			apic_printk(APIC_VERBOSE, "Local APIC disabled "
+-					"by BIOS -- reenabling.\n");
++			printk("Local APIC disabled by BIOS -- reenabling.\n");
+ 			l &= ~MSR_IA32_APICBASE_BASE;
+ 			l |= MSR_IA32_APICBASE_ENABLE | APIC_DEFAULT_PHYS_BASE;
+ 			wrmsr(MSR_IA32_APICBASE, l, h);
+@@ -801,7 +799,7 @@ static int __init detect_init_APIC (void
+ 	if (nmi_watchdog != NMI_NONE)
+ 		nmi_watchdog = NMI_LOCAL_APIC;
+ 
+-	apic_printk(APIC_VERBOSE, "Found and enabled local APIC!\n");
++	printk("Found and enabled local APIC!\n");
+ 
+ 	apic_pm_activate();
+ 
+@@ -828,8 +826,8 @@ void __init init_apic_mappings(void)
+ 		apic_phys = mp_lapic_addr;
+ 
+ 	set_fixmap_nocache(FIX_APIC_BASE, apic_phys);
+-	apic_printk(APIC_DEBUG, "mapped APIC to %08lx (%08lx)\n", APIC_BASE,
+-			apic_phys);
++	printk(KERN_DEBUG "mapped APIC to %08lx (%08lx)\n", APIC_BASE,
++	       apic_phys);
+ 
+ 	/*
+ 	 * Fetch the APIC ID of the BSP in case we have a
+@@ -847,21 +845,23 @@ void __init init_apic_mappings(void)
+ 			if (smp_found_config) {
+ 				ioapic_phys = mp_ioapics[i].mpc_apicaddr;
+ 				if (!ioapic_phys) {
+-					printk(KERN_ERR "WARNING: bogus zero IO-APIC address found in MPTABLE, disabling IO/APIC support!\n");
+-
++					printk(KERN_ERR
++					       "WARNING: bogus zero IO-APIC "
++					       "address found in MPTABLE, "
++					       "disabling IO/APIC support!\n");
+ 					smp_found_config = 0;
+ 					skip_ioapic_setup = 1;
+ 					goto fake_ioapic_page;
+ 				}
+ 			} else {
+ fake_ioapic_page:
+-				ioapic_phys = (unsigned long) alloc_bootmem_pages(PAGE_SIZE);
++				ioapic_phys = (unsigned long)
++					      alloc_bootmem_pages(PAGE_SIZE);
+ 				ioapic_phys = __pa(ioapic_phys);
+ 			}
+ 			set_fixmap_nocache(idx, ioapic_phys);
+-			apic_printk(APIC_DEBUG, "mapped IOAPIC to "
+-					"%08lx (%08lx)\n",
+-					__fix_to_virt(idx), ioapic_phys);
++			printk(KERN_DEBUG "mapped IOAPIC to %08lx (%08lx)\n",
++			       __fix_to_virt(idx), ioapic_phys);
+ 			idx++;
+ 		}
+ 	}

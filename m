@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265946AbUHGDGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266493AbUHGDMC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265946AbUHGDGR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 23:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265983AbUHGDGR
+	id S266493AbUHGDMC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 23:12:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267776AbUHGDL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 23:06:17 -0400
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:36289 "EHLO
-	certainkey.com") by vger.kernel.org with ESMTP id S265946AbUHGDGH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 23:06:07 -0400
-Date: Fri, 6 Aug 2004 23:01:19 -0400
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: James Morris <jmorris@redhat.com>,
-       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
-       mludvig@suse.cz, cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       davem@redhat.com
-Subject: Re: [PATCH]
-Message-ID: <20040807030118.GN23994@certainkey.com>
-References: <20040806042852.GD23994@certainkey.com> <Xine.LNX.4.44.0408060040360.20834-100000@dhcp83-76.boston.redhat.com> <20040806125427.GE23994@certainkey.com> <20040806232452.GA5414@waste.org>
-Mime-Version: 1.0
+	Fri, 6 Aug 2004 23:11:59 -0400
+Received: from epithumia.math.uh.edu ([129.7.128.2]:50066 "EHLO
+	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
+	id S266212AbUHGDLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 23:11:48 -0400
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Zinx Verituse <zinx@epicsol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide-cd problems
+References: <20040730193651.GA25616@bliss> <20040731153609.GG23697@suse.de>
+	<20040731182741.GA21845@bliss> <20040731200036.GM23697@suse.de>
+	<20040731210257.GA22560@bliss> <20040805054056.GC10376@suse.de>
+	<1091739966.8418.38.camel@localhost.localdomain>
+	<20040806054424.GB10274@suse.de> <20040806062331.GE10274@suse.de>
+	<1091794470.16306.11.camel@localhost.localdomain>
+	<20040806143258.GB23263@suse.de>
+From: Jason L Tibbitts III <tibbs@math.uh.edu>
+Date: Fri, 06 Aug 2004 22:11:40 -0500
+In-Reply-To: <20040806143258.GB23263@suse.de> (Jens Axboe's message of "Fri,
+ 6 Aug 2004 16:32:58 +0200")
+Message-ID: <ufa4qnfzloz.fsf@epithumia.math.uh.edu>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040806232452.GA5414@waste.org>
-User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 06:24:52PM -0500, Matt Mackall wrote:
-> On Fri, Aug 06, 2004 at 08:54:27AM -0400, Jean-Luc Cooke wrote:
-> > On Fri, Aug 06, 2004 at 12:42:38AM -0400, James Morris wrote:
-> > > On Fri, 6 Aug 2004, Jean-Luc Cooke wrote:
-> > > 
-> > > > James,
-> > > >   Back to your question:
-> > > >     I want to replace the legacy MD5 and the incorrectly implemented SHA-1
-> > > >     implementations from driver/char/random.c
-> > > 
-> > > Incorrectly implemented?  Do you mean not appending the bit count?
-> > 
-> > That and it's not endian-correct.
-> 
-> Are you saying that it's hashing incorrectly or that the final form is
-> not in the standard bit-order? For the purposes of a random number
-> generator, the latter isn't terribly important. Nor is it particularly
-> important for GUIDs.
+>>>>> "JA" == Jens Axboe <axboe@suse.de> writes:
 
-The problems with the SHA1 implementation is the least of random.c's
-concerns.  But it's just bad taste to tell on-lookers "we use SHA-1" and you
-actually don't.  It causes people to re-evailuate your implementation.
+JA> Like when dvd readers became common, you can't just require people
+JA> to update their kernel because a few new commands are needed to
+JA> drive them from user space.
 
-Ease of reading, ease of analysis are related to using proper implementations
-of cryptographic primitives.
+Perhaps I'm being completely dense, but why would the filtering tables
+have to be compiled into the kernel?  Why not load them from user
+space via a mechanism requiring CAP_SYS_RAWIO?
 
-> Last time I proposed a cryptoapi-based version, I couldn't get any
-> buy-off on making cryptoapi a non-optional part of the kernel. Looking
-> forward to your patch/paper.
+How many commands are we talking about here?  Is the mechanism
+workable by a simple bitmask, or is something more complex like a
+state machine required?
 
-I'll credit you for breaking the ice if capi becomes a standard feature.  ;)
-
-JLC
+ - J<

@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVCAUQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVCAUUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbVCAUQe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 15:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVCAUQe
+	id S262015AbVCAUUu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 15:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbVCAUUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 15:16:34 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:9224 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262014AbVCAUQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 15:16:32 -0500
-Date: Tue, 1 Mar 2005 21:16:31 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc5-mm1
-Message-ID: <20050301201631.GF4845@stusta.de>
-References: <20050301012741.1d791cd2.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050301012741.1d791cd2.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 1 Mar 2005 15:20:50 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:909 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S262015AbVCAUUn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 15:20:43 -0500
+Message-ID: <4224CE98.2060204@candelatech.com>
+Date: Tue, 01 Mar 2005 12:20:40 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-os@analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Network speed Linux-2.6.10
+References: <Pine.LNX.4.61.0503011426180.578@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0503011426180.578@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 01:27:41AM -0800, Andrew Morton wrote:
->...
-> All 728 patches:
->...
-> reiser4-rcu-barrier.patch
->   reiser4: add rcu_barrier() synchronization point
+linux-os wrote:
+> 
+> Conditions:
+> 
+> Intel NIC e100 device driver. Two identical machines.
+> Private network, no other devices. Connected using a Netgear switch.
+> Test data is the same thing sent from memory on one machine
+> to a discard server on another, using TCP/IP SOCK_STREAM.
+> 
+> If I set both machines to auto-negotiation OFF and half duplex,
+> I get about 9 to 9.5 megabytes/second across the private wire
+> network.
+> 
+> If I set one machine to full duplex and the other to half-duplex
+> I get 10 to 11 megabytes/second transfer across the network,
+> regardless of direction.
 
-Considering the patent situation at least in the USA, the 
-EXPORT_SYMBOL(rcu_barrier) has to become an EXPORT_SYMBOL_GPL.
+That is asking for all sorts of trouble.
 
-> reiser4-export-inode_lock.patch
->   reiser4: export inode_lock to modules
->...
+> If I set both machines to auto-negotiation OFF and full duplex,
+> I get 300 to 400 kilobytes/second regardless of the direction.
 
-__iget seems to be no longer used by reiser4.
-This part of the patch can therefore be dropped.
+Check for errors in the NICs counters (/proc/net/dev/) in this case.
+It appears it is not actually set to full-duplex, or maybe it's
+10Mbps-FD.  Use ethtool to see the actual settings.
 
-cu
-Adrian
+What happens if you just don't muck with the NIC and let it auto-negotiate
+on it's own?
+
+Ben
+
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

@@ -1,158 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272421AbTGZFJK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 01:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272422AbTGZFJK
+	id S272422AbTGZFQK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 01:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272423AbTGZFQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 01:09:10 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:57290 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S272421AbTGZFJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 01:09:04 -0400
-Subject: Re: 2.6.0-test1 ext3 slab/fs corruption
-From: Nicholas Miell <nmiell@attbi.com>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8765ltlbj5.fsf@gw.home.net>
-References: <1058931916.1286.9.camel@entropy>  <8765ltlbj5.fsf@gw.home.net>
-Content-Type: multipart/mixed; boundary="=-pn7aZFw0YKEMHVpFRdMd"
-Message-Id: <1059197040.1627.4.camel@entropy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 25 Jul 2003 22:24:11 -0700
+	Sat, 26 Jul 2003 01:16:10 -0400
+Received: from [159.226.161.126] ([159.226.161.126]:7861 "EHLO sun.itp.ac.cn")
+	by vger.kernel.org with ESMTP id S272422AbTGZFQE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 01:16:04 -0400
+Date: Sat, 26 Jul 2003 13:25:25 +0800 (CST)
+From: Yu Ming <yum@itp.ac.cn>
+To: linux-kernel@vger.kernel.org
+cc: Yu Ming <yum@sun.itp.ac.cn>
+Subject: 2.6.0-test1-ac3 Firewire
+Message-ID: <Pine.GSO.4.20.0307261257460.14230-100000@hpc3k>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I am running RedHat 9.0 with kernel 2.6.0-test1-ac3, everything works fine
+with 1394 firewire connected with SONY DVD RW DRU-500A, except of the
+following annoying messages from dmesg.
+When I plug or unplug the 1394 fireware, I got from dmesg,
+ohci1394_0: SelfID received, but NodeID invalid (probably new bus reset
+occurred): 0000FFC0
+ieee1394: sbp2: Logged into SBP-2 device
+ieee1394: sbp2: Node[01:1023]: Max speed [S400] - Max payload [2048]
+Debug: sleeping function called from invalid context at
+include/asm/semaphore.h:119
+Call Trace:
+ [<c011a1ee>] __might_sleep+0x5e/0x70
+ [<c02ab17c>] hpsb_get_tlabel+0x5c/0x1c0
+ [<c02f209a>] serio_interrupt+0x5a/0x60
+ [<c02ab5d2>] hpsb_make_writepacket+0xa2/0x140
+ [<c02bafe0>] sbp2util_allocate_write_packet+0x40/0x80
+ [<c02bcf56>] sbp2_link_orb_command+0x86/0x190
+ [<c02bd103>] sbp2_send_command+0xa3/0xf0
+ [<c02972a0>] scsi_done+0x0/0x70
+ [<c02bd67c>] sbp2scsi_queuecommand+0xbc/0x1a0
+ [<c02972a0>] scsi_done+0x0/0x70
+ [<c02970e7>] scsi_dispatch_cmd+0x107/0x170
+ [<c02972a0>] scsi_done+0x0/0x70
+ [<c0299270>] scsi_times_out+0x0/0x60
+ [<c029b8ae>] scsi_request_fn+0x16e/0x2c0
+ [<c0263403>] __elv_add_request+0x33/0x50
+ [<c02656bc>] blk_insert_request+0x6c/0x90
+ [<c029a743>] scsi_insert_special_req+0x33/0x40
+ [<c029a941>] scsi_wait_req+0x61/0x90
+ [<c029a880>] scsi_wait_done+0x0/0x60
+ [<c029c3e5>] scsi_probe_lun+0x85/0x210
+ [<c029ca0c>] scsi_probe_and_add_lun+0x7c/0x120
+ [<c029cbb5>] scsi_add_device+0x35/0x50
+ [<c02bb919>] sbp2_start_device+0x219/0x3e0
+ [<c02bb6c3>] sbp2_start_ud+0xa3/0xe0
+ [<c02bb392>] sbp2_probe+0x32/0x40
+ [<c0260e23>] bus_match+0x43/0x80
+ [<c0260eaf>] device_attach+0x4f/0x90
+ [<c026107e>] bus_add_device+0x7e/0xd0
+ [<c025f5fd>] device_add+0xfd/0x110
+ [<c02afbc8>] nodemgr_process_unit_directory+0x188/0x490
+ [<c02b00b2>] nodemgr_process_root_directory+0x1e2/0x1f0
+ [<c02b039e>] nodemgr_process_config_rom+0x8e/0xc0
+ [<c02af653>] nodemgr_create_node+0x153/0x1e0
+ [<c02b07f6>] nodemgr_node_probe_one+0xe6/0xf0
+ [<c02b0951>] nodemgr_node_probe+0x111/0x120
+ [<c02b0c88>] nodemgr_host_thread+0x148/0x190
+ [<c02b0b40>] nodemgr_host_thread+0x0/0x190
+ [<c01073b9>] kernel_thread_helper+0x5/0xc
+ 
+  Vendor: SONY      Model: DVD RW DRU-500A   Rev: 2.0f
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+sr1: scsi-1 drive
+Attached scsi CD-ROM sr1 at scsi1, channel 0, id 0, lun 0
+Attached scsi generic sg1 at scsi1, channel 0, id 0, lun 0,  type 5
+ieee1394: Node added: ID:BUS[0-01:1023]  GUID[0030e00150006f45]
+ieee1394: The root node is not cycle master capable; selecting a new root
+node and resetting...
+ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+ieee1394: sbp2: Reconnected to SBP-2 device
+ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
+ieee1394: Node changed: 0-00:1023 -> 0-01:1023
 
---=-pn7aZFw0YKEMHVpFRdMd
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+When I test the 1394 DVD burner read speed, 
+readcd dev=1,0,0 f=/dev/null
+I got from dmesg,
+Debug: sleeping function called from invalid context at
+include/asm/semaphore.h:119
+Call Trace:
+ [<c011a1ee>] __might_sleep+0x5e/0x70
+ [<c02ab17c>] hpsb_get_tlabel+0x5c/0x1c0
+ [<c02ab5d2>] hpsb_make_writepacket+0xa2/0x140
+ [<c02bafe0>] sbp2util_allocate_write_packet+0x40/0x80
+ [<c02bcf56>] sbp2_link_orb_command+0x86/0x190
+ [<c02bd103>] sbp2_send_command+0xa3/0xf0
+ [<c02972a0>] scsi_done+0x0/0x70
+ [<c02bd67c>] sbp2scsi_queuecommand+0xbc/0x1a0
+ [<c02972a0>] scsi_done+0x0/0x70
+ [<c02970e7>] scsi_dispatch_cmd+0x107/0x170
+ [<c02972a0>] scsi_done+0x0/0x70
+ [<c0299270>] scsi_times_out+0x0/0x60
+ [<c029b8ae>] scsi_request_fn+0x16e/0x2c0
+ [<c0263403>] __elv_add_request+0x33/0x50
+ [<c02656bc>] blk_insert_request+0x6c/0x90
+ [<c029a743>] scsi_insert_special_req+0x33/0x40
+ [<c02a4ced>] sg_common_write+0x16d/0x1d0
+ [<c02a5f50>] sg_cmd_done+0x0/0x270
+ [<c02a4afb>] sg_new_write+0x1eb/0x270
+ [<c02a58e1>] sg_ioctl+0xb91/0xd70
+[<c023a9a6>] con_write+0x36/0x50
+ [<c022b3ac>] opost_block+0x11c/0x1f0
+ [<c02c2edb>] vgacon_cursor+0xcb/0x1a0
+ [<c0237018>] set_cursor+0x78/0x90
+ [<c022d43e>] write_chan+0x16e/0x230
+ [<c01190c0>] default_wake_function+0x0/0x30
+ [<c0123810>] do_timer+0xe0/0xf0
+ [<c01190c0>] default_wake_function+0x0/0x30
+ [<c0228175>] tty_write+0x215/0x290
+ [<c022d2d0>] write_chan+0x0/0x230
+ [<c014d6e8>] vfs_write+0xc8/0x120
+ [<c010e6aa>] do_gettimeofday+0x1a/0xa0
+ [<c015ded1>] sys_ioctl+0xb1/0x230
+ [<c01092bd>] sysenter_past_esp+0x52/0x71
+ And the messages go on repeatedly.
 
-On Wed, 2003-07-23 at 04:37, Alex Tomas wrote:
-> hmm. it really looks like memory problem. have you tried
-> to test it? all the corruptions happened at the same address.
+I also got from dmesg,
+UDP: short packet: From 0.0.0.0:68 288/282 to 255.255.255.255:67
+repeatedly.
 
-10 hours of memtest86 found nothing, and my config is attached.
+occasionally(very rarely), I got from dmesg,
+spurious 8259A interrupt: IRQ7
 
---=-pn7aZFw0YKEMHVpFRdMd
-Content-Disposition: attachment; filename=config-2.6.0-test1.bz2
-Content-Type: application/x-bzip; name=config-2.6.0-test1.bz2
-Content-Transfer-Encoding: base64
-
-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
-
---=-pn7aZFw0YKEMHVpFRdMd--
+Regards,
+Ming Yu
 

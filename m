@@ -1,51 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292281AbSCDJUY>; Mon, 4 Mar 2002 04:20:24 -0500
+	id <S292289AbSCDJ2Z>; Mon, 4 Mar 2002 04:28:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292289AbSCDJUF>; Mon, 4 Mar 2002 04:20:05 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:47834 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S292281AbSCDJTu>;
-	Mon, 4 Mar 2002 04:19:50 -0500
-Date: Mon, 4 Mar 2002 10:19:22 +0100 (MET)
-From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: Dave Jones <davej@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] [PATCH] hitfb ported to new api.
-In-Reply-To: <Pine.LNX.4.10.10203020939140.28753-100000@www.transvirtual.com>
-Message-ID: <Pine.GSO.4.21.0203041015440.29240-100000@vervain.sonytel.be>
+	id <S292296AbSCDJ2Q>; Mon, 4 Mar 2002 04:28:16 -0500
+Received: from dsl-213-023-043-059.arcor-ip.net ([213.23.43.59]:14228 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S292289AbSCDJ2H>;
+	Mon, 4 Mar 2002 04:28:07 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] delayed disk block allocation
+Date: Mon, 4 Mar 2002 10:23:29 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: lkml <linux-kernel@vger.kernel.org>, Steve Lord <lord@sgi.com>
+In-Reply-To: <3C7F3B4A.41DB7754@zip.com.au> <E16hhuI-0000S6-00@starship.berlin> <3C83202D.A9FFB902@zip.com.au>
+In-Reply-To: <3C83202D.A9FFB902@zip.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16hogr-0000ao-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Mar 2002, James Simmons wrote:
-> +static struct fb_var_screeninfo hitfb_var __initdata = {
-> +	0, 0, 0, 0, 0, 0, 0, 0,
-> +	{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0},
-> +	0, FB_ACTIVATE_NOW, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
-> +	0, FB_VMODE_NONINTERLACED
->  };
+On March 4, 2002 08:20 am, Andrew Morton wrote:
+> You know where this is headed, don't you:
 
-> +static struct fb_fix_screeninfo hitfb_fix __initdata = {
-> +	"Hitachi HD64461",(unsigned long) NULL, 0, FB_TYPE_PACKED_PIXELS,
-> +	0, FB_VISUAL_TRUECOLOR, 0, 0, 0, 0, (unsigned long) NULL, 0, 
-> +	FB_ACCEL_NONE
->  };
+Yes I do, because it's more or less a carbon copy of what I had in mind.
 
-Suggestion: use the new-style struct initialization. It's less error-prone, and
-you can get rid of the 0/NULL values.
+> - writeout is performed by the writers, and by the gang-of-flush-threads.
+> - kswapd is 100% non-blocking.  It never does I/O.
+> - kswapd is the only process which runs page_launder/shrink_caches.
+> - Memory requesters do not perform I/O.  They sleep until memory
+>   is available. kswapd gives them pages as they become available, and
+>   wakes them up.
+> 
+> So that's the grand plan.  It may be fatally flawed - I remember Linus
+> had a serious-sounding objection to it some time back, but I forget
+> what that was.
 
-Gr{oetje,eeting}s,
+I remember, since he gently roasted me last autum for thinking such thoughts. 
+The idea is that by making threads do their own vm scanning they throttle 
+themselves.  I don't think the resulting chaotic scanning behavior is worth 
+it.
 
-						Geert
+> > > With this patch, writepage() is still using the buffer layer, so lock
+> > > contention will still be high.
+> > 
+> > Right, and buffers are going away one way or another.
+> 
+> This is a problem.  I'm adding new stuff which does old things in
+> a new way, with no believable plan in place for getting rid of the
+> old stuff.
+> 
+> I don't think it's humanly possible to do away with struct buffer_head.
+> It is *the* way of representing a disk block.   And unless we plan
+> to live with 4k pages and 4k blocks for ever, the problem is about
+> to get worse.  Think 64k pages with 4k blocks.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+If struct page refers to an object the same size as a disk block then struct
+page can take the place of a buffer in the getblk interface.  For IO we have 
+other ways of doing things, kvecs, bio's and so on.  We don't need buffers 
+for that, the only thing we need them for is handles for disk blocks, and 
+locking thereof.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+If you actually had this now your patch would be quite a lot simpler.  It's 
+going to take a while though, because first we have to do active physical 
+defragmentation, and that requires rmap.  So a prototype is a few months away 
+at least, but six months ago I would have said two years.
 
+> Possibly we could handle sub-page segments of memory via a per-page up-to-date
+> bitmask.  And then a `dirty' bitmask.  And then a `locked' bitmask, etc.  I
+> suspect eventually we'll end up with, say, a vector of structures attached to
+> each page which represents the state of each of the page's sub-segments.  whoops.
+
+You could, but that would be a lot messier than what I have in mind.  Your 
+work fits really nicely with that since it gets rid of the IO function of 
+buffers.
+
+-- 
+Daniel

@@ -1,42 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVCYGBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVCYGAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbVCYGBY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 01:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVCYGA4
+	id S261433AbVCYGAl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 01:00:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVCYF7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 01:00:56 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64930 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261413AbVCYF6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 00:58:25 -0500
-Message-ID: <4243A86D.6000408@pobox.com>
-Date: Fri, 25 Mar 2005 00:58:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Fri, 25 Mar 2005 00:59:04 -0500
+Received: from digitalimplant.org ([64.62.235.95]:9427 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261426AbVCYFy6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 00:54:58 -0500
+Date: Thu, 24 Mar 2005 21:54:51 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: linux-kernel@vger.kernel.org
+cc: greg@kroah.com
+Subject: [11/12] More Driver Model Locking Changes
+Message-ID: <Pine.LNX.4.50.0503242153040.19795-100000@monsoon.he.net>
 MIME-Version: 1.0
-To: johnpol@2ka.mipt.ru
-CC: David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy
- (2.6.11)
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast>	 <1111665551.23532.90.camel@uganda> <4242B712.50004@pobox.com>	 <20050324132342.GD7115@beast> <1111671993.23532.115.camel@uganda>	 <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda>	 <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda>
-In-Reply-To: <1111728804.23532.137.camel@uganda>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> So I still insist on creating ability to contribute entropy directly,
-> without userspace validation.
-> It will be turned off by default.
 
-If its disabled by default, then you and 2-3 other people will use this 
-feature.  Not enough justification for a kernel API at that point.
+ChangeSet@1.2249, 2005-03-24 19:08:30-08:00, mochel@digitalimplant.org
+  [driver core] Use a klist for device child lists.
 
-	Jeff
+  - Use klist iterator in device_for_each_child(), making it safe to use for
+    removing devices.
+  - Remove unused list_to_dev() function.
+  - Kills all usage of devices_subsys.rwsem.
 
 
+  Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+diff -Nru a/drivers/base/core.c b/drivers/base/core.c
+--- a/drivers/base/core.c	2005-03-24 20:32:46 -08:00
++++ b/drivers/base/core.c	2005-03-24 20:32:46 -08:00
+@@ -210,8 +210,7 @@
+ {
+ 	kobj_set_kset_s(dev, devices_subsys);
+ 	kobject_init(&dev->kobj);
+-	INIT_LIST_HEAD(&dev->node);
+-	INIT_LIST_HEAD(&dev->children);
++	klist_init(&dev->klist_children);
+ 	INIT_LIST_HEAD(&dev->dma_pools);
+ 	init_MUTEX(&dev->sem);
+ }
+@@ -251,10 +250,8 @@
+ 		goto PMError;
+ 	if ((error = bus_add_device(dev)))
+ 		goto BusError;
+-	down_write(&devices_subsys.rwsem);
+ 	if (parent)
+-		list_add_tail(&dev->node, &parent->children);
+-	up_write(&devices_subsys.rwsem);
++		klist_add_tail(&parent->klist_children, &dev->knode_parent);
+
+ 	/* notify platform of device entry */
+ 	if (platform_notify)
+@@ -336,10 +333,8 @@
+ {
+ 	struct device * parent = dev->parent;
+
+-	down_write(&devices_subsys.rwsem);
+ 	if (parent)
+-		list_del_init(&dev->node);
+-	up_write(&devices_subsys.rwsem);
++		klist_remove(&dev->knode_parent);
+
+ 	/* Notify the platform of the removal, in case they
+ 	 * need to do anything...
+@@ -372,6 +367,12 @@
+ }
+
+
++static struct device * next_device(struct klist_iter * i)
++{
++	struct klist_node * n = klist_next(i);
++	return n ? container_of(n, struct device, knode_parent) : NULL;
++}
++
+ /**
+  *	device_for_each_child - device child iterator.
+  *	@dev:	parent struct device.
+@@ -384,18 +385,17 @@
+  *	We check the return of @fn each time. If it returns anything
+  *	other than 0, we break out and return that value.
+  */
+-int device_for_each_child(struct device * dev, void * data,
++int device_for_each_child(struct device * parent, void * data,
+ 		     int (*fn)(struct device *, void *))
+ {
++	struct klist_iter i;
+ 	struct device * child;
+ 	int error = 0;
+
+-	down_read(&devices_subsys.rwsem);
+-	list_for_each_entry(child, &dev->children, node) {
+-		if((error = fn(child, data)))
+-			break;
+-	}
+-	up_read(&devices_subsys.rwsem);
++	klist_iter_init(&parent->klist_children, &i);
++	while ((child = next_device(&i)) && !error)
++		error = fn(child, data);
++	klist_iter_exit(&i);
+ 	return error;
+ }
+
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	2005-03-24 20:32:46 -08:00
++++ b/include/linux/device.h	2005-03-24 20:32:46 -08:00
+@@ -263,8 +263,8 @@
+
+
+ struct device {
+-	struct list_head node;		/* node in sibling list */
+-	struct list_head children;
++	struct klist		klist_children;
++	struct klist_node	knode_parent;		/* node in sibling list */
+ 	struct klist_node	knode_driver;
+ 	struct klist_node	knode_bus;
+ 	struct device 	* parent;
+@@ -301,12 +301,6 @@
+
+ 	void	(*release)(struct device * dev);
+ };
+-
+-static inline struct device *
+-list_to_dev(struct list_head *node)
+-{
+-	return list_entry(node, struct device, node);
+-}
+
+ static inline void *
+ dev_get_drvdata (struct device *dev)

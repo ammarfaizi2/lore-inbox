@@ -1,89 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282793AbRK0Ebk>; Mon, 26 Nov 2001 23:31:40 -0500
+	id <S282790AbRK0EbH>; Mon, 26 Nov 2001 23:31:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282792AbRK0Eb2>; Mon, 26 Nov 2001 23:31:28 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:35200 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S282791AbRK0EbT>; Mon, 26 Nov 2001 23:31:19 -0500
-Date: Mon, 26 Nov 2001 21:34:38 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Mark Richards <richard@ecf.utoronto.ca>
-Cc: Linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: Multiplexing filesystem
-Message-ID: <20011126213438.A1254@vger.timpanogas.org>
-In-Reply-To: <3C030FB4.C3303BE4@ecf.utoronto.ca>
+	id <S282792AbRK0Ea6>; Mon, 26 Nov 2001 23:30:58 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:8177
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S282790AbRK0Eal>; Mon, 26 Nov 2001 23:30:41 -0500
+Date: Mon, 26 Nov 2001 20:30:32 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16-pre1
+Message-ID: <20011126203032.C26219@mikef-linux.matchmail.com>
+Mail-Followup-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva> <01112615070600.00943@manta>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C030FB4.C3303BE4@ecf.utoronto.ca>; from richard@ecf.utoronto.ca on Mon, Nov 26, 2001 at 10:59:48PM -0500
+In-Reply-To: <01112615070600.00943@manta>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-You may want to look at FS filter drivers in Windows 2000 as a good model
-for something like this.  Intermezzo also seems to do something a lot
-like this, but not to the Windows 2000 degree.  W2K has something 
-called a filter driver interface, which is super handy for 
-encryption, and going remote.  
-
-The filter driver idea is pretty cool, and MS has been able to 
-implement some pretty cool stuff with it, like snap in virus 
-detection software across different file systems.  They also
-did something called a "mini-port" file system, which was a
-filter driver on top of their very complex IFS interface which
-made writing remote file systems, like network clients, as lot 
-easier and faster. 
-
-The disadvantage to their approach was that several new 
-and nasty "viruses" showed up as filter drivers and used 
-this interface to trash file systems. 
-
-Food for thought.
-
-:-)
-
-Jeff  
-
-
-
-On Mon, Nov 26, 2001 at 10:59:48PM -0500, Mark Richards wrote:
-> Quick question, which I suspect has a long answer.
+On Mon, Nov 26, 2001 at 03:07:06PM -0200, vda wrote:
+> On Saturday 24 November 2001 16:39, Marcelo Tosatti wrote:
+> > Hi,
+> >
+> > So here it goes 2.4.16-pre1. Obviously the most important fix is the
+> > iput() one, which probably fixes the filesystem corruption problem people
+> > have been seeing.
 > 
-> I would like to write a multiplexing filesystem.  The idea is as follows:
+> This is quite annoying to have non-pre kernels with simple bugs like 
+> recent loop device bug etc.
 > 
-> The filesystem would ideally wrap another filesystem, such as nfs or smbfs or
-> ext2.  Most operations would just be passed to the native fs call.  However, for
-> some files, selectable at run time by some control singal, would actually reside
-> on another file system.  The other filesystem would have to be mounted.
+> Maybe this can be prevented by adopting a rule that non-pre kernel is made
+> from last pre/ac/... which was good enough by changing version # _only_,
+> without even single buglet squashing?
 > 
-> The idea is for a version controlling filesystem.  The server would be a network
-> server (hence the desire to wrap nfs) which presents a 'view' of the source
-> code.  When the user reserves a file for editing, the file is copied to the
-> local disk.  From that point on, the local file is referred to until the user
-> commits the change or unreserves the file.  Ideally, the local copy of the file
-> could be on any file system, not one that is necessarily local.  And this has to
-> be totally transparent to the user, except for the step where the user
-> 'reserves' the file.
+> This way we will not disappoint those people who download non-pres in hope
+> they are more stable.
 > 
-> I've thought about two ways to do this.  One is to wrap the 'versioning' file
-> system with a multiplexor that checks fs calls to see if they are referring to a
-> file that is on a different fs.  The other approach is to intercept calls to the
-> VFS to do the same trick.
-> 
-> I'm new to the whole filesystem-coding thing, so bear with me if what i've just
-> said makes no sense.  So, my question (I guess it wasn't quick after all) is:
-> Can it be done, and are either of my two approaches feasible?  Any suggestions
-> or tips?
-> 
-> Thanks,
-> Mark Richards
-> 
-> PS please CC me if possible.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Just my 2 cents. 
+
+Yep.
+
+The oops fix was just for a driver, but who knows how much testing that
+patch has received?
+
+2.4.16 looks like it will be what 2.4.15 was intended to be.
+
+Hopefully, future kernels that are under Marcello's control won't have the
+need to release becasue the last releas was broken.
+
+This may have been one of the smallest changes between the last -pre and
+-final.
+
+Let's hope $(test -z "`diff -u last-pre -final`") returns true for future
+2.4 kernels.
+
+MF

@@ -1,91 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283234AbRK2OCW>; Thu, 29 Nov 2001 09:02:22 -0500
+	id <S283251AbRK2OFm>; Thu, 29 Nov 2001 09:05:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283233AbRK2OCN>; Thu, 29 Nov 2001 09:02:13 -0500
-Received: from mario.gams.at ([194.42.96.10]:26418 "EHLO mario.gams.at")
-	by vger.kernel.org with ESMTP id <S283229AbRK2OCH>;
-	Thu, 29 Nov 2001 09:02:07 -0500
-Message-Id: <200111291402.PAA31637@merlin.gams.co.at>
-Content-Type: text/plain; charset=US-ASCII
-From: Axel Kittenberger <Axel.Kittenberger@maxxio.at>
-Organization: Maxxio Technologies
-To: linux-kernel@vger.kernel.org
-Subject: Patch (2.4.16): forwarding release() return values
-Date: Thu, 29 Nov 2001 15:02:06 +0100
+	id <S283247AbRK2OFc>; Thu, 29 Nov 2001 09:05:32 -0500
+Received: from mail.gmx.de ([213.165.64.20]:63757 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S283243AbRK2OFS> convert rfc822-to-8bit;
+	Thu, 29 Nov 2001 09:05:18 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Slo Mo Snail <slomosnail@gmx.net>
+Reply-To: slomosnail@gmx.net
+To: axboe@suse.de
+Subject: Re: 2.5.1-pre2 compile error in ide-scsi.o ide-scsi.c
+Date: Thu, 29 Nov 2001 15:06:55 +0100
 X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011128135552.204311E532@Cantor.suse.de> <20011128153718.D23858@suse.de> 
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20011129140528Z283243-17409+20705@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The return value of ie. char devices relase() call get's swallowed inside the 
-kernel. Guess normally it should go upward until it reaches the close() call 
-originated in the userspace, however it returns always 0.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Following patch fixes that.
+Am Donnerstag, 29. November 2001 14:33 schrieben Sie:
+> Am Donnerstag, 29. November 2001 14:26 schrieben Sie:
+> > Am Mittwoch, 28. November 2001 15:37 schrieben Sie:
+> > > On Wed, Nov 28 2001, Jens Axboe wrote:
+> > > > On Wed, Nov 28 2001, Sebastian Dröge wrote:
+> > > > > -----BEGIN PGP SIGNED MESSAGE-----
+> > > > > Hash: SHA1
+> > > > >
+> > > > > Am Mittwoch, 28. November 2001 14:58 schrieben Sie:
+> > > > > > On Wed, Nov 28 2001, Sebastian Dröge wrote:
+> > > > > > > -----BEGIN PGP SIGNED MESSAGE-----
+> > > > > > > Hash: SHA1
+> > > > > > >
+> > > > > > > Hi Jens,
+> > > > > > > your patch doesn't work for ide-scsi
+> > > > > > > I get this oops when trying to mount a CD:
+> > > > > >
+> > > > > > [oops in sr_scatter_pad]
+> > > > > >
+> > > > > > Hmm ok, and 2.5.1-pre1 works for you right?
+> > > > >
+> > > > > Yes it works very well
+> > > >
+> > > > Ok, thanks for confirming that. Going to take a look at it now.
+> > >
+> > > Does this work for you? Apply on top of what you already have.
+> >
+> > OK it does work BUT
+> > when I read audio data from a CD it reads the first ~20 MB and then it
+> > doesn't write anything on hdd.
+> > When I try to play an audio CD with the KDE CD player it crashes
+> > immediately 2.5.1-pre1 works fine and mounting/reading data CDs work, too
+> > Bye
+>
+> But wait :)
+> I'll first test 2.5.1-pre3 + Alan's Patch + your sg-sr patch + your bio
+> patch Bye
+Hmm it works :)
+Thanks
+I'll test some more things with my CD drives ;)
+Maybe I'll find some bugs
+Bye
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-(BTW: I'm not used to how the patching procedure works here, if I'm expected 
-to do something else except posting here, please point me to it)
-
---- linux-2.4.16-org/include/linux/file.h	Wed Aug 23 20:22:26 2000
-+++ linux/include/linux/file.h	Thu Nov 29 13:46:42 2001
-@@ -5,7 +5,7 @@
- #ifndef __LINUX_FILE_H
- #define __LINUX_FILE_H
-
--extern void FASTCALL(fput(struct file *));
-+extern int FASTCALL(fput(struct file *));
- extern struct file * FASTCALL(fget(unsigned int fd));
-  
- static inline int get_close_on_exec(unsigned int fd)
---- linux-2.4.16-org/fs/file_table.c	Mon Sep 17 22:16:30 2001
-+++ linux/fs/file_table.c	Thu Nov 29 14:33:35 2001
-@@ -97,20 +97,21 @@
- 		return 0;
- }
-
--void fput(struct file * file)
-+int fput(struct file * file)
- {
- 	struct dentry * dentry = file->f_dentry;
- 	struct vfsmount * mnt = file->f_vfsmnt;
- 	struct inode * inode = dentry->d_inode;
--
-+	int retval = 0;
-+        
- 	if (atomic_dec_and_test(&file->f_count)) {
- 		locks_remove_flock(file);
- 
- 		if (file->f_iobuf)
- 			free_kiovec(1, &file->f_iobuf);
- 
--		if (file->f_op && file->f_op->release)
--			file->f_op->release(inode, file);
-+		if (file->f_op && file->f_op->release)
-+			retval = file->f_op->release(inode, file);
- 		fops_put(file->f_op);
- 		if (file->f_mode & FMODE_WRITE)
- 			put_write_access(inode);
-@@ -124,6 +125,7 @@
- 		dput(dentry);
- 		mntput(mnt);
- 	}
-+        return retval;
- }
-
- struct file * fget(unsigned int fd)
---- linux-2.4.16-org/fs/open.c	Fri Oct 12 22:48:42 2001
-+++ linux/fs/open.c	Thu Nov 29 13:53:31 2001
-@@ -835,7 +835,10 @@
- 	}
- 	fcntl_dirnotify(0, filp, 0);
- 	locks_remove_posix(filp, id);
--	fput(filp);
-+	if (retval == 0)
-+		retval = fput(filp);
-+        else 
-+		fput(filp);
- 	return retval;
- }
-
+iD8DBQE8BkEEvIHrJes3kVIRAvQ9AKCbVMNKEbz3mB2XgFo8BKzymui5jQCdGJiF
+KoBQHL2kW05Mjiw9lsQi3xc=
+=Q1R3
+-----END PGP SIGNATURE-----

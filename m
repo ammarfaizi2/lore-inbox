@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318505AbSGaVWv>; Wed, 31 Jul 2002 17:22:51 -0400
+	id <S317814AbSGaVfB>; Wed, 31 Jul 2002 17:35:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318510AbSGaVWv>; Wed, 31 Jul 2002 17:22:51 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:53776 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318505AbSGaVWv>; Wed, 31 Jul 2002 17:22:51 -0400
-Date: Wed, 31 Jul 2002 18:25:53 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrei Ivanov <andrei.ivanov@ines.ro>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: test
-In-Reply-To: <Pine.LNX.4.44.0207312340440.9782-100000@webdev.ines.ro>
-Message-ID: <Pine.LNX.4.44L.0207311825330.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317960AbSGaVfB>; Wed, 31 Jul 2002 17:35:01 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:5248 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S317814AbSGaVfB>; Wed, 31 Jul 2002 17:35:01 -0400
+Date: Wed, 31 Jul 2002 23:45:52 +0200
+Organization: Pleyades
+To: aaronl@vitelus.com, linux-kernel@vger.kernel.org
+Subject: Re: ATAPI CD-R lags system to hell burning in DAO mode; but not in 
+ TAO
+Message-ID: <3D485A90.mailK91194I6@viadomus.com>
+References: <20020731203008.GA27702@vitelus.com>
+In-Reply-To: <20020731203008.GA27702@vitelus.com>
+User-Agent: nail 9.31 6/18/02
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jul 2002, Andrei Ivanov wrote:
+    Hi Aaron :)
 
-> Am I still on this list ?
-> Didn't receive any message today... :(
+>My friend has a Plextor PX-W2410A burner with similar specifications,
+>and it has the same symptoms as I do. I believe he has a VIA IDE
+>chipset.
 
-I guess it's better to ask majordomo@vger.kernel.org instead
-of asking the list ;)
+    I have a Plextor 12/10/32 (just a bit newer) with a VIA chipset
+on the mobo, and the only thing that is affected when burning DAO is
+X Window. I've made a little test: compiling three kernels 2.4.18 and
+playing the burned files while burning at 12x in DAO runs smoooooth.
+In fact, I haven't noticed the test finish since the performance was
+almost the same. But X freezes.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+    IMHO it's a problem of X, not kernel :?? FYI I have 512M of RAM
+and a Duron 850 (over 1700-1800 bogomips).
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+    Raúl

@@ -1,91 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbULZQo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbULZQpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbULZQo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 11:44:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbULZQo7
+	id S261706AbULZQpy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 11:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbULZQpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 11:44:59 -0500
-Received: from zux191-241.adsl.green.ch ([80.254.191.241]:26383 "EHLO
-	oribi.org") by vger.kernel.org with ESMTP id S261705AbULZQot (ORCPT
+	Sun, 26 Dec 2004 11:45:11 -0500
+Received: from cimice4.lam.cz ([212.71.168.94]:14466 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S261706AbULZQo6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 11:44:49 -0500
-Message-ID: <41CEDC3B.4040107@oribi.org>
-Date: Sun, 26 Dec 2004 16:43:55 +0100
-From: Markus Amsler <markus.amsler@oribi.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, urban@teststation.com
-Subject: [PATCH] smbfs: fix debug compile
-Content-Type: multipart/mixed;
- boundary="------------000304060606020502030203"
+	Sun, 26 Dec 2004 11:44:58 -0500
+Date: Sun, 26 Dec 2004 16:45:21 +0000
+From: Karel Kulhavy <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to hang 2.6.9 using serial port and FB console
+Message-ID: <20041226164521.GB5529@beton.cybernet.src>
+References: <20041226143118.GA5169@beton.cybernet.src> <20041226145334.GC1668@gallifrey> <20041226162426.GC5859@beton.cybernet.src>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041226162426.GC5859@beton.cybernet.src>
+User-Agent: Mutt/1.4.2.1i
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000304060606020502030203
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+I found out another bit of information:
 
-Hi,
+When the kernel is hanged up and I remove the infra dongle (so that
+nothing is sent towards the computer anymore for sure), the kernel stays
+hanging.
 
-Compiling of fs/smbfs failes (gcc version 3.3.4) if you enable 
-DSMBFS_DEBUG_VERBOSE in fs/smbfs/Makefile.This patch is against 2.610 
-kernel.
+This is therefore a final proof that it is not caused by sending breaks.
+Dongle that is not present can't send breaks anymore ;-)
 
-Markus Amsler
-
---------------000304060606020502030203
-Content-Type: text/plain;
- name="smbfs_debug.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="smbfs_debug.diff"
-
-diff -ru 2.6.10/fs/smbfs/file.c dev/fs/smbfs/file.c
---- 2.6.10/fs/smbfs/file.c	2004-12-24 22:35:27.000000000 +0100
-+++ dev/fs/smbfs/file.c	2004-12-25 14:20:48.000000000 +0100
-@@ -232,7 +232,7 @@
- 
- 	VERBOSE("before read, size=%ld, flags=%x, atime=%ld\n",
- 		(long)dentry->d_inode->i_size,
--		dentry->d_inode->i_flags, dentry->d_inode->i_atime);
-+		dentry->d_inode->i_flags, dentry->d_inode->i_atime.tv_sec);
- 
- 	status = generic_file_read(file, buf, count, ppos);
- out:
-@@ -342,7 +342,7 @@
- 		result = generic_file_write(file, buf, count, ppos);
- 		VERBOSE("pos=%ld, size=%ld, mtime=%ld, atime=%ld\n",
- 			(long) file->f_pos, (long) dentry->d_inode->i_size,
--			dentry->d_inode->i_mtime, dentry->d_inode->i_atime);
-+			dentry->d_inode->i_mtime.tv_sec, dentry->d_inode->i_atime.tv_sec);
- 	}
- out:
- 	return result;
-diff -ru 2.6.10/fs/smbfs/inode.c dev/fs/smbfs/inode.c
---- 2.6.10/fs/smbfs/inode.c	2004-12-24 22:34:00.000000000 +0100
-+++ dev/fs/smbfs/inode.c	2004-12-25 14:18:31.000000000 +0100
-@@ -216,7 +216,7 @@
- 	if (inode->i_mtime.tv_sec != last_time || inode->i_size != last_sz) {
- 		VERBOSE("%ld changed, old=%ld, new=%ld, oz=%ld, nz=%ld\n",
- 			inode->i_ino,
--			(long) last_time, (long) inode->i_mtime,
-+			(long) last_time, (long) inode->i_mtime.tv_sec,
- 			(long) last_sz, (long) inode->i_size);
- 
- 		if (!S_ISDIR(inode->i_mode))
-diff -ru 2.6.10/fs/smbfs/proc.c dev/fs/smbfs/proc.c
---- 2.6.10/fs/smbfs/proc.c	2004-12-24 22:34:00.000000000 +0100
-+++ dev/fs/smbfs/proc.c	2004-12-25 14:22:01.000000000 +0100
-@@ -2593,7 +2593,7 @@
- 	fattr->f_mtime.tv_sec = date_dos2unix(server, date, time);
- 	fattr->f_mtime.tv_nsec = 0;
- 	VERBOSE("name=%s, date=%x, time=%x, mtime=%ld\n",
--		mask, date, time, fattr->f_mtime);
-+		mask, date, time, fattr->f_mtime.tv_sec);
- 	fattr->f_size = DVAL(req->rq_data, 12);
- 	/* ULONG allocation size */
- 	fattr->attr = WVAL(req->rq_data, 20);
-
---------------000304060606020502030203--
+Cl<
+On Sun, Dec 26, 2004 at 04:24:26PM +0000, Karel Kulhavy wrote:
+> On Sun, Dec 26, 2004 at 02:53:35PM +0000, Dr. David Alan Gilbert wrote:
+> > Hi Karel,
+> >   I wonder - is the board sending a 'break' signal to the PC? I just
+> > remember years ago you could almsot lock machines up by constantly
+> > sending break.
+> 
+> But in this case the kernel doesn't care if you run it on a console without
+> a fancy background picture and hangs when you run it on a fancy background
+> picture.
+> 
+> The picture is what seems to be evil here.
+> 
+> Cl<
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292329AbSB0LVB>; Wed, 27 Feb 2002 06:21:01 -0500
+	id <S291624AbSB0LhW>; Wed, 27 Feb 2002 06:37:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292347AbSB0LUv>; Wed, 27 Feb 2002 06:20:51 -0500
-Received: from p3EE26610.dip.t-dialin.net ([62.226.102.16]:42976 "EHLO
-	artus.fbunet.de") by vger.kernel.org with ESMTP id <S292329AbSB0LUq>;
-	Wed, 27 Feb 2002 06:20:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Fridtjof Busse <fridtjof.busse@gmx.de>
-Message-Id: <200202271212.3529@fbunet.de>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: [2.4.18-ac1] Unable to mount root fs
-Date: Wed, 27 Feb 2002 12:21:12 +0100
-In-Reply-To: <200202261722.13431@fbunet.de> <200202261907.20103@fbunet.de> <20020226181559.GQ4393@matchmail.com>
-In-Reply-To: <20020226181559.GQ4393@matchmail.com>
-Cc: linux-kernel@vger.kernel.org
-X-OS: Linux on i686
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S292326AbSB0LhN>; Wed, 27 Feb 2002 06:37:13 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:40066 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291624AbSB0Lg6> convert rfc822-to-8bit;
+	Wed, 27 Feb 2002 06:36:58 -0500
+Date: Wed, 27 Feb 2002 03:34:55 -0800 (PST)
+Message-Id: <20020227.033455.13771237.davem@redhat.com>
+To: linux-kernel@vger.kernel.org, tlan@stud.ntnu.no
+Cc: jgarzik@mandrakesoft.com, linux-net@vger.kernel.org
+Subject: Re: [BETA] First test release of Tigon3 driver
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020227120549.A8734@stud.ntnu.no>
+In-Reply-To: <20020226164044.A7726@stud.ntnu.no>
+	<20020226.185630.104030430.davem@redhat.com>
+	<20020227120549.A8734@stud.ntnu.no>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 26. February 2002 19:15, Mike Fedyk wrote:
-> > # CONFIG_BLK_DEV_PDC202XX is not set
->
-> Here you go.  Promise IDE is not compiled into the kernel.
+   From: Thomas Langås <tlan@stud.ntnu.no>
+   Date: Wed, 27 Feb 2002 12:05:49 +0100
+   
+   > If the module still fails to load because of the -EBUSY error (ie. the
+   > "read_partno returns -19" thing happens again), bring
+   > drivers/net/tg3.c into an editor and go to around line 4185 and change
+   > the line that reads:
+   >  [snipp]
+   > And see if it works then.  PLEASE type sync a few times before trying
+   > to load the module in this case as it could very well hang your
+   > machine.
+   
+   Didn't work, didn't hang the box either :)
 
-Can someone explain me why 2.4.18 runs fine with 
-# CONFIG_BLK_DEV_PDC202XX is not set
-but ac1 (and 2) require
-CONFIG_BLK_DEV_PDC202XX=y
-It's correct that 2.4.18-ac? requires the driver (my hd's are connected 
-to an promise-UDMA-controller), but why runs 2.4.18 fine without this 
-driver?
+What did it print out when you changed the code to
+be "while (1)"?  It must print something different.
 
--- 
-Fridtjof Busse
-It is better to keep your mouth shut and be thought a fool, than to
-open it and remove all doubt. 

@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263417AbUJ2Rj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263418AbUJ2Rj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263417AbUJ2Rj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 13:39:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbUJ2Rj1
+	id S263418AbUJ2Rj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 13:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUJ2RjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 13:39:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30343 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263460AbUJ2Rfw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 13:35:52 -0400
-Date: Fri, 29 Oct 2004 10:35:46 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc1-mm2: `key_init' multiple definition
-Message-ID: <20041029103546.G14339@build.pdx.osdl.net>
-References: <20041029014930.21ed5b9a.akpm@osdl.org> <20041029114511.GJ6677@stusta.de>
+	Fri, 29 Oct 2004 13:39:04 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:12713 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263382AbUJ2Rg6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 13:36:58 -0400
+Date: Fri, 29 Oct 2004 10:36:42 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Ram?n Rey Vicente <ramon.rey@hispalinux.es>
+Cc: Larry McVoy <lm@bitmover.com>, Xavier Bestel <xavier.bestel@free.fr>,
+       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow
+Message-ID: <20041029173642.GA5318@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+	Larry McVoy <lm@bitmover.com>,
+	Xavier Bestel <xavier.bestel@free.fr>,
+	James Bruce <bruce@andrew.cmu.edu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Andrea Arcangeli <andrea@novell.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041029114511.GJ6677@stusta.de>; from bunk@stusta.de on Fri, Oct 29, 2004 at 01:45:11PM +0200
+In-Reply-To: <41827B89.4070809@hispalinux.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Adrian Bunk (bunk@stusta.de) wrote:
-> On Fri, Oct 29, 2004 at 01:49:30AM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.10-rc1-mm1:
-> >...
-> > +key_init-ordering-fix.patch
+On Fri, Oct 29, 2004 at 07:19:05PM +0200, Ram?n Rey Vicente wrote:
+> In Spain, reverse engineering is allowed for interoperability.
 
-I don't think this is needed.  The fix in Linus's tree should be
-sufficient, which was simply:
+And in lots of other places.  Which has been mentioned in this and other
+instances of this discussion for the last 5 years.  And the response is
+that BK already gives you documented ways to interoperate, extensively
+documented, in fact.  You can get data and/or metadata into and out of
+BK from the command line.  You could create your own network protocol,
+client, and server using the documented interfaces that BK has.  You
+could create your own CVS2BK tool, your own BK2CVS tool, etc., all
+using documented interfaces.
 
--subsys_initcall(key_init);
-+security_initcall(key_init);
+The point of the interoperability hole is for commercial products
+which try and lock up your data.  We don't do that, in fact, we are
+*dramatically* more open about getting data in and out, with all
+the metadata, than any other commercial product.  Go try and get the
+same information from Perforce, Clearcase, or even CVS or Subversion.
+Good luck.
 
-> >  Fix early oops with the key management code
-> >...
-> > All 381 patches:
-> >...
-> > reiser4-only.patch
-> >   reiser4: main fs
-
-This should really be reiser_key_init, or similar.
-
-thanks,
--chris
+Given that BK isn't hiding anything, the "reverse engineering for
+interoperability" does not apply.  Hello?  Anyone listening?  Didn't
+think so.  Sigh.
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

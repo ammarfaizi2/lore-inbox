@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268686AbUIQKwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268685AbUIQKwX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268686AbUIQKwD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 06:52:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268690AbUIQKwC
+	id S268685AbUIQKwX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 06:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268672AbUIQKwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 06:52:02 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:51211 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S268672AbUIQKsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 06:48:31 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: top hogs CPU in 2.6: kallsyms_lookup is very slow
-Date: Fri, 17 Sep 2004 12:01:15 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200409161428.27425.vda@port.imtp.ilyichevsk.odessa.ua> <200409161457.08544.vda@port.imtp.ilyichevsk.odessa.ua> <20040916121747.GQ9106@holomorphy.com>
-In-Reply-To: <20040916121747.GQ9106@holomorphy.com>
+	Fri, 17 Sep 2004 06:52:22 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:58063 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S268685AbUIQKvI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 06:51:08 -0400
+Date: Fri, 17 Sep 2004 12:50:22 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Colin Leroy <colin@colino.net>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pmac: don't add =?ISO-8859-1?Q?=22=B0C=22?= suffix in
+ sys for adt746x driver
+In-Reply-To: <1095401127.5105.73.camel@gaston>
+Message-ID: <Pine.GSO.4.58.0409171249500.19914@waterleaf.sonytel.be>
+References: <1095401127.5105.73.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409171201.15158.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 September 2004 15:17, William Lee Irwin III wrote:
-> At some point in the past, I wrote:
-> >> As for all syscalls/etc. being slower by 50%-100%, I suggest toning
->
-> On Thu, Sep 16, 2004 at 02:57:08PM +0300, Denis Vlasenko wrote:
-> > s/all/many/:
-> > uname <0.000142> ? ? ? ? ? ? ? uname <0.000217>		25% slower
-> > brk <0.000176> ? ? ? ? ? ? ? ? brk <0.000174>		no change
-> > open <0.000218> ? ? ? ? ? ? ? ?open <0.000335>		33% slower
-> > fstat64 <0.000104> ? ? ? ? ? ? fstat64 <0.000191>	90% slower
-> > or maybe strace simply isn't very accurate and adds signinficant
-> > noise to the measured delta?
->
-> Could you try to estimate the resolution of whatever timer strace uses?
->
-> At some point in the past, I wrote:
-> >> down HZ (we desperately need to go tickless) and seeing if it persists.
-> >> Also please check that time isn't twice as fast as it should be in 2.6.
->
-> On Thu, Sep 16, 2004 at 02:57:08PM +0300, Denis Vlasenko wrote:
-> > I recompiled 2.6 with HZ=100. It's not it.
-> > Time is running normally too.
->
-> Did the kallsyms patches reduce the cpu overhead from get_wchan()?
+On Fri, 17 Sep 2004, Benjamin Herrenschmidt wrote:
+> The adt746x driver currently adds a "°C" suffix to temperatures exposed
+> via sysfs, and I don't like that. First, we all agree that any other unit
+> here makes no sense (do we ? do we ? yes of course :) and I don't like
 
-Yes. top does not hog CPU anymore. It takes even a liitle bit *less*
-CPU than in 2.4 now.
+Universal temperature, in K? And you'll never ever see negative numbers ;-)
+
+Gr{oetje,eeting}s,
+
+						Geert
+
 --
-vda
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

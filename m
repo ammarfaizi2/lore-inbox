@@ -1,96 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262467AbVCVEhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVCVElm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262467AbVCVEhP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 23:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbVCVEe1
+	id S262482AbVCVElm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 23:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVCVEdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 23:34:27 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:8150 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262467AbVCVEaI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 23:30:08 -0500
-Subject: Re: [patch 1/2] fork_connector: add a fork connector
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Ram <linuxram@us.ibm.com>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Jay Lan <jlan@engr.sgi.com>,
-       Erich Focht <efocht@hpce.nec.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>, Greg KH <greg@kroah.com>
-In-Reply-To: <1111438349.5860.27.camel@localhost>
-References: <1111050243.306.107.camel@frecb000711.frec.bull.fr>
-	 <200503170856.57893.jbarnes@engr.sgi.com>
-	 <20050318003857.4600af78@zanzibar.2ka.mipt.ru>
-	 <200503171405.55095.jbarnes@engr.sgi.com>
-	 <1111409303.8329.16.camel@frecb000711.frec.bull.fr>
-	 <1111438349.5860.27.camel@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2s65NPKVri2zXq6/yJ//"
-Organization: MIPT
-Date: Tue, 22 Mar 2005 07:36:36 +0300
-Message-Id: <1111466196.23532.17.camel@uganda>
+	Mon, 21 Mar 2005 23:33:13 -0500
+Received: from h80ad2695.async.vt.edu ([128.173.38.149]:28426 "EHLO
+	h80ad2695.async.vt.edu") by vger.kernel.org with ESMTP
+	id S262476AbVCVEbg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 23:31:36 -0500
+Message-Id: <200503220431.j2M4VNKF015112@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: jmerkey <jmerkey@utah-nac.org>, linux-kernel@vger.kernel.org
+Subject: Re: clone() and pthread_create() segment fault in 2.4.29 
+In-Reply-To: Your message of "Mon, 21 Mar 2005 20:07:21 +0100."
+             <20050321190721.GA19194@devserv.devel.redhat.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <423F13EA.6050007@utah-nac.org> <1111431021.6952.73.camel@laptopd505.fenrus.org> <423F1852.3070902@utah-nac.org>
+            <20050321190721.GA19194@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Tue, 22 Mar 2005 07:29:32 +0300 (MSK)
+Content-Type: multipart/signed; boundary="==_Exmh_1111465881_5089P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 21 Mar 2005 23:31:22 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1111465881_5089P
+Content-Type: text/plain; charset=us-ascii
 
---=-2s65NPKVri2zXq6/yJ//
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Mon, 21 Mar 2005 20:07:21 +0100, Arjan van de Ven said:
+> On Mon, Mar 21, 2005 at 11:54:10AM -0700, jmerkey wrote:
 
-On Mon, 2005-03-21 at 12:52 -0800, Ram wrote:
-> On Mon, 2005-03-21 at 04:48, Guillaume Thouvenin wrote:
-> > ChangeLog:
-> >=20
-> >   - Remove the global cn_fork_lock and replace it by a per CPU=20
-> >     counter.=20
-> >   - The processor ID has been added in the data part of the message.
-> >     Thus datas sent in a message are: "CPU_ID PARENT_PID CHILD_PID"
-> >=20
-> >   Those modifications were done to be more scalable because, as
-> > mentioned by Jesse Barnes, the global cn_fork_lock won't work well on a
-> > large CPU system.
-> >=20
-> >   This patch applies to 2.6.11-mm4.
-> Guillaume,
->=20
->      If a bunch of applications are listening for fork events,=20
->      your patch allows any application to turn off the=20
->      fork event notification?  Is this the right behavior?
->=20
->      Should'nt it turn off the fork-event notification when=20
->      the number of listeners become zero?
+> > which 2.4 kernels will work properly on RH ES release 3, Taroon Update 4. 
+> 
+> Only kernels with NPTL in, which for 2.4 limits you to the RH supplied one.
 
-There is no number of listeners - netlink sockets provide multicast
-dataflow.
-[Although one can obtain that number].
+Well, strictly speaking, it's all GPL'ed, so Jeff is certainly free to take
+the .src.rpm of the RedHat kernel, use rpm2cpio to extract the NPTL patches
+from it, and forward port it to the 2.4.NN of his choice...
 
-As far as I can see, Guillaume's application is main management utility
--=20
-it can turn on or off some feature, like "ip" can turn on or off
-interfaces=20
-without waiting when bounded processes decide to exit.
+However, unless you're *really* handy with patch and diff, it's probably
+more productive to upgrade to RH EL release 4, which comes with a 2.6 kernel...
 
-> RP
+(Speaking as somebody with RHEL 3 boxes going to RHEL 4 soon, and boxes that
+are 2.6-mm with Fedora patches on top.. both have their place in the greater
+scheme of things..)
 
---=20
-        Evgeniy Polyakov
-
-Crash is better than data corruption -- Arthur Grabowski
-
---=-2s65NPKVri2zXq6/yJ//
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--==_Exmh_1111465881_5089P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQBCP6DUIKTPhE+8wY0RAiG3AJ9pCpDJjQcwRrysZrOEDvGxO5T9gACdE1T2
-vEWwC8C0GN0bCHWXroLR5sk=
-=JMQB
+iD8DBQFCP5+ZcC3lWbTT17ARAjdZAJ9mTCbTme/rVM0ueUw414YpZdy5GwCg2txi
+VbFpWL6bKtH50mZ5YVQuINY=
+=LZ/T
 -----END PGP SIGNATURE-----
 
---=-2s65NPKVri2zXq6/yJ//--
-
+--==_Exmh_1111465881_5089P--

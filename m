@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264965AbUGMM4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264946AbUGMM6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264965AbUGMM4W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 08:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbUGMM4V
+	id S264946AbUGMM6v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 08:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbUGMM6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 08:56:21 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:12725 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264965AbUGMMyv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 08:54:51 -0400
-Date: Tue, 13 Jul 2004 07:54:08 -0500
-From: "Jose R. Santos" <jrsantos@austin.ibm.com>
-To: David Howells <dhowells@redhat.com>
-Cc: "Jose R. Santos" <jrsantos@austin.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, slpratt@us.ibm.com
-Subject: Re: [PATCH] Making i/dhash_entries cmdline work as it use to.
-Message-ID: <20040713125408.GA9149@rx8.austin.ibm.com>
-References: <20040713025643.GA7498@austin.ibm.com> <20040712175605.GA1735@rx8.austin.ibm.com> <20040713023721.GA7461@austin.ibm.com> <4348.1089722020@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <4348.1089722020@redhat.com> (from dhowells@redhat.com on Tue, Jul 13, 2004 at 07:33:40 -0500)
-X-Mailer: Balsa 2.0.17
+	Tue, 13 Jul 2004 08:58:50 -0400
+Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:3169 "HELO
+	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264946AbUGMM54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 08:57:56 -0400
+Message-ID: <40F3DC52.1030308@yahoo.com.au>
+Date: Tue, 13 Jul 2004 22:57:54 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: preempt-timing-2.6.8-rc1
+References: <20040713122805.GZ21066@holomorphy.com> <40F3DACC.9070703@yahoo.com.au> <20040713125331.GA21066@holomorphy.com>
+In-Reply-To: <20040713125331.GA21066@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/13/04 07:33:40, David Howells wrote:
-> That's an enormous limit. Consider the fact that you will have a multiplicity
-> of such hash tables, each potentially eating 1/16th of your total memory
-> (remember, the bootmem allocator's only real limit is how big a chunk of
-> memory it can allocate in one go).
+William Lee Irwin III wrote:
+> William Lee Irwin III wrote:
 > 
-> Do you have numbers to show that committing an eighth of your memory (8GB if
-> you have 64GB - two hash tables at 4GB apiece) to hash tables is almost
-> certainly not worth it.
+>>>+		unsigned long preempt_exit
+>>>+				= (unsigned long)__builtin_return_address(0);
+>>>+		hold = sched_clock() - __get_cpu_var(preempt_timings) + 
+>>>999999;
+>>>+		do_div(hold, 1000000);
+>>>+		if (preempt_thresh && hold > preempt_thresh &&
+>>>+							printk_ratelimit()) {
+> 
+> 
+> On Tue, Jul 13, 2004 at 10:51:24PM +1000, Nick Piggin wrote:
+> 
+>>This looks wrong. This means hold times of 1ns to 1000000ns trigger the
+>>exceeded 1ms threshold, 1000001 to 2000000 trigger the 2ms one, etc.
+>>Removing the + 999999 gives the correct result:
+>>1000000 - 1999999ns triggers the 1ms threshold
+>>2000000 - 2999999ns triggers the 2ms threshold
+>>etc
+>>Or have I missed something?
+> 
+> 
+> AFAICT this is nothing more than rounding up.
+> 
 
-I do not use all that memory but this is just the absolute limit that you can
-allocate.  The point is not to limit it to ORDER 14 because thats the most 
-gains seen on one 64GB setup.  The idea is to give people some room to play
-when they use the cmdline if for some reason they need to go that hi.
+But you want to round down by definition of preempt_thresh, don't you?
 
--JRS
+preempt_thresh = 1ms = 1000000us
+ie. warn me if the lock hold goes _to or above_ 1000000us

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261320AbSI3TJM>; Mon, 30 Sep 2002 15:09:12 -0400
+	id <S261318AbSI3TJE>; Mon, 30 Sep 2002 15:09:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261325AbSI3TJM>; Mon, 30 Sep 2002 15:09:12 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:44436 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S261320AbSI3TJK>; Mon, 30 Sep 2002 15:09:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Arnd Bergmann <arndb@de.ibm.com>
-Reply-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [PATCH] 2.5.39 s390 (3/26): drivers.
-Date: Mon, 30 Sep 2002 23:13:54 +0200
-User-Agent: KMail/1.4.3
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-References: <200209301957.04743.arnd@bergmann-dalldorf.de> <20020930140444.B14862@devserv.devel.redhat.com>
-In-Reply-To: <20020930140444.B14862@devserv.devel.redhat.com>
+	id <S261320AbSI3TJE>; Mon, 30 Sep 2002 15:09:04 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:33297 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S261318AbSI3TJD>;
+	Mon, 30 Sep 2002 15:09:03 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200209301914.g8UJEIu154087@saturn.cs.uml.edu>
+Subject: Re: [ANNOUNCE] procps 2.0.9
+To: akpm@digeo.com (Andrew Morton)
+Date: Mon, 30 Sep 2002 15:14:17 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
+In-Reply-To: <3D989F25.F6605540@digeo.com> from "Andrew Morton" at Sep 30, 2002 11:59:49 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209302313.54191.arndb@de.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 September 2002 20:04, Arjan van de Ven wrote:
+Andrew Morton writes:
+> "Albert D. Cahalan" wrote:
 
-> humm I tried to look but couldn't find the qeth driver... Any url to the
-> source ?
+>> Many of the "fixes" have been in Debian's procps for years.
+>>
+>> Debian's code has been fully maintained for years. It is
+>> available in CVS at SourceForge. Let us know what you think
+>> of the new "top" program.
+>
+> Does it support the /proc/stat cleanups which I have queued,
+> and the additional /proc/meminfo fields?
 
-Sorry, I wish I could but that is still one of our two device drivers 
-that we are not allowed to publish the source of.
+Today, no. Next week, yes. Maybe by tonight even...
 
-There might be a way to regularly provide object files for 2.5.current, but 
-I suppose that's not what you want ...
-
-	Arnd <><
+That's very recent stuff that you sent to the other fork.
+BTW, the /proc/meminfo parsing was cleaned up years ago.
+You didn't see that clean-up because Red Hat fell asleep
+for a few years.

@@ -1,91 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262355AbSJKA2v>; Thu, 10 Oct 2002 20:28:51 -0400
+	id <S262234AbSJKAqi>; Thu, 10 Oct 2002 20:46:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262356AbSJKA2v>; Thu, 10 Oct 2002 20:28:51 -0400
-Received: from mx2.redhat.com ([12.150.115.133]:775 "EHLO mx2.redhat.com")
-	by vger.kernel.org with ESMTP id <S262355AbSJKA2u>;
-	Thu, 10 Oct 2002 20:28:50 -0400
-Date: Thu, 10 Oct 2002 17:34:34 -0700
-From: Richard Henderson <rth@redhat.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [patch] fix alpha atkbd oops
-Message-ID: <20021011003434.GA1705@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S262241AbSJKAqi>; Thu, 10 Oct 2002 20:46:38 -0400
+Received: from cynaptic.com ([128.121.116.181]:8453 "EHLO cynaptic.com")
+	by vger.kernel.org with ESMTP id <S262234AbSJKAqh>;
+	Thu, 10 Oct 2002 20:46:37 -0400
+From: "Eff Norwood" <enorwood@effrem.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.18 *large* amount of time context switching
+Date: Thu, 10 Oct 2002 17:52:16 -0700
+Message-ID: <CFEAJJEGMGECBCJFLGDBGEDFCFAA.enorwood@effrem.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When called from 
+Hi All,
 
-        if (atkbd_reset)
-                if (atkbd_command(atkbd, NULL, ATKBD_CMD_RESET_BAT))
+I have a 2.4.18 kernel running on a dual 2.4Ghz Xeon platform using software
+RAID 5 via IBM's EVMS and EXT3. The system is being used as an NFS server
+and although local disk performance is excellent, NFS performance (over UDP
+and TCP, vers 2 and 3 with multiple different client mount block sizes) is
+poor to bad. Looking at mpstat while the system is under load shows the
+%system to be quite high (94-96%) but most interestingly shows the number of
+intr/s (context switches) to be 17-18K plus!
 
-in atkbd_probe, we'll crash trying to write back the results
-into the null pointer.
+Since I was not sure what was causing all of these context switches, I
+installed SGI kernprof and ran it during a 15 minute run. I used this
+command to start kernprof: 'kernprof -r -d time -f 1000 -t pc -b -c all' and
+this one to stop it: 'kernprof -e -i | sort -nr +2 | less >
+big_csswitch.txt'
 
-The interface to atkbd_command seems more sensible to allow
-a null pointer to indicate that the caller doesn't care about
-the received data than to supply a dummy pointer here.
+The output of this collection is located here (18Kb):
 
+http://www.effrem.com/linux/kernel/dev/big_csswitch.txt
 
-r~
+Most interesting to me is why in the top three results:
 
+default_idle [c010542c]: 861190
+_text_lock_inode [c015d031]: 141795
+UNKNOWN_KERNEL [c01227f0]: 101532
 
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
+that default_idle would be the highest value when the CPUs showed 94-96%
+busy. Also interesting is what UNKNOWN_KERNEL is. ???
 
-===================================================================
+The server described above has 14 internal IDE disks configured as software
+Raid 5 and connected to the network with one Syskonnect copper gigabit card.
+I used 30 100 base-T connected clients all of which performed sequential
+writes to one large 1.3TB volume on the file server. They were mounted
+NFSv2, UDP, 8K r+w size for this run. I was able to achieve only 35MB/sec of
+sustained NFS write throughput. Local disk performance (e.g. dd file) for
+sustained writes is *much* higher. I am using knfsd with the latest 2.4.18
+Neil Brown fixes from his site. Distribution is Debian 3.0 Woody Stable.
 
+Many thanks in advance for the insight,
 
-ChangeSet@1.738, 2002-10-10 17:28:04-07:00, rth@dot.sfbay.redhat.com
-  Avoid oops on systems that set atkbd_reset.
-
-
- atkbd.c |    5 +++--
- 1 files changed, 3 insertions, 2 deletions
-
-
-diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	Thu Oct 10 17:29:28 2002
-+++ b/drivers/input/keyboard/atkbd.c	Thu Oct 10 17:29:28 2002
-@@ -244,8 +244,9 @@
- 
- 	while (atkbd->cmdcnt && timeout--) udelay(10);
- 
--	for (i = 0; i < receive; i++)
--		param[i] = atkbd->cmdbuf[(receive - 1) - i];
-+	if (param)
-+		for (i = 0; i < receive; i++)
-+			param[i] = atkbd->cmdbuf[(receive - 1) - i];
- 
- 	if (atkbd->cmdcnt) 
- 		return (atkbd->cmdcnt = 0) - 1;
-
-===================================================================
+Eff Norwood
 
 
-This BitKeeper patch contains the following changesets:
-+
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch1691
-M'XL(`&@;ICT``[5474_;,!1]CG_%E7@!H23^2M.&%<%@8M,F477B":')B5WB
-MT<25[10ZY<?/#1-HTQAL&HD5);[7YYY[SU%VX,(I6T36UV@'WAOGBT@:G[A%
-M*3:)5;(6/JE,$X)S8T(P#=&T%.UU&HZD2]UV=ZFX6\4TR5!(F@E?U;!6UA41
-M2=C#CM^L5!'-WYU=?#J>(S2=PDD=0-1GY6$Z1=[8M5A*=R1\O31MXJUH7:.\
-MV-;N'U)[BC$-=T9RAK-13T:8YWU%)"&"$R4QY>,11X'9T>^:^`6(8((Q)CEG
-M/6$3EJ%3($G.QH!I2G!80/*"C@O,8YP7&,-3N+!/(,;H+?S?-DY0!<=KHR48
-MLW)@6G`;YU7CP(?"X,+HA+\IY1>KPGN"/@+A.>=H]CA;%/_EA1`6&!W"VGSU
-MJJJ/_*U>ZNO:)UUUFU3?>FGU5MQ4MZO.IS=J4QIA93KP2*K[QG+,",-CCGLR
-M&1/2EZ6<*(J5)&PTR=F38WP)>-`LB$;SC/:<XM%DL-*?SVW]]8KM/&"[SJD7
-M8H86)B0HG^&>$S)F@_-H]K/Q\B*CSQJ/04Q?Q7CGC0X6"[@*=.L-K(05#>@%
-MA&WMH.V6RZWC[D4XA]C>#BLX:/:,'O_@R5/*<Z#H0Z`'#$6!Q>[`9P]%T<)8
-MV-4P!7P`&MZ`594*Y</'_OXV'@V9E_HJI`P,XL.JD66WN-S]D0HQD+WPT%<'
-:C[^PJE;5C>N:*::+;"091]\!UPXWQ2L%````
-`
-end

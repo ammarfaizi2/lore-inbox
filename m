@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317332AbSFLWAu>; Wed, 12 Jun 2002 18:00:50 -0400
+	id <S314277AbSFLWS5>; Wed, 12 Jun 2002 18:18:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317336AbSFLWAt>; Wed, 12 Jun 2002 18:00:49 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:53518 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S317332AbSFLWAr>; Wed, 12 Jun 2002 18:00:47 -0400
-Subject: RE: PROBLEM: Kernel 2.4.18 Promise driver (IDE) hangs @ boot
-	withPromise 20267
-From: Samuel Flory <sflory@rackable.com>
-To: Braden McGrath <bwm3@po.cwru.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <006f01c21258$b72a7430$ceaa1681@z>
-Content-Type: text/plain
+	id <S316530AbSFLWS5>; Wed, 12 Jun 2002 18:18:57 -0400
+Received: from mg02.austin.ibm.com ([192.35.232.12]:36485 "EHLO
+	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S314277AbSFLWS4>; Wed, 12 Jun 2002 18:18:56 -0400
+Message-ID: <3D07C8D0.60B49C6D@austin.ibm.com>
+Date: Wed, 12 Jun 2002 17:18:56 -0500
+From: Saurabh Desai <sdesai@austin.ibm.com>
+Organization: IBM Corporation
+X-Mailer: Mozilla 4.7 [en] (X11; U; AIX 4.3)
+X-Accept-Language: en-US,en-GB
+MIME-Version: 1.0
+To: Matthew Wilcox <willy@debian.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/locks.c: Fix posix locking for threaded tasks
+In-Reply-To: <20020610034843.W27186@parcelfarce.linux.theplanet.co.uk> <E17I4bn-0007Rn-00@the-village.bc.nu> <20020612124536.T27449@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 12 Jun 2002 08:00:22 -0700
-Message-Id: <1023894033.31270.195.camel@flory.corp.rackablelabs.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-06-12 at 14:32, Braden McGrath wrote:
-> >   You might try Alan Cox's ac kernel.  2.4.19pre10ac2 seems 
-> > to work bit better on the Promise controllers for me.  You 
-> > will need to patch in 2.4.19pre10, and then 2.4.19pre10ac2.
-> > 
-> > http://www.us.kernel.org/pub/linux/kernel/v2.4/testing/
+Matthew Wilcox wrote:
+> 
+> On Wed, Jun 12, 2002 at 10:40:07AM +0100, Alan Cox wrote:
+> > > SUS v3 does not offer any enlightenment.  But it seems reasonable that
+> > > processes which share a files_struct should share locks.  After all,
+> > > if one process closes the fd, they'll remove locks belonging to the
+> > > other process.
+> > >
+> > > Here's a patch generated against 2.4; it also applies to 2.5.
+> > > Please apply.
 > >
-> http://www.us.kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.19/
+> > This seems horribly inappropriate for 2.4 as it may break apps
 > 
-> Thanks, I'll give it a try... Will I experience any problems trying to
-> get XFS into this kernel as well?  I start with 2.4.18 to patch to the
-> pre* series, correct?  (I'm not used to running bleeding edge...)  I'm
-> guessing the order would be:
-> 2.4.18 (stock)
-> +XFS
-> +.19pre10
-> +pre10ac2
+> I have no problem with withdrawing the request for 2.4.  It does mean that
+> it's almost impossible to write an M:N threading library implementation.
+> This doesn't concern me too much; I just want you to be aware this is
+> the tradeoff you're making.
 > 
+> I would still like to see it in 2.5.
 
-  I doubt you are going to be able to apply the std xfs patch to
-pre10ac2.  On the other hand if you grab xfs out of cvs you'll have
-2.4.19pre10+xfs.  You might be able to produce a patch from that
-(2.4.19pre10 -> 2.4.19pre10+xfs) applies fairly cleanly to pre10ac2. 
-I'd check and see if 2.4.18-pre10ac2 even boots before trying that;-)
-
-> CONFIG_PDC202XX_FORCE=n    (I read that this is for FastTrak
-> controllers, I only have an Ultra100)
-
-  Opps my bad.  I've got both the ultratraks, and fasttraks floating
-around in various systems.
-
-
+Yes, it's needed for M:N threading library. Here is scenario: Task A
+holds a lock and waiting for some event in library, now task B tries
+to acquire that lock and waits in kernel and this can create a deadlock.
+These tasks are created with CLONE_THREAD (for M:N) flag. 
+This change (removing pid check) may cause problem for 1:1 (linuxthreads),
+where each task has unique pid and tgid. Again, whether that's a right 
+behavior or not is questionable. 
+However, with CLONE_THREAD flag, all tasks shares "tgid" value with unique
+pid and that's why I suggested earlier to change the "fl_pid" from "pid" 
+to "tgid" and it works for both the cases (M:N and 1:1).

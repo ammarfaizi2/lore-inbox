@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbTICMx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 08:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbTICMx7
+	id S262041AbTICMyr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 08:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTICMyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 08:53:59 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:32445 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S262013AbTICMx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 08:53:58 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Wed, 3 Sep 2003 14:53:56 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: adq_dvb@lidskialf.net, rl@hellgate.ch, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Where do I send APIC victims?
-Message-Id: <20030903145356.35b9a192.skraw@ithnet.com>
-In-Reply-To: <1062589205.19059.6.camel@dhcp23.swansea.linux.org.uk>
-References: <20030903080852.GA27649@k3.hellgate.ch>
-	<200309031123.58713.adq_dvb@lidskialf.net>
-	<20030903093808.GA28594@k3.hellgate.ch>
-	<200309031148.03941.adq_dvb@lidskialf.net>
-	<1062589205.19059.6.camel@dhcp23.swansea.linux.org.uk>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 3 Sep 2003 08:54:44 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:10477 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262041AbTICMyk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 08:54:40 -0400
+Message-ID: <3F55E4E8.1010208@terra.com.br>
+Date: Wed, 03 Sep 2003 09:56:08 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Needed include in usb/gadget/net2280
+References: <3F514CDC.9060203@terra.com.br> <20030902173846.GA17995@kroah.com>
+In-Reply-To: <20030902173846.GA17995@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 03 Sep 2003 12:40:06 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+	Hi Greg,
 
-> On Mer, 2003-09-03 at 11:48, Andrew de Quincey wrote:
-> > 2.4.22 has the ACPI from 2.6 backported into it, (which includes my patch
-> > for nforce2 boards) so it will start having the same issue with the BIOS
-> > bug in KT333/KT400  boards.
+Greg KH wrote:
+> On Sat, Aug 30, 2003 at 10:18:20PM -0300, Felipe W Damasio wrote:
 > 
-> It does - 2.4.22pre7 is great on my boxes, 2.4.22 final ACPI is
-> basically unusable on anything I own thats not intel. 
+>>	Hi Greg,
+>>
+>>	Attached is a trivial patch which includes the needed 
+>>	linux/version.h header file.
+>>
+>>	This is based on Randy's checkversion.pl script.
+>>
+>>	Please consider applying.
+> 
+> 
+> Thanks, but I already have this change in my USB tree.  I'll push them
+> all to Linus later today.
 
-I can't back that. At least on all my Serverworks boxes there are no problems
-with ACPI. I got reports from VIA-bases SMP boards that they are doing well, too.
-(all for 2.4.22)
+	I couldn't find this patch on your merge with Linus:
 
-Regards,
-Stephan
+http://linux.bkbits.net:8080/linux-2.5/patch@1.1406.3.1?nav=index.html|ChangeSet@-1d|cset@1.1406.3.1
+
+	Or you're talking about another USB tree merge with Linus? :)
+
+	Cheers,
+
+Felipe
+

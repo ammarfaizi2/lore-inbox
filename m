@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVAECC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVAECF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbVAECC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 21:02:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVAECC2
+	id S262185AbVAECF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 21:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVAECFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 21:02:28 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:61267 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262174AbVAECAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 21:00:14 -0500
-Message-ID: <41DB4A2B.1020005@yahoo.com.au>
-Date: Wed, 05 Jan 2005 13:00:11 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-bkcurr: major slab corruption preventing booting on ARM
-References: <20050104144350.A22890@flint.arm.linux.org.uk> <20050104161049.D22890@flint.arm.linux.org.uk> <20050104172118.B26816@flint.arm.linux.org.uk>
-In-Reply-To: <20050104172118.B26816@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jan 2005 21:05:55 -0500
+Received: from fw.osdl.org ([65.172.181.6]:16834 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262185AbVAECFr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 21:05:47 -0500
+Date: Tue, 4 Jan 2005 18:05:43 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050104180541.P2357@build.pdx.osdl.net>
+References: <1104374603.9732.32.camel@krustophenia.net> <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <87u0pxhvn0.fsf@sulphur.joq.us> <1104865198.8346.8.camel@krustophenia.net> <1104878646.17166.63.camel@localhost.localdomain> <20050104175043.H469@build.pdx.osdl.net> <1104890131.18410.32.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1104890131.18410.32.camel@krustophenia.net>; from rlrevell@joe-job.com on Tue, Jan 04, 2005 at 08:55:31PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Tue, Jan 04, 2005 at 04:10:49PM +0000, Russell King wrote:
-> 
->>On Tue, Jan 04, 2005 at 02:43:50PM +0000, Russell King wrote:
->>
->>>I've had a report from a fellow ARM hacker of their platform not
->>>booting.  After they turned on slab debugging, they saw (pieced
->>>together from a report on IRC):
->>>
->>>Freeing init memory: 104K
->>>run_init_process(/bin/bash)
->>>Slab corruption: start=c0010934, len=160
->>>Last user: [<c00adc54>](d_alloc+0x28/0x2d8)
->>>
->>>I've just run up 2.6.10-bkcurr on a different ARM platform, and
->>>encountered the following output.  It looks like there's serious
->>>slab corruption issues in these kernels.
->>>
->>>I'll dig a little further into the report below to see if there's
->>>anything obvious.
->>
->>Ok, reverting the pud_t patch fixes both these problems (the exact
->>patch can be found at: http://www.home.arm.linux.org.uk/~rmk/misc/bk4-bk5
->>Note that this is not a plain bk4-bk5 patch, but just the pud_t
->>changes brought forward to bk6 or there abouts.)
->>
->>So, something in the 4 level page table patches is causing random
->>scribbling in kernel memory.
-> 
-> 
-> Ok, I've narrowed the problem down to something in the following patch.
-> Andi Kleen suggests that maybe the ARM FIRST_USER_PGD_NR got broken in
-> by something here.  Nick, any ideas?
-> 
+* Lee Revell (rlrevell@joe-job.com) wrote:
+> The last time I checked users could belong to more than one group.  Am I
+> missing something?
 
-I see you've had a fix commited to -bk? Yes that looks like it would
-cause the problems you are seeing.
+No, you're not.  I think Alan's just saying the gid based checks
+are suboptimal if there's a cleaner way to do it (to which I agree).
+Personally, I don't have a big problem with the Realtime LSM.  I've helped
+you with it, and suggested a few times that I'd prefer it to be generic;
+but never stepped up to deliver code of that sort.  Since it's your itch,
+you've scratched it, and it's quite simple and contained, I consider
+it acceptable.
 
-Thanks,
-Nick
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264998AbUF1PDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUF1PEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264998AbUF1PDr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 11:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265000AbUF1PDr
+	id S265000AbUF1PEf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 11:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbUF1PEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 11:03:47 -0400
-Received: from ktown.kde.org ([131.246.103.200]:22171 "HELO ktown.kde.org")
-	by vger.kernel.org with SMTP id S264998AbUF1PDo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 11:03:44 -0400
-Date: Mon, 28 Jun 2004 17:03:43 +0200
-From: Oswald Buddenhagen <ossi@kde.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Staircase scheduler v7.4
-Message-ID: <20040628150343.GD2478@ugly.local>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200406251840.46577.mbuesch@freenet.de> <200406261929.35950.mbuesch@freenet.de> <1088363821.1698.1.camel@teapot.felipe-alfaro.com> <200406272128.57367.mbuesch@freenet.de> <1088373352.1691.1.camel@teapot.felipe-alfaro.com> <Pine.LNX.4.58.0406281013590.11399@kolivas.org> <1088412045.1694.3.camel@teapot.felipe-alfaro.com> <40DFDBB2.7010800@yahoo.com.au> <1088423626.1699.0.camel@teapot.felipe-alfaro.com> <40E00AEA.4050709@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40E00AEA.4050709@kolivas.org>
-User-Agent: Mutt/1.5.6i
+	Mon, 28 Jun 2004 11:04:35 -0400
+Received: from mail011.syd.optusnet.com.au ([211.29.132.65]:25224 "EHLO
+	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265000AbUF1PEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 11:04:30 -0400
+Message-ID: <40E03376.20705@kolivas.org>
+Date: Tue, 29 Jun 2004 01:04:22 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nice 19 process still gets some CPU
+References: <40E035CE.1020401@techsource.com>
+In-Reply-To: <40E035CE.1020401@techsource.com>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 10:11:22PM +1000, Con Kolivas wrote:
-> The design of staircase would make renicing normal interactive things
-> -ve values bad for the latency of other nice 0 tasks s is not
-> recommended for X or games etc. Initial scheduling latency is very
-> dependent on nice value in staircase. If you set a cpu hog to nice -5
-> it will hurt audio at nice 0 and so on.
->
-i think using nice for both cpu share and latency is broken by design ...
-a typical use case on my system: for real-time tv recording i need
-mencoder to get some 80% of the cpu time on average. that means i have
-to nice -<something "big"> it to prevent compiles, flash plugins running
-amok, etc. from making mencoder explode (i.e., overrun buffers). but that
-entirely destroys interactivity; in fact the desktop becomes basically
-unusable.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-greetings
+Timothy Miller wrote:
+| Given how much I've read here about schedulers, I should probably be
+| able to answer this question myself, but I just thought I might talk to
+| the experts.
+|
+| I'm running SETI@Home, and it has a nice value of 19.  Everything else,
+| for the most part, is at zero.
+|
+| I'm running kernel gentoo-dev-sources-2.6.7-r6 (I believe).
+|
+| When I'm not running SETI@Home, compiler threads (emerge of a package,
+| kernel compile, etc.) get 100% CPU.  When I AM running SETI@Home,
+| SETI@Home still manages to get between 5% and 10% CPU.
+|
+| I would expect that nice 0 processes should get SO MUCH more than nice
+| 19 processes that the nice 19 process would practically starve (and in
+| the case of a nice 19 process, I think starvation by nice 0 processes is
+| just fine), but it looks like it's not starving.
+|
+| Why is that?
 
--- 
-Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
---
-Chaos, panic, and disorder - my work here is done.
+It definitely should _not_ starve. That is the unixy way of doing
+things. Everything must go forward. Around 5% cpu for nice 19 sounds
+just right. If you want scheduling only when there's spare cpu cycles
+you need a sched batch(idle) implementation.
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA4DN2ZUg7+tp6mRURAul+AJ4v3CXwD/XZtjarmTCo7ntISETHdACfYIWT
+MdJ8lxP3+Z/A4tTipWSDlgA=
+=MeGN
+-----END PGP SIGNATURE-----

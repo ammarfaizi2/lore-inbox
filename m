@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVATDih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVATDic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbVATDih (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 22:38:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVATDih
+	id S262032AbVATDic (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 22:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVATDic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 22:38:37 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:2691 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S262027AbVATDbL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 22:31:11 -0500
-Date: Thu, 20 Jan 2005 13:30:19 +1000
-From: David McCullough <davidm@snapgear.com>
-To: James Morris <jmorris@redhat.com>
-Cc: Fruhwirth Clemens <clemens@endorphin.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz,
-       Michal Ludvig <michal@logix.cz>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 1/2] CryptoAPI: prepare for processing multiple buffers at a time
-Message-ID: <20050120033019.GD9407@beast>
-References: <1105793137.16065.17.camel@ghanima> <Xine.LNX.4.44.0501181147490.24891-100000@thoron.boston.redhat.com>
+	Wed, 19 Jan 2005 22:38:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47563 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262049AbVATDeY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 22:34:24 -0500
+Date: Wed, 19 Jan 2005 19:33:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       peterc@gelato.unsw.edu.au, tony.luck@intel.com, dsw@gelato.unsw.edu.au,
+       torvalds@osdl.org, benh@kernel.crashing.org, linux-ia64@vger.kernel.org,
+       hch@infradead.org, wli@holomorphy.com, jbarnes@sgi.com
+Subject: Re: [PATCH RFC] 'spinlock/rwlock fixes' V3 [1/1]
+Message-Id: <20050119193358.6b8729db.akpm@osdl.org>
+In-Reply-To: <20050120031854.GA8538@taniwha.stupidest.org>
+References: <20050116230922.7274f9a2.akpm@osdl.org>
+	<20050117143301.GA10341@elte.hu>
+	<20050118014752.GA14709@cse.unsw.EDU.AU>
+	<16877.42598.336096.561224@wombat.chubb.wattle.id.au>
+	<20050119080403.GB29037@elte.hu>
+	<16878.9678.73202.771962@wombat.chubb.wattle.id.au>
+	<20050119092013.GA2045@elte.hu>
+	<16878.54402.344079.528038@cargo.ozlabs.ibm.com>
+	<20050120023445.GA3475@taniwha.stupidest.org>
+	<20050119190104.71f0a76f.akpm@osdl.org>
+	<20050120031854.GA8538@taniwha.stupidest.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0501181147490.24891-100000@thoron.boston.redhat.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Jivin James Morris lays it down ...
-> On Sat, 15 Jan 2005, Fruhwirth Clemens wrote:
+Chris Wedgwood <cw@f00f.org> wrote:
+>
+> On Wed, Jan 19, 2005 at 07:01:04PM -0800, Andrew Morton wrote:
 > 
-> > However, developing two different APIs isn't particular efficient. I
-> > know, at the moment there isn't much choice, as J.Morris hasn't commited
-> > to acrypto in anyway.
+> > ... how about we simply nuke this statement:
+> >
+> > Chris Wedgwood <cw@f00f.org> wrote:
+> > >
+> > >  	if (!spin_is_locked(&p->sighand->siglock) &&
+> > >  -				!rwlock_is_locked(&tasklist_lock))
+> > >  +				!rwlock_write_locked(&tasklist_lock))
+> >
+> > and be done with the whole thing?
 > 
-> There is also the OCF port (OpenBSD crypto framework) to consider, if 
-> permission to dual license from the original authors can be obtained.
+> I'm all for killing that.  I'll happily send a patch once the dust
+> settles.
+> 
+> It still isn't enough to rid of the rwlock_read_locked and
+> rwlock_write_locked usage in kernel/spinlock.c as those are needed for
+> the cpu_relax() calls so we have to decide on suitable names still...
 
-For anyone looking for the OCF port for linux,  you can find the latest
-release here:
+Oh crap, you're right.  There's not much we can do about that.
 
-	http://lists.logix.cz/pipermail/cryptoapi/2004/000261.html
+I have a do-seven-things-at-once patch from Ingo here which touches all
+this stuff so cannot really go backwards or forwards.
 
-One of the drivers uses the existing kernel crypto API to implement
-a SW crypto engine for OCF.
-
-As for permission to use a dual license,  I will gladly approach the
-authors if others feel it is important to know the possibility of it at this
-point,
-
-Cheers,
-Davidm
-
--- 
-David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
-Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org
+And your patch is a do-four-things-at-once patch.  Can you split it up please?

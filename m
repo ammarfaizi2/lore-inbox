@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbUK0Ch5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbUK0Ch5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbUK0Ch5 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262755AbUK0Ch5 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 26 Nov 2004 21:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262922AbUK0CFh
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262833AbUK0CF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 21:05:37 -0500
+	Fri, 26 Nov 2004 21:05:26 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262755AbUKZThJ (ORCPT
+	by vger.kernel.org with ESMTP id S262651AbUKZThH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:37:09 -0500
-Date: Thu, 25 Nov 2004 10:10:32 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, hugang@soulinfo.com,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: Suspend 2 merge: 46/51: LZF support.
-Message-ID: <20041125101032.GB29539@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org, hugang@soulinfo.com,
-	Nigel Cunningham <ncunningham@linuxmail.org>,
-	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101350324.25030.0.camel@desktop.cunninghams> <20041125063242.GA31753@hugang.soulinfo.com> <200411250152.33330.dtor_core@ameritech.net>
-Mime-Version: 1.0
+	Fri, 26 Nov 2004 14:37:07 -0500
+To: Jan Kasprzak <kas@fi.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD64: GPF in sys32_lstat64 call path
+References: <34n1d-6LW-7@gated-at.bofh.it> <34n1d-6LW-5@gated-at.bofh.it>
+From: Andi Kleen <ak@suse.de>
+Date: 25 Nov 2004 12:17:19 +0100
+In-Reply-To: <34n1d-6LW-5@gated-at.bofh.it>
+Message-ID: <p73mzx6uqio.fsf@brahms.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411250152.33330.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Since this is a completely new file (as far as kernel tree is concerned)
-> could you convert it to proper coding style (braces placement, identation)?
+Jan Kasprzak <kas@fi.muni.cz> writes:
 
-While I'm normally a big advocate of sane indentation it looks like these
-two files are taken unmodified from some external library and are unlike to
-be modified.  Maybe keep them as is to ease a possible future resync (and
-comparisms with upstream) ?
+> 	I've got the following GPF on my quad-opteron HP DL585.
+> The process in question was "save" from the Legato Networker
+> suite (i.e. 32-bit binary) doing nightly backup. The system
+> is pretty stock RHEL3, except that kernel has been upgraded
+> to 2.6.8.1. The server was almost idle at that time except for the
+> "save" Networker process. The server currently acts as NFS server.
+> Root FS is ext3, and there are three XFS volumes over LVM on an array
+> behind a Qlogic FC HBA. More information is available on request.
 
+   0:   48 89 50 08             mov    %rdx,0x8(%rax)
+
+and rax is 0x5e03d1f6c831e2ad, which raised an uncanonical address 
+general protection fault.
+
+Someone corrupted memory and the linked list of slab objects is broken.
+Most probably some driver. You can enable slab debugging (will slow down
+the machine) and see if that turns up something.
+
+-Andi
+ 

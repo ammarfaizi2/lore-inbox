@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbUKSMRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbUKSMMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbUKSMRI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 07:17:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbUKSMO5
+	id S261379AbUKSMMe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 07:12:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUKSMKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 07:14:57 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5037 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261384AbUKSMNC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 07:13:02 -0500
-Message-ID: <419DE33E.2000208@pobox.com>
-Date: Fri, 19 Nov 2004 07:12:46 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: David Woodhouse <dwmw2@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: RFC: let x86_64 no longer define X86
-References: <20041119005117.GM4943@stusta.de> <20041119085132.GB26231@wotan.suse.de> <419DC922.1020809@pobox.com> <20041119103418.GB30441@wotan.suse.de> <1100863700.21273.374.camel@baythorne.infradead.org> <20041119115539.GC21483@wotan.suse.de> <1100865050.21273.376.camel@baythorne.infradead.org> <20041119120549.GD21483@wotan.suse.de>
-In-Reply-To: <20041119120549.GD21483@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Nov 2004 07:10:17 -0500
+Received: from gprs214-244.eurotel.cz ([160.218.214.244]:1152 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261381AbUKSMJI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 07:09:08 -0500
+Date: Fri, 19 Nov 2004 13:08:56 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: 2.6.10-rc2 swsusp status & framebuffer problems
+Message-ID: <20041119120856.GA1233@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> I don't know details about the driver, but it's not enabled on x86-64 
-> because x86-64 doesn't have ISA set.
+Hi!
 
+If works for me, modulo graphics problems. So if it is broken on your
+machine, try finding driver that is responsible.
 
-which I disagree with.  CONFIG_ISA should include southbridge devices 
-behind a PCI<->ISA bridge.  There is zero value to a more stricter 
-"there is a physical ISA bus in this machine" definition.
-
-	Jeff
-
-
+Graphics problems: for some reason, swsusp now eats cursor
+(radeonfb)... or is it softcursor breakage? There are more problems in
+framebuffer, something seems to be very wrong in palete handling. (I
+set green palete by default. mutt likes to reset terminal in such way
+that font goes white; with -rc2 it affects even non-current console).
+ 
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

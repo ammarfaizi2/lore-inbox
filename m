@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbTFFTHj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 15:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbTFFTHj
+	id S262221AbTFFTJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 15:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbTFFTJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 15:07:39 -0400
-Received: from 216-42-72-142.ppp.netsville.net ([216.42.72.142]:17313 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S262220AbTFFTHi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 15:07:38 -0400
-Subject: Re: short freezing while file re-creation
-From: Chris Mason <mason@suse.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030606191025.GB7612@namesys.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	 <2804790000.1052441142@aslan.scsiguy.com>
-	 <20030509120648.1e0af0c8.skraw@ithnet.com>
-	 <20030509120659.GA15754@alpha.home.local>
-	 <20030509150207.3ff9cd64.skraw@ithnet.com>
-	 <20030606091759.GC23608@namesys.com>
-	 <20030606172454.6f3cbeed.skraw@ithnet.com>
-	 <20030606160217.GE6455@namesys.com>
-	 <1054926053.23132.278.camel@tiny.suse.com>
-	 <20030606191025.GB7612@namesys.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054927256.23130.288.camel@tiny.suse.com>
+	Fri, 6 Jun 2003 15:09:59 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:5054 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262221AbTFFTJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 15:09:58 -0400
+Date: Fri, 6 Jun 2003 21:23:25 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: [Patch] 2.5.70-bk11 zlib merge #1 turboc
+Message-ID: <20030606192325.GG10487@wohnheim.fh-wedel.de>
+References: <20030606183126.GA10487@wohnheim.fh-wedel.de> <20030606183247.GB10487@wohnheim.fh-wedel.de> <20030606183920.GC10487@wohnheim.fh-wedel.de> <20030606185210.GE10487@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 06 Jun 2003 15:20:57 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030606185210.GE10487@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-06 at 15:10, Oleg Drokin wrote:
-> Hello!
-> 
-> On Fri, Jun 06, 2003 at 03:00:54PM -0400, Chris Mason wrote:
-> 
-> > There are still some latency issues with io in rc7, it could be a
-> > general problem.
-> 
-> Hm. But I think everything that was not needing disk io (i.e. mouse stuff)
-> should not be affected?
-> 
+Hi Linus!
 
-It shouldn't ;-)  But the problems are still not completely understood. 
-This particular problem could still be reiserfs, it's hard to say right
-now.
+This is the first bit of the missing merge towards 1.1.4.  Applies on
+top of the previous cleanups.
 
--chris
+This one rips out an ugly #ifdef and seems to catch a theoretical
+error possibility.  Always thought that they fixed more than they
+officially admitted.
 
+Jörn
+
+-- 
+A victorious army first wins and then seeks battle.
+-- Sun Tzu
+
+--- linux-2.5.70-bk11/lib/zlib_inflate/infcodes.c~zlib_merge_turboc	2003-06-06 15:56:15.000000000 +0200
++++ linux-2.5.70-bk11/lib/zlib_inflate/infcodes.c	2003-06-06 21:18:16.000000000 +0200
+@@ -149,15 +149,9 @@
+       DUMPBITS(j)
+       c->mode = COPY;
+     case COPY:          /* o: copying bytes in window, waiting for space */
+-#ifndef __TURBOC__ /* Turbo C bug for following expression */
+-      f = (uInt)(q - s->window) < c->sub.copy.dist ?
+-          s->end - (c->sub.copy.dist - (q - s->window)) :
+-          q - c->sub.copy.dist;
+-#else
+       f = q - c->sub.copy.dist;
+-      if ((uInt)(q - s->window) < c->sub.copy.dist)
+-        f = s->end - (c->sub.copy.dist - (uInt)(q - s->window));
+-#endif
++      while (f < s->window)             /* modulo window size-"while" instead */
++        f += s->end - s->window;        /* of "if" handles invalid distances */
+       while (c->len)
+       {
+         NEEDOUT

@@ -1,63 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133012AbREBMtg>; Wed, 2 May 2001 08:49:36 -0400
+	id <S133083AbREBMxg>; Wed, 2 May 2001 08:53:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133083AbREBMtR>; Wed, 2 May 2001 08:49:17 -0400
-Received: from server1.safepages.com ([216.127.146.3]:43278 "HELO
-	server1.safepages.com") by vger.kernel.org with SMTP
-	id <S133012AbREBMtM>; Wed, 2 May 2001 08:49:12 -0400
-Message-ID: <3AEFB8BE.5050007@surfbest.net>
-Date: Wed, 02 May 2001 02:35:26 -0500
-From: Moses McKnight <m_mcknight@surfbest.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ac13 i686; en-US; rv:0.8.1+) Gecko/20010427
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: DISCOVERED! Cause of Athlon/VIA KX133 Instability
-In-Reply-To: <Pine.LNX.4.10.10105012333400.18414-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S133105AbREBMx0>; Wed, 2 May 2001 08:53:26 -0400
+Received: from as2-2-8.kt.g.bonet.se ([194.236.2.9]:3076 "HELO mail.fatbob.nu")
+	by vger.kernel.org with SMTP id <S133083AbREBMxR>;
+	Wed, 2 May 2001 08:53:17 -0400
+From: martin@fatbob.nu
+Date: Wed, 2 May 2001 14:53:05 +0200
+To: "Carlo E. Prelz" <fluido@fluido.as>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4, 2.4.4-ac1 and -ac3: oops loading future domain scsi module
+Message-ID: <20010502145305.B6889@kungen.fatbob.nu>
+In-Reply-To: <20010502083018.A5717@qn-212-127-137-79.fluido.as> <20010502090359.A484@qn-212-127-137-79.fluido.as>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010502090359.A484@qn-212-127-137-79.fluido.as>; from fluido@fluido.as on Wed, May 02, 2001 at 09:03:59AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
+On Wed, May 02, 2001 at 09:03:59AM +0200, Carlo E. Prelz wrote:
 
->>  Actually, I think there are 2 problems that have been discussed -- the
->>disk corruption and a general instability resulting in oops'es at
->>various points shortly after boot up.
->>
+> 	Subject: 2.4.4, 2.4.4-ac1 and -ac3: oops loading future domain scsi module
+> 	Date: Wed, May 02, 2001 at 08:30:18AM +0200
 > 
-> I don't see this.  specifically, there were scattered reports
-> of a via-ide problem a few months ago; this is the issue that's 
-> gotten some press, and for which Alan has a fix.  and there are reports 
-> of via-smp problems at boot (which go away with noapic).  I see no reports 
-> of the kind of general instability you're talking about.  and all the 
-> via-users I've heard of have no such stability problems - 
-> me included (kt133/duron).
+> Quoting Carlo E. Prelz (fluido@fluido.as):
 > 
-> the only general issue is that kx133 systems seem to be difficult
-> to configure for stability.  ugly things like tweaking Vio.
-> there's no implication that has anything to do with Linux, though.
-
-
-When I reported my problem a couple weeks back another fellow
-said he and several others on the list had the same problem,
-and as far as I can tell it is *only* with the IWILL boards.
-When I compiled with k7 optimizations I'd get all kinds of oopses
-and panics and never fully boot.  They were different every time.
-When any of the lesser optimizations are used I have no problems.
-My memory is one 256MB Corsair PC150 dimm, CPU is a Thunderbird 850,
-and mobo is an IWILL KK266 (KT133A).  The CPU runs between 35°C
-and 40°C.
-
-
->>  My memory system jas been set up very conservitavely and has been
->>rock solid in my other board (ka7), so I doubt it's that, but I
->>sure am happy to try a few more cominations of bios settings.  Anything
->>I should look for in particular?
->>
+> > Here I am with another, fresh oops that I encountered while exploring
+> > new kernels. This time, the oops is generated when trying to load the
+> > module for a very old (1993) Future Domain SCSI card. 2.4.3-ac7 was my
+> > previous kernel and worked perfectly. 
 > 
-> how many dimms do you have?  interleave settings?  Vio jumper?
-> already checked on cooling issues?  and that you're not overclocking...
+> I made some more research. Eventually, it seems the problem is in this
+> patch that was included in 2.4.4:
+> 
+> @@ -969,6 +971,7 @@
+>         return 0;
+>     shpnt->irq = interrupt_level;
+>     shpnt->io_port = port_base;
+> +   scsi_set_pci_device(shpnt->pci_dev, pdev);
+>     shpnt->n_io_port = 0x10;
+>     print_banner( shpnt );
+> 
+> Well, but my card is ISA! It should not set any PCI device. 
+> 
+> I applied the following patch, and the problem disappeared:
+> 
+> --- fdomain.c~	Wed May  2 07:08:27 2001
+> +++ fdomain.c	Wed May  2 08:58:03 2001
+> @@ -971,6 +971,7 @@
+>     	return 0;
+>     shpnt->irq = interrupt_level;
+>     shpnt->io_port = port_base;
+> +	 if(pdev!=NULL)
+>     scsi_set_pci_device(shpnt->pci_dev, pdev);
+>     shpnt->n_io_port = 0x10;
+>     print_banner( shpnt );
+> 
+> I hope this is the right way...
+
+Well I got the same oops with a PCI card...
+After some research I found that the first argument to the inline
+function scsi_set_pci_device is supposed to be a pointer to a
+struct Scsi_Host.
+The patch below should work for both ISA and PCI.
+
+Regards
+/Martin
+
+
+--- fdomain.c.orig	Wed May  2 13:33:09 2001
++++ fdomain.c	Wed May  2 14:04:45 2001
+@@ -971,7 +971,7 @@
+    	return 0;
+    shpnt->irq = interrupt_level;
+    shpnt->io_port = port_base;
+-   scsi_set_pci_device(shpnt->pci_dev, pdev);
++   scsi_set_pci_device(shpnt, pdev);
+    shpnt->n_io_port = 0x10;
+    print_banner( shpnt );
+ 
 
 

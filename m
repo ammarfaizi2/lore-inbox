@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316681AbSGCKUc>; Wed, 3 Jul 2002 06:20:32 -0400
+	id <S316887AbSGCK2i>; Wed, 3 Jul 2002 06:28:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316887AbSGCKUb>; Wed, 3 Jul 2002 06:20:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49934 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316681AbSGCKUb>;
-	Wed, 3 Jul 2002 06:20:31 -0400
-Message-ID: <3D22D1CE.1C0A4906@zip.com.au>
-Date: Wed, 03 Jul 2002 03:28:30 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Joe Thornber <joe@fib011235813.fsnet.co.uk>, linux-lvm@sistina.com,
+	id <S316992AbSGCK2h>; Wed, 3 Jul 2002 06:28:37 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:31763 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S316887AbSGCK2g>; Wed, 3 Jul 2002 06:28:36 -0400
+Message-Id: <5.1.0.14.2.20020703112759.02291aa0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 03 Jul 2002 11:34:00 +0100
+To: Paul Menage <pmenage@ensim.com>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [PATCH] Shift BKL into ->statfs()
+Cc: Alexander Viro <viro@math.psu.edu>, linux-fsdevel@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [linux-lvm] LVM2 modifies the buffer_head struct?
-References: <F19741gcljD2E2044cY00004523@hotmail.com> <20020702141702.GA9769@fib011235813.fsnet.co.uk> <20020703100838.GH14097@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.GSO.4.21.0207030208080.6472-100000@weyl.math.psu.edu>
+References: <E17PYtv-0004Fd-00@pmenage-dt.ensim.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> 
-> On Tue, Jul 02 2002, Joe Thornber wrote:
-> > Tom,
-> >
-> > On Tue, Jul 02, 2002 at 09:40:56AM -0400, Tom Walcott wrote:
-> > > Hello,
-> > >
-> > > Browsing the patch submitted for 2.4 inclusion, I noticed that LVM2
-> > > modifies the buffer_head struct. Why does LVM2 require the addition of it's
-> > > own private field in the buffer_head? It seems that it should be able to
-> > > use the existing b_private field.
-> >
-> > This is a horrible hack to get around the fact that ext3 uses the
-> > b_private field for its own purposes after the buffer_head has been
-> > handed to the block layer (it doesn't just use b_private when in the
-> > b_end_io function).  Is this acceptable behaviour ?  Other filesystems
-> > do not have similar problems as far as I know.
-> >
-> > device-mapper uses the b_private field to 'hook' the buffer_heads so
-> > it can keep track of in flight ios (essential for implementing
-> > suspend/resume correctly).  See dm.c:dec_pending()
-> 
-> Your driver is required to properly stack b_private uses, however if
-> ext3 (well jbd really) over writes b_private after bh i/o submission I
-> would say that it is broken. That breaks more than just device mapper,
-> that will break any stacked driver (such as loop, for instance).
+At 07:25 03/07/02, Alexander Viro wrote:
+>         2) ext2, shmem, FAT, minix and sysv ->statfs() don't need BKL.
+>
+>         3) efs and vxfs are read-only.
 
-It requires that b_private be stable across the lifetime of the buffer.
+Just to chime in: NTFS doesn't need BKL either as it is read-only.
 
-hmm.
+Also it uses its own locking, so once read-write is enabled only a minor 
+modification will be needed (read mft_ino->i_size under protection of 
+mftbmp_lock semaphore) to make it race free without the BKL, too. But no 
+need to worry about that change, I will take care of that later...
 
--
+Best regards,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

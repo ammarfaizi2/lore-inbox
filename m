@@ -1,49 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266438AbTAOS3m>; Wed, 15 Jan 2003 13:29:42 -0500
+	id <S266842AbTAOSch>; Wed, 15 Jan 2003 13:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266842AbTAOS3m>; Wed, 15 Jan 2003 13:29:42 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:54734 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S266438AbTAOS3l>; Wed, 15 Jan 2003 13:29:41 -0500
-Date: Wed, 15 Jan 2003 10:37:30 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       James Cleverdon <jamesclv@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] (0/7) Finish moving NUMA-Q into subarch, cleanup
-Message-ID: <949530000.1042655849@titus>
-In-Reply-To: <C8C38546F90ABF408A5961FC01FDBF1912E233@fmsmsx405.fm.intel.com>
-References: <C8C38546F90ABF408A5961FC01FDBF1912E233@fmsmsx405.fm.intel.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S266844AbTAOScg>; Wed, 15 Jan 2003 13:32:36 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:64973 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S266842AbTAOScg>; Wed, 15 Jan 2003 13:32:36 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: linux-kernel@vger.kernel.org
+Subject: problem using integer division in kernel modules
+Date: Wed, 15 Jan 2003 19:41:29 +0100
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Message-Id: <200301151941.29690.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can these (MAX_IO_APICS, MAX_APICS) be moved to sub-arch too, instead of
+Hi,
 
-Not easily, at least not without creating a circular dependency problem.
-Try it ;-)
+I am writing at a small kernel module and have a problem now using / and %. If 
+I do so I get following unresolved symbols when the module should be loaded:
+  __divdi3
+  __moddi3
 
-I guess we chould create another subarch header file just for these if we 
-really have to, but that seem like overkill.
-
-If you can come up with a clean patch (check it compiles on uniproc with
-and without IO/APIC turned on, and standard SMP as well), I'd really 
-be interested to see it ... would be most helpful
-
-> replacing CONFIG NUMA by CONFIG NUMAQ?
-
-Actually replacing CONFIG_X86_NUMA with CONFIG_NUMA ... and we could
-do (CONFIG_NUMA || CONFIG_BIGSMP) instead. But you're right, subarch
-would be much better if you can find a way.
-
-M.
-
+Could you please help me and tell me what I do wrong..?

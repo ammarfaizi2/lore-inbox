@@ -1,86 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315437AbSFJOvV>; Mon, 10 Jun 2002 10:51:21 -0400
+	id <S315439AbSFJOzA>; Mon, 10 Jun 2002 10:55:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315439AbSFJOvU>; Mon, 10 Jun 2002 10:51:20 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:15560 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S315437AbSFJOvT>;
-	Mon, 10 Jun 2002 10:51:19 -0400
-Date: Mon, 10 Jun 2002 10:45:31 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Mark Mielke <mark@mark.mielke.cc>
-cc: "David S. Miller" <davem@redhat.com>, <ltd@cisco.com>,
-        <greearb@candelatech.com>, <cfriesen@nortelnetworks.com>,
-        <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-In-Reply-To: <20020610095702.A27037@mark.mielke.cc>
-Message-ID: <Pine.GSO.4.30.0206101033450.22559-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315442AbSFJOy7>; Mon, 10 Jun 2002 10:54:59 -0400
+Received: from firewall.ill.fr ([193.49.43.1]:3211 "HELO out.esrf.fr")
+	by vger.kernel.org with SMTP id <S315439AbSFJOy6>;
+	Mon, 10 Jun 2002 10:54:58 -0400
+Date: Mon, 10 Jun 2002 16:54:32 +0200
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: /usr/bin/df reports false size on big NFS shares
+Message-ID: <20020610165432.A15246@pcmaftoul.esrf.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On several machines, with kernel 2.4.18 the same mounts reports different
+sizes than with 2.4.4 :
+
+-------------------------------------------------------------------------
+maftoul@brick20:~ > uname  -a 
+Linux brick20 2.4.4-4GB #6 Thu Jul 26 10:00:30 CEST 2001 i686 unknown
+
+maftoul@brick20:~ > df -h 
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/sda1              13G  3.1G  9.5G  25% /
+shmfs                 517M     0  516M   0% /dev/shm
+grey:/disk91          230G  127G  102G  56% /mntdirect/_disk91
+yellow:/disk23        140G  100G   39G  72% /mntdirect/_disk23
+violet:/data/id19/external
+                      2.7T  1.1T  1.6T  38% /mntdirect/_data_id19_external
+maftoul@brick20:~ >
+-------------------------------------------------------------------------
+
+maftoul@brick4:~ > uname  -a 
+Linux brick4 2.4.18 #3 Thu Apr 4 17:04:20 CEST 2002 i686 unknown
+maftoul@brick4:~ > 
+
+maftoul@brick4:~ > df -h 
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/sda1             4.7G  2.7G  2.0G  58% /
+shmfs                 125M     0  124M   0% /dev/shm
+grey:/disk91          230G  127G  102G  56% /mntdirect/_disk91
+yellow:/disk23        140G  100G   39G  72% /mntdirect/_disk23
+violet:/data/id19/external
+                      669G -7.0Z  1.6T 101% /mntdirect/_data_id19_external
+-------------------------------------------------------------------------
+
+See the violet one ?
+The reported size is the same on every 2.4.18 machine using this mount I
+saw.
+
+I have to say that these mounts are mounted via the automounter.
+
+Bug ? or what ? 
+
+It's all suse 7.2 , first one (2.4.4) is suse 7.2 base kernel, 2.4.18 is
+our own (for firewire better firewire support).
 
 
-On Mon, 10 Jun 2002, Mark Mielke wrote:
+If I send this mail to the wrong place ( which I doubt ) please, say it
+so I'll try to report somewhere else.
 
-> On Mon, Jun 10, 2002 at 08:24:44AM -0400, jamal wrote:
-> > I think i would agree with Dave for it to be an external patch. You
-> > really only need this during debugging. I had a similar patch when
-> > debugging NAPI about a year ago. I didnt find it that useful after
-> > a while because i could deduce the losses from SNMP/netstat output.
->
-> In your case you found that you could solve it once by debugging the
-> application.
->
-> This doesn't mean that other applications would not be better at
-> determining the code path to use at execution time.
->
-> Just because eth1 is behaving perfectly (i.e. low overall dropped UDP
-> packets, or low TCP/IP retransmission) does not mean that a specific
-> socket currently on eth1 heading to China should assume that it can
-> take the 'average' observation as adequate for observing the specific
-> socket.
->
-> There *are* applications that would benefit from making this decision
-> at run time on a socket-by-socket basis. It is not a common requirement
-> for most desktop users, but it remains a valid requirement.
->
-
-I am confused as to which application needs this, do you have one in mind?
-AFAIK, UDP/RTP type apps already know how to determine packet loss
-on a per flow basis.
-
-> Providing it as a patch, can have the effect that it becomes more trouble
-> than it is worth to grant other people access to the feature, especially
-> from a corporate environment that has signed off on being able to release
-> patches made to Linux back to the Linux source tree.
->
-
-You may be confusing technical merit to mean the same thing as corporate
-donation. In Linux its the later that counts.
-
-> Seems somewhat of a loss...
-
-Your mileage may vary. Consider this - you have the opp to at least
-make the patch available. Imagine trying to convince windriver.
-
-cheers,
-jamal
-
->
-
-> mark
->
-> --
-> mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-> .  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-> |\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   |
-> |  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
->
->   One ring to rule them all, one ring to find them, one ring to bring them all
->                        and in the darkness bind them...
->
->                            http://mark.mielke.cc/
->
-
+Thanks 
+        Samuel 

@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262675AbTIQKbg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 06:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbTIQKbg
+	id S262714AbTIQKc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 06:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbTIQKc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 06:31:36 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:19588 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262675AbTIQKbc (ORCPT
+	Wed, 17 Sep 2003 06:32:56 -0400
+Received: from gprs151-26.eurotel.cz ([160.218.151.26]:40068 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262714AbTIQKbm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 06:31:32 -0400
-Date: Wed, 17 Sep 2003 12:31:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ian Hastie <ianh@iahastie.clara.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi oops was: 2.6.0-test4-mm3
-Message-ID: <20030917103127.GM906@suse.de>
-References: <20030910114346.025fdb59.akpm@osdl.org> <200309160134.28169.ianh@iahastie.local.net> <20030916092040.GB930@suse.de> <200309161926.04549.ianh@iahastie.local.net>
+	Wed, 17 Sep 2003 06:31:42 -0400
+Date: Wed, 17 Sep 2003 12:31:35 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Vaio doesn't poweroff with 2.4.22
+Message-ID: <20030917103135.GL1205@elf.ucw.cz>
+References: <20030916200655.GG602@elf.ucw.cz> <Pine.GSO.4.21.0309171120290.3644-100000@vervain.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200309161926.04549.ianh@iahastie.local.net>
+In-Reply-To: <Pine.GSO.4.21.0309171120290.3644-100000@vervain.sonytel.be>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 16 2003, Ian Hastie wrote:
-> On Tuesday 16 Sep 2003 10:20, Jens Axboe wrote:
-> > On Tue, Sep 16 2003, Ian Hastie wrote:
-> > > On Thursday 11 Sep 2003 22:52, Jens Axboe wrote:
-> > > > Surely the pro version supports open-by-device as well? And then it
-> > > > should work fine.
-> > >
-> > > It does.  However it also produces the same error message as cdrecord
-> > > when doing so, ie
-> > >
-> > > Warning: Open by 'devname' is unintentional and not supported.
-> > >
-> > > The implication being that it could go away or become broken at any time.
-> >
-> > I wouldn't read anything in to that if I were you. Joerg has some mis
-> > guided ideas about ATAPI addressing, but he would be a fool to remove
-> > open by devname at this point.
+Hi!
+
+> > > With 2.4.22, my Sony Vaio PCG-Z600TEK (s/600/505/ in US/JP) shows a regression
+> > > w.r.t. power management:
+> > >   - It doesn't poweroff anymore (screen contents are still there after the
+> > >     powering down message)
+> > >   - It doesn't reboot anymore (screen goes black, though)
+> > >   - It accidentally suspended to RAM once while I was actively working on it (I
+> > >     never managed to get suspend working, except for this `accident'). I didn't
+> > >     see any messages about this in the kernel log.
+> > 
+> > It suspended to RAM... Did it also *resume* correctly?
 > 
-> What about this version of the argument then?  There are a number if
-> pieces of software, eg cdrdao, that don't support open by devname.
-> The kernel developers would be foolish to remove support for them at
-> this time.  Works both ways doesn't it.
+> Yes, since I could continue working without problems (except for lost Ethernet,
+> solved by ifdown -a/ifup -a).
 
-(cc me if you want me to read the mails, thanks)
+And was that acpi or apm? If it was acpi you saw a little miracle.
 
-That's a different discussion - they don't work with SG_IO typically
-either, so they await the block sg driver anyways. It doesn't change the
-fact that trying to pretend devices are hanging off a SCSI bus with bus
-and device ids when they are not is just horrible.
+									Pavel
 
 -- 
-Jens Axboe
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

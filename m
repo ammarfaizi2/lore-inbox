@@ -1,67 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266327AbUG0IBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266339AbUG0ICZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266327AbUG0IBN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 04:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUG0IBN
+	id S266339AbUG0ICZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 04:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266338AbUG0ICY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 04:01:13 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:12683 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266327AbUG0IBI (ORCPT
+	Tue, 27 Jul 2004 04:02:24 -0400
+Received: from [61.11.73.30] ([61.11.73.30]:40865 "EHLO macaque.cmi.ac.in")
+	by vger.kernel.org with ESMTP id S266333AbUG0IBV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 04:01:08 -0400
-Date: Tue, 27 Jul 2004 10:01:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jens Axboe <axboe@suse.de>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Lenar L?hmus <lenar@vision.ee>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-J4
-Message-ID: <20040727080127.GA6988@elte.hu>
-References: <20040713122805.GZ21066@holomorphy.com> <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <20040726100103.GA29072@elte.hu> <20040727053338.GE1433@suse.de>
+	Tue, 27 Jul 2004 04:01:21 -0400
+From: Anindya Mozumdar <anindya@cmi.ac.in>
+Date: Tue, 27 Jul 2004 13:31:13 +0530
+To: Patrick Kiwitter - Mailinglist <ccc@devilcode.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [off-topic] book recomandation
+Message-ID: <20040727080113.GA10342@cmi.ac.in>
+References: <410544D1.20405@devilcode.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040727053338.GE1433@suse.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <410544D1.20405@devilcode.de>
+Organization: Chennai Mathematical Institute
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+   You can also try Robert Love's Linux Kernel Development.
+Anindya.
 
-[i've sent a second patch too since the first version.]
-
-* Jens Axboe <axboe@suse.de> wrote:
-
-> I don't like it. First of all, the implementation really should drain
-> the queue first, then set max value before allowing people to queue
-> more io. The queue lock doesn't help here, readers don't even attempt
-> to serialize access to max_sectors. 
-
-why should the queue be drained? There might be a few leftover big
-requests, but these are not a problem.
-
-> Secondly, I don't like the concept of exposing this value. If you want
-> to do something like this, we must split the value into two like
-> proposed (and patched) some months ago into a hardware and user value.
-
-yes, agreed - that's what the second patch does.
-
-> I don't see why we can't just drop ata48 default value to 256kb
-> instead. There's very little command over head on ide, I bet the
-> majority of the change in performance when playing with 256kb vs
-> 1024kb is not the command overhead itself, rather things like
-> read-ahead that could be more intelligent.
-
-256kb isnt enough from a latency POV either - and if a user wants some
-extreme setting like 16KB per request why not allow it? Especially since
-these tunables cause zero runtime overhead.
-
-	Ingo
+On Mon, Jul 26, 2004 at 07:52:17PM +0200, Patrick Kiwitter - Mailinglist wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> hello world,
+> 
+> i would like to get an introduction into kernel hacking, so i would like
+> to read kernel hacking related books (ok, i could also read the source
+> directly to learn, but i like books).
+> 
+> so my question, which books are recommended by you?
+> 
+> i've got the first editon of oreillys "understandin the linux kernel"
+> and a german (i am a german guy) c coding book concerning linux system
+> programming (in c of course).
+> 
+> i've heard about the linux kernel development book from love and the
+> advanced unix programming book. what do you think about that?
+> 
+> i would be appreciated to get reply.
+> 
+> regards
+> patrick kiwitter
+> 
+> - --
+> .O.
+> ..O   http://www.catb.org/hacker-emblem/
+> OOO
+> 
+> Administrator of http://www.devilcode.de - the developers community
+> Developer for http://www.lbsdde.de - the localized BSD project
+> 
+> - -----BEGIN GEEK CODE BLOCK-----
+> Version: 3.1
+> GIT d+ dx d s--:-- a-- C+++ UL+++(U-) P+++ L+++
+> E--- W+++ N++ w--- !O++ >V >Y+ b++(+++) h!(*)
+> - ------END GEEK CODE BLOCK------
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.4 (GNU/Linux)
+> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+> 
+> iD8DBQFBBUTRDHDJZHMNHXYRAlw3AKCX1PZ1EBqMLMNqM9q3V8b/ODRsdQCgn711
+> MnFK+Fzq3TXSgfZ2QbNrXdc=
+> =L5n7
+> -----END PGP SIGNATURE-----
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

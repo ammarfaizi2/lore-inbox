@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbTHaBAV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 21:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTHaBAV
+	id S262284AbTHaBOL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 21:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTHaBOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 21:00:21 -0400
-Received: from dsl093-172-075.pit1.dsl.speakeasy.net ([66.93.172.75]:43466
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S262281AbTHaBAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 21:00:19 -0400
-Date: Sat, 30 Aug 2003 20:59:57 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] check_gcc for i386
-Message-ID: <20030831005957.GB263@kurtwerks.com>
-References: <Pine.LNX.4.44.0308301957440.20117-100000@logos.cnet> <1062286661.31332.8.camel@dhcp23.swansea.linux.org.uk> <3F5145BB.5080906@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F5145BB.5080906@pobox.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.21-krw
-X-Woot: Woot!
+	Sat, 30 Aug 2003 21:14:11 -0400
+Received: from itaqui.terra.com.br ([200.176.3.19]:35786 "EHLO
+	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S262284AbTHaBOH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 21:14:07 -0400
+Message-ID: <3F514CDC.9060203@terra.com.br>
+Date: Sat, 30 Aug 2003 22:18:20 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Needed include in usb/gadget/net2280
+Content-Type: multipart/mixed;
+ boundary="------------060704060708020304070509"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Jeff Garzik:
->
-> Yep.  I introduced check_gcc into 2.4 (backported from 2.5), in fact.
-> 
-> The above change does exactly what Alan describes, and is a patch I was 
-> planning to submit myself :)  I did not want to change compiler options 
-> at the time when I submitted the check_gcc patch, but after many months 
-> of manually patching to get the best compiler flags, it seems solid.
+This is a multi-part message in MIME format.
+--------------060704060708020304070509
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-[nod]
+	Hi Greg,
 
-Works fine here with a Pentium II, Pentium III, and an Athlon.
+	Attached is a trivial patch which includes the needed linux/version.h 
+header file.
 
-Kurt
+	This is based on Randy's checkversion.pl script.
+
+	Please consider applying.
+
+	Thanks,
+
+Felipe
 -- 
-Boy, n.:
-	A noise with dirt on it.
+It's most certainly GNU/Linux, not Linux. Read more at
+http://www.gnu.org/gnu/why-gnu-linux.html
+
+--------------060704060708020304070509
+Content-Type: text/plain;
+ name="net2280-include.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="net2280-include.patch"
+
+diff -ur linux-2.6.0-test4/drivers/usb/gadget/net2280.c linux-2.6.0-test4-fwd/drivers/usb/gadget/net2280.c
+--- linux-2.6.0-test4/drivers/usb/gadget/net2280.c	Fri Aug 22 20:51:41 2003
++++ linux-2.6.0-test4-fwd/drivers/usb/gadget/net2280.c	Sat Aug 30 22:13:44 2003
+@@ -53,6 +53,7 @@
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include <linux/kernel.h>
++#include <linux/version.h>
+ #include <linux/delay.h>
+ #include <linux/ioport.h>
+ #include <linux/sched.h>
+
+--------------060704060708020304070509--
+

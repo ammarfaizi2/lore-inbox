@@ -1,45 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129381AbRC2W4h>; Thu, 29 Mar 2001 17:56:37 -0500
+	id <S129495AbRC3A1w>; Thu, 29 Mar 2001 19:27:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRC2W41>; Thu, 29 Mar 2001 17:56:27 -0500
-Received: from smtp.mountain.net ([198.77.1.35]:21515 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S129381AbRC2W4T>;
-	Thu, 29 Mar 2001 17:56:19 -0500
-Message-ID: <3AC3BD64.7702CD7B@mountain.net>
-Date: Thu, 29 Mar 2001 17:55:32 -0500
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.2 i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+	id <S129506AbRC3A1m>; Thu, 29 Mar 2001 19:27:42 -0500
+Received: from nrg.org ([216.101.165.106]:19780 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S129495AbRC3A1a>;
+	Thu, 29 Mar 2001 19:27:30 -0500
+Date: Thu, 29 Mar 2001 16:26:44 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <Pine.LNX.4.05.10103201525480.26853-100000@cosmic.nrg.org>
+Message-ID: <Pine.LNX.4.05.10103291555390.8122-100000@cosmic.nrg.org>
 MIME-Version: 1.0
-To: Ulrich Drepper <drepper@cygnus.com>
-CC: dank@trellisinc.com, linux-kernel@vger.kernel.org,
-   Eli Carter <eli.carter@inet.com>
-Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
-In-Reply-To: <20010329210925.3161C6E099@fancypants.trellisinc.com> <m3hf0cs1xu.fsf@otr.mynet.cygnus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
+On Tue, 20 Mar 2001, Nigel Gamble wrote:
+> On Tue, 20 Mar 2001, Rusty Russell wrote:
+> > Thoughts?
 > 
-> dank@trellisinc.com writes:
-> 
-> > with the new ansi standard, this use of __inline__ is no longer
-> > necessary,
-> 
-> This is not correct.  Since the semantics of inline in C99 and gcc
-> differ all code which depends on the gcc semantics should continue to
-> use __inline__ since this keyword will hopefully forever signal the
-> gcc semantics.
+> Perhaps synchronize_kernel() could take the run_queue lock, mark all the
+> tasks on it and count them.  Any task marked when it calls schedule()
+> voluntarily (but not if it is preempted) is unmarked and the count
+> decremented.  synchronize_kernel() continues until the count is zero.
 
-Unfortunately, it seems that gcc will define __inline__ as a synonym for
-inline, whatever inline is currently in use. I asked this on the gcc list a
-while ago. The archive there should have the replies.
+Hi Rusty,
 
-Regards,
-Tom
+Here is an attempt at a possible version of synchronize_kernel() that
+should work on a preemptible kernel.  I haven't tested it yet.
 
--- 
-The Daemons lurk and are dumb. -- Emerson
+
+static int sync_count = 0;
+static struct task_struct *syncing_task = NULL;
+static DECLARE_MUTEX(synchronize_kernel_mtx);
+
+void
+synchronize_kernel()
+{
+	struct list_head *tmp;
+	struct task_struct *p;
+
+	/* Guard against multiple calls to this function */
+	down(&synchronize_kernel_mtx);
+
+	/* Mark all tasks on the runqueue */
+	spin_lock_irq(&runqueue_lock);
+	list_for_each(tmp, &runqueue_head) {
+		p = list_entry(tmp, struct task_struct, run_list);
+		if (p == current)
+			continue;
+		if (p->state == TASK_RUNNING ||
+				(p->state == (TASK_RUNNING|TASK_PREEMPTED))) {
+			p->flags |= PF_SYNCING;
+			sync_count++;
+		}
+	}
+	if (sync_count == 0)
+		goto out;
+
+	syncing_task = current;
+	spin_unlock_irq(&runqueue_lock);
+
+	/*
+	 * Cause a schedule on every CPU, as for a non-preemptible
+	 * kernel
+	 */
+
+	/* Save current state */
+	cpus_allowed = current->cpus_allowed;
+	policy = current->policy;
+	rt_priority = current->rt_priority;
+
+	/* Create an unreal time task. */
+	current->policy = SCHED_FIFO;
+	current->rt_priority = 1001 + sys_sched_get_priority_max(SCHED_FIFO);
+
+	/* Make us schedulable on all CPUs. */
+	current->cpus_allowed = (1UL<<smp_num_cpus)-1;
+
+	/* Eliminate current cpu, reschedule */
+	while ((current->cpus_allowed &= ~(1 << smp_processor_id())) != 0)
+		schedule();
+
+	/* Back to normal. */
+	current->cpus_allowed = cpus_allowed;
+	current->policy = policy;
+	current->rt_priority = rt_priority;
+
+	/*
+	 * Wait, if necessary, until all preempted tasks
+	 * have reached a sync point.
+	 */
+
+	spin_lock_irq(&runqueue_lock);
+	for (;;) {
+		set_current_state(TASK_UNINTERRUPTIBLE);
+		if (sync_count == 0)
+			break;
+		spin_unlock_irq(&runqueue_lock);
+		schedule();
+		spin_lock_irq(&runqueue_lock);
+	}
+	current->state = TASK_RUNNING;
+	syncing_task =  NULL;
+out:
+	spin_unlock_irq(&runqueue_lock);
+
+	up(&synchronize_kernel_mtx);
+}
+
+And add this code to the beginning of schedule(), just after the
+runqueue_lock is taken (the flags field is probably not be the right
+place to put the synchronize mark; and the test should be optimized for
+the fast path in the same way as the other tests in schedule(), but you
+get the idea):
+
+	if ((prev->flags & PF_SYNCING) && !(prev->state & TASK_PREEMPTED)) {
+		prev->flags &= ~PF_SYNCING;
+		if (--sync_count == 0) {
+			syncing_task->state = TASK_RUNNING;
+			if (!task_on_runqueue(syncing_task))
+				add_to_runqueue(syncing_task);
+			syncing_task = NULL;
+		}
+
+	}
+
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
+
+MontaVista Software                             nigel@mvista.com
+

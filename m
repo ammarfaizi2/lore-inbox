@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280047AbRKDXUJ>; Sun, 4 Nov 2001 18:20:09 -0500
+	id <S279956AbRKDXYa>; Sun, 4 Nov 2001 18:24:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280038AbRKDXT7>; Sun, 4 Nov 2001 18:19:59 -0500
-Received: from [63.83.207.133] ([63.83.207.133]:40466 "EHLO
-	mailout1.lsv.evoke.com") by vger.kernel.org with ESMTP
-	id <S280032AbRKDXTn>; Sun, 4 Nov 2001 18:19:43 -0500
-Message-ID: <8E3BD6C91C42EC44AF5BEE87C73F9CBC0DB135@mail8-bld.lsv.raindance.com>
-From: Craig Thrall <cthrall@raindance.com>
-To: "'jakob@unthought.net'" <jakob@unthought.net>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Date: Sun, 4 Nov 2001 16:06:25 -0700 
+	id <S280038AbRKDXYV>; Sun, 4 Nov 2001 18:24:21 -0500
+Received: from tahallah.demon.co.uk ([158.152.175.193]:40433 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S280032AbRKDXYH>; Sun, 4 Nov 2001 18:24:07 -0500
+Date: Sun, 4 Nov 2001 23:13:45 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Heinz Diehl <hd@cavy.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.2.20a and gcc 3.0 ?
+In-Reply-To: <20011104231158.A772@elfie.cavy.de>
+Message-ID: <Pine.LNX.4.33.0111042313080.9786-100000@tahallah.demon.co.uk>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Problem:  Could it be made simpler to parse from scripting languages,
-> without making it less elegant to parse in plain C ?
+On Sun, 4 Nov 2001, Heinz Diehl wrote:
 
-Yes.  At one point, somebody suggested XML.  Now, as much as I hate the fact
-that people somehow equate high-tech with tags, I think whomever originally
-suggested it might be on to something.  :)
+> > It boots, but I have some missing symbols while loading some modules.
+> > The same config works fine with gcc-2.95.4
+>
+> gcc-2.95.4 does not exist! The latest stable release is 2.95.3.
 
-Fact is, just about EVERY language out there has some sort of utility to
-parse XML.  There's expat for C, Perl and Python have libs, etc.  We could
-even write a proc DTD that could specify the valid data types.
+Ah, it does exist. You have to check it out from CVS from the GCC people.
+I've no doubt a release will be made soon.
 
-There are two problems:
+-- 
+Come the revolution, humourless gits'll be first up against the wall.
 
-1. Performance - it's slower to go through a library that outputs XML than
-do a printf("%d", pid) or the like.
+http://www.tahallah.demon.co.uk
 
-2. Space - based on a little experience using XML as a transport, the space
-used by the tags adds up.
-
-3. Work - writing a good package to do this, and rewriting bits of the
-kernel to use it.  I'll volunteer my time.
-
-Just a thought,
-
-Craig

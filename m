@@ -1,59 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132822AbRDUSxY>; Sat, 21 Apr 2001 14:53:24 -0400
+	id <S132829AbRDUTJn>; Sat, 21 Apr 2001 15:09:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132824AbRDUSxO>; Sat, 21 Apr 2001 14:53:14 -0400
-Received: from [62.225.70.66] ([62.225.70.66]:42247 "EHLO rerecognition.com")
-	by vger.kernel.org with ESMTP id <S132822AbRDUSw5>;
-	Sat, 21 Apr 2001 14:52:57 -0400
-From: "Tamas Nagy" <nagytam@rerecognition.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Idea: Encryption plugin architecture for file-systems
-Date: Sat, 21 Apr 2001 20:52:51 +0200
-Message-ID: <NFBBIDPOFIIFCBDDFGLEGEMICCAA.nagytam@rerecognition.com>
+	id <S132828AbRDUTJe>; Sat, 21 Apr 2001 15:09:34 -0400
+Received: from duba06h06-0.dplanet.ch ([212.35.36.67]:49163 "EHLO
+	duba06h06-0.dplanet.ch") by vger.kernel.org with ESMTP
+	id <S132829AbRDUTJV>; Sat, 21 Apr 2001 15:09:21 -0400
+Message-ID: <3AE1E77C.AF1402F4@dplanet.ch>
+Date: Sat, 21 Apr 2001 22:03:08 +0200
+From: "Giacomo A. Catenazzi" <cate@dplanet.ch>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset="iso-8859-1"
+To: esr@thyrsus.com
+CC: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Request for comment -- a better attribution system
+In-Reply-To: <20010421114942.A26415@thyrsus.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+"Eric S. Raymond" wrote:
+> 
+> This is a proposal for an attribution metadata system in the Linux kernel
+> sources.  The goal of the system is to make it easy for people reading
+> any given piece of code to identify the responsible maintainer.  The motivation
+> for this proposal is that the present system, a single top-level MAINTAINERS
+> file, doesn't seem to be scaling well.
+> 
+> In this system, most files will contain a "map block".  A map block is a
+> metadata section embedded in a comment near the beginning of the file.
+> Here is an example map block for my kxref.py tool:
+> 
 
-Lot of people would like to know their data in secure place, and the
-frequent usage of compression softwares could be time-consuming and boring
-sometime.
+Good!
 
-Idea:
-extend the current file-system with an optional plug-in system, which allows
-for file-system level encryption instead of file-level. This could be used
-transparently for applications or even for file-system drivers.  This
-doesn't mean an encrypted file-system, but a transparent encryption of a
-media instead.
+> And here's what a map block should look like in general:
+> 
+> %Map:
+> T: Description of this unit for map purposes
+> P: Person
+> M: Mail patches to
+> L: Mailing list that is relevant to this area
+> W: Web-page with status/info
+> C: Controlling configuration symbol
+> D: Date this meta-info was last updated
+> S: Status, one of the following:
+ 
+> There may be more than one P: field per map block.  There should be exactly one
+> M: field.
+> 
+> The D: field may have the special value `None' meaining that this map block
+> was translated from old information which has not yet been confirmed with the
+> responsible maintainer.
+> 
+> Note that this is the same set of conventions presently used in the
+> MAINTAINERS file, with only the T:, D:, and C: fields being new.  The
+> contents of the C: field, if present, should be the name of the
+> CONFIG_ symbol that controls the inclusion of this unit in a kernel.
+> 
+> (Map blocks are terminated by a blank line.)
+> 
 
-Advantages:
-#1: optional security level for every data, without user interaction.
-#2: if this idea is used e.g. for portable media (like cdrom), your backup
-could be in safe also.
-#3: (almost;)) everybody could create own security plugin for their data,
-and not have to trust on the designers of a secure file systems.
+We should use the same filed name of CREDITS e.g. D: for Description.
+(maybe you can invert D: description and T: time of last update)
 
-I suspect that this idea may appeared in the past:(, but I haven't heard
-about it;).
+It whould nice also if we include the type of the license (GPL,...).
+This for a fast parsing (and maybe also to replace the few lines
+of license)
 
-So, what do you think about this? Is Linux kernel enough flexible to do
-this? What changes are necessary to do such a thing? Is there any other way,
-to have own security for file-systems or portable medias? Is this
-implementation could be used in the US?
-
-Best regards,
-Tamas Nagy
+Instead of C: it is more important (IMHO) to include the module name.
+Maybe we can include both (modules name are always lower case).
+I think that the inclusion of the config option is not important (
+considering that it can be easily parsed from the kaos' new makefiles).
 
 
-
-
+	giacomo

@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268439AbUH3Bym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268445AbUH3BzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268439AbUH3Bym (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 21:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268440AbUH3Bym
+	id S268445AbUH3BzP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 21:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbUH3BzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 21:54:42 -0400
-Received: from mail-08.iinet.net.au ([203.59.3.40]:58571 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S268439AbUH3Byb
+	Sun, 29 Aug 2004 21:55:15 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:25036 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S268440AbUH3BzD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 21:54:31 -0400
-Date: Mon, 30 Aug 2004 09:53:13 +0800 (WST)
-From: Michael <quadfour@iinet.net.au>
-X-X-Sender: quadfour@natalie
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8.1 OOPS, processes hanging in D state, can reproduce
-In-Reply-To: <Pine.LNX.4.50.0408290951430.5632-100000@natalie>
-Message-ID: <Pine.LNX.4.50.0408300924310.705-100000@natalie>
-References: <Pine.LNX.4.50.0408290659030.3632-100000@natalie>
- <1093740497.7078.15.camel@krustophenia.net> <Pine.LNX.4.50.0408290951430.5632-100000@natalie>
+	Sun, 29 Aug 2004 21:55:03 -0400
+Date: Sun, 29 Aug 2004 18:54:57 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.9-rc1-mm1 can't compile a kernel
+Message-ID: <114120000.1093830897@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Aug 2004, Michael wrote:
+Seems to crap out with file corruption partway through, saying things
+like:
 
-> 
-> On Sat, 28 Aug 2004, Lee Revell wrote:
-> 
-> > 
-> > On Sat, 2004-08-28 at 20:25, Michael wrote:
-> > > First post to the list, never found a kernel bug before :)
-> > > 
-> > 
-> > Your kernel is tainted, probably due to having a binary module loaded. 
-> > Please reproduce with an untainted kernel and repost.
+ld -m elf_i386  -r -o utilities.o utalloc.o utcopy.o utdebug.o utdelete.o uteval.o utglobal.o utinit.o utmath.o utmisc.o utobject.o utxface.o
+uteval.o: file not recognized: File truncated
 
-I've received a howto via email on tracking down kernel oopses. I've 
-followed the guide as far as I could but got stuck at the point of trying 
-to find the part of asm code causing this because the 'Code' does not 
-match as in the howto. I think the oops is stemming from a problem with 
-the loop module but I don't know how to continue, I have not got the 
-knowledge to do this.
+2.6.9-rc1 seems to work fine. You got any likely candidates to try backing
+out / trying separately? Else I guess I'll try linus.patch.
 
-More or less I think I've done as much as I can, I've provided as much 
-information as I can about the problem. Im leaving this in the hands of 
-experienced people :)
+(test is just compiling 2.4.17 on the NUMA-Q).
 
-Regards
-Michael Collard
+But hey ... it makes my kernbench times super-whizzy-fast! ;-)
+
+M.
+
+

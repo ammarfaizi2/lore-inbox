@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbULTPHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbULTPJC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbULTPHA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 10:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbULTPG7
+	id S261518AbULTPJC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 10:09:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbULTPJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 10:06:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57767 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261517AbULTPGy (ORCPT
+	Mon, 20 Dec 2004 10:09:01 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49064 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261518AbULTPIj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 10:06:54 -0500
-Date: Mon, 20 Dec 2004 10:06:36 -0500 (EST)
+	Mon, 20 Dec 2004 10:08:39 -0500
+Date: Mon, 20 Dec 2004 10:08:13 -0500 (EST)
 From: Rik van Riel <riel@redhat.com>
 X-X-Sender: riel@chimarrao.boston.redhat.com
-To: mr@ramendik.ru
-cc: Andrew Morton <akpm@osdl.org>, lista4@comhem.se,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+To: "Zou, Nanhai" <nanhai.zou@intel.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       lista4@comhem.se, linux-kernel@vger.kernel.org, mr@ramendik.ru,
        kernel@kolivas.org
-Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
-In-Reply-To: <21322.195.133.60.161.1103533647.squirrel@195.133.60.161>
-Message-ID: <Pine.LNX.4.61.0412201003360.13935@chimarrao.boston.redhat.com>
-References: <1329986.1103525472726.JavaMail.tomcat@pne-ps1-sn1>   
- <20041219231250.457deb12.akpm@osdl.org> <21322.195.133.60.161.1103533647.squirrel@195.133.60.161>
+Subject: RE: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+In-Reply-To: <894E37DECA393E4D9374E0ACBBE7427013CA31@pdsmsx402.ccr.corp.intel.com>
+Message-ID: <Pine.LNX.4.61.0412201006590.13935@chimarrao.boston.redhat.com>
+References: <894E37DECA393E4D9374E0ACBBE7427013CA31@pdsmsx402.ccr.corp.intel.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Dec 2004 mr@ramendik.ru wrote:
+On Mon, 20 Dec 2004, Zou, Nanhai wrote:
 
-> - Enjoy :) "eatmemory" will slowly eat up more and more RAM (visible in
-> top as RSS); under 2.6.8.1 no screen freezes come, and under 2.6.9 and
-> 2.6.10-rc3 they do come; under 2.6.10-rc3 I also see high CPU periods for
-> kswapd.
+> With 2.6.9 + vmscan-ignore-swap-token-when-in-trouble.patch
+> OOM killer will be invoked around 30 hours.
+>
+> While 2.6.10-rc3-mm1 seems to be much more stable.
+> At least for the test I was running, it bypassed 48 hours test.
 
-The high cpu use for kswapd should be fixed by applying
-the vm-pageout-throttling.patch patch from -mm.
+That's Marcelo's vm-pageout-throttling.patch, which is one
+of the essential ingredients in avoiding false OOM kills.
 
-I'll also come up with a patch to not have the swap token
-used when the system is not under a swapin load...
+I'm waiting on some test results for another two patches
+that I suspect are also needed ...
 
 -- 
 He did not think of himself as a tourist; he was a traveler. The difference is

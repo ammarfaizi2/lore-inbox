@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUEXKLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264235AbUEXKXC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUEXKLc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 06:11:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbUEXKLc
+	id S264235AbUEXKXC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 06:23:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUEXKXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 06:11:32 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:27113 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S264231AbUEXKLb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 06:11:31 -0400
-Subject: [PATCH] typo in drivers/usb/class/usblp.c (resend)
-From: =?ISO-8859-1?Q?Beno=EEt?= Dejean <TazForEver@free.fr>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1085393489.6815.30.camel@athlon>
+	Mon, 24 May 2004 06:23:02 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:23510 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S264235AbUEXKXA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 06:23:00 -0400
+Date: Mon, 24 May 2004 20:22:26 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic addition of virtual disks on PPC64 iSeries
+Message-Id: <20040524202226.6b0acab6.sfr@canb.auug.org.au>
+In-Reply-To: <20040524014901.04530a24.akpm@osdl.org>
+References: <20040524162039.5f6ca3e0.sfr@canb.auug.org.au>
+	<20040523232920.2fb0640a.akpm@osdl.org>
+	<20040524184126.11aeffd3.sfr@canb.auug.org.au>
+	<20040524014901.04530a24.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Mon, 24 May 2004 12:11:29 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__24_May_2004_20_22_26_+1000_.Y3KtUOJ.om8le1D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i think there's a typo error in usblp.c
+--Signature=_Mon__24_May_2004_20_22_26_+1000_.Y3KtUOJ.om8le1D
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-patch against 2.6.6
+On Mon, 24 May 2004 01:49:01 -0700 Andrew Morton <akpm@osdl.org> wrote:
+>
+> Handy.  So the patch stands as-is?
 
---- linux-2.6.6/drivers/usb/class/usblp.c       2004-04-04
-05:36:26.000000000
-+0200
-+++ linux-2.6.6-modified/drivers/usb/class/usblp.c      2004-05-24
-01:15:20.000000000 +0200
-@@ -305,7 +305,7 @@
- 
-        if (~status & LP_PERRORP)
-                newerr = 3;
--       if (status & LP_POUTPA)
-+       if (~status & LP_POUTPA)
-                newerr = 1;
-        if (~status & LP_PSELECD)
-                newerr = 2;
+I would like that, but the recursive grep through /sys example
+bascially convinced me that having a writable file is better.
+
+New patch soon.
+
 -- 
-Benoît Dejean
-JID: TazForEver@jabber.org
-http://gdesklets.gnomedesktop.org
-http://www.paulla.asso.fr
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+--Signature=_Mon__24_May_2004_20_22_26_+1000_.Y3KtUOJ.om8le1D
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAsczpFG47PeJeR58RAmTiAJsFhH1f4jvauvSWK4mxaakVopDapgCeIpKs
+GqymjwRIcHS3mjeifF1rV3s=
+=V1S3
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__24_May_2004_20_22_26_+1000_.Y3KtUOJ.om8le1D--

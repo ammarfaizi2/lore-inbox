@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271364AbTGWWi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 18:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271367AbTGWWi2
+	id S271368AbTGWWmY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 18:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271363AbTGWWlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 18:38:28 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:21670 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S271364AbTGWWi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 18:38:27 -0400
-Date: Thu, 24 Jul 2003 00:53:33 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
+	Wed, 23 Jul 2003 18:41:24 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:41480 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271374AbTGWWlF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 18:41:05 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1-ac3 still broken on Adaptec I2O
-Message-ID: <20030723225333.GC16244@louise.pinerecords.com>
-References: <20030723201801.GB32585@rdlg.net> <20030723212224.A527@infradead.org> <20030723220037.GC32585@rdlg.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030723220037.GC32585@rdlg.net>
-User-Agent: Mutt/1.4.1i
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Make menuconfig broken
+Date: 23 Jul 2003 22:48:40 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bfn3c8$lnq$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.44.0307221146120.714-100000@serv> <Pine.LNX.4.44.0307221735160.5483-100000@phoenix.infradead.org> <20030722191746.A13975@infradead.org>
+X-Trace: gatekeeper.tmr.com 1059000520 22266 192.168.12.62 (23 Jul 2003 22:48:40 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [Robert.L.Harris@rdlg.net]
-> 
-> While I'm anything but a qualified coder I'm willing to test code on
-> this bugger or other help where soundly possible.
+In article <20030722191746.A13975@infradead.org>,
+Christoph Hellwig  <hch@infradead.org> wrote:
+| On Tue, Jul 22, 2003 at 05:47:04PM +0100, James Simmons wrote:
+| > What about the keyboard being built in. People will still not set that. 
+| 
+| Why not?  With this change they will get asked for keyboard support now.
+| Now that they actually are asked we can expect them to give the proper
+| answer.
 
-Would you people please stop replying above the original messages?
+If the user selects an Intel CPU why isn't the typical PC setup set by
+default? Time to stop pretending that there are enough non-PC setups to
+justify having these choices done manually each time, and make the PC
+the default Intel config.
 
-One could say this evil (pioneered by certain silly mail clients btw)
-has been spreading like plague around here lately.
-
-Quoting the lkml FAQ ->
-(REG) And please reply after the quoted text, not before it (as per RFC
-1855).  It's very confusing to see a reply before the quoted context.  And
-it's embarrassing: it makes you look like a newbie.  Change your mailer if
-necessary, if the one you have makes it hard to do reply-after-quoting.
-I know some people like to quote the entire message they are replying to,
-so they put their reply right at the top so people won't give up after the
-first page of quoted material.  Don't do it.  It's annoying.  Just learn to
-stop quoting everything.  No-one wants to see it all anyway (list archives
-allow people to see everything if they missed it).  You're not helping
-yourself anyway, as you're more likely to be ignored if you
-reply-before-quoting.
-
+Anyone running other is going to have to do a bunch of configs anyway.
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

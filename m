@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264950AbTAJLMg>; Fri, 10 Jan 2003 06:12:36 -0500
+	id <S264910AbTAJLIZ>; Fri, 10 Jan 2003 06:08:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264954AbTAJLMg>; Fri, 10 Jan 2003 06:12:36 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:29417 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id <S264950AbTAJLMf>; Fri, 10 Jan 2003 06:12:35 -0500
-Date: Fri, 10 Jan 2003 12:21:18 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21pre3-ac2
-Message-ID: <20030110112118.GC18007@charite.de>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200301090139.h091d9G26412@devserv.devel.redhat.com> <20030110094504.GM25979@charite.de> <1042200029.28469.55.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042200029.28469.55.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.1i
+	id <S264915AbTAJLIY>; Fri, 10 Jan 2003 06:08:24 -0500
+Received: from h-64-105-35-49.SNVACAID.covad.net ([64.105.35.49]:15490 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S264910AbTAJLIC>; Fri, 10 Jan 2003 06:08:02 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 10 Jan 2003 03:16:30 -0800
+Message-Id: <200301101116.DAA03752@baldur.yggdrasil.com>
+To: maxk@qualcomm.com
+Subject: Re: Another idea for simplifying locking in kernel/module.c
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> On Fri, 2003-01-10 at 09:45, Ralf Hildebrandt wrote:
-> > I got an oops with that kernel on two different machines:
-> 
-> Can you build the kernel with the patch to mm/shmem.c reverted and
-> see if that fixes your crash ?
+I wrote:
+>On Thu, 09 Jan 2003, Max Krasnyansky wrote:
+>>We have to be able to call try_module_get() from interrupt context.
 
-I'm building as we speak.
+>	Where?  Why?  Please show me one or more examples.
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-It's mathematical: (uNsTable - NT) = usable.
+	Come to think of it, I don't think you even have to answer
+that question.  You should be able to use my try_module_get() from
+interrupt context.  It never blocks.
 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

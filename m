@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271141AbSISPJj>; Thu, 19 Sep 2002 11:09:39 -0400
+	id <S269951AbSISPNd>; Thu, 19 Sep 2002 11:13:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271162AbSISPJj>; Thu, 19 Sep 2002 11:09:39 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:18082 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S271141AbSISPJW>; Thu, 19 Sep 2002 11:09:22 -0400
-Date: Thu, 19 Sep 2002 17:12:25 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre7-ac2
-Message-ID: <20020919171225.B8998@brodo.de>
-References: <20020919104233.A1812@brodo.de> <Pine.NEB.4.44.0209191106370.15721-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <Pine.NEB.4.44.0209191106370.15721-100000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Thu, Sep 19, 2002 at 11:07:33AM +0200
+	id <S271162AbSISPNd>; Thu, 19 Sep 2002 11:13:33 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:33964 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S269951AbSISPNb>;
+	Thu, 19 Sep 2002 11:13:31 -0400
+Date: Thu, 19 Sep 2002 12:13:23 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: axel@hh59.org
+Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.36-mm1
+In-Reply-To: <20020919150959.GA1887@prester.hh59.org>
+Message-ID: <Pine.LNX.4.44L.0209191212580.1519-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 11:07:33AM +0200, Adrian Bunk wrote:
-> On Thu, 19 Sep 2002, Dominik Brodowski wrote:
-> 
-> > Not really CPUfreq related, but this should fix it:
-> >...
-> 
-> Unfortunately not: 
+On Thu, 19 Sep 2002 axel@hh59.org wrote:
 
-OK, this should help (at least works here with your .config)
+> Well. I have retrieved procps from CVS and built it. But then vmstat
+> gets an segmentation fault. It looks like this..
+>
+> prester:/root# vmstat
+>    procs                      memory      swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy
+> id
+> Segmentation fault
+> Exit 139
 
---- linux/include/asm-i386/hw_irq.h.original	Thu Sep 19 10:28:43 2002
-+++ linux/include/asm-i386/hw_irq.h	Thu Sep 19 17:07:02 2002
-@@ -13,6 +13,7 @@
-  */
- 
- #include <linux/config.h>
-+#include <linux/smp_lock.h>
- #include <asm/atomic.h>
- #include <asm/irq.h>
- 
+You made sure to run it with the _new_ libproc and not with
+the old one you still have in /lib ?
+
+Rik
+-- 
+Spamtrap of the month: september@surriel.com
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

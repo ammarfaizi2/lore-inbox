@@ -1,79 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbTFIVQA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTFIVP7
+	id S262093AbTFIVTa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 17:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTFIVTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:15:59 -0400
-Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:43425 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S262095AbTFIVPu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:15:50 -0400
-Subject: Re: memtest86 on the opteron
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Dan Carpenter <dcarpenter@penguincomputing.com>,
-       linux-kernel@vger.kernel.org, ppokorny@penguincomputing.com
-In-Reply-To: <20030609211823.GA2182@suse.de>
-References: <Pine.LNX.4.33.0306091320500.2640-100000@ddcarpen1.penguincompting.com>
-	 <20030609211823.GA2182@suse.de>
-Content-Type: multipart/mixed; boundary="=-JXwGAmiC4/4tovDQ5iCc"
-Organization: 
-Message-Id: <1055194161.32291.11.camel@serpentine.internal.keyresearch.com>
+	Mon, 9 Jun 2003 17:19:30 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:62672 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S262093AbTFIVT3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 17:19:29 -0400
+Date: Mon, 9 Jun 2003 23:32:47 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] New system device API
+Message-ID: <20030609213247.GC508@elf.ucw.cz>
+References: <20030609210706.GA508@elf.ucw.cz> <Pine.LNX.4.44.0306091412440.11379-100000@cherise>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 09 Jun 2003 14:29:22 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0306091412440.11379-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-JXwGAmiC4/4tovDQ5iCc
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> > > So? A keyboard controller is not classified as a system device.
+> > 
+> > Its not on pci, I guess it would end up as a system device...
+> 
+> Huh? Since when is everything that's not PCI a system device? Please read 
+> the documentation, esp. WRT system and platform devices.
 
-On Mon, 2003-06-09 at 14:18, Dave Jones wrote:
-
-> Any reason to restrict it to a single stepping ?
-> This means you have to upgrade memtest every time a new model
-> is released, which seems a bit of a pain.
-
-This is the patch I use, which seems to make sense, since I don't know
-of any other steppings.  No point in parameterising the code until you
-have some parameters.
-
-	<b
-
---=-JXwGAmiC4/4tovDQ5iCc
-Content-Disposition: inline; filename=memtest.patch
-Content-Type: text/plain; name=memtest.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-===== init.c 1.2 vs edited =====
---- 1.2/init.c	Mon Jun  9 14:25:40 2003
-+++ edited/init.c	Mon Jun  9 14:27:42 2003
-@@ -403,16 +403,12 @@
- 			l1_cache = cpu_id.cache_info[3];
- 			l1_cache += cpu_id.cache_info[7];
- 		case 15:
--			switch (cpu_id.model) {
--			case 5:
--				cprint(LINE_CPU, 0, "AMD Opteron");
--				off = 11;
--				l1_cache = cpu_id.cache_info[3];
--				l1_cache += cpu_id.cache_info[7];
--				l2_cache = (cpu_id.cache_info[11] << 8);
--				l2_cache += cpu_id.cache_info[10];
--				break;
--			}
-+			cprint(LINE_CPU, 0, "AMD Opteron");
-+			off = 11;
-+			l1_cache = cpu_id.cache_info[3];
-+			l1_cache += cpu_id.cache_info[7];
-+			l2_cache = (cpu_id.cache_info[11] << 8);
-+			l2_cache += cpu_id.cache_info[10];
- 		}
- 		break;
- 
-
---=-JXwGAmiC4/4tovDQ5iCc--
-
+Oh and btw keyboard controller is used for rebooting machine. Do you
+still say it is not system device?
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

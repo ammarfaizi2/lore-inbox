@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290211AbSBKTV3>; Mon, 11 Feb 2002 14:21:29 -0500
+	id <S290228AbSBKTVj>; Mon, 11 Feb 2002 14:21:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290218AbSBKTVV>; Mon, 11 Feb 2002 14:21:21 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:6290 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S290211AbSBKTVG>;
-	Mon, 11 Feb 2002 14:21:06 -0500
-Date: Mon, 11 Feb 2002 13:17:44 -0600
-From: John Hesterberg <jh@sgi.com>
-To: torvalds@transmeta.com, marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: driver location for platform-specific drivers
-Message-ID: <20020211131744.A16032@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S290223AbSBKTVb>; Mon, 11 Feb 2002 14:21:31 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:43813 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S290216AbSBKTVR> convert rfc822-to-8bit; Mon, 11 Feb 2002 14:21:17 -0500
+Date: Sun, 10 Feb 2002 21:20:05 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Pete Zaitcev <zaitcev@redhat.com>, <stodden@in.tum.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pci_pool reap?
+In-Reply-To: <E16a6sw-0005Jw-00@the-village.bc.nu>
+Message-ID: <20020210211352.Q1910-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus & Marcelo,
 
-For SGI's upcoming Linux platform (nicknamed Scalable Node, or SN),
-we have some platform specific device drivers.  Where should these go?
-I see several precedents in the current kernels.
+On Mon, 11 Feb 2002, Alan Cox wrote:
 
-    1) Integrate in drivers/*.
-       Integrate SN drivers into appropriate directories.
-       Put them directly in char, net, misc, etc., as appropriate.
+> > There is a certain controversy about pci_free_consistent called
+> > from an interrupt. It seems that most architectures would
+> > have no problems, and only arm is problematic. RMK says that
+>
+> The discussion was about pci_alloc_consistent. The free case seems to be
+> explicitly disallowed in all cases.
+>
+> (from DMA-mapping.txt)
+>
+> To unmap and free such a DMA region, you call:
+>
+>         pci_free_consistent(dev, size, cpu_addr, dma_handle);
+>
+> where dev, size are the same as in the above call and cpu_addr and
+> dma_handle are the values pci_alloc_consistent returned to you.
+> This function may not be called in interrupt context.
 
-    2) Company (sgi) directory.
-       There is already an sgi directory, strangely enough.
-       I *think* this was meant to be a platform directory for the
-       discontinued SGI 320/540 Visual Workstations.  However, maybe
-       it was intended to be a new precedent of company specific
-       directories.  In this case, we'd probably create a platform
-       directory under the company directory, so there would likely
-       be drivers/sgi/sn (some of our SN drivers are here today in
-       our internal development tree).  However, there is no other
-       precedent for "company" subdirectories under drivers.  Apple
-       didn't do it.  IBM didn't do it.  HP hasn't done it.  Was the
-       drivers/sgi directory really intended to start a new
-       precedent of company specific directories under drivers?
+Such limitation looks poor implementation to me.
 
-    3) New platform directory.
-       Create a platform directory for SN, probably drivers/sn.
-       There is precedence for this with the drivers/macintosh
-       and drivers/s390.  Also, as noted, the SGI Visual Workstation
-       drivers are in drivers/sgi.  In this case, it might also make
-       sense to rename drivers/sgi to drivers/visws to indicate
-       these are drivers for the Visual Workstation platform, and
-       not generic SGI drivers.
+At least, could existing driver interface be clearly documented about what
+methods may/may not/might/should/shall/ever will/never will/ etc.. be
+called in interrupt context or whatever context and what others may be
+called...
+                 ...in a different way :-).
 
-    4) New architecture directory.
-       Another suggestion is to create an architecture directory,
-       in this case drivers/ia64/{char,net,etc.}/.
+  Gérard.
 
-I'm happy with whatever you'll accept.  To give you something to
-either agree with or shoot down, I'll suggest #3.  SGI's Scalable
-Node product will be different enough, with enough platform specific
-drivers, that it justifies it's own subdirectory, and that this
-should be called drivers/sn.
-
-John Hesterberg
-jh@sgi.com

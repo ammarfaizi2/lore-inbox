@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310249AbSCFW1F>; Wed, 6 Mar 2002 17:27:05 -0500
+	id <S310224AbSCFWas>; Wed, 6 Mar 2002 17:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310243AbSCFW0t>; Wed, 6 Mar 2002 17:26:49 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:19342 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S310241AbSCFW0f>;
-	Wed, 6 Mar 2002 17:26:35 -0500
-Date: Wed, 06 Mar 2002 14:24:13 -0800 (PST)
-Message-Id: <20020306.142413.73653162.davem@redhat.com>
-To: linux-kernel@vger.kernel.org
-CC: jgarzik@mandrakesoft.com, linux-net@vger.kernel.org
-Subject: [BETA-0.96] Seventh test release of Tigon3 driver
-From: "David S. Miller" <davem@redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S310227AbSCFWaj>; Wed, 6 Mar 2002 17:30:39 -0500
+Received: from mail.starbak.net ([63.144.91.12]:32531 "EHLO mail.starbak.net")
+	by vger.kernel.org with ESMTP id <S310224AbSCFWaV>;
+	Wed, 6 Mar 2002 17:30:21 -0500
+Message-ID: <005e01c1c55d$d73b4260$5a5b903f@h90>
+From: "Joseph Malicki" <jmalicki@starbak.net>
+To: "David Woodhouse" <dwmw2@infradead.org>, "Jeff Dike" <jdike@karaya.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+        "Benjamin LaHaise" <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <200203062025.PAA03727@ccure.karaya.com>  <6920.1015450061@redhat.com>
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+Date: Wed, 6 Mar 2002 17:25:37 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+> jdike@karaya.com said:
+> >  Yeah, MADV_DONTNEED looks right.  UML and Linux/s390 (assuming VM has
+> > the equivalent of MADV_DONTNEED) would need a hook in free_pages to
+> > make that happen.
+>
+>        MADV_DONTNEED
+>               Do  not expect access in the near future.  (For the
+>               time being, the application is  finished  with  the
+>               given range, so the kernel can free resources asso­
+>               ciated with it.)
+>
+> It's not clear from that that the host kernel is actually permitted to
+> discard the data.
 
-Not much changed, just one biggie.  Get it at:
+Solaris has MADV_FREE to say that the data can be discarded...
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/davem/TIGON3/tg3-0.96.patch.gz
+-joe
 
-Changes:
-
-[PERFORMANCE] Don't mess with DMA read/write boundary settings on X86
-	      Should result in significant performance increases on
-	      this platform.  I'm rather confident our driver performs
-	      better than Broadcom's driver on all platforms now.
-[PATCH-ERROR] Some parts of 0.95 didn't apply directly due to some
-	      botched up hand patch editing on my part, sorry :-)
-
-Please test and benchmark, and I'll be away until Saturday to look
-into reports.
-
-And you Aussies, you know what you need to do :-))))

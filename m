@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280861AbRKBWnd>; Fri, 2 Nov 2001 17:43:33 -0500
+	id <S280859AbRKBWoN>; Fri, 2 Nov 2001 17:44:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280863AbRKBWnP>; Fri, 2 Nov 2001 17:43:15 -0500
-Received: from saga18.Stanford.EDU ([171.64.15.148]:35054 "EHLO
-	saga18.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S280860AbRKBWnA>; Fri, 2 Nov 2001 17:43:00 -0500
-Date: Fri, 2 Nov 2001 14:42:36 -0800 (PST)
-From: Ken Ashcraft <kash@Stanford.EDU>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: <linux-kernel@vger.kernel.org>, <engler@Stanford.EDU>
-Subject: Re: null pointer questions
-In-Reply-To: <Pine.LNX.4.33.0111021346460.11407-100000@serv>
-Message-ID: <Pine.GSO.4.33.0111021433590.6907-100000@saga18.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280863AbRKBWoF>; Fri, 2 Nov 2001 17:44:05 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:7081 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S280860AbRKBWny>; Fri, 2 Nov 2001 17:43:54 -0500
+Date: Fri, 2 Nov 2001 15:43:39 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Ethan <e-d0uble@stinkfoot.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PPC kernel ide modules failing [PATCH?]
+Message-ID: <20011102154339.C29828@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <3BE30EDC.4030301@stinkfoot.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BE30EDC.4030301@stinkfoot.org>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 2. What happens if I pass a null pointer as the destination parameter
-> > to copy_from_user?  Does copy_from_user handle it safely or will the
-> > kernel seg fault?
->
-> The kernel won't crash, but it might fail (depending on whether 0 is a
-> valid user space address or not).
+On Fri, Nov 02, 2001 at 04:23:40PM -0500, Ethan wrote:
 
-Why does it matter if 0 is a valid user space or not?  If I make the call
+> ..answering myself here..  as I found that this problem occurs using a bunch 
+> of different trees (bk, ben, stock, etc..)
+> I have fixed this issue (albeit in possibly a completely incorrect and bad 
+> way)I'm certainly no programmer, and definately not a kernel hacker.
+> I was wondering if this is the correct way to handle this:
 
-copy_from_user(0, user_ptr, 4);
+For now it's actually preferable to throw it in ppc_ksyms.c.  I'll do so
+shortly.  Thanks for looking into this.
 
-the null pointer is the kernel address, not the user address.  Can you
-clarify please?
-
-Thanks
-Ken
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,75 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264784AbTFBBrx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 21:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264785AbTFBBrx
+	id S264788AbTFBB4H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 21:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264789AbTFBB4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 21:47:53 -0400
-Received: from conure.mail.pas.earthlink.net ([207.217.120.54]:37554 "EHLO
-	conure.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264784AbTFBBrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 21:47:52 -0400
-Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030601130704.5f3cc1a8.akpm@digeo.com>
-References: <1054441433.1722.33.camel@iso-8590-lx.zeusinc.com>
-	 <20030531214520.5b7facf4.akpm@digeo.com>
-	 <1054488992.1722.42.camel@iso-8590-lx.zeusinc.com>
-	 <20030601130704.5f3cc1a8.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054519196.1722.70.camel@iso-8590-lx.zeusinc.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Jun 2003 21:59:57 -0400
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4, required 10, AWL,
-	EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, SPAM_PHRASE_02_03)
+	Sun, 1 Jun 2003 21:56:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2054 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264788AbTFBB4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 21:56:04 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Question about style when converting from K&R to ANSI C.
+Date: 2 Jun 2003 02:09:17 GMT
+Organization: Transmeta Corp
+Message-ID: <1054519757.161606@palladium.transmeta.com>
+References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com>
+X-Trace: palladium.transmeta.com 1054519757 9865 127.0.0.1 (2 Jun 2003 02:09:17 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 2 Jun 2003 02:09:17 GMT
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: torvalds@penguin.transmeta.com (Linus Torvalds)
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-06-01 at 16:07, Andrew Morton wrote:
-> Tom Sightler <ttsig@tuxyturvy.com> wrote:
-> >
-> > On Sun, 2003-06-01 at 00:45, Andrew Morton wrote:
-> > > Tom Sightler <ttsig@tuxyturvy.com> wrote:
-> > > >
-> > > > I simply reniced this process to -10 and
-> > > >  everything started working fine.  Upon looking a little further it
-> > > >  seemed that the kernel was dynamically boosting the priority of the
-> > > >  process much higher than it probably should be, in the end, not leaving
-> > > >  enough CPU for playing the sounds without skipping.
-> > > 
-> > > Yes, it seems that too many real-world applications are accidentally
-> > > triggering this problem.
-> > > 
-> > > Could you please run an strace of the boosted process, find out what it is
-> > > doing to get itself boosted in this manner?  Wait until things are in
-> > > steady state and the process is boosted, then run `strace -tt <pid>' so we
-> > > see the timing info.
-> > 
-> > The strace was quite large so I have uploaded it to
-> > http://tuxyturvy.com/strace-pluginserver.gz
-> > 
-> 
-> Seems to be doing lots of small reads and writes.  Maybe to a pipe.  What
-> is the system context switch rate while this is happening?  From `vmstat
-> 1'?
-> 
+In article <20030601132626.GA3012@work.bitmover.com>,
+Larry McVoy  <lm@bitmover.com> wrote:
+>On Sat, May 31, 2003 at 11:56:16PM -0600, Steven Cole wrote:
+>> Proposed conversion:
+>> 
+>> int foo(void)
+>> {
+>>    	/* body here */
+>> }	
+>
+>Sometimes it is nice to be able to see function names with a 
+>
+>	grep '^[a-zA-Z].*(' *.c
+>
+>which is why I've always preferred
+>
+>int
+>foo(void)
+>{
+>	/* body here */
+>}	
 
-I just did a 10 second run, average was about 2000/sec, with a minimum
-of around 1500/sec and a peak of 3700/sec.
+That makes no sense.
 
-With the rest of the system the same (same programs running, etc) but on
-a page that doesn't use that particular plugin, the context switch rate
-sits around 250/sec.
+Do you write your normal variable definitions like
 
-Would you like the actual full output from vmstat?
+	int
+	a,b,c;
 
-Later,
-Tom
+too? No you don't, because that would be totally idiotic.
 
+A function declaration is no different. The type of the function is very
+important to the function itself (along with the arguments), and I
+personally want to see _all_ of it when I grep for functions. 
 
+You should just do
+
+	grep -i '^[a-z_ ]*(' *.c 
+
+and you'll get a nice function declaration with the standard kernel
+coding style.
+
+And I personally don't normally do "grep for random function
+declarations", that just sounds like a contrieved example.  I grep for
+specific function names to find usage, and then it's _doubly_ important
+to see that the return (and argument) types match and make sense.
+
+So I definitely prefer all the arguments on the same line too, even if
+that makes the line be closer to 100 chars than 80.  The zlib K&R->ANSI
+conversion was a special case, and I'd be happy if somebody were to have
+the energy to convert it all the way (which implies moving comments
+around etc). 
+
+			Linus

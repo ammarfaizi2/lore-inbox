@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbTEDOpq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 10:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTEDOpq
+	id S263623AbTEDOtt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 10:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbTEDOtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 10:45:46 -0400
-Received: from rth.ninka.net ([216.101.162.244]:4533 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263600AbTEDOpp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 10:45:45 -0400
-Subject: Re: [PATCH] list.h: implement list_for_each_entry_safe
-From: "David S. Miller" <davem@redhat.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030504075748.GD12549@conectiva.com.br>
-References: <20030504075748.GD12549@conectiva.com.br>
+	Sun, 4 May 2003 10:49:49 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:11525 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263623AbTEDOtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 10:49:47 -0400
+Subject: Re: Regarding Umount
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: nmala@mail.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20030504145234.83566.qmail@mail.com>
+References: <20030504145234.83566.qmail@mail.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052052632.27465.0.camel@rth.ninka.net>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 04 May 2003 09:58:28 -0500
+Message-Id: <1052060310.10809.17.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 May 2003 05:50:32 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-05-04 at 00:57, Arnaldo Carvalho de Melo wrote:
-> ChangeSet@1.1219, 2003-05-04 04:39:21-03:00, acme@conectiva.com.br
->   o list.h: implement list_for_each_entry_safe
+On Sun, 2003-05-04 at 09:52, nmala@mail.com wrote:
+> What exactly does umount write?? Every time I umount my pseudo driver there are two calls to request with readwrite flag set to 1. Haven't been able to find a corresponding write in the trace of umount.
 
-Exists already, there is even a _rcu version.
+That depends on the fs.  One will almost certainly be the final
+superblock update.
 
--- 
-David S. Miller <davem@redhat.com>
+James
+
+

@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbTLCR05 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 12:26:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTLCR04
+	id S265102AbTLCRT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 12:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbTLCRT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 12:26:56 -0500
-Received: from [200.55.45.242] ([200.55.45.242]:49832 "EHLO smtp.bensa.ar")
-	by vger.kernel.org with ESMTP id S262901AbTLCR0k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 12:26:40 -0500
-From: Norberto Bensa <nbensa@gmx.net>
-To: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-ck1
-Date: Wed, 3 Dec 2003 14:24:25 -0300
-User-Agent: KMail/1.5.4
-References: <200312040228.44980.kernel@kolivas.org>
-In-Reply-To: <200312040228.44980.kernel@kolivas.org>
+	Wed, 3 Dec 2003 12:19:56 -0500
+Received: from guardian.hermes.si ([193.77.5.150]:30471 "EHLO
+	guardian.hermes.si") by vger.kernel.org with ESMTP id S265102AbTLCRTy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 12:19:54 -0500
+Message-ID: <600B91D5E4B8D211A58C00902724252C01BC046D@piramida.hermes.si>
+From: David Balazic <david.balazic@hermes.si>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Bugs in linux-2.6.0-test11/README
+Date: Wed, 3 Dec 2003 18:19:45 +0100 
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_Lxhz/lJPDBOfbiS";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200312031424.27850.nbensa@gmx.net>
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.6.0-test11/README says :
 
---Boundary-02=_Lxhz/lJPDBOfbiS
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Description: signed data
-Content-Disposition: inline
+ If you want
+   to make a boot disk (without root filesystem or LILO), insert a floppy
+   in your A: drive, and do a "make bzdisk".
 
-Con Kolivas wrote:
-> Updated my patchset.
->
-> http://kernel.kolivas.org
+Wasn't that feature (booting without LILO or other boot loader ) removed ?
+At least http://www.kniggit.net/wwol26.html says so.
 
-Too bad http://ck.kolivas.org/ seems down :-(
 
-Norberto
+ - If you configured any of the parts of the kernel as `modules', you
+   will have to do "make modules" followed by "make modules_install".
+ 
+eh ? some other part says that "make modules" is now done as part of
+"make"
 
---Boundary-02=_Lxhz/lJPDBOfbiS
-Content-Type: application/pgp-signature
-Content-Description: signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+...
 
-iD8DBQA/zhxLFXVF50lmS74RAsrNAJ9DQc9EBWH4worPbnswCNOjpvHJOgCeNXHR
-Beuk/B8eV+kmvcluN80bEVw=
-=yOqq
------END PGP SIGNATURE-----
+   For some, this is on a floppy disk, in which case you can copy the
+   kernel bzImage file to /dev/fd0 to make a bootable floppy.
+ 
+...
+again, see above.
 
---Boundary-02=_Lxhz/lJPDBOfbiS--
+
+Regards,
+David
+----------------------------------------------------------------------------
+-----------
+David Balazic                      mailto:david.balazic@hermes.si
+HERMES Softlab                 http://www.hermes-softlab.com
+Zolajeva 30                          Phone: +386 2 450 8851 
+SI-2000 Maribor
+Slovenija
+----------------------------------------------------------------------------
+-----------
+"Be excellent to each other." -
+Bill S. Preston, Esq. & "Ted" Theodore Logan
+----------------------------------------------------------------------------
+-----------
+
+
+
+
 

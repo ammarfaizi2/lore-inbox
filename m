@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263483AbUFBQRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbUFBQRu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263483AbUFBQRb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 12:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbUFBQRa
+	id S261628AbUFBQRu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 12:17:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUFBQRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 12:17:30 -0400
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:27265 "EHLO
-	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S263483AbUFBQRX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 12:17:23 -0400
-Subject: Re: [PATCH] 5/5: Device-mapper: dm-zero
-From: Christophe Saout <christophe@saout.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040602160905.GX28915@suse.de>
-References: <20040602154605.GR6302@agk.surrey.redhat.com>
-	 <1086192141.4659.1.camel@leto.cs.pocnet.net>
-	 <20040602160905.GX28915@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YDiCCCNJyOXbUJYg0+Qx"
-Date: Wed, 02 Jun 2004 18:17:06 +0200
-Message-Id: <1086193026.4659.3.camel@leto.cs.pocnet.net>
+	Wed, 2 Jun 2004 12:17:50 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:19089 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S261628AbUFBQRr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 12:17:47 -0400
+Date: Wed, 2 Jun 2004 18:17:21 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] explicitly mark recursion count
+Message-ID: <20040602161721.GA29296@wohnheim.fh-wedel.de>
+References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl> <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org> <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org> <20040602142748.GA25939@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org> <20040602150440.GA26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020807270.3403@ppc970.osdl.org> <20040602152741.GC26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020839230.3403@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0406020839230.3403@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2 June 2004 08:52:53 -0700, Linus Torvalds wrote:
+> 
+> I think the above syntax is both human-readable and "obviously parseable" 
+> in many trivial ways. Whaddaya think? Works for you?
 
---=-YDiCCCNJyOXbUJYg0+Qx
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Works for me for trivial recursions (just one function involved.  With
+a little more pain, it should work for basically everything.  Only
+exception are multiple recursions around the same function.  So unless
+you like to keep those suckers, I'm fine with it.
 
-Am Mi, den 02.06.2004 um 18:09 Uhr +0200 schrieb Jens Axboe:
-> On Wed, Jun 02 2004, Christophe Saout wrote:
-> > Am Mi, den 02.06.2004 um 16:46 Uhr +0100 schrieb Alasdair G Kergon:
-> >=20
-> > > +	bio_for_each_segment(bv, bio, i) {
-> > > +		char *data =3D bvec_kmap_irq(bv, &flags);
-> > > +		memset(data, 0, bv->bv_len);
-> >=20
-> > I just noticed, there's a
-> >=20
-> > 		flush_dcache_page(bv->bv_page);
-> >=20
-> > missing here.
-> >=20
-> > > +		bvec_kunmap_irq(bv, &flags);
->=20
-> and even worse, passing bad argument to bvec_kunmap_irq().
+Jörn
 
-Oops. Right.
-
-> extern inline void bvec_kunmap_irq(char *buffer, unsigned long *flags)
-> {
-> 	unsigned long ptr =3D (unsigned long) buffer & PAGE_MASK;
->
-> 	kunmap_atomic((void *) ptr, KM_BIO_SRC_IRQ);
-> 	local_irq_restore(*flags);
-> }
-
-What does this & PAGE_MASK do? This looks wrong too.
-
-
---=-YDiCCCNJyOXbUJYg0+Qx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAvf2CZCYBcts5dM0RAq1lAJ9BjZ5cDhmxxXQpsOcoP9GQYjnABQCfetg4
-EApsvz+KUf4dIa+rPe280KA=
-=XsSJ
------END PGP SIGNATURE-----
-
---=-YDiCCCNJyOXbUJYg0+Qx--
-
+-- 
+The cheapest, fastest and most reliable components of a computer
+system are those that aren't there.
+-- Gordon Bell, DEC labratories

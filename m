@@ -1,74 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262862AbTC1KHs>; Fri, 28 Mar 2003 05:07:48 -0500
+	id <S262857AbTC1KDi>; Fri, 28 Mar 2003 05:03:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262868AbTC1KHs>; Fri, 28 Mar 2003 05:07:48 -0500
-Received: from c3p0.cc.swin.edu.au ([136.186.1.10]:48138 "EHLO
-	net.cc.swin.edu.au") by vger.kernel.org with ESMTP
-	id <S262862AbTC1KHr>; Fri, 28 Mar 2003 05:07:47 -0500
-From: Tim Connors <tconnors@astro.swin.edu.au>
-Message-Id: <200303281018.h2SAIxq29603@tellurium.ssi.swin.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Delaying writes to disk when there's no need
-In-Reply-To: <20030327113014$37b4@gated-at.bofh.it>
-References: <20030326204012$188c@gated-at.bofh.it> <20030327091007$22a5@gated-at.bofh.it> <20030327113014$37b4@gated-at.bofh.it>
-Date: Fri, 28 Mar 2003 21:18:59 +1100
+	id <S262862AbTC1KDi>; Fri, 28 Mar 2003 05:03:38 -0500
+Received: from holomorphy.com ([66.224.33.161]:54958 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262857AbTC1KDg>;
+	Fri, 28 Mar 2003 05:03:36 -0500
+Date: Fri, 28 Mar 2003 02:14:33 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 64GB NUMA-Q after pgcl
+Message-ID: <20030328101433.GQ1350@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
+References: <20030328040038.GO1350@holomorphy.com> <Pine.LNX.4.50.0303280243080.2884-100000@montezuma.mastecende.com> <20030328075730.GP30140@holomorphy.com> <Pine.LNX.4.50.0303280303190.2884-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0303280303190.2884-100000@montezuma.mastecende.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux.kernel, you wrote:
-> Helge Hafting (helgehaf@aitel.hist.no) wrote:
->> Erik Hensema wrote:
->>> In all kernels I've tested writes to disk are delayed a long time even when
->>> there's no need to do so.
->>> 
->> Short answer - it is supposed to do that!
->> 
->>> A very simple test shows this: on an otherwise idle system, create a tar of
->>> a NFS-mounted filesystem to a local disk. The kernel starts writing out the
->>> data after 30 seconds, while a slow and steady stream would be much nicer
->>> to the system, I think.
+On Thu, 27 Mar 2003, William Lee Irwin III wrote:
+>> Sure. On NUMA-Q mem_map[] is not allocated using bootmem except for
+>> node 0. Various other bootmem allocations are also proportional to
+>> memory as measured in units of PAGE_SIZE, but not all.
+>> So all we're seeing here is node 0's mem_map[] with "miscellaneous"
+>> bootmem allocations thrown in, whether reduced or increased.
+>> This is not very reflective of what's going on as the majority of mem_map[]
+>> is allocated through a custom reservation mechanism as opposed to bootmem.
 
-Agreed. We have a cluster which is writing on average something like
-20 Megs/sec/node. We had to lower the write threshold from 30% to 0%,
-because with the constant writing, linux will buffer it for 30 secs,
-fill up RAM, try to empty the write-cache, stall, wash, rinse,
-repeat. Because it was being filled up at roughly the rate it was
-being emptied, once it got 30% behind, there was no catching up, so
-the realtime system would lose data. Ouch.
+On Fri, Mar 28, 2003 at 03:05:42AM -0500, Zwane Mwaikambo wrote:
+> Thanks, nice work btw, although the core guts of this stuff is somewhat of 
+> a mystery to some of us ;)
 
->> You're wrong then.  There's no need for a slow steady stream, why do
->> you want that.  Of course you can set up cron to run sync at
->> regular (short) intervals to achieve this.
+The code is still very much of prototype quality, so I'm actually being
+somewhat deliberately obscure so those who aren't specifically
+interested in hacking or very early testing don't accidentally burn
+themselves or otherwise get the impression of a patchkit gone horribly
+wrong. And even worse than that, so no one reviews the code before I've
+cleaned it up.
 
-Last time I checked, cron had 1 minute resolution.
- 
-> I see that. However, I don't see why the kernel is writing out data
-> as agressively as it does now. Delaying a write for 30 seconds isn't the
-> problem: the aggressive writes are. Since the disks are otherwise idle, the
-> kernel can gently start writing out the dirty cache. No need to try and
-> write 40 MB in 1 sec when you can write 10 MB/sec in 4 seconds.
-> 
-> [...]
-> 
->> For more detailed information, read a book about how filesystems and
->> disk caching works.
-> 
-> I'm just reporting what's happening to me in practice, I don't really care
-> about what should happen in theory.
+The concept is really very simple, although the consequences are far
+reaching. The kernel ties together its basic unit of allocation and
+accounting, the PAGE_SIZE area and its associated struct page, together
+with the notion of a pagetable entry and the size of the area mapped by
+a pagetable entry (also called PAGE_SIZE in mainline, made into a
+distinct notion of MMUPAGE_SIZE by the patch).
 
-Exactly. 
+Page clustering is named for the view of the arrangement that a set of
+hardware pages is a "cluster" represented by the software accounting
+unit. In truth it's closer to symmetry apart from the constraint that
+the software unit must be larger than the hardware unit. The net result
+of it is that you go around figuring out which of the two units various
+bits of code really meant, and for pagetable walks and so on the code
+must be taught that it's referring to only a piece of a software page,
+or to hand callers the piece they need when they need them.
 
-Helge's comment about /tmp files and rewriting files multiple times:
-in real life, how often does this happen? How often do you overwrite
-one file many times in 30 seconds? The occasional 20 kilobyte /tmp
-file perhaps, but I doubt it matters in real life. In real life, when
-writing to disk constantly (not just scientific applications - I
-believe this happens in the real world too!), waiting for 30 seconds
-is a liability!
+The fact it resolves the horror of mem_map[] overrunning kernel
+virtualspace on i386 PAE is really an obscure coincidence. AIUI Hugh's
+2.4.x patch was actually intended to enable larger filesystem block
+sizes, and the BSD implementation for the VAX was simply meant to deal
+with the fact that even 16B for every 512B hardware page is too large a
+fraction of physical memory (not virtual) for page-granularity
+accounting to be memory-efficient. For BSD's purposes a relatively
+small constant factor sufficed; for i386 a much larger one is required
+for workload feasibility as virtualspace approaches the precise
+fraction of physical memory that the coremap would otherwise consume.
+
+Various other odd goodnesses are supposed to come of it, for instance,
+prefaulting benefits as a side effect of trying to utilize the entire
+software page in fault handlers, and io throughput benefits from
+increased physical contiguity. My codebase is not prepared for
+performance analysis yet, as the fragmentation issues are only
+partially resolved. The real point of the posting is to show that this
+thing actually makes 64GB work and, of course, to get first the post
+on 64GB i386 PAE. =)
+
+With this in hand, we can say "Yes, this solves the problem without
+turning critical userspace apps into doorstops by stealing address
+space from them" and I can resume coding up the final stretch of
+functionality and move on to cleanups and maintenance of the patch
+until the devel cycle comes to the point where it's ready for a merge.
+I'd not be surprised if some vendor and/or distro interest is provoked,
+and I'll do my best to help them along (if desired) once the patch is in
+good enough shape wrt. functionality and clean enough to deliver to them.
 
 
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-
-White dwarf seeks red giant star
+-- wli

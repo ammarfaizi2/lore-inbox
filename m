@@ -1,71 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbUCLRXc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 12:23:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUCLRXb
+	id S262353AbUCLR0o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 12:26:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUCLR0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 12:23:31 -0500
-Received: from mill.mtholyoke.edu ([138.110.30.76]:26500 "EHLO
-	mill.mtholyoke.edu") by vger.kernel.org with ESMTP id S262339AbUCLRX1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 12:23:27 -0500
-From: Ron Peterson <rpeterso@mtholyoke.edu>
-Date: Fri, 12 Mar 2004 12:23:01 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: network/performance problem
-Message-ID: <20040312172301.GA18159@mtholyoke.edu>
-References: <20040311152728.GA11472@mtholyoke.edu> <20040311151559.72706624.akpm@osdl.org> <20040311233525.GA14065@mtholyoke.edu> <20040312164704.GA17969@mtholyoke.edu>
+	Fri, 12 Mar 2004 12:26:43 -0500
+Received: from ns.cohaesio.net ([212.97.129.16]:46211 "EHLO ns.cohaesio.net")
+	by vger.kernel.org with ESMTP id S262353AbUCLRZ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 12:25:59 -0500
+Subject: Re: 2.6.3 userspace freeze
+From: "Anders K. Pedersen" <akp@cohaesio.com>
+To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Cc: Jan Kara <jack@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <87ptbi5on5.fsf@goat.bogus.local>
+References: <222BE5975A4813449559163F8F8CF503458441@cohsrv1.cohaesio.com>
+	 <87ptbi5on5.fsf@goat.bogus.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Cohaesio A/S
+Message-Id: <1079112003.19710.10.camel@akp.cohaesio.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040312164704.GA17969@mtholyoke.edu>
-User-Agent: Mutt/1.3.28i
-Organization: Mount Holyoke College
-X-Operating-System: Debian GNU/Linux
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 12 Mar 2004 18:20:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Fri, Mar 12, 2004 at 11:47:04AM -0500, rpeterso wrote:
+On Fri, 2004-03-12 at 11:46, Olaf Dietsche wrote:
+> There are always many rotatelogs started. Maybe that's a hint for
+> further investigation.
 
-> On sam, I just did:
-> 
-> 1002# cat /proc/net/ip_conntrack > ip_conntrack
-> 
-> ..and it wiped the machine out.  I can't ping it, ssh to it, nothing.  I
-> need to go walk over to the machine room...  :(
+The rotatelogs processes are used to write log data from Apache (by use
+of CustomLog/ErrorLog directives) to rotating files, so this is quite
+normal. I just made the following pstree, which is typical for this
+server:
 
-I rebooted, and did the exact same thing as above.  Here's what the
-console says:
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000018
- printint eip:
-c024aae5
-*pde = 00000000
-Ooops: 0000
-CPU:     0
-EIP:     0010:[<c024aaae5>]    Not tainted
-EFLAGS: 00010286
-eax: 00000000  ebx: deb00440  ecx: ddad71d1  edx: e089b000
-esi: deb00440  edi: ddad71d2  ebp: 0000002d  esp: ddb4df3c
-dsd: 0018  es: 0018  ss: 0018
-Process cat (pid: 365, stackpage=ddb4d000)
-Stack: deb00440 000001d2 000001d2 c024ad1a ddad71d2 deb00440 00000000 00000c00
-       ddad7000 00001000 00000ff6 c014af9f ddad7000 ddb4df98 00000029 00000c00
-       00000000 ddafe3c0 ffffffea 00001000 c196dce0 00000000 00000000 00000000
-Call Trace:  [<c024ad1a>] [<c014af9f>] [<c012f936>] [c0106c03>]
-
-Code: 83 78 18 00 74 3a 83 7e 2c 00 74 1f a1 44 3c 32 c0 8b 56 34
- <0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-
-
-...whew.  Hopefully not too many typos.. ;) After I reboot again, I'll
-probably find this all got syslogged..
-
+init-+-agent.be---agent.be
+     |-agetty
+     |-atd
+     |-bdflush
+     |-caspd---caspd---caspd---caspeng---caspeng---22*[caspeng]
+     |-crond
+     |-httpd-+-233*[httpd]
+     |       |-120*[rotatelogs]
+     |       `-3*[rotatelogspsoft]
+     |-keventd
+     |-khubd
+     |-4*[kjournald]
+     |-klogd
+     |-ksoftirqd_CPU0
+     |-ksoftirqd_CPU1
+     |-kswapd
+     |-kupdated
+     |-logger
+     |-master-+-2*[cleanup]
+     |        |-pickup
+     |        |-qmgr
+     |        |-4*[smtp]
+     |        `-trivial-rewrite
+     |-7*[mingetty]
+     |-named
+     |-ntpd
+     |-proftpd---16*[proftpd]
+     |-scsi_eh_0
+     |-soagent
+     |-sshd-+-sshd---script-runner.p
+     |      `-sshd---bash---pstree
+     |-syslogd
+     |-ulogd
+     `-watchdogd
 
 -- 
-Ron Peterson
-Network & Systems Manager
-Mount Holyoke College
-http://www.mtholyoke.edu/~rpeterso
+Med venlig hilsen - Best regards
+
+Anders K. Pedersen
+Network Engineer
+------------------------------------------------ 
+Cohaesio A/S - Maglebjergvej 5D - DK-2800 Lyngby
+Phone: +45 45 880 888  - Fax: +45 45 880 777
+Mail: akp@cohaesio.com - http://www.cohaesio.com
+------------------------------------------------

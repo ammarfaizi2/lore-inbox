@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132128AbRCYRim>; Sun, 25 Mar 2001 12:38:42 -0500
+	id <S132140AbRCYSBD>; Sun, 25 Mar 2001 13:01:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132130AbRCYRic>; Sun, 25 Mar 2001 12:38:32 -0500
-Received: from cable039.201.eneco.bart.nl ([195.38.201.39]:27149 "EHLO
-	procyon.wilson.nl") by vger.kernel.org with ESMTP
-	id <S132128AbRCYRiV>; Sun, 25 Mar 2001 12:38:21 -0500
-From: "Michel Wilson" <michel@procyon14.yi.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Larger dev_t
-Date: Sun, 25 Mar 2001 19:37:36 +0200
-Message-ID: <NEBBLEJBILPLHPBNEEHICEPPCAAA.michel@procyon14.yi.org>
+	id <S132142AbRCYSAx>; Sun, 25 Mar 2001 13:00:53 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:20740 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S132140AbRCYSAm>; Sun, 25 Mar 2001 13:00:42 -0500
+Date: Sun, 25 Mar 2001 14:08:03 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "James A. Sutherland" <jas88@cam.ac.uk>,
+        Guest section DW <dwguest@win.tue.nl>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] OOM handling
+In-Reply-To: <3ABE0CC2.268D8C3C@evision-ventures.com>
+Message-ID: <Pine.LNX.4.21.0103251407420.1863-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <5.0.2.1.2.20010325180537.04690940@pop.cus.cam.ac.uk>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ever heard of cut-and-paste? Surely you can afford a mouse... And 
-> for when 
-> you you are not inputting manually but running a script/whatever, 
-> who cares 
-> what the numbers are...
+On Sun, 25 Mar 2001, Martin Dalecki wrote:
+> Rik van Riel wrote:
+
+> > - the AGE_FACTOR calculation will overflow after the system has
+> >   an uptime of just _3_ days
 > 
-> Cheers,
-> 
->          Anton
-Oops. Okay, you're right.
+> I esp. the behaviour will be predictable.
+
+Ummmm ?
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

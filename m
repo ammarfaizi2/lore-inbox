@@ -1,76 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280917AbRKLSsD>; Mon, 12 Nov 2001 13:48:03 -0500
+	id <S280921AbRKLSue>; Mon, 12 Nov 2001 13:50:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280921AbRKLSrx>; Mon, 12 Nov 2001 13:47:53 -0500
-Received: from cc797718-a.jrsycty1.nj.home.com ([24.253.208.156]:55051 "EHLO
-	buggy.badula.org") by vger.kernel.org with ESMTP id <S280917AbRKLSrr>;
-	Mon, 12 Nov 2001 13:47:47 -0500
-Date: Mon, 12 Nov 2001 13:44:53 -0500
-Message-Id: <200111121844.fACIirV23633@buggy.badula.org>
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Marc Haber <mh+linux-kernel@zugschlus.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: xircom_cb and promiscious mode
-In-Reply-To: <20011101193437.B924@torres.ka0.zugschlus.de>
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.14 (i586))
+	id <S280923AbRKLSuX>; Mon, 12 Nov 2001 13:50:23 -0500
+Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:26320 "HELO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with SMTP
+	id <S280921AbRKLSuI>; Mon, 12 Nov 2001 13:50:08 -0500
+Subject: Re: [PATCH] VIA timer fix was removed?
+From: Nils Philippsen <nils@wombat.dialup.fht-esslingen.de>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011112140530.A23866@socrates>
+In-Reply-To: <20011112111409.A2617@socrates>
+	<200111121448.PAA01060@green.mif.pg.gda.pl> 
+	<20011112140530.A23866@socrates>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-AmOQaAbt383TNeRZ7ZEa"
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 12 Nov 2001 19:49:14 +0100
+Message-Id: <1005590954.23106.1.camel@wombat>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marc,
 
-Sorry for the late reply, I've been on vacation for the last week..
+--=-AmOQaAbt383TNeRZ7ZEa
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 1 Nov 2001 19:34:37 +0100, Marc Haber <mh+linux-kernel@zugschlus.de> wrote:
-> On Thu, Nov 01, 2001 at 10:47:03AM -0500, Ion Badulescu wrote:
->> What does mii-tool report?
-> 
-> This is what mii-tool reports while the link is still up:
-> |Basic registers of MII PHY #0:  1000 782d 0040 6331 00a1 45e1 0005 2001.
-> | The autonegotiated capability is 00a0.
-> |The autonegotiated media type is 100baseTx.
-> | Basic mode control register 0x1000: Auto-negotiation enabled.
-> | You have link beat, and everything is working OK.
-> | Your link partner advertised 45e1: Flow-control 100baseTx-FD 100baseTx 10baseT-FD 10baseT, w/ 802.3X flow control.
-> |   End of basic transceiver informaion.
+On Mon, 2001-11-12 at 17:05, Jeronimo Pellegrini wrote:
+> On Mon, Nov 12, 2001 at 03:48:24PM +0100, Andrzej Krzysztofowicz wrote:
+> > > The following patch (introduced by Vojtech Pavlik some time ago) was
+> > > removed somewhere between 2.4.14 and 2.4.15-pre3.
+> > > Without it, the timer counter is reset to a wrong value and
+> > > gettimeofday() starts to return strange values
+> > >=20
+> > > Nothing aboutit is mentioned in the changelog, so I suppose it wasn't
+> > > supposed to be removed?
+> >=20
+> > Maybe, it happens because somebody forgot to comment why this code is
+> > necessary here ?
+> > Just a guess...
+>=20
+> Then perhaps this would be a good idea?
 
-All right, so far so good.
+I have seen IBM machines (Netfinity 6000R) where this code got triggered
+even though they didn't have VIA chipsets/timers. Seems to have caused
+some problems there and I removed the code (in the custom kernel running
+on those machines).
 
-> Invoking mii-diag after provoking the network freeze freezes the
-> entire machine. Not even magic sqsrq works in that situation.
+Nils
+--=20
+ Nils Philippsen / Berliner Stra=DFe 39 / D-71229 Leonberg //
++49.7152.209647
+nils@wombat.dialup.fht-esslingen.de / nils@redhat.de /
+nils@fht-esslingen.de
+        Ever noticed that common sense isn't really all that common?
 
-This, however, is not good. Not good at all. If sysrq is not working, that 
-means the interrupts are disabled or the bus is completely wedged. The 
-driver never disables interrupts, and the ioctl() function is not called 
-with the interrupts disabled, so that's not a possible cause. Furthermore, 
-the ioctl() function does something very mundane (reading a few 
-registers), which definitely shouldn't cause lock ups.
+--=-AmOQaAbt383TNeRZ7ZEa
+Content-Type: application/pgp-signature
 
-I'm sorry, I don't have any good news for you... I really don't think the 
-problem is in the driver.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Just for the kicks, can you strace mii-diag when it locks up, to see on 
-which ioctl() call it locks up? I don't think that will help much, but...
+iD8DBQA78BmpR9ibZWlRMBERAkz1AKCE6zRpfV0MjQ+Rbs12hjesMlYwSgCgkStT
+C+ntgIkJKDMsKEopH8T9EQU=
+=VJnu
+-----END PGP SIGNATURE-----
 
-> Sometimes, I get a "spurious 8259A interrupt: IRQ7" or " spurious
-> 8259A interrupt: IRQ15" message on console and syslog, though.
+--=-AmOQaAbt383TNeRZ7ZEa--
 
-I get the IRQ7 one as well, it's not something to be overly concerned 
-with.
-
-> I cannot rule out that my notebook is broken, Chicony has a history of
-> making abysmally bad hardware, and the machine is about two years old.
-
-Could very well be broken, unfortunately.
-
-> I don't have a reference notebook that has Linux installed and can do
-> Cardbus to cross-check, sorry.
-
-Do you have any other cardbus cards to test if they work with this laptop?
-
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.

@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271126AbUJVAts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271125AbUJVAts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271126AbUJVAts (ORCPT <rfc822;willy@w.ods.org>);
+	id S271125AbUJVAts (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 21 Oct 2004 20:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271036AbUJVArq
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271139AbUJVAr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 20:47:46 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:687 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S271165AbUJVAoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 20:44:30 -0400
-Subject: Re: [ACPI] Machines self-power-up with 2.6.9-rc3 (evo N620c, ASUS,
-	...)
-From: Li Shaohua <shaohua.li@intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nate Lawson <nate@root.org>, Nigel Cunningham <ncunningham@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <20041021103729.GA1088@elf.ucw.cz>
-References: <4176FCB8.3060103@root.org>
-	 <1098323602.6132.51.camel@sli10-desk.sh.intel.com>
-	 <20041021103729.GA1088@elf.ucw.cz>
+	Thu, 21 Oct 2004 20:47:27 -0400
+Received: from ozlabs.org ([203.10.76.45]:60304 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S271161AbUJVAiQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 20:38:16 -0400
+Subject: Re: [PATCH] softirq block request completion
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jens Axboe <axboe@suse.de>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20041021082322.GW10531@suse.de>
+References: <20041021082322.GW10531@suse.de>
 Content-Type: text/plain
-Message-Id: <1098405352.28250.2.camel@sli10-desk.sh.intel.com>
+Message-Id: <1098405496.12103.44.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 22 Oct 2004 08:35:52 +0800
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 22 Oct 2004 10:38:16 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 18:37, Pavel Machek wrote:
-> Hi!
-> 
-> > > > :-). Well for some other people it powers up when they unplug AC
-> > > > power, and *that* is nasty. I'd like my machine to stay powered down
-> > > > when I tell it so.
-> > > 
-> > > This is likely a similar GPE problem.  The GPE for the EC fires even
-> > > in 
-> > > S5.  I think the EC GPE should be disabled in the suspend method.
-> > It could be the wakeup GPE issue, but must note Pavel's system suffer
-> > the problem even with acpi=off. Could you please try boot your system
-> > with acpi=off, and then reboot with acpi=off, what's the result? I
-> > expected the wakeup GPE is disabled by the BIOS in this case.
-> > Anyway, the DSDT can tell us the wakeup GPE info.
-> 
-> You want me to boot with acpi=off twice and see if machine powers down
-> okay in second case?
-Yes, indeed.
-> 
-> Compressed DSDT is attached.
-The dmesg shows your system can be waked up by Lid from S4 but not S5.
-But there is another device (looks like the LPC bridge) can wakeup your
-system from S5.
+On Thu, 2004-10-21 at 18:23, Jens Axboe wrote:
+> +	for (i = 0; i < NR_CPUS; i++) {
+> +		struct blk_completion_queue *bcq = &per_cpu(blk_cpu_done, i);
+
+for_each_cpu(i) perhaps?
+
+Not that it matters, but I'm trying to get people out of bad habits 8)
 
 Thanks,
-Shaohua
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268133AbTAKTbG>; Sat, 11 Jan 2003 14:31:06 -0500
+	id <S268129AbTAKTfv>; Sat, 11 Jan 2003 14:35:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268135AbTAKTbG>; Sat, 11 Jan 2003 14:31:06 -0500
-Received: from ldap.somanetworks.com ([216.126.67.42]:22699 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id <S268133AbTAKTbE>; Sat, 11 Jan 2003 14:31:04 -0500
-Date: Sat, 11 Jan 2003 14:39:47 -0500 (EST)
-From: Scott Murray <scottm@somanetworks.com>
-X-X-Sender: scottm@rancor.yyz.somanetworks.com
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Grant Grundler <grundler@cup.hp.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul Mackerras <paulus@samba.org>,
-       <davidm@hpl.hp.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <greg@kroah.com>
-Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
-In-Reply-To: <20030111004239.A757@localhost.park.msu.ru>
-Message-ID: <Pine.LNX.4.44.0301111346200.9854-100000@rancor.yyz.somanetworks.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268102AbTAKTft>; Sat, 11 Jan 2003 14:35:49 -0500
+Received: from netrealtor.ca ([216.209.85.42]:27144 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S268116AbTAKTfp>;
+	Sat, 11 Jan 2003 14:35:45 -0500
+Date: Sat, 11 Jan 2003 14:53:01 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Clayton Weaver <cgweav@email.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What's in a name?
+Message-ID: <20030111195301.GB11878@mark.mielke.cc>
+References: <20030111033104.26980.qmail@email.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030111033104.26980.qmail@email.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Jan 2003, Ivan Kokshaysky wrote:
+On Fri, Jan 10, 2003 at 10:31:04PM -0500, Clayton Weaver wrote:
+> The whole thing has depended on gcc from day one,
+> so I see no valid objection to prominently give GNU
+> credit for providing a decent compiler and thus saving
+> Linus the work of inventing that before he started on
+> his kernel.
 
-> On Fri, Jan 10, 2003 at 11:00:30AM -0800, Grant Grundler wrote:
-> > Or dynamically assigns windows to PCI Bus controllers as PCI devices
-> > are brought on-line.
-> 
-> Eh? In general case, to make room for newly added device, you have
-> to shutdown the whole PCI bus starting from level 0, reassign _all_
-> BARs and bridge windows and then restart...
-> The "hotplug resource reservation" is the only viable approach, it has
-> been discussed numerous times.
-> 
-> > For PCI Hotplug, the role of managing MMIO/IRQ
-> > resources has moved to the OS since these services are needed
-> > after the OS has taken control of the box.
-> 
-> 100% agree. :-)
+Actually, Linux depended on Linus Torvalds from day one, making Linux
+a *very* apt name, if the argument is that credit should be attributed
+to the primary contributory to Linux's success...
 
-Since the lack of resource reservation currently is keeping CompactPCI
-hot insertion from working properly, I have a strong interest in getting
-something in place before 2.6.  I've got a completely manual (kernel
-command-line parameter controlled) reservation patch[1] against 2.4 that
-I could start updating, but I've always thought there must be a more 
-elegant way to do things than the somewhat crude fixup approach I used
-in it.  I'm willing to try coding up something if you or anyone else
-have some ideas as to what would be an acceptable solution.
+The GCC license says that it can be used to compile pretty much anything
+anybody wants to. Richard Stallman gave up the right to claim credit for
+projects that happen to use GCC, the instance he wrote the GPL, and the
+LGPL.
 
-Thanks,
-
-Scott
-
-[1] look at the new file drivers/pci/setup-hp.c contained in:
-ftp://oss.somanetworks.com/pub/linux/cpci/v2.4/linux-2.4.19-cpci-20021107.diff.gz
-
+mark
 
 -- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

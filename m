@@ -1,30 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265022AbUFMH41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265025AbUFMIOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265022AbUFMH41 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 03:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265024AbUFMH41
+	id S265025AbUFMIOE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 04:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbUFMIOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 03:56:27 -0400
-Received: from web90104.mail.scd.yahoo.com ([66.218.94.75]:48780 "HELO
-	web90104.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S265022AbUFMH40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 03:56:26 -0400
-Message-ID: <20040613075625.64532.qmail@web90104.mail.scd.yahoo.com>
-Date: Sun, 13 Jun 2004 00:56:25 -0700 (PDT)
-From: Tisheng Chen <tishengchen@yahoo.com>
-To: linux-kernel@vger.kernel.org
+	Sun, 13 Jun 2004 04:14:04 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:50906 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264885AbUFMIOD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 04:14:03 -0400
+From: debian-cd@lists.debian.org
+To: linux-secnews@vger.kernel.org
+Date: Sun, 13 Jun 2004 08:13:31 GMT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Moschee-Bau in Deutschland
+Importance: Normal
+X-Mailer: Mail-SMTP V9.43
+X-Priority: 3 (Normal)
+Message-ID: <8577c18b293083.48aa1.qmail@lists.debian.org>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-help linux-kernel
-
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-Friends.  Fun.  Try the all-new Yahoo! Messenger.
-http://messenger.yahoo.com/ 
+Lese selbst:
+http://www.moschee-wertheim.de/leserbriefe.htm

@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266033AbTLISVt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 13:21:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266038AbTLISVt
+	id S265983AbTLISRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 13:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbTLISRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 13:21:49 -0500
-Received: from mail.kroah.org ([65.200.24.183]:37808 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266033AbTLISVs (ORCPT
+	Tue, 9 Dec 2003 13:17:20 -0500
+Received: from pop.gmx.de ([213.165.64.20]:13741 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265983AbTLISRT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 13:21:48 -0500
-Date: Tue, 9 Dec 2003 10:19:32 -0800
-From: Greg KH <greg@kroah.com>
-To: Rob Landley <rob@landley.net>
-Cc: Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: State of devfs in 2.6?
-Message-ID: <20031209181932.GA9461@kroah.com>
-References: <200312081536.26022.andrew@walrond.org> <pan.2003.12.08.23.04.07.111640@dungeon.inka.de> <20031208233428.GA31370@kroah.com> <200312082326.17723.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Dec 2003 13:17:19 -0500
+X-Authenticated: #13632028
+From: Matthias Krebs <mat.krebs@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test11:ide-disk partitions not mountable
+Date: Tue, 9 Dec 2003 19:17:03 +0100
+User-Agent: KMail/1.5.93
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200312082326.17723.rob@landley.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200312091917.03649.mat.krebs@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 08, 2003 at 11:26:17PM -0600, Rob Landley wrote:
-> 
-> Is there a big rollup patch against that adds all the sys/*/dev entries for 
-> people who want to try udev?
+I have two ide-controllers, one onboard (VIA vt8233a) and one as pci-card 
+(Promise ultra100 tx2). The following drives are attached:
 
-After I get finished catching up on USB patches that people sent me for
-the last month, I'll generate this and post it to lkml.
+Controller1:
+/dev/ide/host0/bus0/target0/lun0/disc ibm harddisk (hda)
+/dev/ide/host0/bus1/target0/lun0/cd ide cd-writer
+/dev/ide/host0/bus1/target1/lun0/cd ide dvd-rom
 
-thanks,
+Controller2:
+/dev/ide/host2/bus1/target0/lun0/disc maxtor harddisk (hde)
+/dev/ide/host2/bus1/target1/lun0/disc maxtor harddisk (hdg)
 
-greg k-h
+The system (debian unstable) boots from an raid0 on hde/hdg. hda can be 
+accesed by parted,fdsik etc., partitions and filesystems can be created. But 
+when i try to mount any partiton on hda i get:
+
+mount: /dev/hda2 already mounted or /mnt/hda2/ busy
+
+which it isn`t (cat /proc/mounts). All partitions can be mounted under 2.4 
+kernels.
+
+Is it now necessary to use kernel option "Boot off-board chipsets first 
+support" for this kind of setup?
+
+Bye, Matthias

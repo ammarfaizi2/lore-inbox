@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUKLDnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbUKLDzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbUKLDnm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 22:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbUKLDnm
+	id S262432AbUKLDzm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 22:55:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbUKLDzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 22:43:42 -0500
-Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:61677
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S262434AbUKLDnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 22:43:37 -0500
-Date: Thu, 11 Nov 2004 22:51:12 -0500
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Florian Heinz <heinz@cronon-ag.de>, linux-kernel@vger.kernel.org
-Subject: Re: a.out issue
-Message-ID: <20041112035112.GA2075@kurtwerks.com>
-Mail-Followup-To: Chris Wright <chrisw@osdl.org>,
-	Florian Heinz <heinz@cronon-ag.de>, linux-kernel@vger.kernel.org
-References: <20041111220906.GA1670@dereference.de> <20041111192727.R14339@build.pdx.osdl.net>
+	Thu, 11 Nov 2004 22:55:42 -0500
+Received: from ozlabs.org ([203.10.76.45]:40395 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262432AbUKLDzh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 22:55:37 -0500
+Subject: Re: 2.6.10-rc1-mm5: yenta_socket issue
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200411111311.44664.rjw@sisk.pl>
+References: <20041111012333.1b529478.akpm@osdl.org>
+	 <200411111311.44664.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Fri, 12 Nov 2004 14:55:54 +1100
+Message-Id: <1100231754.27128.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041111192727.R14339@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.9
-X-Woot: Woot!
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 11, 2004 at 07:27:27PM -0800, Chris Wright took 39 lines to write:
-> * Florian Heinz (heinz@cronon-ag.de) wrote:
-> > seems like find_vma_prepare does not what insert_vm_struct expects when
-> > the whole addresspace is occupied.
+On Thu, 2004-11-11 at 13:11 +0100, Rafael J. Wysocki wrote:
+> On Thursday 11 of November 2004 10:23, Andrew Morton wrote:
+> > 
+> > 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm5/
 > 
-> The setup_arg_pages() is inserting an overlapping region.  If nothing
-> else, this will fix that problem.   Perhaps there's a better solution.
+> On an AMD64 box (Athlon 64 + NForce3) I get these messages from yenta_socket:
+> 
+> yenta_socket: Unknown symbol dead_socket
+> yenta_socket: Unknown symbol pcmcia_register_socket
+> yenta_socket: Unknown symbol pcmcia_socket_dev_resume
+> yenta_socket: Unknown symbol pcmcia_parse_events
+> yenta_socket: Unknown symbol pcmcia_socket_dev_suspend
+> yenta_socket: Unknown symbol pcmcia_unregister_socket
+> 
+> but the module loads.
 
-It solves the oops here (I didn't get the oops at first because I didn't
-have CONFIG_BINFMT_AOUT set). Sort of. Now I just get "Killed" with
-vm.overcommit_memory set to 1; with it set to 0 I get a seg fault.
+Well, if it spits that out it won't load.  Sounds like a modprobe.conf
+doing something tricky (like trying to load yenta_socket, which fails,
+then loading what it needs).
 
-Kurt
+Rusty.
 -- 
-Let He who taketh the Plunge Remember to return it by Tuesday.
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

@@ -1,233 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310241AbSDXJTi>; Wed, 24 Apr 2002 05:19:38 -0400
+	id <S310224AbSDXJXS>; Wed, 24 Apr 2002 05:23:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310435AbSDXJTh>; Wed, 24 Apr 2002 05:19:37 -0400
-Received: from rzfoobar.is-asp.com ([217.11.194.155]:4490 "EHLO mail.isg.de")
-	by vger.kernel.org with ESMTP id <S310241AbSDXJTd>;
-	Wed, 24 Apr 2002 05:19:33 -0400
-Message-ID: <3CC6789E.D99AFF8A@isg.de>
-Date: Wed, 24 Apr 2002 11:19:26 +0200
-From: Peter Niemayer <niemayer@isg.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S310435AbSDXJXR>; Wed, 24 Apr 2002 05:23:17 -0400
+Received: from dsl-213-023-038-128.arcor-ip.net ([213.23.38.128]:57514 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S310224AbSDXJXQ>;
+	Wed, 24 Apr 2002 05:23:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "J.A. Magallon" <jamagallon@able.es>, m.knoblauch@TeraPort.de
+Subject: Re: XFS in the main kernel
+Date: Tue, 23 Apr 2002 11:23:03 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Stephen Lord <lord@sgi.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CC56355.E5086E46@TeraPort.de> <3CC581F5.2FBEA0C1@TeraPort.de> <20020423213750.GA1704@werewolf.able.es>
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mounting loop-device on a 2048 byte/sector medium fails
-In-Reply-To: <Pine.LNX.3.96.1020423181848.31248B-100000@gatekeeper.tmr.com>
-Content-Type: multipart/mixed;
- boundary="------------B2D40C443D708FA0516E0124"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16zwWW-0002Mi-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------B2D40C443D708FA0516E0124
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Bill Davidsen wrote:
-
-> On Mon, 22 Apr 2002, Peter Niemayer wrote:
+On Tuesday 23 April 2002 23:37, J.A. Magallon wrote:
+> On 2002.04.23 Martin Knoblauch wrote:
+> If XFS is so good (i do not doubt it), I see some issues (plz correct me
+> if I'm wrong...):
 > 
-> > first I thought this was some loop-AES specific issue, but now I know
-> > it isn't: When I try to mount a filesystem on a loop device which
-> > is in turn using a 2048 byte/sector medium (a magneto-optical drive
-> > in my case), the mount fails though mkfs & fsck are happy.
+> - XFS needs substantial changes in the VFS layer to work
+> - This changes are good (or make xfs so good)
+> - *THE THING* to do is to integrate this changes in mainline tree VFS,
+>   so XFS will stop duplicating half the kernel code.
 > 
-> I reported this some time ago as a problem with using offset mounting CDs
-> with a binary prefix before the ISO image. And since it seems that the
-> problem is not the offset but the sector size, the problems may be
-> related.
-> 
-> I'll look at this over the weekend if not before. It works with 2.0 and
-> 2.2, I use it regularly, and it's the main thing keeping a few of my
-> machines on 2.2.
+> Why those features are not merged ? Incompatibilities ? Licensing ?
+> Religious wars about some way of doing things ?
 
-Then I've got good news for you: Jari Ruusu just sent me a patch to the
-loop device that fixes the problem!
+No.  It's simply a matter of nobody having done the required analysis to
+find a really good way to reconcile XFS's way of doing things with
+mainline vfs.  This is time-consuming work that requires a good deal of
+skill, and right now there are many projects in the same category.
 
-As loop-AES has a super-set of features of the original loop device,
-you may download loop-AES 1.6b here:
+My advice to anyone who wants to make it go faster?  Jump in and start
+doing the analysis (start with xfs/pagebuf.c).  If you are a company who
+wants it to go faster, try offering money.  Otherwise, it goes at its own
+speed, and this work will likely come up to the top of the pile later in
+the 2.5 cycle.
 
-http://sourceforge.net/project/showfiles.php?group_id=28891&release_id=84590
-
-... and replace the loop.c-2.4.diff file in it with the attached new version.
-
-Or wait until there's an official new loop-AES release or until the maintainer
-of the original loop.c applied a similar patch.
-
-Regards,
-
-Peter Niemayer
---------------B2D40C443D708FA0516E0124
-Content-Type: application/octet-stream;
- name="loop.c-2.4.diff.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="loop.c-2.4.diff.bz2"
-
-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
---------------B2D40C443D708FA0516E0124
-Content-Type: text/plain; charset=us-ascii;
- name="loop.c-2.4.diff.bz2.sign"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="loop.c-2.4.diff.bz2.sign"
-
------BEGIN PGP MESSAGE-----
-Version: 2.6.3ia
-Comment: http://loop-aes.sourceforge.net/PGP-public-key.asc
-
-iQCVAwUAPMWt8zMKg0M6Ig9RAQH/QQP9EpbDQunKEa2gzgKmJaz66QQKKc5N1HcL
-Uxq9VxHScoE1eANYdvduWa0ElMXLlKezp+0eysgkc15s8PVk7CavhzOEcFo5A8Uq
-SFykaCRQiPXBOqJp8bpjDdraAsvIg34pSvj01BL/oWkKHxWxqfDZmfz4+dLprsAg
-ytCPFRILU7Q=
-=Dhzy
------END PGP MESSAGE-----
-
---------------B2D40C443D708FA0516E0124--
-
+-- 
+Daniel

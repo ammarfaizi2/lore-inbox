@@ -1,42 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266191AbUGZXqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUGZXqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266191AbUGZXqg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 19:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266192AbUGZXqg
+	id S266188AbUGZXqd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 19:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUGZXqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 19:46:36 -0400
-Received: from mx01.netapp.com ([198.95.226.53]:59388 "EHLO mx01.netapp.com")
-	by vger.kernel.org with ESMTP id S266191AbUGZXqK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 19:46:10 -0400
-From: Brian Pawlowski <beepy@netapp.com>
-Message-Id: <200407262345.i6QNjtr11774@tooting.eng.netapp.com>
-Subject: Re: ext3 and SPEC SFS Run rules.
-In-Reply-To: <16645.36138.385234.785650@cse.unsw.edu.au> from Neil Brown at "Jul 27, 4 09:00:58 am"
-To: neilb@cse.unsw.edu.au (Neil Brown)
-Date: Mon, 26 Jul 2004 16:45:55 -0700 (PDT)
-Cc: akpm@osdl.org, tigran@aivazian.fsnet.co.uk, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME++ PL40 (25)]
+	Mon, 26 Jul 2004 19:46:33 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:55003 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266188AbUGZXpw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 19:45:52 -0400
+Message-ID: <410594FF.5040307@austin.ibm.com>
+Date: Mon, 26 Jul 2004 18:34:23 -0500
+From: Joel Schopp <jschopp@austin.ibm.com>
+Reply-To: jschopp@austin.ibm.com
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc64; en-US; rv:1.4) Gecko/20030922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: akpm@osdl.org, anton@samba.org, paulus@samba.org
+CC: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] cpu hotplug ppc64 bug
+Content-Type: multipart/mixed;
+ boundary="------------080103010209070100080707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The only place that I am aware of where we *do*not* return wcc data is
-> for the WRITE request (which you have not listed).  As the underlying
-> filesystem is left to do whatever locking it thinks is appropriate,
-> and vfs_write does none, nfsd is not in a position to lock it itself
-> against sys_write and so cannot record before and after stat
-> information that is atomic w.r.t the update.
+This is a multi-part message in MIME format.
+--------------080103010209070100080707
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Without replaying conversations on V3 and wcc_ stuff I do believe that
-long about 1993 or 1994 most decided that making the pre- and post-stat
-info atomic w.r.t. the update was not "required" - because that would
-be hard.
+On Power4 and earlier hardware there is no need to clear the CPPR (see 
+RPAp 479 section 18.5.4.7.2 for what little info there is on the CPPR) 
+when stopping a cpu. On hardware that uses Power5 an undocumented change 
+has been made that requires the CPPR to be cleared if an isolate is to 
+be done on the stopped cpu. So the following patch lets cpu hotplug work 
+on the recent hardware.
 
-The WCC stuff is relegated to a hint to help detect conflicting
-changes in that case I believe.
+I sent this patch to the ppc64-dev list back in mid April and Suse 
+picked it up then for SLES9 so it has been well tested for several months.
 
-beepy
+--------------080103010209070100080707
+Content-Type: text/plain;
+ name="jul26.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="jul26.patch"
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1883  -> 1.1884 
+#	include/asm-ppc64/xics.h	1.5     -> 1.6    
+#	arch/ppc64/kernel/xics.c	1.45    -> 1.46   
+#	arch/ppc64/kernel/smp.c	1.72    -> 1.73   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/07/26	jschopp@zippy.ltc.austin.ibm.com	1.1884
+# Power5 has a requirement to clear the CPPR before doing a stop_self or isolates will fail later on.  Clearing the CPPR is OK on Power4 so just 
+# added it to the path.
+# --------------------------------------------
+#
+diff -Nru a/arch/ppc64/kernel/smp.c b/arch/ppc64/kernel/smp.c
+--- a/arch/ppc64/kernel/smp.c	Mon Jul 26 18:26:45 2004
++++ b/arch/ppc64/kernel/smp.c	Mon Jul 26 18:26:45 2004
+@@ -300,6 +300,10 @@
+ void cpu_die(void)
+ {
+ 	local_irq_disable();
++	/* Some hardware requires clearing the CPPR, while other hardware does not
++	 * it is safe either way
++	 */
++	pSeriesLP_cppr_info(0, 0);
+ 	rtas_stop_self();
+ 	/* Should never get here... */
+ 	BUG();
+diff -Nru a/arch/ppc64/kernel/xics.c b/arch/ppc64/kernel/xics.c
+--- a/arch/ppc64/kernel/xics.c	Mon Jul 26 18:26:45 2004
++++ b/arch/ppc64/kernel/xics.c	Mon Jul 26 18:26:45 2004
+@@ -190,7 +190,7 @@
+ 		      val64); 
+ }
+ 
+-static void pSeriesLP_cppr_info(int n_cpu, u8 value)
++void pSeriesLP_cppr_info(int n_cpu, u8 value)
+ {
+ 	unsigned long lpar_rc;
+ 
+diff -Nru a/include/asm-ppc64/xics.h b/include/asm-ppc64/xics.h
+--- a/include/asm-ppc64/xics.h	Mon Jul 26 18:26:45 2004
++++ b/include/asm-ppc64/xics.h	Mon Jul 26 18:26:45 2004
+@@ -19,6 +19,9 @@
+ void xics_setup_cpu(void);
+ void xics_cause_IPI(int cpu);
+ 
++/* first argument is ignored for now*/
++void pSeriesLP_cppr_info(int n_cpu, u8 value);
++
+ struct xics_ipi_struct {
+ 	volatile unsigned long value;
+ } ____cacheline_aligned;
+
+--------------080103010209070100080707--
 

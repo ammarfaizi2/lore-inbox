@@ -1,90 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286118AbRLJAUD>; Sun, 9 Dec 2001 19:20:03 -0500
+	id <S286108AbRLJAVX>; Sun, 9 Dec 2001 19:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286111AbRLJATo>; Sun, 9 Dec 2001 19:19:44 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41738 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S286108AbRLJATf>; Sun, 9 Dec 2001 19:19:35 -0500
-Date: Sun, 9 Dec 2001 21:03:10 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Rene Rebe <rene.rebe@gmx.net>,
-        linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] 
- /ALSA-0.9.0beta[9,10]
-In-Reply-To: <Pine.LNX.4.21.0112092059550.24440-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0112092102460.24440-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286111AbRLJAVO>; Sun, 9 Dec 2001 19:21:14 -0500
+Received: from [144.137.81.66] ([144.137.81.66]:20618 "EHLO wagner")
+	by vger.kernel.org with ESMTP id <S286108AbRLJAVI>;
+	Sun, 9 Dec 2001 19:21:08 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: anton@samba.org, davej@suse.de, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: Linux 2.4.17-pre5 
+In-Reply-To: Your message of "Sun, 09 Dec 2001 16:16:21 -0000."
+             <E16D6cn-00071w-00@the-village.bc.nu> 
+Date: Mon, 10 Dec 2001 11:21:29 +1100
+Message-Id: <E16DECH-0001bM-00@wagner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <E16D6cn-00071w-00@the-village.bc.nu> you write:
+> Its not voodoo optimisation, its benchmarked work from Intel.
 
+At the very least, please pass this paraphrase on to the Intel people.
+I asserted:
 
-On Sun, 9 Dec 2001, Marcelo Tosatti wrote:
+	If you number each CPU so its two IDs are smp_num_cpus()/2
+	apart, you will NOT need to put some crappy hack in the
+	scheduler to pack your CPUs correctly.
 
-> 
-> 
-> On Sun, 9 Dec 2001, Richard Gooch wrote:
-> 
-> > Marcelo Tosatti writes:
-> > > 
-> > > 
-> > > On Sun, 9 Dec 2001, Roman Zippel wrote:
-> > > 
-> > > > Hi,
-> > > > 
-> > > > Richard Gooch wrote:
-> > > > 
-> > > > > There are some broken boot scripts (modelled after the long obsolete
-> > > > > rc.devfs script)
-> > > > 
-> > > > Which is still included in the kernel tree and at least Mandrake is
-> > > > currently using it.
-> > > > There were no signs of deprecation, so people are legally using it.
-> > 
-> > I mentioned it somewhere, but it might not have been on the list. It
-> > was a long time ago.
-> > 
-> > > > > This is not actually a problem for leaf nodes, since the user-space
-> > > > > created device nodes will still work. It just results in a warning
-> > > > > message.
-> > > > 
-> > > > Wrong, these are not just warning messages, the driver API has changed.
-> > > > 
-> > > > > So, in this case, the device nodes that the user wants to use will
-> > > > > still be there (created by the boot script) and will work fine.
-> > > > 
-> > > > Except the dynamic update of device nodes won't happen anymore, so it
-> > > > affects also all leaf nodes in the directories (e.g. partition entries
-> > > > won't be created/removed anymore). Events won't be created for these
-> > > > nodes as well, so configurations depending on this are broken as well.
-> > >
-> > > Richard, 
-> > > 
-> > > Are the above problems really introduced by the changes ? 
-> > 
-> > Yes, although I still think it's not a common problem. In general, if
-> > you are tarring and untarring inodes, you take the whole directory and
-> > put it all back again. Even the partitioning event is a corner case,
-> > since you're most likely to install a new drive (and thus have no
-> > inodes to "restore") and then partition. And even the obsolete
-> > rc.devfs only saved away inodes which had been changed, not
-> > everything.
-> > 
-> > However, if this concerns you, I can send a patch that effectively
-> > restores the old behaviour for directories. It's just a matter of
-> > grabbing the right lock, fiddling a flag and returning a different
-> > entry. But I definately want to keep a warning message. 
-> 
-> Please do that.
-> 
-> > I want there to be some pain for broken or really obsolete
-> > configurations.
-> 
-> Please do that on 2.5: Its already opened.
+> Perhaps you'd like to submit your PPC64 HT patches to the list today
+> so that they can be tried comparitively on the Intel HT and we can see if
+> its a better generic solution ?
 
-Let me rephrase: You can leave the warn message in, but please don't
-change behaviour. 
+I apologize: clearly my previous post was far too long, as you
+obviously did not read it.  There is no sched.c patch.
 
+> For 2.5 the scheduler needs a rewrite anyway so its a non issue there.
+
+Disagree.  Without widespread understanding of how the simple
+scheduler works, writing a more complex one is doomed.
+
+The Intel people, whom you assure me "know what their chip needs"
+obviously have trouble understanding the subtleties of the current
+scheduler.  What hope the rest of us?
+
+Rusty.
+PS.  Alan, go back and READ what my analysis, or this will be a VERY
+     long thread.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

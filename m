@@ -1,88 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263400AbTLOJQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 04:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTLOJQ7
+	id S263441AbTLOJTz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 04:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbTLOJTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 04:16:59 -0500
-Received: from [195.4.3.109] ([195.4.3.109]:42123 "EHLO cat-serv.catworkx.de")
-	by vger.kernel.org with ESMTP id S263400AbTLOJQ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 04:16:57 -0500
-From: Holger Lehmann <holger.lehmann@catworkx.de>
-Organization: catWorkX GmbH
-To: linux-kernel@vger.kernel.org
-Subject: Enhancement patch for the Adaptec SCSI Driver (2915LP / 2930LP)
-Date: Mon, 15 Dec 2003 10:18:58 +0100
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_CyX3/+Kx6Cnlqez"
-Message-Id: <200312151018.58127.holger.lehmann@catworkx.de>
+	Mon, 15 Dec 2003 04:19:54 -0500
+Received: from [62.12.131.37] ([62.12.131.37]:61625 "HELO debian")
+	by vger.kernel.org with SMTP id S263441AbTLOJTw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 04:19:52 -0500
+Date: Mon, 15 Dec 2003 10:13:07 +0100
+From: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: alsa on gentoo ppc 2.6.0-test11-benh1
+Message-Id: <20031215101307.5fa979c1.zdavatz@ywesee.com>
+In-Reply-To: <1071474131.12496.411.camel@gaston>
+References: <20031212083609.6db56e5b.zdavatz@ywesee.com>
+	<1071474131.12496.411.camel@gaston>
+Organization: ywesee - intellectual capital connected
+X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+1. Ok, great. CapsLock works!
+2. amixer and alsamixer now also seem to work. I get a reasonable result when I do amixer or alsamixer.
 
---Boundary-00=_CyX3/+Kx6Cnlqez
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+But now my speaker complains: can not open /dev/sound/mixer.
 
-Hi everyone,
+Any hints?
 
-I'll make this really quick.
-Attached to this email is a small patch for the current aic7xxx driver for 
-Linux. It can be applied to 2.4.x, 2.5.x and 2.6.x and the original adaptec 
-driver version 2.0.2 .
+Thanks for your feedback.
 
-This patch adds one PCI device id mapping for the Adaptc 2915LP controller ( a 
-low profile controller). I believe that the 2930LP is the same controller as 
-the 2915LP, so the patch ought to work for that one as well. Furthermore 
-there seems to be an Fujitsu AVA-2915LP controller which is most likely the 
-same as above.
+Zeno
 
-The patch is verified to work on a 2.4.20 kernel. A simple tape drive was 
-attached to it and that worked as well :-)
 
-I have submitted the patch to Adaptec with the request for integration but no 
-one knows if and when that will happen. Perhaps someone on this list is or 
-feels responible for that driver and can make the inclusion happen.
+On Mon, 15 Dec 2003 18:42:12 +1100
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-Thanks in advance,
-- Holger
+> 
+> > soundcore              11200  3 snd,dmasound_core
+> > 
+> > When I do amixer I get:
+> > amixer: Mixer attach default error: No such device
+> > 
+> > I done my kernel with make menuconfig, make, make modules_install
+> > 
+> > I have been searching the Net for clues but did not find anything so far, to get my sound working.
+> 
+> It seems you are trying to load both dmasound_pmac and alsa
+> snd-powermac, they are mutually exclusive.
+>  
+> 
+> > 2. Why does my computer go to sleep when I press 'CapsLook'. Can I turn
+> > that off or is this still a 2.6.0 Bug?
+> 
+> That's a strange thing that appeared with one snapshot of test11
+> and disappeared with the next one afaik. I don't have a good explanation. It
+> definitely doesn't happen on my laptops, and the logs I got from users seemed
+> to indicate that the PMU chip (which controls the keyboard on those laptops)
+> was actually the one sending a spurrious 0x7f event (power key). It may be
+> something we do that triggers that though I haven't been able to find out
+> what.
+> 
+> If it happens reproduceably, you may want to disable whatever userland
+> daemon you have that triggers sleep when you press the power key. (I
+> suppose pbbuttonsd).
+> 
+> Ben.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
---Boundary-00=_CyX3/+Kx6Cnlqez
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="aic7xxx_pci.c.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="aic7xxx_pci.c.diff"
 
---- aic7xxx_pci.c.orig	Fri Dec 12 08:01:32 2003
-+++ aic7xxx_pci.c	Fri Dec 12 08:01:35 2003
-@@ -127,6 +127,7 @@
- 
- #define ID_AIC7892			0x008F9005FFFF9005ull
- #define ID_AIC7892_ARO			0x00839005FFFF9005ull
-+#define ID_AHA_2915LP			0x0082900502109005ull
- #define ID_AHA_29160			0x00809005E2A09005ull
- #define ID_AHA_29160_CPQ		0x00809005E2A00E11ull
- #define ID_AHA_29160N			0x0080900562A09005ull
-@@ -468,6 +469,12 @@
- 		ID_AIC7892_ARO,
- 		ID_ALL_MASK,
- 		"Adaptec aic7892 Ultra160 SCSI adapter (ARO)",
-+		ahc_aic7892_setup
-+	},
-+	{
-+		ID_AHA_2915LP,
-+		ID_ALL_MASK,
-+		"Adaptec 2915LP Ultra160 SCSI adapter",
- 		ahc_aic7892_setup
- 	},
- 	/* aic7895 based controllers */	
+-- 
+Mit freundlichen Grüssen / best regards
 
---Boundary-00=_CyX3/+Kx6Cnlqez--
+Zeno Davatz
+Verkauf & Akquisition
 
++41 1 350 85 86
+
+www.ywesee.com > intellectual capital connected > www.oddb.org

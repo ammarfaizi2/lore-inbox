@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129093AbQKDULj>; Sat, 4 Nov 2000 15:11:39 -0500
+	id <S129180AbQKDULk>; Sat, 4 Nov 2000 15:11:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129180AbQKDULT>; Sat, 4 Nov 2000 15:11:19 -0500
-Received: from mail02.onetelnet.fr ([213.78.0.139]:3888 "EHLO
-	mail02.onetelnet.fr") by vger.kernel.org with ESMTP
-	id <S129093AbQKDULJ>; Sat, 4 Nov 2000 15:11:09 -0500
-Message-ID: <3A047B17.EEF036A6@onetelnet.fr>
-Date: Sat, 04 Nov 2000 22:09:43 +0100
-From: FORT David <epopo@onetelnet.fr>
-Organization: Derriere les rochers Networks
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: fr, en
+	id <S129215AbQKDULT>; Sat, 4 Nov 2000 15:11:19 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:60934 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S129180AbQKDULM>; Sat, 4 Nov 2000 15:11:12 -0500
+Date: Sat, 4 Nov 2000 12:11:11 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: kumon@flab.fujitsu.co.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Negative scalability by removal of  lock_kernel()?(Was:Strange
+ performance behavior of 2.4.0-test9)
+In-Reply-To: <3A0399CD.8B080698@uow.edu.au>
+Message-ID: <Pine.LNX.4.21.0011041203300.22526-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: modular kernel
-In-Reply-To: <m13s4Pi-000leyC@green.nl.gxn.net>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Taco Witte wrote:
+On Sat, 4 Nov 2000, Andrew Morton wrote:
 
-> Hello
->
-> Some days ago, I read about the idea of a completely modular kernel.
-> I think it's a very good idea, because it would make it easier to get more
-> people work at the same moment, development would go faster. It would
-> be possible to make groups for a certain part of the kernel (for example
-> sound, or filesystems, or main) with own group pages with status info and
-> todo's and own mailinglists (it would divide this enourmous flow of mail
-> into smaller parts). It would decrease the download size. I believe it would
-> make bug tracking easier as well. I'm sure I forgot to mention something..
->
-> Regards,
-> Taco Witte
->
->
+> Dean,
+> 
+> neither flock() nor fcntl() serialisation are effective
+> on linux 2.2 or linux 2.4.
 
-Looks like the beginning of a new flame war.
+i have to admit the last time i timed any of the methods on linux was in
+2.0.x days.  thanks for the updated data!
 
---
-%-------------------------------------------------------------------------%
-% FORT David,                                                             %
-% 7 avenue de la morvandière                                   0240726275 %
-% 44470 Thouare, France                                epopo@onetelnet.fr %
-% ICU:78064991   AIM: enlighted popo             fort@irin.univ-nantes.fr %
-%--LINUX-HTTPD-PIOGENE----------------------------------------------------%
-%  -datamining <-/                        |   .~.                         %
-%  -networking/flashed PHP3 coming soon   |   /V\        L  I  N  U  X    %
-%  -opensource                            |  // \\     >Fear the Penguin< %
-%  -GNOME/enlightenment/GIMP              | /(   )\                       %
-%           feel enlighted....            |  ^^-^^                        %
-%                           http://ibonneace.dnsalias.org/ when connected %
-%-------------------------------------------------------------------------%
+> For kernel 2.2 I recommend that Apache consider using
+> sysv semaphores for serialisation. They use wake-one. 
 
+sysv semaphores have a very unfortunate negative feature -- if the admin
+kill -9's the server (impatient admins do this all the time) then you end
+up leaving a semaphore lying around.  sysvsem don't have the usual unix
+unlink semantics.  actually flock has the same problem... which is why i
+generally preferred fcntl whenever it was a performance wash, as it was
+back in 2.0.x days.
 
+however given the vast performance difference i think it warrants the
+change.  i'll include your results with the commit.
+
+> For kernel 2.4 I recommend that Apache use unserialised
+> accept.
+
+per linus' request i'll unserialise 2.2 as well.
+
+i'll leave 2.0.x settings alone.
+
+(oh yeah, and compile-time only detection.)
+
+-dean
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

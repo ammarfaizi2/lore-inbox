@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266763AbUHWUUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUHWUUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266763AbUHWUUG (ORCPT <rfc822;willy@w.ods.org>);
+	id S266833AbUHWUUG (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 23 Aug 2004 16:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUHWUTn
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUHWUTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 16:19:43 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:9369 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S267428AbUHWTSC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 15:18:02 -0400
-Subject: Re: [PATCH][2/7] xattr consolidation - LSM hook changes
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>
-In-Reply-To: <20040823200353.A20114@infradead.org>
-References: <Xine.LNX.4.44.0408231414270.13728-100000@thoron.boston.redhat.com>
-	 <Xine.LNX.4.44.0408231415310.13728-100000@thoron.boston.redhat.com>
-	 <20040823200353.A20114@infradead.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1093288398.27211.257.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 23 Aug 2004 15:13:18 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Aug 2004 16:19:38 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:64467 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S267433AbUHWTJx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 15:09:53 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] [broken?] Add MSI support to e1000
+Date: Mon, 23 Aug 2004 12:09:36 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240619D9DA@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] [broken?] Add MSI support to e1000
+Thread-Index: AcSJNwRs4zo5B7KzQDSgaCSsNmW6aAACdFMg
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Roland Dreier" <roland@topspin.com>
+Cc: "cramerj" <cramerj@intel.com>, "Ronciak, John" <john.ronciak@intel.com>,
+       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>,
+       <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 23 Aug 2004 19:09:39.0930 (UTC) FILETIME=[BD4343A0:01C48944]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-23 at 15:03, Christoph Hellwig wrote:
-> On Mon, Aug 23, 2004 at 02:16:17PM -0400, James Morris wrote:
-> > This patch replaces the dentry parameter with an inode in the LSM
-> > inode_{set|get|list}security hooks, in keeping with the ext2/ext3 code.
-> > dentries are not needed here.
-> 
-> Given that the actual methods take a dentry this sounds like a bad design.
-> Can;t you just pass down the dentry through all of the ext2 interfaces?
+On Monday, August 23, 2004 Roland Dreier wrote: 
+>    Tom> I do not see anything wrong with the patch and the kernel MSI
+>    Tom> support because it works for a short time. Ganesh may provide
+>    Tom> an answer on the MSI support in e1000 hardware.
+>
+>Based on the e1000 documentation I have, the only thing required for
+>the e1000 to use MSI is to set the MSI enable bit in the PCI header.
+>Of course there may be some e1000 erratum involving MSI but I have not
+>been able to find any indication that this is the case.
+>
+>It seems possible that there could be some problem in the core Linux
+>interrupt code even though some interrupts work -- for example there
+>could be a race condition triggered when a second interrupt is
+>delivered while handling the first interrupt.  However I couldn't find
+>any such bug, although I am not at all an expert about low-level
+>interrupt handling/APIC programming.
 
-Changing the methods to take an inode would be even better, IMHO, as the
-dentry is unnecessary.  That would simplify SELinux as well.
+MSI is an edge trigger, which requires the synchronization handshake 
+between the hardware device and its software device driver. For the 
+MSI-X capability structure, the kernel handles the synchronization 
+by masking and unmasking the MSI maskbits. For the MSI capability 
+structure, the MSI maskbits is optional. If the e1000 hardware does not
+support the MSI maskbits in its MSI capability structure, I guess it 
+could be a race condition in e1000 hardware, which results an 
+unpredictable behavior.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Thanks,
+Long
 

@@ -1,38 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269081AbUIRBKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269096AbUIRBhZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269081AbUIRBKe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 21:10:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269082AbUIRBKe
+	id S269096AbUIRBhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 21:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUIRBhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 21:10:34 -0400
-Received: from zork.zork.net ([64.81.246.102]:21394 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S269081AbUIRBKd (ORCPT
+	Fri, 17 Sep 2004 21:37:25 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:20587 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269096AbUIRBhW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 21:10:33 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm1
-References: <20040916024020.0c88586d.akpm@osdl.org>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
- linux-kernel@vger.kernel.org
-Date: Sat, 18 Sep 2004 02:10:28 +0100
-In-Reply-To: <20040916024020.0c88586d.akpm@osdl.org> (Andrew Morton's
- message
-	of "Thu, 16 Sep 2004 02:40:20 -0700")
-Message-ID: <6uwtystm9n.fsf@zork.zork.net>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+	Fri, 17 Sep 2004 21:37:22 -0400
+Message-ID: <9e473391040917183726113e91@mail.gmail.com>
+Date: Fri, 17 Sep 2004 21:37:15 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [TRIVIAL] Fix recent bug in fib_semantics.c
+Cc: davem@davemloft.net, david@gibson.dropbear.id.au, akpm@osdl.org,
+       trivial@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+In-Reply-To: <E1C8T4t-0006ug-00@gondolin.me.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e47339104091717215e9be08b@mail.gmail.com>
+	 <E1C8T4t-0006ug-00@gondolin.me.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Noticed this in my dmesg after booting 2.6.9-rc2-mm1:
+Call stack at failure:
+e1000_exit_module
+...pci calls...
+e1000_remove
+unregister_netdev
+unregister_netdevice
+notifier_call_chain
+fib_netdev_event
+fib_disable_ip
+error_code
 
-enable_irq(17) unbalanced from c02a1ce5
+Rest of the info has scrolled off the screen.
 
-$ grep ^c02a1c /boot/System.map-`uname -r`
-c02a1c10 t e100_up
+The problem is when RH/Fedora is doing it's modprobe/rmmod to detect
+what hardware is in the system since that's the only thing that would
+be rmmod'ing e1000.
+
+On the same system if I disable networking and boot, I can
+modprobe/rmmod the drivers without problem. So I'd conclude that RH is
+doing something special during it's probing phase, but I don't know
+enough about the RH init scripts to know what it is.
+
+
+On Sat, 18 Sep 2004 10:27:47 +1000, Herbert Xu
+<herbert@gondor.apana.org.au> wrote:
+> Jon Smirl <jonsmirl@gmail.com> wrote:
+> > I'm still OOPsing at boot in fib_disable_ip+21 from
+> > fib_netdev_event+63. Both e1000 and tg3 are effected. I have current
+> > linus bk as of time of this message.
+> 
+> Please post the complete error message.
+> --
+> Visit Openswan at http://www.openswan.org/
+> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+> Home Page: http://gondor.apana.org.au/~herbert/
+> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> 
+
+
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

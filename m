@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265344AbUFOHk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUFOIBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265344AbUFOHk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 03:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265349AbUFOHk2
+	id S265354AbUFOIBG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 04:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbUFOIBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 03:40:28 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:52449 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265344AbUFOHkK (ORCPT
+	Tue, 15 Jun 2004 04:01:06 -0400
+Received: from main.gmane.org ([80.91.224.249]:3213 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265354AbUFOIBC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 03:40:10 -0400
-Message-Id: <200406150740.i5F7dwKU012092@zeus.kernel.org>
-From: "Joshua & Lowell" <lowell_jsh@wowmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Tell Me More
+	Tue, 15 Jun 2004 04:01:02 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Sean Legassick <sean@informage.net>
+Subject: Re: Toshiba keyboard lockups
+Date: Tue, 15 Jun 2004 09:51:01 +0200
+Message-ID: <cam9p7$n7c$1@sea.gmane.org>
+References: <40A162BA.90407@sun.com>            <200405121149.37334.rjwysocki@sisk.pl>            <40C7880C.4000401@sun.com>            <200406101915.i5AJFCBu197611@car.linuxhacker.ru> <efc4b1ba19898906eb0aec7ac9c22fcd@stdbev.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Date: Tue, 15 Jun 2004 15:40:07 +0800
-Reply-To: "Joshua & Lowell" <lowell_jsh@wowmail.com>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: wbs-200-227.telkomadsl.co.za
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+In-Reply-To: <efc4b1ba19898906eb0aec7ac9c22fcd@stdbev.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello fellow computer user,
+Jason Munro wrote:
+>>Not sure if I have exact problem like you do, but at least I have
+>>something similar. Once in a while keyboard suddenly stopps working,
+>>touchpad still work though (I have Toshiba Satellite Pro (centrino
+>>based) laptop here). 
 
-Imagine you having an on line computer technical support
-24 hours a day, 7 days a week wherever you are in the world.
+I know that "me toos" are of limited use, but I have also been 
+experiencing this problem. I can give some specific details, and on 
+request am willing to work to produce additional diagnostics / test 
+patches etc.
 
-Imagine not paying anymore hundreds of dollars for the service
-of a computer technician to troubleshoot your computer. …
+I am using a Toshiba Satellite 2410-603 with a P4 M processor, and I 
+have experienced difficulties with Gentoo-patched 2.6.3 sources, 
+Gentoo-patched 2.6.5 sources and vanilla 2.6.6 sources, with 
+CONFIG_PREEMPT both on and off.
 
-Imagine if the answer to your computer problem 
-is just a click away from your own home or office
-anytime of the day wherever you are…..
+Of the three, 2.6.3 seems the least affected - although I do get 
+occasional keyboard lockups, if I use the mouse for a few seconds the 
+keyboard becomes re-enabled. On both the 2.6.5 and 2.6.6 kernels a 
+keyboard lockup seems permanent, although I haven't tried leaving it for 
+more than a minute or two.
 
-Imagine, you owning a search engine with 
-cost per click advertisement as the highest revenue 
-making industry in the internet today.
+I too can see warnings from atkbd.c in the kernel messages (on all three 
+kernel versions) reporting 'Unknown key pressed' and 'too many keys 
+pressed'.
 
-Imagine, you having computer related educational CDs
-for all ages, for your kids,relatives and friends.
+I am well aware that Toshiba keyboards are buggy - under 2.4 kernels I 
+experienced multiple key event problems, so I think what's being asked 
+here on this thread is not that the keyboard driver be "fixed" as such, 
+but that, if possible, it is extended to work around the buggy hardware.
 
-And much more..
+Thanks,
 
-Most of all....
-Having all of the above and supported by 
-a brilliant program in the net today,imagine 
-you earning residual income from your own home by just
-promoting this global and growing billion dollar industry
-to millions of internet users that are joining every month!!!
+Sean
 
-You are just a click away of having all of these NOW!. 
-No skills required. Can be done in your home 
-together with your kids and family anytime of the day.
-
-To know more about it, please
-mailto: lowell_167@wowmail.com
-subject: Tell Me More
-Include also your first & last name.
-
-Internet is the future of communication.
-We are part of this global and growing billion dollar industry.
-And we are on top of it NOW.
-Do not miss this opportunity….
-
-Successfully yours,
-
-Lowell
-lowell_167@wowmail.com
-
-
-Please reply "Tell Me More" to lowell_167@wowmail.com if interested,
-"delist me" to receive no more updates.

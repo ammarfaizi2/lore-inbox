@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282904AbRLGSN6>; Fri, 7 Dec 2001 13:13:58 -0500
+	id <S281719AbRLGSPD>; Fri, 7 Dec 2001 13:15:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281719AbRLGSNt>; Fri, 7 Dec 2001 13:13:49 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:31468 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S282904AbRLGSNi>;
-	Fri, 7 Dec 2001 13:13:38 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C42D7C3@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Patrick Mochel'" <mochel@osdl.org>, Cory Bell <cory.bell@usa.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-Date: Fri, 7 Dec 2001 10:13:25 -0800 
+	id <S284272AbRLGSOx>; Fri, 7 Dec 2001 13:14:53 -0500
+Received: from cj46222-a.reston1.va.home.com ([65.1.136.109]:2969 "HELO
+	sanosuke.troilus.org") by vger.kernel.org with SMTP
+	id <S281719AbRLGSOh>; Fri, 7 Dec 2001 13:14:37 -0500
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: horrible disk thorughput on itanium
+In-Reply-To: <p73n10v6spi.fsf@amdsim2.suse.de>
+	<Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>
+	<20011207185847.A20876@wotan.suse.de>
+From: Michael Poole <poole@troilus.org>
+Date: 07 Dec 2001 13:14:35 -0500
+In-Reply-To: <20011207185847.A20876@wotan.suse.de>
+Message-ID: <87wuzyq4ms.fsf@sanosuke.troilus.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Patrick Mochel [mailto:mochel@osdl.org]
-> The Intel ACPI guys kinda have this working. They are able to 
-> extract and
-> execute the methods. But, they still have yet to make devices 
-> request and
-> use that information. Maybe Andy Grover can comment on this..
+Andi Kleen <ak@suse.de> writes:
+
+> > You can be thread-safe without sucking dead baby donkeys through a straw.
+> > I already mentioned two possible ways to fix it so that you have locking
+> > when you need to, and no locking when you don't.
 > 
-> BTW, The latest ACPI patch is at: 
-> http://sourceforge.net/projects/acpi/.
+> Your proposals sound rather dangerous. They would silently break recompiled
+> threaded programs that need the locking and don't use -D__REENTRANT (most
+> people do not seem to use it). I doubt the possible pain from that is 
+> worth it for speeding up an basically obsolete interface like putc. 
+> 
+> i.e. if someone wants speed they definitely shouldn't use putc()
 
-Exactly right. Our current patch will print a nice list for each PCI to PCI
-bridge, but pci-irq.c isn't actually using the data yet on IA32. (IA64 does
-use _PRT data.) We'll get around to doing this (eventually) but it would
-happen sooner if someone else stepped up and lent a hand...
+Threaded programs that need locking and don't define _THREAD_SAFE or
+_REENTRANT or whatever is appropriate are already broken -- they just
+don't know it yet.
 
-Regards -- Andy
+FreeBSD #defines putc and getc to their unlocked versions unless
+_THREAD_SAFE is defined, and people don't seem to think its libc is
+broken.  Many lightly threaded programs, in fact, wouldn't need or
+even want the locked variants to be the default.  One app I've worked
+with only reads and writes any given FILE* from one thread, and I saw
+an 4x speedup by switching to the unlocked variants.
+
+It's generally a bad idea to make people pay for a feature they don't
+ask for.  FreeBSD's libc understands this; glibc apaprently doesn't.
+
+-- Michael Poole

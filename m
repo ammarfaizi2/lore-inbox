@@ -1,109 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbUJ0NbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbUJ0Nbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbUJ0NbM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 09:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbUJ0N2y
+	id S262435AbUJ0Nbj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 09:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbUJ0Nbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 09:28:54 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:7356 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262435AbUJ0N2W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 09:28:22 -0400
-Date: Wed, 27 Oct 2004 15:29:26 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-Message-ID: <20041027132926.GA7171@elte.hu>
-References: <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com>
+	Wed, 27 Oct 2004 09:31:39 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:47254 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262435AbUJ0N3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 09:29:43 -0400
+Subject: Re: Strange IO behaviour on wakeup from sleep
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>
+In-Reply-To: <1098882498.9497.17.camel@gaston>
+References: <1098845804.606.4.camel@gaston>
+	 <Pine.LNX.4.53.0410271308360.9839@gockel.physik3.uni-rostock.de>
+	 <1098878790.9478.11.camel@gaston>
+	 <1098882118.4097.10.camel@desktop.cunninghams>
+	 <1098882498.9497.17.camel@gaston>
+Content-Type: text/plain
+Message-Id: <1098883255.4097.12.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
-Content-Disposition: inline
-In-Reply-To: <417F16BB.3030300@cybsft.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 27 Oct 2004 23:20:55 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi again.
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Wed, 2004-10-27 at 23:08, Benjamin Herrenschmidt wrote:
+> On Wed, 2004-10-27 at 23:01 +1000, Nigel Cunningham wrote:
+> > Hi.
+> > 
+> > On Wed, 2004-10-27 at 22:06, Benjamin Herrenschmidt wrote:
+> > > The problem has been observed on ppc, while this patch only affects
+> > > i386...
+> > 
+> > Another shot in the dark....
+> > 
+> > Nothing interesting about /proc/interrupts?
+> 
+> Nope, looked already, interrupts seem to flow normally... the box works,
+> there are no errors or lost interrupts, it's just that disk IOs are
+> _extremely_ slow...
 
+One more, if I may... no processes sucking CPU? (That would indicate a
+thread not properly handled by the refrigerating).
 
-* K.R. Foley <kr@cybsft.com> wrote:
+Regards,
 
-> Running amlat [...]
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-btw., to get good 'realfeel' results i had to apply the attached patch. 
-Especially when running realfeel over the network it can easily happen
-that it's delayed for some time and gets out of sync with the RTC. So
-after a new maximum latency has triggered the code now waits 10 periods
-to wait for the timings to recover.
+Everyone lives by faith. Some people just don't believe it.
+Want proof? Try to prove that the theory of evolution is true.
 
-this does not hurt the latency measurements in any way - latencies that
-occur after these 10 ticks (~5 msecs) are over are still fully measured
-and reported.
-
-amlat produces weird output for me, continuously increasing latency
-values:
-
- latency = 2967939 milliseconds
- latency = 2967950 milliseconds
- sigint
- max jitter = 0 microseconds
-
-maybe some /dev/rtc API detail changed? Or is this the normal output?
-
-	Ingo
-
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="realfeel.diff"
-
---- realfeel.c.orig	2004-10-27 15:04:46.237707040 +0200
-+++ realfeel.c	2004-10-27 15:04:50.204104056 +0200
-@@ -91,7 +91,7 @@ int set_realtime_priority(void)
- 	 * set the process to realtime privs
- 	 */
- 	memset(&schp, 0, sizeof(schp));
--	schp.sched_priority = sched_get_priority_max(SCHED_FIFO);
-+	schp.sched_priority = sched_get_priority_max(SCHED_FIFO) - 1;
- 	
- 	if (sched_setscheduler(0, SCHED_FIFO, &schp) != 0) {
- 		perror("sched_setscheduler");
-@@ -191,8 +191,19 @@ int main(int argc, char *argv[])
- 		now = rdtsc();
- 		delay = secondsPerTick * (now - last);
- 		if (delay > max_delay) {
-+			int i;
-+
- 			max_delay = delay;
- 			printf("%.3f msec\n", 1e3 * (ideal - delay));
-+			/*
-+			 * To make sure that the delay due to the printf
-+			 * is not counted we skip the next period:
-+			 */
-+			for (i = 0; i < 10; i++)
-+				if (read(fd, &data, sizeof(data)) == -1)
-+					fatal("blocking read failed");
-+			last = rdtsc();
-+			continue;
- 		}
- 		ms = (-(ideal - delay) + 1.0/20000.0) * 10000;
- 		if (ms < 0)
-
---AqsLC8rIMeq19msA--

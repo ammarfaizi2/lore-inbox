@@ -1,88 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVCVStt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVCVSzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbVCVStt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 13:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVCVStt
+	id S261501AbVCVSzi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 13:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVCVSzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 13:49:49 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:38204 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261670AbVCVStQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 13:49:16 -0500
-Date: Tue, 22 Mar 2005 18:48:23 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Luck, Tony" <tony.luck@intel.com>
-cc: "David S. Miller" <davem@davemloft.net>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: RE: [PATCH 1/5] freepgt: free_pgtables use vma list
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0321137B@scsmsx401.amr.corp.intel.com>
-Message-ID: <Pine.LNX.4.61.0503221830560.9034@goblin.wat.veritas.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0321137B@scsmsx401.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 22 Mar 2005 13:55:38 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:23767 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261501AbVCVSzZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 13:55:25 -0500
+Date: Tue, 22 Mar 2005 22:22:01 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ram <linuxram@us.ibm.com>
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Jay Lan <jlan@engr.sgi.com>,
+       Erich Focht <efocht@hpce.nec.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+Message-ID: <20050322222201.0fa25d34@zanzibar.2ka.mipt.ru>
+In-Reply-To: <1111515979.5860.57.camel@localhost>
+References: <1111050243.306.107.camel@frecb000711.frec.bull.fr>
+	<200503170856.57893.jbarnes@engr.sgi.com>
+	<20050318003857.4600af78@zanzibar.2ka.mipt.ru>
+	<200503171405.55095.jbarnes@engr.sgi.com>
+	<1111409303.8329.16.camel@frecb000711.frec.bull.fr>
+	<1111438349.5860.27.camel@localhost>
+	<1111475252.8465.23.camel@frecb000711.frec.bull.fr>
+	<1111515979.5860.57.camel@localhost>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 22 Mar 2005 21:54:43 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005, Luck, Tony wrote:
+On Tue, 22 Mar 2005 10:26:19 -0800
+Ram <linuxram@us.ibm.com> wrote:
 
-> >> For example, you may have a single page (start,end) address range
-> >> to free, but if this is enclosed by a large enough (floor,ceiling)
-> >> then it may free an entire pgd entry.
-> >> 
-> >> I assume the intention of the API would be to provide the full
-> >> pgd width in that case?
-> >
-> >Yes, that is what should happen if the full PGD entry is liberated.
-> >
-> >Any time page table chunks are liberated, they have to be included
-> >in the range passed to the flush_tlb_pgtables() call.
-
-This now makes it crystal clear to me that Nick's suspicion was right,
-my start,end to flush_tlb_pgtables is too narrow.  I'll take another
-look there and correct it.
-
-> So should this part of Hugh's code:
+> On Mon, 2005-03-21 at 23:07, Guillaume Thouvenin wrote:
+> > On Mon, 2005-03-21 at 12:52 -0800, Ram wrote:
+> > >      If a bunch of applications are listening for fork events, 
+> > >      your patch allows any application to turn off the 
+> > >      fork event notification?  Is this the right behavior?
+> > 
+> > Yes it is. The main management is done by application so, if several
+> > applications are listening for fork events you need to choose which one
+> > will turn off the fork connector. 
+> > 
+> > I want to keep this turn on/off mechanism simple but if it's needed I
+> > can manage the variable "cn_fork_enable" as a counter. Thus the callback
+> > could be something like:
+> > 
+> > static void cn_fork_callback(void *data)
+> > {
+> >   int start; 
+> >   struct cn_msg *msg = (struct cn_msg *)data;
+> > 
+> >   if (cn_already_initialized && (msg->len == sizeof(cn_fork_enable))) {
+> >     memcpy(&start, msg->data, sizeof(cn_fork_enable));
+> >     if (start)
+> >       cn_fork_enable++;
+> >     else
+> >       cn_fork_enable > 0 ? cn_fork_enable-- : 0;
+> >   }
+> > }
 > 
->                         /*
->                          * Optimization: gather nearby vmas into one call down
->                          */
->                         while (next && next->vm_start <= vma->vm_end + PMD_SIZE
->                         && !is_hugepage_only_range(next->vm_start, HPAGE_SIZE)){
->                                 vma = next;
->                                 next = vma->vm_next;
->                         }
->                         free_pgd_range(tlb, addr, vma->vm_end,
->                                 floor, next? next->vm_start: ceiling);
->  
-> be changed to use pgd_addr_end() to gather up all the vma that
-> are mapped by a single pgd instead of just spanning out the next
-> PMD_SIZE?
+> I think a better way is:
+> 
+>    Providing a different connector channel called the administrator 
+>    channel which can be used only by a super-user, and gives you
+>    the ability to switch on or off any connector channel including the
+>    fork-connector channel.
 
-Oh, I don't think so.  I suppose it could be done at this level,
-but then the lower levels would go back to searching through lots
-of unnecessary cachelines to find the significant entries, and
-we might as well throw out the whole set of patches (which will
-soon happen anyway if we can't find why they're not working!).
+Only super-user can bind netlink socket to multicast group.
 
-No, we don't have to pass pgd granularity to flush_tlb_pgtables,
-we just have to try a bit harder to supply the right span to it,
-whatever that is.  It might be in pmd granularity, it might be in
-pud granularity (if we freed some at that level), it might be in
-pgd granularity (if we freed some at that level).
+>    For lack of better term I am using the word 'channel' to mean
+>    something that carries events of particular type through the
+>    connector-infrastructure.
 
-> On ia64 we can have a vma big enough to require more than one pgd, but
+I still do not see why it is needed.
+Super-user can run ip command and turn network interface off
+not waiting while apache or named exits or unbind.
 
-Yes, no problem.
+In theory I can create some kind of userspace registration mechanism,
+when userspace application reports it's pid to the connector, 
+and then it sends data to the specified pids, but does not 
+allow controlling from userspace.
+But I really do not think it is a good idea to permit
+non-priviledged userspace processes to know about deep
+kernel internals through connector's messages.
 
-> in the case that we span, we won't cross the problematic pgd boundaries
-> where the holes in the address space are lurking.
+> RP
+> 
+> 
+> > 
+> > 
+> > What do you think about this implementation? 
+> > 
+> > Guillaume
+> > 
 
-Yes, it wouldn't be a hole if a vma was allowed into it.
 
-I do assume that on all architectures, the peculiar regions (might be
-holes, might be huge-only regions) are separated from the ordinary
-ones by pgd boundaries.
+	Evgeniy Polyakov
 
-Hugh
+Only failure makes us experts. -- Theo de Raadt

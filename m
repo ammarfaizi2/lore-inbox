@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263437AbVCEAhL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263272AbVCEBGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263437AbVCEAhL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:37:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263289AbVCEANh
+	id S263272AbVCEBGc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 20:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbVCEA6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:13:37 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:53479 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S263166AbVCDXgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 18:36:23 -0500
-Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on
-	battery power)
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Bernard Blackham <bernard@blackham.com.au>
-Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       paul.devriendt@amd.com
-In-Reply-To: <200503050026.06378.rjw@sisk.pl>
-References: <200502252237.04110.rjw@sisk.pl>
-	 <200503041415.35162.rjw@sisk.pl> <20050304201109.GB2385@elf.ucw.cz>
-	 <200503050026.06378.rjw@sisk.pl>
+	Fri, 4 Mar 2005 19:58:48 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:4566 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261511AbVCEAwE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 19:52:04 -0500
+Subject: Re: [PATCH] 2.6.11-mm1 "nobh" support for ext3 writeback mode
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050304164553.29811e8f.akpm@osdl.org>
+References: <1109980952.7236.39.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050304162331.4a7dfdb8.akpm@osdl.org>
+	 <1109982557.7236.65.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050304164553.29811e8f.akpm@osdl.org>
 Content-Type: text/plain
-Message-Id: <1109979448.3772.312.camel@desktop.cunningham.myip.net.au>
+Organization: 
+Message-Id: <1109983752.7236.69.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 05 Mar 2005 10:37:29 +1100
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Mar 2005 16:49:13 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Sat, 2005-03-05 at 10:26, Rafael J. Wysocki wrote:
-> Yes.  I thought about using PG_nosave in the begining, but there's a
+On Fri, 2005-03-04 at 16:45, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > > What's all this doing?  (It needs comments please - it's very unobvious).
+> > 
+> > All its trying to do is - to make sure the page is uptodate so that
+> > it can zero out the portion thats needed. 
 > 
-> BUG_ON(PageReserved(page) && PageNosave(page));
+> OK.
 > 
-> in swsusp.c:saveable() that I just didn't want to trigger.  It seems to me,
-> though, that we don't need it any more, do we?
+> > I can do getblock() and ll_rw_block(READ) instead. I was
+> > trying to re-use the code and mpage_readpage() drops the lock.
+> > What do you think ?
 > 
-> > He also found a few places where reserved page becomes un-reserved,
-> > and you probably need to fix those, too.
+> Can you just call ->prepare_write, as nobh_truncate_page() does?  That'll
+> cause a nested transaction, but that's legal.
 > 
-> Yes, I think I'll just port the Nigel's patch to x86-64.  BTW, it's striking
-> that we found similar solutions independently (I didn't know the Nigel's
-> patch before :-)).
 
-I should clarify credit. I didn't work on that code. I don't recall now
-whether it was Michael Frank or Bernard Blackham that came up with this
-version. (This was about a year ago IIRC).
+Thats what I tried earlier, but never got it working. Lots of journal
+asserts :( 
 
-> Unfortunately, it turns out that the patch does not fix my problem with random
-> reboots during resume on battery power, but I really think that we need to mark
-> non-RAM areas with PG_nosave, at least for sanity reasons (eg to be sure that
-> we do not break things by dumping stuff to where we should not write to).
+I guess I really need to learn journaling code someday.
 
-Yes. I believed that that's what this patch does. Since I didn't write
-it myself, I'm a little fuzzy on that issue. I'll bring Bernard in,
-perhaps he can clarify?..
-
-Nigel
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
-
-Maintainer of Suspend2 Kernel Patches http://softwaresuspend.berlios.de
-
+Thanks,
+Badari
 

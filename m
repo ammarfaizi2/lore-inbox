@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263376AbUCTLgc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 06:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263378AbUCTLgb
+	id S263378AbUCTLlq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 06:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263382AbUCTLlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 06:36:31 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:24723 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263376AbUCTLga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 06:36:30 -0500
-Date: Sat, 20 Mar 2004 12:36:27 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Johannes Stezenbach <js@convergence.de>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] barrier patch set
-Message-ID: <20040320113627.GB7714@merlin.emma.line.org>
-Mail-Followup-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Johannes Stezenbach <js@convergence.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040319153554.GC2933@suse.de> <200403200102.39716.bzolnier@elka.pw.edu.pl> <20040320014837.GB11865@convergence.de> <200403200313.05681.bzolnier@elka.pw.edu.pl>
+	Sat, 20 Mar 2004 06:41:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20906 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263378AbUCTLlp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 06:41:45 -0500
+Date: Sat, 20 Mar 2004 12:41:12 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: Peter Williams <peterw@aurema.com>, Micha Feigin <michf@post.tau.ac.il>,
+       John Reiser <jreiser@BitWagon.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: finding out the value of HZ from userspace
+Message-ID: <20040320114112.GA29102@devserv.devel.redhat.com>
+References: <20040311141703.GE3053@luna.mooo.com> <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com> <20040313193852.GC12292@devserv.devel.redhat.com> <40564A22.5000504@aurema.com> <20040316063331.GB23988@devserv.devel.redhat.com> <40578FDB.9060000@aurema.com> <20040320102241.GK2803@devserv.devel.redhat.com> <405C2AC0.70605@stesmi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
 Content-Disposition: inline
-In-Reply-To: <200403200313.05681.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <405C2AC0.70605@stesmi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Correct answer is: everything is fine, RTFM (man hdparm). ;-)
 
-Not everything is fine. hdparm documents -i returns inconsistent data.
-Most, but _NOT_ _EVERYTHING_ is cached: the multcount is updated, for
-instance. What is that good for? Mix & Match whatever is convenient?
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Are there systems where -I will not work? If there are none, hdparm 6.0
-should be shipped without the -i option.
+On Sat, Mar 20, 2004 at 12:28:00PM +0100, Stefan Smietanowski wrote:
+> 
+> Then you include it in the default distro of choice so that
+> everybody can use it and there you are.
 
--- 
-Matthias Andree
+but what is the POINT of all this changing/breaking ?
+Can someone at least tell me that ?
 
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAXC3XxULwo51rQBIRAnmIAJ9B3hG2lSrkhmqMCEvVvxhuF3OWpgCeIRwC
+/aP7ilnKrWCzzjwuGSSjsww=
+=pPKG
+-----END PGP SIGNATURE-----
+
+--UugvWAfsgieZRqgk--

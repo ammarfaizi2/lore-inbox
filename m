@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281084AbRKLWbd>; Mon, 12 Nov 2001 17:31:33 -0500
+	id <S281087AbRKLWbx>; Mon, 12 Nov 2001 17:31:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281075AbRKLWbX>; Mon, 12 Nov 2001 17:31:23 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:64954 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S281079AbRKLWbR> convert rfc822-to-8bit;
-	Mon, 12 Nov 2001 17:31:17 -0500
+	id <S281075AbRKLWbd>; Mon, 12 Nov 2001 17:31:33 -0500
+Received: from stine.vestdata.no ([195.204.68.10]:37305 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S281079AbRKLWb0>; Mon, 12 Nov 2001 17:31:26 -0500
+Date: Mon, 12 Nov 2001 23:30:56 +0100
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Lionel Bouton <Lionel.Bouton@free.fr>, linux-kernel@vger.kernel.org
 Subject: Re: File System Performance
-From: Steve Lord <lord@sgi.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BF04A37.29E19B1A@zip.com.au>
-In-Reply-To: <3BF03402.87D44589@zip.com.au> <3BF03402.87D44589@zip.com.au>
-	<1005600431.13303.10.camel@jen.americas.sgi.com>
-	<3BF04289.8FC8B7B7@zip.com.au> <9spg3c$7bb$1@penguin.transmeta.com> 
-	<3BF04A37.29E19B1A@zip.com.au>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.99.1+cvs.2001.11.11.08.57 (Preview Release)
-Date: 12 Nov 2001 16:26:32 -0600
-Message-Id: <1005603992.13307.16.camel@jen.americas.sgi.com>
+Message-ID: <20011112233056.B9043@vestdata.no>
+In-Reply-To: <3BF04926.2080009@free.fr> <Pine.LNX.4.33.0111121411410.7555-100000@penguin.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111121411410.7555-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Nov 12, 2001 at 02:14:59PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-11-12 at 16:16, Andrew Morton wrote:
+On Mon, Nov 12, 2001 at 02:14:59PM -0800, Linus Torvalds wrote:
+> > Seems not the case with gnu tar : write isn't even called once on the fd
+> > returned by open("/dev/null",...). In fact a "grep write" on the strace
+> > output is empty in the "tar cf /dev/null" case. Every file in the tar-ed
+> > tree is stat-ed but no-one is read-ed.
+> 
+> And what's the _point_ of the optimization? I've never heard of a "tar
+> benchmark"..
 
-> 
-> Actually, tar _is_ doing funnies with /dev/null.  Changelog says:
-> 
-> 1995-12-21  François Pinard  <pinard@iro.umontreal.ca>
-> 
->         * buffer.c: Rename a few err variables to status.
->         * extract.c: Rename a few check variables to status.
-> 
->         Corrections to speed-up the sizeing pass in Amanda:
->         * tar.h: Declare dev_null_output.
->         * buffer.c (open_archive): Detect when archive is /dev/null.
->         (flush_write): Avoid writing to /dev/null.
->         * create.c (dump_file): Do not open file if archive is being
->         written to /dev/null, nor read file nor restore times.
->         Reported by Greg Maples and Tor Lillqvist.
-> 
-> One wonders why.
+Sure - it's called "amanda" :-)
 
-For almost 6 years too - I suspect they optimized tar instead of
-fixing the way amanda works.
 
-Steve
+I believe amanda run the backup once to /dev/null first to estimate the
+size of the dataset, so it can make better use of the available tapes.
 
+
+-- 
+Ragnar Kjørstad
+Big Storage

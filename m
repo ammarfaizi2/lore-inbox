@@ -1,38 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbTISDKe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 23:10:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbTISDKe
+	id S261185AbTISDFR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 23:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbTISDFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 23:10:34 -0400
-Received: from main.gmane.org ([80.91.224.249]:2792 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261227AbTISDKb (ORCPT
+	Thu, 18 Sep 2003 23:05:17 -0400
+Received: from ool-18bac5ae.dyn.optonline.net ([24.186.197.174]:8402 "EHLO
+	burner") by vger.kernel.org with ESMTP id S261185AbTISDFQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 23:10:31 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: 2.4.22 USB problem (uhci)
-Date: Thu, 18 Sep 2003 20:10:48 -0700
-Message-ID: <m2znh1pj5z.fsf@tnuctip.rychter.com>
-Mime-Version: 1.0
+	Thu, 18 Sep 2003 23:05:16 -0400
+From: <John_Lax@AEForthemasses.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Thu, 18 Sep 2003 23:00:34 -0400
+Subject: The Best amatuer site on the web!
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:9L94+tv+Qxjk3zY1lA5OTH4rNGo=
+Content-Transfer-Encoding: 7bit
+X-Mailer: aspNetEmail ver 2.5.0.0
+X-RCPT-TO: <linux-kernel@vger.kernel.org>
+Message-ID: <BURNER5e21b7d0848648d5b94f1e43c476db37@burner>
+X-OriginalArrivalTime: 19 Sep 2003 03:05:05.0973 (UTC) FILETIME=[D3A8FE50:01C37E5A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Upon disconnecting an USB mouse from a 2.4.22, I get
-
-  uhci.c: efe0: host controller halted. very bad
-
-and subsequently, the machine keeps on spinning in ACPI C2 state, never
-going into C3, as it should (since the mouse is the only USB device).
-
-If afterwards I do 'rmmod uhci; modprobe uhci', then the machine starts
-using the C3 state again.
-
---J.
+Check it out... www.amateurexcitement.com
 

@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314210AbSDRAg0>; Wed, 17 Apr 2002 20:36:26 -0400
+	id <S314214AbSDRBW3>; Wed, 17 Apr 2002 21:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314211AbSDRAgZ>; Wed, 17 Apr 2002 20:36:25 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:40441
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S314210AbSDRAgZ>; Wed, 17 Apr 2002 20:36:25 -0400
-Date: Wed, 17 Apr 2002 17:38:54 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Lincoln Dale <ltd@cisco.com>
-Cc: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: IDE/raid performance
-Message-ID: <20020418003854.GD574@matchmail.com>
-Mail-Followup-To: Lincoln Dale <ltd@cisco.com>,
-	Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020417125838.GA27648@dark.x.dtu.dk> <5.1.0.14.2.20020418082824.03112008@localhost>
+	id <S314215AbSDRBW2>; Wed, 17 Apr 2002 21:22:28 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:30470 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S314214AbSDRBW1>;
+	Wed, 17 Apr 2002 21:22:27 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Martin Rode <martin.rode@programmfabrik.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Callbacks to userspace from VFS ? 
+In-Reply-To: Your message of "17 Apr 2002 16:21:13 +0200."
+             <1019053273.8655.109.camel@marge> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Date: Thu, 18 Apr 2002 11:22:15 +1000
+Message-ID: <30229.1019092935@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 18, 2002 at 08:44:45AM +1000, Lincoln Dale wrote:
-> At 02:58 PM 17/04/2002 +0200, Baldur Norddahl wrote:
-> >It is clear that the 33 MHz PCI bus maxes out at 75 MB/s. Is there a reason
-> >it doesn't reach 132 MB/s?
-> 
-> welcome to the world of PC hardware, real-world performance and theoretical 
-> numbers.
-> 
-> in theory, a 32/33 PCI bus can get 132mbyte/sec.
-> 
-> in reality, the more cards you have on a bus, the more arbitration you 
-> have, the less overall efficiency.
-> 
-> in theory, with neither the initiator or target inserting wait-states, and 
-> with continual bursting, you can achieve maximum throughput.
-> in reality, continual bursting doesn't happen very often and/or many 
-> hardware devices are not designed to either perform i/o without some 
-> wait-states in some conditions or provide continual bursting.
-> 
-> in short: you're working on theoretical numbers.  reality is typically far 
-> far different!
-> 
-> 
-> something you may want to try:
->   if your motherboard supports it, change the "PCI Burst" settings and see 
-> what effect this has.
->   you can probably extract another 20-25% performance by changing the PCI 
-> Burst from 32 to 64.
+On 17 Apr 2002 16:21:13 +0200, 
+Martin Rode <martin.rode@programmfabrik.de> wrote:
+>after programming at least 10 scripts polling a what we call
+>"hot-folder" for new files I had the idea to integrate call backs into
+>the file system layer of the linux kernel.
+>
+>I would like to tell the kernel to callback my program whenever a file
+>or directory is being inserted, updated or deleted.
 
-This ie a problem with the VIA chipsets.  Intel chipsets burst 4096
-bytes per burst, while the VIA chipsets were sending doing 64 bytes per burst.
+dnotify already exists, although you have to work out what has changed.
 
-AMD (like the origional poster later mentioned) chipsets weren't mentioned
-in the comparison article I read, so I don't know if it has the same
-trouble.
+XFS implements DMAPI (Data Management API) event callouts which give
+much more details.  DMAPI is designed for full blown Hierarchical
+Storage Managements systems.
+http://www.opengroup.org/pubs/catalog/c429.htm to purchase the DMAPI
+standard, there is also a free (with registration) online standard.
 
-Mike
+Not speaking for SGI.
+

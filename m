@@ -1,77 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267708AbTBYG2a>; Tue, 25 Feb 2003 01:28:30 -0500
+	id <S267697AbTBYGZS>; Tue, 25 Feb 2003 01:25:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267716AbTBYG2a>; Tue, 25 Feb 2003 01:28:30 -0500
-Received: from packet.digeo.com ([12.110.80.53]:641 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267708AbTBYG21>;
-	Tue, 25 Feb 2003 01:28:27 -0500
-Date: Mon, 24 Feb 2003 22:38:58 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IO scheduler benchmarking
-Message-Id: <20030224223858.52c61880.akpm@digeo.com>
-In-Reply-To: <20030225053547.GA1571@rushmore>
-References: <20030225053547.GA1571@rushmore>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Feb 2003 06:38:35.0872 (UTC) FILETIME=[85DBF600:01C2DC98]
+	id <S267699AbTBYGZS>; Tue, 25 Feb 2003 01:25:18 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:31951 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S267697AbTBYGZR>; Tue, 25 Feb 2003 01:25:17 -0500
+To: linux-kernel@vger.kernel.org
+Subject: WARN_ON noise in 2.5.63's kernel/sched.c:context_switch
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 25 Feb 2003 15:35:22 +0900
+Message-ID: <buoadgkuatx.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rwhron@earthlink.net wrote:
->
-> Executive question: Why does 2.5.62-mm2 have higher sequential
-> write latency than 2.5.61-mm1?
+I'm getting a bunch of stack dumps from the WARN_ON newly added to 
+kernel/sched.c:context_switch:
 
-Well bear in mind that we sometimes need to perform reads to be able to
-perform writes.  So the way tiobench measures it, you could be seeing
-read-vs-write latencies here.
+	if (unlikely(!prev->mm)) {
+		prev->active_mm = NULL;
+		WARN_ON(rq->prev_mm);
+		rq->prev_mm = oldmm;
+	}
 
-And there are various odd interactions in, at least, ext3.  You did not
-specify which filesystem was used.
+The thing is, I'm hacking on uClinux, so I don't have an MMU, and the mm
+stuff is purely noise.  What's the best way to squash this warning?
 
->  ...
->                     Thr  MB/sec   CPU%     avg lat      max latency
-> 2.5.62-mm2-as         8   14.76   52.04%     6.14        4.5
-> 2.5.62-mm2-dline      8    9.91   13.90%     9.41         .8
-> 2.5.62-mm2            8    9.83   15.62%     7.38      408.9
+[Of course I'd like to just trash all the MM manipulation -- for me,
+`context_switch' should really _just_ do `switch_to' -- but I'd settle
+for just not having stack dumps litter my console output...]
 
-Fishiness.  2.5.62-mm2 _is_ 2.5.62-mm2-as.  Why the 100x difference?
+Thanks,
 
-That 408 seconds looks suspect.
-
-
-I don't know what tiobench is doing in there, really.  I find it more useful
-to test simple things, which I can understand.  If you want to test write
-latency, do this:
-
-	while true
-	do
-		write-and-fsync -m 200 -O -f foo
-	done
-
-Maybe run a few of these.  This command will cause a continuous streaming
-file overwrite.
-
-
-then do:
-
-	time write-and-fsync -m1 -f foo
-
-this will simply write a megabyte file, fsync it and exit.
-
-You need to be careful with this - get it wrong and most of the runtime is
-actually paging the executables back in.  That is why the above background
-load is just reusing the same pagecache over and over.
-
-The latency which I see for the one megabyte write and fsync varies a lot. 
->From one second to ten.  That's with the deadline scheduler.
-
-There is a place in VFS where one writing task could accidentally hammer a
-different one.  I cannot trigger that, but I'll fix it up in next -mm.
-
-
+-miles
+-- 
+80% of success is just showing up.  --Woody Allen

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274579AbRITRrQ>; Thu, 20 Sep 2001 13:47:16 -0400
+	id <S274581AbRITRu0>; Thu, 20 Sep 2001 13:50:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274581AbRITRrG>; Thu, 20 Sep 2001 13:47:06 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:32181 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S274579AbRITRq5>;
-	Thu, 20 Sep 2001 13:46:57 -0400
-Message-ID: <3BAA2BA8.34873B27@candelatech.com>
-Date: Thu, 20 Sep 2001 10:47:20 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
+	id <S274592AbRITRuQ>; Thu, 20 Sep 2001 13:50:16 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:36359 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S274581AbRITRuG>; Thu, 20 Sep 2001 13:50:06 -0400
+Message-ID: <3BAA2BF6.467CEB10@osdlab.org>
+Date: Thu, 20 Sep 2001 10:48:38 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: pre12 fails to compile:  wakeup_bdflush issues
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus <torvalds@transmeta.com>, lkml <linux-kernel@vger.kernel.org>,
+        sfr@canb.auug.org.au, crutcher+kernel@datastacks.com
+Subject: Re: [PATCH] fix register_sysrq() in 2.4.9++
+In-Reply-To: <E15k7pZ-0005i0-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I used the .config from RH's roswell beta.
+Alan Cox wrote:
+> 
+> u> +
+> > +static inline int register_sysrq_key(int key, struct sysrq_key_op *op_p)
+> > +{
+> > +     return -1;
+> > +}
+> 
+> make it report ok as other non compiled in stuff does - then you can avoid
+> masses of ifdefs
 
-I get this error:
+Yeah, I considered that, and it doesn't matter to me whether it
+reports 0 or -1, but it's the data pointer that (mostly) requires
+the #ifdefs, unless the data is always present or a dummy data pointer
+is used.... ?
 
-sysrq.c:35: conflicting types for 'wakeup_bdflush'
-/root/linux/include/linux/fs.h:1347: previous declaration of 'wakeup_bdflush'
-
-One says it takes a void argument, the other  an int......
-
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+~Randy

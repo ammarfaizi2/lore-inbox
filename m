@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290550AbSARAWC>; Thu, 17 Jan 2002 19:22:02 -0500
+	id <S290549AbSARAVw>; Thu, 17 Jan 2002 19:21:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290551AbSARAVx>; Thu, 17 Jan 2002 19:21:53 -0500
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:47372 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S290550AbSARAVm>;
-	Thu, 17 Jan 2002 19:21:42 -0500
-From: "Tim Pepper" <tpepper@vato.org>
-Date: Thu, 17 Jan 2002 16:21:40 -0800
-To: Andries.Brouwer@cwi.nl
-Cc: Matt_Domsch@dell.com, linux-kernel@vger.kernel.org
-Subject: Re: BLKGETSIZE64 (bytes or sectors?)
-Message-ID: <20020117162140.F11402@vato.org>
-In-Reply-To: <UTC200201172348.XAA420548.aeb@cwi.nl>
-Mime-Version: 1.0
+	id <S290551AbSARAVm>; Thu, 17 Jan 2002 19:21:42 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13073 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290549AbSARAVc>; Thu, 17 Jan 2002 19:21:32 -0500
+Subject: Re: [patch] VAIO irq assignment fix
+To: kai@tp1.ruhr-uni-bochum.de (Kai Germaschewski)
+Date: Fri, 18 Jan 2002 00:33:20 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds), davej@suse.de (Dave Jones),
+        jes@wildopensource.com (Jes Sorensen),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br (Marcelo Tosatti)
+In-Reply-To: <Pine.LNX.4.33.0201180000490.1434-100000@vaio> from "Kai Germaschewski" at Jan 18, 2002 12:14:29 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <UTC200201172348.XAA420548.aeb@cwi.nl>; from Andries.Brouwer@cwi.nl on Thu, Jan 17, 2002 at 11:48:16PM +0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16RMy8-0005UN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 17 Jan at 23:48:16 +0000 Andries.Brouwer@cwi.nl done said:
-> Matt_Domsch@dell.com wrote, and he is right:
-> 
-> Yes, in bytes. blkpg.c has to be fixed.
-> Several people submitted patches. Sooner or later I suppose
-> this will be fixed.
-> 
->--8< snip-----------
->
-> So, indeed, we have already multiplied by hardsect_size, struct gendisk
-> uses sectors of size 512, independent of the hardware, and we must not
-> again multiply by hardsect_size.
+> Unfortunately, the PCI interrupt routing stuff in ACPI is not in a static 
+> table, but needs the full-blown AML interpreter. Bad, but we can't do 
+> anything about it.
 
-Doh.  It's obviously much cleaner and more efficient that way.
+Is that true of the MPS table as well ? Can you deduce one from the other
+even if you dont have a usable APIC ?
 
-Have any of the other patch submitters added a comment to note this in
-include/linux/genhd.h?  hd_struct doesn't have any mention of start_sect
-and nr_sect being stored in sectors of 512bytes.  But maybe that's just
-to weed out fools like me.
+> It would be nicer to dynamically add the table, e.g. have the bootloader
+> load it, kind of like the initrd, but that seems not possible without a
+> lot of effort. (Or is the initrd protocol flexible enough to allow for 
+> this?)
 
--- 
-*********************************************************
-*  tpepper@vato dot org             * Venimus, Vidimus, *
-*  http://www.vato.org/~tpepper     * Dolavimus         *
-*********************************************************
+It may not be enough. The AML can be doing register setup and configuration.

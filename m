@@ -1,37 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130018AbRABMTv>; Tue, 2 Jan 2001 07:19:51 -0500
+	id <S130643AbRABMZB>; Tue, 2 Jan 2001 07:25:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130643AbRABMTm>; Tue, 2 Jan 2001 07:19:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57607 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130018AbRABMTa>;
-	Tue, 2 Jan 2001 07:19:30 -0500
-Date: Tue, 2 Jan 2001 11:22:42 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: "David S. Miller" <davem@redhat.com>
-Cc: grundler@cup.hp.com, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk, parisc-linux@thepuffingroup.com
-Subject: Re: [PATCH] move xchg/cmpxchg to atomic.h
-Message-ID: <20010102112242.A7040@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <200101020811.AAA26525@milano.cup.hp.com> <200101020903.BAA14334@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200101020903.BAA14334@pizda.ninka.net>; from davem@redhat.com on Tue, Jan 02, 2001 at 01:03:48AM -0800
+	id <S131076AbRABMYv>; Tue, 2 Jan 2001 07:24:51 -0500
+Received: from xerxes.thphy.uni-duesseldorf.de ([134.99.64.10]:39162 "EHLO
+	xerxes.thphy.uni-duesseldorf.de") by vger.kernel.org with ESMTP
+	id <S130643AbRABMYh>; Tue, 2 Jan 2001 07:24:37 -0500
+Date: Tue, 2 Jan 2001 12:54:08 +0100 (CET)
+From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.0-rerelease] driver/net/Makefile bug (pcmcia)
+In-Reply-To: <20010102104957.A1949@dungeon.inka.de>
+Message-ID: <Pine.LNX.4.10.10101021227350.1179-100000@chaos.thphy.uni-duesseldorf.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2001 at 01:03:48AM -0800, David S. Miller wrote:
-> If you require an external agent (f.e. your spinlock) because you
-> cannot implement xchg with a real atomic sequence, this breaks the
-> above assumptions.
 
-We really can't.  We _only_ have load-and-zero.  And it has to be 16-byte
-aligned.  xchg() is just not something the CPU implements.
+On Tue, 2 Jan 2001, Andreas Jellinghaus wrote:
 
--- 
-Revolutions do not require corporate support.
+> modules for pcmcia network cards are not build by the kernel.
+
+I just tried, and I don't see this problem. What's your .config?
+
+> subdir-$(CONFIG_PCMCIA) += pcmcia
+> 
+> should be
+> 
+> ifeq ($(CONFIG_PCMCIA),y)
+>   subdir-y += pcmcia
+>   subdir-m += pcmcia
+> endif
+> 
+> because CONFIG_PCMCIA=y but CONFIG_PCMCIA_SOMENETWORKDRIVER=m
+
+No, pcmcia is in $(mod-subdirs), which leads to "make" entering
+drivers/net/pcmcia when MAKING_MODULES, even if pcmcia is only in
+$(subdir-y). 
+
+BTW: CONFIG_PCMCIA is a tristate, so the above would break
+CONFIG_PCMCIA=m.
+
+> maybe even bett is useing CONFIG_NET_PCMCIA instead of CONFIG_PCMCIA.
+
+Yes, that makes sense to me.
+Proposed patch:
+
+diff -ur linux-2.4.0-prerelease-diff/drivers/net/Makefile linux-2.4.0-prerelease-diff.work/drivers/net/Makefile
+--- linux-2.4.0-prerelease-diff/drivers/net/Makefile	Tue Jan  2 12:26:45 2001
++++ linux-2.4.0-prerelease-diff.work/drivers/net/Makefile	Tue Jan  2 12:50:42 2001
+@@ -26,7 +26,7 @@
+   obj-$(CONFIG_ISDN) += slhc.o
+ endif
+ 
+-subdir-$(CONFIG_PCMCIA) += pcmcia
++subdir-$(CONFIG_NET_PCMCIA) += pcmcia
+ subdir-$(CONFIG_TULIP) += tulip
+ subdir-$(CONFIG_IRDA) += irda
+ subdir-$(CONFIG_TR) += tokenring
+
+[This doesn't fix any bugs, but it slightly optimizes the build process
+because drivers/net/pcmcia will only be entered when PCMCIA net drivers
+are selected]
+
+--Kai
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

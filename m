@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVDCE5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVDCFAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbVDCE5L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 23:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVDCE5L
+	id S261502AbVDCFAe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 00:00:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVDCFAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 23:57:11 -0500
-Received: from weber.sscnet.ucla.edu ([128.97.42.3]:62873 "EHLO
-	weber.sscnet.ucla.edu") by vger.kernel.org with ESMTP
-	id S261483AbVDCE5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 23:57:09 -0500
-Message-ID: <424F7750.9060002@cogweb.net>
-Date: Sat, 02 Apr 2005 20:55:44 -0800
-From: David Liontooth <liontooth@cogweb.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ICS1883 LAN PHY not detected
-References: <424EFE37.8050903@colorfullife.com>
-In-Reply-To: <424EFE37.8050903@colorfullife.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Apr 2005 00:00:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56479 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261502AbVDCFA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 00:00:26 -0500
+Date: Sun, 3 Apr 2005 06:00:24 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Isn't there race issue during fput() and the dentry_open()?
+Message-ID: <20050403050024.GV8859@parcelfarce.linux.theplanet.co.uk>
+References: <BF571719A4041A478005EF3F08EA6DF0D96394@pcsmail03.pcs.pc.ome.toshiba.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BF571719A4041A478005EF3F08EA6DF0D96394@pcsmail03.pcs.pc.ome.toshiba.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
+On Sun, Apr 03, 2005 at 10:56:44AM +0900, Tomita, Haruo wrote:
+> Isn't there race issue during fput() and the dentry_open()?
+> When booting kernel, the following deadlocks are experienced.
 
->> Gigabyte's K8NS Ultra-939 mobo has a 100/10 LAN PHY chip, ICS1883, which
->> isn't detected by the 2.6.12-rc1 kernel (and likely not previous 
->> kernels).
->
-> The board is a nVidia nForce board, correct? Then please try the 
-> forcedeth network driver ("Reverse Engineered nForce Ethernet support").
 
-Works. It didn't work with the Debian Installer, and the motherboard 
-manual identifies the NIC as a ICS1883, but an nforce 100/10 it is, 
-taking the forcedeth driver.  Appreciate the help.
+> Stack traceback for pid 2130
+> 0xf717f1b0	2130	1	1	0	R	0xf717f400 *irqbalance
+> ESP	EIP	Function (args)
+> 0xf75bfe38 0xc02d04b2 _spin_lock+0x2e (0xf7441a80)
+> 0xf75bff34 0xc015667c file_move+0x14 (0xf63080e4, 0xf75bff58, 0x0, 0xf74bf000)
+> 0xf75bff40 0xc0154e37 dentry_open+0xb9 (0xf63080e4, 0xf7f5ad80, 0xc02d00e6, 0x100100, 0x246)
+> 0xf75bff58 0xc0154d78 filp_open+0x36
+> 0xf75bffb4 0xc0155079 sys_open+0x31
+> 0xf75bffc4 0xc02d196f syscall_call+0x7
+> 
+> The patch was made. Is this patch right?
+> 
+> diff -urN linux-2.6.12-rc1.orig/fs/file_table.c linux-2.6.12-rc1/fs/file_table.c
+> --- linux-2.6.12-rc1.orig/fs/file_table.c	2005-03-02 16:37:47.000000000 +0900
+> +++ linux-2.6.12-rc1/fs/file_table.c	2005-03-31 17:50:46.323999320 +0900
+> @@ -209,11 +209,11 @@
+>  
+>  void file_kill(struct file *file)
+>  {
+> +	file_list_lock();
+>  	if (!list_empty(&file->f_list)) {
+> -		file_list_lock();
+>  		list_del_init(&file->f_list);
+> -		file_list_unlock();
+>  	}
+> +	file_list_unlock();
+>  }
 
-Dave
+This is absolutely useless.  What are you trying to protect and how the
+hell could keeping a lock around that check prevent any sort of deadlock?
+
+Besides, who could possibly call fput() on struct file allocated by
+dentry_open() and do that before the latter returns a reference to
+that struct file?

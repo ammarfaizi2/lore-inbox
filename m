@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbVCWNxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVCWNxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbVCWNxT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 08:53:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVCWNxR
+	id S262522AbVCWNxt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 08:53:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVCWNxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 08:53:17 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:12229 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262499AbVCWNvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 08:51:22 -0500
-Message-ID: <42417457.9020008@acm.org>
-Date: Wed, 23 Mar 2005 07:51:19 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040804
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Pawe__ Sikora <pluto@pld-linux.org>, linux-kernel@vger.kernel.org,
-       Richard Henderson <rth@twiddle.net>
-Subject: Re: [PATCH][alpha] "pm_power_off" [drivers/char/ipmi/ipmi_poweroff.ko]
- undefined!
-References: <200503152335.48995.pluto@pld-linux.org> <20050322130657.7502418d.akpm@osdl.org> <424093C8.400@pobox.com> <20050323113858.A4941@jurassic.park.msu.ru>
-In-Reply-To: <20050323113858.A4941@jurassic.park.msu.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Mar 2005 08:53:49 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21222 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262522AbVCWNtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 08:49:17 -0500
+Date: Wed, 23 Mar 2005 13:49:11 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] alpha build fixes
+Message-ID: <20050323134911.GI21986@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is not the right fix.  I know of IPMI hardware on ppc and xscale 
-systems.  There should be nothing general in the driver that limits it 
-to x86/ia64.
 
-pm_power_off is defined in linux/pm.h.  Shouldn't it be available 
-everywhere?
+[I'm not subscribed, please excuse the thread-breaking]
 
--Corey
+Alan Cox wrote:
+> > +static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
+> > +{
+> > + return channel ? 15 : 14;
+> > +}
+> 
+> The issue is bigger - it's needed for the CMD controllers on PA-RISC for
+> example it appears - and anything else where IDE legacy IRQ is wired
+> oddly.
 
-Ivan Kokshaysky wrote:
+The built-in IDE controller on the Astro/Elroy based PA-RISC workstations
+(B1000, C3000, J5000 and similar) is part of a NS87560 chip.  By default
+(and we don't currently touch this), we route the internal interrupts
+to Linux interrupts 14 and 15.  We could change that, but I don't currently
+see a need to, since we're "the same as x86".  It uses the ns87415 driver.
 
->On Tue, Mar 22, 2005 at 04:53:12PM -0500, Jeff Garzik wrote:
->  
->
->>Although I suppose its possible that some alpha machines have SMI 
->>hardware, I don't think I've ever seen ACPI or IPMI on any alpha.
->>    
->>
->
->Yes, this stuff doesn't exist. I think it would be correct to add
->the following to drivers/char/ipmi/Kconfig, like it's done for ACPI:
->
->menu "IPMI"
->+	depends on IA64 || X86
->
->config IPMI_HANDLER
->       tristate 'IPMI top-level message handler'
->+	depends on IA64 || X86
->
->
->Ivan.
->  
->
+I don't know what the situation is with the zx1-based boxes, currently only
+the C8000.  If it's the same as the ia64 zx1 boxes, it'll have a CMD 649.
 
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

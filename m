@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274723AbTHPPKh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 11:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273909AbTHPPKh
+	id S270640AbTHPPNN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 11:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270676AbTHPPNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 11:10:37 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:19937 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S274723AbTHPPKd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 11:10:33 -0400
-Message-ID: <3F3DD93E.7090706@myrealbox.com>
-Date: Sat, 16 Aug 2003 00:11:58 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030805
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3 current - firewire compile error
-References: <3F3E288B.3010105@cornell.edu>
-In-Reply-To: <3F3E288B.3010105@cornell.edu>
-X-Enigmail-Version: 0.76.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 16 Aug 2003 11:13:13 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:61832 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270640AbTHPPNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 11:13:10 -0400
+Subject: Re: Centrino support
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jan Rychter <jan@rychter.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m2oeyq3bi2.fsf@tnuctip.rychter.com>
+References: <m2wude3i2y.fsf@tnuctip.rychter.com>
+	 <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
+	 <m2oeyq3bi2.fsf@tnuctip.rychter.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1061046769.10596.0.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 16 Aug 2003 16:12:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Gyurdiev wrote:
-> Hopefully, this is not a duplicate post:
-> ===========================================
+On Gwe, 2003-08-15 at 21:35, Jan Rychter wrote:
+> Question time:
 > 
-> drivers/ieee1394/nodemgr.c: In function `nodemgr_update_ud_names':
-> drivers/ieee1394/nodemgr.c:471: error: structure has no member named `name'
+> 1. Will cpufreq make it into the standard 2.4 kernels?
 
-I got a similar error starting with last night's bk pull:
+In time maybe - up to Marcelo. 
 
-drivers/pnp/core.c: In function `pnp_register_protocol':
-drivers/pnp/core.c:72: structure has no member named `name'
+> 2. If not, will Alan incorporate swsusp into -ac kernels? (given that
+>    -ac kernels seem to have cpufreq included)
+
+Not in its current form. To do the job well swsuspend needs the kernel 
+device model. 
+
 

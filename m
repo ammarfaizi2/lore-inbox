@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264454AbUBRMGK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 07:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbUBRMGK
+	id S264505AbUBRMMW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 07:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbUBRMMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 07:06:10 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:11402 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S264454AbUBRMGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 07:06:07 -0500
-Date: Wed, 18 Feb 2004 13:05:58 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-Message-ID: <20040218120558.GA13944@louise.pinerecords.com>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402181129.11064.robin.rosenberg.lists@dewire.com> <20040218114958.GD12322@louise.pinerecords.com> <200402181259.40840.robin.rosenberg.lists@dewire.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Feb 2004 07:12:22 -0500
+Received: from dsl-082-083-140-083.arcor-ip.net ([82.83.140.83]:56711 "EHLO
+	server1.intern.kubla.de") by vger.kernel.org with ESMTP
+	id S264505AbUBRMMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 07:12:21 -0500
+From: Dominik Kubla <dominik@kubla.de>
+To: paulmck@us.ibm.com
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Date: Wed, 18 Feb 2004 13:12:11 +0100
+User-Agent: KMail/1.6
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20040216190927.GA2969@us.ibm.com> <20040217073522.A25921@infradead.org> <20040217124001.GA1267@us.ibm.com>
+In-Reply-To: <20040217124001.GA1267@us.ibm.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200402181259.40840.robin.rosenberg.lists@dewire.com>
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402181312.11552.dominik@kubla.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb-18 2004, Wed, 12:59 +0100
-Robin Rosenberg <robin.rosenberg.lists@dewire.com> wrote:
+On Tuesday 17 February 2004 13:40, Paul E. McKenney wrote:
 
-> On Wednesday 18 February 2004 12.49, Tomas Szepe wrote:
-> > Would you _please_ read the lkml FAQ and stop posting e-mails with lines
-> > longer than 80 characters?  Thank you.
-> 
-> As soon as someone asks nicely...  I thought any decent mail client simply
-> wrapped the lines.
+> These URLs do require that you register, but there is no cost nor any
+> agreement other than the GPL itself.  The Linux client has not been
+> shipped as product yet.  The code is still quite rough, which is one
+> reason that it has not be submitted to, for example, LKML.  ;-)
 
-1)  Quite the contrary.  Any _decent_ mail client will _not_ wrap the lines.
+But registering requires to disclose an unreasonable amount of personal
+data. This is not acceptable.
 
-2)  A mail client that will wrap the lines will make your posts look like this:
-
-<cut>
-Having to put up with the existence of Windows day in and out is the reason I'm
-still on
-an eight-bit encoding.  Sorry for not explaining the REAL problem, but only a
-partial
-problem. I need to support all kinds of clients on Windows with protocols that  
-convey no
-character set info. With samba that's no problem. Having to put up with a Unix
-world running
-<cut>
-
-> I'll try to remember that.
-
-Thanks again.
-
+Kind regards,
+  Dominik Kubla
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Steal my cash, car and TV - but leave the computer!
+	-- Soenke Lange <soenke@escher.north.de>

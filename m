@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVCKWp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVCKWyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbVCKWp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 17:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVCKWo0
+	id S261543AbVCKWyV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 17:54:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVCKWue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 17:44:26 -0500
-Received: from ozlabs.org ([203.10.76.45]:63139 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261726AbVCKWme (ORCPT
+	Fri, 11 Mar 2005 17:50:34 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:34459 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261805AbVCKWrx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 17:42:34 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16946.7941.404582.764637@cargo.ozlabs.ibm.com>
-Date: Sat, 12 Mar 2005 09:43:17 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, werner@sgi.com,
-       Linus Torvalds <torvalds@osdl.org>, davej@redhat.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
+	Fri, 11 Mar 2005 17:47:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ad7MRuXf+/O3piqM8cquP2XdPN77TS5YcTt4xW7NKoXYO3U3Xr/BQNGprH9EpzTe+H4/N5q7hM151H5Jst+PVXMux5Jw3LYXq8aZ5a1pKkZwouqNAlZPJppP3ExyUkyJipKM80w1uV2hYh6E/fC1sWcTe32zmkwidJLHonsisEk=
+Message-ID: <d120d5000503111447727d7b6@mail.gmail.com>
+Date: Fri, 11 Mar 2005 17:47:52 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 Subject: Re: AGP bogosities
-In-Reply-To: <1110563965.4822.22.camel@eeyore>
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Dave Jones <davej@redhat.com>, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <d120d50005031114422c144bcf@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
-	<200503102002.47645.jbarnes@engr.sgi.com>
-	<1110515459.32556.346.camel@gaston>
-	<200503110839.15995.jbarnes@engr.sgi.com>
-	<1110563965.4822.22.camel@eeyore>
-X-Mailer: VM 7.19 under Emacs 21.3.1
+	 <20050311021248.GA20697@redhat.com>
+	 <16944.65532.632559.277927@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.58.0503101839530.2530@ppc970.osdl.org>
+	 <87vf7xg72s.fsf@devron.myhome.or.jp>
+	 <d120d50005031114422c144bcf@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas writes:
+On Fri, 11 Mar 2005 17:42:46 -0500, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi,
+> 
+> On Sat, 12 Mar 2005 07:18:19 +0900, OGAWA Hirofumi
+> <hirofumi@mail.parknet.co.jp> wrote:
+> >
+> > +       if (!atomic_read(v)) {
+> > +               printk("BUG: atomic counter underflow at:\n");
+> > +               dump_stack();
+> > +       }
+> 
+> I wonder if adding "unlikely" might be beneficial here.
 
-> HP ia64 and parisc boxes are similar.  The host bridges do not appear
-> as PCI devices.  We discover them via ACPI on ia64 and PDC on parisc.
+Oh, it's just a debugging patch, nevermind...
 
-On PPC/PPC64 machines, the host bridges generally do not appear as PCI
-devices either.  *However*, the AGP spec requires a set of registers
-in PCI config space for controlling the target (host) side of the AGP
-bus.  In other words you are required to have a PCI device to
-represent the host side of the AGP bus, with a capability structure in
-its config space which contains the standard AGP registers.
-
-The lspci that was posted showed no such device, which was why Ben was
-querying it.  Maybe your systems aren't fully AGP-compliant, in which
-case much of the generic code won't be usable on your systems.
-
-Paul.
+-- 
+Dmitry

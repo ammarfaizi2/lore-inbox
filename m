@@ -1,87 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbVDFUdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbVDFUdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbVDFUdI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 16:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbVDFUdI
+	id S262311AbVDFUdu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 16:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVDFUdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 16:33:08 -0400
-Received: from mail.yosifov.net ([193.200.14.114]:55956 "EHLO home.yosifov.net")
-	by vger.kernel.org with ESMTP id S262310AbVDFUc7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 16:32:59 -0400
-Subject: Re: Out of memory with Java 1.5 and 2.6.11.6
-From: Ivan Yosifov <ivan@yosifov.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200504062131.36204.robin.rosenberg.lists@dewire.com>
-References: <200504062131.36204.robin.rosenberg.lists@dewire.com>
-Content-Type: text/plain
-Date: Wed, 06 Apr 2005 23:32:56 +0300
-Message-Id: <1112819576.20857.8.camel@home.yosifov.net>
+	Wed, 6 Apr 2005 16:33:50 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:65181 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262311AbVDFUd3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 16:33:29 -0400
+Date: Wed, 6 Apr 2005 13:32:55 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+       Chris Rankin <rankincj@yahoo.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
+Message-ID: <20050406203254.GA27417@us.ibm.com>
+Mail-Followup-To: Tejun Heo <htejun@gmail.com>,
+	Jens Axboe <axboe@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+	Chris Rankin <rankincj@yahoo.com>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+References: <20050329122226.94666.qmail@web52902.mail.yahoo.com> <20050329122635.GP16636@suse.de> <20050406123147.GD9417@suse.de> <1112791930.6275.69.camel@laptopd505.fenrus.org> <20050406125536.GG9417@suse.de> <4253E673.2000001@gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4253E673.2000001@gmail.com>
+X-Operating-System: Linux 2.6.8.1
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apr  5 22:05:20 xine kernel: oom-killer: gfp_mask=0xd0
+Tejun Heo [htejun@gmail.com] wrote:
+> Jens Axboe wrote:
+> >On Wed, Apr 06 2005, Arjan van de Ven wrote:
+> >
+> >>>@@ -324,6 +334,7 @@
+> >>>	issue_flush_fn		*issue_flush_fn;
+> >>>	prepare_flush_fn	*prepare_flush_fn;
+> >>>	end_flush_fn		*end_flush_fn;
+> >>>+	release_queue_data_fn	*release_queue_data_fn;
+> >>>
+> >>>	/*
+> >>>	 * Auto-unplugging state
+> >>
+> >>where does this function method actually get called?
+> >
+> >
+> >I missed the hunk in ll_rw_blk.c, rmk pointed the same thing out not 5
+> >minutes ago :-)
+> >
+> >The patch would not work anyways, as scsi_sysfs.c clears queuedata
+> >unconditionally. This is a better work-around, it just makes the queue
+> >hold a reference to the device as well only killing it when the queue is
+> >torn down.
+> >
+> >Still not super happy with it, but I don't see how to solve the circular
+> >dependency problem otherwise.
+> >
+> 
+>  Hello, Jens.
+> 
+>  I've been thinking about it for a while.  The problem is that we're 
+> reference counting two different objects to track lifetime of one 
+> entity.  This happens in both SCSI upper and mid layers.  In the upper 
+> layer, genhd and scsi_disk (or scsi_cd, ...) are ref'ed separately while 
+> they share their destiny together (not really different entity) and in 
+> the middle layer scsi_device and request_queue does the same thing. 
+> Circular dependency is occuring because we separate one entity into two 
+> and reference counting them separately.  Two are actually one and 
+> necessarily want each other. (until death aparts.  Wow, serious. :-)
+> 
+>  IMHO, what we need to do is consolidate ref counting such that in each 
+> layer only one object is reference counted, and the other object is 
+> freed when the ref counted object is released.  The object of choice 
+> would be genhd in upper layer and request_queue in mid layer.  All 
+> ref-counting should be updated to only ref those objects.  We'll need to 
+> add a release callback to genhd and make request_queue properly 
+> reference counted.
+> 
+>  Conceptually, scsi_disk extends genhd and scsi_device extends 
+> request_queue.  So, to go one step further, as what UL represents is 
+> genhd (disk device) and ML request_queue (request-based device), 
+> embedding scsi_disk into genhd and scsi_device into request_queue will 
+> make the architecture clearer.  To do this, we'll need something like 
+> alloc_disk_with_udata(int minors, size_t udata_len) and the equivalent 
+> for request_queue.
+> 
+>  I've done this half-way and then doing it without fixing the SCSI 
+> model seemed silly so got into working on the state model.  (BTW, the 
+> state model is almost done, I'm about to run tests.)
+> 
+>  What do you think?  Jens?
 
-The oom-killer a piece of code which starts killing processes when you
-run out of memory. OOM-killer = Out Of Memory Killer. My guess is that
-the second jvm consumed all the memory left ( this may me be a memory
-leak, if so report it to SUN, not lkml ) and eclipse , being a
-memory-heavyweight got slaughtered. The first thing that came to mind :)
+Well I think extends is one way to look at the subsystem objects,
+Couldn't it also be said that these objects from each subsystem have just
+a relationship (parent / child, etc). As reference counting has been
+implemented in each subsystem sometimes interfaces that cross subsystem
+boundaries (had / have) not been converted to use similar life time rules.
 
-On Wed, 2005-04-06 at 21:31 +0200, Robin Rosenberg wrote:
-> I see regular crashes with 2.6.11.6 (mandrake-patched) and Java 1.5.02 (01 too 
-> btw, but not 1.4.2). Gentoo people report the same problem sugesting that it
-> may have appeared between 2.6.11.4 and 2.6.11.5.
-> 
-> If I start eclipse and then, outside of eclipse, starts a java 1.5 process 
-> eclipse dies instantly. Not always, but usually when I stop watching.
-> 
-> Any clues?
-> 
-> -- robin
-> 
-> oh, here is an excerpt from /var/log/messages.
-> 
-> Apr  5 22:05:20 xine kernel: oom-killer: gfp_mask=0xd0
-> Apr  5 22:05:20 xine kernel: DMA per-cpu:
-> Apr  5 22:05:20 xine kernel: cpu 0 hot: low 2, high 6, batch 1
-> Apr  5 22:05:20 xine kernel: cpu 0 cold: low 0, high 2, batch 1
-> Apr  5 22:05:20 xine kernel: Normal per-cpu:
-> Apr  5 22:05:20 xine kernel: cpu 0 hot: low 32, high 96, batch 16
-> Apr  5 22:05:20 xine kernel: cpu 0 cold: low 0, high 32, batch 16
-> Apr  5 22:05:20 xine kernel: HighMem per-cpu: empty
-> Apr  5 22:05:20 xine kernel:
-> Apr  5 22:05:20 xine kernel: Free pages:        5684kB (0kB HighMem)
-> Apr  5 22:05:20 xine kernel: Active:107335 inactive:5929 dirty:0 writeback:4 
-> unstable:0 free:1421 slab:9726 mapped:113240 pagetables:1705
-> Apr  5 22:05:20 xine kernel: DMA free:2068kB min:88kB low:108kB high:132kB 
-> active:8392kB inactive:0kB present:16384kB pages_scanned:8802 
-> all_unreclaimable? yes
-> Apr  5 22:05:20 xine kernel: lowmem_reserve[]: 0 495 495
-> Apr  5 22:05:21 xine kernel: Normal free:3616kB min:2800kB low:3500kB 
-> high:4200kB active:420948kB inactive:23716kB present:507576kB pages_scanned:0 
-> all_unreclaimable? no
-> Apr  5 22:05:21 xine kernel: lowmem_reserve[]: 0 0 0
-> Apr  5 22:05:21 xine kernel: HighMem free:0kB min:128kB low:160kB high:192kB 
-> active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-> Apr  5 22:05:21 xine kernel: lowmem_reserve[]: 0 0 0
-> Apr  5 22:05:21 xine kernel: DMA: 1*4kB 0*8kB 1*16kB 0*32kB 2*64kB 1*128kB 
-> 1*256kB 1*512kB 1*1024kB 0*2048kB 0*4096kB = 2068kB
-> Apr  5 22:05:21 xine kernel: Normal: 208*4kB 8*8kB 2*16kB 6*32kB 7*64kB 
-> 0*128kB 0*256kB 0*512kB 0*1024kB 1*2048kB 0*4096kB = 3616kB
-> Apr  5 22:05:21 xine kernel: HighMem: empty
-> Apr  5 22:05:21 xine kernel: Swap cache: add 1267612, delete 1246233, find 
-> 7825455/7951372, race 0+6
-> Apr  5 22:05:21 xine kernel: Free swap  = 760276kB
-> Apr  5 22:05:21 xine kernel: Total swap = 1060248kB
-> Apr  5 22:05:21 xine kernel: Out of Memory: Killed process 23770 (java).
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Well your solution tries to solve the problem by creating a new larger
+object that contains both of the old objects. Another solution would be to
+use a consistent lifetime rules and stay with smaller objects. Unless
+going to large objects helps with allocation fragmentation or we get some
+other benefit it would seem that these combined structures may sometime in
+the future limit creation of lighter or flexible objects.
+
+It would appear another solution is that when you allocate a resource from
+another subsystem (i.e. blk_init_queue) that both subsystems participate
+in the same reference counting model and in the allocation routine you
+past in your object to be referenced counted by the allocating subsystem.
+Then when it is time to shutdown you do not free the others subsystems
+object directly, but use the normal release routines.
+
+
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

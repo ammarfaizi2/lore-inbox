@@ -1,132 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262747AbUCJSOv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 13:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUCJSEz
+	id S262744AbUCJS0a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 13:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbUCJS0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 13:04:55 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:21701 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262730AbUCJSAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 13:00:54 -0500
-Date: Wed, 10 Mar 2004 13:00:51 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Urban Widmark <urban@teststation.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Adam Sampson <azz@us-lot.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: smbfs Oops with Linux 2.6.3
-In-Reply-To: <Pine.LNX.4.44.0403101244480.19728-100000@cola.local>
-Message-ID: <Pine.LNX.4.58.0403101122320.29087@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.44.0403101244480.19728-100000@cola.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Mar 2004 13:26:30 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:18853 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262744AbUCJSZQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 13:25:16 -0500
+Date: Wed, 10 Mar 2004 10:25:14 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
+Message-ID: <20040310182514.GA10175@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Mar 2004, Urban Widmark wrote:
+Timothy Miller wrote :
+> 
+> What would the US government have to say about an open-source
+> implementation?
 
-> On Tue, 9 Mar 2004, Linus Torvalds wrote:
->
-> > As to how something like that could happen, I have absolutely no clue. The
-> > "smb_install_null_ops()" would seem to cause that, but that's all I can
-> > say.
-> >
-> > Maybe the "smp_ops_null" thing should be filled in with stuff that always
-> > returns EINVAL or something? Rather than actual NULL pointers that will
-> > oops if they are ever used?
+	The transmission of radio waves (any frequency, any device) is
+highly regulated (FCC in US, ETSI in Europe, ...). The US governement
+can't stop you from building it, but can legally prevent you to use it
+and to distribute/sell it.
+	Otherwise, why do you think the Ham people would bother
+learning morse code ?
 
-I originally didn't fill them all in intentionally, doing so may be best.
+> Are there patents which would impede us?
 
-> smp_ops_null should really make all functions block and wait for the
-> connection to be created and given to us from smbmount. That would make it
-> behave more like smbfs in 2.4 does.
->
-> I am thinking of something like this for each entry in smp_ops_null.
->
-> int whatever_it_is_that_I_am(args)
-> {
-> 	timeleft = wait_event_interruptible_timeout(...)
-> 	if (!timeleft || signal_pending(current))
-> 		return -EIO;
-> 	if (!server->ops->whatever_it_is_that_I_am)
-> 		return -EIO;
-> 	return server->ops->whatever_it_is_that_I_am(args)
-> }
+	Yep, some fundamental parts of 802.11 are covered with
+patents. Patent search cost money, so you are on your own... In 10
+years, all the patents on basic 802.11 will have expired, so you can
+just wait.
 
-Thanks Urban, i have posted the following on bugzilla
-(http://bugzilla.kernel.org/show_bug.cgi?id=1671) for testing. But,
-it appears racy wrt getattr and win9x servers.
+	Good luck...
 
-Index: linux-2.6.4-rc3/fs/smbfs/proc.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.4-rc3/fs/smbfs/proc.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 proc.c
---- linux-2.6.4-rc3/fs/smbfs/proc.c	10 Mar 2004 01:05:32 -0000	1.1.1.1
-+++ linux-2.6.4-rc3/fs/smbfs/proc.c	10 Mar 2004 17:16:22 -0000
-@@ -56,6 +56,7 @@ static struct smb_ops smb_ops_os2;
- static struct smb_ops smb_ops_win95;
- static struct smb_ops smb_ops_winNT;
- static struct smb_ops smb_ops_unix;
-+static struct smb_ops smb_ops_null;
-
- static void
- smb_init_dirent(struct smb_sb_info *server, struct smb_fattr *fattr);
-@@ -2794,10 +2795,46 @@ out:
- }
-
- static int
-+smb_proc_ops_wait(struct smb_sb_info *server)
-+{
-+	int result;
-+	DECLARE_WAIT_QUEUE_HEAD(wq);
-+
-+	result = wait_event_interruptible_timeout(wq,
-+			server->ops != &smb_ops_null, 5*HZ);
-+
-+	if (!result || signal_pending(current))
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+static int
- smb_proc_getattr_null(struct smb_sb_info *server, struct dentry *dir,
--		      struct smb_fattr *attr)
-+			  struct smb_fattr *fattr)
- {
--	return -EIO;
-+	int result;
-+
-+	if (smb_proc_ops_wait(server) < 0)
-+		return -EIO;
-+
-+	smb_init_dirent(server, fattr);
-+	result = server->ops->getattr(server, dir, fattr);
-+	smb_finish_dirent(server, fattr);
-+
-+	return result;
-+}
-+
-+static int
-+smb_proc_readdir_null(struct file *filp, void *dirent, filldir_t filldir,
-+		      struct smb_cache_control *ctl)
-+{
-+	struct smb_sb_info *server = server_from_dentry(filp->f_dentry);
-+
-+	if (smb_proc_ops_wait(server) < 0)
-+		return -EIO;
-+
-+	return server->ops->readdir(filp, dirent, filldir, ctl);
- }
-
- int
-@@ -3431,6 +3467,7 @@ static struct smb_ops smb_ops_unix =
- /* Place holder until real ops are in place */
- static struct smb_ops smb_ops_null =
- {
-+	.readdir	= smb_proc_readdir_null,
- 	.getattr	= smb_proc_getattr_null,
- };
+	Jean
 

@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbTKYQUN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 11:20:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTKYQUN
+	id S261753AbTKYQY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 11:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTKYQYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 11:20:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61675 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261746AbTKYQUK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 11:20:10 -0500
-Date: Tue, 25 Nov 2003 08:20:00 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-cc: Bradley Chapman <kakadu_croc@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: What exactly are the issues with 2.6.0-test10 preempt?
-In-Reply-To: <Pine.LNX.4.44.0311250815200.2874-100000@poirot.grange>
-Message-ID: <Pine.LNX.4.58.0311250819300.1559@home.osdl.org>
-References: <Pine.LNX.4.44.0311250815200.2874-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Nov 2003 11:24:25 -0500
+Received: from smithers.nildram.co.uk ([195.112.4.54]:41230 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S261753AbTKYQYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 11:24:24 -0500
+Date: Tue, 25 Nov 2003 16:24:51 +0000
+From: Joe Thornber <thornber@sistina.com>
+To: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@osdl.org>
+Cc: thornber@sistina.com
+Subject: 2.6.0-t10-dm1
+Message-ID: <20031125162451.GA524@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Here are the latest patches from the stable device-mapper tree.
+Please apply.
 
-On Tue, 25 Nov 2003, Guennadi Liakhovetski wrote:
->
-> SORRY. Please, inore this report. It IS 100% reproducable - if you load
-> wrong (compiled without debugging) modules...
+Thanks,
 
-Heh.
-
-If only all bug-reports were of that kind ;)
-
-		Linus
+- Joe

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263910AbTDHDXQ (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 23:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263911AbTDHDXP (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 23:23:15 -0400
-Received: from mx01.uni-tuebingen.de ([134.2.3.11]:40376 "EHLO
-	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id S263910AbTDHDXN (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 23:23:13 -0400
-X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
- wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
-To: linux-kernel@vger.kernel.org
-Cc: mru@users.sourceforge.net
-Subject: Re: Emulating insns on Alpha
-From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Date: 08 Apr 2003 05:34:23 +0200
-Message-ID: <871y0doe68.fsf@student.uni-tuebingen.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (cabbage)
+	id S263909AbTDHDWQ (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 23:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263910AbTDHDWQ (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 23:22:16 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:14596
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263909AbTDHDWP (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 23:22:15 -0400
+Date: Mon, 7 Apr 2003 20:33:12 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nick Urbanik <nicku@vtc.edu.hk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Debugging hard lockups (hardware?)
+In-Reply-To: <20030406203145.GA5783@suse.de>
+Message-ID: <Pine.LNX.4.10.10304072032350.6320-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-AntiVirus: checked by AntiVir Milter 1.0.0.8; AVE 6.19.0.3; VDF 6.19.0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Are there any patches around that emulate the BWX instruction set on
-> older Alpha CPUs, or should I write it myself?
+That controller is perfectly fine, give it a swing in 2.4 and it rocks.
+2.5 is the problem not the hardware.
 
-There's an ancient one at
-http://www.alphalinux.org/archives/axp-list/October1999/0500.html,
-although it's probably easier to write it from scratch. I'd write the
-whole thing in C, the trap is already so expensive that it's of no use
-trying to be clever when emulating the particular instructions (except
-when you replace the instruction with a jump to a stub, which seems
-somewhat hairy, but feasible).
+On Sun, 6 Apr 2003, Dave Jones wrote:
 
--- 
-	Falk
+> On Sun, Apr 06, 2003 at 07:34:09PM +0100, Alan Cox wrote:
+>  > > 02:0a.0 RAID bus controller: CMD Technology Inc PCI0680 (rev 01)
+>  > > 02:0b.0 RAID bus controller: CMD Technology Inc PCI0680 (rev 01)
+>  > ...
+>  > Your choice of components looks fine, its all stuff I trust, even if the
+>  > ethernet card is not good for performance it ought to be fine in
+>  > general. If it is a faulty part most likely its a one off fault.
+> 
+> Note the IDE controller, and 2.5 bugzilla #123
+> That controller has been nothing but trouble for me.
+> 
+> 		Dave
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

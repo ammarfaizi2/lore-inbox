@@ -1,198 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268052AbUIJENb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUIJEWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268052AbUIJENb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 00:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268054AbUIJENb
+	id S268066AbUIJEWy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 00:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268067AbUIJEWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 00:13:31 -0400
-Received: from scrye.com ([216.17.180.1]:20920 "EHLO mail.scrye.com")
-	by vger.kernel.org with ESMTP id S268052AbUIJENX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 00:13:23 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Sep 2004 00:22:54 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:63880 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268066AbUIJEWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 00:22:51 -0400
+Subject: Re: Updated rtc-debug patch
+From: Lee Revell <rlrevell@joe-job.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <4141193B.1070006@cybsft.com>
+References: <1094770200.1396.18.camel@krustophenia.net>
+	 <4141193B.1070006@cybsft.com>
+Content-Type: text/plain
+Message-Id: <1094790171.1396.195.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 10 Sep 2004 00:22:51 -0400
 Content-Transfer-Encoding: 7bit
-Date: Thu, 9 Sep 2004 22:13:16 -0600
-From: Kevin Fenzi <kevin-linux-kernel@scrye.com>
-To: linux-kernel@vger.kernel.org, bjorn.helgaas@hp.com, pavel@ucw.cz
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Subject: Re: FYI: my current bigdiff
-X-Draft-From: ("scrye.linux.kernel" 66164)
-References: <20040909134421.GA12204@elf.ucw.cz>
-Message-Id: <20040910041320.DF700E7504@voldemort.scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 2004-09-09 at 23:02, K.R. Foley wrote:
+> Lee Revell wrote:
+> > Andrew, this is an updated version of your rtc-debug patch with some
+> > minor changes:
+> > 
+> 
+> Thanks Lee. I was just talking about doing this today because now that 
+> the latencies are getting better I wanted to be able to generate some 
+> nice graphs to show some interested folks.
+> 
 
->>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
+I think it is a pretty good sign that we are having to "zoom in" these
+tools by 10-1000x to analyze the remaining data.
 
-Pavel> Hi!  This is my bigdiff. It is not for inclusion (I'll have to
-Pavel> split it), but it contains some usefull code (I believe :-).
+Here are some of my results so far:
 
-Pavel> Oh, it speeds up swsusp quite a lot.
+http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-bk12-S0
 
-Indeed it does. 
+We are getting pretty close to the point where we can analyze those
+graphs and be able to say the spike at X is caused by Y code path.  For
+example the spikes above 100 usecs are certainly caused by the
+netif_receive_skb path.
 
-After 42 days of uptime with 2.6.8-rc2-mm1 I decided to upgrade. 
-swsusp was very stable, but was getting slower and slower. Eariler
-tonight I suspended and it took about 15min to finish suspending. 
+It might be useful is for the latency tracer to have a
+preempt_min_latency as well as a preempt_max_latency setting.  Then, if
+you were to hypothesize that the spike between 55 and 60 usecs is caused
+by a certain code path, you could set the window and verify this.
 
-So, I built a new 2.6.9-rc1-mm4 + this bigdiff for swsusp. 
+Here's a modified version the hist-to-jpg from Andrew's amlat package. 
+It to produce graphs in the same format as the right hand graph from my
+testresults.php script (PNG format, data style boxes, and logarithmic
+scaling on the Y axis).
 
-First suspend worked. 
-First resume came back, but all kinds of problems with my network,
-with my usb, and with sound. 
+http://krustophenia.net/hist-to-jpg.sh.txt
 
-After looking around a bit it seems this is the issue: 
+Here's the PHP script:
 
-Sep  9 21:32:27 voldemort kernel: ** PCI interrupts are no longer routed automatically.  If this
-Sep  9 21:32:27 voldemort kernel: ** causes a device to stop working, it is probably because the
-Sep  9 21:32:27 voldemort kernel: ** driver failed to call pci_enable_device().  As a temporary
-Sep  9 21:32:27 voldemort kernel: ** workaround, the "pci=routeirq" argument restores the old
-Sep  9 21:32:27 voldemort kernel: ** behavior.  If this argument makes the device work again,
-Sep  9 21:32:27 voldemort kernel: ** please email the output of "lspci" to bjorn.helgaas@hp.com
-Sep  9 21:32:27 voldemort kernel: ** so I can fix the driver.
+http://krustophenia.net/testresults.phps
 
-After that first suspend/resume:
+I would like to put together a collection of latency profiling tools for
+the 2.6 kernel.  Mostly because I am afraid someone will post a link to
+my graphs on slashdot and knock me off the internet for a day.
 
-Sep  9 21:35:28 voldemort kernel: Stopping tasks: ====================================|
-Sep  9 21:35:28 voldemort kernel: Freeing memory...  ^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H
-\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-
-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^
-H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^H\^H|^H/^H-^Hdone (44436 pages freed)
+If you have anything you find useful, send it to me and I will put a
+page together.  It would be nice to have some standard tools we can use
+to compare systems.
 
-(BTW, that looks pretty nasty in the logs, even though it's very nice
-to watch)
+Lee
 
-Sep  9 21:35:28 voldemort kernel: swsusp: Need to copy 13410 pages
-Sep  9 21:35:28 voldemort kernel: ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 11 (level, low) -> IRQ 11
-Sep  9 21:35:28 voldemort kernel: ACPI: PCI interrupt 0000:02:0e.0[A] -> GSI 10 (level, low) -> IRQ 10
-Sep  9 21:35:28 voldemort kernel: ACPI: PCI interrupt 0000:02:0e.1[B] -> GSI 10 (level, low) -> IRQ 10
-Sep  9 21:35:28 voldemort kernel: Restarting tasks... done
-Sep  9 21:35:30 voldemort kernel: usbcore: registered new driver usbfs
-Sep  9 21:35:30 voldemort kernel: usbcore: registered new driver hub
-Sep  9 21:35:30 voldemort kernel: ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-Sep  9 21:35:30 voldemort kernel: ACPI: PCI interrupt 0000:02:0e.0[A] -> GSI 10 (level, low) -> IRQ 10
-Sep  9 21:35:30 voldemort kernel: ohci_hcd 0000:02:0e.0: NEC Corporation USB
-Sep  9 21:35:31 voldemort kernel: irq 10: nobody cared!
-Sep  9 21:35:31 voldemort kernel:  [<c01083ef>] __report_bad_irq+0x2a/0x8b
-Sep  9 21:35:31 voldemort kernel:  [<c01085e1>] note_interrupt+0x7c/0xde
-Sep  9 21:35:31 voldemort kernel:  [<c0108847>] do_IRQ+0xf7/0x116
-Sep  9 21:35:31 voldemort kernel:  [<c010678c>] common_interrupt+0x18/0x20
-Sep  9 21:35:31 voldemort kernel:  [<c011fa5f>] __do_softirq+0x2f/0x87
-Sep  9 21:35:31 voldemort kernel:  [<c011fadd>] do_softirq+0x26/0x28
-Sep  9 21:35:31 voldemort kernel:  [<c0108826>] do_IRQ+0xd6/0x116
-Sep  9 21:35:31 voldemort kernel:  [<c010678c>] common_interrupt+0x18/0x20
-Sep  9 21:35:31 voldemort kernel:  [<c0108c71>] setup_irq+0x69/0xaa
-Sep  9 21:35:31 voldemort kernel:  [<f88b68aa>] usb_hcd_irq+0x0/0x67 [usbcore]
-Sep  9 21:35:31 voldemort kernel:  [<c010891c>] request_irq+0x83/0xc5
-Sep  9 21:35:31 voldemort kernel:  [<f88ba6af>] usb_hcd_pci_probe+0x1f5/0x4dc [usbcore]
-Sep  9 21:35:31 voldemort kernel:  [<f88b68aa>] usb_hcd_irq+0x0/0x67 [usbcore]
-Sep  9 21:35:31 voldemort kernel:  [<c01863e1>] sysfs_make_dirent+0x2b/0x97
-Sep  9 21:35:31 voldemort kernel:  [<c01e3e58>] pci_device_probe_static+0x52/0x61
-Sep  9 21:35:31 voldemort kernel:  [<c01e3ea2>] __pci_device_probe+0x3b/0x4e
-Sep  9 21:35:31 voldemort kernel:  [<c01e3ee1>] pci_device_probe+0x2c/0x4a
-Sep  9 21:35:31 voldemort kernel:  [<c0229acd>] bus_match+0x3f/0x6a
-Sep  9 21:35:31 voldemort kernel:  [<c0229bdf>] driver_attach+0x56/0x80
-Sep  9 21:35:31 voldemort kernel:  [<c022a032>] bus_add_driver+0x91/0xaf
-Sep  9 21:35:31 voldemort kernel:  [<c022a54d>] driver_register+0x2f/0x33
-Sep  9 21:35:31 voldemort kernel:  [<c01e4120>] pci_register_driver+0x5c/0x84
-Sep  9 21:35:31 voldemort kernel:  [<f887e037>] ohci_hcd_pci_init+0x37/0x44 [ohci_hcd]
-Sep  9 21:35:31 voldemort kernel:  [<c0130ea8>] sys_init_module+0x135/0x1ba
-Sep  9 21:35:31 voldemort kernel:  [<c0105dcd>] sysenter_past_esp+0x52/0x71
-Sep  9 21:35:31 voldemort kernel: handlers:
-Sep  9 21:35:31 voldemort kernel: [<f88b68aa>] (usb_hcd_irq+0x0/0x67 [usbcore])
-Sep  9 21:35:31 voldemort kernel: Disabling IRQ #10
-Sep  9 21:35:31 voldemort kernel: ohci_hcd 0000:02:0e.0: irq 10, pci mem 0x40180000
-Sep  9 21:35:31 voldemort kernel: ohci_hcd 0000:02:0e.0: new USB bus registered, assigned bus number 1
-Sep  9 21:35:32 voldemort kernel: hub 1-0:1.0: USB hub found
-Sep  9 21:35:32 voldemort kernel: hub 1-0:1.0: 3 ports detected
-Sep  9 21:35:32 voldemort kernel: ACPI: PCI interrupt 0000:02:0e.1[B] -> GSI 10 (level, low) -> IRQ 10
-Sep  9 21:35:32 voldemort kernel: ohci_hcd 0000:02:0e.1: NEC Corporation USB (#2)
-Sep  9 21:35:32 voldemort kernel: ohci_hcd 0000:02:0e.1: irq 10, pci mem 0x40200000
-Sep  9 21:35:32 voldemort kernel: ohci_hcd 0000:02:0e.1: new USB bus registered, assigned bus number 2
-Sep  9 21:35:33 voldemort kernel: hub 2-0:1.0: USB hub found
-Sep  9 21:35:33 voldemort kernel: hub 2-0:1.0: 2 ports detected
-Sep  9 21:35:33 voldemort kernel: Loaded prism54 driver, version 1.2
-Sep  9 21:35:33 voldemort kernel: ACPI: PCI interrupt 0000:03:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-Sep  9 21:35:33 voldemort kernel: divert: allocating divert_blk for eth1
-Sep  9 21:36:07 voldemort kernel: eth1: resetting device...
-Sep  9 21:36:07 voldemort kernel: eth1: uploading firmware...
-Sep  9 21:36:08 voldemort kernel: eth1: firmware upload complete
-Sep  9 21:36:09 voldemort kernel: eth1: reset problem: no 'reset complete' IRQ seen
-Sep  9 21:36:09 voldemort kernel: eth1: timeout waiting for mgmt response 1000, triggering device
-Sep  9 21:36:10 voldemort kernel: eth1: timeout waiting for mgmt response
-Sep  9 21:36:10 voldemort kernel: eth1: mgt_commit_list: failure. oid=ff020008 err=-110
-Sep  9 21:36:10 voldemort kernel: eth1: timeout waiting for mgmt response 1000, triggering device
-Sep  9 21:36:11 voldemort kernel: eth1: timeout waiting for mgmt response
-Sep  9 21:36:11 voldemort kernel: eth1: mgt_commit_list: failure. oid=ff020003 err=-110
-Sep  9 21:36:11 voldemort kernel: eth1: timeout waiting for mgmt response 1000, triggering device
-Sep  9 21:36:12 voldemort kernel: eth1: timeout waiting for mgmt response
-Sep  9 21:36:12 voldemort kernel: eth1: mgt_commit_list: failure. oid=10000000 err=-110
-Sep  9 21:36:12 voldemort kernel: eth1: timeout waiting for mgmt response 1000, triggering device
-Sep  9 21:36:13 voldemort kernel: eth1: timeout waiting for mgmt response
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=17000007 err=-110
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=19000001 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=10000002 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=19000004 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000000 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000001 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000002 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000004 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000005 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000006 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000007 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=12000003 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=150007e0 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=ff02000c err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit_list: failure. oid=ff020003 err=-12
-Sep  9 21:36:13 voldemort kernel: eth1: mgmt tx queue is still full
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_update_addr: failure
-Sep  9 21:36:13 voldemort kernel: eth1: mgt_commit: failure
-Sep  9 21:36:13 voldemort kernel: eth1: interface reset complete
-
-Seems the usb and prism54 didn't play nice. 
-
-After booting with the pci=routeirq as suggested wireless and usb
-played nice on suspend resume again. 
-I am copying this to the email address that is mentioned. 
-
-So, after that glitch:
-
-- - The display is much nicer. Congrats. 
-
-- - Speed does seem to be nicer. It's taking me 40 seconds to do a
-complete suspend/resume cycle. 
-
-- - Should PREEMPT and/or HIMEM work with this version? I can test them
-if support has been added/fixed/tweaked for them. 
-
-I have only done a few cycles, but it looks nice and stable. I would
-suggest you break it into smaller patches and get it applied. 
-Being applied to the main tree would be nice. 
-
-kevin
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQFBQSng3imCezTjY0ERAjT0AJwNvCL3WbN2ypJQedPOjL3nlF8DMwCeJYss
-WNY5zEepODMsOoq2GNrWhfI=
-=vFww
------END PGP SIGNATURE-----

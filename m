@@ -1,20 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312146AbSCRAdc>; Sun, 17 Mar 2002 19:33:32 -0500
+	id <S312152AbSCRAac>; Sun, 17 Mar 2002 19:30:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312153AbSCRAdW>; Sun, 17 Mar 2002 19:33:22 -0500
-Received: from slip-202-135-75-217.ca.au.prserv.net ([202.135.75.217]:4501
+	id <S312148AbSCRAaY>; Sun, 17 Mar 2002 19:30:24 -0500
+Received: from slip-202-135-75-217.ca.au.prserv.net ([202.135.75.217]:1173
 	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S312146AbSCRAdE>; Sun, 17 Mar 2002 19:33:04 -0500
-Date: Sun, 17 Mar 2002 17:50:09 +1100
+	id <S312146AbSCRAaJ>; Sun, 17 Mar 2002 19:30:09 -0500
+Date: Sun, 17 Mar 2002 18:17:32 +1100
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Martin Wirth <martin.wirth@dlr.de>
-Cc: pwaechtler@loewe-komp.de, linux-kernel@vger.kernel.org, drepper@redhat.com
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Message-Id: <20020317175009.4f4954a0.rusty@rustcorp.com.au>
-In-Reply-To: <3C932B2E.90709@dlr.de>
-In-Reply-To: <E16m1oK-0006oy-00@wagner.rustcorp.com.au>
-	<3C932B2E.90709@dlr.de>
+To: Andi Kleen <ak@suse.de>
+Cc: ak@suse.de, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
+        rth@twiddle.net
+Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas
+Message-Id: <20020317181732.48f85421.rusty@rustcorp.com.au>
+In-Reply-To: <20020315101309.A13609@wotan.suse.de>
+In-Reply-To: <20020314195122.A30566@wotan.suse.de>
+	<E16lj03-0007Zm-00@wagner.rustcorp.com.au>
+	<20020315101309.A13609@wotan.suse.de>
 X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -22,34 +24,32 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Mar 2002 12:23:26 +0100
-Martin Wirth <martin.wirth@dlr.de> wrote:
-> Rusty Russell wrote:
-> >The solution I was referring to before, using full semaphores, would
-> >look like so:
+On Fri, 15 Mar 2002 10:13:09 +0100
+Andi Kleen <ak@suse.de> wrote:
 
-[snip]
+> On Fri, Mar 15, 2002 at 03:07:27PM +1100, Rusty Russell wrote:
+> > They must return an lvalue, otherwise they're useless for 50% of cases
+> > (ie. assignment).  x86_64 can still use its own mechanism for
+> > arch-specific per-cpu data, of course.
+> 
+> Assignment should use an own macro (set_this_cpu()) or use per_cpu().
 
-> In principle that works. But one of  things that's less nice with 
-> pthread_cond_wait is
-> that you sometimes have a (most of the time) unnecessary schedule 
-> ping-pong, and with the
-> approach above you always have this (due to ack).
+So, we'd have "get_this_cpu(x)" and "set_this_cpu(x, y)".  So far, so good.
 
-Only vs. pthread_cond_broadcast.  And if you're using that you probably
-have some other performance issues anyway?
+	struct myinfo
+	{
+		int x;
+		int y;
+	};
 
-> And secondly if 
-> futex_up(&f, N) for N > 1
-> relies on the chained wakeup in the kernels futex_up routine the 
-> broadcast may take a while to
-> complete (the lowest priority waiter penalizes all others queued behind 
-> him). A semaphore simply is no full replacement for a waitqueue with 
-> wake_all.
+	static struct myinfo mystuff __per_cpu_data;
 
-Yes, we could have a "wake N" variant, which would be more efficient here.
+Now how do we set mystuff.x on this CPU?
 
-Hope that clarifies,
+I just think you're going to have to live with the generic implementation.
+It's really not that bad 8)
+
+Sorry,
 Rusty.
 -- 
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

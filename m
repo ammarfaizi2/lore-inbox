@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130344AbRAKTuT>; Thu, 11 Jan 2001 14:50:19 -0500
+	id <S130112AbRAKTv6>; Thu, 11 Jan 2001 14:51:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131067AbRAKTuI>; Thu, 11 Jan 2001 14:50:08 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:48389 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S130392AbRAKTtx>;
-	Thu, 11 Jan 2001 14:49:53 -0500
-Date: Thu, 11 Jan 2001 20:49:22 +0100
-From: Frank de Lange <frank@unternet.org>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
-Message-ID: <20010111204922.E3269@unternet.org>
-In-Reply-To: <20010110223015.B18085@unternet.org> <3A5D9D87.8A868F6A@uow.edu.au>
+	id <S130192AbRAKTvs>; Thu, 11 Jan 2001 14:51:48 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:58579 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130112AbRAKTvh>;
+	Thu, 11 Jan 2001 14:51:37 -0500
+Date: Thu, 11 Jan 2001 19:47:53 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+Subject: Re: Subtle MM bug
+Message-ID: <20010111194753.P25375@redhat.com>
+In-Reply-To: <20010111141330.H25375@redhat.com> <Pine.GSO.4.21.0101111401430.17363-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5D9D87.8A868F6A@uow.edu.au>; from andrewm@uow.edu.au on Thu, Jan 11, 2001 at 10:48:23PM +1100
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0101111401430.17363-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Jan 11, 2001 at 02:03:48PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another observation wrt. behaviour with 'noapic'...
+Hi,
 
-When streaming time-critical data over the network (running esound to another
-server, etc), sometimes there are hiccups in the stream. These hiccups seem to
-be much less frequent, if at all present, when running with 'noapic'. I'm
-currently running sound over a heavily loaded ethernet, no hiccups at all...
-Weird, since the apic ought to spread the load of handling the interrupts over
-all available CPU's.
+On Thu, Jan 11, 2001 at 02:03:48PM -0500, Alexander Viro wrote:
+> On Thu, 11 Jan 2001, Stephen C. Tweedie wrote:
+> 
+> > On Thu, Jan 11, 2001 at 02:12:05PM +0100, Trond Myklebust wrote:
+> > > 
+> > >  What's wrong with copy-on-write style semantics? IOW, anyone who
+> > > wants to change the credentials needs to make a private copy of the
+> > > existing structure first.
+> > 
+> > Because COW only solves the problem if each task is only changing its
+> > own, local, private copy of the credentials.  Posix threads demand
+> > that one thread changing credentials also affects all the other
+> > threads immediately, and making your own local private copy won't help
+> > you to change the other tasks' credentials safely.
+> 
+> And how is that different from the current situation?
 
-Whatever is causing this, there seems to be something fishy in the way
-interrupts are handled when the apic(s) is/are enabled...
+It's not, which is the point I was making: COW doesn't actually solve
+the pthreads problem.  Far better to do it in user space.
 
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

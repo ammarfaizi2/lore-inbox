@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129892AbQKHDvI>; Tue, 7 Nov 2000 22:51:08 -0500
+	id <S129544AbQKHD5u>; Tue, 7 Nov 2000 22:57:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130779AbQKHDu7>; Tue, 7 Nov 2000 22:50:59 -0500
-Received: from tantalum.btinternet.com ([194.73.73.80]:65161 "EHLO
-	tantalum.btinternet.com") by vger.kernel.org with ESMTP
-	id <S129892AbQKHDum>; Tue, 7 Nov 2000 22:50:42 -0500
+	id <S129689AbQKHD5k>; Tue, 7 Nov 2000 22:57:40 -0500
+Received: from gadolinium.btinternet.com ([194.73.73.111]:42682 "EHLO
+	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S129544AbQKHD5d>; Tue, 7 Nov 2000 22:57:33 -0500
 From: davej@suse.de
-Date: Wed, 8 Nov 2000 03:50:13 +0000 (GMT)
+Date: Wed, 8 Nov 2000 03:57:10 +0000 (GMT)
 To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: Installing kernel 2.4
-In-Reply-To: <20001107213642.A8542@vger.timpanogas.org>
-Message-ID: <Pine.LNX.4.21.0011080344080.8632-100000@neo.local>
+In-Reply-To: <20001107214147.B8542@vger.timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0011080351110.8632-100000@neo.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,33 +20,31 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
 
-> What makes more sense is to pack multiple segments for different 
-> processor architecures into a single executable package, and have the 
-> loader pick the right one (the NT model).  It could be used for 
-> SMP and non-SMP images, though, as well as i386, i586, i686, etc.  
+> Your way out in the weeds.  What started this thread was a customer who
+> ended up loading the wrong arch on a system and hanging.  I have to
+> post a kernel RPM for our release, and it's onerous to make customers
+> recompile kernels all the time and be guinea pigs for arch ports.  
+> They just want it to boot, and run with the same level of ease of use
+> and stability they get with NT and NetWare and other stuff they are used
+> to.   This is an easy choice from where I'm sitting.
 
-Jeff, in x86 alone, there are 13 different compile targets (2.4 tree),
-soon to be more when Cyrix III & Pentium IV get added.
-Although it doesn't make sense on all of these, it's possible to
-compile any of them with SMP support too.
+So you're complaining that as a vendor you have to ship multiple kernels?
+The point remains the same.
 
-That's 30 different combinations.
-Suggesting to put all these into one file isn't a bad idea,
-it's bordering on insanity. What do you hope to achieve by doing
-this, apart from the end user not having to choose a custom kernel
-for their architecture ? Much better to have several kernels built
-seperately for each arch, and have the user pick which one
-(or even have the distro installer autodetect) at install time,
-as SuSE, Red Hat, Mandrake, and several other distros are now doing.
+The only time I recall recently where a kernel hasn't booted was when the
+AMD Athlon appeared, and the MTRR code needed fixing.
+There wasn't a lot anyone could have done, without seeing documentation
+(which iirc wasn't available at the time).
+The reason NT & Netware probably loaded fine is that they don't set
+the MTRRs themselves, but rely on third party utilities to do this
+for them after they've booted.
 
-Everything all in one may be the way NT does it, but that does not
-mean it's a good idea. In fact it's anything but a good idea.
-Please don't try to bring the braindamages of NT to Linux, it
-just isn't meant to happen.
+All other recent cases of non booting that I've seen have been a
+case of user error miscompiling for a wrong target.
+As a vendor, you don't worry about this as you ship binary kernels,
+and $enduser never needs to see a source tree.
 
-regards,
-
-Davej.
+davej.
 
 -- 
 | Dave Jones <davej@suse.de>  http://www.suse.de/~davej

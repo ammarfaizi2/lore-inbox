@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267514AbRGXNDD>; Tue, 24 Jul 2001 09:03:03 -0400
+	id <S267516AbRGXNDx>; Tue, 24 Jul 2001 09:03:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267516AbRGXNCy>; Tue, 24 Jul 2001 09:02:54 -0400
-Received: from dsl-64135210.acton.ma.internetconnect.net ([64.13.5.210]:58810
-	"EHLO alliance.centerclick.org") by vger.kernel.org with ESMTP
-	id <S267514AbRGXNCf>; Tue, 24 Jul 2001 09:02:35 -0400
-Mime-Version: 1.0
-Message-Id: <v04210100b783212ef7bd@[10.0.2.30]>
-In-Reply-To: <20010724102526.K4221@suse.de>
-In-Reply-To: <v04210101b781c827accb@[10.0.2.30]>
- <20010724102526.K4221@suse.de>
-X-Mailer: QUALCOMM MacOS Eudora Pro Version 4.2.1 (PPC)
-Date: Tue, 24 Jul 2001 09:02:33 -0400
-To: Jens Axboe <axboe@suse.de>
-From: David Johnson <dave-kernel-list@centerclick.org>
-Subject: Re: DVD-RAM media detected with wrong number of blocks (2.4.7)
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S267520AbRGXNDn>; Tue, 24 Jul 2001 09:03:43 -0400
+Received: from nick.dcs.qmw.ac.uk ([138.37.88.61]:56586 "EHLO dcs.qmw.ac.uk")
+	by vger.kernel.org with ESMTP id <S267516AbRGXNDe>;
+	Tue, 24 Jul 2001 09:03:34 -0400
+Date: Tue, 24 Jul 2001 14:03:39 +0100 (BST)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>,
+        <linux-kernel@vger.kernel.org>, <nfs@lists.sourceforge.net>
+Subject: Re: nfs weirdness
+In-Reply-To: <15197.21462.625678.700365@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.33.0107241353170.17270-100000@nick.dcs.qmw.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On 7/24/01, Jens Axboe wrote:
->On Mon, Jul 23 2001, David Johnson wrote:
->> When attempting to create an ext2 partition on a dvd-ram (2.6G/5.2G)
->> media the number of blocks is detected wrong causing only half of the
->> disk to be usable.  When creating the filesystem with mke2fs only
->> 609480 2K blocks are allowed instead of 1218960 2K blocks, and I end
->> up with a 1.2GB partition instead of 2.4GB one.  The 1.2GB fs works
->> fine, it's just a bit small :(
->>
->> This is with 2.4.7 using a Creative DVD-RAM drive (1216S) on an Adaptec
->> 2940UW.
->>
->> The correct number of blocks is detected in 2.4.6
->
->Does this work?
->
+At 20:54 +1000 Neil Brown wrote:
 
-Shifting another bit causes the size to get cut in half again, not 
-shifting at all appears to be the correct thing to do.
+>knfsd exports filesystems, or parts there-of.  It doesn't export
+>'parts of the visible namespace'.
+>
+>If you ask to export "/windows" and nothing is mounted on "/windows",
+>then you are asking to export part of the root filesystem starting at
+>"/windows".  If you subsequently mount something on /windows, then you
+>haven't asked for that to be exported so it won't be, and mountd will
+>get confused.
+>You should always mount filesystems before trying to export them.
+
+ISTR I had a setup where I had autofs mount some external drives and knfsd
+export them, under Debian woody some months ago, and it all worked kind of
+how I might expect (ie remote access could cause *my* volumes to be
+mounted when I hadn't). Now I'm running RedHat and knfsd (or some init
+script) mounts all my autofs volumes before exporting them.
+
+I'm not grumbling 'cos everything's on journalling filesystems now :))
+
+Matt
 

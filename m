@@ -1,115 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261378AbSJAVBa>; Tue, 1 Oct 2002 17:01:30 -0400
+	id <S262435AbSJAVEf>; Tue, 1 Oct 2002 17:04:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261515AbSJAVBa>; Tue, 1 Oct 2002 17:01:30 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:8709 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id <S261378AbSJAVB1>; Tue, 1 Oct 2002 17:01:27 -0400
-Date: Tue, 1 Oct 2002 23:10:34 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: calling context when writing to tty_driver
-In-Reply-To: <20021001183400.GA8959@kroah.com>
-Message-ID: <Pine.LNX.4.21.0210012150300.485-100000@notebook.diehl.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262505AbSJAVEe>; Tue, 1 Oct 2002 17:04:34 -0400
+Received: from trained-monkey.org ([209.217.122.11]:54028 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S262436AbSJAVEA>; Tue, 1 Oct 2002 17:04:00 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
+References: <Pine.LNX.4.44.0210012219460.21087-100000@localhost.localdomain>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 01 Oct 2002 17:09:25 -0400
+In-Reply-To: Ingo Molnar's message of "Tue, 1 Oct 2002 22:29:02 +0200 (CEST)"
+Message-ID: <m3bs6dn9x6.fsf@trained-monkey.org>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Oct 2002, Greg KH wrote:
+>>>>> "Ingo" == Ingo Molnar <mingo@elte.hu> writes:
 
-> > just hitting another "sleeping on semaphore from illegal context" issue
-> > with 2.5.39. Happened on down() in either usbserial->write_room() or
-> > usbserial->write(), when invoked from bh context.
-> 
-> Can you send me the whole backtrace?  I'm curious as to who is calling
-> those functions from bh context.
+Ingo> but, at the danger of getting into another religious discussion.
 
-It's from an intermediate state of my attempt to rewrite the irda ldisc
-(irtty) to make it working with the new serial driver and usbserial as
-well. It's all working with serial (uart) which doesn't sleep neither in
-write_room() nor write() - except when called from userland.
+I don't want to get into flame land, but I think there's a couple of
+important points.
 
-With usbserial however port->sem is acquired in both cases. It gets
-invoked from non-sleep context in two cases:
+Ingo> Despite all the previous fuss about the problems of typedefs,
+Ingo> i've never had *any* problem with using typedefs in various code
+Ingo> i wrote. It only ever made things cleaner - to me. I had no
+Ingo> problems with supposed declaration limitations of typedefs or
+Ingo> anything either. I in fact consider it a feature that an unclean
+Ingo> hiearchy of include files cannot be plastered with typedef
+Ingo> predeclarations.
 
-1) start of transmission (frame comes from network layer):
+The point here is that it probably makes the code easier for you to
+read, but it makes it harder for a lot of other people since it's
+inconsistent with the standard. When analyzing someone else's code and
+having to go through a pile of typedef's to figure whether you are
+dealing with structs or just renamed integer types is a major and
+unnecessary pain.
 
-	netdev->hard_start_xmit() - under xmit-lock
-		- takes some spinlock_bh to serialize with write_wakeup()
-		- calls tty_driver->write_room() and tty_driver->write()
+Ingo> what issue remains is purely the compactness and effectivity of
+Ingo> the source code representation. It confuses the human eye (at
+Ingo> least mine) to see 'struct ' all over again. (In fact 'unsigned
+Ingo> int' is confusing as well, so i tend to use 'int' wherever
+Ingo> possible safely.)
 
-2) sending more data after serial driver has transmitted some bytes:
+I guess thats a matter of taste, when I write code I want to know what
+I deal with. Same reason I find C++'s operator overloading to be
+absolutely sickening.
 
-	tty_driver in bh context (urb-complete for usbserial)
-	calls ldisc->write_wakeup()
-		which uses tty_driver->write_room() / write()
-		to send the next few bytes from the frame
+Ingo> I think writing out stuff makes sense only as long as it carries
+Ingo> real, important and unique information that triggers the proper
+Ingo> association in the human brain, without using up too much
+Ingo> cognitive power (which is needed for other stuff like writing
+Ingo> code).
 
-The backtrace below is from case 1. In both cases it would be extremely
-painful to defer all the real work to process context - then we could as
-well nuke write_wakeup() and write_room() and make tty_driver->write()
-just blocking.
+I will claim here that the fact something is a struct is very
+important information. When someone else is to use the type, it's
+important they know the actual cost of writing thigs like *a = *b. I
+have seen this done way too many times, not just in C.
 
-Agreed, there aren't many users of write_wakeup but it seems they all rely
-on case 2 above (at least): ppp, n_hdlc, slip, x25, input/serio to give a
-few examples. Well, they are probably always used on top of serial without
-problem - but I'd expect the same issue might already hit bluetooth (i.e.
-hci_ldisc) when running over usbserial.
+[snip]
 
-> > Currently, usbserial calls write_wakeup() from bh (on OUT urb completion)
-> > but needs process context for write_room() and write(). My impression is
-> > the whole point of write_room() is to find out how many data can be
-> > accepted by the write() - if write() would be allowed to sleep it could
-> > just block to deal with any amount of data.
-> 
-> Making write() block for any amount of data would increase the
-> complexity of the drivers.  What should probably be done is convert the
-> usb-serial drivers to use the new serial core, but I don't have the time
-> to do this work right now.  Any takers?
+Ingo> Sure, we need to know what the type is, but more so do we need
+Ingo> to know *which* specific type it is.
 
-Given the above mentioned observations with other write_wakeup() users I
-tend to assume my approach to call write_room()/write() from non-sleep
-context couldn't be that wrong. And it works with existing serial driver
-(old and new one).
+foo_t doesn't tell you anything there either, foo_list_t says a bit
+more, but still nothing about the actual cost of copying the type
+around.
 
-Another question/suggestion: do we need to acquire port->sem in usbserial?
-Couldn't this be done with a spinlock - at least when called from_user?
-If we agree serial drivers shouldn't sleep in write_room()/write() my
-impression is this needs to be addressed somehow, regardless whether
-usbserial uses the new serial core or not. Anybody tried this with a
-bluetooth dongle over usbserial?
+Ingo> i've done a quick experiment, every .h and .c file from the
+Ingo> 2.5.40 kernel in a single file:
 
-Martin
+Ingo>  -rw-rw-r-- 1 mingo mingo 133851995 Oct 1 21:55 all-struct.c
 
-----------------------------------------
+Ingo> and the same file, but this time all 165636 occurances of
+Ingo> 'struct ' replaced with '_t':
 
-backtrace from 2.5.39:
+Ingo>  -rw-rw-r-- 1 mingo mingo 132819955 Oct 1 21:57 all-t.c
 
- Sleeping function called from illegal context at /mnt/disk/kernel/v2.5.39-md/include/asm/semaphore.h
- c02bbc94 c011aa62 c024f160 cc8d0780 00000077 ffffffea cc8ce500 cc8d0780 
-        00000077 c55c4000 c95f3c00 c02bbd58 cbcf42e4 cc8c60b7 c55c4000 00000000 
-        c5d43000 0000001c c95f3c00 c95f3c00 cbcf42e4 cc8c1377 c95f3c00 c5d43000 
- Call Trace
-  [__might_sleep+66/71]__might_sleep+0x42/0x47
-  [<c011aa62>]__might_sleep+0x42/0x47
-  [<cc8d0780>].LC4+0x0/0x100 [usbserial]
-  [<cc8ce500>]serial_write+0x80/0x130 [usbserial]
-  [<cc8d0780>].LC4+0x0/0x100 [usbserial]
-  [<cc8c60b7>]irtty_do_write+0x57/0x60 [sir_tty]
-  [<cc8c1377>]sirdev_do_write+0x67/0x88 [irda_sir]
-  [<cc8c193b>]sirdev_hard_xmit+0x25f/0x2f0 [irda_sir]
-  [__wake_up_common+47/80]__wake_up_common+0x2f/0x50
-  [<c0118adf>]__wake_up_common+0x2f/0x50
-  [default_wake_function+33/64]default_wake_function+0x21/0x40
-  [<c0118a91>]default_wake_function+0x21/0x40
-  [qdisc_restart+160/608]qdisc_restart+0xa0/0x260
-  [<c0209080>]qdisc_restart+0xa0/0x260
-  [dev_queue_xmit+270/1088]dev_queue_xmit+0x10e/0x440
-  [<c0200aae>]dev_queue_xmit+0x10e/0x440
-  [alloc_skb+232/480]alloc_skb+0xe8/0x1e0
-  [<c01fd348>]alloc_skb+0xe8/0x1e0
-  [<cc899a02>]irlap_send_discovery_xid_frame+0x312/0x320 [irda]
+I haven't done this experient on the whole kernel, but from what I
+have seen from many drivers, then you are going to gain a lot more by
+replacing all whitespate indentations with tabs. In certain extreme cases
+I have seen it reduce file siszes by more than 10%.
 
+Ingo> if we have to go with the 'struct' convention then rather
+Ingo> 'struct work' and 'struct workqueue' and 'struct
+Ingo> cpu_workqueue'. (neither of them collides with any other symbol
+Ingo> in the existing namespace.)
+
+This would be a useful thing to clean up, or we should start naming
+things foo_int as well ;-)
+
+Ingo> but, i'm trying to argue about taste, which is admittedly not an
+Ingo> exact science. :)
+
+Yup, we agree on that, however I think a key issue here is that having
+a common standard benefits a lot in terms of maintainability when we
+have a multi developer project like this.
+
+Anyway, just my $0.02.
+
+Cheers,
+Jes

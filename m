@@ -1,462 +1,165 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136106AbRD0QLP>; Fri, 27 Apr 2001 12:11:15 -0400
+	id <S136097AbRD0QJU>; Fri, 27 Apr 2001 12:09:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136107AbRD0QLK>; Fri, 27 Apr 2001 12:11:10 -0400
-Received: from mercury.eng.emc.com ([168.159.40.77]:25361 "EHLO
-	mercury.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S136094AbRD0QJY>; Fri, 27 Apr 2001 12:09:24 -0400
-Message-ID: <6630C49FB136D511ACEC00B0D049EF8B3EBF9D@SRNAMATH>
-From: "peck, william" <peck_william@emc.com>
-To: linux-kernel@vger.kernel.org
-Subject: Where did this patch come from?
-Date: Fri, 27 Apr 2001 12:07:00 -0400
+	id <S136094AbRD0QJB>; Fri, 27 Apr 2001 12:09:01 -0400
+Received: from tepid.osl.fast.no ([213.188.9.130]:14600 "EHLO
+	tepid.osl.fast.no") by vger.kernel.org with ESMTP
+	id <S136091AbRD0QIt>; Fri, 27 Apr 2001 12:08:49 -0400
+Message-ID: <3AE99989.EF69C2D5@fast.no>
+Date: Fri, 27 Apr 2001 18:08:41 +0200
+From: Michael =?iso-8859-1?Q?Sus=E6g?= <Michael.Susag@fast.no>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+To: linux-kernel@vger.kernel.org
+Subject: O_DIRECT support in 2.4.4?
 Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C0CF34.179629E0"
+ boundary="------------37B10C811ECF44E73C9F2F3A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+This is a multi-part message in MIME format.
+--------------37B10C811ECF44E73C9F2F3A
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-------_=_NextPart_000_01C0CF34.179629E0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+We have tested the rawio and o_direct patches from Andrea Arcangeli 
+with great success, and wondered if they will be part of the next 
+kernel release, 2.4.4?
 
-I was wondering if anyone could tell me who is responsible for the patch I
-have included?  It fixes some issues with scanning the scsi bus,
-specifically it reports luns higher than 8.  I am just wondering if whoever
-has created this if they have submitted it to be included in the mainstream
-2.2.x kernel series.
+So far we have tested these patches on four different systems.
+With the latest versions of these patches (rawio-6, o_direct-3) 
+all systems works perfectly ok. Both with and without O_DIRECT 
+enabled in big file operations.
+
+The O_DIRECT support really helps performance a lot
+for some types of applications. We happen to have such an 
+application, and we would like to see O_DIRECT 
+support in the kernel source in the near future.
+ 
+This would lift Linux to a new level in terms of disk performance
+for "self-caching" applications.
+
+A performance test we did on our application shows a huge 
+improvement, upto 8 times better data read speed with direct-IO.
+With buffered IO, the CPU is doing caching most of the time.
+
+I attached a graph showing this performance win using O_DIRECT
+versus buffered IO. Each thread reads at a random offset a random 
+amount of data from a big data set. The dataset is placed on 
+a software RAID 0 with many disks. With that configuration 
+we are able to fully utilize the 160 MB/s SCSI controllers.
 
 
-------_=_NextPart_000_01C0CF34.179629E0
-Content-Type: application/octet-stream;
-	name="patch-scsi-2.2.16-22.16"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="patch-scsi-2.2.16-22.16"
 
-Index: drivers/scsi/scsi.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-RCS file: /home/cvs/em_rh/drivers/scsi/scsi.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 scsi.c
---- drivers/scsi/scsi.c	2001/02/26 01:30:44	1.1.1.1
-+++ drivers/scsi/scsi.c	2001/02/28 02:20:52
-@@ -186,9 +186,13 @@
- static void resize_dma_pool(void);
- static void print_inquiry(unsigned char *data);
- extern void scsi_times_out (Scsi_Cmnd * SCpnt);
--static int  scan_scsis_single (int channel,int dev,int lun,int * =
-max_scsi_dev ,
--                 int * sparse_lun, Scsi_Device ** SDpnt, Scsi_Cmnd * =
-SCpnt,
--                 struct Scsi_Host *shpnt, char * scsi_result);
-+static int scan_scsis_single(unsigned int channel, unsigned int dev,
-+		unsigned int lun, int lun0_scsi_level,=20
-+		unsigned int *max_scsi_dev, unsigned int *sparse_lun,=20
-+		Scsi_Device ** SDpnt, struct Scsi_Host *shpnt,=20
-+		char *scsi_result);
-+static int find_lun0_scsi_level(unsigned int channel, unsigned int =
-dev,
-+				struct Scsi_Host *shpnt);
- void        scsi_build_commandblocks(Scsi_Device * SDpnt);
- static int scsi_unregister_device(struct Scsi_Device_Template * tpnt);
-=20
-@@ -440,8 +444,10 @@
-     }
- }
-=20
-+#define MAX_SCSI_LUNS 0x7FFFFFFF
-+
- #ifdef CONFIG_SCSI_MULTI_LUN
--static int max_scsi_luns =3D 64;
-+static int max_scsi_luns =3D MAX_SCSI_LUNS;
- #else
- static int max_scsi_luns =3D 1;
- #endif
-@@ -449,7 +455,7 @@
- __initfunc(void scsi_luns_setup(char *str, int *ints))
- {
-     if (ints[0] !=3D 1)
--	printk("scsi_luns_setup : usage max_scsi_luns=3Dn (n should be =
-between 1 and 8)\n");
-+	printk("scsi_luns_setup : usage max_scsi_luns=3Dn (n should be =
-between 1 and 2^32-1)\n");
-     else
- 	max_scsi_luns =3D ints[1];
- }
-@@ -468,15 +474,16 @@
-                         unchar hlun)
- {
-   int             channel;
--  int             dev;
--  int             lun;
--  int             max_dev_lun;
-+  unsigned int    dev;
-+  unsigned int    lun;
-+  unsigned int    max_dev_lun;
-   Scsi_Cmnd     * SCpnt;
-   unsigned char * scsi_result;
-   unsigned char   scsi_result0[256];
-   Scsi_Device   * SDpnt;
-   Scsi_Device   * SDtail;
--  int             sparse_lun;
-+  unsigned int    sparse_lun;
-+  int lun0_sl;
-=20
-   scsi_result =3D NULL;
-   SCpnt =3D (Scsi_Cmnd *) scsi_init_malloc (sizeof (Scsi_Cmnd),=20
-@@ -539,8 +546,13 @@
-     if(dev >=3D shpnt->max_id) goto leave;
-     lun =3D hlun;
-     if(lun >=3D shpnt->max_lun) goto leave;
--    scan_scsis_single (channel, dev, lun, &max_dev_lun, &sparse_lun,
--		       &SDpnt, SCpnt, shpnt, scsi_result);
-+
-+    if ((0 =3D=3D lun) || (lun > 7))
-+        lun0_sl =3D SCSI_3; /* actually don't care for 0 =3D=3D lun */
-+    else
-+        lun0_sl =3D find_lun0_scsi_level(channel, dev, shpnt);
-+    scan_scsis_single(channel, dev, lun, lun0_sl, &max_dev_lun,=20
-+                      &sparse_lun, &SDpnt, shpnt, scsi_result);
-=20
-     /* See warning by (DB) in scsi_proc_info() towards end of
-        'add-single-device' section. (dpg) */
-@@ -596,14 +608,33 @@
-            */
-           max_dev_lun =3D (max_scsi_luns < shpnt->max_lun ?
-                          max_scsi_luns : shpnt->max_lun);
--	  sparse_lun =3D 0;
--          for (lun =3D 0; lun < max_dev_lun; ++lun) {
--            if (!scan_scsis_single (channel, order_dev, lun, =
-&max_dev_lun,
--				    &sparse_lun, &SDpnt, SCpnt, shpnt,
--				    scsi_result)
--		&& !sparse_lun)
--              break; /* break means don't probe further for luns!=3D0 =
-*/
--          }                     /* for lun ends */
-+
-+#ifdef CONFIG_SCSI_MULTI_LUN
-+	  if ((shpnt->max_id > 16) && (shpnt->max_lun > 16)) {
-+                /* This is the first step of supporting large numbers
-+                 * of luns on a device.  By definition any SCSU host =
-capable
-+                 * of supporting more than 16 SCSI controlers with =
-more than
-+		 * 16 luns will probably be a fiber channel or similar device
-+		 * and use a sparse lun setup.  If the future this is the
-+                 * place to do a report lun call.
-+                 */
-+                sparse_lun =3D 1;
-+          } else {
-+                sparse_lun =3D 0;
-+          }
-+#else
-+          sparse_lun =3D 0;
-+#endif
-+
-+          for (lun =3D 0, lun0_sl =3D SCSI_2; lun < max_dev_lun; =
-++lun) {
-+              if (!scan_scsis_single(channel, order_dev, lun, lun0_sl,
-+                                     &max_dev_lun, &sparse_lun, =
-&SDpnt, shpnt,
-+                                     scsi_result)
-+                      && !sparse_lun)
-+                  break;	/* break means don't probe further for =
-luns!=3D0 */
-+              if (SDpnt && (0 =3D=3D lun))
-+                lun0_sl =3D SDpnt->scsi_level;
-+          }             	/* for lun ends */
-         }                       /* if this_id !=3D id ends */
-       }                         /* for dev ends */
-     }                           /* for channel ends */
-@@ -665,18 +696,43 @@
-     }
- }
-=20
-+Scsi_Cmnd *scsi_allocate_request(Scsi_Device * device)
-+{
-+  Scsi_Cmnd *SCpnt =3D NULL;
-+
-+  if (!device)
-+    panic("No device passed to scsi_allocate_request().\n");
-+
-+  SCpnt =3D (Scsi_Cmnd *) kmalloc(sizeof(Scsi_Cmnd), GFP_ATOMIC);
-+
-+  if (SCpnt =3D=3D NULL)
-+    return NULL;
-+
-+  memset(SCpnt, 0, sizeof(Scsi_Cmnd));
-+  SCpnt->host =3D device->host;
-+  SCpnt->device =3D device;
-+  SCpnt->target =3D device->id;
-+  SCpnt->lun =3D device->lun;
-+  SCpnt->channel =3D device->channel;
-+
-+  return SCpnt;
-+}
-+
- /*
-  * The worker for scan_scsis.
-  * Returning 0 means Please don't ask further for lun!=3D0, 1 means OK =
-go on.
-  * Global variables used : scsi_devices(linked list)
-  */
--int scan_scsis_single (int channel, int dev, int lun, int =
-*max_dev_lun,
--    int *sparse_lun, Scsi_Device **SDpnt2, Scsi_Cmnd * SCpnt,
--    struct Scsi_Host * shpnt, char *scsi_result)
-+static int scan_scsis_single(unsigned int channel, unsigned int dev,
-+                             unsigned int lun, int lun0_scsi_level,
-+                             unsigned int *max_dev_lun, unsigned int =
-*sparse_lun,=20
-+                             Scsi_Device ** SDpnt2, struct Scsi_Host =
-*shpnt,=20
-+                             char *scsi_result)
- {
-   unsigned char scsi_cmd[12];
-   struct Scsi_Device_Template *sdtpnt;
-   Scsi_Device * SDtail, *SDpnt=3D*SDpnt2;
-+  Scsi_Cmnd * SCpnt;
-   int bflags, type=3D-1;
-=20
-   SDpnt->host =3D shpnt;
-@@ -695,46 +751,10 @@
-   SDpnt->borken =3D 1;
-   SDpnt->was_reset =3D 0;
-   SDpnt->expecting_cc_ua =3D 0;
--
--  scsi_cmd[0] =3D TEST_UNIT_READY;
--  scsi_cmd[1] =3D lun << 5;
--  scsi_cmd[2] =3D scsi_cmd[3] =3D scsi_cmd[4] =3D scsi_cmd[5] =3D 0;
--
--  SCpnt->host =3D SDpnt->host;
--  SCpnt->device =3D SDpnt;
--  SCpnt->target =3D SDpnt->id;
--  SCpnt->lun =3D SDpnt->lun;
--  SCpnt->channel =3D SDpnt->channel;
--  {
--    struct semaphore sem =3D MUTEX_LOCKED;
--    SCpnt->request.sem =3D &sem;
--    SCpnt->request.rq_status =3D RQ_SCSI_BUSY;
--    spin_lock_irq(&io_request_lock);
--    scsi_do_cmd (SCpnt, (void *) scsi_cmd,
--                 (void *) scsi_result,
--                 256, scan_scsis_done, SCSI_TIMEOUT + 4 * HZ, 5);
--    spin_unlock_irq(&io_request_lock);
--    down (&sem);
--    SCpnt->request.sem =3D NULL;
--  }
-=20
--  SCSI_LOG_SCAN_BUS(3,  printk ("scsi: scan_scsis_single id %d lun %d. =
-Return code 0x%08x\n",
--          dev, lun, SCpnt->result));
--  SCSI_LOG_SCAN_BUS(3,print_driverbyte(SCpnt->result));
--  SCSI_LOG_SCAN_BUS(3,print_hostbyte(SCpnt->result));
--  SCSI_LOG_SCAN_BUS(3,printk("\n"));
--
--  if (SCpnt->result && status_byte(SCpnt->result) !=3D =
-RESERVATION_CONFLICT) {
--    if (((driver_byte (SCpnt->result) & DRIVER_SENSE) ||
--         (status_byte (SCpnt->result) & CHECK_CONDITION)) &&
--        ((SCpnt->sense_buffer[0] & 0x70) >> 4) =3D=3D 7) {
--      if (((SCpnt->sense_buffer[2] & 0xf) !=3D NOT_READY) &&
--          ((SCpnt->sense_buffer[2] & 0xf) !=3D UNIT_ATTENTION) &&
--          ((SCpnt->sense_buffer[2] & 0xf) !=3D ILLEGAL_REQUEST || lun =
-> 0))
--        return 1;
--    }
--    else
--      return 0;
-+  if (NULL =3D=3D (SCpnt =3D scsi_allocate_request(SDpnt))) {
-+    printk("scan_scsis_single: no memory\n");
-+    return 0;
-   }
-=20
-   SCSI_LOG_SCAN_BUS(3,printk ("scsi: performing INQUIRY\n"));
-@@ -742,7 +762,11 @@
-    * Build an INQUIRY command block.
-    */
-   scsi_cmd[0] =3D INQUIRY;
--  scsi_cmd[1] =3D (lun << 5) & 0xe0;
-+  if ((lun > 0) && (lun0_scsi_level <=3D SCSI_2))
-+    scsi_cmd[1] =3D (lun << 5) & 0xe0;
-+  else=09
-+    scsi_cmd[1] =3D 0;	/* SCSI_3 and higher, don't touch */
-+
-   scsi_cmd[2] =3D 0;
-   scsi_cmd[3] =3D 0;
-   scsi_cmd[4] =3D 255;
-@@ -764,15 +788,17 @@
-   SCSI_LOG_SCAN_BUS(3,printk ("scsi: INQUIRY %s with code 0x%x\n",
-                               SCpnt->result ? "failed" : "successful", =
-SCpnt->result));
-=20
--  if (SCpnt->result)
-+  if (SCpnt->result) {
-+    kfree(SCpnt);
-     return 0;     /* assume no peripheral if any sort of error */
--
-+  }
-   /*
-    * Check the peripheral qualifier field - this tells us whether LUNS
-    * are supported here or not.
-    */
-   if( (scsi_result[0] >> 5) =3D=3D 3 )
-     {
-+      kfree(SCpnt);
-       return 0;     /* assume no peripheral if any sort of error */
-     }
-=20
-@@ -896,7 +922,11 @@
-     printk ("Unlocked floptical drive.\n");
-     SDpnt->lockable =3D 0;
-     scsi_cmd[0] =3D MODE_SENSE;
--    scsi_cmd[1] =3D (lun << 5) & 0xe0;
-+    if (shpnt->max_lun <=3D 8)
-+      scsi_cmd[1] =3D (lun << 5) & 0xe0;
-+    else
-+      scsi_cmd[1] =3D 0;	/* any other idea? */
-+
-     scsi_cmd[2] =3D 0x2e;
-     scsi_cmd[3] =3D 0;
-     scsi_cmd[4] =3D 0x2a;
-@@ -932,6 +962,7 @@
-   if (!SDpnt)
-   {
-       printk ("scsi: scan_scsis_single: Cannot malloc\n");
-+      kfree(SCpnt);
-       return 0;
-   }
-=20
-@@ -963,15 +994,30 @@
-   /*
-    * Some scsi devices cannot be polled for lun !=3D 0 due to firmware =
-bugs
-    */
--  if (bflags & BLIST_NOLUN)
-+  if (bflags & BLIST_NOLUN) {
-+    kfree(SCpnt);
-     return 0;                   /* break; */
-+  }
-=20
-   /*
-    * If this device is known to support sparse multiple units, =
-override the
-    * other settings, and scan all of them.
-    */
-   if (bflags & BLIST_SPARSELUN) {
--    *max_dev_lun =3D 8;
-+    /*
-+     * Scanning MAX_SCSI_LUNS units would be a bad idea.
-+     * Any better idea?
-+     * I think we need REPORT LUNS in future to avoid scanning
-+     * of unused LUNs. But, that is another item.
-+     *
-+     * FIXME(eric) - perhaps this should be a kernel configurable?
-+     */
-+    if (*max_dev_lun < shpnt->max_lun)
-+      *max_dev_lun =3D shpnt->max_lun;
-+    else if ((max_scsi_luns >> 1) >=3D *max_dev_lun)
-+      *max_dev_lun +=3D shpnt->max_lun;
-+    else
-+      *max_dev_lun =3D max_scsi_luns;
-     *sparse_lun =3D 1;
-     return 1;
-   }
-@@ -981,7 +1027,18 @@
-    * settings, and scan all of them.
-    */
-   if (bflags & BLIST_FORCELUN) {
--    *max_dev_lun =3D 8;
-+    /*=20
-+     * Scanning MAX_SCSI_LUNS units would be a bad idea.
-+     * Any better idea?
-+     * I think we need REPORT LUNS in future to avoid scanning
-+     * of unused LUNs. But, that is another item.
-+     */
-+    if (*max_dev_lun < shpnt->max_lun)
-+      *max_dev_lun =3D shpnt->max_lun;
-+    else if ((max_scsi_luns >> 1) >=3D *max_dev_lun)
-+      *max_dev_lun +=3D shpnt->max_lun;
-+    else
-+      *max_dev_lun =3D max_scsi_luns;
-     return 1;
-   }
-=20
-@@ -1001,9 +1058,32 @@
-   if (((scsi_result[2] & 0x07) =3D=3D 0)
-       ||
-       ((scsi_result[2] & 0x07) =3D=3D 1 &&
--       (scsi_result[3] & 0x0f) =3D=3D 0))
-+       (scsi_result[3] & 0x0f) =3D=3D 0)) {
-+    kfree(SCpnt);
-     return 0;
-+  }
-   return 1;
-+}
-+
-+/*
-+ * The worker for scan_scsis.
-+ * Returns the scsi_level of lun0 on this host, channel and dev (if =
-already
-+ * known), otherwise returns SCSI_2.
-+ */
-+static int find_lun0_scsi_level(unsigned int channel, unsigned int =
-dev,
-+				struct Scsi_Host *shpnt)
-+{
-+  int res =3D SCSI_2;
-+  Scsi_Device *SDpnt;
-+
-+  for (SDpnt =3D shpnt->host_queue; SDpnt; SDpnt =3D SDpnt->next)
-+    {
-+      if ((0 =3D=3D SDpnt->lun) && (dev =3D=3D SDpnt->id) &&
-+          (channel =3D=3D SDpnt->channel))
-+        return (int)SDpnt->scsi_level;
-+    }
-+  /* haven't found lun0, should send INQUIRY but take easy route */
-+  return res;
- }
-=20
- /*
-Index: drivers/scsi/scsi.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-RCS file: /home/cvs/em_rh/drivers/scsi/scsi.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 scsi.h
---- drivers/scsi/scsi.h	2001/02/26 01:30:44	1.1.1.1
-+++ drivers/scsi/scsi.h	2001/02/28 01:54:05
-@@ -431,7 +431,8 @@
-     Scsi_Cmnd          * device_queue;    /* queue of SCSI Command =
-structures */
-=20
- /* public: */
--    unsigned char id, lun, channel;
-+    unsigned int lun;
-+    unsigned char id, channel;
-=20
-     unsigned int manufacturer;      /* Manufacturer of device, for =
-using=20
- 				     * vendor-specific cmd's */
-@@ -541,8 +542,8 @@
-    =20
- /* public: */
-=20
-+    unsigned int       lun;
-     unsigned char      target;
--    unsigned char      lun;
-     unsigned char      channel;
-     unsigned char      cmd_len;
-     unsigned char      old_cmd_len;
+-- 
+Michael Susæg, M.Eng.             Mail:  Michael.Susag@fast.no
+Software Engineer                 Web:   http://www.fast.no/
+Fast Search & Transfer ASA        Phone: +47 21 60 12 27
+P.O. Box 1677 Vika                Fax:   +47 21 60 12 01
+NO-0120 Oslo, NORWAY
 
-------_=_NextPart_000_01C0CF34.179629E0--
+Try FAST Search: http://www.alltheweb.com/
+--------------37B10C811ECF44E73C9F2F3A
+Content-Type: image/png;
+ name="directio.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="directio.png"
+
+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
+3EtaAAAAAElFTkSuQmCC
+--------------37B10C811ECF44E73C9F2F3A--
+

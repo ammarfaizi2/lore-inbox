@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbTIAKJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 06:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbTIAKJ0
+	id S262802AbTIAKNc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 06:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbTIAKNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 06:09:26 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:46217 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262796AbTIAKIu
+	Mon, 1 Sep 2003 06:13:32 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:47241 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262802AbTIAKMl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 06:08:50 -0400
-Date: Mon, 1 Sep 2003 11:08:07 +0100
+	Mon, 1 Sep 2003 06:12:41 -0400
+Date: Mon, 1 Sep 2003 11:12:24 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Kars de Jong <jongk@linux-m68k.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
+To: Russell King <rmk@arm.linux.org.uk>,
+       "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030901100807.GB1903@mail.jlokier.co.uk>
-References: <Pine.GSO.4.21.0309011027310.5048-100000@waterleaf.sonytel.be> <1062407310.13046.6.camel@laptop.locamation.com>
+Message-ID: <20030901101224.GB1638@mail.jlokier.co.uk>
+References: <20030829053510.GA12663@mail.jlokier.co.uk> <1062188787.4062.21.camel@elenuial.steamballoon.com> <20030901091524.A15370@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1062407310.13046.6.camel@laptop.locamation.com>
+In-Reply-To: <20030901091524.A15370@flint.arm.linux.org.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kars de Jong wrote:
-> On Mon, 2003-09-01 at 10:34, Geert Uytterhoeven wrote:
-> > BTW, probably you want us to run your test program on other m68k boxes? Mine
-> > got a 68040, that leaves us with:
-> >   - 68020+68551
-> >   - 68060
-> 
-> I can run it on these boxes if no-one else has done it yet before I come
-> home tonight. I'm sure there are more people with a 68060 out there, not
-> too sure about the 68020+68851.
+Russell King wrote:
+> This looks like an old kernel on your NetWinder.  Later 2.4 kernels
+> should get this right (by marking the pages uncacheable in user space.)
 
-I would prefer that you run the attached program.  It fixes a bug in
-the function which tests whether the problem is in the L1 cache or
-store buffer.  The bug probably didn't affect the test, but it might
-have.
+How do they know which pages to mark uncacheable?  Surely not all
+MAP_SHARED|MAP_FIXED mappings are uncacheable?
 
-Ideally you could run the program Geert linked to as well?
-Please remember to compile both with optimisation.
+> However, when I tried this program, it seemed to have some unexpected
+> results, sometimes claiming that its too slow, sometimes that the
+> store buffer isn't coherent, and sometimes saying that the cache
+> isn't coherent.
+
+If it says the store buffer isn't coherent, that means the main test
+for coherence failed (test_page_alias), but a second test
+(test_l1_only), which is designed to allow any CPU delayed stores to
+drain, is showing the same memory to be coherent.
+
+There is a bug in test_l1_only which I just noticed.  It's unlikely,
+but if `dummy' happens to have the same L1 cache address as both words
+being tested, and it's a 2-way (or less) set-associative cache, then
+it will inadvertently flush the cache and say "store buffer not
+coherent" when it means to say "cache not coherent".
+
+If the duplicate mapping is uncacheable, it should always say it's too
+slow, however if _all_ MAP_FIXED|MAP_SHARED mappings are uncacheable
+then it compares the timings and will think there is no penalty for
+the duplicate mapping.
+
+> On Fri, Aug 29, 2003 at 04:26:28PM -0400, Paul J.Y. Lahaie wrote:
+> > Corel NetWinder (275MHz StrongARM)
+> > Test separation: 4096 bytes: FAIL - cache not coherent
+
+All the 3 results I have for ARM say that they are all incoherent.
+Those results are all for SA-110s of different speeds.
+
+Please try the program below, which is the same as before but with
+test_l1_only hopefully improved, and it prints some more helpful
+numbers.
 
 Thanks,
 -- Jamie
 
-/* This code maps shared memory to multiple addresses and tests it
-   for cache coherency and performance.
+         ==========================================
+
+/* Version 3!  This code maps shared memory to multiple addresses and
+   tests it for cache coherency and performance.
 
    Copyright (C) 1999, 2001, 2002, 2003 Jamie Lokier
 
@@ -822,4 +842,3 @@ main ()
   return 0;
 }
 //#endif
-

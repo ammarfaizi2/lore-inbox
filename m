@@ -1,83 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265081AbTIJAOc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 20:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbTIJAOb
+	id S265086AbTIJAGm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 20:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265090AbTIJAGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 20:14:31 -0400
-Received: from adsl-153-88-46.bct.bellsouth.net ([68.153.88.46]:14416 "EHLO
-	lnuxlab.ath.cx") by vger.kernel.org with ESMTP id S265081AbTIJAO3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 20:14:29 -0400
-Date: Tue, 9 Sep 2003 20:27:20 -0400
-To: linux-kernel@vger.kernel.org
-Subject: usb_control/bulk_msg: timeout / NETDEV WATCHDOG: eth0: transmit timed out
-Message-ID: <20030910002720.GA30861@lnuxlab.ath.cx>
+	Tue, 9 Sep 2003 20:06:42 -0400
+Received: from gprs150-72.eurotel.cz ([160.218.150.72]:3968 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265086AbTIJAGk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 20:06:40 -0400
+Date: Wed, 10 Sep 2003 02:06:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PM] Passing suspend level down to drivers
+Message-ID: <20030910000627.GD217@elf.ucw.cz>
+References: <20030909230755.GG211@elf.ucw.cz> <Pine.LNX.4.44.0309091615400.695-100000@cherise>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: khromy@lnuxlab.ath.cx (khromy)
+In-Reply-To: <Pine.LNX.4.44.0309091615400.695-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+Hi!
 
-Anybody know what's up with this?  Running 2.4.23-pre3 I get the following 
-while booting up:
+> > APM suspend-to-ram
+> > APM suspend-to-disk
+> > ACPI standby (S1)
+> > ACPI suspend-to-ram (S3)
+> > ACPI suspend-to-disk (S4bios)
+> > swsusp
+> > 
+> > Do we want to support ACPI S2? I don't think so. That list is not
+> > *that* bad.
+> 
+> ACPI S2 is irrelevant. Nonetheless, you're suggesting that we add manual 
+> checks at runtime for each device to determine what state to go into, 
+> depending on whether the system is entering suspend-to-disk or suspend-to-
+> ram. 
+> 
+> That's a bad idea because:
+> 
+> - It doesn't need to be done at runtime, only initialization. Though it's 
+>   not a permformant path, it's still more efficient to do it once only. 
+> 
+> - It forces policy into the drivers, instead of having them specify a 
+>   changeable default. 
 
-usb_control/bulk_msg: timeout
-usb.c: USB device not accepting new address=3 (error=-110)
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: transmit timed out, tx_status 00 status e601.
-  diagnostics: net 0cc0 media 88c0 dma 0000003b.
-eth0: Interrupt posted but not delivered -- IRQ blocked by another device?
-  Flags; bus-master 1, dirty 16(0) current 16(0)
-  Transmit list 00000000 vs. c15eb200.
-  0: @c15eb200  length 8000002a status 0000002a
-  1: @c15eb240  length 8000002a status 0000002a
-  2: @c15eb280  length 8000002a status 0000002a
-  3: @c15eb2c0  length 8000002a status 0000002a
-  4: @c15eb300  length 8000002a status 0000002a
-  5: @c15eb340  length 8000002a status 0000002a
-  6: @c15eb380  length 8000002a status 0000002a
-  7: @c15eb3c0  length 8000002a status 0000002a
-  8: @c15eb400  length 8000002a status 0000002a
-  9: @c15eb440  length 8000002a status 0000002a
-  10: @c15eb480  length 8000002a status 0000002a
-  11: @c15eb4c0  length 8000002a status 0000002a
-  12: @c15eb500  length 8000002a status 0000002a
-  13: @c15eb540  length 8000002a status 0000002a
-  14: @c15eb580  length 8000002a status 8000002a
-  15: @c15eb5c0  length 8000002a status 8000002a
-eth0: Resetting the Tx ring pointer.
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: transmit timed out, tx_status 00 status e601.
-  diagnostics: net 0cc0 media 88c0 dma 0000003b.
-eth0: Interrupt posted but not delivered -- IRQ blocked by another device?
-  Flags; bus-master 1, dirty 32(0) current 32(0)
-  Transmit list 00000000 vs. c15eb200.
-  0: @c15eb200  length 8000002a status 0000002a
-  1: @c15eb240  length 8000002a status 0000002a
-  2: @c15eb280  length 8000002a status 0000002a
-  3: @c15eb2c0  length 80000049 status 00000049
-  4: @c15eb300  length 80000049 status 00000049
-  5: @c15eb340  length 80000049 status 00000049
-  6: @c15eb380  length 80000049 status 00000049
-  7: @c15eb3c0  length 80000049 status 00000049
-  8: @c15eb400  length 80000049 status 00000049
-  9: @c15eb440  length 80000049 status 00000049
-  10: @c15eb480  length 80000049 status 00000049
-  11: @c15eb4c0  length 80000049 status 00000049
-  12: @c15eb500  length 8000004c status 0000004c
-  13: @c15eb540  length 8000004c status 0000004c
-  14: @c15eb580  length 8000004c status 8000004c
-  15: @c15eb5c0  length 8000004c status 8000004c
-eth0: Resetting the Tx ring pointer.
-
-..
-..
-
-
+Okay, so you suggest "driver has table of default things to do on
+suspend-to-X, changeable by user", while I say "driver has table of
+default things to do on suspend-to-X". I do not thing changeability by
+user is so important here, but I'm not going to argue too much about
+that.
+								Pavel
 -- 
-L1:	khromy		;khromy (at) lnuxlab.ath.cx
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,91 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280900AbRKGSvF>; Wed, 7 Nov 2001 13:51:05 -0500
+	id <S280902AbRKGSz5>; Wed, 7 Nov 2001 13:55:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280902AbRKGSuy>; Wed, 7 Nov 2001 13:50:54 -0500
-Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:45955 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S280900AbRKGSug>;
-	Wed, 7 Nov 2001 13:50:36 -0500
-Date: Wed, 7 Nov 2001 10:50:35 -0800
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: Oops: 2.4.12: Known problem?
-Message-ID: <20011107105035.A6608@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S280906AbRKGSzq>; Wed, 7 Nov 2001 13:55:46 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:52750 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S280902AbRKGSzf>;
+	Wed, 7 Nov 2001 13:55:35 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200111071855.VAA07803@ms2.inr.ac.ru>
+Subject: Re: ip_conntrack & timing out of connections
+To: david.lang@digitalinsight.COM (David Lang)
+Date: Wed, 7 Nov 2001 21:55:20 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.40.0111061038160.24952-100000@dlang.diginsite.com> from "David Lang" at Nov 6, 1 10:15:04 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Box was still sort of alive after this (could still ping, ssh, etc.), but
-some services had hung.
+Hello!
 
-ksymoops 2.4.3 on i686 2.4.12.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.12nn1/ (default)
-     -m /System.map (specified)
+> the tcp dimeout is 60 seconds and the ip_conntrack timeout is 120 seconds.
 
-Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says c02044e0, System.map says c01530e0.  Ignoring ksyms_base entry
-Unable to handle kernel NULL pointer dereference at virtual address 00000028
-c0243791
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0243791>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: c263ff80   ebx: cbc4c220   ecx: 00000000   edx: 00000000
-esi: c263ff80   edi: c263ff48   ebp: c557de80   esp: c263ff14
-ds: 0018   es: 0018   ss: 0018
-Process httpd (pid: 28415, stackpage=c263f000)
-Stack: cbc4c220 c263ff80 00001000 c263ff48 c020f5d5 c557de80 c263ff80 00001000
-       c263ff48 00000000 00001000 c557de80 00001000 00006eff 00000050 00000050
-       00000000 00000000 c020f80e c557de80 c263ff80 00001000 c3509520 ffffffea
-Call Trace: [<c020f5d5>] [<c020f80e>] [<c0132b76>] [<c0106dbb>]
-Code: 8b 42 28 ff d0 83 c4 0c 5b c3 90 83 ec 04 55 57 56 53 8b 44
-
->>EIP; c0243790 <inet_sendmsg+34/40>   <=====
-Trace; c020f5d4 <sock_sendmsg+68/88>
-Trace; c020f80e <sock_write+b2/bc>
-Trace; c0132b76 <sys_write+96/cc>
-Trace; c0106dba <system_call+32/38>
-Code;  c0243790 <inet_sendmsg+34/40>
-00000000 <_EIP-0x1>:
-Code;  c0243790 <inet_sendmsg+34/40>
-   0:   8b 42 28          movl   0x28(%edx),%eax
-Code;  c0243790 <inet_sendmsg+34/40>
-00000001 <_EIP>:
-Code;  c0243790 <inet_sendmsg+34/40>   <=====
-   1:   42                incl   %edx   <=====
-Code;  c0243792 <inet_sendmsg+36/40>
-   2:   28 ff             subb   %bh,%bh
-Code;  c0243794 <inet_sendmsg+38/40>
-   4:   d0 83 c4 0c 5b    rolb   0xc35b0cc4(%ebx)
-Code;  c0243798 <inet_sendmsg+3c/40>
-   9:   c3 
-Code;  c024379a <inet_sendmsg+3e/40>
-   a:   90                nop    
-Code;  c024379a <inet_sendmsg+3e/40>
-   b:   83 ec 04          subl   $0x4,%esp
-Code;  c024379e <inet_shutdown+2/1e0>
-   e:   55                pushl  %ebp
-Code;  c024379e <inet_shutdown+2/1e0>
-   f:   57                pushl  %edi
-Code;  c02437a0 <inet_shutdown+4/1e0>
-  10:   56                pushl  %esi
-Code;  c02437a0 <inet_shutdown+4/1e0>
-  11:   53                pushl  %ebx
-Code;  c02437a2 <inet_shutdown+6/1e0>
-  12:   8b 44 00 00       movl   0x0(%eax,%eax,1),%eax
+This is absolutely different case.
 
 
-1 warning issued.  Results may not be reliable.
+> > From: pcg@goof.com
+...
+> > linux-2.4.13-ac5 (other versions untested) has this peculiar behaviour: If I
+> > "killall -STOP thttpd", I, of course, still get connection requests which
+> > usually time out:
+> >
+> > tcp      238      0 217.227.148.85:80       213.76.191.129:3120 CLOSE_WAIT
 
-Simon-
+Blatant lie. Such connections cannot timeout. If they do, kernel really
+have fatal bug.
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+
+> > Nov  6 02:39:55 doom kernel: ip_conntrack: table full, dropping packet.
+> >
+> > /proc/net/ip_conntrack has lots of connections like these:
+> >
+> > tcp      6 430665 ESTABLISHED src=213.76.191.129 dst=217.227.148.85 sport=3881 dport=80 src=217.227.148.85 dst=213.76.191.129 sport=80 dport=388 1 [ASSURED] use=1
+
+It is absolutely right. Established connections must not timeout.
+
+Alexey

@@ -1,98 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272520AbRIFTar>; Thu, 6 Sep 2001 15:30:47 -0400
+	id <S272518AbRIFTd1>; Thu, 6 Sep 2001 15:33:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272523AbRIFTai>; Thu, 6 Sep 2001 15:30:38 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54545 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272521AbRIFTaW>; Thu, 6 Sep 2001 15:30:22 -0400
+	id <S272523AbRIFTdR>; Thu, 6 Sep 2001 15:33:17 -0400
+Received: from spike.porcupine.org ([168.100.189.2]:44810 "EHLO
+	spike.porcupine.org") by vger.kernel.org with ESMTP
+	id <S272521AbRIFTdF>; Thu, 6 Sep 2001 15:33:05 -0400
 Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
-To: wietse@porcupine.org (Wietse Venema)
-Date: Thu, 6 Sep 2001 20:34:15 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), wietse@porcupine.org (Wietse Venema),
-        saw@saw.sw.com.sg (Andrey Savochkin),
-        matthias.andree@gmx.de (Matthias Andree), ak@suse.de (Andi Kleen),
+ bug 2.4.9 and 2.2.19]
+In-Reply-To: <Pine.LNX.4.33.0109061208310.24712-100000@twinlark.arctic.org>
+ "from dean gaudet at Sep 6, 2001 12:15:56 pm"
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Date: Thu, 6 Sep 2001 15:33:24 -0400 (EDT)
+Cc: Wietse Venema <wietse@porcupine.org>, Andrey Savochkin <saw@saw.sw.com.sg>,
+        Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20010906172316.E0B74BC06C@spike.porcupine.org> from "Wietse Venema" at Sep 06, 2001 01:23:16 PM
-X-Mailer: ELM [version 2.5 PL6]
+X-Time-Zone: USA EST, 6 hours behind central European time
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15f4ul-0000J5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20010906193324.51AA9BC06C@spike.porcupine.org>
+From: wietse@porcupine.org (Wietse Venema)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan Cox:
-> > How for example do you propose to answer the question for the case
-> > Q: "is this local" A: "it depends on the sender"
-> > With netfilter and transparent proxying active this is entirely possible
+dean gaudet:
+> On Thu, 6 Sep 2001, Wietse Venema wrote:
 > 
-> Please explain the relevance for a real-world, SMTP based, MTA.
-
-Certainly
-
-> If an MTA receives a delivery request for user@[ip.address] then
-> the MTA has to decide if it is the final destination. This is
-> required by the SMTP RFC.
-
-Lets take an absolutely clear every day of the week scenario. I have a 
-mail server with two connections, eth0 is through a corporate firewall
-out on to the internet. We have an ip address and name visible to the
-world. Say example.com and 192.193.194.165. eth1 is the private office
-network and contains private address space not visible to the outside
-world. Indeed in some cases the choice of the private address space might
-be considered security sensitive, but say its 10.0.0.*
-
-You get 
-RCPT root@[10.0.0.1]
-
-is that local valid mail.
-
-If it is from the outside world then the answer is "never heard of them,
-not me". If it is from the private network the answer is "yes fine"
-
-If you accept 10.0.0.1 from the outside you are leaking information. It
-might not be 10.* it might be something like an ibm internal address range
-revealing your company was bought by ibm before the press releases, it might
-indicate connection to a military network ..
-
-> In order to enable SMTP RFC compliance, Linux has to provide the
-> MTA with the necessary information.  Requiring the sysadmin to
-
-Strict RFC compliance isn't a real world goal. I doubt any mailer implements 
-SEND, SOML or SAML for example. I definitely agree that the #Number and
-[a.b.c.d] forms are important though, and that you need to be able to
-answer the question. However you need to answer it "is this my address
-from the viewpoint of the peer on this connection". I don't see why 
-user configured data isnt a solution. For the 99.9% of normal cases 
-SIOCGIFCONF is going to give the right data. People doing clever things
-will have to set up config files. simple easy - hard possible.
-
-> If an MTA receives a mail relaying request for user@domain.name
-> then it would be very useful if Linux could provide the MTA with
-> the necessary information to distinguish between local subnetworks
-
-Define "local". Same ASN ?, by OSPF - "directly plugged into this host"
-certainly doesn't cut.
-
-> and the rest of the world. Requiring the local sysadmin to enumerate
-> all local subnetwork blocks by hand is not practical.
+> > Andrey Savochkin:
+> > > > That is not practical. Surely there is an API to find out if an IP
+> > > > address connects to the machine itself. If every UNIX system on
+> > > > this planet can do it, then surely Linux can do it.
+> > >
+> > > Let me correct you: you need to recognize not addresses that result in
+> > > connecting to the _machine_ itself, but connecting to the same _MTA_.
+> >
+> > The SMTP RFC requires that user@[ip.address] is correctly recognized
+> > as a final destination.  This requires that Linux provides the MTA
+> > with information about IP addresses that correspond with INADDR_ANY.
+> >
+> > I am susprised that it is not possible to ask such information up
+> > front (same with netmasks), and that an application has to actually
+> > query a complex oracle, again and again, for every IP address.
 > 
-> I will ignore denigrating comments about competing IP stacks.
+> how does your MTA figure out that it's behind a NAT?  it doesn't matter
+> what unix it's running on, there's no standard way for it to know that an
+> address translation has occured before getting to its front-door.
 
-Reread my mail. Now think about when the API in question was designed.
-The 4.* BSD world up 4.4BSD supported a much smaller subset of the possible
-configurations than current stacks do. Needless to say it should not be
-suprising that the API's available still reflect that limitation. That
-always happens. Thats why sockets are broken for 0 length datagrams and
-the C language is bad at unicode. It happens everywhere, and its not
-denigrating anything.
+The MTA does not have to know. The DNS on the inside of the NAT
+gateway should list "inside" machines by their "inside" address.
 
-Its unfortunate you have to go around labelling everything as "competing"
-and "denigrating". You also appear confused still about the 127/8 issue.
-You say "you didnt ask it to", well you certainly did, since you bound
-to INADDR_ANY. Since 127/8 is looped back I don't think you can reasonably
-argue that it is not one of your addresses.
+That eliminates a lot of other problems as well.
 
-Alan
+	Wietse

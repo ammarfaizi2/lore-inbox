@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288511AbSANAzS>; Sun, 13 Jan 2002 19:55:18 -0500
+	id <S288512AbSANAzi>; Sun, 13 Jan 2002 19:55:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288512AbSANAzI>; Sun, 13 Jan 2002 19:55:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62737 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288511AbSANAyw>;
-	Sun, 13 Jan 2002 19:54:52 -0500
-Message-ID: <3C422C59.90E7D5CB@mandrakesoft.com>
-Date: Sun, 13 Jan 2002 19:54:49 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
+	id <S288516AbSANAza>; Sun, 13 Jan 2002 19:55:30 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29703 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S288512AbSANAzY>; Sun, 13 Jan 2002 19:55:24 -0500
+Date: Sun, 13 Jan 2002 19:55:14 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <20020108163925.F1894@inspiron.school.suse.de>
+Message-ID: <Pine.LNX.3.96.1020113194915.17441H-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: Tim Hockin <thockin@sun.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rx FIFO Overrun error found
-In-Reply-To: <3C40A6F2.18A8C3E6@colorfullife.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> 
-> Hi all,
-> 
-> I think I found the reason for the Rx status FIFO overrun nic hang:
-> If the Rx fifo overflows, the nic sets RxStatusFIFOOver _instead_ of
-> IntrRxIntr.
-> Thus netdev_rx is never called, the rx ring is never refilled, nic
-> hangs.
-> 
-> The attached patch adds proper OOM handling to natsemi.c.
-> I've also copied the simpler netdev_close locking from ns83820.c.
+On Tue, 8 Jan 2002, Andrea Arcangeli wrote:
 
-Two comments, sis900.c uses the check (rx-overrun | rx-err | rx-ok), did
-you test that combination?  (s/RxStatusFIFOOver/IntrRxOverrun/)
+> Note that some of them are bugfixes, without them an luser can hang the
+> machine for several seconds on any box with some giga of ram by simple
+> reading and writing into a large enough buffer. I think we never had
+> time to care merging those bits into mainline yet and this is probably
+> the main reason they're not integrated but it's something that should be
+> in mainline IMHO.
 
-and it would be preferred to separate "add oom handling" and "fix nic
-hang" patches.
+Or just doing a large write while doing lots of reads... my personal
+nemesis is "mkisofs" for backups, which reads lots of small files and
+builds a CD image, which suddenly gets discovered by the kernel and
+written, seemingly in a monolythic chunk. I MAY be able to improve this
+with tuning the bdflush parameters, and I tried some tentative patches
+which didn't make a huge gain.
+
+I don't know if the solution lies in forcing write to start when a certain
+size of buffers are queued regardless of percentages, or in better
+scheduling of reads ahead of writes, or whatever.
 
 -- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

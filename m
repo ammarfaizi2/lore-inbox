@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbTIWQT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 12:19:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTIWQT4
+	id S261738AbTIWQ0w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 12:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbTIWQ0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 12:19:56 -0400
-Received: from mail.kroah.org ([65.200.24.183]:653 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261803AbTIWQTy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 12:19:54 -0400
-Date: Tue, 23 Sep 2003 09:19:29 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       sensors@stimpy.netroedge.com
-Subject: Re: [PATCH] i2c driver fixes for 2.6.0-test5
-Message-ID: <20030923161929.GB4402@kroah.com>
-References: <10642734271572@kroah.com> <1064273428551@kroah.com> <20030923091617.B10818@infradead.org>
+	Tue, 23 Sep 2003 12:26:52 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:64384
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S261738AbTIWQ0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 12:26:50 -0400
+Date: Tue, 23 Sep 2003 18:26:46 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Jan Evert van Grootheest <j.grootheest@euronext.nl>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030923162646.GB1269@velociraptor.random>
+References: <20030922194833.GA2732@velociraptor.random> <20030923042855.GF589@alpha.home.local> <20030923124951.GB23111@velociraptor.random> <20030923140647.GB3113@alpha.home.local> <20030923144435.GC23111@velociraptor.random> <3F706046.1000306@euronext.nl> <20030923154137.GA1265@velociraptor.random> <20030923160941.GB4161@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030923091617.B10818@infradead.org>
+In-Reply-To: <20030923160941.GB4161@alpha.home.local>
 User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 23, 2003 at 09:16:17AM +0100, Christoph Hellwig wrote:
-> On Mon, Sep 22, 2003 at 04:30:28PM -0700, Greg KH wrote:
-> >  	for (addr = 0x00; addr <= (is_isa ? 0xffff : 0x7f); addr++) {
-> > -		/* XXX: WTF is going on here??? */
-> > -		if ((is_isa && check_region(addr, 1)) ||
-> > +		void *region_used = request_region(addr, 1, "foo");
-> > +		release_region(addr, 1);
-> > +		if ((is_isa && (region_used == NULL)) ||
+On Tue, Sep 23, 2003 at 06:09:41PM +0200, Willy Tarreau wrote:
+> On Tue, Sep 23, 2003 at 05:41:37PM +0200, Andrea Arcangeli wrote:
+>  
+> > note the 64k are only wasted when you use the feature, there's nothing
+> > wasted if you don't use it.
 > 
-> WTF??  Your papering over bugs again, this doesn't help at all.
+> There's 48k wasted compared to the default 16k, because Jan will not have the
 
-Why?
+48k wasted where? What arch, I thought you meant the original log_buf
+memory is not released, I will fix that, then the waste will be zero and
+there will be no advantage in having it at compile time anymore, only
+disavantages.
 
-Ok, from my reading of this horrible chunk of code it does the
-following:
-	- if this is a isa based controller, then we check the region
-	  that is to be used.
-	- If it is already in use by someone else, then we skip it, and
-	  move on to the next address.
-	- If it is not in use, then we pass the address down to the chip
-	  driver and let it try to find the chip at this address (it
-	  will do the reserving of the address space on its own.)
-
-So basically, check_region is pretty valid here, as we are trying to see
-if something else is already at this address, to try to prevent i2c
-drivers from stomping on each other.  I replaced this with a
-request_region()/release_region() pair to get rid of the compiler
-warning.
-
-Is this your understanding too?  Or do you think we should just get rid
-of the request_region() check here all together?
-
-thanks,
-
-greg k-h
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/
+	    svn://svn.kernel.org/linux-2.[46]/trunk

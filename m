@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132959AbRECTE7>; Thu, 3 May 2001 15:04:59 -0400
+	id <S132483AbRECTKJ>; Thu, 3 May 2001 15:10:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132853AbRECTEq>; Thu, 3 May 2001 15:04:46 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:2572 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S132483AbRECTEA>; Thu, 3 May 2001 15:04:00 -0400
-Message-Id: <200105031903.f43J30s97976@aslan.scsiguy.com>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Success, aic7xxx 6.1.13 fixes boot problems in 2.4.3 2.4.4pre8 2.4.4 (was: 2.4.3 2.4.4pre8: aic7xxx showstopper bug fails to detect sda) 
-In-Reply-To: Your message of "Thu, 03 May 2001 17:04:27 +0200."
-             <20010503170427.A25904@burns.dt.e-technik.uni-dortmund.de> 
-Date: Thu, 03 May 2001 13:03:00 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S132571AbRECTKA>; Thu, 3 May 2001 15:10:00 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:2820 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S132483AbRECTJu>;
+	Thu, 3 May 2001 15:09:50 -0400
+Message-ID: <20010503210904.B9715@bug.ucw.cz>
+Date: Thu, 3 May 2001 21:09:04 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain> <20010428215301.A1052@gruyere.muc.suse.de> <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca> <9cg7t7$gbt$1@cesium.transmeta.com> <20010430104231.C3294@bug.ucw.cz> <3AF14DC5.17E35108@idb.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3AF14DC5.17E35108@idb.hist.no>; from Helge Hafting on Thu, May 03, 2001 at 02:23:33PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Thanks a lot. (Might it be a good idea to ask Linus and Alan to update the
->driver they ship in 2.4.5-pre or 2.4.4-ac, respectively?)
+Hi!
 
-Alan already has integrated 6.1.11 into his kernels.  6.1.13
-corects an issue with cdrecord and improves read performance on
-U160 cards, so I'll ping Alan about syncing up.  I've sent Linus
-patches post 6.1.5 in the past, but I think he's been too
-busy with other issues to push them through.  I'll ping him too.
+> > > > Whatever happened to that hack that was discussed a year or two ago?
+> > > > The one where (also on IA32) a magic page was set up by the kernel
+> > > > containing code for fast system calls, and the kernel would write
+> > > > calibation information to that magic page. The code written there
+> > > > would use the TSC in conjunction with that calibration data.
+> 
+> >                                                                 Pavel
+> > PS: Hmm, how do you do timewarp for just one userland appliation with
+> > this installed?
+> 
+> 1. Kernel solution: give that particular process a different magic page
+> 2. User solution:   Don't obtain time from the magic page.
+> 2a                  By changing program source, if available
+> 2b                  By switching the c library, assuming it is used
 
---
-Justin
+That means that for fooling closed-source statically-linked binary,
+you now need to patch kernel. That's regression; subterfugue.org could
+do this with normal user rights in 2.4.0.
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

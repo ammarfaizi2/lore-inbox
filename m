@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290687AbSBLBeq>; Mon, 11 Feb 2002 20:34:46 -0500
+	id <S290677AbSBLBb5>; Mon, 11 Feb 2002 20:31:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290701AbSBLBeh>; Mon, 11 Feb 2002 20:34:37 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:42118 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290687AbSBLBeV>;
-	Mon, 11 Feb 2002 20:34:21 -0500
-Date: Mon, 11 Feb 2002 17:32:36 -0800 (PST)
-Message-Id: <20020211.173236.08323394.davem@redhat.com>
-To: davidm@hpl.hp.com
-Cc: anton@samba.org, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: thread_info implementation
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15464.28196.894340.327685@napali.hpl.hp.com>
-In-Reply-To: <200202120101.g1C11OJZ010115@napali.hpl.hp.com>
-	<20020211.170709.118972278.davem@redhat.com>
-	<15464.28196.894340.327685@napali.hpl.hp.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S290687AbSBLBbs>; Mon, 11 Feb 2002 20:31:48 -0500
+Received: from stephens.ittc.ku.edu ([129.237.125.220]:43477 "EHLO
+	stephens.ittc.ku.edu") by vger.kernel.org with ESMTP
+	id <S290677AbSBLBbd>; Mon, 11 Feb 2002 20:31:33 -0500
+Message-ID: <3C687074.6090902@ittc.ku.edu>
+Date: Mon, 11 Feb 2002 19:31:32 -0600
+From: Sandhya Rallapalli <sandhya@ittc.ku.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010816
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: skb->data bytes
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@hpl.hp.com>
-   Date: Mon, 11 Feb 2002 17:21:40 -0800
-   
-   The task pointer lives in the thread pointer register (r13), so it's
-   trivial to address off of it.
+Hi,
+    As a part of my research work, I've been working on introduction of
+bit errors into packets. The main purpose is to choose a random byte
+from (skb->head) to (skb->tail) (header & data) and change a bit in the
+selected byte. And then, I test the throughput variation according to
+the variation in ber using ttcp.
 
-So why don't you put the, oh my gosh, "THREAD INFO POINTER" into the
-thread pointer register instead?  That is what I did and everything
-transforms naturally, you will need to make zero modifications to
-assembly code besides the offset macro names and that you can even
-script :-)
+Here, I face a problem:
+If a random byte within (skb->head) and (skb->data + 65) is chosen, the 
+throughput is acceptable. But, if a byte outside (skb->head) to 
+(skb->data + 65) is chosen, the transmission stops. The link becomes 
+congested and netstat shows a non-changing number of bytes in Send-Q 
+section. i.e., (skb->data + 66) to (skb->tail) are not allowed to be erred.
+Is there any significance to the 65th byte and beyond in skb->data?
+
+Thanks,
+-Sandhya.
+
+
 

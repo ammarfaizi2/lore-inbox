@@ -1,101 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265339AbUBITof (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 14:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265340AbUBITof
+	id S265334AbUBITgo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 14:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265338AbUBITgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 14:44:35 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:17850 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S265339AbUBIToc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 14:44:32 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E5703D1A827@exa-atlanta.se.lsil.com>
-From: "Moore, Eric Dean" <Emoore@lsil.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.4.25-rc1: Inconsistent ioctl symbol usage in drivers/messag
-	e/fusion/mptctl.c
-Date: Mon, 9 Feb 2004 14:43:05 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C3EF44.EF7A4C50"
+	Mon, 9 Feb 2004 14:36:44 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:57774 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265334AbUBITgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 14:36:42 -0500
+Subject: Re: Does anyone still care about BSD ptys?
+From: Albert Cahalan <albert@users.sf.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4027BFE7.5040100@zytor.com>
+References: <1076334541.27234.140.camel@cube>  <4027BFE7.5040100@zytor.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1076347137.27234.166.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 Feb 2004 12:18:57 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
-
-------_=_NextPart_000_01C3EF44.EF7A4C50
-Content-Type: text/plain;
-	charset="iso-8859-1"
-
-On Monday, February 09, 2004 5:27 AM, Marcelo Tosatti wrote
-> Hi Eric,
+On Mon, 2004-02-09 at 12:14, H. Peter Anvin wrote:
+> Albert Cahalan wrote:
+> > 
+> > The BSD-style ptys are used all the time for
+> > serial port emulation. The SysV-style ones are
+> > useless for this, since they don't have a fixed
+> > mapping from master to slave. You might make a
+> > symlink from /dev/testbox to /dev/ptyp0, then
+> > configure gdb to use /dev/testbox for remote
+> > debugging. Then you start a remserial process
+> > to connect /dev/ttyp0 with port 7455 on some
+> > terminal server, and on the terminal server you
+> > have remserial connect port 7455 to /dev/C7.
+> > Now, whenever you run gdb, you're debugging
+> > a test box over a serial line connected to the
+> > terminal server. With SysV-style ttys, you
+> > can't set up your config as nicely. The above
+> > would likely have a few extra symlinks BTW.
 > 
-> Can you please fix this up?
+> Eh?!  Have your server process create the appropriate symlinks... 
+> problem solved.
+
+1. That isn't what existing software does.
+
+2. The symlinks couldn't be in /dev without
+running as root. Using /tmp isn't going to
+work if you're emulating serial ports for
+something that will tack a /dev on the front,
+unless users will put up with "../tmp/foo".
+
+I should mention here that the SysV pty stuff
+is nearly 100% undocumented in the man pages.
+I get nothing for pts, pty, grantpt...
+
+> > In your use of the larger dev_t, please keep
+> > the first 2047 or 2048 ptys as they are today.
+> > Let the last major use the full 20-bit minor,
+> > while restricting the first 7 minors to 8 bits.
+> > This avoids breaking userspace software.
 > 
-> On Mon, 9 Feb 2004, Keith Owens wrote:
+> No bloody way in hell.  However, unless I have a strong reason to the 
+> contrary I'll keep them on major 136, so your little formula should 
+> still woprk.
+
+I'm glad that my formula will work. I doubt I'm
+the only one to be mapping from number to name
+though. Other software, and older procps releases,
+won't handle pty 256 through 2047 after you make
+your proposed change.
+
+If you insist though, increase the procps release
+requirement to 3.2.0 with your patch please.
+
+> > For example, due to the lack of /proc/*/tty links,
+> > procps uses min+(maj-136)*256 to guess the number
+> > of a SysV-style pty. A 32-bit dev_t will be handled
+> > correctly by procps 3.2 if you extend the pty usage
+> > as explained above.
 > 
-> > 2.4.25-rc1 drivers/message/fusion/mptctl.c expects sys_ioctl,
-> > register_ioctl32_conversion and unregister_ioctl32_conversion to be
-> > exported symbols when MPT_CONFIG_COMPAT is defined.  That symbol is
-> > defined for __sparc_v9__, __x86_64__ and __ia64__.
-> >
-> > The symbols are not exported in ia64, mptctl.o gets 
-> unresolved symbols
-> > when it is a module on ia64.
-> >
-> > x64_64 exports register_ioctl32_conversion and 
-> unregister_ioctl32_conversion,
-> > but not sys_ioctl.
->
+> > Adding /proc/*/tty links solves the problem as
+> > well, subject to a linux-2.7.0 version check.
+> 
+> Presumably it should be: subject to an existence check.
+
+That too of course, since there might not be a
+tty at all. Also, depending on implementation,
+some processes started in early boot might not
+have a tty name in spite of having a tty.
+
+The version check avoids trying a link that is
+known to not exist on current kernels. For a long
+time now I've been moving the version. :-(
 
 
-Marcelo - Here is a fix for the x86_64 issue.
-In Redhat/Suse kernels this "sys_ioctl" symbol is exported, but
-not in generic kernel.  The ia64 problem is going to require
-a fix in the mptctl driver.
-
-
---- linux-2.4.25-pre8-ref/arch/x86_64/ia32/ia32_ioctl.c	2004-02-09
-12:49:05.000000000 -0700
-+++ linux-2.4.25-pre8/arch/x86_64/ia32/ia32_ioctl.c	2004-02-09
-12:00:52.000000000 -0700
-@@ -129,6 +129,8 @@
- #define EXT2_IOC32_GETVERSION             _IOR('v', 1, int)
- #define EXT2_IOC32_SETVERSION             _IOW('v', 2, int)
- 
-+EXPORT_SYMBOL(sys_ioctl);
-+
- extern asmlinkage int sys_ioctl(unsigned int fd, unsigned int cmd, unsigned
-long arg);
- 
- static int w_long(unsigned int fd, unsigned int cmd, unsigned long arg) 
-
-
-------_=_NextPart_000_01C3EF44.EF7A4C50
-Content-Type: application/octet-stream;
-	name="mpt-x86_64-fix.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="mpt-x86_64-fix.patch"
-
---- linux-2.4.25-pre8-ref/arch/x86_64/ia32/ia32_ioctl.c	2004-02-09 =
-12:49:05.000000000 -0700=0A=
-+++ linux-2.4.25-pre8/arch/x86_64/ia32/ia32_ioctl.c	2004-02-09 =
-12:00:52.000000000 -0700=0A=
-@@ -129,6 +129,8 @@=0A=
- #define EXT2_IOC32_GETVERSION             _IOR('v', 1, int)=0A=
- #define EXT2_IOC32_SETVERSION             _IOW('v', 2, int)=0A=
- =0A=
-+EXPORT_SYMBOL(sys_ioctl);=0A=
-+=0A=
- extern asmlinkage int sys_ioctl(unsigned int fd, unsigned int cmd, =
-unsigned long arg);=0A=
- =0A=
- static int w_long(unsigned int fd, unsigned int cmd, unsigned long =
-arg)=0A=
-
-------_=_NextPart_000_01C3EF44.EF7A4C50--

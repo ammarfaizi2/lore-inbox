@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266101AbTFWSqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 14:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266102AbTFWSqJ
+	id S266104AbTFWSwh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 14:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266105AbTFWSwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 14:46:09 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:32269 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S266101AbTFWSpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 14:45:41 -0400
-Subject: Re: O(1) scheduler & interactivity improvements
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Daniel Gryniewicz <dang@fprintf.net>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1056385266.1968.22.camel@athena.fprintf.net>
-References: <1056298069.601.18.camel@teapot.felipe-alfaro.com>
-	 <3EF6B5D4.10501@aitel.hist.no>
-	 <1056363509.587.13.camel@teapot.felipe-alfaro.com>
-	 <1056385266.1968.22.camel@athena.fprintf.net>
+	Mon, 23 Jun 2003 14:52:37 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:19446 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S266104AbTFWSvk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 14:51:40 -0400
+Subject: Re: [RFC][PATCH] Security hook for vm_enough_memory
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       James Morris <jmorris@intercode.com.au>,
+       lkml <linux-kernel@vger.kernel.org>,
+       lsm <linux-security-module@wirex.com>
+In-Reply-To: <1056386424.14228.78.camel@dhcp22.swansea.linux.org.uk>
+References: <1056385527.1709.415.camel@moss-huskers.epoch.ncsc.mil>
+	 <1056386424.14228.78.camel@dhcp22.swansea.linux.org.uk>
 Content-Type: text/plain
-Message-Id: <1056394770.587.8.camel@teapot.felipe-alfaro.com>
+Organization: National Security Agency
+Message-Id: <1056395094.1709.467.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 23 Jun 2003 20:59:31 +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Jun 2003 15:04:55 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-23 at 18:21, Daniel Gryniewicz wrote:
-> > So then, why I can easily starve the X11 server (which should be marked
-> > interactive), Evolution or OpenOffice simply by running "while true; do
-> > a=2; done". Why don't they get an increased priority boost to stop the
-> > from behaving so jerky?
+On Mon, 2003-06-23 at 12:40, Alan Cox wrote:
+> Is there any reason for not wrapping the entire vm_enough_memory() function
+> and using the current one as default. In some environments being able to make
+> total commit constraints based on roles may actually be useful.
 > 
-> You're own metric will kill you here.  You're while true; loop is
-> running in the shell, which is interactive (it has accepted user in put
-> in the past) and can therefore easily starve anything else.  You need a
-> an easy way to make an interactive process non-interactive, and that's
-> what these threads are all about, making interactive threads
-> non-interactive (and the other way around) in a fashion that maximises
-> the user experience.  A history of user input is not necessarily a good
-> metric, as many non-interactive CPU hogs start out life as interactive
-> threads (like your loop above).
+> (Think "sum of students memory < 40% of system" 8))
+> 
+> vm_enough_memory has to be kernel side but its basically policy so pluggable
+> IMHO is good.
 
-OK, replace "while true; ..." with a parallel kernel compile, for
-example, and the effect, on a 700Mhz laptop, is nearly the same: you can
-easily starve XMMS, and X11 feels jerky. Changing between virtual
-desktops in KDE produces the same effect, also.
+This sounds useful; I'll rework the patch accordingly and resubmit.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

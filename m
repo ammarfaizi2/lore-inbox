@@ -1,35 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVCRNQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVCRNdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVCRNQT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 08:16:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVCRNQT
+	id S261600AbVCRNdd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 08:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVCRNdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 08:16:19 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:38332 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261594AbVCRNQQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 08:16:16 -0500
-Subject: Re: Need break driver<-->pci-device automatic association
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jacques Goldberg <Jacques.Goldberg@cern.ch>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58_heb2.09.0503181042470.8660@localhost.localdomain>
-References: <Pine.LNX.4.58_heb2.09.0503181042470.8660@localhost.localdomain>
-Content-Type: text/plain
+	Fri, 18 Mar 2005 08:33:33 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:25063 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261600AbVCRNcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 08:32:08 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [patch] SUSPEND_PD_PAGES-fix
+Date: Fri, 18 Mar 2005 14:34:57 +0100
+User-Agent: KMail/1.7.1
+Cc: coywolf@gmail.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20050316202800.GA22750@everest.sosdg.org> <20050318113957.GC32253@elf.ucw.cz>
+In-Reply-To: <20050318113957.GC32253@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1111151648.9874.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 18 Mar 2005 13:14:15 +0000
+Content-Disposition: inline
+Message-Id: <200503181434.59214.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-03-18 at 08:57, Jacques Goldberg wrote:
->  Question: is there a way, as of kernels 2.6.10 and above, to release the
-> device from the serial driver, without having to recompile the kernel?
+Hi,
 
-There is an ugly way (fake a hot unplug 8)) but if you want to do it
-properly you need to get the relevant pci check into the serial driver
-proper by submitting it to Russell King. That way the serial driver can
-skip the PCI devices that turn out to be modems
+On Friday, 18 of March 2005 12:39, Pavel Machek wrote:
+> Hi!
+> 
+> 
+> > This fixes SUSPEND_PD_PAGES, which wastes one page under most cases.
+> 
+> Ok, applied to my tree, will eventually propagate it. (I hope it looks
+> okay to you, rafael).
 
+SUSPEND_PD_PAGES is not necessary in swsusp any more. :-)  We can just
+drop it, together with the pagedir_order variable, which is not used.  I'll
+send a patch later today.
+
+BTW, I'm going to post some clean ups for swsusp.c, but I'd like the last
+changes to settle down in mainline before, if you don't mind.
+
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,49 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282967AbSA2WJN>; Tue, 29 Jan 2002 17:09:13 -0500
+	id <S284144AbSA2WKN>; Tue, 29 Jan 2002 17:10:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283003AbSA2WJJ>; Tue, 29 Jan 2002 17:09:09 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:46863 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S282967AbSA2WI6>; Tue, 29 Jan 2002 17:08:58 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6 
-In-Reply-To: Your message of "Tue, 29 Jan 2002 01:22:30 -0800."
-             <3C5669D6.B81E0B4@zip.com.au> 
-Date: Wed, 30 Jan 2002 09:09:33 +1100
-Message-Id: <E16VgRZ-0007Kf-00@wagner.rustcorp.com.au>
+	id <S284300AbSA2WKF>; Tue, 29 Jan 2002 17:10:05 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:28296 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S284180AbSA2WJu>;
+	Tue, 29 Jan 2002 17:09:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: <mingo@elte.hu>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Tue, 29 Jan 2002 23:07:56 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Rob Landley <landley@trommello.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201291544420.6701-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0201291544420.6701-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VgQ0-0000AS-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3C5669D6.B81E0B4@zip.com.au> you write:
-> Rusty Russell wrote:
-> > 
-> > This patch introduces the __per_cpu_data tag for data, and the
-> > per_cpu() & this_cpu() macros to go with it.
-> > 
-> > This allows us to get rid of all those special case structures
-> > springing up all over the place for CPU-local data.
+On January 29, 2002 03:52 pm, Ingo Molnar wrote:
+> On Tue, 29 Jan 2002, Daniel Phillips wrote:
 > 
-> Am I missing something? smp_init() is called quite late in
-> the boot process, and if any code touches per-cpu data before
-> this, it'll get a null pointer deref, won't it?
+> > [...] Consider my patch to fix group descriptor corruption in Ext2,
+> > submitted half a dozen times to Linus and other maintainers over the
+> > course of two years, which was clearly explained, passed scrutiny on
+> > ext2-devel and lkml, fixed a real problem that really bit people and
+> > which I'd been running myself over the entire period.  Which one of
+> > cleanliness, concept, timing or testing did I violate?
+> >
+> > If the answer is 'none of the above', then what is wrong with this
+> > picture?
+> 
+> am i correct that you are referring to this patch?:
+> 
+>    http://www.uwsg.iu.edu/hypermail/linux/kernel/0011.3/0861.html
+> 
+> was this the first iteration of your patch? Your mail is a little more
+> than 1 year old.
 
-Yes.  But for a large amount of code it doesn't matter, and most
-architectures don't know how many CPUs there are before smp_init().
-Of course, we could make it NR_CPUS...
+No, there are versions before that.  The first version, which really was 
+inadequate because I didn't know about diff -u at the time (my first patch) 
+is about 23 months old.
 
-Do you have an example where you want to use this before
-smp_boot_cpus()?  If so, we can bite the bullet.  Otherwise I'd prefer
-not to waste memory.
+> You rated the patch as: 'The fix below is kind of
+> gross.'. Clearly, this does not help getting patches applied.
 
-BTW, my master plan (well, stolen from Anton and Paulus here) was to
-have one register to point to the per-cpu area, and all you need is a
-shift down 12 bits, and with 31 to get cpu id.  Bwahahahah! (non-x86
-of course).
+Note who the email is addressed to.  I have tried many different techniques 
+for communicating with this gentleman, including self-deprecation, and they 
+all seem to have the same result: no patch applied, long wait, eventually 
+some other patch a long time later will obsolete my patch in some way, and 
+the whole thing drifts off into forgotten history.  Err, almost forgotten, 
+because the bad taste remains.
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+And yes, there was a successor to the patch in which I did the job 'properly' 
+by cleaning up some other infrastructure instead of just fixing the bug 
+locally.  There was also a long lag after I created and submitted that 
+version before the bug was actually fixed, and then it was only fixed in 2.4.
+
+All of this only 'since you asked'.  I'd prefer not to dwell on it further, 
+but as you could imagine, this story would not have developed this way if we 
+have even a minimal form of patch tracking.  At least the bugs would have 
+been fixed in all trees, nearly two years earlier.
+
+> the ext2 bh-handling code had cleanliness issues before. I had ext2
+> patches rejected by Linus because they kept the method of passing around
+> double-pointers, and i have to agree that the code was far from clean.
+
+Exactly.  The successor patch to the 'kind of gross' patch got rid of the 
+double-pointers, it was the proper fix, though there is still no excuse for 
+leaving the bug hanging around while coming up with the better version.
+
+> Al did lots of cleanups in this area, and i think he fixed this issue as
+> well, didnt he? So where is the problem exactly, does 2.4 still have this
+> bug?
+
+Oh yes, there are a few problems with what happened:
+
+  - It left the bug circulating out in the wild far longer than
+    necessary, and it bit people, pissing them off, especially when
+    they figured out there was a patch not applied.
+
+  - While it got fixed in the 2.4 tree, it didn't get fixed in 2.2 or
+    for all I know, 2.0.
+
+  - It pissed me off.
+
+> in terms of 2.2 and 2.0, you should contact the respective maintainers.
+
+This was taken care of by a good samaritan:
+
+   http://marc.theaimsgroup.com/?l=linux-kernel&m=100989249313641&w=2
+
+-- 
+Daniel

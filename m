@@ -1,115 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbULOUUC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262426AbULOUX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbULOUUC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 15:20:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbULOUUB
+	id S262426AbULOUX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 15:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbULOUX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 15:20:01 -0500
-Received: from bigeats.dufftech.com ([69.57.156.29]:63898 "HELO
-	bigeats.dufftech.com") by vger.kernel.org with SMTP id S261813AbULOUTy
+	Wed, 15 Dec 2004 15:23:57 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:27727 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262426AbULOUXr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 15:19:54 -0500
-Subject: Re: bind() udp behavior 2.6.8.1
-From: Adam Denenberg <adam@dberg.org>
-To: linux-os@analogic.com
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, Kyle Moffett <mrmacman_g4@mac.com>,
-       linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>
-In-Reply-To: <Pine.LNX.4.61.0412151459150.4365@chaos.analogic.com>
-References: <1103038728.10965.12.camel@sucka>
-	 <Pine.LNX.4.61.0412141700430.24308@yvahk01.tjqt.qr>
-	 <1103042538.10965.27.camel@sucka>
-	 <Pine.LNX.4.61.0412141742590.22148@yvahk01.tjqt.qr>
-	 <1103043716.10965.40.camel@sucka>
-	 <8AF1BC56-4E1C-11D9-B94B-000393ACC76E@mac.com>
-	 <57782EC8-4E40-11D9-B971-003065B11AE8@dberg.org>
-	 <20F668EE-4E48-11D9-B94B-000393ACC76E@mac.com>
-	 <1103120162.5517.14.camel@sucka>
-	 <20041215190725.GA24635@delft.aura.cs.cmu.edu>
-	 <1103138573.6825.11.camel@sucka>
-	 <Pine.LNX.4.61.0412151459150.4365@chaos.analogic.com>
-Content-Type: text/plain
-Message-Id: <1103141991.6825.17.camel@sucka>
+	Wed, 15 Dec 2004 15:23:47 -0500
+Date: Wed, 15 Dec 2004 14:22:22 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: "Mukker, Atul" <Atulm@lsil.com>
+Cc: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Salyzyn, Mark'" <mark_salyzyn@adaptec.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
+       "'brking@us.ibm.com'" <brking@us.ibm.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>,
+       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
+       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>
+Subject: Re: How to add/drop SCSI drives from within the driver?
+Message-ID: <20041215202222.GA6945@lists.us.dell.com>
+References: <0E3FA95632D6D047BA649F95DAB60E57057A2156@exa-atlanta>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 15 Dec 2004 15:19:51 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57057A2156@exa-atlanta>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sorry for any confusion, but i am not referring to the Identification
-field in the IP header but rather the "Transaction ID" field in the DNS
-query portion of the packet.  I can reproduce this behavior on our linux
-system where if i pump gethostbyname_r requests on the system at some
-point it will reuse a transaction id in the DNS request.  This is my
-lastest discovery in what is causing the requests to fail thru the
-firewall.  So far my research has not turned up any reason as to why the
-kernel would be re-using a transaction ID in the dns request.
+On Wed, Dec 15, 2004 at 02:42:21PM -0500, Mukker, Atul wrote:
+> > 
+> > Your management apps currently issue a private ioctl 
+> > MEGAIOC_QNADAP which returns the number of 
+> > megaraid_mm-handled adapters in the system.  How do you map a 
+> > megaraid adapter number to a struct Scsi_Host device, to be 
+> > sure you're acting on the controller you think you are?
+>
+> Megaraid_mm module maintains all the controllers on a list
+> (mraid_mm_get_adapter), and each of the adapter maintains a pointer
+> to the host object.
 
-The ip IDentification field is uniquely generated as it should be, just
-not the Transaction ID field of the dns portion of the packet.
+Yes, of course, I was unclear.  How do your userspace library and
+management tools know that when they send commands via the
+/dev/megaraid ioctls for adapter #5, that it's actually going to talk
+to the PCI device at 0:03:06.0 (presumably the one it wants to do
+configuration on) and not another megaraid-driven PCI device at
+0:06:06.0 (which is not the one it wants) ?
 
-adam
+If your management application doesn't care, or solves this in another
+manner, please advise.
 
-Please CC me as I am not on this list.
+> Megaraid_mm is not a 'scsi' driver but only a conduit to pass the commands
+> from application to the megaraid_mbox scsi module. 
 
+But from your userspace tools perspective, it doesn't know that.  All
+it knows is that (right now) it opens /dev/megaraid and issues ioctls
+to a certain adapter number, yes?
 
-On Wed, 2004-12-15 at 15:06, linux-os wrote:
-> On Wed, 15 Dec 2004, Adam Denenberg wrote:
-> 
-> > almost yes.  The firewall never passes the retransmit onto the DNS
-> > server since it has the same DNS ID, source port and source ip.  What is
-> > happening is the following
-> >
-> > request 1
-> > --------------------
-> > linux box.32789 (id 001) ->  FW -> DNS SERVER.53
-> > DNS SERVER.53 (id 001) -> FW -> linux box.32789
-> >
-> > request 2
-> > -------------------
-> > linux box.32789 (id 002) -> FW -> DNS SERVER.53
-> > DNS SERVER (id 002).53 -> FW -> linux box.32789
-> >
-> > request 3
-> > -----------------------
-> > linux box (id 002).32789 -> FW -> NEVER GETS HERE, B/C ITS DROPPED
-> >
-> > the time between request 2 and request 3 is under 60ms.  The firewall is
-> > in the midst of clearing its table for the dns request with ID 002
-> > already so it thinks its a duplicate and drops it.  So my question is,
-> > why is the kernel not incrementing the DNS ID in this case? It does it
-> > for almost all other tests that i can find, and the firewall does not
-> > drop any traffic.  Only when the DNS ID does not increment does this
-> > problem occur.  This does not seem to always be the default behavior.  I
-> > wrote a small C program to just put a gethostbyname_r() in a for loop
-> > and each DNS ID is incremented all 40 times.  But there are times when
-> > this doesnt happen, and this seems to be what is causing the issue.  The
-> > firewall needs some sort of identifier to know which dns request is
-> > associated with which dns reply (source ip, source port, ID).
-> >
-> > this is the behavior I am trying to debug.
-> >
-> > thanks
-> > adam
-> 
-> The ID portion of the IP header, offset 32, is 16 bits of unique
-> identification that is supposed to be unique for the entire time
-> that any message should be in the system. That's what firewalls
-> and routers use to determine if it's a duplicate packet. You
-> never before stated that Linux was duplicating the ID portion,
-> and if it is, it's a bug. But, I'll bet that it isn't. Nothing
-> would work if it was. All TCP/IP messages are composed of
-> Datagrams. If these basic elements were mucked up, this would
-> have been discovered long before now, and if not discovered,
-> you wouldn't receive this message. Also UCP is connectionless
-> and stateless. If you have some box that handles it differently,
-> its broken.
-> 
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
->   Notice : All mail here is now cached for review by John Ashcroft.
->                   98.36% of all statistics are fiction.
-> 
+What I'm trying to get to is a mapping, visible to userspace apps,
+something like this.  You're right, megaraid_mm isn't a scsi driver,
+so perhaps rather than having adapter0 with parent tree of
+/sys/bus/scsi/drivers/megaraid_mm, it should be exposed with parent
+tree /sys/module/megaraid_mm/, like so:
 
+/sys
+|-- class
+|   `-- scsi_host
+|       `-- host0
+|-- devices
+|   `-- pci0000:03
+|       `-- 0000:03:06.0
+`-- module
+    |-- megaraid_mbox
+    `-- megaraid_mm
+        `-- adapter0
+            |-- host0 -> ../../../class/scsi_host/host0
+            `-- pci_dev -> ../../../devices/pci0000:03/0000:03:06.0
+
+Your struct adapter_t has this mapping already, kernel-internal.  But
+I think your userspace tools need to know the mapping too, to make
+sure that adapter0 is the device they really intend to send management
+commands to.
+
+I think this question (do I have the right adapter), is analogous to
+the question before (do I have the right HCTL tuple for this logical
+drive), which my patch of last night may help address.
+
+Thanks,
+Matt
+
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

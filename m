@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266108AbSL3DW1>; Sun, 29 Dec 2002 22:22:27 -0500
+	id <S266122AbSL3Den>; Sun, 29 Dec 2002 22:34:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266122AbSL3DW1>; Sun, 29 Dec 2002 22:22:27 -0500
-Received: from jamesconeyisland.com ([66.64.43.2]:21004 "EHLO
-	mail.jamesconeyisland.com") by vger.kernel.org with ESMTP
-	id <S266108AbSL3DW0> convert rfc822-to-8bit; Sun, 29 Dec 2002 22:22:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ron Cooper <rcooper@jamesconeyisland.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.21-pre2: CPU0 handles all interrupts
-Date: Sun, 29 Dec 2002 21:30:07 -0600
-User-Agent: KMail/1.4.3
-References: <200212281056.58419.hans.lambrechts@skynet.be> <200212281103.36973.rcooper@jamesconeyisland.com> <1041212142.1474.33.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1041212142.1474.33.camel@irongate.swansea.linux.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212292130.07707.rcooper@jamesconeyisland.com>
+	id <S266135AbSL3Den>; Sun, 29 Dec 2002 22:34:43 -0500
+Received: from bitmover.com ([192.132.92.2]:4760 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S266122AbSL3Dem>;
+	Sun, 29 Dec 2002 22:34:42 -0500
+Date: Sun, 29 Dec 2002 19:43:03 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Russ Allbery <rra@stanford.edu>
+Cc: Felix Domke <tmbinc@elitedvb.net>, linux-kernel@vger.kernel.org
+Subject: Re: Indention - why spaces?
+Message-ID: <20021230034303.GA11425@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Russ Allbery <rra@stanford.edu>, Felix Domke <tmbinc@elitedvb.net>,
+	linux-kernel@vger.kernel.org
+References: <fa.f9m4suv.e6ubgf@ifi.uio.no> <ylfzsgi3jz.fsf@windlord.stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ylfzsgi3jz.fsf@windlord.stanford.edu>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 29 December 2002 07:35 pm, Alan Cox wrote:
-> On Sat, 2002-12-28 at 17:03, Ron Cooper wrote:
-> > Mine does this too.  2.4.20.  Iwill dp400 board running dual
-> > 2.4Ghz Xeons with HT enabled.
-> >
-> > I have to boot by passing "noapic" to the kernel, otherwise
-> > /cat/proc/interrupts will show the interrupt numbers wrong,
-> > however. not doing this changes nothing.
->
-> "noapic" will deliver all IRQ's to IRQ0. Note btw - IRQ numbers
-> *do* change in APIC mode
->
-> -
+On Sun, Dec 29, 2002 at 07:33:20PM -0800, Russ Allbery wrote:
+> Felix Domke <tmbinc@elitedvb.net> writes:
+> 
+> > i don't want to change anything, i just like to know WHY people use
+> > spaces. are they somehow unportable? (i don't think so)
+> 
+> <http://www.jwz.org/doc/tabs-vs-spaces.html>
 
-Thank you for your reply and for the information.
+Quouting from that page:
+    That ensures that, even if I happened to insert a literal tab in the
+    file by hand (or if someone else did when editing this file earlier),
+    those tabs get expanded to spaces when I save. 
 
-Any reason to be disturbed by the fact /proc/interrupts only shows 
-CPU0 with irq counts while CPU1 is always zero?
-
-All the VIA chipsets I have that are SMP report both CPU's in the 
-interrupt counts.  This IWILL board with the I860 chipset does not 
-no matter which kernel I try.
-
-I'd like to fix this but I dont know how.  But I  am willing to 
-assist and devote any time necessary to someone who may have the 
-knowledge fix it.  There have to be others out there experiencing 
-this same issue so its not a wasted cause in my estimation.  
-
-Alan, do you have any commentary on this issue?
-
-Cheers
-
-Ron
-
-
-
-
-
+If you are using a source management system, pretty much *any* source
+management system, doing this will cause all the lines to be "rewritten"
+if they had tabs.  The fact that this person would advocate changing
+code that they didn't actually change shows a distinct lack of clue.
+No engineer who works for an even semi-pro company would dream of doing
+this.  At BitMover, anyone who seriously advocated this for more than
+a day would be fired.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

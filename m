@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264828AbSJaKml>; Thu, 31 Oct 2002 05:42:41 -0500
+	id <S264814AbSJaKjl>; Thu, 31 Oct 2002 05:39:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264820AbSJaKmk>; Thu, 31 Oct 2002 05:42:40 -0500
-Received: from tml.hut.fi ([130.233.44.1]:21778 "EHLO tml-gw.tml.hut.fi")
-	by vger.kernel.org with ESMTP id <S264828AbSJaKmQ>;
-	Thu, 31 Oct 2002 05:42:16 -0500
-Date: Thu, 31 Oct 2002 12:44:00 +0200 (EET)
-From: Henrik Petander <lpetande@morphine.tml.hut.fi>
-To: Noriaki Takamiya <takamiya@po.ntts.co.jp>
-cc: ajtuomin@morphine.tml.hut.fi, <davem@redhat.com>, <kuznet@ms2.inr.ac.ru>,
-       <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>,
-       <yoshfuji@wide.ad.jp>, <pekkas@netcore.fi>, <torvalds@transmeta.com>,
-       <jagana@us.ibm.com>
-Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.43
-In-Reply-To: <20021031.174442.846937513.takamiya@po.ntts.co.jp>
-Message-ID: <Pine.GSO.4.44.0210311232310.18909-100000@morphine.tml.hut.fi>
+	id <S264820AbSJaKjk>; Thu, 31 Oct 2002 05:39:40 -0500
+Received: from mail.scram.de ([195.226.127.117]:25797 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S264814AbSJaKjj>;
+	Thu, 31 Oct 2002 05:39:39 -0500
+Date: Thu, 31 Oct 2002 11:40:15 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.45
+In-Reply-To: <Pine.LNX.4.44.0210301651120.6719-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0210311138490.7997-100000@gfrw1044.bocc.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Noriaki,
+Hi,
 
-On Thu, 31 Oct 2002, Noriaki Takamiya wrote:
+2.4.45 compile on Alpha fails:
 
-> Hi,
->
->   This is Takamiya, a member of USAGI Project.
->   Your work is very cool.
-Thanks.
+  gcc -Wp,-MD,arch/alpha/kernel/.irq_alpha.o.d -D__KERNEL__ -Iinclude
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev5
+-Wa,-mev6 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=irq_alpha
+-c -o arch/alpha/kernel/irq_alpha.o arch/alpha/kernel/irq_alpha.c
+In file included from arch/alpha/kernel/irq_alpha.c:15:
+arch/alpha/kernel/irq_impl.h: In function `alpha_do_profile':
+arch/alpha/kernel/irq_impl.h:50: `prof_buffer' undeclared (first use in
+this function)
+arch/alpha/kernel/irq_impl.h:50: (Each undeclared identifier is reported
+only once
+arch/alpha/kernel/irq_impl.h:50: for each function it appears in.)
+arch/alpha/kernel/irq_impl.h:61: `prof_shift' undeclared (first use in
+this function)
+arch/alpha/kernel/irq_impl.h:67: `prof_len' undeclared (first use in this
+function)
+make[1]: *** [arch/alpha/kernel/irq_alpha.o] Error 1
+make: *** [arch/alpha/kernel] Error 2
 
->
->   Please note that we're preparing for checking to what extent this
->   patch is compliant to the Internet draft of MIPv6.
-
-We are interested in seeing the results, especially if the tests are based
-on the draft19, which ought to be published soon based on the discussions
-in the mobile-ip mailing list.
-
->
-> (2) Avoiding Netfilter Hooks
-> 	In your imprementation HA uses netfilter to intercept packets
-> 	sent to MN. We think it is costy so we have a suggestion to
-> 	use FIB structure to forward packets to MN. Bacause we think
-> 	forwarding packets from HA to MN is FORWARDING, not FILTERING.
-> 	We think the kernel maintainers may prefer such a manner using
-> 	FIB structure for forwarding.
-
-We are using standard routing in HA to route packets intercepted by HA to
-MN through a tunnel device.  However, HA needs to also act as a neighbor
-discovery proxy for MN and not tunnel any ND packets destined to MN, but
-reply to them on the bahalf of MN. We use the netfilter hook to check for
-ND packets with global addresses that would be otherwise tunneled and feed
-them directly to the local processing code.
-
-Thanks,
-
-Henrik Petander
-
-		----------------------------------
-		Henrik Petander
-		Helsinki University of Technology,
-		GO/Core Project
-		Henrik.Petander@hut.fi
-		Office: +358 (0)9 451 5846
-		GSM: +358 (0)40 741 5248
-		----------------------------------
+--jochen
 

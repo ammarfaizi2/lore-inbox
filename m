@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272454AbTHEGLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 02:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272455AbTHEGLJ
+	id S272473AbTHEGaY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 02:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272478AbTHEGaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 02:11:09 -0400
-Received: from anumail3.anu.edu.au ([150.203.2.43]:6324 "EHLO anu.edu.au")
-	by vger.kernel.org with ESMTP id S272454AbTHEGLF (ORCPT
+	Tue, 5 Aug 2003 02:30:24 -0400
+Received: from iv.ro ([194.105.28.94]:3194 "HELO iv.ro") by vger.kernel.org
+	with SMTP id S272473AbTHEGaW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 02:11:05 -0400
-Message-ID: <3F2F4076.1030009@cyberone.com.au>
-Date: Tue, 05 Aug 2003 15:28:22 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.2.1) Gecko/20021217
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [PATCH] O13int for interactivity
-References: <200308050207.18096.kernel@kolivas.org> <200308051220.04779.kernel@kolivas.org> <3F2F149F.1020201@cyberone.com.au> <200308051318.47464.kernel@kolivas.org> <3F2F2517.7080507@cyberone.com.au> <1060059844.3f2f3ac46e2f2@kolivas.org> <3F2F3CC6.2060307@cyberone.com.au> <1060060568.3f2f3d989683f@kolivas.org>
-In-Reply-To: <1060060568.3f2f3d989683f@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 5 Aug 2003 02:30:22 -0400
+Date: Tue, 5 Aug 2003 09:44:44 +0300
+From: Jani Monoses <jani@iv.ro>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cs stack_dump
+Message-Id: <20030805094444.19cfc9f0.jani@iv.ro>
+In-Reply-To: <Pine.SOL.4.30.0308050032490.16314-100000@mion.elka.pw.edu.pl>
+References: <20030804174828.08dfc5f4.jani@iv.ro>
+	<Pine.SOL.4.30.0308050032490.16314-100000@mion.elka.pw.edu.pl>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Sender-Domain: cyberone.com.au
-X-Spam-Score: (-2.8)
-X-Spam-Tests: DATE_IN_PAST_06_12,EMAIL_ATTRIBUTION,IN_REP_TO,REFERENCES,SPAM_PHRASE_02_03,USER_AGENT,USER_AGENT_MOZILLA_UA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+On Tue, 5 Aug 2003 01:56:01 +0200 (MET DST)
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
 
->Quoting Nick Piggin <piggin@cyberone.com.au>:
->
+> 
+> On Mon, 4 Aug 2003, Jani Monoses wrote:
+> 
+> I think I know how this happens:
+> 
+> register_disk()->blkdev_get()->do_open(), then disk->fops->open()
+> (idedisk_open() for ide-disk) calls check_disk_change().
+> check_disk_change() calls disk->fops->media_changed().
+> idedisk_media_changes() returns drive->removable, so instead of
+> returning from check_disk_change() block_device is invalidated
+> and bdev->bd_invalidated is set to 1.  Later in do_open(),
+> bdev->bd_invalidated flag is checked and since it is 1
+> rescan_partitions() is triggered.  Thus partitions are checked and
+> added twice: in do_open()->rescan_partitions() and in register_disk().
+> 
+> [ The same applies to ide-floppy driver and probably some other
+> drivers. ]
+> 
+> Ufff... I hope it is a correct description (I don't have hardware to
+> reproduce the problem).
 
-snip
+You're probably right in the description. One ugly way I solved this for
+2.6.0-test1 was setting bd_invalidated to 0 
+ 
+> Easy way is to fix is to add drive->attach flag, set it in
+> idedisk_attach() and check+clear in idedisk_media_changed(),
+> but I don't like this solution (patch below, Jani, can you test it?).
 
->
->>Oh, I'm not saying that your change is outright wrong, on the contrary I'd
->>say you have a better feel for what is needed than I do, but if you are 
->>finding
->>that the uninterruptible sleep case needs some tweaking then the same tweak
->>should be applied to all sleep cases. If there really is a difference, 
->>then its
->>just a fluke that the sleep paths in question use the type of sleep you are
->>testing for, and nothing more profound than that.
->>
->
->Ah I see. It was from my observations of the behaviour of tasks in D that 
->found it was the period spent in D that was leading to unfairness. The same 
->tweak can't be applied to the rest of the sleeps because that inactivates 
->everything. So it is a fluke that the thing I'm trying to penalise is what 
->tasks in uninterruptible sleep do, but it is by backward observation of D 
->tasks, not random chance.
->
+I can test is by tomorrow, it's another box that has the PCCard slot.
 
-Yes yes, but we come to the same conclusion no matter why you have decided
-to make the change ;) namely that you're only papering over a flaw in the
-scheduler!
-
-What happens in the same sort of workload that is using interruptible 
-sleeps?
-Say the same make -j NFS mounted interrruptible (I think?).
-
-I didn't really understand your answer a few emails ago... please just
-reiterate: if the problem is that processes sleeping too long on IO get
-too high a priority, then give all processes the same boost after they
-have slept for half a second?
-
-Also, why is this a problem exactly? Is there a difference between a
-process that would be a CPU hog but for its limited disk bandwidth, and
-a process that isn't a CPU hog? Disk IO aside, they are exactly the same
-thing to the CPU scheduler, aren't they?
-
-_wants_ to be a CPU hog, but can't due to disk
-
+Jani

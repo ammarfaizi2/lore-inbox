@@ -1,116 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262361AbRERQCD>; Fri, 18 May 2001 12:02:03 -0400
+	id <S262367AbRERQFx>; Fri, 18 May 2001 12:05:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262360AbRERQBz>; Fri, 18 May 2001 12:01:55 -0400
-Received: from gw-nl4.philips.com ([212.153.190.6]:22025 "EHLO
-	gw-nl4.philips.com") by vger.kernel.org with ESMTP
-	id <S262372AbRERQBn>; Fri, 18 May 2001 12:01:43 -0400
-From: fabrizio.gennari@philips.com
-To: <linux-kernel@vger.kernel.org>
-Subject: Patch for supporting CPR register in 16C950 UART
-Message-ID: <0056900018047773000002L032*@MHS>
-Date: Fri, 18 May 2001 18:14:23 +0200
+	id <S262372AbRERQFn>; Fri, 18 May 2001 12:05:43 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41741 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262367AbRERQFb>; Fri, 18 May 2001 12:05:31 -0400
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+To: esr@thyrsus.com
+Date: Fri, 18 May 2001 17:01:57 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010518115839.E14309@thyrsus.com> from "Eric S. Raymond" at May 18, 2001 11:58:39 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="Boundary=_0.0_=0056900018047773"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150mhR-0007Ig-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I think you're confusing a couple of different issues here, Alan.  Even 
+> supposing CML2 could parse CML1 rulesets, the design question about how
+> configuration *should* work (that is, what kind of user experience we 
+> want to create and who we optimize ruleset design for) wouldn't go away.
 
---Boundary=_0.0_=0056900018047773
-Content-Type: text/plain; charset=iso-8859-1; name="MEMO 05/18/01 18:00:46"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+It would. Because people who like the old config would continue to use the 
+old tools
 
-Hello.
-
-Here is a patch (tested on kernels 2.4.3 and 2.4.4) that adds 2 ioctl's=
- in serial.c. One, TCSSERCPR, sets the CPR register in 16C950 UARTs. Th=
-is register is a pre-scaler (that is, a divisor) for the clock. If the =
-value is N, the clock is divided by N/8.=20
-If N<8, pre-scaling is disabled by setting bit 7 of MCR to 0. The other=
- one, TCGSERCPR,, reads the value of CPR. If pre-scaling is disabled, i=
-t returns 8 (i.e., the clock frequency is left intact).
-
-The patch also disables resetting the UART via the CSR register every t=
-ime the serial device is opened (in the startup() function). This would=
- reset the content of CPR.
----------------------------------------------------------
-Fabrizio Gennari          tel. +39 039 203 7816
-Philips Research Monza    fax. +39 039 203 7800
-via G. Casati 23          fabrizio.gennari@philips.com
-20052 Monza (MI) Italy    http://www.research.philips.com
-=
-
---Boundary=_0.0_=0056900018047773
-Content-Type: application/octet-stream; name=serial-patch
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=serial-patch
-
-ZGlmZiAtcnVOIGxpbnV4LTIuNC4zL2RyaXZlcnMvY2hhci9zZXJpYWwuYyBsaW51eC0yLjQuMy1w
-YXRjaGVkL2RyaXZlcnMvY2hhci9zZXJpYWwuYwotLS0gbGludXgtMi40LjMvZHJpdmVycy9jaGFy
-L3NlcmlhbC5jCVdlZCBNYXIgIDcgMDU6MTM6NTEgMjAwMQorKysgbGludXgtMi40LjMtcGF0Y2hl
-ZC9kcml2ZXJzL2NoYXIvc2VyaWFsLmMJRnJpIE1heSAxOCAxNjoyODozMCAyMDAxCkBAIC0xMjU5
-LDcgKzEyNTksNyBAQAogCQlzZXJpYWxfb3V0cChpbmZvLCBVQVJUX0VGUiwgVUFSVF9FRlJfRUNC
-KTsKIAkJc2VyaWFsX291dHAoaW5mbywgVUFSVF9JRVIsIDApOwogCQlzZXJpYWxfb3V0cChpbmZv
-LCBVQVJUX0xDUiwgMCk7Ci0JCXNlcmlhbF9pY3Jfd3JpdGUoaW5mbywgVUFSVF9DU1IsIDApOyAv
-KiBSZXNldCB0aGUgVUFSVCAqLworCQkvKgkJc2VyaWFsX2ljcl93cml0ZShpbmZvLCBVQVJUX0NT
-UiwgMCk7ICovIC8qIFJlc2V0IHRoZSBVQVJUICovCiAJCXNlcmlhbF9vdXRwKGluZm8sIFVBUlRf
-TENSLCAweEJGKTsKIAkJc2VyaWFsX291dHAoaW5mbywgVUFSVF9FRlIsIFVBUlRfRUZSX0VDQik7
-CiAJCXNlcmlhbF9vdXRwKGluZm8sIFVBUlRfTENSLCAwKTsKQEAgLTEzNjQsOSArMTM2NCwxMiBA
-QAogCSAqLwogCXNlcmlhbF9vdXRwKGluZm8sIFVBUlRfTENSLCBVQVJUX0xDUl9XTEVOOCk7CS8q
-IHJlc2V0IERMQUIgKi8KIAotCWluZm8tPk1DUiA9IDA7CisJaWYgKHN0YXRlLT50eXBlID09IFBP
-UlRfMTZDOTUwKQorCQlpbmZvLT5NQ1IgJj0gVUFSVF9NQ1JfUFJFU0NBTEVSOworCWVsc2UKKwkJ
-aW5mby0+TUNSID0gMDsKIAlpZiAoaW5mby0+dHR5LT50ZXJtaW9zLT5jX2NmbGFnICYgQ0JBVUQp
-Ci0JCWluZm8tPk1DUiA9IFVBUlRfTUNSX0RUUiB8IFVBUlRfTUNSX1JUUzsKKwkJaW5mby0+TUNS
-IHw9IFVBUlRfTUNSX0RUUiB8IFVBUlRfTUNSX1JUUzsKICNpZmRlZiBDT05GSUdfU0VSSUFMX01B
-TllfUE9SVFMKIAlpZiAoaW5mby0+ZmxhZ3MgJiBBU1lOQ19GT1VSUE9SVCkgewogCQlpZiAoc3Rh
-dGUtPmlycSA9PSAwKQpAQCAtMjUxNCw2ICsyNTE3LDQxIEBACiB9CiAjZW5kaWYKIAorc3RhdGlj
-IGludCBnZXRfY2xvY2tfcHJlc2NhbGVyKHN0cnVjdCBhc3luY19zdHJ1Y3QgKiBpbmZvLCB1bnNp
-Z25lZCBjaGFyICp2YWx1ZSkKK3sKKwl1bnNpZ25lZCBjaGFyIGNwcjsKKworCWlmICghKHNlcmlh
-bF9pbihpbmZvLCBVQVJUX01DUikgJiBVQVJUX01DUl9QUkVTQ0FMRVIpKQorCQljcHIgPSA4Owor
-CWVsc2UKKwkJY3ByID0gc2VyaWFsX2ljcl9yZWFkKGluZm8sIFVBUlRfQ1BSKTsKKworCWlmIChj
-b3B5X3RvX3VzZXIodmFsdWUsJmNwcixzaXplb2YodW5zaWduZWQgY2hhcikpKQorCQlyZXR1cm4g
-LUVGQVVMVDsKKworCXJldHVybiAwOworfQorCitzdGF0aWMgaW50IHNldF9jbG9ja19wcmVzY2Fs
-ZXIoc3RydWN0IGFzeW5jX3N0cnVjdCAqIGluZm8sIHVuc2lnbmVkIGNoYXIgKnZhbHVlKQorewor
-CXVuc2lnbmVkIGNoYXIgY3ByOworCQorCWlmIChjb3B5X2Zyb21fdXNlcigmY3ByLHZhbHVlLHNp
-emVvZih1bnNpZ25lZCBjaGFyKSkpCisJCXJldHVybiAtRUZBVUxUOworCisJaWYgKGNwciA8IDgp
-eworCQlpbmZvLT5NQ1IgJj0gflVBUlRfTUNSX1BSRVNDQUxFUjsKKwl9CisJZWxzZXsKKwkJaW5m
-by0+TUNSIHw9IFVBUlRfTUNSX1BSRVNDQUxFUjsKKwl9CisJCisJc2VyaWFsX291dChpbmZvLCBV
-QVJUX01DUiwgaW5mby0+TUNSKTsKKwlzZXJpYWxfaWNyX3dyaXRlKGluZm8sIFVBUlRfQ1BSLCBj
-cHIpOworCisJcmV0dXJuIDA7Cit9CisKIHN0YXRpYyBpbnQgcnNfaW9jdGwoc3RydWN0IHR0eV9z
-dHJ1Y3QgKnR0eSwgc3RydWN0IGZpbGUgKiBmaWxlLAogCQkgICAgdW5zaWduZWQgaW50IGNtZCwg
-dW5zaWduZWQgbG9uZyBhcmcpCiB7CkBAIC0yNjY4LDYgKzI3MDYsMTQgQEAKIAkJCWlmIChjb3B5
-X3RvX3VzZXIoKHZvaWQgKilhcmcsICZpY291bnQsIHNpemVvZihpY291bnQpKSkKIAkJCQlyZXR1
-cm4gLUVGQVVMVDsKIAkJCXJldHVybiAwOworCQljYXNlIFRJT0NHU0VSQ1BSOiAvKiBHZXQgc2Vy
-aWFsIGNsb2NrIHByZXNjYWxlciAqLworCQkJaWYgKGluZm8tPnN0YXRlLT50eXBlID09IFBPUlRf
-MTZDOTUwKQorCQkJCXJldHVybiBnZXRfY2xvY2tfcHJlc2NhbGVyKGluZm8sICh1bnNpZ25lZCBj
-aGFyICopIGFyZyk7CisJCQlyZXR1cm4gLUVOWElPOworCQljYXNlIFRJT0NTU0VSQ1BSOiAvKiBT
-ZXQgc2VyaWFsIGNsb2NrIHByZXNjYWxlciAqLworCQkJaWYgKGluZm8tPnN0YXRlLT50eXBlID09
-IFBPUlRfMTZDOTUwKQorCQkJCXJldHVybiBzZXRfY2xvY2tfcHJlc2NhbGVyKGluZm8sICh1bnNp
-Z25lZCBjaGFyICopIGFyZyk7CisJCQlyZXR1cm4gLUVOWElPOwogCQljYXNlIFRJT0NTRVJHV0lM
-RDoKIAkJY2FzZSBUSU9DU0VSU1dJTEQ6CiAJCQkvKiAic2V0c2VyaWFsIC1XIiBpcyBjYWxsZWQg
-aW4gRGViaWFuIGJvb3QgKi8KZGlmZiAtcnVOIGxpbnV4LTIuNC4zL2luY2x1ZGUvYXNtLWkzODYv
-aW9jdGxzLmggbGludXgtMi40LjMtcGF0Y2hlZC9pbmNsdWRlL2FzbS1pMzg2L2lvY3Rscy5oCi0t
-LSBsaW51eC0yLjQuMy9pbmNsdWRlL2FzbS1pMzg2L2lvY3Rscy5oCUZyaSBKdWwgMjQgMjA6MTA6
-MTYgMTk5OAorKysgbGludXgtMi40LjMtcGF0Y2hlZC9pbmNsdWRlL2FzbS1pMzg2L2lvY3Rscy5o
-CVRodSBNYXkgMTcgMTY6MzQ6MDggMjAwMQpAQCAtNjcsNiArNjcsOCBAQAogI2RlZmluZSBUSU9D
-R0lDT1VOVAkweDU0NUQJLyogcmVhZCBzZXJpYWwgcG9ydCBpbmxpbmUgaW50ZXJydXB0IGNvdW50
-cyAqLwogI2RlZmluZSBUSU9DR0hBWUVTRVNQICAgMHg1NDVFICAvKiBHZXQgSGF5ZXMgRVNQIGNv
-bmZpZ3VyYXRpb24gKi8KICNkZWZpbmUgVElPQ1NIQVlFU0VTUCAgIDB4NTQ1RiAgLyogU2V0IEhh
-eWVzIEVTUCBjb25maWd1cmF0aW9uICovCisjZGVmaW5lIFRJT0NHU0VSQ1BSICAgMHg1NDYwICAv
-KiBHZXQgc2VyaWFsIGNsb2NrIHByZXNjYWxlciovCisjZGVmaW5lIFRJT0NTU0VSQ1BSICAgMHg1
-NDYxICAvKiBTZXQgc2VyaWFsIGNsb2NrIHByZXNjYWxlciovCiAKIC8qIFVzZWQgZm9yIHBhY2tl
-dCBtb2RlICovCiAjZGVmaW5lIFRJT0NQS1RfREFUQQkJIDAKZGlmZiAtcnVOIGxpbnV4LTIuNC4z
-L2luY2x1ZGUvbGludXgvc2VyaWFsX3JlZy5oIGxpbnV4LTIuNC4zLXBhdGNoZWQvaW5jbHVkZS9s
-aW51eC9zZXJpYWxfcmVnLmgKLS0tIGxpbnV4LTIuNC4zL2luY2x1ZGUvbGludXgvc2VyaWFsX3Jl
-Zy5oCVdlZCBNYXIgIDcgMDQ6Mjg6MzUgMjAwMQorKysgbGludXgtMi40LjMtcGF0Y2hlZC9pbmNs
-dWRlL2xpbnV4L3NlcmlhbF9yZWcuaAlUaHUgTWF5IDE3IDE2OjIzOjMyIDIwMDEKQEAgLTEyMSw2
-ICsxMjEsNyBAQAogLyoKICAqIFRoZXNlIGFyZSB0aGUgZGVmaW5pdGlvbnMgZm9yIHRoZSBNb2Rl
-bSBDb250cm9sIFJlZ2lzdGVyCiAgKi8KKyNkZWZpbmUgVUFSVF9NQ1JfUFJFU0NBTEVSCTB4ODAJ
-LyogRW5hYmxlIGNsb2NrIHByZXNjYWxlciAqLwogI2RlZmluZSBVQVJUX01DUl9MT09QCTB4MTAJ
-LyogRW5hYmxlIGxvb3BiYWNrIHRlc3QgbW9kZSAqLwogI2RlZmluZSBVQVJUX01DUl9PVVQyCTB4
-MDgJLyogT3V0MiBjb21wbGVtZW50ICovCiAjZGVmaW5lIFVBUlRfTUNSX09VVDEJMHgwNAkvKiBP
-dXQxIGNvbXBsZW1lbnQgKi8K
-
---Boundary=_0.0_=0056900018047773--
+Alan

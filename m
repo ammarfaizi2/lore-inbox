@@ -1,75 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318402AbSGSAMd>; Thu, 18 Jul 2002 20:12:33 -0400
+	id <S318397AbSGSAGX>; Thu, 18 Jul 2002 20:06:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318401AbSGSAMd>; Thu, 18 Jul 2002 20:12:33 -0400
-Received: from [218.21.103.75] ([218.21.103.75]:55304 "HELO Outlook")
-	by vger.kernel.org with SMTP id <S318400AbSGSAMc>;
-	Thu, 18 Jul 2002 20:12:32 -0400
-Reply-To: dvd@263.net.cn
-From: =?ISO-8859-1?Q?=D6=D0=B9=FA=D1=EB=CA=D3=BD=CC=D3=FD=CD=F8?=@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=BC=DB=D6=B5500=D4=AA=B5=C4=D7=A2=B2=E1=BB=FA=A3=AC=C3=E2=B7=D1=CB=CD=D2=BB=CC=EC=A3=A1=A3=A1=A3=A1?=
+	id <S318400AbSGSAGX>; Thu, 18 Jul 2002 20:06:23 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:24018 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S318397AbSGSAGV>;
+	Thu, 18 Jul 2002 20:06:21 -0400
+Subject: Re: 2.4.19rc2aa1 i_size atomic access
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020718103511.GG994@dualathlon.random>
+References: <1026949132.20314.0.camel@joe2.pdx.osdl.net>
+	<1026951041.2412.38.camel@IBM-C>  <20020718103511.GG994@dualathlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 18 Jul 2002 17:09:21 -0700
+Message-Id: <1027037361.2424.73.camel@IBM-C>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=""
-Date: Fri, 19 Jul 2002 08:15:38 +0800
-Message-Id: <20020719001232Z318400-685+13134@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==========================================================================
-感谢你打开本邮件，祝你工作顺利，生意兴隆！
-如本邮件信息如对你无用，请自行删除。对给你造成的不便，深表歉意。
-如希望不收本邮件，请来信告知邮址，我们将不再给你发邮件，谢谢配合。
-==========================================================================
+On Thu, 2002-07-18 at 03:35, Andrea Arcangeli wrote:
+> On Wed, Jul 17, 2002 at 05:10:41PM -0700, Daniel McNeil wrote:
+> > We coded up something very similar creating a get_64bit() using the
+> > cmpxchg8 instruction and using the set_64bit() already there.
+> > 
+> > I created a patch to have cp_new_stat64() use get_64bit() and
+> > the changes to i_size to use set_64bit().  I tested this patch
+> > on an 8 proc machine running 2.4.18.  This did fix the race
+> > with extending the i_size past 4GB when another process is
+> > reading i_size (by doing a stat()).  Here are some process
+> 
+> Actually stat can confuse userspace but it's the last of all problems,
+> the real issue is expanding truncate or lseek+write behind the end of the
+> file that can generate metadata fs corruption with a parallel writepage.
 
-本公司利用多年从事无盘系统开发经验及全国各地超过千家网吧以上经验和实践，为
+fstat() was an easy way to test for incorrect reading of i_size,
+so I could test the cmpxchg8 code to read a 64-bit value.
+> 
+> > times for running parallel fstat()s to the same file on an SMP
+> > 8-proc box:
+> > 
+> > Test program doing fstat() 500,000 times to a single file.
+> > 
+> > # of processes		times
+> > 1			0.17user 0.34system 0:00.51elapsed
+> > 2			0.40user 0.85system 0:00.62elapsed
+> > 3			0.45user 2.18system 0:00.88elapsed
+> > 4			0.74user 3.54system 0:01.08elapsed
+> > 5			0.68user 5.58system 0:01.33elapsed
+> > 6			0.97user 8.57system 0:01.82elapsed
+> > 7			1.14user 12.93system 0:02.10elapsed
+> > 8			1.20user 22.52system 0:02.98elapsed
+> > 
+> > As you can see the fstat()s do not scale well.  I think this is due
+> > to the cmpxchg8 instruction actually writing to the cache line
+> > even if the compare fails.  The software developers manual says:
+> 
+> fstat or any similar operation run in parallel on the same file
+> descriptor isn't going to scale very well anyways because of the fget
+> and atomic-inc/dec cacheline trashing.
+> 
+> If instead you were using different filedescriptors then if it doesn't
+> scale well that's the cmpxchg8. And of course we expect it not to scale
+> well with the fix applied, so it's all right in all cases.
+> 
 
-广大网吧业主或准备开网吧业主提供无盘局踏网设计、布线、装机、升级更新、日常
+This is with different file discriptors, so the bad scaling is from the
+cmpxchg8.  The same test on 2.4.18 without the patch was:
 
-维护一条龙成套服务。本公司拥有雄厚的技术实力，领先的核心技术，使您不懂电脑
+8 processes		1.51user 2.53system 0:00.51elapsed
 
-一样能开好网吧．我们提供成套的技术服务，采用先进的电脑收费计费系统，做到滴
+> > 
+> > "The destination operand is written back if the comparison fails;
+> > otherwise the source operand is written into the destination.  (The
+> > processor never produces a locked read without also producing a locked
+> > write.)"
+> > 
+> > We were not using a lock prefix, but it appears it is doing the write
+> 
+> that's a bug as far I can see, without the lock prefix it's not atomic,
+> so it should generate the same corruption even using cmpxchg, see also
+> the fix for set_64bit that I did separately even for the pagetable
+> walking. I wrote a fat comment with pointer to the page of the pdf that
+> states without the lock it's all but atomic.
+> 
+> > anyway.  That would explain the bad scaling.
+> 
+> of course, with the fix applied every time we read the inode without the
+> i_sem we will have to make a write that will render impossible to share
+> the cacheline in read only mode across the cpus and it will generate the
+> bouncing if the same inode is accessed at the same time by multiple
+> cpus. that'e expected :)
 
-水不漏，成熟的局域网技术，解决决网吧上网，联网游戏升级、防病毒等各类问题，
+This cacheline bouncing is the thing I don't like.  It was not clear
+from the cmpxchg8 documentation if any data was written when the
+comparison failed when not using the lock prefix.  By using an
+unexpected negative value for the compare value the compare would
+fail and just read the 64bit value. Unfortunately, it looks like
+it does write (the old value if the comparison fails).  I think
+you are right that this would be a bug then, since there could
+be a racing update to i_size to could race in without the lock
+prefix.
 
-24小时的技术服务，真正实现轻松开网吧问题，请您选择真正的PNP无盘系统才能使您
+> 
+> But it will scale if the different cpus accesses different inodes
+> simultaneously. It's like the per-inode radix tree lock of 2.5, if all
+> cpus works on the same inode, per-inode lock or global lock won't make
+> differences for that workload.
+> 
+> The only other possible fix  is to change the highlevel locking and to
+> require all i_size readers to hold the i_sem in read mode (of cours the
+> i_sem should become a rw semaphore), this will also avoid the silly
+> checks for page->mapping in generic_file_read, and secondly we should
+> make those readers recursive, so there's no fs reentrancy problem when
+> the vm does writepage, that is trivially doable with my rwsem, they
+> provide the recursive functionality in a abstracted manner, so it would
+> be truly easy to implement that more robust and simpler locking
+> mechanism, OTOH that is a radical locking change in the core VM/vfs
+> while what I implemented right now is the strict bugfix that doesn't
+> change the locking design.
+> 
 
-今后使用万事无忧。
+If a read lock is used to read i_size, then the rw semaphore would cause
+the same cache line bouncing as the cmpxchg8.
 
-    有盘网吧的苦恼：
+> BTW, while fixing 486/386 support, I will also add another optimization
+> that is to avoid the chmpxchg not only for 64bit archs, but also for UP
+> compilations, as said that's only an SMP race that cannot triger on UP
+> (all assuming there is no -preempt, but there **cannot** be any -preempt
+> in 2.4 anyways, but while forward porting the fix to 2.5 if -preempt is
+> enabled the kernel will have to use chmpxchg for reading i_size, really
+> with -preempt and UP compilation for reading and writing the i_size the
+> cmpxchg doesn't need to put the lock on the bus while it always needs
+> the lock on the bus for SMP compiles.
+> 
+> I will upload an update after I fixed 486/386 and I optimized away the
+> cmpxchg for UP compiles.
+> 
+> If you have suggestions that's welcome, thanks.
 
-  1、windows 系统被破坏，导致大量维护
-  
-  2、没有足够多的大型硬盘游戏与电脑音乐，吸引不了网迷
+I'll let you know if I think of any.
 
-  3、硬盘价格下跌飞快，给网吧造成严重损失
+Daniel
 
-  4、忙于各台电脑游戏升级和安装
 
-   采用我们系统的优势：
-
-  1、各台电脑不用硬盘，每台电脑可以节约1000元。
-
-  2、启动速度与有盘一样快，很多软件要比有盘的快。
-
-  3、系统内置了包括反恐精英、石器时代等200多种游戏，满足网友的任何需求。
-
-  4、50台电脑同时进行硬盘游戏、QQ、联从等网络游戏，速度不受速度
-
-  5、你可以更新任何软件，只需安装一台，其它电脑就可以共享
-
-  6、工作站出现故障，只需按下两个键就可以轻松恢复，真正做到零维护。
-
-========================================================================
-欢迎光临我们的网站：http://www.cctvedu.com
-
-游戏菜单目录下载地址：http://www.cctvedu.com/download/gamemenu.txt
-
-游戏菜单录像下载地址：http://www.cctvedu.com/nodisk/mz/download/mzgame.exe
-
-教学版录像下载地址：http://www.cctvedu.com/nodisk/mz/download/school.exe
-
-系统运行录像下载地址：http://www.cctvedu.com/nodisk/mz/download/mz3.exe
-=========================================================================
-  

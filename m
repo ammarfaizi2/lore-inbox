@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbUBVPNI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 10:13:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbUBVPNI
+	id S261501AbUBVPXa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 10:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbUBVPXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 10:13:08 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:38804 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261465AbUBVPNF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 10:13:05 -0500
-Message-ID: <4038C6F5.1070309@colorfullife.com>
-Date: Sun, 22 Feb 2004 16:12:53 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: linux-kernel@vger.kernel.org,
-       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-Subject: Re: [RFC][PATCH] 2/6 POSIX message queues
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 22 Feb 2004 10:23:30 -0500
+Received: from [213.227.239.137] ([213.227.239.137]:30945 "EHLO
+	berloga.shadowland") by vger.kernel.org with ESMTP id S261501AbUBVPXZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 10:23:25 -0500
+Subject: buffer overflow in ip_options_echo
+From: Alex Lyahkov <shadow@psoft.net>
+To: "'lkml'" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1077463393.5404.6.camel@berloga.shadowland>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Sun, 22 Feb 2004 17:23:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd wrote:
+Hello All
 
->Nothing difficult here, but slow and avoidable if you have the
->structures laid out properly.
->
-I thought about using s32 for the kernel mq_attr structure, and didn't 
-like it: It would mean that 64-bit archs running native 64-bit apps must 
-do a conversion - glibc must expose a structure with long values.
-Additionally, the posix message queue API uses 3 structures with long 
-values, and only one of them is new - we'll need wrappers anyway.
-The actual values in the mq_attr structure would fit into s32:
-- mq_flags is 0 or O_NONBLOCK
-- mq_maxmsg is less than 32k (kmalloc'ed array of pointers)
-- mq_msgsize is theoretically unlimited, but the current implementation 
-arbitrarily limits the value to 1 MB.
+When i trued to do stress testing my project i found strange bug in high
+network activity. 
+In test started four ab each with 1000 connections in same time.
+after 25-60 minutes testing i found panic in network subsystem.
+I patch my kernel with kgdb 1.6 and found that
+Program received signal SIGSEGV, Segmentation fault.
+0xc0255ad3 in ip_send_reply (sk=0x6e755320, skb=0x3232202c,
+arg=0x62654620, len=808464928)
+    at ip_output.c:982
+982     ip_output.c: No such file or directory.
+        in ip_output.c
+(gdb) p replyopts.opt.optlen
+$8 = 60 '<'
+but functions reserved 40 byte for options and it do overflow.
 
---
-    Manfred
-
-
+-- 
+Alex Lyahkov <shadow@psoft.net>

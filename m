@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbUEKHur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUEKHuw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbUEKHur (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 03:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUEKHuq
+	id S262190AbUEKHuw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 03:50:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUEKHuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 03:50:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12490 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261704AbUEKHuX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 03:50:23 -0400
-Date: Tue, 11 May 2004 00:49:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: John McGowan <jmcgowan@inch.com>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: Kernel 2.6.6: Removing the last large file does not reset
- filesystem properties
-Message-Id: <20040511004956.70f7e17d.akpm@osdl.org>
-In-Reply-To: <20040511002008.GA2672@localhost.localdomain>
-References: <20040511002008.GA2672@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 03:50:52 -0400
+Received: from smtp08.web.de ([217.72.192.226]:46537 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S262190AbUEKHur convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 03:50:47 -0400
+From: Thomas Maguin <T.Maguin@web.de>
+Reply-To: T.Maguin@web.de
+To: linux-kernel@vger.kernel.org
+Subject: Re: sata_sil bug
+Date: Tue, 11 May 2004 09:53:23 +0200
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200405110953.36293.T.Maguin@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John McGowan <jmcgowan@inch.com> wrote:
->
->  1: For the first week, at least, after installing a new kernel, I set the
->      system to force fsck on boot (Fedora Core1, rc.local script to "touch"
->      "/forcefsck").
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Justin Cormack wrote:
+
+> ata1: DMA timeout, stat 0x0
+> ATA: abnormal status 0xD8 on port 0xF8807087
+> scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x2a 00 17 9b d9 80 00 00
+> 20 00
+> Current sda: sense = 70  3
+> ASC= c ASCQ= 2
+> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
+> 0x00 0x0c
+> end_request: I/O error, dev sda, sector 396089728
+> ATA: abnormal status 0xD8 on port 0xF8807087
+> ATA: abnormal status 0xD8 on port 0xF8807087
+> ATA: abnormal status 0xD8 on port 0xF8807087
 > 
->   2: Home system, single user. Turn off at night. Turn off when I go to eat
->      lunch. Etc. (reboot at least once each day - silly, but it is a single
->      user system and I don't want to waste electricity and it gives better
->      protection against storms and line spikes).
->      
->   3: Was using Gimp 2.0 and used a tool. Got a 6 Gig swap file in /tmp/gimp2
->      (there must be a problem with that tool). Closed gimp, got rid of the
->      swap file. Upon the next boot I got:
->        FAILED!!
->        Dropping to root command line for system maintenance
->      (such fun ... entering the root password got more error messages about
->      missing programmes such as "id" and "test" - well, I have "/usr" on
->      another partition and it was not mounted).
 
-I think this is really an e2fsck/initscript problem.
+I was able to produce this error on my system too. It occured for me, when I 
+compiled the ide interface of sil_3112 as a modul in to my kernel, although I 
+was using the libata driver for my harddisks. I lost more then five times my 
+sdb drive. After removing the ide modul, the system was rock stable again.
 
-fsck saw that there were no large files on the fs, then fixed up the
-superblock to say that then returned an exit code which says "I modified
-the fs".
+Tom
+- -- 
 
-The initscripts see that exit code and have a heart attack.
+- -------------------------------------------
+protect your privacy - encrypt your mails
+my key is: 0x2AA933B6
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-What should happen is that fsck returns an exit code which says "I modified
-the fs, but everythig is OK".  And the initscripts should say "oh, cool"
-and keep booting.
-
-I don't know whether the problem lies with fsck or initscripts.
-
+iD8DBQFAoIZ+yat6ziqpM7YRAolbAJkBKrk8TYGzBUU2zemTuoFqWvdwOgCgyuQk
+kSy0Sgn7TPGWQ1XLn00rut0=
+=VWPw
+-----END PGP SIGNATURE-----

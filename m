@@ -1,176 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVBAEwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVBAEz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVBAEwr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 23:52:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVBAEwr
+	id S261542AbVBAEz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 23:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVBAEz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 23:52:47 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:18891 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261546AbVBAEwg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 23:52:36 -0500
-Message-ID: <41FF0B0D.8020003@us.ibm.com>
-Date: Mon, 31 Jan 2005 22:52:29 -0600
-From: Brian King <brking@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+	Mon, 31 Jan 2005 23:55:26 -0500
+Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:28379 "EHLO
+	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261542AbVBAEzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 23:55:11 -0500
+Message-ID: <41FF0BEE.7080106@kolivas.org>
+Date: Tue, 01 Feb 2005 15:56:14 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Arnd Bergmann <arnd@arndb.de>,
-       Linux Arch list <linux-arch@vger.kernel.org>,
-       Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: pci: Arch hook to determine config space size
-References: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com>	 <20050131192955.GJ31145@parcelfarce.linux.theplanet.co.uk>	 <41FEA4AA.1080407@us.ibm.com> <200501312256.44692.arnd@arndb.de>	 <41FEB492.2020002@us.ibm.com> <1107227727.5963.46.camel@gaston>
-In-Reply-To: <1107227727.5963.46.camel@gaston>
-Content-Type: multipart/mixed;
- boundary="------------060407010206060602020901"
+To: "Jack O'Quin" <joq@io.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Alexander Nyberg <alexn@dsv.su.se>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH] sched - Implement priority and fifo support for SCHED_ISO
+References: <41F76746.5050801@kolivas.org> <87acqpjuoy.fsf@sulphur.joq.us>	<41FE9582.7090003@kolivas.org> <87651di55a.fsf@sulphur.joq.us>	<41FEB8BA.7000106@kolivas.org> <87fz0hf20z.fsf@sulphur.joq.us>	<41FEED69.9060904@kolivas.org> <87u0owc2iy.fsf@sulphur.joq.us>
+In-Reply-To: <87u0owc2iy.fsf@sulphur.joq.us>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060407010206060602020901
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Benjamin Herrenschmidt wrote:
-> On Mon, 2005-01-31 at 16:43 -0600, Brian King wrote:
+Jack O'Quin wrote:
+> Con Kolivas <kernel@kolivas.org> writes:
 > 
 > 
->>diff -puN include/asm-ppc64/prom.h~ppc64_pcix_mode2_cfg include/asm-ppc64/prom.h
->>--- linux-2.6.11-rc2-bk9/include/asm-ppc64/prom.h~ppc64_pcix_mode2_cfg	2005-01-31 14:32:01.000000000 -0600
->>+++ linux-2.6.11-rc2-bk9-bjking1/include/asm-ppc64/prom.h	2005-01-31 14:32:01.000000000 -0600
->>@@ -137,6 +137,7 @@ struct device_node {
->> 	int	devfn;			/* for pci devices */
->> 	int	eeh_mode;		/* See eeh.h for possible EEH_MODEs */
->> 	int	eeh_config_addr;
->>+	int	pci_ext_config_space;	/* for phb's or bridges */
->> 	struct  pci_controller *phb;	/* for pci devices */
->> 	struct	iommu_table *iommu_table;	/* for phb's or bridges */
+>>Good work. Looks like you're probably right about the accounting. It
+>>may be as simple as the fact that it is on the timer tick that we're
+>>getting rescheduled and this ends up being accounted as more since the
+>>accounting happens only at the scheduler tick. A test run setting
+>>iso_cpu at 100% should tell you if it's accounting related - however
+>>the RLIMIT_RT_CPU patch is accounted in a similar way so I'm not sure
+>>there isn't another bug hanging around. 
 > 
 > 
-> Grrr... more crap added to the device-node, I don't like that ...
+>>I'm afraid on my hardware it has been behaving just like SCHED_FIFO
+>>for some time which is why I've been hanging on your results. 
 > 
-> This is a PHB only field, can't it be in struct pci_controller instead ?
+> 
+> My guess is that most of this test fits inside that huge cache of
+> yours, making it run much faster than on my system.  You probably need
+> to increase the number of clients to get comparable results.
 
-Assuming I am reading the spec correctly, this is only a property of the 
-PHB, so I could move it into the pci_controller struct instead.
+Bah increasing the clients from 14 to 20 the script just fails in some 
+meaningless way
 
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+Killed
+[con@laptop jack_test4.1]$ [1/1] jack_test4_client (17/20) stopped.
+[1/1] jack_test4_client (18/20) stopped.
+./run.sh: line 153:  7504 Broken pipe             ${CMD} >>${LOG} 2>&1
+[1/1] jack_test4_client ( 2/20) stopped.
+./run.sh: line 153:  7507 Broken pipe             ${CMD} >>${LOG} 2>&1
 
---------------060407010206060602020901
-Content-Type: text/plain;
- name="ppc64_pcix_mode2_cfg.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ppc64_pcix_mode2_cfg.patch"
+even before it starts :(
 
+> 
+> When you say just like SCHED_FIFO, do you mean completely clean?  Or
+> are you still getting unexplained xruns?  If that's the case, we need
+> to figure out why and eliminate them.
 
-When working with a PCI-X Mode 2 adapter on a PCI-X Mode 1 PPC64
-system, the current code used to determine the config space size
-of a device results in a PCI Master abort and an EEH error, resulting
-in the device being taken offline. This patch checks OF to see if
-the PCI bridge supports PCI-X Mode 2 and fails config accesses beyond
-256 bytes if it does not.
+On my P4 with the results I posted I am getting no xruns whatsoever with 
+either SCHED_FIFO or ISO. As for the pentiumM I've given up trying to 
+use that for latency runs since even with everything shut down and the 
+file system with journal off running SCHED_FIFO I get 8ms peaks every 20 
+seconds. I'll keep blaming reiserfs for that one. Only dropping to 
+single user mode and unmounting filesystems can get rid of them.
 
+> The reason I can measure an effect here is that the test is heavy
+> enough to stress my system and the system is RT-clean enough for
+> SCHED_FIFO to work properly.  (That's no surprise, I've been running
+> it that way for years.)
 
----
+Yeah I understand. I'm kinda stuck with hardware that either doesn't 
+have a problem, or an installation too flawed to use.
 
- linux-2.6.11-rc2-bk9-bjking1/arch/ppc64/kernel/pSeries_pci.c |   31 ++++++++++-
- linux-2.6.11-rc2-bk9-bjking1/include/asm-ppc64/pci-bridge.h  |    1 
- 2 files changed, 30 insertions(+), 2 deletions(-)
+> It did work better.  On the first run, there were a couple of real bad
+> xruns starting up.  But, the other two runs look fairly clean.
+> 
+>   http://www.joq.us/jack/benchmarks/sched-iso-fix.100
+> 
+> With a compile running, bad xruns and really long delays become a
+> serious problem again.
+> 
+>   http://www.joq.us/jack/benchmarks/sched-iso-fix.100+compile
+> 
+> Comparing the summary statistics with the 90% run, suggests that the
+> same problems occur in both cases, but not as often at 100%.
+> 
+>   http://www.joq.us/jack/benchmarks/.SUMMARY
+> 
+> With these latency demands, the system can't ever pick the wrong
+> thread on exit from even a single interrupt, or we're screwed.  I am
+> pretty well convinced this is not happening reliably (except with
+> SCHED_FIFO).
 
-diff -puN arch/ppc64/kernel/pSeries_pci.c~ppc64_pcix_mode2_cfg arch/ppc64/kernel/pSeries_pci.c
---- linux-2.6.11-rc2-bk9/arch/ppc64/kernel/pSeries_pci.c~ppc64_pcix_mode2_cfg	2005-01-31 22:27:49.000000000 -0600
-+++ linux-2.6.11-rc2-bk9-bjking1/arch/ppc64/kernel/pSeries_pci.c	2005-01-31 22:31:04.000000000 -0600
-@@ -52,6 +52,16 @@ static int s7a_workaround;
- 
- extern struct mpic *pSeries_mpic;
- 
-+static int config_access_valid(struct device_node *dn, int where)
-+{
-+	if (where < 256)
-+		return 1;
-+	if (where < 4096 && dn->phb->pci_ext_config_space)
-+		return 1;
-+
-+	return 0;
-+}
-+
- static int rtas_read_config(struct device_node *dn, int where, int size, u32 *val)
- {
- 	int returnval = -1;
-@@ -62,8 +72,11 @@ static int rtas_read_config(struct devic
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 	if (where & (size - 1))
- 		return PCIBIOS_BAD_REGISTER_NUMBER;
-+	if (!config_access_valid(dn, where))
-+		return PCIBIOS_BAD_REGISTER_NUMBER;
- 
--	addr = (dn->busno << 16) | (dn->devfn << 8) | where;
-+	addr = ((where & 0xf00) << 20) | (dn->busno << 16) |
-+		(dn->devfn << 8) | (where & 0xff);
- 	buid = dn->phb->buid;
- 	if (buid) {
- 		ret = rtas_call(ibm_read_pci_config, 4, 2, &returnval,
-@@ -110,8 +123,11 @@ static int rtas_write_config(struct devi
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 	if (where & (size - 1))
- 		return PCIBIOS_BAD_REGISTER_NUMBER;
-+	if (!config_access_valid(dn, where))
-+		return PCIBIOS_BAD_REGISTER_NUMBER;
- 
--	addr = (dn->busno << 16) | (dn->devfn << 8) | where;
-+	addr = ((where & 0xf00) << 20) | (dn->busno << 16) |
-+		(dn->devfn << 8) | (where & 0xff);
- 	buid = dn->phb->buid;
- 	if (buid) {
- 		ret = rtas_call(ibm_write_pci_config, 5, 1, NULL, addr, buid >> 32, buid & 0xffffffff, size, (ulong) val);
-@@ -270,6 +286,16 @@ static int phb_set_bus_ranges(struct dev
- 	return 0;
- }
- 
-+static char __devinit get_phb_config_space_type(struct pci_controller *phb)
-+{
-+	int *type = (int *)get_property(phb->arch_data,
-+					"ibm,pci-config-space-type", NULL);
-+
-+	if (type && *type == 1)
-+		return 1;
-+	return 0;
-+}
-+
- static int __devinit setup_phb(struct device_node *dev,
- 			       struct pci_controller *phb,
- 			       unsigned int addr_size_words)
-@@ -285,6 +311,7 @@ static int __devinit setup_phb(struct de
- 	phb->arch_data = dev;
- 	phb->ops = &rtas_pci_ops;
- 	phb->buid = get_phb_buid(dev);
-+	phb->pci_ext_config_space = get_phb_config_space_type(phb);
- 
- 	return 0;
- }
-diff -puN include/asm-ppc64/pci-bridge.h~ppc64_pcix_mode2_cfg include/asm-ppc64/pci-bridge.h
---- linux-2.6.11-rc2-bk9/include/asm-ppc64/pci-bridge.h~ppc64_pcix_mode2_cfg	2005-01-31 22:27:49.000000000 -0600
-+++ linux-2.6.11-rc2-bk9-bjking1/include/asm-ppc64/pci-bridge.h	2005-01-31 22:27:49.000000000 -0600
-@@ -17,6 +17,7 @@
- struct pci_controller {
- 	struct pci_bus *bus;
- 	char is_dynamic;
-+	char pci_ext_config_space;
- 	void *arch_data;
- 	struct list_head list_node;
- 
+Looking at the code I see some bias towards keeping the cpu count too 
+high (it decays too slowly) but your results confirm a bigger problem 
+definitely exists. At 100% it should behave the same as SCHED_FIFO 
+without mlock, and it is not in your test. I simply need to look at my 
+code harder.
 
-_
-
---------------060407010206060602020901--
+Cheers,
+Con
 

@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263614AbTEMX6l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 19:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTEMX6l
+	id S263620AbTEMX7F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 19:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbTEMX7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 19:58:41 -0400
-Received: from pacific.moreton.com.au ([203.143.235.130]:60677 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S263614AbTEMX6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 19:58:39 -0400
-Message-ID: <3EC18973.9000200@snapgear.com>
-Date: Wed, 14 May 2003 10:10:27 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chris@wirex.com>
-CC: linux-kernel@vger.kernel.org, hch@infradead.org, gregkh@kroah.com,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] Early init for security modules
-References: <20030512200309.C20068@figure1.int.wirex.com> <20030512201052.P19432@figure1.int.wirex.com>
-In-Reply-To: <20030512201052.P19432@figure1.int.wirex.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 13 May 2003 19:59:05 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24991
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263620AbTEMX7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 19:59:02 -0400
+Subject: Re: ARM26 [NEW ARCHITECTURE]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Ian Molton <spyro@f2s.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0305132134230.13355-100000@vervain.sonytel.be>
+References: <Pine.GSO.4.21.0305132134230.13355-100000@vervain.sonytel.be>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052867597.1205.23.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 May 2003 00:13:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
-
-Chris Wright wrote:
-> This is just the arch specific linker bits for the early initialization
-> for security modules patch.  Does this look sane for this arch?
-
-Yep, looks good to me.
-
-Regards
-Greg
-
-
-
-> --- 1.7/arch/m68knommu/vmlinux.lds.S	Wed Apr  2 00:42:56 2003
-> +++ edited/arch/m68knommu/vmlinux.lds.S	Mon May 12 16:16:58 2003
-> @@ -305,6 +305,9 @@
->  		__con_initcall_start = .;
->  		*(.con_initcall.init)
->  		__con_initcall_end = .;
-> +		__security_initcall_start = .;
-> +		*(.security_initcall.init)
-> +		__security_initcall_end = .;
->  		. = ALIGN(4);
->  		__initramfs_start = .;
->  		*(.init.ramfs)
+On Maw, 2003-05-13 at 20:35, Geert Uytterhoeven wrote:
+> On 13 May 2003, Alan Cox wrote:
+> > I guess its no crazier than the MacII port. What does Russell think
 > 
+> Wait until we're gonna submit the TekExpress port for 2.4.22... ;-)
 
--- 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+And a port of qemu so it can run x86 binaries too ?
 

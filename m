@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132456AbQLJTQK>; Sun, 10 Dec 2000 14:16:10 -0500
+	id <S131841AbQLJTbo>; Sun, 10 Dec 2000 14:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132506AbQLJTPx>; Sun, 10 Dec 2000 14:15:53 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:1540 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S132456AbQLJTPn>;
-	Sun, 10 Dec 2000 14:15:43 -0500
-Date: Sun, 10 Dec 2000 13:45:16 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: Andrew Stubbs <andrews@stusoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Enviromental Monitoring
-Message-ID: <20001210134516.A19755@xi.linuxpower.cx>
-In-Reply-To: <002901c062c9$f183d030$fdfea8c0@localnet>
+	id <S131865AbQLJTbe>; Sun, 10 Dec 2000 14:31:34 -0500
+Received: from gw.brfsodrahamn.se ([195.54.141.30]:26597 "HELO
+	tuttifrutti.cdt.luth.se") by vger.kernel.org with SMTP
+	id <S131841AbQLJTbR> convert rfc822-to-8bit; Sun, 10 Dec 2000 14:31:17 -0500
+X-Mailer: exmh version 2.2 10/15/1999 with nmh-1.0.4
+From: Hakan Lennestal <hakanl@cdt.luth.se>
+Reply-To: Hakan Lennestal <hakanl@cdt.luth.se>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Hakan Lennestal <hakanl@cdt.luth.se>, gsharp@ihug.co.nz,
+        linux-kernel@vger.kernel.org
+Subject: Re: HPT366 + SMP = slight corruption in 2.3.99 - 2.4.0-11 
+In-Reply-To: Your message of "Sun, 10 Dec 2000 09:17:28 PST."
+             <Pine.LNX.4.10.10012100916360.8764-100000@master.linux-ide.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <002901c062c9$f183d030$fdfea8c0@localnet>; from andrews@stusoft.com on Sun, Dec 10, 2000 at 04:55:02PM -0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Sun, 10 Dec 2000 20:01:10 +0100
+Message-Id: <20001210190116.30924418A@tuttifrutti.cdt.luth.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 10, 2000 at 04:55:02PM -0000, Andrew Stubbs wrote:
-> This probably is not the right lpace, but can't think of where else to ask
+In message <Pine.LNX.4.10.10012100916360.8764-100000@master.linux-ide.org>, And
+re Hedrick writes:
+> On Sun, 10 Dec 2000, Hakan Lennestal wrote:
 > 
-> Has anyone implemented a /proc device or user program to interrogate the
-> enviromental attirbutes (temp, voltage etc) that many motherboards provide
-> via their bios's ?
+> > The problem being that the kernel hangs after a dma timeout in the
+> > partition detection phase during bootup for speeds higher than udma 44.
+> > This is an IBM-DTLA-307030 connected to a hpt366 pci card on a BH6
+> > motherboard.
 > 
-> Please point me in the right direction
+> Well try the latest out there...test12-pre7.
 
-<points at freshmeat.net>
-lmsensors
+Hi !
+
+This is with test12-pre7 and HPT-bios 1.27.
+
+Regards.
+
+/Håkan
+
+
+---------------------------------------
+e-mail: Hakan.Lennestal@lu.erisoft.se |
+     or Hakan.Lennestal@cdt.luth.se   |
+---------------------------------------
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266858AbUHJN2C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265119AbUHJNRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266858AbUHJN2C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 09:28:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265663AbUHJN0b
+	id S265119AbUHJNRq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 09:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUHJNQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 09:26:31 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:54938 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266215AbUHJNZq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 09:25:46 -0400
-Date: Tue, 10 Aug 2004 15:26:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: [patch] voluntary-preempt-2.6.8-rc3-O5
-Message-ID: <20040810132654.GA28915@elte.hu>
-References: <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
+	Tue, 10 Aug 2004 09:16:50 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22791 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265091AbUHJNMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 09:12:30 -0400
+Date: Tue, 10 Aug 2004 14:12:20 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: William Lee Irwin III <wli@holomorphy.com>, V13 <v13@priest.com>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040810141220.B20890@flint.arm.linux.org.uk>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	William Lee Irwin III <wli@holomorphy.com>, V13 <v13@priest.com>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+References: <200408091217.50786.jbarnes@engr.sgi.com> <20040810100234.GN11200@holomorphy.com> <20040810115307.GR11200@holomorphy.com> <200408101552.22501.v13@priest.com> <20040810125140.GU11200@holomorphy.com> <20040810125529.GA22650@elte.hu> <20040810125651.GV11200@holomorphy.com> <20040810130122.GA26326@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040809104649.GA13299@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040810130122.GA26326@elte.hu>; from mingo@elte.hu on Tue, Aug 10, 2004 at 03:01:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 10, 2004 at 03:01:22PM +0200, Ingo Molnar wrote:
+> 
+> * William Lee Irwin III <wli@holomorphy.com> wrote:
+> 
+> > On Tue, Aug 10, 2004 at 02:55:29PM +0200, Ingo Molnar wrote:
+> > > i'd guess it's the con->write() in __call_console_drivers() that makes
+> > > the difference. (i.e. touching the framebuffer)
+> > 
+> > This is serial port IO; would that make the same kind of difference?
+> 
+> serial port IO is even more heavy, it also generates IRQ traffic.
 
-i've uploaded the latest version of the voluntary-preempt patch:
-    
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc3-O5
+Except serial console IO does not generate _any_ IRQ traffic - it
+purposely disables IRQs on the device before starting any IO to
+prevent any user-level IO interfering with the console output.
 
--O5 fixes the APIC lockup issues. The bug was primarily caused by PCI
-POST delays causing IRQ storms of level-triggered IRQ sources that were
-hardirq-redirected. Also found some bugs in delayed-IRQ masking and
-unmasking. SMP should thus work again too.
+It does, however, create a fair amount of IO reads and writes to
+the serial port.
 
-	Ingo
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

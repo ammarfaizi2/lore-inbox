@@ -1,76 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286590AbSBDT1C>; Mon, 4 Feb 2002 14:27:02 -0500
+	id <S287421AbSBDThW>; Mon, 4 Feb 2002 14:37:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSBDT0x>; Mon, 4 Feb 2002 14:26:53 -0500
-Received: from 205-158-62-44.outblaze.com ([205.158.62.44]:52446 "EHLO
-	mta1-3.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id <S286590AbSBDT0o>; Mon, 4 Feb 2002 14:26:44 -0500
-Message-ID: <20020204192638.59181.qmail@mail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Thomas Hood" <jdthood@mail.com>
+	id <S287386AbSBDThM>; Mon, 4 Feb 2002 14:37:12 -0500
+Received: from mailhub.dartmouth.edu ([129.170.16.6]:51205 "EHLO
+	mailhub.Dartmouth.EDU") by vger.kernel.org with ESMTP
+	id <S287421AbSBDTg6>; Mon, 4 Feb 2002 14:36:58 -0500
+X-Disclaimer: This message was received from outside Dartmouth's BlitzMail system.
+Date: Mon, 04 Feb 2002 14:36:47 -0500
+From: "Joseph L. Hill" <joseph.l.hill@Dartmouth.EDU>
+Reply-To: "Joseph L. Hill" <joseph.l.hill@Dartmouth.EDU>
 To: linux-kernel@vger.kernel.org
-Date: Mon, 04 Feb 2002 14:26:37 -0500
-Subject: Re: modular floppy broken in 2.5.3
-X-Originating-Ip: 128.220.212.195
-X-Originating-Server: ws1-10.us4.outblaze.com
+Subject: NETDEV WATCHDOG timeout
+Message-ID: <159400000.1012851407@localhost>
+X-Mailer: Mulberry/2.1.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gunther Mayer wrote:
-> PNPNIOS is right to reserve PNP0C01 as
-> "used". Else there will be hangs when
-> drivers poke in io space (e.g. laptops
-> tend to have special hardware which
-> doesn't like to be touched).
-> [...]
-> The BIOS probably wants to tell you there
-> is a superio chip at 0x3f0
+Greetings,
 
-The floppy controller commonly uses io ports
-0x3f2-0x3f5 and 0x3f7.  0x3f0-0x3f1 were used
-by the floppy controller on the PC AT (only).
-The latter two ports are now frequently used
-for superio chips or other motherboard
-devices, as the BIOS will report.  PnPBIOS
-is acting properly in reserving the ports.
+I have  2.4.7-10smp (RedHat 7.2 install) running on a dell on a dell 2550, 
+the systems runs a mysql/apache applicaton (blackboard). Several times a 
+day, as the load increases I get the following error:
 
-Since the floppy driver does not use ioports
-0x3f0-0x3f1 it should not reserve them.
+NETDEV WATCHDOG: eth0: transmit timed out
+eth0: Tx hung
 
-The issue was previously discussed in this
-thread:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100516032204531&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100495936122982&w=2
-and the conclusion, I believe, was that the
-floppy driver should be patched so as not to
-reserve 0x3f0 and 0x3f1.  Someone even 
-submitted a patch.
-
-> PNPBIOS should not reserve 3f0/3f1
-> as a _workaround_ for this BIOS bug.
-
-The correct solution is to modify the floppy
-driver.
-
-Until that happens, use the "pnpbios=no-res"
-option, which prevents pnpbios from reserving
-any ioports.
-
---
-Thomas Hood
-
--- 
-
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
-Win a ski trip!
-http://www.nowcode.com/register.asp?affiliate=1net2phone3a
+The system pauses for 3-5 seconds during this error and then continues 
+happily.
 
 
+dmesg info:
+
+Jan 20 17:14:40 dewey kernel: eth0: Broadcom BCM5700 found at mem feb00000, 
+IRQ 17, node addr 00065b3a09fc
+Jan 20 17:14:40 dewey kernel: eth0: Broadcom BCM5401 Copper transceiver 
+found
+Jan 20 17:14:40 dewey kernel: eth0: Scatter-gather ON, 64-bit DMA ON, Tx 
+Checksum ON, Rx Checksum ON
+Jan 20 17:14:40 dewey kernel: bcm5700: eth0 NIC Link is UP, 100 Mbps full 
+duplex
+Jan 20 17:14:39 dewey network: Bringing up interface eth0:  succeeded
+Jan 21 09:04:36 dewey kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jan 21 09:04:36 dewey kernel: eth0: Tx hung
+
+Is this a hardware error? Should I upgrade to the 2.4.9.13 kernel? Any 
+advice appreciated!
+Please cc joseph.l.hill@dartmouth.edu in reply.
+
+Thanks you,
+
+-joe
+
+
+---------------------------
+joseph.l.hill@dartmouth.edu
+(603) 646-0387
+---------------------------

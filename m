@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315458AbSELXud>; Sun, 12 May 2002 19:50:33 -0400
+	id <S315457AbSEMAGo>; Sun, 12 May 2002 20:06:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315459AbSELXuc>; Sun, 12 May 2002 19:50:32 -0400
-Received: from news.heim1.tu-clausthal.de ([139.174.234.200]:5758 "EHLO
-	neuemuenze.heim1.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id <S315457AbSELXua>; Sun, 12 May 2002 19:50:30 -0400
-Date: Mon, 13 May 2002 01:50:39 +0200
-From: Sven.Riedel@tu-clausthal.de
-To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Cc: Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020512235039.GA11872@moog.heim1.tu-clausthal.de>
-Reply-To: Sven.Riedel@tu-clausthal.de
-In-Reply-To: <20020512010709.7a973fac.spyro@armlinux.org> <abmi0f$ugh$1@penguin.transmeta.com> <873cwx2hi4.fsf@CERT.Uni-Stuttgart.DE> <20020512225151.2d0e12df.spyro@armlinux.org> <87elgh11j7.fsf@CERT.Uni-Stuttgart.DE>
+	id <S315461AbSEMAGn>; Sun, 12 May 2002 20:06:43 -0400
+Received: from jalon.able.es ([212.97.163.2]:10219 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315457AbSEMAGm>;
+	Sun, 12 May 2002 20:06:42 -0400
+Date: Mon, 13 May 2002 02:06:31 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: rwhron@earthlink.net
+Subject: [PATCHSET] Linux 2.4.19-pre8-jam2
+Message-ID: <20020513000631.GA1980@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 12, 2002 at 11:47:40PM +0200, Florian Weimer wrote:
-> > pull out the whitespace and put a bullet point in front of each entry.
-> And that adds more sense? ;-)
+Hi all...
 
-It makes it more legible.
+New release of this patch set:
 
-> Do you guys really think that "small fixes" is enough?  Don't you want
-> to know what is actually fixed?
-Well, yes and no. 
-A short, pertinent _overview_ of the changelog in front of a more
-detailed changelog is a nice thing to have. I love Alan Cox' changelog
-style, I don't even bother with the 2.4.x-format anymore. It takes ages
-due to ugly formating and it's way too detailed. (I asked the people at
-our LUG meeting once, they all agreed with my above assessment).
+- O(1)-sched rml updates
+- IDE convert.10
+- Re-introduction of wake_up_sync to make pipes run fast again. No idea
+  about this is useful or not, that is the point, to test it (Randy ?)
 
-Regs,
-Sven
+Get it at:
+
+
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre8-jam2.tar.gz
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre8-jam2/
+
+
+Happy benchmarks !!!
+
+By.
+
 -- 
-Sven Riedel                      sr@gimp.org
-Osteroeder Str. 6 / App. 13      sven.riedel@tu-clausthal.de
-38678 Clausthal                  "Python is merely Perl for those who
-                                  prefer Pascal to C" (anon)
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre8-jam2 #3 SMP lun may 13 00:49:15 CEST 2002 i686

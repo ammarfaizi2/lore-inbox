@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270894AbTGPK0i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 06:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270895AbTGPK0i
+	id S270887AbTGPKZD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 06:25:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270878AbTGPKZD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 06:26:38 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:4253 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S270894AbTGPKZt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 06:25:49 -0400
-Date: Wed, 16 Jul 2003 12:40:26 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: root@mauve.demon.co.uk
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Suspend on one machine, resume elsewhere [was Re: [Swsusp-devel] RE:Re: Thoughts wanted on merging Softwa]
-Message-ID: <20030716104026.GC138@elf.ucw.cz>
-References: <20030716083758.GA246@elf.ucw.cz> <200307161037.LAA01628@mauve.demon.co.uk>
+	Wed, 16 Jul 2003 06:25:03 -0400
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:63111 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S270887AbTGPKYA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 06:24:00 -0400
+Date: Wed, 16 Jul 2003 06:38:51 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: 2 2.6.0-test1 issues
+Message-ID: <20030716103851.GH2412@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="E69HUUNAyIJqGpVn"
 Content-Disposition: inline
-In-Reply-To: <200307161037.LAA01628@mauve.demon.co.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > Anyway, depending on acpi is wrong and needs to be fixed in 2.7.
-> > > 
-> > > Could you elaborate on that? Do you mean S4, or any suspend state in
-> > > general?
-> > 
-> > It would be nice to have arch-neutral way to enter suspend to ram and
-> > suspend to disk. Being arch-neutral, it may not depend on ACPI.
-> 
-> Taking this in a slightly different direction.
-> 
-> It would be even nicer to be able to be able to migrate machine images
-> between machines.
-> How identical do machines have to be before it's no longer just a case
-> of copying the file?
-> Identical make of RAM, same CPU model, same BIOS version, with the PCI and 
-> USB things connected to the same slots in the same way?
-> Or is it a little looser?
+--E69HUUNAyIJqGpVn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Well, for USB maybe hotplug would handle the change, all the other
-stuff should better be the same.
 
-It probably will work even with (for example) slightly different BIOS
-version, but... don't count on that.
 
-If you want to migrate programs between machines, run UMLinux, same
-config, on both machines. Ouch and you'll need swsusp for UMLinux, too
-;-).
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Didn't see anything relevant in the Changes file or a grep through
+Documentation dir.
+
+I can SSH out of my 2.6.0-test1 box (IPv4 and IPv6).  When I try to ssh
+in though I get a prompt for a passphrase like normal but once I enter
+it nothing happens it just hangs there.
+
+On bootup I get multiple FATAL messages about tty and ttyS.  They're
+scattered throughout the startup process and don't seem tied to any
+particular init scripts.
+
+Robert
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--E69HUUNAyIJqGpVn
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/FSs78+1vMONE2jsRAnXBAKCvjMd5PF3frqFY4JT/Vg68D6EmPACdFi90
+vaHohYCB2LXQ1dVhlIMaRdc=
+=qW2Y
+-----END PGP SIGNATURE-----
+
+--E69HUUNAyIJqGpVn--

@@ -1,31 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277812AbRJWPxf>; Tue, 23 Oct 2001 11:53:35 -0400
+	id <S277827AbRJWPzf>; Tue, 23 Oct 2001 11:55:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277820AbRJWPxP>; Tue, 23 Oct 2001 11:53:15 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:18440 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S277812AbRJWPxO>;
-	Tue, 23 Oct 2001 11:53:14 -0400
-Date: Tue, 23 Oct 2001 18:53:46 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-Cc: Alex Buell <alex.buell@tahallah.demon.co.uk>
+	id <S277825AbRJWPzZ>; Tue, 23 Oct 2001 11:55:25 -0400
+Received: from beppo.feral.com ([192.67.166.79]:43281 "EHLO beppo.feral.com")
+	by vger.kernel.org with ESMTP id <S277828AbRJWPzN>;
+	Tue, 23 Oct 2001 11:55:13 -0400
+Date: Tue, 23 Oct 2001 08:55:45 -0700 (PDT)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: <mjacob@feral.com>
+To: Dale Amon <amon@vnl.com>
+cc: <linux-kernel@vger.kernel.org>, <alex.buell@tahallah.demon.co.uk>
 Subject: Re: ALERT!!!! Attempt to outlaw open source Operating systems
-Message-ID: <20011023185346.J24643@mea-ext.zmailer.org>
-In-Reply-To: <20011023154241.I17078@vnl.com> <Pine.LNX.4.33.0110231615550.1054-100000@tahallah.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110231615550.1054-100000@tahallah.demon.co.uk>; from alex.buell@tahallah.demon.co.uk on Tue, Oct 23, 2001 at 04:16:09PM +0100
+In-Reply-To: <20011023164924.K17078@vnl.com>
+Message-ID: <20011023085528.X8388-100000@wonky.feral.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 23, 2001 at 04:16:09PM +0100, Alex Buell wrote:
-> On Tue, 23 Oct 2001, Dale Amon wrote:
-> > http://www.newsforge.com/article.pl?sid=01/10/19/154624
-> Nothing there. Try again.
 
-   It is not complete URL.  Corrected:
-    http://www.newsforge.com/article.pl?sid=01/10/19/1546246
+how about a bill # so we can actually go to http://thomas.loc.gov and read it?
 
-/Matti Aarnio
+
+

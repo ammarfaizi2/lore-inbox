@@ -1,71 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312584AbSDAUdG>; Mon, 1 Apr 2002 15:33:06 -0500
+	id <S310637AbSDAUuB>; Mon, 1 Apr 2002 15:50:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312586AbSDAUc5>; Mon, 1 Apr 2002 15:32:57 -0500
-Received: from [216.250.138.66] ([216.250.138.66]:20947 "HELO guts.pl.net")
-	by vger.kernel.org with SMTP id <S312584AbSDAUcr>;
-	Mon, 1 Apr 2002 15:32:47 -0500
-Message-ID: <3CA8C6A5.6090709@traxess.com>
-Date: Mon, 01 Apr 2002 13:44:21 -0700
-From: "Jeff V. Merkey" <jmerkey@traxess.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.18 i686; en-US; 0.7) Gecko/20010316
-X-Accept-Language: en
+	id <S311615AbSDAUtw>; Mon, 1 Apr 2002 15:49:52 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:40453 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S310637AbSDAUte>;
+	Mon, 1 Apr 2002 15:49:34 -0500
+Date: Mon, 1 Apr 2002 12:47:29 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][RFC] Linux/i386 boot protocol version 2.04
+In-Reply-To: <m1d6xmuipv.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33L2.0204011236060.13412-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@traxess.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux needs new leadership.
-In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com> <3CA8AF1E.1040200@traxess.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 30 Mar 2002, Eric W. Biederman wrote:
 
+| I have been doing some very weird things with booting the Linux kernel
+| for a long time.
 
-I am told this was an april fools email.  Oh well.
+so you are saying that we want these 'weird' things in the
+baseline kernel?  ;)
 
-:-)
+Will you please provide a one-sentence explanation for each of
+these items?  (not "what," but "why" it's good to have it)
 
-Jeff
+|   - Entering the kernel in 32bit mode to avoid 16bit BIOS calls.
+|   - Converting bzImage into static ELF executables.
+|   - Hard coding a kernel command-line
+|   - Going back to 16bit mode to make BIOS calls if necessary.
+|
+| This version of the boot protocol should be fully backwards compatible
+| but has new capabilities so I can do all of the above cleanly.
+|
+| The current plan is to send this to Linus in the next couple of days
+| as soon as he gets back.
+|
+...
+|
+| Anyway please tell me what you think.
+|
+| Eric
+|
+|
+| This is a log of a series of patches that cleans up and enhances the
+| x86 boot process.
 
-Jeff V. Merkey wrote:
+[snippage]
 
-> Linus Torvalds wrote:
-> 
-> 
-> Dearest Linus,
-> 
-> Coming from one who was at the top of the food chain at Novell, and 
-> abandoned it, I will tell you that a day will come when you wish you 
-> hadn't taken this step.  If you leave it, and try to come back, it 
-> will never be the same.  After all, it's the journey that is it's own 
-> reward, not the end game.  You are a winner, BTW, whatever path you 
-> choose to take. 
-> If you are hell-bent on this path, I nominate Alan Cox.  He's not 
-> perfect, but he's smart, tough, and has an excellent leadership skills 
-> and vision..
-> U-na-le-nv-hi  U-da-do-li-s-di     (May the creator bless your steps 
-> and watch over you)
-> 
-> Do-na-da Go-hv-i (See you around, brother)
-> 
-> Wa-do (Thanks)
-> 
-> Wa-ya Ge-tlv-hv-s-di  (Jeff V. Merkey)
-> 
-> Jeff
-> 
-> 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+| 2.5.7.boot.proto 7
+| ============================================================
+| Update the boot protocol to include:
+|    - A compiled in command line
 
+when and how is the command line specified?  at build time?
 
+maybe in a kernel.command.line file so that I don't have to type
+it in every time?
+
+|
+| 2.5.7.boot.boot_params 1
+| ============================================================
+| - Introduce asm-i386/boot_param.h and struct boot_params
+| - Implement struct boot_params in misc.c & setup.c
+
+Yep, I like that one.
+
+| This removes a lot of magic macros and by keeping all of the
+| boot parameters in a structure it becomes much easier to track
+| which boot_paramters we have and where they live.  Additionally
+| this keeps the names more uniform making grepping easier.
+
+I'll try to look over the patch files too.
+
+-- 
+~Randy
 

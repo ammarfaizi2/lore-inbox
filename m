@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265263AbTLLPnz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 10:43:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbTLLPnz
+	id S265266AbTLLPzP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 10:55:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbTLLPzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 10:43:55 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:38611 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265263AbTLLPnx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 10:43:53 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Daniel Tram Lux <daniel@starbattle.com>
-Subject: Re: [patch] ide.c as a module
-Date: Fri, 12 Dec 2003 16:46:04 +0100
-User-Agent: KMail/1.5.4
-References: <20031211202536.GA10529@starbattle.com> <200312121430.36735.bzolnier@elka.pw.edu.pl> <20031212144246.GA15357@starbattle.com>
-In-Reply-To: <20031212144246.GA15357@starbattle.com>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 12 Dec 2003 10:55:14 -0500
+Received: from multiserv.relex.ru ([213.24.247.63]:25227 "EHLO
+	mail.techsupp.relex.ru") by vger.kernel.org with ESMTP
+	id S265266AbTLLPzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 10:55:10 -0500
+From: Yaroslav Rastrigin <yarick@relex.ru>
+Organization: RELEX Inc.
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.0-test11: 3Com PCI 3c556B not working
+Date: Fri, 12 Dec 2003 18:53:31 +0300
+User-Agent: KMail/1.5.94
+References: <200312121308.51306.andrew@walrond.org>
+In-Reply-To: <200312121308.51306.andrew@walrond.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200312121646.04047.bzolnier@elka.pw.edu.pl>
+Message-Id: <200312121853.32975.yarick@relex.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 of December 2003 15:42, Daniel Tram Lux wrote:
-> Hi,
+Hi !
+On Friday 12 December 2003 16:08, Andrew Walrond wrote:
+> Another problem with 2.6 on my thinkpad. Worked fine with 2.4
 >
-> I tried with using only your suggested changes and removing the ide_probe
-                            ^^^^
-Your patch + changes or only changes?
-
-> ptr, but due to (in include/asm-i386/ide.h) where CONFIG_BLK_DEV_IDEPCI is
-> indeed undefined:
+> Dmesg gives
 >
-> static __inline__ void ide_init_default_hwifs(void)
-> {
-> #ifndef CONFIG_BLK_DEV_IDEPCI
-> 	hw_regs_t hw;
-> 	int index;
+> 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+> 0000:00:03.0: 3Com PCI 3c556B Laptop Hurricane at 0x1400. Vers LK1.1.19
+> PCI: Setting latency timer of device 0000:00:03.0 to 64
+>   ***WARNING*** No MII transceivers found!
 >
-> 	for(index = 0; index < MAX_HWIFS; index++) {
-> 		memset(&hw, 0, sizeof hw);
-> 		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
-> 		hw.irq = ide_default_irq(ide_default_io_base(index));
-> 		ide_register_hw(&hw, NULL);
-> 	}
-> #endif /* CONFIG_BLK_DEV_IDEPCI */
-> }
+> I've got ACPI enabled; Might this be ACPI/interrupt  related?
+bugzilla bug number 1188. 
+It's ACPI-related, without ACPI this card works fine.
+Btw, similar symptoms are described regularly on this list, with 
+Vortex/Boomerang card. Nobody was/is able to help (yet) ?
 >
-> I get the following probing messages (I enabled a debug message which is
-> why there are so many messages):
+> Andrew Walrond
+>
+> -
 
-"initializing = 1" must be moved from ide_init() to ide_init_data()
-(just before ide_init_default_hwifs() call).
-
---bart
-
+-- 
+With all the best, yarick at relex dot ru.

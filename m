@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317034AbSH0T4i>; Tue, 27 Aug 2002 15:56:38 -0400
+	id <S316309AbSH0UWV>; Tue, 27 Aug 2002 16:22:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317066AbSH0T4i>; Tue, 27 Aug 2002 15:56:38 -0400
-Received: from pD9E23A01.dip.t-dialin.net ([217.226.58.1]:23995 "EHLO
+	id <S316538AbSH0UWV>; Tue, 27 Aug 2002 16:22:21 -0400
+Received: from pD9E23A01.dip.t-dialin.net ([217.226.58.1]:42939 "EHLO
 	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317034AbSH0T4h>; Tue, 27 Aug 2002 15:56:37 -0400
-Date: Tue, 27 Aug 2002 14:00:50 -0600 (MDT)
+	id <S316309AbSH0UWU>; Tue, 27 Aug 2002 16:22:20 -0400
+Date: Tue, 27 Aug 2002 14:25:08 -0600 (MDT)
 From: Thunder from the hill <thunder@lightweight.ods.org>
 X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Felix Seeger <felix.seeger@gmx.de>
-cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: USB mouse problem, kernel panic on startup in 2.4.19
-In-Reply-To: <200208272130.14728.felix.seeger@gmx.de>
-Message-ID: <Pine.LNX.4.44.0208271400290.3234-100000@hawkeye.luckynet.adm>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Zheng Jian-Ming <zjm@cis.nctu.edu.tw>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: problems with changing UID/GID
+In-Reply-To: <20020827200025.GA8985@tapu.f00f.org>
+Message-ID: <Pine.LNX.4.44.0208271420190.3234-100000@hawkeye.luckynet.adm>
 X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
@@ -22,10 +23,40 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Tue, 27 Aug 2002, Felix Seeger wrote:
-> Oh, the shift and the numlock leds are blinking.
+On Tue, 27 Aug 2002, Chris Wedgwood wrote:
+>     And how do you protect a caller from having to wait for the lock?
+> 
+> You don't.  If they have to wait, then they wait.
 
-That means we're on a kernel panic, nothing more.
+That leads to the case that we can only run one process of a credential 
+sharing group at once. I don't think we need to make it look so bad. 
+Particularly bad when we have one default credential per user, which would 
+be the logical step. Solution? Don't share credentials...
+
+Look, that's what you're proposing.
+
+>     You'd need a lock count here, where you can only change the
+>     credentials when the count is zero. But when will that ever be?
+> 
+> It depends... for most non-threaded applications, immediately... for
+> threaded applications with lots of (day) disk IO, it could be
+> indefinite.
+
+Not exactly.
+
+Process 1 kicks a syscall() -> 1
+Process 2 kicks a syscall() -> 2
+Process 3 kicks a syscall() -> 3
+Process 2 ends syscall() -> 2
+Process 4 kicks a syscall() -> 3
+Process 1 ends syscall() -> 2
+Process 2 kicks syscall() -> 3
+Process 5 kicks syscall() -> 4
+...
+
+> Almost immeasurable.  [sg]et[eu]id doesn't get called that often.
+
+Syscalls do.
 
 			Thunder
 -- 

@@ -1,65 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264198AbTKUE14 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 23:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbTKUE14
+	id S262844AbTKUEYR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 23:24:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264198AbTKUEYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 23:27:56 -0500
-Received: from [218.18.133.84] ([218.18.133.84]:33098 "ehlo sina.com")
-	by vger.kernel.org with ESMTP id S264198AbTKUE1y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 23:27:54 -0500
-From: "sales of HY" <hongkonghy@sina.com>
-Subject: New price list for mp3 player, digital camera, cd/vcd/mp3 player and
- USB flash drive!
+	Thu, 20 Nov 2003 23:24:17 -0500
+Received: from mx2.undergrid.net ([64.174.245.170]:59010 "EHLO
+	mail.undergrid.net") by vger.kernel.org with ESMTP id S262844AbTKUEYQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 23:24:16 -0500
+From: "Jeremy T. Bouse" <Jeremy.Bouse@UnderGrid.net>
+Date: Thu, 20 Nov 2003 20:11:13 -0800
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: hongkonghy@sina.com
-Date: Fri, 21 Nov 2003 12:27:58 +0800
-X-Priority: 2
-X-Mailer: FoxMail 3.11 Release [cn]
-Message-Id: <S264198AbTKUE1y/20031121042754Z+8771@vger.kernel.org>
+Cc: Buck Rekow <rekow@bigskytel.com>, breed@users.sourceforge.net,
+       achirica@users.sourceforge.net
+Subject: Re: PROBLEM: Aironet compile failure 2.6-test9/Alpha architecture
+Message-ID: <20031121041113.GB15436@UnderGrid.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Buck Rekow <rekow@bigskytel.com>, breed@users.sourceforge.net,
+	achirica@users.sourceforge.net
+References: <3FBD67E7.5020405@bigskytel.com> <20031121032216.GA12185@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031121032216.GA12185@twiddle.net>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-GPG-Debian: 1024D/29AB4CDD  C745 FA35 27B4 32A6 91B3 3935 D573 D5B1 29AB 4CDD
+X-GPG-General: 1024D/62DBDF62  E636 AB22 DC87 CD52 A3A4 D809 544C 4868 62DB DF62
+User-Agent: Mutt/1.5.4i
+X-UnderGrid-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear valued customer,
+On Thu, Nov 20, 2003 at 07:22:16PM -0800, Richard Henderson wrote:
+> On Thu, Nov 20, 2003 at 06:18:31PM -0700, Buck Rekow wrote:
+> > drivers/net/wireless/airo.c: In function `emmh32_setseed':
+> > drivers/net/wireless/airo.c:1458: internal error--unrecognizable insn:
+> > (insn:TI 512 478 513 (set (reg:DI 1 $1)
+> >        (plus:DI (reg:DI 30 $30)
+> >            (const_int 4398046511104 [0x40000000000]))) -1 (insn_list 51 
+> > (insn_list:REG_DEP_ANTI 494 (nil)))
+> >    (nil))
+> 
+> This is always a compiler bug.
+> 
+> > Gnu C                  2.95.4
+> 
+> File a bug with Debian if you want, but the GCC folk proper
+> aren't even going to look at something this old.
+> 
+	Being a Debian Developer this must be being built on Woody 3.0 which
+is the current stable release. Sarge the current testing and Sid the
+unstable distros both have 3.2 or 3.3 default...
 
-Sorry to disturb you about this letter.
+	Regards,
+	Jeremy
 
-We are a professional manufacturer of mp3 player, cd/vcd/mp3 player, digital camera and USB 
-flash drive in Shenzhen, China.
-
-Please see the price of some products:
-
-mp3 and WMA player with digital recorder and USB flash drive
-64M 39USD    128M   52USD   256M  81USD
-
-cd/vcd/mp3 player (3 function in 1)
-22 USD
-
-digital camera
-350K pixels  15USD     
-1.3M pixels  17USD
-2.1M pixels  36USD
-
-PC camera
-12USD 350K pixel
-
-USB flash drive
-64M  17.9USD       128M  29.9USD      256M  54.9USD     
-
-If you have interest, please contact us and we will give you the detailed catalogue and price 
-list. 
-
-We always try our best to attract our clients with unbeatable prices and quality. Our goal is 
-to treat every client the same as the most potential business partner.So however the client is 
-big or small,we offer the best service. 
-
-Any question, please contact me at any time.
- 
-Have a nice day!
-
-Best Regards,
-
-Frank Ho
-HY Technology (Hong Kong) Company Ltd.
+> 
+> r~
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

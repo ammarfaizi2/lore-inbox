@@ -1,32 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUHHTZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUHHTlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266193AbUHHTZk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 15:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266200AbUHHTZk
+	id S266200AbUHHTlY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 15:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266201AbUHHTlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 15:25:40 -0400
-Received: from gprs214-77.eurotel.cz ([160.218.214.77]:896 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266193AbUHHTZh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 15:25:37 -0400
-Date: Sun, 8 Aug 2004 21:19:12 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.6.8-rc2-mm1: bluetooth broken?
-Message-ID: <20040808191912.GA620@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 8 Aug 2004 15:41:23 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:62152 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S266200AbUHHTlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 15:41:22 -0400
+Date: Sun, 08 Aug 2004 13:32:10 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: ide-cs using 100% CPU
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <000f01c47d7e$669727f0$6401a8c0@northbrook>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7bit
+X-Priority: 3
+X-MSMail-priority: Normal
+References: <fa.hhjr2f2.1ql2t80@ifi.uio.no> <fa.ggacpdl.26on0d@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+----- Original Message ----- 
+From: "Hamie" <hamish@travellingkiwi.com>
 
-I'm using USB bluetooth dongle for connecting with my cell phone... It
-works in 2.6.7, but not in -rc2-mm1. Is that known?
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+> Robert Hancock wrote:
+>
+> >It isn't that the CPU is doing so much work, it's mostly waiting. However
+> >
+> >
+>
+> That was my point... While waiting, shouldn't the CPU be off doing
+> something else? Like giving X some attention...
+>
+> >with this type of PIO access, the CPU must do all the reads/writes from
+the
+> >buffer and while doing this the CPU is blocked and cannot do anything
+else.
+> >
+> >
+> >
+>
+> Or is the CF requirements such that it's spending it's time doing the
+> actual reads & writes from the buffer, and it's the hardware inserting
+> wait-states when it's being accessed?
+>
+
+That's basically what's happening, when the CPU does a write or a read of
+some data from the buffer, it has to wait for that to go all the way across
+the bus and to/from the card, meanwhile no other useful work can be done
+while it is waiting. As Alan Cox mentioned, having a hyperthreaded CPU helps
+tremendously in such cases, since the other "half" of the CPU can be doing
+useful work while the first half is blocked.
+

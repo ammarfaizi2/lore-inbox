@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270867AbUJUTRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270874AbUJUTVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270867AbUJUTRF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 15:17:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270866AbUJUTRD
+	id S270874AbUJUTVq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 15:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270875AbUJUTVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 15:17:03 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:23695 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S270864AbUJUTN5 (ORCPT
+	Thu, 21 Oct 2004 15:21:46 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:44940 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S270874AbUJUTVC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 15:13:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=AS2uBCxj8k73pezPzjp7zg2gys+6QKTiSTYkqRqsF/JRmqywmcsXN5XIEtgGGNdLDqTPJxNcNkDUcSbfqTTzwEGfP4JVn03jqcQM1mN8zNU8yd9ftm1k2TzPI4RVZ7/D9cW2o8p0CcBxtMQiQvwe7/zB8iq7P16Ffp2DVO+VaAc=
-Message-ID: <58cb370e041021121317083a3a@mail.gmail.com>
-Date: Thu, 21 Oct 2004 21:13:57 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Mark Lord <lkml@rtr.ca>
-Subject: Re: [PATCH 2.4.28-pre4-bk6] delkin_cb: new driver for Cardbus IDE CF adaptor
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-In-Reply-To: <41780393.3000606@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41780393.3000606@rtr.ca>
+	Thu, 21 Oct 2004 15:21:02 -0400
+Date: Thu, 21 Oct 2004 21:20:50 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Mildred Frisco <mildred.frisco@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: making a linux kernel with no root filesystem
+In-Reply-To: <200410211453.22507.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.GSO.4.61.0410212120280.10671@waterleaf.sonytel.be>
+References: <e7b30b2404102102466dc71118@mail.gmail.com>
+ <200410211453.22507.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-please also cc: linux-ide@vger.kernel.org
+On Thu, 21 Oct 2004, Denis Vlasenko wrote:
+> You want a "prompt where I can either shutdown or reboot the system".
+> How to do that? It is best done from small userspace environment,
+> like initrd or initramfs. Putting this into kernel is ugly.
 
-> An equivalent patch for 2.6.xx is being worked on.
+Magic Sysrequest?
 
-generally it should be like that: 2.6.x first, 2.4.x later
+Gr{oetje,eeting}s,
 
-> + *  This is slightly peculiar, in that it is a PCI driver,
-> + *  but is NOT an IDE PCI driver -- the IDE layer does not directly
-> + *  support hot insertion/removal of PCI interfaces, so this driver
-> + *  is unable to use the IDE PCI interfaces.  Instead, it uses the
-> + *  same interfaces as the ide-cs (PCMCIA) driver uses.
-> + *  On the plus side, the driver is also smaller/simpler this way.
+						Geert
 
-IDE layer doesn't support hot insertion/removal of _any_ interfaces
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-ide_unregister() calls are not allowed unless somebody fixes locking
-(Alan fixed many issues but some more work is still needed)
-
-Bartlomiej
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262724AbTCPSn4>; Sun, 16 Mar 2003 13:43:56 -0500
+	id <S262725AbTCPSoI>; Sun, 16 Mar 2003 13:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262725AbTCPSn4>; Sun, 16 Mar 2003 13:43:56 -0500
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:23199
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S262724AbTCPSnz>; Sun, 16 Mar 2003 13:43:55 -0500
-Date: Sun, 16 Mar 2003 13:54:33 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Andrea Arcangeli <andrea@suse.de>, Ben Collins <bcollins@debian.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-In-Reply-To: <Pine.LNX.4.44.0303161813490.12110-100000@serv>
-Message-ID: <Pine.LNX.4.44.0303161341520.5348-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262726AbTCPSoI>; Sun, 16 Mar 2003 13:44:08 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:26631 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S262725AbTCPSoH>; Sun, 16 Mar 2003 13:44:07 -0500
+Subject: Re: Complete support PC-9800 for 2.5.64-ac4 (11/11) SCSI
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Osamu Tomita <tomita@cinet.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <Pine.GSO.4.21.0303161934340.17014-100000@vervain.sonytel.be>
+References: <Pine.GSO.4.21.0303161934340.17014-100000@vervain.sonytel.be>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 16 Mar 2003 12:54:43 -0600
+Message-Id: <1047840886.4371.34.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Mar 2003, Roman Zippel wrote:
+On Sun, 2003-03-16 at 12:36, Geert Uytterhoeven wrote:
+> Actually, it was my suggestion to remove the dereference for PIO accesses. In
+> that case SASR contains the I/O port register.
 
-> Hi,
-> 
-> On Sun, 16 Mar 2003, Andrea Arcangeli wrote:
-> 
-> > true but the missing bits are nearly worthless, I wouldn't be ok with
-> > CVS if this wasn't the case. I mean, in the very worst case, we're not
-> > totally screwed, we probably won't even notice the difference.
-> 
-> The missing bits are absolutely not worthless. They are very useful when 
-> you want to test other SCM system to simulate distributed development.
+There's still something wrong with the implementation in this patch. 
+For non PIO SASR is defined as volatile unsigned char *SASR.  Its access
+has gone from being outb(n, *regs.SASR) to outb(n, regs.SASR).  What
+expansion can outb have on m68k and MIPS that makes this change
+idempotent?
 
-This is completely ridiculous.  Isn't this a bit too demanding?  What will
-be next?
+James
 
-Be realistic.  The missing bits are worthless and add absolutely no value to 
-kernel development which is supposed to be the topic for this mailing list.  
-
-It's not the missing bits that will prevent you from making a better
-alternative to BK or whatever either.  If it really does you should consider
-spending your time on another project.  But since I truly believe you are
-more clever than that I suspect you're just trying to stretch the issue out
-of reasonable bounds because of your political beliefs.
-
-
-Nicolas
 

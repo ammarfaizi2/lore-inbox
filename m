@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136952AbRA1NCH>; Sun, 28 Jan 2001 08:02:07 -0500
+	id <S137041AbRA1NPd>; Sun, 28 Jan 2001 08:15:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137055AbRA1NB5>; Sun, 28 Jan 2001 08:01:57 -0500
-Received: from mailgate1.zdv.Uni-Mainz.DE ([134.93.8.56]:58497 "EHLO
-	mailgate1.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S136952AbRA1NBp>; Sun, 28 Jan 2001 08:01:45 -0500
-Date: Sun, 28 Jan 2001 13:57:53 +0100
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: Gregory Maxwell <greg@linuxpower.cx>
-Cc: Dominik Kubla <dominik.kubla@uni-mainz.de>,
-        James Sutherland <jas88@cam.ac.uk>,
-        David Schwartz <davids@webmaster.com>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: hotmail not dealing with ECN
-Message-ID: <20010128135753.A2766@uni-mainz.de>
-Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
-	Gregory Maxwell <greg@linuxpower.cx>,
-	James Sutherland <jas88@cam.ac.uk>,
-	David Schwartz <davids@webmaster.com>,
-	Jamie Lokier <lk@tantalophile.demon.co.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKCECMNFAA.davids@webmaster.com> <Pine.SOL.4.21.0101272308030.701-100000@green.csi.cam.ac.uk> <20010127191159.B7467@xi.linuxpower.cx> <20010128021025.D800@uni-mainz.de> <20010127233543.D7467@xi.linuxpower.cx>
+	id <S137055AbRA1NPO>; Sun, 28 Jan 2001 08:15:14 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:26630 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S137041AbRA1NPB>;
+	Sun, 28 Jan 2001 08:15:01 -0500
+Date: Sun, 28 Jan 2001 06:14:28 -0700
+From: yodaiken@fsmlabs.com
+To: Nigel Gamble <nigel@nrg.org>
+Cc: Paul Barton-Davis <pbd@Op.Net>, yodaiken@fsmlabs.com,
+        Andrew Morton <andrewm@uow.edu.au>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+Message-ID: <20010128061428.A21416@hq.fsmlabs.com>
+In-Reply-To: <200101220150.UAA29623@renoir.op.net> <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010127233543.D7467@xi.linuxpower.cx>; from greg@linuxpower.cx on Sat, Jan 27, 2001 at 11:35:43PM -0500
-X-No-Archive: yes
-Restrict: no-external-archive
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>; from Nigel Gamble on Sun, Jan 21, 2001 at 06:21:05PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 27, 2001 at 11:35:43PM -0500, Gregory Maxwell wrote:
-...
-> An attack against an Xray system is much more likely to come from inside the
-> companies network.
-...
+On Sun, Jan 21, 2001 at 06:21:05PM -0800, Nigel Gamble wrote:
+> Yes, I most emphatically do disagree with Victor!  IRIX is used for
+> mission-critical audio applications - recording as well playback - and
+> other low-latency applications.  The same OS scales to large numbers of
+> CPUs.  And it has the best desktop interactive response of any OS I've
 
-We are not talking about attacks here, we are talking about undefined
-behaviour when (perhaps poorly designed) systems encounter network
-packages that use new or experimental features: I have seen MRI scanners
-panic when they received SNMP queries and SNMP has been around for ages!
+And it has bloat, it's famously buggy, it is impossible to maintain, ...
 
-Yours,
-  Dominik Kubla
+
+> used.  I will be very happy when Linux is as good in all these areas,
+> and I'm working hard to achieve this goal with negligible impact on the
+> current Linux "sweet-spot" applications such as web serving.
+
+As stated previously: I think this is a proven improbability and I have
+not seen any code or designs from you to show otherwise.
+
+> I agree.  I'm not wedded to any particular design - I just want a
+> low-latency Linux by whatever is the best way of achieving that.
+> However, I am hearing Victor say that we shouldn't try to make Linux
+> itself low-latency, we should just use his so-called "RTLinux" environment
+
+I suggest that you get your hearing checked. I'm fully in favor of sensible
+low latency Linux. I believe however that low latency  in Linux will
+	A. be "soft realtime", close to deadline most of the time.
+	B. millisecond level on present hardware
+	C. Best implemented by careful algorithm design instead of 
+	"stuff the kernel with resched points" and hope for the best.
+
+RTLinux main focus is hard realtime: a few microseconds here and there
+are critical for us and for the applications we target. For consumer
+audio, this is overkill and vanilla Linux should be able to provide
+services reasonably well. But ...
+
+> for low-latency tasks.  RTLinux is not Linux, it is a separate
+> environment with a separate, limited set of APIs.  You can't run XMMS,
+> or any other existing Linux audio app in RTLinux.  I want a low-latency
+> Linux, not just another RTOS living parasitically alongside Linux.
+
+Nice marketing line, but it is not working code.
+
+
 -- 
-          A lovely thing to see:                   Kobayashi Issa
-     through the paper window's holes               (1763-1828)
-                the galaxy.               [taken from: David Brin - Sundiver]
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,23 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286768AbRLVLga>; Sat, 22 Dec 2001 06:36:30 -0500
+	id <S286762AbRLVL3U>; Sat, 22 Dec 2001 06:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286766AbRLVLgW>; Sat, 22 Dec 2001 06:36:22 -0500
-Received: from rj.sgi.com ([204.94.215.100]:11197 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S286768AbRLVLgJ>;
-	Sat, 22 Dec 2001 06:36:09 -0500
+	id <S286765AbRLVL3L>; Sat, 22 Dec 2001 06:29:11 -0500
+Received: from rj.sgi.com ([204.94.215.100]:47292 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S286762AbRLVL3H>;
+	Sat, 22 Dec 2001 06:29:07 -0500
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+From: Keith Owens <kaos@sgi.com>
 To: linux-kernel@vger.kernel.org
-Subject: [patch] Assigning syscall numbers for testing 
+Subject: [patch] Assigning syscall numbers for testing
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 22 Dec 2001 22:35:59 +1100
-Message-ID: <8804.1009020959@kao2.melbourne.sgi.com>
+Date: Sat, 22 Dec 2001 22:28:55 +1100
+Message-ID: <8727.1009020535@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-Resend, previous mail had the wrong version of the patch.
 
 It is clear (to me at least) that developers have problems assigning
 syscall numbers for testing, before their code is accepted into the
@@ -78,21 +76,9 @@ function address from the descriptor.
 The patch is against 2.4.17 but should fit 2.4.16 and 2.5 as well.
 Enjoy.
 
-Index: 17.1/kernel/Makefile
---- 17.1/kernel/Makefile Tue, 18 Sep 2001 13:43:44 +1000 kaos (linux-2.4/k/3_Makefile 1.1.10.2 644)
-+++ 17.1(w)/kernel/Makefile Sat, 22 Dec 2001 22:21:06 +1100 kaos (linux-2.4/k/3_Makefile 1.1.10.2 644)
-@@ -14,7 +14,7 @@ export-objs = signal.o sys.o kmod.o cont
- obj-y     = sched.o dma.o fork.o exec_domain.o panic.o printk.o \
- 	    module.o exit.o itimer.o info.o time.o softirq.o resource.o \
- 	    sysctl.o acct.o capability.o ptrace.o timer.o user.o \
--	    signal.o sys.o kmod.o context.o
-+	    signal.o sys.o kmod.o context.o dynamic_syscalls.o
- 
- obj-$(CONFIG_UID16) += uid16.o
- obj-$(CONFIG_MODULES) += ksyms.o
-Index: 17.1/fs/proc/proc_misc.c
---- 17.1/fs/proc/proc_misc.c Thu, 22 Nov 2001 11:15:28 +1100 kaos (linux-2.4/o/b/48_proc_misc. 1.1.1.1.1.1.1.8 644)
-+++ 17.1(w)/fs/proc/proc_misc.c Sat, 22 Dec 2001 22:13:37 +1100 kaos (linux-2.4/o/b/48_proc_misc. 1.1.1.1.1.1.1.8 644)
+diff -urN 2.4.16-pristine/fs/proc/proc_misc.c 2.4.16-syscalls/fs/proc/proc_misc.c
+--- 2.4.16-pristine/fs/proc/proc_misc.c	Fri Nov 23 17:36:14 2001
++++ 2.4.16-syscalls/fs/proc/proc_misc.c	Fri Dec 21 22:21:13 2001
 @@ -36,6 +36,7 @@
  #include <linux/init.h>
  #include <linux/smp_lock.h>
@@ -101,7 +87,7 @@ Index: 17.1/fs/proc/proc_misc.c
  
  #include <asm/uaccess.h>
  #include <asm/pgtable.h>
-@@ -320,6 +321,13 @@ static int devices_read_proc(char *page,
+@@ -320,6 +321,13 @@
  	return proc_calc_metrics(page, start, off, count, eof, len);
  }
  
@@ -115,7 +101,7 @@ Index: 17.1/fs/proc/proc_misc.c
  static int partitions_read_proc(char *page, char **start, off_t off,
  				 int count, int *eof, void *data)
  {
-@@ -511,6 +519,7 @@ void __init proc_misc_init(void)
+@@ -511,6 +519,7 @@
  #endif
  		{"stat",	kstat_read_proc},
  		{"devices",	devices_read_proc},
@@ -123,10 +109,114 @@ Index: 17.1/fs/proc/proc_misc.c
  		{"partitions",	partitions_read_proc},
  #if !defined(CONFIG_ARCH_S390)
  		{"interrupts",	interrupts_read_proc},
-Index: 17.1/kernel/dynamic_syscalls.c
---- 17.1/kernel/dynamic_syscalls.c Sat, 22 Dec 2001 22:21:58 +1100 kaos ()
-+++ 17.1(w)/kernel/dynamic_syscalls.c Sat, 22 Dec 2001 22:18:29 +1100 kaos (linux-2.4/O/f/42_dynamic_sy  644)
-@@ -0,0 +1,93 @@
+diff -urN 2.4.16-pristine/include/asm-i386/dynamic_syscalls.h 2.4.16-syscalls/include/asm-i386/dynamic_syscalls.h
+--- 2.4.16-pristine/include/asm-i386/dynamic_syscalls.h	Thu Jan  1 10:00:00 1970
++++ 2.4.16-syscalls/include/asm-i386/dynamic_syscalls.h	Sat Dec 22 00:08:59 2001
+@@ -0,0 +1,21 @@
++#ifndef _ASM_DYNAMIC_SYSCALLS_H
++#define _ASM_DYNAMIC_SYSCALLS_H
++
++#include <linux/sys.h>
++
++/* The first and last numbers do not have to be 100% accurate, register_dynamic_syscall
++ * will find the first free entry.  The offset and type must be accurate.
++ */
++
++#define DYNAMIC_SYSCALL_OFFSET		0
++#define DYNAMIC_SYSCALL_FIRST		226
++#define DYNAMIC_SYSCALL_LAST		NR_syscalls-1
++#define DYNAMIC_SYSCALL_T		long
++
++/* This is a noop on most systems.  It does real work on architectures that use
++ * function descriptors.  See asm-ia64/dynamic_syscalls.h for an example.
++ */
++
++#define DYNAMIC_SYSCALL_FUNCADDR(f)	(DYNAMIC_SYSCALL_T)(f)
++
++#endif /* _ASM_DYNAMIC_SYSCALLS_H */
+diff -urN 2.4.16-pristine/include/asm-ia64/dynamic_syscalls.h 2.4.16-syscalls/include/asm-ia64/dynamic_syscalls.h
+--- 2.4.16-pristine/include/asm-ia64/dynamic_syscalls.h	Thu Jan  1 10:00:00 1970
++++ 2.4.16-syscalls/include/asm-ia64/dynamic_syscalls.h	Sat Dec 22 00:09:08 2001
+@@ -0,0 +1,28 @@
++#ifndef _ASM_DYNAMIC_SYSCALLS_H
++#define _ASM_DYNAMIC_SYSCALLS_H
++
++#include <linux/sys.h>
++
++/* The first and last numbers do not have to be 100% accurate, register_dynamic_syscall
++ * will find the first free entry.  The offset and type must be accurate.
++ */
++
++#define DYNAMIC_SYSCALL_OFFSET		1024
++#define DYNAMIC_SYSCALL_FIRST		(1217-DYNAMIC_SYSCALL_OFFSET)
++#define DYNAMIC_SYSCALL_LAST		NR_syscalls-1
++#define DYNAMIC_SYSCALL_T		long long
++
++/* IA64 function parameters do not point to the function itself, they point to a
++ * descriptor containing the 64 bit address of the function and the global
++ * pointer.  Dereference the function pointer to get the real function address,
++ * the syscall table requires direct addresses.
++ *
++ * This will almost certainly destroy your kernel if the syscall function is in
++ * a module because it will be entered with the wrong global pointer.
++ * Don't do that.
++ */
++
++#include <linux/types.h>
++#define DYNAMIC_SYSCALL_FUNCADDR(f)	({DYNAMIC_SYSCALL_T *fp = (DYNAMIC_SYSCALL_T *)(f); fp[0];})
++
++#endif /* _ASM_DYNAMIC_SYSCALLS_H */
+diff -urN 2.4.16-pristine/include/linux/dynamic_syscalls.h 2.4.16-syscalls/include/linux/dynamic_syscalls.h
+--- 2.4.16-pristine/include/linux/dynamic_syscalls.h	Thu Jan  1 10:00:00 1970
++++ 2.4.16-syscalls/include/linux/dynamic_syscalls.h	Fri Dec 21 23:24:14 2001
+@@ -0,0 +1,10 @@
++#ifndef _LINUX_DYNAMIC_SYSCALLS_H
++#define _LINUX_DYNAMIC_SYSCALLS_H
++
++extern int get_syscalls_list(char *page);
++extern int register_dynamic_syscall(const char *name, void (*func)(void));
++extern int unregister_dynamic_syscall(const char *name);
++
++#define DYNAMIC_SYSCALL_FUNC(f) (void (*)(void))(&f)
++
++#endif /* _LINUX_DYNAMIC_SYSCALLS_H */
+diff -urN 2.4.16-pristine/init/main.c 2.4.16-syscalls/init/main.c
+--- 2.4.16-pristine/init/main.c	Fri Nov 23 17:36:28 2001
++++ 2.4.16-syscalls/init/main.c	Fri Dec 21 23:23:20 2001
+@@ -794,6 +794,8 @@
+ #endif
+ }
+ 
++#include <linux/dynamic_syscalls.h>
++
+ static int init(void * unused)
+ {
+ 	lock_kernel();
+@@ -808,6 +810,8 @@
+ 	 */
+ 	free_initmem();
+ 	unlock_kernel();
++
++	printk("registered %d\n", register_dynamic_syscall("test", DYNAMIC_SYSCALL_FUNC(register_dynamic_syscall)));
+ 
+ 	if (open("/dev/console", O_RDWR, 0) < 0)
+ 		printk("Warning: unable to open an initial console.\n");
+diff -urN 2.4.16-pristine/kernel/Makefile 2.4.16-syscalls/kernel/Makefile
+--- 2.4.16-pristine/kernel/Makefile	Mon Sep 24 11:16:37 2001
++++ 2.4.16-syscalls/kernel/Makefile	Sat Dec 22 00:07:03 2001
+@@ -14,7 +14,7 @@
+ obj-y     = sched.o dma.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o info.o time.o softirq.o resource.o \
+ 	    sysctl.o acct.o capability.o ptrace.o timer.o user.o \
+-	    signal.o sys.o kmod.o context.o
++	    signal.o sys.o kmod.o context.o dynamic_syscalls.o
+ 
+ obj-$(CONFIG_UID16) += uid16.o
+ obj-$(CONFIG_MODULES) += ksyms.o
+diff -urN 2.4.16-pristine/kernel/dynamic_syscalls.c 2.4.16-syscalls/kernel/dynamic_syscalls.c
+--- 2.4.16-pristine/kernel/dynamic_syscalls.c	Thu Jan  1 10:00:00 1970
++++ 2.4.16-syscalls/kernel/dynamic_syscalls.c	Sat Dec 22 00:05:56 2001
+@@ -0,0 +1,115 @@
 +/*
 + *  kernel/dynamic_syscalls.c
 + *
@@ -174,10 +264,8 @@ Index: 17.1/kernel/dynamic_syscalls.c
 +	read_lock(&dynamic_syscalls_lock);
 +	for (i = 0; i < sizeof(dynamic_syscalls_name)/sizeof(dynamic_syscalls_name[0]) ; i++) {
 +		if (dynamic_syscalls_name[i]) {
-+			len += sprintf(page+len, "%d %s 0x%" DYNAMIC_SYSCALL_FMT "x\n",
-+				i+DYNAMIC_SYSCALL_FIRST,
-+				dynamic_syscalls_name[i],
-+				sys_call_table[i+DYNAMIC_SYSCALL_FIRST]);
++			len += sprintf(page+len, "%3d %s 0x%lx\n",
++				i+DYNAMIC_SYSCALL_FIRST, dynamic_syscalls_name[i], sys_call_table[i+DYNAMIC_SYSCALL_FIRST]);
 +		}
 +	}
 +	read_unlock(&dynamic_syscalls_lock);
@@ -193,7 +281,9 @@ Index: 17.1/kernel/dynamic_syscalls.c
 + *        function is in a module then the results are undefined.
 + *
 + * Description: Find the first syscall that has a null name pointer and the
-+ *              syscall table entry is empty.
++ *              entry in the syscall table is the same as syscall 0.  This
++ *              assumes that syscall 0 is always sys_ni_syscall and unused
++ *              slots are set to sys_ni_syscall.
 + *
 + * Returns: < 0, an error occured, the return value is the error number.
 + *          > 0, the syscall number that has been assigned.
@@ -202,11 +292,16 @@ Index: 17.1/kernel/dynamic_syscalls.c
 +int register_dynamic_syscall(const char *name, void (*func)(void))
 +{
 +	int i, ret = -EBUSY;
++	printk("register_dynamic_syscall %s %p\n", name, func);
 +	write_lock(&dynamic_syscalls_lock);
 +	for (i = 0; i < sizeof(dynamic_syscalls_name)/sizeof(dynamic_syscalls_name[0]) ; i++) {
-+		if (dynamic_syscalls_name[i] == NULL && sys_call_table[i+DYNAMIC_SYSCALL_FIRST] == DYNAMIC_SYSCALL_EMPTY) {
++		printk("i %d dynamic_syscalls_name[i] %p\n", i, dynamic_syscalls_name[i]);
++		printk("i+DYNAMIC_SYSCALL_FIRST %d sys_call_table[i+DYNAMIC_SYSCALL_FIRST] %p\n", i+DYNAMIC_SYSCALL_FIRST, (void *)(sys_call_table[i+DYNAMIC_SYSCALL_FIRST]));
++		if (dynamic_syscalls_name[i] == NULL && sys_call_table[i+DYNAMIC_SYSCALL_FIRST] == sys_call_table[0]) {
++			printk("found syscall %d\n", i+DYNAMIC_SYSCALL_FIRST);
 +			dynamic_syscalls_name[i] = name;
 +			sys_call_table[i+DYNAMIC_SYSCALL_FIRST] = DYNAMIC_SYSCALL_FUNCADDR(func);
++			printk("updated\n");
 +			ret = i+DYNAMIC_SYSCALL_FIRST+DYNAMIC_SYSCALL_OFFSET;
 +			break;
 +		}
@@ -215,79 +310,27 @@ Index: 17.1/kernel/dynamic_syscalls.c
 +	return ret;
 +}
 +
-+/* No unregister_dynamic_syscall function.  Syscalls are not supported in
-+ * modules.  
-+ */
++/**
++ * unregister_dynamic_syscall - release a dynamic assigned syscall number.
++ * @name: the name of the syscall.
++ **/
++
++int unregister_dynamic_syscall(const char *name)
++{
++	int i, ret = -EINVAL;
++	write_lock(&dynamic_syscalls_lock);
++	for (i = 0; i < sizeof(dynamic_syscalls_name)/sizeof(dynamic_syscalls_name[0]) ; i++) {
++		if (dynamic_syscalls_name[i] && strcmp(dynamic_syscalls_name[i], name) == 0) {
++			dynamic_syscalls_name[i] = NULL;
++			sys_call_table[i+DYNAMIC_SYSCALL_FIRST] = sys_call_table[0];
++			ret = 0;
++			break;
++		}
++	}
++	write_unlock(&dynamic_syscalls_lock);
++	return ret;
++}
 +
 +#endif	/* DYNAMIC_SYSCALL_FIRST */
-Index: 17.1/include/linux/dynamic_syscalls.h
---- 17.1/include/linux/dynamic_syscalls.h Sat, 22 Dec 2001 22:21:58 +1100 kaos ()
-+++ 17.1(w)/include/linux/dynamic_syscalls.h Sat, 22 Dec 2001 22:13:37 +1100 kaos (linux-2.4/O/f/43_dynamic_sy  644)
-@@ -0,0 +1,9 @@
-+#ifndef _LINUX_DYNAMIC_SYSCALLS_H
-+#define _LINUX_DYNAMIC_SYSCALLS_H
-+
-+extern int get_dynamic_syscalls_list(char *page);
-+extern int register_dynamic_syscall(const char *name, void (*func)(void));
-+
-+#define DYNAMIC_SYSCALL_FUNC(f) (void (*)(void))(&f)
-+
-+#endif /* _LINUX_DYNAMIC_SYSCALLS_H */
-Index: 17.1/include/asm-ia64/dynamic_syscalls.h
---- 17.1/include/asm-ia64/dynamic_syscalls.h Sat, 22 Dec 2001 22:21:58 +1100 kaos ()
-+++ 17.1(w)/include/asm-ia64/dynamic_syscalls.h Sat, 22 Dec 2001 22:13:37 +1100 kaos (linux-2.4/O/f/44_dynamic_sy  644)
-@@ -0,0 +1,28 @@
-+#ifndef _ASM_DYNAMIC_SYSCALLS_H
-+#define _ASM_DYNAMIC_SYSCALLS_H
-+
-+#include <linux/sys.h>
-+
-+#define DYNAMIC_SYSCALL_T		long long
-+#define DYNAMIC_SYSCALL_FMT		"ll"
-+
-+/* IA64 function parameters do not point to the function itself, they point to a
-+ * descriptor containing the 64 bit address of the function and the global
-+ * pointer.  Dereference the function pointer to get the real function address,
-+ * the syscall table requires direct addresses.
-+ *
-+ * This will almost certainly destroy your kernel if the syscall function is in
-+ * a module because it will be entered with the wrong global pointer.
-+ * Don't do that.
-+ */
-+
-+#include <linux/types.h>
-+#define DYNAMIC_SYSCALL_FUNCADDR(f)	({DYNAMIC_SYSCALL_T *fp = (DYNAMIC_SYSCALL_T *)(f); fp[0];})
-+
-+#define DYNAMIC_SYSCALL_OFFSET		1024
-+#define DYNAMIC_SYSCALL_FIRST		240
-+#define DYNAMIC_SYSCALL_LAST		NR_syscalls-1
-+#define DYNAMIC_SYSCALL_EMPTY		DYNAMIC_SYSCALL_FUNCADDR(&ia64_ni_syscall)
-+extern long ia64_ni_syscall(void);	/* No need to define parameters */
-+
-+#endif /* _ASM_DYNAMIC_SYSCALLS_H */
-Index: 17.1/include/asm-i386/dynamic_syscalls.h
---- 17.1/include/asm-i386/dynamic_syscalls.h Sat, 22 Dec 2001 22:21:58 +1100 kaos ()
-+++ 17.1(w)/include/asm-i386/dynamic_syscalls.h Sat, 22 Dec 2001 22:13:37 +1100 kaos (linux-2.4/O/f/45_dynamic_sy  644)
-@@ -0,0 +1,21 @@
-+#ifndef _ASM_DYNAMIC_SYSCALLS_H
-+#define _ASM_DYNAMIC_SYSCALLS_H
-+
-+#include <linux/sys.h>
-+
-+#define DYNAMIC_SYSCALL_T		long
-+#define DYNAMIC_SYSCALL_FMT		"l"
-+
-+/* This is a noop on most systems.  It does real work on architectures that use
-+ * function descriptors.  See asm-ia64/dynamic_syscalls.h for an example.
-+ */
-+
-+#define DYNAMIC_SYSCALL_FUNCADDR(f)	(DYNAMIC_SYSCALL_T)(f)
-+
-+#define DYNAMIC_SYSCALL_OFFSET		0
-+#define DYNAMIC_SYSCALL_FIRST		240
-+#define DYNAMIC_SYSCALL_LAST		NR_syscalls-1
-+#define DYNAMIC_SYSCALL_EMPTY		DYNAMIC_SYSCALL_FUNCADDR(&sys_ni_syscall)
-+extern long sys_ni_syscall(void);	/* No need to define parameters */
-+
-+#endif /* _ASM_DYNAMIC_SYSCALLS_H */
+
 

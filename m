@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267001AbSKRWtR>; Mon, 18 Nov 2002 17:49:17 -0500
+	id <S264724AbSKRW7N>; Mon, 18 Nov 2002 17:59:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265169AbSKRWtR>; Mon, 18 Nov 2002 17:49:17 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:14723 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S267001AbSKRWtQ>;
-	Mon, 18 Nov 2002 17:49:16 -0500
-Date: Mon, 18 Nov 2002 22:56:25 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Ulrich Drepper <drepper@redhat.com>, Mark Mielke <mark@mark.mielke.cc>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-Message-ID: <20021118225625.GB3939@bjl1.asuk.net>
-References: <3DD946A2.7030501@redhat.com> <Pine.LNX.4.44.0211181324060.979-100000@blue1.dev.mcafeelabs.com>
+	id <S264950AbSKRW7M>; Mon, 18 Nov 2002 17:59:12 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:13327 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264724AbSKRW7M>;
+	Mon, 18 Nov 2002 17:59:12 -0500
+Date: Mon, 18 Nov 2002 14:59:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Erik Lotspeich <erikvcl@silcom.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Crash in audio.o (USB Audio)
+Message-ID: <20021118225952.GA13721@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.33.0211181354540.13410-100000@goby.lotspeich.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211181324060.979-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.33.0211181354540.13410-100000@goby.lotspeich.org>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> Ok, the message has been post and noone argued about your solution. Like
-> it is used to say "speak now or forever hold your piece" :) So we will go
-> with it, no problem for me. We will define a struct epollfd and all POLL*
-> bits in EPOLL*
+On Mon, Nov 18, 2002 at 01:59:40PM -0800, Erik Lotspeich wrote:
+> Hi,
+> 
+> I tried getting USB audio to work with Apple's USB speakers on Linux
+> 2.4.17.  When I tried to access the audio device, the USB module would
+> crash.  The USB system appears to properly identify the speakers and their
+> capabilities.
 
-1. Fwiw, I would really like to see epoll extended beyond fds, to a more
-general edge-triggered event collector - signals, timers, aios.  I've
-written about this before as you know (but been too busy lately to
-pursue the idea).  I'm not going to say any more about this until I
-have time to code something...
+Please try 2.4.19 and let us know if that fixes the problem or not.  If
+not, a oops message, run through ksymoops would be very helpful.
 
-2. I don't like the "int64_t" proposal because there is no
-   language guarantee that 64 bits is enough to hold a pointer - and
-   of course, a pointer is what many applications will store in it.
+thanks,
 
-   "long" seems to be the de facto standard for holding a pointer
-   value in the kernel (e.g. in a futex).  That's ugly too, but quite
-   consistent.  Nothing clean presents itself.
-
--- Jamie
+greg k-h

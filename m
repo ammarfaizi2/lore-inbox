@@ -1,67 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVCJRSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262799AbVCJRfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbVCJRSV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 12:18:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVCJRQQ
+	id S262799AbVCJRfk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 12:35:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbVCJRdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 12:16:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:43422 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262729AbVCJROA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 12:14:00 -0500
-Subject: Re: [PATCH] make st seekable again
-From: Arjan van de Ven <arjan@infradead.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1050310114027.11549B-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1050310114027.11549B-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Date: Thu, 10 Mar 2005 18:13:53 +0100
-Message-Id: <1110474834.6291.114.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Thu, 10 Mar 2005 12:33:33 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:65272 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262829AbVCJRYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 12:24:00 -0500
+Message-ID: <423082BF.6060007@comcast.net>
+Date: Thu, 10 Mar 2005 12:24:15 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Richard Moser <nigelenki@comcast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: binary drivers and development
+References: <423075B7.5080004@comcast.net>
+In-Reply-To: <423075B7.5080004@comcast.net>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-10 at 11:56 -0500, Bill Davidsen wrote:
-> On Thu, 10 Mar 2005, Arjan van de Ven wrote:
-> 
-> > >  critical user data.
-> > > 
-> > > In other words, it should work correctly or not at all. At the least this
-> > > should be a config option, like UNSAFE_TAPE_POSITIONING or some such.
-> > > And show the option if the build includes BROKEN features. That should put
-> > > the decision where it belongs and clarify the possible failures.
-> > 
-> > CONFIG_SECURITY_HOLES doesn't make sense.
-> > Better to just fix the security holes instead.
-> 
-> I think you're an idealist. If this were something other than tar it would
-> be simple, and you would be right. Well, you ARE right, but a change which
-> breaks tar, which many sites use for backups, is really not practical,
-> without a loophole until tar gets fixed. And as Alan noted, keeping track
-> of the physical position is very hard, and getting a tar fix might take a
-> while.
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-No the problem is that the *st* code has a security hole. THAT is the
-problem. Not that it would be seekable. But how it implements the seeks.
-THAT part is the problem. And THAT can be fixed. 
+I've done more thought, here's a small list of advantages on using
+binary drivers, specifically considering UDI.  You can consider a
+different implementation for binary drivers as well, with most of the
+same advantages.
 
+ - Smaller kernel tree
+   The kernel tree would no longer contain all of the drivers; they'd
+   slowly have to bleed into UDI until most were there
+ - Better focused development
+   The kernel's core would be the core.  Driver code would be isolated,
+   so work on the kernel would affect the kernel only and not any
+   drivers.  UDI is a standard interface that shouldn't be broken.  This
+   means that work on the high-level drivers will not need to be sanity
+   checked a thousand times against the PCI Bus interface or the USB
+   host controler API or whatnot.
+ - Faster rebuilding for developers
+   The isolation between drivers and core would make rebuilding involve
+   the particular component (driver, core).  A "broken driver" would
+   just require recoding and rebuilding the driver; a "broken kernel"
+   would require building pretty much a skeletal core
+ - UDI supplies SMP safety
+   The UDI page brags[1]:
+
+   "An advanced scheduling model. Multiple driver instances can be run
+    in parallel on multiple processors with no lock management performed
+    by the driver. Free paralllism and scalability!"
+
+   Drivers can be considered SMP safe, apparently.  Inside the same
+   driver, however, I have my doubts; I can see a driver maintaining a
+   linked list that needs to be locked during insertions or deletions,
+   which needs lock managment for the driver.  Still, no consideration
+   for anything outside the driver need be made, apparently.
+ - Vendor drivers and religious issues
+   Vendors can supply third party drivers until there are open source
+   alternatives, since they have this religious thing where they don't
+   want people to see their driver code, which is kind of annoying and
+   impedes progress
+
+Disadvantages:
+
+ - Preemption
+   Is it still possible to implement a soft realtime kernel that
+   responds to interrupts quickly?
+ - Performance
+   UDI's developers claim that the performance overhead is negligible.
+   It's still added work, but it remains to be seen if it's significant
+   enough to degrade performance.
+ - Religious battles
+   People have this religious thing about binary drivers, which is kind
+   of annoying and impedes progress
+ - Constriction
+   This would of course create an abstraction layer that constricts the
+   driver developer's ability to do low level complex operations for any
+   portable binary driver
+
+A Linux specific binary driver format might be more useful, but wouldn't
+potentially allow for sharing the drivers across operating systems
+
+[1] http://projectudi.sourceforge.net/about.php
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCMIK8hDd4aOud5P8RAo+EAJwIF7zEmiyxKzRJJ037TQ2FhYG5bACffTBX
+JLhXPcidbQbf18LyTmjHgh0=
+=gbyB
+-----END PGP SIGNATURE-----

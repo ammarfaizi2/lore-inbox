@@ -1,43 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280633AbRKBKKK>; Fri, 2 Nov 2001 05:10:10 -0500
+	id <S280638AbRKBKWB>; Fri, 2 Nov 2001 05:22:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280634AbRKBKKA>; Fri, 2 Nov 2001 05:10:00 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:59033 "EHLO pltn13.pbi.net")
-	by vger.kernel.org with ESMTP id <S280633AbRKBKJt>;
-	Fri, 2 Nov 2001 05:09:49 -0500
-Date: Thu, 01 Nov 2001 22:16:19 -0800
-From: Chris Rankin <rankinc@pacbell.net>
-Subject: Re: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6
- (unkillable processes)
-To: thecrown@softhome.net
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3BE23A33.7080001@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+	id <S280643AbRKBKVl>; Fri, 2 Nov 2001 05:21:41 -0500
+Received: from mail.gmx.net ([213.165.64.20]:18554 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S280638AbRKBKVh> convert rfc822-to-8bit;
+	Fri, 2 Nov 2001 05:21:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Sebastian =?iso-8859-1?q?Dr=F6ge?= <sebastian.droege@gmx.de>
+Reply-To: sebastian.droege@gmx.de
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14-pre7 Unresolved symbols
+Date: Fri, 2 Nov 2001 12:22:37 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200111020954.fA29sf413054@riker.skynet.be>
+In-Reply-To: <200111020954.fA29sf413054@riker.skynet.be>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011102102140Z280638-17408+9329@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I see something similar with vanilla 2.4.13 (+devfs), except my 
-unkillable xterms don't appear until a modprobe has already failed. 
-Specifically, what seems to happen is:
+Hi
+There are a more unresolved symbols in:
 
-- an open() call causes the kernel to grab the devfs rwsem for reading, 
-and then load a module (e.g. ide-cd).
-- the modprobe process then waits forever for write-access to the devfs 
-rwsem.
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.14-pre7/kernel/drivers/block/loop.o
+depmod:         unlock_page
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.14-pre7/kernel/fs/isofs/isofs.o
+depmod:         unlock_page
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.14-pre7/kernel/fs/smbfs/smbfs.o
+depmod:         unlock_page
 
-Each xterm then waits forever in "wait_for_devfsd_finished()", 
-presumably when it tries to close its terminal.
+Bye
 
-Are you also using dynamic module loading? Are ALL of your unkillable 
-processes xterms, or do you also have a failed modprobe lurking somewhere?
+Am Freitag, 2. November 2001 11:53 schrieb jarausch@belgacom.net:
+> Hi,
+>
+> trying to build 2.4.14-pre7 breaks with the error message
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.14-pre7/kernel/fs/romfs/romfs.o depmod:
+> unlock_page
+>
+> during make modules_install.
+>
+> 2.4.14-pre6 is running fine here.
+>
+> Thank for hint,
+> Helmut Jarausch
+>
+> Inst. of Technology
+> RWTH Aachen
+> Germany
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Chris
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE74oH/vIHrJes3kVIRAor2AKCUi5Uf98lvFCZwsIYaEnRS4Y7yhACcCJqG
+HmAcNnrowgMPOaRyI9s1lD0=
+=m5TA
+-----END PGP SIGNATURE-----

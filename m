@@ -1,223 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbTLAFs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 00:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTLAFs2
+	id S263330AbTLAGWp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 01:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbTLAGWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 00:48:28 -0500
-Received: from dci.doncaster.on.ca ([66.11.168.194]:42651 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S263166AbTLAFsW (ORCPT
+	Mon, 1 Dec 2003 01:22:45 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:32409 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S263330AbTLAGWm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 00:48:22 -0500
-From: Andrew Miklas <public@mikl.as>
-Reply-To: public@mikl.as
-Subject: Possible bug with munmap/nopage
-Date: Mon, 1 Dec 2003 00:43:41 -0500
-User-Agent: KMail/1.5
-MIME-Version: 1.0
+	Mon, 1 Dec 2003 01:22:42 -0500
+Date: Mon, 1 Dec 2003 17:20:52 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: XFS for 2.4
+Message-ID: <20031201062052.GA2022@frodo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200312010043.41754.public@mikl.as>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi Marcelo,
+
+Please do a
+
+	bk pull http://xfs.org:8090/linux-2.4+coreXFS
+
+This will merge the core 2.4 kernel changes required for supporting
+the XFS filesystem, as listed below.  If this all looks acceptable,
+then please also pull the filesystem-specific code (fs/xfs/*)
+
+	bk pull http://xfs.org:8090/linux-2.4+justXFS
+
+cheers.
+
+-- 
+Nathan
 
 
-I'm seeing a very strange bug when trying to map more than one page using the 
-nopage callback.  I'm not sure if the problem is with my module or the 
-kernel.
+linux-2.4+coreXFS updates the following files:
 
-A process is able to map and unmap a region once successfully using my module; 
-however, the next time the process (or another) has the same page mapped into 
-its space, the munmap call will lock the process up and the system becomes 
-unusable.  (Not quite a full lockup, but many things, such as starting "top", 
-killing off the offending process, etc. don't work).
+ Documentation/Changes              |   16 ++
+ Documentation/Configure.help       |   84 +++++++++++++
+ Documentation/filesystems/00-INDEX |    2 
+ Documentation/filesystems/xfs.txt  |  226 +++++++++++++++++++++++++++++++++++--
+ MAINTAINERS                        |    8 +
+ drivers/block/ll_rw_blk.c          |    3 
+ fs/Config.in                       |    7 +
+ fs/Makefile                        |    4 
+ fs/buffer.c                        |   59 ++++++++-
+ fs/inode.c                         |   46 +++----
+ fs/namei.c                         |   13 +-
+ fs/open.c                          |   13 ++
+ include/linux/dqblk_xfs.h          |    9 -
+ include/linux/fs.h                 |   50 +++++++-
+ include/linux/posix_acl_xattr.h    |   67 ++++++++++
+ include/linux/sched.h              |    1 
+ kernel/ksyms.c                     |   12 +
+ mm/filemap.c                       |   63 +++++++++-
+ 18 files changed, 618 insertions(+), 65 deletions(-)
 
-This happens even when I rmmod and insmod my module between runs of the 
-process.  I think something (possibly my module) is doing something incorrect 
-to the pages when they are unmapped.
+through these ChangeSets:
 
-This doesn't happen if only one page is mapped by nopage.  In that case, 
-everything works correctly, even for multiple map/unmaps.
+<nathans@bruce.melbourne.sgi.com> (03/11/24 1.1183.1.1)
+   VFS support for filesystems which implement POSIX ACLs.
+   
+   This involves an inode flag which directs the VFS to skip application
+   of the umask so that the filesystem ACL code can do this according to
+   the POSIX rules, and a new header file defining the contents of the 2
+   system ACL extended attributes.  This is a backport from 2.6.
 
+<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1194)
+   Fix utimes(2) and immutable/append-only files.
 
-Here is the backtrace produced by using sysrq-T:
-(I'm running 2.4.22 patched with kdb)
+<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1195)
+   Remove some unused macros and related comment from the XFS quota header.
 
-rwsem_down_failed_common + 0x4C/0x70
-rwsem_down_read_failed + 0x1f/0x30
-.text.lock.fault + 0x7/0x63
-fbcon_scroll + 0x5a1/0xa90
-scrup + 0xf8/0x110
-lf + 0x62/0x70
-do_page_fault + 0x0/0x4dd
-error_code + 0x34/0x40
-__free_pages_ok + 0x252/0x300
-__free_pages + 0x27/0x30
-free_pages_and_swap_cache + 0x19/0x40
-__free_pte + 0x5a/0x70
-zap_pte_range + 0x10f/0x134
-zap_page_range + 0x82/0x100
-do_munmap + 0x1d1/0x250
-sys_munmap + 0x32/0x50
-system_call + 0x33/0x40
+<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1196)
+   Add a process flag to identify a process performing a transaction.
+   Used by XFS and backported from 2.6.
 
+<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1197)
+   Support for delayed allocation.  Used by XFS and backported from 2.6.
 
-I've included the code for the module and test process below.
+<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1198)
+   Provide a simple try-lock based dirty page flushing routine.
 
+<nathans@bruce.melbourne.sgi.com> (03/11/25 1.1199)
+   Provide an iget variant without unlocking the inode and without the
+   read_inode call (iget_locked).  Used by XFS and backported from 2.6.
 
-Am I doing something wrong, or is the lockup the result of some bug in the 
-kernel?
+<nathans@bruce.melbourne.sgi.com> (03/11/26 1.1200)
+   Export several kernel symbols used by the XFS filesystem.
 
+<nathans@bruce.melbourne.sgi.com> (03/11/26 1.1201)
+   Add XFS documentation and incorporate XFS into the kernel build.
 
-Thanks for any help.
-
-
-
--- Andrew
-
-
-========================
-
-
-module code
-------------------------
-
-#include <linux/module.h>
-#include <linux/pci.h>
-#include <linux/fs.h>
-#include <linux/proc_fs.h>
-#include <asm/page.h>
-#include <asm/pgtable.h>
-
-#define DMA_BUF_SIZE 0x2000
-
-static int user_dma_mmap(struct file *, struct vm_area_struct *);
-static struct page *user_dma_mmap_nopage(struct vm_area_struct *, unsigned 
-long, int);
-
-
-static void* kernAddr;
-static dma_addr_t dmaAddr;
-
-
-static struct file_operations fileOps = 
-{
-	mmap: user_dma_mmap
-};
-
-static struct vm_operations_struct vmaOps = 
-{
-	nopage: user_dma_mmap_nopage
-};
-
-
-static struct page *user_dma_mmap_nopage(struct vm_area_struct *area, unsigned 
-long address, int unused)
-{
-	struct page *pagePtr;
-	unsigned long offset = address - area->vm_start;
-	unsigned long kernPageBase;
-
-	if (offset >= DMA_BUF_SIZE)
-	{
-		// The process tried to remap beyond the buffer we have allocated for them.
-		return NOPAGE_SIGBUS;
-	}
-
-	kernPageBase = (unsigned long) kernAddr + offset;
-
-	// This is ok, because addresses returned by pci_alloc_consistent (ie. 
-get_free_pages)
-	// are safe for use with virt_to_page, right?
-	pagePtr = virt_to_page(kernPageBase);
-
-	get_page(pagePtr);
-
-	return pagePtr;
-}
-
-
-static int user_dma_mmap(struct file *filp, struct vm_area_struct *vma)
-{
-	// We'll do the interesting stuff in nopage
-	vma->vm_ops = &vmaOps;
-	return 0;
-}
-
-
-static int __init user_dma_init(void)
-{
-	struct proc_dir_entry *dmaProc;
-
-	printk(KERN_DEBUG "User DMA interface loading.\n");
-
-	kernAddr = pci_alloc_consistent(NULL, DMA_BUF_SIZE, &dmaAddr);
-	dmaProc = create_proc_entry("user_dma", S_IFBLK | S_IRUGO | S_IWUGO, 
-&proc_root);
-
-	dmaProc->proc_fops = &fileOps;
-	return 0;
-}
-
-static void __exit user_dma_exit(void)
-{
-	pci_free_consistent(NULL, DMA_BUF_SIZE, kernAddr, dmaAddr);
-	remove_proc_entry("user_dma", &proc_root);
-	printk(KERN_DEBUG "User DMA interface unloading.\n");
-}
-
-
-MODULE_AUTHOR("Andrew Miklas (public at mikl dot as)");
-MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Userspace DMA Interface");
-
-module_init(user_dma_init);
-module_exit(user_dma_exit);
-
-
-=========================================
-
-
-test process code
-----------------------
-
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-
-// 2 page mapping will cause the problem, 1 page will not.
-#define SIZE 0x2000
-#define OFFSET 0
-#define PAGE_SIZE 0x1000
-
-int main(int argc, char *argv[])
-{
-	int retVal;
-	int fd = open("/proc/user_dma", O_RDWR);
-	void *dmaMap = mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 
-OFFSET);
-
-	printf("MAP: %p\n", dmaMap);
-
-	if (dmaMap != MAP_FAILED)
-	{
-		int i;
-		for (i = 0; i < SIZE; i += PAGE_SIZE)
-		{
-			*((char*) (dmaMap + i));
-		}
-
-		printf("Pre unmap\n");
-		retVal = munmap(dmaMap, SIZE);
-		printf("UNMAP: %i\n", retVal);
-	}
-
-	close(fd);
-	return 0;
-}
+<nathans@bruce.melbourne.sgi.com> (03/12/01 1.1202.1.1)
+   [XFS] Document the XFS noikeep option, make ikeep the default.
 

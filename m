@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264634AbUEDVP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUEDVRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264634AbUEDVP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 17:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUEDVP7
+	id S264640AbUEDVRc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 17:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbUEDVQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 17:15:59 -0400
-Received: from mail.kroah.org ([65.200.24.183]:40153 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264634AbUEDVPt (ORCPT
+	Tue, 4 May 2004 17:16:07 -0400
+Received: from mail.kroah.org ([65.200.24.183]:48089 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264623AbUEDVP4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 17:15:49 -0400
-Date: Tue, 4 May 2004 14:04:14 -0700
+	Tue, 4 May 2004 17:15:56 -0400
+Date: Tue, 4 May 2004 13:37:38 -0700
 From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       vojtech@suse.cz
-Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
-Message-ID: <20040504210414.GC27037@kroah.com>
-References: <200404230142.46792.dtor_core@ameritech.net> <200404240144.05004.dtor_core@ameritech.net> <20040425024900.GA13971@kroah.com> <200404251648.07232.dtor_core@ameritech.net>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Ian Morgan <imorgan@webcon.ca>, helpdeskie@bencastricum.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5 Sensors & USB problems
+Message-ID: <20040504203738.GJ24802@kroah.com>
+References: <1081349796.407416a4c3739@imp.gcu.info> <Pine.LNX.4.58.0404171756400.11374@dark.webcon.ca> <Pine.LNX.4.58.0404171944160.11425@dark.webcon.ca> <20040418075140.6c118202.khali@linux-fr.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200404251648.07232.dtor_core@ameritech.net>
+In-Reply-To: <20040418075140.6c118202.khali@linux-fr.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 25, 2004 at 04:48:07PM -0500, Dmitry Torokhov wrote:
->  
-> No, I am still getting the oops.. hmm.. it seems a little bit different,
-> but still in the hiddev. I investigated further and the oops only happens
-> if I yank a HID device connected to an USB hub or if I yank entire hub with
-> a HID device connected to it. Tried with APC UPS and MS Intellimouse
-> Explorer. If they are connected directly to the laptop's ports everything is
-> fine, also other devices (USB printer for example) handle hub disconnection
-> just fine. It does not matter if I have device open or closed for oops to
-> happen. And, for the record, oops itself:
+On Sun, Apr 18, 2004 at 07:51:40AM +0200, Jean Delvare wrote:
+> > Can anyone explain, however, why my i2c bus showed up as number 0
+> > under linux <= 2.6.4, and now always as number 1 under linux 2.6.5?
+> > The is no number 0 any more.
+> 
+> The bus number allocation scheme is such that once a number has been
+> used once (since the machine last booted) it will not be used again.
+> This is admittedly not ideal and should be fixed. I suspect that the fix
+> isn't trivial because the current structures would make the new scheme
+> have a poor algorithmic complexity (O(2) maybe), but I haven't checked
+> yet. Greg, can you confirm?
 
-Are you still getting this in the 2.6.6-rc3 kernel?
+It's not due to the complexity, it's just due to the fact that I haven't
+gotten around to doing it yet :)
 
-How about the latest -mm release?
+Patches to fix this are gladly welcome if the current situation really
+bothers people.  No userspace tools should have a problem with the way
+things are right now.  If they do have problems, please let me know.
 
 thanks,
 

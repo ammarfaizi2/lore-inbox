@@ -1,64 +1,263 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262488AbSJ0Sud>; Sun, 27 Oct 2002 13:50:33 -0500
+	id <S262486AbSJ0Sq0>; Sun, 27 Oct 2002 13:46:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262489AbSJ0Sud>; Sun, 27 Oct 2002 13:50:33 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:26522 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262488AbSJ0Suc>;
-	Sun, 27 Oct 2002 13:50:32 -0500
-Date: Sun, 27 Oct 2002 19:56:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Markus Plail <plail@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug] 2.5.44-ac2 cdrom eject panic
-Message-ID: <20021027185636.GJ3966@suse.de>
-References: <20021025103631.GA588@giantx.co.uk> <20021025103938.GN4153@suse.de> <87adl2is1u.fsf@gitteundmarkus.de> <20021025144224.GW4153@suse.de> <87pttyh3r5.fsf@gitteundmarkus.de> <20021025165354.GG4153@suse.de> <874rb71xfc.fsf@gitteundmarkus.de>
+	id <S262490AbSJ0Sq0>; Sun, 27 Oct 2002 13:46:26 -0500
+Received: from crack.them.org ([65.125.64.184]:14088 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S262486AbSJ0SqO>;
+	Sun, 27 Oct 2002 13:46:14 -0500
+Date: Sun, 27 Oct 2002 13:53:04 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: PATCH: ptrace support for fork/vfork/clone events [3/3]
+Message-ID: <20021027185304.GB28347@nevyn.them.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+References: <20021027185038.GA27979@nevyn.them.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <874rb71xfc.fsf@gitteundmarkus.de>
+In-Reply-To: <20021027185038.GA27979@nevyn.them.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 27 2002, Markus Plail wrote:
-> Hi Jens!
-> 
-> * Jens Axboe writes:
-> >On Fri, Oct 25 2002, Markus Plail wrote:
-> >>Yes it does. I can't burn though. I attached the cdrecord output. Hava
-> >>a look at the Blocks numbers. Although the image is only 500MB, it
-> >>says it wouldn't fit on the disc which is 700MB. In another try it
-> >>wanted to start burning although I had a bought audio CD in the
-> >>burner.
-> 
-> >As a hack, can you change:
-> 
-> >	if ((rq->flags & REQ_BLOCK_PC) && !rq->errors)
-> rq->errors = sense_key;
-> >in drivers/ide/ide-cd.c:cdrom_decode_status() to
-> >	if ((rq->flags & REQ_BLOCK_PC) && !rq->errors)
-> rq->errors = 2;
-> 
-> Works fine now :-)
+On Sun, Oct 27, 2002 at 01:50:38PM -0500, Daniel Jacobowitz wrote:
+>  3. Add PTRACE_GETEVENTMSG and four new flags to PTRACE_SETOPTIONS, to allow
+>     tracing fork, vfork, clone, and exec events.
 
-Cool great, the above change was already in my tree when I sent the
-suggestion, glad to hear it works.
+This is the fun one.
 
-> Now if C2 scans would work that'd be great ;-)
-> 
-> [plail@plailis_lfs:plail]$ readcd dev=/dev/hdc -c2scan
-> Read  speed:  7056 kB/s (CD  40x, DVD  5x).
-> Write speed:     0 kB/s (CD   0x, DVD  0x).
-> Capacity: 4116432 Blocks = 8232864 kBytes = 8039 MBytes = 8430 prMB
-> Sectorsize: 2048 Bytes
-> Copy from SCSI (0,0,0) disk to file '/dev/null'
-> end:   4116432
-> addr:        0 cnt: 99^Mreadcd: Operation not permitted. Cannot send SCSI cmd vi
-> readcd: Operation not permitted. Cannot send SCSI cmd via ioctl
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.810   -> 1.811  
+#	include/linux/sched.h	1.95.1.1 -> 1.97   
+#	       kernel/fork.c	1.77.1.10 -> 1.79   
+#	include/linux/ptrace.h	1.4     -> 1.5    
+#	    fs/binfmt_aout.c	1.12.1.1 -> 1.14   
+#	     fs/binfmt_elf.c	1.29    -> 1.30   
+#	     kernel/ptrace.c	1.19    -> 1.20   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/26	drow@nevyn.them.org	1.811
+# Merge
+# --------------------------------------------
+#
+diff -Nru a/fs/binfmt_aout.c b/fs/binfmt_aout.c
+--- a/fs/binfmt_aout.c	Sat Oct 26 20:09:37 2002
++++ b/fs/binfmt_aout.c	Sat Oct 26 20:09:37 2002
+@@ -425,8 +425,12 @@
+ 	regs->gp = ex.a_gpvalue;
+ #endif
+ 	start_thread(regs, ex.a_entry, current->mm->start_stack);
+-	if (current->ptrace & PT_PTRACED)
+-		send_sig(SIGTRAP, current, 0);
++	if (unlikely(current->ptrace & PT_PTRACED)) {
++		if (current->ptrace & PT_TRACE_EXEC)
++			ptrace_notify ((PTRACE_EVENT_EXEC << 8) | SIGTRAP);
++		else
++			send_sig(SIGTRAP, current, 0);
++	}
+ 	return 0;
+ }
+ 
+diff -Nru a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+--- a/fs/binfmt_elf.c	Sat Oct 26 20:09:37 2002
++++ b/fs/binfmt_elf.c	Sat Oct 26 20:09:37 2002
+@@ -792,8 +792,12 @@
+ #endif
+ 
+ 	start_thread(regs, elf_entry, bprm->p);
+-	if (current->ptrace & PT_PTRACED)
+-		send_sig(SIGTRAP, current, 0);
++	if (unlikely(current->ptrace & PT_PTRACED)) {
++		if (current->ptrace & PT_TRACE_EXEC)
++			ptrace_notify ((PTRACE_EVENT_EXEC << 8) | SIGTRAP);
++		else
++			send_sig(SIGTRAP, current, 0);
++	}
+ 	retval = 0;
+ out:
+ 	return retval;
+diff -Nru a/include/linux/ptrace.h b/include/linux/ptrace.h
+--- a/include/linux/ptrace.h	Sat Oct 26 20:09:37 2002
++++ b/include/linux/ptrace.h	Sat Oct 26 20:09:37 2002
+@@ -25,9 +25,20 @@
+ 
+ /* 0x4200-0x4300 are reserved for architecture-independent additions.  */
+ #define PTRACE_SETOPTIONS	0x4200
++#define PTRACE_GETEVENTMSG	0x4201
+ 
+ /* options set using PTRACE_SETOPTIONS */
+ #define PTRACE_O_TRACESYSGOOD	0x00000001
++#define PTRACE_O_TRACEFORK	0x00000002
++#define PTRACE_O_TRACEVFORK	0x00000004
++#define PTRACE_O_TRACECLONE	0x00000008
++#define PTRACE_O_TRACEEXEC	0x00000010
++
++/* Wait extended result codes for the above trace options.  */
++#define PTRACE_EVENT_FORK	1
++#define PTRACE_EVENT_VFORK	2
++#define PTRACE_EVENT_CLONE	3
++#define PTRACE_EVENT_EXEC	4
+ 
+ #include <asm/ptrace.h>
+ #include <linux/sched.h>
+@@ -39,6 +50,7 @@
+ extern void ptrace_disable(struct task_struct *);
+ extern int ptrace_check_attach(struct task_struct *task, int kill);
+ extern int ptrace_request(struct task_struct *child, long request, long addr, long data);
++extern void ptrace_notify(int exit_code);
+ extern void __ptrace_link(struct task_struct *child,
+ 				struct task_struct *new_parent);
+ extern void __ptrace_unlink(struct task_struct *child);
+diff -Nru a/include/linux/sched.h b/include/linux/sched.h
+--- a/include/linux/sched.h	Sat Oct 26 20:09:37 2002
++++ b/include/linux/sched.h	Sat Oct 26 20:09:37 2002
+@@ -392,6 +392,8 @@
+ 	void *journal_info;
+ 	struct dentry *proc_dentry;
+ 	struct backing_dev_info *backing_dev_info;
++
++	unsigned long ptrace_message;
+ };
+ 
+ extern void __put_task_struct(struct task_struct *tsk);
+@@ -431,6 +433,10 @@
+ #define PT_DTRACE	0x00000002	/* delayed trace (used on m68k, i386) */
+ #define PT_TRACESYSGOOD	0x00000004
+ #define PT_PTRACE_CAP	0x00000008	/* ptracer can follow suid-exec */
++#define PT_TRACE_FORK	0x00000010
++#define PT_TRACE_VFORK	0x00000020
++#define PT_TRACE_CLONE	0x00000040
++#define PT_TRACE_EXEC	0x00000080
+ 
+ /*
+  * Limit the stack by to some sane default: root can always
+diff -Nru a/kernel/fork.c b/kernel/fork.c
+--- a/kernel/fork.c	Sat Oct 26 20:09:37 2002
++++ b/kernel/fork.c	Sat Oct 26 20:09:37 2002
+@@ -937,6 +937,22 @@
+ 	goto fork_out;
+ }
+ 
++static inline int fork_traceflag (unsigned clone_flags)
++{
++	if (clone_flags & (CLONE_UNTRACED | CLONE_IDLETASK))
++		return 0;
++	else if (clone_flags & CLONE_VFORK) {
++		if (current->ptrace & PT_TRACE_VFORK)
++			return PTRACE_EVENT_VFORK;
++	} else if ((clone_flags & CSIGNAL) != SIGCHLD) {
++		if (current->ptrace & PT_TRACE_CLONE)
++			return PTRACE_EVENT_CLONE;
++	} else if (current->ptrace & PT_TRACE_FORK)
++		return PTRACE_EVENT_FORK;
++
++	return 0;
++}
++
+ /*
+  *  Ok, this is the main fork-routine.
+  *
+@@ -950,6 +966,13 @@
+ 			    int *user_tid)
+ {
+ 	struct task_struct *p;
++	int trace = 0;
++
++	if (unlikely(current->ptrace)) {
++		trace = fork_traceflag (clone_flags);
++		if (trace)
++			clone_flags |= CLONE_PTRACE;
++	}
+ 
+ 	p = copy_process(clone_flags, stack_start, regs, stack_size, user_tid);
+ 	if (!IS_ERR(p)) {
+@@ -965,6 +988,12 @@
+ 
+ 		wake_up_forked_process(p);		/* do this last */
+ 		++total_forks;
++
++		if (unlikely (trace)) {
++			current->ptrace_message = (unsigned long) p->pid;
++			ptrace_notify ((trace << 8) | SIGTRAP);
++		}
++
+ 		if (clone_flags & CLONE_VFORK)
+ 			wait_for_completion(&vfork);
+ 		else
+diff -Nru a/kernel/ptrace.c b/kernel/ptrace.c
+--- a/kernel/ptrace.c	Sat Oct 26 20:09:37 2002
++++ b/kernel/ptrace.c	Sat Oct 26 20:09:37 2002
+@@ -249,14 +249,37 @@
+ 	return copied;
+ }
+ 
+-int ptrace_setoptions(struct task_struct *child, long data)
++static int ptrace_setoptions(struct task_struct *child, long data)
+ {
+ 	if (data & PTRACE_O_TRACESYSGOOD)
+ 		child->ptrace |= PT_TRACESYSGOOD;
+ 	else
+ 		child->ptrace &= ~PT_TRACESYSGOOD;
+ 
+-	if ((data & PTRACE_O_TRACESYSGOOD) != data)
++	if (data & PTRACE_O_TRACEFORK)
++		child->ptrace |= PT_TRACE_FORK;
++	else
++		child->ptrace &= ~PT_TRACE_FORK;
++
++	if (data & PTRACE_O_TRACEVFORK)
++		child->ptrace |= PT_TRACE_VFORK;
++	else
++		child->ptrace &= ~PT_TRACE_VFORK;
++
++	if (data & PTRACE_O_TRACECLONE)
++		child->ptrace |= PT_TRACE_CLONE;
++	else
++		child->ptrace &= ~PT_TRACE_CLONE;
++
++	if (data & PTRACE_O_TRACEEXEC)
++		child->ptrace |= PT_TRACE_EXEC;
++	else
++		child->ptrace &= ~PT_TRACE_EXEC;
++
++	if ((data & (PTRACE_O_TRACESYSGOOD | PTRACE_O_TRACEFORK
++		    | PTRACE_O_TRACEVFORK | PTRACE_O_TRACECLONE
++		    | PTRACE_O_TRACEEXEC))
++	    != data)
+ 		return -EINVAL;
+ 
+ 	return 0;
+@@ -274,9 +297,23 @@
+ 	case PTRACE_SETOPTIONS:
+ 		ret = ptrace_setoptions(child, data);
+ 		break;
++	case PTRACE_GETEVENTMSG:
++		ret = put_user(child->ptrace_message, (unsigned long *) data);
++		break;
+ 	default:
+ 		break;
+ 	}
+ 
+ 	return ret;
++}
++
++void ptrace_notify(int exit_code)
++{
++	BUG_ON (!(current->ptrace & PT_PTRACED));
++
++	/* Let the debugger run.  */
++	current->exit_code = exit_code;
++	set_current_state(TASK_STOPPED);
++	notify_parent(current, SIGCHLD);
++	schedule();
+ }
 
-Interesting, have no tried readcd at all myself. Will give it a spin and
-fix this tomorrow.
 
 -- 
-Jens Axboe
-
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263902AbTDNTPN (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 15:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263904AbTDNTPN (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 15:15:13 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:20195 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263902AbTDNTPL (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 15:15:11 -0400
-Date: Mon, 14 Apr 2003 12:26:59 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: maneesh@in.ibm.com
-Cc: dipankar@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] dentry_stat fix
-Message-Id: <20030414122659.308b3260.akpm@digeo.com>
-In-Reply-To: <20030414180910.B27092@in.ibm.com>
-References: <20030414144417.A27092@in.ibm.com>
-	<20030414021448.08ff05a5.akpm@digeo.com>
-	<20030414180910.B27092@in.ibm.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S263831AbTDNSyk (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbTDNSyj (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 14:54:39 -0400
+Received: from ausadmmsrr503.aus.amer.dell.com ([143.166.83.90]:50181 "HELO
+	AUSADMMSRR503.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id S263832AbTDNSyc (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 14:54:32 -0400
+X-Server-Uuid: 91331657-2068-4fb8-8b09-a4fcbc1ed29f
+Message-ID: <36696BAFD8467644ABA0050BE35890591257F9@ausx2kmpc106.aus.amer.dell.com>
+From: Gary_Lerhaupt@Dell.com
+To: linux-kernel@vger.kernel.org
+Subject: devlabel: added ownership, permissioning consistency
+Date: Mon, 14 Apr 2003 14:05:57 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 1285D91714940-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Apr 2003 19:26:54.0145 (UTC) FILETIME=[CE663310:01C302BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maneesh Soni <maneesh@in.ibm.com> wrote:
->
-> On Mon, Apr 14, 2003 at 02:14:48AM -0700, Andrew Morton wrote:
-> > Maneesh Soni <maneesh@in.ibm.com> wrote:
-> > >
-> > > This patch the corrects the dentry_stat.nr_unused calculation.
-> > 
-> > OK, I didn't even know we had a bug in there...
-> > 
-> > btw, can you explain to me why shrink_dcache_anon() and select_parent() are
-> > putting dentries at the wrong end of dentry_unused?
-> prune_dcache() picks up from this end in first round. It will reset the 
-> DCACHE_REFERENCED flag and will put it to the front of dentry_unused list.
-> 
+Devlabel 0.30.08 is now available at http://www.lerhaupt.com/devlabel/
 
-Sorry, but I still don't understand why they're being put at the "oldest" end
-of dentry_unused.
+It includes the --uid, --gid, --perms parameters which are usable when
+adding a symlink to a disk/partition.
 
-Also, shrink_dcache_anon() does:
+This ensures that the correct ownership and permissions are applied to the
+underlying disk name in the event that your disk names shuffle.  So, even if
+you choose not to use devlabel symlinks in /etc/fstab to ensure that you are
+always mounting your right disks, you may now consider at least using
+devlabel just to make sure the right permissions and ownerships are applied
+to your disks in the event of a device renaming event.  Of course, if all
+your partitions are just root,disk 0660 this won't make much difference.
+But, if they aren't, it closes that security hole.
 
-	prune_dcache(found);
+Gary Lerhaupt
+Linux Development
+Dell Computer Corporation
 
-I hope we're not assuming that all the dentries which were just added will be
-freed?  They hae the referenced bit set, and new dentries can be added...

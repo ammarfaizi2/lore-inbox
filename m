@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263611AbUD2Gev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263633AbUD2Gju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263611AbUD2Gev (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 02:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbUD2Gev
+	id S263633AbUD2Gju (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 02:39:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbUD2Gju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 02:34:51 -0400
-Received: from zasran.com ([198.144.206.234]:57763 "EHLO zasran.com")
-	by vger.kernel.org with ESMTP id S263611AbUD2Geg (ORCPT
+	Thu, 29 Apr 2004 02:39:50 -0400
+Received: from holomorphy.com ([207.189.100.168]:2946 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263633AbUD2Gjs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 02:34:36 -0400
-Message-ID: <4090A1FA.1070202@bigfoot.com>
-Date: Wed, 28 Apr 2004 23:34:34 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
-References: <40853060.2060508@bigfoot.com> <200404280741.08665.dtor_core@ameritech.net> <408FFC2A.3080504@bigfoot.com> <200404281824.05044.dtor_core@ameritech.net>
-In-Reply-To: <200404281824.05044.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Apr 2004 02:39:48 -0400
+Date: Wed, 28 Apr 2004 23:38:27 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Marc Singer <elf@buici.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, brettspamacct@fastclick.com,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-ID: <20040429063827.GI737@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Marc Singer <elf@buici.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+	Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+	brettspamacct@fastclick.com, linux-kernel@vger.kernel.org,
+	Russell King <rmk@arm.linux.org.uk>
+References: <409021D3.4060305@fastclick.com> <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com> <40904A84.2030307@yahoo.com.au> <20040429005801.GA21978@buici.com> <40907AF2.2020501@yahoo.com.au> <20040429042047.GB26845@buici.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040429042047.GB26845@buici.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Wednesday 28 April 2004 01:47 pm, Erik Steffl wrote:
->>Dmitry Torokhov wrote:
->>
->>>What protocol are you using in XFree?
->>
->>   that's irrelevant, I got the results above without X running (by 
-> 
-> No, it is not. Please change protocol in XF86Config to ExplorerPS/2.
-...
-> Kernel only provides emulation of 3 protocols via /dev/psaux: bare PS/2,
-> IntelliMouse PS/2 and Explorer PS/2. Since your program does not issue
-> Intellimouse or Explorer protocol initialization sequences it gets just
-> bare PS/2 protocol data - 2 axis, 3 buttons. Extra buttons are mapped onto
-> first 3. For exact mapping consult drivers/input/mousedev.c
+On Wed, Apr 28, 2004 at 09:20:47PM -0700, Marc Singer wrote:
+> Now, I just read a comment you or WLI made about the page cache
+> use-once logic.  I wonder if that's the real culprit?  As I wrote to
+> Andrew Morton, the kernel seems to be assigning an awful lot of value
+> to page cache pages that are used once (or twice?).  I know that it
+> would be expensive to perform an HTG aging algorithm where the head of
+> the LRU list is really LRU.  Does your patch pursue this line of
+> thought?
 
-   thanks, that makes sense, I tried ExplorerPS/2, it works better, the 
-wheel works but side button is still same as button 2.
+I don't recall ever having seen an actual pure LRU patch.
 
-   would it be different if I used /dev/input/mouse0? or 
-/dev/input/mice?  kernel Documentation/input/input.txt seems to be 
-fairly old (mentions  2.5/2.6 in future tense) and it says to use 
-"ExplorerPS/2 if you want to use extra (up to 5) buttons" when 
-discussing what /dev/input/mouse0 provides. Does that mean that there's 
-no way to use extra side button (which is the sixth button)?
+The physical scanning infrastructure should be enough to implement most
+global replacement algorithms with. It's always good to compare
+alternatives. Also, we should have an implementation of random
+replacement just as a control case to verify we do better than random.
 
-	erik
+
+-- wli

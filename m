@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264558AbUBEKMi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 05:12:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUBEKMi
+	id S264574AbUBEKLf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 05:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUBEKLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 05:12:38 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:44469 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264558AbUBEKMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 05:12:37 -0500
-Subject: ATAPI device errors
-From: Patrick Dohman <pdohman@comcast.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 05 Feb 2004 04:16:24 -0600
-Message-Id: <1075976185.1369.20.camel@localhost.localdomain>
+	Thu, 5 Feb 2004 05:11:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11170 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264574AbUBEKLd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 05:11:33 -0500
+Date: Thu, 5 Feb 2004 02:11:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] via crypto beginnings
+Message-Id: <20040205021145.0b48810d.akpm@osdl.org>
+In-Reply-To: <40221255.5020306@pobox.com>
+References: <20040205014405.5a2cf529.akpm@osdl.org>
+	<40221255.5020306@pobox.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My CDROM & CDRW are problematic. I am running a 2.4.24 kernel. I suspect
-a hardware problem but I am unsure if the problem lies with the CDROM,
-CDRW or the IDE/ATAPI controler. Basically the the issue boils down to
-having one or both of the drives fall offline after a day or two of
-uptime. My logs are spammed with this.
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+>  Did you see this one?
 
-:hdd: packet command error: status=0x51 { DriveReady SeekComplete Error}
-:hdd: packet command error: error=0x40
-:ATAPI device hdd:
-:Error: Hardware error -- (Sense key=0x04)
-:(vendor-specific error) -- (asc=0x90, ascq=0x00)
-:The failed "Test Unit Ready" packet command was: 
-:"00 00 00 00 00 00 00 00 00 00 00 00 "
+yup.
 
-Is there a more verbose form of logging I can enable. Any clarification
-is very much appreciated. 
-Thank you
+ +centaur-crypto-core-support.patch
+
+  Start supporting hardware crypto on some VIA CPUs
 
 
+> I could have sworn I sent via crypto stuff, but 
+> I've been scatterbrained recently.
 
-
+None of us are getting any younger, Jeff.

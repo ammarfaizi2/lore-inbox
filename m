@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284507AbRLMSEJ>; Thu, 13 Dec 2001 13:04:09 -0500
+	id <S284497AbRLMSDt>; Thu, 13 Dec 2001 13:03:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284500AbRLMSEA>; Thu, 13 Dec 2001 13:04:00 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:405 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S284507AbRLMSDw>; Thu, 13 Dec 2001 13:03:52 -0500
-Date: Thu, 13 Dec 2001 10:03:12 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Repost: could ia32 mmap() allocations grow downward?
-In-Reply-To: <BE42B9D5208@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.33.0112130945410.19658-100000@mf1.private>
+	id <S284507AbRLMSDk>; Thu, 13 Dec 2001 13:03:40 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4992 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S284497AbRLMSD1>; Thu, 13 Dec 2001 13:03:27 -0500
+Date: Thu, 13 Dec 2001 13:02:45 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Bradley D. LaRonde" <brad@ltc.com>
+cc: Thomas Capricelli <orzel@kde.org>, linux-kernel@vger.kernel.org
+Subject: Re: Mounting a in-ROM filesystem efficiently
+In-Reply-To: <06d701c183f9$08332730$5601010a@prefect>
+Message-ID: <Pine.LNX.3.95.1011213125015.444A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Dec 2001, Petr Vandrovec wrote:
+On Thu, 13 Dec 2001, Bradley D. LaRonde wrote:
 
-> Maybe we should move to bug-glibc instead, as there is no way to force
-> stdio to not ignore mallopt() parameters, it still insist on using
-> mmap, and I think that it is a glibc2.2 bug.
+> ----- Original Message -----
+> From: "Thomas Capricelli" <orzel@kde.org>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Thursday, December 13, 2001 11:41 AM
+> Subject: Re: Mounting a in-ROM filesystem efficiently
+> 
+> 
+> > Does it mean that NONE of the existing embedded linux is able to use a ROM
+> > directly as a filesystem ?? (either root fs or not)
+> 
 
-OK, that makes sense for the glibc2 subthread of this discussion.  Would
-you mind submitting the bug report, as you have a better command of the
-issues than I do?  Or if you want, I can do it and just quote you.  :-)
+Generally, ROM based stuff is compressed before being written to
+NVRAM. It's uncompressed into a RAM-Disk and the RAM-Disk is mounted.
 
-> P.S.: I did some testing, and about 95% of mremap() allocations is
-> targeted to last VMA, so no VMA move is needed for them. But no Java
-> was part of picture, only c/c++ programs I use - gcc, mc, perl.
+That way, you can use, say, 2 megabytes of NVRAM to get a 10 to 20
+megabyte root file-system. This also allows /tmp and /var/log to be
+writable, which is a great help because the development environment 
+closely approximates the run-time environment.
 
-Ah, so this is important data.  It shows that the mmap() grows downward
-strategy will hurt the common case.  I don't have any handle on the
-magnitude of this effect, but if it is significant, then I would have to
-agree that supporting the legacy brk() apps is not as important as keeping
-mremap() of the last VMA cheap.  How expensive is moving a VMA, and how
-often do programs mremap()?
+FYI, generally NVRAM access is sooooo slow. I don't think you'd
+like to use it directly as a file-system and access-time will be
+a problem unless you modify the kernel. 
 
-How about the idea of modifying brk() (or adding an alternative) to move
-VMAs out of the way as necessary?  This way the negative impact (of moving
-VMAs) is only borne by the legacy brk() using app.  Or is there some other
-downside that I am missing?
+Cheers,
+Dick Johnson
 
-Wayne
-
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+ Santa Claus is coming to town...
+          He knows if you've been sleeping,
+             He knows if you're awake;
+          He knows if you've been bad or good,
+             So he must be Attorney General Ashcroft.
 
 

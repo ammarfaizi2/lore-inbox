@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291578AbSBNMZm>; Thu, 14 Feb 2002 07:25:42 -0500
+	id <S291605AbSBNMam>; Thu, 14 Feb 2002 07:30:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291565AbSBNMZh>; Thu, 14 Feb 2002 07:25:37 -0500
-Received: from ncc1701.cistron.net ([195.64.68.38]:54801 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S291562AbSBNMZ1>; Thu, 14 Feb 2002 07:25:27 -0500
-From: wichert@cistron.nl (Wichert Akkerman)
-Subject: Re: RFC: /proc key naming consistency
-Date: 14 Feb 2002 13:25:24 +0100
-Organization: Cistron Internet Services
-Message-ID: <a4gabk$dpl$1@picard.cistron.nl>
-In-Reply-To: <Pine.LNX.4.33.0202141020140.5260-100000@dbsydn2001.aus.deuba.com> <a4ga1d$jov$1@ncc1701.cistron.net>
+	id <S291608AbSBNMac>; Thu, 14 Feb 2002 07:30:32 -0500
+Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:21909 "EHLO
+	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S291605AbSBNMaQ>; Thu, 14 Feb 2002 07:30:16 -0500
+Message-ID: <3C6BAD61.5BC1AFC@wanadoo.fr>
+Date: Thu, 14 Feb 2002 13:28:17 +0100
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i586)
+X-Accept-Language: fr-FR, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
+Subject: 2.4.18-pre9-ac[23], make modules_install fails
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <a4ga1d$jov$1@ncc1701.cistron.net>,
-Miquel van Smoorenburg <miquels@cistron.nl> wrote:
->You could have /proc/sys/cpu/0/processor
->               /proc/sys/cpu/0/vendor_id
->               /proc/sys/cpu/0/family
->
->... and a /proc/sys/cpu/0/.table that when read produces
+Hi,
 
-And then instead of using those names use standard MIB names and add
-symlinks for assigned OID numbers and we can do SNMP using netcat
-and a sh script.
+I've the following problem with make modules_install and
+2.4.18-pre9-ac[23]. I've not tested ac1 and then vanilla 2.4.18-pre9
+works fine.
 
-Wichert.
--- 
-  _________________________________________________________________
- /       Nothing is fool-proof to a sufficiently talented fool     \
-| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
+pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b
+/usr/src/linux/debian/tmp-image -r 2.4.18-pre9-ac3; fi
+depmod: *** Unresolved symbols in
+/usr/src/linux/debian/tmp-image/lib/modules/2.4.18-pre9-ac3/kernel/drivers/scsi/sd_mod.o
+depmod:         blkdev_varyio
 
+----------
+Regards
+		jean-Luc

@@ -1,407 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbUJXVIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbUJXVJ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbUJXVIB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 17:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUJXVIB
+	id S261606AbUJXVJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 17:09:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbUJXVJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 17:08:01 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:14481 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261604AbUJXVGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 17:06:44 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: 2.6.9-mm1: NForce3 problem (IRQ sharing issue?)
-Date: Sun, 24 Oct 2004 23:08:31 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200410222354.44563.rjw@sisk.pl> <200410231928.43049.rjw@sisk.pl> <Pine.LNX.4.61.0410241921461.2982@musoma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.61.0410241921461.2982@musoma.fsmlabs.com>
+	Sun, 24 Oct 2004 17:09:26 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:58034 "EHLO
+	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S261606AbUJXVIz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 17:08:55 -0400
+Message-ID: <417C19D5.7050802@jonmasters.org>
+Date: Sun, 24 Oct 2004 22:08:37 +0100
+From: Jon Masters <jonathan@jonmasters.org>
+Organization: World Organi[sz]ation Of Broken Dreams
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_PnBfBKckR8EotOE"
-Message-Id: <200410242308.31968.rjw@sisk.pl>
+To: paulmck@us.ibm.com
+CC: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, karim@opersys.com
+Subject: Re: [RFC][PATCH] Restricted hard realtime
+References: <20041023194721.GB1268@us.ibm.com> <1098562921.3306.182.camel@thomas> <20041023212421.GF1267@us.ibm.com> <35fb2e5904102315066c6892aa@mail.gmail.com> <20041024153204.GA1262@us.ibm.com>
+In-Reply-To: <20041024153204.GA1262@us.ibm.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---Boundary-00=_PnBfBKckR8EotOE
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Paul E. McKenney wrote:
 
-On Sunday 24 of October 2004 18:27, Zwane Mwaikambo wrote:
-> On Sat, 23 Oct 2004, Rafael J. Wysocki wrote:
-> 
-> > > Could we also get a dmesg and lspci? Boot with the 'debug' kernel 
-> > > parameter.
-> > 
-> > Attached, for both 2.6.9-mm1 and 2.6.10-rc1.
-> 
-> Could you boot 2.6.10-rc1 with the 'noapic' kernel parameter and you may 
-> as well remove that pci=routeirq parameter, then send dmesg. Something 
-> appears hosed with respect to IOAPIC setup and i think ACPI is having 
-> trouble doing the fallback to PIC mode.
+| Thank you for the background!  It has been quite some time since I
+| did significant embedded work.  Let's just say that I am glad that
+| "embedded CPU" no longer means "8-bit CPU"!  ;-)
 
-I booted with noapic and without pci=routeirq, although I think it's still 
-necessary for suspend.  The output of dmesg is attached (well, it's all I can 
-currently produce - I don't know how to get anything better).
+Oh it still does, but those cores tend to get farmed out for PSU
+controll or some specific subsystem unless you're "deeply embedded".
 
-Greets,
-RJW
+jcm>> Talk to smartphone manufacturers who currently have dual ARM
+jcm>> core designs, one running Linux and the other running an RTOS
+jcm>> for the GSM and phone stuff, and they'll say they actually
+jcm>> want to reduce the design complexity down to a single core.
+jcm>> Talking to people suggests that multicore designs are good
+jcm>> in certain situations (such as in the case above), but in
+jcm>> general people aren't yet going to respond to your way of
+jcm>> doing realtime :-) Yes you do have only one OS in there,
+jcm>> maybe that would change opinion, but we're not quite at the
+jcm>> point where everything is multicore so you're not going to
+jcm>> convince the masses.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+| Good points.  Suppose there was a way to get the hard realtime benefits
+| using a slight elaboration of this approach that worked on single-core,
+| single-threaded CPUs?  Would that be of interest?
 
---Boundary-00=_PnBfBKckR8EotOE
-Content-Type: text/x-log;
-  charset="iso-8859-2";
-  name="2.6.10-rc1-dmesg.log"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.10-rc1-dmesg.log"
+I dunno. It might. I think the trouble is that you'll need to convince
+people who think they want single core designs that it's not a must.
+Although within a little time it'll increasingly be the case that one
+has additional cores whether one wants them or not, that's not just yet
+even now. Someone will doubtlessly disagree.
 
-Bootdata ok (command line is root=/dev/hdc6 vga=792 resume=/dev/hdc3 noapic nmi_watchdog=0 console=ttyS0,57600 console=tty0 debug)
-Linux version 2.6.10-rc1 (rafael@albercik) (gcc version 3.3.3 (SuSE Linux)) #3 Sat Oct 23 20:14:56 CEST 2004
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000001ff40000 (usable)
- BIOS-e820: 000000001ff40000 - 000000001ff50000 (ACPI data)
- BIOS-e820: 000000001ff50000 - 0000000020000000 (ACPI NVS)
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
-No mptable found.
-On node 0 totalpages: 130880
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 126784 pages, LIFO batch:16
-  HighMem zone: 0 pages, LIFO batch:1
-Nvidia board detected. Ignoring ACPI timer override.
-ACPI: RSDP (v000 ACPIAM                                ) @ 0x00000000000f76e0
-ACPI: RSDT (v001 A M I  OEMRSDT  0x04000413 MSFT 0x00000097) @ 0x000000001ff40000
-ACPI: FADT (v001 A M I  OEMFACP  0x04000413 MSFT 0x00000097) @ 0x000000001ff40200
-ACPI: OEMB (v001 A M I  OEMBIOS  0x04000413 MSFT 0x00000097) @ 0x000000001ff50040
-  >>> ERROR: Invalid checksum
-ACPI: DSDT (v001  L5DK8 L5DK8013 0x00000013 INTL 0x02002026) @ 0x0000000000000000
-Intel MultiProcessor Specification v1.1
-    Virtual Wire compatibility mode.
-OEM ID: ASUSTeK  <6>Product ID: L5D          <6>APIC at: 0xFEE00000
-Processor #0 15:4 APIC version 16
-I/O APIC #1 Version 17 at 0xFEC00000.
-Processors: 1
-Checking aperture...
-CPU 0: aperture @ e8000000 size 128 MB
-Built 1 zonelists
-Kernel command line: root=/dev/hdc6 vga=792 resume=/dev/hdc3 noapic nmi_watchdog=0 console=ttyS0,57600 console=tty0 debug
-Initializing CPU#0
-PID hash table entries: 2048 (order: 11, 65536 bytes)
-time.c: Using 1.193182 MHz PIT timer.
-time.c: Detected 1795.403 MHz processor.
-Console: colour dummy device 80x25
-Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
-Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
-Memory: 509548k/523520k available (2707k kernel code, 13424k reserved, 1111k data, 160k init)
-Calibrating delay loop... 3555.32 BogoMIPS (lpj=1777664)
-Security Framework v1.0.0 initialized
-SELinux:  Initializing.
-SELinux:  Starting in permissive mode
-selinux_register_security:  Registering secondary module capability
-Capability LSM initialized as secondary
-Mount-cache hash table entries: 256 (order: 0, 4096 bytes)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU: AMD Athlon(tm) 64 Processor 3000+ stepping 0a
-ACPI: IRQ9 SCI: Edge set to Level Trigger.
-Using local APIC timer interrupts.
-Detected 12.468 MHz APIC timer.
-NET: Registered protocol family 16
-PCI: Using configuration type 1
-mtrr: v2.0 (20020519)
-ACPI: Subsystem revision 20040816
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI: PCI Root Bridge [PCI0] (00:00)
-PCI: Probing PCI hardware (bus 00)
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: Embedded Controller [EC0] (gpe 37)
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P1._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P2._PRT]
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 7 9 10 11 12 14 15) *0, disabled.
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 7 9 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 7 9 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *5 7 9 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 7 9 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LUS0] (IRQs 3 4 5 7 9 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LUS1] (IRQs 3 4 *5 7 9 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LUS2] (IRQs 3 4 5 7 9 *10 11 12 14 15)
-ACPI: PCI Interrupt Link [LKLN] (IRQs 3 4 5 7 9 10 11 12 14 15) *0, disabled.
-ACPI: PCI Interrupt Link [LAUI] (IRQs 3 4 *5 7 9 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LKMO] (IRQs 3 4 5 7 9 *10 11 12 14 15)
-ACPI: PCI Interrupt Link [LKSM] (IRQs 3 4 5 7 9 10 11 12 14 15) *0, disabled.
-ACPI: PCI Interrupt Link [LTID] (IRQs 3 4 5 7 9 10 11 12 14 15) *0, disabled.
-ACPI: PCI Interrupt Link [LATA] (IRQs 3 4 6 7 10 11 12 *14 15)
-ACPI: Power Resource [GFAN] (off)
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-PCI: Using ACPI for IRQ routing
-ACPI: PCI Interrupt Link [LKSM] enabled at IRQ 11
-ACPI: PCI interrupt 0000:00:01.1[A] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI Interrupt Link [LUS0] enabled at IRQ 11
-ACPI: PCI interrupt 0000:00:02.0[A] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI Interrupt Link [LUS1] enabled at IRQ 5
-ACPI: PCI interrupt 0000:00:02.1[B] -> GSI 5 (level, low) -> IRQ 5
-ACPI: PCI Interrupt Link [LUS2] enabled at IRQ 10
-ACPI: PCI interrupt 0000:00:02.2[C] -> GSI 10 (level, low) -> IRQ 10
-ACPI: PCI Interrupt Link [LAUI] enabled at IRQ 5
-ACPI: PCI interrupt 0000:00:06.0[A] -> GSI 5 (level, low) -> IRQ 5
-ACPI: PCI Interrupt Link [LKMO] enabled at IRQ 10
-ACPI: PCI interrupt 0000:00:06.1[B] -> GSI 10 (level, low) -> IRQ 10
-ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
-ACPI: PCI interrupt 0000:02:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 9
-ACPI: PCI interrupt 0000:02:01.0[A] -> GSI 9 (level, low) -> IRQ 9
-ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 11
-ACPI: PCI interrupt 0000:02:01.1[B] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI interrupt 0000:02:01.2[C] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 5
-ACPI: PCI interrupt 0000:02:01.3[D] -> GSI 5 (level, low) -> IRQ 5
-ACPI: PCI interrupt 0000:02:01.4[D] -> GSI 5 (level, low) -> IRQ 5
-ACPI: PCI interrupt 0000:02:02.0[A] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI Interrupt Link [LNKE] enabled at IRQ 11
-ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-agpgart: Detected AGP bridge 0
-agpgart: Setting up Nforce3 AGP.
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: AGP aperture is 128M @ 0xe8000000
-PCI-DMA: Disabling IOMMU.
-IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
-audit: initializing netlink socket (disabled)
-audit(1098651312.659:0): initialized
-Total HugeTLB memory allocated, 0
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
-SELinux:  Registering netfilter hooks
-Initializing Cryptographic API
-vesafb: framebuffer at 0xd0000000, mapped to 0xffffff0000100000, using 6144k, total 65536k
-vesafb: mode is 1024x768x32, linelength=4096, pages=1
-vesafb: scrolling: redraw
-vesafb: Truecolor: size=8:8:8:8, shift=24:16:8:0
-Console: switching to colour frame buffer device 128x48
-fb0: VESA VGA frame buffer device
-Real Time Clock Driver v1.12
-Linux agpgart interface v0.100 (c) Dave Jones
-i8042.c: Detected active multiplexing controller, rev 1.1.
-serio: i8042 AUX0 port at 0x60,0x64 irq 12
-serio: i8042 AUX1 port at 0x60,0x64 irq 12
-serio: i8042 AUX2 port at 0x60,0x64 irq 12
-serio: i8042 AUX3 port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ACPI: PCI interrupt 0000:00:06.1[B] -> GSI 10 (level, low) -> IRQ 10
-io scheduler noop registered
-io scheduler anticipatory registered
-io scheduler deadline registered
-io scheduler cfq registered
-RAMDISK driver initialized: 16 RAM disks of 128000K size 1024 blocksize
-loop: loaded (max 8 devices)
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-NFORCE3-150: IDE controller at PCI slot 0000:00:08.0
-NFORCE3-150: chipset revision 165
-NFORCE3-150: not 100% native mode: will probe irqs later
-NFORCE3-150: BIOS didn't set cable bits correctly. Enabling workaround.
-NFORCE3-150: 0000:00:08.0 (rev a5) UDMA133 controller
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-Probing IDE interface ide0...
-hdb: TOSHIBA DVD-ROM SD-R2512, ATAPI CD/DVD-ROM drive
-elevator: using anticipatory as default io scheduler
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: IC25N060ATMR04-0, ATA DISK drive
-ide1 at 0x170-0x177,0x376 on irq 15
-Probing IDE interface ide2...
-ide2: Wait for ready failed before probe !
-Probing IDE interface ide3...
-ide3: Wait for ready failed before probe !
-Probing IDE interface ide4...
-ide4: Wait for ready failed before probe !
-Probing IDE interface ide5...
-ide5: Wait for ready failed before probe !
-hdc: max request size: 1024KiB
-hdc: 117210240 sectors (60011 MB) w/7884KiB Cache, CHS=16383/255/63, UDMA(100)
-hdc: cache flushes supported
- hdc: hdc1 hdc2 hdc3 hdc4 < hdc5 hdc6 hdc7 hdc8 hdc9 hdc10 >
-mice: PS/2 mouse device common for all mice
-input: AT Translated Set 2 keyboard on isa0060/serio0
-Synaptics Touchpad, model: 1
- Firmware: 5.9
- 180 degree mounted touchpad
- Sensor: 18
- new absolute packet format
- Touchpad has extended capability bits
- -> four buttons
- -> palm detection
-input: SynPS/2 Synaptics TouchPad on isa0060/serio4
-NET: Registered protocol family 2
-IP: routing cache hash table of 512 buckets, 28Kbytes
-TCP: Hash tables configured (established 32768 bind 4681)
-NET: Registered protocol family 1
-PM: Reading pmdisk image.
-swsusp: Resume From Partition: /dev/hdc3
-<3>swsusp: Invalid partition type.
-pmdisk: Error -22 resuming
-PM: Resume from disk failed.
-ACPI: (supports S0 S1 S3 S4 S5)
-ACPI wakeup devices: 
- MDM P0P1 LAN0 LAN1 USB0 USB1 USB2 SLPB 
-EXT3-fs: INFO: recovery required on readonly filesystem.
-EXT3-fs: write access will be enabled during recovery.
-(fs/jbd/recovery.c, 255): journal_recover: JBD: recovery, exit status 0, recovered transactions 280863 to 280877
-(fs/jbd/recovery.c, 257): journal_recover: JBD: Replayed 503 and revoked 0/0 blocks
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: recovery complete.
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Freeing unused kernel memory: 160k freed
-Adding 1534196k swap on /dev/hdc3.  Priority:42 extents:1
-EXT3 FS on hdc6, internal journal
-device-mapper: 4.1.0-ioctl (2003-12-10) initialised: dm@uk.sistina.com
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hdc5, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hdc7, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on hdc8, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-ReiserFS: hdc9: found reiserfs format "3.6" with standard journal
-ReiserFS: hdc9: using ordered data mode
-ReiserFS: hdc9: journal params: device hdc9, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-ReiserFS: hdc9: checking transaction log (hdc9)
-ReiserFS: hdc9: Using r5 hash to sort names
-ReiserFS: hdc10: found reiserfs format "3.6" with standard journal
-ReiserFS: hdc10: using ordered data mode
-ReiserFS: hdc10: journal params: device hdc10, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-ReiserFS: hdc10: checking transaction log (hdc10)
-ReiserFS: hdc10: Using r5 hash to sort names
-NET: Registered protocol family 10
-Disabled Privacy Extensions on device ffffffff80481ae0(lo)
-IPv6 over IPv4 tunneling driver
-Disabled Privacy Extensions on device 000001001f87cbe0(sit0)
-ACPI: PCI interrupt 0000:02:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-ACPI: PCI interrupt 0000:02:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-eth0: Yukon Gigabit Ethernet 10/100/1000Base-T Adapter
-      PrefPort:A  RlmtMode:Check Link State
-NET: Registered protocol family 17
-ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-ACPI: PCI interrupt 0000:00:02.0[A] -> GSI 11 (level, low) -> IRQ 11
-ohci_hcd 0000:00:02.0: nVidia Corporation nForce3 USB 1.1
-PCI: Setting latency timer of device 0000:00:02.0 to 64
-ohci_hcd 0000:00:02.0: irq 11, pci mem 0xfebfb000
-ohci_hcd 0000:00:02.0: new USB bus registered, assigned bus number 1
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 3 ports detected
-ACPI: PCI interrupt 0000:00:02.1[B] -> GSI 5 (level, low) -> IRQ 5
-ohci_hcd 0000:00:02.1: nVidia Corporation nForce3 USB 1.1 (#2)
-PCI: Setting latency timer of device 0000:00:02.1 to 64
-ohci_hcd 0000:00:02.1: irq 5, pci mem 0xfebfc000
-ohci_hcd 0000:00:02.1: new USB bus registered, assigned bus number 2
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 3 ports detected
-usb 1-2: new low speed USB device using address 2
-eth0: network connection up using port A
-    speed:           100
-    autonegotiation: yes
-    duplex mode:     full
-    flowctrl:        symmetric
-    irq moderation:  disabled
-    scatter-gather:  enabled
-ACPI: PCI interrupt 0000:00:02.2[C] -> GSI 10 (level, low) -> IRQ 10
-ehci_hcd 0000:00:02.2: nVidia Corporation nForce3 USB 2.0
-PCI: Setting latency timer of device 0000:00:02.2 to 64
-ehci_hcd 0000:00:02.2: irq 10, pci mem 0xfebfdc00
-ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 3
-PCI: cache line size of 64 is not supported by device 0000:00:02.2
-ehci_hcd 0000:00:02.2: USB 2.0 enabled, EHCI 1.00, driver 2004-May-10
-hub 3-0:1.0: USB hub found
-hub 3-0:1.0: 6 ports detected
-usb 1-2: USB disconnect, address 2
-usb 1-2: new low speed USB device using address 3
-Linux Kernel Card Services
-  options:  [pci] [cardbus] [pm]
-ACPI: PCI interrupt 0000:02:01.0[A] -> GSI 9 (level, low) -> IRQ 9
-Yenta: CardBus bridge found at 0000:02:01.0 [1043:1854]
-Yenta: ISA IRQ mask 0x0098, PCI irq 9
-Socket status: 30000006
-ACPI: PCI interrupt 0000:02:01.1[B] -> GSI 11 (level, low) -> IRQ 11
-Yenta: CardBus bridge found at 0000:02:01.1 [1043:1854]
-Yenta: ISA IRQ mask 0x0098, PCI irq 11
-Socket status: 30000006
-ieee1394: Initialized config rom entry `ip1394'
-ohci1394: $Rev: 1223 $ Ben Collins <bcollins@debian.org>
-ACPI: PCI interrupt 0000:02:01.2[C] -> GSI 11 (level, low) -> IRQ 11
-ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[11]  MMIO=[feafd000-feafd7ff]  Max Packet=[2048]
-usbcore: registered new driver hiddev
-input: USB HID v1.10 Mouse [Logitech Optical USB Mouse] on usb-0000:00:02.0-2
-usbcore: registered new driver usbhid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-ACPI: AC Adapter [AC0] (on-line)
-ACPI: PCI interrupt 0000:00:06.0[A] -> GSI 5 (level, low) -> IRQ 5
-PCI: Setting latency timer of device 0000:00:06.0 to 64
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00e018000319b175]
-ACPI: Battery Slot [BAT0] (battery present)
-ACPI: Power Button (FF) [PWRF]
-ACPI: Sleep Button (CM) [SLPB]
-ACPI: Lid Switch [LID]
-ACPI: Fan [FN00] (off)
-ACPI: Processor [CPU1] (supports C1)
-ACPI: Thermal Zone [THRM] (57 C)
-powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.00.09e)
-powernow-k8:    0 : fid 0xa (1800 MHz), vid 0x2 (1500 mV)
-powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0x6 (1400 mV)
-powernow-k8:    2 : fid 0x0 (800 MHz), vid 0x12 (1100 mV)
-powernow-k8: cpu_init done, current fid 0xa, vid 0x2
-intel8x0_measure_ac97_clock: measured 49503 usecs
-intel8x0: clocking to 47365
-ALSA sound/pci/intel8x0.c:2841: joystick(s) found
-eth0: no IPv6 routers present
-hdb: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-SCSI subsystem initialized
-st: Version 20040403, fixed bufsize 32768, s/g segs 256
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-parport0: PC-style at 0x378 [PCSPP,TRISTATE]
-lp0: using parport0 (polling).
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-usb usb2: string descriptor 0 read error: -113
-drivers/usb/serial/usb-serial.c: USB Serial support registered for Generic
-usbcore: registered new driver usbserial_generic
-usbcore: registered new driver usbserial
-drivers/usb/serial/usb-serial.c: USB Serial Driver core v2.0
+| if you are going for the ultimate in response time, you have
+| no choice but to run hand-coded assembly language on bare metal (though
+| optimizing compilers are improving, so maybe it will soon be hand-coded
+| C on bare metal).
 
---Boundary-00=_PnBfBKckR8EotOE--
+Nah. The guys I work with have enough trouble making things time nicely
+with precisely coded sequences accounting for every available T state.
+
+| If you are using your computer to digitally modulate
+| and synthesize a USA FM radio signal
+
+In this case it's large magnets and probes, but yes. Same concept.
+
+| So, I guess the question is whether 100-microsecond restricted hard
+| realtime support in Linux is worth the effort.
+
+Some of the folks I work with think not. I'm not sure yet - many people
+seem to be of the opinion that it's not worth it, but we're told that
+the Smartphone guys and others without throwaway cores (or to simplify a
+design somewhat) really want this. Incidentally, it looks like they'll
+be about a bazzion cores in this particular FPGA range before long, so
+it'll become increasingly fun finding things for them to do.
+
+| So, again, if there was a way to make this approach work on
+| single-threaded single core CPUs, would that be of interest?
+
+I guess it would. But then we've just had a slew of RT implementations
+crawl out of the woodwork and wave at us over the past few weeks and
+there are three other major RT implementations which combine Linux with
+a Microkernel or other external support (RTLinux, RTAI, KURT, etc.).
+Perhaps it's worth working on one of the Linux patch projects
+(Monta/Ingo/etc.) rather than going all out to implement it all again.
+
+Jon.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBfBnUeTyyexZHHxERAo90AKCTgK8ZZCq4Lqw+a1VHFzhtKOO22ACfQy7E
+hwuQzo04bIlxJy5b1VjGA+E=
+=4omH
+-----END PGP SIGNATURE-----

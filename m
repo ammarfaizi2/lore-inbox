@@ -1,50 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312529AbSEPMpK>; Thu, 16 May 2002 08:45:10 -0400
+	id <S312558AbSEPMyC>; Thu, 16 May 2002 08:54:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312576AbSEPMpJ>; Thu, 16 May 2002 08:45:09 -0400
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:60039 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id <S312529AbSEPMpI>; Thu, 16 May 2002 08:45:08 -0400
-Message-ID: <180577A42806D61189D30008C7E632E87938EA@boca213a.boca.ssc.siemens.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: FW: Device driver question
-Date: Thu, 16 May 2002 08:45:08 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S312560AbSEPMyB>; Thu, 16 May 2002 08:54:01 -0400
+Received: from ns.suse.de ([213.95.15.193]:25359 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312558AbSEPMyB>;
+	Thu, 16 May 2002 08:54:01 -0400
+To: Mark Gross <mgross@unix-os.sc.intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH Multithreaded core dump support for the 2.5.14 (and 15) kernel.
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C057B485B@orsmsx111.jf.intel.com.suse.lists.linux.kernel> <20020515120722.A17644@in.ibm.com.suse.lists.linux.kernel> <20020515140448.C37@toy.ucw.cz.suse.lists.linux.kernel> <200205152353.g4FNrew30146@unix-os.sc.intel.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 16 May 2002 14:54:00 +0200
+Message-ID: <p73it5oz21j.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I now have a solution to the question below. Thanks for all of the help.
+Mark Gross <mgross@unix-os.sc.intel.com> writes:
+> 
+> Any driver that holds a lock across any sleep_on call I think is abusing 
+> locks and needs adjusting.
 
-Jack Bloch
-Siemens Carrier Networks
-e-mail    : jack.bloch@icn.siemens.com
-phone     : (561) 923-6550
+That's true for spinlocks, but not for semaphores. The mm layer and the 
+vfs layer both use semaphores extensively and sleep with them hold, 
+also some other subsystems (like networking) use sleeping locks.
 
->  -----Original Message-----
-> From: 	Bloch, Jack  
-> Sent:	Wednesday, May 15, 2002 9:17 AM
-> To:	'linux-kernel@vger.kernel.org.'
-> Subject:	Device driver question
-> 
-> I am relatively new to Linux (< 6 months). We have designed an embedded
-> system (on compact PCI) running on a Pentium III 700Mhz cPCI machine. This
-> machine supports upt to 6 cPCI boards for specific functions (this is our
-> own HW). I have already written the device drivers for these boards and
-> the system is running. I have a specific case where our HW can generate a
-> special interrupt. In this case I simply want the ISR to halt the system
-> (i.e. take the same action as if I typed halt from the command line). How
-> can I from within my device driver cause a halt? Please CC me specifically
-> on any replies.
-> 
-> Thanks in advance. 
-> 
-> Jack Bloch
-> Siemens Carrier Networks
-> e-mail    : jack.bloch@icn.siemens.com
-> phone     : (561) 923-6550
-> 
+-Andi
+

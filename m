@@ -1,110 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316695AbSH0SJ7>; Tue, 27 Aug 2002 14:09:59 -0400
+	id <S316659AbSH0STo>; Tue, 27 Aug 2002 14:19:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316705AbSH0SJ7>; Tue, 27 Aug 2002 14:09:59 -0400
-Received: from mail.netikka.fi ([62.148.192.132]:59381 "EHLO mail.netikka.fi")
-	by vger.kernel.org with ESMTP id <S316695AbSH0SJ4>;
-	Tue, 27 Aug 2002 14:09:56 -0400
-Message-ID: <000b01c24df5$aacc7ed0$d20a5f0a@deldaran>
-From: "Lahti Oy" <rlahti@netikka.fi>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] sched.c
-Date: Tue, 27 Aug 2002 21:15:03 +0300
+	id <S316673AbSH0STo>; Tue, 27 Aug 2002 14:19:44 -0400
+Received: from mail.gmx.net ([213.165.64.20]:61965 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S316659AbSH0STm>;
+	Tue, 27 Aug 2002 14:19:42 -0400
+From: Felix Seeger <felix.seeger@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: USB mouse problem, kernel panic on startup in 2.4.19
+Date: Tue, 27 Aug 2002 20:23:47 +0200
+User-Agent: KMail/1.4.6
+References: <200208272011.51691.felix.seeger@gmx.de>
+In-Reply-To: <200208272011.51691.felix.seeger@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200208272023.52351.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Small patch that makes NR_CPUS loops decrement from 31 to 0 in sched.c to
-squeeze out some cycles (of course only on SMP machines). Also deprecated a
-macro that was only used once in the code and changed one if-conditional to
-else if.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-If everyone agrees, do I need to post the patch to someone or will it be
-picked from the list?
+Sorry, there was a type. I noticed the ????
 
-Furthermore, there are probably many other juicy spots in the kernel where
-decrementing loops could be applied. Is there a reason for not doing so at
-the moment?
+Here is it without this typo:
 
---- sched.c.orig Tue Aug 27 08:32:38 2002
-+++ sched.c Tue Aug 27 08:32:38 2002
-@@ -161,7 +161,6 @@
- #define cpu_rq(cpu)  (runqueues + (cpu))
- #define this_rq()  cpu_rq(smp_processor_id())
- #define task_rq(p)  cpu_rq(task_cpu(p))
--#define cpu_curr(cpu)  (cpu_rq(cpu)->curr)
- #define rt_task(p)  ((p)->prio < MAX_RT_PRIO)
+bash-2.05b# ksymoops /home/hal/panic.txt
+ksymoops 2.4.6 on i686 2.4.19.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19/ (default)
+     -m /boot/System.map-2.4.19 (default)
 
- /*
-@@ -543,7 +542,7 @@
- {
-  unsigned long i, sum = 0;
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-- for (i = 0; i < NR_CPUS; i++)
-+ for (i = NR_CPUS; i; i--)
-   sum += cpu_rq(i)->nr_running;
+Warning (compare_maps): ksyms_base symbol 
+eighty_ninty_three_R__ver_eighty_ninty_three not found in System.map.  
+Ignoring ksyms_base entry
+Kernel BUG at usb-ohci.h:464!
+Invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c02105e0>] Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010046
+eax: 00000000  ebx: d3ed7800  ecx: d3d7800  edx: 000ee4c0
+esi:  04000001  edi:  00000000  ebp: c02e7fac esp: c02e7f30
+ds: 0018  es: 0018 ss: 0018
+Process swapper (pid:0,stackpage=c02e7000)
+Stack: d3ed7800   04000001   d980f000   c02e7fac   00000246   00000000   
+c021187b   d3ed7800
+          d3e97d00   04000001   0000000a   c02e7fac  00000002   c0109a9f    
+0000000a   d3ed7800
+          c02e7fac    00000280   c0301b00   0000000a c02e7fa4    c0109c1e   
+0000000a   c02e7fac
+Call Trace: [<c021187b>]  [<c0109a9f>]  [<c0109c1>]  [<c0106c20>]  
+[<c0106c20>]
+[<c010beb8>]  [<c0106c20>]  [<c0106c20>]  [<c0106c43>]  [<0106cb2>]  
+[<c0105000>]
+[<c0105027>]
+Code: 0f 0b d0 01 00 ab 28 c0 8b 38 89 fd 8b 07 c1 e8 1c 75 51 8b
 
-  return sum;
-@@ -553,7 +552,7 @@
- {
-  unsigned long i, sum = 0;
 
-- for (i = 0; i < NR_CPUS; i++)
-+ for (i = NR_CPUS; i; i--)
-   sum += cpu_rq(i)->nr_uninterruptible;
+>>EIP; c02105e0 <dl_reverse_done_list+60/f0>   <=====
 
-  return sum;
-@@ -563,7 +562,7 @@
- {
-  unsigned long i, sum = 0;
+>>ebx; d3ed7800 <_end+13b9fc50/194d9450>
+>>ebp; c02e7fac <init_task_union+1fac/2000>
+>>esp; c02e7f30 <init_task_union+1f30/2000>
 
-- for (i = 0; i < NR_CPUS; i++)
-+ for (i = NR_CPUS; i; i--)
-   sum += cpu_rq(i)->nr_switches;
+Trace; c021187b <hc_interrupt+7b/130>
+Trace; c0109a9f <handle_IRQ_event+2f/60>
+Trace; 0c0109c1 Before first symbol
+Trace; c0106c20 <default_idle+0/30>
+Trace; c0106c20 <default_idle+0/30>
+Trace; c010beb8 <call_do_IRQ+5/d>
+Trace; c0106c20 <default_idle+0/30>
+Trace; c0106c20 <default_idle+0/30>
+Trace; c0106c43 <default_idle+23/30>
+Trace; 00106cb2 Before first symbol
+Trace; c0105000 <_stext+0/0>
+Trace; c0105027 <rest_init+27/30>
 
-  return sum;
-@@ -667,7 +666,7 @@
+Code;  c02105e0 <dl_reverse_done_list+60/f0>
+00000000 <_EIP>:
+Code;  c02105e0 <dl_reverse_done_list+60/f0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c02105e2 <dl_reverse_done_list+62/f0>
+   2:   d0 01                     rolb   (%ecx)
+Code;  c02105e4 <dl_reverse_done_list+64/f0>
+   4:   00 ab 28 c0 8b 38         add    %ch,0x388bc028(%ebx)
+Code;  c02105ea <dl_reverse_done_list+6a/f0>
+   a:   89 fd                     mov    %edi,%ebp
+Code;  c02105ec <dl_reverse_done_list+6c/f0>
+   c:   8b 07                     mov    (%edi),%eax
+Code;  c02105ee <dl_reverse_done_list+6e/f0>
+   e:   c1 e8 1c                  shr    $0x1c,%eax
+Code;  c02105f1 <dl_reverse_done_list+71/f0>
+  11:   75 51                     jne    64 <_EIP+0x64> c0210644 
+<dl_reverse_done_list+c4/f0>
+Code;  c02105f3 <dl_reverse_done_list+73/f0>
+  13:   8b 00                     mov    (%eax),%eax
 
-  busiest = NULL;
-  max_load = 1;
-- for (i = 0; i < NR_CPUS; i++) {
-+ for (i = NR_CPUS; i; i--) {
-   if (!cpu_online(i))
-    continue;
+<0> Kernel panic: Aiee, killing interrupt handler!
 
-@@ -1297,7 +1296,7 @@
-   if (increment < -40)
-    increment = -40;
-  }
-- if (increment > 40)
-+ else if (increment > 40)
-   increment = 40;
+2 warnings issued.  Results may not be reliable.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-  nice = PRIO_TO_NICE(current->static_prio) + increment;
-@@ -1344,7 +1343,7 @@
-  */
- int idle_cpu(int cpu)
- {
-- return cpu_curr(cpu) == cpu_rq(cpu)->idle;
-+ return cpu_rq(cpu)->curr == cpu_rq(cpu)->idle;
- }
-
- /**
-@@ -2081,7 +2080,7 @@
-  runqueue_t *rq;
-  int i, j, k;
-
-- for (i = 0; i < NR_CPUS; i++) {
-+ for (i = NR_CPUS; i; i--) {
-   prio_array_t *array;
-
-   rq = cpu_rq(i);
+iD8DBQE9a8O4S0DOrvdnsewRAhxUAJ9MvEpGhf0gfHa/Y1EZTpTJTeTjAwCdGbT0
+cG4OqgQYcs3bs1H8Bjk3eL0=
+=5bW8
+-----END PGP SIGNATURE-----
 

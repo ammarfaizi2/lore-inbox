@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263998AbTEGPO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264005AbTEGPO5
+	id S264069AbTEGPdV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264075AbTEGPdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:14:57 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:21636
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263998AbTEGPOy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:14:54 -0400
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: hps@intermeta.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030507164434.6b891b14.skraw@ithnet.com>
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
-	 <20030428115740.3a6c2a97.skraw@ithnet.com>
-	 <b98m2a$bih$1@tangens.hometree.net>
-	 <20030507164434.6b891b14.skraw@ithnet.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052317727.3065.28.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 May 2003 15:28:48 +0100
+	Wed, 7 May 2003 11:33:20 -0400
+Received: from vicar.dcs.qmul.ac.uk ([138.37.88.163]:41953 "EHLO
+	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP id S264069AbTEGPdT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 11:33:19 -0400
+Date: Wed, 7 May 2003 16:45:48 +0100 (BST)
+From: Matt Bernstein <mb--lkml@dcs.qmul.ac.uk>
+To: Andi Kleen <ak@muc.de>
+cc: Andrew Morton <akpm@digeo.com>, elenstev@mesatop.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.68-mm4
+In-Reply-To: <20030507123508.GA6060@averell>
+Message-ID: <Pine.LNX.4.55.0305071643150.1779@r2-pc.dcs.qmul.ac.uk>
+References: <1051908541.2166.40.camel@spc9.esa.lanl.gov>
+ <20030502140508.02d13449.akpm@digeo.com> <1051910420.2166.55.camel@spc9.esa.lanl.gov>
+ <Pine.LNX.4.55.0305030014130.1304@jester.mews> <20030502164159.4434e5f1.akpm@digeo.com>
+ <20030503025307.GB1541@averell> <Pine.LNX.4.55.0305030800140.1304@jester.mews>
+ <Pine.LNX.4.55.0305061511020.3237@r2-pc.dcs.qmul.ac.uk> <20030506143533.GA22907@averell>
+ <Pine.LNX.4.55.0305071121220.6697@r2-pc.dcs.qmul.ac.uk> <20030507123508.GA6060@averell>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-uvscan-result: clean (19DR76-0003YC-Vl)
+X-Auth-User: jonquil.thebachchoir.org.uk
+X-uvscan-result: clean (19DR7A-0001G7-Dq)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-05-07 at 15:44, Stephan von Krawczynski wrote:
-> This is not completely true. You can be imprisoned (and "handed over") even as
-> E.U. citizen to US for violation of US laws. E.U. signed a respective
-> agreement. As far as I know no case was filed up to now, but that does not mean
-> it weren't possible.
+At 14:35 +0200 Andi Kleen wrote:
 
-Only if the crime in question is also a crime in the EU, and a whole
-list of other conditions about who/where the crime was committed against
-(and that it doesnt cover crimes with a death sentence). Also even
-within the EU certain kinds of financial crimes are exempted so that
-the italians would sign it
+>It tries to patch an instruction past the kernel text.
+>
+>It could be in the discarded .exit.text/.text.exit. With new binutils you should
+>get an link error when this happens, but perhaps yours are too old for that.
 
-> > Copying a CD for private use is perfectly legal here in Germany. 
-> 
-> Just wait 6 month and see...
+I'm using the RH 9 standard 2.13.90.0.18-9. My environment is exactly RH9
++ modutils 2.4.22-10 from rawhide, on a single Athlon XP.
 
-Indeed
+>When you comment these entries out from the DISCARD statement in 
+>arch/i386/vmlinux.lds.S does it go away ? Alternatively use Andrew's
+>latest 2.5.69-mm*, that has the patch too.
 
+Tried 2.5.69-mm2, it crashed the same way :-/

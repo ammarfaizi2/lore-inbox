@@ -1,82 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316863AbSF0TQP>; Thu, 27 Jun 2002 15:16:15 -0400
+	id <S316933AbSF0TOV>; Thu, 27 Jun 2002 15:14:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316952AbSF0TQP>; Thu, 27 Jun 2002 15:16:15 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:64164 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S316863AbSF0TQN>; Thu, 27 Jun 2002 15:16:13 -0400
-Date: Thu, 27 Jun 2002 20:17:42 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrew Morton <akpm@zip.com.au>, Christoph Rohland <cr@sap.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] shm_destroy lock hang
-Message-ID: <Pine.LNX.4.21.0206272007480.2791-100000@localhost.localdomain>
+	id <S316952AbSF0TOU>; Thu, 27 Jun 2002 15:14:20 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:59784 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316933AbSF0TOT>; Thu, 27 Jun 2002 15:14:19 -0400
+Date: Thu, 27 Jun 2002 15:19:10 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: David Schwartz <davids@webmaster.com>
+cc: Oliver.Neukum@lrz.uni-muenchen.de, Gregoryg@ParadigmGeo.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Multiple profiles
+In-Reply-To: <20020627185355.AAA28049@shell.webmaster.com@whenever>
+Message-ID: <Pine.LNX.3.95.1020627151330.9280A-200000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-1678716291-1025205550=:9280"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin reported "Bug with shared memory" to LKML 14 May: hang due to
-schedule in truncate_list_pages called from .... shm_destroy holding
-the shm_lock spinlock.  shm_destroy needs that lock for shm_rmid, but
-it can be safely unlocked once link from id to shp has been removed.
-Patch against 2.4.19-rc1 or -pre10-ac2, applies at offset to 2.5.24.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---- 2.4.19-rc1/ipc/shm.c	Mon Jun 24 19:14:58 2002
-+++ linux/ipc/shm.c	Thu Jun 27 19:34:51 2002
-@@ -117,12 +117,14 @@
-  *
-  * @shp: struct to free
-  *
-- * It has to be called with shp and shm_ids.sem locked
-+ * It has to be called with shp and shm_ids.sem locked,
-+ * but returns with shp unlocked and freed.
-  */
- static void shm_destroy (struct shmid_kernel *shp)
- {
- 	shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 	shm_rmid (shp->id);
-+	shm_unlock(shp->id);
- 	shmem_lock(shp->shm_file, 0);
- 	fput (shp->shm_file);
- 	kfree (shp);
-@@ -150,8 +152,8 @@
- 	if(shp->shm_nattch == 0 &&
- 	   shp->shm_flags & SHM_DEST)
- 		shm_destroy (shp);
--
--	shm_unlock(id);
-+	else
-+		shm_unlock(id);
- 	up (&shm_ids.sem);
- }
- 
-@@ -511,11 +513,9 @@
- 			shp->shm_flags |= SHM_DEST;
- 			/* Do not find it any more */
- 			shp->shm_perm.key = IPC_PRIVATE;
-+			shm_unlock(shmid);
- 		} else
- 			shm_destroy (shp);
--
--		/* Unlock */
--		shm_unlock(shmid);
- 		up(&shm_ids.sem);
- 		return err;
- 	}
-@@ -653,7 +653,8 @@
- 	if(shp->shm_nattch == 0 &&
- 	   shp->shm_flags & SHM_DEST)
- 		shm_destroy (shp);
--	shm_unlock(shmid);
-+	else
-+		shm_unlock(shmid);
- 	up (&shm_ids.sem);
- 
- 	*raddr = (unsigned long) user_addr;
+--1678434306-1678716291-1025205550=:9280
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
+On Thu, 27 Jun 2002, David Schwartz wrote:
+
+> 
+> On Thu, 27 Jun 2002 14:22:07 +0200 (MET DST), 
+> Oliver.Neukum@lrz.uni-muenchen.de wrote:
+> 
+> >On Thu, 27 Jun 2002, David Schwartz wrote:
+> >
+> >>    There is no way to create multiple profiles on Linux. But there may be 
+> >> a way
+> 
+> >Actually there is. We call them runlevels. init seems to be pretty
+> >standard on Linux systems.
+> 
+> 	True, though runlevels don't allow you to change the kernel you're
+>  using, 
+> its command line, or the initrd. In addition, many distributions' preferred 
+> means of creating profiles is not by means of runlevels.
+> 
+
+You can boot different 'profiles' like the attached script shows. With
+`initrd`, you can even query the user after initial boot, about what
+'profile' you might want. It can then set up whatever you want, then
+in a final heave, do `exec /sbin/init auto` and you are running the
+startup files (the profile) that you specified.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+
+--1678434306-1678716291-1025205550=:9280
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="make_ramdisk.sh"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.3.95.1020627151910.9280B@chaos.analogic.com>
+Content-Description: 
+
+IyEvYmluL2Jhc2gNCiMNCiMJVGhpcyBpbnN0YWxscyB0aGUga2VybmVsIG9u
+IGEgc3lzdGVtIHRoYXQgcmVxdWlyZXMgYW4gaW5pdGlhbA0KIwlSQU0gRGlz
+ayBhbmQgd2l0aCBhbiBpbml0aWFsIFNDU0kgZHJpdmVyLg0KIw0KDQpleHBv
+cnQgVkVSPSQxDQpSQU1ESVNLX0RFVklDRT0vdG1wL1JBTS5EQVRBDQpSQU1E
+SVNLX01PVU5UPS90bXAvUmFtZGlzaw0KRElTS1NJWkU9MTgwMA0KU1lTPS91
+c3Ivc3JjL2xpbnV4LSR7VkVSfS9hcmNoL2kzODYvYm9vdC9iekltYWdlDQpN
+QVA9L3Vzci9zcmMvbGludXgtJHtWRVJ9L1N5c3RlbS5tYXANCmlmIFsgIiQx
+IiA9ICIiIF0gOw0KICAgdGhlbg0KICAgICAgIGVjaG8gIlVzYWdlOiINCiAg
+ICAgICBlY2hvICJtYWtlX3JhbWRpc2sgPHZlcnNpb24+Ig0KICAgICAgIGV4
+aXQgMQ0KZmkNCmlmIFsgISAtZiAke1NZU30gXSA7DQogICB0aGVuDQogICAg
+ZWNobyAiRmlsZSBub3QgZm91bmQsICR7U1lTfSINCiAgICBleGl0IDENCmZp
+DQppZiBbICEgLWYgJHtNQVB9IF0gOw0KICAgdGhlbg0KICAgIGVjaG8gIkZp
+bGUgbm90IGZvdW5kLCAke01BUH0iDQogICAgZXhpdCAxDQpmaQ0KaWYgISBk
+ZXBtb2QgLWEgJHtWRVJ9IDsNCiAgIHRoZW4NCiAgICAgIGVjaG8gIlRoaXMg
+d29uJ3Qgd29yayEgIFRoZXJlIGFyZSBzb21lIHVucmVzb2x2ZWQgc3ltYm9s
+cy4iDQogICAgICBleGl0IDENCmZpDQp1bW91bnQgL2luaXRyZCAyPi9kZXYv
+bnVsbA0KdW1vdW50ICR7UkFNRElTS19ERVZJQ0V9IDI+L2Rldi9udWxsDQp1
+bW91bnQgJHtSQU1ESVNLX01PVU5UfSAgMj4vZGV2L251bGwNCm1rZGlyICAk
+e1JBTURJU0tfTU9VTlR9ICAyPi9kZXYvbnVsbA0KZGQgaWY9L2Rldi96ZXJv
+IG9mPSR7UkFNRElTS19ERVZJQ0V9IGJzPTFrIGNvdW50PSR7RElTS1NJWkV9
+DQpta2UyZnMgLUZxICR7UkFNRElTS19ERVZJQ0V9ICR7RElTS1NJWkV9DQpt
+b3VudCAtbyBsb29wICR7UkFNRElTS19ERVZJQ0V9ICR7UkFNRElTS19NT1VO
+VH0NCnJtZGlyICR7UkFNRElTS19NT1VOVH0vbG9zdCtmb3VuZCANCm1rZGly
+ICR7UkFNRElTS19NT1VOVH0vZGV2DQpta2RpciAke1JBTURJU0tfTU9VTlR9
+L2V0Yw0KbWtkaXIgJHtSQU1ESVNLX01PVU5UfS9saWINCm1rZGlyICR7UkFN
+RElTS19NT1VOVH0vYmluDQpta2RpciAke1JBTURJU0tfTU9VTlR9L3NiaW4N
+Cm1rbm9kICR7UkFNRElTS19NT1VOVH0vZGV2L251bGwgICBjIDEgMw0KbWtu
+b2QgJHtSQU1ESVNLX01PVU5UfS9kZXYvcmFtMCAgIGIgMSAwIA0KbWtub2Qg
+JHtSQU1ESVNLX01PVU5UfS9kZXYvcmFtMSAgIGIgMSAxDQpta25vZCAke1JB
+TURJU0tfTU9VTlR9L2Rldi9zcjAgICAgYiAxMSAwIA0KbWtub2QgJHtSQU1E
+SVNLX01PVU5UfS9kZXYvc2NkMCAgIGIgMTEgMCANCm1rbm9kICR7UkFNRElT
+S19NT1VOVH0vZGV2L3R0eTAgICBjIDQgMA0KbWtub2QgJHtSQU1ESVNLX01P
+VU5UfS9kZXYvdHR5MSAgIGMgNCAxDQpta25vZCAke1JBTURJU0tfTU9VTlR9
+L2Rldi90dHkyICAgYyA0IDINCm1rbm9kICR7UkFNRElTS19NT1VOVH0vZGV2
+L3R0eTMgICBjIDQgMw0KbWtub2QgJHtSQU1ESVNLX01PVU5UfS9kZXYvdHR5
+NCAgIGMgNCA0DQpsbiAtcyAvZGV2L3R0eTAgJHtSQU1ESVNLX01PVU5UfS9k
+ZXYvc3lzdHR5DQpsbiAtcyAvZGV2L3R0eTAgJHtSQU1ESVNLX01PVU5UfS9k
+ZXYvY29uc29sZQ0KbG4gLXMgL2Rldi9yYW0xICR7UkFNRElTS19NT1VOVH0v
+ZGV2L3JhbQ0KbG4gLXMgL2Rldi9zcjAgICR7UkFNRElTS19NT1VOVH0vZGV2
+L2Nkcm9tDQpsbiAtcyAvICAgICAgICAgJHtSQU1ESVNLX01PVU5UfS9kZXYv
+cm9vdA0KY3AgL2Jpbi9hc2guc3RhdGljICR7UkFNRElTS19NT1VOVH0vYmlu
+L3NoDQpjcCAvc2Jpbi9pbnNtb2Quc3RhdGljICR7UkFNRElTS19NT1VOVH0v
+YmluL2luc21vZA0KY2F0ID4vdG1wL2Zha2UuYyA8PCBFT0YNCm1haW4oKXty
+ZXR1cm4gMDt9DQpFT0YNCmdjYyAtbyAke1JBTURJU0tfTU9VTlR9L3NiaW4v
+bW9kcHJvYmUgL3RtcC9mYWtlLmMgLS1zdGF0aWMNCnJtIC1mIC90bXAvZmFr
+ZS5jDQojDQojIEFkZCBtb2R1bGVzIHRvIHRoaXMgbGlzdCBpbiB0aGUgZXhh
+Y3Qgb3JkZXIgeW91IG5lZWQgdGhlbSBpbnN0YWxsZWQNCiMNCm1vZHVsZXM9
+InNjc2lfbW9kLm8gc2RfbW9kLm8gQnVzTG9naWMubyBjZHJvbS5vIHNyX21v
+ZC5vIGxvb3AubyBpc29mcy5vIg0KIw0KZWNobyAiIyEvYmluL3NoIiAgID4k
+e1JBTURJU0tfTU9VTlR9L2xpbnV4cmMNCmZvciB4IGluICRtb2R1bGVzIDsg
+ZG8NCiAgY3AgYGZpbmQgL2xpYi9tb2R1bGVzLyR7VkVSfSAtbmFtZSAiJHgi
+YCAke1JBTURJU0tfTU9VTlR9L2xpYg0KICBlY2hvICIvYmluL2luc21vZCAv
+bGliLyR4IiA+PiR7UkFNRElTS19NT1VOVH0vbGludXhyYw0KZG9uZQ0KY2ht
+b2QgK3ggJHtSQU1ESVNLX01PVU5UfS9saW51eHJjDQpkZiAke1JBTURJU0tf
+TU9VTlR9DQpzeW5jDQp1bW91bnQgJHtSQU1ESVNLX01PVU5UfQ0Kcm1kaXIg
+ICR7UkFNRElTS19NT1VOVH0gDQpkZCBpZj0ke1JBTURJU0tfREVWSUNFfSBi
+cz0xayBjb3VudD0ke0RJU0tTSVpFfSB8IGd6aXAgPi9ib290L2luaXRyZC0k
+e1ZFUn0NCnJtIC1mICR7UkFNRElTS19ERVZJQ0V9DQpjcCAke1NZU30gL2Jv
+b3Qvdm1saW51ei0ke1ZFUn0NCmNwICR7TUFQfSAvYm9vdC9TeXN0ZW0ubWFw
+LSR7VkVSfQ0Kcm0gLXJmIC9ib290L1N5c3RlbS5tYXANCmxuIC1zIC9ib290
+L1N5c3RlbS5tYXAtJHtWRVJ9IC9ib290L1N5c3RlbS5tYXANCnBzdXBkYXRl
+DQojDQplY2hvID4vYm9vdC9tZXNzYWdlDQplY2hvICIgICAgQm9vdGluZyBM
+aW51eCB2ZXJzaW9uICR7VkVSfSIgICAgICAgICAgICAgICAgICA+Pi9ib290
+L21lc3NhZ2UNCmVjaG8gIiAgICBIaXQgdGFiIGtleSB0byBzZWUgYWx0ZXJu
+YXRpdmVzIiAgICAgICAgICAgICAgID4+L2Jvb3QvbWVzc2FnZQ0KZWNobyAi
+ICAgIFRoaXMgbWFjaGluZSB3aWxsIHNlbGYtZGVzdHJ1Y3QgaW4gMTUgc2Vj
+b25kcyIgPj4vYm9vdC9tZXNzYWdlDQplY2hvID4+L2Jvb3QvbWVzc2FnZQ0K
+Iw0KbGlsbyAtQyAtIDw8RU9GDQojDQojICBMaWxvIGJvb3QtY29uZmlndXJh
+dGlvbiBzY3JpcHQuDQojDQpib290ID0gL2Rldi9zZGENCm1lc3NhZ2UgPSAv
+Ym9vdC9tZXNzYWdlDQpjb21wYWN0DQpkZWxheSA9IDE1CSMgb3B0aW9uYWws
+IGZvciBzeXN0ZW1zIHRoYXQgYm9vdCB2ZXJ5IHF1aWNrbHkNCnZnYSA9IG5v
+cm1hbAkjIGZvcmNlIHNhbmUgc3RhdGUNCg0KaW1hZ2UgPSAvYm9vdC92bWxp
+bnV6LSR7VkVSfQ0KICBpbml0cmQgPSAvYm9vdC9pbml0cmQtJHtWRVJ9DQog
+IHJvb3QgID0gY3VycmVudA0KICBsYWJlbCA9IG5ldyANCiAgYXBwZW5kID0g
+Im5taV93YXRjaGRvZz0wIg0KDQppbWFnZSA9IC9ib290L3ZtbGludXotJHtW
+RVJ9DQogIGluaXRyZCA9IC9ib290L2luaXRyZC0ke1ZFUn0NCiAgcm9vdCAg
+PSAvZGV2L3NjZDAgDQogIGxhYmVsID0gY2Ryb20gDQoNCmltYWdlID0gL3Zt
+bGludXoNCiByb290ID0gY3VycmVudA0KIGxhYmVsID0gbGludXgNCg0KaW1h
+Z2UgPSAvYm9vdC92bWxpbnV6LSR7VkVSfQ0KICBpbml0cmQgPSAvYm9vdC9p
+bml0cmQtJHtWRVJ9DQogIHJvb3QgID0gL2Rldi9zZGMzIA0KICBsYWJlbCA9
+IG1haW50IA0KDQppbWFnZSA9IC9ib290L3ZtbGludXotJHtWRVJ9DQogIGlu
+aXRyZCA9IC9ib290L2luaXRyZC0ke1ZFUn0NCiAgcm9vdCAgPSAvZGV2L3Nk
+YzEgDQogIGxhYmVsID0gbWFpbnQtc3UNCiAgYXBwZW5kPSJpbml0PS9iaW4v
+YmFzaCIgDQoNCmltYWdlID0gL3ZtbGludXoub2xkDQogIHJvb3QgPSBjdXJy
+ZW50DQogIGxhYmVsID0gbGludXhfb2xkDQoNCm90aGVyID0gL2Rldi9zZGEx
+DQogIHRhYmxlID0gL2Rldi9zZGENCiAgbGFiZWwgPSBkb3MNCkVPRg0KDQo=
+--1678434306-1678716291-1025205550=:9280--

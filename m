@@ -1,1261 +1,189 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315752AbSEJBdz>; Thu, 9 May 2002 21:33:55 -0400
+	id <S315754AbSEJBsr>; Thu, 9 May 2002 21:48:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315753AbSEJBdy>; Thu, 9 May 2002 21:33:54 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:61069 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315752AbSEJBdq>; Thu, 9 May 2002 21:33:46 -0400
-Message-Id: <200205100130.g4A1U2615224@w-gaughen.des.beaverton.ibm.com>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Christoph Hellwig <hch@infradead.org>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] discontigmem support for ia32 NUMA box against 2.4.19pre8 
-In-Reply-To: Message from Christoph Hellwig <hch@infradead.org> 
-   of "Thu, 09 May 2002 20:32:02 BST." <20020509203202.A27148@infradead.org> 
+	id <S315755AbSEJBsq>; Thu, 9 May 2002 21:48:46 -0400
+Received: from mx1.afara.com ([63.113.218.20]:2750 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S315754AbSEJBso>;
+	Thu, 9 May 2002 21:48:44 -0400
+Subject: Re: [kbuild-devel] Re: Announce: Kernel Build for 2.5, Release 2.4
+	is available
+From: Thomas Duffy <tduffy@directvinternet.com>
+To: Kbuild Devel <kbuild-devel@lists.sourceforge.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <19760.1020944739@ocs3.intra.ocs.com.au>
+Content-Type: multipart/mixed; boundary="=-rXyg3j6wefMoJ1j5hBdn"
+X-Mailer: Ximian Evolution 1.0.4.99 
+Date: 09 May 2002 18:46:18 -0700
+Message-Id: <1020995179.2911.1.camel@tduffy-lnx.afara.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 09 May 2002 18:30:01 -0700
-From: Patricia Gaughen <gone@us.ibm.com>
+X-OriginalArrivalTime: 10 May 2002 01:48:34.0782 (UTC) FILETIME=[CBCB17E0:01C1F7C4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Okay here's the updated version of the patch. 
+--=-rXyg3j6wefMoJ1j5hBdn
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-you can get it off of sourceforge at:
+On Thu, 2002-05-09 at 04:45, Keith Owens wrote: 
+> Extra architecture support added to release 2.4:
+> 
+>   kbuild-2.5-sparc64-2.5.14-1.bz2 from Tom Duffy
 
-http://west.dl.sourceforge.net/sourceforge/lse/x86_discontigmem-2.4.19pre8-2
+here is kbuild-2.5-sparc64-2.5.14-2.  you still need to apply the hacks
+patch before using this from
+http://prdownloads.sourceforge.net/kbuild/linux-2.5.14-sparc64-hacks.patch.bz2.  This won't be necessary once 2.5.15 comes out as Dave has already sent these fixes to Linus. 
 
-This patch depends on the  the modularization of setup_arch() patch I sent out 
-yesterday, and also on the version of the modularization of mem_init() patch 
-that Christoph posted (which I copied onto sourceforge:  it's 
-x86_meminit-2.4.19pre8-3).
+  Changes from kbuild-2.5-sparc64-2.5.14-1 
 
-Thanks,
-Pat
+    Build against core-12 
 
--- 
-Patricia Gaughen (gone@us.ibm.com)
-IBM Linux Technology Center
-http://www.ibm.com/linux/ltc/
+    Builds with kbuild 2.4 now as well
 
---- linux-2.4.19pre8-cleanup/arch/i386/config.in	Tue May  7 11:54:04 2002
-+++ linux-2.4.19pre8-multi/arch/i386/config.in	Thu May  9 17:26:22 2002
-@@ -198,7 +198,15 @@
-       define_bool CONFIG_X86_IO_APIC y
-    fi
- else
--   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
-+   bool 'Multiquad NUMA system' CONFIG_X86_NUMAQ
-+   if [ "$CONFIG_X86_NUMAQ" = "y" ]; then
-+      bool 'Numa Memory Allocation Support' CONFIG_NUMA
-+      if [ "$CONFIG_NUMA" = "y" ]; then
-+         define_bool CONFIG_DISCONTIGMEM y
-+         define_bool CONFIG_HAVE_ARCH_BOOTMEM_NODE y
-+      fi
-+      define_bool CONFIG_MULTIQUAD y
-+   fi
- fi
- 
- if [ "$CONFIG_SMP" = "y" -a "$CONFIG_X86_CMPXCHG" = "y" ]; then
---- linux-2.4.19pre8-cleanup/arch/i386/kernel/Makefile	Fri Nov  9 14:21:21 2001
-+++ linux-2.4.19pre8-multi/arch/i386/kernel/Makefile	Thu May  9 17:21:36 2002
-@@ -40,5 +40,6 @@
- obj-$(CONFIG_X86_LOCAL_APIC)	+= mpparse.o apic.o nmi.o
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o acpitable.o
- obj-$(CONFIG_X86_VISWS_APIC)	+= visws_apic.o
-+obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
- 
- include $(TOPDIR)/Rules.make
---- linux-2.4.19pre8-cleanup/arch/i386/kernel/setup.c	Thu May  9 17:27:18 2002
-+++ linux-2.4.19pre8-multi/arch/i386/kernel/setup.c	Thu May  9 17:21:36 2002
-@@ -115,6 +115,7 @@
- #include <asm/dma.h>
- #include <asm/mpspec.h>
- #include <asm/mmu_context.h>
-+#include <asm/setup.h>
- /*
-  * Machine setup..
-  */
-@@ -800,20 +801,10 @@
- 	}
- }
- 
--#define PFN_UP(x)	(((x) + PAGE_SIZE-1) >> PAGE_SHIFT)
--#define PFN_DOWN(x)	((x) >> PAGE_SHIFT)
--#define PFN_PHYS(x)	((x) << PAGE_SHIFT)
--
--/*
-- * Reserved space for vmalloc and iomap - defined in asm/page.h
-- */
--#define MAXMEM_PFN	PFN_DOWN(MAXMEM)
--#define MAX_NONPAE_PFN	(1 << 20)
--
- /*
-  * Find the highest page frame number we have available
-  */
--static unsigned long __init find_max_pfn(void)
-+unsigned long __init find_max_pfn(void)
- {
- 	unsigned long max_pfn;
- 	int i;
-@@ -838,7 +829,7 @@
- /*
-  * Determine low and high memory ranges:
-  */
--static unsigned long __init find_max_low_pfn(unsigned long *max_pfn)
-+unsigned long __init find_max_low_pfn(unsigned long *max_pfn)
- {
- 	unsigned long max_low_pfn;
- 
-@@ -894,6 +885,7 @@
- 	return max_low_pfn;
- }
- 
-+#ifndef CONFIG_DISCONTIGMEM
- /*
-  * Register fully available low RAM pages with the bootmem allocator.
-  */
-@@ -1015,6 +1007,7 @@
- 
- 	return max_low_pfn;
- }
-+#endif /* !CONFIG_DISCONTIGMEM */
- 
- /*
-  * Request address space for all standard RAM and ROM resources
---- linux-2.4.19pre8-cleanup/arch/i386/kernel/numaq.c	Wed Dec 31 16:00:00 1969
-+++ linux-2.4.19pre8-multi/arch/i386/kernel/numaq.c	Thu May  9 17:21:37 2002
-@@ -0,0 +1,141 @@
-+/*
-+ * Written by: Patricia Gaughen, IBM Corporation
-+ *
-+ * Copyright (C) 2002, IBM Corp.
-+ *
-+ * All rights reserved.          
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to <gone@us.ibm.com>
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/mm.h>
-+#include <linux/bootmem.h>
-+#include <linux/mmzone.h>
-+#include <asm/numaq.h>
-+
-+unsigned long long nodes_mem_start[MAX_NUMNODES];
-+unsigned long long nodes_mem_size[MAX_NUMNODES];
-+
-+/*
-+ * Function: smp_dump_qct()
-+ *
-+ * Description: gets memory layout from the quad config table.  This
-+ * function also increments numnodes with the number of nodes (quads)
-+ * present.
-+ */
-+static void __init smp_dump_qct(void)
-+{
-+	int node;
-+	struct eachquadmem *eq;
-+	struct sys_cfg_data *scd =
-+		(struct sys_cfg_data *)__va(SYS_CFG_DATA_PRIV_ADDR);
-+
-+#define	MB_TO_B(addr) ((addr) << 20)
-+	numnodes = 0;
-+	for(node = 0; node < MAX_NUMNODES; node++) {
-+		if(scd->quads_present31_0 & (1 << node)) {
-+			numnodes++;
-+			eq = &scd->eq[node];
-+			/* Convert to bytes */
-+			nodes_mem_start[node] = MB_TO_B(eq->hi_shrd_mem_start - eq->priv_mem_size);
-+			nodes_mem_size[node] = MB_TO_B(eq->hi_shrd_mem_size + eq->priv_mem_size);
-+		}
-+	}
-+}
-+
-+/*
-+ * -----------------------------------------
-+ *
-+ * functions related to physnode_map
-+ *
-+ * -----------------------------------------
-+ */
-+/*
-+ * physnode_map keeps track of the physical memory layout of the
-+ * numaq nodes on a 256Mb break (each element of the array will
-+ * represent 256Mb of memory and will be marked by the node id.  so,
-+ * if the first gig is on node 0, and the second gig is on node 1
-+ * physnode_map will contain:
-+ * physnode_map[0-3] = 0;
-+ * physnode_map[4-7] = 1;
-+ * physnode_map[8- ] = -1;
-+ */
-+int physnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
-+
-+#define MB_TO_ELEMENT(x) (x >> ELEMENT_REPRESENTS)
-+#define PA_TO_MB(pa) (pa >> 20) 	/* assumption: a physical address is in 
-bytes */
-+
-+int numaqpa_to_nid(unsigned long long pa)
-+{
-+	int nid;
-+	
-+	nid = physnode_map[MB_TO_ELEMENT(PA_TO_MB(pa))];
-+
-+	/* the physical address passed in is not in the map for the system */
-+	if (nid == -1)
-+		BUG();
-+
-+	return nid;
-+}
-+
-+int numaqpfn_to_nid(unsigned long pfn)
-+{
-+	return numaqpa_to_nid(pfn << PAGE_SHIFT);
-+}
-+
-+/*
-+ * for each node mark the regions
-+ *        TOPOFMEM = hi_shrd_mem_start + hi_shrd_mem_size
-+ *
-+ * need to be very careful to not mark 1024+ as belonging
-+ * to node 0. will want 1027 to show as belonging to node 1
-+ * example:
-+ *  TOPOFMEM = 1024
-+ * 1024 >> 8 = 4 (subtract 1 for starting at 0]
-+ * tmpvar = TOPOFMEM - 256 = 768
-+ * 1024 >> 8 = 4 (subtract 1 for starting at 0]
-+ * 
-+ */
-+static void __init initialize_physnode_map(void)
-+{
-+	int nid;
-+	unsigned int topofmem, cur;
-+	struct eachquadmem *eq;
-+ 	struct sys_cfg_data *scd =
-+		(struct sys_cfg_data *)__va(SYS_CFG_DATA_PRIV_ADDR);
-+
-+	
-+	for(nid = 0; nid < numnodes; nid++) {
-+		if(scd->quads_present31_0 & (1 << nid)) {
-+			eq = &scd->eq[nid];
-+			cur = eq->hi_shrd_mem_start;
-+			topofmem = eq->hi_shrd_mem_start + eq->hi_shrd_mem_size;
-+			while (cur < topofmem) {
-+				physnode_map[cur >> 8] = nid;
-+				cur += (ELEMENT_REPRESENTS - 1);
-+			}
-+		}
-+	}
-+}
-+
-+void __init get_memcfg_numaq(void)
-+{
-+	smp_dump_qct();
-+	initialize_physnode_map();
-+}
---- linux-2.4.19pre8-cleanup/arch/i386/mm/Makefile	Fri Dec 29 14:07:20 2000
-+++ linux-2.4.19pre8-multi/arch/i386/mm/Makefile	Thu May  9 17:21:37 2002
-@@ -10,5 +10,6 @@
- O_TARGET := mm.o
- 
- obj-y	 := init.o fault.o ioremap.o extable.o
-+obj-$(CONFIG_DISCONTIGMEM)	+= discontig.o
- 
- include $(TOPDIR)/Rules.make
---- linux-2.4.19pre8-cleanup/arch/i386/mm/discontig.c	Wed Dec 31 16:00:00 1969
-+++ linux-2.4.19pre8-multi/arch/i386/mm/discontig.c	Thu May  9 17:43:31 2002
-@@ -0,0 +1,325 @@
-+/*
-+ * Written by: Patricia Gaughen, IBM Corporation
-+ *
-+ * Copyright (C) 2002, IBM Corp.
-+ *
-+ * All rights reserved.          
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to <gone@us.ibm.com>
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/mm.h>
-+#include <linux/bootmem.h>
-+#include <linux/mmzone.h>
-+#include <linux/highmem.h>
-+#include <asm/e820.h>
-+#include <asm/setup.h>
-+
-+struct pfns {
-+	unsigned long start_pfn;
-+	unsigned long max_pfn;
-+};
-+
-+plat_pg_data_t *plat_node_data[MAX_NUMNODES];
-+bootmem_data_t plat_node_bdata;
-+struct pfns plat_node_bootpfns[MAX_NUMNODES];
-+
-+extern unsigned long find_max_low_pfn(unsigned long *);
-+extern unsigned long find_max_pfn(void);
-+extern void pagetable_init (void);
-+extern void kmap_init(void);
-+extern void init_one_highpage(struct page *, int, int);
-+extern inline int page_is_ram (unsigned long);
-+
-+extern unsigned long long nodes_mem_start[], nodes_mem_size[];
-+extern struct e820map e820;
-+extern char _end;
-+extern unsigned long highend_pfn, highstart_pfn;
-+extern unsigned long max_low_pfn;
-+extern unsigned long totalram_pages;
-+extern unsigned long totalhigh_pages;
-+
-+static void __init find_max_pfn_node(int nid, unsigned long system_max_pfn)
-+{
-+	unsigned long node_datasz;
-+	unsigned long start, end;
-+
-+	start = plat_node_bootpfns[nid].start_pfn = PFN_UP(nodes_mem_start[nid]);
-+	end = PFN_DOWN(nodes_mem_start[nid]) + PFN_DOWN(nodes_mem_size[nid]);
-+
-+	if (start >= end) {
-+		BUG();
-+	}
-+	if (end > system_max_pfn) {
-+		end = system_max_pfn;
-+	}
-+	plat_node_bootpfns[nid].max_pfn = end;
-+
-+	node_datasz = PFN_UP(sizeof(plat_pg_data_t));
-+	PLAT_NODE_DATA(nid) = (plat_pg_data_t *)(__va(min_low_pfn << PAGE_SHIFT));
-+	min_low_pfn += node_datasz;
-+}
-+
-+static void __init register_bootmem_low_pages(unsigned long 
-system_max_low_pfn)
-+{
-+	int i;
-+
-+	for (i = 0; i < e820.nr_map; i++) {
-+		unsigned long curr_pfn, last_pfn, size;
-+ 		/*
-+		 * Reserve usable low memory
-+		 */
-+		if (e820.map[i].type != E820_RAM)
-+			continue;
-+		/*
-+		 * We are rounding up the start address of usable memory:
-+		 */
-+		curr_pfn = PFN_UP(e820.map[i].addr);
-+		if (curr_pfn >= system_max_low_pfn)
-+			continue;
-+		/*
-+		 * ... and at the end of the usable range downwards:
-+		 */
-+		last_pfn = PFN_DOWN(e820.map[i].addr + e820.map[i].size);
-+
-+		if (last_pfn > system_max_low_pfn)
-+			last_pfn = system_max_low_pfn;
-+
-+		/*
-+		 * .. finally, did all the rounding and playing
-+		 * around just make the area go away?
-+		 */
-+		if (last_pfn <= curr_pfn)
-+			continue;
-+
-+		size = last_pfn - curr_pfn;
-+		free_bootmem_node(NODE_DATA(0), PFN_PHYS(curr_pfn), PFN_PHYS(size));
-+	}
-+}
-+
-+unsigned long __init setup_memory(void)
-+{
-+	int nid;
-+	unsigned long bootmap_size, system_start_pfn, system_max_low_pfn, 
-system_max_pfn;
-+
-+	get_memcfg_numa();
-+
-+	/*
-+	 * partially used pages are not usable - thus
-+	 * we are rounding upwards:
-+	 */
-+	system_start_pfn = min_low_pfn = PFN_UP(__pa(&_end));
-+
-+	system_max_pfn = find_max_pfn();
-+	system_max_low_pfn = max_low_pfn = find_max_low_pfn(&system_max_pfn);
-+
-+#ifdef CONFIG_HIGHMEM
-+		highstart_pfn = highend_pfn = system_max_pfn;
-+		if (system_max_pfn > system_max_low_pfn) {
-+			highstart_pfn = system_max_low_pfn;
-+		}
-+		printk(KERN_NOTICE "%ldMB HIGHMEM available.\n",
-+		       pages_to_mb(highend_pfn - highstart_pfn));
-+#endif
-+	printk(KERN_NOTICE "%ldMB LOWMEM available.\n",
-+			pages_to_mb(system_max_low_pfn));
-+	
-+	for (nid = 0; nid < numnodes; nid++)
-+	{	
-+		find_max_pfn_node(nid, system_max_pfn);
-+
-+	}
-+
-+	NODE_DATA(0)->bdata = &plat_node_bdata;
-+
-+	/*
-+	 * Initialize the boot-time allocator (with low memory only):
-+	 */
-+	bootmap_size = init_bootmem_node(NODE_DATA(0), min_low_pfn, 0, 
-system_max_low_pfn);
-+
-+	register_bootmem_low_pages(system_max_low_pfn);
-+
-+	/*
-+	 * Reserve the bootmem bitmap itself as well. We do this in two
-+	 * steps (first step was init_bootmem()) because this catches
-+	 * the (very unlikely) case of us accidentally initializing the
-+	 * bootmem allocator with an invalid RAM area.
-+	 */
-+	reserve_bootmem_node(NODE_DATA(0), HIGH_MEMORY, (PFN_PHYS(min_low_pfn) +
-+		 bootmap_size + PAGE_SIZE-1) - (HIGH_MEMORY));
-+
-+	/*
-+	 * reserve physical page 0 - it's a special BIOS page on many boxes,
-+	 * enabling clean reboots, SMP operation, laptop functions.
-+	 */
-+	reserve_bootmem_node(NODE_DATA(0), 0, PAGE_SIZE);
-+
-+	/*
-+	 * But first pinch a few for the stack/trampoline stuff
-+	 * FIXME: Don't need the extra page at 4K, but need to fix
-+	 * trampoline before removing it. (see the GDT stuff)
-+	 */
-+	reserve_bootmem_node(NODE_DATA(0), PAGE_SIZE, PAGE_SIZE);
-+
-+	/*
-+	 * Find and reserve possible boot-time SMP configuration:
-+	 */
-+	find_smp_config();
-+
-+#ifdef CONFIG_BLK_DEV_INITRD
-+	if (LOADER_TYPE && INITRD_START) {
-+		if (INITRD_START + INITRD_SIZE <= (system_max_low_pfn << PAGE_SHIFT)) {
-+			reserve_bootmem(INITRD_START, INITRD_SIZE);
-+			initrd_start =
-+				INITRD_START ? INITRD_START + PAGE_OFFSET : 0;
-+			initrd_end = initrd_start+INITRD_SIZE;
-+		}
-+		else {
-+			printk(KERN_ERR "initrd extends beyond end of memory "
-+			    "(0x%08lx > 0x%08lx)\ndisabling initrd\n",
-+			    INITRD_START + INITRD_SIZE,
-+			    system_max_low_pfn << PAGE_SHIFT);
-+			initrd_start = 0;
-+		}
-+	}
-+#endif
-+
-+	return system_max_low_pfn;
-+}
-+
-+/*
-+ * paging_init() sets up the page tables - note that the first 8MB are
-+ * already mapped by head.S.
-+ *
-+ * This routines also unmaps the page at virtual kernel address 0, so
-+ * that we can trap those pesky NULL-reference errors in the kernel.
-+ */
-+void __init paging_init(void)
-+{
-+
-+	int nid;
-+	
-+	pagetable_init();
-+
-+	__asm__( "movl %%ecx,%%cr3\n" ::"c"(__pa(swapper_pg_dir)));
-+
-+#if CONFIG_X86_PAE
-+	/*
-+	 * We will bail out later - printk doesnt work right now so
-+	 * the user would just see a hanging kernel.
-+	 */
-+	if (cpu_has_pae)
-+		set_in_cr4(X86_CR4_PAE);
-+#endif
-+
-+	__flush_tlb_all();
-+
-+#ifdef CONFIG_HIGHMEM
-+	kmap_init();
-+#endif
-+
-+	for (nid = 0; nid < numnodes; nid++) {
-+		unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
-+		unsigned int max_dma;
-+
-+		unsigned long low = max_low_pfn;
-+		unsigned long high = plat_node_bootpfns[nid].max_pfn;
-+		unsigned long start = plat_node_bootpfns[nid].start_pfn;
-+		
-+		max_dma = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
-+
-+		if (start > low) {
-+#ifdef CONFIG_HIGHMEM
-+		  zones_size[ZONE_HIGHMEM] = high - start;
-+#endif
-+		} else {
-+			if (low < max_dma)
-+				zones_size[ZONE_DMA] = low;
-+			else {
-+				zones_size[ZONE_DMA] = max_dma;
-+				zones_size[ZONE_NORMAL] = low - max_dma;
-+#ifdef CONFIG_HIGHMEM
-+				zones_size[ZONE_HIGHMEM] = high - low;
-+#endif
-+			}
-+		}
-+		free_area_init_node(nid, NODE_DATA(nid), 0, zones_size, start << 
-PAGE_SHIFT, 0);
-+	}
-+	return;
-+}
-+
-+
-+int __init mem_init_free_pages(int bad_ppro)
-+{
-+	int reservedpages;
-+	int nid;
-+	unsigned long pfn;
-+
-+	bad_ppro = ppro_with_ram_bug();
-+
-+	/* this will put all low memory onto the freelists */
-+	totalram_pages += free_all_bootmem_node(NODE_DATA(0));
-+
-+	reservedpages = 0;
-+	for (pfn = 0; pfn < max_low_pfn; pfn++)
-+		/*
-+		 * Only count reserved RAM pages
-+		 */
-+		if (page_is_ram(pfn) && PageReserved(mem_map+pfn))
-+			reservedpages++;
-+#ifdef CONFIG_HIGHMEM
-+	for (nid = 0; nid < numnodes; nid++) {
-+		unsigned long node_pfn, node_high_size, zone_start_pfn;
-+		struct page * zone_mem_map;
-+		
-+		node_high_size = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].size;
-+		zone_mem_map = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_mem_map;
-+		zone_start_pfn = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_start_paddr >
-> PAGE_SHIFT;
-+
-+		printk("Initializing highpages for node %d\n", nid);
-+		for (node_pfn = 0; node_pfn < node_high_size; node_pfn++) {
-+			init_one_highpage((struct page *) (zone_mem_map + node_pfn), 
-zone_start_pfn + node_pfn, bad_ppro);
-+		}
-+	}
-+	totalram_pages += totalhigh_pages;
-+#endif
-+	return reservedpages;
-+}
-+
-+void __init mem_init_set_max_mapnr(void)
-+{
-+	unsigned long lmax_mapnr;
-+	int nid;
-+	
-+#ifdef CONFIG_HIGHMEM
-+	highmem_start_page = mem_map + NODE_DATA(0)->node_zones[ZONE_HIGHMEM].zone_st
-art_mapnr;
-+	num_physpages = highend_pfn;
-+	num_mappedpages = max_low_pfn;
-+
-+	for (nid = 0; nid < numnodes; nid++) {
-+		lmax_mapnr = PLAT_NODE_DATA_STARTNR(nid) + PLAT_NODE_DATA_SIZE(nid);
-+		if (lmax_mapnr > max_mapnr) {
-+			max_mapnr = lmax_mapnr;
-+		}
-+	}
-+	
-+#else
-+	max_mapnr = num_mappedpages = num_physpages = max_low_pfn;
-+#endif
-+}
---- linux-2.4.19pre8-cleanup/arch/i386/mm/init.c	Thu May  9 17:27:22 2002
-+++ linux-2.4.19pre8-multi/arch/i386/mm/init.c	Thu May  9 17:21:37 2002
-@@ -40,8 +40,8 @@
- 
- mmu_gather_t mmu_gathers[NR_CPUS];
- unsigned long highstart_pfn, highend_pfn;
--static unsigned long totalram_pages;
--static unsigned long totalhigh_pages;
-+unsigned long totalram_pages;
-+unsigned long totalhigh_pages;
- 
- int do_check_pgt_cache(int low, int high)
- {
-@@ -202,7 +202,7 @@
- 	}
- }
- 
--static void __init pagetable_init (void)
-+void __init pagetable_init (void)
- {
- 	unsigned long vaddr, end;
- 	pgd_t *pgd, *pgd_base;
-@@ -320,6 +320,7 @@
- 	flush_tlb_all();
- }
- 
-+#ifndef CONFIG_DISCONTIGMEM
- /*
-  * paging_init() sets up the page tables - note that the first 8MB are
-  * already mapped by head.S.
-@@ -368,6 +369,7 @@
- 	}
- 	return;
- }
-+#endif /* !CONFIG_DISCONTIGMEM */
- 
- /*
-  * Test if the WP bit works in supervisor mode. It isn't supported on 386's
-@@ -415,28 +417,6 @@
- 	}
- }
- 
--static inline int page_is_ram (unsigned long pagenr)
--{
--	int i;
--
--	for (i = 0; i < e820.nr_map; i++) {
--		unsigned long addr, end;
--
--		if (e820.map[i].type != E820_RAM)	/* not usable memory */
--			continue;
--		/*
--		 *	!!!FIXME!!! Some BIOSen report areas as RAM that
--		 *	are not. Notably the 640->1Mb area. We need a sanity
--		 *	check here.
--		 */
--		addr = (e820.map[i].addr+PAGE_SIZE-1) >> PAGE_SHIFT;
--		end = (e820.map[i].addr+e820.map[i].size) >> PAGE_SHIFT;
--		if  ((pagenr >= addr) && (pagenr < end))
--			return 1;
--	}
--	return 0;
--}
--
- static inline int page_kills_ppro(unsigned long pagenr)
- {
- 	if(pagenr >= 0x70000 && pagenr <= 0x7003F)
-@@ -456,6 +436,7 @@
- 		SetPageReserved(page);
- }
- 
-+#ifndef CONFIG_DISCONTIGMEM
- static int __init mem_init_free_pages(void)
- {
- 	extern int ppro_with_ram_bug(void);
-@@ -483,13 +464,8 @@
- 	return reservedpages;
- }
- 
--void __init mem_init(void)
-+static void __init mem_init_set_max_mapnr(void)
- {
--	int codesize, reservedpages, datasize, initsize;
--
--	if (!mem_map)
--		BUG();
--	
- #ifdef CONFIG_HIGHMEM
- 	highmem_start_page = mem_map + highstart_pfn;
- 	max_mapnr = num_physpages = highend_pfn;
-@@ -497,6 +473,19 @@
- #else
- 	max_mapnr = num_mappedpages = num_physpages = max_low_pfn;
- #endif
-+}
-+
-+#endif /* !CONFIG_DISCONTIGMEM */
-+
-+void __init mem_init(void)
-+{
-+	int codesize, reservedpages, datasize, initsize;
-+
-+	if (!mem_map)
-+		BUG();
-+	
-+	mem_init_set_max_mapnr();
-+	
- 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
- 
- 	/* clear the zero-page */
---- linux-2.4.19pre8-cleanup/include/asm-i386/page.h	Tue May  7 11:54:43 2002
-+++ linux-2.4.19pre8-multi/include/asm-i386/page.h	Thu May  9 17:21:37 2002
-@@ -131,8 +131,10 @@
- #define MAXMEM			((unsigned long)(-PAGE_OFFSET-VMALLOC_RESERVE))
- #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
- #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
-+#ifndef CONFIG_DISCONTIGMEM
- #define virt_to_page(kaddr)	(mem_map + (__pa(kaddr) >> PAGE_SHIFT))
- #define VALID_PAGE(page)	((page - mem_map) < max_mapnr)
-+#endif /* !CONFIG_DISCONTIGMEM */
- 
- #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
- 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
---- linux-2.4.19pre8-cleanup/include/asm-i386/io.h	Tue May  7 11:54:43 2002
-+++ linux-2.4.19pre8-multi/include/asm-i386/io.h	Thu May  9 17:21:37 2002
-@@ -100,10 +100,22 @@
-  * Change "struct page" to physical address.
-  */
- #ifdef CONFIG_HIGHMEM64G
-+
-+#ifndef CONFIG_DISCONTIGMEM
- #define page_to_phys(page)	((u64)(page - mem_map) << PAGE_SHIFT)
- #else
-+#define page_to_phys(page)	(((u64)(page - page_zone(page)->zone_mem_map) << 
-PAGE_SHIFT) + page_zone(page)->zone_start_paddr)
-+#endif /* !CONFIG_DISCONTIGMEM */
-+
-+#else
-+
-+#ifndef CONFIG_DISCONTIGMEM
- #define page_to_phys(page)	((page - mem_map) << PAGE_SHIFT)
--#endif
-+#else
-+#define page_to_phys(page)	(((page - page_zone(page)->zone_mem_map) << 
-PAGE_SHIFT) + page_zone(page)->zone_start_paddr)
-+#endif /* !CONFIG_DISCONTIGMEM */
-+
-+#endif /* CONFIG_HIGHMEM64G */
- 
- extern void * __ioremap(unsigned long offset, unsigned long size, unsigned 
-long flags);
- 
---- linux-2.4.19pre8-cleanup/include/asm-i386/pgtable.h	Tue May  7 11:54:43 
-2002
-+++ linux-2.4.19pre8-multi/include/asm-i386/pgtable.h	Thu May  9 17:21:37 2002
-@@ -297,9 +297,12 @@
-  * Conversion functions: convert a page and protection to a page entry,
-  * and a page entry and page directory to the page they refer to.
-  */
--
-+#ifndef CONFIG_DISCONTIGMEM
- #define mk_pte(page, pgprot)	__mk_pte((page) - mem_map, (pgprot))
--
-+#else
-+#define mk_pte(page, pgprot)	__mk_pte(((page) - page_zone(page)->zone_mem_map 
-+ (page_zone(page)->zone_start_paddr >> PAGE_SHIFT)), (pgprot))
-+#endif /* !CONFIG_DISCONTIGMEM */
-+ 
- /* This takes a physical page address that is used by the remapping functions 
-*/
- #define mk_pte_phys(physpage, pgprot)	__mk_pte((physpage) >> PAGE_SHIFT, 
-pgprot)
- 
-@@ -351,7 +354,10 @@
- 
- /* Needs to be defined here and not in linux/mm.h, as it is arch dependent */
- #define PageSkip(page)		(0)
-+
-+#ifndef CONFIG_DISCONTIGMEM
- #define kern_addr_valid(addr)	(1)
-+#endif /* !CONFIG_DISCONTIGMEM */
- 
- #define io_remap_page_range remap_page_range
- 
---- linux-2.4.19pre8-cleanup/include/asm-i386/pgtable-2level.h	Thu Jul 26 
-13:40:32 2001
-+++ linux-2.4.19pre8-multi/include/asm-i386/pgtable-2level.h	Thu May  9 
-17:21:37 2002
-@@ -56,7 +56,13 @@
- }
- #define ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
- #define pte_same(a, b)		((a).pte_low == (b).pte_low)
-+
-+#ifndef CONFIG_DISCONTIGMEM
- #define pte_page(x)		(mem_map+((unsigned long)(((x).pte_low >> PAGE_SHIFT))))
-+#else
-+#define pte_page(x)		(NODE_MEM_MAP(PHYSADDR_TO_NID((x).pte_low)) + 
-PLAT_NODE_DATA_LOCALNR(((unsigned long)((x).pte_low)), 
-PHYSADDR_TO_NID((x).pte_low)))
-+#endif /* !CONFIG_DISCONTIGMEM */
-+
- #define pte_none(x)		(!(x).pte_low)
- #define __mk_pte(page_nr,pgprot) __pte(((page_nr) << PAGE_SHIFT) | 
-pgprot_val(pgprot))
- 
---- linux-2.4.19pre8-cleanup/include/asm-i386/pgtable-3level.h	Thu Jul 26 
-13:40:32 2001
-+++ linux-2.4.19pre8-multi/include/asm-i386/pgtable-3level.h	Thu May  9 
-17:21:37 2002
-@@ -86,7 +86,13 @@
- 	return a.pte_low == b.pte_low && a.pte_high == b.pte_high;
- }
- 
-+#ifndef CONFIG_DISCONTIGMEM
- #define pte_page(x)	(mem_map+(((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << 
-(32 - PAGE_SHIFT))))
-+#else
-+/* pte_page = lmem_map + nodelocal_pfn */
-+#define pte_pfn(x) 	(((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - 
-PAGE_SHIFT)))
-+#define pte_page(x)	(NODE_MEM_MAP(PFN_TO_NID(pte_pfn(x))) + 
-PLAT_NODE_DATA_LOCALNR(pte_pfn(x), PFN_TO_NID(pte_pfn(x))))
-+#endif /* !CONFIG_DISCONTIGMEM */
- #define pte_none(x)	(!(x).pte_low && !(x).pte_high)
- 
- static inline pte_t __mk_pte(unsigned long page_nr, pgprot_t pgprot)
---- linux-2.4.19pre8-cleanup/include/asm-i386/setup.h	Fri Nov 12 10:12:11 1999
-+++ linux-2.4.19pre8-multi/include/asm-i386/setup.h	Thu May  9 17:21:37 2002
-@@ -1,10 +1,14 @@
--/*
-- *	Just a place holder. We don't want to have to test x86 before
-- *	we include stuff
-- */
--
- #ifndef _i386_SETUP_H
- #define _i386_SETUP_H
- 
-+#define PFN_UP(x)	(((x) + PAGE_SIZE-1) >> PAGE_SHIFT)
-+#define PFN_DOWN(x)	((x) >> PAGE_SHIFT)
-+#define PFN_PHYS(x)	((x) << PAGE_SHIFT)
-+
-+/*
-+ * Reserved space for vmalloc and iomap - defined in asm/page.h
-+ */
-+#define MAXMEM_PFN	PFN_DOWN(MAXMEM)
-+#define MAX_NONPAE_PFN	(1 << 20)
- 
- #endif /* _i386_SETUP_H */
---- linux-2.4.19pre8-cleanup/include/asm-i386/mmzone.h	Wed Dec 31 16:00:00 1969
-+++ linux-2.4.19pre8-multi/include/asm-i386/mmzone.h	Thu May  9 17:21:37 2002
-@@ -0,0 +1,103 @@
-+/*
-+ * Written by Pat Gaughen (gone@us.ibm.com) Mar 2002
-+ *
-+ */
-+
-+#ifndef _ASM_MMZONE_H_
-+#define _ASM_MMZONE_H_
-+
-+#ifdef CONFIG_DISCONTIGMEM
-+
-+#ifdef CONFIG_X86_NUMAQ
-+#include <asm/numaq.h>
-+#else
-+#define PHYSADDR_TO_NID(pa)	(0)
-+#define PFN_TO_NID(pfn)		(0)
-+#define MAX_NUMNODES	1
-+#ifdef CONFIG_NUMA
-+#define _cpu_to_node(cpu) 0
-+#endif /* CONFIG_NUMA */
-+#endif /* CONFIG_X86_NUMAQ */
-+
-+#ifdef CONFIG_NUMA
-+#define numa_node_id() _cpu_to_node(smp_processor_id())
-+#endif /* CONFIG_NUMA */
-+
-+typedef struct plat_pglist_data {
-+	pg_data_t	gendata;
-+} plat_pg_data_t;
-+
-+extern plat_pg_data_t *plat_node_data[];
-+
-+/*
-+ * Following are macros that are specific to this numa platform.
-+ */
-+#define reserve_bootmem(addr, size) \
-+	reserve_bootmem_node(NODE_DATA(0), (addr), (size))
-+#define alloc_bootmem(x) \
-+	__alloc_bootmem_node(NODE_DATA(0), (x), SMP_CACHE_BYTES, 
-__pa(MAX_DMA_ADDRESS))
-+#define alloc_bootmem_low(x) \
-+	__alloc_bootmem_node(NODE_DATA(0), (x), SMP_CACHE_BYTES, 0)
-+#define alloc_bootmem_pages(x) \
-+	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
-+#define alloc_bootmem_low_pages(x) \
-+	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, 0)
-+#define alloc_bootmem_node(ignore, x) \
-+	__alloc_bootmem_node(NODE_DATA(0), (x), SMP_CACHE_BYTES, 
-__pa(MAX_DMA_ADDRESS))
-+#define alloc_bootmem_pages_node(ignore, x) \
-+	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
-+#define alloc_bootmem_low_pages_node(ignore, x) \
-+	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, 0)
-+
-+#define PLAT_NODE_DATA(n)		(plat_node_data[(n)])
-+#define PLAT_NODE_DATA_STARTNR(n)	\
-+	(PLAT_NODE_DATA(n)->gendata.node_start_mapnr)
-+#define PLAT_NODE_DATA_SIZE(n)		(PLAT_NODE_DATA(n)->gendata.node_size)
-+#define PLAT_NODE_DATA_LOCALNR(p, n) \
-+	(((p) - PLAT_NODE_DATA(n)->gendata.node_start_paddr) >> PAGE_SHIFT)
-+
-+/*
-+ * Following are macros that each numa implmentation must define.
-+ */
-+
-+/*
-+ * Given a kernel address, find the home node of the underlying memory.
-+ */
-+#define KVADDR_TO_NID(kaddr)	PHYSADDR_TO_NID(__pa(kaddr))
-+
-+/*
-+ * Return a pointer to the node data for node n.
-+ */
-+#define NODE_DATA(n)	(&((PLAT_NODE_DATA(n))->gendata))
-+
-+/*
-+ * NODE_MEM_MAP gives the kaddr for the mem_map of the node.
-+ */
-+#define NODE_MEM_MAP(nid)	(NODE_DATA(nid)->node_mem_map)
-+
-+/*
-+ * Given a kaddr, ADDR_TO_MAPBASE finds the owning node of the memory
-+ * and returns the the mem_map of that node.
-+ */
-+#define ADDR_TO_MAPBASE(kaddr) \
-+			NODE_MEM_MAP(KVADDR_TO_NID((unsigned long)(kaddr)))
-+
-+/*
-+ * Given a kaddr, LOCAL_BASE_ADDR finds the owning node of the memory
-+ * and returns the kaddr corresponding to first physical page in the
-+ * node's mem_map.
-+ */
-+#define LOCAL_BASE_ADDR(kaddr)	((unsigned long)__va(NODE_DATA(KVADDR_TO_NID(ka
-ddr))->node_start_paddr))
-+
-+#define LOCAL_MAP_NR(kvaddr) \
-+	(((unsigned long)(kvaddr)-LOCAL_BASE_ADDR(kvaddr)) >> PAGE_SHIFT)
-+
-+#define kern_addr_valid(kaddr)	test_bit(LOCAL_MAP_NR(kaddr), \
-+					 NODE_DATA(KVADDR_TO_NID(kaddr))->valid_addr_bitmap)
-+
-+#define virt_to_page(kaddr)	(ADDR_TO_MAPBASE(kaddr) + LOCAL_MAP_NR(kaddr))
-+/* This does not check the holes between lmem_maps */
-+#define VALID_PAGE(page)	(((page) - mem_map) < max_mapnr)
-+
-+#endif /* CONFIG_DISCONTIGMEM */
-+#endif /* _ASM_MMZONE_H_ */
---- linux-2.4.19pre8-cleanup/include/asm-i386/numaq.h	Wed Dec 31 16:00:00 1969
-+++ linux-2.4.19pre8-multi/include/asm-i386/numaq.h	Thu May  9 17:21:37 2002
-@@ -0,0 +1,179 @@
-+/*
-+ * Written by: Patricia Gaughen, IBM Corporation
-+ *
-+ * Copyright (C) 2002, IBM Corp.
-+ *
-+ * All rights reserved.          
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to <gone@us.ibm.com>
-+ */
-+
-+#ifndef NUMAQ_H
-+#define NUMAQ_H
-+
-+#ifdef CONFIG_X86_NUMAQ
-+
-+#include <asm/smpboot.h>
-+
-+/*
-+ * for now assume that 8Gb is max amount of RAM for whole system
-+ *    8Gb * 1024Mb/Gb = 8192 Mb
-+ *    8192 Mb / 256Mb = 32
-+ */
-+#define MAX_ELEMENTS 32
-+#define ELEMENT_REPRESENTS 8 /* 256 Mb */
-+
-+#define PHYSADDR_TO_NID(pa) numaqpa_to_nid(pa)
-+#define PFN_TO_NID(pa) numaqpfn_to_nid(pa)
-+#define MAX_NUMNODES		8
-+#ifdef CONFIG_NUMA
-+#define _cpu_to_node(cpu) (cpu_to_logical_apicid(cpu) >> 4)
-+#endif /* CONFIG_NUMA */
-+extern int numaqpa_to_nid(unsigned long long);
-+extern int numaqpfn_to_nid(unsigned long);
-+extern void get_memcfg_numaq(void);
-+#define get_memcfg_numa() get_memcfg_numaq()
-+
-+/*
-+ * SYS_CFG_DATA_PRIV_ADDR, struct eachquadmem, and struct sys_cfg_data are 
-the
-+ */
-+#define SYS_CFG_DATA_PRIV_ADDR		0x0009d000 /* place for scd in private quad 
-space */
-+
-+/*
-+ * Communication area for each processor on lynxer-processor tests.
-+ *
-+ * NOTE: If you change the size of this eachproc structure you need
-+ *       to change the definition for EACH_QUAD_SIZE.
-+ */
-+struct eachquadmem {
-+	unsigned int	priv_mem_start;		/* Starting address of this */
-+						/* quad's private memory. */
-+						/* This is always 0. */
-+						/* In MB. */
-+	unsigned int	priv_mem_size;		/* Size of this quad's */
-+						/* private memory. */
-+						/* In MB. */
-+	unsigned int	low_shrd_mem_strp_start;/* Starting address of this */
-+						/* quad's low shared block */
-+						/* (untranslated). */
-+						/* In MB. */
-+	unsigned int	low_shrd_mem_start;	/* Starting address of this */
-+						/* quad's low shared memory */
-+						/* (untranslated). */
-+						/* In MB. */
-+	unsigned int	low_shrd_mem_size;	/* Size of this quad's low */
-+						/* shared memory. */
-+						/* In MB. */
-+	unsigned int	lmmio_copb_start;	/* Starting address of this */
-+						/* quad's local memory */
-+						/* mapped I/O in the */
-+						/* compatibility OPB. */
-+						/* In MB. */
-+	unsigned int	lmmio_copb_size;	/* Size of this quad's local */
-+						/* memory mapped I/O in the */
-+						/* compatibility OPB. */
-+						/* In MB. */
-+	unsigned int	lmmio_nopb_start;	/* Starting address of this */
-+						/* quad's local memory */
-+						/* mapped I/O in the */
-+						/* non-compatibility OPB. */
-+						/* In MB. */
-+	unsigned int	lmmio_nopb_size;	/* Size of this quad's local */
-+						/* memory mapped I/O in the */
-+						/* non-compatibility OPB. */
-+						/* In MB. */
-+	unsigned int	io_apic_0_start;	/* Starting address of I/O */
-+						/* APIC 0. */
-+	unsigned int	io_apic_0_sz;		/* Size I/O APIC 0. */
-+	unsigned int	io_apic_1_start;	/* Starting address of I/O */
-+						/* APIC 1. */
-+	unsigned int	io_apic_1_sz;		/* Size I/O APIC 1. */
-+	unsigned int	hi_shrd_mem_start;	/* Starting address of this */
-+						/* quad's high shared memory.*/
-+						/* In MB. */
-+	unsigned int	hi_shrd_mem_size;	/* Size of this quad's high */
-+						/* shared memory. */
-+						/* In MB. */
-+	unsigned int	mps_table_addr;		/* Address of this quad's */
-+						/* MPS tables from BIOS, */
-+						/* in system space.*/
-+	unsigned int	lcl_MDC_pio_addr;	/* Port-I/O address for */
-+						/* local access of MDC. */
-+	unsigned int	rmt_MDC_mmpio_addr;	/* MM-Port-I/O address for */
-+						/* remote access of MDC. */
-+	unsigned int	mm_port_io_start;	/* Starting address of this */
-+						/* quad's memory mapped Port */
-+						/* I/O space. */
-+	unsigned int	mm_port_io_size;	/* Size of this quad's memory*/
-+						/* mapped Port I/O space. */
-+	unsigned int	mm_rmt_io_apic_start;	/* Starting address of this */
-+						/* quad's memory mapped */
-+						/* remote I/O APIC space. */
-+	unsigned int	mm_rmt_io_apic_size;	/* Size of this quad's memory*/
-+						/* mapped remote I/O APIC */
-+						/* space. */
-+	unsigned int	mm_isa_start;		/* Starting address of this */
-+						/* quad's memory mapped ISA */
-+						/* space (contains MDC */
-+						/* memory space). */
-+	unsigned int	mm_isa_size;		/* Size of this quad's memory*/
-+						/* mapped ISA space (contains*/
-+						/* MDC memory space). */
-+	unsigned int	rmt_qmi_addr;		/* Remote addr to access QMI.*/
-+	unsigned int	lcl_qmi_addr;		/* Local addr to access QMI. */
-+};
-+
-+/*
-+ * Note: This structure must be NOT be changed unless the multiproc and
-+ * OS are changed to reflect the new structure.
-+ */
-+struct sys_cfg_data {
-+	unsigned int	quad_id;
-+	unsigned int	bsp_proc_id; /* Boot Strap Processor in this quad. */
-+	unsigned int	scd_version; /* Version number of this table. */
-+	unsigned int	first_quad_id;
-+	unsigned int	quads_present31_0; /* 1 bit for each quad */
-+	unsigned int	quads_present63_32; /* 1 bit for each quad */
-+	unsigned int	config_flags;
-+	unsigned int	boot_flags;
-+	unsigned int	csr_start_addr; /* Absolute value (not in MB) */
-+	unsigned int	csr_size; /* Absolute value (not in MB) */
-+	unsigned int	lcl_apic_start_addr; /* Absolute value (not in MB) */
-+	unsigned int	lcl_apic_size; /* Absolute value (not in MB) */
-+	unsigned int	low_shrd_mem_base; /* 0 or 512MB or 1GB */
-+	unsigned int	low_shrd_mem_quad_offset; /* 0,128M,256M,512M,1G */
-+					/* may not be totally populated */
-+	unsigned int	split_mem_enbl; /* 0 for no low shared memory */ 
-+	unsigned int	mmio_sz; /* Size of total system memory mapped I/O */
-+				 /* (in MB). */
-+	unsigned int	quad_spin_lock; /* Spare location used for quad */
-+					/* bringup. */
-+	unsigned int	nonzero55; /* For checksumming. */
-+	unsigned int	nonzeroaa; /* For checksumming. */
-+	unsigned int	scd_magic_number;
-+	unsigned int	system_type;
-+	unsigned int	checksum;
-+	/*
-+	 *	memory configuration area for each quad
-+	 */
-+        struct	eachquadmem eq[MAX_NUMNODES];	/* indexed by quad id */
-+};
-+
-+#endif /* CONFIG_X86_NUMAQ */
-+#endif /* NUMAQ_H */
-+
---- linux-2.4.19pre8-cleanup/include/asm-i386/e820.h	Fri Aug 18 09:30:51 2000
-+++ linux-2.4.19pre8-multi/include/asm-i386/e820.h	Thu May  9 17:21:37 2002
-@@ -35,6 +35,29 @@
- };
- 
- extern struct e820map e820;
-+
-+static inline int page_is_ram (unsigned long pagenr)
-+{
-+	int i;
-+
-+	for (i = 0; i < e820.nr_map; i++) {
-+		unsigned long addr, end;
-+
-+		if (e820.map[i].type != E820_RAM)	/* not usable memory */
-+			continue;
-+		/*
-+		 *	!!!FIXME!!! Some BIOSen report areas as RAM that
-+		 *	are not. Notably the 640->1Mb area. We need a sanity
-+		 *	check here.
-+		 */
-+		addr = (e820.map[i].addr+PAGE_SIZE-1) >> PAGE_SHIFT;
-+		end = (e820.map[i].addr+e820.map[i].size) >> PAGE_SHIFT;
-+		if  ((pagenr >= addr) && (pagenr < end))
-+			return 1;
-+	}
-+	return 0;
-+}
-+
- #endif/*!__ASSEMBLY__*/
- 
- #endif/*__E820_HEADER*/
---- linux-2.4.19pre8-cleanup/include/linux/bootmem.h	Thu Apr 18 16:24:17 2002
-+++ linux-2.4.19pre8-multi/include/linux/bootmem.h	Thu May  9 17:25:56 2002
-@@ -31,9 +31,10 @@
- 
- extern unsigned long __init bootmem_bootmap_pages (unsigned long);
- extern unsigned long __init init_bootmem (unsigned long addr, unsigned long 
-memend);
--extern void __init reserve_bootmem (unsigned long addr, unsigned long size);
- extern void __init free_bootmem (unsigned long addr, unsigned long size);
- extern void * __init __alloc_bootmem (unsigned long size, unsigned long 
-align, unsigned long goal);
-+#ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
-+extern void __init reserve_bootmem (unsigned long addr, unsigned long size);
- #define alloc_bootmem(x) \
- 	__alloc_bootmem((x), SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
- #define alloc_bootmem_low(x) \
-@@ -42,6 +43,7 @@
- 	__alloc_bootmem((x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
- #define alloc_bootmem_low_pages(x) \
- 	__alloc_bootmem((x), PAGE_SIZE, 0)
-+#endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
- extern unsigned long __init free_all_bootmem (void);
- 
- extern unsigned long __init init_bootmem_node (pg_data_t *pgdat, unsigned 
-long freepfn, unsigned long startpfn, unsigned long endpfn);
-@@ -49,11 +51,13 @@
- extern void __init free_bootmem_node (pg_data_t *pgdat, unsigned long addr, 
-unsigned long size);
- extern unsigned long __init free_all_bootmem_node (pg_data_t *pgdat);
- extern void * __init __alloc_bootmem_node (pg_data_t *pgdat, unsigned long 
-size, unsigned long align, unsigned long goal);
-+#ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
- #define alloc_bootmem_node(pgdat, x) \
- 	__alloc_bootmem_node((pgdat), (x), SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
- #define alloc_bootmem_pages_node(pgdat, x) \
- 	__alloc_bootmem_node((pgdat), (x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
- #define alloc_bootmem_low_pages_node(pgdat, x) \
- 	__alloc_bootmem_node((pgdat), (x), PAGE_SIZE, 0)
-+#endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
- 
- #endif /* _LINUX_BOOTMEM_H */
---- linux-2.4.19pre8-cleanup/mm/bootmem.c	Fri Dec 21 09:42:04 2001
-+++ linux-2.4.19pre8-multi/mm/bootmem.c	Thu May  9 17:24:46 2002
-@@ -306,10 +306,12 @@
- 	return(init_bootmem_core(&contig_page_data, start, 0, pages));
- }
- 
-+#ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
- void __init reserve_bootmem (unsigned long addr, unsigned long size)
- {
- 	reserve_bootmem_core(contig_page_data.bdata, addr, size);
- }
-+#endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
- 
- void __init free_bootmem (unsigned long addr, unsigned long size)
- {
---- linux-2.4.19pre8-cleanup/Documentation/Configure.help	Tue May  7 11:54:02 
-2002
-+++ linux-2.4.19pre8-multi/Documentation/Configure.help	Thu May  9 17:21:37 
-2002
-@@ -234,7 +234,7 @@
-   Axis Communication site, <http://developer.axis.com/>.
- 
- Multiquad support for NUMA systems
--CONFIG_MULTIQUAD
-+CONFIG_X86_NUMAQ
-   This option is used for getting Linux to run on a (IBM/Sequent) NUMA 
-   multiquad box. This changes the way that processors are bootstrapped,
-   and uses Clustered Logical APIC addressing mode instead of Flat Logical.
+    asm-offsets.c now uses the new thread_info offsets 
 
+    Had to use the CFLAG ugliness of ia64 to get asm-offsets.c to
+    work properly as include/asm-sparc64/system.h uses thread_info 
+    offsets.
 
+-tduffy
+
+--=-rXyg3j6wefMoJ1j5hBdn
+Content-Disposition: attachment; filename=kbuild-2.5-sparc64-2.5.14-2.bz2
+Content-Type: application/x-bzip; name=kbuild-2.5-sparc64-2.5.14-2.bz2
+Content-Transfer-Encoding: base64
+
+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
+QA==
+
+--=-rXyg3j6wefMoJ1j5hBdn--
 

@@ -1,55 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268134AbUJCUeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268136AbUJCUim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268134AbUJCUeA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 16:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268135AbUJCUd7
+	id S268136AbUJCUim (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 16:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268141AbUJCUim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 16:33:59 -0400
-Received: from gprs214-52.eurotel.cz ([160.218.214.52]:7296 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268134AbUJCUd6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 16:33:58 -0400
-Date: Sun, 3 Oct 2004 22:33:45 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Alexander Clouter <alex-kernel@digriz.org.uk>
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.6.9-rc1->rc3 and futex's hang
-Message-ID: <20041003203345.GB3379@elf.ucw.cz>
-References: <20041003115649.GA22399@inskipp.digriz.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041003115649.GA22399@inskipp.digriz.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 3 Oct 2004 16:38:42 -0400
+Received: from pimout7-ext.prodigy.net ([207.115.63.58]:44452 "EHLO
+	pimout7-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S268136AbUJCUii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 16:38:38 -0400
+Date: Sun, 3 Oct 2004 16:37:03 -0400 (EDT)
+From: Vladimir Dergachev <volodya@mindspring.com>
+X-X-Sender: volodya@node2.an-vo.com
+Reply-To: Vladimir Dergachev <volodya@mindspring.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Merging DRM and fbdev
+In-Reply-To: <9e473391041003105511b77003@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0410031636320.18135@node2.an-vo.com>
+References: <9e47339104100220553c57624a@mail.gmail.com> 
+ <Pine.LNX.4.58.0410030824280.2325@skynet>  <9e4733910410030833e8a6683@mail.gmail.com>
+  <Pine.LNX.4.61.0410031145560.17248@node2.an-vo.com> 
+ <9e4733910410030924214dd3e3@mail.gmail.com>  <Pine.LNX.4.61.0410031254280.17448@node2.an-vo.com>
+ <9e473391041003105511b77003@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> ----------------
-> summary: kernel's 2.6.9-rc1->2.6.9-rc3 lock up my jabber client (on a futex)
-> keywords: futex, 2.6.9, hanging (no oops)
-> ----------------
-> 
-> I'm getting desperate, my Jabber client keeps locking up and its kernel
-> 2.6.9-rc1 -> 2.6.9-rc3 [Linux version 2.6.9-rc3 (alex@inskipp) (gcc version
-> 3.3.4 (Debian 1:3.3.4-13)) #12 Sat Oct 2 15:47:07 BST 2004; untainted] that
-> are causing the problems (bizarrely), whilst with 2.6.8.1 everything is
-> peachy.
-> 
-> I have tried trimming all the 'fancy' bits/options I choose in the kernel but 
-> it seems to have no effect.
-> 
-> The jabber client (with an strace) shows it hangs on a futex.  I do not have
-> a clue if this is related to your OpenOffice issue[1], for you it segfaults
-> OO, for me it hangs my Jabber client (tkabber) and I have to kill
-> it. :(
-
-I just tried OOo again, and yes, it still crashes. Openoffice.org641.
 
 
+On Sun, 3 Oct 2004, Jon Smirl wrote:
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> How is the tuner controlled? Is it a V4L insterface?
+
+No, the tuner is controlled via Xserver Xv extension. No V4L interface is 
+provided for tuner control.
+
+                       best
+
+                          Vladimir Dergachev
+
+>
+>
+> On Sun, 3 Oct 2004 12:59:38 -0400 (EDT), Vladimir Dergachev
+> <volodya@mindspring.com> wrote:
+>> Jon, this is a common misconception - GATOS km module *does* provide a v4l
+>> interface.
+>>
+>> What is different is that the device configuration (like setting the tuner
+>> or encoding) is done by Xserver.
+>>
+>> All km does is check whether the card can supply a v4l stream and, if so,
+>> it provides it. This is little different from a webcam driver, especially
+>> if a webcam has its own on/off switch.
+>>
+>> The misconception arises from the fact that many v4l programs were only
+>> made to work with bt848 cards - they would *not* work with webcams any
+>> more than they would work with km.
+>>
+>>                                best
+>>
+>>                                  Vladimir Dergachev
+>>
+>>>
+>>> --
+>>> Jon Smirl
+>>> jonsmirl@gmail.com
+>>>
+>>>
+>>> -------------------------------------------------------
+>>> This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
+>>> Use IT products in your business? Tell us what you think of them. Give us
+>>> Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
+>>> http://productguide.itmanagersjournal.com/guidepromo.tmpl
+>>> --
+>>> _______________________________________________
+>>> Dri-devel mailing list
+>>> Dri-devel@lists.sourceforge.net
+>>> https://lists.sourceforge.net/lists/listinfo/dri-devel
+>>>
+>>
+>
+>
+>
+> -- 
+> Jon Smirl
+> jonsmirl@gmail.com
+>
+>
+> -------------------------------------------------------
+> This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
+> Use IT products in your business? Tell us what you think of them. Give us
+> Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
+> http://productguide.itmanagersjournal.com/guidepromo.tmpl
+> --
+> _______________________________________________
+> Dri-devel mailing list
+> Dri-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/dri-devel
+>

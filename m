@@ -1,77 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbUKTOps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262973AbUKTOsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262963AbUKTOps (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 09:45:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbUKTOps
+	id S262973AbUKTOsV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 09:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbUKTOsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 09:45:48 -0500
-Received: from ns.schottelius.org ([213.146.113.242]:21633 "HELO
-	scice.schottelius.org") by vger.kernel.org with SMTP
-	id S262963AbUKTOpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 09:45:40 -0500
-Date: Sat, 20 Nov 2004 15:46:17 +0100
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: ITE8212 - iteraid inclusion | general ide raid question
-Message-ID: <20041120144617.GB2286@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eJnRUKwClWJh1Khz"
+	Sat, 20 Nov 2004 09:48:21 -0500
+Received: from umail.mtu.ru ([195.34.32.101]:62901 "EHLO umail.ru")
+	by vger.kernel.org with ESMTP id S262973AbUKTOqn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 09:46:43 -0500
+From: "Nikita V. Youshchenko" <yoush@cs.msu.su>
+To: linux-kernel@vger.kernel.org
+Subject: CONFIG_PREEMPT x86 assembly question
+Date: Sat, 20 Nov 2004 17:43:11 +0300
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.9-cLinux
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200411201746.44804@sercond.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---eJnRUKwClWJh1Khz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hello
 
-Hello!
+Whily lazy-examining kernel code, I found the following interesting point.
 
-I am wondering, whether support for the ide atapi (raid/normal)
-controllers will be merged into 2.6?
+In arch/i386/kernel/entry.S
 
-ITE offers GPLed source code from their website, so their should be no
-problem imho.
+...
+ENTRY(resume_kernel)
+ cmpl $0,TI_preempt_count(%ebp) # non-zero preempt_count ?
+ jnz restore_all
+need_resched:
+ movl TI_flags(%ebp), %ecx # need_resched set ?
+ testb $_TIF_NEED_RESCHED, %cl
+ jz restore_all
+ testl $IF_MASK,EFLAGS(%esp)     # interrupts off (exception path) ?
+ jz restore_all
+ movl $PREEMPT_ACTIVE,TI_preempt_count(%ebp)
+ sti
+ call schedule
+ movl $0,TI_preempt_count(%ebp)
+ cli
+ jmp need_resched
+#endif
+...
 
-Another question: Why are the IDE Raids listed below
-SCSI support in menuconfig? Doesn't it make sense to
-open a new point 'IDE Raid Controller' or add them to
-the general ide section?
+Why, after return from schedule(), first 0 is written to 
+TI_preempt_count(%ebp), and only then interrupts are disabled?
+Wht not the reverse order?
 
-And why are ide raid controllers using scsi namespace /dev/sd*?
+As far as I understand, the idea of the preempt_count flag is to avoid 
+nested preemts. The fact that flag is reset before interrupts are 
+disabled, somewhat breaks this: interrupt may happen just after flag is 
+reset, causing nested interrupt while preempt_count flag is already reset. 
+In a very unprobable case this could happen unlimited number of times, 
+causing kernel stack overflow.
 
-I am a bit confused about that.
-
-Thanks for any information,
-
-Nico
-
---eJnRUKwClWJh1Khz
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
+Very unprobable? But couldn't this be the cause of kernel lockups I 
+suffered several times while writing DVD on a probably broken media (which 
+could cause interrupt storm)?..
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iQIVAwUBQZ9YtrOTBMvCUbrlAQKL3g//ckNH/FWh4T7vuREmwBuIF3yS88M3SSM7
-dk7hd/gXueSBUY/uW3gxsH6M3exgaadpJWVSfYNq+cgiAGL5goOCbUv/b6INQL9N
-KtMP8t5c8TWaUTsxhbSu7XijjEQjyxpxxQBbku6i7pAbKzozaK7nh+GeaY35aE+h
-sRvxRQugntTxcTF6ucVAyW0tPNaGRLSaUfn7MWh6eZOGO8AYTy3mCRuFslUIfPPq
-vb5YA1hfoXt6vqBmuZTXNfO7nfw+k3BsTijw6S5b8x+OwbyaL638HqkZzGY+csD5
-k3ZUf6DN2iOFuqT4291EHM8zf9Y65MDA52fMFKi2iSbAXcJPwW7TS7dYEbL4d2is
-AWlr9vMBDzyCVyMyv9wX9BHVbMpRMy/xD+zXMDwxl/DB10CoCdHj5hZpSz9ZAgsL
-WlV6wABarA1CidxCPV+79ae94+OrFQZQg2MvqhKfd4XnoKZx52SH/n1dpAMztB5Z
-HvWRIhOLVZnR9I/vkwUtKs4BE8nu3yswzVYemXOARxJRMJfIT1U0ZN1TNY5PeqTc
-RuxWKrHgzfCXDlhJQLy0sxCEodQCuZDyApfhxdmmcMIjzvsw75rKkJeVrBcQdHah
-mdyvitW3x3zysbfZ4ZwdcIMoRDEMU56MYYcYDwdzlpo1rf6MXaxsfB/HAFV1dulf
-7o3zB3k+a64=
-=x+WY
+iD8DBQFBn1jSv3x5OskTLdsRAu/lAKCCqeNbJSkhC4W3iWawjm4vctOzpwCeN7vX
+Cjk39KRgRSnjN8ktKGCfoUA=
+=XvKR
 -----END PGP SIGNATURE-----
-
---eJnRUKwClWJh1Khz--

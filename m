@@ -1,154 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266580AbUHZCto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266798AbUHZC71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266580AbUHZCto (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 22:49:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266756AbUHZCto
+	id S266798AbUHZC71 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 22:59:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUHZC70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 22:49:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:923 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266580AbUHZCti
+	Wed, 25 Aug 2004 22:59:26 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:34784 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S266798AbUHZC7Z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 22:49:38 -0400
-Date: Wed, 25 Aug 2004 22:01:52 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.28-pre2
-Message-ID: <20040826010152.GB25340@logos.cnet>
+	Wed, 25 Aug 2004 22:59:25 -0400
+Subject: Re: 2.6.8.1-mm4 - more cpu hotplug breakage
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Nathan Lynch <nathanl@austin.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+In-Reply-To: <1093475339.7056.6.camel@pants.austin.ibm.com>
+References: <20040822013402.5917b991.akpm@osdl.org>
+	 <1093299523.5284.70.camel@pants.austin.ibm.com>
+	 <1093475339.7056.6.camel@pants.austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1093488887.13514.2363.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 26 Aug 2004 12:54:47 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-08-26 at 09:09, Nathan Lynch wrote:
+> My apologies if this is getting annoying, but it occurred to me that any
+> user of stop_machine_run is broken similarly... which means that
+> unloading a module will also hang your machine.  I have verified this on
+> 2.6.8.1-mm4 on ppc64.
 
-Hi, 
+My apologies for not responding earlier.
 
-Here goes the second -pre of v2.4.28.
+I've been chasing this, and I realized that both my previous patch and
+the one in -mm4 are broken.  They fix the case where we release_task
+ourselves, then a CPU goes down, but not the case where our parent
+release_tasks us and the CPU goes down.
 
-It contains more SATA fixes, S390 update, number of 
-PCI hotplug fixes, NFS update, IDE PCI Triflex, amongst 
-others.
+The correct fix is for the hotplug CPU code to scan the dead CPU's
+runqueue as well, and migrate those.
 
-Also a bunch of gcc 3.4 fixes, hopefully we are done
-with that now.
-
-Enjoy
-
-
-Summary of changes from v2.4.28-pre1 to v2.4.28-pre2
-============================================
-
-<achew:nvidia.com>:
-  o [libata sata_nv] support for hardware, bug fixes
-  o [libata sata_nv] fix leak on error
-
-<david.martinez:rediris.es>:
-  o Update ftape webpage
-
-<linville:tuxdriver.com>:
-  o Add IOI Media Bay to SCSI quirk list
-
-<mbroemme:plusserver.de>:
-  o Fix kernel oops in nsc-ircc.c
-
-<rainer.weikusat:sncag.com>:
-  o bkgoodman@bradgoodman.com: MTD cfi_cmdset_0002.c - Duplicate cleanup in error path
-
-<sezeroz:ttnet.net.tr>:
-  o pm3fb and kaweth missing casts
-  o ns83820.c warning fixes
-  o cpqarray/cciss gcc3.4 inline fixes
-  o ieee1394/hisax gcc 3.4 inline fixes
-  o radio/video gcc3.4 inline fixes
-  o mtd gcc3.4 inline fixes
-  o net drivers gcc3.4 inline fixes
-  o scsi drivers gcc3.4 inline fixes
-  o USB gcc3.4 inline fixes
-  o net gcc3.4 inline fixes
-  o char gcc3.4 inline fixes
-  o filesystems (fs/) gcc3.4 inline fixes
-  o intermezzo gcc3.4 inline fixes
-  o uninline do_generic_direct_read
-
-<thor:math.tu-berlin.de>:
-  o NetMOS 9805 ParPort interface
-
-Adrian Bunk:
-  o 2.4.28-pre1: add two SATA Configure.help entries
-  o disallow modular BINFMT_ELF
-
-Alan Cox:
-  o [libata] improve translation of ATA errors to SCSI sense codes
-  o ad1816 sound driver web page and email address update
-
-Andrew Morton:
-  o libata build fix
-
-Badari Pulavarty:
-  o scsi PHYS_4G merging doesn't work
-
-Bartlomiej Zolnierkiewicz:
-  o Fix IDE Triflex hang on boot with two single-channel controllers
-
-Dan Zink:
-  o PCI Hotplug: fix potential hang in cpqphp
-
-Daniel Ritz:
-  o enable read prefetch on o2micro bridges to fix HDSP
-  o fix EnE Cardbus bridges for HDSP
-
-David S. Miller:
-  o [SPARC64]: Add missing nop to itlb_base.S
-
-Dely Sy:
-  o PCI Hotplug: Fixes for hot-plug drivers in 2.4 kernel
-
-Douglas Gilbert:
-  o [libata] fix INQUIRY handling
-
-Gary Hade:
-  o PCI Hotplug: change MAINTAINERS
-
-Jeff Garzik:
-  o [libata] (cosmetic) sync with 2.6.x
-  o [libata] support commands SYNCHRONIZE CACHE, VERIFY, VERIFY(16)
-  o [libata] fix PIO data xfer on big endian
-  o [libata] ATAPI PIO data xfer
-  o [libata] add ioctl infrastructure
-  o [libata] fix error recovery reference count and in-recovery flag
-  o [ata] remove 'packed' attributed from struct ata_prd
-
-Marcelo Tosatti:
-  o Changed EXTRAVERSION to -pre2
-
-Martin Schwidefsky:
-  o s390: core changes
-  o s390: ibm partition table
-  o s390: system tick misaccounting
-  o s390: dasd changes
-  o s390: ctc fixes
-  o s390: iucv net driver fixes
-  o s390: qeth network driver fixes
-
-Mikael Pettersson:
-  o gcc34 inline failure fixes
-
-Neil Brown:
-  o Allow larger NFSd MAXBLKSIZE on architectures with larger PAGE_SIZE
-  o Fixed possibly xdr parsing error if write size exceed 2^31
-  o Use llseek instead of f_pos= for directory seeking
-  o mark NFS/TCP not EXPERIMENTAL
-
-Patrick McHardy:
-  o [RBTREE]: Add rb_{first,last,prev,next}
-  o [NET_SCHED]: Replace eligible list by rbtree in HFSC scheduler
-  o [NET_SCHED]: Replace actlist by rbtrees in HFSC scheduler
-  o [NET_SCHED]: O(1) children vtoff adjustment in HFSC scheduler
-  o [PKT_SCHED]: Remove unnecessary memsets in packet schedulers
-
-Pete Zaitcev:
-  o USB: update unusual_devs.h
-  o USB: remove "interrupt, status %x, frame# %i"
-  o The Dell's fix for TEAC CD-210PU
+I'll patch soon,
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

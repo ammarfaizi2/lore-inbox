@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbRBNNcZ>; Wed, 14 Feb 2001 08:32:25 -0500
+	id <S129066AbRBNNjh>; Wed, 14 Feb 2001 08:39:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129681AbRBNNcP>; Wed, 14 Feb 2001 08:32:15 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21519 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129055AbRBNNcI>; Wed, 14 Feb 2001 08:32:08 -0500
-Subject: Re: Stale super_blocks in 2.2
-To: pauld@egenera.com (Phil Auld)
-Date: Wed, 14 Feb 2001 13:32:38 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3A8A87A7.4A3CE58D@egenera.com> from "Phil Auld" at Feb 14, 2001 08:27:03 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14T22y-0004wP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S132098AbRBNNj2>; Wed, 14 Feb 2001 08:39:28 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:64476 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S129093AbRBNNjP>; Wed, 14 Feb 2001 08:39:15 -0500
+Message-Id: <l03130328b6b03a746ec4@[192.168.239.101]>
+In-Reply-To: <23072.982141823@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 14 Feb 2001 13:38:26 +0000
+To: David Howells <dhowells@cambridge.redhat.com>,
+        linux-kernel@vger.kernel.org
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: *grin* Windows 2000 & HPC: Scalable, Inexpensive
+ Supercomputing Solutions
+Cc: jjb@nexor.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I can make the changes needed. I was really curious if you, or anyone else,
-> thought there might be page caching issues involved with invalidating on the way
-> down.
+At 9:10 am +0000 14/2/2001, David Howells wrote:
+>How this for a laugh:
+>
+>http://www.microsoft.com/WINDOWS2000/hpc/indstand.asp
+>
 
-2.4 already addresses this. With 2.2 or 2.4 you can force buffer flushes from
-userspace too
+Can anybody say "Beowulf cluster"?  I bet you need a W2K license for every
+box you hook up, too.
+
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
+
+The key to knowledge is not to rely on people to teach you it.
+
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
+-----END GEEK CODE BLOCK-----
 
 

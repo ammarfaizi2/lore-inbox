@@ -1,86 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262943AbUBZUFs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 15:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUBZUFr
+	id S262972AbUBZUKl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 15:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUBZUKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 15:05:47 -0500
-Received: from waste.org ([209.173.204.2]:23016 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262960AbUBZUDK (ORCPT
+	Thu, 26 Feb 2004 15:10:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8888 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262972AbUBZUK3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 15:03:10 -0500
-Date: Thu, 26 Feb 2004 14:02:45 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Christophe Saout <christophe@saout.de>
-Cc: Jean-Luc Cooke <jlcooke@certainkey.com>, linux-kernel@vger.kernel.org,
-       James Morris <jmorris@intercode.com.au>
-Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
-Message-ID: <20040226200244.GH3883@waste.org>
-References: <20040219170228.GA10483@leto.cs.pocnet.net> <20040219111835.192d2741.akpm@osdl.org> <20040220171427.GD9266@certainkey.com> <20040221021724.GA8841@leto.cs.pocnet.net> <20040224191142.GT3883@waste.org> <1077651839.11170.4.camel@leto.cs.pocnet.net> <20040224203825.GV3883@waste.org> <20040225214308.GD3883@waste.org> <1077824146.14794.8.camel@leto.cs.pocnet.net>
+	Thu, 26 Feb 2004 15:10:29 -0500
+Date: Thu, 26 Feb 2004 12:09:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: davidm@hpl.hp.com
+Cc: davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, kingsley@aurema.com,
+       linux-kernel@vger.kernel.org, Daniel Jacobowitz <dan@debian.org>
+Subject: Re: /proc visibility patch breaks GDB, etc.
+Message-Id: <20040226120959.35b284ff.akpm@osdl.org>
+In-Reply-To: <16446.19305.637880.99704@napali.hpl.hp.com>
+References: <16445.37304.155370.819929@wombat.chubb.wattle.id.au>
+	<20040225224410.3eb21312.akpm@osdl.org>
+	<16446.19305.637880.99704@napali.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1077824146.14794.8.camel@leto.cs.pocnet.net>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 08:35:46PM +0100, Christophe Saout wrote:
-> Am Mi, den 25.02.2004 schrieb Matt Mackall um 22:43:
+David Mosberger <davidm@napali.hpl.hp.com> wrote:
+>
+> >>>>> On Wed, 25 Feb 2004 22:44:10 -0800, Andrew Morton <akpm@osdl.org> said:
 > 
-> > Ok, here's my proposed API extension (currently untested). Christophe,
-> > care to give it a spin?
-> >
-> > diff -puN crypto/api.c~crypto-copy crypto/api.c
-> > --- tiny/crypto/api.c~crypto-copy	2004-02-25 15:12:43.000000000 -0600
-> > +++ tiny-mpm/crypto/api.c	2004-02-25 15:37:39.000000000 -0600
-> > @@ -161,6 +161,27 @@ void crypto_free_tfm(struct crypto_tfm *
-> >  	kfree(tfm);
-> >  }
-> >  
-> > +int crypto_copy_tfm(char *dst, const struct crypto_tfm *src, unsigned size)
-> > +{
-> > +	int s = crypto_tfm_size(src);
-> > +
-> > +	if (size < s)
-> > +		return 0;
+>   Andrew> Peter Chubb <peter@chubb.wattle.id.au> wrote:
+>   >> 
+>   >> 
+>   >> In fs/proc/base.c:proc_pid_lookup(), the patch
+>   >> 
+>   >> read_unlock(&tasklist_lock); if (!task) goto out; + if
+>   >> (!thread_group_leader(task)) + goto out_drop_task;
+>   >> 
+>   >> inode = proc_pid_make_inode(dir->i_sb, task, PROC_TGID_INO);
+>   >> 
+>   >> means that threads other than the thread group leader don't
+>   >> appear in the /proc top-level directory.  Programs that are
+>   >> informed via pid of events can no longer find the appropriate
+>   >> process -- for example, using gdb on a multi-threaded process, or
+>   >> profiling using perfmon.
+>   >> 
+>   >> The immediate symptom is GDB saying: Could not open
+>   >> /proc/757/status when 757 is a TID not a PID.
 > 
-> Why the extra check?
-
-User is giving us the size of his buffer, not the size of the tfm
-which we already know. We refuse to copy if buffer is not big enough,
-otherwise return number of bytes copied. This may seem a little
-redundant for the on-stack usage of the API, but may make sense in
-other cases.
- 
-> > +void crypto_cleanup_copy_tfm(char *user_tfm)
-> > +{
-> > +	crypto_exit_ops((struct crypto_tfm *)user_tfm);
+>   Andrew> What does `ls /proc/757' say?  Presumably no such file or
+>   Andrew> directory?  It's fairly bizare behaviour to be able to open
+>   Andrew> files which don't exist according to readdir, which is why
+>   Andrew> we made that change.
 > 
-> This looks dangerous. The algorithm might free a buffer. This is only
-> safe if we introduce per-algorithm copy methods that also duplicate
-> external buffers.
+> Excuse, but this seems seriously FOOBAR.  I understand that it's
+> interesting to see the thread-leader/thread relationship, but surely
+> that's no reason to break backwards compatibility and the ability to
+> look up _any_ task's info via /proc/PID/.
 
-I'm currently working under the assumption that such external buffers
-are unnecessary but I haven't done the audit. If and when such code
-exist, such code should be added, yes. Hence the comment in the copy
-function:
+Well you can't look them up - you can only open them.  But I take your
+point.  In another life, these things would appear under a special
+/proc/magical_directory_which_has_dopey_semantics.
 
-+       /* currently assumes shallow copy is sufficient */
+> A program that only wants
+> to show "processes" (thread-group leaders) can simply read
+> /proc/PID/status and ignore the entries for which Tgid != PPid.
+> 
+> Perhaps you could put relative symlinks in task/?  Something like
+> this:
+> 
+>  $ ls -l /proc/self/task
+>  dr-xr-xr-x    3 davidm   users           0 Feb 26 11:37 13494 -> ..
+>  dr-xr-xr-x    3 davidm   users           0 Feb 26 11:37 13495 -> ../../13495
+> 
+> perhaps?
 
-> I'd like to avoid a kmalloc in crypto_copy_tfm.
+Well the contents of /proc/pid/task are OK at present.
 
-Well you're in luck because there isn't one.
-
-> This function also does the same as crypto_free_tfm except for the
-> final kfree(tfm). So crypto_free_tfm could call this function. 
-
-Yes.
-
-> And it could have a better name.
-
-Just about everything could have a better name if the poets among us
-were to speak up.
-
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+I guess we should revert that change.

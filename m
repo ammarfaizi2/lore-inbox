@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbTA2Bka>; Tue, 28 Jan 2003 20:40:30 -0500
+	id <S262201AbTA2Bs3>; Tue, 28 Jan 2003 20:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262224AbTA2Bka>; Tue, 28 Jan 2003 20:40:30 -0500
-Received: from sccmmhc02.mchsi.com ([204.127.203.184]:29925 "EHLO
-	sccmmhc02.mchsi.com") by vger.kernel.org with ESMTP
-	id <S262038AbTA2Bka>; Tue, 28 Jan 2003 20:40:30 -0500
-From: Chuck Burns <zex0s@mchsi.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21pre3 and 3com Integrated 3C556B (3c59x module)
-Date: Tue, 28 Jan 2003 19:49:45 -0600
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S262208AbTA2Bs2>; Tue, 28 Jan 2003 20:48:28 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:30461 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262201AbTA2Bs2>; Tue, 28 Jan 2003 20:48:28 -0500
+Date: Tue, 28 Jan 2003 20:57:47 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux390@de.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Tyop in hwc_rw.c (2.4.21-pre3)
+Message-ID: <20030128205747.A6557@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200301281949.45510.zex0s@mchsi.com>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Having recently upgraded my Mandrake 9.0 Laptop to the latest Mandrake cooker 
-(9.1beta) it uses the 2.4.21pre3 kernel.  A problem has occured somewhere 
-between 2.4.19 and 2.4.21pre3, with regards to the 3c59x driver module.  It 
-incorrectly returns the MAC address for my IBM Thinkpad a20m with 3com 
-integrated PCI 10/100M ethernet/Modem combo card. (the Nic is a 3com 3c556b, 
-which is supported under the 3c59x module)  The 2.4.19 kernel module 
-accurately reports the MAC address.
+Nobody compiles without CONFIG_SMP anymore?
 
-The 2.4.21pre3 MAC address reported for my card is FF:FF:FF:FF:FF:FF,
-which, obviously, is incorrect.  I have never submitted a bug report before, 
-so I am not quite sure what all information you need.. there is no error 
-message associated with this
--- 
-Chuck Burns, Jr <zex0s@mchsi.com>
------------==========-----------
-Don't marry for money; you can borrow it cheaper.
-		-- Scottish Proverb
-
+--- linux-2.4.20-ent.1s390.4/drivers/s390/char/hwc_rw.c	2002-11-28 15:53:14.000000000 -0800
++++ linux-2.4.20-ent.1s390.4a/drivers/s390/char/hwc_rw.c	2003-01-27 19:18:30.000000000 -0800
+@@ -1662,7 +1662,7 @@
+ 	psw_t quiesce_psw;
+ 
+ 	quiesce_psw.mask = _DW_PSW_MASK;
+-	queisce_psw.addr = 0xfff;
++	quiesce_psw.addr = 0xfff;
+ 	__load_psw (quiesce_psw);
+ }
+ 

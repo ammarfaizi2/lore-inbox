@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274299AbRIYBBh>; Mon, 24 Sep 2001 21:01:37 -0400
+	id <S273946AbRIYBCh>; Mon, 24 Sep 2001 21:02:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274306AbRIYBB1>; Mon, 24 Sep 2001 21:01:27 -0400
-Received: from pblx.net ([64.167.128.182]:16901 "HELO dobie.pblx.net")
-	by vger.kernel.org with SMTP id <S274299AbRIYBBN>;
-	Mon, 24 Sep 2001 21:01:13 -0400
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <20010925005745.A2702@elfie.cavy.de>
-Date: Mon, 24 Sep 2001 18:01:32 -0700 (PDT)
-From: shewp <shewp@pblx.net>
-To: Heinz Diehl <hd@cavy.de>
-Subject: Re: broken /proc/partitions
+	id <S274306AbRIYBCW>; Mon, 24 Sep 2001 21:02:22 -0400
+Received: from mail.courier-mta.com ([66.92.103.29]:5578 "EHLO
+	mail.courier-mta.com") by vger.kernel.org with ESMTP
+	id <S273946AbRIYBCJ>; Mon, 24 Sep 2001 21:02:09 -0400
+In-Reply-To: <fa.k5o58rv.d7683s@ifi.uio.no>
+            <fa.iu7m5ov.i6q3rt@ifi.uio.no>
+In-Reply-To: <fa.iu7m5ov.i6q3rt@ifi.uio.no> 
+From: "Sam Varshavchik" <mrsam@courier-mta.com>
+To: "David S. Miller" <davem@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <20010925010122Z274299-760+16462@vger.kernel.org>
+Subject: Re: two probable security holes
+Date: Tue, 25 Sep 2001 01:02:35 GMT
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-ID: <courier.3BAFD7AB.0000609A@ny.email-scan.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It works perfectly for me on 2.4.9.
+David S. Miller writes: 
 
-I have 7 u2w drives (and a dat)
-on an ahc-2940u2w.
-
-in pre14 I thought I saw some pretty hefty
-changes in this area, but i don't know the
-kernel well enough to say. 
-
-scsi or ide? any other verification?
-
-
-On 24-Sep-2001 Heinz Diehl wrote:
-> On Mon Sep 24 2001, shewp wrote:
+>    From: Ken Ashcraft <kash@stanford.edu>
+>    Date: Tue, 18 Sep 2001 14:29:57 -0700 (PDT) 
 > 
->> did anyone notice that cat /proc/partitions on 2.4.10 loops 
->> infinitely?
->> it makes dump loop too, which is how i found out.
+>    Watch ifr.ifr_name.
+>    
+> Hi Ken, I believe there is some bug in your new checker algorithms for
+> this case. 
 > 
-> Here it works perfectly, no loops, no dump loops.
+>                    struct ifreq ifr;
+>                    int err;
+>    Start--->
+>                    if (copy_from_user(&ifr, (void *)arg, sizeof(ifr)))
+>                            return -EFAULT;
+>                    ifr.ifr_name[IFNAMSIZ-1] = '\0'; 
 > 
-> -- 
-># Heinz Diehl, 68259 Mannheim, Germany
-># Techno-Vinyl for sale, get the list from "http://www.cavy.de/vinyl.txt"
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> ifreq copied safely to kernel space, ifr.ifr_name[] is inside the
+> struct and NOT a user pointer. 
+> 
+>                    err = tun_set_iff(file, &ifr); 
+> 
+> Pass address of kernel ifreq. 
+> 
+>                    if (*ifr->ifr_name)
+>                            name = ifr->ifr_name;
+>    
+>                    if ((err = dev_alloc_name(&tun->dev, name)) < 0)
+>                            goto failed; 
+> 
+> Perfectly fine still, name always points to kernel memory.
+>    
+>    int dev_alloc_name(struct net_device *dev, const char *name)
+>    {
+>  ... 
+> 
+>            for (i = 0; i < 100; i++) {
+>    Error--->
+>    	       sprintf(buf,name,i); 
+> 
+> Still fine, as stated "name" is pointing to kernel memory.
+
+Ummm...  Is it possible for name to be, oh, something like 
+
+"foo%s%s%s%s%s"? 
+
+In that case, what would that sprintf do? 
+
+> Perhaps your code is being confused by "ifreq->if_name" being
+> an array.
+
+-- 
+Sam 
 

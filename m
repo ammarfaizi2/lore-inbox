@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269853AbUH0A6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267770AbUHZU7C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269853AbUH0A6l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269796AbUH0Ayu
+	id S267770AbUHZU7C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:59:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269659AbUHZU5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:54:50 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:55193 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S269779AbUHZXwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 19:52:42 -0400
-X-Comment: AT&T Maillennium special handling code - c
-Message-ID: <412E769B.1090508@namesys.com>
-Date: Thu, 26 Aug 2004 16:47:39 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
+	Thu, 26 Aug 2004 16:57:04 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:61878 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269618AbUHZUiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:38:18 -0400
 Subject: Re: silent semantic changes with reiser4
-References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408261315110.2304@ppc970.osdl.org> <412E69D2.50503@namesys.com> <Pine.LNX.4.58.0408261625180.2304@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0408261625180.2304@ppc970.osdl.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Lee Revell <rlrevell@joe-job.com>
+To: Will Dyson <will_dyson@pobox.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <412E06B2.7060106@pobox.com>
+References: <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de>
+	 <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
+	 <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk>
+	 <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org>
+	 <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk>
+	 <20040826001152.GB23423@mail.shareable.org>
+	 <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk>
+	 <20040826010049.GA24731@mail.shareable.org>
+	 <20040826100530.GA20805@taniwha.stupidest.org>
+	 <20040826110258.GC30449@mail.shareable.org>  <412E06B2.7060106@pobox.com>
+Content-Type: text/plain
+Message-Id: <1093552705.5678.96.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 26 Aug 2004 16:38:26 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Thu, 2004-08-26 at 11:50, Will Dyson wrote:
+> Jamie Lokier wrote:
+> 
+> > However, as far as I know it's not accessible in a file-as-directory
+> > form as yet.  In my opinion that is the most natural form and it would
+> > be very intuitive to use.  I hope we can pick a useful semantics for
+> > them, and also provide filesystem-independent plugins with GNU
+> > Hurd-like per-user extensibility.
+> > 
+> > -- Jamie
+> > 
+> > * plenty == too much.
+> >   Gnome, KDE, Emacs and Bash all see different virtual filesystems.
+> >   (All but Bash implement their own virtual filesystem extensions).
+> >   That makes them much less useful than they could be.
+> 
+> It has always bugged me that Gnome and KDE implement their own VFS layers.
+> 
 
->
->  
->
->>>And you might not be able to change the 
->>>permissions or date on the named stream either, since it may or may not 
->>>have a separate date/permission thing from the container.
->>>      
->>>
->>You should be able to change the permission and data,
->>
-^data^date
+Same here.  This always seemed like something the kernel should be able
+to handle.  It seems to me that if reiser4 had been available at the
+time the Gnome and KDE developers would not have needed to do this.
 
->> but when you 
->>change it, you change it for the whole container.
->>    
->>
->
->Why? I'd much rather disallow it, than allow it and then have "nonlocal" 
->effects.
->  
->
-Sometimes you want the nonlocal effects and sometimes you don't, and by 
-decomposing streams into smaller primitives we can let users choose as 
-they want.
-
-
+Lee
 

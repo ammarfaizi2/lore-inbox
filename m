@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265408AbUAJWeT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 17:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265413AbUAJWeT
+	id S265422AbUAJWkz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 17:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265423AbUAJWky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 17:34:19 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:64151 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265408AbUAJWeS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 17:34:18 -0500
-Date: Sat, 10 Jan 2004 14:34:12 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-Message-ID: <20040110223412.GC17845@matchmail.com>
-Mail-Followup-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <20040110013824.GA17845@matchmail.com> <Pine.LNX.4.44.0401101143280.2363-100000@poirot.grange>
+	Sat, 10 Jan 2004 17:40:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37087 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265422AbUAJWkw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 17:40:52 -0500
+Date: Sat, 10 Jan 2004 14:40:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: sim@netnation.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.24 SMP lockups
+Message-Id: <20040110144049.5e195ebd.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58L.0401101719400.1310@logos.cnet>
+References: <20040109210450.GA31404@netnation.com>
+	<Pine.LNX.4.58L.0401101719400.1310@logos.cnet>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401101143280.2363-100000@poirot.grange>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 10, 2004 at 12:10:46PM +0100, Guennadi Liakhovetski wrote:
-> On Fri, 9 Jan 2004, Mike Fedyk wrote:
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
 > 
-> > On Sat, Jan 10, 2004 at 01:38:00AM +0100, Guennadi Liakhovetski wrote:
-> > > With 2.6 (on the server, same client) the client reads about 16K at a
-> > > time, split into 11 fragments, and then packets number 9 and 10 get
-> > > lost... This all with a StrongARM client and a PCMCIA network-card. With a
-> > > PXA-client (400MHz compared to 200MHz SA) and an on-board eth smc91x, it
-> > > gets the first 5 fragments, and then misses every other fragment. Again -
-> > > in both cases I was copying files to RAM. Yes, 2.6 sends fragments in
-> > > direct order.
+> 
+> On Fri, 9 Jan 2004, Simon Kirby wrote:
+> 
+> > 'lo all,
+> 
+> Hi Simon,
+> 
+> > We've had about 6 cases of this now, across 4 separate boxes.  Since
+> > upgrading to 2.4.24, our SMP web server boxes (both Intel and AMD
+> > hardware) are randomly blowing up.  This may have happened on 2.4.23 as
+> > well, but they weren't really running long enough to tell.  2.4.22 was
+> > fine.  GCC 3.3.3.
 > >
-> > Is that an x86 server, and an arm client?
+> > These boxes are all dual CPU, and the failure case shows up suddenly with
+> > no warning.  Sysreq-P works, but only reports from one CPU no matter how
+> > many times I try.  In normal operation, every machine distributes all
+> > IRQs across both CPUs, and Sysreq-P reports from both CPUs.
+> >
+> > Mapping the EIP reported by Sysreq-P to symbols shows that the responding
+> > CPU is spinning on a spinlock (so far I have seen .text.lock.fcntl,
+> > .text.lock.sched, .text.lock.locks, and .text.lock.inode), which I assume
+> > is being held by the other (dead) CPU.
 > 
-> Yes. The reason for the problem seems to be the increased default size of
-> the transfer unit of NFS from 2.4 to 2.6. 8K under 2.4 was still ok, 16K
-> is too much - only the first 5 fragments pass fine, then data starts to
-> get lost. If it is a hardware limitation (not all platforms can manage
-> 16K), it should be probably set back to 8K. If the reason is that some
-> buffer size was not increased correspondingly, then this should be done.
-> 
-> Just checked - mounting with rsize=8192,wsize=8192 fixes the problem -
-> there are again 5 fragments and they all are received properly.
+> This sounds like a deadlock. I wonder why the NMI watchdog is not
+> triggering.
 
-What version is the arm kernel you're running on the client, and where is it
-from? 
+Presumably it's spinning on the lock with interrupts enabled.  Make that
+the `NMI' counters in /proc/interrupts are incrementing for all CPUs.
+
+
+> > Even on boxes with nmi_watchdog=1, nothing is reported from the NMI
+> > watchdog.
+> 
+> Can you share all available SysRQ-P output for the locked CPU ? SysRQ-T if
+> possible, too.
+
+sysrq-T would be best.
+
+We don't have an each-CPU backtrace facility - it could be handy.  There's
+one in the low-latency patch for some reason.
+
+

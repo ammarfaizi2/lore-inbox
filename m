@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272024AbRHVPE5>; Wed, 22 Aug 2001 11:04:57 -0400
+	id <S272026AbRHVPGr>; Wed, 22 Aug 2001 11:06:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272025AbRHVPEr>; Wed, 22 Aug 2001 11:04:47 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15631 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S272024AbRHVPE3>; Wed, 22 Aug 2001 11:04:29 -0400
-Date: Wed, 22 Aug 2001 17:04:40 +0200
-From: Jan Kara <jack@suse.cz>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Ext2 quota bug in 2.4.8
-Message-ID: <20010822170440.C13229@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20010822104424.D11019@atrey.karlin.mff.cuni.cz> <Pine.GSO.4.21.0108220520110.10119-100000@weyl.math.psu.edu>
+	id <S272025AbRHVPGh>; Wed, 22 Aug 2001 11:06:37 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:17066 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S272028AbRHVPGR>;
+	Wed, 22 Aug 2001 11:06:17 -0400
+Date: Wed, 22 Aug 2001 08:05:40 -0700 (PDT)
+Message-Id: <20010822.080540.35030343.davem@redhat.com>
+To: gibbs@scsiguy.com
+Cc: axboe@suse.de, skraw@ithnet.com, phillips@bonn-fries.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: With Daniel Phillips Patch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200108221324.f7MDOTY10490@aslan.scsiguy.com>
+In-Reply-To: <20010822084649.F604@suse.de>
+	<200108221324.f7MDOTY10490@aslan.scsiguy.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.GSO.4.21.0108220520110.10119-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Aug 22, 2001 at 05:21:02AM -0400
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+   Date: Wed, 22 Aug 2001 07:24:29 -0600
+   
+   Is this somehow different than how large DMA is done on the ia64
+   port?  All I do is look at the size of dma_addr_t to decide whether
+   to enable high address support in my driver.  If dma_addr_t's size
+   changes, then 64bit addressing will work the same as on every other
+   Linux port.
 
-> On Wed, 22 Aug 2001, Jan Kara wrote:
-> 
-> >   Hello,
-> > 
-> >   Jan Sanislo <oystr@cs.washington.edu> found a bug in ext2 quota code in 2.4.6+.
-> > During changes in ext2 code in 2.4.6 some DQUOT_INIT()s were removed but they
-> > shouldn't and as a result quota is not computed right.
-> >   The patch which adds missing DQUOT_INIT()s is below. I didn't place DQUOT_INIT()s to
-> > original places but rather to generic vfs parts which seems better to me.
-> >   Please apply - patch is against 2.4.8.
-> 
-> Wrong place - DQUOT_INIT should be in iput(), just before the call of
-> ->delete_inode()
-  OK. I was also thinking about this place but finally I chose those places in namei.c..
-bad choice :)
-  The patch which places DQUOT_INIT() in iput() is below. Please apply.
+It is totally different.
 
-										Honza
---
-Jan Kara <jack@suse.cz>
-SuSE Labs
-------------------------------------------------------------------------------------
+The ia64 method, while it worked for ia64, could not work properly on
+just about any other platform.  For example, it assumed that any
+physical address could be represented by a kernel virtual address.
+This is not true on 32-bit HIGHMEM systems.  It also assumed that
+using SAC or DAC addressing was simply a matter of "does the device
+support it", and the world is far from being that simple :-)
 
---- linux-2.4.9/fs/inode.c	Wed Aug 22 17:00:51 2001
-+++ linux-2.4.9/fs/inode.c	Wed Aug 22 17:01:11 2001
-@@ -1049,6 +1049,7 @@
- 
- 			if (op && op->delete_inode) {
- 				void (*delete)(struct inode *) = op->delete_inode;
-+				DQUOT_INIT(inode);
- 				/* s_op->delete_inode internally recalls clear_inode() */
- 				delete(inode);
- 			} else
+Please see the pci64 patches for details:
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/davem/PCI64/*.gz
+
+There are Documentation/DMA-mapping.txt updates, where you can read
+how to use the interfaces properly.  A handful of net and scsi drivers
+were updated to use the new API, you have examples to work with as
+well.
+
+I note that the aic7xxx won't be usable for DAC cycles on many
+platforms since not all 64-bits are significant :-(  SYM53C8XX
+has a similar limitation.  Surprisingly, the network PCI cards
+have been the absolute best about this, supporting the full 64-bits
+of DAC address in all card instances I delved into.
+
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268923AbRG0SFA>; Fri, 27 Jul 2001 14:05:00 -0400
+	id <S268914AbRG0SDk>; Fri, 27 Jul 2001 14:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268921AbRG0SEu>; Fri, 27 Jul 2001 14:04:50 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:21517 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S268917AbRG0SEi>;
-	Fri, 27 Jul 2001 14:04:38 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200107271804.WAA22016@ms2.inr.ac.ru>
-Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Fri, 27 Jul 2001 22:04:13 +0400 (MSK DST)
-Cc: samudrala@us.ibm.com, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, lartc@mailman.ds9a.nl,
-        diffserv-general@lists.sourceforge.net, rusty@rustcorp.com.au
-In-Reply-To: <E15QBMf-00066p-00@the-village.bc.nu> from "Alan Cox" at Jul 27, 1 06:25:29 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S268917AbRG0SDa>; Fri, 27 Jul 2001 14:03:30 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:43275 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S268914AbRG0SDX>; Fri, 27 Jul 2001 14:03:23 -0400
+Message-ID: <3B61ACAF.2F0D14C0@namesys.com>
+Date: Fri, 27 Jul 2001 22:02:23 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
+To: Christoph Rohland <cr@sap.com>
+CC: Joshua Schmidlkofer <menion@srci.iwpsd.org>, linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <E15Q9Bw-0005q5-00@the-village.bc.nu>
+		<0107270926070B.06707@widmers.oce.srci.oce.int>
+		<3B618CF2.5C105903@namesys.com> <m3snfip8ml.fsf@linux.local>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello!
+Christoph Rohland wrote:
+> 
+> Hi Hans,
+> 
+> On Fri, 27 Jul 2001, Hans Reiser wrote:
+> > Maybe somebody else who is using both ReiserFS and RedHat's boot
+> > scripts can comment on whether things are slow for them and if so,
+> > where they get slow.
+> 
+> At least not if it's not the root disk. I have a RH71 box with a 19GB
+> reiserfs partition and it's booting fast and fine.
+> 
+> Greetings
+>                 Christoph
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> How is this different from having a single userspace thread in your
-> application which accepts connections as they come in and then hands them
-> out in an order it chooses, if need be erorring and closing some ?
+Ok, well then I conclude that it was a user misdiagnosis as to what his booting problem was of some
+unknowable form.
 
-Seems, I can answer. Because closing some would break the service.
+Apologies to RedHat.
 
-The idea is that when kernel accept queue is full we stop to
-move open requests to established state and hence spurious
-aborts are not generated. So, accepting cannot be artificially
-speed up and extension of accept queue to user space is impossible.
-The similar problem was open with TUX, which relays requests
-to slow path. I do not know how Ingo solved it, by the way,
-but it looked terrible: either massive socket leak (no limit on accept queue)
-or massive aborts. :-)
-
-
-Another question to author: missing prioritization of drops.
-"Low priority" connections will clog accept queue, so that no room
-for high priority connections remains. It is not good.
-Any scheme with priority reserves some room for each high priority band
-or does dropping based on priority.
-
-Alexey
+Hans

@@ -1,37 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261638AbSI2KqN>; Sun, 29 Sep 2002 06:46:13 -0400
+	id <S262445AbSI2LOC>; Sun, 29 Sep 2002 07:14:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262444AbSI2KqN>; Sun, 29 Sep 2002 06:46:13 -0400
-Received: from adsl-64-160-54-138.dsl.snfc21.pacbell.net ([64.160.54.138]:1021
-	"EHLO gateway.sf.frob.com") by vger.kernel.org with ESMTP
-	id <S261638AbSI2KqM>; Sun, 29 Sep 2002 06:46:12 -0400
-Date: Sun, 29 Sep 2002 03:47:37 -0700
-Message-Id: <200209291047.g8TAlbp03653@magilla.sf.frob.com>
-MIME-Version: 1.0
+	id <S262446AbSI2LOC>; Sun, 29 Sep 2002 07:14:02 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:64188 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S262445AbSI2LOB>; Sun, 29 Sep 2002 07:14:01 -0400
+Date: Sun, 29 Sep 2002 07:19:18 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: v2.6 vs v3.0
+Message-ID: <20020929111918.GA1639@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com> <200209290716.g8T7GNwf000562@darkstar.example.net> <20020929091229.GA1014@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: phil-list@redhat.com
-Cc: Axel <Axel.Zeuner@gmx.de>, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: 2.5.39: Signal delivery to thread groups: Bug or feature
-In-Reply-To: Ingo Molnar's message of  Sunday, 29 September 2002 12:27:11 +0200 <Pine.LNX.4.44.0209291222500.18396-100000@localhost.localdomain>
-X-Antipastobozoticataclysm: Bariumenemanilow
+Content-Disposition: inline
+In-Reply-To: <20020929091229.GA1014@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> we still have one more problem left in the signal handling area: atomicity
-> of signal delivery. Eg. right now it's possible to have a signal 'in
-> flight' for one specific thread, which manages to block it before handling
-> the signal. What should the behavior be in that case? Does POSIX say
-> anything about this?
+On Sun, Sep 29, 2002 at 11:12:29AM +0200, Jens Axboe wrote:
+> On Sun, Sep 29 2002, jbradford@dial.pipex.com wrote:
+> > > Anyway, people who are having VM trouble with the current 2.5.x series, 
+> > > please _complain_, and tell what your workload is. Don't sit silent and 
+> > > make us think we're good to go.. And if Ingo is right, I'll do the 3.0.x 
+> > > thing.
+> > 
+> > I think the broken IDE in 2.5.x has meant that it got seriously less
+> > testing overall than previous development trees :-(.  Maybe after
+> > halloween when it stabilises a bit more we'll get more reports in.
+> 
+> 2.5 is definitely desktop stable, so please test it if you can. Until
+> recently there was a personal show stopper for me, the tasklist
+> deadline. Now 2.5 is happily running on my desktop as well.
+> 
+> 2.5 IDE stability should be just as good as 2.4-ac.
+> 
+Hmm - our definitions must be different.
 
-Assuming you are talking about a process-global signal (not pthread_kill),
-then POSIX does not permit this race condition.  If there is any thread
-that can take the signal (i.e. not blocking it, or is sigwait'ing for it),
-then one such thread must take the signal.  The selection of the thread and
-it beginning its action (i.e. choosing a signal handler, and saving the
-signal mask the signal handler will restore on its return; or process death)
-must be atomic with respect to that thread blocking the signal.
+ASUS P4S533 (SiS645DX chipset)
+P4 2Ghz
+1G PC2700 RAM
+
+Disable SMP, enable APIC & IO APIC
+Get "WARNING - Unexpected IO APIC found"
+system freezes
+
+Disable IO APIC, enable ACPI
+system detects ACPI, builds table, freezes.
+
+Disable ACPI, enable ide-scsi in the kernel
+kernel panic analyzing hdc
+
+None of these have been reported because I haven't had time to do all the
+work involved in making a report that anyone on the team will read.
+
+-- 
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.openprojects.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker 
 

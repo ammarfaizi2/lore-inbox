@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266510AbUBRXNg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 18:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266997AbUBRXNg
+	id S266652AbUBRXdl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 18:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUBRXdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 18:13:36 -0500
-Received: from dp.samba.org ([66.70.73.150]:45545 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266510AbUBRXNQ (ORCPT
+	Wed, 18 Feb 2004 18:33:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57476 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266652AbUBRXcZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 18:13:16 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: keventd_create_kthread 
-In-reply-to: Your message of "Wed, 18 Feb 2004 00:46:48 -0800."
-             <20040218004648.7471bb37.akpm@osdl.org> 
-Date: Thu, 19 Feb 2004 10:12:01 +1100
-Message-Id: <20040218231322.35EE92C05F@lists.samba.org>
+	Wed, 18 Feb 2004 18:32:25 -0500
+Date: Wed, 18 Feb 2004 15:32:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: hch@infradead.org, paulmck@us.ibm.com, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-Id: <20040218153234.3956af3a.akpm@osdl.org>
+In-Reply-To: <20040218230055.A14889@infradead.org>
+References: <20040216190927.GA2969@us.ibm.com>
+	<20040217073522.A25921@infradead.org>
+	<20040217124001.GA1267@us.ibm.com>
+	<20040217161929.7e6b2a61.akpm@osdl.org>
+	<1077108694.4479.4.camel@laptop.fenrus.com>
+	<20040218140021.GB1269@us.ibm.com>
+	<20040218211035.A13866@infradead.org>
+	<20040218150607.GE1269@us.ibm.com>
+	<20040218222138.A14585@infradead.org>
+	<20040218145132.460214b5.akpm@osdl.org>
+	<20040218230055.A14889@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040218004648.7471bb37.akpm@osdl.org> you write:
-> wait_task_inactive() will return due to the preemption?
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> Yes.  Andrew, please read the GPL, it's very clear about derived works.
+> Then please tell me why you think gpfs is not a derived work.
+
+I haven't seen the code.
+
+> > But at the end of the day, if we decide to not export this symbol, we owe
+> > Paul a good, solid reason, yes?
 > 
-> perhaps wait_task_inactive() should wait until the target task leaves state
-> TASK_RUNNING.
+> Yes.  We've traditionally not exported symbols unless we had an intree user,
+> and especially not if it's for a module that's not GPL licensed.
 
-That's not enough: it can set that and then get preemted.  It really
-want to return when the task is off the runqueue.  The original
-wait_task_inactive() does an incredible complicated and AFAICT useless
-dance wrt not locking and disabling preempt explicitly.  Ingo, how's
-this replacement?  (And who wrote this code?)
+That's certainly a good rule of thumb and we (and I) have used it before.
 
-/*
- * wait_task_inactive - wait for a thread to unschedule.
- *
- * The caller must ensure that the task *will* unschedule sometime soon,
- * else this function might spin for a *long* time. This function can't
- * be called with interrupts off, or it may introduce deadlock with
- * smp_call_function() if an IPI is sent by the same process we are
- * waiting to become inactive.
- */
-void wait_task_inactive(task_t * p)
-{
-	unsigned long flags;
-	runqueue_t *rq;
-
-repeat:
-	rq = task_rq_lock(p, &flags);
-	/* Must be off runqueue entirely, not preempted. */
-	if (unlikely(p->array)) {
-		task_rq_unlock(rq, &flags);
-		cpu_relax();
-		/* If it's preempted: yield.  It could be a while. */
-		if (!task_running(p))
-			yield();
-		goto repeat;
-	}
-	task_rq_unlock(rq, &flags);
-}
-
-Untested BTW.
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+What is the reasoning behind it?

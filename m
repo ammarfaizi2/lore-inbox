@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313187AbSELNWX>; Sun, 12 May 2002 09:22:23 -0400
+	id <S313199AbSELNYB>; Sun, 12 May 2002 09:24:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313199AbSELNWW>; Sun, 12 May 2002 09:22:22 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:26887 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S313187AbSELNWV>; Sun, 12 May 2002 09:22:21 -0400
-Date: Sun, 12 May 2002 15:22:16 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@redhat.com>
+	id <S313384AbSELNYA>; Sun, 12 May 2002 09:24:00 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44041 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313199AbSELNX7>; Sun, 12 May 2002 09:23:59 -0400
+Subject: Re: IRQ > 15 for Athlon SMP boards
+To: hugh@nospam.com (Hugh)
+Date: Sun, 12 May 2002 14:43:46 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre8-ac2
-Message-ID: <20020512132216.GH3749@louise.pinerecords.com>
-In-Reply-To: <20020512125151.GD3749@louise.pinerecords.com> <200205121319.g4CDJm403128@devserv.devel.redhat.com>
-Mime-Version: 1.0
+In-Reply-To: <3CDE5110.5090608@nospam.com> from "Hugh" at May 12, 2002 08:25:04 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 1 day, 4:41)
+Content-Transfer-Encoding: 7bit
+Message-Id: <E176tda-0003Ru-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [Alan Cox <alan@redhat.com>, May-12 2002, Sun, 09:19 -0400]
->
-> > Alan, do you suppose you could integrate the new backported NTFS code in
-> > -ac at some not-so-distant point in time? I reckon that would be a generally
-> > appreciated decision, as demand of decent NTFS access has existed for
-> > quite a bit of time already and 2.6 will yet take a while to land.
-> 
-> I'd rather see it stabilize in 2.5 first
+> Asus A7M266-D with two Athlon MP 1900+'s (running at 1.6GHz) with
+> 2GB registered DDR at 133MHz.
+> Ethernet IntelPro 100 working fine with IRQ19.
+> The ASUS BIOS version 1.005a.
+> SuSE-7.3.
 
-Okay, sounds fine. I was asking to find out whether it's not out
-of question entirely.
+With Red Hat 7.2 and dual MP 1800+'s its all working fine for me
 
-T.
+> G400.  Those two boards worked fine on a Intel-P4 machine.
+> This means that I keep XF86Config files for the respective
+> boards perfectly working on the Intel P4.
+
+The bus layout will depend on the motherboard remember

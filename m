@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264233AbTEXKBF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 06:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbTEXKBE
+	id S264133AbTEXJ7j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 05:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbTEXJ7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 06:01:04 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:16816 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S264233AbTEXKBD (ORCPT
+	Sat, 24 May 2003 05:59:39 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:11696 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264133AbTEXJ7i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 06:01:03 -0400
-Date: Sat, 24 May 2003 12:14:08 +0200 (MEST)
-Message-Id: <200305241014.h4OAE8s0011456@harpo.it.uu.se>
+	Sat, 24 May 2003 05:59:38 -0400
+Date: Sat, 24 May 2003 12:12:44 +0200 (MEST)
+Message-Id: <200305241012.h4OACiZj011434@harpo.it.uu.se>
 From: mikpe@csd.uu.se
-To: linux-kernel@vger.kernel.org, linuxtech@knology.net
-Subject: Re: Still more Redhat Module Troubles
+To: david@wwns.com, linux-kernel@vger.kernel.org
+Subject: Re: Asrock K7S8X Motherboard kernel problem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 May 2003 00:02:30 -0400, John Shillinglaw wrote:
->Anyway I get not found messages when redhat modprobes char-major-10-1,
->eth1, etc. when it boots up. This seems to be related to aliases since
->eth1 is aliased to sis900 and char-major-10-1 to psaux. All help greatly
->appreciated... exact details and .config file below:
+On Fri, 23 May 2003 17:19:31 -0500 (CDT), David R. Wilson wrote:
+>I must be missing something, I have an Asrock K7S8X motherboard.
 ...
->I also tried to run the generate modprobe.conf script with no changes to
->the behavior.
+>The boot messages mention a missing floppy controller among other 
+>problems:
 
-Did you install the generated modprobe.conf in /etc? If not, do so.
+Key words: Asrock (ASUS actually) and no FDC found.
 
-rc.sysinit has a known problem that causes it to disable module
-autoloading in 2.5 kernels. Fixed by the patch below.
+This has been observed before on semi-recent ASUS mainboards.
+It's caused by some boot loaders that use an incorrect "out"
+instruction intended to reset the FDC. That "out" instruction
+was acceptable for ancient FDCs, but it locks up the FDCs in
+newer super-I/O chips found in some ASUS mainboards. The correct
+approach is to issue a BIOS call instead, or use a real driver
+that knows how to identify and drive newer FDCs.
 
-mkinitrd generally doesn't work with 2.5 modules, or once the new
-module-init-tools have been installed. I don't know how to fix
-that; maybe an LKML archive search will find something.
+This bug existed in the kernel's boot loader up until 2.4.13 or
+so when I fixed it to eliminate the FDC lock up problem on my
+ASUS P4T-E. Lilo and syslinux-2.02 don't have the bug. I have
+seen GRUB lock up the FDC, however, which is yet another reason
+why I don't use that POS.
 
---- /etc/rc.d/rc.sysinit~	2003-02-24 22:54:17.000000000 +0100
-+++ /etc/rc.d/rc.sysinit	2003-05-01 17:07:09.000000000 +0200
-@@ -357,7 +357,7 @@
-     IN_INITLOG=
- fi
- 
--if ! LC_ALL=C grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/ksyms ]; then
-+if ! LC_ALL=C grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/modules ]; then
-     USEMODULES=y
- fi
- 
+What boot loader are you using? If the bug goes away with another
+boot loader, then file a bug report with your vendor.
+
+/Mikael

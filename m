@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbTFHLvS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 07:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbTFHLvS
+	id S261669AbTFHL4r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 07:56:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTFHL4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 07:51:18 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:63935 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261603AbTFHLvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 07:51:17 -0400
-Date: Sun, 8 Jun 2003 14:04:53 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MAINTAINERS: compaq raid drivers
-Message-ID: <20030608120453.GD6662@wohnheim.fh-wedel.de>
-References: <200306072357.QAA04100@hpat542.atl.hp.com> <20030608115844.GC6662@wohnheim.fh-wedel.de>
+	Sun, 8 Jun 2003 07:56:47 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:36872 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261669AbTFHL4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 07:56:46 -0400
+Subject: Re: 2.5.70-mm6
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <20030607151440.6982d8c6.akpm@digeo.com>
+References: <20030607151440.6982d8c6.akpm@digeo.com>
+Content-Type: text/plain
+Message-Id: <1055074197.584.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030608115844.GC6662@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 08 Jun 2003 14:09:57 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 June 2003 13:58:44 +0200, Jörn Engel wrote:
+On Sun, 2003-06-08 at 00:14, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm6/
 > 
-> "Charles White <arrays@compaq.com>" bounces.  Does anyone have a
-> better patch for the MAINTAINERS than the one below?
+> . Numerous little fixes and additional work against additional patches.
+> 
+> . Waaay too many "cleanups".  These are taking significant amounts of
+>   effort and it is time to start learning to live with dirty code.
+> 
+> . -mm kernels will be running at HZ=100 for a while.  This is because
+>   the anticipatory scheduler's behaviour may be altered by the lower
+>   resolution.  Some architectures continue to use 100Hz and we need the
+>   testing coverage which x86 provides.
 
-Could have guessed so, the list bounces as well.  And so does the
-other compaq address.  Updated patch.
+Testing it right now... It compiles nicely with gcc 3.3 (remember the
+problems I had with snd-ymfpci when using gcc 3.2), boots and seems
+functional.
 
-Linus, any reasons not to apply such a patch?
 
-Jörn
-
--- 
-My second remark is that our intellectual powers are rather geared to
-master static relations and that our powers to visualize processes
-evolving in time are relatively poorly developed.
--- Edsger W. Dijkstra
-
---- linux-2.5.70-bk12/MAINTAINERS~maintainer_cpqarray	2003-06-08 00:40:50.000000000 +0200
-+++ linux-2.5.70-bk12/MAINTAINERS	2003-06-08 14:00:30.000000000 +0200
-@@ -397,24 +397,18 @@
- 
- COMPAQ FIBRE CHANNEL 64-bit/66MHz PCI non-intelligent HBA
- P:	Amy Vanzant-Hodge 
--M:	Amy Vanzant-Hodge (fibrechannel@compaq.com)
--L:	compaqandlinux@cpqlin.van-dijk.net
- W:	ftp.compaq.com/pub/products/drivers/linux
--S:	Supported
-+S:	Orphan
- 
- COMPAQ SMART2 RAID DRIVER
- P:	Charles White	
--M:	Charles White <arrays@compaq.com>
--L:	compaqandlinux@cpqlin.van-dijk.net
- W:	ftp.compaq.com/pub/products/drivers/linux
--S:	Supported	
-+S:	Orphan
- 
- COMPAQ SMART CISS RAID DRIVER 
- P:	Charles White
--M:	Charles White <arrays@compaq.com>
--L:	compaqandlinux@cpqlin.van-dijk.net
- W:	ftp.compaq.com/pub/products/drivers/linux	
--S:	Supported 
-+S:	Orphan
- 
- COMPUTONE INTELLIPORT MULTIPORT CARD
- P:	Michael H. Warfield

@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263809AbTEFPUn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 11:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbTEFPUm
+	id S263802AbTEFPTm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 11:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbTEFPTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 11:20:42 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:35981 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263809AbTEFPUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 11:20:22 -0400
-Date: Tue, 6 May 2003 17:32:52 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Marcus Meissner <meissner@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Only use MSDOS-Partitions by default on X86
-Message-ID: <20030506153252.GA13830@wohnheim.fh-wedel.de>
-References: <20030505210811.GC7049@wohnheim.fh-wedel.de.suse.lists.linux.kernel> <1052218090.28792.15.camel@dhcp22.swansea.linux.org.uk.suse.lists.linux.kernel> <20030506120939.GB15261@wohnheim.fh-wedel.de.suse.lists.linux.kernel> <20030506122844.95332D872@Hermes.suse.de> <20030506124212.GE15261@wohnheim.fh-wedel.de> <20030506150318.C21775@flint.arm.linux.org.uk>
+	Tue, 6 May 2003 11:19:42 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:47152 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S263802AbTEFPTl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 11:19:41 -0400
+Date: Tue, 6 May 2003 08:33:58 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ebiederm@xmission.com
+Subject: Re: 2.5.69-mm1
+Message-Id: <20030506083358.348edb4d.akpm@digeo.com>
+In-Reply-To: <1052231590.2166.141.camel@spc9.esa.lanl.gov>
+References: <20030504231650.75881288.akpm@digeo.com>
+	<1052231590.2166.141.camel@spc9.esa.lanl.gov>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030506150318.C21775@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 May 2003 15:32:08.0283 (UTC) FILETIME=[A7A8BAB0:01C313E4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 May 2003 15:03:18 +0100, Russell King wrote:
-> On Tue, May 06, 2003 at 02:42:12PM +0200, Jörn Engel wrote:
-> > On Tue, 6 May 2003 14:28:44 +0200, Marcus Meissner wrote:
-> > > 
-> > > Every platform that supports USB will be able to read USB Storage
-> > > Devices which almost everytime have FAT filesystems with MSDOS partitions.
-> > > 
-> > > So short of S/390 you get like every platform.
-> > 
-> > And short of most embedded systems.
-> 
-> CF cards - these have MSDOS partition tables on.  CF cards get used on
-> embedded systems.
-> 
-> Therefore, it follows that if you have an embedded system with a CF socket,
-> you'll probably want the MSDOS partitioning enabled.
+Steven Cole <elenstev@mesatop.com> wrote:
+>
+> I have one machine for testing which is running X, and a kexec reboot
+>  glitches the video system when initiated from runlevel 5.  Kexec works fine
+>  from runlevel 3.
 
-Maybe I was just thinking the wrong way. Given that my systems don't
-use IDE, SCSI, a floppy or anything emulating one of them, like USB
-storage or CF. I don't want MSDOS partitioning, but in fact, I don't
-want any of the disk-centric code at all, fs/partitions is just a part
-of that.
+Yes, there are a lot of driver issues with kexec.  Device drivers will assume
+that the hardware is in the state which the BIOS left behind.
 
-Then the real fix would be to have (no disk stuff) => (some magic) =>
-(no MSDOS partitions,...).
+In this case, the Linus device driver's shutdown functions are obviously not
+leaving the card in a pristine state.  A lot of drivers _do_ do this
+correctly.  But some don't.
 
-My proposition for (some magic) would be to add an option for having
-disks (or floppies, emulating stuff, yadda, yadda...) and have some
-things like partitioning depend on that option. I better sharpen my
-claymore to cut through all that code then.
+It seems that kexec is really supposed to be invoked from run level 1.  ie:
+you run all your system's shutdown scripts before switching.  If you'd done
+that then you wouldn't have been running X and all would be well.
 
-Jörn
+do-kexec.sh is for the very impatient ;)
 
--- 
-Fancy algorithms are buggier than simple ones, and they're much harder
-to implement. Use simple algorithms as well as simple data structures.
--- Rob Pike
+

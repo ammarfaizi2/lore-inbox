@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVCBRDT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVCBRJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbVCBRDT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 12:03:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVCBRB0
+	id S262364AbVCBRJj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 12:09:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbVCBRJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 12:01:26 -0500
-Received: from mail.kroah.org ([69.55.234.183]:12703 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262359AbVCBRAK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 12:00:10 -0500
-Date: Wed, 2 Mar 2005 08:59:44 -0800
-From: Greg KH <greg@kroah.com>
-To: James Chapman <jchapman@katalix.com>
-Cc: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH: 2.6.11-rc5] i2c chips: ds1337 RTC driver
-Message-ID: <20050302165943.GA2393@kroah.com>
-References: <42235171.80500@katalix.com> <20050301075413.GC3791@kroah.com> <4224C0D4.2060303@katalix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Mar 2005 12:09:12 -0500
+Received: from moutng.kundenserver.de ([212.227.126.176]:27868 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262364AbVCBRH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 12:07:26 -0500
+From: Holger Klawitter <listen@klawitter.de>
+Date: Wed, 2 Mar 2005 18:07:11 +0100
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <4224C0D4.2060303@katalix.com>
-User-Agent: Mutt/1.5.8i
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.11: usbnet broken
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200503021807.11717.listen@klawitter.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:c3f09bf0911098d231c83d2978ee4594
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 07:21:56PM +0000, James Chapman wrote:
-> Revised ds1337 chip driver patch.
-> 
-> Signed-off-by: James Chapman <jchapman@katalix.com>
-> 
-> - change all driver log messages to use dev_dbg() or dev_err()
-> - remove debug module parameter
+Hi there,
 
-Hm, doesn't seem to apply at all:
+in 2.6.11 the usbnet module is not being loaded for my Zaurus SL-C860 (Vendor 
+ID = 044d, Product ID = 9031), which used to work in 2.6.10. (as stated in 
+previous post, rc4 and rc5 were also broken).
 
-drivers/i2c/chips/Kconfig 1.78: 418 lines
-patching file drivers/i2c/chips/Kconfig
-drivers/i2c/chips/Makefile 1.61: 46 lines
-patching file drivers/i2c/chips/Makefile
-patching file drivers/i2c/chips/ds1337.c
-patch: **** malformed patch at line 420: 
+Moreover, there seems to be a wrong Product ID in usbnet (already in 2.6.9): 
+is=9050 should be=9031. Hence my Zarus is being recognized as C-750/760 
+(which is fine as 760 and 860 only differ in memsize).
 
-
-Care to respin it again?
-
-thanks,
-
-greg k-h
+Regards
+  Holger Klawitter

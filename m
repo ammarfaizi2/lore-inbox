@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUFQUrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbUFQUtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbUFQUrB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 16:47:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbUFQUrA
+	id S262951AbUFQUtm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 16:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUFQUtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 16:47:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20117 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262972AbUFQUqt (ORCPT
+	Thu, 17 Jun 2004 16:49:42 -0400
+Received: from holomorphy.com ([207.189.100.168]:18818 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262951AbUFQUtb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 16:46:49 -0400
-Date: Thu, 17 Jun 2004 13:46:36 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Zwane Mwaikambo <zwane@fsmlabs.com>, "David S. Miller" <davem@redhat.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6] fix bridge sysfs improperly initialised knobject
-Message-Id: <20040617134636.216f430e@dell_ss3.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.58.0406161247140.1944@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0406161247140.1944@montezuma.fsmlabs.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Thu, 17 Jun 2004 16:49:31 -0400
+Date: Thu, 17 Jun 2004 13:48:28 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@redhat.com>
+Cc: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, y@redhat.com,
+       Clay Haapala <chaapala@cisco.com>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: PATCH: Further aacraid work
+Message-ID: <20040617204828.GC1495@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@redhat.com>,
+	"Salyzyn, Mark" <mark_salyzyn@adaptec.com>, y@redhat.com,
+	Clay Haapala <chaapala@cisco.com>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189FD2407B@otce2k03.adaptec.com> <20040617203842.GC8705@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040617203842.GC8705@devserv.devel.redhat.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The bridge sysfs interface introduced around 2.6.7-rc1 created a bad
-> entry in /sys because it didn't initialise the name member of the kobject.
-> 
-> zwane@montezuma /sys {0:0} ls -l
-> total 0
-> ?---------   ? ?    ?    ?            ?
-> drwxr-xr-x  17 root root 0 Jun 15 15:47 block
-> drwxr-xr-x   7 root root 0 Jun 15 15:47 bus
-> drwxr-xr-x  16 root root 0 Jun 15 15:47 class
-> drwxr-xr-x   5 root root 0 Jun 15 15:47 devices
-> drwxr-xr-x   3 root root 0 Jun 15 15:47 firmware
-> drwxr-xr-x   8 root root 0 Jun 15 19:55 module
-> 
-> Index: linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c
-> ===================================================================
-> RCS file: /home/cvsroot/linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c,v
-> retrieving revision 1.1.1.1
-> diff -u -p -B -r1.1.1.1 br_sysfs_br.c
-> --- linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c	14 Jun 2004 12:49:12 -0000	1.1.1.1
-> +++ linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c	16 Jun 2004 16:45:20 -0000
-> @@ -305,9 +305,7 @@ static struct bin_attribute bridge_forwa
->   * This is a dummy kset so bridge objects don't cause
->   * hotplug events
->   */
-> -struct subsystem bridge_subsys = {
-> -	.kset = { .hotplug_ops = NULL },
-> -};
-> +decl_subsys_name(bridge, net_bridge, NULL, NULL);
-> 
->  void br_sysfs_init(void)
->  {
+On Thu, Jun 17, 2004 at 01:54:38PM -0400, Salyzyn, Mark wrote:
+>> And I might add, undoing the entropy to result in the descending page
+>> list (but that is the forth time I've said this).
+>> I ran heavy sequential load overnight and continued to have this
+>> characteristic when taking snapshots of command SG lists. The average SG
+>> element size statistically was 4168 bytes.
+
+On Thu, Jun 17, 2004 at 04:38:42PM -0400, Alan Cox wrote:
+> What do the stats look like with the patch Andrew Morton (I think) posted
+> to reverse the page order from the allocator ?
+
+Say, could you guys try this? jejb seemed to get decent results with it.
 
 
-Yes, this would get rid of the name, but then wouldn't bridge show up
-as top level subsystem /sys/bridge. 
-
-Is there no way to register without causing bogus hotplug events?
-
-I am getting a bad taste about the whole sysfs programming model, since
-it seems like programming by side effect. it would be better for sysfs
-to handle the case of hidden subsystems, or provide an alternate way
-not to generate hotplug events.
+===== mm/page_alloc.c 1.211 vs edited =====
+--- 1.211/mm/page_alloc.c	Sat Jun 12 20:52:26 2004
++++ edited/mm/page_alloc.c	Thu Jun 17 13:46:36 2004
+@@ -297,14 +297,12 @@
+ 	unsigned long size = 1 << high;
+ 
+ 	while (high > low) {
+-		BUG_ON(bad_range(zone, page));
+ 		area--;
+ 		high--;
+ 		size >>= 1;
+-		list_add(&page->lru, &area->free_list);
+-		MARK_USED(index, high, area);
+-		index += size;
+-		page += size;
++		BUG_ON(bad_range(zone, &page[size]));
++		list_add(&page[size].lru, &area->free_list);
++		MARK_USED(index + size, high, area);
+ 	}
+ 	return page;
+ }

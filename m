@@ -1,28 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135522AbRDWTnJ>; Mon, 23 Apr 2001 15:43:09 -0400
+	id <S135523AbRDWTq6>; Mon, 23 Apr 2001 15:46:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135523AbRDWTmt>; Mon, 23 Apr 2001 15:42:49 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30727 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135522AbRDWTmr>; Mon, 23 Apr 2001 15:42:47 -0400
-Subject: Re: Can't compile 2.4.3 with agcc
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Mon, 23 Apr 2001 20:43:29 +0100 (BST)
-Cc: rmk@arm.linux.org.uk (Russell King), papadako@csd.uoc.gr (mythos),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <24644.988041173@redhat.com> from "David Woodhouse" at Apr 23, 2001 04:52:53 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S135528AbRDWTqs>; Mon, 23 Apr 2001 15:46:48 -0400
+Received: from [194.46.8.33] ([194.46.8.33]:36626 "EHLO angusbay.vnl.com")
+	by vger.kernel.org with ESMTP id <S135523AbRDWTqj>;
+	Mon, 23 Apr 2001 15:46:39 -0400
+Date: Mon, 23 Apr 2001 20:48:27 +0100
+From: Dale Amon <amon@vnl.com>
+To: linux-kernel@vger.kernel.org
+Subject: Has the iptables security patch been vetted?
+Message-ID: <20010423204825.H26083@vnl.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14rmF9-0000Ii-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +		printk(KERN_EMERG "This is usually caused by a buggy compiler (perhaps pgcc?)\n");
-> +		printk(KERN_EMERG "Cannot continue.\n");
-> +		for (;;) ;
+I'm sure you've run across this one:
 
-At least make the final printk a panic..
+	http://netfilter.samba.org/security-fix/
+
+I'd like to know how official this patch is, ie how
+well checked out? I'd hardly want to cure one problem
+and create another. And I'm uncomfortable with it at
+first glance: I'd have to find figure out why it is
+returning immediate success at that point, or rather
+prove to myself that it is just skipping making the
+bad table entries.
+
+-- 
+------------------------------------------------------
+Use Linux: A computer        Dale Amon, CEO/MD
+is a terrible thing          Village Networking Ltd
+to waste.                    Belfast, Northern Ireland
+------------------------------------------------------

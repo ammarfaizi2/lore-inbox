@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266491AbUGPGzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266507AbUGPGzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266491AbUGPGzs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 02:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266492AbUGPGzs
+	id S266507AbUGPGzP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 02:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266508AbUGPGzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 02:55:48 -0400
-Received: from [218.36.180.81] ([218.36.180.81]:52746 "HELO angelfire.com")
-	by vger.kernel.org with SMTP id S266491AbUGPGzq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 02:55:46 -0400
-Message-ID: <58cf01c46af7$38bf1610$89a8f81a@jvqpkcmhpp>
-Reply-To: "Saundra Zelman" <saundrazelmanwqvdfp@angelfire.com>
-From: "Saundra Zelman" <saundrazelmanwqvdfp@angelfire.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: if you are not active sexually: delete this email
-Date: Thu, 15 Jul 2004 19:39:11 -1000
+	Fri, 16 Jul 2004 02:55:05 -0400
+Received: from dirac.phys.uwm.edu ([129.89.57.19]:4503 "EHLO
+	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S266495AbUGPGy5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 02:54:57 -0400
+Date: Fri, 16 Jul 2004 01:54:55 -0500 (CDT)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Peter Maas <fedora@rooker.dyndns.org>,
+       Jurgen Kramer <gtm.kramer@inter.nl.net>,
+       Claudio Martins <ctpm@ist.utl.pt>
+Subject: RE: 3ware 9500S Drivers (mm kernel)
+In-Reply-To: <Pine.GSO.4.21.0407091720210.18072-100000@dirac.phys.uwm.edu>
+Message-ID: <Pine.GSO.4.21.0407160151170.22617-100000@dirac.phys.uwm.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-User-Agent: Opera/7.02 (Windows NT 5.1; U)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you are using brand name impotence pills, you need to try the generic
-version.
+> > > I am also working with Bruce Allen (smartmontools developer) to make
+> > > the 3w-9xxx driver work with smartmontools.  This shouldn't require
+> > > any driver changes.
 
-The effective erection time will vary depending on such factors as your
-weight, diet, metabolism, etc.
+<SNIP>
 
-It just takes a few minutes to fill out the online prescription forms.
+> I've now checked code into CVS for this, so smartmontools now can be used
+> with 3ware/AMCC 9000 series controllers (3w-9xxx driver). Many thanks to
+> Adam Radford for his help with this.
 
-Ashlee Palko
+<SNIP>
 
-http://Vy.affordablepillsonline.com?Exhejiy
+> If you don't have the /dev/twa? devices on your system, please run the
+> tw_cli or 3dmd tools once: this will automatically create the /dev/twa?
+> nodes.
 
+Minor update: for smartmontools to use the 3ware character device
+interface it is no longer necessary to create /dev/tw[ae]? nodes 'by
+hand'.  Smartmontools now does this dynamically, if needed.  Thanks again
+to Adam Radford.
 
+Bruce
 
-
-
-
-If you are not interested in this, go here:
-http://W837.affordablepillsonline.com?Kkuvoawc
-y1Bhq

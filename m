@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289829AbSAWMZU>; Wed, 23 Jan 2002 07:25:20 -0500
+	id <S289831AbSAWMcm>; Wed, 23 Jan 2002 07:32:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289831AbSAWMZK>; Wed, 23 Jan 2002 07:25:10 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:1189 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S289829AbSAWMY5>; Wed, 23 Jan 2002 07:24:57 -0500
-Date: Wed, 23 Jan 2002 14:21:28 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.2-pre2-3 SMP broken on UP boxen
-In-Reply-To: <Pine.LNX.4.33.0201231516390.1396-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0201231420270.20635-100000@netfinity.realnet.co.sz>
+	id <S289833AbSAWMcc>; Wed, 23 Jan 2002 07:32:32 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:61444 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S289831AbSAWMcR>;
+	Wed, 23 Jan 2002 07:32:17 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: manfred@colorfullife.com, masp0008@stud.uni-saarland.de,
+        drobbins@gentoo.org, linux-kernel@vger.kernel.org
+Subject: Re: Athlon/AGP issue update
+In-Reply-To: <3C4E9291.8DA0BD7F@stud.uni-saarland.de>
+	<20020123.034411.71089598.davem@redhat.com>
+X-No-CC: Reply to lists, not to me.
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <20020123.034411.71089598.davem@redhat.com>
+Date: 23 Jan 2002 14:32:57 +0200
+Message-ID: <87wuy9b62u.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, Ingo Molnar wrote:
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
+David> 4MB pages map the GART pages and "other stuff", ie. memory used by
+David> other subsystems, user pages and whatever else.  This is the only
+David> way the bug can be thus triggered for kernel mappings, which is why
+David> turning off 4MB pages fixes this part.
 
-> 
-> On Wed, 23 Jan 2002, Zwane Mwaikambo wrote:
-> 
-> > 	My test box is a single proc machine running an SMP kernel. As
-> > of 2.5.2-pre2 it panics on boot. [...]
-> 
-> the same on 2.5.3-pre3 as well?
+Erm, why would the granularity of mapping matter at all ? Or, for that
+matter, the very existanse of address translation ?
 
-Yes -pre3 too, started at -pre2. I'm testing on -pre3 currently
+David> The only unresolved bit is the fact that we map these GART pages
+David> cacheable into user space.  That ought to cause the problem too.
 
-> > [...] The reason is kinda obvious, smp_processor_id() will always
-> > return the same as global_irq_holder. How come we do this check now?
-> 
-> it should only be set when the current CPU has disabled global IRQs.
-
-Al Viro just asked me to try something, patch coming in...
-
-Regards,
-	Zwane Mwaikambo
+They're mapped with 4KB pages too, right ? What makes it diferent to
+4KB kernel mappings ?
 
 

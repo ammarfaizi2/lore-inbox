@@ -1,42 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264643AbUGSCS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264660AbUGSDhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264643AbUGSCS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 22:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264650AbUGSCS2
+	id S264660AbUGSDhC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 23:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUGSDhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 22:18:28 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:10405 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264643AbUGSCS1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 22:18:27 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Sun, 18 Jul 2004 23:37:02 -0400
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:34220 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S264660AbUGSDhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 23:37:00 -0400
+Message-ID: <40FBEA97.C4BCA3B3@austin.rr.com>
+Date: Mon, 19 Jul 2004 10:36:56 -0500
+From: Steven French <smfrench@austin.rr.com>
+X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: vaio preempt + acpi ac/battery trouble
-Date: Mon, 19 Jul 2004 10:18:14 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD5600@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: vaio preempt + acpi ac/battery trouble
-Thread-Index: AcRp0RWXmX6joWS+RMSQIFJkT0tTYwDZSysQ
-From: "Zhu, Yi" <yi.zhu@intel.com>
-To: "Greg Ingram" <ingram@symsys.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Jul 2004 02:18:15.0802 (UTC) FILETIME=[A63EEDA0:01C46D36]
+To: linux-kernel@vger.kernel.org, cspalletta@yahoo.com
+Subject: [PATCH] Remove prototypes of nonexistent functions from fs/cifs files
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have now removed the dead prototypes via the following changeset into
+the cifs development bk tree.  See patch:
 
+http://cifs.bkbits.net:8080/linux-2.5cifs/gnupatch@40fb3f61nxIM7ayUoQkK7NCPxdqEuw
 
-> ACPI-1133: *** Error: Method execution failed
-[\_SB_.PCI0.PIB_.EC0_._Q20] (Node cbeb6388), AE_AML_UNINITIALIZED_LOCAL
+but it may be a week or more before it gets merged due to OLS.   Thanks
+for pointing these out.
 
-> The real problem is that the AC Adaptor status is wrong.  The preempt 
-> kernel always thinks the AC is off-line. 
-
-ACPI bugs are tracked on http://bugme.osdl.org. Please file a bug there.
-
--yi

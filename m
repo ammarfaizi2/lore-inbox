@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265119AbUAMT1R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 14:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265126AbUAMT1R
+	id S265114AbUAMTW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 14:22:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUAMTW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 14:27:17 -0500
-Received: from bender.bawue.de ([193.7.176.20]:22987 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S265119AbUAMT1P (ORCPT
+	Tue, 13 Jan 2004 14:22:56 -0500
+Received: from imap.gmx.net ([213.165.64.20]:23221 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265114AbUAMTWy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 14:27:15 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] move rme96xx to Documentation/sound/oss/
-In-Reply-To: <20040113185432.GQ9677@fs.tum.de> (Adrian Bunk's message of
- "Tue, 13 Jan 2004 19:54:32 +0100")
-References: <20040113185432.GQ9677@fs.tum.de>
-From: Hans Ulrich Niedermann <linux-kernel@n-dimensional.de>
-Date: Tue, 13 Jan 2004 20:26:29 +0100
-Message-ID: <86d69nzm3e.fsf@n-dimensional.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Reasonable Discussion,
- linux)
+	Tue, 13 Jan 2004 14:22:54 -0500
+X-Authenticated: #4512188
+Message-ID: <4004458C.5040000@gmx.de>
+Date: Tue, 13 Jan 2004 20:22:52 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.1-mm2
+References: <20040110014542.2acdb968.akpm@osdl.org>	<4003F34E.5080508@gmx.de>	<20040113095428.440762f7.akpm@osdl.org>	<400441BD.9020609@gmx.de> <20040113111639.60b681d2.akpm@osdl.org>
+In-Reply-To: <20040113111639.60b681d2.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> writes:
+Andrew Morton wrote:
+> "Prakash K. Cheemplavam" <PrakashKC@gmx.de> wrote:
+> 
+>>>>kernel: Badness in pci_find_subsys at drivers/pci/search.c:132
+>>>>
+>>>>Any ideas? Or do you need detailed kernel config and dmesg? I thought 
+>>>>you might have an idea which atch caused this... My and his system are 
+>>>>quite differnt. Major Common element seems only use of Athlon XP. He has 
+>>>>VIA KT based system and I have nforce2. I thought it might be APIC, but 
+>>>>I also got a lock up without APIC. (Though it seems more stable without 
+>>>>APIC.)
+>>>
+>>>
+>>>If you could send us the stack backtrace that would help.  Make sure that
+>>>you have CONFIG_KALLSYMS enabled.  If you have to type it by hand, just the
+>>>symbol names will suffice - leave out the hex numbers.
+>>
+>>Sorry, I am a noob about such things. Above option is enabled in my 
+>>config, but I dunno how get the stack backtrace. Could you point to me 
+>>to something helpful?
+> 
+> 
+> When the kernel prints that `badness' message it then prints a stack
+> backtrace.  That's what we want.
 
-> In 2.6, all sound documentation with the exception of the OSS rme96xx 
-> documentation is under Documentation/sound/{alsa,oss}.
->
-> The patch below moves the OSS rme96xx to Documentation/sound/oss/ .
->
-> diffstat output:
->
->  Documentation/sound/oss/rme96xx |  767 ++++++++++++++++++++++++++++++++
->  Documentation/sound/rme96xx     |  767 --------------------------------
->  2 files changed, 767 insertions(+), 767 deletions(-)
+But how to get that? When the machine locks up, I don't see anything 
+written and only *sometimes* I got above message in the log  -whcih I 
+can only see afterwards. But there is nothing else realted to it in the 
+log...
 
-Please also apply the following, while you're at it.
-
-Uli
-
-===== sound/oss/Kconfig 1.18 vs edited =====
---- 1.18/sound/oss/Kconfig	Tue Dec 30 09:45:02 2003
-+++ edited/sound/oss/Kconfig	Tue Jan 13 20:23:01 2004
-@@ -1147,7 +1147,7 @@
- 	help
- 	  Say Y or M if you have a Hammerfall or Hammerfall light
- 	  multichannel card from RME. If you want to acess advanced
--	  features of the card, read Documentation/sound/rme96xx.
-+	  features of the card, read Documentation/sound/oss/rme96xx.
- 
- config SOUND_AD1980
- 	tristate "AD1980 front/back switch plugin"
+Prakash

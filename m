@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269842AbRHNTMN>; Tue, 14 Aug 2001 15:12:13 -0400
+	id <S269878AbRHNTMd>; Tue, 14 Aug 2001 15:12:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269866AbRHNTME>; Tue, 14 Aug 2001 15:12:04 -0400
-Received: from phnx1-blk2-hfc-0251-d1db10f1.rdc1.az.coxatwork.com ([209.219.16.241]:64168
-	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S269842AbRHNTL7>; Tue, 14 Aug 2001 15:11:59 -0400
-Message-ID: <022901c124dc$ee5138f0$6baaa8c0@kevin>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: need help debugging a weird md/devfs problem...
-Date: Tue, 14 Aug 2001 09:19:45 -0700
-Organization: LSG, Inc.
+	id <S269866AbRHNTMN>; Tue, 14 Aug 2001 15:12:13 -0400
+Received: from cc668399-a.ewndsr1.nj.home.com ([24.180.97.113]:52219 "EHLO
+	eriador.mirkwood.net") by vger.kernel.org with ESMTP
+	id <S269875AbRHNTMI>; Tue, 14 Aug 2001 15:12:08 -0400
+Date: Tue, 14 Aug 2001 12:25:34 -0400 (EDT)
+From: PinkFreud <pf-kernel@mirkwood.net>
+To: linux-kernel@vger.kernel.org
+cc: Francois Romieu <romieu@cogenit.fr>
+Subject: Re: Are we going too fast?
+Message-ID: <Pine.LNX.4.20.0108141219001.769-100000@eriador.mirkwood.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a weird situation here... a machine I just configured with two
-RAID-5 arrays over the weekend I can now cause to oops at will during
-bootup. All I have to do to cause this oops is to move one (or more) of the
-IDE drives between the four IDE channels in the box.
+> PinkFreud <pf-kernel@mirkwood.net> :
+> [...]
+> > The unthinkable has happened - it locked up again.  Same problem.  No
+> > keyboard, no mouse, no display, no network.  It was as far gone as
+> > possible.
+> 
+> Is the nmi_oopser (Documentation/nmi_watchdog.txt) inefficient here ?
 
-Through the use of ksymoops and looking at the code, I have narrowed the
-oops down to the call of "partition_name(rdev->old_dev)" in
-../drivers/md/md.c, when it has noticed that a drive has been relocated and
-it is trying to tell you what happened. In my case, rdev->old_dev contains
-major 3, minor 67, and there is no drive there anymore (remember, it's been
-moved :-). partition_name then calls into disk_name, which checks to see if
-that partition has a non-NULL .de member (meaning there is a devfs handle
-for that partition, it has been registered previously). In my case, this
-handle should be NULL, but it's not.
+>From Documentation/nmi_watchdog.txt:
+NOTE: currently the NMI-oopser is enabled unconditionally on x86 SMP
+boxes.
 
-I have added a number of debugging statements in various places
-(devfs_register_partition and disk_name, mostly), and set up a line printer
-console so I can see all the kernel startup messages.
-devfs_register_partition is most definitely _not_ being called to register
-this partition, but the .de member of the structure is non-NULL anyway.
-After adding some code to disk_name to dump out the .de member being
-searched for and the previous four in the structure (should be all of them
-for the "disk" in question), I find that there is a handle for the disc
-itself (even though the disc is not present), and some of the partitions
-have handles of 0x00000001 (including one that never existed, even when the
-drive was present at that location).
+I'm not specifically enabling it in LILO, but according to the docs, it's
+enabled already.  Unfortunately, the lockup happens when switching between
+virtual consoles, so even if something WERE printed to the screen, I'm unlikely
+to see it.
 
-The only other point that I can think to mention is that there are two
-RAID-5 arrays in this box, and the oops occurs on the _second_ array to be
-found, not the first. The arrays have parallel members on all the drives, so
-the exact same "disk has been moved" logic is being followed for the first
-array, and working just fine. I'm now wondering if the initialization of the
-first array is somehow corrupting the gendisk->part[] structures for this
-drive that should not exist...
+Side note: The lockup does *NOT* occur on 2.2.19 with SMP.
 
-Anyone have any suggesting as to where to continue looking to find the
-problem? I can put a workaround in to get my machine working, but there's
-definitely something very weird going on here. Too bad I can't just tell the
-kernel to notify me when that particular memory location gets modified...
+> Ueimor
 
+
+	Mike Edwards
+
+Brainbench certified Master Linux Administrator
+http://www.brainbench.com/transcript.jsp?pid=158188
+-----------------------------------
+Unsolicited advertisments to this address are not welcome.
 

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311095AbSCHUaf>; Fri, 8 Mar 2002 15:30:35 -0500
+	id <S311090AbSCHUdx>; Fri, 8 Mar 2002 15:33:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311068AbSCHU3Q>; Fri, 8 Mar 2002 15:29:16 -0500
-Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:1799 "EHLO
-	pau.intranet.ct") by vger.kernel.org with ESMTP id <S311084AbSCHU3D>;
-	Fri, 8 Mar 2002 15:29:03 -0500
-Date: Fri, 8 Mar 2002 21:28:57 +0100 (CET)
-From: Pau Aliagas <linuxnow@wanadoo.es>
-X-X-Sender: pau@pau.intranet.ct
-To: lkml <linux-kernel@vger.kernel.org>
-cc: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
-In-Reply-To: <Pine.LNX.4.44L.0203081721050.2181-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0203082125190.2580-100000@pau.intranet.ct>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311096AbSCHUdZ>; Fri, 8 Mar 2002 15:33:25 -0500
+Received: from adsl-209-233-33-110.dsl.snfc21.pacbell.net ([209.233.33.110]:36846
+	"EHLO lorien.emufarm.org") by vger.kernel.org with ESMTP
+	id <S311092AbSCHUcF>; Fri, 8 Mar 2002 15:32:05 -0500
+Date: Fri, 8 Mar 2002 12:31:57 -0800
+From: Danek Duvall <duvall@emufarm.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: root-owned /proc/pid files for threaded apps?
+Message-ID: <20020308203157.GA457@lorien.emufarm.org>
+Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020307060110.GA303@lorien.emufarm.org> <E16iyBW-0002HP-00@the-village.bc.nu> <20020308100632.GA192@lorien.emufarm.org> <20020308195939.A6295@devcon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020308195939.A6295@devcon.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Mar 2002, Rik van Riel wrote:
+On Fri, Mar 08, 2002 at 07:59:39PM +0100, Andreas Ferber wrote:
 
-> > We need a reference archive to keep in sync with; then everybody
-> > branches from there and syncs back and forth.
+> Danek, can you please try changing the second argument to set_user()
+> into 0, ie.
 > 
-> Exactly!  Now, is there some arch fan willing to setup this
-> initial repository ?
+>         /* Become root */
+>         set_user(0, 0);
 
-I'll do it.
+This works.  I initially didn't think it would, despite tracing the
+problem correctly, because it didn't explain to me why mozilla would be
+showing the problem.  As it turns out, though, mozilla does try to load
+the ipv6 module, so that's why it demonstrates the problem.  Also, it
+turns out that the problem with xmms goes away if I quit the first
+invocation and start up a new one (the second one doesn't have to load
+any modules), but mozilla keeps on showing the problem because it never
+successfully loads the ipv6 module.
 
-> > > That would give us some real way to compare the two tools.
-> >
-> > It seems obvious that bitkeeper is in very good shape; I'm not at all
-> > against people using, but I'm sure that if a few people tried arch,
-> > they'd be gratefully surprised.
-> 
-> Having an initial repository would get a lot of people
-> (including me, once I have a bit of time) to try out
-> arch.
+So it also turns out that either by changing that argument to 0 or just
+reverting that hunk of the patch, xmms starts skipping whenever mozilla
+loads a page, even a really simple one.  Disk activity and other network
+activity don't seem to cause the skipping, and the skipping disappears
+when I go back to an unaltered ac kernel, so there seems to be something
+wrong with set_user(0, 0) as well, just a different problem.
 
-We continue to discuss it in private and once it's ready and documented 
-let the list know.
-
-Pau
-
+Danek

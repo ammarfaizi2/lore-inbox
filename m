@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbRHWOBY>; Thu, 23 Aug 2001 10:01:24 -0400
+	id <S266448AbRHWNzP>; Thu, 23 Aug 2001 09:55:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266488AbRHWOBO>; Thu, 23 Aug 2001 10:01:14 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:16581 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S265249AbRHWOA6>; Thu, 23 Aug 2001 10:00:58 -0400
-Message-ID: <3B850C9A.7080002@redhat.com>
-Date: Thu, 23 Aug 2001 10:00:58 -0400
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
-X-Accept-Language: en-us
+	id <S266488AbRHWNzF>; Thu, 23 Aug 2001 09:55:05 -0400
+Received: from web13601.mail.yahoo.com ([216.136.175.112]:43538 "HELO
+	web13601.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266448AbRHWNy6>; Thu, 23 Aug 2001 09:54:58 -0400
+Message-ID: <20010823135514.93176.qmail@web13601.mail.yahoo.com>
+Date: Thu, 23 Aug 2001 06:55:14 -0700 (PDT)
+From: Ivan Kalvatchev <iive@yahoo.com>
+Subject: if (malloc() == HORROR_WITHIN) BUG();
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: kernelbug <linux-kernel@vger.kernel.org>,
+        Andrey Savochkin <saw@saw.sw.com.sg>,
+        Szabolcs Szakacsits <szaka@f-secure.com>
 MIME-Version: 1.0
-To: Andris Pavenis <pavenis@latnet.lv>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: i810 audio doesn't work with 2.4.9
-In-Reply-To: <E15ZGQv-0008Qb-00@the-village.bc.nu> <200108220848.f7M8mVh00441@hal.astr.lu.lv>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andris Pavenis wrote:
 
-> Got incremental diffs between ac versions since 2.4.5.
-> Applied all diffs to 2.4.5 version of i810_audio.c except one between 2.4.6-ac1 and 2.4.6-ac2
-> As result i810 audio seems to work
+Actually i cannot understand how this "optimistic
+memory allocation strategy" works. 
+It is normal all requested memory to be allocated
+before malloc returns any result. At this moment it
+seem to be something like alloc on demand, and this
+requires special flag, otherwise there gonna be
+CoreDump.
+I don't have glibc sources but i assume that malloc is
+translated to vmalloc.
+Malloc should be able to alloc pages in ram and swap.
+Currently the memory management seems to be separated
+in two independent parts, RAM management and swap
+transfer. Instead of working as one, the swap is used
+to keep amount of pages free. In this situation it is
+impossible to make correct routine that allocates more
+memory than are available as free pages. And even
+worse, kswapd is called 0.5 times per second, or on
+page fault. At least it should be linked with routines
+that allocate memory. But in this implementation the
+effect could be negative. More, kswapd is used to
+reduce buffer and cache.
 
-Can you send me that incremental patch you left out.  I would like to 
-look at it to see what's going on.
+ The 2.4.x memory management should be fixed now. 
+The quick fix could be to use
+mm/mmap::vm_enough_memory, to check amount of free
+pages in vmalloc. The strange thing is that this
+function is used in shmem.c that hold tmpfs. So
+please, synchronize this with
+mm/oom_kill.c::out_of_memory. And please don't balance
+things out, be more paranoid.
+I first thought to use out_of_memory (with some
+tweaking) to check vmalloc, because this will force
+use of oom_kill only after huge kmalloc.
+This optimistic allocation should be removed , because
+there are some horrible workarounds for this. 
+About the beancounter: I don't know this algorithm,
+but i don't need group based resources accounting. For
+me the things are simple - give memory if there is
+any. If there is not don't give loans, Linux is not a
+bank!!!! :)
 
-> So it seems that update of i810_audio.c between 2.4.6-ac1 and ac2 breaks it (at least for me).
-> But I think it still eating too much time (about 2-3% on PIII 700) when I'm not doing anything 
-> with sound but no more up to 90% as with unmodified version from 2.4.9 (maybe it's a problem
-> of artsd , I don't know)
-
-
-Yes, it's a problem of artsd.  Someone decided (presumably to avoid the 
-occasional pop/click from the startup or shutdown of the sound device) 
-to make artsd transmit silence over the sound card when no sounds 
-currently need played.  From my perspective, I will *NEVER* use artsd as 
-long as it does this.  I find it so extremely stupid and insane to a 
-level that can't be measured that I refuse to run that software.  I 
-absolutely will not have my systems PCI bus loaded down with a constant 
-data transfer when there is no sound to be played.  Right now, that's 
-possibly something as small as a 48KHz/16bit data stream.  But what if 
-the system is upgraded to an ac3 5.1 digital system.  Then you would 
-have something like 384KByte/s of data to transfer over the PCI bus just 
-for frickin silence.  Won't ever happen on any machine I use.  Anyone 
-trying to do things like disk benchmarks on a system that runs artsd may 
-be suprised to find their performance is actually negatively impacted 
-just by having that horrible sound daemon running.  Furthermore, I find 
-their use of the sound API to be suboptimal, especially when they are 
-going to transmit silence all the time.  I am *FAR* happier with the way 
-esd actually handles its interaction with the sound card (other issues 
-are a different matter, I don't rightly know which one does better sound 
-sample upconversion for instance).
-
-
--- 
-
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
-
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

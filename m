@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUITMm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266460AbUITMpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUITMm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 08:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUITMm4
+	id S266460AbUITMpT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 08:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUITMpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 08:42:56 -0400
-Received: from cantor.suse.de ([195.135.220.2]:23964 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266463AbUITMmy (ORCPT
+	Mon, 20 Sep 2004 08:45:19 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:42906 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S266460AbUITMpO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 08:42:54 -0400
-Date: Mon, 20 Sep 2004 14:38:28 +0200
-From: Olaf Hering <olh@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-Message-ID: <20040920123828.GA25684@suse.de>
-References: <20040920105618.GB24928@suse.de> <Pine.LNX.4.61.0409201311050.3460@scrub.home> <20040920112607.GA19073@suse.de> <Pine.LNX.4.61.0409201331320.3460@scrub.home> <20040920115032.GA21631@suse.de> <Pine.LNX.4.61.0409201357540.877@scrub.home> <20040920120752.GA23315@suse.de> <Pine.LNX.4.61.0409201413030.877@scrub.home> <20040920121949.GA24304@suse.de> <Pine.LNX.4.61.0409201428430.3460@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0409201428430.3460@scrub.home>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Mon, 20 Sep 2004 08:45:14 -0400
+Date: Mon, 20 Sep 2004 14:45:06 +0200 (MEST)
+Message-Id: <200409201245.i8KCj6d3001238@alkaid.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Thierry.Coutelier@linux.lu, count@theblah.fi
+Subject: Re: Freeze on 2.4 kernels.
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Sep 20, Roman Zippel wrote:
+On Mon, 20 Sep 2004 07:46:10 +0300 (EEST), Jussi Hamalainen wrote:
+>> The Hardware are Dell PowerEdge with Perc2 or Perc3. We tried with HP
+>> servers and have the same problem. We tried different firmware releases
+>> for the Perc cards and still no change.
+>
+>I think I might be experiencing the same problem here with dual-p3
+>1.4GHz PE2550 boxes without PERC. We have a bunch of them doing SMTP
+>and webmail and every now and then one of them freezes for no
+>apparent reason. I don't get _anything_ on the console and nothing in
+>the logs.  Haven't tried serial console though.
+>
+>This isn't a big problem for me since this happens randomly about
+>every 9 weeks or so. Since the boxes are in redundant pairs I've just
+>shrugged it off as being a general case of piece-of-crap PC hardware.
+>I just thought I should add my two cents' worth...
 
-> Hi,
-> 
-> On Mon, 20 Sep 2004, Olaf Hering wrote:
-> 
-> > > What happens to /dev/loop0?
-> > 
-> > I dont know, whats supposed to happen? losetup -d?
-> 
-> Yes, depending on how it was mounted, but that information isn't in 
-> /proc/mounts.
-> (BTW how difficult was it to find this out yourself? Have you even tried 
-> it?)
+Our PE2650 (dual HT Xeons) used to have frequent lockup problems.
+I was asked to look for an NMI watchdog trace, so I enabled the
+I/O-APIC watchdog (nmi_watchdog=1). Since then (a year and a half ago)
+the box has been rock solid. Currently running FC2 user-space with
+the RHEL3 2.4.21-20 kernel.
 
-Sure I have tried it. I wonder why umount doesnt do the losetup? I have
-never looked at the umount sources, nor have I played with all the
-possible ways of loop mount.
-
-
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+/Mikael

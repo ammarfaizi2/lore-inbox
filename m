@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268828AbUIZKOn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268854AbUIZK3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268828AbUIZKOn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 06:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUIZKOn
+	id S268854AbUIZK3t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 06:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268861AbUIZK3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 06:14:43 -0400
-Received: from gprs214-184.eurotel.cz ([160.218.214.184]:11138 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268828AbUIZKOd (ORCPT
+	Sun, 26 Sep 2004 06:29:49 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:11915 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S268854AbUIZK3r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 06:14:33 -0400
-Date: Sun, 26 Sep 2004 12:10:58 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, Stefan Seyfried <seife@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc2-mm3: swsusp horribly slow on AMD64
-Message-ID: <20040926101058.GJ10435@elf.ucw.cz>
-References: <200409251214.28743.rjw@sisk.pl> <4155E40D.2020709@suse.de> <200409261202.34138.rjw@sisk.pl>
+	Sun, 26 Sep 2004 06:29:47 -0400
+Date: Sun, 26 Sep 2004 12:29:37 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: micah milano <micaho@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: SiI3112 Serial ATA Maxtor 6Y120M0 incorrect geometry detected
+Message-ID: <20040926102937.GA27269@apps.cwi.nl>
+References: <70fda320409251214129bba57@mail.gmail.com> <70fda3204092514037c6dc039@mail.gmail.com> <58cb370e04092515157e9b72ef@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409261202.34138.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <58cb370e04092515157e9b72ef@mail.gmail.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Sep 26, 2004 at 12:15:33AM +0200, Bartlomiej Zolnierkiewicz wrote:
 
-> > I have seen this, too but i cannot nail it down to some specific
-> > pattern, it just "sometimes" is slow. Sysrq-p shows me it's almost
-> > always in "pccardd" (where it shouldn't be during suspend, iiuc).
-> > Unfortunately Pavel does not see this so we have to convince him that
-> > this is really a problem ;-)
-> > So if you can reproduce this, it would be a step in the right direction.
+> I'm tired of this issue and this is what I'm going to do:
+> - remove CHS info from IDE printks and /proc/ide/
+> - add BLKGETSTART ioctl for getting partition's start sector
+>   (this is the only legitimate use of HDIO_GETGEO currently)
+> - at least obsolete HDIO_GETGEO in IDE or even remove it (failing is
+>   better than returning unexpected results)
+> - silence complainers :)
 > 
-> It seems that I can. ;-)
-> 
-> Could it be possible to printk time along with the percentage info (for 
-> debugging purposes only, of course)?
+> Bartlomiej
 
-Sure, feel free to printk("%d", jiffies/HZ).
-								Pavel
+Yes. Consider returning 0 for C/H/S in HDIO_GETGEO.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+We need the BLKGETSTART ioctl for another reason:
+the field start of a struct hd_geometry has 32 bits
+and fails for partitions starting past the 2TB mark.
+So, just like BLKGETSIZE64, this BLKGETSTART must
+return a u64 and return an offset in bytes.
+
+As we all know, geometry is meaningless for IDE.
+But it is not for MFM/RLL and similar ancient stuff.
+If support for old disks is not broken yet, try not to break it.
+
+Andries

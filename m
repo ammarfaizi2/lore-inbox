@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265452AbRGLPEV>; Thu, 12 Jul 2001 11:04:21 -0400
+	id <S265467AbRGLPIv>; Thu, 12 Jul 2001 11:08:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265467AbRGLPEL>; Thu, 12 Jul 2001 11:04:11 -0400
-Received: from motgate2.mot.com ([136.182.1.10]:63686 "EHLO motgate2.mot.com")
-	by vger.kernel.org with ESMTP id <S265452AbRGLPD4>;
-	Thu, 12 Jul 2001 11:03:56 -0400
-Message-Id: <3B4DBB46.24EB460F@crm.mot.com>
-Date: Thu, 12 Jul 2001 16:59:18 +0200
-From: Emmanuel Varagnat <varagnat@crm.mot.com>
-Organization: Motorola
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S265475AbRGLPIl>; Thu, 12 Jul 2001 11:08:41 -0400
+Received: from sciurus.rentec.com ([192.5.35.161]:19124 "EHLO
+	sciurus.rentec.com") by vger.kernel.org with ESMTP
+	id <S265467AbRGLPIW>; Thu, 12 Jul 2001 11:08:22 -0400
+Date: Thu, 12 Jul 2001 11:08:42 -0400 (EDT)
+From: Dirk Wetter <dirkw@rentec.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: dead *man* pages ;-)
+In-Reply-To: <Pine.LNX.4.33.0107120633260.550-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.33.0107121057100.30412-100000@monster000.rentec.com>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Makefile problem and modules
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I wrote a module for IPv6 but there is a case when it is
-compiled.
-(For the moment my code can only work as a module...)
-When IPv6 is compiled as a module, my module is well compiled.
-But if IPv6 is directly in the kernel, my module is not take
-into account (I've got no object file).
+Hi Mike,
 
-Here is the only line I added to the Makefile (near the end):
+On Thu, 12 Jul 2001, Mike Galbraith wrote:
 
-obj-$(CONFIG_IPV6_MYSTUFF)  += mystuff.o
+> > don't wanna be offensive, but: in my case it IS swapping heavily. if
+> > somebody dares to reply again to me, that it's not, i am cordially invite
+> > him/her to read my emails more thouroughly before i get a reply
+> > like "it is not swapping, it is only appear to be swapping".
+>
+> Your heads aren't _really_ rattling, they only _sound_ like..  ;-)
 
-Thanks in advance.
+well, we are living in a world of fake and fraud. ;-)
 
--Manu
+> Have you had a chance to try 2.4.7-pre-latest yet?  I'd be interested
+> in a small sample of vmstat 1 leading into heavy swap with >=pre5 if
+> it is still a problem.
+
+i will definetely check it out and give a report, since the test i did
+yesterday the *command* "vmstat 1" in typed in appeared to be :)) more
+like "vmstat 180", no kidding.
+
+
+cheers,
+	~dirkw
+
+

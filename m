@@ -1,96 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271298AbTGQAmd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 20:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271299AbTGQAmd
+	id S271300AbTGQAvf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 20:51:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271301AbTGQAvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 20:42:33 -0400
-Received: from smtp.netcabo.pt ([212.113.174.9]:16026 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S271298AbTGQAmc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 20:42:32 -0400
-Message-ID: <3F15F471.3000004@netcabo.pt>
-Date: Thu, 17 Jul 2003 01:57:21 +0100
-From: Miguel Sousa Filipe <m3thos@netcabo.pt>
-Organization: IST-RNL
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.4) Gecko/20030713
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1  doesn't compile on PPC iBook2.2
-References: <200307170015.h6H0FRBX019953@harpo.it.uu.se> <3F15EEB7.2060008@netcabo.pt>
-In-Reply-To: <3F15EEB7.2060008@netcabo.pt>
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Jul 2003 00:52:35.0839 (UTC) FILETIME=[B692D0F0:01C34BFD]
+	Wed, 16 Jul 2003 20:51:35 -0400
+Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:10929 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S271300AbTGQAva
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 20:51:30 -0400
+Date: Wed, 16 Jul 2003 21:06:22 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.0-test1 Nonexistent Symbols During Config
+Message-ID: <20030717010622.GJ1779@kurtwerks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.21-krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Sousa Filipe wrote:
-> Mikael Pettersson wrote:
-> 
->> On Wed, 16 Jul 2003 22:14:40 +0100, Miguel Sousa Filipe wrote:
->>
->>>  CC      arch/ppc/kernel/time.o
->>> arch/ppc/kernel/time.c: In function `do_settimeofday':
->>> arch/ppc/kernel/time.c:247: conflicting types for `new_nsec'
->>> arch/ppc/kernel/time.c:245: previous declaration of `new_nsec'
->>> arch/ppc/kernel/time.c:247: conflicting types for `new_sec'
->>> arch/ppc/kernel/time.c:244: previous declaration of `new_sec'
->>> make[1]: *** [arch/ppc/kernel/time.o] Error 1
->>> make: *** [arch/ppc/kernel] Error 2
->>
->>
->>
->> Apply the following patch:
->>
->> --- linux-2.6.0-test1/arch/ppc/kernel/time.c.~1~    2003-07-14 
->> 13:17:24.000000000 +0200
->> +++ linux-2.6.0-test1/arch/ppc/kernel/time.c    2003-07-14 
->> 19:06:58.000000000 +0200
->> @@ -244,7 +244,7 @@
->>      time_t wtm_sec, new_sec = tv->tv_sec;
->>      long wtm_nsec, new_nsec = tv->tv_nsec;
->>      unsigned long flags;
->> -    int tb_delta, new_nsec, new_sec;
->> +    int tb_delta;
->>  
->>      if ((unsigned long)tv->tv_nsec >= NSEC_PER_SEC)
->>          return -EINVAL;
->>
-> 
-> Done, now it fails in arch/ppc/platforms/pmac_cpufreq.c,
-> 
-> here is the error:
-> 
->   CC      arch/ppc/platforms/pmac_nvram.o
->   CC      arch/ppc/platforms/pmac_cpufreq.o
-> arch/ppc/platforms/pmac_cpufreq.c: In function `do_set_cpu_speed':
-> arch/ppc/platforms/pmac_cpufreq.c:179: `CPUFREQ_ALL_CPUS' undeclared 
-> (first use in this function)
-> arch/ppc/platforms/pmac_cpufreq.c:179: (Each undeclared identifier is 
-> reported only once
-> arch/ppc/platforms/pmac_cpufreq.c:179: for each function it appears in.)
-> make[1]: *** [arch/ppc/platforms/pmac_cpufreq.o] Error 1
-> make: *** [arch/ppc/platforms] Error 2
-> 
-> 
+"make menuconfig" emits the following before it starts:
 
+boolean symbol BINFMT_ZFLAT tested for 'm'? test forced to 'n'
+#
+# using defaults found in arch/i386/defconfig
+#
+arch/i386/defconfig:68: trying to assign nonexistent symbol X86_SSE2
+arch/i386/defconfig:544: trying to assign nonexistent symbol NET_PCMCIA_RADIO
+arch/i386/defconfig:663: trying to assign nonexistent symbol INTEL_RNG
 
-Extra information,
-newton linux-2.6.0-test1 # find ./ -type f -exec grep -H CPUFREQ_ALL_CPUS {} \;
-./arch/ppc/platforms/pmac_cpufreq.c:    freqs.cpu = CPUFREQ_ALL_CPUS;
-./drivers/cpufreq/proc_intf.c:#define CPUFREQ_ALL_CPUS          ((NR_CPUS))
+If these symbols have in fact been removed, the patch below removes
+them. Not sure how to address the forced test, though.
 
-I just added
-#define CPUFREQ_ALL_CPUS          ((NR_CPUS))
-to pmac_cpufreq.c, line 22 (before the UNDEF)
-it compiled pmac_cpufreq.o
-
-Is this the propper fix?
-
-Miguel Filipe
-
+Kurt
+-- 
+"Life to you is a bold and dashing responsibility"
+		-- a Mary Chung's fortune cookie
+$ diff -Naur arch/i386/defconfig.orig arch/i386/defconfig
+--- arch/i386/defconfig.orig	2003-07-13 23:35:57.000000000 -0400
++++ arch/i386/defconfig	2003-07-16 00:41:31.000000000 -0400
+@@ -65,7 +65,6 @@
+ CONFIG_X86_GOOD_APIC=y
+ CONFIG_X86_INTEL_USERCOPY=y
+ CONFIG_X86_USE_PPRO_CHECKSUM=y
+-CONFIG_X86_SSE2=y
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_SMP=y
+ # CONFIG_PREEMPT is not set
+@@ -541,7 +540,6 @@
+ # CONFIG_PCMCIA_SMC91C92 is not set
+ # CONFIG_PCMCIA_XIRC2PS is not set
+ # CONFIG_PCMCIA_AXNET is not set
+-CONFIG_NET_PCMCIA_RADIO=y
+ CONFIG_PCMCIA_RAYCS=y
+ 
+ #
+@@ -660,7 +658,6 @@
+ # Watchdog Cards
+ #
+ # CONFIG_WATCHDOG is not set
+-CONFIG_INTEL_RNG=y
+ # CONFIG_AMD_RNG is not set
+ # CONFIG_NVRAM is not set
+ # CONFIG_RTC is not set

@@ -1,41 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTJBAxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 20:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbTJBAxZ
+	id S262732AbTJBA4I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 20:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTJBA4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 20:53:25 -0400
-Received: from uni03du.unity.ncsu.edu ([152.1.13.103]:45965 "EHLO
-	uni03du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S261916AbTJBAxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 20:53:25 -0400
-From: jlnance@unity.ncsu.edu
-Date: Wed, 1 Oct 2003 20:53:24 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] DigSig 0.2: kernel module for digital signature verification for binaries
-Message-ID: <20031002005324.GA12311@ncsu.edu>
-References: <20031001182440.GV7665@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0310020043550.16234-100000@shrek.tuiasi.ro> <20031001233622.GA29605@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Oct 2003 20:56:08 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:60680 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S262732AbTJBA4F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 20:56:05 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: M?ns Rullg?rd <mru@users.sourceforge.net>
+Subject: Re: [BUG?] SIS IDE DMA errors
+Date: Thu, 2 Oct 2003 08:32:43 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <yw1x7k3vlokf.fsf@users.sourceforge.net> <yw1xy8w8uey3.fsf@users.sourceforge.net> <20030929100130.GA9322@ucw.cz>
+In-Reply-To: <20030929100130.GA9322@ucw.cz>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031001233622.GA29605@work.bitmover.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200310020832.43330.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 04:36:22PM -0700, Larry McVoy wrote:
+On Monday 29 September 2003 18:01, Vojtech Pavlik wrote:
+> On Mon, Sep 29, 2003 at 11:22:28AM +0200, M?ns Rullg?rd wrote:
+> 
+> > > 08 - 80-wire cables (needed for UDMA44 and higher) NOT installed.
+> > >      FIFO threshold set to 3/4 for read and to 1/4 for write.
+> > >
+> > > 01 - IDE controller in compatibility mode. Native and test modes
+> > >      disabled. (normal)
+> > >
+> > > e6 - PCI burst enable, EDB R-R pipeline enable, Fast postwrite enable,
+> > >      device ID masqueraded as sis5513 (although real is 5517)
+> > >      channels 0 and 1 enabled in normal mode
+> > >
+> > > 51 - Postwrite enabled on hda and hdc, prefetch on hda only
+> > >
+> > > 00 02 - 512 bytes prefetch size for hda
+> > > 00 02 - 512 bytes prefetch size for hdc
+> > >
+> > > All this is OK, possibly except for the 80-wire cable not being present,
+> > > but if this is a notebook, there might be a completely different cable
+> > > type than what's standard, and the detection might not work there.
+> > 
+> > I've got no idea what the cable is like.  Is there anything to be
+> > learned from opening the beast?  Anything in particular to look for?
+> 
 
-> or any other fad du jour.  I tend to agree with him the most when he is
-> the most caustic, all he is doing is speaking the truth.  If you can't
-> handle it, go someplace else.  I *like* what he says because it is true.
+Notebook drive is plugged streight into a circuit board or connected by a 
+short cable. The unlikely possibility for hardware is that it is out of spec 
+and it also could be the drive. 
 
-At the same time take a look at:
+IBM/Hitachi have standalone PCDOS diagnostic floppy disk images and IIRC some
+linux based stuff for their drives on their support website. You could run 
+this diagnostics and see if you learn more. 
 
-    http://www.bitmover.com/lm/quotes.html
+BTW, as it is in a way an  interrupt problem - you tried wo ACPI and  IIRC, 
+you have no APIC?
 
-and read the quote about politeness.  It makes a lot of sense, and I was
-impressed when I found it the other day.
+Regards
+Michael
 
-Thanks,
 
-Jim

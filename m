@@ -1,42 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291878AbSBYAEj>; Sun, 24 Feb 2002 19:04:39 -0500
+	id <S291889AbSBYAIJ>; Sun, 24 Feb 2002 19:08:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291889AbSBYAEa>; Sun, 24 Feb 2002 19:04:30 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:16768 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S291878AbSBYAET>;
-	Sun, 24 Feb 2002 19:04:19 -0500
-Message-ID: <3C797F82.4000602@candelatech.com>
-Date: Sun, 24 Feb 2002 17:04:18 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S291890AbSBYAH7>; Sun, 24 Feb 2002 19:07:59 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:58640 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S291889AbSBYAHr>;
+	Sun, 24 Feb 2002 19:07:47 -0500
+Date: Mon, 25 Feb 2002 01:07:42 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+cc: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: gcc-2.95.3 vs gcc-3.0.4
+In-Reply-To: <3C775FEF.BDA0253C@randomlogic.com>
+Message-ID: <Pine.LNX.4.44.0202250100540.15348-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: lockup on dual athlon system.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can repeatedly lockup my TYAN 2460 motherboard with
-dual athlon MP 1600s by running make -j 4 modules
-(ie build linux)
+At this link:
 
-I'm running the 2.4.18-rc1 kernel with SMP + Athlon optimizations.
+ http://www.cs.utk.edu/~rwhaley/ATLAS/gcc30.html
 
-sysreq will not print anything out when it locks, and I've seen
-it lock both in the console and with X running.  I'm not sure
-how to go about debugging this any farther, but will be happy
-to run tests or gather information if anyone can suggest something...
+you can find an interesting explanation why code compiled with gcc 3.0 is
+mostly slower than code compiled with gcc 2.95 on x86 CPUs (but it is
+really faster on other platforms like alpha and sparc64).
 
-Thanks,
-Ben
+basically the main reasons semm to be the scheduler algorithm and the fpu
+stack handling, but I suggest to read the full study.
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
+I would be interested to know if this apply to gcc 3.1 too.
+
+Luigi
+
+On Sat, 23 Feb 2002, Paul G. Allen wrote:
+
+> Andrew Morton wrote:
+> >
+> > hugang wrote:
+> > >
+> > > On Fri, 22 Feb 2002 23:40:09 -0500
+> > > Justin Piszcz <war@starband.net> wrote:
+> > >
+> > > ...
+> > > > GCC 2.95.3
+> > > ...
+> > > > System is 899 kB
+> > > ...
+> > > > GCC 3.0.4
+> > > ...
+> > > > System is 962 kB
+> > > ...
+> > > >
+> > > Why the system size is different. Possble your use differ config.
+> >
+>
+> The important thing is:
+>
+> Which compiler, of all of the different versions, generates the most
+> stable and fastest code. Compile speed and kernel size is not NEARLY as
+> important as performance. So, which compiler fits the bill?
+>
+> PGA
+> --
+> Paul G. Allen
+> Owner, Sr. Engineer, Security Specialist
+> Random Logic/Dream Park
+> www.randomlogic.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

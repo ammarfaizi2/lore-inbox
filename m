@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270741AbTGPMrD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 08:47:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270744AbTGPMrB
+	id S270825AbTGPMty (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 08:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270829AbTGPMty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 08:47:01 -0400
-Received: from as6-4-8.rny.s.bonet.se ([217.215.27.171]:57873 "EHLO
-	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S270741AbTGPMq6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 08:46:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Fredrik Tolf <fredrik@dolda2000.cjb.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Input layer demand loading
-Date: Wed, 16 Jul 2003 14:57:42 +0200
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <200307131839.49112.fredrik@dolda2000.cjb.net> <200307141258.24458.fredrik@dolda2000.cjb.net> <20030716042916.GC3929@kroah.com>
-In-Reply-To: <20030716042916.GC3929@kroah.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200307161457.42862.fredrik@dolda2000.cjb.net>
+	Wed, 16 Jul 2003 08:49:54 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:19331 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S270825AbTGPMtx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 08:49:53 -0400
+Date: Wed, 16 Jul 2003 15:04:42 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: RFC on io-stalls patch
+Message-ID: <20030716130442.GZ833@suse.de>
+References: <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva> <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de> <20030714201637.GQ16313@dualathlon.random> <20030715052640.GY833@suse.de> <1058268126.3857.25.camel@dhcp22.swansea.linux.org.uk> <20030715112737.GQ833@suse.de> <20030716124355.GE4978@dualathlon.random> <20030716124656.GY833@suse.de> <20030716125933.GF4978@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030716125933.GF4978@dualathlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 July 2003 06.29, Greg KH wrote:
-> On Mon, Jul 14, 2003 at 12:58:24PM +0200, Fredrik Tolf wrote:
-> > On Monday 14 July 2003 08.22, Greg KH wrote:
-> > > On Sun, Jul 13, 2003 at 06:39:49PM +0200, Fredrik Tolf wrote:
-> > > > Why does the input layer still not have on-demand module loading? How
-> > > > about applying this?
-> > >
-> > > What's wrong with the current hotplug interface for the input layer? 
-> > > If you want to implement this, add some input hotplug scripts to the
-> > > linux-hotplug package.
-> >
-> > Correct me if I'm wrong, but AFAIK that can only be smoothly used to load
-> > hardware driver modules.
->
-> In a way, yes.
->
-> > If the input layer userspace interface code has been compiled as modules,
-> > and you have a ordinary (not hotplug) device, eg. a gameport joystick,
-> > can really the hotplug interface be used to load joydev.o when
-> > /dev/input/js0 is opened?
->
-> No, you want to load the joydev.o driver when you plug in the gameport
-> joystick.  Which will be before you open the /dev node.
+On Wed, Jul 16 2003, Andrea Arcangeli wrote:
+> On Wed, Jul 16, 2003 at 02:46:56PM +0200, Jens Axboe wrote:
+> > Well it's a combined problem. Threshold too high on dirty memory,
+> > someone doing a read well get stuck flushing out as well.
+> 
+> a pure read not. the write throttling should be per-process, then there
+> will be little risk.
 
-Not necessarily. When the joystick is plugged in, you want to load the 
-hardware driver modules. There's really no need for the userspace interface 
-until someone requests it. At least that's the way I see it.
-And in any case, even if you do want to load joydev.o when the joystick is 
-plugged in, I don't see how that could be done on-demand when the joystick 
-port isn't hotplug compatible, such as is the case with gameports, right?
+A read from user space, dirtying data along the way.
 
-Fredrik Tolf
+-- 
+Jens Axboe
 

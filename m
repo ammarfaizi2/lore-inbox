@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262838AbSJLJQ2>; Sat, 12 Oct 2002 05:16:28 -0400
+	id <S262858AbSJLJUQ>; Sat, 12 Oct 2002 05:20:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262847AbSJLJQ2>; Sat, 12 Oct 2002 05:16:28 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:5650 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S262838AbSJLJQ1>;
-	Sat, 12 Oct 2002 05:16:27 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200210120922.g9C9MB219606@saturn.cs.uml.edu>
-Subject: Re: [ANNOUNCE] procps 3.0.1
-To: m.c.p@wolk-project.de (Marc-Christian Petersen)
-Date: Sat, 12 Oct 2002 05:22:11 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org, acahalan@cs.uml.edu (Albert D. Cahalan)
-In-Reply-To: <200210110920.12208.m.c.p@wolk-project.de> from "Marc-Christian Petersen" at Oct 11, 2002 09:20:49 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262850AbSJLJUQ>; Sat, 12 Oct 2002 05:20:16 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:7399 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262842AbSJLJUP>; Sat, 12 Oct 2002 05:20:15 -0400
+Message-Id: <4.3.2.7.2.20021012112501.00b4c640@mail.dns-host.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sat, 12 Oct 2002 11:25:57 +0200
+To: linux-kernel@vger.kernel.org
+From: Margit Schubert-While <margit@margit.com>
+Subject: Build fail 2.5.42
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen writes:
-
->> top:    windows, color, sort any field, 2.5.xx kernel support
->> sysctl: supports the VLAN interfaces
->> ps:     runs 2x faster than procps-2.x.x did
->> vmstat: 2.5.xx kernel support
->
-> Say, can you please, if you want to support kernel 2.5.xx also,
-> do it right?
-
-You're running a 2.2.xx or 2.0.xx non-SMP kernel, aren't you?
-No problem anymore, get the 3.0.2 release.
-
-The top program is also back to looking normal by default
-and doing a %CPU sort by default. I fixed "make install" and
-some more vmstat troubles too. Enjoy.
-
-http://procps.sf.net/
+    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o 
+init/do_mounts.o
+         ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s 
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o 
+--start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o 
+arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o 
+fs/built-in.o  ipc/built-in.o  security/built-in.o  lib/lib.a 
+arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o 
+arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
+net/built-in.o: In function `p8022_request':
+net/built-in.o(.text+0xd8e9): undefined reference to 
+`llc_build_and_send_ui_pkt'
+net/built-in.o: In function `register_8022_client':
+net/built-in.o(.text+0xd932): undefined reference to `llc_sap_open'
+net/built-in.o: In function `unregister_8022_client':
+net/built-in.o(.text+0xd95e): undefined reference to `llc_sap_close'
+net/built-in.o: In function `snap_request':
+net/built-in.o(.text+0xdaa0): undefined reference to 
+`llc_build_and_send_ui_pkt'
+net/built-in.o: In function `snap_init':
+net/built-in.o(.text.init+0x59b): undefined reference to `llc_sap_open'
+make: *** [vmlinux] Error 1
 

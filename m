@@ -1,235 +1,607 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVBNA3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVBNAdC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVBNA3j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 19:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVBNA3i
+	id S261328AbVBNAdC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 19:33:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVBNAdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 19:29:38 -0500
-Received: from arhont4.eclipse.co.uk ([81.168.98.124]:28622 "EHLO
-	heart-a.dmz.arhont.com") by vger.kernel.org with ESMTP
-	id S261325AbVBNA3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 19:29:18 -0500
-Message-ID: <420FF0DC.4060804@arhont.com>
-Date: Mon, 14 Feb 2005 00:29:16 +0000
-From: "Konstantin V. Gavrilenko" <mlists@arhont.com>
-Reply-To: kos@arhont.com
-Organization: Arhont Ltd. - Information Security
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050205)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: whoops in kernel 2.6.9
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+	Sun, 13 Feb 2005 19:33:01 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:31617 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261328AbVBNAcG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 19:32:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=UAH/qaOn+PWYETm5HR3LlSBb5GRBvMnZTZXeN9wVwqom9rmxrB3C4B6WcS3WjMVo0q529Xxb9IgXEuJXt54UgqHqAtUaYh/7xIbn9umv2d1xEJc/0eAZsqQ6IXFN92RH5xcdbNHkAB+XKThn6MN+YUMKIQTMFBFqkd9RAi8eDT8=
+Message-ID: <a71293c2050213163253b9b98f@mail.gmail.com>
+Date: Sun, 13 Feb 2005 19:32:05 -0500
+From: Stephen Evanchik <evanchsa@gmail.com>
+Reply-To: Stephen Evanchik <evanchsa@gmail.com>
+To: Vojtech Pavlik <vojtech@suse.cz>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: PATCH 2.6.11-rc4]: IBM TrackPoint configuration support
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whoops happened when tried to do
-#ip route del blackhole to xxx.xxx.xxx.xxx
+Here is the latest IBM TrackPoint patch. I believe I made all of the
+necessary changes in this release including the removal of the
+middle-to-scroll functionality. One item I didn't address was a
+comment about checking the return code of ps2_command ..
+
+I looked at other usages and it wasn't clear to me how to actually
+implement something that is sane. In some places an error causes a
+return out of the function and in others the return value is ignored.
+Should I check each return value or the first ?
+
+Any comments are greatly appreciated. I have tested this on my T23 as
+well as a T40 and T42p ..
+
+Stephen
 
 
-output of dmesg, and lsmod
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-  printing eip:
-c031ce3b
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT
-Modules linked in: sch_sfq sch_htb cls_u32 sch_ingress ipt_mark ipt_MARK 
-ipt_limit ipt_state ipt_MASQUERADE ipt_REJECT ipt_mac ipt_LOG ip_nat_irc 
-ip_nat_ftp ip_conntrack_irc ip_conntrack_ftp iptable_mangle ipt_conntrack 
-iptable_nat ip_conntrack iptable_filter ip_tables esp4 nfs lockd sunrpc twofish 
-serpent aes_i586 blowfish sha256 crypto_null eeprom w83781d i2c_sensor i2c_piix4 
-i2c_core tulip 8139too mii 3c59x
-CPU:    0
-EIP:    0060:[<c031ce3b>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.9-gentoo-r1)
-EIP is at fib_release_info+0x8b/0xf0
-eax: 00000000   ebx: ddb64a80   ecx: 00000000   edx: ddb64ae4
-esi: ddb64ae8   edi: 00000000   ebp: dfc57bd0   esp: d6c5fc24
-ds: 007b   es: 007b   ss: 0068
-Process ip (pid: 7663, threadinfo=d6c5e000 task=c1543aa0)
-Stack: 824b088e 00000001 defd1768 df7a7500 c031fc35 ddb64a80 defd1760 df7a7500
-        00000020 000000fe dfc57bc0 df5cf2b8 0058489c c17a8fc0 00000020 defd1760
-        746747ca dfc57bd0 dfc57bc0 dffe6a20 dfc57bc0 c031c58a dfc10c60 dfc57bd0
-Call Trace:
-  [<c031fc35>] fn_hash_delete+0x1e5/0x2a0
-  [<c031c58a>] inet_rtm_delroute+0x6a/0x80
-  [<c02da291>] rtnetlink_rcv+0x2e1/0x3a0
-  [<c02e5f4f>] netlink_data_ready+0x5f/0x70
-  [<c02e54b2>] netlink_sendskb+0x32/0x60
-  [<c02e5bc6>] netlink_sendmsg+0x216/0x310
-  [<c01cc8a4>] ext3_mark_inode_dirty+0x64/0x70
-  [<c01cc91b>] ext3_dirty_inode+0x6b/0xd0
-  [<c02c70ca>] sock_sendmsg+0xda/0x100
-  [<c0141f4b>] do_page_cache_readahead+0x9b/0x1a0
-  [<c013a5c9>] find_get_page+0x29/0x70
-  [<c013ebaa>] buffered_rmqueue+0xfa/0x1f0
-  [<c0211318>] copy_from_user+0x68/0xa0
-  [<c011bce0>] autoremove_wake_function+0x0/0x60
-  [<c02c8d4f>] sys_sendmsg+0x18f/0x1f0
-  [<c014ab2e>] handle_mm_fault+0xde/0x1a0
-  [<c011878c>] do_page_fault+0x3ac/0x5ae
-  [<c02c6e1c>] sockfd_lookup+0x1c/0x80
-  [<c02c8a76>] sys_setsockopt+0x76/0xc0
-  [<c0211318>] copy_from_user+0x68/0xa0
-  [<c02c91f2>] sys_socketcall+0x242/0x260
-  [<c010b7aa>] do_gettimeofday+0x1a/0xd0
-  [<c01183e0>] do_page_fault+0x0/0x5ae
-  [<c0105cf5>] error_code+0x2d/0x38
-  [<c01052eb>] syscall_call+0x7/0xb
-Code: 43 08 00 01 10 00 c7 41 04 00 02 20 00 31 ff 8d 53 64 3b 7b 5c 7d 32 89 f6 
-8d bc 27 00 00 00 00 8b 42 04 8d 72 04 8b 4e 04 85 c0 <89> 01 74 03 89 48 04 c7 
-42 04 00 01 10 00 47 83 c2 2c c7 46 04
-  <6>note: ip[7663] exited with preempt_count 1
-Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
-in_atomic():1, irqs_disabled():0
-  [<c011b8a7>] __might_sleep+0xb7/0xe0
-  [<c011e457>] printk+0x17/0x20
-  [<c01204d0>] do_exit+0xb0/0x450
-  [<c010655d>] die+0x18d/0x190
-  [<c011e457>] printk+0x17/0x20
-  [<c011861f>] do_page_fault+0x23f/0x5ae
-  [<c033b03e>] schedule+0x2be/0x500
-  [<c02cb2d4>] kfree_skbmem+0x24/0x30
-  [<c02cb3a3>] __kfree_skb+0xc3/0x160
-  [<c02e5807>] netlink_broadcast+0x197/0x2a0
-  [<c01183e0>] do_page_fault+0x0/0x5ae
-  [<c0105cf5>] error_code+0x2d/0x38
-  [<c031ce3b>] fib_release_info+0x8b/0xf0
-  [<c031fc35>] fn_hash_delete+0x1e5/0x2a0
-  [<c031c58a>] inet_rtm_delroute+0x6a/0x80
-  [<c02da291>] rtnetlink_rcv+0x2e1/0x3a0
-  [<c02e5f4f>] netlink_data_ready+0x5f/0x70
-  [<c02e54b2>] netlink_sendskb+0x32/0x60
-  [<c02e5bc6>] netlink_sendmsg+0x216/0x310
-  [<c01cc8a4>] ext3_mark_inode_dirty+0x64/0x70
-  [<c01cc91b>] ext3_dirty_inode+0x6b/0xd0
-  [<c02c70ca>] sock_sendmsg+0xda/0x100
-  [<c0141f4b>] do_page_cache_readahead+0x9b/0x1a0
-  [<c013a5c9>] find_get_page+0x29/0x70
-  [<c013ebaa>] buffered_rmqueue+0xfa/0x1f0
-  [<c0211318>] copy_from_user+0x68/0xa0
-  [<c011bce0>] autoremove_wake_function+0x0/0x60
-  [<c02c8d4f>] sys_sendmsg+0x18f/0x1f0
-  [<c014ab2e>] handle_mm_fault+0xde/0x1a0
-  [<c011878c>] do_page_fault+0x3ac/0x5ae
-  [<c02c6e1c>] sockfd_lookup+0x1c/0x80
-  [<c02c8a76>] sys_setsockopt+0x76/0xc0
-  [<c0211318>] copy_from_user+0x68/0xa0
-  [<c02c91f2>] sys_socketcall+0x242/0x260
-  [<c010b7aa>] do_gettimeofday+0x1a/0xd0
-  [<c01183e0>] do_page_fault+0x0/0x5ae
-  [<c0105cf5>] error_code+0x2d/0x38
-  [<c01052eb>] syscall_call+0x7/0xb
-bad: scheduling while atomic!
-  [<c033b26c>] schedule+0x4ec/0x500
-  [<c0148da3>] unmap_page_range+0x53/0x80
-  [<c0148f96>] unmap_vmas+0x1c6/0x1f0
-  [<c014d9ce>] exit_mmap+0x7e/0x160
-  [<c011bff5>] mmput+0x65/0xb0
-  [<c012052f>] do_exit+0x10f/0x450
-  [<c010655d>] die+0x18d/0x190
-  [<c011e457>] printk+0x17/0x20
-  [<c011861f>] do_page_fault+0x23f/0x5ae
-  [<c033b03e>] schedule+0x2be/0x500
-  [<c02cb2d4>] kfree_skbmem+0x24/0x30
-  [<c02cb3a3>] __kfree_skb+0xc3/0x160
-  [<c02e5807>] netlink_broadcast+0x197/0x2a0
-  [<c01183e0>] do_page_fault+0x0/0x5ae
-  [<c0105cf5>] error_code+0x2d/0x38
-  [<c031ce3b>] fib_release_info+0x8b/0xf0
-  [<c031fc35>] fn_hash_delete+0x1e5/0x2a0
-  [<c031c58a>] inet_rtm_delroute+0x6a/0x80
-  [<c02da291>] rtnetlink_rcv+0x2e1/0x3a0
-  [<c02e5f4f>] netlink_data_ready+0x5f/0x70
-  [<c02e54b2>] netlink_sendskb+0x32/0x60
-  [<c02e5bc6>] netlink_sendmsg+0x216/0x310
-  [<c01cc8a4>] ext3_mark_inode_dirty+0x64/0x70
-  [<c01cc91b>] ext3_dirty_inode+0x6b/0xd0
-  [<c02c70ca>] sock_sendmsg+0xda/0x100
-  [<c0141f4b>] do_page_cache_readahead+0x9b/0x1a0
-  [<c013a5c9>] find_get_page+0x29/0x70
-  [<c013ebaa>] buffered_rmqueue+0xfa/0x1f0
-  [<c0211318>] copy_from_user+0x68/0xa0
-  [<c011bce0>] autoremove_wake_function+0x0/0x60
-  [<c02c8d4f>] sys_sendmsg+0x18f/0x1f0
-  [<c014ab2e>] handle_mm_fault+0xde/0x1a0
-  [<c011878c>] do_page_fault+0x3ac/0x5ae
-  [<c02c6e1c>] sockfd_lookup+0x1c/0x80
-  [<c02c8a76>] sys_setsockopt+0x76/0xc0
-  [<c0211318>] copy_from_user+0x68/0xa0
-  [<c02c91f2>] sys_socketcall+0x242/0x260
-  [<c010b7aa>] do_gettimeofday+0x1a/0xd0
-  [<c01183e0>] do_page_fault+0x0/0x5ae
-  [<c0105cf5>] error_code+0x2d/0x38
-  [<c01052eb>] syscall_call+0x7/0xb
-
-
-
-
-
-gate / # lsmod
-Module                  Size  Used by
-sch_sfq                 4640  7
-sch_htb                22944  1
-cls_u32                 7652  16
-sch_ingress             2912  1
-ipt_mark                1248  5
-ipt_MARK                1536  1
-ipt_limit               1824  8
-ipt_state               1376  6
-ipt_MASQUERADE          3528  0
-ipt_REJECT              5600  2
-ipt_mac                 1472  49
-ipt_LOG                 6176  8
-ip_nat_irc              3728  0
-ip_nat_ftp              4368  0
-ip_conntrack_irc       70640  1 ip_nat_irc
-ip_conntrack_ftp       71600  1 ip_nat_ftp
-iptable_mangle          2048  1
-ipt_conntrack           1920  0
-iptable_nat            28932  4 ipt_MASQUERADE,ip_nat_irc,ip_nat_ftp
-ip_conntrack           51836  8 
-ipt_state,ipt_MASQUERADE,ip_nat_irc,ip_nat_ftp,ip_conntrack_irc,ip_conntrack_ftp,ipt_conntrack,iptable_nat
-iptable_filter          2112  1
-ip_tables              19520  12 
-ipt_mark,ipt_MARK,ipt_limit,ipt_state,ipt_MASQUERADE,ipt_REJECT,ipt_mac,ipt_LOG,iptable_mangle,ipt_conntrack,iptable_nat,iptable_filter
-esp4                    6368  6
-nfs                   216804  2
-lockd                  63592  2 nfs
-sunrpc                133764  6 nfs,lockd
-twofish                38304  0
-serpent                13248  0
-aes_i586               38196  6
-blowfish                9888  0
-sha256                  9312  0
-crypto_null             1920  0
-eeprom                  6624  0
-w83781d                34160  0
-i2c_sensor              2944  2 eeprom,w83781d
-i2c_piix4               6960  0
-i2c_core               19440  4 eeprom,w83781d,i2c_sensor,i2c_piix4
-tulip                  42272  0
-8139too                20544  0
-mii                     3872  1 8139too
-3c59x                  35176  0
-
--- 
-Respectfully,
-Konstantin V. Gavrilenko
-
-Arhont Ltd - Information Security
-
-web:    http://www.arhont.com
-	http://www.wi-foo.com
-e-mail: k.gavrilenko@arhont.com
-
-tel: +44 (0) 870 44 31337
-fax: +44 (0) 117 969 0141
-
-PGP: Key ID - 0x4F3608F7
-PGP: Server - keyserver.pgp.com
+diff -uNr a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+--- a/drivers/input/mouse/Makefile	2005-02-13 12:47:32.000000000 -0500
++++ b/drivers/input/mouse/Makefile	2005-02-13 12:46:30.000000000 -0500
+@@ -14,4 +14,4 @@
+ obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
+ obj-$(CONFIG_MOUSE_VSXXXAA)	+= vsxxxaa.o
+ 
+-psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o
++psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o trackpoint.o
+diff -uNr a/drivers/input/mouse/psmouse-base.c
+b/drivers/input/mouse/psmouse-base.c
+--- a/drivers/input/mouse/psmouse-base.c	2005-02-13 12:47:32.000000000 -0500
++++ b/drivers/input/mouse/psmouse-base.c	2005-02-13 17:33:17.000000000 -0500
+@@ -23,6 +23,7 @@
+ #include "psmouse.h"
+ #include "synaptics.h"
+ #include "logips2pp.h"
++#include "trackpoint.h"
+ #include "alps.h"
+ 
+ #define DRIVER_DESC	"PS/2 mouse driver"
+@@ -482,6 +483,16 @@
+ 		return PSMOUSE_IMPS;
+ 
+ /*
++ * Try to initialize the IBM TrackPoint
++ */
++	if (max_proto > PSMOUSE_PS2 && trackpoint_init(psmouse) == 0) {
++		psmouse->vendor = "IBM";
++		psmouse->name = "TrackPoint";
++ 
++		return PSMOUSE_PS2;
++	}
++
++/*
+  * Okay, all failed, we have a standard mouse here. The number of the buttons
+  * is still a question, though. We assume 3.
+  */
+diff -uNr a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+--- a/drivers/input/mouse/trackpoint.c	1969-12-31 19:00:00.000000000 -0500
++++ b/drivers/input/mouse/trackpoint.c	2005-02-13 19:26:09.000000000 -0500
+@@ -0,0 +1,347 @@
++/*
++ * Stephen Evanchik <evanchsa@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ *
++ * Trademarks are the property of their respective owners.
++ *
++ * 13/02/2005 - Removed middle button scroll, see Xorg for
++ *		scroll emulation.
++ *
++ * 03/02/2005 - Remove proc and module parameters
++ * 		Added sysfs attributes
++ *
++ * 29/01/2005 - Fixed UltraNav support
++ *		Moved to libps2 interface
++ *		Renamed internal property variables to be consistent with reference docs
++ *		Fixed negative inertia not being set properly
++ *		Added middle button scroll module parameter
++ *
++ */
++
++#include <linux/delay.h>
++#include <linux/serio.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/input.h>
++#include <linux/libps2.h>
++#include <linux/proc_fs.h>
++#include <asm/uaccess.h>
++#include "psmouse.h"
++#include "trackpoint.h"
++
++
++PSMOUSE_DEFINE_ATTR(sensitivity);
++PSMOUSE_DEFINE_ATTR(speed);
++PSMOUSE_DEFINE_ATTR(inertia);
++PSMOUSE_DEFINE_ATTR(reach);
++PSMOUSE_DEFINE_ATTR(draghys);
++PSMOUSE_DEFINE_ATTR(mindrag);
++PSMOUSE_DEFINE_ATTR(thresh);
++PSMOUSE_DEFINE_ATTR(upthresh);
++PSMOUSE_DEFINE_ATTR(ztime);
++PSMOUSE_DEFINE_ATTR(jenks);
++PSMOUSE_DEFINE_ATTR(ptson);
++PSMOUSE_DEFINE_ATTR(skipback);
++PSMOUSE_DEFINE_ATTR(mb);
++PSMOUSE_DEFINE_ATTR(ext_dev);
++PSMOUSE_DEFINE_ATTR(transparent);
++
++
++#define MAKE_ATTR_READ(_item) \
++        static ssize_t psmouse_attr_show_##_item(struct psmouse
+*psmouse, char *buf) \
++        { \
++                struct trackpoint_data *tp = psmouse->private; \
++                return sprintf(buf, "%lu\n", (unsigned long)tp->_item); \
++        }
++
++#define MAKE_ATTR_WRITE(_item, command) \
++        static ssize_t psmouse_attr_set_##_item(struct psmouse
+*psmouse, const char *buf, size_t count) \
++        { \
++		char *rest; \
++                unsigned long value; \
++                struct trackpoint_data *tp = psmouse->private; \
++                value = simple_strtoul(buf, &rest, 10); \
++		if(*rest) \
++			return -EINVAL; \
++		tp->_item = value; \
++                trackpoint_write(&psmouse->ps2dev, command, tp->_item); \
++                return count; \
++        }
++
++#define MAKE_ATTR_TOGGLE(_item, command, mask) \
++        static ssize_t psmouse_attr_set_##_item(struct psmouse
+*psmouse, const char *buf, size_t count) \
++        { \
++                unsigned char toggle; \
++                struct trackpoint_data *tp = psmouse->private; \
++                toggle = (buf[0] == '1') ? 1 : 0; \
++                if( toggle != tp->_item) { \
++                        tp->_item = toggle; \
++                        trackpoint_toggle_bit(&psmouse->ps2dev,
+command, mask); \
++                } \
++                return count; \
++        }
++
++
++/*
++ * Device IO: read, write and toggle bit
++ */
++static void trackpoint_command(struct ps2dev *ps2dev, unsigned char cmd)
++{	
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND));
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, cmd));
++}
++
++static void trackpoint_read(struct ps2dev *ps2dev, unsigned char loc,
+unsigned char *results)
++{
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND));
++	ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 1, loc));
++}
++
++static void trackpoint_write(struct ps2dev *ps2dev, unsigned char
+loc, unsigned char val)
++{	
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND));
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_WRITE_MEM));
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, loc));
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, val));
++}
++
++static int trackpoint_toggle_bit(struct ps2dev *ps2dev, unsigned char
+loc, unsigned char mask)
++{
++	/* Bad things will happen if the loc param isn't in this range */
++	if(loc < 0x20 || loc >= 0x2F)
++		return -1;
++	
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND));
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_TOGGLE));
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, loc));
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, mask));
++	
++	return 0;
++}
++
++
++MAKE_ATTR_WRITE(sensitivity, TP_SENS);
++MAKE_ATTR_READ(sensitivity);
++
++MAKE_ATTR_WRITE(speed, TP_SPEED);
++MAKE_ATTR_READ(speed);
++
++MAKE_ATTR_WRITE(inertia, TP_INERTIA);
++MAKE_ATTR_READ(inertia);
++
++MAKE_ATTR_WRITE(reach, TP_REACH);
++MAKE_ATTR_READ(reach);
++
++MAKE_ATTR_WRITE(draghys, TP_DRAGHYS);
++MAKE_ATTR_READ(draghys);
++
++MAKE_ATTR_WRITE(mindrag, TP_MINDRAG);
++MAKE_ATTR_READ(mindrag);
++
++MAKE_ATTR_WRITE(thresh, TP_THRESH);
++MAKE_ATTR_READ(thresh);
++
++MAKE_ATTR_WRITE(upthresh, TP_UP_THRESH);
++MAKE_ATTR_READ(upthresh);
++
++MAKE_ATTR_WRITE(ztime, TP_Z_TIME);
++MAKE_ATTR_READ(ztime);
++
++MAKE_ATTR_WRITE(jenks, TP_JENKS_CURV);
++MAKE_ATTR_READ(jenks);
++
++MAKE_ATTR_TOGGLE(ptson, TP_TOGGLE_PTSON, TP_MASK_PTSON);
++MAKE_ATTR_READ(ptson);
++
++MAKE_ATTR_TOGGLE(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK);
++MAKE_ATTR_READ(skipback);
++
++MAKE_ATTR_TOGGLE(mb, TP_TOGGLE_MB, TP_MASK_MB);
++MAKE_ATTR_READ(mb);
++
++MAKE_ATTR_TOGGLE(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV);
++MAKE_ATTR_READ(ext_dev);
++
++/* MAKE_ATTR_WRITE( ) for Soft Transparent mode */
++static ssize_t psmouse_attr_set_transparent(struct psmouse *psmouse,
+const char *buf, size_t count)
++{
++	unsigned char command;
++
++	struct trackpoint_data *tp = psmouse->private;
++
++	tp->transparent = (buf[0] == '1') ? 1 : 0;
++
++	command = (tp->transparent) ? TP_SET_SOFT_TRANS : TP_CANCEL_SOFT_TRANS;
++
++	trackpoint_command(&psmouse->ps2dev, command);
++
++	return count;
++}
++
++MAKE_ATTR_READ(transparent);
++
++
++void trackpoint_disconnect(struct psmouse *psmouse)
++{
++	struct serio *serio = psmouse->ps2dev.serio;
++
++	device_remove_file(&serio->dev, &psmouse_attr_sensitivity);
++	device_remove_file(&serio->dev, &psmouse_attr_speed);
++	device_remove_file(&serio->dev, &psmouse_attr_inertia);
++	device_remove_file(&serio->dev, &psmouse_attr_reach);
++	device_remove_file(&serio->dev, &psmouse_attr_draghys);
++	device_remove_file(&serio->dev, &psmouse_attr_mindrag);
++	device_remove_file(&serio->dev, &psmouse_attr_thresh);
++	device_remove_file(&serio->dev, &psmouse_attr_upthresh);
++	device_remove_file(&serio->dev, &psmouse_attr_ztime);
++	device_remove_file(&serio->dev, &psmouse_attr_jenks);
++	device_remove_file(&serio->dev, &psmouse_attr_ptson);
++	device_remove_file(&serio->dev, &psmouse_attr_skipback);
++	device_remove_file(&serio->dev, &psmouse_attr_mb);
++	device_remove_file(&serio->dev, &psmouse_attr_ext_dev);
++	device_remove_file(&serio->dev, &psmouse_attr_transparent);
++
++	kfree(psmouse->private);
++
++	psmouse->private = NULL;
++}
++
++int trackpoint_sync(struct psmouse *psmouse)
++{
++	unsigned char toggle;
++	struct trackpoint_data *tp = psmouse->private;
++
++
++	/* Push the config to the device */
++	
++	trackpoint_write(&psmouse->ps2dev, TP_SENS, tp->sensitivity);
++	trackpoint_write(&psmouse->ps2dev, TP_INERTIA, tp->inertia);
++	trackpoint_write(&psmouse->ps2dev, TP_SPEED, tp->speed);
++
++	trackpoint_write(&psmouse->ps2dev, TP_REACH, tp->reach);
++	trackpoint_write(&psmouse->ps2dev, TP_DRAGHYS, tp->draghys);
++	trackpoint_write(&psmouse->ps2dev, TP_MINDRAG, tp->mindrag);
++
++	trackpoint_write(&psmouse->ps2dev, TP_THRESH, tp->thresh);
++	trackpoint_write(&psmouse->ps2dev, TP_UP_THRESH, tp->upthresh);
++
++	trackpoint_write(&psmouse->ps2dev, TP_Z_TIME, tp->ztime);
++	trackpoint_write(&psmouse->ps2dev, TP_JENKS_CURV, tp->jenks);
++
++
++	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_PTSON, &toggle);
++	if(((toggle & TP_MASK_PTSON) == TP_MASK_PTSON)!= tp->ptson)
++		 trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_PTSON, TP_MASK_PTSON);
++
++	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_MB, &toggle);
++	if(((toggle & TP_MASK_MB) == TP_MASK_MB) != tp->mb)
++		 trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_MB, TP_MASK_MB);
++
++	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_TWOHAND, &toggle);
++	if(((toggle & TP_MASK_TWOHAND) == TP_MASK_TWOHAND) != tp->twohand)
++		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_TWOHAND, TP_MASK_TWOHAND);
++
++	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_SKIPBACK, &toggle);
++	if(((toggle & TP_MASK_SKIPBACK) == TP_MASK_SKIPBACK) != tp->skipback)
++		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_SKIPBACK,
+TP_MASK_SKIPBACK);
++
++	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_MB, &toggle);
++	if(((toggle & TP_MASK_MB) == TP_MASK_MB) != tp->mb)
++		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_MB, TP_MASK_MB);
++
++	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_SOURCE_TAG, &toggle);
++	if(((toggle & TP_MASK_SOURCE_TAG) == TP_MASK_SOURCE_TAG) != tp->source_tag)
++		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_SOURCE_TAG,
+TP_MASK_SOURCE_TAG);
++
++	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_EXT_DEV, &toggle);
++	if(((toggle & TP_MASK_EXT_DEV) == TP_MASK_EXT_DEV) != tp->skipback)
++		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV);
++
++
++
++	return 0;
++}
++
++static void trackpoint_defaults(struct trackpoint_data *tp)
++{
++	tp->ptson = TP_DEF_PTSON;
++	tp->sensitivity = TP_DEF_SENS;
++	tp->speed = TP_DEF_SPEED;
++	tp->reach = TP_DEF_REACH;
++
++	tp->draghys = TP_DEF_DRAGHYS;
++	tp->mindrag = TP_DEF_MINDRAG;
++
++	tp->thresh = TP_DEF_THRESH;
++	tp->upthresh = TP_DEF_UP_THRESH;
++
++	tp->ztime = TP_DEF_Z_TIME;
++	tp->jenks = TP_DEF_JENKS_CURV;
++
++	tp->mb = TP_DEF_MB;
++
++	tp->inertia = TP_DEF_INERTIA;
++	tp->skipback = TP_DEF_SKIPBACK;
++	tp->ext_dev = TP_DEF_EXT_DEV;
++}
++
++
++
++int trackpoint_init(struct psmouse *psmouse)
++{
++	unsigned char param[2];
++	struct trackpoint_data *priv;
++
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	struct serio *serio = ps2dev->serio;
++
++	param[0] = param[1] = 0;
++
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_DISABLE_EXT));
++
++	ps2_command(ps2dev, param, MAKE_PS2_CMD(0, 2, TP_READ_ID));
++
++	if(param[0] != TP_MAGIC_IDENT) 
++		return -1;
++
++	ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_ENABLE_EXT));
++
++	psmouse->private = priv = kmalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
++
++	if(!priv) 
++		return -1;
++
++	memset(priv, 0, sizeof(struct trackpoint_data));
++
++	priv->firmware_id = param[1];
++	trackpoint_defaults(priv);
++
++	trackpoint_sync(psmouse);
++
++	psmouse->reconnect = trackpoint_init;
++	psmouse->disconnect = trackpoint_disconnect;
++
++	device_create_file(&serio->dev, &psmouse_attr_sensitivity);
++	device_create_file(&serio->dev, &psmouse_attr_speed);
++	device_create_file(&serio->dev, &psmouse_attr_inertia);
++	device_create_file(&serio->dev, &psmouse_attr_reach);
++	device_create_file(&serio->dev, &psmouse_attr_draghys);
++	device_create_file(&serio->dev, &psmouse_attr_mindrag);
++	device_create_file(&serio->dev, &psmouse_attr_thresh);
++	device_create_file(&serio->dev, &psmouse_attr_upthresh);
++	device_create_file(&serio->dev, &psmouse_attr_ztime);
++	device_create_file(&serio->dev, &psmouse_attr_jenks);
++	device_create_file(&serio->dev, &psmouse_attr_ptson);
++	device_create_file(&serio->dev, &psmouse_attr_skipback);
++	device_create_file(&serio->dev, &psmouse_attr_mb);
++	device_create_file(&serio->dev, &psmouse_attr_ext_dev);
++	device_create_file(&serio->dev, &psmouse_attr_transparent);
++
++	printk(KERN_INFO "IBM TrackPoint firmware: 0x%02X\n", param[1]);
++
++	return 0;
++}
++
+diff -uNr a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
+--- a/drivers/input/mouse/trackpoint.h	1969-12-31 19:00:00.000000000 -0500
++++ b/drivers/input/mouse/trackpoint.h	2005-02-13 19:27:30.000000000 -0500
+@@ -0,0 +1,157 @@
++/*
++ * IBM TrackPoint PS/2 mouse driver
++ *
++ * Stephen Evanchik <evanchsa@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#ifndef _TRACKPOINT_H
++#define _TRACKPOINT_H
++
++/*
++ * These constants are from the TrackPoint System
++ * Engineering documentation Version 4 from IBM Watson
++ * research:
++ * 	http://wwwcssrv.almaden.ibm.com/trackpoint/download.html
++ */
++
++#define TP_COMMAND	(0xE2)	/* Commands start with this */
++
++#define TP_READ_ID	(0xE1)	/* Sent for device identification */
++#define TP_MAGIC_IDENT	(0x01)	/* Sent after a TP_READ_ID followed */
++				/* by the firmware ID */
++
++
++/*
++ * Commands
++ */
++#define TP_RECALIB	(0x51)	/* Recalibrate */
++#define TP_POWER_DOWN	(0x44)	/* Can only be undone through HW reset */
++#define TP_EXT_DEV	(0x21)	/* Determines if external device is connected (RO) */
++#define TP_EXT_BTN	(0x4B)	/* Read extended button status */
++#define TP_POR		(0x7F)	/* Execute Power on Reset */
++#define TP_POR_RESULTS	(0x25)	/* Read Power on Self test results */
++#define TP_DISABLE_EXT	(0x40)	/* Disable external pointing device */
++#define TP_ENABLE_EXT	(0x41)	/* Enable external pointing device */
++
++/*
++ * Mode manipulation
++ */
++#define TP_SET_SOFT_TRANS (0x4E) /* Set mode */
++#define TP_CANCEL_SOFT_TRANS (0xB9) /* Cancel mode */
++#define TP_SET_HARD_TRANS (0x45) /* Mode can only be set */
++
++
++/*
++ * Register oriented commands/properties
++ */
++#define TP_WRITE_MEM	(0x81)
++#define TP_READ_MEM	(0x80)	/* Not used in this implementation */
++
++/*
++* RAM Locations for properties
++ */
++#define TP_SENS		(0x4A)	/* Sensitivity */
++#define TP_MB 		(0x4C)	/* Read Middle Button Status (RO) */
++#define TP_INERTIA	(0x4D)	/* Negative Inertia */
++#define TP_SPEED	(0x60)	/* Speed of TP Cursor */
++#define TP_REACH	(0x57)	/* Backup for Z-axis press */
++#define TP_DRAGHYS	(0x58)	/* Drag Hysteresis */
++				/* (how hard it is to drag */
++				/* with Z-axis pressed) */
++
++#define TP_MINDRAG	(0x59)	/* Minimum amount of force needed */
++				/* to trigger dragging */
++
++#define TP_THRESH	(0x5C)	/* Minimum value for a Z-axis press */
++#define TP_UP_THRESH	(0x5A)	/* Used to generate a 'click' on Z-axis */
++#define TP_Z_TIME	(0x5E)	/* How sharp of a press */
++#define TP_JENKS_CURV	(0x5D)	/* Minimum curvature for double click */
++
++/*
++ * Toggling Flag bits
++ */
++#define TP_TOGGLE (0x47) /* Toggle command */
++
++#define TP_TOGGLE_MB		(0x23)	/* Disable/Enable Middle Button */
++#define TP_TOGGLE_DRIFT		(0x23)	/* Drift Correction */
++#define TP_TOGGLE_BURST		(0x28)	/* Burst Mode */
++#define TP_TOGGLE_PTSON		(0x2C)	/* Press to Select */
++#define TP_TOGGLE_HARD_TRANS	(0x2C)	/* Alternate method to set Hard
+Transparency */
++#define TP_TOGGLE_TWOHAND	(0x2D)	/* Two handed */
++#define TP_TOGGLE_STICKY_TWO	(0x2D)	/* Sticky two handed */
++#define TP_TOGGLE_SKIPBACK	(0x2D)	/* Suppress movement */
++					/* after drag release */
++#define TP_TOGGLE_EXT_DEV	(0x23)  /* Toggle external device */
++#define TP_TOGGLE_SOURCE_TAG	(0x20)  /* Bit 3 of the first packet
+will be set to
++					   to the origin of the packet (external or TP) */
++
++/*
++ * Various makses for registers 
++ * XOR'd to current contents for new value
++ */
++#define TP_MASK_PTSON		(0x01)
++#define TP_MASK_SKIPBACK	(0x08)
++#define TP_MASK_TWOHAND		(0x01)
++#define TP_MASK_STICKY_TWO	(0x04)
++#define TP_MASK_HARD_TRANS	(0x80)
++#define TP_MASK_BURST		(0x80)
++#define TP_MASK_MB		(0x01)
++#define TP_MASK_DRIFT		(0x80)
++#define TP_MASK_EXT_DEV		(0x02)
++#define TP_MASK_SOURCE_TAG	(0x80)
++
++/* Power on Self Test Results */
++#define TP_POR_SUCCESS		(0x3B)
++
++/*
++ * Default power on values
++ */
++#define TP_DEF_SENS	(0x80)
++#define TP_DEF_INERTIA	(0x06)
++#define TP_DEF_SPEED	(0x61)
++#define TP_DEF_REACH	(0x0A)
++
++#define TP_DEF_DRAGHYS   (0xFF)
++#define TP_DEF_MINDRAG	 (0x14)
++
++#define TP_DEF_THRESH     (0x08)
++#define TP_DEF_UP_THRESH  (0xFF)
++#define TP_DEF_Z_TIME     (0x26)
++#define TP_DEF_JENKS_CURV (0x87)
++
++/* Toggles */
++#define TP_DEF_MB	 (0x00)
++#define TP_DEF_PTSON	 (0x00)
++#define TP_DEF_SKIPBACK  (0x00)
++#define TP_DEF_EXT_DEV   (0x01)
++
++#define MAKE_PS2_CMD(params, results, cmd) ((params<<12) |
+(results<<8) | (cmd))
++
++
++
++struct trackpoint_data
++{
++	unsigned char firmware_id;
++
++	unsigned char sensitivity, speed, inertia, reach;
++	unsigned char draghys, mindrag;
++	unsigned char thresh, upthresh;
++	unsigned char ztime, jenks;
++
++	unsigned char ptson; /* Press to Select */
++	unsigned char twohand, skipback;
++	unsigned char mb;
++
++	unsigned char ext_dev;
++	unsigned char transparent;
++	unsigned char source_tag;
++
++};
++
++extern int trackpoint_init (struct psmouse *psmouse);
++
++#endif /* _TRACKPOINT_H */

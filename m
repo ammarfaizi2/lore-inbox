@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287872AbSABRDI>; Wed, 2 Jan 2002 12:03:08 -0500
+	id <S287881AbSABR2t>; Wed, 2 Jan 2002 12:28:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287870AbSABRC7>; Wed, 2 Jan 2002 12:02:59 -0500
-Received: from bs1.dnx.de ([213.252.143.130]:50664 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S287869AbSABRCs>;
-	Wed, 2 Jan 2002 12:02:48 -0500
-Date: Wed, 2 Jan 2002 17:56:44 +0100 (CET)
-From: Robert Schwebel <robert@schwebel.de>
-X-X-Sender: <robert@callisto.local>
-Reply-To: <robert@schwebel.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        Jason Sodergren <jason@mugwump.taiga.com>,
-        Anders Larsen <anders@alarsen.net>, <rkaiser@sysgo.de>
-Subject: Re: [PATCH][RFC] AMD Elan patch
-In-Reply-To: <E16LnuK-0004ZU-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0201021749070.3056-100000@callisto.local>
+	id <S287887AbSABR2j>; Wed, 2 Jan 2002 12:28:39 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:21921 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S287885AbSABR2b>;
+	Wed, 2 Jan 2002 12:28:31 -0500
+Date: Wed, 2 Jan 2002 18:21:25 +0100 (CET)
+From: Krzysztof Oledzki <ole@ans.pl>
+X-X-Sender: <ole@dark.pcgames.pl>
+To: Brian <hiryuu@envisiongames.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Two hdds on one channel - why so slow?
+In-Reply-To: <0GPA00BK988OBK@mtaout45-01.icomcast.net>
+Message-ID: <Pine.LNX.4.33.0201021808490.9573-100000@dark.pcgames.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Alan Cox wrote:
-> The Elan 410 docs are on the AMD site. Look under embedded processors
 
-I've already searched through all manuals I could find on the AMD site
-(http://www.amd.com/epd/processors/4.32bitcont/13.lan4xxfam/23.lansc410/index.html)
-but couldn't find anything related to the CPUID command...
 
-Robert
---
- +--------------------------------------------------------+
- | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
- | Pengutronix - Linux Solutions for Science and Industry |
- |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
- |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
- +--------------------------------------------------------+
+On Tue, 1 Jan 2002, Brian wrote:
 
+> This is an inherent quirk (SCSI folks would say brain damage) in IDE.
+>
+> Only one drive on an IDE chain may be accessed at once and only one
+> request may go to that drive at a time.  Therefore, the maximum you could
+> hope for in that test is half speed on each.  Throw in the overhead of
+> continuously hopping between them and 12MB is no surprise.
+
+So?!? This ATA100 and ATA133 standards do not make any sens? It is not
+possible to have more than 66 MB/sec with on drive and is seems that it is
+not possible to use more than ~30MB/sek of 100 or 133 MB/sec ATA100/133
+bus speed with two HDDs. Oh :(((
+
+Another question - why ATA100/ATA66 HDDs are so slow with UDMA33?
+With new IBM 60 GB IC35L060AVER07-0 I have much more than 33 MB/sec with
+ATA100 and only 24 MB/sec with UDMA33 (Asus P2B with IntelBX). New 80GB Seagates
+(Baracuda IV) have the same problem.
+
+Best regards,
+
+			Krzysztof Oledzki
 

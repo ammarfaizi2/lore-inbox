@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315611AbSE2WjV>; Wed, 29 May 2002 18:39:21 -0400
+	id <S315606AbSE2Wii>; Wed, 29 May 2002 18:38:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315614AbSE2WjU>; Wed, 29 May 2002 18:39:20 -0400
-Received: from AMontpellier-201-1-3-85.abo.wanadoo.fr ([193.252.1.85]:40421
-	"EHLO awak") by vger.kernel.org with ESMTP id <S315611AbSE2WjS> convert rfc822-to-8bit;
-	Wed, 29 May 2002 18:39:18 -0400
-Subject: Re: 2.4.19-pre7-ac2 USBnet with iPaq freezes host
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1022711350.1087.13.camel@bip>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 May 2002 00:39:16 +0200
-Message-Id: <1022711956.1085.16.camel@bip>
-Mime-Version: 1.0
+	id <S315611AbSE2Wih>; Wed, 29 May 2002 18:38:37 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:10907
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S315606AbSE2Wih>; Wed, 29 May 2002 18:38:37 -0400
+Date: Wed, 29 May 2002 18:38:27 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Paul P Komkoff Jr <i@stingr.net>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.19 - What's up with the kernel build?
+In-Reply-To: <3CF540F8.6000802@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44.0205291827130.23147-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 30/05/2002 à 00:29, Xavier Bestel a écrit :
-> I've compiled-in (i.e. not as a module) usbnet to talk to my ipaq
-> through usb0. It works well, mostly, except that sometimes it lockups my
-> desktop completely (not the pda).
+On Wed, 29 May 2002, Jeff Garzik wrote:
+
+> Well, I really like Keith's kbuild25 too, but Linus said (at least once) 
+> he wanted an evolution to a new build system... not an unreasonable 
+> request to at least consider.  Despite Keith's quality of code (again -- 
+> I like kbuild25), his 3 patch submissions seemed a lot like ultimatums, 
+> very "take it or leave it dammit".  Not the best way to win friends and 
+> influence people.
 > 
-> I got bored today and copied the console message on a shit a paper and
-> retyped it through ksymoops:
-> 
-> wait_on_irq, CPU0
-> irq: 1 [ 0 1 ]
-> bh: 0 [ 0 0 ]
-> stack dumps:
-> cpu 1: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
->        00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
->        00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-> cpu 0: c19d3f54 c02cb45d 00000000 00000000 00000000 c0109e9d c02cb472 c0349e64
->        d5dca000 00000001 c01b854d c0349e64 c19d3fa4 c19d3fe0 c19d2000 d5dca168
->        c0120400 d5dca000 c19d2654 ffffffff d5dca130 c0349e64 c01287f7 c0343900
-> call trace: [<c0109e9d3>] [<c01b854d>] [<c0120400>] [<c01287f7>] [<c0106fd4>]
-> Warning (Oops_read): Code line not seen, dumping what data is available
-> 
-> 
-> Trace; 0000000c0109e9d3 <END_OF_CODE+b106241f4/????>
-> Trace; c01b854d <flush_to_ldisc+d5/11c>
-> Trace; c0120400 <__run_task_queue+60/6c>
-> Trace; c01287f7 <context_thread+137/1d0>
-> Trace; c0106fd4 <kernel_thread+28/38>
+> If Keith is indeed leaving it, I'm hoping someone will maintain it, or 
+> work with Kai to integrate it into 2.5.x.
 
-actually there was a typo:
+When I suggested to Keith he push kbuild25 the way Linus likes, he (Keith) 
+considered that was a "stupid comment" and that he'd ignore stupid comments.
 
-call trace: [<c0109e9d>] [<c01b854d>] [<c0120400>] [<c01287f7>] [<c0106fd4>]
-Warning (Oops_read): Code line not seen, dumping what data is available
+So it looks like someone else will have to volunteer to split kbuild25 into
+multiple small patches and feed them "piecemeal" to Linus before we ever see
+it into the kernel tree.
 
 
-Trace; c0109e9d <__global_cli+bd/124>
-Trace; c01b854d <flush_to_ldisc+d5/11c>
-Trace; c0120400 <__run_task_queue+60/6c>
-Trace; c01287f7 <context_thread+137/1d0>
-Trace; c0106fd4 <kernel_thread+28/38>
-
-And yes, the call trace for CPU1 was empty ...
-
-	Xav
+Nicolas
 

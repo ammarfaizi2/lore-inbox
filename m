@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278976AbRJVVnD>; Mon, 22 Oct 2001 17:43:03 -0400
+	id <S278978AbRJVVpw>; Mon, 22 Oct 2001 17:45:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278964AbRJVVld>; Mon, 22 Oct 2001 17:41:33 -0400
-Received: from waste.org ([209.173.204.2]:23120 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S278965AbRJVVk1>;
-	Mon, 22 Oct 2001 17:40:27 -0400
-Date: Mon, 22 Oct 2001 16:44:14 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Marcelo Roberto Jimenez <mroberto@cetuc.puc-rio.br>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VM
-In-Reply-To: <3032.139.82.28.36.1003786396.squirrel@mamona.cetuc.puc-rio.br>
-Message-ID: <Pine.LNX.4.30.0110221640310.8629-100000@waste.org>
+	id <S278969AbRJVVoO>; Mon, 22 Oct 2001 17:44:14 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:45063 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S278965AbRJVVng>; Mon, 22 Oct 2001 17:43:36 -0400
+Date: Mon, 22 Oct 2001 19:43:58 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Craig Dickson <crdic@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <20011022143715.A18303@crdic.ath.cx>
+Message-ID: <Pine.LNX.4.33L.0110221943290.22127-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, Marcelo Roberto Jimenez wrote:
+On Mon, 22 Oct 2001, Craig Dickson wrote:
 
-> Alan Cox wrote:
-> > > > Too ugly for words.
-> > >
-> > > Though, if it's done from the start of 2.5, it could be very possible.
-> > > Is there a way to make it non-ugly?
-> >
-> > I would hope by then we have a definitive answer as to the best path in
-> > the VM world
->
-> Maybe there's no such answer. Maybe it's undecidable. In the
-> mathematical (Gödel) sense.
+> So are you saying that you don't agree that publishing complete
+> changelogs should be considered an essential duty of the kernel
+> maintainer?
 
-In the event that we're unable to determine which one has the best
-performance in a finite amount of time, the simpler design wins.
-So there will be a decision.
+OK, I'll bite.
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+If publishing changelogs would be illegal in, say, the USA,
+should Linux development be stopped ?
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,79 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131050AbQLNEM5>; Wed, 13 Dec 2000 23:12:57 -0500
+	id <S132334AbQLNEOR>; Wed, 13 Dec 2000 23:14:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132249AbQLNEMs>; Wed, 13 Dec 2000 23:12:48 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13953 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131050AbQLNEMa>;
-	Wed, 13 Dec 2000 23:12:30 -0500
-Date: Wed, 13 Dec 2000 22:42:01 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Lattner <sabre@nondot.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        korbit-cvs@lists.sourceforge.net
-Subject: Re: [Korbit-cvs] Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <Pine.LNX.4.21.0012132113020.24665-100000@www.nondot.org>
-Message-ID: <Pine.GSO.4.21.0012132234280.6300-100000@weyl.math.psu.edu>
+	id <S132249AbQLNEOH>; Wed, 13 Dec 2000 23:14:07 -0500
+Received: from ip252.uni-com.net ([205.198.252.252]:15110 "HELO www.nondot.org")
+	by vger.kernel.org with SMTP id <S132365AbQLNENx>;
+	Wed, 13 Dec 2000 23:13:53 -0500
+Date: Wed, 13 Dec 2000 21:42:35 -0600 (CST)
+From: Chris Lattner <sabre@nondot.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org, korbit-cvs@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <Pine.GSO.4.21.0012132210380.6300-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0012132133190.24718-100000@www.nondot.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> > Err shame on you, don't forget about lcall and exceptions, and interrupts,
+> > and... That is technically more than _o_n_e_ "entry point".  :)  Oh wait,
+> > what about sysenter/exit too? :)
+> OK, you got me on lcall (however, that's iBCS-only, IIRC), but the rest...
+> what the hell does userland to interrupts? <thinks> OK, make it 2 - pagefault
+> can be arguably used in that way.
 
-On Wed, 13 Dec 2000, Chris Lattner wrote:
+The reason that I considered exceptions and interrupts is that often,
+exceptions get reflected as signals to the running processes (SIGSEGV,
+SIGFPE, SIGILL, others?), and interrupts can wake up processes (from
+sys_poll among others).  I was considering more of the user->kernel and
+kernel->user transitions... anyways, that's really besides the point.  :)
 
-> 
-> /me trims down CC list...
-> 
-> > 	Local? Funny. It lives atop of TCP or IL quite fine. What's
-> > even funnier, I can use it to export /proc from CPU server to workstation
-> > and use _that_ for remote debugging. Ditto for window system. Ditto for
-> > DNS. Ditto for plumber. No, not on Linux...
-> 
-> No not on linux.  No definately not on Windows, no not on the BSD's
-> either.  Oops, wasn't interoperability an important part of the Linux
-> kernel design?  Didn't we want to use and follow and define _real_
-> standards? 
+> > this wonderful design we get all kinds of stuff like sys_oldumount vs
+> > sys_umount and others...
+> Check how often anything uses the majority of that stuff...
 
-Erm... 9P stub exists for Linux. It exists for FreeBSD. I suspect that
-it exists for other *BSD too - never checked that.
+Correct, it's for backwards compatibility with old programs (for example
+libc5 uses a lot of those "old" syscalls).  
 
-> > 	What you do is mapping your RPC to hierarchical namespace. After
-> > that... What extensibility do you need? You can use every utility written
-> > for core UNIX API (open()/read()/write()/close()) as a client. No need
-> > to reinvent the wheel...
-> 
-> Heh, that's interesting.  _getting_ the data isn't hard in 9P, actually
-> using it or displaying it in a meaningful way commonly requires something
-> more than cat.  :)
+> > > Yes, standard RPC mechanism would be nice. No, CORBA is not a good
+> candidate - > > too baroque and actually known to lead to extremely
+> tasteless APIs being > > implemented over it. Yes, I mean GNOME. So
 
-Same for any other RPC mechanism.
- 
-> The overriding problem with a simplistic 9P port is that linux kernel
-> functionality is not very well modularized.  In fact, this prevents
-> wonderful CORBA integration as well: An agressive filesystem (for
-> example) often likes to touch the buffer cache or even the VM layer
-> (*cough*) directly.  Some don't use the prescribed interfaces, because
-> nothing enforces it.  9P works wonderfully for Plan9 because they had the
-> luxery of redefining/rewriting the whole OS, and the whole interaction
-> with user space processes.  We, unfortunately, don't have that
-> possibility.  :)
+> Check 9P and compare. Really. Section 5 of Plan 9 manpages. Available on
+> plan-9.bell-labs.com/sys/man/
 
-Notice that they _don't_ export random internal APIs to userland.
- 
-> Please don't get me wrong.  I'm not opposed to other ideas, and 9P may in
-> fact turn out to be a very nice protocol that would be able to support 
-> much kORBit level functionality).  I do maintain that by writing a custom
-> user->kernel marshalling library, you could obtain better peformance than
-> 9P though, because you could take advantage of lots of machine specific
-> optimizations.  Hell you could even pass things in register if you'd have
-> <= 4 args.  :)
+That's fine.  Since the server is down (or the URL is bad), can you please
+give me an example of how 9P is better than CORBA?  I freely admit to not
+knowing much about 9P... how much do you know about CORBA (aside from
+your opinion that GNOME uses it, and therefore it is bad. ;)?
 
-You mentioned OOP, didn't you? Encapsulation is a good thing and what you
-are talking about is "layering violations made Real Easy(tm)".
+> > without breaking backwards compatibility).  Please don't tell me that OOP
+> > is bad... or else we will have the eviscerate the VFS layer from the
+> > kernel (amount other subsystems)... :)
 
-I simply don't see why _that_ is a good goal.
+> OOP is a nice tool. However, it's a tool that has incredible potential of
+> shooting one's foot. It's wonderful if you have sane set of methods. And
+> that's a _big_ if. "Easily extensible" is not an absolutely good thing -
+> C++ wankers all over the world are busily proving it every day. Heck, they
+> make a living out of that. IOW, the problem with interface changes is _not_
+> in converting the old code. It's in choosing the right changes. And that
+> part of the game can't be simplified.
+
+Oif.  That's like telling someone that C is evil because it has for loops,
+and for loops can be used to write nasty code.  "just write in
+assembler" he says.  :)  I would claim that someone could write a bad
+program (or shoot themselves in the foot) with any turing complete
+language.  C++ definately give you more rope to do that with, but used
+wisely, it can also be nice.  The trick is to just not have to work with
+other peoples C++ code.  :)  Hey, did I mention that kORBit and all its
+extensions are written in C? :)
+
+> > Like I mentioned in a previous email, CORBA does not preclude 9P.  What
+> > it does buy you though, is compatibility with LOTS of preexisting CORBA
+> > tools.  How much development infrastructure is there for 9P?  I thought
+> > so.  :)
+
+> All UNIX userland on the client side. lib9p on the server side (23Kb of sparse
+> C). Examples of use in servers - see the aforementioned site.
+
+Err... yeah, so you're effectively mapping UNIX/POSIX across 9P.  That's
+not very creative, and you could do the same thing with CORBA.  I ask
+again, "How much development infrastructure is there for 9P?".  If you say
+"just use unix", then what is the point of 9P at all?  (on linux).  Linux
+already has most of posix (and some would claim all of the "good
+stuff" in posix.).
+
+> > For one of our demos, we ran a file server on a remote linux box (that we 
+> > just had a user account on), mounted it on a kORBit'ized box, and ran
+> > programs on SPARC Solaris that accessed the kORBit'ized linux box's file
+> > syscalls.  If nothing else, it's pretty nifty what you can do in little
+> > code...
+> Duh. And what's new about that?
+
+The "new" part is that our servers were < 100 lines of code each.  Compare
+that to kNFS.  :)
+
+-Chris
+
+http://www.nondot.org/~sabre/os/
+http://www.nondot.org/MagicStats/
+http://korbit.sourceforge.net/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

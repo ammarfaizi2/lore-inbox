@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269183AbUJKSl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269003AbUJKSqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269183AbUJKSl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 14:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269003AbUJKSl0
+	id S269003AbUJKSqu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 14:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269173AbUJKSqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 14:41:26 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:55251 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S269191AbUJKSko
+	Mon, 11 Oct 2004 14:46:50 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:47514 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S269003AbUJKSoD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 14:40:44 -0400
-Message-ID: <416AD39D.2000306@ens-lyon.fr>
-Date: Mon, 11 Oct 2004 20:40:29 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-Reply-To: Brice.Goglin@ens-lyon.org
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
+	Mon, 11 Oct 2004 14:44:03 -0400
+Message-ID: <416AD472.5050909@free.fr>
+Date: Mon, 11 Oct 2004 20:44:02 +0200
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: suspend-to-RAM [was Re: Totally broken PCI PM calls]
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org> <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102102140.3897@ppc970.osdl.org> <16746.2820.352047.970214@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410110739150.3897@ppc970.osdl.org> <20041011145628.GA2672@elf.ucw.cz> <416AAC5F.7020109@ens-lyon.fr> <20041011161718.GA1045@elf.ucw.cz> <416ABE31.3040004@ens-lyon.fr> <20041011182309.GD1007@elf.ucw.cz>
-In-Reply-To: <20041011182309.GD1007@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: bttv maintainers
+Content-Type: multipart/mixed;
+ boundary="------------070602020305040108050504"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>* S1 seems to work.
->>* S3 is so buggy: suspend still seem to complete. Pushing the power 
->>button to resume doesn't shutdown the machine anymore: the laptop wakes 
->>up but doesn't write or do anything. I'm only able to stop it by 
->>pressing the power button.
-> 
-> 
-> Hmm, and is the linux alive (like capslock works?) or do you need
-> hard poweroff?
-> 								Pavel
+This is a multi-part message in MIME format.
+--------------070602020305040108050504
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hard poweroff only. capslock doesn't work.
+Hi the email adress in MAINTAINERS is right ?
+I send 3 mail to kraxel@bytesex.org but I have no reply (the first one 
+was send 5 day ago).
 
-	Thanks
-	Brice
+The fist to problem irq fixes and fix read pb seem to the solve in cvs.
+The last one explain a bug describe here : 
+http://sourceforge.net/forum/forum.php?thread_id=1156319&forum_id=217872
+
+I attach the patch that solve the problem.
+
+Signed-Off-By: Matthieu Castet <castet.matthieu@free.fr>
+
+--------------070602020305040108050504
+Content-Type: text/plain;
+ name="t"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="t"
+
+LS0tIGxpbnV4LTIuNi44LjEvZHJpdmVycy9tZWRpYS92aWRlby9idHR2LWRyaXZlci5jb2xk
+CTIwMDQtMTAtMDkgMjE6MTc6MzQuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYuOC4x
+L2RyaXZlcnMvbWVkaWEvdmlkZW8vYnR0di1kcml2ZXIuYwkyMDA0LTEwLTA5IDIxOjIwOjQy
+LjAwMDAwMDAwMCArMDIwMApAQCAtMTU2OCw2ICsxNTY4LDcgQEAKIAkJCXJldHVybiAwOwog
+CQl9CiAKKwkJYnR0dl9jYWxsX2kyY19jbGllbnRzKGJ0dixjbWQsdik7CiAJCWJ0di0+dHZu
+b3JtID0gdi0+bm9ybTsKIAkJc2V0X2lucHV0KGJ0dix2LT5jaGFubmVsKTsKIAkJdXAoJmJ0
+di0+bG9jayk7Cg==
+--------------070602020305040108050504--

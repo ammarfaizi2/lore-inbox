@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264853AbRGITk4>; Mon, 9 Jul 2001 15:40:56 -0400
+	id <S264846AbRGITjQ>; Mon, 9 Jul 2001 15:39:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264872AbRGITkq>; Mon, 9 Jul 2001 15:40:46 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:687 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264856AbRGITkh>;
-	Mon, 9 Jul 2001 15:40:37 -0400
-Date: Mon, 9 Jul 2001 12:39:36 -0700
-From: Jonathan Lahr <lahr@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: io_request_lock patch?
-Message-ID: <20010709123936.E6013@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-X-Operating-System: Linux 2.0.32 on an i486
+	id <S264853AbRGITjG>; Mon, 9 Jul 2001 15:39:06 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:7040 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S264846AbRGITi7>; Mon, 9 Jul 2001 15:38:59 -0400
+Date: Mon, 9 Jul 2001 15:25:50 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ketil Froyn <ketil@froyn.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 0k shared?
+In-Reply-To: <Pine.LNX.4.33.0107091622510.1031-100000@ketil.np>
+Message-ID: <Pine.LNX.3.95.1010709151914.1001A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 9 Jul 2001, Ketil Froyn wrote:
 
-I have heard that a patch to reduce io_request_lock contention by
-breaking it into per queue locks was released in the past.  Does 
-anyone know where I could find this patch if it exists?
+> Hi.
+> 
+> This may be a stupid question, but I found this strange. In making a small
+> benchmarking utility, I made the following directory structure by mistake:
+> a/a/a/a/a/a/a/a/a/a/.....
+> 
+> By ..... I mean this goes on and on, there were around 18 thousand
+> directories inward like this. A great example of the damage a bug in a
+> recursive program can do ;) Anyway, I've removed it now (btw, rm -rf on
+> this sigsegved :D).
+> 
+> And now for the question. My /proc/meminfo looks like this:
+[SNIPPED]
 
-Thanks,
-Jonathan
+Not related. Somebody decided that it was too expensive to
+keep track of shared memory usage so this field has been blank
+for some time now.
 
--- 
-Jonathan Lahr
-IBM Linux Technology Center
-Beaverton, Oregon
-lahr@us.ibm.com
-503-578-3385
+Of course, the shared memory usage could be calculated by
+the task that accesses the /proc file-system so the reason
+cited above could go away. The cost would be that it wastes
+a whole page of memory, but memory is plentiful now-a-days.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,155 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265746AbSKAVCZ>; Fri, 1 Nov 2002 16:02:25 -0500
+	id <S265745AbSKAVK7>; Fri, 1 Nov 2002 16:10:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265747AbSKAVCZ>; Fri, 1 Nov 2002 16:02:25 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:1554 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S265746AbSKAVCX>;
-	Fri, 1 Nov 2002 16:02:23 -0500
-Date: Fri, 1 Nov 2002 21:10:14 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S265748AbSKAVK7>; Fri, 1 Nov 2002 16:10:59 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:28157 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S265745AbSKAVK5>;
+	Fri, 1 Nov 2002 16:10:57 -0500
+Date: Fri, 1 Nov 2002 16:17:22 -0500
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] aic7xxx/docbook Makefile fixes
-Message-ID: <20021101201014.GA1937@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5: ewrk3 cli/sti removal by VDA
+Message-ID: <20021101211722.GA26253@www.kroptech.com>
+References: <20021019021340.GA8388@www.kroptech.com> <3DB49D81.6000607@pobox.com> <20021022020932.GA13818@www.kroptech.com> <3DB9C970.3010305@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <3DB9C970.3010305@pobox.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixes to aic7xxx:
-- Get rid of clean-rule
-- Fix firmware build
+On Fri, Oct 25, 2002 at 06:45:04PM -0400, Jeff Garzik wrote:
+> Adam Kropelin wrote:
+> >			spin_unlock_irqrestore(&lp->hw_lock, flags);
+> >-			ret = delay;
+> >-			__wait_event_interruptible_timeout(wait, 0, ret);
+> >+			set_current_state(TASK_INTERRUPTIBLE);
+> >+			ret = schedule_timeout(HZ>>2);
+> 
+> close -- if schedule_timeout() returns greater than zero, that number is 
+> the remaining jiffies that schedule_timeout _should_ have slept, but did 
+> not.  Ideally you need to call it in a loop, that decrements a variable 
+> based on schedule_timeout return code.
 
-Fixes to docbook:
-- Make the *docs target work againg after Rules.make got lethal
-- Fix cleaning when htmldocs has been executed
+Try this one on for size...
 
-Please apply,
-	Sam
+--Adam
 
 
- drivers/scsi/aic7xxx/Makefile        |    9 +++------
- drivers/scsi/aic7xxx/aicasm/Makefile |    7 +++----
- 2 files changed, 6 insertions(+), 10 deletions(-)
-
- Documentation/DocBook/Makefile |    6 ++----
- Makefile                       |    2 +-
- 2 files changed, 3 insertions(+), 5 deletions(-)
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.855   -> 1.856  
-#	drivers/scsi/aic7xxx/aicasm/Makefile	1.5     -> 1.6    
-#	drivers/scsi/aic7xxx/Makefile	1.14    -> 1.15   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/31	sam@mars.ravnborg.org	1.856
-# scsi/aic7xxx: Avoid clean-rule usage in Makefile
-# --------------------------------------------
-#
-diff -Nru a/drivers/scsi/aic7xxx/Makefile b/drivers/scsi/aic7xxx/Makefile
---- a/drivers/scsi/aic7xxx/Makefile	Fri Nov  1 21:04:53 2002
-+++ b/drivers/scsi/aic7xxx/Makefile	Fri Nov  1 21:04:53 2002
-@@ -1,6 +1,8 @@
- #
- # Makefile for the Linux aic7xxx SCSI driver.
- #
-+# Let kbuild descend into aicasm when cleaning
-+subdir-				+= aicasm
+--- linux-2.5.45-virgin/drivers/net/ewrk3.c	Wed Oct 30 22:55:10 2002
++++ linux-2.5.45/drivers/net/ewrk3.c	Fri Nov  1 17:15:13 2002
+@@ -1759,23 +1759,18 @@
+ 		return 0;
+ 	}
  
- obj-$(CONFIG_SCSI_AIC7XXX)	+= aic7xxx.o
- 
-@@ -23,11 +25,6 @@
- # Files generated that shall be removed upon make clean
- clean-files := aic7xxx_seq.h aic7xxx_reg.h
- 
--# Command to be executed upon make clean
--clean-rule := $(MAKE) -C $(src)/aicasm clean
+-#ifdef BROKEN
+ 	/* Blink LED for identification */
+ 	case ETHTOOL_PHYS_ID: {
+ 		struct ethtool_value edata;
+ 		u_long flags;
+-		long delay, ret;
++		long ret=0;
+ 		u_char cr;
+ 		int count;
+-		wait_queue_head_t wait;
 -
--include $(TOPDIR)/Rules.make
--
- # Dependencies for generated files need to be listed explicitly
+-		init_waitqueue_head(&wait);
  
- $(obj)/aic7xxx_core.o: $(obj)/aic7xxx_seq.h
-@@ -41,7 +38,7 @@
- 	$(obj)/aicasm/aicasm -I$(obj) -r $(obj)/aic7xxx_reg.h \
- 				 -o $(obj)/aic7xxx_seq.h $(src)/aic7xxx.seq
+ 		if (copy_from_user(&edata, useraddr, sizeof(edata)))
+ 			return -EFAULT;
  
--$(obj)/aic7xxx_reg.h: $(obj)/aix7xxx_seq.h
-+$(obj)/aic7xxx_reg.h: $(obj)/aic7xxx_seq.h
+ 		/* Toggle LED 4x per second */
+-		delay = HZ >> 2;
+ 		count = edata.data << 2;
  
- $(obj)/aicasm/aicasm: $(src)/aicasm/*.[chyl]
- 	$(MAKE) -C $(src)/aicasm
-diff -Nru a/drivers/scsi/aic7xxx/aicasm/Makefile b/drivers/scsi/aic7xxx/aicasm/Makefile
---- a/drivers/scsi/aic7xxx/aicasm/Makefile	Fri Nov  1 21:04:53 2002
-+++ b/drivers/scsi/aic7xxx/aicasm/Makefile	Fri Nov  1 21:04:53 2002
-@@ -7,7 +7,9 @@
- GENHDRS= y.tab.h aicdb.h
+ 		spin_lock_irqsave(&lp->hw_lock, flags);
+@@ -1796,24 +1791,24 @@
  
- SRCS=	${GENSRCS} ${CSRCS}
--CLEANFILES= ${GENSRCS} ${GENHDRS} y.output
-+
-+# Cleaned up by make clean
-+clean-files := $(GENSRCS) $(GENHDRS) y.output $(PROG)
- # Override default kernel CFLAGS.  This is a userland app.
- AICASM_CFLAGS:= -I/usr/include -I. -ldb
- YFLAGS= -d
-@@ -41,9 +43,6 @@
- 	 else							\
- 		echo "*** Install db development libraries";	\
- 	 fi
--
--clean:
--	@rm -f $(CLEANFILES) $(PROG)
+ 			/* Wait a little while */
+ 			spin_unlock_irqrestore(&lp->hw_lock, flags);
+-			ret = delay;
+-			__wait_event_interruptible_timeout(wait, 0, ret);
++			ret = HZ>>2;
++			while(ret && !signal_pending(current)) {
++				set_current_state(TASK_INTERRUPTIBLE);
++				ret = schedule_timeout(ret);
++			}
+ 			spin_lock_irqsave(&lp->hw_lock, flags);
  
- y.tab.h aicasm_gram.c: aicasm_gram.y
- 	$(YACC) $(YFLAGS) aicasm_gram.y
+ 			/* Exit if we got a signal */
+-			if (ret == -ERESTARTSYS)
+-				goto out;
++			if (ret)
++				break;
+ 		}
+ 
+-		ret = 0;
+-out:
+ 		lp->led_mask = CR_LED;
+ 		cr = inb(EWRK3_CR);
+ 		outb(cr & ~CR_LED, EWRK3_CR);
+ 		spin_unlock_irqrestore(&lp->hw_lock, flags);
+-		return ret;
++		return ret ? -ERESTARTSYS : 0;
+ 	}
+-#endif /* BROKEN */
+ 
+ 	}
+ 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.856   -> 1.857  
-#	            Makefile	1.337   -> 1.338  
-#	Documentation/DocBook/Makefile	1.36    -> 1.37   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/31	sam@mars.ravnborg.org	1.857
-# docbook: *docs targets fixed, make clean works for docbook again
-# --------------------------------------------
-#
-diff -Nru a/Documentation/DocBook/Makefile b/Documentation/DocBook/Makefile
---- a/Documentation/DocBook/Makefile	Fri Nov  1 21:05:12 2002
-+++ b/Documentation/DocBook/Makefile	Fri Nov  1 21:05:12 2002
-@@ -160,8 +160,6 @@
- 	$(patsubst %.fig,%.png, $(IMG-parportbook)) \
- 	$(C-procfs-example)
- 
--ifneq ($(wildcard $(BOOKS)),)
--clean-rule := rm -rf $(wildcard $(BOOKS))
-+ifneq ($(wildcard $(patsubst %.html,%,$(HTML))),)
-+clean-rule := rm -rf $(wildcard $(patsubst %.html,%,$(HTML)))
- endif
--
--include $(TOPDIR)/Rules.make
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	Fri Nov  1 21:05:12 2002
-+++ b/Makefile	Fri Nov  1 21:05:12 2002
-@@ -798,7 +798,7 @@
- # Documentation targets
- # ---------------------------------------------------------------------------
- sgmldocs psdocs pdfdocs htmldocs: scripts
--	$(Q)$(MAKE) -f Documentation/DocBook/Makefile $@
-+	$(Q)$(MAKE) -f scripts/Makefile.build obj=Documentation/DocBook $@
- 
- # Scripts to check various things for consistency
- # ---------------------------------------------------------------------------

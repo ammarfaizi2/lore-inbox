@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131328AbRBNLVU>; Wed, 14 Feb 2001 06:21:20 -0500
+	id <S129055AbRBNMCp>; Wed, 14 Feb 2001 07:02:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131116AbRBNLVK>; Wed, 14 Feb 2001 06:21:10 -0500
-Received: from theirongiant.weebeastie.net ([203.62.148.50]:3083 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S131587AbRBNLVA>; Wed, 14 Feb 2001 06:21:00 -0500
-Date: Wed, 14 Feb 2001 21:43:57 +1100
-From: CaT <cat@zip.com.au>
-To: Andriy Korud <akorud@polynet.lviv.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EEpro100 bug in 2.2.18
-Message-ID: <20010214214356.C384@zip.com.au>
-In-Reply-To: <118235361582.20010214101920@polynet.lviv.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <118235361582.20010214101920@polynet.lviv.ua>; from akorud@polynet.lviv.ua on Wed, Feb 14, 2001 at 10:19:20AM +0200
-Organisation: Furball Inc.
+	id <S132013AbRBNMCZ>; Wed, 14 Feb 2001 07:02:25 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:25614 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129055AbRBNMCT>; Wed, 14 Feb 2001 07:02:19 -0500
+Date: Wed, 14 Feb 2001 08:12:47 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: NIIBE Yutaka <gniibe@m17n.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] swapin flush cache bug
+In-Reply-To: <200102140208.LAA18226@mule.m17n.org>
+Message-ID: <Pine.LNX.4.21.0102140510240.30964-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 14, 2001 at 10:19:20AM +0200, Andriy Korud wrote:
-> Hello all,
-> My setup is Intel 440GX MB with intergrated EEPro100.
-> When using Linux 2.2.18 the following happen: after reboot, I got:
->      eepro100: cmd_wait for (0xffffff90) timedout with (0xffffff90)!
 
-I reported the same hassle a while back. A patch was suggested and am
-using it now. It's in the thread titled 'eepro100 + 2.2.18 + laptop problems'.
+On Wed, 14 Feb 2001, NIIBE Yutaka wrote:
 
-> After power cycle, first boot works fine and all following boots (without
-> power off) - see above. Very seldom (I've noticed this 2 times during
-> 2 monthes) this happen during normal operation.
+> Alan Cox wrote:
+>  > Ok we need to handle that case a bit more intelligently so those flushes dont
+>  > get into other ports code paths. 
+> 
+> Possibly at fs/buffer.c:end_buffer_io_async?
+> 
+> We need to flush the cache when I/O was READ or READA.
 
-I jsut take the interface down and up and eventually it goes ok. It
-doesn't happen all the time either.
+Yet another thing (1) on end_buffer_io_async() to handle a case which is
+only true for a specific user of it. Since the other special case handling
+is for swap IO too, I think a separate IO end operation for swap would be
+interesting.
 
--- 
-CaT (cat@zip.com.au)		*** Jenna has joined the channel.
-				<cat> speaking of mental giants..
-				<Jenna> me, a giant, bullshit
-				<Jenna> And i'm not mental
-					- An IRC session, 20/12/2000
+(1) The current one is SetPageDecrAfter handling.
+
+> Is there any way for end_buffer_io_async to distinguish which I/O (READ or WRITE)
+> has been done?
+
+Yes. If the buffer_head is uptodated (BH_Uptodate) then its a WRITE,
+otherwise its a READ (this is only true before mark_buffer_uptodate() call
+inside end_buffer_io_async(), of course). 
 

@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282360AbRK2Gb5>; Thu, 29 Nov 2001 01:31:57 -0500
+	id <S282379AbRK2GZg>; Thu, 29 Nov 2001 01:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282357AbRK2Gbr>; Thu, 29 Nov 2001 01:31:47 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:30985 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S282290AbRK2Gbc>; Thu, 29 Nov 2001 01:31:32 -0500
-Message-ID: <3C05D608.6D06190D@zip.com.au>
-Date: Wed, 28 Nov 2001 22:30:32 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Nathan G. Grennan" <ngrennan@okcforum.org>
+	id <S282380AbRK2GZ1>; Thu, 29 Nov 2001 01:25:27 -0500
+Received: from dandelion.com ([198.186.200.2]:64784 "EHLO dandelion.com")
+	by vger.kernel.org with ESMTP id <S282379AbRK2GZI>;
+	Thu, 29 Nov 2001 01:25:08 -0500
+Date: Wed, 28 Nov 2001 22:15:57 -0800
+Message-Id: <200111290615.fAT6Fv1l020712@dandelion.com>
+From: "Leonard N. Zubkoff" <lnz@dandelion.com>
+To: pascal.lengard@wanadoo.fr
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Unresponiveness of 2.4.16 revisited
-In-Reply-To: <1006928344.2613.2.camel@cygnusx-1.okcforum.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.33.0111281425090.11410-100000@h2o.chezmoi.fr>
+	(message from Pascal Lengard on Wed, 28 Nov 2001 15:19:38 +0100 (CET))
+Subject: Re: dac960 broken ?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Nathan G. Grennan" wrote:
-> 
-> Well I tried your patch Andrew. It seemed to have absolutely no effect
-> on my problem. I used the am-response.patch someone posted the url to
-> eariler in the first thread, which was just a file of your patch. I
-> really suggest you try a mozilla source rpm. Not only does it do the
-> unarchiving, but also patches and rm -rf. I often see a second pause
-> during the patching after the unarchving. I use
-> 
-> rpm --rebuild mozilla-2001112602_trunk-0_rh7.src.rpm
-> 
-> I also tried Redhat's latest rawhide kernel, 2.4.16-0.1 and it had to
-> had time same problem. So it isn't fixed by one of their patchs. It is
-> most likely just a difference between Linus's 2.4.9 and 2.4.16.
+  Date: Wed, 28 Nov 2001 15:19:38 +0100 (CET)
+  From: Pascal Lengard <pascal.lengard@wanadoo.fr>
 
-Nathan,
+  Hello,
 
-I can reproduce the 30 second stall on ext3.  It is due to
-ext3's journalling of atime updates.  Even though everything
-is in cache, running an application requires a write to the
-inode.  If there's a lot of write activity going on, this can
-occasionally cause the seemingly-read-only caller to get stuck
-on the queue behind a huge amount of writes.  So of course the
-read-latency improvements don't help.
+  I have several "servers" using old mylex DAC960P scsi raid adapter.
+  So I though clever to install redhat 7.2 on them ...
 
-The 2.2 kernel's version of ext3 didn't journal atime updates,
-and this may be a reason for going back to that scheme.  Needs
-thought and more testing.
+  redhat 7.2 does install and run well with the 2.4.7-10 kernel from the
+  distribution, but when I try upgrading to 2.4.9-13 (via rpm) it does not boot, 
+  there is a problem with resolving ext3fs symbols ... this is more a RedHat
+  problem, but read on :-)
 
-However I can't reproduce the stalls on ext2, and I would expect
-the 2.4.9 kernel's ext3 to be demonstrating the same stalls.
+  I choosed to compile a customized kernel with only what I need inside kernel
+  (ext3fs, dac960, ..) plus some modules I might need some day.
 
-Could you please confirm that the stalls happen with ext2 as well,
-and could you please test ext2 and ext3 with the `noatime' mount
-option?
+  I tried compiling 2.4.14 => my mylex card is not detected !
+	  (driver dac960 version 2.4.11 from 11 october 2001)
+  I tried with 2.4.9-13 from redhat => same problem
+	  (driver dac960 version 2.4.10 from 23 july 2001)
+  I tried custom 2.4.7-10 from redhat => works like a charm
+	  (driver dac960 version 2.4.10 from 1 february 2001)
+  all these kernels were compiled with the same .config (make oldconfig)
 
-Thanks.
+  hardware used:
+	  DAC960P-2,  D040351-0-IBM REV.E firmware 3.51-0-04
+
+  detected like this by kernel 2.4.7-10:
+  DAC960: ***** DAC960 RAID Driver Version 2.4.10 of 1 February 2001 *****
+  DAC960: Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
+  DAC960#0: Configuring Mylex DAC960PD PCI RAID Controller
+  DAC960#0:   Firmware Version: 3.51-0-04, Channels: 2, Memory Size: 4MB
+  DAC960#0:   PCI Bus: 1, Device: 10, Function: 0, I/O Address: 0x6200
+  DAC960#0:   PCI Address: 0xBF800C00 mapped at 0xC482DC00, IRQ Channel: 11
+  DAC960#0:   Controller Queue Depth: 64, Maximum Blocks per Command: 128
+  DAC960#0:   Driver Queue Depth: 63, Scatter/Gather Limit: 17 of 17 Segments
+  DAC960#0:   Stripe Size: 64KB, Segment Size: 8KB, BIOS Geometry: 128/32
+
+
+  I am insterested in any clue, since I am stuck to 2.4.7 for now ...
+  linux-kernel readers, please cc me on replies since I am not subscribed
+  to the list.
+
+  Pascal Lengard
+
+Hmmm.  Nothing you've described makes any sense to me as I don't believe the
+driver has changed in a way that would break the basic detection of the boards.
+When you say that the card is not detected, precisely what do you mean?  Does
+the driver report anything at all?
+
+		Leonard

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264718AbTE1Mvq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 08:51:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264719AbTE1Mvq
+	id S264712AbTE1MuX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 08:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264713AbTE1MuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 08:51:46 -0400
-Received: from trinity.spray.se ([212.78.193.150]:18636 "EHLO trinity.spray.se")
-	by vger.kernel.org with ESMTP id S264718AbTE1Mva (ORCPT
+	Wed, 28 May 2003 08:50:22 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:49577 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S264712AbTE1MuS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 08:51:30 -0400
-Message-ID: <3ED4B42D.4040204@telia.com>
-Date: Wed, 28 May 2003 15:05:49 +0200
-From: Jakob Kemi <jakob.kemi@telia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: sv
+	Wed, 28 May 2003 08:50:18 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.21-rc4
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 28 May 2003 01:42:02 +0200
+Message-ID: <m3brxokldh.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.70 damaged my nvidia card?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please CC me as I'm not subscribed.)
+Compiled with RH 3.2.2 gcc - could I help by providing patches?
 
-Hi,
-
-I have an VIA KT333 + Athlon box with an old, noname AGP GeForce 400 MX 
-card.
-Upon first booting 2.5.70 i noticed heavy screen flicker. (never seen 
-with 2.4.x or 2.5.x < 2.5.70) it behaved nice once in X, upon the next 
-reboot i did some work in the console (X not started). Still lots of 
-flickering and a misplaced text cursor in text-mode. So i decided to go 
-back to my old 2.4 kernel but was unable to boot since my BIOS no longer 
-recognizes my graphics card.
-When I run the box with an old PCI card as my primary adapter and the 
-AGP geforce card as secondary the Geforce card doesnt seem to run it's 
-VGA BIOS (no boot message). X also refuses to detect the Geforce card. 
-Is it possible that the new console layer or the new agp gart code or 
-whatever in 2.5.70 poked in the wrong registers and replaced the BIOS 
-flash rom on the GeForce with garbage?
-Of course it could very well be something else, but the fact that it 
-happened _exactly_ when I switched kernel makes me suspicious.
-Some googling reveals that the screen might flicker during flashing of 
-the graphics BIOS on geforce cards. Unfortunately since I don't know the 
-brand of my card I can't try to replace it's bios.
-I should also add that the 2.5.70 build was without framebuffer and that 
-other AGP graphic adapters still works in my computer and that my 
-Geforce card also doesn't work in other machines.
-
-Any ideas? How much does the kernel poke with the graphic card?
-
-	/ Jakob Kemi
-
+intrepid:/usr/src/linux-2.4$ make bzImage modules
+md5sum: WARNING: 1 of 13 computed checksums did NOT match
+sm_osl.c: In function `sm_osl_suspend':
+sm_osl.c:671: warning: unused variable `wakeup_address'
+generic.h:138: warning: `unknown_chipset' defined but not used
+make[3]: Circular /usr/src/linux-2.4/include/linux/netfilter_ipv4/ip_conntrack_helper.h <- /usr/src/linux-2.4/include/linux/netfilter_ipv4/ip_conntrack.h dependency dropped.
+ip_nat_helper.c: In function `ip_nat_resize_packet':
+ip_nat_helper.c:87: warning: unused variable `data'
+ip_nat_helper.c: In function `ip_nat_helper_register':
+ip_nat_helper.c:493: warning: concatenation of string literals with __FUNCTION__ is deprecated
+ip_nat_helper.c: In function `ip_nat_helper_unregister':
+ip_nat_helper.c:577: warning: concatenation of string literals with __FUNCTION__ is deprecated
+time.c:433: warning: `do_gettimeoffset_cyclone' defined but not used
+dmi_scan.c: In function `dmi_decode':
+dmi_scan.c:832: warning: unused variable `data'
+agpgart_be.c: In function `agp_generic_create_gatt_table':
+agpgart_be.c:580: warning: assignment from incompatible pointer type
+balloc.c: In function `ext2_new_block':
+balloc.c:524: warning: long unsigned int format, int arg (arg 4)
+-- 
+Krzysztof Halasa
+Network Administrator

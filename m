@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262855AbVCDM0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262880AbVCDM2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262855AbVCDM0R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 07:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbVCDMWl
+	id S262880AbVCDM2h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 07:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbVCDM13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 07:22:41 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:47597 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262900AbVCDMM4
+	Fri, 4 Mar 2005 07:27:29 -0500
+Received: from smartmx-02.inode.at ([213.229.60.34]:64177 "EHLO
+	smartmx-02.inode.at") by vger.kernel.org with ESMTP id S262905AbVCDMXq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 07:12:56 -0500
-Date: Fri, 4 Mar 2005 13:10:50 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
-       Rene Rebe <rene@exactcode.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
-Message-ID: <20050304121050.GA26879@electric-eye.fr.zoreil.com>
-References: <422751D9.2060603@exactcode.de> <422756DC.6000405@pobox.com> <20050303191840.GA12916@kroah.com> <42276A0C.9080505@pobox.com> <20050303200718.GR28536@shell0.pdx.osdl.net> <20050303203206.GB13522@kroah.com> <42277A3D.9030805@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42277A3D.9030805@pobox.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Fri, 4 Mar 2005 07:23:46 -0500
+Message-ID: <42285354.5090900@inode.info>
+Date: Fri, 04 Mar 2005 13:23:48 +0100
+From: Richard Fuchs <richard.fuchs@inode.info>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: slab corruption in skb allocs
+References: <42283093.7040405@inode.info> <20050304035309.1da7774e.akpm@osdl.org>
+In-Reply-To: <20050304035309.1da7774e.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> :
-> Greg KH wrote:
-[...]
-> >An alias would probably be easier, unless you think everything sent
-> >there should be archived?
+Andrew Morton wrote:
+
+> I guess it could be hardware.  But given that disabling DMA _causes_ the
+> problem, rather than fixes it, it seems unlikely.
 > 
-> I do.  But I don't have a strong opinion on the subject.
+> Could you enable CONFIG_DEBUG_PAGEALLOC in .config and see it that triggers
+> an oops?
 
-A bk-commit mailing-list would be nice.
+by now, i could reproduce this on two different machines with quite 
+different hardware, while a third doesn't seem to show those symptoms. 
+on the second machine, i got the corruption errors from the slab 
+debugger mostly from the disk access alone, the network traffic was only 
+minimal (but still present). i was doing write operations on the hdd in 
+this test.
 
---
-Ueimor
+kernel 2.6.7 doesn't show this behavior, while all kernels from 2.6.9 
+and up do. (i didn't test 2.6.8.x).
+
+as for DEBUG_PAGEALLOC... when i enable this option, the errors from 
+DEBUG_SLAB magically disappear. however, my ssh session got disconnected 
+once while doing the disk access with the message:
+
+Received disconnect from 195.58.172.154: 2: Bad packet length 4239103034.
+
+never seen this before and not sure if this has anything to do with it...
+
+cheers
+richard

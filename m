@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264325AbTLPEKj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 23:10:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbTLPEKj
+	id S264343AbTLPEO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 23:14:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTLPEO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 23:10:39 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:18912 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S264325AbTLPEKi
+	Mon, 15 Dec 2003 23:14:26 -0500
+Received: from smtp-relay.dca.net ([216.158.48.66]:2495 "EHLO
+	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S264343AbTLPEOX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 23:10:38 -0500
-Date: Mon, 15 Dec 2003 20:10:17 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: edjard@ufam.edu.br, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Calculating total slab memory on 2.2/2.0 (was: More questions about 2.6 /proc/meminfo was: (Mem: and Swap: lines in /proc/meminfo))
-Message-ID: <20031216041017.GE1769@matchmail.com>
-Mail-Followup-To: edjard@ufam.edu.br, Rik van Riel <riel@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <20031214014429.GB1769@matchmail.com> <Pine.LNX.4.44.0312141915550.26386-100000@chimarrao.boston.redhat.com> <20031215185701.GC1769@matchmail.com> <33772.200.212.156.130.1071517210.squirrel@webmail.ufam.edu.br> <20031215215717.GD1769@matchmail.com>
+	Mon, 15 Dec 2003 23:14:23 -0500
+Date: Mon, 15 Dec 2003 23:03:33 -0500
+From: "Mark M. Hoffman" <mhoffman@lightlink.com>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Sensors <sensors@Stimpy.netroedge.com>
+Subject: Re: [PATCH 2.6] sensors chip updates (3 of 4)
+Message-ID: <20031216040333.GD1658@earth.solarsys.private>
+References: <20031216035219.GA1658@earth.solarsys.private>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031215215717.GD1769@matchmail.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031216035219.GA1658@earth.solarsys.private>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.4 with slabinfo format version 1.1, I can sum up the total pages used
-for all slab caches, but the number of pages used is not in the 1.0 format
-(in the 2.2 kernel).
 
-Is there a way to get the total amount of slab cache memory used in a 2.2
-kernel from userspace?
+This patch is from the lm_sensors project CVS, from this revision:
 
-Same question for a 2.0 kernel too. :)
+	1.44 (mds) remove initialization of limits by driver
 
-Thanks,
+It is better to set these limits by a combination of /etc/sensors.conf
+and 'sensors -s'; "mechanism not policy." 
 
-Mike
+--- linux-2.6.0-test11-gkh/drivers/i2c/chips/lm75.c	2003-12-14 13:53:50.000000000 -0500
++++ linux-2.6.0-test11-mmh/drivers/i2c/chips/lm75.c	2003-12-14 17:52:49.000000000 -0500
+@@ -51,10 +51,6 @@
+ #define TEMP_FROM_REG(val)	((((val & 0x7fff) >> 7) * 5) | ((val & 0x8000)?-256:0))
+ #define TEMP_TO_REG(val)	(SENSORS_LIMIT((val<0?(0x200+((val)/5))<<7:(((val) + 2) / 5) << 7),0,0xffff))
+ 
+-/* Initial values */
+-#define LM75_INIT_TEMP_OS	600
+-#define LM75_INIT_TEMP_HYST	500
+-
+ /* Each client has this additional data */
+ struct lm75_data {
+ 	struct semaphore	update_lock;
+@@ -258,10 +254,6 @@
+ static void lm75_init_client(struct i2c_client *client)
+ {
+ 	/* Initialize the LM75 chip */
+-	lm75_write_value(client, LM75_REG_TEMP_OS,
+-			 TEMP_TO_REG(LM75_INIT_TEMP_OS));
+-	lm75_write_value(client, LM75_REG_TEMP_HYST,
+-			 TEMP_TO_REG(LM75_INIT_TEMP_HYST));
+ 	lm75_write_value(client, LM75_REG_CONF, 0);
+ }
+ 
+-- 
+Mark M. Hoffman
+mhoffman@lightlink.com
+

@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262379AbREUDpT>; Sun, 20 May 2001 23:45:19 -0400
+	id <S262381AbREUDs3>; Sun, 20 May 2001 23:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262381AbREUDpJ>; Sun, 20 May 2001 23:45:09 -0400
-Received: from www.wen-online.de ([212.223.88.39]:10768 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S262379AbREUDoz>;
-	Sun, 20 May 2001 23:44:55 -0400
-Date: Mon, 21 May 2001 05:44:13 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Zlatko Calusic <zlatko.calusic@iskon.hr>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
-In-Reply-To: <Pine.LNX.4.21.0105201837240.5531-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0105210538510.465-100000@mikeg.weiden.de>
+	id <S262380AbREUDsT>; Sun, 20 May 2001 23:48:19 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:37614
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S262378AbREUDsH>; Sun, 20 May 2001 23:48:07 -0400
+Date: Sun, 20 May 2001 23:47:59 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: <nico@xanadu.home>
+To: Jes Sorensen <jes@sunsite.dk>
+cc: John Cowan <jcowan@reutershealth.com>, <esr@thyrsus.com>,
+        <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+In-Reply-To: <d31ypj1r4y.fsf@lxplus015.cern.ch>
+Message-ID: <Pine.LNX.4.33.0105202343480.18874-100000@xanadu.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 May 2001, Rik van Riel wrote:
 
-> On Sun, 20 May 2001, Mike Galbraith wrote:
-> > On 20 May 2001, Zlatko Calusic wrote:
+
+On 21 May 2001, Jes Sorensen wrote:
+
+> John> Au contraire.  It is very reasonable to have both python and
+> John> python2 installed.  Having two different gcc versions installed
+> John> is a big pain in the arse.
 >
-> > > Also in all recent kernels, if the machine is swapping, swap cache
-> > > grows without limits and is hard to recycle, but then again that is
-> > > a known problem.
-> >
-> > This one bugs me.  I do not see that and can't understand why.
+> It's not unreasonable to have both installed, it's unreasonable to
+> require it.
 >
-> Could it be because we never free swap space and never
-> delete pages from the swap cache ?
+> Eric seems to think he can tell every distributor to ship Python2
+> tomorrow. Well it's a fine dream but it's not going to happen
 
-I sent a query to the list asking if a heavy load cleared it out,
-but got no replies.  I figured about the only thing it could be
-is that under light load, reclaim isn't needed to cure and shortage.
+Distributors aren't going to ship Linux 2.5.x tomorrow either.
 
-	-Mike
+
+Nicolas
 

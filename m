@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284751AbRLPStZ>; Sun, 16 Dec 2001 13:49:25 -0500
+	id <S284755AbRLPSrZ>; Sun, 16 Dec 2001 13:47:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284762AbRLPStL>; Sun, 16 Dec 2001 13:49:11 -0500
-Received: from mons.uio.no ([129.240.130.14]:6909 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S284751AbRLPSsy>;
-	Sun, 16 Dec 2001 13:48:54 -0500
+	id <S284751AbRLPSrP>; Sun, 16 Dec 2001 13:47:15 -0500
+Received: from [217.9.226.246] ([217.9.226.246]:128 "HELO
+	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
+	id <S284746AbRLPSq5>; Sun, 16 Dec 2001 13:46:57 -0500
+To: "David Gomez" <davidge@jazzfree.com>
+Cc: Dave Jones <davej@suse.de>, Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Copying to loop device hangs up everything
+In-Reply-To: <Pine.LNX.4.33.0112161231570.650-100000@fargo>
+From: Momchil Velikov <velco@fadata.bg>
+Date: 16 Dec 2001 18:53:27 +0200
+In-Reply-To: <Pine.LNX.4.33.0112161231570.650-100000@fargo>
+Message-ID: <87snab85tk.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15388.60557.527680.468341@charged.uio.no>
-Date: Sun, 16 Dec 2001 19:48:45 +0100
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More fun with fsx.
-In-Reply-To: <Pine.LNX.4.33.0112161625200.876-100000@Appserv.suse.de>
-In-Reply-To: <Pine.LNX.4.33.0112161557070.876-100000@Appserv.suse.de>
-	<Pine.LNX.4.33.0112161625200.876-100000@Appserv.suse.de>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dave Jones <davej@suse.de> writes:
+>>>>> "David" == David Gomez <davidge@jazzfree.com> writes:
 
-     > On Sun, 16 Dec 2001, Dave Jones wrote:
-    >> > > Full log of the failcase is at
-    >> > > http://www.codemonkey.org.uk/cruft/nfs-fsx.txt
-    >> > Which kernel and mount options?
-    >> client 2.4.13-ac5, server 2.4.17rc1, default options, nothing
-    >> special.  I'll try to reproduce with a newer kernel on the
-    >> client.
+David> On Sun, 16 Dec 2001, Dave Jones wrote:
 
-     > Yup, it's still there with 2.4.17-rc1 as the client too.  Exact
-     > same failure.
+>> > I'm using kernel 2.4.17-rc1 and found what i think is a bug, maybe related
+>> > to the loop device. This is the situation:
+>> 
+>> Can you repeat it with this applied ?
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc1aa1/00_loop-deadlock-1
 
-I found the bug. It's a pretty ugly race...
+David> Thanks ;), this patch solves the problem and copying a lot of data to the
+David> loop device now doesn't hang the computer.
 
-The problem is that although the inode->i_sem semaphore protects you
-against races with ordinary writes, it does *not* protect you against
-the memory management routines (such as page_launder()) from calling
-writepage() on dirty pages.
-For most local filesystems, this is not a problem, since they can call
-vmtruncate() *before* they do their thing on the disk itself.  For
-non-local filesystems, you usually can't do this, since you cannot
-guarantee that the RPC call will succeed on the server.
+David> Is this patch going to be applied to the stable kernel ? Marcelo ?
 
-The only solution I can see, is to force a synchronous write of those
-dirty pages to the server prior to calling setattr. I've updated the
-patch on
+I've had exactly the same hangups with or without the patch.
 
-   http://www.fys.uio.no/~trondmy/src/2.4.17/linux-2.4.17-fattr.dif
-
-to do this. Fixes the race for me...
-
-Cheers,
-   Trond

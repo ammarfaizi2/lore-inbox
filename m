@@ -1,47 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129405AbQKHR6K>; Wed, 8 Nov 2000 12:58:10 -0500
+	id <S129614AbQKHR4u>; Wed, 8 Nov 2000 12:56:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129475AbQKHR6A>; Wed, 8 Nov 2000 12:58:00 -0500
-Received: from burdell.cc.gatech.edu ([130.207.3.207]:1288 "EHLO
-	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S129405AbQKHR5u>; Wed, 8 Nov 2000 12:57:50 -0500
-From: "J.D. Hollis" <jdhollis@cc.gatech.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: major problem with linux-2.4.0test10
-Date: Wed, 8 Nov 2000 12:54:55 -0500
-Message-ID: <CBECJLMFDMBGLDALACILAEHJCEAA.jdhollis@cc.gatech.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129569AbQKHR4l>; Wed, 8 Nov 2000 12:56:41 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:19465 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129611AbQKHR43>; Wed, 8 Nov 2000 12:56:29 -0500
+Date: Wed, 8 Nov 2000 11:52:47 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Installing kernel 2.4
+Message-ID: <20001108115247.A11377@vger.timpanogas.org>
+In-Reply-To: <200011081343.HAA341140@tomcat.admin.navo.hpc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200011081343.HAA341140@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Wed, Nov 08, 2000 at 07:43:29AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been having a problem with memory since 2.4.0test9...for some reason,
-shortly after my system boots, my hard drive begins to seek rapidly for no
-apparent reason, and suddenly about 150MB of my 256MB RAM is filled up with
-something gtop labels 'Other.'  whatever's filling my memory isn't attached
-to any process.   the one time I managed to get gtop open while the hard
-drive was seeking, I noticed that kflushd was using about 98% of my
-processor (an Athlon 900MHz).  I'm running Redhat 7.0 (although I have no
-idea whether that makes a difference).
+On Wed, Nov 08, 2000 at 07:43:29AM -0600, Jesse Pollard wrote:
+> ---------  Received message begins Here  ---------
+> 
+> > 
+> > On Wed, Nov 08, 2000 at 03:25:56AM +0000, davej@suse.de wrote:
+> > > On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
+> > > 
+> > > > If the compiler always aligned all functions and data on 16 byte
+> > > > boundries (NetWare)  for all i386 code, it would run a lot faster.
+> > > 
+> > > Except on architectures where 16 byte alignment isn't optimal.
+> > > 
+> > > > Cache line alignment could be an option in the loader .... after all,
+> > > > it's hte loader that locates data in memory.  If Linux were PE based,
+> > > > relocation logic would be a snap with this model (like NT).
+> > > 
+> > > Are you suggesting multiple files of differing alignments packed into
+> > > a single kernel image, and have the loader select the correct one at
+> > > runtime ? I really hope I've misinterpreted your intention.
+> > 
+> > Or more practically, a smart loader than could select a kernel image
+> > based on arch and auto-detect to load the correct image. I don't really
+> > think it matters much what mechanism is used.   
+> > 
+> > What makes more sense is to pack multiple segments for different 
+> > processor architecures into a single executable package, and have the 
+> > loader pick the right one (the NT model).  It could be used for 
+> > SMP and non-SMP images, though, as well as i386, i586, i686, etc.  
+> 
+> Sure.. and it will also be able to boot on Alpha/Sparc/PPC....:)
+> 
+> The best is to have the installer (person) to select the primary
+> archecture from a CD. There will NOT be a single boot loader that will
+> work for all systems. At best, there will have to be one per CPU family,
+> but more likely, one per BIOS structure. This is the only thing that can
+> determine the primary boot.
+> 
+> The primary boot can then determine which CPU type (starting with the
+> smallest common CPU), and set flags for a kernel (minimal kernel) load.
+> During the startup of THAT kernel then the selection of target RPM can
+> be made that would install a kernel for the specific architetcure. After
+> a (minimal?) system install, a reboot would be necessary.
+> 
+> It actually seems like it would be simpler to use the minimal kernel
+> to rebuild the kernel for the local architecture. MUCH less work.
+> This still requires a CPU family selection by the person doing the install.
+> Nothing will get around that.
 
-regards,
-j.d.
 
----
-J.D. Hollis (jdhollis@cc.gatech.edu)
+I am hesitant to jump in since hpa is working on something like this.  I 
+think I would like to wait and see what he puts out.  If he would like
+for me in my spare time to help him with it, I think I'd love to.
 
-"That which is overdesigned, too highly specific, anticipates outcome; the
-anticipation of outcome guarantees, if not failure, the absence of grace." -
-`All Tomorrow's Parties', William Gibson
+Jeff
 
+> 
+> -------------------------------------------------------------------------
+> Jesse I Pollard, II
+> Email: pollard@navo.hpc.mil
+> 
+> Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

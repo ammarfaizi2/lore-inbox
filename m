@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbTGOGcz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 02:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTGOGcz
+	id S263462AbTGOGbt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 02:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTGOGbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 02:32:55 -0400
-Received: from 12-240-128-156.client.attbi.com ([12.240.128.156]:55765 "EHLO
-	carlthompson.net") by vger.kernel.org with ESMTP id S263355AbTGOGcq
+	Tue, 15 Jul 2003 02:31:49 -0400
+Received: from 12-240-128-156.client.attbi.com ([12.240.128.156]:52693 "EHLO
+	carlthompson.net") by vger.kernel.org with ESMTP id S263462AbTGOGbs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 02:32:46 -0400
-Message-ID: <1058251644.b873c9b752cd4@carlthompson.net>
+	Tue, 15 Jul 2003 02:31:48 -0400
+Message-ID: <1058251587.eec14da73ec3b@carlthompson.net>
 X-Priority: 3 (Normal)
-Date: Mon, 14 Jul 2003 23:47:24 -0700
+Date: Mon, 14 Jul 2003 23:46:27 -0700
 From: Carl Thompson <cet@carlthompson.net>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.test1: Temporary "lock-up" with snd-ali5451 driver
+Subject: Problems compiling modules outside of tree in 2.6.0test1
 MIME-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Disposition: inline
@@ -24,52 +24,39 @@ X-Originating-IP: 192.168.0.163
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[This problem still exists in 2.6.0test1]
+[This problem still exists in Linux 2.6.0test1]
 
-I am not on the kernel mailing list so please CC me with any responses.
+I am not on the kernel mailing list so please CC with any responses.  I am
+new to this kernel / module stuff so if I am doing something obviously
+wrong please correct me gently!
 
-I am forwarding this to the kernel list because
-  1. adding printk()s to the driver suggests the lock-up happens before
-     module_init() is called
-  2. this driver is now part of the kernel
-  3. I got no response on the ALSA list
+Hello,
 
------ Forwarded Message -----
+     I have noticed a problem when compiling kernel modules outside of the
+kernel tree for 2.5(.75).  I am compiling a 3rd party network module for
+2.5 and it needs to include "linux/netdevice.h" .  This file includes a
+bunch of other kernel headers which in turn include more kernel headers.
+This eventually gets to "asm/irq.h" and on my architechture (i386) this
+file has the line
 
-Hello, I have a problem the answer to which I have not found with a search
-of the list archives or google.
+   #include "irq_vectors.h"
 
-My laptop (emachines M5305 Widescreen) has an Ali M5451 audio controller.
-Whenever is insert the snd-ali5451 driver, the whole computer hangs for
-about 10 seconds.  The screen does not change, the keyboard does not work,
-the mouse pointer does not move.  It looks very much like the system has
-locked up.  After this long pause things start working including sound
-which then works fine.  In fact, events seem to be queued while the system
-is unresponsive.
+     The problem is that this "irq_vectors.h" file is not found in the same
+directory as "irq.h" but in a different directory that is explicitly added
+to the include path for the kernel in "arch/i386/Makefile" .   This is just
+fine for kernel compiles using the kernel makefiles, but for stuff outside
+of the tree it means that "irq_vectors.h" won't be found.  A solution would
+be to to duplicate the relevant sections of the kernel's architecture
+specific makefile stuff to calculate and add the include path myself, but
+this seems unclean and would require me to add more architecture specific
+voodoo for each architecture to be supported.
 
-This happens with both the module compiled from 0.9.4 for use with Linux
-2.4.21 and with the module from Linux 2.5.72.
-
-Changes to my IRQ routing settings have no effect.
-
-The sound card shares interrupts with the usb ports.  I'm not sure if it can
-be told to use a different interrupt (but it should share correctly,
-right?).
-
-Loading the OSS trident driver does not cause any problems [except on 2.5
-where the trident driver causes my hard disks to stop working!?].
-
-I am certain the problem happens when inserting the actual snd-ali5451
-module and not one of the other modules.
-
-No syslog messages of any kind seem to be generated.
-
-Does anyone have any idea what the problem could be?
+     I believe the proper solution would be for the kernel build system to
+create a symbolic link to "irq_vectors.h" in "asm-i386/" just as "asm/"
+itself is a symbolic link to "asm-i386/" instead of adding an include path
+in the architecture specific makefile that breaks out-of-tree compiles.
 
 Thank you,
 Carl Thompson
-
------ End Forwarded Message -----
-
 
 

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290943AbSAaFdS>; Thu, 31 Jan 2002 00:33:18 -0500
+	id <S290946AbSAaFgt>; Thu, 31 Jan 2002 00:36:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290940AbSAaFdI>; Thu, 31 Jan 2002 00:33:08 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:39431 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S290946AbSAaFcr>;
-	Thu, 31 Jan 2002 00:32:47 -0500
-Date: Wed, 30 Jan 2002 21:31:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Mark McClelland <mark@alpha.dyndns.org>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: ov511 verbose startup.
-Message-ID: <20020131053124.GI31006@kroah.com>
-In-Reply-To: <20020131023457.D31313@suse.de> <20020131035936.GD31006@kroah.com> <3C58D69B.6000205@alpha.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C58D69B.6000205@alpha.dyndns.org>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Thu, 03 Jan 2002 01:45:06 -0800
+	id <S290940AbSAaFg2>; Thu, 31 Jan 2002 00:36:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40205 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290944AbSAaFgT>; Thu, 31 Jan 2002 00:36:19 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: A modest proposal -- We need a patch tracking system.
+Date: 30 Jan 2002 21:36:05 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a3al45$1fs$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33L.0201290902100.32617-100000@imladris.surriel.com> <200201291156.g0TBudE28106@Port.imtp.ilyichevsk.odessa.ua> <3C573428.3000404@fit.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 09:31:07PM -0800, Mark McClelland wrote:
+Followup to:  <3C573428.3000404@fit.edu>
+By author:    Kervin Pierre <kpierre@fit.edu>
+In newsgroup: linux.dev.kernel
+>
+> Public patch tracking system/queue, maybe something derived from bugzilla.
 > 
-> Greg (if you know): usbfs is not allowed to access claimed interfaces, 
-> correct? (ie. ones that are implicitly claimed because of a successful 
-> return from probe()). Are interfaces treated as claimed while probe() is 
-> active, so that user-space "probes" cannot interfere with driver probes()?
+> (i) patches are sent to the maintainer and entered into the system.
+> 
+> (ii) reviewed patches are update appropriately, eg. ( "reject - untidy, 
+> please fix", "accept - expected version 2.4.18pre19" etc. )
+> 
+> (iii) patch versions, updates can be kept, as in mozilla's bugzilla 
+> site.  And comments on that patch can also be kept right along side the 
+> code.
+> 
+> Regardless of wether the current system is changed or not, the linux 
+> kernel would benefit from a central, searchable, public repository of 
+> patches.
+> 
+> The code is available, bugzilla has all this functionality today.
+> 
+> So here's hoping for a patchzilla.kernel.org :)
+> 
 
-Yes, but odds are, it is trying to read the configuration of the device,
-and we don't have control pipe locking, yet :)
+If Linus et al signs on to the idea, I'm sure we can build it...
 
-Dave, does this problem go away on 2.5.3-pre6?
-And which host controller driver are you using?
-
-thanks,
-
-greg k-h
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

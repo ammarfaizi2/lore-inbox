@@ -1,97 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266091AbSKFUAi>; Wed, 6 Nov 2002 15:00:38 -0500
+	id <S265968AbSKFTgW>; Wed, 6 Nov 2002 14:36:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266092AbSKFUAi>; Wed, 6 Nov 2002 15:00:38 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:1446 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S266091AbSKFUAh>;
-	Wed, 6 Nov 2002 15:00:37 -0500
-Date: Wed, 6 Nov 2002 15:07:16 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-X-X-Sender: <calin@rtlab.med.cornell.edu>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: /prod/PID-related proc fs question
-In-Reply-To: <Pine.LNX.3.95.1021106144738.5400A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33L2.0211061505250.5858-100000@rtlab.med.cornell.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265954AbSKFTgW>; Wed, 6 Nov 2002 14:36:22 -0500
+Received: from pirx.hexapodia.org ([208.42.114.113]:10774 "HELO
+	pirx.hexapodia.org") by vger.kernel.org with SMTP
+	id <S265968AbSKFTgV>; Wed, 6 Nov 2002 14:36:21 -0500
+Date: Wed, 6 Nov 2002 13:42:58 -0600
+From: Andy Isaacson <adi@hexapodia.org>
+To: Thomas Schenk <tschenk@origin.ea.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Need assistance in determining memory usage
+Message-ID: <20021106134258.A12322@hexapodia.org>
+References: <1036433472.2884.42.camel@shire> <1036436466.1106.105.camel@irongate.swansea.linux.org.uk> <1036437769.2902.76.camel@shire>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1036437769.2902.76.camel@shire>; from tschenk@origin.ea.com on Mon, Nov 04, 2002 at 01:22:44PM -0600
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Nov 2002, Richard B. Johnson wrote:
+On Mon, Nov 04, 2002 at 01:22:44PM -0600, Thomas Schenk wrote:
+> On Mon, 2002-11-04 at 13:01, Alan Cox wrote:
+> > On Mon, 2002-11-04 at 18:11, Thomas Schenk wrote:
+> > > was adequate, I wouldn't be asking here and every reference I could find
+> > > indicates that this is not a trivial problem.  There were also
+> > > indications I found while searching that these tools do not always
+> > > report memory numbers accurately.  If there is a way to determine this
+> > > information using /proc, this would be ideal, since I could then
+> > > conceivably create a script or simple program that could determine the
+> > > answer given the process ID, which is what the developers here really
+> > > want.
+> > 
+> > Neither the question nor the answer are trivial. What are you trying to
+> > do with the data may be the most relevant question
+> 
+> This situation is this:
+> 
+> We are building an online game system.  On some of the systems, there
+> are simulator processes running that each service a player.  There may
+> be up to 200 or more of these processes running at any given time and
+> each uses a fairly large amount of memory (as reported by ps).  Part of
+> this is due to the fact that the processes have not been optimized to
+> make the most efficient use of memory.  When the simulator processes
+> start swapping, then the systems are becoming unstable, performance goes
+> all to hell and sometimes the systems totally hang.  It would be useful
+> for us to be able to monitor as closely as possible the amount of memory
+> each processes is using and especially to be notified when these
+> processes start using significant amounts of swap, so that we can be
+> prepared to react before the situation gets out of hand.
 
-> On Wed, 6 Nov 2002, Calin A. Culianu wrote:
->
-> >
-> > I just noticed something today that I found odd and I know there must be a
-> > good reason for it, but I can't think of what it might be..
-> >
-> > Basically if I am listing the contents of a /proc/PID directory, it seems
-> > that the cwd, exe, and root (symlink) entries are invalid unless the
-> > process corresponding to PID is a process owned by me, or I am root.  Why
-> > is this?
-> >
-> > Is this feature security related?
-> >
-> > If so I can't really think of any security issues that would arise from
-> > having that information as a non-priviledged user.
-> >
-> > It would seem reasonable to me that users seeing each other's
-> > /prod/PID/root and /proc/PID/exe symlinks isn't really much of a security
-> > vulnerability.. Plus it would make possible a non-root user to grab
-> > statistics on the most popular running binaries, the number of chrooted
-> > processes.. etc..  probably trivial statistics but it still would be nice
-> > to see if any other instance of an application is running (unless there
-> > already is another mechanism for this that I am unaware of).
-> >
-> > Anyway any answers appreciated...
-> >
-> > -Calin
->
->
->
-> Well you know that you can send a "secret" message
-> from one task to another using Morse code?
->
-> As a trivial example, I could use a lot of CPU time
-> for a second:
->      while(time(NULL) == saved)
->             ;
->
-> I could call this a "dash".
->
-> Then I could use a tiny bit and call it a "dot":
->     sleep(1);
->
-> I could then use a little bit and call it a space:
->     while(time(NULL) == saved)
->         usleep(1);
->
-> If another task knew this, and could have access to my
-> task's CPU time statistics, I could send messages through
-> an "undocumented" or "rogue" channel.
->
-> This may seem dumb, and the example is, however there
-> are commercial systems out there where you don't want any
-> undocumented communications paths between tasks. They
-> might be performing stock transactions for competing
-> clients, etc. A back-door communications path could
-> be used to steal. So, it might not be a good idea to give
-> away information that another task doesn't have a "need-to-know".
->
+I do not believe that the kernel exports the information "what processes
+are using swap?".  You can answer some of your questions by using my
+pmap program; it's in at least some recent procps packages, or download
+the source:
+http://web.hexapodia.org/~adi/pmap.c
 
-Well then in this case why not block out /proc/PID/maps then?  In general
-the first entry of this file _IS_ /proc/PID/exe!!
-
-Also, in such systems there exist modification to the proc fs so that
-processes can't see any other users, and so that proc fs is VERY empty
-and provides minimal information.
-
-
-This still isn't a good reason for not allowing people to see
-/prod/PID/exe.. anyone else have an idea as to why this policy exists in
-the kernel?
-
--Calin
-
+-andy

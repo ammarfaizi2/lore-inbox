@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268900AbUHMAIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268901AbUHMAKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268900AbUHMAIl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 20:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268901AbUHMAIl
+	id S268901AbUHMAKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 20:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268902AbUHMAKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 20:08:41 -0400
-Received: from customermex-148-244-153-195.alestra.net.mx ([148.244.153.195]:12323
-	"HELO netscape.net") by vger.kernel.org with SMTP id S268900AbUHMAIj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 20:08:39 -0400
-From: dasuki3@netscape.net
-To: linux-kernel@vger.kernel.org
-Subject: Charity Assistant.
-X-Priority: 3
-Message-Id: <S268900AbUHMAIj/20040813000839Z+869@vger.kernel.org>
-Date: Thu, 12 Aug 2004 20:08:39 -0400
+	Thu, 12 Aug 2004 20:10:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26002 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268901AbUHMAKA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 20:10:00 -0400
+Date: Thu, 12 Aug 2004 17:09:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@www.pagan.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: SG_IO and security
+In-Reply-To: <1092341803.22458.37.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0408121705050.1839@ppc970.osdl.org>
+References: <1092313030.21978.34.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0408120929360.1839@ppc970.osdl.org> 
+ <Pine.LNX.4.58.0408120943210.1839@ppc970.osdl.org>
+ <1092341803.22458.37.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Friend.
-
-As you read this, I don't want you to feel sorry for me because I believe
-Everyone will die someday. My name is Dasuki AL-Mehmood, a merchant
-in Dubai U.A.E.
-
-I have been diagnosed with esophageal cancer. It has defiled all forms of
-Medical treatment, and right now I have only about a few months to live,
-According to medical experts. I have not particularly lived my life so
-Well, as I never really cared for anyone (not even myself) but my business.
-Though I am very rich, I was never generous, I was always hostile to people
-and only focused on my business as that was the only thing I cared for. But
-now I regret all this as I now know that there is more to life than just
-Wanting to have or make all the money in the world.
-
-I believe when God gives me a second chance to come to this world I would
-Live my life a different way from how I have lived it. Now that God has
-Called me, I have willed and given most of my property and assets to my
-Immediate and extended family members as well as a few close friends.
-
-I want God to be merciful to me and accept my soul so, I have decided to
-give alms to charity organizations, as I want this to be one of the last
-good deeds I do on earth.
-
-Now that my health has deteriorated so badly, I cannot do this myself
-Anymore. I once asked members of my family to close one of my accounts and
-distribute the money which I have there to charity organization in Bulgaria
-and Pakistan; they refused and kept the money to themselves. Hence, I do
-not trust them anymore, as they seem not to be contended with what I have
-left for them.
-
-The last of my money which no one knows of is the huge cash deposit of $6M.
-(Six  Million United States Dollars) that I have with a finance/Security
-Company abroad. I will want you to help me collect this deposit and
-Dispatched it to charity organizations. I have set aside 10 % for you and
-for your time. All correspondence should be directed via this private email
-dasuk-al-mehmo@excite.com
-
-May Allah be with you.
-
-Dasuki Al- Mehmood
-Dasuk-al-mehmo@excite.com
 
 
+On Thu, 12 Aug 2004, Alan Cox wrote:
+> > > 
+> > > Hmm.. This still allows the old "junk" commands (SCSI_IOCTL_SEND_COMMAND).
+> 
+> That uses sg_io() so gets caught as well unless I screwed up following
+> the code paths.
 
+No, while the cdrom_ioctl thing does use sg_io, the really old and 
+horrible sg_scsi_ioctl thing does it's own commands by hand.
+
+I don't know why. I get the feeling that it _should_ use sg_io().
+
+> With the current code I can destroy all your hard disks given read
+> access to the drive.
+
+Oh, I clearly agree with you that something had to be done. Which is why I 
+did an extended version of your patch already.
+
+> Do we
+> 
+> a) Have code that essentially says "if read on base device can do ....,
+> if write can do ... , else capable(...)"
+> 
+> b) ioctls/other command functionality for the stuff users should be
+> allowed to do. 
+> 
+> Option (a) means parsing command blocks which are pretty regular and
+> parseable. 
+
+Yes. I think we should do:
+ - harmless read-only commands that we know, we allow for read opens
+ - harmless write-only commands that we know, we allow for write opens
+ - commands we don't know, or commands that aren't harmless, we require 
+   RAWIO-capability for.
+
+That seems fairly trivial to implement, and is clearly the user-friendly 
+thing to do. The quick patch is just too damn unfriendly.
+
+		Linus

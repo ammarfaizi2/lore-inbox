@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291069AbSBGCJu>; Wed, 6 Feb 2002 21:09:50 -0500
+	id <S291074AbSBGCLj>; Wed, 6 Feb 2002 21:11:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291072AbSBGCJj>; Wed, 6 Feb 2002 21:09:39 -0500
-Received: from age.cs.columbia.edu ([128.59.22.100]:21259 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S291069AbSBGCJe>; Wed, 6 Feb 2002 21:09:34 -0500
-Date: Wed, 6 Feb 2002 21:09:25 -0500 (EST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, Chris Friesen <cfriesen@nortelnetworks.com>
-Subject: Re: want opinions on possible glitch in 2.4 network error reporting
-In-Reply-To: <E16Ydys-0007D6-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0202062101390.4832-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291072AbSBGCL3>; Wed, 6 Feb 2002 21:11:29 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:53396 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291074AbSBGCLR>;
+	Wed, 6 Feb 2002 21:11:17 -0500
+Date: Wed, 06 Feb 2002 18:09:15 -0800 (PST)
+Message-Id: <20020206.180915.78161963.davem@redhat.com>
+To: hch@caldera.de
+Cc: davidm@hpl.hp.com, mmadore@turbolinux.com, linux-ia64@linuxia64.org,
+        linux-kernel@vger.kernel.org, groudier@free.fr
+Subject: Re: [Linux-ia64] Proper fix for sym53c8xx_2 driver and dma64_addr_t
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020206181042.A11683@caldera.de>
+In-Reply-To: <20020206093558.A9445@caldera.de>
+	<20020206.004503.118628125.davem@redhat.com>
+	<20020206181042.A11683@caldera.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Alan Cox wrote:
+   From: Christoph Hellwig <hch@caldera.de>
+   Date: Wed, 6 Feb 2002 18:10:42 +0100
+   
+   When the sym2 driver is configured with SYM_CONF_DMA_ADDRESSING_MOD > 1
+   it uses DAC accessing and needs dma64_addr_t.  It doesn't use it
+   when using the default addressing mode.
+   
+NO it damn well does not!  If the platform is NEVER GOING TO GIVE the
+driver a 64-bit address (because, for example, it has IOMMU hardware),
+dma_addr_t need only be 32-bits and that it how it is declared on
+several platforms.
 
-> > there is no way to "lose" that data before it hits the wire, unless of
-> > course the network driver is broken and doesn't plug the upper layers when
-> > its TX queue is full.
-> 
-> UDP is not flow controlled.
+Please read the DMA API documentation.
 
-No, of course not, but this has *nothing* to do with UDP. The IP socket 
-itself is flow controlled, and so is the TX queue of the network driver.
+dma64_addr_t is _ONLY_, I REPEAT _ONLY_ to be used when the driver
+is making use of the following routines for it's DMA usage:
 
-Let me give you another example: ping -f. If what you said were true, ping -f 
-would send packets as fast as the CPU can generate into the black hole 
-called an IP raw socket, right? Well, that just doesn't happen, because 
-sendto/sendmsg will block until there is enough space in the TX queue of 
-the raw socket.
+	pci_dac_page_to_dma
+	pci_dac_dma_to_page
+	pci_dac_dma_to_offset
+	pci_dac_dma_sync_single
 
-I'll state again: if data (UDP or otherwise) is lost after sendto() 
-returns success but before it hits the wire, something is BROKEN in that 
-IP stack.
+And NO SCSI OR NET driver should ever use these routines.
 
-Ion
+In fact, no driver in the tree right now should be using this.
+The only known example that needs those interfaces are clustering
+cards.  And thats it!
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Everything in the tree right now should use only pci_map_single and
+friends, and it should set the device DMA mask bits properly to
+indicate DAC capability.  Do you see any pci_map_single, pci_map_sg,
+etc. implementation working with dma64_addr_t arguments?  If so, thats
+a huge bug and it must be fixed.

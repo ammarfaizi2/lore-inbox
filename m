@@ -1,70 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318139AbSGWQ2M>; Tue, 23 Jul 2002 12:28:12 -0400
+	id <S318134AbSGWQ0F>; Tue, 23 Jul 2002 12:26:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318140AbSGWQ2L>; Tue, 23 Jul 2002 12:28:11 -0400
-Received: from ns.exp-math.uni-essen.de ([132.252.150.18]:7955 "EHLO
-	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
-	id <S318139AbSGWQ2K>; Tue, 23 Jul 2002 12:28:10 -0400
-Date: Tue, 23 Jul 2002 18:31:13 +0200 (MESZ)
-From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
-To: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-Cc: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with msync system call
-In-Reply-To: <EE83E551E08D1D43AD52D50B9F511092E1149F@ntserver2>
-Message-Id: <Pine.A32.3.95.1020723181427.31958B-100000@werner.exp-math.uni-essen.de>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318124AbSGWQ0A>; Tue, 23 Jul 2002 12:26:00 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:53452 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318129AbSGWQZp>;
+	Tue, 23 Jul 2002 12:25:45 -0400
+Message-ID: <3D3D8414.1040201@us.ibm.com>
+Date: Tue, 23 Jul 2002 09:28:04 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020715
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org, Adam G Litke <aglitke@us.ibm.com>,
+       Robert Love <rml@mvista.com>
+Subject: [PATCH] reduce code in generic spinlock.h
+Content-Type: multipart/mixed;
+ boundary="------------010203030106070901080600"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jul 2002, Gregory Giguashvili wrote:
+This is a multi-part message in MIME format.
+--------------010203030106070901080600
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Hello,
-> 
-> RH 7.2 (kernel 2.4.7-10) and RH 7.3 (kernel 2.4.18-3) (I haven't checked the
-> others).
-> 
-> I attempt to read/write memory mapped file from two Linux machines, which
-> resides on NFS mounted drive. The file gets corrupted since the changes made
-> on one machine aren't immediately available on the other. The sample program
-> is attached to this e-mail. The problematic API set includes (mmap, munmap
-> and msync system calls). It seems that MS_INVALIDATE has no effect....
-[... rest deleted ...]
+The last time lockmeter was ported to 2.5, it was getting a little
+messy.  There were separate declarations for spin_*lock() for each
+combination of lockmeter and preemption, which made four, plus the
+no-smp definition.  While lockmeter's mess isn't the kernel's fault, 
+we noticed some some simplifications which could be made to the 
+generic spinlock code.  This patch uses a single definition for each 
+of the macros, eliminating some redundant code.
 
-I'm no NFS/mmap author or expert, only an experienced admin/user regarding
-this issue, still:
+In the preemption-off case, spin lock is changed from this:
+_raw_spin_lock(lock)
+to this:
+do {
+	preempt_disable();
+	_raw_spin_lock(lock)
+} while (0)
+The preemption-on case is unchanged.
 
-I must say I have a very uneasy feeling about such a usage and don't know
-how it is covered by standards (although you claim it works for non
-linux). Experience shows that such a construct is very fragile. Note also
-that NFS file locking is not mandatory, only advisory (read: user level) 
-and it is unclear how that will interact with mmap.
+Since preempt_disable() is a do{}while(0) with preemption off anyway,
+it gets back to the same effective result as before, with a little
+extra work from the compiler.  The preempt_disable() macro just had to
+be moved up in the file a bit.
 
-That said, I'd expect at least the munmap using variant to work as
-expected. I don't know if msync in this context is more than a placebo
-function. Again experience shows that linux is very happy in caching
-NFS files and contents locally, though. For inter-machine file exchange
-(write on one machine, read immediately on the other) synchronized clocks
-between server and clients within millisecond range are mandatory.
+Thanks to Adam Litke <aglitke@us.ibm.com>, who has been doing the
+lockmeter port and who initially wrote this patch.
 
-Forget about clocks set manually, use xntpd or timed or similar.  Without
-such synchronized clocks (which synchronize caches), forget about NFS.
-Note that this holds in principle even w/o the caching issue (like having
-synchronized user databases.. it only seems that due to this caching issue
-linux NFS seems to be VERY sensitive to out of sync clocks compared to
-other NFS implementations.
+Compiles in all combinations of SMP and preempt.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-So, my guess would be your clocks are out of sync, hence the copies of the
-network shared file are. (you know, like: server clock is some
-hours/minutes behind the clients so each client thinks IT has the most
-actual copy of the file)
 
-Michael.
 
---
+--------------010203030106070901080600
+Content-Type: text/plain;
+ name="spinlock-cleanup-2.5.27-2.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="spinlock-cleanup-2.5.27-2.diff"
 
-Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
-or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
-any machine in the net, it's very likely it's me.
+diff -ur linux-2.5.27-clean/include/linux/spinlock.h linux-2.5.27/include/linux/spinlock.h
+--- linux-2.5.27-clean/include/linux/spinlock.h	Tue Jul 23 09:19:51 2002
++++ linux-2.5.27/include/linux/spinlock.h	Tue Jul 23 09:26:16 2002
+@@ -150,6 +150,14 @@
+ 		preempt_schedule(); \
+ } while (0)
+ 
++#else /* !CONFIG_PREEMPT */
++#define preempt_get_count()		(0)
++#define preempt_disable()		do { } while(0)
++#define preempt_enable_no_resched()	do { } while(0)
++#define preempt_enable()		do { } while(0)
++#define preempt_check_resched()		do { } while(0)
++#endif /* !CONFIG_PREEMPT */
++
+ #define spin_lock(lock)	\
+ do { \
+ 	preempt_disable(); \
+@@ -176,26 +184,6 @@
+ #define write_unlock(lock)	({_raw_write_unlock(lock); preempt_enable();})
+ #define write_trylock(lock)	({preempt_disable();_raw_write_trylock(lock) ? \
+ 				1 : ({preempt_enable(); 0;});})
+-
+-#else
+-
+-#define preempt_get_count()		(0)
+-#define preempt_disable()		do { } while (0)
+-#define preempt_enable_no_resched()	do {} while(0)
+-#define preempt_enable()		do { } while (0)
+-#define preempt_check_resched()		do { } while (0)
+-
+-#define spin_lock(lock)			_raw_spin_lock(lock)
+-#define spin_trylock(lock)		_raw_spin_trylock(lock)
+-#define spin_unlock(lock)		_raw_spin_unlock(lock)
+-#define spin_unlock_no_resched(lock)	_raw_spin_unlock(lock)
+-
+-#define read_lock(lock)			_raw_read_lock(lock)
+-#define read_unlock(lock)		_raw_read_unlock(lock)
+-#define write_lock(lock)		_raw_write_lock(lock)
+-#define write_unlock(lock)		_raw_write_unlock(lock)
+-#define write_trylock(lock)		_raw_write_trylock(lock)
+-#endif
+ 
+ /* "lock on reference count zero" */
+ #ifndef ATOMIC_DEC_AND_LOCK
+Only in linux-2.5.27-clean/include/linux: spinlock.h.orig
+
+--------------010203030106070901080600--
 

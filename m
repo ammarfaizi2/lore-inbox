@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273870AbRI1JvH>; Fri, 28 Sep 2001 05:51:07 -0400
+	id <S276000AbRI1KFh>; Fri, 28 Sep 2001 06:05:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275994AbRI1Ju5>; Fri, 28 Sep 2001 05:50:57 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:12549 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S273870AbRI1Jun>;
-	Fri, 28 Sep 2001 05:50:43 -0400
-Date: Fri, 28 Sep 2001 12:51:00 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bobby Hitt <bobhitt@bscnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2GB File limitation
-Message-ID: <20010928125100.B1144@mea-ext.zmailer.org>
-In-Reply-To: <013801c147e5$3330bec0$092cdb3f@bobathome> <Pine.LNX.4.33.0109281011010.2517-100000@localhost.localdomain>
+	id <S275997AbRI1KF1>; Fri, 28 Sep 2001 06:05:27 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:26386 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S275996AbRI1KFT>;
+	Fri, 28 Sep 2001 06:05:19 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: jc <jcb@jcb.yi.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: apm suspend broken in 2.4.10 
+In-Reply-To: Your message of "Fri, 28 Sep 2001 11:09:23 +0200."
+             <20010928110923.A12889@athena> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109281011010.2517-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Sep 28, 2001 at 10:13:09AM +0200
+Date: Fri, 28 Sep 2001 20:05:35 +1000
+Message-ID: <18757.1001671535@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 10:13:09AM +0200, Ingo Molnar wrote:
-> On Fri, 28 Sep 2001, Bobby Hitt wrote:
-> > Is someone working on a way to overcome the 2GB file limitation in
-> > Linux? I currently backup several servers using a dedicated hard drive
-> > for the backups. Recently I saw one backup die saying the the file
-> > size had been exceeded. I've never had good luck with tape backups,
-> > yes they backup, but whenever I really need a file, it can't be
-> > retrieved.
-> 
-> file sizes up to ~ 2 TB are supported under the 2.4 kernel. (or 2.2 kernel
-> + patches) Most utilities are updated to use O_LARGEFILE properly, in any
-> recent 2.4-based Linux distribution. I regularly use 6-10 GB files.
+On Fri, 28 Sep 2001 11:09:23 +0200, 
+jc <jcb@jcb.yi.org> wrote:
+>how could i get the list of files that changed between 2.4.9 and 2.4.10
+>concerning apm ?
 
-  Like Ingo says, most of modern distributions begin to work with
-  O_LARGEFILE  properly, but still some utilities fail it.
+diff -urN -I '$[ABD-Z].*\$' 2.4.9 2.4.10 > /var/tmp/patch-2.4.9-2.4.10
+rm -rf /var/tmp/patches
+split_patch /var/tmp/patch-2.4.9-2.4.10
 
-  Your older backup application program may fail it too.
+Look through /var/tmp/patches for files and directories related to apm.
+split_patch is
 
-  The solution could be as simple as piping the backup material
-  into another program, which then pipes it out, e.g.:
-	'|dd bs=1M of=/backups/fileNNN'
+#!/usr/bin/perl -w
+$out = "";
+while (<>) {
+	next if (/^Only/);
+	next if (/^Binary/);
+	if (/^diff/ || /^Index/) {
+		if ($out) {
+			close OUT;
+		}
+		(@out) = split(' ', $_);
+		shift(@out) if (/^diff/);
+		$out = pop(@out);
+		$out =~ s:/*usr/:/:;
+		$out =~ s:/*src/:/:;
+		$out =~ s:^/*linux[^/]*::;
+		$out =~ s:\(w\)::;
+		next if ($out eq "");
+		$out = "/var/tmp/patches/$out";
+		$dir = $out;
+		$dir =~ s:/[^/]*$::;
+		print STDERR "$out\n";
+		system("mkdir -p $dir");
+		open(OUT, ">$out") || die("cannot open $out");
+	}
+	if ($out) {
+		print OUT $_;
+	}
+}
 
-> 	Ingo
-
-/Matti Aarnio

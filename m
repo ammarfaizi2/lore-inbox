@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVAXSld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVAXSo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVAXSld (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 13:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVAXSld
+	id S261550AbVAXSo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 13:44:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVAXSo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 13:41:33 -0500
-Received: from smtp-vbr11.xs4all.nl ([194.109.24.31]:3342 "EHLO
-	smtp-vbr11.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261563AbVAXSl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 13:41:27 -0500
-Date: Mon, 24 Jan 2005 19:41:11 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050124184111.GA9335@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124175449.GK3515@stusta.de> <20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
-Mime-Version: 1.0
+	Mon, 24 Jan 2005 13:44:57 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:16771 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261550AbVAXSoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 13:44:54 -0500
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [openib-general] [PATCH][13/12] InfiniBand/mthca: initialize mutex
+ earlier
+X-Message-Flag: Warning: May contain useful information
+References: <20051232214.rXeANNOMpj6wmqS6@topspin.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 24 Jan 2005 10:44:52 -0800
+In-Reply-To: <20051232214.rXeANNOMpj6wmqS6@topspin.com> (Roland Dreier's
+ message of "Sun, 23 Jan 2005 22:14:24 -0800")
+Message-ID: <521xca7jkr.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.6+20040907i
+X-OriginalArrivalTime: 24 Jan 2005 18:44:53.0918 (UTC) FILETIME=[CB2553E0:01C50244]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Date: Mon, Jan 24, 2005 at 09:43:36PM +0300
-> On Mon, 24 Jan 2005 18:54:49 +0100
-> Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> > It seems noone who reviewed the SuperIO patches noticed that there are 
-> > now two modules "scx200" in the kernel...
-> 
-> They are almost mutually exlusive(SuperIO contains more advanced), 
-> so I do not see any problem here.
-> Only one of them can be loaded in a time.
-> 
-> So what does exactly bother you?
-> 
-lsmod in bugreports giving unspecific results, for example.
+One more bug that slipped in...
 
-Kind regards,
-Jurriaan
--- 
-"So you believe."
-Jewel ATerafin shrugged. "I have more than belief, but I don't have a
-pressing need to convince you of anything."
-	Michelle West - Sea of Sorrows.
-Debian (Unstable) GNU/Linux 2.6.10-mm1 2x6078 bogomips load 0.52
+
+The cap_mask_mutex needs to be initialized before
+ib_register_device(), because device registration will call client
+init functions that may try to modify the capability mask.
+
+Signed-off-by: Roland Dreier <roland@topspin.com>
+
+--- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_provider.c	2005-01-23 21:51:46.000000000 -0800
++++ linux-bk/drivers/infiniband/hw/mthca/mthca_provider.c	2005-01-24 10:39:12.623987624 -0800
+@@ -634,6 +634,8 @@
+ 	dev->ib_dev.detach_mcast         = mthca_multicast_detach;
+ 	dev->ib_dev.process_mad          = mthca_process_mad;
+ 
++	init_MUTEX(&dev->cap_mask_mutex);
++
+ 	ret = ib_register_device(&dev->ib_dev);
+ 	if (ret)
+ 		return ret;
+@@ -647,8 +649,6 @@
+ 		}
+ 	}
+ 
+-	init_MUTEX(&dev->cap_mask_mutex);
+-
+ 	return 0;
+ }
+ 

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131418AbQL3Ugg>; Sat, 30 Dec 2000 15:36:36 -0500
+	id <S135170AbQL3Uh5>; Sat, 30 Dec 2000 15:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135170AbQL3Ug1>; Sat, 30 Dec 2000 15:36:27 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:10251 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131418AbQL3UgS>; Sat, 30 Dec 2000 15:36:18 -0500
-Date: Sat, 30 Dec 2000 12:05:47 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S135519AbQL3Uhr>; Sat, 30 Dec 2000 15:37:47 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5016 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135170AbQL3Uhd>;
+	Sat, 30 Dec 2000 15:37:33 -0500
+Date: Sat, 30 Dec 2000 15:06:54 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
 To: Daniel Phillips <phillips@innominate.de>
-cc: linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Generic deferred file writing
 In-Reply-To: <00123020452307.00966@gimli>
-Message-ID: <Pine.LNX.4.10.10012301152280.1017-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0012301503290.4082-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,34 +21,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 On Sat, 30 Dec 2000, Daniel Phillips wrote:
->
+
 > When I saw you put in the if (PageDirty) -->writepage and related code
 > over the last couple of weeks I was wondering if you realize how close
-> we are to having generic deferred file writing in the VFS.
+> we are to having generic deferred file writing in the VFS.  I took some
+> time today to code this little hack and it comes awfully close to doing
+> the job.  However, *** Warning, do not run this on a machine you care
+> about, it will mess it up ***.
+> 
+> The advantages of deferred file writing are pretty obvious.  Right now
+> we are deferring just the writeout of data to the disk, but we can also
+> defer the disk mapping, so that metadata blocks don't have to stay
+> around in cache waiting for data blocks to get mapped into them one at
+> a time - a whole group can be done in one flush.
 
-I'm very aware of it indeed. 
-
-However, it does break various common assumptions, one of them being
-proper error handling. Things like proper detection of quota overflows and
-even simple "out of disk space" issues. 
-
-One of the main advantages of deferred writing would be that we could do
-temp-files without ever actually doing most of the low-level filesystem
-block allocation, but in order to get that advantage we really need to
-handle the out-of-disk case gracefully.
-
-I considered doing something like this as a mount option, so that people
-could decide on their own whether they want a safe filesystem, or whether
-it's ok to do deferred writes. People might find it worth it for /tmp, but
-might be unwilling to use it for /var/spool/mail, for example.
-
-(Hmm.. It might be perfectly fine for /vsr/spool/mail - mail delivery
-tends to be really careful about doing "fsync()" etc and actually pick up
-the errors that way. HOWEVER, before doing that you should expand the
-writepage logic to set the page "error" bit for when it fails to write out
-a full page - right now we just lose the error completely).
-
-		Linus
+Except that we've got file-expanding writes outside of ->i_sem. Thanks, but
+no thanks.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

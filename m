@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSEJJBq>; Fri, 10 May 2002 05:01:46 -0400
+	id <S311564AbSEJJFb>; Fri, 10 May 2002 05:05:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313260AbSEJJBp>; Fri, 10 May 2002 05:01:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36112 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313190AbSEJJBp>;
-	Fri, 10 May 2002 05:01:45 -0400
-Message-ID: <3CDB8D2E.438E99C3@zip.com.au>
-Date: Fri, 10 May 2002 02:04:46 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S313206AbSEJJFa>; Fri, 10 May 2002 05:05:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3023 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S311564AbSEJJFa>;
+	Fri, 10 May 2002 05:05:30 -0400
+Date: Fri, 10 May 2002 11:05:14 +0200
+From: Jens Axboe <axboe@suse.de>
 To: Anton Altaparmakov <aia21@cantab.net>
-CC: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org,
-        martin@dalecki.de, neilb@cse.unsw.edu.au
+Cc: Andrew Morton <akpm@zip.com.au>, Peter Chubb <peter@chubb.wattle.id.au>,
+        linux-kernel@vger.kernel.org, martin@dalecki.de, neilb@cse.unsw.edu.au
 Subject: Re: [PATCH] remove 2TB block device limit
-In-Reply-To: <3CDB4711.1A4FFDAC@zip.com.au> <5.1.0.14.2.20020510093714.01fa9680@pop.cus.cam.ac.uk>
+Message-ID: <20020510090514.GL9183@suse.de>
+In-Reply-To: <15579.16423.930012.986750@wombat.chubb.wattle.id.au> <5.1.0.14.2.20020510093714.01fa9680@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> 
-> ...
-> >This code:
-> >
-> >         printk("%lu%s", some_sector, some_string);
-> >
-> >will work fine with 32-bit sector_t.  But with 64-bit sector_t it
-> >will generate a warning at compile-time and an oops at runtime.
-> >
-> >The same problem applies to dma_addr_t.  Jeff, davem and I kicked
-> >that around a while back and ended up deciding that although there
-> >are a number of high-tech solutions, the dumb one was best:
-> 
-> Why not the even dumber one? Forget FMT_SECTOR_T and always use %Lu and
+On Fri, May 10 2002, Anton Altaparmakov wrote:
+> Why not the even dumber one? Forget FMT_SECTOR_T and always use %Lu and 
 > typecast (unsigned long long)sector_t_variable in the printk.
-> 
 
-Agree.   The nice thing about the typecast is that you
-can format the output with %06Lx, %9Ld, %Lo or whatever.
-The FMT_SECTOR_T thing forces you to use the chosen formatting.
+I like that better too, it's what I did in the block layer too.
 
--
+-- 
+Jens Axboe
+

@@ -1,68 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVAJLDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVAJLPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbVAJLDH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 06:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVAJLDG
+	id S262205AbVAJLPh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 06:15:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbVAJLPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 06:03:06 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:45955 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262202AbVAJLDB (ORCPT
+	Mon, 10 Jan 2005 06:15:37 -0500
+Received: from ozlabs.org ([203.10.76.45]:1176 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262205AbVAJLPW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 06:03:01 -0500
-Date: Mon, 10 Jan 2005 12:02:52 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.10-mm2] Use the new preemption code [2/3] Resend
-Message-ID: <20050110110252.GA1605@elte.hu>
-References: <20050110013508.1.patchmail@tglx> <1105318406.17853.2.camel@tglx.tec.linutronix.de> <20050110010613.A5825@flint.arm.linux.org.uk> <1105319915.17853.8.camel@tglx.tec.linutronix.de> <20050110094624.A24919@flint.arm.linux.org.uk> <1105351977.3058.2.camel@lap02.tec.linutronix.de>
+	Mon, 10 Jan 2005 06:15:22 -0500
+Date: Mon, 10 Jan 2005 22:13:37 +1100
+From: Anton Blanchard <anton@samba.org>
+To: kaos@ocs.com.au, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: kallsyms gate page patch breaks module lookups
+Message-ID: <20050110111337.GM14239@krispykreme.ozlabs.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105351977.3058.2.camel@lap02.tec.linutronix.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Thomas Gleixner <tglx@linutronix.de> wrote:
+Hi Keith,
 
-> > Are you sure ARM suffers from this race condition?  It sets preempt count
-> > before enabling IRQs and doesn't use preempt_schedule().
-> 
-> There is no race for arm, but using the preempt_schedule() interface
-> is the approach which Ingo suggested for common usage, but his x86
-> implementation was racy, so I fixed this first before modifying arm to
-> use the interface. Ingo pointed out that he will change it to
-> preempt_schedule_irq, but I'm not religious about the name.
+Your recent patch looks to break module kallsyms lookups. On ppc64
+current -bk shows this in an oops:
 
-i wouldnt raise this issue if it was the name only, but there's more to
-preempt_schedule_irq() than its name: it gets called with irqs off and
-the scheduler returns with irqs off and with a guarantee that there is
-no (irq-generated) pending preemption request for this task right now. 
-I.e. the checks for need_resched can be skipped, and interrupts dont
-have to be disabled to do a safe return-to-usermode (as done on some
-architectures).
+Oops: Exception in kernel mode, sig: 5 [#1]
+...
+NIP [d000000000036028] __bss_stop+0xfffffffff84f368/0x340
+LR [d000000000036024] __bss_stop+0xfffffffff84f364/0x340
+Call Trace:
+[c00000000231fd10] [d000000000036024] __bss_stop+0xfffffffff84f364/0x340 (unreliable)
+[c00000000231fd90] [c000000000078750] .sys_init_module+0x2fc/0x4d8
+[c00000000231fe30] [c00000000000d500] syscall_exit+0x0/0x18
 
-as far as i can see do_preempt_schedule() doesnt have these properties:
-what it guarantees is that it avoids the preemption recursion via the
-lowlevel code doing the PREEMPT_ACTIVE setting.
+Backing out the patch below, things work as expected:
 
-lets agree upon a single, common approach. I went for splitting up
-preempt_schedule() into two variants: the 'synchronous' one (called
-preempt_schedule()) is only called from syscall level and has no
-repeat-preemption and hence stack-recursion worries. The 'asynchronous'
-one (called preempt_schedule_irq()) is called from asynchronous contexts
-(hardirq events) and is fully ready to deal with all the reentrancy
-situations that may occur. It's careful about not re-enabling
-interrupts, etc.
+Oops: Exception in kernel mode, sig: 5 [#1]
+...
+NIP [d000000000036028] .myinit+0x28/0x44 [mod]
+LR [d000000000036024] .myinit+0x24/0x44 [mod]
+Call Trace:
+[c000000002313d10] [d000000000036024] .myinit+0x24/0x44 [mod] (unreliable)
+[c000000002313d90] [c000000000078750] .sys_init_module+0x2fc/0x4d8
+[c000000002313e30] [c00000000000d500] syscall_exit+0x0/0x18
 
-	Ingo
+It looks like if CONFIG_KALLSYMS_ALL is set then we never look up module
+addresses.
+
+Anton
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/12/28 22:16:26+01:00 kaos@ocs.com.au 
+#   kallsyms: gate page is part of the kernel, honour CONFIG_KALLSYMS_ALL
+#   
+#   * Treat the gate page as part of the kernel, to improve kernel backtraces.
+#   
+#   * Honour CONFIG_KALLSYMS_ALL, all symbols are valid, not just text.
+#   
+#   Signed-off-by: Keith Owens <kaos@ocs.com.au>
+#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+# 
+# kernel/kallsyms.c
+#   2004/11/28 04:42:24+01:00 kaos@ocs.com.au +11 -4
+#   kallsyms: gate page is part of the kernel, honour CONFIG_KALLSYMS_ALL
+# 
+diff -Nru a/kernel/kallsyms.c b/kernel/kallsyms.c
+--- a/kernel/kallsyms.c	2005-01-10 22:01:10 +11:00
++++ b/kernel/kallsyms.c	2005-01-10 22:01:10 +11:00
+@@ -18,6 +18,13 @@
+ #include <linux/fs.h>
+ #include <linux/err.h>
+ #include <linux/proc_fs.h>
++#include <linux/mm.h>
++
++#ifdef CONFIG_KALLSYMS_ALL
++#define all_var 1
++#else
++#define all_var 0
++#endif
+ 
+ /* These will be re-linked against their real values during the second link stage */
+ extern unsigned long kallsyms_addresses[] __attribute__((weak));
+@@ -30,7 +37,7 @@
+ extern unsigned long kallsyms_markers[] __attribute__((weak));
+ 
+ /* Defined by the linker script. */
+-extern char _stext[], _etext[], _sinittext[], _einittext[];
++extern char _stext[], _etext[], _sinittext[], _einittext[], _end[];
+ 
+ static inline int is_kernel_inittext(unsigned long addr)
+ {
+@@ -44,7 +51,7 @@
+ {
+ 	if (addr >= (unsigned long)_stext && addr <= (unsigned long)_etext)
+ 		return 1;
+-	return 0;
++	return in_gate_area_no_task(addr);
+ }
+ 
+ /* expand a compressed symbol data into the resulting uncompressed string,
+@@ -147,7 +154,7 @@
+ 	namebuf[KSYM_NAME_LEN] = 0;
+ 	namebuf[0] = 0;
+ 
+-	if (is_kernel_text(addr) || is_kernel_inittext(addr)) {
++	if (all_var || is_kernel_text(addr) || is_kernel_inittext(addr)) {
+ 		unsigned long symbol_end=0;
+ 
+ 		/* do a binary search on the sorted kallsyms_addresses array */
+@@ -181,7 +188,7 @@
+ 			if (is_kernel_inittext(addr))
+ 				symbol_end = (unsigned long)_einittext;
+ 			else
+-				symbol_end = (unsigned long)_etext;
++				symbol_end = all_var ? (unsigned long)_end : (unsigned long)_etext;
+ 		}
+ 
+ 		*symbolsize = symbol_end - kallsyms_addresses[low];

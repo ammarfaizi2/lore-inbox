@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281640AbRKUHG6>; Wed, 21 Nov 2001 02:06:58 -0500
+	id <S281642AbRKUHJs>; Wed, 21 Nov 2001 02:09:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281641AbRKUHGs>; Wed, 21 Nov 2001 02:06:48 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:21888 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S281640AbRKUHGc>; Wed, 21 Nov 2001 02:06:32 -0500
-Message-ID: <004301c1725a$ec5f3490$f5976dcf@nwfs>
-From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: "Chris Abbey" <linux@cabbey.net>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0111210046440.3730-100000@tweedle.cabbey.net>
-Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
-Date: Wed, 21 Nov 2001 00:05:38 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S281641AbRKUHJ2>; Wed, 21 Nov 2001 02:09:28 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:17296 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281643AbRKUHJQ>;
+	Wed, 21 Nov 2001 02:09:16 -0500
+Date: Tue, 20 Nov 2001 23:09:14 -0800 (PST)
+Message-Id: <20011120.230914.00464304.davem@redhat.com>
+To: jmerkey@timpanogas.org
+Cc: jmerkey@vger.timpanogas.org, linux-kernel@vger.kernel.org
+Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid
+ opcode
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <003401c1725a$975ad4e0$f5976dcf@nwfs>
+In-Reply-To: <000601c17259$59316630$f5976dcf@nwfs>
+	<20011120.225655.85404918.davem@redhat.com>
+	<003401c1725a$975ad4e0$f5976dcf@nwfs>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: "Jeff Merkey" <jmerkey@timpanogas.org>
+   Date: Wed, 21 Nov 2001 00:03:15 -0700
+   
+   OK.  Cool.  Now we are making progress.  I think this is a nasty problem.
+   There
+   are numerous RPMs that will build against the kernel tree and be busted.
 
-This happens as well with the SCI drivers, which are not dependant on any
-patches.
+If you patch sources files of the main kernel, you have to
+rebuild the dependencies.
 
-Jeff
-
------ Original Message -----
-From: "Chris Abbey" <linux@cabbey.net>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, November 20, 2001 11:54 PM
-Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid
-opcode
-
-
-> Today, Jeff V. Merkey wrote:
-> > [...] I went back
-> > over how I did the build, and this is the result of the build
-> > if you have unpacked, patched, then run "make oldconfig."  If I
-> > do a "make dep" then this problem does not occur, [....]
->
-> umm... lemme see if I understand you correctly, you patched the
-> kernel and soemthing breaks if you don't run make dep after
-> patching? Unless you can prove 100% that nothing in that
-> patch affects the dependency structure of the code, nor any of
-> the other things that are generated during the make dep stage,
-> then what we have here is user error. The directions say, quite
-> clearly, make oldconfig, make dep, make vmlinux, etc. Unless my
-> memory is totally shot tonight the last thing make oldconfig
-> spits out is in fact the direction to run make dep.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Why does this seem illogical to you?

@@ -1,69 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbTLJKbv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 05:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbTLJKbv
+	id S263486AbTLJLCM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 06:02:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTLJLCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 05:31:51 -0500
-Received: from imap.gmx.net ([213.165.64.20]:52932 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263173AbTLJKbu (ORCPT
+	Wed, 10 Dec 2003 06:02:12 -0500
+Received: from [217.174.98.164] ([217.174.98.164]:46991 "EHLO ari.home")
+	by vger.kernel.org with ESMTP id S263486AbTLJLCI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 05:31:50 -0500
-Date: Wed, 10 Dec 2003 11:31:49 +0100 (MET)
-From: "Martin Schaffner" <maschaffner@gmx.ch>
+	Wed, 10 Dec 2003 06:02:08 -0500
+Date: Wed, 10 Dec 2003 14:02:18 +0300 (MSK)
+From: "Lev A. Melnikovsky" <leva@despammed.com>
 To: linux-kernel@vger.kernel.org
+Subject: +2.4.23 Re: Hang after adding swap in 2.4.19-2.4.22
+In-Reply-To: <Pine.LNX.4.58.0312031440160.10231@gu5.xncvgmn.enf.eh>
+Message-ID: <Pine.LNX.4.58.0312101311260.10959@nev.ubzr>
+References: <Pine.LNX.4.58.0312031440160.10231@gu5.xncvgmn.enf.eh>
 MIME-Version: 1.0
-Subject: [PATCH 2.4.23, 2.6.0-test11] avoid unportable "expr length"
-X-Priority: 3 (Normal)
-X-Authenticated: #1892127
-Message-ID: <20645.1071052309@www2.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+  On Wed, 3 Dec 2003 at 3:37pm, Lev A. Melnikovsky wrote:
 
-This one-line patch makes it possible to compile the linux kernel on systems
-without GNU expr.
+> I have this problem quite long already, I first noticed it when switched
+> from 2.4.18 to 2.4.19 and it is still here with 2.4.22 (have not tried
+> 2.4.23 yet). The system "hangs" during the early stages of initscripts
+> execution. In my case these are RedHat initscripts (several versions
+> tried) but other people reported similar problems with Mandrake (look for
+> the words like "hang finding module dependencies" or "hang mounting local
+> filesystems"). There was a similar post to the LKML (Brad Tilley, Jun 23
+> 2003, "OS Fails to Load"). Unfortunately the problem is not 100%
+> reproduceable in the sense the system "hangs" some 10%-50% (your mileage
+> may vary) of times. On the other side the problem was seen here at three
+> separate computers with quite different hardware (well, all CPUs are i386,
+> but they are Celeron 533, Athlon XP 2200+ and XP 1700+).
+have to reply to my own message since got no answer to the original post.
+The problem is already reproduced with 2.4.23. I have managed to catch the
+"hang" in two slightly different situations, both kernel message logs
+(along with ksymoops and addr2line outputs) are available at
+http://kapitza.ras.ru/~leva/ops.2.4.23.tar.bz2
 
+The things common to all the computers involved in my experiments are
+reiserfs root filesystem and devfs (see .config)
 
-patch for 2.6.0-test11
+The kernel used is plain vanilla 2.4.23 with a patch from
+http://w.ods.org/tools/kmsgdump/0.4.4/patch-2.4.23p6-kmsgdump-0.4.4.gz
 
---- a/Makefile	2003-12-09 13:54:50.000000000 +0100
-+++ b/Makefile	2003-12-09 13:56:39.000000000 +0100
-@@ -640,7 +640,7 @@
- uts_len := 64
- 
- define filechk_version.h
--	if expr length "$(KERNELRELEASE)" \> $(uts_len) >/dev/null ; then \
-+	if expr "$(KERNELRELEASE)" : '.*' \> $(uts_len) >/dev/null ; then \
- 	  echo '"$(KERNELRELEASE)" exceeds $(uts_len) characters' >&2; \
- 	  exit 1; \
- 	fi; \
+As I have written earlier, the problem occurs with different computers and
+I doubt that the hardware details may be important. Still, here's info for
+my desktop where the logs were obtained (actually this stuff can be found
+in the top of the log):
 
+[leva@desk leva]$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 8
+model name      : AMD Athlon(tm) XP 1700+
+stepping        : 1
+cpu MHz         : 1470.012
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 2936.01
 
-patch for 2.4.23
+Not overclocked, no vmware (mostly no modules at all - the hang usually
+happens quite early in the boot), no nothing. And, by the way, Seagate
+harddrives in all boxes, if this matters.
 
---- a/Makefile   2003-12-09 14:27:56.000000000 +0100
-+++ b/Makefile   2003-12-09 14:28:37.000000000 +0100
-@@ -353,7 +353,7 @@
-        @rm -f .ver1
-
- include/linux/version.h: ./Makefile
--       @expr length "$(KERNELRELEASE)" \<= $(uts_len) > /dev/null || \
-+       @expr "$(KERNELRELEASE)" : '.*' \<= $(uts_len) > /dev/null || \
-          (echo KERNELRELEASE \"$(KERNELRELEASE)\" exceeds $(uts_len)
-characters >&2; false)
-        @echo \#define UTS_RELEASE \"$(KERNELRELEASE)\" > .ver
-        @echo \#define LINUX_VERSION_CODE `expr $(VERSION) \\* 65536 +
-$(PATCHLEVEL) \\* 256 + $(SUBLEVEL)` >> .ver
-
-
--- 
-+++ GMX - die erste Adresse für Mail, Message, More +++
-Neu: Preissenkung für MMS und FreeMMS! http://www.gmx.net
-
-
+As before, if replying, please CC me, as I am not subscribed.
+I will appreciate any help
+-L.

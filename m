@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290689AbSBLBd2>; Mon, 11 Feb 2002 20:33:28 -0500
+	id <S290701AbSBLBnG>; Mon, 11 Feb 2002 20:43:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290687AbSBLBdR>; Mon, 11 Feb 2002 20:33:17 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:61961 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S290689AbSBLBdD>; Mon, 11 Feb 2002 20:33:03 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A7694@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Jens Maurer'" <jmaurer@cck.uni-kl.de>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: changing file /usr/share/kudzu/pcitable
-Date: Mon, 11 Feb 2002 17:32:57 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S290713AbSBLBm4>; Mon, 11 Feb 2002 20:42:56 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:50310 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S290701AbSBLBmq>;
+	Mon, 11 Feb 2002 20:42:46 -0500
+Date: Mon, 11 Feb 2002 17:41:02 -0800 (PST)
+Message-Id: <20020211.174102.28786938.davem@redhat.com>
+To: davidm@hpl.hp.com
+Cc: anton@samba.org, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: thread_info implementation
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15464.29104.798819.399971@napali.hpl.hp.com>
+In-Reply-To: <15464.28196.894340.327685@napali.hpl.hp.com>
+	<20020211.173236.08323394.davem@redhat.com>
+	<15464.29104.798819.399971@napali.hpl.hp.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: David Mosberger <davidm@hpl.hp.com>
+   Date: Mon, 11 Feb 2002 17:36:48 -0800
+   
+   Umh, perhaps because it adds one level of indirection to every access
+   of "current"??
 
-Where do I submit changes to the /usr/share/kudzu/pcitable file?  Have some
-new devices to add.  Have already submitted the new PCI ids to SourceForge. 
-
-Thanks,
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
-
+Ummm, which is totally cached and therefore costs nothing?

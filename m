@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129601AbRAWKDk>; Tue, 23 Jan 2001 05:03:40 -0500
+	id <S129725AbRAWKXc>; Tue, 23 Jan 2001 05:23:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130092AbRAWKDU>; Tue, 23 Jan 2001 05:03:20 -0500
-Received: from mail.digitalme.com ([193.97.97.75]:17673 "EHLO digitalme.com")
-	by vger.kernel.org with ESMTP id <S129601AbRAWKDR>;
-	Tue, 23 Jan 2001 05:03:17 -0500
-Message-ID: <3A6D56EE.2070003@bigfoot.com>
-Date: Tue, 23 Jan 2001 05:03:26 -0500
-From: "Trever L. Adams" <trever_Adams@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20010119
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129737AbRAWKXX>; Tue, 23 Jan 2001 05:23:23 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:19837 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S129725AbRAWKXN>; Tue, 23 Jan 2001 05:23:13 -0500
+Date: Tue, 23 Jan 2001 12:22:44 +0200 (EET)
+From: Heikki Lindholm <holindho@mail.niksula.cs.hut.fi>
 To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-CC: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+cc: Trever Adams <vichu@digitalme.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: Total loss with 2.4.0 (release)
 In-Reply-To: <Pine.LNX.4.32.0101230026490.7610-100000@asdf.capslock.lan>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.GSO.4.20.0101231211360.14550-100000@famine.cs.hut.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike A. Harris wrote:
+On Tue, 23 Jan 2001, Mike A. Harris wrote:
 
 > On Mon, 15 Jan 2001, Trever Adams wrote:
+> 
+> >I had a similar experience.  All I can say is windows 98
+> >and ME seem to have it out for Linux drives running late
+> >2.3.x and 2.4.0 test and release.  I had windows completely
+> >fry my Linux drive and I lost everything.  I had some old
+> >backups and was able to restore at least the majority of
+> >older stuff.
+> >
+> >Sorry and good luck.
 > 
 > I don't see how Windows 9x can be at fault in any way shape or
 > form, if you can boot between 2.2.x kernel and 9x no problem, but
@@ -32,39 +39,25 @@ Mike A. Harris wrote:
 > is a problem, it most likely is a kernel bug of some kind that
 > doesn't initialize something properly.
 
-Well, I boot into Linux, all is fine, rebooted into a different version 
-of Linux for some testing, all is fine (this was an older version, I 
-believe it was 2.2.14 or .15)  Try to install ME and run it, seems ok. 
-Go back to Linux, and my drive was fried with Windows files all over it, 
-etc.
+I was the original complainer - and came to the same conclusion: that
+windows wiped my stuff. I gathered it up from:
 
-I know Windows shouldn't touch a Linux partition.  But, apparently it 
-did.  Or else Linux and/or Fdisk are fried and made a bad partition table.
+A. After booting to windows and back to 2.4.0 all was lost and the kernel
+   couldn't even mount / and didn't even try /home, which was wiped, too
+   (used 2.2 debian boot disks to verify that, at the time).
+B. I rebuilt everything and am using 2.4.0 kernel now without any serious
+   flaws (using VIA 868B UDMA33). And I'm definitely not trying to win 98
+   again..
+C. the wiped partition had TrueType(tm) fonts in lost+found. I can't
+   think of any other reason for that except that they're from windows'
+   swapping process.
+...
+Z. Windows 98 generally doesn't have very good architecture concerning
+   drivers. It looks nice, but is a mess underneath (proved numerous times
+   by trying to upgrade an old windows installation to a new machine).
 
-> Windows sucks, and I hate it as much (probably more) than the
-> next guy.  It's not fair to blame every computer problem on it
-> though unless you KNOW that Windows directly caused the problem.
+-- hl
 
-I said what I did, because it seems the evidence said Windows did do it. 
-  If it didn't, oops.  I have talked with others and they had a similar 
-experience, so I am not alone.
-
-> Pick one of the 1000000000 good reasons to say Windows sucks
-> instead...
-> 
-> For what it is worth, I have a similar problem where if I boot
-> Windows (to show people what "multicrashing" is), if I boot back
-> into Linux, my network card no longer works (via-rhine).  Most
-> definitely a Linux bug.  In this case, "via-rhine.o" sucks.
-> 
-> ;o)
-
-Well, this is actually the second time I have had Windows write all over 
-my Linux partition.  The first time I think it was not a bug in either, 
-but a bug in hardware.  However, I no longer have that hardware as my 
-desktop.
-
-Trever
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268263AbTBMTHy>; Thu, 13 Feb 2003 14:07:54 -0500
+	id <S268233AbTBMTFR>; Thu, 13 Feb 2003 14:05:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268264AbTBMTHx>; Thu, 13 Feb 2003 14:07:53 -0500
-Received: from rth.ninka.net ([216.101.162.244]:388 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S268263AbTBMTHv>;
-	Thu, 13 Feb 2003 14:07:51 -0500
-Subject: Re: IPv6 in the vanilla tree?
-From: "David S. Miller" <davem@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: YOSHIFUJI Hideaki "/ ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
-       Robert.L.Harris@rdlg.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20030213161100.A3399@infradead.org>
-References: <20030213135702.GE4377@rdlg.net>
-	<20030213.230441.54189804.yoshfuji@linux-ipv6.org> 
-	<20030213161100.A3399@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Feb 2003 12:00:09 -0800
-Message-Id: <1045166409.7435.6.camel@rth.ninka.net>
+	id <S268257AbTBMTFR>; Thu, 13 Feb 2003 14:05:17 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:27805 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S268233AbTBMTFQ>;
+	Thu, 13 Feb 2003 14:05:16 -0500
+Date: Thu, 13 Feb 2003 19:07:55 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+Cc: Patrick Mochel <mochel@osdl.org>, wingel@nano-systems.com,
+       lkml <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
+Message-ID: <20030213190755.GA11244@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Rusty Lynch <rusty@linux.co.intel.com>,
+	Patrick Mochel <mochel@osdl.org>, wingel@nano-systems.com,
+	lkml <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <Pine.LNX.4.33.0302131002420.1133-100000@localhost.localdomain> <1045151506.1189.1.camel@vmhack>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045151506.1189.1.camel@vmhack>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-02-13 at 08:11, Christoph Hellwig wrote:
-> Btw, is there any chance you could make snapshot patches for 2.5 available
-> as you do for 2.4?  Given the number of change in the 2.4 tree it might be
-> interesting what's still missing for 2.5.
+On Thu, Feb 13, 2003 at 07:51:45AM -0800, Rusty Lynch wrote:
 
-ipv6 should be basically identical between 2.4.x and 2.5.x
+ > > You could regard them as 'system' devices, and have them show up in 
+ > > devices/sys/, which would make more sense than 'legacy'.
+ > Ok, system device is the winner.
 
-The only difference is IPSEC, and even for that the ipv6
-portions are still only in their most basic stages.
+Why? Stop for a second and look what we have in those dirs.
+They both contain things that are essentially motherboard resources.
 
-I bet that all their 2.4.x patches apply pretty cleanly to 2.5.x
+These are add-on cards we're talking about. Surely a more sensible
+place for them to live is somewhere under devices/pci0/ or whatever
+bus-type said card is for.
 
+Whilst there are some watchdogs which _are_ part of the motherboard
+chipset (which is arguably 'system'), these still show up in PCI
+space as regular PCI devices.
+
+Lumping them all into the same category as things like rtc, pic,
+fdd etc is just _wrong_.
+
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,132 +1,142 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129044AbRBBTHG>; Fri, 2 Feb 2001 14:07:06 -0500
+	id <S129303AbRBBTI0>; Fri, 2 Feb 2001 14:08:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129158AbRBBTG4>; Fri, 2 Feb 2001 14:06:56 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:36106 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S129044AbRBBTGs>; Fri, 2 Feb 2001 14:06:48 -0500
-From: bsuparna@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        kiobuf-io-devel@lists.sourceforge.net
-Message-ID: <CA2569E7.0068CEBA.00@d73mta05.au.ibm.com>
-Date: Fri, 2 Feb 2001 21:01:09 +0530
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait 
-	/notify + callback chains
+	id <S129304AbRBBTIQ>; Fri, 2 Feb 2001 14:08:16 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:37243
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129303AbRBBTH6>; Fri, 2 Feb 2001 14:07:58 -0500
+Date: Fri, 2 Feb 2001 20:07:49 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Guard mm->rss with page_table_lock (2.4.1)
+Message-ID: <20010202200749.B870@jaquet.dk>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
->Hi,
->
->On Thu, Feb 01, 2001 at 01:28:33PM +0530, bsuparna@in.ibm.com wrote:
->>
->> Here's a second pass attempt, based on Ben's wait queue extensions:
-> Does this sound any better ?
->
->It's a mechanism, all right, but you haven't described what problems
->it is trying to solve, and where it is likely to be used, so it's hard
->to judge it. :)
+This patch tries to fix the potential rss accounting race where we
+change mm->rss without holding page_table_lock.
 
-Hmm .. I thought I had done that in my first posting, but obviously, I
-mustn't have done a good job at expressing it, so let me take another stab
-at trying to convey why I started on this.
-
-There are certain specific situations that I have in mind right now, but to
-me it looks like the very nature of the abstraction is such that it is
-quite likely that there would be uses in some other situations which I may
-not have thought of yet, or just do not understand well enough to vouch for
-at this point. What those situations could be, and the associated issues
-involved (especially performance related) is something that I hope other
-people on this forum would be able to help pinpoint, based on their
-experiences and areas of expertise.
-
-I do realize that generic and yet simple and performance optimal in all
-kinds of situations is a really difficult (if not impossible :-) ) thing to
-achieve, but even then, won't it be nice to at least abstract out
-uniformity in patterns across situations in a way which can be
-tweaked/tuned for each specific class of situations ?
-
-And the nice thing which I see about Ben's wait queue extensions is that it
-gives us a route to try to do that ...
-
-Some needs considered (and associated problems):
-
-a. Stacking of completion events - asynchronously, through multiple layers
-     - layered drivers  (encryption, conversion)
-     - filter filesystems
-    Key aspects:
-     1. It should be possible to pass the same (original) i/o container
-structure all the way down (no copies/clones should need to happen, unless
-actual i/o splitting, or extra buffer space or multiple sub-ios are
-involved)
-     2. Transparency: Neither the upper layer nor the layer below it should
-need to have any specific knowledge about the existence/absense of an
-intermediate filter layer (the mechanism should hide all that)
-     3. LIFO ordering of completion actions
-     4. The i/o structure should be marked as up-to-date only after all the
-completion actions are done.
-     5. Preferably have waiters on the i/o structure woken up only after
-all completion actions are through (to avoid spurious/redundant wakeups
-since the data won't be ready for use)
-     6. Possible to have completion actions execute later in task context
-
-b. Co-relation between multiple completion events and their associated
-operations and data structures
-     -  (bottom up aspect) merging results of split i/o requests, and
-marking the completion of the compound i/o through multiple such layers
-(tree), e.g
-          - lvm
-          - md / raid
-          - evms aggregator features
-     - (top down aspect) cascading down i/o cancellation requests /
-sub-event waits , monitoring sub-io status etc
-      Some aspects:
-     1. Result of collation of sub-i/os may be driver specific  (In some
-situations like lvm  - each sub i/o maps to a particular portion of a
-buffer; with software raid or some other kind of scheme the collation may
-involve actually interpreting the data read)
-     2. Re-start/retries of sub-ios (in case of errors) can be handled.
-     3. Transparency : Neither the upper layer nor the layer below it
-should need to have any specific knowledge about the existence/absense of
-an intermediate layer (that sends out multiple sub i/os)
-     4. The system should be devised to avoid extra logic/fields in the
-generic i/o structures being passed around, in situations where no compound
-i/o is involved (i.e. in the simple i/o cases and most common situations).
-As far as possible it is desirable to keep the linkage information outside
-of the i/o structure for this reason.
-     5. Possible to have collation/completion actions execute later in task
-context
+My reasoning for the correctness of the patch below is as follows.
+First I cover the lock pairs added by the patch (top to bottom) 
+and then the places it does not touch.
 
 
-Ben LaHaise's wait queue extensions takes care of most of the aspects of
-(a), if used with a little care to ensure a(4).
-[This just means that function that marks the i/o structure as up-to-date
-should be put in the completion queue first]
-With this, we don't even need and explicit end_io() in bh/kiobufs etc. Just
-the wait queue would do.
+Added spinlocks:
 
-Only a(5) needs some thought since cache efficiency is upset by changing
-the ordering of waits.
+memory.c::zap_page_range: The spin_unlock is moved to later in
+  the function but not past any exit paths.
+memory.c::do_swap_page: Is called exclusively from handle_pte_fault
+  which drops page_table_lock before calling do_swap_page.
+memory.c:: do_anonymous_page: Is called exclusively from do_no_page
+  which again is called exclusively from handle_pte_fault which
+  drops the page_table_lock before calling do_no_page.
+memory.c:: do_no_page: See above.
 
-But, (b) needs a little more work as a higher level construct/mechanism
-that latches on to the wait queue extensions. That is what the cev_wait
-structure was designed for.
-It keeps the chaining information outside of the i/o structures by default
-(They can be allocated together, if desired anyway)
-
-Is this still too much in the air ? Maybe I should describe the flow in a
-specific scenario to illustrate ?
-
-Regards
-Suparna
+mmap.c:: exit_mmap: The unlock is moved to later in the function 
+  but not across any branches or exit paths.
 
 
+
+Places where rss is modified not touched by the patch:
+
+vmscan.c::try_to_swap_out: called from swap_out_pmd <- 
+   swap_out_pgd <- swap_out_vma <- swap_out_mm which grabs 
+   the lock.
+
+swapfile.c::unuse_pte: called from unuse_pmd <- unuse_pgd <- 
+   unuse_vma <- unuse_process which grabs the lock.
+          ::do_wp_page: lock already held.
+
+
+It applies against ac12 and 2.4.1. It has been running on my
+workstation for the last four days doing various normal workloads
+without problems in addition to the tests from Quintelas memtest
+suite. It should be noted that this patch has _not_ been tested on
+a SMP machine (since I do not own one). Feedback on that would be
+nice.
+
+Comments welcomed. And thanks goes to Rik van Riel for pointing 
+out the obvious and then explaining it when I paid it no heed.
+
+
+
+
+diff -uar linux-2.4.1-clean/mm/memory.c linux/mm/memory.c
+--- linux-2.4.1-clean/mm/memory.c	Thu Feb  1 20:46:03 2001
++++ linux/mm/memory.c	Fri Feb  2 19:38:03 2001
+@@ -377,7 +377,6 @@
+ 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
+ 		dir++;
+ 	} while (address && (address < end));
+-	spin_unlock(&mm->page_table_lock);
+ 	/*
+ 	 * Update rss for the mm_struct (not necessarily current->mm)
+ 	 * Notice that rss is an unsigned long.
+@@ -386,6 +385,7 @@
+ 		mm->rss -= freed;
+ 	else
+ 		mm->rss = 0;
++	spin_unlock(&mm->page_table_lock);
+ }
+ 
+ 
+@@ -1038,7 +1038,9 @@
+ 		flush_icache_page(vma, page);
+ 	}
+ 
++	spin_lock(&mm->page_table_lock);
+ 	mm->rss++;
++	spin_unlock(&mm->page_table_lock);
+ 
+ 	pte = mk_pte(page, vma->vm_page_prot);
+ 
+@@ -1072,7 +1074,9 @@
+ 			return -1;
+ 		clear_user_highpage(page, addr);
+ 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
++		spin_lock(&mm->page_table_lock);
+ 		mm->rss++;
++		spin_unlock(&mm->page_table_lock);
+ 		flush_page_to_ram(page);
+ 	}
+ 	set_pte(page_table, entry);
+@@ -1111,7 +1115,9 @@
+ 		return 0;
+ 	if (new_page == NOPAGE_OOM)
+ 		return -1;
++	spin_lock(&mm->page_table_lock);
+ 	++mm->rss;
++	spin_unlock(&mm->page_table_lock);
+ 	/*
+ 	 * This silly early PAGE_DIRTY setting removes a race
+ 	 * due to the bad i386 page protection. But it's valid
+diff -uar linux-2.4.1-clean/mm/mmap.c linux/mm/mmap.c
+--- linux-2.4.1-clean/mm/mmap.c	Thu Feb  1 20:46:03 2001
++++ linux/mm/mmap.c	Fri Feb  2 19:38:03 2001
+@@ -879,8 +879,8 @@
+ 	spin_lock(&mm->page_table_lock);
+ 	mpnt = mm->mmap;
+ 	mm->mmap = mm->mmap_avl = mm->mmap_cache = NULL;
+-	spin_unlock(&mm->page_table_lock);
+ 	mm->rss = 0;
++	spin_unlock(&mm->page_table_lock);
+ 	mm->total_vm = 0;
+ 	mm->locked_vm = 0;
+ 
+
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+I've never had major knee surgery on any other part of my body.
+-Winston Bennett, University of Kentucky basketball forward
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262936AbUB0SnC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 13:43:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUB0Sju
+	id S262952AbUB0Slo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 13:41:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbUB0SlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 13:39:50 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:42406 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263097AbUB0Sj3
+	Fri, 27 Feb 2004 13:41:10 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:22658 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262952AbUB0Sjo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 13:39:29 -0500
-Message-ID: <403F8F3A.70302@austin.ibm.com>
-Date: Fri, 27 Feb 2004 12:40:58 -0600
-From: Nathan Lynch <nathanl@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Fri, 27 Feb 2004 13:39:44 -0500
+Date: Fri, 27 Feb 2004 13:42:12 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Why no interrupt priorities?
+In-Reply-To: <403F894C.1050808@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.53.0402271336010.8356@chaos>
+References: <F760B14C9561B941B89469F59BA3A8470255F02D@orsmsx401.jf.intel.com>
+ <403F894C.1050808@nortelnetworks.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] [2.6.3-mm4] mm/slab.c warning in cache_alloc_debugcheck_after
-Content-Type: multipart/mixed;
- boundary="------------090105060801050702070001"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090105060801050702070001
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 27 Feb 2004, Chris Friesen wrote:
 
- From a ppc64 build:
+> Grover, Andrew wrote:
+>
+> > If a device later in the handler chain is also interrupting, then the
+> > interrupt will immediately trigger again. The irq line will remain
+> > asserted until nobody is asserting it.
+>
+> I thought I saw examples of edge-triggered shared interrupts earlier in
+> the thread.  Doesn't that give the reason for this behaviour?
+>
+> Chris
+>
+> --
+> Chris Friesen                    | MailStop: 043/33/F10
+> Nortel Networks                  | work: (613) 765-0557
+> 3500 Carling Avenue              | fax:  (613) 765-2986
+> Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 
-   CC      mm/slab.o
-mm/slab.c: In function `cache_alloc_debugcheck_after':
-mm/slab.c:1976: warning: cast from pointer to integer of different size
+In the early IBM/AT, there was a port to which a user of
+a shared "edge" interrupt could write. If the interrupt
+line was still asserted, this would generate another edge.
 
-Thanks,
-Nathan
+This meant that any ISR needed to know about other users
+of the same interrupt. This is probably why it didn't
+catch on.
 
---------------090105060801050702070001
-Content-Type: text/x-patch;
- name="cache_alloc_debugcheck_after.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cache_alloc_debugcheck_after.patch"
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-diff -urp linux-2.6.3-mm4/mm/slab.c linux-2.6.3-mm4.new/mm/slab.c
---- linux-2.6.3-mm4/mm/slab.c	2004-02-27 12:09:48.000000000 -0600
-+++ linux-2.6.3-mm4.new/mm/slab.c	2004-02-27 12:26:09.000000000 -0600
-@@ -1973,7 +1973,7 @@ cache_alloc_debugcheck_after(kmem_cache_
- 		slabp = GET_PAGE_SLAB(virt_to_page(objp));
- 
- 		objnr = (objp - slabp->s_mem) / cachep->objsize;
--		slab_bufctl(slabp)[objnr] = (int)caller;
-+		slab_bufctl(slabp)[objnr] = (unsigned long)caller;
- 	}
- 	objp += obj_dbghead(cachep);
- 	if (cachep->ctor && cachep->flags & SLAB_POISON) {
 
---------------090105060801050702070001--

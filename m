@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286784AbRLVONv>; Sat, 22 Dec 2001 09:13:51 -0500
+	id <S286788AbRLVOdn>; Sat, 22 Dec 2001 09:33:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286786AbRLVONm>; Sat, 22 Dec 2001 09:13:42 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19722 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286784AbRLVONW>; Sat, 22 Dec 2001 09:13:22 -0500
-Subject: Re: [RFC] Scheduler queue implementation ...
-To: pavel@suse.cz (Pavel Machek)
-Date: Sat, 22 Dec 2001 14:23:36 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <20011221202113.D415@elf.ucw.cz> from "Pavel Machek" at Dec 21, 2001 08:21:13 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S286789AbRLVOda>; Sat, 22 Dec 2001 09:33:30 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:3336 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S286788AbRLVOdK>;
+	Sat, 22 Dec 2001 09:33:10 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Assigning syscall numbers for testing 
+In-Reply-To: Your message of "Sat, 22 Dec 2001 14:12:45 -0000."
+             <E16HmtJ-0004G7-00@the-village.bc.nu> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Hn3p-0004IC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sun, 23 Dec 2001 01:32:55 +1100
+Message-ID: <10295.1009031575@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But ... UI performance should not matter much. And that is *abuse* of
-> threads.
+On Sat, 22 Dec 2001 14:12:45 +0000 (GMT), 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> User space code should open /proc/dynamic_syscalls, read the lines
+>> looking for their syscall name, extract the number and call the glibc
+>> syscall() function using that number.  Do not use the _syscalln()
+>> functions, they require a constant syscall number at compile time.
+>
+>Simple brutal and to the point. Also it means a dynamic library can 
+>switch to real syscalls and dynamic apps will migrate fine.
+>
+>One request - can we specify a namespace of the form
+>
+>['vendorid'].[call]
+>
+>vendorid is the wrong phrase but "some sane way of knowing whose syscall
+>it is" - it would be bad for andrea-aio and ben-aio to use the same names..
 
-A UI thread often makes sense and its a real latency/efficiency trade off
-given the inconvenient human. Thats why I was playing at scheduling all
-running processes for an mm on one CPU - your comments make me think that
-"for non hogs" might have some relevance.
+Did that in the comments.
 
-> If I have a raytracer, and want to explore 8 cpus, how do I do that?
-> Separate scene into 8 pieces, make sure no r/w data are shared, and
-> clone(CLONE_VM). Are there other ways? [I do not know if people are
-> really doing it like that. *I* would do it that way. Is it bad?]
+/**
+ * register_dynamic_syscall - assign a dynamic syscall number.
+ * @name: the name of the syscall, used by user space code to find the number.
+ *        Use a unique name, if there is any possibility of conflict with
+ *        other test syscalls then include your company or initials in the name.
 
-Thats probably the best SMP way
+

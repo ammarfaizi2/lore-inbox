@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265895AbUBPRJn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 12:09:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265898AbUBPRJn
+	id S265678AbUBPRRS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 12:17:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265740AbUBPRRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 12:09:43 -0500
-Received: from ns.suse.de ([195.135.220.2]:15278 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265895AbUBPRJl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 12:09:41 -0500
-Date: Mon, 16 Feb 2004 20:13:34 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ben Collins <bcollins@debian.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: Re: [PATCH] Disable useless bootmem warning
-Message-Id: <20040216201334.07ab2aa8.ak@suse.de>
-In-Reply-To: <20040216165211.GC2389@phunnypharm.org>
-References: <20040216180028.06402e70.ak@suse.de>
-	<20040216165211.GC2389@phunnypharm.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 16 Feb 2004 12:17:18 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:47752 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265678AbUBPRRN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 12:17:13 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Timothy Miller <miller@techsource.com>
+Subject: Re: 2.4.24 problems [WAS: Re: IDE DMA problem  [WAS: Re: Getting lousy NFS + tar-pipe throughput on 2.4.20]]
+Date: Mon, 16 Feb 2004 18:20:32 +0100
+User-Agent: KMail/1.5.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Balaji Calidas <balaji@techsource.com>
+References: <402D6262.90301@techsource.com> <200402140154.54307.bzolnier@elka.pw.edu.pl> <4030F94F.1000900@techsource.com>
+In-Reply-To: <4030F94F.1000900@techsource.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402161820.32901.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Feb 2004 11:52:11 -0500
-Ben Collins <bcollins@debian.org> wrote:
+On Monday 16 of February 2004 18:09, Timothy Miller wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > On Saturday 14 of February 2004 01:16, Timothy Miller wrote:
+> >
+> >   Does 2.4.20 not work well with the KT600
+> >
+> >>chipset?
+> >
+> > It doesn't, upgrade to 2.4.24.
+>
+> Ok, so we tried that.  That caused all sorts of havoc, most of which we
+> might be able to figure out.  It seems that RedHat's utilities and stuff
+> don't get along well with 2.4.24 if all you do is just boot the new
+> kernel.  Seems a bunch of other stuff needs to be upgraded.
+>
+> Also, 'root=LABEL=/' doesn't work anymore in grub.conf, and there seems
+> to be no way to enable it.  Is this a RedHat only thing?
 
-> > I've never seen a bug uncovered by this warning too. I considered to disable it 
-> > by passing a special array of "ok to reserve twice" regions, but on second thought 
-> > it is just best to remove it completely. Reserving things twice is not usually
-> > an error.
-> 
-> I have. When I was working to get sparc64 booting from alternate memory
-> (other than 0x0 physical), those messages helped me a lot.
-> 
-> Maybe make it ifdef'd by CONFIG_DEBUG_BOOTMEM (which is an option that I
-> know sparc and sparc64 already have).
+This feature is not present in vanilla kernels.
 
-That would be fine by me too.  Anything, as long as I don't have to see them ;-)
+> In any event, when we managed to get it to boot, it absolutely did NOT
+> fix the DMA problem with the KT600.  Trying to enable it with hdparm
+> still says "Operation not permitted".  We spend a LOT of time trying to
+> make sure we got the kernel configured right with all of the right
+> options, etc., but we're still without IDE DMA.
+>
+> Any further suggestions?
 
-Here's a new patch.
+Do you have VIA IDE driver compiled in?
+CONFIG_BLK_DEV_VIA82CXXX=y
 
--Andi
+If so, please send output of 'dmesg' command.
 
-diff -u linux-2.6.2-work32/mm/bootmem.c-o linux-2.6.2-work32/mm/bootmem.c
---- linux-2.6.2-work32/mm/bootmem.c-o	2004-02-11 22:06:58.000000000 +0100
-+++ linux-2.6.2-work32/mm/bootmem.c	2004-02-16 20:11:10.000000000 +0100
-@@ -91,8 +91,11 @@
- 	if (end > bdata->node_low_pfn)
- 		BUG();
- 	for (i = sidx; i < eidx; i++)
--		if (test_and_set_bit(i, bdata->node_bootmem_map))
-+		if (test_and_set_bit(i, bdata->node_bootmem_map)) { 
-+#ifdef CONFIG_DEBUG_BOOTMEM
- 			printk("hm, page %08lx reserved twice.\n", i*PAGE_SIZE);
-+#endif
-+		}
- }
- 
- static void __init free_bootmem_core(bootmem_data_t *bdata, unsigned long addr, unsigned long size)
+--bart
+

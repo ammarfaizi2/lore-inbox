@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbUAUUor (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 15:44:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264142AbUAUUor
+	id S266035AbUAUUxN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 15:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266044AbUAUUxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 15:44:47 -0500
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:9746 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S263850AbUAUUop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 15:44:45 -0500
-Date: Wed, 21 Jan 2004 21:47:05 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH] i2c driver fixes for 2.6.1
-Message-Id: <20040121214705.12a0a4a9.khali@linux-fr.org>
-In-Reply-To: <20040120220750.GA3944@kroah.com>
-References: <10745567571488@kroah.com>
-	<1074556757661@kroah.com>
-	<20040120230322.24cbe005.khali@linux-fr.org>
-	<20040120220750.GA3944@kroah.com>
-Reply-To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 21 Jan 2004 15:53:13 -0500
+Received: from h24-78-210-69.ss.shawcable.net ([24.78.210.69]:61198 "HELO
+	discworld.dyndns.org") by vger.kernel.org with SMTP id S266035AbUAUUxL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 15:53:11 -0500
+Date: Wed, 21 Jan 2004 14:57:18 -0600
+From: Charles Cazabon <linux@discworld.dyndns.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: List 'linux-dvb' closed to public posts
+Message-ID: <20040121145718.A12761@discworld.dyndns.org>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <ecartis-01212004203954.14209.1@mail.convergence2.de> <20040121194315.GE9327@redhat.com> <Pine.LNX.4.58.0401211155300.2123@home.osdl.org> <1074717499.18964.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1074717499.18964.9.camel@localhost.localdomain>; from zlynx@acm.org on Wed, Jan 21, 2004 at 01:38:19PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Or just send me a patch, backing out your change, I'll apply that :)
+Zan Lynx <zlynx@acm.org> wrote:
+> On Wed, 2004-01-21 at 12:56, Linus Torvalds wrote:
+> > On Wed, 21 Jan 2004, Dave Jones wrote:
+> > >
+> > > *sigh*, anyone object to patches marking such mailing lists in
+> > > MAINTAINERS as 'subscription only' ?
+> > 
+> > Sounds like they shouldn't be in MAINTAINERS at all if they can't be 
+> > posted to. I mean, what's the point?
+> 
+> Compared to the time required to write up a good bug report or patch,
+> what's the problem with the couple minutes needed to subscribe,
+> authorize and _then_ post to the list?
 
-Here you are. Sorry again for the noise.
+The time it takes is beside the point.  If I find a bug, I'll write it up and
+send it in -- but I'm not going to jump through arbitrary hoops to do it.  I
+may as well just fork the code and fix the damned thing myself :).
 
---------------------------------
+If they want to close their list, fine -- but then they should set up a
+separate bug-submission address which is open.
 
-Undo a recent change to the i2c documentation. The change belongs to
-2.7.
-
---- linux-2.6.2-rc1/Documentation/i2c/porting-clients.orig	Wed Jan 21 21:41:04 2004
-+++ linux-2.6.2-rc1/Documentation/i2c/porting-clients	Wed Jan 21 21:41:12 2004
-@@ -92,10 +92,7 @@
-   i2c_get_clientdata(client) instead.
- 
- * [Interface] Init function should not print anything. Make sure
--  there is a MODULE_LICENSE() line. MODULE_PARM() is replaced
--  by module_param(). Note that module_param has a third parameter,
--  that you should set to 0 by default. See include/linux/moduleparam.h
--  for details.
-+  there is a MODULE_LICENSE() line.
- 
- Coding policy:
- 
-
-
+Charles
 -- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:     http://www.qcc.ca/~charlesc/software/
+-----------------------------------------------------------------------

@@ -1,27 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284833AbRLEXfS>; Wed, 5 Dec 2001 18:35:18 -0500
+	id <S284831AbRLEXgm>; Wed, 5 Dec 2001 18:36:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284836AbRLEXfK>; Wed, 5 Dec 2001 18:35:10 -0500
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:32015 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S284832AbRLEXfF>; Wed, 5 Dec 2001 18:35:05 -0500
+	id <S284837AbRLEXga>; Wed, 5 Dec 2001 18:36:30 -0500
+Received: from mail.direcpc.com ([198.77.116.30]:49378 "EHLO
+	postoffice2.direcpc.com") by vger.kernel.org with ESMTP
+	id <S284831AbRLEXgO>; Wed, 5 Dec 2001 18:36:14 -0500
 Subject: Re: NVIDIA kernel module
-From: Miles Lane <miles@megapathdsl.net>
-To: Erik Elmore <lk@bigsexymo.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
+From: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
 In-Reply-To: <Pine.LNX.4.33.0112051719260.13083-100000@erik.bigsexymo.com>
 In-Reply-To: <Pine.LNX.4.33.0112051719260.13083-100000@erik.bigsexymo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0+cvs.2001.12.04.08.57 (Preview Release)
-Date: 05 Dec 2001 15:38:39 -0800
-Message-Id: <1007595520.16919.4.camel@stomata.megapathdsl.net>
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 05 Dec 2001 18:29:35 -0500
+Message-Id: <1007594981.2916.7.camel@eleusis>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-12-05 at 15:22, Erik Elmore wrote:
+On Wed, 2001-12-05 at 18:22, Erik Elmore wrote:
 > Have I lost my mind?
 > 
 > I've always thought that NVIDIA's linux kernel support was incredibly 
@@ -30,10 +29,19 @@ On Wed, 2001-12-05 at 15:22, Erik Elmore wrote:
 > 
 > was I mistaken or is this something new?
 
-I think the kernel stuff is mostly just hooks into the kernel.
-There isn't any significant proprietary information in the
-kernel patch, unless I'm much mistaken.  The proprietary gold 
-is hidden in the driver.
+The former.
 
-	Miles
+Jeffrey H. Ingber (jhingber _at_ ix.netcom.com)
+
+> 
+> Erik
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 

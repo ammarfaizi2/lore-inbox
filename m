@@ -1,98 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263251AbSJJGkA>; Thu, 10 Oct 2002 02:40:00 -0400
+	id <S263268AbSJJGqS>; Thu, 10 Oct 2002 02:46:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263252AbSJJGkA>; Thu, 10 Oct 2002 02:40:00 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:36827 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S263251AbSJJGjx>; Thu, 10 Oct 2002 02:39:53 -0400
-Reply-To: <suresh.babu@wipro.com>
-From: "Suresh babu V." <suresh.babu@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem with sethostname() ??
-Date: Thu, 10 Oct 2002 12:13:28 +0530
-Organization: Wipro Technologies
-Message-ID: <003d01c27028$5784a9f0$630b720a@sureshbabu>
+	id <S263270AbSJJGqS>; Thu, 10 Oct 2002 02:46:18 -0400
+Received: from [64.76.155.18] ([64.76.155.18]:44478 "EHLO alumno.inacap.cl")
+	by vger.kernel.org with ESMTP id <S263268AbSJJGqR>;
+	Thu, 10 Oct 2002 02:46:17 -0400
+Date: Thu, 10 Oct 2002 02:51:59 -0400 (CLT)
+From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+To: linux-kernel@vger.kernel.org
+cc: kernel-janitor-discuss@lists.sourceforge.net
+Subject: [PATCH][CALL FOR TESTERS] [const] char declarations, 2.5.41 update
+Message-ID: <Pine.LNX.4.44.0210100246190.19850-100000@alumno.inacap.cl>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-db2acf37-6c1c-4dcb-9550-4c4ebac6c78c"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-This is a multi-part message in MIME format.
+I've put another version of the patch for replacing *foo for foo[], it's 
+located at: <http://alumno.inacap.cl/~rmaureira/chardef-2.5.41.diff>
 
-------=_NextPartTM-000-db2acf37-6c1c-4dcb-9550-4c4ebac6c78c
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Here is the diffstat
 
-Hi,
+ arch/alpha/kernel/sys_nautilus.c           |   12 ++++++------
+ arch/cris/drivers/axisflashmap.c           |    2 +-
+ arch/cris/drivers/ethernet.c               |    2 +-
+ arch/cris/drivers/lpslave/e100lpslavenet.c |    2 +-
+ arch/cris/drivers/serial.c                 |    6 +++---
+ arch/cris/drivers/usb-host.c               |    2 +-
+ arch/ia64/tools/print_offsets.c            |    2 +-
+ drivers/cdrom/sbpcd.c                      |   20 ++++++++++----------
+ drivers/char/keyboard.c                    |    6 +++---
+ drivers/hotplug/pci_hotplug_core.c         |    2 +-
+ drivers/ide/ide.c                          |    4 ++--
+ drivers/isdn/hisax/amd7930.c               |    2 +-
+ drivers/isdn/hisax/asuscom.c               |    2 +-
+ drivers/isdn/hisax/avm_a1.c                |    2 +-
+ drivers/isdn/hisax/avm_a1p.c               |    2 +-
+ drivers/isdn/hisax/avm_pci.c               |    2 +-
+ drivers/isdn/hisax/bkm_a4t.c               |    2 +-
+ drivers/isdn/hisax/callc.c                 |    2 +-
+ drivers/isdn/hisax/diva.c                  |    2 +-
+ drivers/isdn/hisax/elsa.c                  |    2 +-
+ drivers/isdn/hisax/enternow_pci.c          |    2 +-
+ drivers/isdn/hisax/gazel.c                 |    2 +-
+ drivers/isdn/hisax/hfc_pci.c               |    2 +-
+ drivers/isdn/hisax/hfc_sx.c                |    2 +-
+ drivers/isdn/hisax/hfcscard.c              |    2 +-
+ drivers/isdn/hisax/isdnl1.c                |    2 +-
+ drivers/isdn/hisax/isdnl2.c                |    2 +-
+ drivers/isdn/hisax/isdnl3.c                |    2 +-
+ drivers/isdn/hisax/isurf.c                 |    2 +-
+ drivers/isdn/hisax/ix1_micro.c             |    2 +-
+ drivers/isdn/hisax/l3_1tr6.c               |    2 +-
+ drivers/isdn/hisax/l3dss1.c                |    2 +-
+ drivers/isdn/hisax/l3ni1.c                 |    2 +-
+ drivers/isdn/hisax/mic.c                   |    2 +-
+ drivers/isdn/hisax/netjet.c                |    2 +-
+ drivers/isdn/hisax/niccy.c                 |    2 +-
+ drivers/isdn/hisax/nj_s.c                  |    2 +-
+ drivers/isdn/hisax/nj_u.c                  |    2 +-
+ drivers/isdn/hisax/s0box.c                 |    2 +-
+ drivers/isdn/hisax/sedlbauer.c             |    2 +-
+ drivers/isdn/hisax/sportster.c             |    2 +-
+ drivers/isdn/hisax/tei.c                   |    2 +-
+ drivers/isdn/hisax/teleint.c               |    2 +-
+ drivers/isdn/hisax/teles0.c                |    2 +-
+ drivers/isdn/hisax/teles3.c                |    2 +-
+ drivers/isdn/hisax/telespci.c              |    2 +-
+ drivers/isdn/hisax/w6692.c                 |    2 +-
+ drivers/md/multipath.c                     |    2 +-
+ drivers/md/raid1.c                         |    2 +-
+ drivers/md/raid5.c                         |    2 +-
+ drivers/message/fusion/mptscsih.c          |    6 +++---
+ drivers/net/appletalk/cops.c               |    2 +-
+ drivers/net/e100/e100_main.c               |    2 +-
+ drivers/net/irda/smc-ircc.c                |    2 +-
+ drivers/net/irda/toshoboe.c                |    2 +-
+ drivers/net/isa-skeleton.c                 |    2 +-
+ drivers/net/ne2.c                          |    4 ++--
+ drivers/net/ni5010.c                       |    4 ++--
+ drivers/net/oaknet.c                       |    2 +-
+ drivers/net/smc-ultra32.c                  |    2 +-
+ drivers/net/tc35815.c                      |    2 +-
+ drivers/net/tulip/de4x5.c                  |    2 +-
+ drivers/net/wan/c101.c                     |    4 ++--
+ drivers/net/wan/hdlc_generic.c             |    2 +-
+ drivers/net/wan/n2.c                       |    4 ++--
+ drivers/net/wan/sdla.c                     |    4 ++--
+ drivers/pcmcia/cs.c                        |    4 ++--
+ drivers/pnp/pnpbios_core.c                 |    2 +-
+ drivers/s390/net/lcs.c                     |    2 +-
+ drivers/s390/qdio.c                        |    2 +-
+ drivers/sbus/char/bpp.c                    |    2 +-
+ drivers/scsi/dmx3191d.c                    |    2 +-
+ drivers/scsi/eata.c                        |    2 +-
+ drivers/scsi/nsp32.c                       |    2 +-
+ drivers/scsi/osst.c                        |    4 ++--
+ drivers/scsi/scsi_debug.c                  |   10 +++++-----
+ drivers/scsi/u14-34f.c                     |    2 +-
+ drivers/usb/misc/speedtouch.c              |    2 +-
+ drivers/usb/net/cdc-ether.c                |    2 +-
+ drivers/video/aty128fb.c                   |    2 +-
+ drivers/video/clgenfb.c                    |    2 +-
+ drivers/video/fbcon.c                      |    2 +-
+ drivers/video/promcon.c                    |    2 +-
+ fs/ntfs/super.c                            |   10 +++++-----
+ fs/reiserfs/procfs.c                       |    2 +-
+ mm/slab.c                                  |    2 +-
+ 86 files changed, 122 insertions, 122 deletions
 
-	While attempting for some testing with sethostname() call, I got
-this problem . As explained in the man page the sethostname call is
-failing(ret val = -1 & errno = EFAULT(14)) for invalid address and valid
-length. But the problem is after running the following test, hostname is
-getting reset to NULL. I tested in both 2.4 & 2.5 kernels.
+Again, I'll wait until weekend for breakage reports before starting to 
+feed the small bits to the respective maintainers.
 
-Any comments on this?? 
+Best regards
+-- 
+Robinson Maureira Castillo
+Asesor DAI
+INACAP
 
-----------------------------------
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-
-main()
-{
-int ret, errno;
-unsigned short int len;
-char host[50]="tmphost"; /* hostname max size is 64 */
-errno = 0;
-len = sizeof(host); 
-
-/* valid length and invalid address, expected err is EFAULT */
-ret = sethostname((void *)-1, len);
-printf("return val : %d, err no: %d \n",ret,errno);
-
-} 
--------------------------------------------------
-
-        I saw the code of sys_sethostname() function (sys.c) , in which
-copy_from_user() is being called. I would like to know is it required to
-validate the name argument before calling copy_from_user() to avoid such
-problems.
-
-        We could expect similar problem in setdomainname() also in which
-same sort of code is used. 
-
-
-
-PS : Please CC me your replies as I havn't subscribed to the list.
- 
-Thanks,
-Suresh.
-
-
-------=_NextPartTM-000-db2acf37-6c1c-4dcb-9550-4c4ebac6c78c
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-**************************Disclaimer**************************************************    
- 
- Information contained in this E-MAIL being proprietary to Wipro Limited is 'privileged' 
-and 'confidential' and intended for use only by the individual or entity to which it is 
-addressed. You are notified that any use, copying or dissemination of the information 
-contained in the E-MAIL in any manner whatsoever is strictly prohibited.
-
-****************************************************************************************
-
-------=_NextPartTM-000-db2acf37-6c1c-4dcb-9550-4c4ebac6c78c--

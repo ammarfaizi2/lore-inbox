@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276361AbRI1Wtz>; Fri, 28 Sep 2001 18:49:55 -0400
+	id <S276364AbRI1Wz4>; Fri, 28 Sep 2001 18:55:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276362AbRI1Wtp>; Fri, 28 Sep 2001 18:49:45 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:10910 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S276361AbRI1Wth>;
-	Fri, 28 Sep 2001 18:49:37 -0400
-Date: Sat, 29 Sep 2001 00:50:03 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200109282250.AAA16038@harpo.it.uu.se>
-To: rutt@chezrutt.com
-Subject: Re: 2.4.10 problem with APM on Inspiron 8000
-Cc: linux-kernel@vger.kernel.org
+	id <S276365AbRI1Wzp>; Fri, 28 Sep 2001 18:55:45 -0400
+Received: from earth.ayrnetworks.com ([64.166.72.139]:20494 "EHLO
+	earth.ayrnetworks.com") by vger.kernel.org with ESMTP
+	id <S276364AbRI1Wzd>; Fri, 28 Sep 2001 18:55:33 -0400
+Date: Fri, 28 Sep 2001 15:54:03 -0700 (PDT)
+From: Brad Bozarth <prettygood@cs.stanford.edu>
+X-X-Sender: <bradb@earth.ayrnetworks.com>
+Reply-To: <prettygood@cs.stanford.edu>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Big-endian reading/writing cramfs (vs 2.4.10)
+In-Reply-To: <20010928163313.C930@turbolinux.com>
+Message-ID: <Pine.LNX.4.33.0109281539220.11173-100000@earth.ayrnetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Sep 2001 11:40:19 -0400, John Ruttenberg wrote:
-
->My Inspiron 8k loves kernels 2.4.* up to 2.4.9, but has problems with 2.4.10.
->In particular, it seems that any APM event (suspend, etc.) causes a hard
->freeze.  In fact, on 2.4.9 and lower, I can even use the function-setup key
->which lets me examine/change bios while the kernel is running.  On 2.4.10,
->this causes a kernel freeze.
+> On Sep 28, 2001  14:58 -0700, Brad wrote:
+> > +#define CRAM_SWAB_16(x)	( ( (0x0000FF00 & (x)) >> 8   ) | \
+> > +			  ( (0x000000FF & (x)) << 8 ) )
 >
->My .config files are essentially identical for 2.4.9 and for 2.4.10.
->
->On thing I noticed that seems a little suspicious is this start up message:
->
->    Local APIC disabled by BIOS -- reenabling.
->    Found and enabled local APIC!
->
->For 2.4.9, I get:
->
->    mapped APIC to ffffe000 (01442000)
+> Why not just use the well-defined le16_to_cpu() and le32_to_cpu() macros?
 
-The I8000 again (sigh). You apparently have SMP or UP IOAPIC enabled.
-In this case, 2.4.10 will enable the local APIC if the BIOS didn't.
+I did, originally... And it worked in inode.c, but I couldn't get mkcramfs
+to compile using those macros.  It's outside of __KERNEL__ so I tried
+using __cpu_to_le32.  The following error occurred:
 
-To help debug the freeze, please try the patch below: it will cause
-the kernel to log any APM event sent to it from the BIOS. Run this
-in an SMP&UP_IOAPIC-less kernel. Do one of the actions above that
-would freeze the APIC-enabled kernel (like the key sequence to enter
-the BIOS setup screens). Check the kernel log. Did APM log any event,
-and if so, which one?
+/tmp/ccoK4KS0.o: In function `write_superblock':
+mkcramfs.c(.text+0xefc): undefined reference to `__fswab32'
+collect2: ld returned 1 exit status
 
-My suspicion (from this and other reports) is that the Inspiron 8000's
-BIOS SMM can't handle an enabled local APIC, or it passes an APM event
-that apm.c ignores. Either case can be lethal.
+__fswab32 is defined in include/linux/byteorder/swab.h as:
 
-/Mikael
+extern __inline__ __const__ __u32 __fswab32(__u32 x)
+{
+	return __arch__swab32(x);
+}
 
---- linux-2.4.10/arch/i386/kernel/apm.c.~1~	Sun Sep 23 21:06:30 2001
-+++ linux-2.4.10/arch/i386/kernel/apm.c	Sat Sep 29 00:11:23 2001
-@@ -927,6 +927,7 @@
- 
- static int send_event(apm_event_t event)
- {
-+	printk(__FUNCTION__ ": event %u\n", event);
- 	switch (event) {
- 	case APM_SYS_SUSPEND:
- 	case APM_CRITICAL_SUSPEND:
+Can you shed some light on the error?  I used my own macros to get around
+this issue and it worked, but the defined ones would be cleaner...
+
+Thanks,
+Brad Bozarth
+
+

@@ -1,143 +1,256 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbTKBOQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 09:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbTKBOQZ
+	id S261732AbTKBPJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 10:09:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbTKBPJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 09:16:25 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:8919 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S261699AbTKBOQW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 09:16:22 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: alsa-devel@alsa-project.org
-Subject: [2.6.0-test9 ALSA] ALSA-OSS-emulation unable to register
-Date: Sun, 2 Nov 2003 15:01:53 +0100
-User-Agent: KMail/1.5.4
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Description: clearsigned data
+	Sun, 2 Nov 2003 10:09:25 -0500
+Received: from pusa.informat.uv.es ([147.156.10.98]:44975 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP id S261705AbTKBPJM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 10:09:12 -0500
+Date: Sun, 2 Nov 2003 16:09:11 +0100
+From: uaca@alumni.uv.es
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test9: BUG alim15x3.c
+Message-ID: <20031102150911.GB14148@pusa.informat.uv.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311021458.59759.mbuesch@freenet.de>
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Hi,
+Hi all
 
-ALSA work's fine for me, but the OSS emulation layer doesn't work.
-My configuration is:
+I have an ASUS P5A board with the ALI M5229 IDE controller, the kernel 
+(2.6.0-test9) doesn't recognize the partition table (so it cannot but 
+the root fs of the disk).
 
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_VERBOSE_PRINTK=y
-CONFIG_SND_ENS1371=y
-# OSS options
-CONFIG_SOUND_PRIME=y
-CONFIG_SOUND_BT878=y
-CONFIG_SOUND_TVMIXER=y
-All other sound options are disabled.
-It's a SoundBlaster 128 PCI card.
+I've tried booting with ide0=nodma,notune with the same results. 
 
-I've applied the attached patch to display more meaningful
-error-messages.
+Also I tried with not including the alim15x3 driver, also the same results.
 
-Kernel-log messages are:
-Nov  2 15:59:27 lfs kernel: Advanced Linux Sound Architecture Driver Version 0.9.7 (Thu Sep 25 19:16:36 2003 UTC).
-Nov  2 15:59:27 lfs kernel: request_module: failed /sbin/modprobe -- snd-card-0. error = -16
-* Nov  2 15:59:27 lfs kernel: register1 failed: 35
-Nov  2 15:59:27 lfs kernel: ALSA sound/core/oss/pcm_oss.c:2353: unable to register OSS PCM device 0:0
-* Nov  2 15:59:27 lfs kernel: ALSA sound/core/oss/pcm_oss.c:2354: error code: -16 == -EBUSY
-* Nov  2 15:59:27 lfs kernel: register1 failed: 32
-Nov  2 15:59:27 lfs kernel: ALSA sound/core/oss/mixer_oss.c:1210: unable to register OSS mixer device 0:0
-Nov  2 15:59:27 lfs kernel: ALSA device list:
-Nov  2 15:59:27 lfs kernel:   #0: Ensoniq AudioPCI ENS1371 at 0xb800, irq 19
+This problem doesn't happen with a 2.4.17 kernel
 
-Lines marked with a * at the beginning are from my patch.
+Information on the system follows, I got this with the usual kernel: 2.4.17
 
-The failed request_module() seems to be triggered by
-if (!system_running)
-		return -EBUSY;
-in call_usermodehelper() which is called by request_module().
+I'm tring to boot with initramfs so I can check /proc/ide/ali, with no luck...
+I successfully include my own rootfs in the kernel but It tries to mount the
+root from an IDE dive and not the initramfs I included... anybody know how
+to boot from the embedded file system?
 
-Why are we trying to load a module, althought ALSA is completely
-compiled into the kernel? We shouldn't do it, should we?
+suggestions/comments? I'm not sure who is the current mantainer of this
+driver these days...
 
-OSS-emulation failes, because something is -EBUSY.
-==> ALSA sound/core/oss/pcm_oss.c:2354: error code: -16 == -EBUSY
-I've not found out, why it fails. Maybe someone has an idea?
+Thanks in advance
 
-Here's my patch:
+	Ulisses
 
-diff -urN -X /home/mb/dontdiff linux-2.6.0-test9/sound/core.orig/oss/pcm_oss.c linux-2.6.0-test9/sound/core/oss/pcm_oss.c
-- --- linux-2.6.0-test9/sound/core.orig/oss/pcm_oss.c	2003-11-02 14:32:35.000000000 +0100
-+++ linux-2.6.0-test9/sound/core/oss/pcm_oss.c	2003-11-02 13:20:49.000000000 +0100
-@@ -2343,12 +2343,21 @@
+*******************************************************
+epi:~# lspci -vvv
+*******************************************************
 
- static void register_oss_dsp(snd_pcm_t *pcm, int index)
- {
-+	int ret;
- 	char name[128];
- 	sprintf(name, "dsp%i%i", pcm->card->number, pcm->device);
-- -	if (snd_register_oss_device(SNDRV_OSS_DEVICE_TYPE_PCM,
-+	ret = snd_register_oss_device(SNDRV_OSS_DEVICE_TYPE_PCM,
- 				    pcm->card, index, &snd_pcm_oss_reg,
-- -				    name) < 0) {
-+				    name);
-+	if (ret < 0) {
- 		snd_printk("unable to register OSS PCM device %i:%i\n", pcm->card->number, pcm->device);
-+		snd_printk("error code: %i ", ret);
-+		if (ret == -ENOMEM)
-+			printk("== -ENOMEM\n");
-+		else if (ret == -EBUSY)
-+			printk("== -EBUSY\n");
-+		else
-+			printk("== unknown\n");
- 	}
- }
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1541 (rev 04)
+	Subsystem: Acer Laboratories Inc. [ALi] ALI M1541 Aladdin V/V+ AGP System Controller
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 64
+	Region 0: Memory at e0000000 (32-bit, non-prefetchable) [size=64M]
+	Capabilities: [b0] AGP version 1.0
+		Status: RQ=28 SBA+ 64bit- FW- Rate=x1,x2
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
 
-diff -urN -X /home/mb/dontdiff linux-2.6.0-test9/sound/core.orig/sound_oss.c linux-2.6.0-test9/sound/core/sound_oss.c
-- --- linux-2.6.0-test9/sound/core.orig/sound_oss.c	2003-11-02 14:31:57.000000000 +0100
-+++ linux-2.6.0-test9/sound/core/sound_oss.c	2003-11-02 13:57:17.000000000 +0100
-@@ -122,12 +122,16 @@
- 		break;
- 	}
- 	register1 = register_sound_special(reg->f_ops, minor);
-- -	if (register1 != minor)
-+	if (register1 != minor) {
-+		printk("register1 failed: %i\n", register1);
- 		goto __end;
-+	}
- 	if (track2 >= 0) {
- 		register2 = register_sound_special(reg->f_ops, track2);
-- -		if (register2 != track2)
-+		if (register2 != track2) {
-+			printk("register2 failed: %i\n", register2);
- 			goto __end;
-+		}
- 	}
- 	up(&sound_oss_mutex);
- 	return 0;
+00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M1541 PCI to AGP Controller (rev 04) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	I/O behind bridge: 0000d000-0000dfff
+	Memory behind bridge: de000000-dfffffff
+	Prefetchable memory behind bridge: e5f00000-e7ffffff
+	BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
 
-- --
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+00:02.0 USB Controller: Acer Laboratories Inc. [ALi] USB 1.1 Controller (rev 03) (prog-if 10 [OHCI])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0 (20000ns max)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at dd800000 (32-bit, non-prefetchable) [size=4K]
 
-iD8DBQE/pQ5RoxoigfggmSgRAotoAJwPqKatKtf2X+CeLKQOhyDlpXrPiACdFM7Q
-a7bOrRMTgjmhHd70fi1C8l0=
-=8kOI
------END PGP SIGNATURE-----
+00:03.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
+	Subsystem: Acer Laboratories Inc. [ALi] ALI M7101 Power Management Controller
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
 
+00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV] (rev c3)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort+ <MAbort+ >SERR- <PERR-
+	Latency: 0
+
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+	Subsystem: Realtek Semiconductor Co., Ltd. RT8029(AS)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 9
+	Region 0: I/O ports at b800 [size=32]
+
+00:0a.0 Multimedia video controller: Brooktree Corporation Bt848 Video Capture (rev 12)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0 (4000ns min, 10000ns max)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at e5000000 (32-bit, prefetchable) [size=4K]
+
+00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c1) (prog-if 8a [Master SecP PriP])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (500ns min, 1000ns max)
+	Interrupt: pin A routed to IRQ 0
+	Region 4: I/O ports at b400 [size=16]
+
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01) (prog-if 00 [VGA])
+	Subsystem: 3Dfx Interactive, Inc. Voodoo3 AGP
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at de000000 (32-bit, non-prefetchable) [size=32M]
+	Region 1: Memory at e6000000 (32-bit, prefetchable) [size=32M]
+	Region 2: I/O ports at d800 [size=256]
+	Expansion ROM at e5ff0000 [disabled] [size=64K]
+	Capabilities: [54] AGP version 1.0
+		Status: RQ=7 SBA+ 64bit+ FW- Rate=x1,x2
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+	Capabilities: [60] Power Management version 1
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+****************************************************************
+epi:~# uname -a
+****************************************************************
+
+Linux epi 2.4.17 #14 Fri Apr 19 23:26:02 CEST 2002 i586 unknown
+
+****************************************************************
+epi:~# hdparm -i /dev/hda
+****************************************************************
+
+/dev/hda:
+
+ Model=SAMSUNG SV2044D, FwRev=MM200-52, SerialNo=0228J1FN527449
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=34902, SectSize=554, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=472kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39862368
+ IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 
+ AdvancedPM=no WriteCache=enabled
+ Drive Supports : ATA/ATAPI-4 T13 1153D revision 17 : ATA-1 ATA-2 ATA-3 ATA-4 
+
+*****************************************************************
+epi:~# hdparm -i /dev/hda
+*****************************************************************
+/dev/hda:
+
+non-removable ATA device, with non-removable media
+	Model Number:		SAMSUNG SV2044D                         
+	Serial Number:		0228J1FN527449	Firmware Revision:	MM200-52
+Standards:
+	Used: ATA/ATAPI-4 T13 1153D revision 17 
+	Supported: 1 2 3 4 & some of 5
+Configuration:
+	Logical		max	current
+	cylinders	16383	16383
+	heads		16	16
+	sectors/track	63	63
+	bytes/track:	34902		(obsolete)
+	bytes/sector:	554		(obsolete)
+	current sector capacity: 16514064
+	LBA user addressable sectors = 39862368
+Capabilities:
+	LBA, IORDY(cannot be disabled)
+	Buffer size: 472.0kB	ECC bytes: 4	Queue depth: 1
+	Standby timer values: spec'd by Vendor, no device specific minimum
+	r/w multiple sector transfer: Max = 16	Current = 16
+	DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 
+	     Cycle time: min=120ns recommended=120ns
+	PIO: pio0 pio1 pio2 pio3 pio4 
+	     Cycle time: no flow control=120ns  IORDY flow control=120ns
+Commands/features:
+	Enabled	Supported:
+	   *	NOP cmd
+	   *	READ BUFFER cmd
+	   *	WRITE BUFFER cmd
+	   *	Host Protected Area feature set
+	   *	DEVICE RESET cmd
+	   *	look-ahead
+	   *	write cache
+	   *	Power Management feature set
+	   *	SMART feature set
+HW reset results:
+	CBLID- above Vih
+	Device num = 1
+
+********************************************************************
+epi:/usr/src/linux/scripts# ./ver_linux
+********************************************************************
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+Linux epi 2.4.17 #14 Fri Apr 19 23:26:02 CEST 2002 i586 unknown
+ 
+Gnu C                  2.95.4
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+module-init-tools      found
+e2fsprogs              1.27
+PPP                    2.4.1
+nfs-utils              1.0
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         
+
+
+***************************************
+epi:/proc/ide# cat ali
+***************************************
+                                Ali M15x3 Chipset.
+                                ------------------
+PCI Clock: 33.
+CD_ROM FIFO:No , CD_ROM DMA:Yes
+FIFO Status: contains 0 Words, runs.
+
+-------------------primary channel-------------------secondary channel---------
+
+channel status:       Off                               Off
+both channels togth:  Yes                               Yes
+Channel state:        OK                                OK            
+Add. Setup Timing:    1T                                1T
+Command Act. Count:   8T                                8T
+Command Rec. Count:   16T                               16T
+
+----------------drive0-----------drive1------------drive0-----------drive1------
+
+DMA enabled:      Yes              No                Yes              No 
+FIFO threshold:    4 Words          4 Words           8 Words          4 Words
+FIFO mode:        FIFO Off         FIFO Off          FIFO On          FIFO Off
+Dt RW act. Cnt     3T               3T                3T               3T
+Dt RW rec. Cnt     1T               1T                1T               1T
+
+-----------------------------------UDMA Timings--------------------------------
+
+UDMA:             OK               OK                OK               OK
+UDMA timings:     2.5T             2.5T              2.5T             2.5T
+
+
+*********************************************************************************
 

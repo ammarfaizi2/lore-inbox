@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289077AbSAJCDg>; Wed, 9 Jan 2002 21:03:36 -0500
+	id <S289119AbSAJCOG>; Wed, 9 Jan 2002 21:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289110AbSAJCD0>; Wed, 9 Jan 2002 21:03:26 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:28668 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S289077AbSAJCDT>;
-	Wed, 9 Jan 2002 21:03:19 -0500
-Date: Wed, 9 Jan 2002 17:46:14 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Bigggg Maxtor drives (fwd)
-Message-ID: <Pine.LNX.4.10.10201091745470.5104-100000@master.linux-ide.org>
+	id <S289120AbSAJCN4>; Wed, 9 Jan 2002 21:13:56 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61957 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289119AbSAJCNm>; Wed, 9 Jan 2002 21:13:42 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+To: landley@trommello.org (Rob Landley)
+Date: Thu, 10 Jan 2002 02:25:12 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), akpm@zip.com.au (Andrew Morton),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200201091932.g09JW9A27178@snark.thyrsus.com> from "Rob Landley" at Jan 09, 2002 06:44:52 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16OUu0-00035o-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Do you want an operating system capable of running real-world code written by 
+> people who know more about their specific problem domain (audio) than about 
+> optimal coding in general, or do you want an operating system intended to 
+> only run well-behaved applications designed and implemented by experts?
 
-another update request --
-
-
----------- Forwarded message ----------
-Date: Mon, 31 Dec 2001 12:16:12 -0800
-From: ablew@internetcds.com
-To: andre@linux-ide.org
-Subject: Bigggg Maxtor drives
-
-Hi there.  As I understand it you're the linux IDE guy,
-so if you don't mind answering a question for me, I'd
-appriciate it.
-
-I recently bought a Maxtor 4G160J8.  This hard drive is
-Maxtor's biggest harddrive as of yet, coming in at
-160GB.  Linux sees this drive as a mere 134 or so gigs
-as shown by the below:
-
-hde: Maxtor 4G160J8, ATA DISK drive
-hde: 268435455 sectors (137439 MB) w/2048KiB Cache,
-CHS=266305/16/63, UDMA(33) hde: hde1
-
-Do I need to pass the kernel any arguments though grub
-to see the full size, or is this just a kernel level
-limitation?
-
-Any help is appriciated.
-
-Thanks,
--Aaron
-
+I want an OS were a reasonably cluefully written audio program works. That
+to me means aiming at the 1mS latency mark. Which doesn't seem to be needing
+pre-empt. Beyond a typical 1mS latency you have hardware fun to worry about,
+and the BIOS SMM code eating you.

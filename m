@@ -1,98 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263416AbRFKFd7>; Mon, 11 Jun 2001 01:33:59 -0400
+	id <S263407AbRFKFc7>; Mon, 11 Jun 2001 01:32:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263421AbRFKFdt>; Mon, 11 Jun 2001 01:33:49 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:57005 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263416AbRFKFdo>;
-	Mon, 11 Jun 2001 01:33:44 -0400
-Date: Mon, 11 Jun 2001 01:33:43 -0400 (EDT)
+	id <S263415AbRFKFct>; Mon, 11 Jun 2001 01:32:49 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:30891 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263407AbRFKFch>;
+	Mon, 11 Jun 2001 01:32:37 -0400
+Date: Mon, 11 Jun 2001 01:32:16 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fs/super.c stuff (2/10)
-In-Reply-To: <Pine.GSO.4.21.0106110132340.24249-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0106110133160.24249-100000@weyl.math.psu.edu>
+Subject: [PATCHes] fs/super.c stuff
+Message-ID: <Pine.GSO.4.21.0106110055270.24249-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN S6-pre2-mnt_instances/fs/super.c S6-pre2-s_active/fs/super.c
---- S6-pre2-mnt_instances/fs/super.c	Sat Jun  9 19:18:31 2001
-+++ S6-pre2-s_active/fs/super.c	Sun Jun 10 12:07:40 2001
-@@ -388,7 +388,6 @@
- 	spin_lock(&dcache_lock);
- 	list_add(&mnt->mnt_list, vfsmntlist.prev);
- 	spin_unlock(&dcache_lock);
--	atomic_inc(&sb->s_active);
- 	if (sb->s_type->fs_flags & FS_SINGLE)
- 		get_filesystem(sb->s_type);
- out:
-@@ -740,6 +739,7 @@
- 	     s  = sb_entry(s->s_list.next)) {
- 		if (s->s_dev)
- 			continue;
-+		atomic_inc(&s->s_active);
- 		return s;
- 	}
- 	/* Need a new one... */
-@@ -755,7 +755,7 @@
- 		INIT_LIST_HEAD(&s->s_files);
- 		init_rwsem(&s->s_umount);
- 		sema_init(&s->s_lock, 1);
--		atomic_set(&s->s_active, 0);
-+		atomic_set(&s->s_active, 1);
- 		sema_init(&s->s_vfs_rename_sem,1);
- 		sema_init(&s->s_nfsd_free_path_sem,1);
- 		sema_init(&s->s_dquot.dqio_sem, 1);
-@@ -794,6 +794,7 @@
- 	s->s_bdev = 0;
- 	s->s_type = NULL;
- 	unlock_super(s);
-+	atomic_dec(&s->s_active);
- 	return NULL;
- }
- 
-@@ -860,6 +861,7 @@
- 		if (fs_type == sb->s_type &&
- 		    ((flags ^ sb->s_flags) & MS_RDONLY) == 0) {
- 			path_release(&nd);
-+			atomic_inc(&sb->s_active);
- 			return sb;
- 		}
- 	} else {
-@@ -923,6 +925,7 @@
- 	if (!sb)
- 		BUG();
- 	do_remount_sb(sb, flags, data);
-+	atomic_inc(&sb->s_active);
- 	return sb;
- }
- 
-@@ -1038,7 +1041,6 @@
- 	mnt->mnt_root = dget(sb->s_root);
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	mnt->mnt_parent = mnt;
--	atomic_inc(&sb->s_active);
- 	type->kern_mnt = mnt;
- 	return mnt;
- }
-@@ -1315,7 +1317,6 @@
- 	mnt->mnt_root = dget(sb->s_root);
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	mnt->mnt_parent = mnt;
--	atomic_inc(&sb->s_active);
- 
- 	/* Something was mounted here while we slept */
- 	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
-@@ -1573,6 +1574,7 @@
- 	sb = get_super(ROOT_DEV);
- 	if (sb) {
- 		fs_type = sb->s_type;
-+		atomic_inc(&sb->s_active);
- 		goto mount_it;
- 	}
- 
+OK. It works here(tm). I'm sending first 10 chunks - about 70% of locking
+changes. That's a good intermediate point and I'd rather avoid doing too
+large steps.
 
+Contents (patches will go in separate postings):
+
+1, Eliminates mnt_instances and s_mounts. Instead of it we add new field to
+struct super_block - s_active. Number of vfsmounts for given superblock,
+i.e. number of entries in old s_mounts. Right now all accesses are serialized
+by mount_sem, but later we'll need it to be atomic_t.
+
+2. Better handling of s_active. Instead of incrementing it just when we
+attach a vfsmount we do that beforehand and decrement if get_sb_... fails.
+
+3. blkdev_put(bdev, BDEV_FS) doesn't touch superblock anymore. Current
+callers don't need that (nothing to touch - it's either final kill_super()
+or failed read_super()) and having it non-interfering with fs structures
+gives us more freedom for get_sb_bdev().
+
+4. pure cosmetics - fs.h contains an extern for function that doesn't exist
+(put_super(kdev_t)). Removed.
+
+5. instead of passing sb->s_dev to remove_dquot_ref() and doing get_super()
+there we pass sb itself. While we are at it invalidate_dquots() is made
+static - nothing outside of dquot.c calls it.
+
+6. drop_super() added. At that stage - empty, we just add calls to balance
+those of get_super().
+
+7. First serious part.
+	* we add a spinlock (sb_lock) that protects super_blocks list.
+	* we add a reference counter to struct super_block. ->s_count.
+At that stage we don't use it - only maintain correct value. Logics is
+the same as for mm_struct - each temporary reference contributes 1,
+all permanent references (from vfsmounts) are lumped together. It's an
+int - all accesses are protected by sb_lock.
+	At that stage we rely on mount_sem to handle the moments when
+we turn a temporary reference into permanent one. That will change,
+but we need to kill the "reuse" branch of get_empty_super() to do that.
+And that requires s_count already in place.
+
+8. _Now_ we can get to real stuff.
+	* kill_super() removes dying superblock from the super_blocks list.
+	* when s_count drops to zero we free the superblock.
+
+9. We are done with "reuse" branch of get_empty_super(). The rest (allocation
+of new one) is renamed in alloc_super(). Insertion into the super_blocks
+is moved into (the only) caller - read_super().
+
+10. Now we can solve most of the problems with get_super()/umount().
+get_super() does down_read(&s->s_umount (and drop_super() - up_read()).
+
+>From that point it's more or less easy ride - we need to reorganize
+get_sb_...() to have exclusion between mount() and get_super() callers,
+but now we have everything we need for that.  I would rather submit that
+part separately. All really evil stuff is done - in a sense it's the
+nastiest point of sequence. Basically, the rest will consist of cleanups.
+
+I've tried to carve the thing into edible chunks - if you find something
+too large, please, tell. Patches themselves will go in followups to this
+posting, numbered from 1 to 10. They are incremental to each other, starting
+at 2.4.6-pre2.
+							Cheers,
+								Al
 

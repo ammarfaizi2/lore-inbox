@@ -1,142 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbTEILWn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 07:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTEILWn
+	id S262454AbTEIL0T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 07:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbTEIL0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 07:22:43 -0400
-Received: from [218.5.171.206] ([218.5.171.206]:15981 "ehlo senwer.com")
-	by vger.kernel.org with ESMTP id S262451AbTEILWk (ORCPT
+	Fri, 9 May 2003 07:26:19 -0400
+Received: from mrt-aod.iram.es ([150.214.224.146]:26124 "EHLO mrt-lx16.iram.es")
+	by vger.kernel.org with ESMTP id S262454AbTEIL0R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 07:22:40 -0400
-From: "Rachel" <jason@senwer.com>
-Subject: manufacturer of garments and bags in China
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed;charset="ISO-8859-1"
-Reply-To: jason@senwer.com
-Date: Fri, 9 May 2003 19:35:13 +0800
-X-Priority: 2
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-Message-Id: <S262451AbTEILWk/20030509112240Z+6567@vger.kernel.org>
+	Fri, 9 May 2003 07:26:17 -0400
+Date: Fri, 9 May 2003 10:56:23 +0000
+From: paubert <paubert@iram.es>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       David Mosberger <davidm@hpl.hp.com>
+Subject: Re: [PATCH] Mask mxcsr according to cpu features.
+Message-ID: <20030509105622.B16311@mrt-lx16.iram.es>
+References: <20030509004200.A22795@mrt-lx16.iram.es> <20030509022417.GB15829@Wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030509022417.GB15829@Wotan.suse.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 09, 2003 at 04:24:17AM +0200, Andi Kleen wrote:
+> On Fri, May 09, 2003 at 12:42:01AM +0000, paubert wrote:
+> > 
+> > [CC'ed to x86_64 and ia64 maintainers because they might have the 
+> > same issues. For existing x86_64 processors, s/0xffbf/0xffff/ in 
+> > arch/x86-64/ia32/{fpu32,ptrace32}.c might be sufficient]
+> > 
+> > With SSE2, mxcsr bit 6 is defined as controlling whether
+> > denormals should be treated as zeroes or not. Setting it
+> > no more causes an exception, but with the current code it 
+> > would be cleared at every signal return which is a bit harsh.
+> > 
+> > The following patch fixes this (2.5, but easily ported to 2.4).
+> 
+> x86-64 does it in a different way. It just handles the 
+> possible exception on FXRSTOR with an __ex_table handler.
+> With that all the mxcsr masking can be dropped.
+> 
+> It was already this way for 64bit programs, 
 
-Dear Sir,  
+I know, that's why I only listed files in the ia32 directory
 
-I have the pleasure to know your esteemed corp. 
+> but the 32bit emulation still masks. I'm not sure I can 
+> change that - in theory it could break existing programs.
 
-We are a manufacturer & exporter of garments and bags in Quanzhou, China.
+I only ask you to change the mask to reflect what the hardware 
+allows, not removing the masking, which could have more corner
+cases side effects.
 
-I think we can cooperate and supply you with garments as you need.  
+Clearing the DAZ bit of every 32 bit program as soon
+as it receives a signal can't be right.
 
-The following is some introductions about our company.
-
-       Set up: 1988
-
-       Type: manufacturer & exporter
-
-       Product: knitted garments and bags
-
-       Employees: 1300 persons ( garments factory: 500      bags factory: 800)
-
-       Product data:       
-
-                                  product (main items)                      capacity(/year)
-
-                                  brief                                    2,000,000dzs    
-
-                                  baby body                                1,800,000dzs
-
-                                  boxer short                                200,000dzs
-
-                                  pajama                                      50,000dzs
-
-                                  soft bag                                 1,500,000pcs
-
-                                  hard bag                                   500,000pcs
-
-Mimn order:  300dzs for garments
-
-Payment:  irrevocable L/C at sight
-
-Bank: BANK OF CHINA
-
-
-Our garment factory mainly specialize in Lady's and men's underwear,
-
-children's wear, baby's wear, pajama, boxer shorts, T-shirt, etc. 
-
-The materials we often use are cotton, T/C, Polyester, Polyamide, 
-
-Elasthan, and Polyamide. Our products are design with PAD system, 
-
-produced with advanced equipment, processed in highly quality control 
-
-system with seasoned workmanship and high efficiency. Our main market 
-
-is Europe, Australia, Japan and America. We also accept the orders designed 
-
-and required by costumers. You can see some pictures of our samples through 
-
-our web http://www.senwer.com. (For more pictures in your interesting, 
-
-pls kindly contact us directly). 
- 
-
-Our bag factory was founded in 1988, too. We produce all kinds of bags, 
-
-including rucksacks, travel bags, school bags, PC bags, waist bags, etc. 
-
-And the goods have met a great favor in the Europe countries, Australia 
-
-and America because of their good quality, beautiful design and competitive price.
-
-
-Thank you very much. Hope you will give us an opportunity to do 
-
-business together and we will try our level best to fulfill your present 
-
-requirement. Should you therefore need any more details for your 
-
-clarification, pls do not hesitate to contact us. And you are welcome 
-
-to visit our factories.
-
-
-With best regards
-
-
-Rachel Wang
-
-0086-13960286700
-
-rachel@senwer.com
-
-
-Jason Chen
-
-MOB:0086-13959893400
-
-jasonchen@senwer.com
-
-
-Vicki Wang
-
-0086-13960228599
-
-vicki@senwer.com
-
-
------------------------------------------------------------------------------
-
-SENWER GARMENTS CO., LTD.
-
-ADD: Room F202, Fugui Renjia Building, Liuguan Road, Quanzhou, Fujian, China.
-
-Tel: 0086-595-2506700    Fax: 0086-595-2563400    P.C.:362000
-
-Http://www.senwer.com    E-mail: senwer@public.qz.fj.cn
-
------------------------------------------------------------------------------
-
+	Gabriel 

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129230AbRBTONZ>; Tue, 20 Feb 2001 09:13:25 -0500
+	id <S129361AbRBTOPg>; Tue, 20 Feb 2001 09:15:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129361AbRBTONP>; Tue, 20 Feb 2001 09:13:15 -0500
-Received: from kxmail.berlin.de ([195.243.105.30]:14216 "EHLO kxmail.berlin.de")
-	by vger.kernel.org with ESMTP id <S129230AbRBTONA>;
-	Tue, 20 Feb 2001 09:13:00 -0500
-Message-ID: <3A927AE9.CE3B88F9@berlin.de>
-Date: Tue, 20 Feb 2001 15:10:49 +0100
-From: Norbert Roos <n.roos@berlin.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-7 i686)
-X-Accept-Language: en
+	id <S129623AbRBTOP0>; Tue, 20 Feb 2001 09:15:26 -0500
+Received: from baldur.fh-brandenburg.de ([195.37.0.5]:14992 "HELO
+	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
+	id <S129361AbRBTOPV>; Tue, 20 Feb 2001 09:15:21 -0500
+Date: Tue, 20 Feb 2001 15:02:52 +0100 (MET)
+From: Roman Zippel <zippel@fh-brandenburg.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Neil Brown <neilb@cse.unsw.edu.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        dek_ml@konerding.com, linux-kernel@vger.kernel.org,
+        nfs@lists.sourceforge.net, mason@suse.com
+Subject: Re: [NFS] Re: problems with reiserfs + nfs using 2.4.2-pre4
+In-Reply-To: <shslmr11yfs.fsf@charged.uio.no>
+Message-ID: <Pine.GSO.4.10.10102201455390.13098-100000@zeus.fh-brandenburg.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Probs with PCI bus master DMA to user space
-In-Reply-To: <Pine.LNX.3.96.1010220073651.23246O-100000@mandrakesoft.mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Hi,
 
-> > But the buffers are usually allocated with malloc() by any application
-> > which wants to use my driver.. otherwise my driver would have to offer a
-> > malloc-like function, but I can hardly force the application to use my
-> > own malloc function.
-> 
-> If you are writing the driver, sure you can.
+On 20 Feb 2001, Trond Myklebust wrote:
 
-??
+> IIRC several NFS implementations (not Linux though) rely on being able
+> to walk back up the directory tree in order to discover the path at
+> any given moment.
 
-The application is doing something like
+If I read the source correctly, namespace operation are done with dir file
+handle + file name. I'm playing with the idea if we could relax the rule,
+that all dentries must be connected to the root. Inode to dentry lookups
+are really evil, e.g. the current code ignores that there might be a fs
+that supports links to dirs (besides that vfs doesn't support that very
+well either).
+What IMO knfsd needs is only a file handle <-> inode operation and as long
+as the inode is not connected to a dcache entry (i_dentry is empty) it
+gets a dummy dentry, which is used for further lookups. As soon as a real
+dentry lookups that inode, we can flush the dummy dentry (small change to
+d_instantiate()).
+This would make it possible to support fs, that can't lookup ".." or it
+would avoid extra checks for fs, that don't have real ".." dir entries.
+All what a fs needs to do is to generate a 16(?) byte cookie, which can be
+used to find the inode back (with the default to i_ino + i_generation).
+This is nothing for 2.4, but IMO something that could be tried with 2.5.
 
-  fd = open("/dev/mydriver");
-  buf = malloc();
-  fill_buffer_with_data(buf);
- write(fd,buf);
+bye, Roman
 
-And now i should tell the programmer not to use malloc() but my special
-driver-malloc?
-Or do you mean something different?
+PS: /me is searching his fire proof underwear. :)
 
-Norbert

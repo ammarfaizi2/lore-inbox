@@ -1,99 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288534AbSADIOF>; Fri, 4 Jan 2002 03:14:05 -0500
+	id <S288541AbSADIS0>; Fri, 4 Jan 2002 03:18:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288538AbSADIN4>; Fri, 4 Jan 2002 03:13:56 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:54458 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S288534AbSADINs>; Fri, 4 Jan 2002 03:13:48 -0500
-Date: Fri, 4 Jan 2002 00:13:47 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Partial patch?: linux-2.5.2-pre7/init/do_mounts.c kdev_t initrd fixes
-Message-ID: <20020104001347.A13214@baldur.yggdrasil.com>
+	id <S288539AbSADISR>; Fri, 4 Jan 2002 03:18:17 -0500
+Received: from codepoet.org ([166.70.14.212]:33551 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S288538AbSADISB>;
+	Fri, 4 Jan 2002 03:18:01 -0500
+Date: Fri, 4 Jan 2002 01:18:02 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: LSB1.1: /proc/cpuinfo
+Message-ID: <20020104081802.GC5587@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020103190219.B27938@thyrsus.com> <Pine.GSO.4.21.0201031944320.23693-100000@weyl.math.psu.edu> <20020103195207.A31252@thyrsus.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+In-Reply-To: <20020103195207.A31252@thyrsus.com>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu Jan 03, 2002 at 07:52:07PM -0500, Eric S. Raymond wrote:
+> Alexander Viro <viro@math.psu.edu>:
+> > It's more than just a name.
+> > 	a) granularity.  Current "all or nothing" policy in procfs has
+> > a lot of obvious problems.
+> > 	b) tree layout policy (lack thereof, to be precise).
+> > 	c) horribly bad layout of many, many files.  Any file exported by
+> > kernel should be treated as user-visible API.  As it is, common mentality
+> > is "it's a common dump; anything goes here".  Inconsistent across
+> > architectures for no good reason, inconsistent across kernel versions,
+> > just plain stupid, choke-full of buffer overruns...
+> > 
+> > Fixing these problems will _hurt_.  Badly.  We have to do it, but it
+> > won't be fast and it certainly won't happen overnight.
+> 
+> I'm willing to work on this.  Is there anywhere I can go to read up on 
+> current proposals before I start coding?
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I once wrote up /dev/ps and /dev/mounts drivers to eliminate proc
+for embedded systems (pointer available if you care).  It was not
+warmly received, but I did form some opinions in the process.
 
-	The following patch gets linux-2.5.2-pre7/init/do_mounts.c
-to compile when CONFIG_INITRD has been set; however, it does so by
-ifdef'ing out the "/linuxrc" support (CONFIG_LINUXRC).
+The main things to think about are
+    1) machine readability
+	Generally speaking the kernel gods have decided that
+	ASCII is good, binary structures and such are bad (think
+	endiannes, nfs exports, and similar oddness).
+    2) typing
+	Right now, if some /proc file prints a number, user space
+	has to go digging about in the kernel sources to find
+	what type that thing is -- int, uint, long, long long, etc.
+	Cant tell without digging in the source.  And what if
+	someone then changes the type next week -- userspace
+	then overflows.
+    3) field length
+	When coping a string from /proc (say /proc/mounts),
+	userspace has to go digging in the kernel source to
+	find the field length.  So if I copy things into a
+	static buffer, I may be fine.  Till someone changes
+	the kernel to print out a bit more stuff.  Then I've
+	either got a buffer overflow (if I can't code) or a
+	truncated string.  Either way, its a problem.
 
-	I regard the linuxrc facility as unnecessary bloat, but
-linuxrc fans are welcome to fix the code that I have bracketed in
-CONFIG_LINUXRC and either remove my CONFIG_LINUXRC conditionals or,
-better yet, add it as an option to drivers/block/Config.in.
+So what is needed is a kernelfs virtual filesystem that provides
+kernel info to user space.
 
-	Also, note that this patch is completely untested as I
-am still working on getting 2.5.2-pre7 to build.
+It needs a format that provides information as an organized
+directory hierarchy, which each directory and filename
+identifying the nature of the provided information.  Files should
+provide information in ASCII with one value per file (to avoid
+all the tedious parsing), but also provides along with that bit
+of information type and or/length information.  
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+In some cases I guess we may also need more complex classes on
+information.  (lists of key-value stuff for example).
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="mounts.diff"
+ -Erik
 
---- linux-2.5.2-pre7/init/do_mounts.c	Thu Jan  3 19:52:02 2002
-+++ linux/init/do_mounts.c	Fri Jan  4 00:07:50 2002
-@@ -631,7 +631,7 @@
- #ifdef CONFIG_BLK_DEV_RAM
- 	if (rd_prompt)
- 		change_floppy("root floppy disk to be loaded into RAM disk");
--	create_dev("/dev/ram", MKDEV(RAMDISK_MAJOR, n), NULL);
-+	create_dev("/dev/ram", mk_kdev(RAMDISK_MAJOR, n), NULL);
- #endif
- 	return rd_load_image("/dev/root");
- }
-@@ -724,7 +724,7 @@
- 	mount_block_root("/dev/root", root_mountflags);
- }
- 
--#ifdef CONFIG_BLK_DEV_INITRD
-+#if defined(CONFIG_BLK_DEV_INITRD) && defined(CONFIG_LINUXRC)
- static int do_linuxrc(void * shell)
- {
- 	static char *argv[] = { "linuxrc", NULL, };
-@@ -748,7 +748,7 @@
- 
- static void __init handle_initrd(void)
- {
--#ifdef CONFIG_BLK_DEV_INITRD
-+#if defined(CONFIG_BLK_DEV_INITRD) && defined(CONFIG_LINUXRC)
- 	int ram0 = kdev_t_to_nr(MKDEV(RAMDISK_MAJOR,0));
- 	int error;
- 	int i, pid;
-@@ -801,8 +801,8 @@
- static int __init initrd_load(void)
- {
- #ifdef CONFIG_BLK_DEV_INITRD
--	create_dev("/dev/ram", MKDEV(RAMDISK_MAJOR, 0), NULL);
--	create_dev("/dev/initrd", MKDEV(RAMDISK_MAJOR, INITRD_MINOR), NULL);
-+	create_dev("/dev/ram", mk_kdev(RAMDISK_MAJOR, 0), NULL);
-+	create_dev("/dev/initrd", mk_kdev(RAMDISK_MAJOR, INITRD_MINOR), NULL);
- #endif
- 	return rd_load_image("/dev/initrd");
- }
-@@ -816,7 +816,9 @@
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (!initrd_start)
- 		mount_initrd = 0;
-+# ifdef CONFIG_LINUXRC
- 	real_root_dev = ROOT_DEV;
-+# endif
- #endif
- 	sys_mkdir("/dev", 0700);
- 	sys_mkdir("/root", 0700);
-
---fUYQa+Pmc3FrFX/N--
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

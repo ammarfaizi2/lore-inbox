@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbTFWLby (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 07:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbTFWLbi
+	id S265270AbTFWLbz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 07:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbTFWLbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 07:31:38 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:3024
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S266003AbTFWLac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 07:30:32 -0400
-Subject: Re: BUG REPORT: Massive performance drop in routing throughput
-	with 2.4.21
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michael Knigge <Michael.Knigge@set-software.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030623.7140952@knigge.local.net>
-References: <20030616141806.6a92f839.skraw@ithnet.com>
-	 <20030616143451.26d3de7e.skraw@ithnet.com>
-	 <20030623.7140952@knigge.local.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056368555.13528.12.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jun 2003 12:42:35 +0100
+	Mon, 23 Jun 2003 07:31:49 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:13818 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id S261846AbTFWLbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 07:31:12 -0400
+Date: Mon, 23 Jun 2003 12:46:38 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "Grover, Andrew" <andrew.grover@intel.com>
+cc: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@digeo.com>,
+       <torvalds@transmeta.com>, <acpi-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [BK PATCH] acpismp=force fix
+In-Reply-To: <1056355301.1699.6.camel@laptop.fenrus.com>
+Message-ID: <Pine.LNX.4.44.0306231224590.1648-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-06-23 at 08:14, Michael Knigge wrote:
-> Hi all,
+On Mon, 23 Jun 2003, Arjan van de Ven wrote:
+> On Mon, 2003-06-23 at 09:43, Grover, Andrew wrote:
+> > > From: Andrew Morton [mailto:akpm@digeo.com] 
+> > > >    ACPI: make it so acpismp=force works (reported by Andrew Morton)
+> > 
+> > > But prior to 2.5.72, CPU enumeration worked fine without 
+> > > acpismp=force. 
+> > > Now it is required.  How come?
+> > 
+> > (I'm taking the liberty to update the subject, which I accidentally left
+> > blank)
+> > 
+> > Because 2.4 has that behavior. One objection that people raised to
+> > applying the 2.4 ACPI patch was that it changed that behavior. So I made
+> > an effort to keep it there.
 > 
-> could please someone tell me if this issue is fixed in ac2 or .22pre 
+> in 2.4 it is absolutely not mantadory; it's default actually if the cpu
+> advertises the "ht" flag.....
 
-Not a problem I've seen other reports of. Your best bet is
-netdev@oss.sgi.com
+Right, enabling HT hasn't relied on "acpismp=force" since 2.4.18.
+Requiring "acpismp=force" now in 2.4 or 2.5 is just a step backwards.
+
+But when we changed to HT by default, I added bootparam "noht" to
+disable it if it was found troublesome.  Last time I checked, "noht"
+was ineffectual on 2.5, and perhaps now it's ineffectual on 2.4.22-pre?
+
+(If I remember right, in 2.5 it did have one effect, determining whether
+the "ht" flag is shown in /proc/cpuinfo: but it was intended to be more
+useful than that.)
+
+Certainly reliance on "acpismp=force" should be removed if it's crept
+back in.  But what should we do about "noht"?  Wave a fond goodbye,
+and remove it's associated code and Documentation from 2.4 and 2.5
+trees, rely on changing the BIOS setting instead?  Or bring it back
+into action?
+
+Hugh
 

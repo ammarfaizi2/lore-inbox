@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265181AbUBIWFE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 17:05:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbUBIWFD
+	id S265201AbUBIWHp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 17:07:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUBIWHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 17:05:03 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:59520 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265181AbUBIWE4 (ORCPT
+	Mon, 9 Feb 2004 17:07:45 -0500
+Received: from ida.rowland.org ([192.131.102.52]:6660 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S265201AbUBIWHn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 17:04:56 -0500
-Date: Mon, 9 Feb 2004 23:05:23 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alex <akhripin@mit.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: More mouse wheel problems
-Message-ID: <20040209220523.GA827@ucw.cz>
-References: <20040209172448.GV18567@open-boozeware.mit.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040209172448.GV18567@open-boozeware.mit.edu>
-User-Agent: Mutt/1.4.1i
+	Mon, 9 Feb 2004 17:07:43 -0500
+Date: Mon, 9 Feb 2004 17:07:42 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Johannes Erdfelt <johannes@erdfelt.com>, <eric.piel@tremplin-utc.net>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Slight optimisation of the uhci-hcd init code
+In-Reply-To: <1076335524.402793a4d04e9@mailetu.utc.fr>
+Message-ID: <Pine.LNX.4.44L0.0402091657520.871-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 09, 2004 at 12:24:48PM -0500, Alex wrote:
-> Hi,
-> I know mouse wheel problems have been discussed, but I am still having them
-> even with the proper fixes. I have a generic-looking IBM optical wheel USB
-> mouse, Model Number MO28B0 (O's could be zeros and vice versa).
-> 
-> In the 2.4 kernels, the USB mouse would register with the following message:
-> Nov  4 03:53:16 localhost kernel: usb.c: registered new driver usbmouse
-> Nov  4 03:53:16 localhost kernel: input0: ARROW STRONG USB 3D Mouse on usb1:3.0
-> Nov  4 03:53:16 localhost kernel: usbmouse.c: v1.6:USB HID Boot Protocol mouse driver
-> 
-> Once I upgraded to 2.6.2, the mouse is identified as follows:
-> Feb  4 12:29:07 localhost kernel: input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+Thanks for fowarding this, Johannes.
 
-You moved the mouse from USB to PS/2 between the kernel upgrade? Where
-the mouse doesn't work properly - on USB or PS/2? They're wildly
-different interfaces and the mouse is using a different protocol on
-either.
+On Mon, 9 Feb 2004 eric.piel@tremplin-utc.net wrote:
 
+> Hello,
 > 
-> The problem is that the mouse wheel does not work. My XF86Config-4 contains:
-> Section "InputDevice"
->         Identifier      "Configured Mouse"
->         Driver          "mouse"
->         Option          "CorePointer"
->         Option          "Device"                "/dev/input/mouse0"
->         Option          "Protocol"              "ImPS/2"
->         Option          "ZAxisMapping"          "4 5"
-> EndSection
+> While trying to understand why starting usb on my laptop made the bus master
+> activity full I came accross a strange code in uhci-hcd: a seven level nested
+> "if". The same thing can be achieved with a simgle ffz(). The attached patch
+> should give to the code a bit better looking, on my x86 it even saves 96 bytes,
+> cool ;-) 
 > 
-> I have tried with ExplorerPS/2 as suggested before, as well as with /dev/input/mice.
-> 
-> Trying to perform some diagnostics, I used hexdump and cat to look at the
-> output of /dev/input/mouse0 and /dev/input/mice. In both cases, the devices
-> produced quite a lot of output for mouse movement and button presses - for
-> all three buttons - but no output whatsoever for wheel movements. Does this
-> mean that the problem is with the kernel?
-> 
-> Thanks for your time,
-> Alex Khripin
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> hoping you like it,
+> Eric Piel
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+It's a nice idea.  I was planning to alter the logic behind that nested
+"if" anyway, and I'll keep your recommendation in mind when I do it.
+
+> PS: still, I'm not sure it's normal to see ffffffff as "bus master activity" in
+> /proc/acpi/processor/CPU0/power as soon as uhci-hcd is loaded. In particular, it
+> prevents the processor to go to C3 state. Could you give me your pint of view?
+
+I'm not sure exactly what the ffffffff value means -- maximum utilization?
+
+Anyway, a UHCI host controller is a bus master and it can generate a lot
+of activity depending on what USB devices are plugged in.  If no USB
+devices are plugged, the controller will be suspended after 1 second.  
+Of course then it shouldn't be accessing the PCI bus at all.
+
+There is one exception to this.  Some manufacturers try to disable unused
+USB ports on their motherboards by tying the overcurrent input permanently
+high.  (This seems to be particularly common among laptops.)  With some
+Intel controllers this strategy generates "device-connected" interrupts,
+so the driver doesn't try to suspend the controller.  There's a patch to
+fix this behavior currently being tested.
+
+Alan Stern
+

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbSKHNYJ>; Fri, 8 Nov 2002 08:24:09 -0500
+	id <S261950AbSKHNhX>; Fri, 8 Nov 2002 08:37:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbSKHNYJ>; Fri, 8 Nov 2002 08:24:09 -0500
-Received: from stingr.net ([212.193.32.15]:2830 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id <S261900AbSKHNYI>;
-	Fri, 8 Nov 2002 08:24:08 -0500
-Date: Fri, 8 Nov 2002 16:30:47 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: trivial@rustcorp.com.au
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: improve signal-to-noise ratio in atm code
-Message-ID: <20021108133047.GE29935@stingr.net>
-Mail-Followup-To: trivial@rustcorp.com.au,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S261955AbSKHNhX>; Fri, 8 Nov 2002 08:37:23 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:44482 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261950AbSKHNhW>;
+	Fri, 8 Nov 2002 08:37:22 -0500
+Date: Fri, 8 Nov 2002 14:44:04 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: kuznet@ms2.inr.ac.ru
+Cc: davem@redhat.com, mdiehl@dominion.dyndns.org, linux-kernel@vger.kernel.org,
+       gem@asplinux.ru
+Subject: Re: [documentation] Re: [LARTC] IPSEC FIRST LIGHT! (by non-kernel developer :-))
+Message-ID: <20021108134404.GA23148@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, kuznet@ms2.inr.ac.ru,
+	davem@redhat.com, mdiehl@dominion.dyndns.org,
+	linux-kernel@vger.kernel.org, gem@asplinux.ru
+References: <20021108122523.GA21075@outpost.ds9a.nl> <200211081331.QAA12531@sex.inr.ac.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+In-Reply-To: <200211081331.QAA12531@sex.inr.ac.ru>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -Nru a/net/atm/common.c b/net/atm/common.c
---- a/net/atm/common.c	Fri Nov  8 16:27:27 2002
-+++ b/net/atm/common.c	Fri Nov  8 16:27:27 2002
-@@ -288,7 +288,7 @@
- 	if (vpi != ATM_VPI_UNSPEC && vci != ATM_VCI_UNSPEC)
- 		clear_bit(ATM_VF_PARTIAL,&vcc->flags);
- 	else if (test_bit(ATM_VF_PARTIAL,&vcc->flags)) return -EINVAL;
--	printk(KERN_DEBUG "atm_connect (TX: cl %d,bw %d-%d,sdu %d; "
-+	DPRINTK("atm_connect (TX: cl %d,bw %d-%d,sdu %d; "
- 	    "RX: cl %d,bw %d-%d,sdu %d,AAL %s%d)\n",
- 	    vcc->qos.txtp.traffic_class,vcc->qos.txtp.min_pcr,
- 	    vcc->qos.txtp.max_pcr,vcc->qos.txtp.max_sdu,
+On Fri, Nov 08, 2002 at 04:31:29PM +0300, kuznet@ms2.inr.ac.ru wrote:
+
+> > Kernel enters a very tight loop here, I'm amazed that magic sysrq still
+> > works, how is that?
+> 
+> Yes, this is sort of inefficient loop. :-)
+
+> +		child = child->child;
+
+I had 'child=child->next;' here, which worked, but may be wrong.
+
+By the way, have your thoughts included 'UDP Encapsulation of IPsec Packets' 
+http://www.ietf.org/internet-drafts/draft-ietf-ipsec-udp-encaps-04.txt so
+far?
+
+Not sure if this would break your pretty design :-) It would just *rock* for
+traversing NAT.
+
+Regards,
+
+bert
 
 -- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
-  When you're invisible, the only one really watching you is you (my keychain)
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

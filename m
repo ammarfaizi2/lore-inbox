@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131281AbRCHGWC>; Thu, 8 Mar 2001 01:22:02 -0500
+	id <S131284AbRCHGzw>; Thu, 8 Mar 2001 01:55:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131283AbRCHGVw>; Thu, 8 Mar 2001 01:21:52 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:10135 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131281AbRCHGVs>;
-	Thu, 8 Mar 2001 01:21:48 -0500
-Date: Thu, 8 Mar 2001 01:21:31 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ben Greear <greearb@candelatech.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened
- ?(No
-In-Reply-To: <3AA7276B.DB9AEC11@candelatech.com>
-Message-ID: <Pine.GSO.4.21.0103080107350.5588-100000@weyl.math.psu.edu>
+	id <S131285AbRCHGzm>; Thu, 8 Mar 2001 01:55:42 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:7184 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S131284AbRCHGz2>;
+	Thu, 8 Mar 2001 01:55:28 -0500
+To: <linux-kernel@vger.kernel.org>
+Cc: "Richard B. Johnson" <johnson@groveland.analogic.com>
+Subject: Re: Linux 2.4.3
+In-Reply-To: <Pine.LNX.4.21.0103052124250.1132-100000@groveland.analogic.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
+Date: 08 Mar 2001 01:16:27 +0100
+In-Reply-To: "Richard B. Johnson"'s message of "Mon, 5 Mar 2001 21:35:30 -0500 (EST)"
+Message-ID: <m38zmh2jz8.fsf@intrepid.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Richard B. Johnson" <johnson@groveland.analogic.com> writes:
 
+> Attempts to run linux-2.4.3-pre2 on chaos.analogic.com results
+> in **MASSIVE** file-system destruction. I have (had) all SCSI
+> disks, using the BusLogic controller.
+> 
+> There is something **MAJOR** going on BAD, BAD, BAD, even disks
+> that were not mounted got trashed.
 
-On Wed, 7 Mar 2001, Ben Greear wrote:
-
-> I see it differently:  If it's possible for the driver to protect the
-> user, and it does not, then it strikes me as irresponsible programming.  If
-> there is a reason other than 'only elite users are cool enough to tune
-> their system, and they never make mistakes', then that's ok, but I have
-> not heard that argument yet.
-
-*users* have no business changing the system configuration. End of story.
-Again, if somebody doesn't read manpages before doing stuff under root -
-no point trying to protect him. He will find a way to fsck up, no matter
-how many "safety" checks you put in. BTW, that's the first time I've seen
-"elite" used as a term for "able to understand the meaning of words 'use
-with extreme caution'". Oh, well...
-							Cheers,
-								Al
-
+What gcc version did you use to compile it?
+-- 
+Krzysztof Halasa
+Network Administrator

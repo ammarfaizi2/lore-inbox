@@ -1,418 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbTKMEJq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 23:09:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTKMEJp
+	id S262161AbTKMEfM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 23:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTKMEfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 23:09:45 -0500
-Received: from dsl092-073-159.bos1.dsl.speakeasy.net ([66.92.73.159]:63494
-	"EHLO yupa.krose.org") by vger.kernel.org with ESMTP
-	id S262127AbTKMEJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 23:09:30 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Paging request oops in 2.6.0-test9-bk16
-X-Home-Page: http://www.krose.org/~krose/
-From: Kyle Rose <krose@krose.org>
-Organization: krose.org
-Content-Type: text/plain; charset=US-ASCII
-Date: Wed, 12 Nov 2003 23:09:28 -0500
-Message-ID: <87islohptz.fsf@nausicaa.krose.org>
-User-Agent: Gnus/5.090024 (Oort Gnus v0.24) XEmacs/21.4 (Reasonable
- Discussion, linux)
+	Wed, 12 Nov 2003 23:35:11 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11189 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262055AbTKMEfG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 23:35:06 -0500
+Message-ID: <3FB309E8.4080408@pobox.com>
+Date: Wed, 12 Nov 2003 23:34:48 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Prasanna Meda <pmeda@akamai.com>
+CC: Andrew Morton <akpm@osdl.org>, tulip-users@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       danner@akamai.com, bmancuso@akamai.com
+Subject: Re: Poss. bug in tulip driver since 2.4.7
+References: <3FB1832C.35A52F9A@akamai.com> <20031111185419.0ff7a596.akpm@osdl.org> <3FB29377.796E7C6A@akamai.com>
+In-Reply-To: <3FB29377.796E7C6A@akamai.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got an oops tonight when trying to access an NFS mounted partition
-through SFS (www.fs.net):
-
-Unable to handle kernel paging request at virtual address ffff2000
- printing eip:
-f8d3a016
-*pde = 00003067
-*pte = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<f8d3a016>]    Tainted: PF 
-EFLAGS: 00010246
-EIP is at nfs3_xdr_readdirres+0xf6/0x210 [nfs]
-eax: ffff1ff8   ebx: ffff1fdc   ecx: 00000002   edx: ffff2000
-esi: ffff2000   edi: 00000017   ebp: ffff1000   esp: e33cfae4
-ds: 007b   es: 007b   ss: 0068
-Process zsh (pid: 9392, threadinfo=e33ce000 task=e7cc2040)
-Stack: c1942668 00000003 00000000 e33cfb88 e4cb00d4 e4cb0110 e4cb0078 f899d131 
-       e4cb0078 f241d47c e33cfc78 c0129218 f8d39f20 e33ce000 e33cfb88 ffffe000 
-       e33cfc04 f89a10a8 e33cfb88 00000090 00000090 e33ce000 00000000 e7cc2040 
-Call Trace:
- [<f899d131>] call_decode+0xf1/0x210 [sunrpc]
- [<c0129218>] del_timer_sync+0x28/0x90
- [<f8d39f20>] nfs3_xdr_readdirres+0x0/0x210 [nfs]
- [<f89a10a8>] __rpc_execute+0x258/0x350 [sunrpc]
- [<c011c500>] default_wake_function+0x0/0x20
- [<f899c5fe>] rpc_call_sync+0x7e/0xc0 [sunrpc]
- [<f89a02c0>] rpc_run_timer+0x0/0x90 [sunrpc]
- [<f8d36e3a>] nfs3_rpc_wrapper+0x3a/0x90 [nfs]
- [<f8d3855c>] nfs3_proc_readdir+0x15c/0x1f0 [nfs]
- [<c0140006>] __free_pages_ok+0x46/0xc0
- [<c01466ed>] invalidate_mapping_pages+0x5d/0x100
- [<f8d3a345>] nfs3_decode_dirent+0x215/0x220 [nfs]
- [<f8d2a145>] nfs_readdir_filler+0xa5/0x160 [nfs]
- [<c013dc22>] read_cache_page+0x72/0x230
- [<f8d2a503>] nfs_readdir+0x193/0x770 [nfs]
- [<f8d2a0a0>] nfs_readdir_filler+0x0/0x160 [nfs]
- [<f8d3748c>] nfs3_proc_access+0x11c/0x150 [nfs]
- [<f8d3a130>] nfs3_decode_dirent+0x0/0x220 [nfs]
- [<c016e57e>] vfs_readdir+0x7e/0x80
- [<c016e860>] filldir64+0x0/0x110
- [<c016e9df>] sys_getdents64+0x6f/0xa9
- [<c016e860>] filldir64+0x0/0x110
- [<c010941b>] syscall_call+0x7/0xb
-
-Code: 8b 48 08 8d 50 0c 85 c9 74 07 8d 50 60 39 f2 77 3e 8b 02 83 
- <6>note: zsh[9392] exited with preempt_count 2
+Prasanna Meda wrote:
+> No,  you need to bring the for loop outside the loop.
+>  - Otherwise we need to reset the setup_frame to
+> tp->setup_frame after every loop.
+>  - You do not need to set the setup_frm for every
+> mc address, we can set once after the complete
+> has_table is ready.
+> And also the  2.4 code missed a bit in tx_flags.
+> 
+> We did the following change that makes it identical
+> to 2.2 tulip driver, and it worked.
+> 
+> --- Linux/drivers/net/tulip/tulip_core.c  Fri Oct 10 20:22:29 2003
+> +++ linux/drivers/net/tulip/tulip_core.c        Fri Oct 10 20:28:19 2003
 
 
-Linux nausicaa 2.6.0-test9-bk16 #3 SMP Tue Nov 11 16:31:39 EST 2003 i686 GNU/Linux
+Yeah, that looks better...  I'll give it a quick test locally, then push 
+it to Linus.
+
+	Jeff
 
 
-Kernel command line: hda=ide-disk hdb=ide-disk hdc=ide-cd hdd=ide-cd noirqdebug
 
-
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 5
-model name      : AMD Opteron(tm) Processor 244
-stepping        : 1
-cpu MHz         : 1793.746
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall mmxext lm 3dnowext 3dnow
-bogomips        : 3522.56
-
-processor       : 1
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 5
-model name      : AMD Opteron(tm) Processor 244
-stepping        : 1
-cpu MHz         : 1793.746
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall mmxext lm 3dnowext 3dnow
-bogomips        : 3579.90
-
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_STANDALONE=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=17
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK8=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_HPET_TIMER=y
-CONFIG_SMP=y
-CONFIG_NR_CPUS=2
-CONFIG_PREEMPT=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_AC=m
-CONFIG_ACPI_BATTERY=m
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_POWERSAVE=m
-CONFIG_CPU_FREQ_GOV_USERSPACE=m
-CONFIG_CPU_FREQ_TABLE=m
-CONFIG_X86_POWERNOW_K8=m
-CONFIG_PCI=y
-CONFIG_PCI_GODIRECT=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_HOTPLUG=y
-CONFIG_PCMCIA_PROBE=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_MISC=m
-CONFIG_FW_LOADER=m
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_CRYPTOLOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDETAPE=m
-CONFIG_BLK_DEV_IDEFLOPPY=m
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_IDE_TASKFILE_IO=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_AMD74XX=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_SIIMAGE=m
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=m
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_PCILYNX=m
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_SBP2=m
-CONFIG_IEEE1394_ETH1394=m
-CONFIG_IEEE1394_DV1394=m
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_IEEE1394_CMP=m
-CONFIG_IEEE1394_AMDTP=m
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_INET_AH=m
-CONFIG_INET_ESP=m
-CONFIG_INET_IPCOMP=m
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=m
-CONFIG_IPV6_SCTP__=y
-CONFIG_IP_SCTP=m
-CONFIG_SCTP_HMAC_NONE=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_TIGON3=m
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_JOYDEV=m
-CONFIG_INPUT_EVDEV=m
-CONFIG_GAMEPORT=m
-CONFIG_SOUND_GAMEPORT=m
-CONFIG_GAMEPORT_NS558=m
-CONFIG_GAMEPORT_EMU10K1=m
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=m
-CONFIG_INPUT_JOYSTICK=y
-CONFIG_JOYSTICK_ANALOG=m
-CONFIG_JOYSTICK_SIDEWINDER=m
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=m
-CONFIG_INPUT_UINPUT=m
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=m
-CONFIG_SERIAL_8250_NR_UARTS=4
-CONFIG_SERIAL_CORE=m
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_I2C=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_AMD8111=m
-CONFIG_I2C_SENSOR=m
-CONFIG_SENSORS_LM85=m
-CONFIG_SENSORS_W83781D=m
-CONFIG_HW_RANDOM=m
-CONFIG_NVRAM=m
-CONFIG_RTC=m
-CONFIG_GEN_RTC=m
-CONFIG_GEN_RTC_X=y
-CONFIG_AGP=m
-CONFIG_AGP_AMD64=m
-CONFIG_DRM=y
-CONFIG_RAW_DRIVER=m
-CONFIG_MAX_RAW_DEVS=256
-CONFIG_HANGCHECK_TIMER=m
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=m
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_EMU10K1=m
-CONFIG_SND_INTEL8X0=m
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_OHCI_HCD=m
-CONFIG_USB_UHCI_HCD=m
-CONFIG_USB_AUDIO=m
-CONFIG_USB_BLUETOOTH_TTY=m
-CONFIG_USB_MIDI=m
-CONFIG_USB_ACM=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_USB_HPUSBSCSI=m
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_GENERIC=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=m
-CONFIG_JBD=m
-CONFIG_REISERFS_FS=y
-CONFIG_MINIX_FS=m
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_NTFS_FS=m
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFS_DIRECTIO=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_SUNRPC=m
-CONFIG_SMB_FS=m
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp437"
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_UTF8=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_MD5=m
-CONFIG_CRYPTO_SHA1=m
-CONFIG_CRYPTO_SHA256=m
-CONFIG_CRYPTO_DES=m
-CONFIG_CRYPTO_BLOWFISH=m
-CONFIG_CRYPTO_TWOFISH=m
-CONFIG_CRYPTO_AES=m
-CONFIG_CRYPTO_DEFLATE=m
-CONFIG_CRC32=m
-CONFIG_ZLIB_INFLATE=m
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_X86_TRAMPOLINE=y
-CONFIG_PC=y

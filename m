@@ -1,73 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262611AbTCYMYB>; Tue, 25 Mar 2003 07:24:01 -0500
+	id <S262291AbTCYMVc>; Tue, 25 Mar 2003 07:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262600AbTCYMYB>; Tue, 25 Mar 2003 07:24:01 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54187 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262302AbTCYMX6>;
-	Tue, 25 Mar 2003 07:23:58 -0500
-Date: Tue, 25 Mar 2003 13:35:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Andrew Morton <akpm@digeo.com>, dougg@torque.net, pbadari@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [patch for playing] 2.5.65 patch to support > 256 disks
-Message-ID: <20030325123502.GW2371@suse.de>
-References: <200303211056.04060.pbadari@us.ibm.com> <3E7C4251.4010406@torque.net> <20030322030419.1451f00b.akpm@digeo.com> <3E7C4D05.2030500@torque.net> <20030322040550.0b8baeec.akpm@digeo.com> <20030325105629.GS2371@suse.de> <3E803FDF.1070401@cyberone.com.au> <20030325120121.GV2371@suse.de> <3E8047C7.4070009@cyberone.com.au>
+	id <S262302AbTCYMVc>; Tue, 25 Mar 2003 07:21:32 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:51929 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S262291AbTCYMVa>;
+	Tue, 25 Mar 2003 07:21:30 -0500
+Date: Tue, 25 Mar 2003 13:31:27 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.66 new fbcon oops while loading X / possible gcc bug?
+Message-ID: <20030325123126.GA10808@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E8047C7.4070009@cyberone.com.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25 2003, Nick Piggin wrote:
-> Jens Axboe wrote:
-> 
-> >On Tue, Mar 25 2003, Nick Piggin wrote:
-> >
-> >>
-> >>Nice Jens. Very good in theory but I haven't looked at the
-> >>code too much yet.
-> >>
-> >>Would it be possible to have all queues allocate out of
-> >>the one global pool of free requests. This way you could
-> >>have a big minimum (say 128) and a big maximum
-> >>(say min(Mbytes, spindles).
-> >>
-> >
-> >Well not really, as far as I can see we _need_ a pool per queue. Imagine
-> >a bio handed to raid, needs to be split to 6 different queues. But our
-> >minimum is 4, deadlock possibility. It could probably be made to work,
-> >however I greatly prefer a per-queue reserve.
-> >
-> OK yeah you are right there. In light of your comment below
-> I'm happy with that. I was mostly worried about queues being
-> restricted to a small maximum.
+While loading X, I get this oops. The weird thing is that I don't use
+framebuffer. I compiled with gcc 3.2.2 but the code generated looks weird.
+Virgin gcc 3.2.2 on a pentium III.
 
-Understandable, we'll make max tunable.
+Oops, followed by my unskilled ruminations:
 
-> >>This way memory usage is decoupled from the number of
-> >>queues, and busy spindles could make use of more
-> >>available free requests.
-> >>
-> >>Oh and the max value can easily be runtime tunable, right?
-> >>
-> >
-> >Sure. However, they don't really mean _anything_. Max is just some
-> >random number to prevent one queue going nuts, and could be completely
-> >removed if the vm works perfectly. Beyond some limit there's little
-> >benefit to doing that, though. But MAX could be runtime tunable. Min is
-> >basically just to make sure we don't kill ourselves, I don't see any
-> >point in making that runtime tunable. It's not really a tunable.
-> >
-> OK thats good then. I would like to see max removed, however perhaps
-> the VM isn't up to that yet. I'll be testing this when your code
-> solidifies!
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c0275a13
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[fb_open+51/208]    Not tainted
+EFLAGS: 00013282
+EIP is at fb_open+0x33/0xd0
+eax: 00000000   ebx: 000000e0   ecx: 00000001   edx: 00000001
+esi: cbd436e0   edi: 00000000   ebp: 00000000   esp: c9589f24
+ds: 007b   es: 007b   ss: 0068
+Process XFree86 (pid: 497, threadinfo=c9588000 task=c96b27e0)
+Stack: c9554720 cbfea4e0 00000000 c9554720 c89b0604 c0150bde c89b0604 c9554720 
+       c9554720 c89b0604 cbfea4e0 c01481ca c89b0604 c9554720 00000002 bffffb78 
+       cbfe2000 c9588000 c0148008 c937e940 cbfea4e0 00000002 c9589f80 c937e940 
+Call Trace:
+ [chrdev_open+94/112] chrdev_open+0x5e/0x70
+ [dentry_open+442/480] dentry_open+0x1ba/0x1e0
+ [filp_open+104/112] filp_open+0x68/0x70
+ [sys_open+91/144] sys_open+0x5b/0x90
+ [syscall_call+7/11] syscall_call+0x7/0xb
 
-Only testing will tell, so yes you are very welcome to give it a shot.
-Let me release a known working version first :)
+Code: 8b 00 85 c0 74 0b 83 38 02 74 6a ff 80 c0 00 00 00 85 d2 b8 
+
+gdb traces fb_open+0x33 to:
+
+(gdb)  l *(fb_open+0x33)
+0xe23 is in fb_open (include/linux/module.h:286).
+281	#define local_inc(x) atomic_inc(x)
+282	#define local_dec(x) atomic_dec(x)
+283	#endif
+284	
+285	static inline int try_module_get(struct module *module)
+286	{
+287		int ret = 1;
+288	
+289		if (module) {
+290			unsigned int cpu = get_cpu();
+
+>From the oops: Code: 8b 00 85 c0 74 0b 83 38 02 74 6a ff 80 c0 00 00 00 85
+d2 b8
+
+This output looks somewhat bogus to me as it appears to try to dereference
+'module' before it has been tested for zero or not:
+
+static inline int try_module_get(struct module *module)
+{
+c0275a08:	8b 86 94 01 00 00	mov	0x194(%esi),%eax
+        int ret = 1;
+c0275a0e:	ba 01 00 00 00		mov	$0x1,%edx
+c0275a13:       8b 00			mov	(%eax),%eax
+
+        if (module) {
+c0275a15:	85 c0			test	%eax,%eax 
+c0275a17:	74 0b			je	c0275a24 <fb_open+0x44>
+c0275a19:	83 38 02		cmpl   $0x2,(%eax)
+c0275a1c:	74 6a			je 	c0275a88 <fb_open+0xa8>
+
+which is called from fb_open:
+
+static int
+fb_open(struct inode *inode, struct file *file)
+{
+ 	int fbidx = minor(inode->i_rdev);
+ 	struct fb_info *info;
+ 	int res = 0;
+
+#ifdef CONFIG_KMOD
+        if (!(info = registered_fb[fbidx]))
+                try_to_load(fbidx);
+#endif /* CONFIG_KMOD */
+        if (!(info = registered_fb[fbidx]))
+                return -ENODEV;
+        if (!try_module_get(info->fbops->owner))
+                return -ENODEV;
+        if (info->fbops->fb_open) {
+                res = info->fbops->fb_open(info,1);
+                if (res)
+                        module_put(info->fbops->owner);
+        }
+        return res;
+}
+
+This suddenly appeared in 2.5.66, 2.5.65 works flawlessly with the same
+compiler.
+
+Regards,
+
+bert
 
 -- 
-Jens Axboe
-
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+http://netherlabs.nl                         Consulting

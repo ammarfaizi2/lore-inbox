@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261314AbSJCPqw>; Thu, 3 Oct 2002 11:46:52 -0400
+	id <S261718AbSJCQP4>; Thu, 3 Oct 2002 12:15:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261325AbSJCPqv>; Thu, 3 Oct 2002 11:46:51 -0400
-Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:9182
-	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
-	id <S261314AbSJCPqt>; Thu, 3 Oct 2002 11:46:49 -0400
+	id <S261719AbSJCQP4>; Thu, 3 Oct 2002 12:15:56 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45841 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261718AbSJCQPz>; Thu, 3 Oct 2002 12:15:55 -0400
+Date: Thu, 3 Oct 2002 09:22:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Michael Clark <michael@metaparadigm.com>, Kevin Corry <corryk@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>, <evms-devel@lists.sourceforge.net>
+Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 2/4: evms.h
+In-Reply-To: <20021003161405.A20832@infradead.org>
+Message-ID: <Pine.LNX.4.44.0210030918250.2067-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-From: David Mosberger-Tang <David.Mosberger@acm.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] backtrace
-In-Reply-To: <7453.1033637889@ocs3.intra.ocs.com.au>
-References: <3D9C004A.3080006@corvil.com> <7453.1033637889@ocs3.intra.ocs.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Message-Id: <20021003154651Z261325-8741+1357@vger.kernel.org>
-Date: Thu, 3 Oct 2002 11:46:51 -0400
 
->>>>> On Thu, 03 Oct 2002 11:50:03 +0200, Keith Owens <kaos@sgi.com> said:
 
-  Keith> Most architectures compile with -fomit-frame-pointer (except
-  Keith> for ARM where RMK does it differently).  Neither gdb not
-  Keith> glibc can cope with kernel code built with
-  Keith> -fomit-frame-pointer.  See the horrible heuristics kdb has to
-  Keith> apply to get any sort of backtrace on i386.
+On Thu, 3 Oct 2002, Christoph Hellwig wrote:
+> 
+> root device should be in do_mount.c and not in obscure headers.
 
-Keith knows this, but just to be clear: there is no problem unwinding
-across functions compiled with -fomit-frame-pointer on ia64.  (Other
-platforms could do the same if they took advantage of DWARF2 unwind
-info.)
+No, they should _not_ be in do_mount.c either. They should be in the 
+driver registration, and do_mount.c should not have a random list of 
+devices. 
 
-	--david
+I'm not accepting do_mount.c expansion here, simply because I don't want 
+to help a horribly broken interface. You can always use a hex number 
+(which is what things like lilo will install anyway, I believe, rather 
+than using the "root=/dev/xxx" command line), and if people get too tired 
+about remembering numbers, maybe somebody who cares will step up to the 
+plate and write a reverse of "__bdevname()" and do it right.
+
+Hint: see __bdevname in fs/block_dev.c, and realize that it does the 
+"kdev->name" translation without _any_ tables at all. Think about doing 
+the same the other way, by just walking the registered block devices.
+
+		Linus
+

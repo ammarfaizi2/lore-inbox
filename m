@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVCCVAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVCCUm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262413AbVCCVAp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 16:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVCCVAk
+	id S262568AbVCCUm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 15:42:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVCCUkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 16:00:40 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55468 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262413AbVCCU5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 15:57:53 -0500
-Message-ID: <42277A3D.9030805@pobox.com>
-Date: Thu, 03 Mar 2005 15:57:33 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Chris Wright <chrisw@osdl.org>, Rene Rebe <rene@exactcode.de>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
-References: <422751D9.2060603@exactcode.de> <422756DC.6000405@pobox.com> <20050303191840.GA12916@kroah.com> <42276A0C.9080505@pobox.com> <20050303200718.GR28536@shell0.pdx.osdl.net> <20050303203206.GB13522@kroah.com>
-In-Reply-To: <20050303203206.GB13522@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 3 Mar 2005 15:40:25 -0500
+Received: from fire.osdl.org ([65.172.181.4]:19096 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262172AbVCCUfm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 15:35:42 -0500
+Date: Thu, 3 Mar 2005 12:34:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information
+Message-Id: <20050303123448.462c56cd.akpm@osdl.org>
+In-Reply-To: <13767.1109857095@redhat.com>
+References: <20050302135146.2248c7e5.akpm@osdl.org>
+	<20050302090734.5a9895a3.akpm@osdl.org>
+	<9420.1109778627@redhat.com>
+	<31789.1109799287@redhat.com>
+	<13767.1109857095@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Mar 03, 2005 at 12:07:18PM -0800, Chris Wright wrote:
->>Don't see why not, we were thinking of making it just an alias at
->>kernel.org.
+David Howells <dhowells@redhat.com> wrote:
+>
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
+>  > 
+>  > > +#define BDI_CAP_MAP_COPY	0x00000001	/* Copy can be mapped (MAP_PRIVATE) */
+>  > > +#define BDI_CAP_MAP_DIRECT	0x00000002	/* Can be mapped directly (MAP_SHARED) */
+>  > 
+>  > Why not make these bitfields as well?
 > 
-> An alias would probably be easier, unless you think everything sent
-> there should be archived?
+>  Because I want to copy the capabilities mask (including these variables) into
+>  a variable in the nommu mmap implementation and eliminate various bits from
+>  that variable under certain conditions.
+> 
+>  Making these into bitfields would result in having to use three variables
+>  instead of just the one.
 
-
-I do.  But I don't have a strong opinion on the subject.
-
-	Jeff
-
-
+Well let's do one or the other, and not have it half-and-half, please.

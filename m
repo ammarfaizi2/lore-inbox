@@ -1,74 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbTJGMkN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 08:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTJGMkN
+	id S262360AbTJGMws (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 08:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTJGMwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 08:40:13 -0400
-Received: from pier.botik.ru ([193.232.174.1]:31143 "EHLO pier.botik.ru")
-	by vger.kernel.org with ESMTP id S262314AbTJGMkH (ORCPT
+	Tue, 7 Oct 2003 08:52:47 -0400
+Received: from main.gmane.org ([80.91.224.249]:6882 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262360AbTJGMwq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 08:40:07 -0400
-Message-ID: <3F82B4C6.707221A@namesys.com>
-Date: Tue, 07 Oct 2003 16:42:46 +0400
-From: "E. Gryaznova" <grev@namesys.com>
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.22-badblocks i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Tue, 7 Oct 2003 08:52:46 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Can dbench be used for benchmarking fs?
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Can't X be elemenated?
+Date: Tue, 07 Oct 2003 14:52:36 +0200
+Message-ID: <yw1x1xtpfbvv.fsf@users.sourceforge.net>
+References: <Pine.LNX.4.44.0309301209590.19804-100000@shell> <Pine.LNX.4.58.0309301316510.12484@dlang.diginsite.com>
+ <20031007040449.GM205@openzaurus.ucw.cz> <3F82780C.8080408@pixelized.ch>
+ <20031007121825.GA323@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:hgS3j15q/7wtg/IqPkFd6FnAcVk=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Pavel Machek <pavel@ucw.cz> writes:
 
-I use dbench for benchmarking the file systems and some results are
-suspicious for me.
+> Well, I'm pretty glad there's only one glibc, and only one http
+> protocol, and only one X protocol. And it would be way better if there
+> was just one toolkit commonly used on Linux.
 
-I run 10 times dbench on ext3 and i have the following :
+There are a few problems with the common toolkits.  Both Qt and GTK
+are huge bloated things that tend to take over the entire application.
+You have to do everything centered around the GUI toolkit.  If neither
+one fits the model of your application, it is sometimes easier to roll
+your own toolkit.  Actually, that was how GTK started its life.
 
-Throughput 16.6754 MB/sec (NB=20.8443 MB/sec  166.754 MBit/sec)
-Throughput 22.9772 MB/sec (NB=28.7216 MB/sec  229.772 MBit/sec)
-Throughput 22.3698 MB/sec (NB=27.9623 MB/sec  223.698 MBit/sec)
-Throughput 19.0533 MB/sec (NB=23.8167 MB/sec  190.533 MBit/sec)
-Throughput 21.9662 MB/sec (NB=27.4577 MB/sec  219.662 MBit/sec)
-Throughput 23.4062 MB/sec (NB=29.2578 MB/sec  234.062 MBit/sec)
-Throughput 21.4233 MB/sec (NB=26.7791 MB/sec  214.233 MBit/sec)
-Throughput 20.6202 MB/sec (NB=25.7753 MB/sec  206.202 MBit/sec)
-Throughput 15.7005 MB/sec (NB=19.6256 MB/sec  157.005 MBit/sec)
-Throughput 19.9631 MB/sec (NB=24.9538 MB/sec  199.631 MBit/sec)
+The other toolkits are either non-free, immensely ugly, or both.
 
-As you can see
-the average Throughput value is equal  20.4155 MB/sec
-the max  value                         23.4062 MB/sec and
-the min  value                         15.7005 MB/sec
-
-As the result: the measuring deviation is equal = 23.4062 - 15.7005 =
-7.7057 or about ~38% from average value.
-
-I have dbench-1.1.tar.gz
-
-I run dbench by the following way :
-mke2fs -j /dev/xxx
-mount /dev/xxx /mnt
-cp dbench /mnt/.
-cp clients.txt /mnt/.
-cd /mnt
-for x 1, 2, ... 10
-do
-    ./dbench 8 >>results
-done
-
-So, I have 2 questions :
-1. Is there a way to avoid such big deviations on measuring a file
-systems throughput and to get more stable results?
-2. Can dbench be used for benchmarking the file systems and if it is so
--- what is the predictable error on the measuring?
-
-Thank you very much for helping.
-Lena.
-
-
+-- 
+Måns Rullgård
+mru@users.sf.net
 

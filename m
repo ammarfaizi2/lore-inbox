@@ -1,36 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269091AbUIBWYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269131AbUIBWTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269091AbUIBWYa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 18:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269146AbUIBWY0
+	id S269131AbUIBWTv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 18:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269091AbUIBWSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 18:24:26 -0400
-Received: from smtp110.mail.sc5.yahoo.com ([66.163.170.8]:6840 "HELO
-	smtp110.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269091AbUIBWXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 18:23:14 -0400
-Date: Thu, 2 Sep 2004 15:22:14 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Per von Zweigbergk <pvz@e.kth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_BSD_DISKLABEL not in 2.6.8.1?
-Message-Id: <20040902152214.2b3d5cb9.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.44.0409030003200.1068-100000@quetzalcoatlite.e.kth.se>
-References: <Pine.LNX.4.44.0409030003200.1068-100000@quetzalcoatlite.e.kth.se>
-Organization: DaveM Loft Enterprises
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+	Thu, 2 Sep 2004 18:18:54 -0400
+Received: from soundwarez.org ([217.160.171.123]:35202 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S269185AbUIBWPx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 18:15:53 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Daniel Stekloff <dsteklof@us.ibm.com>
+Cc: Robert Love <rml@ximian.com>, Greg KH <greg@kroah.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1094157902.1316.83.camel@DYN319498.beaverton.ibm.com>
+References: <1093988576.4815.43.camel@betsy.boston.ximian.com>
+	 <1094004324.1916.63.camel@localhost.localdomain>
+	 <20040901100750.GA23337@vrfy.org>
+	 <1094157902.1316.83.camel@DYN319498.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Fri, 03 Sep 2004 00:15:50 +0200
+Message-Id: <1094163351.26430.107.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 1.5.93 (1.5.93-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004 00:03:42 +0200 (CEST)
-Per von Zweigbergk <pvz@e.kth.se> wrote:
+On Thu, 2004-09-02 at 13:45 -0700, Daniel Stekloff wrote:
+> On Wed, 2004-09-01 at 03:07, Kay Sievers wrote:
+> [snip]
+> > The motivation for doing this, is the ambitioned idea, that _data_ should
+> > only be exposed through sysfs values to userspace. This would make it
+> > possible for userspace to scan any state at any time, regardless of a
+> > received event. Which should make the whole setup more reliable, as
+> > applications can just read in the state at startup. We do a similar job
+> > with udevstart, as all lost hotplug events during the early boot are
+> > recovered just by reading sysfs and synthesize these events for creating
+> > device nodes.
+> > 
+> > The same applies to the way back to the kernel. We don't want to send
+> > data over the netlink back to the kernel, we can write to sysfs.
+> 
+> 
+> Ok.. so if I wanted to send an event (that included data at event time)
+> from a driver for a particular device, I would send the event with the
+> send_kevent() call and create and maintain an attribute for that
+> specific event. In order for an application to receive the data for the
+> event, the driver would need to store the data for that event somewhere
+> and keep it. Unless there's a write attribute to tell me it's been read,
+> I must maintain it or write over it if the same event occurs again. 
+> 
+> Is this how it's supposed to work? 
 
-> Older kernel versions had a CONFIG_BSD_DISKLABEL option, which was 
-> configurable via menuconfig etcetera, but 2.6.8.1 doesn't seem to have it 
-> in menuconfig.
+No, the current version(idea) is mainly a sysfs/kobject notification,
+not a data channel, or something that requires a more complicated logic.
+(but, yes, your example applies to simple event sequence numbers too. We
+can't expose these kind of "snapshot data" by a sysfs value).
 
-Enable CONDIG_PARTITION_ADVANCED and CONFIG_MSDOS_PARTITION,
-this will enable selection of CONFIG_BSD_DISKLABEL.
+> Even though 1) there won't be many events and 2) few events will include
+> data - don't you think this is a bit too much development overhead for
+> the driver? 
+> 
+> If you had the payload with the event, you could fire and forget. It
+> would be fewer steps for the driver and require less management and
+> storage.
+
+There will be only very few cases for that, but some drivers will want
+to send these kind of information to userspace (even binary blobs). 
+
+Don't know if this kind of data dump should be part of kevent or better
+handled by something driver specific. It gets even more complicated, if
+the userspace listener must interpret all these different data formats.
+
+Maybe we just need to rename "kevent" to "kobject_notify" to make the
+focus more clear :)
+
+Thanks,
+Kay
+

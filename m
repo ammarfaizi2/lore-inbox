@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266926AbSKURnq>; Thu, 21 Nov 2002 12:43:46 -0500
+	id <S266720AbSKURpd>; Thu, 21 Nov 2002 12:45:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266927AbSKURnq>; Thu, 21 Nov 2002 12:43:46 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:50840 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266926AbSKURnp>;
-	Thu, 21 Nov 2002 12:43:45 -0500
-Date: Thu, 21 Nov 2002 09:44:39 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-cc: David Zaffiro <davzaffiro@netscape.net>
-Subject: Re: Compiling x86 with and without frame pointer
-Message-ID: <224900000.1037900678@flay>
-In-Reply-To: <19005.1037854033@kao2.melbourne.sgi.com>
-References: <19005.1037854033@kao2.melbourne.sgi.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S266750AbSKURpd>; Thu, 21 Nov 2002 12:45:33 -0500
+Received: from borg.org ([208.218.135.231]:53689 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S266720AbSKURpc>;
+	Thu, 21 Nov 2002 12:45:32 -0500
+Date: Thu, 21 Nov 2002 12:52:40 -0500
+From: Kent Borg <kentborg@borg.org>
+To: linux-kernel@vger.kernel.org
+Subject: Where is ext2/3 secure delete ("s") attribute?
+Message-ID: <20021121125240.K16336@borg.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The conventional wisdom is that compiling x86 without frame pointer
-> results in smaller code.  It turns out to be the opposite, compiling
-> with frame pointers results in a smaller kernel.  gcc version 3.2
-> 20020822 (Red Hat Linux Rawhide 3.2-4).
+I happened upon the chattr command and was pleased to see that "s"
+means to write zeros (or is it random data?) to the blocks of deleted
+files.  Cool, except I can't see that it works.
 
-I looked at 2.5.47 (with a splattering of performance patches) using 
-gcc 2.95.4 (Debian Woody), on a 16-way NUMA-Q, and did some kernel
-compile testing. The times to do the tests were almost identical
-(within error noise), but the kernel was indeed smaller
+First, deleting a large file with the "s" attribute happens far too
+quickly.
 
-   text    data     bss     dec     hex filename
-1873293  396231  459388 2728912  29a3d0 2.5.47-mjb1/vmlinux
-1427355  396875  455356 2279586  22c8a2 2.5.47-mjb1-frameptr/vmlinux
+Second, I can't see where any of this is implemented in the source
+code (as of Red Hat's 2.4.18-17.7.x and straight 2.4.19).  The file
+fs/ext2/CHANGES talks about how the zero writing was changed to
+writing random data--but nothing seems to implement this.
 
-Wow ... that's quite some difference ;-)
+What happened to this feature?  Was it too slow or buggy?  Did the
+Federales force its removal?
 
-> I use -momit-leaf-frame-pointer for optimization in some own 
-> projects, instead of the "-fomit-frame-pointer". For me, this 
-> results in better codesize/speed compared to both "-fomit-frame-pointer" 
-> or no option at all. Actually gcc-2.95 seems to support this feature 
-> as well, but it never made it into the 2.95 docs...
+(Would this be best implemented as a background scrub and I am missing
+a daemon?)
 
-I tried this, but it seemed to be the same as -fomit-frame-pointer
-(on 2.95 at least).
 
-Given that omitting the -fomit-frame-pointer makes a smaller kernel,
-that's easier to debug, I'd say this is a good thing to do unless someone
-can get *negative* benchmark results. 
+Thanks,
 
-M.
-
+-kb, the Kent who would like to have his notebook not be full of
+easily undeletable files.

@@ -1,28 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130170AbRCESKl>; Mon, 5 Mar 2001 13:10:41 -0500
+	id <S130176AbRCESLl>; Mon, 5 Mar 2001 13:11:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130176AbRCESKV>; Mon, 5 Mar 2001 13:10:21 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13060 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130170AbRCESKO>; Mon, 5 Mar 2001 13:10:14 -0500
-Subject: Re: Annoying CD-rom driver error messages
-To: law@sgi.com (LA Walsh)
-Date: Mon, 5 Mar 2001 18:13:06 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3AA3D180.24661D6B@sgi.com> from "LA Walsh" at Mar 05, 2001 09:48:48 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130183AbRCESLb>; Mon, 5 Mar 2001 13:11:31 -0500
+Received: from www.wen-online.de ([212.223.88.39]:4868 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130176AbRCESLZ>;
+	Mon, 5 Mar 2001 13:11:25 -0500
+Date: Mon, 5 Mar 2001 19:10:55 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Loop stuck in -D state
+In-Reply-To: <Pine.LNX.4.33.0103051844390.407-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.33.0103051901580.558-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14ZzTo-0007Rv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > this isnt a kernel problem, its a _very_ stupid app
-> ---
-> 	Must be more than one stupid app...
+On Mon, 5 Mar 2001, Mike Galbraith wrote:
 
-Could well be. You have something continually trying to open your cdrom and
-see if there is media in it
+> On Mon, 5 Mar 2001, Richard B. Johnson wrote:
+>
+> > I tried Linux 2.4.2
+> > Now I'm in a load of trouble. I can't make a boot-disk to get back
+> > to 2.4.1 because I use initrd for my hard disk modules and the loop
+> > device is broken.
+>
+> What's wrong with 2.4.2 that makes you want to go back?  Anyway, if
+> you grab Jens' patch, all will be peachy (at least for that kind of
+> basic usage).
+
+P.S.
+Are you saying that the initrd is broken again as well?  (having
+trouble understanding the problem.. don't see why you need the
+loop device or rather how its being busted is connected to your
+[interpolation] difficulty in creating a new initrd)
+
+	-EAGAIN ;-)
+
+	-Mike
+

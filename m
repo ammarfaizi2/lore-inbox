@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286821AbSA0Mce>; Sun, 27 Jan 2002 07:32:34 -0500
+	id <S287115AbSA0NBx>; Sun, 27 Jan 2002 08:01:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287115AbSA0McY>; Sun, 27 Jan 2002 07:32:24 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:7593 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S286821AbSA0McP>; Sun, 27 Jan 2002 07:32:15 -0500
-Message-Id: <200201271232.g0RCW7EK012415@tigger.cs.uni-dortmund.de>
-To: John Kodis <kodis@mail630.gsfc.nasa.gov>, linux-kernel@vger.kernel.org,
-        palmerj@zanshin.gsfc.nasa.gov
-Subject: Re: Mounting OS-X "Unix" filesystems on Linux 
-In-Reply-To: Message from John Kodis <kodis@mail630.gsfc.nasa.gov> 
-   of "Fri, 25 Jan 2002 12:18:37 EST." <20020125171837.GA31376@tux.gsfc.nasa.gov> 
-Date: Sun, 27 Jan 2002 13:32:07 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S287134AbSA0NBm>; Sun, 27 Jan 2002 08:01:42 -0500
+Received: from [194.73.73.81] ([194.73.73.81]:52167 "EHLO
+	tungsten.btinternet.com") by vger.kernel.org with ESMTP
+	id <S287115AbSA0NBZ>; Sun, 27 Jan 2002 08:01:25 -0500
+From: "Daniel J Blueman" <daniel.blueman@btinternet.com>
+To: "'Mark Zealey'" <mark@zealos.org>, "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: RE: fonts corruption with 3dfx drm module
+Date: Sun, 27 Jan 2002 13:00:57 -0000
+Message-ID: <000301c1a732$a989fa80$132f23d9@stratus>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <20020127122501.GA23825@itsolve.co.uk>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Kodis <kodis@mail630.gsfc.nasa.gov> said:
-> I'm trying to mount an OS-X Unix filesystem on Linux.  I haven't had
-> any luck at this, and wondered whether this is a known problem, or if
-> I'm doing something wrong.
+Do you have a graphical console or text? I believe there are fixes in
+2.4.18-preX to decrease the 3dfx banshee/v3 pixel clock or something to
+alleviate this issue. That'll be in the 3dfx framebuffer driver.
+
+Or, of course, it could be something entirely different....
+____________________
+Daniel J Blueman 
+
+> On Sun, Jan 27, 2002 at 12:15:01PM +0000, Diego Calleja wrote:
+> > I can see fonts corruption when switching from X to console. I use 
+> > last stable kernel, but it's been hapenning from earlier 
+> versions. I 
+> > use iso-8959-15 fonts in console, with tdfx drm module for 
+> X, my video 
+> > card is voodoo 3 3000 PCI. I hope this can help.
 > 
-> I formatted a zip disk on a Mac OS-X, selecting the "Unix" filesystem
-> type and no partitions.  I then inserted this disk in the /dev/hdd,
-> the zip drive on my PC.  I tried mounting hdd and hdd1 through hdd4
-> using types of auto, ufs, udf, sysv, and one or two others, all to no
-> avail.
+> Yes, I've been seeing this too, it's happened in 2.2.19, 
+> 2.2.20 and 2.4.17 (for me). Voodoo banshee PCI card.. it can 
+> be annoying, but another switch usially fixes it...
 
-Try fdisk(8) on it, it might tell you of any strange partitioning. Or the
-Mac might have written to the device (not a partition). Get hold of the
-first Kb or so of each partition, file(1) might be able to find out what it
-is.
-
-Good luck!
--- 
-Horst von Brand			     http://counter.li.org # 22616

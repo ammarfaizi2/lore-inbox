@@ -1,58 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319066AbSIDFeu>; Wed, 4 Sep 2002 01:34:50 -0400
+	id <S319065AbSIDFqj>; Wed, 4 Sep 2002 01:46:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319069AbSIDFeu>; Wed, 4 Sep 2002 01:34:50 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:37354 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319066AbSIDFer>;
-	Wed, 4 Sep 2002 01:34:47 -0400
-Date: Tue, 03 Sep 2002 22:37:20 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>, Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org, colpatch@us.ibm.com
-Subject: Re: [BUG] 2.5.33 PCI and/or starfire.c broken
-Message-ID: <102020607.1031092638@[10.10.2.3]>
-In-Reply-To: <20020904051200.GX888@holomorphy.com>
-References: <20020904051200.GX888@holomorphy.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S319067AbSIDFqj>; Wed, 4 Sep 2002 01:46:39 -0400
+Received: from [64.6.248.2] ([64.6.248.2]:30684 "EHLO greenie.frogspace.net")
+	by vger.kernel.org with ESMTP id <S319065AbSIDFqg>;
+	Wed, 4 Sep 2002 01:46:36 -0400
+Date: Tue, 3 Sep 2002 22:50:59 -0700 (PDT)
+From: Peter <cogweb@cogweb.net>
+X-X-Sender: cogweb@greenie.frogspace.net
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-ac4 build problem
+Message-ID: <Pine.LNX.4.44.0209032237460.25475-100000@greenie.frogspace.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's a wee bit less brain-damaged than crackly sound cards with 
-> only 24 out of 32 address lines wired. 
 
-True ;-)
+Is there a fix for this compilation problem? I've tried gcc 2.95.3, 3.0, 
+and 3.1 and get the same:
 
-> At any rate, the issue is in all
-> likelihood that that support file is being circumvented. 
+drivers/usb/usbdrv.o: In function `hidinput_hid_event':
+drivers/usb/usbdrv.o(.text+0x127f1): undefined reference to `input_event'
+drivers/usb/usbdrv.o(.text+0x12889): undefined reference to `input_event'
+drivers/usb/usbdrv.o(.text+0x128e1): undefined reference to `input_event'
+drivers/usb/usbdrv.o(.text+0x12967): undefined reference to `input_event'
+drivers/usb/usbdrv.o: In function `hidinput_connect':
+drivers/usb/usbdrv.o(.text+0x12bc0): undefined reference to `input_register_device'
+drivers/usb/usbdrv.o: In function `hidinput_hid_event':
+drivers/usb/usbdrv.o(.text+0x12848): undefined reference to `input_event'
+drivers/usb/usbdrv.o: In function `hidinput_disconnect':
+drivers/usb/usbdrv.o(.text+0x12bdd): undefined reference to `input_unregister_device'
+make: *** [vmlinux] Error 1
 
-Those functions that need alteration aren't "switched" between
-different arches like that. The patch just hardcodes arch specific
-crud into general code, and would never be submittable. There was 
-some clean way to fix it suggested, but I forget what it was at 
-the moment ... will work it out again with Greg.
+I'm trying to get USB keyboard and mouse support, so I'd like to keep the 
+hidinput options.
 
-> It's obviously
-> getting wrong information when it asks to read from a given bus as
-> there are no PCI devices off of node 0 (as this hasn't worked in a long
-> time), so perhaps a disassembly or other fishing around will reveal
-> whose pci config space accessors are actually being called here.
+Cheers,
+Peter
 
-Does it really matter who's registers we're reading when using
-pointers we know are corrupted garbage? Far better to fix the
-pointers than fuss around working what they ended up pointing
-at this spin of the bottle ...
 
-IIRC, it's getting mislead by the PCI-PCI bridge itself, which is
-always returning the local bus number of 3 no matter which quad 
-it's on. It's not the read operations themselves that are borked
-(this time), it's the data that the bridge is returning is being
-"misinterpreted".
+#
+# Input core support
+#
+CONFIG_INPUT=m
+CONFIG_INPUT_KEYBDEV=m
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+# CONFIG_INPUT_EVDEV is not set
 
-M.
+#
+# USB support
+#
+CONFIG_USB=y
+# CONFIG_USB_DEBUG is not set
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+# CONFIG_USB_LONG_TIMEOUT is not set
+
+#
+# USB Host Controller Drivers
+#
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_UHCI=y
+# CONFIG_USB_UHCI_ALT is not set
+# CONFIG_USB_OHCI is not set
+
+
+#
+# USB Device Class drivers
+#
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_BLUETOOTH is not set
+CONFIG_USB_STORAGE=m
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_DATAFAB is not set
+# CONFIG_USB_STORAGE_FREECOM is not set
+CONFIG_USB_STORAGE_ISD200=y
+# CONFIG_USB_STORAGE_DPCM is not set
+# CONFIG_USB_STORAGE_HP8200e is not set
+# CONFIG_USB_STORAGE_SDDR09 is not set
+# CONFIG_USB_STORAGE_JUMPSHOT is not set
+# CONFIG_USB_ACM is not set
+CONFIG_USB_PRINTER=y
+
+#
+# USB Human Interface Devices (HID)
+#
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+# CONFIG_USB_HIDDEV is not set
+# CONFIG_USB_WACOM is not set
+
+#
+# USB Imaging devices
+#
+# CONFIG_USB_DC2XX is not set
+# CONFIG_USB_MDC800 is not set
+CONFIG_USB_SCANNER=m
+# CONFIG_USB_MICROTEK is not set
+# CONFIG_USB_MICROTEK is not set
+# CONFIG_USB_HPUSBSCSI is not set
+
+No additional USB devices are set.
 

@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271419AbRHOUf1>; Wed, 15 Aug 2001 16:35:27 -0400
+	id <S271421AbRHOUiH>; Wed, 15 Aug 2001 16:38:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271421AbRHOUfS>; Wed, 15 Aug 2001 16:35:18 -0400
-Received: from ns.caldera.de ([212.34.180.1]:5277 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S271419AbRHOUfE>;
-	Wed, 15 Aug 2001 16:35:04 -0400
-Date: Wed, 15 Aug 2001 22:34:53 +0200
-Message-Id: <200108152034.f7FKYrM26636@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: bbeattie@sequent.com (Brian Beattie)
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: md/multipath: Multipath, Multiport support and prototype patch for round robin routing
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010723133242.B970@dyn9-47-16-69.des.beaverton.ibm.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S271425AbRHOUh5>; Wed, 15 Aug 2001 16:37:57 -0400
+Received: from miro.qualcomm.com ([129.46.64.223]:33962 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S271421AbRHOUhq>; Wed, 15 Aug 2001 16:37:46 -0400
+Message-Id: <4.3.1.0.20010815133146.034a75c0@mail1>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Wed, 15 Aug 2001 13:37:17 -0700
+To: linux-kernel@vger.kernel.org
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Subject: 2.4.9-pre[34] changes in drivers/char/vt.c broke Sparc64
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010723133242.B970@dyn9-47-16-69.des.beaverton.ibm.com> you wrote:
-> I've been looking at the multipath support Ingo Molnar added to md as
-> included in RedHat 7.1.  I'm looking at various improvements that might
-> be possible.  To try to get some discussion going, I posting some ideas
-> of things I thgink could be improved, and some patches for a prototype
-> to add round robin routing.
->
-> Some of the things that I think could be done that would improve md, in
-> no particular order: different routing options ( prefered route, round
-> robin, static weighted, dynamic weighted ), improved error handeling,
-> automatic route recovery, automatic device discovery, automatic device
-> identification.  Some of these may not be feasible and others may have
-> some other features.
->
-> All comments welcome
+Hi,
 
-First it would be so much easier to compare this to the current code
-if one would not have to download megabytes of redhat kernel-rpms
-(ok we have it on kn.org now),  extract the four or five patches and
-adopt them to a slightly different tree, but could find it in the stock
-or at least -ac tree.  Ingo, is there any specici reason why you didn't
-send it to Alan yet?  I stoped my development of the same feature because
-I saw yours was moe coplete and now it doesn't get merged..
+Have you guys noticed that new vt.c in 2.4.9-pre[34] doesn't compile on Sparc64 (and Sparc32) ?
 
-The second comment actually goes to you, Brian:  could you please try to
-create unified diffs (diff -u)?  It's sooo much easier to read..
+sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare -Wa,--undeclared-regs    -c -o vt.o vt.c
+In file included from vt.c:27:
+/usr/src/linux/include/linux/irq.h:57: asm/hw_irq.h: No such file or directory
+vt.c: In function `vt_ioctl':
+vt.c:507: `kbd_rate' undeclared (first use in this function)
+vt.c:507: (Each undeclared identifier is reported only once
+vt.c:507: for each function it appears in.)
+vt.c:514: `kbd_rate' used prior to declaration
+vt.c:514: warning: implicit declaration of function `kbd_rate'
 
-> + 
-> + static struct multipath_dev_table multipath_dev_template = {
-> +         "",
-> + 	{
-> + 		{MULTIPATH_ROUTING, "routing", NULL, sizeof(int), 0644,
-> + 			NULL, &proc_dointvec},
+Simple commenting out #include <linux/irq.h> and ioctl code that uses kbd_rate works.
+Whoever changed vt.c please post correct fix.
 
-Shouldn't this be a property of the md device, instead of a sysctl?
-I planned to write that information in the md superblock for my design.
+Thanks
+Max
 
-	Christoph
+Maksim Krasnyanskiy	
+Senior Kernel Engineer
+Qualcomm Incorporated
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+maxk@qualcomm.com
+http://bluez.sf.net
+http://vtun.sf.net
+

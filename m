@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262770AbTCVNfr>; Sat, 22 Mar 2003 08:35:47 -0500
+	id <S262751AbTCVNdp>; Sat, 22 Mar 2003 08:33:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262771AbTCVNfr>; Sat, 22 Mar 2003 08:35:47 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:40089
+	id <S262758AbTCVNdp>; Sat, 22 Mar 2003 08:33:45 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39321
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262770AbTCVNfq>; Sat, 22 Mar 2003 08:35:46 -0500
-Subject: Re: 2.4+ptrace exploit fix breaks root's ability to strace
+	id <S262751AbTCVNdo>; Sat, 22 Mar 2003 08:33:44 -0500
+Subject: Re: Question about hdparm & dma.
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk@arm.linux.org.uk>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030322103121.A16994@flint.arm.linux.org.uk>
-References: <20030322103121.A16994@flint.arm.linux.org.uk>
+In-Reply-To: <3E7C4E8E.9030704@lucidpixels.com>
+References: <3E7C4E8E.9030704@lucidpixels.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1048345130.8912.9.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1048345010.8912.7.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Mar 2003 14:58:51 +0000
+Date: 22 Mar 2003 14:56:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-22 at 10:31, Russell King wrote:
-> Hi,
-> 
-> Are the authors of the ptrace patch aware that, in addition to closing the
-> hole, the "fix" also prevents a ptrace-capable task (eg, strace started by
-> root) from ptracing user threads?
-> 
-> For example, you can't strace vsftpd processes started from xinetd.
-> 
-> Is this intended behaviour?
+On Sat, 2003-03-22 at 11:52, Justin Piszcz wrote:
+> My question is, how is it possible to get > 33MB/s in only UDMA Mode 2 
+> (the linux driver only supports up to UDMA2).
 
-Its an unintended side effect, nobody has sent a patch to fix it yet.
+You can overclock things if you have the setup wrong.
 
+> So basically I am wondering if udma mode 5 will be supported for SIS 
+> chipsets.
+
+I'm wondering if SiS are ever going to provide useful documentation.
+SiS won't deal with individuals only companies which complicates matters
+
+> Secondly, I also have one of those Promise/Serial ATA raid on the 
+> motherboard (2 serial ata/1 ata133), but that is not supported at all.
+
+That may change if things go ok. 

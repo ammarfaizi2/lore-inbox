@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261583AbSJQTeq>; Thu, 17 Oct 2002 15:34:46 -0400
+	id <S261856AbSJQTfF>; Thu, 17 Oct 2002 15:35:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262021AbSJQTeq>; Thu, 17 Oct 2002 15:34:46 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:7587 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261583AbSJQTeo>;
-	Thu, 17 Oct 2002 15:34:44 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: Stress testing cifs filesystem
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OFEC9BD9C9.68C35D7B-ON87256C55.00699285@boulder.ibm.com>
-From: "Steven French" <sfrench@us.ibm.com>
-Date: Thu, 17 Oct 2002 14:39:24 -0500
-X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 10/17/2002 01:40:31 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S261890AbSJQTfF>; Thu, 17 Oct 2002 15:35:05 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:30969 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S261856AbSJQTfE>; Thu, 17 Oct 2002 15:35:04 -0400
+Date: Thu, 17 Oct 2002 15:41:02 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: statfs64 missing
+Message-ID: <20021017154102.D30332@redhat.com>
+References: <20021016140658.GA8461@averell> <shs7kgipiym.fsf@charged.uio.no> <15789.64263.606518.921166@wombat.chubb.wattle.id.au> <20021017000111.GA25054@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021017000111.GA25054@averell>; from ak@muc.de on Thu, Oct 17, 2002 at 02:01:11AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 17, 2002 at 02:01:11AM +0200, Andi Kleen wrote:
+...
+> So it boils down to if the new fields are important enough to justify
+> the pain they cause on 64bit.
+> 
+> (I ran into a similar issue with my nanosecond stat patchkit - 
+> alpha stat is 64bit clean, but doesn't have the padding for ns fields
+> added used in later ports)
 
-Some observations about what to expect when fs stress testing against the
-CIFS filesystem.
+If any new stat() type syscalls are added, make sure that a length parameter 
+of the structure gets passed in from userland, as that way we will be able 
+to extend the available information without introducing yet another syscall 
+on every arch (this has happened enough times now that we should try to get 
+it right).
 
-The NFS connectathon tests seem to work against CIFS at least until the end
-when one of the final (optional) tests fails in which it tries to delete an
-open file (this is not allowed with CIFS servers - don't know a way around
-this yet but I have a few ideas that might work against Windows servers but
-not Samba).
-
-Windows servers do not support chmod/chown/chgrp easily using the CIFS
-network protocol so the basic/test4 test has to be commented out in the NFS
-test script.  In theory these chmod/chown/chgrp ops could be done remotely
-(sort-of) using Windows ACLs but there is more code to write for this and
-it is a fairly esoteric part of the protocol which requires some more
-experimentation.   Also note that the cifs vfs memory mapping code is
-disabled until oplock handling is more complete so I compile the nfs
-connectathon tests with memory mapping disabled.
-
-Samba does support chmod/chgrp/chown so, unlike against Windows servers,
-the connectathon nfs tests run unaltered but only if the "unix extensions"
-smb.conf parm is on in the server's smb.conf file and also the "delete
-readonly" parm is on (deleting read-only files is tested late in the nfs
-tests).  Note that  if you have an access mask specified on the server
-(optional parms in smb.conf) it can make chmod generate less permission for
-chmod than testcases might expect so best not to set an access mask on your
-test shares while running the testcase.
-
-The fsx file system stress testing also runs against the CIFS VFS to either
-Windows or Samba servers (if -W -R options are specified when launching the
-fsx test in order to disable memory mapping) although I am not sure that I
-have ever been patient enough to run it all the way until the end.    I
-have tried the newer versions of LTP as well and have not found any
-problems so far but have not run all the way through every test on the
-current code but plan to.  I would like to find a test that tests more
-esoteric combinations of open flags, multiply opening the same files from
-the same process as well as from multiple processes on both the same and
-different machines.   Not all remote filesystems pass through every open to
-the remote target server (always restricting multiple opens of the same
-file to a single network file open) but in file systems like the cifs vfs
-that do, it would be nice to exhaustively test this useful feature.   It
-will be especially useful when testing oplock (distributed file caching) to
-do multiple conflicting and non-conflicting opens of the same files from
-both the same and different clients simulataneously.
-
-Steve French
-Senior Software Engineer
-Linux Technology Center - IBM Austin
-phone: 512-838-2294
-email: sfrench@us.ibm.com
-
-
+		-ben
+-- 
+"Do you seek knowledge in time travel?"

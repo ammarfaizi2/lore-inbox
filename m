@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265711AbTL3K2B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 05:28:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265731AbTL3K2B
+	id S265736AbTL3KoD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 05:44:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265738AbTL3KoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 05:28:01 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:31118 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265711AbTL3K1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 05:27:53 -0500
-Date: Tue, 30 Dec 2003 05:27:04 -0500 (EST)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Martin Schlemmer <azarah@nosferatu.za.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 performance problems
-In-Reply-To: <20031230050934.GM27687@holomorphy.com>
-Message-ID: <Pine.LNX.4.58.0312300524370.8179@localhost.localdomain>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
- <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
- <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain>
- <1072739685.25741.65.camel@nosferatu.lan> <20031230050934.GM27687@holomorphy.com>
+	Tue, 30 Dec 2003 05:44:03 -0500
+Received: from as1-6-4.ld.bonet.se ([194.236.130.199]:1152 "HELO mail.nicke.nu")
+	by vger.kernel.org with SMTP id S265736AbTL3KoB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 05:44:01 -0500
+From: "Nicklas Bondesson" <nicke@nicke.nu>
+To: <linux-kernel@vger.kernel.org>
+Subject: IDE-RAID Drive Performance
+Date: Tue, 30 Dec 2003 11:44:01 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcPOwYZX1THKwd2pRtWQ28xphNmQfgAADE8w
+Message-Id: <S265736AbTL3KoB/20031230104401Z+18387@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Dec 2003, William Lee Irwin III wrote:
+Hi!
 
-> On Tue, 2003-12-30 at 00:58, Thomas Molina wrote:
-> >> It certainly looks like DMA is enabled.  Under 2.4 I get:
-> >> [root@lap root]# hdparm /dev/hda
-> [...]
-> >>  readahead    =  8 (on)
-> [...]
-> >> Under 2.6  I get:
-> >> [root@lap root]# hdparm /dev/hda
-> [...]
-> >>  readahead    = 256 (on)
-> 
-> On Tue, Dec 30, 2003 at 01:14:45AM +0200, Martin Schlemmer wrote:
-> > Increase your readahead:
-> >  # hdparm -a 8192 /dev/hda
-> > BTW:  As we really do get this question a _lot_ of times, why
-> >       don't the ide layer automatically set a higher readahead
-> >       if there is enough cache on the drive or something?
-> 
-> Could you try lowering 2.6's readahead to 2.4's levels in order to rule
-> out readahead-induced thrashing?
+I think i'm getting really bad values from my disks. It's two Western
+Digital WD800JB-00DUA3 (Special Edition 8 MB cache) disks connected to a
+Promise TX2000 (PDC20271) card (RAID1 using ataraid under Linux 2.4.23).
 
-I thought I had already sent that.  The timings for readahead of 8 was:
+The disks are setup with hdparm at boot time:
 
-real    25m39.653s
-user    0m37.594s
-sys     0m55.454s
+/sbin/hdparm -X69 -d1 -u1 -m16 -c3 /dev/hda 
+/sbin/hdparm -X69 -d1 -u1 -m16 -c3 /dev/hdc
 
-Increasing readahead in 2.6 to 8192 likewise doesn't help.
+When running hdparm -tT I get the following:
+
+/dev/hda:
+ Timing buffer-cache reads:   128 MB in  1.13 seconds =113.27 MB/sec
+ Timing buffered disk reads:  64 MB in  2.46 seconds = 26.02 MB/sec
+
+/dev/hdc:
+ Timing buffer-cache reads:   128 MB in  1.13 seconds =113.27 MB/sec
+ Timing buffered disk reads:  64 MB in  2.47 seconds = 25.91 MB/sec
+
+Are these normal values? I don't think so. Please advise.
+
+/Nicke
+
+

@@ -1,78 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266955AbSLKBGx>; Tue, 10 Dec 2002 20:06:53 -0500
+	id <S266933AbSLKBBa>; Tue, 10 Dec 2002 20:01:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266957AbSLKBGx>; Tue, 10 Dec 2002 20:06:53 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62436 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266955AbSLKBGw>; Tue, 10 Dec 2002 20:06:52 -0500
-Date: Wed, 11 Dec 2002 02:14:35 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre1
-Message-ID: <20021211011435.GP17522@fs.tum.de>
-References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
+	id <S266936AbSLKBBa>; Tue, 10 Dec 2002 20:01:30 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:51926 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id <S266933AbSLKBB2>; Tue, 10 Dec 2002 20:01:28 -0500
+Date: Wed, 11 Dec 2002 01:10:16 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: David Howells <dhowells@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix strange stack calculation for secondary cpus
+In-Reply-To: <3DF655DF.1040507@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0212110048360.1821-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 06:37:14PM -0200, Marcelo Tosatti wrote:
-
-> So here goes the first pre of 2.4.21 including the new IDE code merged
-> from Alan's tree.
+On Tue, 10 Dec 2002, Dave Hansen wrote:
+> in arch/i386/kernel/smpboot.c:
+> stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle);
 > 
-> Test it carefully, since the new IDE code is not yet fully tested.
+> This causes problems when I switch to 4k stacks?  What is supposed to 
+> be going on here?  Why point esp into the middle of the stack?  If you 
+> wanted to do that, why not just use PAGE_SIZE>>2?
 > 
-> Do not use it with critical data.
-> 
-> Summary of changes from v2.4.20 to v2.4.21-pre1
-> ============================================
->...
-> Alan Cox <alan@lxorguk.ukuu.org.uk>:
->...
->   o ac IDE merge
->...
+> In any case, I think THREAD_SIZE needs to be here instead of PAGE_SIZE.
 
-The ac IDE merge broke the compilation of hd.c (it was already broken in 
-ac):
+Yes, it is weird: I wondered the same when we did our bigstack patch
+for debugging 2.4 stack overflows.
 
-<--  snip  -->
+The conclusion I came to was, it was trying to start the stack somewhere
+that wouldn't clash with where it's set up for the trampoline at the top
+of the stack area, see in particular initialize_secondary(): was choosing
+somewhere arbitrarily far below that.
 
-...
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.20/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -I../ 
--nostdinc -iwithprefix include -DKBUILD_BASENAME=hd  -c -o hd.o hd.c
-hd.c:78: conflicting types for `recal_intr'
-/home/bunk/linux/kernel-2.4/linux-2.4.20/include/linux/ide.h:1487: 
-previous declaration of `recal_intr'
-hd.c: In function `dump_status':
-hd.c:171: `QUEUE_EMPTY' undeclared (first use in this function)
-hd.c:171: (Each undeclared identifier is reported only once
-hd.c:171: for each function it appears in.)
-hd.c:171: `CURRENT' undeclared (first use in this function)
-hd.c:169: warning: `devc' might be used uninitialized in this function
-hd.c: In function `hd_out':
-hd.c:284: `DEVICE_INTR' undeclared (first use in this function)
-hd.c:284: `TIMEOUT_VALUE' undeclared (first use in this function)
-hd.c: In function `do_reset_hd':
-...
-make[4]: *** [hd.o] Error 1
-make[4]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.20/drivers/ide/legacy'
+To avoid mysterious magic numbers, I chose instead to start it immediately
+below that area i.e. set the top esp here to the bottom esp there.  That
+worked fine for 2.4, I don't see why the same shouldn't work for 2.5.
 
-<--  snip  -->
+Whereas with your patch, you might be overwriting that area.
+So below I've munged your patch into what we found worked back then.
 
-cu
-Adrian
+To be honest, I can't quite remember my way around that stuff now,
+and my words above may make little sense!
 
--- 
+Hugh
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- linux-2.5.50/arch/i386/kernel/smpboot.c.bad	Tue Dec 10 12:56:10 2002
++++ linux-2.5.50/arch/i386/kernel/smpboot.c	Tue Dec 10 12:56:55 2002
+@@ -806,7 +806,7 @@
+ 
+ 	/* So we see what's up   */
+ 	printk("Booting processor %d/%d eip %lx\n", cpu, apicid, start_eip);
+-	stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle->thread_info);
++	stack_start.esp = (void *) idle->thread.esp;
+ 
+ 	/*
+ 	 * This grunge runs the startup process for
 

@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268295AbTGIOyA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 10:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbTGIOyA
+	id S268294AbTGIOxc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 10:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268295AbTGIOxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 10:54:00 -0400
-Received: from asplinux.ru ([195.133.213.194]:2067 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S268295AbTGIOx5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 10:53:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kirill Korotaev <dev@sw.ru>
-Organization: SW Soft
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more) support
-Date: Wed, 9 Jul 2003 19:17:35 +0400
-User-Agent: KMail/1.4.2
-References: <E19aCeB-000ICs-00.kksx-mail-ru@f23.mail.ru.suse.lists.linux.kernel> <200307091851.33438.dev@sw.ru> <20030709164852.523093a3.ak@suse.de>
-In-Reply-To: <20030709164852.523093a3.ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 9 Jul 2003 10:53:32 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:11459 "EHLO
+	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
+	id S268294AbTGIOxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 10:53:30 -0400
+Message-ID: <3F0C2FCB.8060304@blue-labs.org>
+Date: Wed, 09 Jul 2003 11:07:55 -0400
+From: David Ford <david+powerix@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030706
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200307091917.35500.dev@sw.ru>
+To: Ryan Underwood <nemesis-lists@icequake.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Forking shell bombs
+References: <20030708202819.GM1030@dbz.icequake.net> <3F0B2CE6.8060805@nni.com> <20030708212517.GO1030@dbz.icequake.net>
+In-Reply-To: <20030708212517.GO1030@dbz.icequake.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I added a printf for the actual stack
+No such thing exists.  I can have 10,000 processes doing nothing and 
+have a load average of 0.00.  I can have 100 processes each sucking cpu 
+as fast as the electrons flow and have a dead box.
 
-> thread_self=4000
-> my stack 0xbffff4df
-> attr_init stack=00000000, stack_size=001FF000
+Learn how to manage resource limits and you can tuck another feather 
+into your fledgeling sysadmin hat ;)
 
-> That's the output for pthread_attr_init. The manpage says it should fill in
-> the default values and a 0 base is not that unreasonable for it.
-0 is ok, the problem is in get_stackaddr.
+david
 
-> stack rlimit=1ff000
-> thread=4000, stack=40035480, stack_size=40035480
-> For the main() thread it's wrong.
+Ryan Underwood wrote:
 
-exactly! For the main thread pthread_get_stackaddr returns a bull shit always 
-:(
-
-But at least java 1.3 has workaround inside and handles this magic value 
-separatly and doesn't crash whis 3/1GB split (this value depends on TASK_SIZE 
-or more preciesly on current stack value aligned to some big boundary (AFAIR, 
-1GB)).
-
-Anyway it's definietly a bug. I have a fix in a preloading .so library for 
-glibc which overrides pthread_getstack_addr symbol. If you wish I can send it 
-to you.
-
-> my stack 0xbf7ffaab
-> attr_init stack=00000000, stack_size=001FF000
-> stack rlimit=1ff000
-> thread=4002, stack=BF800000, stack_size=001FF000
+>Hi,
 >
-> For the others everything is correct.
-true.
-
-[skip]
-
-Kirill
+>On Tue, Jul 08, 2003 at 04:43:18PM -0400, jhigdon wrote:
+>  
+>
+>>Have you tried this on any 2.5.x kernels? Just curious to see what it 
+>>does, I plan on giving it a go later.
+>>    
+>>
+>
+>I haven't, but a previous poster indicated that they had (2.5.74) with
+>the same results.
+>
+>I wonder if we could find an upper limit on the number of allowable
+>processes that would leave the box in a workable state?  Unfortunately,
+>I don't have a spare box to test such things on at the moment. ;)
+>
+>Thanks,
+>  
+>
 

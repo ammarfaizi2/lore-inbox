@@ -1,61 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbUC3WgL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 17:36:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUC3WgL
+	id S261440AbUC3Wfd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 17:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUC3Wfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 17:36:11 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23428 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261468AbUC3Wfp
+	Tue, 30 Mar 2004 17:35:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20612 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261440AbUC3WfH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 17:35:45 -0500
-Message-ID: <4069F631.4070405@pobox.com>
-Date: Tue, 30 Mar 2004 17:35:29 -0500
+	Tue, 30 Mar 2004 17:35:07 -0500
+Message-ID: <4069F60B.6000102@pobox.com>
+Date: Tue, 30 Mar 2004 17:34:51 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: akpm@osdl.org, greg@kroah.com, scott.feldman@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add PCI_DMA_{64,32}BIT constants
-References: <20040323052305.GA2287@havoc.gtf.org> <20040329223604.63d981d0.rddunlap@osdl.org>
-In-Reply-To: <20040329223604.63d981d0.rddunlap@osdl.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
+       dm-devel@redhat.com
+Subject: Re: "Enhanced" MD code avaible for review
+References: <760890000.1079727553@aslan.btc.adaptec.com> <200403261315.20213.kevcorry@us.ibm.com> <1644340000.1080333901@aslan.btc.adaptec.com> <200403270939.29164.kevcorry@us.ibm.com> <842610000.1080666235@aslan.btc.adaptec.com> <4069AB1B.90108@pobox.com> <854630000.1080668158@aslan.btc.adaptec.com> <4069B289.9030807@pobox.com> <866290000.1080669880@aslan.btc.adaptec.com> <4069EB03.9000202@pobox.com> <1001500000.1080684755@aslan.btc.adaptec.com>
+In-Reply-To: <1001500000.1080684755@aslan.btc.adaptec.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Tue, 23 Mar 2004 00:23:05 -0500 Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
-> | 
-> | Been meaning to do this for ages...
-> | 
-> | Another one for the janitors.
-> 
-> 
->>>>Nice, I've pulled this to my pci tree and will forward it on to Linus in
->>>>the next round of pci patches after 2.6.5 is out.
->>>
->>>Yeah well...  in the intervening time, somebody on IRC commented
->>>
->>>"so what is so PCI-specific about those constants?"
->>>
->>>They probably ought to be DMA_{32,64}BIT_MASK or somesuch.
+Justin T. Gibbs wrote:
+>>>So you are saying that this presents an unrecoverable situation?
 >>
+>>No, I'm saying that the data phase need not have a bunch of in-kernel
+>>checks, it should be generated correctly from the source.
+> 
+> 
+> The SCSI drivers validate the controller's data phase based on the
+> expected phase presented to them from an upper layer.  I never talked
+> about adding checks that make little sense or are overly expensive.  You
+> seem to equate validation with huge expense.  That is just not the
+> general case.
+> 
+> 
+>>>Hmm.  I've never had someone tell me that my SCSI drivers are slow.
 >>
->>Heh, ok, care to make up another patch for this?  :)
+>>This would be noticed in the CPU utilization area.  Your drivers are
+>>probably a long way from being CPU-bound.
 > 
 > 
+> I very much doubt that.  There are perhaps four or five tests in the
+> I/O path where some value already in a cache line that has to be accessed
+> anyway is compared against a constant.  We're talking about something
+> down in the noise of any type of profiling you could perform.  As I said,
+> validation makes sense where there is basically no-cost to do it.
 > 
-> Here's an updated patch, applies to 2.6.5-rc2-bk9.
-> I left the DMA_xxBIT_MASK defines in linux/pci.h, although
-> they aren't necessarily PCI-specific.  Would we prefer to
-> have them in linux/dma-mapping.h ?
+> 
+>>>I don't think that your statement is true in the general case.  My
+>>>belief is that validation should occur where it is cheap and efficient
+>>>to do so.  More expensive checks should be pushed into diagnostic code
+>>>that is disabled by default, but the code *should be there*.  In any event,
+>>>for RAID meta-data, we're talking about code that is *not* in the common
+>>>or time critical path of the kernel.  A few dozen lines of validation code
+>>>there has almost no impact on the size of the kernel and yields huge
+>>>benefits for debugging and maintaining the code.  This is even more
+>>>the case in Linux the end user is often your test lab.
+>>
+>>It doesn't scale terribly well, because the checks themselves become a
+>>source of bugs.
+> 
+> 
+> So now the complaint is that validation code is somehow harder to write
+> and maintain than the rest of the code?
 
+Actually, yes.  Validation of random user input has always been a source 
+of bugs (usually in edge cases), in Linux and in other operating 
+systems.  It is often the area where security bugs are found.
 
-Put them whereever the DMA direction constants are, I suppose...
+Basically you want to avoid add checks for conditions that don't occur 
+in properly written software, and make sure that the kernel always 
+generates correct requests.  Obviously that excludes anything on the 
+target side, but other than that...  in userland, a priveleged user is 
+free to do anything they wish, including violate protocols, cook their 
+disk, etc.
 
 	Jeff
 

@@ -1,72 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264407AbRFHXqT>; Fri, 8 Jun 2001 19:46:19 -0400
+	id <S264405AbRFHXx3>; Fri, 8 Jun 2001 19:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264408AbRFHXqJ>; Fri, 8 Jun 2001 19:46:09 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:57082 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S264407AbRFHXqB>; Fri, 8 Jun 2001 19:46:01 -0400
-Message-Id: <l0313032bb7471092da13@[192.168.239.105]>
-In-Reply-To: <Pine.LNX.4.21.0106081701300.2422-100000@freak.distro.conectiva>
-In-Reply-To: <15137.15472.264539.290588@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sat, 9 Jun 2001 00:44:13 +0100
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        John Stoffel <stoffel@casc.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        Tobias Ringstrom <tori@unhappy.mine.nu>, Shane Nay <shane@minirl.com>,
-        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+	id <S264408AbRFHXxU>; Fri, 8 Jun 2001 19:53:20 -0400
+Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:58869 "EHLO
+	jcwren.com") by vger.kernel.org with ESMTP id <S264405AbRFHXxP>;
+	Fri, 8 Jun 2001 19:53:15 -0400
+Reply-To: <jcwren@jcwren.com>
+From: "John Chris Wren" <jcwren@jcwren.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: temperature standard - global config option?
+Date: Fri, 8 Jun 2001 19:53:06 -0400
+Message-ID: <NDBBKBJHGFJMEMHPOPEGMEOOCIAA.jcwren@jcwren.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20010608191600.A12143@alcove.wittsend.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Re-entering discussion after too long a day and a long sleep... ]
+[Snip] (Mike writes a bunch a good stuff)
 
->> There is the problem in terms of some people want pure interactive
->> performance, while others are looking for throughput over all else,
->> but those are both extremes of the spectrum.  Though I suspect
->> raw throughput is the less wanted (in terms of numbers of systems)
->> than keeping interactive response good during VM pressure.
+> 	Yes, bits are free, sort of...  That's why an extra decimal
+> place is "ok".  Keeping precision within an order of magnitude of
+> accuracy is within the realm of reasonable.  Running out to two decimal
+> places for this particular application is just silly.  If it were for
+> calibrated lab equipment, fine.  But not for CPU temperatures.
 >
->And this raises a very very important point: raw throughtput wins
->enterprise-like benchmarks, and the enterprise people are the ones who pay
->most of hackers here. (including me and Rik)
+> 	Yes, APIs are difficult to change.  But can you honestly say
+> that, even if we magically get off the shelf economical
+> temperature sensors
+> that are two orders of magnitude more accurate (without need of constant
+> tracible recalibration - these things DO drift), that this level of
+> precision would have any real meaning at all?  I would expect the
+> CPU temperature to vary by a few hundreths of a degree just by how
+> many people were sweating in the cube next to me.
+>
+[snip]
+>
+> 	Now...  That I can agree with and it would make absolute sense.
+> Especially if we were discussing lab grade or scientific grade measure
+> equipment and measurements.  In fact, that would be a requirement for
+> any validity to be attached to measurements of that level of precision.
+> But that's not what we are talking about here, is it?  We're not talking
+> about a lab grade instrumentation API here, are we?  If we are, then
+> everything changes.
+>
+> 	Mike
 
-Very true.  As well as the fact that interactivity is much harder to
-measure.  The question is, what is interactivity (from the kernel's
-perspective)?  It usually means small(ish) processes with intermittent
-working-set and CPU requirements.  These types of process can safely be
-swapped out when not immediately in use, but the kernel has to be able to
-page them in quite quickly when needed.  Doing that under heavy load is
-very non-trivial.
+As someone who has been intimately involved in temperature measurement of
+electronics, Mike has pretty much thoroughly addressed the issue.  Allow me
+to add this:  You can go buy 12 "calibrated" temperature sensors
+(commercial, not lab quality), and you will get 12 different temperatures.
 
-It can also mean multimedia applications with a continuous (maybe small)
-working set, a continuous but not 100% CPU usage, and the special property
-that the user WILL notice if this process gets swapped out even briefly.
-mpg123 and XMMS fall into this category, and I sometimes tried running
-these alongside my compilation tests to see how they fared.  I think I had
-it going fairly well towards the end, with mpg123 stuttering relatively
-rarely and briefly while VM load was high.
+When sampling the sensor (usually a thermocouple) in a motherboard, you have
+at best 1% resistors being used in the surrounding support components,
++20%/-10% capacitors, A/Ds with +-1 LSB resolution, and worst of all, a
+coupling to the CPU that is about as bad as it can get.  You've got an epoxy
+housing of an inconsistent shape in contact with ceramic.  The actual
+contact point is miniscule.  There's no thermal paste, and often, I've seen
+the sensors not quite raised high enough to contact the chip (you should be
+able to rack a business card across the empty socket and feel a slight
+"bump" as you touch the sensor.  If not, you need to bend it up slightly, to
+give better physical contact to the CPU).
 
-On the subject of Mike Galbraith's kernel compilation test, how much
-physical RAM does he have for his machine, what type of CPU is it, and what
-(approximate) type of device does he use for swap?  I'll see if I can
-partially duplicate his results at this end.  So far all my tests have been
-done with a fast CPU - perhaps I should try the P166/MMX or even try
-loading linux-pmac onto my 8100.
+But in spite of all this, you're not really measure the critical
+temperature, which is junction tempature.  Yes, case tempature has *some*
+correlation, but it's not ratiometric.  It can be affected by the mounting
+of the motherboard (believe it or not, you can see over 1C different in
+temperature between a vertical and horizontally mounted motherboard just
+because of convection out from under the socket.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
+Yea, we would all love to truly know the CPU tempature down to a fraction of
+a degree.  But it's useless information.  Kinda of like knowing your fan
+speed to less than 100 RPM.  Voltages fluctuations of .1 volts can cause a
+100+ RPM change in the fan speed.  All you really need to know that it's
+turning a lot less than when it first was.  But I digress.
 
-The key to knowledge is not to rely on people to teach you it.
+Temperature measurement is an art.  It requires having good sensors, good
+conversion electronics, and good mechanical coupling (if you really doubt
+this, look at the networks required to properly compensate any standard JK
+thermocouple).  On top of ALL this mess, you have values being passed back
+from the hardware that are improperly converted.  Ever wonder why the  BIOS
+never exactly matches what you see from the 'sensors' program?  It's because
+the adjustment factors in the config file are a best guess.
 
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+For the record, in the course of a normal day, I see my temperatures
+fluctuate from 48C with the house A/C set to 73, to 56C when I open the
+doors, and let it get up to 76 in the house.  That's 8C (14.4F) over a 3F
+change in ambient.
 
+--John
 

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316199AbSIJU5W>; Tue, 10 Sep 2002 16:57:22 -0400
+	id <S318123AbSIJU7G>; Tue, 10 Sep 2002 16:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318116AbSIJU5W>; Tue, 10 Sep 2002 16:57:22 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:39428 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S316199AbSIJU5V>;
-	Tue, 10 Sep 2002 16:57:21 -0400
-Date: Tue, 10 Sep 2002 23:01:57 +0200
+	id <S318124AbSIJU7F>; Tue, 10 Sep 2002 16:59:05 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:65288 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S318123AbSIJU7E>;
+	Tue, 10 Sep 2002 16:59:04 -0400
+Date: Tue, 10 Sep 2002 23:03:44 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
 To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] kbuild: clean and mrproper file list created dynamically 1/6
-Message-ID: <20020910230157.A18386@mars.ravnborg.org>
+Subject: [PATCH] atm: List files to be deleted during clean and mrproper 2/6
+Message-ID: <20020910230344.B18386@mars.ravnborg.org>
 Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
 	linux-kernel@vger.kernel.org
 References: <20020910225530.A17094@mars.ravnborg.org>
@@ -22,40 +22,31 @@ In-Reply-To: <20020910225530.A17094@mars.ravnborg.org>; from sam@ravnborg.org on
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-o Create infrastructure in Rules.make to allow the individual makefiles
-to specify what files shall be deleted during clean and mrproper
-o Add .clean and .mrproper to ignore list
+Atm makefile updated
 
 	Sam
 
-diff -Nru a/Rules.make b/Rules.make
---- a/Rules.make	Tue Sep 10 22:37:37 2002
-+++ b/Rules.make	Tue Sep 10 22:37:37 2002
-@@ -405,6 +405,27 @@
+diff -Nru a/drivers/atm/Makefile b/drivers/atm/Makefile
+--- a/drivers/atm/Makefile	Tue Sep 10 22:37:43 2002
++++ b/drivers/atm/Makefile	Tue Sep 10 22:37:43 2002
+@@ -58,6 +58,12 @@
  
- targets += $(host-progs-single) $(host-progs-multi-objs) $(host-progs-multi) 
+ EXTRA_CFLAGS := -g
  
-+# Saved generated files that needs cleaning up later.
-+# Filename are saved in $(objtree)/.clean and $(objtree)/.mrproper
-+# When make clean or make mrproper is executed, the files listed
-+# are deleted, and the file itselt is deleted.
-+# To add files to the list set clean or mrproper equal to the
-+# file, before inclusion of Rules.make. Rules.amke will prefix the
-+# file with the full directory path.
-+# ===========================================================================
-+clean := $(addprefix $(CURDIR)/,$(clean))
-+clean-file := $(objtree)/.clean
-+tmp := $(if $(clean),\
-+$(shell (if [ -f $(clean-file) ]; then cat $(clean-file); fi;\
-+echo $(clean)) | sort -u > $(clean-file)))
++# Files generated that shall be removed upon make clean
++clean := {atmsar11,pca200e,pca200e_ecd,sba200e_ecd}.{bin,bin1,bin2} 
 +
-+mrproper := $(addprefix $(CURDIR)/,$(mrproper) \
-+$(host-progs-single) $(host-progs-multi) $(host-progs-multi-objs))
-+mrproper-file := $(objtree)/.mrproper
-+tmp := $(if $(mrproper),\
-+$(shell (if [ -f $(mrproper-file) ]; then cat $(mrproper-file); fi;\
-+echo $(mrproper)) | sort -u > $(mrproper-file)))
++# Firmware generated that shall be removed upon make mrproper
++mrproper := fore200e_pca_fw.c fore200e_sba_fw.c
 +
- endif # ! modules_install
- endif # ! fastdep
+ include $(TOPDIR)/Rules.make
  
+ # FORE Systems 200E-series firmware magic
+@@ -72,6 +78,6 @@
+ 	  -i $(CONFIG_ATM_FORE200E_SBA_FW) -o $@
+ 
+ # deal with the various suffixes of the binary firmware images
+-$(obj)/%.bin $(obj)/%.bin1 $(obj)/%.bin2: $(obj)/%.data
++$(obj)/%.bin $(obj)/%.bin1 $(obj)/%.bin2: $(src)/%.data
+ 	objcopy -Iihex $< -Obinary $@.gz
+ 	gzip -df $@.gz

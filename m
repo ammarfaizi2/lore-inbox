@@ -1,121 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUB0CX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 21:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbUB0CX3
+	id S261675AbUB0CZv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 21:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUB0CZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 21:23:29 -0500
-Received: from mail-gate.ait.ac.th ([202.183.214.47]:33940 "EHLO
-	mail-gate.ait.ac.th") by vger.kernel.org with ESMTP id S261239AbUB0CXP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 21:23:15 -0500
-Date: Fri, 27 Feb 2004 09:23:11 +0700
-From: Alain Fauconnet <alain@ait.ac.th>
-To: Urban Widmark <urban@teststation.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: smbfs broken in 2.4.25? (Too many open files in system)
-Message-ID: <20040227022300.GA8072@ait.ac.th>
-References: <20040226110903.GC621@ait.ac.th> <Pine.LNX.4.44.0402262000040.3800-100000@cola.local>
+	Thu, 26 Feb 2004 21:25:50 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:26567 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261675AbUB0CZq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 21:25:46 -0500
+Subject: Re: 2.6.3-mm3 hangs on  boot x440 (scsi?)
+From: john stultz <johnstul@us.ibm.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Go Taniguchi <go@turbolinux.co.jp>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040226231550.GY25779@parcelfarce.linux.theplanet.co.uk>
+References: <20040222172200.1d6bdfae.akpm@osdl.org>
+	 <1077668801.2857.63.camel@cog.beaverton.ibm.com>
+	 <20040224170645.392abcff.akpm@osdl.org> <403E0563.9050007@turbolinux.co.jp>
+	 <1077830762.2857.164.camel@cog.beaverton.ibm.com>
+	 <1077836576.2857.168.camel@cog.beaverton.ibm.com>
+	 <20040226231550.GY25779@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Message-Id: <1077848731.10076.20.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0402262000040.3800-100000@cola.local>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 26 Feb 2004 18:25:32 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 08:24:08PM +0100, Urban Widmark wrote:
-> On Thu, 26 Feb 2004, Alain Fauconnet wrote:
-> 
-> > I get random 'Too many open files in system'. E.g.:
+On Thu, 2004-02-26 at 15:15, Matthew Wilcox wrote:
+> On Thu, Feb 26, 2004 at 03:02:56PM -0800, john stultz wrote:
+> > On Thu, 2004-02-26 at 13:26, john stultz wrote:
+> > > On Thu, 2004-02-26 at 06:40, Go Taniguchi wrote:
+> > > > Hi,
+> > > > 
+> > > > Andrew Morton wrote:
+> > > > > john stultz <johnstul@us.ibm.com> wrote:
+> > > > >>I went back to 2.6.3-mm1 (as it was a smaller diff) and the problem was
+> > > > >>there as well. 
+> > > > 
+> > > > Problem patch is expanded-pci-config-space.patch.
+> > > > x440 can not enable acpi by dmi_scan.
+> > > > expanded-pci-config-space.patch need acpi support.
+> > > > So, kernel can not get x440's xAPIC interrupt.
+> > > 
+> > > Wow, thanks for that analysis Go! I'll test it here to confirm. 
 > > 
-> > # /usr/local/samba/bin/smbmount //w98box/c /dosc -o password=xxxxx
-> > # ls /dosc
-> > /bin/ls: /dosc: Too many open files in system
-> > (command repeated several times: hit up arrow and enter... and then:)
-> > # ls /dosc
-> > ASD.LOG*       BIN/          CONFIG.TXT*  MSDOS.SYS*       SUHDLOG.---*
-> > AUTOEXEC.001*  BOOTLOG.DMA*  CONFIG.W95*  MSDOS.W95*       SUHDLOG.BAK*
-> > (...works!)
+> > Yep, I've confirmed that backing out the expanded-pci-config-space patch
+> > solves it. Thanks again, Go, for hunting that down! 
+> > 
+> > Matthew, any ideas why the patch fails if the system has an ACPI
+> > blacklist entry?
 > 
-> The "too many files" part is what smbfs translates the server error into.
-> ethereal calls it a "Non specific error code" (ERRSRV/ERRerror).
+> Hrm.  I was just asked to break out some of the ACPI code rearrangement
+> from the rest of the patch.  Can you try this patch instead of the
+> expanded-pci-config-space.patch and tell me whether it continues to fail
+> for you?
 > 
-> The problem here is that for some reason win98 doesn't always handle that 
-> a client requests info on the / inode with too short interval. It 
-> often understands the request (for me about 14 times out of 15), but 
-> sometimes it just fails.
-> 
-> 
-> 2.4.25 has some code that was backported from 2.6, where the "win95" 
-> codepath was changed. I need to check that, but it probably doesn't work 
-> there either.
-> 
-> Patch below works for me. It is copied from the smbfs readdir code that 
-> happens to have the same problem with win9x.
-> (Well, it's the same request so ... :)
->
-[patch edited out for brievety, see archives]
+> I don't understand why it should make a difference though.  It looks
+> to me like the current code will also fail to call the HPET code if the
+> bios is blacklisted.
 
-Thanks Urban, that did it.
+Ok, think I found it!
 
-I however  observe  the  following:  when  using  the  patched  2.4.25
-module,  a  "ls  /dosc" (where /dosc is the dir I mount the shared C:
-drive  of  a  WIN98  box  into)  sometimes shows a noticeable delay. I
-suspect it is when the patched code does a retry. E.g.:
 
-# time ls /dosc >/dev/null
-0.000u 0.000s 0:00.20 0.0%      0+0k 0+0io 157pf+0w
-(noticeable delay)
-# time ls /dosc > /dev/null
-0.000u 0.010s 0:00.00 0.0%      0+0k 0+0io 157pf+0w
-(normal)
-# time ls /dosc > /dev/null
-0.010u 0.000s 0:00.80 1.2%      0+0k 0+0io 157pf+0w
-(even more noticeable delay)
 
-This happens at most 1 time out of 5, so the sample above
-doesn't match reality.
+> Index: arch/i386/kernel/acpi/boot.c
+> ===================================================================
+> RCS file: /var/cvs/linux-2.6/arch/i386/kernel/acpi/boot.c,v
+> retrieving revision 1.10
+> diff -u -p -r1.10 boot.c
+> --- a/arch/i386/kernel/acpi/boot.c	17 Feb 2004 12:51:46 -0000	1.10
+> +++ b/arch/i386/kernel/acpi/boot.c	26 Feb 2004 16:34:12 -0000
+> @@ -506,24 +461,17 @@ acpi_boot_init (void)
+>  
+>  	acpi_lapic = 1;
+>  
+> -#endif /*CONFIG_X86_LOCAL_APIC*/
+> +#endif /* CONFIG_X86_LOCAL_APIC */
+>  
+>  #if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI_INTERPRETER)
+>  
+>  	/* 
+>  	 * I/O APIC 
+> -	 * --------
+>  	 */
+>  
+> -	/*
+> -	 * ACPI interpreter is required to complete interrupt setup,
+> -	 * so if it is off, don't enumerate the io-apics with ACPI.
+> -	 * If MPS is present, it will handle them,
+> -	 * otherwise the system will stay in PIC mode
+> -	 */
+> -	if (acpi_disabled || acpi_noirq) {
+> +	if (acpi_noirq) {
+>  		return 1;
+> -        }
+> +	}
+>  
+>  	/*
+>   	 * if "noapic" boot option, don't look for IO-APICs
 
-If I load the module build from 2.4.24 sources instead:
-# umount /dosc
-# rmmod smbfs
-# insmod ../smbfs.2.4.24/smbfs.o
-# /usr/local/samba/bin/smbmount //w98box/c /dosc -o password=xxxxx
 
-this delay goes away:
-# time ls /dosc > /dev/null
-0.000u 0.000s 0:00.00 0.0%      0+0k 0+0io 157pf+0w
-(normal, consistently)
+That chunk shouldn't drop the "if (acpi_disabled ..." bit.
+Adding that check back in fixes it for me.
 
-Not  a  big deal probably, and I'm not sure that kernel developers are
-that  much motivated to work around bugs in Win9x, but somehow I think
-that the 2.4.24 smbfs code didn't trigger this bug at all, whereas the
-new  code  does  trigger  it  and  thus  needs  these delayed retries.
+thanks
+-john
 
-Looking   at   the   code   of   both   versions,   it   seems    that
-smb_proc_getattr_95()  (where  the  patch  you've  posted  lies)  uses
-smb_proc_getattr_trans2_std()  whereas  the   old   code   seemed   to
-completely avoid it in the W95 code path:
 
->From 2.4.24's ./fs/smbfs/proc.c:
-========================================================================
-        /*
-         * Select whether to use core or trans2 getattr.
-         * Win 95 appears to break with the trans2 getattr.
-         */
-        if (server->opt.protocol < SMB_PROTOCOL_LANMAN2 ||
-            (server->mnt->flags & (SMB_MOUNT_OLDATTR|SMB_MOUNT_WIN95)) ) {  
-                result = smb_proc_getattr_core(server, dir, fattr);
-        } else {
-                if (server->mnt->flags & SMB_MOUNT_DIRATTR)
-                        result = smb_proc_getattr_ff(server, dir, fattr);
-                else
-                        result = smb_proc_getattr_trans2(server, dir, fattr);
-        }
-========================================================================
 
-Am I completely off track here?
-
-Greets,
-_Alain_

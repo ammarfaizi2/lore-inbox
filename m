@@ -1,127 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVC2Cei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVC2Cij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbVC2Cei (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 21:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVC2Cei
+	id S262156AbVC2Cij (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 21:38:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVC2Cij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 21:34:38 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:10408 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262155AbVC2Cea
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 21:34:30 -0500
-Date: Mon, 28 Mar 2005 21:34:08 -0500
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: William Cohen <wcohen@redhat.com>
-Cc: SystemTAP <systemtap@sources.redhat.com>, akpm@osdl.org,
-       prasanna@in.ibm.com, linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: kprobe_handler should  check pre_handler function
-Message-ID: <20050329023408.GA4847@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-References: <424872C8.6080207@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <424872C8.6080207@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 28 Mar 2005 21:38:39 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:63645 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262156AbVC2Cia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 21:38:30 -0500
+Message-Id: <200503290238.j2T2cQg25626@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [patch] optimization: defer bio_vec deallocation
+Date: Mon, 28 Mar 2005 18:38:23 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcU0CGCIZh/1UJxvQIK/Y2I7eHP29w==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 28, 2005 at 04:10:32PM -0500, William Cohen wrote:
+Kernel needs at least one bio and one bio_vec structure to process one I/O.
+For every I/O, kernel also does two pairs of mempool_alloc/free, one for
+bio and one for bio_vec.  It is not exactly cheap in setup/tear down bio_vec
+structure.  bio_alloc_bs() does more things in that function other than the
+minimally required mempool_alloc().
 
-Hi Will,
-
-> I found kprobes expects there to be a pre_handler function in the 
-> structure. I was writing a probe that only needed a post_handler 
-> function, no pre_handler function. The probe was tracking the 
-> destinations of indirect calls and jumps, the probe needs to fire after 
-> the instruction single steps to get the target address. The probe 
-> crashed the machine because arch/i386/kernel/kprobe.c:kprobe_handler() 
-> blindly calls p->pre_handler().  There should be a check to verify that 
-> the pointer is non-null. There are cases where the pre_handler is not 
-> needed and it would make sense to set it to NULL. Thus, a check should 
-> be done for pre_handler like post_handler and fault_handler.
-
-You are right. The check for pre_handler is needed and here is a patch
-against 2.6.12-rc1-mm3 that does this.
-
-Thanks,
-Ananth
-
-Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+One optimization we are proposing is to defer the deallocation of bio_vec
+at the next bio allocation.  Let bio hang on to the bio_vec for the last
+bio_put.  And at next bio alloc time, check whether it has the same iovec
+requirement.  If it is, bingo! bio already has it.  If not, then we free
+previous iovec and allocate a new one.  So in steady state, When I/O size
+does not change much, we benefit from the deferred free, saving one pair
+of alloc/free.  If I/O request has random size or in dynamic state, then
+we fall back and do the normal two pairs of alloc/free.  We have measured
+that the following patch give measurable performance gain for industry
+standard db benchmark.  Comments?
 
 
-diff -Narup temp/linux-2.6.12-rc1/arch/i386/kernel/kprobes.c linux-2.6.12-rc1/arch/i386/kernel/kprobes.c
---- temp/linux-2.6.12-rc1/arch/i386/kernel/kprobes.c	2005-03-17 20:34:10.000000000 -0500
-+++ linux-2.6.12-rc1/arch/i386/kernel/kprobes.c	2005-03-28 17:51:21.000000000 -0500
-@@ -159,17 +159,16 @@ static int kprobe_handler(struct pt_regs
- 	if (is_IF_modifier(p->opcode))
- 		kprobe_saved_eflags &= ~IF_MASK;
- 
--	if (p->pre_handler(p, regs)) {
-+	if (p->pre_handler && p->pre_handler(p, regs))
- 		/* handler has already set things up, so skip ss setup */
- 		return 1;
--	}
- 
--      ss_probe:
-+ss_probe:
- 	prepare_singlestep(p, regs);
- 	kprobe_status = KPROBE_HIT_SS;
- 	return 1;
- 
--      no_kprobe:
-+no_kprobe:
- 	preempt_enable_no_resched();
- 	return ret;
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+
+--- linux-2.6.12-rc1/fs/bio.c.orig	2005-03-28 13:49:37.000000000 -0800
++++ linux-2.6.12-rc1/fs/bio.c	2005-03-28 15:59:57.000000000 -0800
+@@ -109,19 +109,15 @@ static inline struct bio_vec *bvec_alloc
+  */
+ static void bio_destructor(struct bio *bio)
+ {
+-	const int pool_idx = BIO_POOL_IDX(bio);
+ 	struct bio_set *bs = bio->bi_set;
+-
+-	BIO_BUG_ON(pool_idx >= BIOVEC_NR_POOLS);
+-
+-	mempool_free(bio->bi_io_vec, bs->bvec_pools[pool_idx]);
+ 	mempool_free(bio, bs->bio_pool);
  }
-diff -Narup temp/linux-2.6.12-rc1/arch/ppc64/kernel/kprobes.c linux-2.6.12-rc1/arch/ppc64/kernel/kprobes.c
---- temp/linux-2.6.12-rc1/arch/ppc64/kernel/kprobes.c	2005-03-28 17:48:56.000000000 -0500
-+++ linux-2.6.12-rc1/arch/ppc64/kernel/kprobes.c	2005-03-28 17:51:31.000000000 -0500
-@@ -128,10 +128,9 @@ static inline int kprobe_handler(struct 
- 	kprobe_status = KPROBE_HIT_ACTIVE;
- 	current_kprobe = p;
- 	kprobe_saved_msr = regs->msr;
--	if (p->pre_handler(p, regs)) {
-+	if (p->pre_handler && p->pre_handler(p, regs))
- 		/* handler has already set things up, so skip ss setup */
- 		return 1;
--	}
- 
- ss_probe:
- 	prepare_singlestep(p, regs);
-diff -Narup temp/linux-2.6.12-rc1/arch/sparc64/kernel/kprobes.c linux-2.6.12-rc1/arch/sparc64/kernel/kprobes.c
---- temp/linux-2.6.12-rc1/arch/sparc64/kernel/kprobes.c	2005-03-17 20:34:33.000000000 -0500
-+++ linux-2.6.12-rc1/arch/sparc64/kernel/kprobes.c	2005-03-28 17:50:55.000000000 -0500
-@@ -128,7 +128,7 @@ static int kprobe_handler(struct pt_regs
- 
- 	kprobe_status = KPROBE_HIT_ACTIVE;
- 	current_kprobe = p;
--	if (p->pre_handler(p, regs))
-+	if (p->pre_handler && p->pre_handler(p, regs))
- 		return 1;
- 
- ss_probe:
-diff -Narup temp/linux-2.6.12-rc1/arch/x86_64/kernel/kprobes.c linux-2.6.12-rc1/arch/x86_64/kernel/kprobes.c
---- temp/linux-2.6.12-rc1/arch/x86_64/kernel/kprobes.c	2005-03-28 17:48:57.000000000 -0500
-+++ linux-2.6.12-rc1/arch/x86_64/kernel/kprobes.c	2005-03-28 17:51:10.000000000 -0500
-@@ -293,17 +293,16 @@ int kprobe_handler(struct pt_regs *regs)
- 	if (is_IF_modifier(p->ainsn.insn))
- 		kprobe_saved_rflags &= ~IF_MASK;
- 
--	if (p->pre_handler(p, regs)) {
-+	if (p->pre_handler && p->pre_handler(p, regs))
- 		/* handler has already set things up, so skip ss setup */
- 		return 1;
--	}
- 
--      ss_probe:
-+ss_probe:
- 	prepare_singlestep(p, regs);
- 	kprobe_status = KPROBE_HIT_SS;
- 	return 1;
- 
--      no_kprobe:
-+no_kprobe:
- 	preempt_enable_no_resched();
- 	return ret;
+
+ inline void bio_init(struct bio *bio)
+ {
+ 	bio->bi_next = NULL;
+-	bio->bi_flags = 1 << BIO_UPTODATE;
++	bio->bi_flags &= ~(BIO_POOL_MASK - 1);
++	bio->bi_flags |= 1 << BIO_UPTODATE;
+ 	bio->bi_rw = 0;
+ 	bio->bi_vcnt = 0;
+ 	bio->bi_idx = 0;
+@@ -130,7 +126,6 @@ inline void bio_init(struct bio *bio)
+ 	bio->bi_hw_front_size = 0;
+ 	bio->bi_hw_back_size = 0;
+ 	bio->bi_size = 0;
+-	bio->bi_max_vecs = 0;
+ 	bio->bi_end_io = NULL;
+ 	atomic_set(&bio->bi_cnt, 1);
+ 	bio->bi_private = NULL;
+@@ -158,20 +153,37 @@ struct bio *bio_alloc_bioset(int gfp_mas
+
+ 		bio_init(bio);
+ 		if (likely(nr_iovecs)) {
+-			unsigned long idx;
+-
+-			bvl = bvec_alloc_bs(gfp_mask, nr_iovecs, &idx, bs);
+-			if (unlikely(!bvl)) {
+-				mempool_free(bio, bs->bio_pool);
+-				bio = NULL;
+-				goto out;
++			if (unlikely(nr_iovecs != bio->bi_max_vecs)) {
++				unsigned long idx;
++				if (bio->bi_max_vecs) {
++					struct bio_set *_bs = bio->bi_set;
++					idx = BIO_POOL_IDX(bio);
++					mempool_free(bio->bi_io_vec, _bs->bvec_pools[idx]);
++					bio->bi_max_vecs = 0;
++					bio->bi_flags &= BIO_POOL_MASK - 1;
++				}
++				bvl = bvec_alloc_bs(gfp_mask, nr_iovecs, &idx, bs);
++				if (unlikely(!bvl)) {
++					mempool_free(bio, bs->bio_pool);
++					bio = NULL;
++					goto out;
++				}
++				bio->bi_flags |= idx << BIO_POOL_OFFSET;
++				bio->bi_max_vecs = bvec_slabs[idx].nr_vecs;
++				bio->bi_io_vec = bvl;
++				bio->bi_set = bs;
++			}
++		} else {
++			/* a zero io_vec allocation, need to free io_vec */
++			if (bio->bi_max_vecs) {
++				unsigned long idx = BIO_POOL_IDX(bio);
++				struct bio_set *_bs = bio->bi_set;
++				mempool_free(bio->bi_io_vec, _bs->bvec_pools[idx]);
++				bio->bi_io_vec = NULL;
++				bio->bi_max_vecs = 0;
++				bio->bi_set = bs;
+ 			}
+-			bio->bi_flags |= idx << BIO_POOL_OFFSET;
+-			bio->bi_max_vecs = bvec_slabs[idx].nr_vecs;
+ 		}
+-		bio->bi_io_vec = bvl;
+-		bio->bi_destructor = bio_destructor;
+-		bio->bi_set = bs;
+ 	}
+ out:
+ 	return bio;
+@@ -1013,6 +1025,24 @@ bad:
+ 	return NULL;
  }
+
++static void bio_ctor(void *p, kmem_cache_t *cachep, unsigned long flags)
++{
++	struct bio * bio = (struct bio*) p;
++	memset(bio, 0, sizeof(*bio));
++	bio->bi_destructor = bio_destructor;
++}
++
++static void bio_dtor(void *p, kmem_cache_t *cachep, unsigned long flags)
++{
++	struct bio * bio = (struct bio*) p;
++
++	if (bio->bi_max_vecs) {
++		unsigned long idx = BIO_POOL_IDX(bio);
++		struct bio_set *bs = bio->bi_set;
++		mempool_free(bio->bi_io_vec, bs->bvec_pools[idx]);
++	}
++}
++
+ static void __init biovec_init_slabs(void)
+ {
+ 	int i;
+@@ -1033,7 +1063,8 @@ static int __init init_bio(void)
+ 	int scale = BIOVEC_NR_POOLS;
+
+ 	bio_slab = kmem_cache_create("bio", sizeof(struct bio), 0,
+-				SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
++				SLAB_HWCACHE_ALIGN|SLAB_PANIC,
++				bio_ctor, bio_dtor);
+
+ 	biovec_init_slabs();
+
+
+
+

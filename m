@@ -1,26 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266406AbTAIMlr>; Thu, 9 Jan 2003 07:41:47 -0500
+	id <S266278AbTAIMjt>; Thu, 9 Jan 2003 07:39:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266408AbTAIMlr>; Thu, 9 Jan 2003 07:41:47 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:64272 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S266406AbTAIMlq>;
-	Thu, 9 Jan 2003 07:41:46 -0500
-Date: Thu, 9 Jan 2003 13:50:28 +0100 (CET)
-From: venom@sns.it
-To: linux-kernel@vger.kernel.org
-Subject: nfsd module undefined symbol in 2.5.55
-Message-ID: <Pine.LNX.4.43.0301091349480.8743-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266286AbTAIMjt>; Thu, 9 Jan 2003 07:39:49 -0500
+Received: from [212.4.54.130] ([212.4.54.130]:38154 "EHLO
+	station3.kontor.itsopen.no") by vger.kernel.org with ESMTP
+	id <S266278AbTAIMjs>; Thu, 9 Jan 2003 07:39:48 -0500
+Subject: Are linux network drivers really affected by this?
+From: Nils Petter Vaskinn <nils.petter.vaskinn@itsopen.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 09 Jan 2003 13:52:03 +0100
+Message-Id: <1042116723.2556.3.camel@station3>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-that is:
 
-nfsd: Unknown symbol hash_mem
-
-Luigi
+http://www.kb.cert.org/vuls/id/412115
 
 
+Summary: Some network drivers don't pad ethernet packets with nulls,
+they are filled with "garbage" often from previously sent packets. Linux
+is mentioned as vulnerable.
 
+
+
+Nils Petter Vaskinn

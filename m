@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263864AbUDFP2S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 11:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbUDFP2S
+	id S263872AbUDFPaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 11:30:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263874AbUDFPaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 11:28:18 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:23827 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263864AbUDFP2R
+	Tue, 6 Apr 2004 11:30:24 -0400
+Received: from m244.net81-65-141.noos.fr ([81.65.141.244]:16046 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S263872AbUDFPaR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 11:28:17 -0400
-Date: Tue, 6 Apr 2004 17:28:16 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Workaround for ReiserFS on root-filesystem
-Message-ID: <20040406152816.GC5953@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1HYFq-4mw-45@gated-at.bofh.it> <1HYYj-4Ap-5@gated-at.bofh.it> <4071BA3C.8080901@tiscali.de>
+	Tue, 6 Apr 2004 11:30:17 -0400
+Date: Tue, 6 Apr 2004 17:30:13 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: kgdb-bugreport@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Amit S. Kale" <amitkale@emsyssoft.com>, ganzinger@mvista.com
+Subject: Re: [Kgdb-bugreport] [KGDB] Make kgdb get in sync with it's I/O drivers for the breakpoint
+Message-ID: <20040406153013.GS2718@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Tom Rini <trini@kernel.crashing.org>,
+	kgdb-bugreport@lists.sourceforge.net,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	"Amit S. Kale" <amitkale@emsyssoft.com>, ganzinger@mvista.com
+References: <20040405233058.GV31152@smtp.west.cox.net> <20040406145102.GQ2718@deep-space-9.dsnet> <20040406145741.GX31152@smtp.west.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4071BA3C.8080901@tiscali.de>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040406145741.GX31152@smtp.west.cox.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 09:57:48PM +0200, Thomas Bach wrote:
-> Daniel Andersen wrote:
-> >>I use ReiserFS for my root-filesystem while trying to upgrade to a newer
-> >>kernel-version (still using 2.4.20) I got a error, that / could not be
-> >>remounted read/write. After googling a bit I stumbled over the fact that
-> >>ReiserFS as root-filesystem doesn't work since version 2.4.22 (or
-> >>something like this).
+On Tue, Apr 06, 2004 at 07:57:41AM -0700, Tom Rini wrote:
+
+> > Maybe this could be done in a more kgdb-independent way in the
+> > netpoll layer. There is already some code there who waits for
+> > the carrier on a net card. Maybe this could be extended to also
+> > wait for the network card to appear...
 > 
-> I tried all kinds of versions (2.4.22, 2.4.25, 2.6.2 and as allready 
-> mentioned 2.6.5) non of them worked even after playing testing with all 
-> kinds of options...
+> I was thinking about that as well.  But what I'm guessing happens now is
+> that netpoll_setup(&np) fails causing us init_kgdboe to fail.
 
- It works for me here:
+Yup.
 
-/dev/ide/host0/bus0/target0/lun0/part4 on / type reiserfs (rw,sync)
+> If we're
+> going to queue up the signal and wait for an eth0, what would it return
+> to let us known it'll be ready 'someday' ?
 
-Linux mother 2.6.5 #10 Sun Apr 4 08:59:08 CEST 2004 i686 unknown unknown GNU/Linux
+What about adding a 
+	void (*netpoll_up)(struct netpoll *)
+callback into the netpoll struct ?
 
-It always worked - with 2.4.x, 2.5.x, 2.6.x up to 2.6.5.
+Using this, netpoll_setup() would return immediately, doing its job
+in background, and will signal the caller using the 'netpoll_up'
+function when the card is ready to go...
+
+Stelian.
 -- 
-Tomasz Torcz                Only gods can safely risk perfection,     
-zdzichu@irc.-nie.spam-.pl     it's a dangerous thing for a man.  -- Alia
-
+Stelian Pop <stelian@popies.net>

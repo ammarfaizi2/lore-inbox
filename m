@@ -1,132 +1,174 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbUAOV4M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 16:56:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbUAOV4M
+	id S263330AbUAOV6i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 16:58:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUAOV6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 16:56:12 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:64386 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262569AbUAOV4D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 16:56:03 -0500
-Date: Thu, 15 Jan 2004 16:59:08 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Justin Pryzby <justinpryzby@users.sourceforge.net>
-cc: sank saraph <sank_kernel@computermail.net>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: help project
-In-Reply-To: <20040115205542.GA5149@andromeda>
-Message-ID: <Pine.LNX.4.53.0401151657020.21514@chaos>
-References: <20040113144551.00C2D7263@sitemail.everyone.net>
- <20040115205542.GA5149@andromeda>
+	Thu, 15 Jan 2004 16:58:38 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:58503 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S263330AbUAOV6U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 16:58:20 -0500
+From: Pat Gefre <pfg@sgi.com>
+Message-Id: <200401152154.i0FLscIG023452@fsgi900.americas.sgi.com>
+Subject: [PATCH 2.6] Altix updates
+To: akpm@osdl.org, davidm@napali.hpl.hp.com
+Date: Thu, 15 Jan 2004 15:54:37 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org, hch@infradead.org
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My latest set of patches for 2.6 Altix is at:
+ftp://oss.sgi.com/projects/sn2/sn2-update/
 
-The way VAX/VMS did a fast-boot was called "overlay".
-It was used to save only "known" processes because they
-were easiest. Basically, a few pages in the kernel
-were allocated to load some code. The code attached
-an interrupt (exception vector) and, therefore got
-control. The code wrote everything in physical memory
-to a file. It didn't allow any additional paging
-or swapping at that time so the swap and page files
-were preserved. It was not necessary to write all
-the file-buffers, etc., to the output devices because
-they were preserved by preserving physical memory.
-The overlay file was written with a direct-write so
-it didn't require the file-buffers.
+diffstats are at the end of this email.
 
-Upon boot, the system opened and read the overlay file.
-This was done after all hardware was initialized,
-all drivers installed, etc., but before the page-file(s)
-or swap-file(s) were opened and dirtied. If the
-executive determined that the system had been shut-down
-to be rebooted in the overlay mode, it would then allocate
-some RAM, relocate some reloader software there, then
-jump to that software. That software would read the
-overlay file into physical RAM, replacing everything
-including the software and buffers in the I/O drivers
-that ran the disks. It had to do this in several steps
-because each of the writes to the final location(s) needed
-to be written there with the interrupts off so the state
-wouldn't get corrupted.
+The reorg patch is one that I had submitted in the last set - it was
+decided to take out the renaming, which I did.
 
-Eventually, everything was overwritten to be in exactly
-the same state as it had been when the overlay-file was
-written, with all of the hardware initialized and ready
-to go. The loader code executes a return from interrupt
-which enables everything, and the machine resumes from
-where it was when it was shut down.
+-- Pat
 
-DECNET (network) connections, of course, were not preserved.
-This is actually easier than saving the state of an
-individual task (process). The problem with tasks is the
-state of everything it interfaces with may have changed.
-For example, certainly the time has changed. Also, network
-IP addresses and ports. Even files... It's a big problem.
-
-That's why  "process migration" is really just some
-remote procedure-calls on some other system. One of those
-remote tasks can be the parent, coordinating task, of course.
-There is nothing stopping it from copying it's executable, and
-some file-data representing its current state to another
-cooperating system and starting execution there. The new
-child then tells its parent on the other system to quit.
-It then becomes the new parent and process migration has
-occurred. The parent can send tasks to be accomplished
-to any of the cooperating systems and, some of the tasks
-might even be to build computers, load operating systems,
-and replicate.... Eventually there is no need for humans
-anymore.
+Patrick Gefre
+Silicon Graphics, Inc.                     (E-Mail)  pfg@sgi.com
+2750 Blue Water Rd                         (Voice)   (651) 683-3127
+Eagan, MN 55121-1400                       (FAX)     (651) 683-3054
 
 
-On Thu, 15 Jan 2004, Justin Pryzby wrote:
 
-> I have a similar interest: I want to be able to take a process, save its
-> state to a file, reboot, and reload the process.  Possibly on a
-> different machine.  I hope you realize that there are _lots_ of points
-> of failure, things like file deletion.  You should look at the mosix
-> clustering project; they save the userspace state of a process, and
-> transfer that across the network, and have system calls run on the
-> remote host, which has all the arch-specific stuff.  A process ("task")
-> is defined by a task_struct, in include/linux/sched.h., but that
-> definition is not at all self-contained.  See
-> [http://www.clarkson.edu/~pryzbyj/task/struct-task_struct.html] for some
-> work I did to convince myself of this.  (I've given up on that
-> document).  In short, there's no good way of doing this .. mosix saves
-> the user context easily enough, but, sadly, saving the kernel stuff is,
-> at best, extremely tedious.  Let me know if you come up with anything
-> else.
->
-> Justin
-> On Tue, Jan 13, 2004 at 06:45:51AM -0800, sank saraph wrote:
-> > Hello all,
-> >                   I am currently working on the project ???Process Migration???
-> > I want to save all the context, memory address space. So that it is
-> > transferred to remote node & resume that process.
-> >                 So how can I save the context of process?
-> > Thanks in advanced ???.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
 
+001-reorg.patch
+ arch/ia64/sn/io/machvec/pci_bus_cvlink.c |  358 ++-----
+ arch/ia64/sn/io/machvec/pci_dma.c        |   19 
+ arch/ia64/sn/io/sn2/pcibr/pcibr_ate.c    |  355 ------
+ arch/ia64/sn/io/sn2/pcibr/pcibr_config.c |   53 -
+ arch/ia64/sn/io/sn2/pcibr/pcibr_dvr.c    | 1582 +++----------------------------
+ arch/ia64/sn/io/sn2/pcibr/pcibr_error.c  |  690 ++++++++-----
+ arch/ia64/sn/io/sn2/pcibr/pcibr_intr.c   |  289 +----
+ arch/ia64/sn/io/sn2/pcibr/pcibr_rrb.c    |  288 +++--
+ arch/ia64/sn/io/sn2/pcibr/pcibr_slot.c   |  265 ++---
+ arch/ia64/sn/io/sn2/pciio.c              |   33 
+ arch/ia64/sn/io/sn2/pic.c                |  588 +++++++++++
+ arch/ia64/sn/kernel/irq.c                |    6 
+ include/asm-ia64/sn/module.h             |    9 
+ include/asm-ia64/sn/pci/bridge.h         |    8 
+ include/asm-ia64/sn/pci/pci_bus_cvlink.h |    7 
+ include/asm-ia64/sn/pci/pcibr.h          |   47 
+ include/asm-ia64/sn/pci/pcibr_private.h  |  142 ++
+ include/asm-ia64/sn/pci/pciio.h          |   25 
+ include/asm-ia64/sn/pci/pic.h            |  809 ++-------------
+ include/asm-ia64/sn/sn2/intr.h           |    4 
+ 20 files changed, 2011 insertions(+), 3566 deletions(-)
+
+
+002-reorg1.patch
+ pcibr_reg.c | 1437 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 1426 insertions(+), 11 deletions(-)
+
+
+003-misc.cleanup.patch
+ arch/ia64/sn/io/io.c                    |   42 ++++++++--------
+ arch/ia64/sn/io/sn2/ml_iograph.c        |    7 +-
+ arch/ia64/sn/io/sn2/pcibr/pcibr_dvr.c   |   38 ++++++--------
+ arch/ia64/sn/io/sn2/pcibr/pcibr_hints.c |    7 +-
+ arch/ia64/sn/io/sn2/pcibr/pcibr_intr.c  |    8 +--
+ arch/ia64/sn/io/sn2/pcibr/pcibr_rrb.c   |   12 ++--
+ arch/ia64/sn/io/sn2/pcibr/pcibr_slot.c  |   82 ++++++++++++++++----------------
+ arch/ia64/sn/io/sn2/pciio.c             |   12 +---
+ arch/ia64/sn/io/sn2/pic.c               |    6 +-
+ arch/ia64/sn/io/sn2/shuberror.c         |    1 
+ arch/ia64/sn/io/sn2/xbow.c              |    4 +
+ arch/ia64/sn/io/sn2/xtalk.c             |   18 ++-----
+ arch/ia64/sn/io/xswitch.c               |   10 ++-
+ arch/ia64/sn/kernel/bte.c               |    2 
+ arch/ia64/sn/kernel/mca.c               |    1 
+ arch/ia64/sn/kernel/probe.c             |    1 
+ arch/ia64/sn/kernel/sn2/prominfo_proc.c |    1 
+ arch/ia64/sn/kernel/sn2/sn2_smp.c       |    1 
+ arch/ia64/sn/kernel/sn2/sn_proc_fs.c    |    1 
+ drivers/char/sn_serial.c                |    1 
+ include/asm-ia64/sn/addrs.h             |    4 -
+ include/asm-ia64/sn/alenlist.h          |   18 +++----
+ include/asm-ia64/sn/arch.h              |    7 --
+ include/asm-ia64/sn/bte.h               |    3 -
+ include/asm-ia64/sn/clksupport.h        |    2 
+ include/asm-ia64/sn/driver.h            |    2 
+ include/asm-ia64/sn/hcl.h               |    2 
+ include/asm-ia64/sn/hcl_util.h          |    2 
+ include/asm-ia64/sn/hwgfs.h             |    3 +
+ include/asm-ia64/sn/iograph.h           |    1 
+ include/asm-ia64/sn/klconfig.h          |    8 +--
+ include/asm-ia64/sn/kldir.h             |    4 -
+ include/asm-ia64/sn/module.h            |    2 
+ include/asm-ia64/sn/nodepda.h           |    4 -
+ include/asm-ia64/sn/pci/bridge.h        |   16 +++---
+ include/asm-ia64/sn/pci/pcibr_private.h |   15 -----
+ include/asm-ia64/sn/pci/pciio.h         |   20 +++----
+ include/asm-ia64/sn/pci/pciio_private.h |    6 +-
+ include/asm-ia64/sn/pda.h               |    3 -
+ include/asm-ia64/sn/pio.h               |    6 --
+ include/asm-ia64/sn/sgi.h               |   17 +++++-
+ include/asm-ia64/sn/sn2/arch.h          |    3 -
+ include/asm-ia64/sn/sn2/sn_private.h    |   12 +---
+ include/asm-ia64/sn/sn_cpuid.h          |    6 --
+ include/asm-ia64/sn/sn_private.h        |    5 -
+ include/asm-ia64/sn/types.h             |    8 ---
+ include/asm-ia64/sn/vector.h            |    2 
+ include/asm-ia64/sn/xtalk/xbow.h        |   19 -------
+ include/asm-ia64/sn/xtalk/xtalk.h       |   16 +++---
+ include/asm-ia64/sn/xtalk/xwidget.h     |   26 +++++-----
+ 50 files changed, 230 insertions(+), 267 deletions(-)
+
+
+004-misc.cleanup1.patch
+ arch/ia64/sn/io/sn2/pcibr/pcibr_dvr.c   |    2 ++
+ include/asm-ia64/sn/pci/pcibr_private.h |   10 +++++-----
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+
+005-ate.flags.patch
+ arch/ia64/sn/io/machvec/pci_dma.c |    8 ++++++--
+ include/asm-ia64/sn/pci/pcibr.h   |    6 ++++++
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+
+006-find_lboard.patch
+ arch/ia64/sn/io/platform_init/sgi_io_init.c |    2 
+ arch/ia64/sn/io/sn2/klconflib.c             |  215 +++++++---------------------
+ arch/ia64/sn/io/sn2/klgraph.c               |   87 +----------
+ arch/ia64/sn/io/sn2/ml_iograph.c            |   13 -
+ arch/ia64/sn/io/sn2/module.c                |   37 ++++
+ arch/ia64/sn/io/sn2/pcibr/pcibr_dvr.c       |   14 +
+ arch/ia64/sn/kernel/setup.c                 |   35 ++++
+ include/asm-ia64/sn/klconfig.h              |    7 
+ 8 files changed, 153 insertions(+), 257 deletions(-)
+
+
+007-ate.patch
+ pcibr_ate.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
+
+
+008-early_probe_for_widget.patch
+ ml_iograph.c |   29 ++++++++++++++---------------
+ 1 files changed, 14 insertions(+), 15 deletions(-)
+
+
+009-setup.c.patch
+ setup.c |   89 ++++++++++++++++++++++++++++++++++++++++++++++++++++++----------
+ 1 files changed, 76 insertions(+), 13 deletions(-)
+
+
+010-kill-pcibr_intr_func.patch
+ pcibr_intr.c |  136 -----------------------------------------------------------
+ 1 files changed, 2 insertions(+), 134 deletions(-)
+
+
+011-irq.update.patch
+ irq.c |  161 +++++++++++++++++++++++-------------------------------------------
+ 1 files changed, 58 insertions(+), 103 deletions(-)
 

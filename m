@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264024AbTJ1R1m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 12:27:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264047AbTJ1R1m
+	id S264058AbTJ1Rcg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 12:32:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264059AbTJ1Rcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 12:27:42 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:47268 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S264024AbTJ1R1l (ORCPT
+	Tue, 28 Oct 2003 12:32:35 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:40577 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S264058AbTJ1Rcd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 12:27:41 -0500
-Date: Tue, 28 Oct 2003 18:29:26 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Mark Bellon <mbellon@mvista.com>, Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: ANNOUNCE: User-space System Device Enumeration (uSDE)
-Message-ID: <20031028172926.GN32689@marowsky-bree.de>
-References: <Pine.LNX.4.44.0310271343170.13116-100000@cherise> <3F9DA5A6.3020008@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3F9DA5A6.3020008@mvista.com>
-User-Agent: Mutt/1.4.1i
-X-Ctuhulu: HASTUR
+	Tue, 28 Oct 2003 12:32:33 -0500
+Message-ID: <000b01c39d79$6a187fe0$0100000a@Biocalderoni.hu>
+From: "Szucs Arpad" <giraffe@danubian.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] netmos 9845 4 serial + 1 parallel port pci card
+Date: Tue, 28 Oct 2003 18:32:09 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-10-27T16:09:26,
-   Mark Bellon <mbellon@mvista.com> said:
+I tested it on kernel 2.4.20. If anyone else has this card and tests it I
+would like to hear about it.
 
-> The uSDE was built in response to a set of telco and embedded community 
-> requirements. We found it difficult to express our ideas. Everyone 
-> wanted to see code and documentation. Here is the code and the initial 
-> documentation. This is a starting point...
+Changes parport_serial.c and pci_ids.h.
 
-That makes perfect sense. If it helped to articulate and understand your
-ideas and concerns, this is certainly an important starting point.
+Todo: tell the difference between 6 ports serial and 4 ports serial and 1
+parallel or other variants. If anyone has suggestions please send them to my
+e-mail address
 
-> >If not, are you planning on merging your efforts with udev in the future?
-> It is to everyone's advantage to converge on an implementation of 
-> enumeration that meets all of the requirements.
+http://vnet.hu/ipeb/netmos-9735-9835-9845-2.4.20-22.patch.gz
 
-Great! However, I suggest that you should explore this idea yourself.
-Only you can eventually articulate the requirements and solutions in
-your code; you cannot expect others to go look at it and guess them.
+send comments to giraffe@danubian.hu
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
+Arpad Szucs
 

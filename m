@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265650AbTAWR6C>; Thu, 23 Jan 2003 12:58:02 -0500
+	id <S265637AbTAWSHz>; Thu, 23 Jan 2003 13:07:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267118AbTAWR6C>; Thu, 23 Jan 2003 12:58:02 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:20903 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265650AbTAWR6B>;
-	Thu, 23 Jan 2003 12:58:01 -0500
-Date: Thu, 23 Jan 2003 19:06:53 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Gregoire Favre <greg@ulima.unil.ch>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: cdwrite@other.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
-Message-ID: <20030123180653.GU910@suse.de>
-References: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de> <20030123180124.GB9141@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030123180124.GB9141@ulima.unil.ch>
+	id <S265657AbTAWSHz>; Thu, 23 Jan 2003 13:07:55 -0500
+Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:40021 "EHLO
+	vlad.geekizoid.com") by vger.kernel.org with ESMTP
+	id <S265637AbTAWSHy>; Thu, 23 Jan 2003 13:07:54 -0500
+Reply-To: <vlad@geekizoid.com>
+From: "Vlad@Vlad.geekizoid.com" <vlad@vlad.geekizoid.com>
+To: <rms@gnu.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [OFFTOPIC] RMS and reactions to him
+Date: Thu, 23 Jan 2003 12:15:21 -0600
+Message-ID: <001901c2c30b$775263e0$0200a8c0@wsl3>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-reply-to: <E18bffy-0002uE-00@fencepost.gnu.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 23 2003, Gregoire Favre wrote:
-> On Thu, Jan 23, 2003 at 06:52:24PM +0100, Joerg Schilling wrote:
-> 
-> > In one of my mails, I decribed why there are 2 bugs in the kernel.
-> > Only one of them so far has been fixed. The sense data is still missing.
-> 
-> Oups, sorry I didn't read enough carefully!!!
-> 
-> Does someone know how to fix the sense data bug?
+Have you renamed Hurd to Linux/Hurd yet?  Please take care of that as soon
+as possible.
 
-In drivers/ide/ide-cd.c:cdrom_end_request(), try to insert something
-ala:
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Richard Stallman
+Sent: Thursday, January 23, 2003 5:38 AM
+To: Mark Mielke
+Cc: brand@jupiter.cs.uni-dortmund.de; steve@tuxsoft.com;
+linux-kernel@vger.kernel.org; brand@eeyore.valparaiso.cl
+Subject: Re: [OFFTOPIC] RMS and reactions to him
 
-	if ((rq->flags & REQ_SENSE) && uptodate) {
-                struct request *failed = (struct request *) rq->buffer;
-                struct cdrom_info *info = drive->driver_data;
-                void *sense = &info->sense_data;
 
-+		if (failed && block_pc_request(failed))
-+			printk("%s: failed %p\n", __FUNCTION__, failed->sense);
+    Good. So go fight with RedHat, Debian, and all the other distros to
+ensure
+    that they give you whatever credit you want.
 
-                if (failed && failed->sense)
-                        sense = failed->sense;
-
-                cdrom_analyze_sense_data(drive, failed, sense);
-	}
-
-in pseudo-patch form.
-
--- 
-Jens Axboe
+See http://www.gnu.org/gnu/gnu-linux-faq.html#companies.
 

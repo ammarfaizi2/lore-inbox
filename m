@@ -1,41 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132850AbRDQTmk>; Tue, 17 Apr 2001 15:42:40 -0400
+	id <S132847AbRDQTmL>; Tue, 17 Apr 2001 15:42:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132845AbRDQTmO>; Tue, 17 Apr 2001 15:42:14 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:26123 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S132851AbRDQTlm>;
-	Tue, 17 Apr 2001 15:41:42 -0400
-Date: Tue, 17 Apr 2001 21:41:23 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: george anzinger <george@mvista.com>
-Cc: Mark Salisbury <mbs@mc.com>, Ben Greear <greearb@candelatech.com>,
-        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        linux-kernel@vger.kernel.org,
-        high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: No 100 HZ timer!
-Message-ID: <20010417214123.B25583@pcep-jamie.cern.ch>
-In-Reply-To: <200104131205.f3DC5KV11393@sleipnir.valparaiso.cl> <0104160841431V.01893@pc-eng24.mc.com> <3ADB45C0.E3F32257@mvista.com> <01041710225227.01893@pc-eng24.mc.com> <3ADC912A.B497B724@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ADC912A.B497B724@mvista.com>; from george@mvista.com on Tue, Apr 17, 2001 at 11:53:30AM -0700
+	id <S132845AbRDQTkZ>; Tue, 17 Apr 2001 15:40:25 -0400
+Received: from HIC-SR2.hickam.af.mil ([131.38.214.17]:36522 "EHLO
+	hic-sr2.hickam.af.mil") by vger.kernel.org with ESMTP
+	id <S132847AbRDQTjv>; Tue, 17 Apr 2001 15:39:51 -0400
+Message-ID: <4CDA8A6D03EFD411A1D300D0B7E83E8F6972B3@FSKNMD07.hickam.af.mil>
+From: "Bingner Sam J. Contractor RSIS" <Sam.Bingner@hickam.af.mil>
+To: "'Christopher Friesen'" <cfriesen@nortelnetworks.com>,
+        Sampsa Ranta <sampsa@netsonic.fi>
+Cc: linux-net <linux-net@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: ARP responses broken!
+Date: Tue, 17 Apr 2001 18:07:41 -0000
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
-> > > a.) list insertion of an arbitrary timer,
-> > should be O(log(n)) at worst
-> > 
-> > > b.) removal of canceled and expired timers, and
-> > easy to make O(1)
+I tested this with kernel version 2.2.18 and arp_filter appeared to be
+broken... I enabled it for /proc/sys/net/ipv4/conf/all/arp_filter,
+/proc/sys/net/ipv4/conf/eth0/arp_filter and
+/proc/sys/net/ipv4/conf/eth1/arp_filter and it did not change the arp
+behavior at all.  I enabled hidden and it worked, is there a know problem
+with this functionality?
+
+	Sam Bingner
+	PACAF CSS/SCHE
+	Contractor RSIS
+	DSN	315 449-7889
+	COMM	808 449-7889
+
+
+-----Original Message-----
+From: Christopher Friesen [mailto:cfriesen@nortelnetworks.com]
+Sent: Tuesday, April 17, 2001 4:25 AM
+To: Sampsa Ranta
+Cc: linux-net; linux-kernel
+Subject: Re: ARP responses broken!
+
+
+Sampsa Ranta wrote:
+
+> I have two interfaces that share same subnet, I call eth0 194.29.192.37
+> and eth1 194.29.192.38. I have forwarding turned on, proxy arp is not
+> neighter are redirects.
 > 
-> I thought this was true also, but the priority heap structure that has
-> been discussed here has a O(log(n)) removal time.
+> When I flush local neighbor table in other machine I use to observe the
+> response and ping the router I get response like:
+> 
+> 23:38:25.278848 > arp who-has 194.29.192.38 tell 194.29.192.10
+(0:50:da:82:ae:9f)
+> 23:38:25.278988 < arp reply 194.29.192.38 is-at 0:1:2:dc:d2:64
+(0:50:da:82:ae:9f)
+> 23:38:25.279009 < arp reply 194.29.192.38 is-at 0:1:2:dc:d2:6c
+(0:50:da:82:ae:9f)
+> 
+> The second one is the valid one, but both interfaces seem to answer to the
+> broadcasted packet with their own ARP addresses.
 
-Several priority queue structures support removal in O(1) time.
-Perhaps you are thinking of the classic array-based heap, for
-which removal is O(log n) in the general case.
+This is the default Linux behaviour.  It can be turned off by running the
+following command as root:
 
--- Jamie
+echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
+
+This ensures that interfaces will only respond to arp requests for IP
+addresses
+which are configured as belonging to that particular interface.
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

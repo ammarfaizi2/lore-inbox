@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131533AbRCXBlS>; Fri, 23 Mar 2001 20:41:18 -0500
+	id <S131544AbRCXCIv>; Fri, 23 Mar 2001 21:08:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131538AbRCXBlI>; Fri, 23 Mar 2001 20:41:08 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:48655 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131533AbRCXBlB>;
-	Fri, 23 Mar 2001 20:41:01 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Panic] 2.4.2ac22 
-In-Reply-To: Your message of "Fri, 23 Mar 2001 19:44:16 CDT."
-             <20010324004416.E03FE35D77@oscar.casa.dyndns.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 24 Mar 2001 12:40:14 +1100
-Message-ID: <26858.985398014@ocs3.ocs-net>
+	id <S131557AbRCXCIl>; Fri, 23 Mar 2001 21:08:41 -0500
+Received: from hibernia.clubi.ie ([212.17.32.129]:24476 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S131544AbRCXCI1>; Fri, 23 Mar 2001 21:08:27 -0500
+Date: Sat, 24 Mar 2001 02:08:17 +0000 (GMT)
+From: Paul Jakma <paul@jakma.org>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+cc: Paul Jakma <paulj@itg.ie>, <linux-mm@kvack.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <Pine.LNX.4.30.0103232312440.13864-100000@fs131-224.f-secure.com>
+Message-ID: <Pine.LNX.4.33.0103240203340.11627-100000@fogarty.jakma.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001 19:44:16 -0500 (EST), 
-root@casa.dyndns.org (root) wrote:
->Warning (compare_maps): ksyms_base symbol __VERSIONED_SYMBOL(shmem_file_setup) not found in System.map.  Ignoring ksyms_base entry
+On Sat, 24 Mar 2001, Szabolcs Szakacsits wrote:
 
-Against 2.4.2-ac23 to remove above warning.
+> Nonsense hodgepodge. See and/or mesaure the impact. I sent numbers in my
+> former email. You also missed non-overcommit must be _optional_ [i.e.
+> you wouldn't be forced to use it ;)]. Yes, there are users and
+> enterprises who require it and would happily pay the 50-100% extra swap
+> space for the same workload and extra reliability.
 
-Index: 2.45/mm/Makefile
---- 2.45/mm/Makefile Fri, 05 Jan 2001 13:42:29 +1100 kaos (linux-2.4/j/19_Makefile 1.1 644)
-+++ 2.45(w)/mm/Makefile Sat, 24 Mar 2001 12:37:25 +1100 kaos (linux-2.4/j/19_Makefile 1.1 644)
-@@ -9,6 +9,8 @@
- 
- O_TARGET := mm.o
- 
-+export-objs := shmem.o
-+
- obj-y	 := memory.o mmap.o filemap.o mprotect.o mlock.o mremap.o \
- 	    vmalloc.o slab.o bootmem.o swap.o vmscan.o page_io.o \
- 	    page_alloc.o swap_state.o swapfile.o numa.o oom_kill.o \
+ok.. the last time OOM came up, the main objection to fully
+guaranteed vm was the possible huge overhead.
+
+if someone knows how to do it without a huge overhead, i'd love to
+see it and try it out.
+
+> At every time you add/delete users, add/delete special apps, etc.
+
+no.. pam_limits knows about groups, and you can specify limit for
+that group, one time.
+
+@user ... ... ...
+
+> Rik's killer is quite fine at _default_. But there will be always
+> people who won't like it
+
+exactly... so lets try avoid ever needing it. it is a last resort.
+
+> default, use the /proc/sys/vm/oom_killer interface"? As I said
+> before there are also such patch by Chris Swiedler and definitely
+> not a huge, complex one.
+
+uhmm.. where?
+
+> And these stupid threads could be forgotten for good and all.
+
+:)
+
+> 	Szaka
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+The optimum committee has no members.
+		-- Norman Augustine
 

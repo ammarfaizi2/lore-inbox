@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVDAANG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262586AbVDAAPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbVDAANG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 19:13:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVCaXjN
+	id S262586AbVDAAPU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 19:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVDAANa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 18:39:13 -0500
-Received: from mail.kroah.org ([69.55.234.183]:34016 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262096AbVCaXYJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 18:24:09 -0500
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Kill unused struct members in w83627hf driver
-In-Reply-To: <1112311390426@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 31 Mar 2005 15:23:10 -0800
-Message-Id: <1112311390987@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+	Thu, 31 Mar 2005 19:13:30 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:45229 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262543AbVDAAMV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 19:12:21 -0500
+Message-ID: <424C9177.1070404@engr.sgi.com>
+Date: Thu, 31 Mar 2005 16:10:31 -0800
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, johnpol@2ka.mipt.ru, efocht@hpce.nec.com,
+       linuxram@us.ibm.com, gh@us.ibm.com, elsa-devel@lists.sourceforge.net,
+       aquynh@gmail.com, dean-list-linux-kernel@arctic.org, pj@sgi.com
+Subject: Re: [patch 2.6.12-rc1-mm4] fork_connector: add a fork connector
+References: <1112277542.20919.215.camel@frecb000711.frec.bull.fr> <20050331144428.7bbb4b32.akpm@osdl.org>
+In-Reply-To: <20050331144428.7bbb4b32.akpm@osdl.org>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2327, 2005/03/31 14:06:47-08:00, khali@linux-fr.org
+Andrew Morton wrote:
 
-[PATCH] I2C: Kill unused struct members in w83627hf driver
+>Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
+>  
+>
+>>  This patch adds a fork connector in the do_fork() routine.
+>>...
+>>
+>>  The fork connector is used by the Enhanced Linux System Accounting
+>>project http://elsa.sourceforge.net
+>>    
+>>
+>
+>Does it also meet all the in-kernel requirements for other accounting
+>projects?
+>
+>If not, what else do those other projects need?
+>  
+>
+Hi Andrew,
 
-I just noticed that the pwmenable struct members in the w83627hf driver
-are not used anywhere (and quite rightly so, as PWM cannot be disabled
-in these chips as far as I know). Let's just get rid of them and save
-some bytes of memory.
+As the discussion in this thread of the past few days showed, this
+patch intends to take care of process grouping, but not the
+accounting data collection. Besides my concern of possibility of
+data loss, this patch also provides CSA information to handle process
+grouping as it intends to do. I plan to run some testing to see percentage
+of data loss when system is under stress test, but improvement at
+CBUS as Evgeniy indicated should help!
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Please be advised that i still need an do_exit handling to save accounting
+data. But, it is a separate issue.
 
-
- drivers/i2c/chips/w83627hf.c |    5 -----
- 1 files changed, 5 deletions(-)
-
-
-diff -Nru a/drivers/i2c/chips/w83627hf.c b/drivers/i2c/chips/w83627hf.c
---- a/drivers/i2c/chips/w83627hf.c	2005-03-31 15:18:44 -08:00
-+++ b/drivers/i2c/chips/w83627hf.c	2005-03-31 15:18:44 -08:00
-@@ -304,7 +304,6 @@
- 	u32 beep_mask;		/* Register encoding, combined */
- 	u8 beep_enable;		/* Boolean */
- 	u8 pwm[3];		/* Register value */
--	u8 pwmenable[3];	/* bool */
- 	u16 sens[3];		/* 782D/783S only.
- 				   1 = pentium diode; 2 = 3904 diode;
- 				   3000-5000 = thermistor beta.
-@@ -1316,10 +1315,6 @@
- 		if ((type == w83697hf) && (i == 2))
- 			break;
- 	}
--
--	data->pwmenable[0] = 1;
--	data->pwmenable[1] = 1;
--	data->pwmenable[2] = 1;
- 
- 	if(init) {
- 		/* Enable temp2 */
+Thanks,
+ - jay
 

@@ -1,105 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313483AbSDQK2j>; Wed, 17 Apr 2002 06:28:39 -0400
+	id <S313491AbSDQKhQ>; Wed, 17 Apr 2002 06:37:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313489AbSDQK2i>; Wed, 17 Apr 2002 06:28:38 -0400
-Received: from smtp.acn.pl ([212.76.33.36]:29526 "EHLO mail.astercity.net")
-	by vger.kernel.org with ESMTP id <S313483AbSDQK2i>;
-	Wed, 17 Apr 2002 06:28:38 -0400
-Date: Wed, 17 Apr 2002 12:27:13 +0200
-From: Artur Brodowski <bzd@astercity.net>
-To: linux-kernel@vger.kernel.org
-Subject: oops report (or at least a try to make one)
-Message-Id: <20020417122713.404e0cdd.bzd@astercity.net>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S313501AbSDQKhP>; Wed, 17 Apr 2002 06:37:15 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:11512 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S313491AbSDQKhL>;
+	Wed, 17 Apr 2002 06:37:11 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15549.20558.197268.638473@kim.it.uu.se>
+Date: Wed, 17 Apr 2002 12:37:01 +0200
+To: Pavel Roskin <proski@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cannot compile 2.4.19-pre7 with APIC without IOAPIC
+In-Reply-To: <Pine.LNX.4.44.0204162016010.2155-100000@marabou.research.att.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello.
+Pavel Roskin writes:
+ > Hello!
+ > 
+ > I'm getting this error when compiling 2.4.19-pre7:
+ > 
+ > init/main.o: In function `smp_init':
+ > init/main.o(.text.init+0x5e1): undefined reference to `skip_ioapic_setup'
+ > arch/i386/kernel/kernel.o: In function `broken_pirq':
+ > arch/i386/kernel/kernel.o(.text.init+0x3427): undefined reference to 
+ > `skip_ioapic_setup'
+ > 
+ > Processor is AMD K7, SMP is disabled, APIC is enabled, IOAPIC is disabled.
+ > 
+ > It turns out that skip_ioapic_setup is defined in 
+ > arch/i386/kernel/io_apic.c, which is only compiled when CONFIG_X86_IO_APIC 
+ > is defined, but it's used in init/main.c if SMP is disabled and APIC is 
+ > enabled.
 
-lately i was getting a swapoff error during shutdown, i found out this is
-actually kernel oops message. so i run it thru ksymoops, as said in docs. 
-unfortunately, i have no idea what to do with the output, i'm no hacker.
-first i thought the reason could be that i use nvidia driver, as it gives
-a warning about tainted kernel, but i used it for a while before on the
-same machine/same kernel version, and there were no problems. also, this
-error indicates it's kswapd issue.
-since it's my first attempt to create oops report, i might missed things 
-that are needed for a good info. if so, please give me a chance, don't 
-ignore this mail.
+Known problem. Apply the patch below.
 
-this is ksymoops output i got:
+/Mikael
 
-ksymoops 2.4.5 on i686 2.4.19-r1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.19-r1/ (default)
-     -m /usr/src/linux/System.map (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0128062>]    Tainted: P 
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010286
-eax: 0100001d   ebx: c108f040   ecx: c0257afc   edx: c02579a0
-esi: 00000000   edi: c0257b24   ebp: 000000c0   esp: c7f8ff64
-ds: 0018   es: 0018   ss: 0018
-Process kswapd (pid: 4, stackpage=c7f8f000)
-Stack: c108f040 c108f05c c0257b24 000000c0 c0131c76 c108f040 00000030 c0257b24         000000c0 c0130297 c108f040 00000030 c108f040 c0128893 c0126138 c108f040 
-              00000030 c108f040 c108f05c c01271b3 00000c54 c0257afc 0000148e 0008e000 
-              Call Trace: [<c0131c76>] [<c0130297>] [<c0128893>] [<c0126138>] [<c01271b3>] 
-                          [<c0127a9a>] [<c01054ef>] [<c01054f8>]
-                       Code: 0f 0b 89 d8 2b 05 ec 86 2a c0 69 c0 c5 4e ec c4 c1 f8 02 3b
-
-
->>EIP; c0128062 <__free_pages_ok+42/22c>   <=====
-
->>eax; 0100001d Before first symbol
->>ebx; c108f040 <_end+dc4864/8571824>
->>ecx; c0257afc <contig_page_data+dc/3c0>
->>edx; c02579a0 <swapper_space+0/40>
->>edi; c0257b24 <contig_page_data+104/3c0>
->>esp; c7f8ff64 <_end+7cc5788/8571824>
-
-Trace; c0131c76 <try_to_free_buffers+8a/dc>
-Trace; c0130297 <try_to_release_page+43/4c>
-Trace; c0128893 <__free_pages+1b/1c>
-Trace; c0126138 <drop_page+30/1a4>
-Trace; c01271b3 <refill_inactive_zone+1df/290>
-Trace; c0127a9a <kswapd+262/2a8>
-Trace; c01054ef <kernel_thread+1f/38>
-Trace; c01054f8 <kernel_thread+28/38>
-
-Code;  c0128062 <__free_pages_ok+42/22c>
-00000000 <_EIP>:
-Code;  c0128062 <__free_pages_ok+42/22c>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c0128064 <__free_pages_ok+44/22c>
-   2:   89 d8                     mov    %ebx,%eax
-Code;  c0128066 <__free_pages_ok+46/22c>
-   4:   2b 05 ec 86 2a c0         sub    0xc02a86ec,%eax
-Code;  c012806c <__free_pages_ok+4c/22c>
-   a:   69 c0 c5 4e ec c4         imul   $0xc4ec4ec5,%eax,%eax
-Code;  c0128072 <__free_pages_ok+52/22c>
-  10:   c1 f8 02                  sar    $0x2,%eax
-Code;  c0128075 <__free_pages_ok+55/22c>
-  13:   3b 00                     cmp    (%eax),%eax
-
-1 warning issued.  Results may not be reliable.
-
-regards,
-artb.
--- 
-is it a womb, or is it a tomb? or is it something completely different?
-
+--- linux-2.4.19-pre7/arch/i386/kernel/dmi_scan.c.~1~	Tue Apr 16 23:33:53 2002
++++ linux-2.4.19-pre7/arch/i386/kernel/dmi_scan.c	Tue Apr 16 23:34:15 2002
+@@ -362,7 +362,7 @@
+ 	printk(KERN_INFO " *** If you see IRQ problems, in paticular SCSI resets and hangs at boot\n");
+ 	printk(KERN_INFO " *** contact your hardware vendor and ask about updates.\n");
+ 	printk(KERN_INFO " *** Building an SMP kernel may evade the bug some of the time.\n");
+-#ifdef CONFIG_X86_UP_APIC
++#ifdef CONFIG_X86_IO_APIC
+ 	skip_ioapic_setup = 0;
+ #endif
+ 	return 0;
+--- linux-2.4.19-pre7/init/main.c.~1~	Tue Apr 16 23:33:56 2002
++++ linux-2.4.19-pre7/init/main.c	Tue Apr 16 23:34:54 2002
+@@ -293,11 +293,9 @@
+ #ifndef CONFIG_SMP
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+-extern int skip_ioapic_setup;
+ static void __init smp_init(void)
+ {
+-	if (!skip_ioapic_setup)
+-		APIC_init_uniprocessor();
++	APIC_init_uniprocessor();
+ }
+ #else
+ #define smp_init()	do { } while (0)

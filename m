@@ -1,80 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277603AbRJNU7Z>; Sun, 14 Oct 2001 16:59:25 -0400
+	id <S277704AbRJNU6e>; Sun, 14 Oct 2001 16:58:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277608AbRJNU7P>; Sun, 14 Oct 2001 16:59:15 -0400
-Received: from [213.97.184.209] ([213.97.184.209]:60547 "HELO piraos.com")
-	by vger.kernel.org with SMTP id <S277603AbRJNU7F> convert rfc822-to-8bit;
-	Sun, 14 Oct 2001 16:59:05 -0400
-Date: Sun, 14 Oct 2001 22:59:13 +0200 (CEST)
-From: German Gomez Garcia <german@piraos.com>
-To: Willem Riede <wriede@home.com>
-cc: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More on the 760MP
-In-Reply-To: <20011014164913.A1428@linnie.riede.org>
-Message-ID: <Pine.LNX.4.33.0110142254470.27070-100000@hal9000.piraos.com>
+	id <S277608AbRJNU6Z>; Sun, 14 Oct 2001 16:58:25 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48196 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S277603AbRJNU6U>; Sun, 14 Oct 2001 16:58:20 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
+Subject: Re: [RFC] "Text file busy" when overwriting libraries
+In-Reply-To: <E15sk4C-0007Be-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Oct 2001 14:48:06 -0600
+In-Reply-To: <E15sk4C-0007Be-00@the-village.bc.nu>
+Message-ID: <m13d4mq77d.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Oct 2001, Willem Riede wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> I'm not having much luck with this :-(
->
-> I also have a Tyan Tiger MP, and have built a 2.4.10-ac12 based kernel
-> for it. Actually, I modified the Rawhide kernel SRPM to use linux-2.4.10
-> and the ac12 patch, as I run ext3 and software raid installed by RedHat's
-> Roswell beta, and I need to stay compatible with that; then made and
-> installed the athlon-smp RPM.
->
-> It contains 2.6.1 for i2c, and I generated the patch for lm_sensors
-> 2.6.1 to replace the older patch for lm_sensors in the SRPM.
->
-> The i2c-amd756 module hangs my kernel too, but you seem to have it
-> work without it? I don't get anything detected without i2c-amd756.
-> This is what the log messages say (but I have to reboot to read them):
->
-> Oct 14 16:17:16 linnie kernel: i2c-amd756.o version 2.6.1 (20010830)
-> Oct 14 16:17:16 linnie kernel: i2c-dev.o: Registered 'SMBus AMD7X6 adapter
-> at 80e0' as minor 1
-> Oct 14 16:17:16 linnie kernel: i2c-core.o: client [W83782D chip] registered
-> to adapter [SMBus AMD7X6 adapter at 80e0](pos. 0).
-> Oct 14 16:17:16 linnie kernel: i2c-core.o: client [W83782D subclient]
-> registered to adapter [SMBus AMD7X6 adapter at 80e0](pos. 1).
-> Oct 14 16:17:16 linnie kernel: i2c-core.o: client [W83782D subclient]
-> registered to adapter [SMBus AMD7X6 adapter at 80e0](pos. 2).
->
-> Or is it this module (i2c-amd756) that you say must be included in the
-> kernel to make 'it' work (English is so ambiguous :-))?
+> > My big question is how to correctly define O_EXEC for every
+> > architecture.  But I would like to know if there are objectionable
+> > parts as well.
+> 
+> It looks totally unworkable. Open() has side effects on a large number of
+> platforms, and being able to open an exec only file might trigger them
+> as well as all sorts of other potential problems where files are
+> marked rwx by accident as is very common.
 
-	No, you can compile it as a module, you need to insert manually it
-(modprobe) or better modify modules.conf so it gets inserted automatically
-when loading i2c. The problem with the machine hanging up was resolved
-as Dan Hollis suggested comenting the initialization routine (I mean
-the content of the routine, the routine must exist).
+We already can open an exec only file just open("file", 0).
+In fact it looks like you can open a file with no permissions at all.
+You just can't do anything with it.
 
-> One more question if you don't mind: do you (still) have to first
-> read the sensors in the BIOS before booting? If I do that, for some
-> reason, I don't get my grub boot screen after exiting setup, instead
-> the board tries to boot off the lan; I ctrl-atl-del out of that, and
-> then things are back to normal, but that soft reset probably undid
-> whatever reading the sensors in the bios changed :-(
-> Any other settings in the bios that matter?
+All O_EXEC does is stipulate that you must have the exec permission
+to the file, and it does cause a side effect.  Possibly it should
+be broken into open, and then side effect. fcntl(fd,F_DENYWRITE).
 
-	Uhmm, I don't know if reading the sensors in the BIOS would
-make it work better, but I must make a sensors -s before reading, if not
-I'll get that 70ºC ... the same that you get when you enter the BIOS
-until you press a key.
+My primary observation is that we don't need to manage the DENYWRITE
+at the mmap level.  The file descriptor level gets the job done with
+less code, fewer suprises, fewer races.
+ 
+> You narrow the DoS vulnerability and add a whole new set of open based
+> ones.
 
-	It's important to change the type of thermal sensor to
-3904 transistor ( set sensor1 2 ....) if not you won't get the right
-temperatures.
+You may be write.  With the cleanup of the implementation by moving
+everything into open (where we implement this for exec), it hadn't
+occured to me that I might be opening a different kettle of fish.
+ 
+> This isnt a problem worth solving. Shared libraries are managed by the
+> superuser. The shared library tools already do the right thing. The
+> superuser can equally reboot the machine or reformat the disk by accident
+> anyway.
 
-	- german
+Yes the superuser can shoot himself in the foot, and by that argument
+I should delete the entire implementation of MAP_DENYWRITE from the
+kernel.  
 
--------------------------------------------------------------------------
-German Gomez Garcia          | Send email with "SEND GPG KEY" as subject
-<german@piraos.com>          | to receive my GnuPG public key.
+It is by no means true that the existing user space tools get it
+right.  I have multiple shared libraries where the owner has write
+permission to them.  And I do believe gcc -o foo.so does not do a
+unlink/open(O_CREAT) pair.  Nor does cp.
 
+As for the superuser being the only one who touches shared libaries.
+That is as true as it is that the superuser is the only one who
+touches binaries, or scripts.
+
+It is also quite unobvious that you shouldn't write to shared
+libraries.  If you have looked at how shared libaries are mapped and
+you know that they are mapped into memory with mmap(MAP_PRIVATE), and
+you understand how mmap works.  It is quite obvious why you shouldn't
+touch them.  There are a lot of users that haven't done that however.
+
+Accidental rwx permissions settings may indeed be a valid argument,
+though I think that is more a bug in chmod, than anything else.
+
+Eric

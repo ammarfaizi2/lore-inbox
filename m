@@ -1,41 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265329AbUBAPTC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 10:19:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265333AbUBAPTC
+	id S265334AbUBAP0C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 10:26:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbUBAP0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 10:19:02 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:57615 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S265329AbUBAPS7 (ORCPT
+	Sun, 1 Feb 2004 10:26:01 -0500
+Received: from quechua.inka.de ([193.197.184.2]:52158 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S265334AbUBAPZs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 10:18:59 -0500
-Date: Sun, 1 Feb 2004 16:18:46 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Marcel J.E. Mol" <marcel@mesa.nl>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
+	Sun, 1 Feb 2004 10:25:48 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
 Subject: Re: 2.6 input drivers FAQ
-Message-ID: <20040201161846.B28063@pclin040.win.tue.nl>
-References: <20040201100644.GA2201@ucw.cz> <20040201141516.A28045@pclin040.win.tue.nl> <20040201135101.GA25794@joshua.mesa.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040201135101.GA25794@joshua.mesa.nl>; from marcel@mesa.nl on Sun, Feb 01, 2004 at 02:51:01PM +0100
-X-Spam-DCC: Servercave: mailhost.tue.nl 1183; Body=1 Fuz1=1 Fuz2=1
+Date: Sun, 01 Feb 2004 16:25:41 +0100
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+Message-Id: <pan.2004.02.01.15.25.39.951190@dungeon.inka.de>
+References: <20040201100644.GA2201@ucw.cz>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 01, 2004 at 02:51:01PM +0100, Marcel J.E. Mol wrote:
-> Andries,
-> 
-> ON Fedora development (around 30 jan)
-> 
-> % rpm -qf /usr/bin/setkeycodes
-> kbd-1.08-12
-> 
-> % /usr/bin/setkeycodes e001 130
-> setkeycode: code outside bounds
+And what about dell latitude laptops (synaptics touchpad - works fine -
+plus that mouse stick - no reaction at all?
 
-Yes. Try kbd-1.12.
+Usualy I'm fine with the touchpad, but some people prefer to use
+the stick or both. Any idea?
+
+devices: (plus pcspeaker and keyboard):
+I: Bus=0011 Vendor=0002 Product=0007 Version=0000
+N: Name="SynPS/2 Synaptics TouchPad"
+P: Phys=isa0060/serio1/input0
+H: Handlers=mouse0 event1 
+B: EV=b 
+B: KEY=6420 0 670000 0 0 0 0 0 0 0 0 
+B: ABS=11000003 
+
+I: Bus=0011 Vendor=0002 Product=0001 Version=0000
+N: Name="PS/2 Generic Mouse"
+P: Phys=synaptics-pt/serio0/input0
+H: Handlers=mouse1 event2 
+B: EV=7 
+B: KEY=70000 0 0 0 0 0 0 0 0 
+B: REL=3 
+
+XF86Config:
+Section "InputDevice"
+        Identifier  "Mouse0"
+        Driver      "mouse"
+        Option      "Protocol" "ExplorerPS/2"
+        Option      "Device" "/dev/input/mouse0"
+        Option      "Emulate3Buttons" "on"
+EndSection
+
+config:
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_INPUT_UINPUT=y
+
+Andreas
 

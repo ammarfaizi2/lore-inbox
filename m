@@ -1,80 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274794AbRIVK5C>; Sat, 22 Sep 2001 06:57:02 -0400
+	id <S274822AbRIVLAW>; Sat, 22 Sep 2001 07:00:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274822AbRIVK4w>; Sat, 22 Sep 2001 06:56:52 -0400
-Received: from oe31.law11.hotmail.com ([64.4.16.88]:45586 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S274794AbRIVK4n>;
-	Sat, 22 Sep 2001 06:56:43 -0400
-X-Originating-IP: [64.180.168.53]
-From: "David Grant" <davidgrant79@hotmail.com>
-To: "Vojtech Pavlik" <vojtech@suse.cz>, "Greg Ward" <gward@python.net>
-Cc: <bugs@linux-ide.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010921134402.A975@gerg.ca> <20010921205356.A1104@suse.cz> <20010921150806.A2453@gerg.ca> <20010921154903.A621@gerg.ca> <20010921215622.A1282@suse.cz> <20010921164304.A545@gerg.ca> <20010922100451.A2229@suse.cz>
-Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
-Date: Sat, 22 Sep 2001 03:53:48 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Message-ID: <OE3183UV8wAddX47sFo00001649@hotmail.com>
-X-OriginalArrivalTime: 22 Sep 2001 10:57:03.0615 (UTC) FILETIME=[4FFA00F0:01C14355]
+	id <S274888AbRIVLAM>; Sat, 22 Sep 2001 07:00:12 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:64521 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S274822AbRIVK7z>;
+	Sat, 22 Sep 2001 06:59:55 -0400
+Date: Sat, 22 Sep 2001 13:00:00 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [patch] block highmem zero bounce v14
+Message-ID: <20010922130000.A632@suse.de>
+In-Reply-To: <20010916234307.A12270@suse.de> <Pine.LNX.4.33.0109161447390.29507-100000@penguin.transmeta.com> <20010917000012.B12270@suse.de> <20010921114448.D1924@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010921114448.D1924@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.22i
+X-OS: Linux 2.2.20 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not an expert user, just someone who's been trying feeble-ly to get
-Linux working for the past 3 months on my new computer.  I have a Promise
-chip (PDC20265) and Via vt86c686b on my A7V133.  I get these DMA timeout
-errors when I am even trying to install Linux!  I did manage to get Redhat
-7.1 installed a few months ago, as well as Debian 2.2r3.  I'm not sure if
-that was a fluke or not.  The only thing that I changed with my setup since
-then that might have affected things, is that I upgraded the ASUS bios at
-some point.  Anyways, at this point in time, no version of Linux will
-install.  After the installer starts to install a few packages (sometimes
-10, sometimes 100), the installer halts, the hard disk light stays on, and
-if I use CTRL-ALT-F4, I see these DMA timeout errors.  The hard drive is
-unresponsive unless I do a cold boot, as opossed to warm boot.
+On Fri, Sep 21 2001, Arjan van de Ven wrote:
+> On Mon, Sep 17, 2001 at 12:00:12AM +0200, Jens Axboe wrote:
+> > On Sun, Sep 16 2001, Linus Torvalds wrote:
+> > > 
+> > > On Sun, 16 Sep 2001, Jens Axboe wrote:
+> > > >
+> > > > It's against 2.4.10-pre9 and can be found right here:
+> > > >
+> > > > *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.10-pre9/block-highmem-all-14
+> > > 
+> > > Jens, what's your feeling about the stability of these things, especially
+> > > wrt weird drivers?
+> > 
+> > One of the very first decisions I made wrt this patch was to make sure
+> > that weird/old drivers could keep on working exactly the way they do now
+> > and never have to worry about highmem stuff. 
+> 
+> unfortionatly, so far both megaraid and the 3ware driver broke. Megaraid is
+> easily fixable, but still. It shows that this patch is not without risk...
 
-Sorry for broadcasting this across the linux kernel mailing list.  I can't
-provide any lspci info., etc.. because I'm kind of new to Linux, and also,
-this bug is not allowing me to install Linux period.  And BTW, Windows runs
-with no problems on both IDE controllers, so I know it's not my PC.  I know
-lots of people who have gotten this motherboard and similar motherboards to
-work.  But I can't, and since I am just an everyday user who is trying to
-run Linux on my PC, I think these bugs are important to fix.  Or at least it
-needs to be made public knowledge what someone like me needs to do to get it
-working.  (Although I'm not blaming anyone working on the kernel.  I can
-only blame the people at Via and Promise for only been semi-cooperative with
-kernel development at best).
+megaraid broke because can_dma_32 was enabled by mistake.
 
-David Grant
-
------ Original Message -----
-From: "Vojtech Pavlik" <vojtech@suse.cz>
-To: "Greg Ward" <gward@python.net>
-Cc: <bugs@linux-ide.org>; <linux-kernel@vger.kernel.org>
-Sent: Saturday, September 22, 2001 1:04 AM
-Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
-
-
-> On Fri, Sep 21, 2001 at 04:43:04PM -0400, Greg Ward wrote:
-> > On 21 September 2001, Vojtech Pavlik said:
-> > > There were updates in 2.4.9-pre2 in the VIA driver, so it might be
-worth
-> > > trying. Also disabling CONFIG_IDEDMA_AUTO may work, but you'll get
-slow
-> > > performance.
-> >
-> > OK, I've just rebooted with CONFIG_IDEDMA_AUTO not set.  Same thing
-> > happens; kernel prints "hde: timeout waiting for DMA" at boot time,
-> > "hdparm /dev/hde" reports DMA on, and "dd if=/dev/hde of=/dev/null
-> > count=1" takes about 20 sec to complete.  (Hmmm: in previous builds,
-> > the kernel would turn DMA off for me after that long DMA timeout delay.
-> > It no longer does so.  If I "hdparm -d0 /dev/hde", then there's no
-> > long delay on read.)
-> >
-
+jens

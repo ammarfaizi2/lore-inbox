@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUH3Wr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUH3WuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264984AbUH3Wr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 18:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUH3Wr7
+	id S265098AbUH3WuU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 18:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUH3WuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 18:47:59 -0400
-Received: from zero.aec.at ([193.170.194.10]:17668 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264984AbUH3Wr6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 18:47:58 -0400
-To: Chris Lalancette <clalancette@illuminari.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] identifier string for P4 Prescott
-References: <2z2vJ-7ND-13@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 31 Aug 2004 00:47:54 +0200
-In-Reply-To: <2z2vJ-7ND-13@gated-at.bofh.it> (Chris Lalancette's message of
- "Tue, 31 Aug 2004 00:10:07 +0200")
-Message-ID: <m3k6vgi6p1.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Mon, 30 Aug 2004 18:50:20 -0400
+Received: from smtp08.auna.com ([62.81.186.18]:34020 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S265098AbUH3WuP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 18:50:15 -0400
+Date: Mon, 30 Aug 2004 22:50:13 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: microcode_ctl vs udev
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: Balsa 2.2.4
+Message-Id: <1093906213l.24821l.1l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Lalancette <clalancette@illuminari.org> writes:
+Hi...
 
-> A trivial patch to change the identifier in the kernel from "Unknown
-> CPU [15:3]" to "Pentium 4(tm) Prescott".  Although Prescott is not the
-> official name of the chip (I think Intel just decided to go with the
-> P4 name), I do think it is useful to be able to identify this chip
-> separately (given that it has a different core).  This is a patch
-> against 2.4.27
+I have a little problem with microcode_ctl and udev.
+Mandrake 10.1 Cooker has switched fully to udev, and microcode_ctl fails
+to open the 'microcode' device.
 
-2.6 dropped this decoding because it was useless (doesn't offer
-any additional information). Maybe that should be just done on 2.4
-too.
+It looks like udev creates /dev/microcode, but microcode_ctl looks for
+/dev/cpu/microcode.
 
-It doesn't offer any additional information because we get
-the CPU name from CPUID anyways and it is a long term
-mainteance burden.
+Which is the right location ?
 
--Andi
+Versions:
+werewolf:~# rpm -q udev microcode_ctl
+udev-030-10mdk
+microcode_ctl-1.08-1mdk
 
-P.S.: The official Intel name for Prescott would be Pentium 4E 
-(I don't know where to place the (tm) though) 
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Beta 1) for i586
+Linux 2.6.8.1 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #1
+
 

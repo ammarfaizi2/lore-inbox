@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbULWL03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbULWL3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbULWL03 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 06:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbULWL02
+	id S261210AbULWL3l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 06:29:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbULWL3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 06:26:28 -0500
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:6578 "EHLO
-	acheron.informatik.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id S261211AbULWL01 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 06:26:27 -0500
-Message-ID: <41CAAB61.3030704@bio.ifi.lmu.de>
-Date: Thu, 23 Dec 2004 12:26:25 +0100
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kblockd/1: page allocation failure in 2.6.9
-References: <41C7D32D.2010809@bio.ifi.lmu.de>
-In-Reply-To: <41C7D32D.2010809@bio.ifi.lmu.de>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Dec 2004 06:29:41 -0500
+Received: from cantor.suse.de ([195.135.220.2]:30408 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261210AbULWL3k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 06:29:40 -0500
+Date: Thu, 23 Dec 2004 12:29:39 +0100
+From: Andi Kleen <ak@suse.de>
+To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc3, i386: fpu handling on sigreturn
+Message-ID: <20041223112939.GG14560@wotan.suse.de>
+References: <41C9B21F.90802@fujitsu-siemens.com.suse.lists.linux.kernel> <p73mzw5zzk2.fsf@verdi.suse.de> <41CA0813.1070707@fujitsu-siemens.com> <20041222235448.GA17720@verdi.suse.de> <41CA90F4.8000800@fujitsu-siemens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41CA90F4.8000800@fujitsu-siemens.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No one able to give me least some hints what this message could mean?
-If it is sth. like a kernel oops or sth. else? If it could point to
-a hardware error, or kernel bug, or kernel configuration problem or sth?
+> Sorry, I don't agree. AFAICS, if used_math isn't reset, on the next
+> attempt of the process to use the fpu, it will be reloaded with the
+> values, that come from the sighandler and that still reside in
+> thread.i387. Thus, clear_cpu() without resetting used_math has no
+> effect to the userspace task.
+> Resetting current->used_math to 0 would make math_state_restore()
+> calling init_fpu(), that clears thread.i387 before the fpu is loaded.
 
-As long as I don't even know that this message means or where it comes
-from, I cannot really debug things :-(
+Ok I agree.  I revised the patch here.
 
-cu,
-Frank
+-Andi
 
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *

@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267876AbTBRQ5g>; Tue, 18 Feb 2003 11:57:36 -0500
+	id <S267867AbTBRQ7k>; Tue, 18 Feb 2003 11:59:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267877AbTBRQ5g>; Tue, 18 Feb 2003 11:57:36 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:42001 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
-	id <S267876AbTBRQ5e>; Tue, 18 Feb 2003 11:57:34 -0500
-Date: Tue, 18 Feb 2003 18:07:34 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [TRIVIAL][PATCH][RESEND]
-Message-ID: <Pine.LNX.4.51.0302181806080.19871@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267868AbTBRQ7k>; Tue, 18 Feb 2003 11:59:40 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:56995 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S267867AbTBRQ7j>; Tue, 18 Feb 2003 11:59:39 -0500
+Subject: Re: "Unknown HZ value! (0) Assume 100." Wraparound bug?
+From: Albert Cahalan <albert@users.sf.net>
+To: matt@theBachChoir.org.uk
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 18 Feb 2003 12:05:52 -0500
+Message-Id: <1045587953.3174.278.camel@cube>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Matt Bernstein writes:
 
-two typo patches:
+> Two of our machines (one running 2.4.18-xfs-ipsec, one
+> running 2.4.19-pre10-ac2)  started spitting this message
+> before some commands (might be in Debian procps 2.0.7-8)
+> after an uptime of about 248 days (certainly in the latter
+> case, probably the same in the former).
+>
+> This smells a bit as about 248 is about half of about 497,
+> which was a trigger (which I managed to hit :) in the
+> mid 2.1.x series for the uptime counter to wrap.
 
-Regards,
-Maciej Soltysiak
+Yep. Debian-unstable has procps-3.1.5 now, which won't emit
+this message with 2.4.xx and 2.5.xx kernels. Your system is
+still inconsistant though, so rebooting would be a good idea.
+(processes may appear to have been started in the future and
+run for negative time)
 
-*** linux-2.5.60/drivers/atm/firestream.c~	Mon Feb 10 19:37:59 2003
---- linux-2.5.60/drivers/atm/firestream.c	Mon Feb 17 20:49:32 2003
-***************
-*** 1792,1798 ****
-  		write_fs (dev, RAC, 0);
+The recent 2.5.xx kernels should be able to handle huge
+uptimes better; you'll need the procps-3.1.6 release for
+the most recent 2.5.xx kernels though.
 
-  		/* Manual (AN9, page 6) says ASF1=0 means compare Utopia address
-! 		 * too.  I can't find ASF1 anywhere. Anyway, we AND with just hte
-  		 * other bits, then compare with 0, which is exactly what we
-  		 * want. */
-  		write_fs (dev, RAM, (1 << (28 - FS155_VPI_BITS - FS155_VCI_BITS)) - 1);
---- 1792,1798 ----
-  		write_fs (dev, RAC, 0);
+http://procps.sf.net/
 
-  		/* Manual (AN9, page 6) says ASF1=0 means compare Utopia address
-! 		 * too.  I can't find ASF1 anywhere. Anyway, we AND with just the
-  		 * other bits, then compare with 0, which is exactly what we
-  		 * want. */
-  		write_fs (dev, RAM, (1 << (28 - FS155_VPI_BITS - FS155_VCI_BITS)) - 1);
-
-
-*** drivers/s390/block/dasd_3990_erp.c~	Mon Feb 25 20:38:03 2002
---- drivers/s390/block/dasd_3990_erp.c	Sat Feb 15 21:10:56 2003
-***************
-*** 2809,2815 ****
-   *     - exit with permanent error
-   *
-   * PARAMETER
-!  *   erp                ERP which is in progress wiht no retry left
-   *
-   * RETURN VALUES
-   *   erp                modified/additional ERP
---- 2809,2815 ----
-   *     - exit with permanent error
-   *
-   * PARAMETER
-!  *   erp                ERP which is in progress with no retry left
-   *
-   * RETURN VALUES
-   *   erp                modified/additional ERP
 

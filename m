@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264292AbTKTFia (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 00:38:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264294AbTKTFia
+	id S264290AbTKTFgm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 00:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTKTFgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 00:38:30 -0500
-Received: from mail-10.iinet.net.au ([203.59.3.42]:44255 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264292AbTKTFi2
+	Thu, 20 Nov 2003 00:36:42 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14515 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264290AbTKTFgk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 00:38:28 -0500
-Message-ID: <3FBC52F9.40001@cyberone.com.au>
-Date: Thu, 20 Nov 2003 16:36:57 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Thu, 20 Nov 2003 00:36:40 -0500
+Message-ID: <3FBC52C6.4070101@pobox.com>
+Date: Thu, 20 Nov 2003 00:36:06 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: William Lee Irwin III <wli@holomorphy.com>
-CC: Neil Brown <neilb@cse.unsw.edu.au>, Jeff Garzik <jgarzik@pobox.com>,
+CC: Nick Piggin <piggin@cyberone.com.au>, Neil Brown <neilb@cse.unsw.edu.au>,
        jt@hpl.hp.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>,
        Pontus Fuchs <pof@users.sourceforge.net>
 Subject: Re: Announce: ndiswrapper
@@ -27,29 +27,27 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
 William Lee Irwin III wrote:
-
->On Thu, Nov 20, 2003 at 03:49:05PM +1100, Nick Piggin wrote:
->
+> On Thu, Nov 20, 2003 at 03:49:05PM +1100, Nick Piggin wrote:
+> 
 >>I'm all for open specs, but in reality that doesn't always happen.
 >>(out of interest, are there any OS 3d drivers for any current cards?)
 >>I know what you mean, but I would find nvidia more at fault for not
 >>providing power management than no OS drivers.
->>
->
->The rationales for closed specs are bogus, so I have zero sympathy.
->It's generally a braindead encoding for commands to carry out well-
->understood operations. There is nothing to hide, except, of course,
->the ability to use the hardware.
->
+> 
+> 
+> The rationales for closed specs are bogus, so I have zero sympathy.
 
-Well OK, but whether the manufacturers are bad or good, there will be
-some that aren't going to release specs or open source drivers. I think
-it is *mostly* positive that the Linux kernel allows them to support
-Linux though binary drivers.
 
-Note, I'm talking about the kernel. We are all agreed that closed specs
-are a bad move by manufacturers.
+Definitely agreed.
+
+When I am forced to sign NDAs to get hardware specs, the hardware IP 
+"revealed" is inevitably something that some other company has done 
+before, and done better.  NDAs and closed specs are IMO only used by 
+vendors to save face, when their hardware design is stupid, and their 
+errata innumerable.
+
+	Jeff
+
+
 

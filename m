@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVBQLA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVBQLDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbVBQLA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 06:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbVBQLA6
+	id S262177AbVBQLDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 06:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbVBQLDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 06:00:58 -0500
-Received: from cavan.codon.org.uk ([213.162.118.85]:23494 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261394AbVBQLAx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 06:00:53 -0500
-From: Matthew Garrett <mjg59@srcf.ucam.org>
+	Thu, 17 Feb 2005 06:03:25 -0500
+Received: from gprs214-194.eurotel.cz ([160.218.214.194]:29129 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262177AbVBQLCu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 06:02:50 -0500
+Date: Thu, 17 Feb 2005 12:02:34 +0100
+From: Pavel Machek <pavel@suse.cz>
 To: Len Brown <len.brown@intel.com>
-Cc: Pavel Machek <pavel@suse.cz>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>, seife@suse.de,
        rjw@sisk.pl
-In-Reply-To: <1108621005.2096.412.camel@d845pe>
-References: <20050214211105.GA12808@elf.ucw.cz>
-	 <1108621005.2096.412.camel@d845pe>
-Date: Thu, 17 Feb 2005 11:00:21 +0000
-Message-Id: <1108638021.4085.143.camel@tyrosine>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
 Subject: Re: [ACPI] Call for help: list of machines with working S3
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
+Message-ID: <20050217110233.GA1353@elf.ucw.cz>
+References: <20050214211105.GA12808@elf.ucw.cz> <1108621005.2096.412.camel@d845pe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1108621005.2096.412.camel@d845pe>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-17 at 01:16 -0500, Len Brown wrote:
-> Pavel,
+Hi!
+
 > I think that it is the BIOS' job on S3-suspend
 > to save the video mode.  On S3-resume the BIOS should
 > re-POST and restore the video mode.
 
-I agree, but in the absence of spec requirement and some form of
-certification process, I don't see it happening in the near future.
-Given that vendors are still shipping invalid DSDTs, if Windows is able
-to reinitialise the graphics hardware, few are going to care about
-making life easier for Linux.
+Can you find it written down somewhere? It would be certainly easier
+for me if every BIOS did re-post, but it is not the case on any new
+BIOS....
 
+> To completely solve the Linux S3 video restore issue,
+> we need to push the platform and BIOS vendors.
+> 
+> What am I missing?
+
+I think we are missing few lines in docs somewhere saying "video must
+be re-POSTed during S3 wakeup". And then we miss someone going around
+vendors with baseball bat, telling them to fix their BIOSes.
+
+								Pavel
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

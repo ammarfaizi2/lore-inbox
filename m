@@ -1,70 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136852AbRASV76>; Fri, 19 Jan 2001 16:59:58 -0500
+	id <S136901AbRASWCi>; Fri, 19 Jan 2001 17:02:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136857AbRASV7j>; Fri, 19 Jan 2001 16:59:39 -0500
-Received: from mms1.broadcom.com ([63.70.210.58]:2321 "HELO mms1.broadcom.com")
-	by vger.kernel.org with SMTP id <S136852AbRASV7c>;
-	Fri, 19 Jan 2001 16:59:32 -0500
-X-Server-Uuid: 1e1caf3a-b686-11d4-a6a3-00508bfc9ae5
-Message-ID: <E1EBEF4633DBD3118AD1009027E2FFA00109BEDD@mail.sv.broadcom.com>
-From: gmo@broadcom.com
-To: "'Carles Pina i Estany'" <is08139@salleURL.edu>,
-        linux-kernel@vger.kernel.org
-cc: "'linux-tp600@icemark.ch'" <linux-tp600@icemark.ch>
-Subject: RE: PCMCIA Cards on 2.4.0
-Date: Fri, 19 Jan 2001 13:59:28 -0800
+	id <S136899AbRASWC3>; Fri, 19 Jan 2001 17:02:29 -0500
+Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:37348 "HELO
+	localdomain") by vger.kernel.org with SMTP id <S136896AbRASWCU>;
+	Fri, 19 Jan 2001 17:02:20 -0500
+From: Davide Libenzi <davidel@xmail.virusscreen.com>
+Organization: myCIO.com
+Date: Fri, 19 Jan 2001 14:03:06 -0800
+X-Mailer: KMail [version 1.1.95.5]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+To: Mike Kravetz <mkravetz@sequent.com>, Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com> <20010119124921.G26968@w-mikek.des.sequent.com> <20010119135135.H26968@w-mikek.des.sequent.com>
+In-Reply-To: <20010119135135.H26968@w-mikek.des.sequent.com>
+Subject: Re: [Lse-tech] Re: multi-queue scheduler update
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 16766748117112-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Message-Id: <01011914030601.01005@ewok.dev.mycio.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a similar problem with a Thinkpad 600e:
+On Friday 19 January 2001 13:59, Mike Kravetz wrote:
+> On Fri, Jan 19, 2001 at 12:49:21PM -0800, Mike Kravetz showed his lack
+>
+> of internet slang understanding and wrote:
+> > It was my intention to post IIRC numbers for small thread counts today.
+> > However, the benchmark (not the system) seems to hang on occasion.  This
+> > occurs on both the unmodified 2.4.0 kernel and the one which contains
+> > my multi-queue patch.  Therefore, I'm pretty sure it is not something
+> > I did. :)
+> >
+> > Anyone else see anything like this before?  I'll look into the reason
+> > for the hang, but it will delay my posting of these numbers.
+>
+> I think I have found the problem.  Here is a code snippet from the
+> benchmark Andrea posted.
+>
+> void            oneatwork(int thr)
+> {
+>     int             i;
+>     while (!start)              /* don't disturb pthread_create() */
+>         usleep(10000);
+>
+>     actthreads++;
+>     while (!stop)
+>     {
+>         if (count)
+>             totalwork[thr]++;
+>
+>         syscall(158); /* sys_sched_yield() */
+>     }
+>     actthreads--;
+>     pthread_exit(0);
+> }
+>
+> Note that actthreads is a global variable which is being updated
+> by multiple threads without any form of synchronization.  Because
+> of this actthreads sometimes never goes to zero after all worker
+> threads have finished. 
 
-The machine has RedHat6.2, and the original kernel
-(2.2.14-5) as well as every 2.4.0-test* kernel I've
-tried (test5, test9, test10 and test12) have had
-no trouble with the PCMCIA (actually Cardbus)
-card I use (a 3Com 3C575, but I don't think it
-has anything to do with the card itself).
+If all threads complete successfully actthreads has to be zero.
+If some thread dies, this won't be true.
 
-Well, 2.4.0 does not seem to be able to talk to
-the card. The first sign of trouble is the lines:
 
-cs: socket c13d4800 timed out during reset.
-	Try increasing setup_delay.
 
-at the point where other kernels say instead:
-
-cs: cb_alloc(bus 5): vendor 0x10b7, device 0x5057
-
-and so the former does not seem to be able to access
-the card while the others are happy.
-
-All of this is with 2.4 kernels that include all the
-necessary pieces (no modules), which makes it harder
-to go change the setup_delay. I can make the PCMCIA
-stuff into modules, but the point is that neither
-setup_delay nor any other of the default values for
-the module parameters changed between test12 and
-release, so I'm not sure that it will really make
-a difference.
-
-One other thing I did try: If I eject and re-insert
-the card after the system is up, it then starts working.
-So I actually have a workaround, but I'd like to know
-what is really happening and how to fix it.
-
-Any suggestions?
-
-TIA,
-
-Gmo.
-
+- Davide
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,93 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbTIZU15 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 16:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbTIZU14
+	id S261623AbTIZUZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 16:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbTIZUZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 16:27:56 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:58646 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S261642AbTIZU1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 16:27:51 -0400
-Subject: Re: kernel BUG using multipath on 2.6.0-test5
-From: Steven Dake <sdake@mvista.com>
-Reply-To: sdake@mvista.com
-To: Jens Axboe <axboe@suse.de>
-Cc: Matthew Wilcox <willy@debian.org>, linux-scsi@vger.kernel.org,
+	Fri, 26 Sep 2003 16:25:24 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:22185
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S261623AbTIZUZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 16:25:20 -0400
+Date: Fri, 26 Sep 2003 22:26:44 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: marcelo@parcelfarce.linux.theplanet.co.uk
+Cc: Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20030926122646.GA15415@suse.de>
-References: <1064541435.4763.51.camel@persist.az.mvista.com>
-	 <20030926121703.GG24824@parcelfarce.linux.theplanet.co.uk>
-	 <20030926122646.GA15415@suse.de>
-Content-Type: text/plain
-Organization: MontaVista Software, Inc.
-Message-Id: <1064607249.4779.1.camel@persist.az.mvista.com>
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030926202644.GI9953@velociraptor.random>
+References: <20030922194833.GA2732@velociraptor.random> <Pine.LNX.4.44.0309251436320.30864-100000@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 26 Sep 2003 13:14:09 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309251436320.30864-100000@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-26 at 05:26, Jens Axboe wrote: 
-> On Fri, Sep 26 2003, Matthew Wilcox wrote:
-> > On Thu, Sep 25, 2003 at 06:57:15PM -0700, Steven Dake wrote:
-> > > kernel BUG at drivers/scsi/scsi_lib.c:544!
-> > 
-> >         BUG_ON(!cmd->use_sg);
-> > 
-> > >  [<c01f631d>] scsi_init_io+0x7a/0x13d
-> > 
-> > static int scsi_init_io(struct scsi_cmnd *cmd)
-> >         struct request     *req = cmd->request;
-> >         cmd->use_sg = req->nr_phys_segments;
-> >         sgpnt = scsi_alloc_sgtable(cmd, GFP_ATOMIC);
-> > 
-> > >  [<c01f6455>] scsi_prep_fn+0x75/0x171
-> > 
-> > static int scsi_prep_fn(struct request_queue *q, struct request *req)
-> >         struct scsi_cmnd *cmd;
-> >         cmd->request = req;
-> >         ret = scsi_init_io(cmd);
-> > 
-> > .. this is getting outside my area of confidence.  Ask axboe why we might
-> > get a zero nr_phys_segments request passed in.
+On Thu, Sep 25, 2003 at 02:40:15PM +0100, marcelo@parcelfarce.linux.theplanet.co.uk wrote:
+> On Mon, 22 Sep 2003, Andrea Arcangeli wrote:
 > 
-> Looks like an mp bug. I'd suggest adding something ala
+> > Hi,
+> > 
+> > I'm rejecting on the log-buf-len feature in 2.4.23pre5, the code in
+> > mainline is worthless for any distributor, shipping another rpm package
+> > just for the bufsize would be way overkill.
 > 
-> 	if (!rq->nr_phys_segments || !rq->nr_hw_segments) {
-> 		blk_dump_rq_flags(req, "scsi_init_io");
-> 		return BLKPREP_KILL;
-> 	}
+> Andrea,
 > 
-> inside the first
+> As Willy stated previously this is useful for people who want to change 
+> the log buf size without having to change the code manually, and I think 
+> this is a useful and non intrusive change.
 > 
-> 	} else if (req->flags & (REQ_CMD | REQ_BLOCK_PC)) {
-> 
-> drivers/scsi/scsi_lib.c:scsi_prep_fn(). That will show the state of such
-> a buggy request. I'm pretty sure this is an mp bug though.
+> Do you see any problem with this? 
 
-scsi_prep_fn: dev sdd: flags = REQ_CMD REQ_STARTED
-sector 0, nr/cnr 8/8
-bio c2694708, biotail c2694708, buffer f76dc000, data 00000000, len 0
-multipath: IO failure on sdd, disabling IO path.
-        Operation continuing on 1 IO paths.
-multipath: sdd: rescheduling sector 8
-MULTIPATH conf printout:
--- wd:1 rd:2
-disk0, o:0, dev:sdd
-disk1, o:1, dev:sdb
-MULTIPATH conf printout:
--- wd:1 rd:2
-disk1, o:1, dev:sdb
-multipath: sdd: redirecting sector 0 to another IO path
-scsi_prep_fn: dev sdb: flags = REQ_CMD REQ_STARTED
-sector 0, nr/cnr 0/8
-bio c2694708, biotail c2694708, buffer f76dc000, data 00000000, len 0
+as wrote in a later email, technically the dynamic solution obsoletes
+the static one, but only as far as the kernel is concerned.
 
-I assume a length of zero is wrong...  I'll trace up the stack and see
-where the bad data gets into the request.
+It happens that to enable the dynamic solution you've to change 1 line
+to lilo.conf/grub.lst. since 2.4 is already being used in production
+distributed scenarios, there is at least a psycology value in providing
+a static solution that doesn't involve lilo.conf changes, so people can
+deploy the feature without having to edit conf files at all (with grub
+they don't need to run lilo either).
 
-Thanks for the pointer...
--steve  
+So I will rewrite my patch in a way that doesn't reject the static
+setting for next -aa (together with some other tons of pending things,
+but the vm merge is already completed on my tree, so I'm in sync again
+with pre5 on that side and that was top priority to fixup to be sure
+nothing was missing, thanks for merging the watermarks already btw ;).
 
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/
+	    svn://svn.kernel.org/linux-2.[46]/trunk

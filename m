@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268877AbUIQPec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268965AbUIQPmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268877AbUIQPec (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 11:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUIQPeG
+	id S268965AbUIQPmT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 11:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268881AbUIQPjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 11:34:06 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:20938 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268877AbUIQPSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 11:18:30 -0400
-Subject: Re: The ultimate TOE design
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Eric Mudama <edmudama@gmail.com>
-Cc: David Stevens <dlstevens@us.ibm.com>, Netdev <netdev@oss.sgi.com>,
-       leonid.grossman@s2io.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <311601c90409162346184649eb@mail.gmail.com>
-References: <4148991B.9050200@pobox.com>
-	 <OF8783A4F6.D566336C-ON88256F10.006E51CE-88256F10.006EDA93@us.ibm.com>
-	 <311601c90409162346184649eb@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095430526.26088.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 17 Sep 2004 15:15:28 +0100
+	Fri, 17 Sep 2004 11:39:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36013 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268965AbUIQPgO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 11:36:14 -0400
+Date: Fri, 17 Sep 2004 08:35:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: Michael Hunold <hunold@linuxtv.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][2.6][4/14] dvb core update
+In-Reply-To: <Pine.LNX.4.61.0409171648270.8300@jjulnx.backbone.dif.dk>
+Message-ID: <Pine.LNX.4.58.0409170831480.2338@ppc970.osdl.org>
+References: <414AF2CA.3000502@linuxtv.org> <414AF31B.1090103@linuxtv.org>
+ <414AF399.3030708@linuxtv.org> <414AF41A.6060009@linuxtv.org>
+ <414AF461.4050707@linuxtv.org> <Pine.LNX.4.61.0409171648270.8300@jjulnx.backbone.dif.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-09-17 at 07:46, Eric Mudama wrote:
-> On Wed, 15 Sep 2004 14:11:04 -0600, David Stevens <dlstevens@us.ibm.com> wrote:
-> > Why don't we off-load filesystems to disks instead?
+
+
+On Fri, 17 Sep 2004, Jesper Juhl wrote:
 > 
-> Disks have had file systems on them since close to the beginning...
+> Besides, didn't C99 make C++ style comments valid for C code as well?  
+> Does CodingStyle have any oppinion on this?
 
-This is essentially the path Lustre is taking. Although it seems you
-don't want to have a "full" file system on the disk since you lose to
-much flexibility, instead you want the ability to allocate by handle
-giving hints about locality and use.
+We've allowed C++ comments for a longish time as far as I can tell. They 
+are very common, all over the tree according to a quick grep. Admittedly 
+they are more common in certain driver setups than in "general code", but 
+I don't think there is really any reason (other than maintainer 
+preferences) to convert one into the other.
 
-People have also tried full file system offload - intel for example
-prototyped an I2O file system class, and adaptec clearly were trying
-this out on aacraid development from looking at the public headers.
-
-Alan
-
+		Linus

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbUDJBVp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 21:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUDJBVp
+	id S261786AbUDJBvR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 21:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUDJBvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 21:21:45 -0400
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:57251 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id S261753AbUDJBVo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 21:21:44 -0400
-Date: Fri, 9 Apr 2004 18:21:16 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] rmap: parisc __flush_dcache_page
-Message-ID: <20040410012115.GA1285@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <1081439244.2165.236.camel@mulgrave> <20040408161610.GF31667@dualathlon.random> <1081441791.2105.295.camel@mulgrave> <20040408171017.GJ31667@dualathlon.random> <1081446226.2105.402.camel@mulgrave> <20040408175158.GK31667@dualathlon.random> <1081447654.1885.430.camel@mulgrave> <20040408181838.GN31667@dualathlon.random> <1081448897.2105.465.camel@mulgrave> <20040408184245.GO31667@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Apr 2004 21:51:17 -0400
+Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:51717 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S261786AbUDJBvP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 21:51:15 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Ivica Ico Bukvic <ico@fuse.net>
+Subject: RE: [linux-audio-user] snd-hdsp+cardbus+M6807 notebook=distortion -- First good news
+Date: Sat, 10 Apr 2004 03:47:56 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040408184245.GO31667@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200404100347.56786.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 08, 2004 at 08:42:45PM +0200, Andrea Arcangeli wrote:
-> But I've an fairly optimal solution for you, you should make it a
-> read_write spinlock, with the readers not disabling interrupts, and the
-> writer disabling interrupts, the writer of the prio-tree will not take a
-> timeslice, the readers instead will take a timeslice, but since they're
-> readers and you've only to read in the flush_dcache_page irq context,
-> you don't need to disable irqs for the readers.  I don't have better
-> solutions than this one at the moment (yeah there's the rcu reading of
-> the prio-tree but I'd leave it for later...)
+you can get the same output with
+	hexdump -v /proc/bus/pci/BUS/DEVICE
+where BUS/DEVICE is the CB controller. eg. 00/09.0
 
-FWIW, agreed.  Past attempts at RCU-based tree algorithms have been
-a bit on the complex side.  While I believe that simpler versions are
-possible, RCU-based trees should be approached with caution and with
-long lead times.
+about the bits:
+- at 81h, from D0 to 90: this is part of the system control register. the bit
+  that changed is "Memory read burst enable upstream"
+- at c9h, from 04 to 06: this is an undocumented test register. TI just says
+  reserved, EnE says test register, for the bit that changed it adds the 
+  comment TLTEnable (default to 1). no idea what it is. it _could_ have
+  something to do with the cardbus latency timer...you can try to play a bit
+  with the latency setting after resume when this bit is set. try writing to
+  offset 1Bh, put in at least 40h
 
-						Thanx, Paul
+to change the bits under linux, use setpci (also good for reading)
+
+about the memory read burst upstream: 2.6 kernels enable it for most of
+the TI chips and since 2.6.5 also for some TI clones from EnE (incl. EnE1410).
+
+rgds
+-daniel
+

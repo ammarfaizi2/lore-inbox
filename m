@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129044AbQKMS1k>; Mon, 13 Nov 2000 13:27:40 -0500
+	id <S129047AbQKMSbb>; Mon, 13 Nov 2000 13:31:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129079AbQKMS1a>; Mon, 13 Nov 2000 13:27:30 -0500
-Received: from mail.sun.ac.za ([146.232.128.1]:54793 "EHLO mail.sun.ac.za")
-	by vger.kernel.org with ESMTP id <S129044AbQKMS1P>;
-	Mon, 13 Nov 2000 13:27:15 -0500
-Date: Mon, 13 Nov 2000 20:27:07 +0200 (SAST)
-From: Hans Grobler <grobh@sun.ac.za>
-To: "Willis L. Sarka" <wlsarka@the-republic.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Hard lockup using emu10k1-based sound card
-In-Reply-To: <Pine.LNX.4.30.0011131751160.21258-100000@matrix.the-republic.org>
-Message-ID: <Pine.LNX.4.21.0011132009020.6877-100000@ccs.sun.ac.za>
+	id <S129079AbQKMSbV>; Mon, 13 Nov 2000 13:31:21 -0500
+Received: from penguin.scsinternet.com ([216.129.11.4]:35845 "EHLO
+	penguin.scsinternet.com") by vger.kernel.org with ESMTP
+	id <S129047AbQKMSbN>; Mon, 13 Nov 2000 13:31:13 -0500
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Jakub Jelinek <jakub@redhat.com>, Steven_Snyder@3com.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: State of Posix compliance in v2.2/v2.4 kernel?
+In-Reply-To: <88256996.00577D9E.00@hqoutbound.ops.3com.com>
+    <3A101009.5F05DA18@mandrakesoft.com>
+    <20001113111319.E1514@devserv.devel.redhat.com>
+    <3A101417.EA466EF6@mandrakesoft.com>
+From: Gary Lawrence Murphy <garym@canada.com>
+X-Home-Page: http://www.teledyn.com
+Organization: T(c)Inc Business Innovation through Open Source Computing
+Date: 13 Nov 2000 13:31:01 -0500
+Message-ID: <m3snov67x6.fsf@maya.dyndns.org>
+Reply-To: Gary Lawrence Murphy <garym@canada.com>
+X-Url: http://www.teledyn.com/
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2000, Willis L. Sarka wrote:
-> I get a hard lockup when trying to play a mp3 with XMMS;
-> Sound Blaster Live card.  The first second loops, and I lose all
-> connectivity to the machine; I can't ping it, can't to a an Alt-Sysq,
-> nothing.
+>>>>> "J" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
-Just for reference, I've been use the ALSA drivers for most of the
-2.4.0-testX kernels without any problems (provided you use the driver
-version that matches the kernel version). Even under high memory
-preasure, swapping, NFS traffic, etc. the worst that happens is sporadic
-skipping. XMMS and mpg123 in use. I've tried the kernel emu10k1 a few
-times but also got similar lockup's. I haven't tried the kernel emu10k1
-since the NMI watchdog was added. This should show something? ... but 
-I guess you can't see anything because you're in X. I wonder if you'd see
-anything if you were using mpg123 and working on the console?
+    J> Would it be reasonable to have these needs documented in a
+    J> central location, with patches attached where possible?
 
-My system:
-  RedHat 7.0
-  kernel 2.4.0-test11pre3 SMP (soundcore as modules)
-  ALSA drivers 0.5.9d
-  Gigabyte 440BX SMP (Dual Pentium II 450), 256MB, 
-    Intel Ethernet Pro 100, Adaptec AIC-7895 Ultra SCSI
+http://kernelbook.sourceforge.net:80/wiki/?LinuxAndPosixCompliance
 
+The lead-in discussion has been snipped and inserted under the more
+general topic http://kernelbook.sourceforge.net:80/wiki/?LinuxVsUnix
 -- 
-Hans Grobler <grobh@sun.ac.za>
-Department Electronic & Electrical Engineering
-University of Stellenbosch, South Africa
-
+Gary Lawrence Murphy <garym@linux.ca>: office voice/fax: 01 519 4222723
+T(!c)Inc Business Innovation through Open Source http://www.teledyn.com
+M:I-3 - Documenting the Linux kernel: http://kernelbook.sourceforge.net
+"You don't play what you know; you play what you hear." --- Miles Davis
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

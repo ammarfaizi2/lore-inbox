@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317564AbSFIGQn>; Sun, 9 Jun 2002 02:16:43 -0400
+	id <S317565AbSFIG2p>; Sun, 9 Jun 2002 02:28:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317565AbSFIGQm>; Sun, 9 Jun 2002 02:16:42 -0400
-Received: from [209.237.59.50] ([209.237.59.50]:51908 "EHLO
-	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
-	id <S317564AbSFIGQm>; Sun, 9 Jun 2002 02:16:42 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-In-Reply-To: <52lm9p9tdz.fsf@topspin.com>
-	<20020608.175325.63815788.davem@redhat.com>
-	<52d6v19r9n.fsf@topspin.com>
-	<20020608.222903.122223122.davem@redhat.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 08 Jun 2002 23:16:38 -0700
-Message-ID: <528z5p9dtl.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S317566AbSFIG2o>; Sun, 9 Jun 2002 02:28:44 -0400
+Received: from webmail3.rediffmail.com ([202.54.124.148]:28628 "HELO
+	webmail3.rediffmail.com") by vger.kernel.org with SMTP
+	id <S317565AbSFIG2n>; Sun, 9 Jun 2002 02:28:43 -0400
+Date: 9 Jun 2002 06:28:17 -0000
+Message-ID: <20020609062817.32685.qmail@webmail3.rediffmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "tushar  korde" <tushar_k5@rediffmail.com>
+Reply-To: "tushar  korde" <tushar_k5@rediffmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: suggestion for changing kmalloc()
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+hi folks,
 
-    Roland> Just to make sure I'm reading this correctly, you're
-    Roland> saying that as long as a buffer is OK for DMA, it should
-    Roland> be OK to use a sub-cache-line chunk as a DMA buffer via
-    Roland> pci_map_single(), and accessing the rest of the cache line
-    Roland> should be OK at any time before, during and after the DMA.
-   
-    David> Yes.
-   
-    Roland> What alternate implementation are you proposing?
+ 	I am sending this mail again as i forgot to put a subject line 
+previously, so chances are
+         that some of u may have missed it.
 
-    David> For non-cacheline aligned chunks in the range "start" to
-    David> "end" you must perform a cache writeback and invalidate. To
-    David> preserve the data outside of the DMA range.
+ 	as kmalloc allocates memory in power of 2 ( starting from 32 )
+instead of the size requested. there are following problems :
 
-Doesn't this still have a problem if you touch data in the same cache
-line as the DMA buffer after the pci_map but before the DMA takes
-place?  The CPU will pull the cache line back in and it might not see
-the data the DMA brought in.
+  1) we are allocating at least 32 bytes in all cases ( most of 
+the times it is not
+required ).
 
-It seems to me that to be totally safe, pci_unmap would have to save
-the non-aligned part outside the buffer to temporary storage, do an
-invalidate, and then copy back the non-aligned part.
+  2) if we allocate large memory, internal fregmentation also 
+increases.
 
-In any case if this is what pci_map is supposed to do then we have to
-fix up several architectures at least...
+  3) allocating more memory then the request often leads to 
+programming errors
+esp. when we store some data and read it back or try to get size 
+of data stored
+  ( though it can be handled but we have to take special care of 
+it at every point ).
 
-Thanks,
-  Roland
+the solution to above problems may be that we dont allocate 
+objects from the 13
+general purpose caches, instead we make a new cache keep its 
+address either in
+cache_sizes or declare it global. now as the kmalloc is invoked 
+check the memory size
+requested if predefined sizes are not suitable then make a new 
+object of the size
+requested ( now here the definition of c_offset flag of cache 
+descriptor may be
+violated ) and allot it to our new cache and return it .
+
+ 	i know that there may be subtle problems in it's 
+implementation.
+i need your suggestions. is it worth to make efforts in this 
+field.
+
+keenly waitinf for ur reply
+tushar korde
+_________________________________________________________
+Click below to visit monsterindia.com and review jobs in India or 
+Abroad
+http://monsterindia.rediff.com/jobs
+

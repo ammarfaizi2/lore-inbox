@@ -1,122 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261312AbTADTDG>; Sat, 4 Jan 2003 14:03:06 -0500
+	id <S261322AbTADTVr>; Sat, 4 Jan 2003 14:21:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261321AbTADTDG>; Sat, 4 Jan 2003 14:03:06 -0500
-Received: from f27.law8.hotmail.com ([216.33.241.27]:45839 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S261312AbTADTDE>;
-	Sat, 4 Jan 2003 14:03:04 -0500
-X-Originating-IP: [24.44.249.150]
-From: "sean darcy" <seandarcy@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.54 ide-scsi and cdrecord
-Date: Sat, 04 Jan 2003 14:11:32 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F27Iu6VXNjimExOpK7u00012a9a@hotmail.com>
-X-OriginalArrivalTime: 04 Jan 2003 19:11:32.0748 (UTC) FILETIME=[17E52CC0:01C2B425]
+	id <S261330AbTADTVr>; Sat, 4 Jan 2003 14:21:47 -0500
+Received: from arava.co.il ([212.179.127.3]:30944 "HELO arava.co.il")
+	by vger.kernel.org with SMTP id <S261322AbTADTVp>;
+	Sat, 4 Jan 2003 14:21:45 -0500
+Date: Sat, 4 Jan 2003 21:31:38 +0200 (IST)
+From: Matan Ziv-Av <matan@svgalib.org>
+To: Andrew McGregor <andrew@indranet.co.nz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Gauntlet Set NOW!
+In-Reply-To: <133840000.1041674500@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21_heb2.09.0301042115010.5981-100000@matan.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ide-scsi refuses to boot with A NULL pointer oops (is  there a patch yet?). 
-But I figured it didn't matter because I could use cdrecord without the scsi 
-layer. So I rebuilt 2.5.54 w/o scsi. Here's the dmesg:
+On Sat, 4 Jan 2003, Andrew McGregor wrote:
 
-.............
-VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci00:11.1
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
-hda: Maxtor 6Y120P0, ATA DISK drive
-hdb: MAXTOR 6L060J3, ATA DISK drive
-hda: DMA disabled
-hdb: DMA disabled
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: SONY CD-RW CRX195E1, ATAPI CD/DVD-ROM drive
-hdc: DMA disabled
-ide1 at 0x170-0x177,0x376 on irq 15
-spurious 8259A interrupt: IRQ7.
-hda: host protected area => 1
-hda: 240121728 sectors (122942 MB) w/7936KiB Cache, CHS=238216/16/63, 
-UDMA(133)
-hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 >
-hdb: host protected area => 1
-hdb: 117266688 sectors (60041 MB) w/1820KiB Cache, CHS=116336/16/63, 
-UDMA(133)
-hdb: hdb1 hdb2 hdb3 < hdb5 hdb6 hdb7 hdb8 >
-...........
+> Or else find that the NV3x has some stonking quick CPU embedded, and apps
+> talk GLX to it...
+> 
+> Strange how noone objects to APM BIOS calls or ACPI.
 
-I got cdrecord 2.0:
+Actually, I object to this. 
+On my via 686a, the advice on this list for getting the power saving was
+to use ACPI (after setting some bits in PCI config space). But lvcool
+program showed how to do this without proprietary programs, and I
+adapted it to bit of kernel code:
 
-[root@amd1900 root]# cdrecord -scanbus -dev=ATAPI
-Cdrecord 2.0 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J?rg Schilling
-scsidev: 'ATAPI'
-devname: 'ATAPI'
-scsibus: -2 target: -2 lun: -2
-Warning: Using ATA Packet interface.
-Warning: The related libscg interface code is in pre alpha.
-Warning: There may be fatal problems.
-cdrecord: No such device or address. Cannot open SCSI driver.
-cdrecord: For possible targets try 'cdrecord -scanbus'. Make sure you are 
-root.
-cdrecord: For possible transport specifiers try 'cdrecord dev=help'.
+static void via686_idle(void) {
+        if (!current->need_resched)
+                inb(Reg_PL2);
+}
+static int __init init_lvcool(void)
+{
+        nb = pci_find_device(PCI_VENDOR_ID_VIA,
+             PCI_DEVICE_ID_VIA_8363_0, nb);
+        smb = pci_find_device(PCI_VENDOR_ID_VIA,
+             PCI_DEVICE_ID_VIA_82C686_4, smb);
+        if(nb==NULL)pci_find_device(PCI_VENDOR_ID_VIA,
+             PCI_DEVICE_ID_VIA_8371_0, nb);
+        if(!Reg_PL2) {
+                u32 t;
+                pci_read_config_dword(smb, 0x48, &t);
+                Reg_PL2 = (t&0xff80) + 0x14;
+                printk(KERN_DEBUG "Reg_PL2 = %08x\n", Reg_PL2);
+        }
 
-FWIW, I also tried just cdrecord -scanbus
+        old_idle = pm_idle;
+        pm_idle = via686_idle;
 
-What am I missing? I thought we didn't need the scsi layer anymore.
-
-Here are snips from .config:
-
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-
-CONFIG_BLK_DEV_IDECD=y
-
-# IDE chipset support/bugfixes
-#
-
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-
-CONFIG_IDEDMA_PCI_AUTO=y
-
-CONFIG_BLK_DEV_IDEDMA=y
-
-CONFIG_BLK_DEV_ADMA=y
-
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-
-CONFIG_BLK_DEV_IDE_MODES=y
-
-#
-# SCSI device support
-#
-# CONFIG_SCSI is not set
+    return 0;
+}
 
 
+And I don't need to run any proprietary code during normal system run. I
+still need to use BIOS to boot and to poweroff the system, but
+that will be solved as well.
 
 
+-- 
+Matan Ziv-Av.                         matan@svgalib.org
 
-
-
-
-
-
-
-_________________________________________________________________
-Protect your PC - get McAfee.com VirusScan Online 
-http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
 

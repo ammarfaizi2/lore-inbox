@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263404AbREXHxZ>; Thu, 24 May 2001 03:53:25 -0400
+	id <S263407AbREXH6h>; Thu, 24 May 2001 03:58:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263407AbREXHxP>; Thu, 24 May 2001 03:53:15 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:61872 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263404AbREXHw7>;
-	Thu, 24 May 2001 03:52:59 -0400
-Message-ID: <3B0CBDB3.3E062D3A@mandrakesoft.com>
-Date: Thu, 24 May 2001 03:52:19 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
-X-Accept-Language: en
+	id <S263408AbREXH61>; Thu, 24 May 2001 03:58:27 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:63630 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S263407AbREXH6Q>;
+	Thu, 24 May 2001 03:58:16 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105240658.f4O6wEWq031945@webber.adilger.int>
+Subject: Re: Dying disk and filesystem choice.
+In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au> "from monkeyiq at May 24, 2001 01:25:51
+ pm"
+To: monkeyiq <monkeyiq@users.sourceforge.net>
+Date: Thu, 24 May 2001 00:58:14 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-To: Praveen Srinivasan <praveens@stanford.edu>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk, mingo@redhat.com
-Subject: Re: [PATCH] md.c - null ptr fixes for 2.4.4
-In-Reply-To: <200105240732.f4O7WLH23332@smtp2.Stanford.EDU>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Praveen Srinivasan wrote:
-> @@ -3773,7 +3774,12 @@
->                         ainfo.spare_disks = 0;
->                         ainfo.layout = 0;
->                         ainfo.chunk_size = md_setup_args.chunk[minor];
-> -                       err = set_array_info(mddev, &ainfo);
-> +                       if(mddev==NULL){
-> +                           err=1;
-> +                         }
-> +                       else {
-> +                         err = set_array_info(mddev, &ainfo);
-> +                       }
->                         for (i = 0; !err && (dev = md_setup_args.devices[minor][i]); i++) {
->                                 dinfo.number = i;
->                                 dinfo.raid_disk = i;
-> @@ -3797,9 +3803,12 @@
->                 if (!err)
->                         err = do_md_run(mddev);
->                 if (err) {
-> -                       mddev->sb_dirty = 0;
-> -                       do_md_stop(mddev, 0);
-> -                       printk("md: starting md%d failed\n", minor);
-> +                 if(mddev !=NULL){
-> +                   mddev->sb_dirty = 0;
-> +                   do_md_stop(mddev, 0);
-> +                 }
-> +
-> +                 printk("md: starting md%d failed\n", minor);
+It was written:
+>   To keep it short and sweet, I have a 45Gb IBM drive that
+> is slowly dying by getting more bad sectors. I have already
+> returned my first one to get the current disk, so would like
+> to use the current one for a while before returning it for 
+> another disk that will prolly just start dying again.
+> 
+> I am using reiserfs at the moment, which doesn't really like 
+> to work on a dying drive. for example, doing a make fails to
+> work even though it is *creating* files on the disk, it fails
+> to do so because it hits new bad sectors and doesn't seem to
+> remap them. 
+> 
+> I am wondering what advise on filesystem choice the list as
+> and any other options I can use to get the kernel to remap
+> bad blocks.
 
-coding style of changes totally different from surrounding code, and
-Documentation/CodingStyle
+Well reiserfs is probably a very bad choice at this point.  It
+does not have any bad blocks support (yet), so as soon as you have
+a bad block you are stuck.
 
-ditto for other patches... i didn't check all, only several
+You should probably use ext2, along with the badblocks program to
+check which blocks in the disk are bad.  It will do a read-write
+test, and either your disk will remap the bad blocks, or they will
+be detected.
 
+Even so, keep your backups current...
+
+Cheers, Andreas
 -- 
-Jeff Garzik      | "Are you the police?"
-Building 1024    | "No, ma'am.  We're musicians."
-MandrakeSoft     |
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

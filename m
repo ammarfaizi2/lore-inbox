@@ -1,90 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVDEPLs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVDEPQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbVDEPLs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 11:11:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVDEPLs
+	id S261775AbVDEPQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 11:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVDEPQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 11:11:48 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:31958 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S261737AbVDEPLo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 11:11:44 -0400
-Message-Id: <200504051521.UAA00681@harvest.india.hp.com>
-From: "Amanulla G" <amanulla@india.hp.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <jdp@india.hp.com>
-Subject: Re: /proc on 2.4.21 & 2.6 kernels.... 
-Date: Tue, 5 Apr 2005 20:41:36 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcU58cHsqYoNJh4DQoiSD1Jc47iRcQ==
+	Tue, 5 Apr 2005 11:16:26 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63761 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261775AbVDEPP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 11:15:58 -0400
+Date: Tue, 5 Apr 2005 17:15:56 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] kill smp_tune_scheduling()
+Message-ID: <20050405151556.GI6885@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi, 
-I would like to know the information on /proc under 2.4.21 based kernels.
- 
-On 2.4.21 based kernels, /proc has got two types of entries.
-/proc/pid & /proc/.tid
- 
-The statistics under /proc/pid reflect just resource utilization of pid
-alone. They are not summarization of resource utilization of process and the
-threads it creates.  I would like to know is there any way that we can make
-sure that statistics under /proc/pid reflect the resource utilization of
-threads it creates too? 
- 
-Here are the additional details.
- 
- 
-1) One line summary of the problem:
->> On 2.4.21 based kernels, /proc/pid doesn't include the consolidated
-resource utilization of the threads it has created.
- 
-2) Full description of the problem/report:
+Since all remaining smp_tune_scheduling()'s are now empty (except for 
+the useless setting of function-local variables), we can completely 
+remove the remaining ones.
 
->> Assume we have a process with pid = 1234
-        And this process creates two threads with thread IDs 1235 & 1236.
-        We have three entries
-        a)  /proc/1234
-        b) /proc/.1235
-        c) /proc/.1236
-       The statistics under /proc/1234 doesn't reflect resource utilization
-of threads.
- 
-3) Keywords (i.e., modules, networking, kernel):
->> /proc
- 
-4) Kernel version (from /proc/version):
->> 2.4.21
- 
-5) Output of Oops.. message (if applicable) with symbolic information 
-     resolved (see Documentation/oops-tracing.txt)
->> N/A
- 
-6) A small shell script or example program which triggers the
-     problem (if possible)
->> Can be easily seen with multi-threaded processes
- 
- 
-We would like to know 
-1) Is this a known problem? 
-2) Whether this problem has been fixed? If yes, in which version of the
-kernel this issue has been fixed? 
-3) In 2.6 based kernels we have different way of getting thread data. 
-      /proc/<pid>/tasks/tid
-     Does /proc/<pid>/stat has got the summarized statistics of resource
-utilization of threads it has created ? or it just reflects the resource
-utilization of <pid> only? 
- 
-Thanks in advance!
- 
-With Best Regards,
-Amanulla
- 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+---
+
+ arch/i386/kernel/smpboot.c           |   31 ---------------------------
+ arch/i386/mach-voyager/voyager_smp.c |    4 ---
+ arch/m32r/kernel/smpboot.c           |    7 ------
+ arch/mips/kernel/smp.c               |   29 -------------------------
+ arch/x86_64/kernel/smpboot.c         |   27 -----------------------
+ 5 files changed, 98 deletions(-)
+
+--- linux-2.6.12-rc2-mm1-full/arch/mips/kernel/smp.c.old	2005-04-05 16:53:13.000000000 +0200
++++ linux-2.6.12-rc2-mm1-full/arch/mips/kernel/smp.c	2005-04-05 16:53:35.000000000 +0200
+@@ -46,34 +46,6 @@
+ EXPORT_SYMBOL(phys_cpu_present_map);
+ EXPORT_SYMBOL(cpu_online_map);
+ 
+-static void smp_tune_scheduling (void)
+-{
+-	struct cache_desc *cd = &current_cpu_data.scache;
+-	unsigned long cachesize;       /* kB   */
+-	unsigned long bandwidth = 350; /* MB/s */
+-	unsigned long cpu_khz;
+-
+-	/*
+-	 * Crude estimate until we actually meassure ...
+-	 */
+-	cpu_khz = loops_per_jiffy * 2 * HZ / 1000;
+-
+-	/*
+-	 * Rough estimation for SMP scheduling, this is the number of
+-	 * cycles it takes for a fully memory-limited process to flush
+-	 * the SMP-local cache.
+-	 *
+-	 * (For a P5 this pretty much means we will choose another idle
+-	 *  CPU almost always at wakeup time (this is due to the small
+-	 *  L1 cache), on PIIs it's around 50-100 usecs, depending on
+-	 *  the cache size)
+-	 */
+-	if (!cpu_khz)
+-		return;
+-
+-	cachesize = cd->linesz * cd->sets * cd->ways;
+-}
+-
+ extern void __init calibrate_delay(void);
+ extern ATTRIB_NORET void cpu_idle(void);
+ 
+@@ -217,7 +189,6 @@
+ 	cpu_data[0].udelay_val = loops_per_jiffy;
+ 	init_new_context(current, &init_mm);
+ 	current_thread_info()->cpu = 0;
+-	smp_tune_scheduling();
+ 	prom_prepare_cpus(max_cpus);
+ }
+ 
+--- linux-2.6.12-rc2-mm1-full/arch/i386/kernel/smpboot.c.old	2005-04-05 16:53:43.000000000 +0200
++++ linux-2.6.12-rc2-mm1-full/arch/i386/kernel/smpboot.c	2005-04-05 16:53:58.000000000 +0200
+@@ -855,36 +855,6 @@
+ 	return boot_error;
+ }
+ 
+-static void smp_tune_scheduling (void)
+-{
+-	unsigned long cachesize;       /* kB   */
+-	unsigned long bandwidth = 350; /* MB/s */
+-	/*
+-	 * Rough estimation for SMP scheduling, this is the number of
+-	 * cycles it takes for a fully memory-limited process to flush
+-	 * the SMP-local cache.
+-	 *
+-	 * (For a P5 this pretty much means we will choose another idle
+-	 *  CPU almost always at wakeup time (this is due to the small
+-	 *  L1 cache), on PIIs it's around 50-100 usecs, depending on
+-	 *  the cache size)
+-	 */
+-
+-	if (!cpu_khz) {
+-		/*
+-		 * this basically disables processor-affinity
+-		 * scheduling on SMP without a TSC.
+-		 */
+-		return;
+-	} else {
+-		cachesize = boot_cpu_data.x86_cache_size;
+-		if (cachesize == -1) {
+-			cachesize = 16; /* Pentiums, 2x8kB cache */
+-			bandwidth = 100;
+-		}
+-	}
+-}
+-
+ /*
+  * Cycle through the processors sending APIC IPIs to boot each.
+  */
+@@ -913,7 +883,6 @@
+ 	x86_cpu_to_apicid[0] = boot_cpu_physical_apicid;
+ 
+ 	current_thread_info()->cpu = 0;
+-	smp_tune_scheduling();
+ 	cpus_clear(cpu_sibling_map[0]);
+ 	cpu_set(0, cpu_sibling_map[0]);
+ 
+--- linux-2.6.12-rc2-mm1-full/arch/i386/mach-voyager/voyager_smp.c.old	2005-04-05 16:54:07.000000000 +0200
++++ linux-2.6.12-rc2-mm1-full/arch/i386/mach-voyager/voyager_smp.c	2005-04-05 16:54:22.000000000 +0200
+@@ -688,10 +688,6 @@
+ 	 * schedule at the moment */
+ 	//global_irq_holder = boot_cpu_id;
+ 
+-	/* FIXME: Need to do something about this but currently only works
+-	 * on CPUs with a tsc which none of mine have. 
+-	smp_tune_scheduling();
+-	 */
+ 	smp_store_cpu_info(boot_cpu_id);
+ 	printk("CPU%d: ", boot_cpu_id);
+ 	print_cpu_info(&cpu_data[boot_cpu_id]);
+--- linux-2.6.12-rc2-mm1-full/arch/m32r/kernel/smpboot.c.old	2005-04-05 16:54:30.000000000 +0200
++++ linux-2.6.12-rc2-mm1-full/arch/m32r/kernel/smpboot.c	2005-04-05 16:54:42.000000000 +0200
+@@ -109,7 +109,6 @@
+ 
+ void smp_prepare_boot_cpu(void);
+ void smp_prepare_cpus(unsigned int);
+-static void smp_tune_scheduling(void);
+ static void init_ipi_lock(void);
+ static void do_boot_cpu(int);
+ int __cpu_up(unsigned int);
+@@ -185,7 +184,6 @@
+ 	 * Setup boot CPU information
+ 	 */
+ 	smp_store_cpu_info(0); /* Final full version of the data */
+-	smp_tune_scheduling();
+ 
+ 	/*
+ 	 * If SMP should be disabled, then really disable it!
+@@ -229,11 +227,6 @@
+ 	Dprintk("Boot done.\n");
+ }
+ 
+-static void __init smp_tune_scheduling(void)
+-{
+-	/* Nothing to do. */
+-}
+-
+ /*
+  * init_ipi_lock : Initialize IPI locks.
+  */
+--- linux-2.6.12-rc2-mm1-full/arch/x86_64/kernel/smpboot.c.old	2005-04-05 16:54:49.000000000 +0200
++++ linux-2.6.12-rc2-mm1-full/arch/x86_64/kernel/smpboot.c	2005-04-05 16:55:08.000000000 +0200
+@@ -660,32 +660,6 @@
+ 	}
+ }
+ 
+-static void smp_tune_scheduling (void)
+-{
+-	int cachesize;       /* kB   */
+-	unsigned long bandwidth = 1000; /* MB/s */
+-	/*
+-	 * Rough estimation for SMP scheduling, this is the number of
+-	 * cycles it takes for a fully memory-limited process to flush
+-	 * the SMP-local cache.
+-	 *
+-	 * (For a P5 this pretty much means we will choose another idle
+-	 *  CPU almost always at wakeup time (this is due to the small
+-	 *  L1 cache), on PIIs it's around 50-100 usecs, depending on
+-	 *  the cache size)
+-	 */
+-
+-	if (!cpu_khz) {
+-		return;
+-	} else {
+-		cachesize = boot_cpu_data.x86_cache_size;
+-		if (cachesize == -1) {
+-			cachesize = 16; /* Pentiums, 2x8kB cache */
+-			bandwidth = 100;
+-		}
+-	}
+-}
+-
+ /*
+  * Cycle through the processors sending APIC IPIs to boot each.
+  */
+@@ -704,7 +678,6 @@
+ 	print_cpu_info(&cpu_data[0]);
+ 
+ 	current_thread_info()->cpu = 0;
+-	smp_tune_scheduling();
+ 
+ 	if (!physid_isset(hard_smp_processor_id(), phys_cpu_present_map)) {
+ 		printk("weird, boot CPU (#%d) not listed by the BIOS.\n",
 

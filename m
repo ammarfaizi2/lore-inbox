@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271254AbTGPXOn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 19:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271255AbTGPXOn
+	id S271223AbTGPXQM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 19:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271255AbTGPXQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 19:14:43 -0400
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:53903 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S271254AbTGPXOk
+	Wed, 16 Jul 2003 19:16:12 -0400
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:54159 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S271223AbTGPXPy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 19:14:40 -0400
-Date: Wed, 16 Jul 2003 19:29:33 -0400
+	Wed, 16 Jul 2003 19:15:54 -0400
+Date: Wed, 16 Jul 2003 19:30:45 -0400
 From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
 To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6 sound drivers?
-Message-ID: <20030716232933.GQ2412@rdlg.net>
+Message-ID: <20030716233045.GR2412@rdlg.net>
 Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20030716225826.GP2412@rdlg.net> <20030717011008.A32081@ss1000.ms.mff.cuni.cz>
+References: <20030716225826.GP2412@rdlg.net> <20030716231029.GG1821@matchmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1LW0Rr0Uq98qh6Rv"
+	protocol="application/pgp-signature"; boundary="QVgWX4+QEldMe/r9"
 Content-Disposition: inline
-In-Reply-To: <20030717011008.A32081@ss1000.ms.mff.cuni.cz>
+In-Reply-To: <20030716231029.GG1821@matchmail.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1LW0Rr0Uq98qh6Rv
+--QVgWX4+QEldMe/r9
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 
 
-/dev/sound/dsp doesn't exist.  I have devfsd installed and running
-already.
+I do but the problem is I don't have a /dev/dsp, /dev/sound/dsp or
+anything else to point mpg123 at.
 
-Thus spake Rudo Thomas (thomr9am@ss1000.ms.mff.cuni.cz):
+Thus spake Mike Fedyk (mfedyk@matchmail.com):
 
-> > [snip] I just tried to load the emu10k1 which loads without error, but =
-mpg123
-> > says it can't open the default sound device.
+> On Wed, Jul 16, 2003 at 06:58:26PM -0400, Robert L. Harris wrote:
+> >=20
+> >=20
+> > I have a soundblaster Live.  I've historically used the OSS drivers as
+> > they've worked well for me.  I just tried to load the emu10k1 which
+> > loads without error, but mpg123 says it can't open the default sound
+> > device.
+> >=20
+> > Anyone able to do an lsmod or a listing of the drivers I need for an
+> > SBLive?
 >=20
-> If the module loaded up properly, problem may be in mpg123. If you are us=
-ing
-> devfs, try mpg123 -a /dev/sound/dsp . If that works, set up devfsd.
->=20
-> Rudo.
+> Did you install alsa-utils?
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
@@ -65,16 +68,16 @@ Diagnosis: witzelsucht  =09
 IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
 IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
 
---1LW0Rr0Uq98qh6Rv
+--QVgWX4+QEldMe/r9
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/Fd/d8+1vMONE2jsRAmbMAKCB7nPr06sbYPf0At3b357z2FdxMACgnPSi
-gm6hAwwb3LzFKH/UQo4QK9A=
-=dgro
+iD8DBQE/FeAl8+1vMONE2jsRApivAKDo24MFaXsoYqY2UgBWKVBMibw/hwCfTFn+
+pQ1NGV8DzHBEdAvgQ0sJ1ew=
+=Rism
 -----END PGP SIGNATURE-----
 
---1LW0Rr0Uq98qh6Rv--
+--QVgWX4+QEldMe/r9--

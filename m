@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVAaHlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVAaHce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbVAaHlE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 02:41:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVAaHjy
+	id S261675AbVAaHce (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 02:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVAaH3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 02:39:54 -0500
-Received: from waste.org ([216.27.176.166]:60396 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261955AbVAaHfC (ORCPT
+	Mon, 31 Jan 2005 02:29:36 -0500
+Received: from nabe.tequila.jp ([211.14.136.221]:25503 "HELO nabe.tequila.jp")
+	by vger.kernel.org with SMTP id S261689AbVAaH1c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 02:35:02 -0500
-Date: Mon, 31 Jan 2005 01:35:00 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.com>
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.416337461@selenic.com>
-Message-Id: <6.416337461@selenic.com>
-Subject: [PATCH 5/8] lib/sort: Replace open-coded O(pids**2) bubblesort in cpusets
+	Mon, 31 Jan 2005 02:27:32 -0500
+Message-ID: <41FDDDD3.5060103@tequila.co.jp>
+Date: Mon, 31 Jan 2005 16:27:15 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220 Thunderbird/1.0 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Felipe Alfaro Solana <lkml@mac.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel panic on a 2.6.7
+References: <41FD8F08.3020000@tequila.co.jp> <23fc8bba6baa220cfdbffa7d93303319@mac.com>
+In-Reply-To: <23fc8bba6baa220cfdbffa7d93303319@mac.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eep. cpuset uses bubble sort on a data set that's potentially O(#
-processes). Switch to lib/sort.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+On 01/31/2005 04:24 PM, Felipe Alfaro Solana wrote:
+> On 31 Jan 2005, at 02:51, Clemens Schwaighofer wrote:
+> 
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> Hi,
+>>
+>> I have a RedHat 9.0 box with a self compiled 2.6.7 kernel.
+>>
+>> Today I had this error and a total lockup on the box. Before that (~6h
+>> before I had another lockup, but no output to anywhere).
+> 
+> 
+> Have you tried with a more recent kernel? 2.6.7 is a little bit ancient.
 
-Index: tq/kernel/cpuset.c
-===================================================================
---- tq.orig/kernel/cpuset.c	2005-01-29 16:13:53.000000000 -0800
-+++ tq/kernel/cpuset.c	2005-01-30 13:26:48.000000000 -0800
-@@ -47,6 +47,7 @@
- #include <linux/string.h>
- #include <linux/time.h>
- #include <linux/backing-dev.h>
-+#include <linux/sort.h>
- 
- #include <asm/uaccess.h>
- #include <asm/atomic.h>
-@@ -1055,21 +1056,9 @@
- 	return n;
- }
- 
--/*
-- * In place bubble sort pidarray of npids pid_t's.
-- */
--static inline void pid_array_sort(pid_t *pidarray, int npids)
-+static int cmppid(const void *a, const void *b)
- {
--	int i, j;
--
--	for (i = 0; i < npids - 1; i++) {
--		for (j = 0; j < npids - 1 - i; j++)
--			if (pidarray[j + 1] < pidarray[j]) {
--				pid_t tmp = pidarray[j];
--				pidarray[j] = pidarray[j + 1];
--				pidarray[j + 1] = tmp;
--			}
--	}
-+	return *(pid_t *)a - *(pid_t *)b;
- }
- 
- /*
-@@ -1114,7 +1103,7 @@
- 		goto err1;
- 
- 	npids = pid_array_load(pidarray, npids, cs);
--	pid_array_sort(pidarray, npids);
-+	sort(pidarray, npids, sizeof(pid_t), cmppid, 0);
- 
- 	/* Call pid_array_to_buf() twice, first just to get bufsz */
- 	ctr->bufsz = pid_array_to_buf(&c, sizeof(c), pidarray, npids) + 1;
+well, I had a 2.6.9, but I had a lot of lock ups, only 2.6.7 ran more
+stable. But I might try 2.6.10, and see if I have ~1 month again a lock up
+
+- --
+[ Clemens Schwaighofer                      -----=====:::::~ ]
+[ TBWA\ && TEQUILA\ Japan IT Group                           ]
+[                6-17-2 Ginza Chuo-ku, Tokyo 104-0061, JAPAN ]
+[ Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343 ]
+[ http://www.tequila.co.jp        http://www.tbwajapan.co.jp ]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB/d3TjBz/yQjBxz8RAtyDAJsEPF4GyrX23oerx/X9M7TcVEbMhQCdFdtA
+tmTmgbIi0J9Yx/JisCdzKGA=
+=dREk
+-----END PGP SIGNATURE-----

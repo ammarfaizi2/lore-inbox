@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132912AbRDUUe6>; Sat, 21 Apr 2001 16:34:58 -0400
+	id <S132914AbRDUUpT>; Sat, 21 Apr 2001 16:45:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132901AbRDUUet>; Sat, 21 Apr 2001 16:34:49 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:45782 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132909AbRDUUef>;
-	Sat, 21 Apr 2001 16:34:35 -0400
-Date: Sat, 21 Apr 2001 16:34:29 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: esr@thyrsus.com, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-In-Reply-To: <200104212023.f3LKN7P188973@saturn.cs.uml.edu>
-Message-ID: <Pine.GSO.4.21.0104211630130.27021-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132919AbRDUUpJ>; Sat, 21 Apr 2001 16:45:09 -0400
+Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:22402 "EHLO
+	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S132914AbRDUUow>; Sat, 21 Apr 2001 16:44:52 -0400
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Jochen Striepe <jochen@tolot.escape.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4-pre6 does not compile 
+In-Reply-To: Message from Russell King <rmk@arm.linux.org.uk> 
+   of "Sat, 21 Apr 2001 21:34:30 BST." <20010421213430.D7576@flint.arm.linux.org.uk> 
+In-Reply-To: <20010421221728.C4077@tolot.escape.de>  <20010421213430.D7576@flint.arm.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 21 Apr 2001 21:44:41 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E14r4FF-000105-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Its because you're using a version of gcc which doesn't have
+>__builtin_expect (eg, egcs 1.1.2, some versions of gcc 2.95).
 
+No 2.95.x has __builtin_expect.  There might be some 2.95-derived GNUpro that 
+supports it but I doubt anyone is using those to build kernels.
 
-On Sat, 21 Apr 2001, Albert D. Cahalan wrote:
+p.
 
-> Eric S. Raymond writes:
-> 
-> > This is a proposal for an attribution metadata system in the Linux
-> > kernel sources.  The goal of the system is to make it easy for
-> > people reading any given piece of code to identify the responsible
-> > maintainer.  The motivation for this proposal is that the present
-> > system, a single top-level MAINTAINERS file, doesn't seem to be
-> > scaling well.
-> 
-> It is nice to have a single file for grep. With the proposed
-> changes one would sometimes need to grep every file.
-
-The real problem is that large part of the kernel has no permanent
-maintainers. Which makes the whole (overdesigned) idea completely moot.
 

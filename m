@@ -1,139 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVAWHdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVAWHg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVAWHdT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 02:33:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVAWHdS
+	id S261242AbVAWHg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 02:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVAWHg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 02:33:18 -0500
-Received: from opersys.com ([64.40.108.71]:39690 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261239AbVAWHdH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 02:33:07 -0500
-Message-ID: <41F355AD.50901@opersys.com>
-Date: Sun, 23 Jan 2005 02:43:41 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
-       Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home> <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home> <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home> <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home> <41EC2DCA.50904@opersys.com> <Pine.LNX.4.61.0501172323310.30794@scrub.home> <41EC8AA2.1030000@opersys.com> <Pine.LNX.4.61.0501181359250.30794@scrub.home> <41F0A0A2.1010109@opersys.com> <Pine.LNX.4.61.0501211754110.30794@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0501211754110.30794@scrub.home>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 23 Jan 2005 02:36:27 -0500
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:58382 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S261243AbVAWHgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 02:36:16 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@taverner.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: seccomp for 2.6.11-rc1-bk8
+Date: Sun, 23 Jan 2005 07:34:24 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <csvk20$6qa$1@abraham.cs.berkeley.edu>
+References: <20050121100606.GB8042@dualathlon.random> <20050121093902.O469@build.pdx.osdl.net> <csrje8$bsn$1@abraham.cs.berkeley.edu> <20050121111700.Q469@build.pdx.osdl.net>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1106465664 6986 128.32.168.222 (23 Jan 2005 07:34:24 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Sun, 23 Jan 2005 07:34:24 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Wright  wrote:
+>* David Wagner (daw@taverner.cs.berkeley.edu) wrote:
+>> There is a simple tweak to ptrace which fixes that: one could add an
+>> API to specify a set of syscalls that ptrace should not trap on.  To get
+>> seccomp-like semantics, the user program could specify {read,write}, but
+>> if the user program ever wants to change its policy, it could change that
+>> set.  Solaris /proc (which is what is used for tracing) has this feature.
+>> I coded up such an extension to ptrace semantics a long time ago, and
+>> it seemed to work fine for me, though of course I am not a ptrace expert.
+>
+>Hmm, yeah, that'd be nice.  That only leaves the issue of tracer dying
+>(say from that crazy oom killer ;-).
 
-Hello Roman,
+Yes, I also implemented was a ptrace option which causes the child to be
+slaughtered if the parent dies for any reason.  I could dig up the code,
+but I don't recall it being very hard.  This was ages ago (a 2.0.x kernel)
+and I have no idea what might have changed.  Also, am definitely not a
+guru on kernel internals, so it is always possible I missed something.
+But, at least on the surface this doesn't seem hard to implement.
 
-Roman Zippel wrote:
-> Well, let's concentrate for a moment on the last thing and check later 
-> if and how they fit into relayfs. Since ltt will be first main user, let's 
-> optimize it for this.
-> Also since relayfs is intended for large, fast data transfers, per cpu 
-> buffers are pretty much always required, so it would make sense to leave 
-> this to relayfs (less to get wrong for the client).
+A third thing I implemented was a option which would cause ptrace() to be
+inherited across forks.  The way that strace does this (last I looked)
+is an unreliable abomination: when it sees a request to call fork(), it
+sets a breakpoint at the next instruction after the fork() by re-writing
+the code of the parent, then when that breakpoint triggers it attaches to
+the child, restores the parent's code, and lets them continue executing.
+This is icky, and I have little confidence in its security to prevent
+children from escaping a ptrace() jail, so I added a feature to ptrace()
+that remedies the situation.
 
-But how does relayfs organize the namespace then? What if I have
-multiple channels per CPU, each for a different type of data, will
-all channels for the same CPU be under the same directory or will
-each type of data have its own directory with one entry per CPU?
-I don't have an answer to that, and I don't know that we should. Why
-not just leave it to the client to organize his data as he wishes.
-If we must assume that everyone will have at least one channel per
-CPU, then why not provide helper functions built on top of very
-basic functions instead of fixing the namespace in stone?
+Anyway, back to the main topic: ptrace() vs seccomp.  I think one
+plausible reason to prefer some mechanism that allows user level to
+specify the allowed syscall set is that it might provide more flexibility.
+What if 6 months from now we discover that we really should have enabled
+one more syscall in seccomp to accomodate other applications?
 
-> I have to modify it a little (only the if (!buffer) part is new):
-> 
-> 	cpu = get_cpu();
-> 	buffer = relay_get_buffer(chan, cpu);
-> 	while(1) {
-> 		offset = local_add_return(buffer->offset, length);
-> 		if (likely(offset + length <= buffer->size))
-> 			break;
-> 		buffer = relay_switch_buffer(chan, buffer, offset);
-> 		if (!buffer) {
-> 			put_cpu();
-> 			return;
-> 		}
-> 	}
-> 	memcpy(buffer->data + offset, data, length);
-> 	put_cpu();
-> 
-> This has a very short fast path and I need very good reasons to change/add 
-> anything here. OTOH the slow path with relay_switch_buffer() is less 
-> critical and still leaves a lot of flexibility.
+At the same time, I truly empathize Andrea's position that something
+like seccomp ought to be a lot easier to verify correct than ptrace().
+I think several people here are underestimating the importance of
+clean design.  ptrace() is, frankly, a godawful mess, and I don't
+know about this thinking that you can take a godawful mess and then
+audit it carefully and call it secure -- well, that seems unlikely to
+ever lead to the same level of assurance that you can get with a much
+cleaner design.  (This business of overloading as a means of sending
+ptrace events to user level was in retrospect probably a bad design
+decision, for instance.  See, e.g., Section 12 of my MS thesis for more.
+http://www.cs.berkeley.edu/~daw/papers/janus-masters.ps)  Given this,
+I can see real value in seccomp.
 
-This is not good for any client that doesn't know beforehand the exact
-size of their data units, as in the case of LTT. If LTT has to use this
-code that means we are going to loose performance because we will need to
-fill an intermediate data structure which will only be used for relay_write().
-Instead of zero-copy, we would have an extra unnecessary copy. There has
-got to be a way for clients to directly reserve and write as they wish.
-Even Zach Brown recognized this in his tracepipe proposal, here's from
-his patch:
-+ * 	- let caller reserve space and get a pointer into buf
+Perhaps there is a compromise position.  What if one started from seccomp,
+but then extended it so the set of allowed syscalls can be specified by
+user level?  This would push policy to user level, while retaining the
+attractive simplicity and ease-of-audit properties of the seccomp design.
+Does something like this make sense?
 
->>1) get_cpu() and put_cpu() won't do. You need to outright disable
->>interrupts because you may be called from an interrupt handler.
-> 
-> 
-> Look closer, it's already interrupt safe, the synchronization for the 
-> buffer switch is left to relay_switch_buffer().
+Let me give you some idea of new applications that might be enabled
+by this kind of functionality.  One cool idea is a 'delegating
+architecture' for jails.  The jailed process inherit an open file
+descriptor to its jailor, and is only allowed to call read(), write(),
+sendmsg(), and recvmsg().  If the jailed process wants to interact
+with the outside world, it can send a request to its jailor to this
+effect.  For instance, suppose the jailed process wants to create a
+file called "/tmp/whatever", so it sends this request to the jailor.
+The jailor can decide whether it wants this to be allowed.  If it is
+to be allowed, the jailor can create this file and transfer a file
+descriptor to the jailed process using sendmsg().  Note that this
+mechanism allows the jailor to completely virtualize the system call
+interface; for instance, the jailor could transparently instead create
+"/tmp/jail17/whatever" and return a fd to it to the jailed process,
+without the jailed process being any the wiser.  (For more on this,
+see http://www.stanford.edu/~talg/papers/NDSS04/abstract.html and
+http://www.cs.jhu.edu/~seaborn/plash/plash.html)
 
-Sorry, I'm still missing something. What exactly does local_add_return()
-do? I assume this code has got to be interrupt safe? Something like:
-#define local_add_return(OFFSET, LEN) \
-do {\
-...
-	local_irq_save(); \
-	OFFSET += LEN;
-	local_irq_restore(); \
-...
-} while(0);
-
-I'm assuming local_irq_XXX because we were told by quite a few people
-in the related thread to avoid atomic ops because they are more expensive
-on most CPUs than cli/sti.
-
-Also how does relay_get_buffer() operate? What if I'm writing an event
-from within a system call and I'm about to switch buffers and get
-an interrupt at the if(likely(...))? Isn't relay_get_buffer() going to
-return the same pointer as the one obtained for the syscall, and aren't
-both cases now going to effect relay_switch_buffer(), one of which will
-be superfluous?
-
-> This adds a conditional and is not really needed. Above shows how to make 
-> it interrupt safe and if the clients wants to reuse the same buffer, leave 
-> the locking to the client.
-
-Fine, but how is the client going to be able to reuse the same buffer if
-relayfs always assumes per-CPU buffer as you said above? This would be
-solved if at its core relayfs' functions worked on single channels and
-additional code provided helpers for making the SMP case very simple.
-
-> That's quite a lot of code with at least 14 conditions (or 13 conditions 
-> too much) and this is just relayfs.
-
-I believe Tom has refactored the code with your comments in mind, and has
-something ready for review. I just want to clear up the above before we
-make this final. Among other things, he just dropped all modes, and there's
-only a basic relay_write() that closely resembles what you have above.
-
-> That's not always true, where perfomance matters we provide different 
-> functions (e.g. spinlocks), so having an alternative version of 
-> relay_write is a possibility (although I'd like to see the user first).
-
-Sure, see above in the case of LTT.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+So this is one example of an application that is enabled by adding
+recvmsg() to the set of allowed syscalls.  When it comes to the broader
+question of seccomp vs ptrace(), I don't know what strategy makes most
+sense for the Linux kernel, but I hope these ideas help give you some
+idea of what might be possible and how these mechanisms could be used.

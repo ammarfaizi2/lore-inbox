@@ -1,161 +1,271 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267306AbTAWWC7>; Thu, 23 Jan 2003 17:02:59 -0500
+	id <S267335AbTAWWH0>; Thu, 23 Jan 2003 17:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267335AbTAWWC6>; Thu, 23 Jan 2003 17:02:58 -0500
-Received: from relay-4.fastweb.it ([213.140.2.43]:16004 "EHLO
-	mailres.fastwebnet.it") by vger.kernel.org with ESMTP
-	id <S267306AbTAWWC4> convert rfc822-to-8bit; Thu, 23 Jan 2003 17:02:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Antonello Iunco <etn@libero.it>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.21-pre3: still problems with ALiMagik and Video Capture Cards
-Date: Fri, 24 Jan 2003 00:10:50 +0100
-User-Agent: KMail/1.4.1
+	id <S267365AbTAWWH0>; Thu, 23 Jan 2003 17:07:26 -0500
+Received: from impact.colo.mv.net ([199.125.75.20]:19644 "EHLO
+	impact.colo.mv.net") by vger.kernel.org with ESMTP
+	id <S267335AbTAWWHV>; Thu, 23 Jan 2003 17:07:21 -0500
+Message-ID: <3E3069B8.1030209@bogonomicon.net>
+Date: Thu, 23 Jan 2003 16:16:24 -0600
+From: Bryan Andersen <bryan@bogonomicon.net>
+Organization: Bogonomicon
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301240010.02300."etn@libero.it">
+To: linux-kernel@vger.kernel.org
+CC: thunder7@xs4all.nl
+Subject: Re: 2.4.21pre3-ac4 ide trouble (HPT370 and IBM DTLA-30745)
+References: <20030123121527.GA29958@middle.of.nowhere>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
-I'm still having problems with my bttv-based video capture card for use under 
-Linux, despite the changelog for 2.4.21 says that a workaround was introduced 
-for my specific hardware configuration.
-I own an Asus A7A266 motherboard based on AliMagik1 chipset, and a Hauppage 
-WinTV card (lspci details below).
-Using overlay capture, the whole system freezes immediately (with xawtv and 
-qtvision, same result) and there's no way to take control over the system 
-again. I tried using the same kernel with the same TV board on a Via based 
-board and overlay capture works perfectly.
-The only way to use the card is to use "grabdisplay" feature under xawtv, but 
-it's slow, poor on resolution and, notably, worked on less recent kernels as 
-well (2.4.18)
-The same problem was reported by people using the same hardware under Windows, 
-and it was solved by an ALi chipset driver update. It seems that the 
-workaround in 2.4.21 doesn't work around so much :).
-I updated by BIOS to the latest version, followed directions published on 
-Hauppage's home page in order to let the card work.
+I've seen something that may be related with a disk on a PDC20269 based 
+IDE controller.  The disk initially came up under DMA, but experienced a 
+DMA error and DMA was disabled for that disk.  My motherboard is ASUS 
+A7N8X with an nForce2 chipset.  I'm trying to recreate it but haven't 
+had any luck.
 
-Any help greatly appreciated.
-Antonello Iunco
+Jurriaan wrote:
+> I've just upgraded to a new motherboard, and now I have a disk that
+> won't do DMA anymore. It used to work with the same kernel on a Promise
+> 20265 controller, but on the new HPT370 it doesn't work (or at least,
+> doesn't do DMA):
 
-lspci output:
-00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1647 Northbridge [MAGiK 1 / 
-MobileMAGiK 1] (rev 04)
-        Flags: bus master, medium devsel, latency 0
-        Memory at f8000000 (32-bit, prefetchable) [size=64M]
-        Capabilities: [b0] AGP version 2.0
-        Capabilities: [a4] Power Management version 1
 
-00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] PCI to AGP Controller 
-(prog-if 00 [Normal decode])
-        Flags: bus master, slow devsel, latency 0
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-        I/O behind bridge: 0000d000-0000dfff
-        Memory behind bridge: f2000000-f27fffff
-        Prefetchable memory behind bridge: f3f00000-f7ffffff
-
-[snip]
-
-00:04.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c4) 
-(prog-if fa)
-        Subsystem: Asustek Computer, Inc. A7A66 Motherboard IDE
-        Flags: bus master, medium devsel, latency 32
-        I/O ports at b400 [size=16]
-        Capabilities: [60] Power Management version 2
-
-[snip]
-
-00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge 
-[Aladdin IV]
-        Subsystem: Acer Laboratories Inc. [ALi] ALI M1533 Aladdin IV ISA 
-Bridge
-        Flags: bus master, medium devsel, latency 0
-        Capabilities: [a0] Power Management version 1
-
-[snip]
-
-00:0d.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture 
-(rev 11)
-        Subsystem: Hauppauge computer works Inc. WinTV/GO
-        Flags: bus master, medium devsel, latency 64, IRQ 9
-        Memory at f3000000 (32-bit, prefetchable) [size=4K]
-        Capabilities: [44] Vital Product Data
-        Capabilities: [4c] Power Management version 2
-
-00:0d.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 
-11)
-        Subsystem: Hauppauge computer works Inc. WinTV/GO
-        Flags: bus master, medium devsel, latency 8, IRQ 9
-        Memory at f2800000 (32-bit, prefetchable) [size=4K]
-        Capabilities: [44] Vital Product Data
-        Capabilities: [4c] Power Management version 2
-
-00:11.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
-        Flags: medium devsel
-
-01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF/PRO AGP 4x 
-TMDS (prog-if 00 [VGA])
-        Subsystem: ATI Technologies Inc Rage Fury Pro
-        Flags: bus master, stepping, 66Mhz, medium devsel, latency 64, IRQ 11
-        Memory at f4000000 (32-bit, prefetchable) [size=64M]
-        I/O ports at d800 [size=256]
-        Memory at f2000000 (32-bit, non-prefetchable) [size=16K]
-        Expansion ROM at f3fe0000 [disabled] [size=128K]
-        Capabilities: [50] AGP version 2.0
-        Capabilities: [5c] Power Management version 2
-
-dmesg output:
-
-[snip]
-Linux video capture interface: v1.00
+This dmesg output dosen't contain the messages from the DMA loss. 
+Unfortunately that dmesg output was lost.  I'm including this one to 
+provide system configuration information.  There is also an output from 
+/proc/interrupts at the end.
+---------------
+Linux version 2.4.21-pre3-ac4 (root@blip) (gcc version 2.95.4 20011002 
+(Debian prerelease)) #21 SMP Sun Jan 19 13:54:23 CST 2003
+BIOS-provided physical RAM map:
+  BIOS-e820: 0000000000000000 - 000000000009e800 (usable)
+  BIOS-e820: 000000000009e800 - 00000000000a0000 (reserved)
+  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+  BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
+  BIOS-e820: 000000001fff0000 - 000000001fff3000 (ACPI NVS)
+  BIOS-e820: 000000001fff3000 - 0000000020000000 (ACPI data)
+  BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+511MB LOWMEM available.
+On node 0 totalpages: 131056
+zone(0): 4096 pages.
+zone(1): 126960 pages.
+zone(2): 0 pages.
+Kernel command line: auto BOOT_IMAGE=Linux ro root=302 ide0=ata66 ide1=ata66
+ide_setup: ide0=ata66
+ide_setup: ide1=ata66
+Found and enabled local APIC!
+Initializing CPU#0
+Detected 1737.273 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 3460.30 BogoMIPS
+Memory: 515228k/524224k available (1600k kernel code, 8604k reserved, 
+676k data, 112k init, 0k highmem)
+Dentry cache hash table entries: 65536 (order: 7, 524288 bytes)
+Inode cache hash table entries: 32768 (order: 6, 262144 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 32768 (order: 5, 131072 bytes)
+Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 256K (64 bytes/line)
+CPU:     After generic, caps: 0383fbff c1c3fbff 00000000 00000000
+CPU:             Common caps: 0383fbff c1c3fbff 00000000 00000000
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 256K (64 bytes/line)
+CPU:     After generic, caps: 0383fbff c1c3fbff 00000000 00000000
+CPU:             Common caps: 0383fbff c1c3fbff 00000000 00000000
+CPU0: AMD Athlon(tm) XP 2100+ stepping 02
+per-CPU timeslice cutoff: 731.30 usecs.
+task migration cache decay timeout: 10 msecs.
+SMP motherboard not detected.
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1737.3002 MHz.
+..... host bus clock speed is 267.2769 MHz.
+cpu: 0, clocks: 2672769, slice: 1336384
+CPU0<T0:2672768,T1:1336384,D:0,S:1336384,C:2672769>
+migration_task 0 on cpu=0
+PCI: PCI BIOS revision 2.10 entry at 0xfb560, last bus=3
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Using IRQ router default [10de/01e0] at 00:00.0
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+Journalled Block Device driver loaded
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
+parport0: irq 7 detected
 i2c-core.o: i2c core module
-i2c-algo-bit.o: i2c bit algorithm module
-bttv: driver version 0.7.96 loaded
-bttv: using 4 buffers with 2080k (8320k total) for capture
-bttv: Host bridge is Acer Laboratories Inc. [ALi] M1647 Northbridge [MAGiK 1 / 
-MobileMAGiK 1]
-bttv: Host bridge needs ETBF enabled.
-bttv: Bt8xx card found (0).
-PCI: Found IRQ 9 for device 00:0d.0
-PCI: Sharing IRQ 9 with 00:05.0
-PCI: Sharing IRQ 9 with 00:0d.1
-bttv0: Bt878 (rev 17) at 00:0d.0, irq: 9, latency: 8, mmio: 0xf3000000
-bttv0: detected: Hauppauge WinTV [card=10], PCI subsystem ID is 0070:13eb
-bttv0: using: BT878(Hauppauge (bt878)) [card=10,autodetected]
-bttv0: enabling EPCI: Setting latency timer of device 00:0d.0 to 64
-bttv0: Hauppauge/Voodoo msp34xx: reset line init [5]
-i2c-core.o: adapter bt848 #0 registered as adapter 0.
-bttv0: Hauppauge eeprom: model=44804, tuner=LG TP18PSB11D (29), radio=no
-bttv0: using tuner=29
-bttv0: i2c: checking for MSP34xx @ 0x80... not found
-bttv0: i2c: checking for TDA9875 @ 0xb0... not found
-bttv0: i2c: checking for TDA7432 @ 0x8a... not found
-tvaudio: TV audio decoder + audio/video mux driver
-tvaudio: known chips: 
-tda9840,tda9873h,tda9874h/a,tda9850,tda9855,tea6300,tea6420,tda8425,pic16c54 
-(PV951)
-i2c-core.o: driver generic i2c audio driver registered.
-i2c-core.o: driver i2c TV tuner driver registered.
-tuner: probing bt848 #0 i2c adapter [id=0x10005]
-tuner: chip found @ 0xc2
-bttv0: i2c attach [client=LG PAL_BG (TPI8PSB11D),ok]
-i2c-core.o: client [LG PAL_BG (TPI8PSB11D)] registered to adapter [bt848 
-#0](pos. 0).
-bttv0: registered device video0
-bttv0: registered device vbi0
-i2c-core.o: driver i2c msp3400 driver registered.
-bttv0: PLL: 28636363 => 35468950 ... ok
+i2c-dev.o: i2c /dev entries driver module
+i2c-core.o: driver i2c-dev dummy driver registered.
+i2c-proc.o version 2.6.1 (20010825)
+pty: 256 Unix98 ptys configured
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ 
+SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+Real Time Clock Driver v1.10e
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+loop: loaded (max 8 devices)
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 439M
+agpgart: unsupported bridge
+agpgart: no supported devices found.
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+NFORCE2: IDE controller at PCI slot 00:09.0
+NFORCE2: chipset revision 162
+NFORCE2: not 100% native mode: will probe irqs later
+     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+PDC20269: IDE controller at PCI slot 01:07.0
+PDC20269: chipset revision 2
+PDC20269: not 100% native mode: will probe irqs later
+     ide2: BM-DMA at 0xa000-0xa007, BIOS settings: hde:pio, hdf:pio
+     ide3: BM-DMA at 0xa008-0xa00f, BIOS settings: hdg:pio, hdh:pio
+hda: C/H/S=22070/16/255 from BIOS ignored
+hda: Maxtor 54610H6, ATA DISK drive
+hdb: CREATIVE DVD-ROM DVD1241E, ATAPI CD/DVD-ROM drive
+blk: queue c03c0e40, I/O limit 4095Mb (mask 0xffffffff)
+hdc: Maxtor 54610H6, ATA DISK drive
+blk: queue c03c12ac, I/O limit 4095Mb (mask 0xffffffff)
+hde: Maxtor 4G160J8, ATA DISK drive
+blk: queue c03c1718, I/O limit 4095Mb (mask 0xffffffff)
+hdg: Maxtor 4G160J8, ATA DISK drive
+blk: queue c03c1b84, I/O limit 4095Mb (mask 0xffffffff)
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0x9000-0x9007,0x9402 on irq 10
+ide3 at 0x9800-0x9807,0x9c02 on irq 10
+hda: host protected area => 1
+hda: 90045648 sectors (46103 MB) w/2048KiB Cache, CHS=89331/16/63, UDMA(100)
+hdc: host protected area => 1
+hdc: 90045648 sectors (46103 MB) w/2048KiB Cache, CHS=89331/16/63, UDMA(100)
+hde: host protected area => 1
+hde: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, 
+UDMA(133)
+hdg: host protected area => 1
+hdg: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, 
+UDMA(133)
+hdb: ATAPI 40X DVD-ROM drive, 256kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+  hda: hda1 hda2 hda3 < hda5 hda6 hda7 >
+  hdc: hdc1 hdc2 hdc3 < hdc5 hdc6 hdc7 >
+  hde: hde1 hde2
+  hdg: hdg1 hdg2
+SCSI subsystem driver Revision: 1.00
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+md: raid1 personality registered as nr 3
+md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 32768)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 112k freed
+Adding Swap: 1999832k swap-space (priority -1)
+Adding Swap: 1999832k swap-space (priority -2)
+Adding Swap: 530104k swap-space (priority -3)
+Adding Swap: 530104k swap-space (priority -4)
+ide: no cache flush required.
+ide: no cache flush required.
+EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,2), internal journal
+nvidia: loading NVIDIA Linux x86 NVdriver Kernel Module  1.0-3123  Tue 
+Aug 27 15:56:48 PDT 2002
+PCI: Setting latency timer of device 00:04.0 to 64
+ide: no cache flush required.
+ide: no cache flush required.
+ide: no cache flush required.
+  [events: 0000001a]
+md: bind<hdc7,1>
+  [events: 0000001a]
+md: bind<hda7,2>
+md: hda7's event counter: 0000001a
+md: hdc7's event counter: 0000001a
+md: RAID level 1 does not need chunksize! Continuing anyway.
+md1: max total readahead window set to 124k
+md1: 1 data-disks, max readahead per data-disk: 124k
+raid1: device hda7 operational as mirror 0
+raid1: device hdc7 operational as mirror 1
+raid1: raid set md1 active with 2 out of 2 mirrors
+md: updating md1 RAID superblock on device
+md: hda7 [events: 0000001b]<6>(write) hda7's sb offset: 28772736
+md: hdc7 [events: 0000001b]<6>(write) hdc7's sb offset: 28772736
+ide: no cache flush required.
+ide: no cache flush required.
+ide: no cache flush required.
+ide: no cache flush required.
+ide: no cache flush required.
+ide: no cache flush required.
+ide: no cache flush required.
+ide: no cache flush required.
+ide: no cache flush required.
+spurious 8259A interrupt: IRQ7.
+ide: no cache flush required.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on ide1(22,5), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,6), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on md(9,1), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on ide2(33,2), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on ide3(34,2), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+ide: no cache flush required.
+ide: no cache flush required.
+ide: no cache flush required.
+ide: no cache flush required.
+NVRM: AGPGART: unable to retrieve symbol table
+spurious 8259A interrupt: IRQ15.
+---------------
+# cat interrupts
+            CPU0
+   0:    4563852          XT-PIC  timer
+   1:      15453          XT-PIC  keyboard
+   2:          0          XT-PIC  cascade
+   5:    9490010          XT-PIC  eth0
+   8:          3          XT-PIC  rtc
+  10:   11549087          XT-PIC  ide2, ide3, nvidia
+  12:     359011          XT-PIC  PS/2 Mouse
+  14:     191436          XT-PIC  ide0
+  15:     107507          XT-PIC  ide1
+NMI:          0
+LOC:    4563809
+ERR:     206558
+MIS:          0
+---------------
 
-Interesting messages in /var/log/messages:
-Jan 23 23:29:29 starseeker kernel: cmpci: version $Revision: 5.64 $ time 
-22:38:18 Jan 23 2003
-Jan 23 23:29:29 starseeker kernel: PCI: Found IRQ 9 for device 00:05.0
-Jan 23 23:29:29 starseeker kernel: PCI: Sharing IRQ 9 with 00:0d.0
-Jan 23 23:29:29 starseeker kernel: PCI: Sharing IRQ 9 with 00:0d.1
-Jan 23 23:29:29 starseeker kernel: cmpci: found CM8738 adapter at io 0xb000 
-irq 9
-
-(there's IRQ sharing here, but even disabling the audio driver, lockup is 
-still around)

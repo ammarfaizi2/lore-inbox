@@ -1,86 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283758AbRLEFFt>; Wed, 5 Dec 2001 00:05:49 -0500
+	id <S283760AbRLEFHT>; Wed, 5 Dec 2001 00:07:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283760AbRLEFFe>; Wed, 5 Dec 2001 00:05:34 -0500
-Received: from femail33.sdc1.sfba.home.com ([24.254.60.23]:64412 "EHLO
-	femail33.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S283758AbRLEFFQ>; Wed, 5 Dec 2001 00:05:16 -0500
-Date: Wed, 5 Dec 2001 00:05:13 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: binutils in debian unstable is broken.
-Message-ID: <20011205050513.GD1442@cy599856-a.home.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
-X-Editor: GNU Emacs 21.1
-X-Operating-System: Debian GNU/Linux 2.4.17pre2 i586 K6-3+
-X-Uptime: 14:18:59 up 7 min,  1 user,  load average: 0.06, 0.29, 0.18
-From: Josh McKinney <forming@home.com>
+	id <S283761AbRLEFHM>; Wed, 5 Dec 2001 00:07:12 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:45071 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S283760AbRLEFG7>; Wed, 5 Dec 2001 00:06:59 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Over 4-way systems considered harmful :-)
+Date: Tue, 4 Dec 2001 21:07:14 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBMEPLECAA.znmeb@aracnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <2436533899.1007458881@mbligh.des.sequent.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This seems to be a kernel bug which is shown with the new version of ld.  Thought I would
-forward this along so maybe it can get fixed.
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Martin J. Bligh
+> Sent: Tuesday, December 04, 2001 9:41 AM
+> To: M. Edward Borasky; linux-kernel@vger.kernel.org
+> Subject: Re: Over 4-way systems considered harmful :-)
+>
+> Two things.
+>
+> 1) If a company (say, IBM) pays people to work on 8 / 16 way scalability
+> because that's what they want out of Linux, then stopping development
+> on that isn't going to get effort redirected to fixing your
+> soundcard (yes,
+> I realise you were being flippant, but the point's the same), the
+> headcount
+> is just going to disappear. AKA your choice isn't "patches for 8 way
+> scalablilty, or patches for subsystem X that you're more interested in",
+> your choice is "patches for 8-way scalabity, or no patches". Provided that
+> those patches don't break anything else, you still win overall by
+> getting them.
 
-Josh
------ Forwarded message from safemode <safemode@speakeasy.net> -----
+I don't see how this is a win for me. And it is a win for IBM only if it
+gives them some advantage in serving their customers. I can certainly
+*conceive* of workloads bursty enough to justify an 8-processor server, but
+do they exist in the real world? And if they do, is a single 8-processor
+server better than a pair of 4-processor servers when you take graceful
+handling of faults into account? IBM has been building high-availability
+systems for *decades*, preferring to field *slightly* slower but
+*significantly* more reliable gear, which, legend has it, no one has ever
+been fired for purchasing. :-)
 
-Return-path: <bounce-debian-devel=forming=home.com@lists.debian.org>
-Delivery-date: Tue, 04 Dec 2001 01:03:50 -0500
-X-Envelope-Sender: safemode@speakeasy.net
-Subject: binutils in debian unstable is broken.
-From: safemode <safemode@speakeasy.net>
-To: debian-devel@lists.debian.org
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 04 Dec 2001 01:00:29 -0500
-X-Mailing-List: <debian-devel@lists.debian.org> archive/latest/102306
-Resent-Bcc:
-Status: RO
-X-Status: F
-Content-Length: 1111
-Lines: 31
+> 2) Working on scalability for 8 / 16 way machines will show up races,
+> performance problems et al that exist on 2 / 4 way machines but don't
+> show up as often, or as obviously. I have a 16 way box that shows up
+> races in the Linux kernel that might take you years to find on a 2 way.
 
+Perhaps effort should be placed into software development processes and
+tools that deny race conditions the right to be born, rather than depending
+on testing on a 16-processor system to find them expeditiously :-). And
+there is a whole discipline of software performance engineering to build
+performance in from the start. Advances like that would be a *huge* win for
+the Linux community, given our (relative) freedom from corporate-world
+limitations like deadlines, sales quotas, programmer salaries, and
+full-color brochures.
 
+> What I'm trying to say is that you still win. Not as much as maybe you'd
+> like, but, hey, it's work you're getting for free, so don't complain too
+> much about it. The maintainers are very good at beating the message
+> into us that we can't make small systems any worse performing whilst
+> making the big systems better.
 
-binutils 2.11.92.0.12.3-1
-has a problem compiling any 2.4.x kernel in recent history, ld
-specifically.  Last version that did compile was along with gcc version
-gcc version 2.95.4 20011006 (Debian prerelease)
+No, but we can release partly-baked VM schemes that have a shelf life on the
+order of days :-). Seriously, though, I don't like stepping on someone
+else's dream, especially since *my* dream -- a GFLOP dedicated to computer
+music -- has been fulfilled for about $1500 US. When I bought that machine,
+I thought I was going to need two processors -- one to run the OS and
+service the keyboard, mouse and monitor and a second dedicated to generating
+audio samples in real time. I had no idea how powerful these chips were
+until I started shopping around. And when I loaded the Atlas linear algebra
+library up on my Athlon and saw the speeds it was getting, I was in shock
+for almost a week!
 
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
-drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o
-drivers/pci/driver.o drivers/video/video.o \
-        net/network.o \
-        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
-/usr/src/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols
-in discarded section .text.exit'
-make: *** [vmlinux] Error 1
+However, as I said in another post: "Moore's Law: good. Amdahl's Law: bad."
+I guess the new generation has to discover Amdahl's Law for itself, and
+*this* distinguished but elderly scientist is eager to be proven wrong :-).
+--
+Take Your Trading to the Next Level!
+M. Edward Borasky, Meta-Trading Coach
 
+znmeb@borasky-research.net
+http://www.meta-trading-coach.com
+http://groups.yahoo.com/group/meta-trading-coach
 
-
--- 
-To UNSUBSCRIBE, email to debian-devel-request@lists.debian.org
-with a subject of "unsubscribe". Trouble? Contact listmaster@lists.debian.org
-
-
------ End forwarded message -----
-
--- 
-Linux, the choice                | Kites rise highest against the wind -- not 
-of a GNU generation       -o)    | with it.   -- Winston Churchill 
-Kernel 2.4.17pre2          /\    | 
-on a i586                 _\_v   | 
-                                 | 

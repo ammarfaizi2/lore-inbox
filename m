@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313205AbSDTXOg>; Sat, 20 Apr 2002 19:14:36 -0400
+	id <S313206AbSDTXPC>; Sat, 20 Apr 2002 19:15:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313206AbSDTXOg>; Sat, 20 Apr 2002 19:14:36 -0400
-Received: from bitmover.com ([192.132.92.2]:2200 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S313205AbSDTXOf>;
-	Sat, 20 Apr 2002 19:14:35 -0400
-Date: Sat, 20 Apr 2002 16:14:34 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Skip Ford <skip.ford@verizon.net>, Jeff Garzik <garzik@havoc.gtf.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020420161434.B31306@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Skip Ford <skip.ford@verizon.net>,
-	Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020420213446.ZCGU13286.out019.verizon.net@pool-141-150-235-204.delv.east.verizon.net> <Pine.LNX.4.44L.0204201839380.1960-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313217AbSDTXPB>; Sat, 20 Apr 2002 19:15:01 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23051 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313206AbSDTXO6>; Sat, 20 Apr 2002 19:14:58 -0400
+Date: Sat, 20 Apr 2002 16:14:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove BK docs ... + x86-64 2.5.8 sync
+In-Reply-To: <20020420214420.A13635@wotan.suse.de>
+Message-ID: <Pine.LNX.4.44.0204201614000.3643-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, 20 Apr 2002, Skip Ford wrote:
-> > All of section 1 is an advertisement for using bk...including
-> > directions on how to setup your own clone.  Those are _clearly_
-> > bitkeeper directions and have nothing to do with how to submit
-> > patches.
-> 
-> I'm sure Jeff would be more than happy to include an
-> advertisement for a free bitkeeper alternative, once
-> one exists. ;)
 
-And the sooner the better.  I just read this entire thread and I'm disgusted.
-I've seen some lame threads in my day, but this takes the cake.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+
+On Sat, 20 Apr 2002, Andi Kleen wrote:
+>
+> What clash was there? (just curious) I just checked and at least the
+> kernel.org finger still shows 2.5.8 as the latest released kernel.
+
+The x86-64 vmlinux.lds thing got a reject. And yes, I tested against clean
+2.5.8..
+
+			Linus
+

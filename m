@@ -1,128 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265112AbTFMDKY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 23:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbTFMDKX
+	id S265110AbTFMDXa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 23:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbTFMDXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 23:10:23 -0400
-Received: from mta01bw.bigpond.com ([139.134.6.78]:48338 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP id S265112AbTFMDKV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 23:10:21 -0400
-Reply-To: <java_solutions@bigpond.com>
-From: "Chris Harrison" <java_solutions@bigpond.com>
-To: "Alfie John" <alfiejohn@hotmail.com>, <jobs@interlogic.com.au>,
-       <vox@lists.lugod.org>, <linux-kernel@vger.kernel.org>,
-       <ajug@yahoogroups.com>
-Subject: RE: [ajug] [OT] joining the "elite" team
-Date: Fri, 13 Jun 2003 13:26:50 -0700
-Message-ID: <LGEJLNJGCBAOLLKLFCPBAEAICDAA.java_solutions@bigpond.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <Law10-F26GCl9FopYC900000100@hotmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Thu, 12 Jun 2003 23:23:30 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:55717 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S265110AbTFMDX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 23:23:29 -0400
+Date: Fri, 13 Jun 2003 13:37:03 +1000
+From: CaT <cat@zip.com.au>
+To: swsusp@lister.fornax.hu
+Cc: linux-kernel@vger.kernel.org, pavel@suse.cz
+Subject: 2.5.70-bk16 - nfs interferes with s4bios suspend
+Message-ID: <20030613033703.GA526@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Not too sure which list to send this to exactly so here goes. I go
+my laptop back from warranty repair and it was returned with an old
+version of the bios that still had suspend-2-disk capability in it.
+Having set everything up I hit the suspend button and all seemed to
+go ok upto a point:
 
-Yep, I totally agree, its unacceptable, a few points:
+==mutt entered refrigerator
+=mutt entered refrigerator
+=mutt entered refrigerator
+=mutt entered refrigerator
+=mutt entered refrigerator
+=mutt entered refrigerator
+=mutt entered refrigerator
+=tail entered refrigerator
+=
+ stopping tasks failed (2 tasks remaining)
+Suspend failed: Not all processes stopped!
+Restarting tasks...<6> Strange, rpciod not stopped
+ Strange, lockd not stopped
+XFree86 left refrigerator
+init left refrigerator
+khubd left refrigerator
 
-"...with FIRST CLASS HONOURS  in Computer Science or a similar degree..."
-then "...must be a UNIVERSITY graduate...".
-The former cancels the latter.  Although, they might be making a point that
-'internet degrees' from Spam mail don't count.
+then it kept unfreezing my tasks till the following debug stuff 
+came up:
 
-"...who is REALLY EXCEPTIONALLY GOOD at it...", as opposed to really crap at
-it?  or maybe partially exceptional at it?
+tail left refrigerator
+pdflush left refrigerator
+ done
+Debug: sleeping function called from illegal context at include/linux/rwsem.h:43
+Call Trace:
+ [<c011a2a3>] __might_sleep+0x5f/0x6c
+ [<c01179b6>] do_page_fault+0x76/0x40a
+ [<c0117940>] do_page_fault+0x0/0x40a
+ [<c0142d1f>] shmem_nopage+0x33/0x68
+ [<c01416a7>] pte_chain_alloc+0x1b/0x84
+ [<c01fcbc8>] __copy_from_user_ll+0x60/0x78
+ [<c010b0f0>] sys_vm86old+0xfc/0x10c
+ [<c0108fe9>] error_code+0x2d/0x38
+ [<c0108e3f>] syscall_call+0x7/0xb
 
-And the best one, "[our company]...is very sophisticated."  Yes, like the
-sophisticated advertisement you came up with.
+Debug: sleeping function called from illegal context at include/linux/rwsem.h:43
+Call Trace:
+ [<c011a2a3>] __might_sleep+0x5f/0x6c
+ [<c01179b6>] do_page_fault+0x76/0x40a
+ [<c0117940>] do_page_fault+0x0/0x40a
+ [<c0142d1f>] shmem_nopage+0x33/0x68
+ [<c01416a7>] pte_chain_alloc+0x1b/0x84
+ [<c01fcbc8>] __copy_from_user_ll+0x60/0x78
+ [<c010b0f0>] sys_vm86old+0xfc/0x10c
+ [<c0108fe9>] error_code+0x2d/0x38
+ [<c0108e3f>] syscall_call+0x7/0xb
 
-My five year old daughter actually has better grasp of grammar than this
-ad...
+Laptop seems to be working fine still. X and networking are going ok. The
+nfs mounts still function (laptop is a client with 3 nfs mounts).
 
-Chris.
-
-> -----Original Message-----
-> From: Alfie John [mailto:alfiejohn@hotmail.com]
-> Sent: Thursday, 12 June 2003 7:49 PM
-> To: jobs@interlogic.com.au; vox@lists.lugod.org;
-> linux-kernel@vger.kernel.org; ajug@yahoogroups.com
-> Subject: [ajug] [OT] joining the "elite" team
->
->
-> Hello,
->
-> I write to you in response to an add I saw at seek.com.au,
-> "OBJECT ORIENTED
-> PROGRAMMER -MELBOURNE RECENT GRADUATE" -
-> http://it.seek.com.au/users/viewdetails.asp?Action=jobsearch&JobLi
-> stAction=ViewOneAd&JobSearch=true&AdID=2731247
->
-> I find this add highly arrogant and highly contradictive.
->
-> You start with "seeking for ...FIRST CLASS HONOURS", however your add is
-> basically searching for a top class, 313373 computer geek. As
-> history shows,
-> even hacker's hackers like RMS and Linus had not-so "first class" grades
-> while in high school AND at uni because they were too busy with selfish
-> delites such as churning through kernel code.
->
-> The next contradictive statement is "She or he must have an INTRINSIC
-> understanding of computing". But later you provide insight to
-> your company
-> with "The applications are an amalgam of complex business processes,
-> maximisation of resources, and require considerable mathematical
-> acumen." In
-> other words, you need MS Excel shitkickers with knowledge in business
-> management with contemporary management skills and not elite coders with
-> sk1llZ. Also, I don't really understand why "indepth knowledge of OOP" is
-> going to help me with optimizing functions with spreadsheets.
->
-> "The company only employs THE BEST AND BRIGHTEST"; followed by
-> "It is very
-> sophisticated." and the even more arrogant "An average person
-> will be unable
-> to keep up with the high intellectual horsepower generated by the
-> members of
-> this elite team.". This tells the reader that you MUST have the
-> worlds best
-> coders under your organization and yet you are "GROWING AND PROFITABLE".
->
-> I must go now with my pittyful programming skills which are no where near
-> the "EXCEPTIONALLY GOOD" skills that your company is looking for, but I
-> smile just to know that this email is going to be forwarded to
-> programmers
-> around the world with a link to your add to show just what an
-> "elite team"
-> you really are!
->
-> int 20h;
-> Alfie John
->
-> _________________________________________________________________
-> Get mobile Hotmail. Go to  http://ninemsn.com.au/mobilecentral/signup.asp
->
->
-> ------------------------ Yahoo! Groups Sponsor ---------------------~-->
-> Looking for the latest Free IT White Papers?
-> Visit SearchMobileComputing.com to access over 500 white papers.
-> Get instant access at SearchMobileComputing.com Today
-> http://us.click.yahoo.com/9lAzoD/PLNGAA/witMAA/saFolB/TM
-> ---------------------------------------------------------------------~->
->
-> To unsubscribe, send a message to
-> ajug-unsubscribe@egroups.com
->
->
-> Your use of Yahoo! Groups is subject to http://docs.yahoo.com/info/terms/
->
->
->
-
+-- 
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

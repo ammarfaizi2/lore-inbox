@@ -1,67 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312254AbSGUS4C>; Sun, 21 Jul 2002 14:56:02 -0400
+	id <S312590AbSGUTP2>; Sun, 21 Jul 2002 15:15:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312558AbSGUS4C>; Sun, 21 Jul 2002 14:56:02 -0400
-Received: from hoochie.linux-support.net ([216.207.245.2]:56755 "EHLO
-	hoochie.linux-support.net") by vger.kernel.org with ESMTP
-	id <S312254AbSGUS4C>; Sun, 21 Jul 2002 14:56:02 -0400
-Date: Sun, 21 Jul 2002 13:59:06 -0500 (CDT)
-From: Mark Spencer <markster@linux-support.net>
-To: Daniel Phillips <phillips@arcor.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Zaptel Pseudo TDM Bus
-In-Reply-To: <E17W4xi-00033v-00@starship>
-Message-ID: <Pine.LNX.4.33.0207211352560.25617-100000@hoochie.linux-support.net>
+	id <S312938AbSGUTP2>; Sun, 21 Jul 2002 15:15:28 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:65507 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S312590AbSGUTP1>;
+	Sun, 21 Jul 2002 15:15:27 -0400
+Message-ID: <1027279106.3d3b0902a9209@imap.linux.ibm.com>
+Date: Sun, 21 Jul 2002 12:18:26 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [lmbench] tcp bandwidth on athlon
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 9.65.48.133
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In my quick tour I was looking for where the saw-off between kernel and
-> user space is in the source tree, and I began to get the feeling the
-> whole thing is kernel space, is this correct?
 
-Nope, in general the saw-off is that signal processing and protocol
-implementations that are beyond a few bits of logic are done in userspace.
-The exceptions are echo cancellation (which has to be done very close to
-the itnerface) and RBS protocols which are easy and important enough to be
-done in the kernel.  DTMF detection and the FSK modems for Caller*ID and
-ADSI are done in userspace, as well as the PRI implementation (libpri).
+> I ran oprofile with bw_tcp and retired instructions on 
+> athlon showed:
 
-> Anyway, this effort is exciting and ambitious.  I *want* to use this, for
-> very practical reasons, never mind that it would well turn into yet another
-> vibrant embedded application area for Linux.
+> samples       %-age  symbol name
+> 903640      75.4825  csum_partial_copy_generic
 
-:)  Just look at "zaptel" as being the kernel interface and "zapata" as
-being the user-level interface.  Biased as I am, of course, I think that
-Asterisk is the most interesting application of the technology but not
-everyone seems to agree ;-)
+> In Carl Staelin and Larry McVoy's 98 Usenix paper they 
+> wrote:
+>
+> It is interesting to compare pipes with TCP because the TCP
+> benchmark  is identical to the pipe benchmark except for the
+> transport mechanism.  Ideally, the TCP bandwidth would be as 
+> good as the pipe bandwidth. It is not widely known that the
 
-A direct link to the whitepaper is:
+Well, TCP will have a little more overhead than a pipe - 
+the network stack having to take care of a few more things.
 
-ftp://ftp.asterisk.org/pub/asterisk/misc/asterisk-whitepaper.pdf
+> majority of the TCP cost is in the bcopy, the checksum, and
+> the network interface driver.  The checksum and  the  driver
+> may  be  safely eliminated in the loopback case and if the 
+> costs have been eliminated, then TCP should be just as fast 
+> as pipes.  From the pipe and TCP results [...]
+> it is easy to see that Solaris and HP-UX have done this 
+> optimization.
 
-> It strikes me that much of what you're doing qualifies as hard realtime
-> programming, particularly where you are doing things like interleaving file
-> transmission with realtime voice.  I'm thinking that this may be a good
-> chance to give the new Adeos OS-layering technology a test drive, with a view
-> to achieving more reliable, lower latency signal processing and equipment
-> control.  If things work out, this could qualify as the first genuine
-> consumer-oriented hard realtime application for Linux.
+Much has happened since 1998: hw checksum offload,
+sendfile, amongst others. Note that this checksum 
+is performed while copying the data from/to
+user space (though not that often in rx code path).
+However, while we dont look at the checksum on the
+rx side for TCP, since the loopback driver will
+have set ip_summed to CHECKSUM_UNNECESSARY, on the
+send side we dont bother, because we have to do the
+copy in any case. Marginal difference, although
+perhaps worth doing. I had a patch for this which
+showed no difference in a VolanoMark (yes, I know),
+benchmark.
 
-Actually, Linux right out of the box on modern PC hardware (400+Mhz) seems
-more than fine for the task.  We even have people running this on 200Mhz
-cyrix machines (single channels) and I've been able to driver a T1 on a
-233 Mhz PII, although I don't think I'd recommend this configuration
-officially!  I'd be happy to see what hard-realtime might be able to do in
-terms of pushing the hardware requirements even lower, but it seems pretty
-exciting just as it is!
+> Processor                Pipe        TCP
+> Athlon/1330             840.66      73.75 (or 150 MB/sec - see below)
+> k6-2/475                 65.15      52.45
+> PIII * 1/700 Xeon       539.73     446.16 
 
-One more thing that might be interesting would be seeing how small we
-could push the "chunk size".  Right now, we use a chunk size of 8, but
-a chunk size of 1 (that is, interrupting for EVERY sample) would put us
-at a level indistinguishable from hard TDM.
+Hmm, so if K6 and Xeon can scrounge up 80% of pipe
+performance, why is the Athlon an order of magnitude off
+at 8%? How did your Athlon perform in other tests relative
+to these other procs?
 
-Mark
+> I tried compiling the athlon kernel without 
+> X86_USE_PPRO_CHECKSUM but that didn't really change 
+> tcp bandwidth.
+
+> kernel                   Pipe      TCP  
+> 2.4.19rc2aa1            860.97    74.27
+> 2.4.19rc2aa1-nocsum     853.18    74.16
+
+Well, that would simply change how the checksum is
+calculated, and in this case, I believe the substantial
+latency is from the copy.
+
+> There was a change in bw_tcp.c that has a 2x impact on
+> the computed bandwidth.  I have two versions:
+
+> ls -gl LM*/src/bw_tcp.c
+> -r--r--r--    1 rwhron     3553 Jul 23  2001 LMbench.old/src/bw_tcp.c
+> -r--r--r--    1 rwhron     3799 Sep 27  2001 LMbench2/src/bw_tcp.c
+
+I only see the bitkeeper version thats almost a year old, online,
+where is the later version from? 
+
+> Both LMbench trees have the same version:
+...
+
+> ident doesn't specify a version in tcp_bw.c, but diff shows
+> a difference.
+
+A change in your test causes a 2x difference in performance,
+and you dont give us the diff? :) :)
+
+> Socket bandwidth using localhost: 75.85 MB/sec 
+...
+> Socket bandwidth using localhost: 150.21 MB/sec
+
+Where are the complete profiles from these runs?
+Also, any chance you have network stats before/after?
+I looked on your site but couldnt find the tcp_bw
+runs..
+
+
+thanks,
+Nivedita
+
+
 

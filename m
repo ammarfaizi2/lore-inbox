@@ -1,41 +1,154 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291525AbSBAEAM>; Thu, 31 Jan 2002 23:00:12 -0500
+	id <S291519AbSBAECm>; Thu, 31 Jan 2002 23:02:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291520AbSBAD7y>; Thu, 31 Jan 2002 22:59:54 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:11013 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S291519AbSBAD7r>;
-	Thu, 31 Jan 2002 22:59:47 -0500
-Date: Fri, 1 Feb 2002 14:56:28 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Momchil Velikov <velco@fadata.bg>, John Stoffel <stoffel@casc.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-Message-ID: <20020201035628.GA10749@krispykreme>
-In-Reply-To: <Pine.LNX.4.33.0201311115450.1732-100000@penguin.transmeta.com> <Pine.LNX.4.33.0201312227350.18203-100000@localhost.localdomain> <20020131231242.GA4138@krispykreme> <20020201005543.K3396@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020201005543.K3396@athlon.random>
-User-Agent: Mutt/1.3.27i
+	id <S291520AbSBAECd>; Thu, 31 Jan 2002 23:02:33 -0500
+Received: from apollo.wang.co.nz ([210.55.244.9]:10002 "EHLO apollo.wang.co.nz")
+	by vger.kernel.org with ESMTP id <S291519AbSBAECO>;
+	Thu, 31 Jan 2002 23:02:14 -0500
+Message-ID: <11DB9C500CC7D5119A8B00805F5AD3101435F6@chx0.wang.co.nz>
+From: Ross Wakelin <Ross.Wakelin@gen-i.co.nz>
+To: "'elmer@ylenurme.ee'" <elmer@ylenurme.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: kernel 2.5.3 and aironet driver - compile problem and fix
+Date: Fri, 1 Feb 2002 17:02:06 +1300 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+	protocol="application/x-pkcs7-signature";
+	micalg=SHA1;
+	boundary="----=_NextPart_000_0000_01C1AB42.659C7C30"
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> all the hashes should be allocated with the bootmem allocator, that
-> doesn't have the MAX_ORDER limit. Not only the pagecache hash, that is
-> the only one replaced.
-> 
-> In short, for an optimal comparison between hash and radix tree, we'd
-> need to fixup the hash allocation with the bootmem allocator first.
+This is a multi-part message in MIME format.
 
-All my results use vmalloc to allocate the hashes so they get sized
-correctly.
+------=_NextPart_000_0000_01C1AB42.659C7C30
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_001_0001_01C1AB42.659E02D0"
 
-Don't worry, there is no increased tlb pressure on these machines due
-to vmalloc, that cpu doesnt have large page support.
 
-Anton
+------=_NextPart_001_0001_01C1AB42.659E02D0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+I have found a compile problem with the file:
+	drivers/net/aironet4500_core.c.
+
+	Line 2839
+		reads		return NODEV
+	should read		return ENODEV
+
+Thanks for the code
+
+
+Ross Wakelin
+Senior Technical Consultant
+gen-i Limited
+			
+250 Oxford Terrace	Phone: +64 (0)3 353 0800
+PO Box 1460		Fax:   +64 (0)3 379 5768
+Christchurch 		Mob:   +64 (0)21 334 380
+
+mailto:ross.wakelin@gen-i.co.nz
+http://www.gen-i.co.nz
+
+------=_NextPart_001_0001_01C1AB42.659E02D0
+Content-Type: text/x-vcard;
+	name="Ross Wakelin.vcf"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="Ross Wakelin.vcf"
+
+BEGIN:VCARD
+VERSION:2.1
+N:Wakelin;Ross
+FN:Ross Wakelin
+ORG:gen-i Limited
+TITLE:Senior Technical Consultant
+TEL;WORK;VOICE:+64 (0)3 353 0800
+TEL;CELL;VOICE:+64 (0)21 334 380
+TEL;WORK;FAX:+64 (0)3 379 5768
+ADR;WORK;ENCODING=3DQUOTED-PRINTABLE:;;250 Oxford Terrace=3D0D=3D0APO =
+Box 160;Christchurch;;;New Zealand
+LABEL;WORK;ENCODING=3DQUOTED-PRINTABLE:250 Oxford Terrace=3D0D=3D0APO =
+Box 160=3D0D=3D0AChristchurch=3D0D=3D0ANew Zealand
+URL;WORK:http://www.gen-i.co.nz
+EMAIL;PREF;INTERNET:Ross.Wakelin@gen-i.co.nz
+REV:20020109T210033Z
+END:VCARD
+
+------=_NextPart_001_0001_01C1AB42.659E02D0--
+
+------=_NextPart_000_0000_01C1AB42.659C7C30
+Content-Type: application/x-pkcs7-signature;
+	name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="smime.p7s"
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII+zCCAoow
+ggHzoAMCAQICAwZJzzANBgkqhkiG9w0BAQIFADCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
+c3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsT
+FENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAw
+MC44LjMwMB4XDTAxMTIxMDIzNTA0N1oXDTAyMTIxMDIzNTA0N1owSjEfMB0GA1UEAxMWVGhhd3Rl
+IEZyZWVtYWlsIE1lbWJlcjEnMCUGCSqGSIb3DQEJARYYcm9zcy53YWtlbGluQGdlbi1pLmNvLm56
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDajR7zvpHuowM9Ndp40oU6sonQ6itl2GOxey2L
+UhnNJ16U7HPikR4pAVqYgdMPWXmt1XUYd7lmDYAINAj06rjRqPSzpXZd6q6+m8QCBET1BXNKLnbi
+A471f2QsNHJN4q13NkwhYL32RBkCsiTeXVm+UyrquXR8HW75qjUgXoPZowIDAQABozUwMzAjBgNV
+HREEHDAagRhyb3NzLndha2VsaW5AZ2VuLWkuY28ubnowDAYDVR0TAQH/BAIwADANBgkqhkiG9w0B
+AQIFAAOBgQCYeIncgCfujAIHtNhLi7kFbtkbdvDzAh1pKcKOW8oaNWH3zfQ8h/+4REtpsWfaISG/
+yXkZuwNIlJ+JyoP4bP3ueVKct+oDGzVquFOTWy1UTZX9NRBxh9rlr1DSxLWn/SSAM74eXtUq6DbR
+VrdpYEj1X7TSSPBOKy1HPat0v5jwHzCCAy0wggKWoAMCAQICAQAwDQYJKoZIhvcNAQEEBQAwgdEx
+CzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEa
+MBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2Vydmlj
+ZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqG
+SIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw05NjAxMDEwMDAwMDBaFw0y
+MDEyMzEyMzU5NTlaMIHRMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYD
+VQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0ZSBDb25zdWx0aW5nMSgwJgYDVQQLEx9DZXJ0
+aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9uMSQwIgYDVQQDExtUaGF3dGUgUGVyc29uYWwgRnJl
+ZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEWHHBlcnNvbmFsLWZyZWVtYWlsQHRoYXd0ZS5jb20wgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBANRp19SwlGRbcelH2AxRtupykbCEXn0tDY97Et+FJXUo
+dDpCLGMnn5V7S+9+GYcdhuqj3bnOlmQawhRuRKx85o/oTQ9xH0A4pgCjh3j2+ZSGXq3qwF5269kU
+o11uenwMpUtVfwYZKX+emibVars4JAhqmMex2qOYkf152+VaxBy5AgMBAAGjEzARMA8GA1UdEwEB
+/wQFMAMBAf8wDQYJKoZIhvcNAQEEBQADgYEAx+ySfk749ZalZ2IqpPBNEWDQb41gWGGsJrtSNVwI
+zzD7qEqWih9iQiOMFw/0umScF6xHKd+dmF7SbGBxXKKs3Hnj524ARx+1DSjoAp3kmv0T9KbZfLH4
+3F8jJgmRgHPQFBveQ6mDJfLmnC8Vyv6mq4oHdYsM3VGEa+T40c53ooEwggM4MIICoaADAgECAhBm
+RXK3zHT1z2N2RYTQLpEBMA0GCSqGSIb3DQEBBAUAMIHRMQswCQYDVQQGEwJaQTEVMBMGA1UECBMM
+V2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0ZSBDb25zdWx0
+aW5nMSgwJgYDVQQLEx9DZXJ0aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9uMSQwIgYDVQQDExtU
+aGF3dGUgUGVyc29uYWwgRnJlZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEWHHBlcnNvbmFsLWZyZWVt
+YWlsQHRoYXd0ZS5jb20wHhcNMDAwODMwMDAwMDAwWhcNMDQwODI3MjM1OTU5WjCBkjELMAkGA1UE
+BhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQK
+EwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25h
+bCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDeMzKm
+Y8cJJUU+0m54J2eBxdqIGYKXDuNEKYpjNSptcDz63K737nRvMLwzkH/5NHGgo22Y8cNPomXbDfpL
+8dbdYaX5hc1VmjUanZJ1qCeu2HL5ugL217CR3hzpq+AYA6h8Q0JQUYeDPPA5tJtUihOH/7ObnUlm
+AC0JieyUa+mhaQIDAQABo04wTDApBgNVHREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVs
+MS0yOTcwEgYDVR0TAQH/BAgwBgEB/wIBADALBgNVHQ8EBAMCAQYwDQYJKoZIhvcNAQEEBQADgYEA
+MbFLR135AXHl9VNsXXnWPZjAJhNigSKnEvgilegbSbcnewQ5uvzm8iTrkfq97A0qOPdQVahs9w2t
+TBu8A/S166JHn2yiDFiNMUIJEWywGmnRKxKyQF1q+XnQ6i4l3Yrk/NsNH50C81rbyjz2ROomaYd/
+SJ7OpZ/nhNjJYmKtBcYxggNpMIIDZQIBATCBmjCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
+c3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsT
+FENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAw
+MC44LjMwAgMGSc8wCQYFKw4DAhoFAKCCAiQwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkq
+hkiG9w0BCQUxDxcNMDIwMjAxMDQwMzQwWjAjBgkqhkiG9w0BCQQxFgQUlRtS1y9kch2+hqtqVZGr
+tYnhsIwwZwYJKoZIhvcNAQkPMVowWDAKBggqhkiG9w0DBzAHBgUrDgMCGjAOBggqhkiG9w0DAgIC
+AIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwCgYIKoZIhvcNAgUwgasG
+CSsGAQQBgjcQBDGBnTCBmjCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTES
+MBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRl
+IFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwAgMGSc8w
+ga0GCyqGSIb3DQEJEAILMYGdoIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBD
+YXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlm
+aWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAC
+AwZJzzANBgkqhkiG9w0BAQEFAASBgAj5k/9zZWivULsXtPjTYcCtqiBZp30V53K/Qdy1dOvMUvDa
+vp8XcGGzFahzlHteRMetjBAjNk75rw7W3id8giscUbqso/peYTGI0h8H9mw/a3zrnalzEA2vTDb2
+hXEH/CwjQEN2f7OZDZGlke/X+eo60hjEvmEEyCCduZ0mkTyzAAAAAAAA
+
+------=_NextPart_000_0000_01C1AB42.659C7C30--
+

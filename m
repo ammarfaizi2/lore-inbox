@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318086AbSGMD26>; Fri, 12 Jul 2002 23:28:58 -0400
+	id <S318089AbSGMEBy>; Sat, 13 Jul 2002 00:01:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318089AbSGMD25>; Fri, 12 Jul 2002 23:28:57 -0400
-Received: from pD952ACB5.dip.t-dialin.net ([217.82.172.181]:25225 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318086AbSGMD2z>; Fri, 12 Jul 2002 23:28:55 -0400
-Date: Fri, 12 Jul 2002 21:31:34 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Further madness in fs/partitions/check.c?
-Message-ID: <Pine.LNX.4.44.0207122128400.3421-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
+	id <S318090AbSGMEBx>; Sat, 13 Jul 2002 00:01:53 -0400
+Received: from ausadmmsrr504.us.dell.com ([143.166.83.91]:27666 "HELO
+	AUSADMMSRR504.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S318089AbSGMEBw>; Sat, 13 Jul 2002 00:01:52 -0400
+X-Server-Uuid: 5b9b39fe-7ea5-4ce3-be8e-d57fc0776f39
+Message-ID: <F44891A593A6DE4B99FDCB7CC537BBBB0724D1@AUSXMPS308.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: alan@lxorguk.ukuu.org.uk, greg@kroah.com
+cc: linux-kernel@vger.kernel.org
+Subject: RE: Removal of pci_find_* in 2.5
+Date: Fri, 12 Jul 2002 23:04:36 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 1131795F1473338-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> I have several examples where the ordering of the PCI cards 
+> is critical
+> to get stuff like boot device and primary controller detection right.
+> pci_register_driver doesn't appear to have a good way to deal 
+> with this or have I missed something ?
 
-struct device contains a void * driver_data. It should certainly point to 
-a couple of bytes where the driver data was saved.
+Indeed, this is used for a variety of reasons:
 
-In line 288, we have this:
+1) Systems with both on-motherboard and add-in disk controllers which share
+a driver, where you really need the on-motherboard controller to appear
+first before any add-in cards.  aacraid driver in 2.4.x does this today.
+2) Systems with both an older and newer add-in card which share a driver,
+where the older (original) card has your boot disks, and any newer card
+would get added for adding more storage later.  megaraid driver in
+2.4.x/2.5.x does this today.
 
-current_driverfs_dev->driver_data = (void *)__mkdev(hd->major, minor+part);
+In both these cases, the pci_find_device() functions use an explict ordering
+to make it far more likely we can still boot the system after adding new
+hardware.  Unless/until there's a method for telling the kernel/modules that
+a particular device is the boot device (ala BIOS EDD 3.0 if vendors were to
+get around to implementing such) explict ordering in the drivers is the only
+way we can build complex storage solutions and boot reliably.
 
-What kind of pointer should we get here? ;-)
+Thanks,
+Matt
 
-Can the author please explain what was intented here?
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
 

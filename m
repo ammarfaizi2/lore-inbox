@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271269AbUJVNQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267359AbUJVNWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271269AbUJVNQx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 09:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269109AbUJVNQx
+	id S267359AbUJVNWk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 09:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269143AbUJVNWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 09:16:53 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:23684 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S271269AbUJVNQk (ORCPT
+	Fri, 22 Oct 2004 09:22:40 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:50347 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267359AbUJVNWi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 09:16:40 -0400
-Date: Fri, 22 Oct 2004 15:16:39 +0200
-From: Luc Saillard <luc@saillard.org>
-To: Luca Risolia <luca.risolia@studio.unibo.it>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, akpm@osdl.org
-Subject: Re: Linux 2.6.9-ac3
-Message-ID: <20041022131639.GC16963@sd291.sivit.org>
-References: <20041022101335.6dcf247a.luca.risolia@studio.unibo.it> <20041022092102.GA16963@sd291.sivit.org> <20041022143036.462742ca.luca.risolia@studio.unibo.it>
+	Fri, 22 Oct 2004 09:22:38 -0400
+Date: Fri, 22 Oct 2004 15:19:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041022131950.GA6574@elte.hu>
+References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <4176A50C.9050303@ru.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041022143036.462742ca.luca.risolia@studio.unibo.it>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <4176A50C.9050303@ru.mvista.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 02:30:36PM +0200, Luca Risolia wrote:
-> Either port the driver to V4L2, which handles decompression stuff well,
-no, it only provide a number (that needs to be reserved) to the user API, but
-if the user API doesn't exist, application will not support your camera. I
-can provide a .c and .h for the decompression module, but since the
-decompression table depend of the resolution,quality choose by the webcam
-(thinks as quality fine,normal,low). I can't provide with v4l2 a generic
-control for this.
-> or provide a separate downloadble GPL'ed module. Other drivers in the
-> mainline kernel observe this rule; the pwc case is not an exception.
-The driver, in it's current status, is GPL. Can you give me some examples
-about "other drivers" ?
-> Also, this matter has been already discussed many times in the v4l
-> mailing list: no video decompression at all in kernel space, even if
-> *optional* through an *indipendent* module.
-It's easy for you to say that, because your driver returns a native format.
-Since nobody cares about webcam, and stream compressed, if today, i remove
-the table in the module, i'll wait one year ? two years for app that support
-my webcam ?
-> I doubt Morton or Linus will ever accept this version of pwc driver, since
-> they did accept a patch disabling colorspace conversion from a driver
-> recently.
-my driver only output a standart video stream, i don't convert colorspace.
-Decompression ops use table and offset in this table. The one thing i agree
-about decompression, is for kernel preemption.
 
-> It sounds logic that none would help to fix user applications, if
-> we kept including things like decompression in each module in the kernel.
-And it's logic too, to let the driver do the decompression because you WANT
-your device working. So please, i want to remove decompression, but i want
-people be able to use camera. People have trouble to compile the module
-outside of the kernel (and you just need to type make; make install). If you
-need to compile, gnomeeting, kame, kde, xawtv yourself to use the camera,
-i'll not able to take time to add features on this drivers. 
- 
-Luc
+* Alexander Batyrshin <abatyrshin@ru.mvista.com> wrote:
 
+> used i386/defconfig
+
+> BUG: semaphore recursion deadlock detected!
+> .. current task khpsbpkt/723 is already holding c04610c0.
+
+ok, this should be fixed in -U9.2.
+
+> 2.
+> if execute
+> ``for i in `seq 1 9999`; do nohup bash >/dev/null 2>&1 & done'',
+> then you'll get something like:
+> [...skip...]
+> Warning: dev (pts0) tty->count(16) != #fd's(8) in tty_open
+> Warning: dev (pts0) tty->count(16) != #fd's(11) in tty_open
+
+> I'v tested it against linux-2.6.9-rc4-mm1 => all was ok
+
+i have trouble reproducing this myself. Can you still trigger it under
+-U9.2? If yes then could you check whether this still happens with a the
+same .config but with CONFIG_SMP turned off? This smells like a locking
+bug/breakage in the tty layer that we dont detect. You have all the
+relevant debug options turned on, correct? (DEBUG_PREEMPT and
+RWSEM_DEADLOCK_DETECT)
+
+	Ingo

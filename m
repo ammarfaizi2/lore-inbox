@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVDFPGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVDFPGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbVDFPGF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 11:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVDFPGF
+	id S262223AbVDFPGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 11:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVDFPGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 6 Apr 2005 11:06:09 -0400
+Received: from relay02.pair.com ([209.68.5.16]:62985 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S262223AbVDFPGF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 6 Apr 2005 11:06:05 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:15034 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S262158AbVDFPGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 11:06:03 -0400
-To: linux-os@analogic.com
-Cc: Bas Vermeulen <bvermeul@blackstar.xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: NOMMU - How to reserve 1 MB in top of memory in a clean way
-References: <1112781027.2687.6.camel@laptop.blackstar.nl>
-	<tnxzmwc9gun.fsf@arm.com>
-	<Pine.LNX.4.61.0504061040420.22273@chaos.analogic.com>
-From: Catalin Marinas <catalin.marinas@gmail.com>
-Date: Wed, 06 Apr 2005 16:05:51 +0100
-In-Reply-To: <Pine.LNX.4.61.0504061040420.22273@chaos.analogic.com> (Richard
- B. Johnson's message of "Wed, 6 Apr 2005 10:53:07 -0400 (EDT)")
-Message-ID: <tnxoecs9c8g.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+X-pair-Authenticated: 24.126.76.52
+Message-ID: <4253FAC3.5010000@kegel.com>
+Date: Wed, 06 Apr 2005 08:05:39 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/4.0 (compatible;MSIE 5.5; Windows 98)
+X-Accept-Language: en, de-de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: Marty Ridgeway <mridge@us.ibm.com>, linux-kernel@vger.kernel.org,
+       ltp-list@lists.sourceforge.net, ltp-announce@lists.sourceforge.net
+Subject: Re: [LTP] Re: [ANNOUNCE] April Release of LTP now Available
+References: <OF98479217.2360E20E-ON85256FDA.00696BC9-86256FDA.00698E70@us.ibm.com> <20050406043001.3f3d7c1c.akpm@osdl.org>
+In-Reply-To: <20050406043001.3f3d7c1c.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <linux-os@analogic.com> wrote:
-> 1 Megabyte of DMA RAM should be available using conventional
-> means __get_dma_pages(GFP_KERNEL, 0x100) soon after boot.
+Andrew Morton wrote:
+>> LTP-20050405
+> 
+> It seems to have an x86ism in it which causes the compile to fail on ppc64:
+> 
+> socketcall01.c: In function `socketcall':
+> socketcall01.c:80: error: asm-specifier for variable `__sc_4' conflicts with asm clobber list
 
-The problem is that he needs to get this memory from the last MB only,
-__get_dma_pages would return pages from ZONE_DMA but this is usually
-at the beginning of RAM.
+That might be a problem with your toolchain.
+Other mentions of that error message on Google
+suggest that it's due to a kernel header problem.
+I bet your toolchain uses kernel headers from 2.4.21 or earlier...
+check includes/asm-ppc64/unistd.h to see if it's got the
+line
+   /* On powerpc a system call basically clobbers the same registers like a
+in it.  If not, it may be missing the patch mentioned below.
 
-> Or just use mem= on the boot command line. This will tell
-> the kernel the extent of memory to use. Any RAM after that
-> is available. Your driver can access kernel variable, "num_physpages"
-> to find the last page it is supposed to use.
+See
+http://ozlabs.org/pipermail/linuxppc64-dev/2003-April/000211.html
+http://ozlabs.org/pipermail/linuxppc-dev/2002-October/014492.html
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=9379
+http://www.hu.kernel.org/pub/linux/kernel/v2.4/snapshots/incr/patch-2.4.22-bk57-bk58
 
-But this means that you would need to modify all the drivers that need
-DMA memory. Modifying the zones is actually transparent for the
-drivers.
+- Dan
 
---
-Catalin
-
+-- 
+Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRABQWd>; Tue, 2 Jan 2001 11:22:33 -0500
+	id <S129511AbRABQnQ>; Tue, 2 Jan 2001 11:43:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129226AbRABQWX>; Tue, 2 Jan 2001 11:22:23 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:21888 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S130018AbRABQWL>; Tue, 2 Jan 2001 11:22:11 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <0012280214100G.32196@www.easysolutions.net> 
-In-Reply-To: <0012280214100G.32196@www.easysolutions.net> 
-To: shane@agendacomputing.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Booting from a non block device 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 02 Jan 2001 15:51:18 +0000
-Message-ID: <2676.978450678@redhat.com>
+	id <S129523AbRABQm4>; Tue, 2 Jan 2001 11:42:56 -0500
+Received: from csa.iisc.ernet.in ([144.16.67.8]:2571 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S129511AbRABQmn>;
+	Tue, 2 Jan 2001 11:42:43 -0500
+Date: Tue, 2 Jan 2001 21:40:49 +0530 (IST)
+From: Sourav Sen <sourav@csa.iisc.ernet.in>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: iph
+Message-ID: <Pine.SOL.3.96.1010102213630.23276A-100000@kohinoor.csa.iisc.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-shane@agendacomputing.com said:
->  The main.c file is hardwired to boot from a block device, and as such
-> I can't  think of a good way to get around it and put in a filesystem
-> instead.  Should  I just cheat and put in a fake block device?  
+Hi,
+	I want to know what the field, ihl in the struct iphdr is there
+for, I mean its function and the values it takes in different condition.
+Specifically, what is the condition when ihl>5.
 
-That's what NFSroot does. I suppose you could also argue that's what JFFS 
-does too, because it doesn't actually _use_ the mtdblock device for 
-anything but getting a handle on the underlying MTD device.
+(See ip_input.c , line 497, depending on if ihl>5, some code is getting
+executed.)
 
+I am talking of 2.2.16
 
-
---
-dwmw2
-
+Sourav
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,64 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263408AbTDYQvy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 12:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTDYQvy
+	id S263165AbTDYRLq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 13:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTDYRLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 12:51:54 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2699 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263408AbTDYQvx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 12:51:53 -0400
-Date: Fri, 25 Apr 2003 13:06:18 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: John Bradford <john@grabjohn.com>
-cc: Matthew Sell <msell@ontimesupport.com>,
-       Stewart Smith <stewartsmith@mac.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: versioned filesystems in linux (was Re: kernel support for
-In-Reply-To: <200304251618.h3PGINWP001520@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.53.0304251259300.6839@chaos>
-References: <200304251618.h3PGINWP001520@81-2-122-30.bradfords.org.uk>
+	Fri, 25 Apr 2003 13:11:46 -0400
+Received: from [62.37.236.142] ([62.37.236.142]:52220 "EHLO smtp.wanadoo.es")
+	by vger.kernel.org with ESMTP id S263165AbTDYRLn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 13:11:43 -0400
+Message-ID: <3EA96F27.3090207@wanadoo.es>
+Date: Fri, 25 Apr 2003 19:23:51 +0200
+From: =?ISO-8859-1?Q?xos=E9_v=E1zquez_p=E9rez?= <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [proposition of drivers documentation]
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Apr 2003, John Bradford wrote:
+hi guys,
 
-> > You just modify your user-mode tools and your 'C' runtime library
-> > to make whatever atrocious versioning mechanism you want. You can
-> > even make all filenames upper case, just like VAX/VMS, and you can
-> > even make your shell DCL if you want. It's where the rules are
-> > enforced like (mapping everything to upper-case).
-> >
-> > I can see it now, upon startup `init` execs:
-> >
-> >    SYS$SYSTEM:LOGINOUT.EXE -
-> >    INPUT=SYS$SYSTEM:[etc]inittab -
-> >    OUTPUT=SYS$SYSTEM:[var.log]startup.log -
-> >    ERROR=SYS$SYSTEM:[dev]console -
-> >    UIC=[0,0] -
-> >    PRIV=(NOALL, TMPMBX, NETMBX, SETPRV)
->
-> Just wondering how difficult it would be to make a 9-track tape drive
-> from scratch, and connect it up to the parallel port...  Do you think
-> that old hard disk motors, from 5.25" MFM disks be powerful enough for
-> the 120IPS tape transport?
->
-> John.
+to try to avoid lost bug fixed and situations like this thread:
+http://marc.theaimsgroup.com/?t=104327599900004&r=1&w=2
+and to get more information about drivers/hardware duet.
 
-The disk-drive motors, even for the 5.25 floppies were pancake motors
-designed to directly turn the floppy, or run a belt with a small
-ratio. You need a motor that runs at relatively high speed to turn the
-capstan. If the capstan was 1 inch in circumference (about 0.2'' in
-diameter), you need 120 revs/sec = 7200 r.p.m.  You won't do this with
-a floppy motor.
+I propose to include in every main driver file( but it can
+be extensive to other files):
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+notes:
+- [] _mandatory_
+- dates and times are in _UTC_
+
+fields are trivial but some need an explication:
+
+- [modification #]: necessary because not all people change
+  the driver version every time it's made a modification.
+  It's _mandatory_ change it when you touch the file.
+  And always it's relative to _official kernel_ version
+  that you have modified plus 1.
+- [quality]: there are very basic drivers, they works but
+  they don't have manufacturer support or documentation.
+  They are good to play but not for high servers
+  because they lack of higher features or performance.
+
+/*
+=HEADER
+
+ [name]: foo bar adapters family
+ [author]: Name <e-mail@server.com> or/and <mailing-list@server.com>
+ [date]: 00:00:00 11/12/1969
+ [license]: BSD/GPL/dual GPL-BSD
+
+ [maintainer]: Name <e-mail@server.com> or/and <mailing-list@server.com>
+ [bugs]: <mailing-list@server.com> or/and Name <e-mail@server.com>
+ [kernel_version]: >2.5.49 2.4.21
+ [state]: stable/devel/unstable or 1/2/3
+ [quality]: high/medium/low or 1/2/3
+ [version]: 00.00.00
+ [date]: 00:00:00 01/01/2001
+ [modification #]: AAA00001
+ url_info: http://www.server.com/hacker/my-driver-info/
+ url_down: ftp://ftp.server.com/pub/drivers/linux/
+ mailing-list: if clouse url or <e-mail> to subscribe or real <e-mail>
+ cvs:
+
+=END
+*/
+
+/*
+=CHANGELOG
+
+ [Changelog]: (latest at top)
+
+ [date] [version] or [modification #] [<e-mail@server.com>]
+ - bug fixes at makemelove()
+ ...
+
+=END
+*/
+
+/*
+=HARDWARE
+
+ [Supported hardware]:
+
+ [manufacturer_1]
+        [product name]
+
+ [manufacturer_2]
+        [product name]
+
+=END
+*/
+
+/*
+=NOTES
+
+ notes:
+
+ Hardware was designed by acme labs and it works like a sex machine.
+ You need update firmware to XXX version because it
+ has a lots of fuck*d hardware problems and ...
+
+=END
+*/
+
+and in the other driver files (*.c or *.h )
+
+/*
+
+ [license]: BSD/GPL/dual GPL-BSD
+ [modification #]: AAA00080
+ [depends]: midriver.c
+
+*/
+
+It would be possible to put tags or something to make marks and
+to extract documentation about drivers and supported hardware like
+perl auto-documented files.
+It will make easier the linux vendors work.
+
+Another idea is to put under Documentacion/ the same tree than
+the kernel files, to move all README.* CHANGELOG.* inside this tree.
+And to change the name to a more standard like driver-name.readme and
+driver-name.changelog
+
+There are too much chaos and sometimes it is very hard to find
+real information and updated. Because LiNUX hasn't a perpetual kernel
+team and people go and come ;-)
+
+IMHO.
+
+-thank you for to read this-
+
+regards,
+-- 
+Software is like sex, it's better when it's bug free.
 

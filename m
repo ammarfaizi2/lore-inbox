@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270986AbTGVSja (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270987AbTGVSja
+	id S270775AbTGVSmV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270854AbTGVSmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:39:30 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:61312 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S270986AbTGVSj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:39:29 -0400
-Date: Tue, 22 Jul 2003 20:04:16 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200307221904.h6MJ4Gnr001119@81-2-122-30.bradfords.org.uk>
-To: herbert@13thfloor.at
-Subject: Re: noaltroot bootparam [was Floppy Fallback]
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-       trond.myklebust@fys.uio.no
+	Tue, 22 Jul 2003 14:42:21 -0400
+Received: from web41509.mail.yahoo.com ([66.218.93.92]:22373 "HELO
+	web41509.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270775AbTGVSmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 14:42:15 -0400
+Message-ID: <20030722185718.18428.qmail@web41509.mail.yahoo.com>
+Date: Tue, 22 Jul 2003 11:57:18 -0700 (PDT)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: Re: 2.6: marking individual directories as synchronous?
+To: linux-kernel@vger.kernel.org
+Cc: dbehman@hotmail.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Trond suggested to draft a patch to address the
-> Floppy Fallback issues (mentioned several times
-> on lkml) by adding a kernel boot parameter, to
-> disable the fallback, or to put it more general,
-> to disable alternate root device attempts ...
->
-> Currently the NFS-Root Floppy Fallback is the 
-> only _user_ of such a boot parameter, but in 
-> future, this could be used to limit multiple
-> root situations to a make-or-brake ...
->
-> please comment!
+Here is further info on the use of IS_DIRSYNC in ext2.
 
-I think the best thing to do if it's not possible to mount an
-NFS-based root filesystem, is to wait 60 seconds, then try to contact
-the NFS server again.
+ext2_alloc_branch() is used only in the O_DIRECT path.
+ext2_commit_chunk() is called indirectly in the following paths, which provide
+functionality comparable to that of ext3:
 
-Before the in-kernel bootloader was removed, the current behavior was
-quite useful - it was quite possible that a hard disk-less machine
-would boot from a floppy without using a bootloader, and mount it's
-root filesystem from an NFS server.  In this scenario, it would be
-impossible to boot the machine with the root on another device,
-without modifying the boot disk, so a fallback to root on a floppy was
-useful.
+[linux-2.6.0-test1]$ fscope -func=ext2_commit_chunk
 
-However, the in-kernel bootloader was removed in 2.6, so there is now
-no reason why an alternate root couldn't simply be specified at the
-boot prompt.
+ext2_commit_chunk ext2_add_link ext2_add_nondir ext2_create
+ext2_commit_chunk ext2_add_link ext2_add_nondir ext2_link
+ext2_commit_chunk ext2_add_link ext2_add_nondir ext2_mknod
+ext2_commit_chunk ext2_add_link ext2_add_nondir ext2_symlink
+ext2_commit_chunk ext2_add_link ext2_mkdir
+ext2_commit_chunk ext2_add_link ext2_rename
+ext2_commit_chunk ext2_delete_entry ext2_rename
+ext2_commit_chunk ext2_delete_entry ext2_unlink ext2_rmdir
+ext2_commit_chunk ext2_make_empty ext2_mkdir
+ext2_commit_chunk ext2_set_link ext2_rename
 
-If the NFS server is not accessible because of a temporary problem,
-(too much network traffic, or it's rebooting for example), it makes
-sense to try again after 60 seconds.
+FOR CLARITY:
 
-Not trying the floppy should become the _default_ action.
+items 1-4 rotated:
+ext2_create        ext2_link          ext2_mknod         ext2_symlink
+ext2_add_nondir    ext2_add_nondir    ext2_add_nondir    ext2_add_nondir
+ext2_add_link      ext2_add_link      ext2_add_link      ext2_add_link
+ext2_commit_chunk  ext2_commit_chunk  ext2_commit_chunk  ext2_commit_chunk
 
-John.
+items 5-8 rotated:
+(null)             (null)             (null)             ext2_rmdir
+ext2_mkdir         ext2_rename        ext2_rename        ext2_unlink
+ext2_add_link      ext2_add_link      ext2_delete_entry  ext2_delete_entry
+ext2_commit_chunk  ext2_commit_chunk  ext2_commit_chunk  ext2_commit_chunk
+
+items 9-10 rotated:
+ext2_mkdir         ext2_rename
+ext2_make_empty    ext2_set_link
+ext2_commit_chunk  ext2_commit_chunk
+
+(See this list for tool 'fscope'.)
+
+_
+

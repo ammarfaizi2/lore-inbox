@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316446AbSGVGVA>; Mon, 22 Jul 2002 02:21:00 -0400
+	id <S316588AbSGVIf1>; Mon, 22 Jul 2002 04:35:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316465AbSGVGVA>; Mon, 22 Jul 2002 02:21:00 -0400
-Received: from 205-158-62-80.outblaze.com ([205.158.62.80]:54533 "HELO
-	ws1-11.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S316446AbSGVGVA>; Mon, 22 Jul 2002 02:21:00 -0400
-Message-ID: <20020722062402.65938.qmail@mail.com>
-Content-Type: multipart/mixed; boundary="----------=_1027319042-54154-0"
-Content-Transfer-Encoding: binary
+	id <S316589AbSGVIf1>; Mon, 22 Jul 2002 04:35:27 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:35084 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316588AbSGVIf0>; Mon, 22 Jul 2002 04:35:26 -0400
+Date: Mon, 22 Jul 2002 10:37:41 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Keith Owens <kaos@ocs.com.au>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.5.25 net/core/Makefile
+In-Reply-To: <20020722090704.A2052@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207221032510.8911-100000@serv>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Ana Yuseepi" <anayuseepi@asia.com>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 22 Jul 2002 01:24:02 -0500
-Subject: ATA with SMART
-X-Originating-Ip: 210.159.65.4
-X-Originating-Server: ws1-11.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format...
+Hi,
 
-------------=_1027319042-54154-0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Mon, 22 Jul 2002, Russell King wrote:
 
-Hello everyone,
- 
-I would like to send some SMART commands in linux. One of the command I'd like to send is return_smart_status and I needed some extra data that the device would return in Cylinder_Low and Cylinder_High registers. 
- 
-I have tried to use the HDIO_DRIVE_CMD, but I think this can't help me with the above operation.
- 
-I tried using the inw_p and outw_p, inb_p, outb_p, but with these, i usually receive the "lost interrupt" message.
- 
-Does anyone here have suggestions on what i should do?
+> Wouldn't it be better to fix the existing config tools to output "=n"
+> instead of "# CONFIG_foo is not set" ?  IIRC they do the translation
+> back and forth internally anyway, so it should be just a matter of
+> removing some code from the tools.
 
-Please reply, and thank you for your time,
+This would mean, tristate symbols had four states instead of three. The
+current shell based config systems simply don't see all symbols.
+Depending on the configuration a symbol could be unset or 'n'.
 
--Ana
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
+bye, Roman
 
-Save up to $160 by signing up for NetZero Platinum Internet service.
-http://www.netzero.net/?refcd=N2P0602NEP8
-
-
-------------=_1027319042-54154-0--

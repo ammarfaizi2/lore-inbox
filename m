@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267775AbTBMD67>; Wed, 12 Feb 2003 22:58:59 -0500
+	id <S263491AbTBMEJR>; Wed, 12 Feb 2003 23:09:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267778AbTBMD67>; Wed, 12 Feb 2003 22:58:59 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:42142 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267775AbTBMD66>;
-	Wed, 12 Feb 2003 22:58:58 -0500
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-From: Mika Kukkonen <mika@osdl.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 (1.0.2-1.Linox) 
-Date: 12 Feb 2003 20:08:48 -0800
-Message-Id: <1045109329.8576.9.camel@miku-t21-lnx221.koti>
+	id <S267778AbTBMEJR>; Wed, 12 Feb 2003 23:09:17 -0500
+Received: from mnh-1-21.mv.com ([207.22.10.53]:10757 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S263491AbTBMEJQ>;
+	Wed, 12 Feb 2003 23:09:16 -0500
+Message-Id: <200302130412.XAA05507@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: ebiederm@xmission.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.60
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 12 Feb 2003 23:12:38 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> There's no one taking away the LSM patches.  Anyway life would be a
->> lot simpler if you actually announced the stuff you do on lkml 
->> instead of hiding behind the moon.  The only chance hook you need 
->> will stay is that you discuss them publically here.
+ebiederm@xmission.com said:
+> Or it can use the linker to play games with symbol names to move the
+> kernel off into it's own separate name space.
 >
-> For the second time in a week, I agree with HCH: If you are developing
-> an LSM module, then by all means please make it publicly known. 
-> Whether we host your source or not, we want to at least link to your
-> site from http://lsm.immunix.org/lsm_modules.html
+> This sounds like a good opportunity to figure out which makes most
+> sense  and future proof UML. 
 
-Ericsson's project is called DSI (http://www.risq.ericsson.ca/dsi/), and
-the code is at SourceForge: http://sourceforge.net/projects/disec/.
+OK, I thought I had a cunning plan to deal with this problem, but it falls
+apart when you actually think about it some.
 
-CGL v2 specs will incorporate some parts of DSI, but not the whole.
+The problem is this -
+	2.5.60 introduces sigprocmask as a kernel function
+	UML calls sigprocmask from its userspace code (the stuff that interacts
+with libc rather than the kernel) and it expects to get the libc sigprocmask
+which makes a system call into the host kernel
+	Instead, it gets the new kernel sigprocmask, and things go downhill
+rapidly from there
 
---MiKu
+My cunning plan was this -
+	link UML's userspace code into a single .o (call it userspace.o), 
+similarly link its kernel code into a single .o (kernel.o)
+	do an incremental link of userspace.o against libc, thereby resolving
+sigprocmask to the libc version
+	link all of UML together, kernel code and userspace code.  Any remaining
+references to sigprocmask will be in kernel code, and will resolve to the new
+kernel sigprocmask.
 
+This falls apart for a couple of reasons -
+	I get a duplicate definition of sscanf which I can't get rid of (libc
+vs. lib/vsprintf.c)
+	More seriously, this assumes a static link and breaks the dynamic build
+of UML
+
+In order for this to work, references from userspace.o which can be resolved
+in libc must somehow survive the link against the kernel code unresolved.
+That is, references to things not in libc must be resolved from kernel code
+and references to things in libc must be resolved from libc even if there is
+a symbol with the same name in the kernel.  I don't see any way of doing this.
+
+The only other solution I see is to rename the kernel sigprocmask.  Oleg Drokin
+has done with this with a 
+	-Dsigprocmask=__sigprocmask
+on kernel code compiles, and I've done it at link time with objcopy.  This 
+sucks, but it does have the great advantage that it actually works.
+
+Anyway, if there's something better, I really want to know about it.
+
+				Jeff
 

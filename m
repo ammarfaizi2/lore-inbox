@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbUK0Mf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbUK0Mjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbUK0Mf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 07:35:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbUK0Mf6
+	id S261195AbUK0Mjd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 07:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbUK0Mjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 07:35:58 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:29862 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261189AbUK0Mfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 07:35:53 -0500
-Date: Sat, 27 Nov 2004 12:35:52 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Bob Tracy <rct@gherkin.frus.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       torvalds@osdl.org, hch@infradead.org, James.Bottomley@steeleye.com
-Subject: Re: [PATCH] sym53c500_cs driver update
-Message-ID: <20041127123552.GA25857@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org, torvalds@osdl.org,
-	James.Bottomley@steeleye.com
-References: <20041127045011.F0214DBDB@gherkin.frus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041127045011.F0214DBDB@gherkin.frus.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 27 Nov 2004 07:39:33 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:43680 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261195AbUK0Mjc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 07:39:32 -0500
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk, akpm@osdl.org
+Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for CONFIG_XEN 
+In-reply-to: Your message of "Sat, 20 Nov 2004 18:03:27 GMT."
+             <E1CVZa4-0001jT-00@mta1.cl.cam.ac.uk> 
+Date: Sat, 27 Nov 2004 12:39:18 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CY1rC-0007Y2-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 26, 2004 at 10:50:11PM -0600, Bob Tracy wrote:
-> (Previously posted a month ago to linux-kernel and linux-scsi with
-> copies to James Bottomley and Christoph Hellwig.  No feedback received.
-> Would like to see this included in 2.6.10.  Thanks!)
+> > > @@ -42,7 +42,12 @@ extern void tapechar_init(void);
+> > >   */
+> > >  static inline int uncached_access(struct file *file, unsigned long addr)
+> > 
+> > Any chance you could just move uncached_access() to some asm/ header for
+> > all arches instead of making the ifdef mess even worse?
 > 
-> The attached minor patch to linux/drivers/scsi/pcmcia/sym53c500_cs.c
-> allows interrupt sharing, which is evidently a "must have" feature for
-> at least G4 PowerBooks (ppc architecture).  The other user of the New
-> Media Bus Toaster reports that his powerbook consistently assigns the
-> yenta CardBus controller IRQ to whatever card he inserts.
-> 
-> Applies to version 0.9b of the sym53c500_cs driver, as included with
-> the 2.6.9 kernel.
+> I suppose a generic definition could go in asm-generic/iomap.h
+> with per-architecture definitions in asm/io.h.  However, I think
+> it would make sense to wait until PAT support gets added and then
+> think through exactly what needs doing rather than reorganising
+> things now.
 
-The change is in Linus' tree already.
+What do people think about this? Should I stick with the current
+patch that adds another #ifdef to uncached_access, or should I
+try pulling it out into asm-generic/iomap.h with per-arch
+definitions in asm/io.h ?
 
+Is there anyone working on PAT support? It would be good to have
+their input.
+
+Thanks,
+Ian

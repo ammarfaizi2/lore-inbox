@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275424AbRIZSOL>; Wed, 26 Sep 2001 14:14:11 -0400
+	id <S275423AbRIZSPC>; Wed, 26 Sep 2001 14:15:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275423AbRIZSNv>; Wed, 26 Sep 2001 14:13:51 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:26833 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S275424AbRIZSNs>; Wed, 26 Sep 2001 14:13:48 -0400
-Message-ID: <3BB219C7.5010507@antefacto.com>
-Date: Wed, 26 Sep 2001 19:09:11 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Locking comment on shrink_caches()
-In-Reply-To: <Pine.LNX.4.30.0109261958290.8655-100000@Appserv.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S275427AbRIZSOx>; Wed, 26 Sep 2001 14:14:53 -0400
+Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:59398 "HELO
+	jose.vato.org") by vger.kernel.org with SMTP id <S275423AbRIZSOo>;
+	Wed, 26 Sep 2001 14:14:44 -0400
+From: tpepper@vato.org
+Date: Wed, 26 Sep 2001 11:15:09 -0700
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Paul Larson <plars@austin.ibm.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>,
+        =?iso-8859-1?Q?Jacek_=5Biso-8859-2=5D_Pop=B3awski?= 
+	<jpopl@interia.pl>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: __alloc_pages: 0-order allocation failed
+Message-ID: <20010926111509.A3332@cb.vato.org>
+In-Reply-To: <20010926000922.I8350@athlon.random> <Pine.LNX.4.21.0109251823550.2193-100000@freak.distro.conectiva> <20010926010516.V8350@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010926010516.V8350@athlon.random>; from andrea@suse.de on Wed, Sep 26, 2001 at 01:05:16AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On Wed 26 Sep at 01:05:16 +0200 andrea@suse.de done said:
+> On Tue, Sep 25, 2001 at 06:25:10PM -0300, Marcelo Tosatti wrote:
+> > 
+> > Does vm-tweaks-1 fixes the current problem we're seeing? 
+> 
+> it seems no by reading the last email, however I'm not seeing any
+> problem, the DEBUG_GFP will tell us where the problem cames from,
+> pssobly it's a highmem thing since I never reproduced anything bad here.
+> But the point is that the above isn't going to be a right fix anyways.
 
->On Wed, 26 Sep 2001, Alan Cox wrote:
->
->>VIA Cyrix CIII (original generation 0.18u)
->>
->>nothing: 28 cycles
->>locked add: 29 cycles
->>cpuid: 72 cycles
->>
->
->Interesting. From a newer C3..
->
->nothing: 30 cycles
->locked add: 31 cycles
->cpuid: 79 cycles
->
->Only slightly worse, but I'd not expected this.
->This was from a 866MHz part too, whereas you have a 533 iirc ?
->
->regards,
->
->Dave.
->
-Interesting, does the origonal CIII have a TSC? would that affect the 
-timings Alan got?
+vm-tweaks-1 fixes things for me.  I've got 512MB ram (kernel not
+configured for highmem) and 1 gig of swap.  The workload is heavy file
+i/o and has now been running almost 24 hours (about 2 billion I/Os or
+a few TB of data I think so far).  Previously all the memory was being
+consumed by cache, nothing swapped (as expected if the memory is cached
+buffer i/o right?) and I'd get the:
+	__alloc_pages: 0-order allocation failed
+Now I continue to see the memory consumption / no swap, and no more
+error...iow the expected behaviour.
 
-The following table may  be of use to people:
-
-(All these S370)
-----------------------------------------------------------------------------------------
-core        size    name        code    Notes
-----------------------------------------------------------------------------------------
-samuel        0.18µm    Via Cyrix III(C5)   (128K L1 0K L2 cache). FPU 
-doesn't run @ full clock speed.
-samuel II    0.15µm    Via C3        (C5B)   667MHz CIII in Dabs are 
-C3's (128K L1, 64K L2 cache), (MMX/3D now!), FPU @ full clock speed.
-mathew      0.15µm    Via C3        (C5B)   mobile samuel II with 
-integrated north bridge & 2D/3D graphics. (1.6v)
-ezra        0.13µm    Via C3        (C5C)   Debut @ 850MHz rising to 
-1GHz quickly (1.35v)
-nehemiah    0.13µm    Via C4        (C5X)   Debut @ 1.2GHz (128K L1, 
-256K L2 cache) (SSE)
-esther        0.10µm    Via C4        (C5Y)   ?
-
-----------------------
-
-C3 availability details:
-667    66 / 100 / 133    1.5    Socket 370    L1: 128kB,L2: 64kB    
-0.15µ    6-12W    Mar 2001
-733    66 / 100 / 133    1.5    Socket 370    L1: 128kB,L2: 64kB    
-0.15µ    6-12W    May 2001
-733    66 / 100 / 133    1.5    Socket 370    L1: 128kB,L2: 64kB    
-0.15µ    1+ W    May 2001 (e series)
-750    100 / 133    1.5    Socket 370    L1: 128kB,L2: 64kB    0.15µ    
-6-12W    May 2001
-800    100 / 133    1.5    Socket 370    L1: 128kB,L2: 64kB    0.13µ    
-7-12W    May 2001 (ezra)
-
-----------------------
+On an unrelated note if I want to backport the async I/O changes in 2.4.10,
+are there patches from you I should apply other than:
+	2.4.10pre10aa1/40_blkdev-pagecache-17
+	2.4.7pre8aa1/41_blkdev-pagecache-5_drop_get_bh_async-1
 
 
+Tim

@@ -1,31 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285533AbRLNVn6>; Fri, 14 Dec 2001 16:43:58 -0500
+	id <S285531AbRLNVk6>; Fri, 14 Dec 2001 16:40:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285534AbRLNVns>; Fri, 14 Dec 2001 16:43:48 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6916 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S285533AbRLNVnh>; Fri, 14 Dec 2001 16:43:37 -0500
-Date: Fri, 14 Dec 2001 18:28:36 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>
-Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
-Subject: Re: [PATCH] ide-probe does not set removable flag for ide-floppy
- devices
-In-Reply-To: <009c01c1842a$d281f670$6caaa8c0@kevin>
-Message-ID: <Pine.LNX.4.21.0112141828200.1218-100000@freak.distro.conectiva>
+	id <S285533AbRLNVks>; Fri, 14 Dec 2001 16:40:48 -0500
+Received: from archimede.mat.ulaval.ca ([132.203.18.50]:37782 "EHLO
+	archimede.mat.ulaval.ca") by vger.kernel.org with ESMTP
+	id <S285531AbRLNVkk>; Fri, 14 Dec 2001 16:40:40 -0500
+Message-ID: <3C1A71D3.C3373BB3@mat.ulaval.ca>
+Date: Fri, 14 Dec 2001 16:40:35 -0500
+From: Mihai Cartoaje <mcartoaj@mat.ulaval.ca>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: the name "framebuffer"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As you may recall from chemistry classes, a buffer is a solutee that
+reduces pH  variations. Since the initials VGA in IBM's display
+adapter stand for, "video graphics array," I recommend changing the
+name of the devices from "framebuffer" to "video array." I shall
+like to know what other people think.
 
-Queued for 2.4.18pre... 
-
-Thanks 
-
-On Thu, 13 Dec 2001, Kevin P. Fleming wrote:
-
-> Small patch, relative to 2.4.17-pre8, but should apply to any recent version
-
+Mihai
 

@@ -1,74 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264164AbUESNTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264170AbUESN2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264164AbUESNTK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 09:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264165AbUESNTK
+	id S264170AbUESN2r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 09:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264174AbUESN2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 09:19:10 -0400
-Received: from mail.ccdaust.com.au ([203.29.88.42]:3899 "EHLO
-	gateway.ccdaust.com.au") by vger.kernel.org with ESMTP
-	id S264164AbUESNTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 09:19:05 -0400
-Message-ID: <40AB5E81.4050301@wasp.net.au>
-Date: Wed, 19 May 2004 17:17:53 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: libata Promise driver regression 2.6.5->2.6.6
-References: <A6974D8E5F98D511BB910002A50A6647615FB7A9@hdsmsx403.hd.intel.com> <1084820518.12349.347.camel@dhcppc4> <40A90EE2.3040507@wasp.net.au> <40A91410.5040408@pobox.com> <40AA3844.9010403@wasp.net.au> <40AA4585.4060301@pobox.com>
-In-Reply-To: <40AA4585.4060301@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 19 May 2004 09:28:47 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:42330 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S264170AbUESN2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 09:28:44 -0400
+In-Reply-To: <40AB5639.7060806@yahoo.com.au>
+References: <Pine.LNX.4.58.0405180728510.25502@ppc970.osdl.org>	<200405190453.31844.elenstev@mesatop.com>	<1084968622.27142.5.camel@watt.suse.com> <20040519.072009.92566322.wscott@bitmover.com> <40AB5639.7060806@yahoo.com.au>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <70C69E3C-A998-11D8-A7EA-000A95CC3A8A@lanl.gov>
 Content-Transfer-Encoding: 7bit
+Cc: mason@suse.com, hugh@veritas.com, elenstev@mesatop.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, support@bitmover.com,
+       Wayne Scott <wscott@bitmover.com>, adi@bitmover.com, akpm@osdl.org,
+       wli@holomorphy.com, Andrea Arcangeli <andrea@suse.de>, lm@bitmover.com
+From: Steven Cole <scole@lanl.gov>
+Subject: Re: 1352 NUL bytes at the end of a page?
+Date: Wed, 19 May 2004 07:28:39 -0600
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Against my better judgment I'm going to send this again as I have been having problems with a 
-particularly faulty mail server randomly blackholing outgoing mail and I have not seen this in the 
-archives after about 20 hours. Apologies if this arrives twice. I have temporarily subscribed to the 
-list.
 
-Jeff Garzik wrote:
-> Interesting.
-> 
-> Well since it's not global behavior, but isolated to one port or card, I 
-> still worry about non-libata things:
-> 1) is a SATA cable bad, or not plugged in well?  I'm finding that it's 
-> easier to screw up SATA cabling than PATA.  It's more-convenient design 
-> is also less rugged.
+On May 19, 2004, at 6:42 AM, Nick Piggin wrote:
 
-Nup, all seated fine and working perfectly well (and I mean raid-5 across all 10 disks and spraying
-data at maximum PCI speed for 8 hours at a time well) with 2.6.5, and they are Supermicro cables
-SATA cables with a pair of 5 bay Supermicro Hotswap bays so the quality is pretty good.
+> Wayne Scott wrote:
+>> From: Chris Mason <mason@suse.com>
+>>> Good to hear.  We probably still need Andrew's truncate fix, this 
+>>> just
+>>> isn't the right workload to show it.  Andrew, that reiserfs fix 
+>>> survived
+>>> testing here, could you please include it?
+>>>
+>>> -chris
+>> BTW. We have had one other person report a similar failure.
+>> http://db.bitkeeper.com/cgi-bin/bugdb.cgi?.page=view&id=2004-05-19-001
 
-> 2) is a PCI slot bad, or not busmastering like it should?  have you 
-> tried moving the card to another PCI slot?
+I received a report from James H. Cloos Jr. (cc'ed to the rest of you),
+but apparently, that report never made it to linux-kernel (I haven't
+seen it it the archives or in my lmkl file).  His report was regarding
+similar file corruption on xfs.
 
-I hadn't, but I just gutted the system and did a heap of card shuffles.. it ain't that.
+<OT for this thread>
+I also made a report yesterday regarding a compile problem with
+lib/kobject.c and no CONFIG_SYSFS.  That post also never made it
+to the list. If that happens again, I'll report it to the right folks.
+</OT>
 
-> 3) is it always the 9th port, regardless of the ordering of the PCI 
-> cards in PCI slots?
+>> But if sounds like this problem is now understood.  It was a pleasure
+>> to watch you guys, and someone should buy Steven a beer.  Or perhaps
+>> order a pizza for his family because I suspect this took some of their
+>> time.
+>
+> Yep. Thanks for your help Steven.
+>
+> I don't think anyone has cleared up the performance regression
+> problem yet though, so I'll have to bug you a bit more.
+>
+> Steven, with all else being equal, you said you found a 2.6.3 SuSE
+> kernel to significantly outperform 2.6.6, is that right? If so can
+> you try the same test with plain 2.6.3 please? We'll go from there.
 
-Nup, but it's always appears to be on the 3rd card. Pull one of the cards and it's sweet.
+Actually, it was a Mandrake kernel, 2.6.3-4mdk IIRC.  Whatever is
+the default with MDK 10.  One salient difference with the vendor
+kernel is that everything which can be a module is, and I wasn't
+using any modules with my kernels.  BTW, I was careful to have the
+same hdparm settings during the performance testing.
 
+The performance difference was very repeatable.  Using the script
+provided by Andy Isaacson, the 2.6.3-4mdk did the clone in about
+11 minutes total, while the various current kernels took about
+15 minutes total.  The user times were the same, and the difference
+was in system time.  Those numbers are from memory, the actual
+results should be in the archive.
 
-> I apologize if you answered some of these in a previous message.
+>
+> This one isn't urgent, because I suspect it could be something
+> specific to the SuSE kernel rather than a regression in Linus' tree
+> - we've heard no other complaints... so just whenever you get the
+> chance.
+>
 
-I hadn't, but I have now :p)
+I may be able to do some some performance testing here at work,
+where I have a greater variety (and much faster) machines to use.
 
-Under all these circumstances, 2.6.5 would boot fine. These tests were done with 2.6.5 and the patch
-you supplied me.
-
-I can even pull all the drives from boards 1&2 (drives 0-7) and it will lock hard on drive 8.
-
-If I pull the 3rd card then it all behaves perfectly no matter what I do to it. I have relocated the
-3rd card in other slots to change the detection order and it always *seems* to die on the 3rd
-initialised card, no matter what slot.
-
-Strange, No?
-
-Brad
-(I have knocked the other guys from the CC: as it does not appear to be ACPI related)
+	Steven
 

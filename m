@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289116AbSBJA74>; Sat, 9 Feb 2002 19:59:56 -0500
+	id <S289117AbSBJBA0>; Sat, 9 Feb 2002 20:00:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289115AbSBJA7g>; Sat, 9 Feb 2002 19:59:36 -0500
-Received: from eriador.apana.org.au ([203.14.152.116]:56074 "EHLO
-	eriador.apana.org.au") by vger.kernel.org with ESMTP
-	id <S289061AbSBJA7b>; Sat, 9 Feb 2002 19:59:31 -0500
-Date: Sun, 10 Feb 2002 11:59:13 +1100
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ssh primer (was Re: pull vs push (was Re: [bk patch] Make cardbus compile in -pre4))
-Message-ID: <20020210005913.GA1993@gondor.apana.org.au>
-In-Reply-To: <E16ZhzF-0000ST-00@gondolin.me.apana.org.au> <3C65C4C5.C287A3@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S289115AbSBJBAJ>; Sat, 9 Feb 2002 20:00:09 -0500
+Received: from pfaff.Stanford.EDU ([128.12.189.154]:22921 "EHLO pfaff")
+	by vger.kernel.org with ESMTP id <S289061AbSBJA7x>;
+	Sat, 9 Feb 2002 19:59:53 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: ssh primer (was Re: pull vs push (was Re: [bk patch] Make cardbus  compile in -pre4))
+In-Reply-To: <E16ZhzF-0000ST-00@gondolin.me.apana.org.au>
+	<3C65C4C5.C287A3@mandrakesoft.com>
+Reply-To: blp@cs.stanford.edu
+From: Ben Pfaff <blp@cs.stanford.edu>
+Date: 09 Feb 2002 16:59:46 -0800
 In-Reply-To: <3C65C4C5.C287A3@mandrakesoft.com>
-User-Agent: Mutt/1.3.25i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-ID: <873d0acfst.fsf@pfaff.stanford.edu>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 09, 2002 at 07:54:29PM -0500, Jeff Garzik wrote:
-> Herbert Xu wrote:
-> > 
-> > Setup your key with an empty passphrase should do the trick.
-> 
-> Ug.  no.  That is way way insecure.
-> 
-> Most modern distros have an ssh-agent running as a parent of all
-> X-spawned processed (including processes spawned by xterms).  So, one
-> only needs to run
-> 	ssh-add ~/.ssh/id_dsa ~/.ssh/identity
-> once, and input your password once.  After that, no passwords are
-> needed.
+Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
-This is fine for interactive use.  But for a daily cron job, it's
-just as insecure as no passphrases at all.
+> For those with multiple peer shells and no X-parented ssh-agent, you
+> will need to run ssh-agent ONCE, like so:
+> 
+> 	ssh-agent > ~/tmp/ssh-agent.out
+> 
+> and then for each shell, you need to run:
+> 
+> 	eval `cat ~/tmp/ssh-agent.out`
+> 
+> and then run the ssh-add command from above.
+
+I keep the following in my .bashrc and use the `agent' command to
+initialize the ssh-agent.
+
+# Allow `agent' to start the ssh-agent usefully on all running
+# bash instances.  SIGQUIT was chosen because it is ignored by
+# bash by default, even in non-interactive shells, so that a
+# shell not trapping it by some chance won't be terminated.
+if test -f ~/.ssh/agent; then 
+    . ~/.ssh/agent
+fi
+function agent {
+    killall -q ssh-agent
+    ssh-agent > ~/.ssh/agent
+    killall -QUIT bash >/dev/null 2>&1
+    ssh-add ~/.ssh/identity
+    ssh-add ~/.ssh/id_dsa
+}
+trap -- '. ~/.ssh/agent' SIGQUIT
+
 -- 
-Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+"Be circumspect in your liaisons with women.
+ It is better to be seen at the opera with a man
+ than at mass with a woman."
+--De Maintenon

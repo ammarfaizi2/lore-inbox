@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265170AbSJWTnv>; Wed, 23 Oct 2002 15:43:51 -0400
+	id <S265181AbSJWTmr>; Wed, 23 Oct 2002 15:42:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265175AbSJWTnv>; Wed, 23 Oct 2002 15:43:51 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:7492 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S265176AbSJWTno>; Wed, 23 Oct 2002 15:43:44 -0400
-Date: Wed, 23 Oct 2002 12:58:10 -0700 (PDT)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: Kernel List <linux-kernel@vger.kernel.org>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] LKCD for 2.5.44 (8/8): dump driver and build files
-In-Reply-To: <1035398127.9615.21.camel@dell_ss3.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0210231238430.28800-100000@nakedeye.aparity.com>
+	id <S265182AbSJWTmr>; Wed, 23 Oct 2002 15:42:47 -0400
+Received: from mail.ccur.com ([208.248.32.212]:14600 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id <S265181AbSJWTmp>;
+	Wed, 23 Oct 2002 15:42:45 -0400
+Message-ID: <3DB6FD0A.74BB3AD0@ccur.com>
+Date: Wed, 23 Oct 2002 15:48:26 -0400
+From: Jim Houston <jim.houston@ccur.com>
+Reply-To: jim.houston@ccur.com
+Organization: Concurrent Computer Corp.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: george anzinger <george@mvista.com>
+CC: jim.houston@attbi.com, linux-kernel@vger.kernel.org,
+       high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: [PATCH] alternate Posix timer patch
+References: <200210230838.g9N8cac00490@linux.local> <3DB6ED10.A81B0429@mvista.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Corrected, fixed version is on the LKCD patch download site.
+george anzinger wrote:
+> 
+> Jim Houston wrote:
+> I have also looked at the timer index stuff and made a few
+> changes.  If it get it working today, I will include it
+> also.  My changes mostly revolved around not caring about
+> reusing a timer id.  Would you care to comment on why you
+> think reuse is bad?
+> 
+> With out this feature the code is much simpler and does not
+> keep around dead trees.
+> 
+> -g
 
-Thanks, Stephen.
+Hi George,
 
---Matt
+I assume the rationale is that not reusing the same id immediately helps
+catch errors in user code.  Since the id space is global, there
+is more chance that one process may be manipulating another processes
+timer.  Reusing the same id makes this sort of problem harder to 
+catch.
 
-On 23 Oct 2002, Stephen Hemminger wrote:
-|>The variable dump_page_buf is declared with different scope in
-|>dump_base.c and dump_block_dev.c. This causes a link error, but maybe if
-|>LKCD is built as a module, then the symbol export masks the problem.
-|>
-|>diff -Nru a/drivers/dump/dump_base.c b/drivers/dump/dump_base.c
-|>--- a/drivers/dump/dump_base.c	Wed Oct 23 11:34:14 2002
-|>+++ b/drivers/dump/dump_base.c	Wed Oct 23 11:34:14 2002
-|>@@ -200,7 +200,7 @@
-|> static long dump_nondisruptive_enabled = 1;/* Default:non-disruptive enabled*/
-|> 
-|> /* Other global fields */
-|>-static void *dump_page_buf;        /* dump page buffer for memcpy()!       */
-|>+void *dump_page_buf;        	   /* dump page buffer for memcpy()!       */
-|> static void *dump_page_buf_0;      /* dump page buffer returned by kmalloc */
-|> struct __dump_header dump_header;  /* the primary dump header              */
-|> struct __dump_header_asm dump_header_asm; /* the arch-specific dump header */
+The main reason I changed this in my patch is to avoid the CONFIG
+limit on the number of timers.  Since I don't have the fixed array,
+I need a way to safely translate a user-space id into a kernel pointer.
 
-
+Jim Houston Concurrent Computer Corp.

@@ -1,75 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271289AbTGQV3o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 17:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271525AbTGQV3o
+	id S271545AbTGQVcV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 17:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271550AbTGQVcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 17:29:44 -0400
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:19840 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id S271289AbTGQV3l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 17:29:41 -0400
-Date: Thu, 17 Jul 2003 23:44:33 +0200
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: vojtech@suse.cz, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
-       davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030717214433.GB1858@finwe.eu.org>
-Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
-	vojtech@suse.cz, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
-	davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030717020324.GA1685@finwe.eu.org>
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.4i
+	Thu, 17 Jul 2003 17:32:21 -0400
+Received: from main.gmane.org ([80.91.224.249]:18652 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S271545AbTGQVcP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 17:32:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jason Lunz <lunz@falooley.org>
+Subject: Re: Wireless linux router
+Date: Thu, 17 Jul 2003 21:46:05 +0000 (UTC)
+Organization: PBR Streetgang
+Message-ID: <slrnbhe6aq.95n.lunz@stoli.localnet>
+References: <200307171924.UAA21477@mauve.demon.co.uk>
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
+root@mauve.demon.co.uk said:
+> A while ago there was much discussion about wireless routers with
+> linux kernels, and no source.
+> 
+> Are there any readily available ones that do, and that I can edit the 
+> image, and that have a couple of meg of RAM/ROM free?
 
-[...]
-> > This was interesting: 2.5 programs the mouse differently than 2.4.
-> > I've been having ps2 mouse problems with the 2.5 input layer,
-> > including having to move the mouse much further for a given
-> Strange. Here I've got problems with my mouse being actually 'to fast'
-> (when working with X-Window; I had to slow it down about 2 times via
-> xset to be able to work 'normally'; Actually -since I could not find
-> any related bugreports or complains - I thought it was something with 
-> how my version of X works with new layer) 
+I've been playing with the Dell Truemobile 1184. It has 16M ram + 16M
+flash, an ethernet interface for the internet uplink, another ethernet
+interface hardwired to a four-port 10/100 switch, and a prism2 wireless
+interface. If you open up the box, the machine has a serial console if
+you can connect something to the pins.
 
-Once I upgraded X to 4.3 and changed /dev/psaux to /dev/input/mice 
-everything is OK (and I'm quite happy it works :)
+It runs 2.2.14 arm linux, and you can telnet into it on port 333, though
+there isn't much you can do there.  The kernel source is shipped along
+with it on a CD, but there's no source for any of the other GPL code on
+the machine, like brctl, ifconfig, reaim, and dproxy. I haven't checked
+whether the kernel tarball contains code for all the weird hardware
+devices, like the machine's LEDs.
 
-I guess (now) that it's not much related to other problems mentioned in this
-thread, but if you think it might be helpful I can post some more info.
+Also, something seems fishy with the bridging. The machine's switch
+interface is bridged to the prism0 interface with the linux bridging
+module, and the bridge device shows up as br0. But "brctl show br0"
+doesn't show the bridged devices. Maybe they're hardwired or something.
 
-BTW - For testing purposes I've tested few different combinations:
+http://trilug.org/~chrish/dell-1184/
 
-AC -'another computer' MC- 'my computer'; both: kernel 2.6.0t1, recently
-    upgraded Debian SID
+has some details. The firmware image he points to is a zipfile that
+contains a gzipped binary blob. There's a kernel, a romfs, and who knows
+what else in that blob (the romfs goes from 0xE2CE4 to the end of the
+file). You could probably modify the firmware before sending it to the
+machine and get your own code on there, but I haven't been brave enough
+to do that yet.
 
-AC  X4.2 and /dev/psaux ->ok
-    X4.3 and /dev/psaux -> ok (I hope my sister won't
-                               be angry, that I've reconfigured
-			       her system when she's back home 8)
+I intend to eventually upload my own firmware to it, but I still have a
+lot of investigating to do before i'm confident I won't turn it into a
+paperweight. Any help would be appreciated. :)
 
-MC with different mouse -> no change
-MC with different values of xres, yres, psmouse_resolution parameters -> no change
+Jason
 
-MC, X4.2 and /dev/psaux -> too fast
-    X4.2 and /dev/psaux & ACPI off -> too fast
-    X4.3 and /dev/psaux -> too fast
-    X4.2 and /dev/input/mice -> too fast
-          (IIRC - I'm _almost_ sure I tried it with 
- 		2.5.75 few days ago [and it did not work])
-    X4.3 and /dev/input/mice -> ok
-
-[cut]
-
-jk :-)
-
--- 
-Jacek Kawa

@@ -1,143 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129321AbRBIQuk>; Fri, 9 Feb 2001 11:50:40 -0500
+	id <S129494AbRBIQwK>; Fri, 9 Feb 2001 11:52:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130257AbRBIQua>; Fri, 9 Feb 2001 11:50:30 -0500
-Received: from [195.6.224.218] ([195.6.224.218]:54277 "EHLO winealley.com")
-	by vger.kernel.org with ESMTP id <S129321AbRBIQuN>;
-	Fri, 9 Feb 2001 11:50:13 -0500
-From: Jean-Luc Fontaine <jfontain@winealley.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.1: unresolved symbol with nfsd as a module
-Date: Fri, 9 Feb 2001 17:56:37 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-Message-Id: <01020917563700.00917@suzuki.winealley.com>
-Content-Transfer-Encoding: 7BIT
+	id <S129943AbRBIQwA>; Fri, 9 Feb 2001 11:52:00 -0500
+Received: from tetsuo.zabbo.net ([204.138.55.44]:50189 "HELO tetsuo.zabbo.net")
+	by vger.kernel.org with SMTP id <S129494AbRBIQvu>;
+	Fri, 9 Feb 2001 11:51:50 -0500
+Date: Fri, 9 Feb 2001 11:51:48 -0500
+From: Zach Brown <zab@zabbo.net>
+To: dilinger@mp3revolution.net
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com, torvalds@transmeta.com
+Subject: Re: [PATCH] maestro3 still oopses?
+Message-ID: <20010209115148.B20335@tetsuo.zabbo.net>
+In-Reply-To: <20010208223103.A432@incandescent.mp3revolution.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010208223103.A432@incandescent.mp3revolution.net>; from dilinger@mp3revolution.net on Thu, Feb 08, 2001 at 10:31:03PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC me.
+> The maestro3 driver, included in 2.4.2-pre2 (which I assume is the
+> same as maestro3-2.4-20010204.tar.gz, I haven't bothered to try it;
+> I'm perfectly happy w/ my patch), oopses upon shutdown.
 
-Platform: redhat 7.0 with kgcc.
+the maestro3 snapshot in 2.4.2pre2 is not up to date.  I imagine it came
+from alan, who got the jan30 patch, but didn't get the trivial feb 04
+patch that fixes the oops you're seeing.
 
-# insmod ./kernel/fs/nfsd/nfsd.o
-./kernel/fs/nfsd/nfsd.o: unresolved symbol nfsd_linkage
+the proper patch to 2.4.2-pre2 (and 2.4ac-current, presumably)
+is attached.  Does it fix you problem?  [it tries to do so without
+duplicating code, you'll notice.]
 
-seems the code:
+> + *   use pci_module_init() instead of pci_register_driver().
 
-#if defined(CONFIG_NFSD_MODULE)
-struct nfsd_linkage *nfsd_linkage = NULL;
-...
+I'd rather do this in a seperate patch that does lots of other cleanups
+that are pending.
 
-from filesystems.c did not get in, although:
+- z
 
-# fgrep nfsd System.map 
-c01f3f60 ? __kstrtab_nfsd_linkage
-c01f8b90 ? __ksymtab_nfsd_linkage
-c01fedc8 D nfsd_linkage
-
-and that is where it goes beyond my comprehension...
-Here is my .config without the comments:
-
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_M686=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_APM=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_PACKET=m
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_MOUSE=m
-CONFIG_PSMOUSE=y
-CONFIG_AUTOFS4_FS=m
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_JFFS_FS_VERBOSE=0
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_SUNRPC=m
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_SMB_FS=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_SOUND=m
-CONFIG_SOUND_CMPCI=m
-CONFIG_MAGIC_SYSRQ=y
-
-
--- 
-Jean-Luc Fontaine mailto:jfontain@winealley.com http://www.winealley.com
+--- maestro3.c	Mon Feb  5 06:51:58 2001
++++ maestro3.c	Mon Feb  5 07:40:53 2001
+@@ -28,6 +28,8 @@
+  * Shouts go out to Mike "DJ XPCom" Ang.
+  *
+  * History
++ *  v1.21 - Feb 04 2001 - Zach Brown <zab@zabbo.net>
++ *   fix up really dumb notifier -> suspend oops
+  *  v1.20 - Jan 30 2001 - Zach Brown <zab@zabbo.net>
+  *   get rid of pm callback and use pci_dev suspend/resume instead
+  *   m3_probe cleanups, including pm oops think-o
+@@ -147,7 +149,7 @@
+ 
+ #define M_DEBUG 1
+ 
+-#define DRIVER_VERSION      "1.20"
++#define DRIVER_VERSION      "1.21"
+ #define M3_MODULE_NAME      "maestro3"
+ #define PFX                 M3_MODULE_NAME ": "
+ 
+@@ -2763,7 +2765,6 @@
+ static void m3_suspend(struct pci_dev *pci_dev)
+ {
+     unsigned long flags;
+-    int index;
+     int i;
+     struct m3_card *card = pci_dev->driver_data;
+ 
+@@ -2788,15 +2789,18 @@
+ 
+     m3_assp_halt(card);
+ 
+-    index = 0;
+-    DPRINTK(DPMOD, "saving code\n");
+-    for(i = REV_B_CODE_MEMORY_BEGIN ; i <= REV_B_CODE_MEMORY_END; i++)
+-        card->suspend_mem[index++] = 
+-            m3_assp_read(card, MEMTYPE_INTERNAL_CODE, i);
+-    DPRINTK(DPMOD, "saving data\n");
+-    for(i = REV_B_DATA_MEMORY_BEGIN ; i <= REV_B_DATA_MEMORY_END; i++)
+-        card->suspend_mem[index++] = 
+-            m3_assp_read(card, MEMTYPE_INTERNAL_DATA, i);
++    if(card->suspend_mem) {
++        int index = 0;
++
++        DPRINTK(DPMOD, "saving code\n");
++        for(i = REV_B_CODE_MEMORY_BEGIN ; i <= REV_B_CODE_MEMORY_END; i++)
++            card->suspend_mem[index++] = 
++                m3_assp_read(card, MEMTYPE_INTERNAL_CODE, i);
++        DPRINTK(DPMOD, "saving data\n");
++        for(i = REV_B_DATA_MEMORY_BEGIN ; i <= REV_B_DATA_MEMORY_END; i++)
++            card->suspend_mem[index++] = 
++                m3_assp_read(card, MEMTYPE_INTERNAL_DATA, i);
++    }
+ 
+     DPRINTK(DPMOD, "powering down apci regs\n");
+     m3_outw(card, 0xffff, 0x54);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

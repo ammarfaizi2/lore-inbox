@@ -1,27 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289727AbSAJWA6>; Thu, 10 Jan 2002 17:00:58 -0500
+	id <S289730AbSAJWBs>; Thu, 10 Jan 2002 17:01:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289723AbSAJWAk>; Thu, 10 Jan 2002 17:00:40 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59917 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289727AbSAJWA0>; Thu, 10 Jan 2002 17:00:26 -0500
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-To: pbadari@us.ibm.com (Badari Pulavarty)
-Date: Thu, 10 Jan 2002 22:11:34 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pbadari@us.ibm.com (Badari Pulavarty),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200201102153.g0ALrl402482@eng2.beaverton.ibm.com> from "Badari Pulavarty" at Jan 10, 2002 01:53:46 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289719AbSAJWBk>; Thu, 10 Jan 2002 17:01:40 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:8348 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S289721AbSAJWBc>;
+	Thu, 10 Jan 2002 17:01:32 -0500
+Date: Thu, 10 Jan 2002 22:01:24 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: f.jimenez@bigfoot.com, linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: array size limit in module?
+Message-ID: <1471199855.1010700083@[195.224.237.69]>
+In-Reply-To: <20020110181054Z289122-13997+3040@vger.kernel.org>
+In-Reply-To: <20020110181054Z289122-13997+3040@vger.kernel.org>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16OnQ6-0005gz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Something like sd_attach() could get this info from template and
-> set a flag in blk_dev. (or in a gloal array).
+> Here is the offending part of code:
+>
+> char *sectors_array = NULL;
+> ........
+> secs_size=131072;
+> sectors_array = kmalloc(secs_size*sizeof(char), GFP_KERNEL);
 
-I didnt think blk_dev was per minor ?
+    <===== missing check: if (!sectors_array) ....
+
+> for(i=0; i<secs_size; i++) {
+> 	sectors_array[i]=0;
+
+You appear to be missing something that checks for
+(even transient) out of memory conditions.
+
+kmalloc() has an internal sensible limit to
+allocations of 128Mb (see mm/slab.c, cache_sizes
+array). It BUG()s if >128Mb is asked for.
+You can get more with __get_free_pages()
+and/or vmalloc().
+
+In any case, kmalloc has to allocate contiguous
+pages, whilst there may be 4 pages free, there may not be
+4 contiguous pages free. This aside, kmalloc()
+may /still/ fail.
+
+However, if you are reading sectors probably
+wise to group them by page and allocate
+each page separately.
+
+--
+Alex Bligh

@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbVCJG7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVCJHOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbVCJG7N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 01:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVCJG7N
+	id S262165AbVCJHOY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 02:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVCJHOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 01:59:13 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40673 "EHLO
+	Thu, 10 Mar 2005 02:14:24 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44001 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262144AbVCJG7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 01:59:08 -0500
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, gdb <gdb@sources.redhat.com>,
-       Dave Anderson <anderson@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>, fastboot <fastboot@lists.osdl.org>
+	id S262165AbVCJHOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 02:14:18 -0500
+To: dipankar@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, Dave Anderson <anderson@redhat.com>,
+       gdb <gdb@sources.redhat.com>, fastboot <fastboot@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [Fastboot] Re: Query: Kdump: Core Image ELF Format
 References: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
 	<m1br9um313.fsf@ebiederm.dsl.xmission.com>
 	<1110350629.31878.7.camel@wks126478wss.in.ibm.com>
 	<m1ll8wlx82.fsf@ebiederm.dsl.xmission.com>
-	<1110430955.3574.11.camel@wks126478wss.in.ibm.com>
+	<20050309150644.GA4663@in.ibm.com>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 Mar 2005 23:56:04 -0700
-In-Reply-To: <1110430955.3574.11.camel@wks126478wss.in.ibm.com>
-Message-ID: <m1br9skn0b.fsf@ebiederm.dsl.xmission.com>
+Date: 10 Mar 2005 00:11:10 -0700
+In-Reply-To: <20050309150644.GA4663@in.ibm.com>
+Message-ID: <m17jkgkmb5.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
+Dipankar Sarma <dipankar@in.ibm.com> writes:
 
-> I want to fill the virtual addresses of linearly mapped region. That is
-> physical addresses from 0 to MAXMEM (896 MB) are mapped by kernel at
-> virtual addresses PAGE_OFFSET to (PAGE_OFFSET + MAXMEM). Values of
-> PAGE_OFFSET and MAXMEM are already known and hard-coded.
+> On Wed, Mar 09, 2005 at 07:17:49AM -0700, Eric W. Biederman wrote:
 
-PAGE_OFFSET has a common value of 0xc0000000, on x86.  However
-that value is by no means fixed.  The 4G/4G split changes it
-as do some other patches floating around at the time.
-On x86-64 I don't know how stable those kinds of offsets are.
- 
-> I think I used the terminology kernel virtual address and that is adding
-> to the confusion. Kernel virtual addresses are not necessarily linearly
-> mapped. What I meant was kernel logical addresses whose associated
-> physical addresses differ only by a constant offset.
+> > Beyond that I prefer a little command line tool that will do the
+> > ELF64 to ELF32 conversion and possibly add in the kva mapping to
+> > make the core dump usable with gdb.  Doing it in a separate tool
+> > means it is the developer who is doing the analysis who cares
+> > not the user who is capturing the system core dump.
+> 
+> Well, as a kernel developer, I am both :) For me, having to install
+> half-a-dozen different command line tools to get and analyze a crash dump
+> is a PITA, not to mention potential version mismatches. As someone
+> who would like very much to use crash dump for debugging, I would
+> much rather be able to force a dump and then use gdb for
+> a quick debug. I agree that a customer would see a different
+> situation. It would be nice if we can cater to both the kinds.
 
-I know what you meant.  I simply meant that things don't look that
-constant to me.  Especially in Linux where there are enough people
-to try most of the reasonable possibilities.
+Crash dumps seem to be a when all else fails kind of solution.  Or
+something to make a detailed record of what happened so information
+can be logged.
 
-I don't even think it is a bad idea.  But I do think we have a different
-idea of what is constant.
+I think are differences are largely a matter of emphasis.  I worry
+about the end user and the whole cycle.  For that we need a fixed
+simple crash dump format whit no knobs bells or whistles, that can
+be given to developers and eventually supported natively by all of
+the tools.
+
+I doubt tweaking gdb so it can handle a 64bit ELF core dump even
+on 32bit architectures would be very hard.  Once that is in place
+the 64->32bit conversion doesn't matter.  The virtual addresses
+matter a little more although I am more inclined to teach gdb
+about the physical and virtual address differences of whole machine
+crash dumps.
+
+I do agree that the ability to tweak things in the short term
+to work like a process that does not have the virtual/physical address
+distinction is useful.  
+
+The issue of tool versioning problems is bogus.  That is solved
+by simply picking a good interface between tools and sticking
+with it.  Occasionally there will be paradigm shifts (like threading)
+that will cause change, but generally everything will stay the same.
+In addition if tools are distributed together it does not matter,
+if there are several of them because there is only one update.
 
 Eric

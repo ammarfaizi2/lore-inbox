@@ -1,85 +1,253 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266289AbUHNXOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUHNXQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266289AbUHNXOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 19:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUHNXOZ
+	id S266295AbUHNXQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 19:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266339AbUHNXQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 19:14:25 -0400
-Received: from mailservice.tudelft.nl ([130.161.131.5]:8526 "EHLO
-	mailservice.tudelft.nl") by vger.kernel.org with ESMTP
-	id S266289AbUHNXOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 19:14:22 -0400
-Message-ID: <000601c4825c$90504bc0$161b14ac@boromir>
-From: "Martijn Sipkema" <m.j.w.sipkema@student.tudelft.nl>
-To: "Jakub Jelinek" <jakub@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>, "Ulrich Drepper" <drepper@redhat.com>,
-       "Roland McGrath" <roland@redhat.com>
-References: <000701c4399e$88a3aae0$161b14ac@boromir> <20040514095145.GC30909@devserv.devel.redhat.com> <000601c439a3$f793af40$161b14ac@boromir> <20040514104012.GE30909@devserv.devel.redhat.com>
-Subject: Re: POSIX message queues should not allocate memory on send
-Date: Sun, 15 Aug 2004 01:12:33 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+	Sat, 14 Aug 2004 19:16:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30927 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266295AbUHNXPo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 19:15:44 -0400
+Date: Sat, 14 Aug 2004 16:15:21 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: [PATCH] use simple_read_from_buffer in selinuxfs
+Message-ID: <20040814161521.C1924@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Jakub Jelinek" <jakub@redhat.com>
-> On Fri, May 14, 2004 at 12:09:46PM +0100, Martijn Sipkema wrote:
-> > You are correct; defaults are indeed needed. The current default value
-> > for mq_msgsize seems rather large considering that mq_msgsize*mq_maxmsg
-> > bytes will have to be allocated on queue creation. If variable sized large
-> > payload messages are needed one might consider using shared memory in
-> > combination with a message queue.
-> > 
-> > My main point was that mq_send()/mq_timedsend() may not return ENOMEM
-> > and I am positive I did not misread the standard on that.
-> 
-> Even that is not clear.
-> http://www.opengroup.org/onlinepubs/009695399/functions/xsh_chap02_03.html#tag_02_03
-> "   Implementations may support additional errors not included in this list,
->     may generate errors included in this list under circumstances other than
->     those described here, or may contain extensions or limitations that
->     prevent some errors from occurring.  The ERRORS section on each
->     reference page specifies whether an error shall be returned, or whether
->     it may be returned.  Implementations shall not generate a different error
->     number from the ones described here for error conditions described in
->     this volume of IEEE Std 1003.1-2001, but may generate additional errors
->     unless explicitly disallowed for a particular function."
-> 
-> Explicitely disallowed in the general section is only EINTR for the THR
-> option functions unless explitely listed for that function and nothing else.
-> 
-> I don't see ENOMEM explicitly forbidden for mq_send/mq_timedsend nor
-> any wording in mq_open description which would require the buffers to
-> be preallocated.
+Use simple_read_from_buffer.  This also eliminates page allocation
+for the sprintf buffer.  Switch to get_zeroed_page instead of
+open-coding it.  Viro had ack'd this earlier.  Still applies w/
+the transaction update.
 
-You are correct, but from the mq_send/mq_timedsend DESCRIPTION:
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-``If the specified message queue is not full, mq_send() shall behave as if the
-message is inserted into the message queue at the position indicated by the
-msg_prio argument.''
-
-and from ERRORS:
-
-``The mq_send() and mq_timedsend() functions shall fail if:
-[EAGAIN] The O_NONBLOCK flag is set in the message queue description
-associated with mqdes, and the specified message queue is full.''
-
-Thus, if full could be interpreted as to also mean that there is no memory
-to store the message, returning ENOMEM is not allowed and EAGAIN
-would have to be used in stead since an implementation isn't allowed to
-use a different error number for the same error condition.
-
-If full is taken to mean that the queue contains its maximum number
-of messages, which I think is the correct meaning, then returning ENOMEM
-is not allowed, i.e. the queue has to be preallocated, I think, since the
-description states that a message shall be added if the queue is not full.
-
---ms
-
-
+===== security/selinux/selinuxfs.c 1.12 vs edited =====
+--- 1.12/security/selinux/selinuxfs.c	2004-06-03 18:47:11 -07:00
++++ edited/security/selinux/selinuxfs.c	2004-08-06 17:44:52 -07:00
+@@ -68,40 +68,15 @@
+ 	SEL_DISABLE	/* disable SELinux until next reboot */
+ };
+ 
++#define TMPBUFLEN	12
+ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+-	char *page;
++	char tmpbuf[TMPBUFLEN];
+ 	ssize_t length;
+-	ssize_t end;
+-
+-	if (count < 0 || count > PAGE_SIZE)
+-		return -EINVAL;
+-	if (!(page = (char*)__get_free_page(GFP_KERNEL)))
+-		return -ENOMEM;
+-	memset(page, 0, PAGE_SIZE);
+-
+-	length = scnprintf(page, PAGE_SIZE, "%d", selinux_enforcing);
+-	if (length < 0) {
+-		free_page((unsigned long)page);
+-		return length;
+-	}
+ 
+-	if (*ppos >= length) {
+-		free_page((unsigned long)page);
+-		return 0;
+-	}
+-	if (count + *ppos > length)
+-		count = length - *ppos;
+-	end = count + *ppos;
+-	if (copy_to_user(buf, (char *) page + *ppos, count)) {
+-		count = -EFAULT;
+-		goto out;
+-	}
+-	*ppos = end;
+-out:
+-	free_page((unsigned long)page);
+-	return count;
++	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", selinux_enforcing);
++	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
+ }
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+@@ -119,10 +94,9 @@
+ 		/* No partial writes. */
+ 		return -EINVAL;
+ 	}
+-	page = (char*)__get_free_page(GFP_KERNEL);
++	page = (char*)get_zeroed_page(GFP_KERNEL);
+ 	if (!page)
+ 		return -ENOMEM;
+-	memset(page, 0, PAGE_SIZE);
+ 	length = -EFAULT;
+ 	if (copy_from_user(page, buf, count))
+ 		goto out;
+@@ -170,10 +144,9 @@
+ 		/* No partial writes. */
+ 		return -EINVAL;
+ 	}
+-	page = (char*)__get_free_page(GFP_KERNEL);
++	page = (char*)get_zeroed_page(GFP_KERNEL);
+ 	if (!page)
+ 		return -ENOMEM;
+-	memset(page, 0, PAGE_SIZE);
+ 	length = -EFAULT;
+ 	if (copy_from_user(page, buf, count))
+ 		goto out;
+@@ -204,37 +177,11 @@
+ static ssize_t sel_read_policyvers(struct file *filp, char __user *buf,
+                                    size_t count, loff_t *ppos)
+ {
+-	char *page;
++	char tmpbuf[TMPBUFLEN];
+ 	ssize_t length;
+-	ssize_t end;
+-
+-	if (count < 0 || count > PAGE_SIZE)
+-		return -EINVAL;
+-	if (!(page = (char*)__get_free_page(GFP_KERNEL)))
+-		return -ENOMEM;
+-	memset(page, 0, PAGE_SIZE);
+ 
+-	length = scnprintf(page, PAGE_SIZE, "%u", POLICYDB_VERSION_MAX);
+-	if (length < 0) {
+-		free_page((unsigned long)page);
+-		return length;
+-	}
+-
+-	if (*ppos >= length) {
+-		free_page((unsigned long)page);
+-		return 0;
+-	}
+-	if (count + *ppos > length)
+-		count = length - *ppos;
+-	end = count + *ppos;
+-	if (copy_to_user(buf, (char *) page + *ppos, count)) {
+-		count = -EFAULT;
+-		goto out;
+-	}
+-	*ppos = end;
+-out:
+-	free_page((unsigned long)page);
+-	return count;
++	length = scnprintf(tmpbuf, TMPBUFLEN, "%u", POLICYDB_VERSION_MAX);
++	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
+ }
+ 
+ static struct file_operations sel_policyvers_ops = {
+@@ -247,37 +194,11 @@
+ static ssize_t sel_read_mls(struct file *filp, char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+-	char *page;
++	char tmpbuf[TMPBUFLEN];
+ 	ssize_t length;
+-	ssize_t end;
+-
+-	if (count < 0 || count > PAGE_SIZE)
+-		return -EINVAL;
+-	if (!(page = (char*)__get_free_page(GFP_KERNEL)))
+-		return -ENOMEM;
+-	memset(page, 0, PAGE_SIZE);
+-
+-	length = scnprintf(page, PAGE_SIZE, "%d", selinux_mls_enabled);
+-	if (length < 0) {
+-		free_page((unsigned long)page);
+-		return length;
+-	}
+ 
+-	if (*ppos >= length) {
+-		free_page((unsigned long)page);
+-		return 0;
+-	}
+-	if (count + *ppos > length)
+-		count = length - *ppos;
+-	end = count + *ppos;
+-	if (copy_to_user(buf, (char *) page + *ppos, count)) {
+-		count = -EFAULT;
+-		goto out;
+-	}
+-	*ppos = end;
+-out:
+-	free_page((unsigned long)page);
+-	return count;
++	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", selinux_mls_enabled);
++	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
+ }
+ 
+ static struct file_operations sel_mls_ops = {
+@@ -352,10 +273,9 @@
+ 		/* No partial writes. */
+ 		return -EINVAL;
+ 	}
+-	page = (char*)__get_free_page(GFP_KERNEL);
++	page = (char*)get_zeroed_page(GFP_KERNEL);
+ 	if (!page)
+ 		return -ENOMEM;
+-	memset(page, 0, PAGE_SIZE);
+ 	length = -EFAULT;
+ 	if (copy_from_user(page, buf, count))
+ 		goto out;
+@@ -766,11 +679,10 @@
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+-	if (!(page = (char*)__get_free_page(GFP_KERNEL))) {
++	if (!(page = (char*)get_zeroed_page(GFP_KERNEL))) {
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+-	memset(page, 0, PAGE_SIZE);
+ 
+ 	inode = filep->f_dentry->d_inode;
+ 	cur_enforcing = security_get_bool_value(inode->i_ino - BOOL_INO_OFFSET);
+@@ -832,12 +744,11 @@
+ 		/* No partial writes. */
+ 		goto out;
+ 	}
+-	page = (char*)__get_free_page(GFP_KERNEL);
++	page = (char*)get_zeroed_page(GFP_KERNEL);
+ 	if (!page) {
+ 		length = -ENOMEM;
+ 		goto out;
+ 	}
+-	memset(page, 0, PAGE_SIZE);
+ 
+ 	if (copy_from_user(page, buf, count))
+ 		goto out;
+@@ -891,14 +802,12 @@
+ 		/* No partial writes. */
+ 		goto out;
+ 	}
+-	page = (char*)__get_free_page(GFP_KERNEL);
++	page = (char*)get_zeroed_page(GFP_KERNEL);
+ 	if (!page) {
+ 		length = -ENOMEM;
+ 		goto out;
+ 	}
+ 
+-	memset(page, 0, PAGE_SIZE);
+-
+ 	if (copy_from_user(page, buf, count))
+ 		goto out;
+ 
+@@ -984,9 +893,8 @@
+ 
+ 	sel_remove_bools(dir);
+ 
+-	if (!(page = (char*)__get_free_page(GFP_KERNEL)))
++	if (!(page = (char*)get_zeroed_page(GFP_KERNEL)))
+ 		return -ENOMEM;
+-	memset(page, 0, PAGE_SIZE);
+ 
+ 	ret = security_get_bools(&num, &names, &values);
+ 	if (ret != 0)

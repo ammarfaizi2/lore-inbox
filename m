@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266487AbUGPFpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUGPFrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266487AbUGPFpx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 01:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUGPFpx
+	id S266477AbUGPFrA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 01:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUGPFrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 01:45:53 -0400
-Received: from colin2.muc.de ([193.149.48.15]:29701 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S266487AbUGPFpv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 01:45:51 -0400
-Date: 16 Jul 2004 07:45:50 +0200
-Date: Fri, 16 Jul 2004 07:45:50 +0200
-From: Andi Kleen <ak@muc.de>
-To: Martin Diehl <lists@mdiehl.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
-       irda-users@lists.sourceforge.net, jt@hpl.hp.com,
-       the_nihilant@autistici.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Drop ISA dependencies from IRDA drivers
-Message-ID: <20040716054550.GA21819@muc.de>
-References: <20040715215552.GA46635@muc.de> <Pine.LNX.4.44.0407160027410.14037-100000@notebook.home.mdiehl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Jul 2004 01:47:00 -0400
+Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:49790 "HELO
+	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266477AbUGPFqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 01:46:48 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [PARCH] driver core: add driver_find to find a driver by name
+Date: Thu, 15 Jul 2004 23:41:14 -0500
+User-Agent: KMail/1.6.2
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <200406272126.05220.dtor_core@ameritech.net> <20040714230246.GF3398@kroah.com> <20040715123018.GA17486@logos.cnet>
+In-Reply-To: <20040715123018.GA17486@logos.cnet>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0407160027410.14037-100000@notebook.home.mdiehl.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407152341.14189.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 16, 2004 at 12:32:44AM +0200, Martin Diehl wrote:
-> On 15 Jul 2004, Andi Kleen wrote:
-> 
-> > Remove wrong ISA dependencies for IRDA drivers.
+On Thursday 15 July 2004 07:30 am, Marcelo Tosatti wrote:
+> On Wed, Jul 14, 2004 at 04:02:46PM -0700, Greg KH wrote:
+> > On Sun, Jun 27, 2004 at 09:26:03PM -0500, Dmitry Torokhov wrote:
+> > > Hi,
+> > > 
+> > > Here is a patch that adds driver_find() that allows to search for a driver
+> > > on a bus by it's name. The function is similar to device_find already present
+> > > in the tree. I need it for my serio sysfs patches where user can re-bind
+> > > serio port to an alternate driver by echoing driver's name to serio port's
+> > > driver attribute.
 > > 
-> > 
-> > diff -u linux-2.6.8rc1-amd64/drivers/net/irda/Kconfig-o linux-2.6.8rc1-amd64/drivers/net/irda/Kconfig
-> > --- linux-2.6.8rc1-amd64/drivers/net/irda/Kconfig-o	2004-07-12 06:09:05.000000000 +0200
-> > +++ linux-2.6.8rc1-amd64/drivers/net/irda/Kconfig	2004-07-15 18:33:48.000000000 +0200
-> > @@ -310,7 +310,7 @@
-> >  
-> >  config NSC_FIR
-> >  	tristate "NSC PC87108/PC87338"
-> > -	depends on IRDA && ISA
-> > +	depends on IRDA
+> > Applied, thanks.
 > 
+> Dmitry,
 > 
-> Admittedly I haven't tried either, but I'm pretty sure this patch will 
-> break building those drivers because they are calling irda_setup_dma - 
-> which is CONFIG_ISA. Maybe this can be dropped but I don't see what's 
-> wrong with !64BIT instead.
+> I remember you fixed kset_find_obj() to get a reference count on the kobject.
+> 
+> driver_find()/device_find() use that, maybe it would be nice to add a comment 
+> on top of those saying the caller is responsible for putting the refcount 
+> on the kobject?
+> 
+> Last time I looked at your patches there was no such comment on driver_find/device_find, 
+> only kset_find_obj().
+> 
+> Just nitpicking.
+> 
 
-Hmm, good point. 
+Hi Marcelo,
 
-!64BIT is not needed - apparently they are 64bit clean.
+I tried to document driver_find, device_find and find_bus, please check out
+the version that Greg has committed. If comments still somewhat unclear I
+will try redoing them.
 
-The reason I want to drop the CONFIG_ISA depency is that they *should*
-be built on x86-64 too. 
-
--Andi
+-- 
+Dmitry

@@ -1,93 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272273AbTHNKZp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 06:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272275AbTHNKZp
+	id S272279AbTHNKco (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 06:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272280AbTHNKco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 06:25:45 -0400
-Received: from out005pub.verizon.net ([206.46.170.143]:5827 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S272273AbTHNKZn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 06:25:43 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: Geert Uytterhoeven <geert@linux-m68k.org>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: C99 Initialisers
-Date: Thu, 14 Aug 2003 06:25:41 -0400
-User-Agent: KMail/1.5.1
-Cc: Matthew Wilcox <willy@debian.org>, Russell King <rmk@arm.linux.org.uk>,
-       Greg KH <greg@kroah.com>, "David S. Miller" <davem@redhat.com>,
-       rddunlap@osdl.org, davej@redhat.com,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       kernel-janitor-discuss@lists.sourceforge.net
-References: <Pine.GSO.4.21.0308141202410.12289-100000@vervain.sonytel.be>
-In-Reply-To: <Pine.GSO.4.21.0308141202410.12289-100000@vervain.sonytel.be>
-Organization: None that appears to be detectable by casual observers
+	Thu, 14 Aug 2003 06:32:44 -0400
+Received: from blackhole.kfki.hu ([148.6.0.114]:65029 "EHLO blackhole.kfki.hu")
+	by vger.kernel.org with ESMTP id S272279AbTHNKck (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 06:32:40 -0400
+Date: Thu, 14 Aug 2003 12:32:35 +0200 (CEST)
+From: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: kmem_cache_destroy: Can't free all objects (2.6)
+Message-ID: <Pine.LNX.4.33.0308141215430.7602-100000@blackhole.kfki.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308140625.41289.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.63.243] at Thu, 14 Aug 2003 05:25:41 -0500
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 August 2003 06:05, Geert Uytterhoeven wrote:
->On Wed, 13 Aug 2003, Jeff Garzik wrote:
->> > On Wed, Aug 13, 2003 at 03:44:44PM -0400, Jeff Garzik wrote:
->> >>enums are easy  putting direct references would be annoying, but
->> >> I also argue it's potentially broken and wrong to store and
->> >> export that information publicly anyway.  The use of enums
->> >> instead of pointers is practically required because there is a
->> >> many-to-one relationship of ids to board information structs.
->> >
->> > The hard part is that it's actually many-to-many.  The same card
->> > can have multiple drivers.  one driver can support many cards.
->>
->> pci_device_tables are (and must be) at per-driver granularity. 
->> Sure the same card can have multiple drivers, but that doesn't
->> really matter in this context, simply because I/we cannot break
->> that per-driver granularity.  Any solution must maintain
->> per-driver granularity.
->
->Aren't there any `hidden multi-function in single-function' PCI
-> devices out there? E.g. cards with a serial and a parallel port?
->
->At least for the Zorro bus, these exist. E.g. the Ariadne card
-> contains both Ethernet and 2 parallel ports, so the Ariadne
-> Ethernet driver and the (still to be written) Ariadne parallel port
-> driver are both drivers for the same Zorro device.
+Hello,
 
-And don't forget the MFC-III, which as 2 more seriels and a parallel 
-port, a quite popular card for the big box's.  But I can't, at this 
-late date, certify the seriels were 16550 compliant.
+I'm working on performance testing netfilter ip_conntrack.  The tested
+machine is a dual Xeon PC with Serverworks chipset and e1000 cards.
 
->Gr{oetje,eeting}s,
->
->						Geert
->
->P.S. Yes, according to the IBM slides at LKS, m68k is dead ;-)
->--
->Geert Uytterhoeven -- There's lots of Linux beyond ia32 --
-> geert@linux-m68k.org
->
->In personal conversations with technical people, I call myself a
-> hacker. But when I'm talking to journalists I just say "programmer"
-> or something like that. -- Linus Torvalds
->
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+"Calibrating" without ip_conntrack loaded in went fine. However as
+the ip_conntrack module was removed after a test, sometimes I got the
+message:
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+slab error in kmem_cache_destroy(): cache `ip_conntrack': Can't free all
+objects
+Call Trace:
+ [<c0136fe9>] kmem_cache_destroy+0xd8/0x116
+ [<f889f3ba>] ip_conntrack_cleanup+0x43/0x6c [ip_conntrack]
+ [<f889d61a>] init_or_cleanup+0x131/0x190 [ip_conntrack]
+ [<f889fc13>] fini+0xf/0x19 [ip_conntrack]
+ [<c012dd76>] sys_delete_module+0x13c/0x169
+ [<c01402ab>] sys_munmap+0x45/0x66
+ [<c0108f9b>] syscall_call+0x7/0xb
+
+I cannot reliably reproduce the error. Sometimes it comes at the
+first test run, sometimes at say the 20th, but I have never been able to
+run all the planned 150 tests.
+
+This happens both with 2.5.74 and 2.6.0-test1.
+
+Rusty suggested to apply the following little patch to capture allocs and
+frees:
+
+--- linux-2.6.0-ct/mm/slab.c.orig       2003-07-25 13:48:26.000000000
++0200
++++ linux-2.6.0-ct/mm/slab.c    2003-07-25 13:56:51.000000000 +0200
+@@ -280,6 +280,7 @@
+        struct list_head        next;
+
+ /* 5) statistics */
++       atomic_t                alloc,free;
+ #if STATS
+        unsigned long           num_active;
+        unsigned long           num_allocations;
+@@ -1389,6 +1390,10 @@
+        up(&cache_chain_sem);
+
+        if (__cache_shrink(cachep)) {
++               printk("Slab cache %s: %u allocs vs %u frees\n",
++                      cachep->name,
++                      atomic_read(&cachep->alloc),
++                      atomic_read(&cachep->free));
+                slab_error(cachep, "Can't free all objects");
+                down(&cache_chain_sem);
+                list_add(&cachep->next,&cache_chain);
+@@ -2022,7 +2027,10 @@
+  */
+ void * kmem_cache_alloc (kmem_cache_t *cachep, int flags)
+ {
+-       return __cache_alloc(cachep, flags);
++       void *ret = __cache_alloc(cachep, flags);
++       if (ret)
++               atomic_inc(&cachep->alloc);
++       return ret;
+ }
+
+ /**
+@@ -2119,6 +2127,7 @@
+ {
+        unsigned long flags;
+
++       atomic_inc(&cachep->free);
+        local_irq_save(flags);
+        __cache_free(cachep, objp);
+        local_irq_restore(flags);
+
+The result with the patch applied is as follows:
+
+Slab cache ip_conntrack: 2052678 allocs vs 2052678 frees
+slab error in kmem_cache_destroy(): cache `ip_conntrack': Can't free all objects
+Call Trace:
+ [<c0133554>] __slab_error+0x24/0x28
+ [<c013426d>] kmem_cache_destroy+0xa5/0x128
+ [<f889f562>] ip_conntrack_cleanup+0x4a/0x70 [ip_conntrack]
+ [<f889d5fa>] init_or_cleanup+0x16a/0x170 [ip_conntrack]
+ [<f889fd63>] fini+0x7/0xb [ip_conntrack]
+ [<c012b75e>] sys_delete_module+0x14a/0x16c
+ [<c013da30>] sys_munmap+0x38/0x58
+ [<c0108c27>] syscall_call+0x7/0xb
+
+Slab debugging is enabled, no single message in the log. /proc/slabinfo
+says (long lines wrapped):
+
+slabinfo - version: 2.0 (statistics)
+# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab>
+: tunables <batchcount> <limit <sharedfactor>
+: slabdata <active_slabs> <num_slabs> <sharedavail>
+: globalstat <listallocs> <maxobjs> <grown> <reaped> <error> <maxfreeable> <freelimit>
+: cpustat <allochit <allocmiss <freehit <freemiss>
+broken               128   2486    180   22    1
+: tunables   32   16    8
+: slabdata    113    113    128
+: globalstat  664846 590238 26829    0    0    1   70
+: cpustat 1 974008  78670 1990714  61964
+
+Any hint or idea what can be the problem?
+
+Please Cc answers to me, I'm not on the list.
+
+Best regards,
+Jozsef
+-
+E-mail  : kadlec@blackhole.kfki.hu, kadlec@sunserv.kfki.hu
+PGP key : http://www.kfki.hu/~kadlec/pgp_public_key.txt
+Address : KFKI Research Institute for Particle and Nuclear Physics
+          H-1525 Budapest 114, POB. 49, Hungary
 

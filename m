@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315967AbSENSZt>; Tue, 14 May 2002 14:25:49 -0400
+	id <S315971AbSENS3I>; Tue, 14 May 2002 14:29:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315969AbSENSZs>; Tue, 14 May 2002 14:25:48 -0400
-Received: from daimi.au.dk ([130.225.16.1]:1616 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S315967AbSENSZr>;
-	Tue, 14 May 2002 14:25:47 -0400
-Message-ID: <3CE15684.989AB0D3@daimi.au.dk>
-Date: Tue, 14 May 2002 20:25:08 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
+	id <S315972AbSENS3H>; Tue, 14 May 2002 14:29:07 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:44074 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S315971AbSENS3F>;
+	Tue, 14 May 2002 14:29:05 -0400
+Date: Tue, 14 May 2002 19:29:08 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: <tigran@einstein.homenet>
+To: William Stearns <wstearns@pobox.com>
+cc: Dead2 <dead2@circlestorm.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Initrd or Cdrom as root
+In-Reply-To: <Pine.LNX.4.44.0205141357410.2626-100000@sparrow.websense.net>
+Message-ID: <Pine.LNX.4.33.0205141920420.1577-100000@einstein.homenet>
 MIME-Version: 1.0
-To: Mark Mielke <mark@mark.mielke.cc>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
-In-Reply-To: <200205131709.g4DH9Fjv006328@pincoya.inf.utfsm.cl> <3CE1300A.990919E2@daimi.au.dk> <20020514115655.A22935@mark.mielke.cc>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke wrote:
-> 
-> 1) You can always submit a patch, and see whether other people approve of it.
+On Tue, 14 May 2002, William Stearns wrote:
 
-I might decide to do that. But I wouldn't spend the time
-without first knowing if:
-a) There were some very good reasons not to change it.
-b) Somebody knowing this code by heart could write a
-   patch in five minutes.
+> Good day, Mr. Expired,
+>
+> On Tue, 14 May 2002, Dead2 wrote:
+>
+> > Unfortunately it boots too fast for me to see that message..
+>
+> dmesg | less
+> less /var/log/dmesg
+> 	Some distributions save the boot time dmesg output here.
+> 	Cheers,
+> 	- Bill
 
-> 
-> 2) If you won't do it, why would somebody else working on something that
->    provides lower latency to user process response time, or improvement
->    to the IDE drivers, take the time to deal with this issue?
+And how exactly do you suggest to type that command if the kernel panics?
+If he had kdb he could do "mds saved_command_line 100".
 
-I don't intend to try to force somebody to do it, if
-they have more important things to do.
+I suspect that whatever is he using for creating the images (what is this
+"isolinux.cfg"?) has modified the boot command line and that is why it
+fails. It works fine for me (and worked since the time I wrote it around
+2.4.0 or so).
 
-> 
-> As it is, there are plenty of other denial-of-service type attacks
-> that can be performed that would be more effective than the 'exploit'
-> you have mentioned. Your proposal would need to be 'fix them all', if
-> your complaint is that Linux has a security hole.
+Regards
+Tigran
 
-It surely would be nice to prevent all DoS attacks. But
-of course that would require a lot of work. However I
-think most other DoS attacks could be solved by a reboot.
-
-> 
-> If you complaint is that an administrator might mistakenly believe
-> that it is a security feature, I suggest your understand that this is
-> merely one issue of quite a few. If the administrator is not aware of
-> issues such as these, perhaps they should not be an administrator?
-
-We cannot blame administrators before the documentation
-has been changed.
-
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk

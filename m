@@ -1,131 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317308AbSG1UXs>; Sun, 28 Jul 2002 16:23:48 -0400
+	id <S317300AbSG1Uh6>; Sun, 28 Jul 2002 16:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317314AbSG1UXs>; Sun, 28 Jul 2002 16:23:48 -0400
-Received: from lmail.actcom.co.il ([192.114.47.13]:31638 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S317308AbSG1UXq>; Sun, 28 Jul 2002 16:23:46 -0400
-Date: Sun, 28 Jul 2002 23:22:07 +0300
-From: Muli Ben-Yehuda <mulix@actcom.co.il>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.29 sound/oss/trident.c [2/2] remove cli/sti calls
-Message-ID: <20020728202207.GB10499@alhambra.actcom.co.il>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4SFOXa2GPu3tIq4H"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S317304AbSG1Uh6>; Sun, 28 Jul 2002 16:37:58 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:10493 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S317300AbSG1Uh5>; Sun, 28 Jul 2002 16:37:57 -0400
+From: "Buddy Lumpkin" <b.lumpkin@attbi.com>
+To: "Ed Sweetman" <safemode@speakeasy.net>,
+       "Rik van Riel" <riel@conectiva.com.br>
+Cc: "Ville Herva" <vherva@niksula.hut.fi>,
+       "Linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: About the need of a swap area
+Date: Sun, 28 Jul 2002 13:42:10 -0700
+Message-ID: <FJEIKLCALBJLPMEOOMECEEBGDAAA.b.lumpkin@attbi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <1027885641.4228.143.camel@psuedomode>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---4SFOXa2GPu3tIq4H
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sun, 2002-07-28 at 15:29, Rik van Riel wrote:
+>> On 28 Jul 2002, Ed Sweetman wrote:
+>>
+>> > If you bother to do any real tests you'd see that linux will swap when
+>> > nothing is going on and this doesn't hinder anything.
+>>
+>> Linux only puts pages in swap when it's low on free physical memory.
 
-Hello,=20
+>Perhaps, but linux considers disk cache as "in use" memory and most
+>people would consider it free memory that's just temporarily being taken
+>advantage of "in case".  Linux will still swap even if 60% of ram is
+>filesystem cache. I dont have a problem with it, was just stating some
+>real observations.
 
-This patch replaces the cli/sti calls in the trident.c driver with
-spin_lock_irqsave/spin_unlock_irqrestore.
+I don't remember anyone implying that pages in memory that are backed by a
+named file on a filesystem are "free memory" in Linux or Solaris.
+If you thought you read this you should traverse the thread again.
+The discussion was centered around whether it would "add value" to
+preference filesystem
+pages over anonymous and executable pages when you reach the point where you
+have
+to start looking for pages to reclaim because of a physical memory shortage.
 
-Patch is against 2.5.29 (latest bitkeeper), compiled and
-tested. Please apply.=20
+By all means, Solaris will swap pages and eventually entire processes if it
+needs to, it just tries
+to grab the oldest filesystem pages first. If that's not working (memory
+shortage is still getting
+worse even though the scanner is running) it will reach the next watermark
+which changes the behavior
+of the scanner.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.480   -> 1.481 =20
-#	 sound/oss/trident.c	1.23    -> 1.24  =20
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/07/28	mulix@alhambra.merseine.nu	1.481
-# get rid of cli/sti
-# --------------------------------------------
-#
-diff -Nru a/sound/oss/trident.c b/sound/oss/trident.c
---- a/sound/oss/trident.c	Sun Jul 28 23:09:05 2002
-+++ b/sound/oss/trident.c	Sun Jul 28 23:09:05 2002
-@@ -768,9 +768,8 @@
-  	 *	Keep interrupts off for the configure - we don't want to
-  	 *	clash with another cyberpro config event
-  	 */
--=20
--	save_flags(flags);
--	cli();
-+ =09
-+	spin_lock_irqsave(&card->lock, flags);=20
- 	portDat =3D cyber_inidx(CYBER_PORT_AUDIO, CYBER_IDX_AUDIO_ENABLE);
- 	/* enable, if it was disabled */
- 	if( (portDat & CYBER_BMSK_AUENZ) !=3D CYBER_BMSK_AUENZ_ENABLE ) {
-@@ -795,7 +794,7 @@
- 		cyber_outidx( CYBER_PORT_AUDIO, 0xb3, 0x06 );
- 		cyber_outidx( CYBER_PORT_AUDIO, 0xbf, 0x00 );
- 	}
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&card->lock, flags);=20
- 	return ret;
- }
-=20
-@@ -3502,9 +3501,8 @@
- 	unsigned long flags;
- 	int i, j;
-=20
--	save_flags(flags);=20
--	cli();
--=09
-+	spin_lock_irqsave(&card->lock, flags);=20
-+
- 	ali_registers.global_regs[0x2c] =3D inl(TRID_REG(card,T4D_MISCINT));
- 	//ali_registers.global_regs[0x20] =3D inl(TRID_REG(card,T4D_START_A));=09
- 	ali_registers.global_regs[0x21] =3D inl(TRID_REG(card,T4D_STOP_A));
-@@ -3532,7 +3530,7 @@
- 	//Stop all HW channel
- 	outl(ALI_STOP_ALL_CHANNELS, TRID_REG(card, T4D_STOP_A));
-=20
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&card->lock, flags);=20
- }
-=20
- static void ali_restore_regs(struct trident_card *card)
-@@ -3540,8 +3538,7 @@
- 	unsigned long flags;
- 	int i, j;
-=20
--	save_flags(flags);=20
--	cli();
-+	spin_lock_irqsave(&card->lock, flags);=20
- =09
- 	for (i =3D 1; i < ALI_MIXER_REGS; i++)
- 		ali_ac97_write(card->ac97_codec[0], i*2, ali_registers.mixer_regs[i]);
-@@ -3564,6 +3561,8 @@
- 	outl(ali_registers.global_regs[0x20], TRID_REG(card,T4D_START_A));
- 	//restore IRQ enable bits
- 	outl(ali_registers.global_regs[0x2c], TRID_REG(card,T4D_MISCINT));
-+
-+	spin_unlock_irqrestore(&card->lock, flags);=20
- =09
- 	restore_flags(flags);
- }
+Another example of this kind of behavior is how the scanner in Solaris skips
+over extensively shared libraries.
+The scanner looks at the share reference count for each page and if the page
+is shared more than
+a certain amount (certain number of processes), then it is skipped during
+the page scan operation.
 
---=20
-http://vipe.technion.ac.il/~mulix/
-http://syscalltrack.sf.net/
+Regards,
 
---4SFOXa2GPu3tIq4H
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--Buddy
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9RFJvKRs727/VN8sRAudEAKCxNKY+sEQOpy2OfoGM8Ou75EhmzQCfX3/Z
-jagChCqPOthNTZV25iR/xgc=
-=kGF9
------END PGP SIGNATURE-----
-
---4SFOXa2GPu3tIq4H--

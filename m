@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269735AbRHQGsr>; Fri, 17 Aug 2001 02:48:47 -0400
+	id <S269770AbRHQGs0>; Fri, 17 Aug 2001 02:48:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269778AbRHQGsi>; Fri, 17 Aug 2001 02:48:38 -0400
-Received: from [217.27.32.7] ([217.27.32.7]:38487 "EHLO leonid.francoudi.com")
-	by vger.kernel.org with ESMTP id <S269735AbRHQGsW>;
-	Fri, 17 Aug 2001 02:48:22 -0400
-Date: Fri, 17 Aug 2001 09:39:33 +0300
-From: Leonid Mamtchenkov <leonid@francoudi.com>
-To: Fred Jackson <fred@arkansaswebs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rebuiling kernel fails
-Message-ID: <20010817093933.A18496@francoudi.com>
-Mail-Followup-To: Fred Jackson <fred@arkansaswebs.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <01081623234204.15915@bits.linuxball>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01081623234204.15915@bits.linuxball>; from fred@arkansaswebs.com on Thu, Aug 16, 2001 at 11:23:42PM -0500
-X-Operating-System: Linux leonid.francoudi.com 2.4.8-lm1
-X-Uptime: 9:15am  up 17:50,  4 users,  load average: 0.80, 0.77, 0.89
+	id <S269756AbRHQGsQ>; Fri, 17 Aug 2001 02:48:16 -0400
+Received: from mail11.speakeasy.net ([216.254.0.211]:19721 "EHLO
+	mail11.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S269735AbRHQGsI>; Fri, 17 Aug 2001 02:48:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+Subject: question about tmpfs
+Date: Fri, 17 Aug 2001 02:48:20 -0400
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010817064809Z269735-760+2777@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Fred Jackson,
+I looked in the documentation for something about tmpfs and looked around for 
+some obvious tmpfs source but couldn't find any to figure out how to know 
+when/if it's doing what it's supposed to.  when i ls the dir it's mounted to 
+i get nothing and this is what df gives me.
+Filesystem           1k-blocks    Used    Available Use% Mounted on
+tmpfs                   144108        0        144108       0%       /dev/shm
 
-Once you wrote about "rebuiling kernel fails":
-FJ> why can I build, but not re-build the 2.4.x kernels on my redhat7.1 
-FJ> boxes?
-
-Maybe because those are actually RedHat 7.0 boxes and you need to do
-"make mrproper" every time you need to rebuild it...  Remember to save
-your .config though - mrproper is cruel :)
-
--- 
- Best regards,
- Leonid Mamtchenkov
- Red Hat Certified Linux Engineer (RHCE)
- System Administrator
- Francoudi & Stephanou Ltd
-
+There are some mounting options that i did not use, just let it go to 
+defaults, and i've got a fair amount of shared memory programs open and i'm 
+just unable to tell if this is working correctly and if not how to fix it.  
+If anyone can point me to the right place to look that would be great.  
+Hopefully this kernel, 2.4.9, will not cause mozilla to start getting 
+retarded after 5 days of uptime.  

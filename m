@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274748AbRIUEAg>; Fri, 21 Sep 2001 00:00:36 -0400
+	id <S274674AbRIUEGQ>; Fri, 21 Sep 2001 00:06:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274749AbRIUEA1>; Fri, 21 Sep 2001 00:00:27 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:5116 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S274748AbRIUEAL>;
-	Fri, 21 Sep 2001 00:00:11 -0400
-Date: Fri, 21 Sep 2001 00:00:35 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
+	id <S274750AbRIUEGG>; Fri, 21 Sep 2001 00:06:06 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:44791 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274674AbRIUEGC>;
+	Fri, 21 Sep 2001 00:06:02 -0400
+Date: Fri, 21 Sep 2001 06:06:25 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.4.10-pre11
-In-Reply-To: <20010921054749.Z729@athlon.random>
-Message-ID: <Pine.GSO.4.21.0109202350190.5631-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010921060625.A729@athlon.random>
+In-Reply-To: <20010921003136.H729@athlon.random> <Pine.GSO.4.21.0109201835320.5631-100000@weyl.math.psu.edu> <20010921010340.L729@athlon.random> <20010921054749.Z729@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010921054749.Z729@athlon.random>; from andrea@suse.de on Fri, Sep 21, 2001 at 05:47:49AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 21 Sep 2001, Andrea Arcangeli wrote:
-
-> Famous last words, after a few hours of debugging mixed with vm patches
-> and emails, I finally got around finding the real bug. The fact is that
-> the secure-ramdisk logic was totally broken, not just for initrd, oh 
-> well, so please don't apply such patch (code in mainline has the
-> security issue if you allow an luser to read from /dev/ram0, but it
-> isn't buggy). and the issue is quite unfixable with just a PageSecure
-> set inside rd.c.  The fact is that I cannot just clear-around the
-> written "bh", around there could be the source for the next block to
+On Fri, Sep 21, 2001 at 05:47:49AM +0200, Andrea Arcangeli wrote:
 > write and I cannot zero it out. It is getting harder to fix this one
 > just inside the ->make_request callback... Hints?
 
-Well, taking a file on ramfs and doing losetup on it should be equivalent
-to ramdisk.  Turning relevant pieces into a driver shouldn't be too hard.
-It won't be pretty, though - you'll probably want different
-address_space_operations, so that read()/write() wouldn't bother with
-requests at all.
+I think the best fix is to have the ramdisk using the same aops of ramfs
+and replace "Secure" with "Uptodate". We need to trap the security issue
+at the higher layer and also this will avoid us having to map useless
+bh, so it should be an improvement, only the filesystem will end
+triggering the ->make_request callback of the ramdisk. Then if the fs
+does I/O on stuff out of the physical address space we'll just clear it
+out.
 
+Andrea

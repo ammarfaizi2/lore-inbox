@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261268AbSIPJXY>; Mon, 16 Sep 2002 05:23:24 -0400
+	id <S261289AbSIPKDk>; Mon, 16 Sep 2002 06:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261289AbSIPJXY>; Mon, 16 Sep 2002 05:23:24 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:22794 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261268AbSIPJXY>; Mon, 16 Sep 2002 05:23:24 -0400
-Date: Mon, 16 Sep 2002 10:28:09 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Peter Waechtler <pwaechtler@mac.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.20-pre7: export proc_get_inode
-Message-ID: <20020916102809.A18981@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Peter Waechtler <pwaechtler@mac.com>, marcelo@conectiva.com.br,
-	linux-kernel@vger.kernel.org
-References: <15532699-C8C8-11D6-B517-00039387C942@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15532699-C8C8-11D6-B517-00039387C942@mac.com>; from pwaechtler@mac.com on Sun, Sep 15, 2002 at 06:27:53PM +0200
+	id <S261297AbSIPKDk>; Mon, 16 Sep 2002 06:03:40 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:13053 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261289AbSIPKDj>; Mon, 16 Sep 2002 06:03:39 -0400
+Date: Mon, 16 Sep 2002 12:08:32 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: dwmw2@infradead.org
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.35
+In-Reply-To: <Pine.LNX.4.33.0209151926330.10806-100000@penguin.transmeta.com>
+Message-ID: <Pine.NEB.4.44.0209161206590.14886-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 15, 2002 at 06:27:53PM +0200, Peter Waechtler wrote:
-> this is a patch against 2.4.20-pre7 to export proc_get_inode(). This is
-> needed to compile and load the wlan/comx driver as a module
 
-This comes up about every month and the answer is that it should not be
-exported because the driver is broken.
+FYI:
+
+Since 2.5.34 the compilation of JFFS2 fails with a compile error similar
+to the one in JFFS:
+
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,./.background.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.35/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=background
+-c -o background.o background.c
+background.c: In function `jffs2_garbage_collect_thread':
+background.c:118: warning: passing arg 1 of `dequeue_signal' from
+incompatible pointer type
+background.c:118: warning: passing arg 2 of `dequeue_signal' from
+incompatible pointer type
+background.c:118: too few arguments to function `dequeue_signal'
+make[2]: *** [background.o] Error 1
+make[2]: Leaving directory `/home/bunk/linux/kernel-2.5/linux-2.5.35/fs/jffs2'
+
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

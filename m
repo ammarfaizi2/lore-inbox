@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVDAPeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262782AbVDAPfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbVDAPeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:34:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVDAPcC
+	id S262782AbVDAPfE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 10:35:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbVDAPeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:32:02 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:53124 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S262771AbVDAPb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:31:29 -0500
-Message-ID: <424D6948.4000500@mesatop.com>
-Date: Fri, 01 Apr 2005 08:31:20 -0700
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Thunderbird 1.0 (Multics)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] Clarify -rc definition in Documentation/feature-list-2.6.txt
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
+	Fri, 1 Apr 2005 10:34:23 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:5052 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262773AbVDAPd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 10:33:56 -0500
+Date: Fri, 1 Apr 2005 17:33:47 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       "Artem B. Bityuckiy" <dedekind@yandex.ru>,
+       Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org
+Subject: Re: [RFC] CryptoAPI & Compression
+Message-ID: <20050401153347.GA16835@wohnheim.fh-wedel.de>
+References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org> <1112366647.3899.66.camel@localhost.localdomain> <424D6175.8000700@yandex.ru> <1112367926.3899.70.camel@localhost.localdomain> <Pine.LNX.4.58.0504011622350.9305@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0504011622350.9305@phoenix.infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gentlehackers,
+On Fri, 1 April 2005 16:22:50 +0100, Artem B. Bityuckiy wrote:
+> 
+> Another question, does JFFSx *really* need the peaces of a 4K page to be 
+> independently uncompressable? It it wouldn't be required, we would achieve 
+> better compression if we have saved the zstream state. :-) But it is too 
+> late to change things at least for JFFS2.
 
-The day to clarify the real definition of "-rc" is finally here.
+Absolutely.  You can argue that 4KiB is too small and 8|16|32|64|...
+would be much better, yielding in better compression ratio.  But
+having to read and uncompress the whole file when appending a few
+bytes is utter madness.
 
-Steven
+Jörn
 
---- linux-2.6.12-rc1-mm4/Documentation/feature-list-2.6.txt.orig        2005-04-01 07:56:23.000000000 -0700
-+++ linux-2.6.12-rc1-mm4/Documentation/feature-list-2.6.txt     2005-04-01 07:59:21.000000000 -0700
-@@ -23,16 +23,21 @@
-  Applying patches.
-  ~~~~~~~~~~~~~~~~~
-  - In 2.4 and previous kernels, the recommended way to apply patches was
-    to use a command line such as ...
-    gzip -cd patchXX.gz | patch -p0
-    In 2.6, Linus started adding an extra path element to the diffs,
-    so using -p1 in the untarred 'to be patched' directory is necessary.
-
-+Release Candidates
-+~~~~~~~~~~~~~~~~~
-+- In 2.4 and previous kernels, -rc meant "release candidate".
-+  In 2.6, -rc means "really churning", so even more testing is desired.
-+
-  Known gotchas.
-  ~~~~~~~~~~~~~~
-  Certain known bugs are being reported over and over. Here are the
-  workarounds.
-  - Blank screen after decompressing kernel?
-    Make sure your .config has
-     CONFIG_INPUT=y
-     CONFIG_VT=y
+-- 
+I don't understand it. Nobody does.
+-- Richard P. Feynman

@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbTFCIAo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 04:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264607AbTFCIAn
+	id S264607AbTFCIDj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 04:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbTFCIDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 04:00:43 -0400
-Received: from [163.16.1.198] ([163.16.1.198]:57696 "EHLO kalug.linux.org.tw")
-	by vger.kernel.org with ESMTP id S264505AbTFCIAn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 04:00:43 -0400
-Date: Tue, 3 Jun 2003 16:19:44 +0800
+	Tue, 3 Jun 2003 04:03:39 -0400
+Received: from 0x503e3f58.boanxx7.adsl-dhcp.tele.dk ([80.62.63.88]:57820 "HELO
+	mail.hswn.dk") by vger.kernel.org with SMTP id S264607AbTFCIDi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 04:03:38 -0400
 To: linux-kernel@vger.kernel.org
-Subject: EM840x REALmagic DVD/MPEG-2 Audio/Video Decoder
-Message-ID: <20030603081944.GA634@chaos>
-Reply-To: chihchun@kalug.linux.org.tw
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: <chihchun@kalug.linux.org.tw>
+Path: not-for-mail
+From: Henrik Storner <henrik-kernel@hswn.dk>
+Newsgroups: linux.kernel
+Subject: Re: VIA CHIPSET KT 400 / 8235 troubleshooting
+Date: Tue, 3 Jun 2003 08:17:04 +0000 (UTC)
+Organization: Linux Users Inc.
+Message-ID: <bbhli0$v5j$1@ask.hswn.dk>
+References: <0060478E58FDD611A4A200508BCF7BD97BF752@pleyel.chant.com>
+NNTP-Posting-Host: osiris.hswn.dk
+X-Trace: ask.hswn.dk 1054628224 31923 172.16.10.100 (3 Jun 2003 08:17:04 GMT)
+X-Complaints-To: news@ask.hswn.dk
+NNTP-Posting-Date: Tue, 3 Jun 2003 08:17:04 +0000 (UTC)
+User-Agent: nn/6.6.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In <0060478E58FDD611A4A200508BCF7BD97BF752@pleyel.chant.com> "Laurent Pierre (MIS)" <Pierre.Laurent2@eurotunnel.com> writes:
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=big5
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>> Motherboard : DFI AD77 ( KT 400 / 8235 chipset. ) 
+>> Everytime , my pc hangs during the installation and i have the following
+>> messages : 
+>> - ESR value before enabling vector : 00000002 
+>> I've tried to activate / deactivate APIC : No result. 
 
-hi folks
-  I'm working on EM840x REALmagic DVD/MPEG-2 Audio/Video Decoder, There=20
-is only official binary driver on Sigma designs website. Is there any=20
-open source driver or non-official driver ?
+My KT400 motherboard (Soltek) requires me to boot with the "noapic"
+parameter, or it will hang in a similar manner. Did you try that,
+or did you just enable/disable the APIC in the BIOS ?
 
-Please cc: to me as I'm not on the list
-
--Rex
-
---AqsLC8rIMeq19msA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+3Fog1dlLUeP4bkwRAoxqAKDOBk6FfAV6RrN2pF4lxTtB6fNrVgCfQtro
-R4UZdYWeczHFI2AV9Dr6G1Y=
-=fK8U
------END PGP SIGNATURE-----
-
---AqsLC8rIMeq19msA--
+-- 
+Henrik Storner <henrik@hswn.dk> 

@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132604AbRDLCPd>; Wed, 11 Apr 2001 22:15:33 -0400
+	id <S132652AbRDLCrE>; Wed, 11 Apr 2001 22:47:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132609AbRDLCPY>; Wed, 11 Apr 2001 22:15:24 -0400
-Received: from phnxpop3.phnx.uswest.net ([206.80.192.3]:41483 "HELO
-	phnxpop3.phnx.uswest.net") by vger.kernel.org with SMTP
-	id <S132604AbRDLCPS>; Wed, 11 Apr 2001 22:15:18 -0400
-Date: Wed, 11 Apr 2001 19:15:05 +0000
-Message-ID: <3AD4AD39.6B070782@qwest.net>
-From: "Art Wagner" <awagner@qwest.net>
-To: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac4-1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-Subject: Re: 8139too.c and 2.4.4-pre1 kernel burp
-In-Reply-To: <3AD118F4.3050507@xmission.com> <3AD11A13.6E52A515@mandrakesoft.com>
+	id <S133043AbRDLCqz>; Wed, 11 Apr 2001 22:46:55 -0400
+Received: from altus.drgw.net ([209.234.73.40]:526 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S132652AbRDLCqp>;
+	Wed, 11 Apr 2001 22:46:45 -0400
+Date: Wed, 11 Apr 2001 21:32:36 -0500
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Torrey Hoffman <torrey.hoffman@myrio.com>, linux-kernel@vger.kernel.org
+Subject: Re: natsemi.c (Netgear FA311 card) probmlems??
+Message-ID: <20010411213236.P13920@altus.drgw.net>
+In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B59@mail0.myrio.com> <3AC22661.E69BE205@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <3AC22661.E69BE205@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Mar 28, 2001 at 12:58:57PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff;
-I am getting the same problem with 2.4.3-ac4.
-See the attached messages log and system Information.
-The problem seems to be traffic sensitive, with higher 
-traffic between my system and the Cisco 675 DSL modem at
-10.0.0.1.
-Please let me know if I can provide any further useful
-information.
-Art Wagner
+On Wed, Mar 28, 2001 at 12:58:57PM -0500, Jeff Garzik wrote:
+> There are some improvements in the latest 2.4 test patch, 2.4.3-pre8.  I
+> would be very interested in hearing feedback on that.  I finally got two
+> test cards, FA311 and FA312, so I can work on it a bit too.
 
-Jeff Garzik wrote:
+Okay, I finally got around to testing this on 2.4.4-pre1. for the 5 or so 
+minutes I've been using it so far, it seems okay (I'm able to log in this 
+time), and I'm running NetPIPE to check performance.
+
+Perfomance isn't great (the peak bandwidth is 65 Mbps or so), but this
+could be partially due to my switch or the other machine I'm testing it
+with.
+
 > 
-> Frank Jacobberger wrote:
-> >
-> > Jeff,
-> >
-> > I noticed the following on boot with 2.4.4-pre1:
-> >
-> > kernel: eth0: Too much work at interrupt, IntrStatus=0x0001.
-> >
-> > What is this saying to me :)
+> The 2.4.3-pre8 patch, against kernel 2.4.2, is available from
+> ftp://ftp.us.kernel.org/pub/linux/kernel/testing/
 > 
-> How often does this occur?  A lot, or just once or twice?
+> This updated 2.4 natsemi.c merges the changes in Becker's latest, which
+> should fix eeprom/mac address reading as you mention, and it also
+> includes some power management fixes required on some boards. 
+> Differences from 2.2 versions include locking updates and some other
+> small differences.  Please test, if you have an opportunity.
 > 
-> --
-> Jeff Garzik       | Sam: "Mind if I drive?"
-> Building 1024     | Max: "Not if you don't mind me clawing at the dash
-> MandrakeSoft      |       and shrieking like a cheerleader."
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> (note you'll have to fix a screwup of mine in drivers/net/Makefile --
+> you need to add net_init.o to export-objs before you can build net
+> drivers as modules.  Building them into the kernel works fine.)
+> 
+> -- 
+> Jeff Garzik       | May you have warm words on a cold evening,
+> Building 1024     | a full moon on a dark night,
+> MandrakeSoft      | and a smooth road all the way to your door.
+> 
+
+-- 
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Shulz

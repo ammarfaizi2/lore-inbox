@@ -1,37 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273702AbRJDOSQ>; Thu, 4 Oct 2001 10:18:16 -0400
+	id <S273976AbRJDOYq>; Thu, 4 Oct 2001 10:24:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273724AbRJDOSG>; Thu, 4 Oct 2001 10:18:06 -0400
-Received: from my.nada.kth.se ([130.237.226.101]:21503 "EHLO my.nada.kth.se")
-	by vger.kernel.org with ESMTP id <S273702AbRJDORz>;
-	Thu, 4 Oct 2001 10:17:55 -0400
-Date: Thu, 4 Oct 2001 16:18:20 +0200 (MET DST)
-Message-Id: <200110041418.QAA17395@my.nada.kth.se>
-From: "=?ISO-8859-1?Q?Mattias Engdeg=E5rd?=" <f91-men@nada.kth.se>
-To: pmenage@ensim.com
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <E15p3JS-0000ko-00@pmenage-dt.ensim.com> (message from Paul
-	Menage on Thu, 04 Oct 2001 00:52:58 -0700)
-Subject: Re: [PATCH][RFC] Pollable /proc/<pid>/ - avoid SIGCHLD/poll() races
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <E15p3JS-0000ko-00@pmenage-dt.ensim.com>
+	id <S273994AbRJDOYg>; Thu, 4 Oct 2001 10:24:36 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:52609 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S273976AbRJDOYY>; Thu, 4 Oct 2001 10:24:24 -0400
+Date: Thu, 4 Oct 2001 10:24:48 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel size
+In-Reply-To: <m1zo77zh0h.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.3.95.1011004102214.21964A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Menage <pmenage@ensim.com> wrote:
->The only real user-space solution to this is to have the SIGCHLD handler
->somehow cause the select() to return immediately by e.g. writing a byte
->to a looped pipe which is included in the select() readfd set, but this
->seems a little contrived.
+On 4 Oct 2001, Eric W. Biederman wrote:
 
-I don't think it's contrived --- writing not a byte, but the pid and
-return status of the dead child to a pipe is an old but useful trick.
-It gives a natural serialisation of child deaths, and also eliminates
-the common race where a child dies before its parent has recorded its
-pid in a data structure. See it as a safe way of converting an
-asynchronous signal to a queued event.
+> CaT <cat@zip.com.au> writes:
+>
+> > On Thu, Oct 04, 2001 at 12:15:01AM -0600, Eric W. Biederman wrote:
+[SNIPPED...]
 
-Using pipes to wake up blocking select()s is a useful thing in general,
-and often a lot cleaner than using signals when dealing with threads.
+> 
+> I'd like to get a kernel, ramdisk, and some hw initialization code all
+> on a 256KB ROM.  I have my ramdisk down to about 14KB compressed.  I
+> have my hw initialization code down to 32KB uncompressed (and I might
+> be able to reduce that further). So I want something like a 192KB
+> (compressed) linux kernel.   
+> 
+> If I had that some of the hard problems of with linuxBIOS would just
+> drop away.
+> 
+
+
+Major size differences seem to depend upon the C compiler being
+used.
+
+Here are two different systems with exactly the same kernel
+with exactly the same ".config" file.
+
+The kernel on one is compiled with whatever comes with RedHat.
+The other is compiled with egcs-2.91.66.
+
+We are looking at the compressed size!  The actual expanded size
+difference is about 2:1 !
+
+Script started on Thu Oct  4 10:10:31 2001
+[root@blackhole /boot]# ls -la vmlinuz-2.4.1
+-rw-r--r--    1 root     root       648638 Mar 12  2001 vmlinuz-2.4.1
+[root@blackhole /boot]# gcc --version
+2.96
+[root@blackhole /boot]# exit
+Script done on Thu Oct  4 10:11:11 2001
+
+Script started on Thu Oct  4 10:11:26 2001
+# gcc --version
+egcs-2.91.66
+# ls -la vmlinuz-2.4.1
+-rw-r--r--   1 root     root       584959 Oct  1 15:26 vmlinuz-2.4.1
+# exit
+exit
+Script done on Thu Oct  4 10:12:01 2001
+
+It seems that, amongst other ethings, 2.96 aligns every function and
+every memory variable on 16-byte boundaries, i.e., the offset address
+lowest nibble is always 0. There doesn't seem to be any way to turn it
+off.
+
+So, if size counts, use egcs-2.91.66. It works okay with 2.4.x kernels.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

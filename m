@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264043AbTFPRmI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 13:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264047AbTFPRmI
+	id S264069AbTFPRqr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 13:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbTFPRqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 13:42:08 -0400
-Received: from mail.gmx.de ([213.165.64.20]:48837 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264043AbTFPRmE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 13:42:04 -0400
-Message-ID: <3EEE04AC.9040802@gmx.at>
-Date: Mon, 16 Jun 2003 19:55:56 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+	Mon, 16 Jun 2003 13:46:46 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:56072 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S264069AbTFPRqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 13:46:31 -0400
+Date: Mon, 16 Jun 2003 20:00:33 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>,
+       Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Flaw in the driver-model implementation of attributes
+In-Reply-To: <20030616182003.D13312@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0306161937010.2079-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>, Alan Cox <alan@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] hptraid v0.02 raid 0+1 support
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 16 Jun 2003, Russell King wrote:
 
-This release fixes some bugs and adds support for raid 0+1. I have also 
-done some minor code clean-ups.
+> On Mon, Jun 16, 2003 at 10:08:26AM -0700, Greg KH wrote:
+> > Then don't let your module unload until _all_ instances of your
+> > structures are gone.  You can tell if this is true or not, it's just up
+> > to the implementor :)
+> 
+> Greg, I believe Alan does have a valid concern.  Eg, how is the following
+> handled?
+> 
+> - PCI device driver module is loaded
+> - device driver gets handed a pci device
+> - device driver attaches a file to the struct device corresponding to the
+>   PCI device.
 
-Changelog since 0.01-ww1:
-=========================
-* correct values of raid-1 superbock
-* check for availability of all disks
-* fixup for raid-1 disknumbering
-* do _NOT_ align size to 255*63 boundary
-* raid 0+1 support
-* bump version number
-* release no more devices than available on unload
-* remove static variables in raid-1 read path
+with old procfs one would like to set the owner field of the 
+corresponding struct proc_dir_entry and/or file_operations at this point.
 
-Notes:
-======
-I raid 1 and raid 0+1 does not provide support for redundancy. It just 
-adds a compatibility layer to support the HPT37X raid volumes.
-As far as I can tell, the new raid 0+1 implementation of the HPT374 
-(BIOS 3.X) is not supported. The same controller also has raid 5. But 
-due to lack of hardware I cannot implement these (Unless I can persuade 
-a friend of mine to trash his windows installation.).
+> - userspace opens new file (this does not increment the device drivers
+>   use count.)
 
-Any comments are welcome...
+given owner=THIS_MODULE was set, this would bump the module's use count
 
-Bye,
-Wilfried
+> - device driver is rmmod'd
+
+and this could never happen while the procfs file (or directory) is still 
+referenced
+
+> - device driver removes its references to the pci device
+> - device driver unloads
+> - user reads from opened file.
+
+Admittedly I haven't looked deeper into sysfs yet, but I was under the
+assumption/hope there would be a similar approach to make module 
+refcounting working there?
+
+Martin
 

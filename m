@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRBLQo2>; Mon, 12 Feb 2001 11:44:28 -0500
+	id <S129315AbRBLQs6>; Mon, 12 Feb 2001 11:48:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129117AbRBLQoS>; Mon, 12 Feb 2001 11:44:18 -0500
-Received: from web119.mail.yahoo.com ([205.180.60.120]:50960 "HELO
-	web119.yahoomail.com") by vger.kernel.org with SMTP
-	id <S129078AbRBLQn7>; Mon, 12 Feb 2001 11:43:59 -0500
-Message-ID: <20010212164358.2762.qmail@web119.yahoomail.com>
-Date: Mon, 12 Feb 2001 08:43:58 -0800 (PST)
-From: Paul Powell <moloch16@yahoo.com>
-Subject: Programmatically probe video chipset
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129299AbRBLQss>; Mon, 12 Feb 2001 11:48:48 -0500
+Received: from kashiwa8-53.ppp-1.dion.ne.jp ([210.157.148.53]:61444 "EHLO
+	ask.ne.jp") by vger.kernel.org with ESMTP id <S129117AbRBLQsd>;
+	Mon, 12 Feb 2001 11:48:33 -0500
+Date: Tue, 13 Feb 2001 01:48:14 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: Mike Harrold <mharrold@cas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lkml subject line
+Message-Id: <20010213014814.7d7f7d33.bruce@ask.ne.jp>
+In-Reply-To: <200102121525.KAA16906@mah21awu.cas.org>
+In-Reply-To: <6195.981991148@redhat.com>
+	<200102121525.KAA16906@mah21awu.cas.org>
+X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.6; Linux 2.2.18; i686)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there an API or other means to determine what video
-card, namely the chipset, that the user has installed
-on his machine?
+On Mon, 12 Feb 2001 10:25:47 -0500 (EST)
+Mike Harrold <mharrold@cas.org> wrote:
+> > dwguest@win.tue.nl said:
+> > The advantages can all be gained without that disadvantage by just
+> learning 
+> > to filter mail on other headers instead of the subject line.
+> 
+> Assuming your mail reader can do that (and no, I can't change my mail
+> reader).
 
-Thanks,
-Paul
+Use procmail, that's what it's there for (and it won't affect your mail
+reader, as long as you're using something reasonably sensible). I filter
+on Sender.
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/
+--
+Bruce Harada
+bruce@ask.ne.jp
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

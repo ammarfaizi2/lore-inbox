@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266977AbRHWUCS>; Thu, 23 Aug 2001 16:02:18 -0400
+	id <S270253AbRHWUE6>; Thu, 23 Aug 2001 16:04:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270195AbRHWUCI>; Thu, 23 Aug 2001 16:02:08 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:501 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S266977AbRHWUCC>;
-	Thu, 23 Aug 2001 16:02:02 -0400
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Bob Glamm <glamm@mail.ece.umn.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-In-Reply-To: <20010822030807.N120@pervalidus> <20010823140555.A1077@newton.bauerschmidt.eu.org> <20010823103620.A6965@kittpeak.ece.umn.edu> <20010823085900.F14302@cpe-24-221-152-185.az.sprintbbd.net> <d3k7zutw5y.fsf@lxplus051.cern.ch> <20010823124109.S14302@cpe-24-221-152-185.az.sprintbbd.net>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 23 Aug 2001 22:02:07 +0200
-In-Reply-To: Tom Rini's message of "Thu, 23 Aug 2001 12:41:09 -0700"
-Message-ID: <d3g0aituio.fsf@lxplus051.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S270195AbRHWUEs>; Thu, 23 Aug 2001 16:04:48 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:32507 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S270258AbRHWUEf>; Thu, 23 Aug 2001 16:04:35 -0400
+Message-ID: <3B8561B9.AC440835@mvista.com>
+Date: Thu, 23 Aug 2001 13:04:09 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Victor Yodaiken <yodaiken@fsmlabs.com>,
+        "christophe =?iso-8859-1?Q?barb=E9?=" <christophe.barbe@lineo.fr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How should nano_sleep be fixed (was: ptrace(), fork(), sleep(), 
+ exit(), SIGCHLD)
+In-Reply-To: <20010817125727.A16475@hq2> <3B7D76EF.DA34EB23@mvista.com> <20010822194035.K18391@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
+Russell King wrote:
+> 
+> On Fri, Aug 17, 2001 at 12:56:31PM -0700, george anzinger wrote:
+> > Uh..?  I though that was what I was allowing.  It seems to me to be a
+> > lot of extra work to put the same code in 15 different archs.
+> > Especially if one does not really know each of them, nor can any one
+> > group (or individual) be expected to be able to test (or even have the
+> > hardware to test) each of them.
+> 
+> Umm, my best advice is to look at sys_fork() and do_fork(), sys_execve()
+> and do_execve().
+> 
+Sorry, but none of those system calls requires the registers which is
+where the problem is.
 
-Tom> You've said this before. :) Just how small of an 'embedded'
-Tom> system are you talking about?  I know of people who do compile a
-Tom> kernel now and again on a 'small' system, for fun.  On a larger
-Tom> (cPCI) system, I don't see your point.  If you can somehow
-Tom> transport the 21mb[1] bzip2 kernel source to your system, you can
-Tom> transport python.  If you're porting to a brand new arch, there's
-Tom> still good tests before you have shlib support (You've mentioned
-Tom> that before too I think).
-
-I am actually much more concerned about bringing up new systems than
-embedded however it is not uncommon to have very limited space to work
-in (like 64MB). My point is that the transport process of the kernel
-image is painful. Some of the embedded devices or new systems being
-brought up may only have serial some do not have network or
-floppy. This makes it *very* painful to move things around because you
-have to physically move your disk or similar. In particular when
-bringing up a system you tend to disable large parts of the kernel in
-order to make the thing compile and you don't want to have to copy
-things back and forth constantly because you found that serial no
-longer compiles and you don't want to fight that while you are trying
-to fix a bug in your video driver. Hence you just disable serial and
-recompile - with the new system this has suddenly become extremely
-painful.
-
->>  And introduces new problems that so far haven't been addressed.
-
-Tom> Which is what?  The dependancy on python2?
-
-Yes
-
->> The solution seems to be that someone implements CML2 in C, once
->> that happens we are talking something completely different.
-
-Tom> As long as it does everything the current version does and is
-Tom> just as fast I don't think there'll be much of an argument for
-Tom> either.  Hell, probably both for a while...
-
-Well getting a C versions means we can get rid of the Python hell, it
-would be a major win.
-
-Jes
+George

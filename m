@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266140AbUBCTXj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 14:23:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266129AbUBCTXb
+	id S266166AbUBCUR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 15:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUBCUR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 14:23:31 -0500
-Received: from 212-214-141-249.v-by.wtnord.net ([212.214.141.249]:17284 "EHLO
-	ricercar.mine.nu") by vger.kernel.org with ESMTP id S266083AbUBCSZk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 13:25:40 -0500
-Date: Tue, 3 Feb 2004 19:23:36 +0100
-From: Daniel Brahneborg <daniel.com@wtnord.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Daniel Brahneborg <daniel.com@wtnord.net>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Status of Promise drivers?
-Message-ID: <20040203192336.A5570@nettis.grimsta>
-References: <20031230200012.C14399@nettis.grimsta> <3FF1CCC1.3050304@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3FF1CCC1.3050304@pobox.com>; from jgarzik@pobox.com on Tue, Dec 30, 2003 at 02:06:41PM -0500
+	Tue, 3 Feb 2004 15:17:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42893 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266166AbUBCURX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 15:17:23 -0500
+Date: Tue, 3 Feb 2004 15:17:12 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Matt Mackall <mpm@selenic.com>
+cc: Clay Haapala <chaapala@cisco.com>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH 2.6.1 -- take two] Add CRC32C chksums to crypto and lib
+ routines
+In-Reply-To: <20040203192711.GB31138@waste.org>
+Message-ID: <Xine.LNX.4.44.0402031511420.1645-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Continued from an earlier discussion on the linux-raid list.)
+On Tue, 3 Feb 2004, Matt Mackall wrote:
 
-I made the mistake of getting a Highpoint Rocket 1540 instead
-of a Promise SATA card, and I simply can't get it to work
-with the hpt366 driver in the kernel.  The driver from Highpoint
-works better, but only works for the RedHat 2.4.20-8 kernel,
-so I won't bother anybody with the problems with that one.
-
-A major factor seems to be the KT600 chipset on the Abit KV7
-motherboard. Is this a known issue?
-
-On Tue, Dec 30, 2003 at 02:06:41PM -0500, Jeff Garzik wrote:
-> Daniel Brahneborg wrote:
-> > I'm having serious problems with my Silicon Image SATA card,
-> > and am considering replacing with a (more expensive) Promise
-> > SATA TX2 Plus card.
+> > >> +static inline void crypto_chksum_final(struct crypto_tfm *tfm, u32 *out)
+> > >> +{
+> > >> +	BUG_ON(crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_CHKSUM);
+> > > 
+> > > A lot of these BUG_ONs seem to be overkill. You're not going to get
+> > > here by someone accidentally misusing the interface. You can only get
+> > > here by some very willful abuse of the interface or by extremely
+> > > unlikely fandango on core, neither of which is worth trying to defend
+> > > against.
 > > 
-> > First I have some questions, to avoid getting into the same
-> > mess as I'm in now.
-> > 
-> >  1. What is the status of the Promise driver?  Stable for
-> >     everybody? (The SI3112 has problems for some people when
-> >     using the IDE driver, and for some with the SCSI driver.)
-> >     A binary module is ok, a binary bzImage definately is not.
+> > That would be a worth changing in a clean-up pass over all of
+> > crypto, then.
 > 
-> It's beta, and stable.
+> I'll do them if James has no objections. I've got a couple other
+> crypto bits queued.
 
-Since I'm paranoid: What motherboards has it been tested and
-verified with?
+The problem is that someone could make a programming mistake, not see any 
+errors, and get bad crypto.
 
-> >  3. Has anybody used it with *2* network cards?  Bonus
-> >     points for the builtin Via Rhine and an 8139 card.
-> >     (The SCSI driver for the SI3112 kills the machine when a
-> >     second card is activated.)
 
-Interestingly enough, the Highpoint card has the same effect
-when activating the first network card (it doesn't matter which
-one), but only with the 2.4 kernel. The 2.6 kernel works fine.
-Again, could this be a motherboard issue?
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-/Basic
 

@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVCAXdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVCAXfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVCAXdL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 18:33:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVCAXdK
+	id S262086AbVCAXfj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 18:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVCAXfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 18:33:10 -0500
-Received: from gprs215-167.eurotel.cz ([160.218.215.167]:11177 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262123AbVCAXcn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 18:32:43 -0500
-Date: Wed, 2 Mar 2005 00:32:28 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Michael Schroeder <mls@suse.de>
-Cc: Michal Januszewski <spock@gentoo.org>, linux-kernel@vger.kernel.org
-Subject: Re: Bootsplash for 2.6.11-rc4
-Message-ID: <20050301233228.GE2062@elf.ucw.cz>
-References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl> <20050228174015.GB1349@elf.ucw.cz> <20050301130325.GB14278@spock.one.pl> <20050301142819.GA23884@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050301142819.GA23884@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 1 Mar 2005 18:35:39 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:38602 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262086AbVCAXf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 18:35:29 -0500
+Message-ID: <4224FC33.6040405@acm.org>
+Date: Tue, 01 Mar 2005 17:35:15 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Greg KH <greg@kroah.com>, Sergey Vlasov <vsu@altlinux.ru>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] New operation for kref to help avoid locks
+References: <42209BFD.8020908@acm.org>	 <20050226232026.5c12d5b0.vsu@altlinux.ru> <4220F6C8.4020002@acm.org>	 <20050301201528.GA23484@kroah.com>	 <1109710964.6293.166.camel@laptopd505.fenrus.org>	 <4224E499.5060800@acm.org> <1109715256.6293.180.camel@laptopd505.fenrus.org>
+In-Reply-To: <1109715256.6293.180.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Arjan van de Ven wrote:
 
-> Hmm, maybe I should change the vesafb test in the bootsplash code
-> to test if fb_imageblit == cfb_imageblit. This would make Pavel
-> very happy, I guess ;-)
+>>Just doing an atomic operation is not faster than doing a lock, an 
+>>atomic operation, then an unlock?  Am I missing something?
+>>    
+>>
+>
+>if the lock and the atomic are on the same cacheline they're the same
+>cost on most modern cpus...
+>  
+>
+Ah, I see.  Not likely to ever be the case with this.  The lock will 
+likely be with the main data structure (the list, or whatever) and the 
+refcount will be in the individual item in the main data structure (list 
+entry).
 
-Yes, I like that one. Also it is likely going to be cleaner than
-vesafb_ops hack.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+-Corey

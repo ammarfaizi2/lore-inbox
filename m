@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317263AbSGVNl7>; Mon, 22 Jul 2002 09:41:59 -0400
+	id <S315491AbSGVCJr>; Sun, 21 Jul 2002 22:09:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317277AbSGVNl7>; Mon, 22 Jul 2002 09:41:59 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:63494 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317263AbSGVNl6>; Mon, 22 Jul 2002 09:41:58 -0400
-Date: Mon, 22 Jul 2002 10:44:49 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@zip.com.au>
-cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>, Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
-In-Reply-To: <Pine.LNX.4.44L.0207221029590.3086-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44L.0207221043050.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S315503AbSGVCJr>; Sun, 21 Jul 2002 22:09:47 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:30937 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S315491AbSGVCJr>; Sun, 21 Jul 2002 22:09:47 -0400
+Message-ID: <3D3B6A5F.1010608@snapgear.com>
+Date: Mon, 22 Jul 2002 12:13:51 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE]: linux-2.5.27uc0 MMU-less patches
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jul 2002, Rik van Riel wrote:
 
-> Apart from both of these we'll also need code to garbage collect
-> empty page tables so users can't clog up memory by mmaping a page
-> every 4 MB ;)
+Hi All,
 
-Btw, I've started work on this code already.
+Latest uClinux (MMU-less) patches up at:
 
-Putting the dcache/icache pages on the LRU list in the way
-Linus wanted is definately a lower priority thing for me at
-this point, especially considering the fact that Ed Tomlinson's
-way of having these pages on the LRU seems to work just fine ;)
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.27uc0.patch.gz
 
-regards,
+I had to do a little hacking around the reverse mapping.
+Probably needs more testing, but seems to work ok for now.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+Still tracking down an existing problem where the mmnommu
+page_alloc is occassionaly giving out a memory address as
+free memory that is really in use...
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Evertyhing else seems to work well (at least on the 5272 ColdFire
+target board that I have tested on!)
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
 

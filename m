@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318038AbSHDAl5>; Sat, 3 Aug 2002 20:41:57 -0400
+	id <S318033AbSHDA4w>; Sat, 3 Aug 2002 20:56:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318064AbSHDAl4>; Sat, 3 Aug 2002 20:41:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:23475 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318038AbSHDAlz>;
-	Sat, 3 Aug 2002 20:41:55 -0400
-Date: Sat, 03 Aug 2002 17:31:11 -0700 (PDT)
-Message-Id: <20020803.173111.78037842.davem@redhat.com>
-To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
-Cc: frankeh@watson.ibm.com, torvalds@transmeta.com, gh@us.ibm.com,
-       Martin.Bligh@us.ibm.com, wli@holomorpy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: large page patch (fwd) (fwd)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15692.12781.344389.519591@napali.hpl.hp.com>
-References: <15691.24200.512998.875390@napali.hpl.hp.com>
-	<200208031441.29353.frankeh@watson.ibm.com>
-	<15692.12781.344389.519591@napali.hpl.hp.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318041AbSHDA4w>; Sat, 3 Aug 2002 20:56:52 -0400
+Received: from dsl-213-023-022-101.arcor-ip.net ([213.23.22.101]:18111 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318033AbSHDA4v>;
+	Sat, 3 Aug 2002 20:56:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [PATCH] Rmap speedup
+Date: Sun, 4 Aug 2002 03:01:47 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <E17aiJv-0007cr-00@starship> <E17b7iB-0003Lu-00@starship> <3D4C799C.72D92899@zip.com.au>
+In-Reply-To: <3D4C799C.72D92899@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17b9mF-0004MM-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@napali.hpl.hp.com>
-   Date: Sat, 3 Aug 2002 12:41:33 -0700
+On Sunday 04 August 2002 02:47, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > 
+> > On Saturday 03 August 2002 23:40, Andrew Morton wrote:
+> > > - total amount of CPU time lost spinning on locks is 1%, mainly
+> > >   in page_add_rmap and zap_pte_range.
+> > >
+> > > That's not much spintime.   The total system time with this test went
+> > > from 71 seconds (2.5.26) to 88 seconds (2.5.30). (4.5 seconds per CPU)
+> > > So all the time is presumably spent waiting on cachelines to come from
+> > > other CPUs, or from local L2.
+> > 
+> > Have we tried this one:
+> > 
+> >  static inline unsigned rmap_lockno(pgoff_t index)
+> >  {
+> > -       return (index >> 4) & (ARRAY_SIZE(rmap_locks) - 1);
+> > +       return (index >> 4) & (ARRAY_SIZE(rmap_locks) - 16);
+> >  }
+> > 
+> > (which puts all the rmap spinlocks in separate cache lines)
+> 
+> Seems a strange way of doing it?
 
-   It appears that Juan Navarro, the primary author behind the Rice
-   project, is working on breaking down the superpage benefits they
-   observed.  That would tell us how much benefit is due to page-coloring
-   and how much is due to TLB effects.  Here in our lab, we do have some
-   (weak) empirical evidence that some of the SPECint benchmarks benefit
-   primarily from page-coloring, but clearly there are others that are
-   TLB limited.
+It is a strange way of doing it.   I felt like being engigmatic at the time, 
+and no, nothing like that should ever go into production code, it would be 
+better suited to an IOCCC submission.
 
-There was some comparison done between large-page vs. plain
-page coloring for a bunch of scientific number crunchers.
+> We'll only ever use four locks this way.
 
-Only one benefitted from page coloring and not from TLB
-superpage use.
+Look again: 256 - 16 = 250 = 0xf0.
 
-The ones that benefitted from both coloring and superpages, the
-superpage gain was about equal to the coloring gain.  Basically,
-superpages ended up giving the necessary coloring :-)
-
-Search for the topic "Areas for superpage discussion" in the
-sparclinux@vger.kernel.org list archives, it has pointers to
-all the patches and test programs involved.
+-- 
+Daniel

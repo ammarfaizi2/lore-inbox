@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132502AbRDNRzU>; Sat, 14 Apr 2001 13:55:20 -0400
+	id <S132512AbRDNSNo>; Sat, 14 Apr 2001 14:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132503AbRDNRzK>; Sat, 14 Apr 2001 13:55:10 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:20230 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132502AbRDNRyz>;
-	Sat, 14 Apr 2001 13:54:55 -0400
-Date: Sat, 14 Apr 2001 13:56:18 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, linux-kernel@vger.kernel.org
-Subject: Re: CML2 1.1.0 bug and snailspeed
-Message-ID: <20010414135618.C10538@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Anton Altaparmakov <aia21@cus.cam.ac.uk>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <002601c0c4fb$c7e54260$0201a8c0@home> <Pine.SOL.3.96.1010414174944.810A-100000@libra.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOL.3.96.1010414174944.810A-100000@libra.cus.cam.ac.uk>; from aia21@cus.cam.ac.uk on Sat, Apr 14, 2001 at 06:38:25PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S132514AbRDNSNe>; Sat, 14 Apr 2001 14:13:34 -0400
+Received: from ip166-128.fli-ykh.psinet.ne.jp ([210.129.166.128]:26819 "EHLO
+	standard.erephon") by vger.kernel.org with ESMTP id <S132512AbRDNSNX>;
+	Sat, 14 Apr 2001 14:13:23 -0400
+Message-ID: <3AD911CD.55F1CDA3@yk.rim.or.jp>
+Date: Sun, 15 Apr 2001 12:13:17 +0900
+From: Ishikawa <ishikawa@yk.rim.or.jp>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: ja, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Swap Corruption in 2.4.3 ?
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov <aia21@cus.cam.ac.uk>:
-> In the menu the colour scheme is a bit strange but everyone has a
-> different taste. Would need some getting used to, but ok. It does seem
-> like a step back in time though, compared to the old menuconfig which had
-> nice windows feel and colours, IMHO. I am not sure why it had to be
-> changed. Surely you can have the old interface with the new theorem
-> prover?
 
-I couldn't do both that and share back-end code with the other interfaces.
- 
-> I found a bug: In "Intel and compatible 80x86 processor options", "Intel
-> and compatible 80x86 processor types" I press "y" on "Pentium Classic"
-> option and it activates Penitum-III as well as Pentium Classic options at
-> the same time!?! Tried to play around switching to something else and then
-> onto Pentium Classic again and it enabled Pentium Classic and Pentium
-> Pro/Celeron/Pentium II (NEW) this time! Something is very wrong here.
+On 10 Apr 2001, Richard Russon wrote:
 
-Rules file bug, probably.  I'll investigate this afternoon.
+> VM: Undead swap entry 000bb300
+> VM: Undead swap entry 00abb300
+> VM: Undead swap entry 016fb300
 
-> Now a general comment: CML2 is extremely slow to the point of not being
-> usable! )-:
+I have seen similar mysterious crashes of X server
+when I began accessing large web page using Netscape
+navigator. It was reproducible the first few times I noticed.
 
-I'm still tuning.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Today, a similar problem occurred and luckily I noticed
+console messages printed on a virtual console.
+There ware many lines like the following.
 
-Love your country, but never trust its government.
-	-- Robert A. Heinlein.
+swap_free: Trying to freee non-existent swap page
+Bad Swap Entry: 00000008
+Bad Swap Entry: 0000008
+    ...
+VM: Kiling process jserver
+Swap_free: Trying to free non-existent swap  page
+   ...
+
+It seems that there was some sort of kernel data corruption.
+(In my case, the kernel could not find the swap page and
+failed to swap out memory and thus the
+VM's selective process killer was invoked to free up memory?)
+
+Then eventually I got
+Unable to handle kernel NULL pointer defreence at ...
+message and the system crashed.
+(I was also typing Alt+SysReq+keystroke to see if I could sync disk.)
+.
+
+Anyway, this probem seems to be in 2.4.2, too from what I recall about
+the
+first mysterious X server crash.
+
+On Apri 20 Rik van Riel wrote:
+>Known bug ... unknown cause ;(
+>
+>http://www.linux-mm.org/bugzilla.shtml has it already listed
+
+The symptom there didn't match mine, but I do suspect
+a (new) problem in VM of 2.4.3 (2.4.2, too. 2.4.1, I am not sure.).
+
+Happy Hacking
+
+

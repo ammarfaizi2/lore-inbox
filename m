@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265317AbTLNA6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 19:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265318AbTLNA6Q
+	id S265324AbTLNBNP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 20:13:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbTLNBNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 19:58:16 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46604
+	Sat, 13 Dec 2003 20:13:14 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:48908
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S265317AbTLNA6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 19:58:04 -0500
-Date: Sat, 13 Dec 2003 16:51:33 -0800 (PST)
+	id S265324AbTLNBNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 20:13:12 -0500
+Date: Sat, 13 Dec 2003 17:06:50 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
 To: David Woodhouse <dwmw2@infradead.org>
 cc: Brian Beattie <beattie@beattie-home.net>,
@@ -17,64 +17,95 @@ cc: Brian Beattie <beattie@beattie-home.net>,
        Erik Andersen <andersen@codepoet.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Linux, Inc. (Re: Linux GPL and binary module exception clause?)
-In-Reply-To: <1071317003.14663.4.camel@imladris.demon.co.uk>
-Message-ID: <Pine.LNX.4.10.10312131635230.21491-100000@master.linux-ide.org>
+Subject: Re: Linux, Inc. (Re: Linux GPL and binary module exception clause?)
+In-Reply-To: <Pine.LNX.4.10.10312131635230.21491-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10312131656220.21491-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-How about a charter orgainization called Linux, Inc. or The Linux
-Foundation ?
+Part II ...
 
-CEO Linus Torvalds <aka ph> :-)
----
-fill in the blanks.
----
-CSA me <chief smart arse>
+Given the issue of binary module vendors not native to Linux rules and
+standards, there becomes a need for a review body.  Given the problem of
+most binary vendors are idiots and clueless, it provides a certification
+for a given kernel.
 
-Now Linux, Inc is designed to regulate the commerial use of Linux and
-defend the legal causes and actions of the kernel.  Everything has a cost.
-Any company, organization, country, or what ever is required to pay 10% of
-gross sales associated with products ship with Linux kernel inside,
-period.
+It is short of racketeiring (sp) but it mean nobody gets to use all of
+our hard work with out paying for it.  This is fair and equitable.
 
-Distributions
-Big Storage Companies
-Big Box builders
-Big Appliance Builders
-blah blah ....
-Set Top boxes
-Firewall/VPN
+Oh yeah in order to be invited to the board or advisory board you have to
+have some time in slavery to the kernel and continue to contribute.  Yeah
+I am back off the nutter wagon and running around free again!
 
-Anybody who sells a product w/ the Linux Kernel as its base.
-
-Now all the FSF/GPL supporting user space applications can go see FSF and
-company because I do not give a damn about there issues.  They are l^Huser
-land.
-
-Now this allows for commerial adoption and commerial licnesing of Linux.
-If this offer and idea is rejected then it proves the lack of seriousness
-in the original goals of "world domination".
-
-10% of Redhat,SuSE(Novell),Mandrake,Conectiva,UnitedLinux,...
-10% of EMC,HP,IBM,Dell,Intel,...
-10% of CGL people,...
-10% of Rackable,Google,...
-10% of the little guys ...
-
-Now what to do with the money.
-
-Hire really good SHARKS and ACCOUNTANTS ...
-Fund and promote opensource development like a foundation ...
-Yeah it starts to look like a business and that is what Linux needs.
-
-Yeah, this is to simple and easy of an idea.
+Dave Miller, can we have linux-wackos :-)
 
 Cheers,
 
 Andre Hedrick
 LAD Storage Consulting Group
+
+On Sat, 13 Dec 2003, Andre Hedrick wrote:
+
+> 
+> How about a charter orgainization called Linux, Inc. or The Linux
+> Foundation ?
+> 
+> CEO Linus Torvalds <aka ph> :-)
+> ---
+> fill in the blanks.
+> ---
+> CSA me <chief smart arse>
+> 
+> Now Linux, Inc is designed to regulate the commerial use of Linux and
+> defend the legal causes and actions of the kernel.  Everything has a cost.
+> Any company, organization, country, or what ever is required to pay 10% of
+> gross sales associated with products ship with Linux kernel inside,
+> period.
+> 
+> Distributions
+> Big Storage Companies
+> Big Box builders
+> Big Appliance Builders
+> blah blah ....
+> Set Top boxes
+> Firewall/VPN
+> 
+> Anybody who sells a product w/ the Linux Kernel as its base.
+> 
+> Now all the FSF/GPL supporting user space applications can go see FSF and
+> company because I do not give a damn about there issues.  They are l^Huser
+> land.
+> 
+> Now this allows for commerial adoption and commerial licnesing of Linux.
+> If this offer and idea is rejected then it proves the lack of seriousness
+> in the original goals of "world domination".
+> 
+> 10% of Redhat,SuSE(Novell),Mandrake,Conectiva,UnitedLinux,...
+> 10% of EMC,HP,IBM,Dell,Intel,...
+> 10% of CGL people,...
+> 10% of Rackable,Google,...
+> 10% of the little guys ...
+> 
+> Now what to do with the money.
+> 
+> Hire really good SHARKS and ACCOUNTANTS ...
+> Fund and promote opensource development like a foundation ...
+> Yeah it starts to look like a business and that is what Linux needs.
+> 
+> Yeah, this is to simple and easy of an idea.
+> 
+> Cheers,
+> 
+> Andre Hedrick
+> LAD Storage Consulting Group
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266488AbRIDSlL>; Tue, 4 Sep 2001 14:41:11 -0400
+	id <S266688AbRIDSqb>; Tue, 4 Sep 2001 14:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266688AbRIDSlC>; Tue, 4 Sep 2001 14:41:02 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:25271 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S266448AbRIDSkv>; Tue, 4 Sep 2001 14:40:51 -0400
-Subject: Re: [RFD] readonly/read-write semantics
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jean-Marc Saffroy <saffroy@ri.silicomp.fr>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF2C0F5A44.F31182F2-ON87256ABD.00660195@boulder.ibm.com>
-From: "Bryan Henderson" <hbryan@us.ibm.com>
-Date: Tue, 4 Sep 2001 11:39:27 -0700
-X-MIMETrack: Serialize by Router on D03NM088/03/M/IBM(Release 5.0.8 |June 18, 2001) at
- 09/04/2001 12:39:30 PM
+	id <S266797AbRIDSqW>; Tue, 4 Sep 2001 14:46:22 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42509 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265249AbRIDSqO>; Tue, 4 Sep 2001 14:46:14 -0400
+Subject: Re: page_launder() on 2.4.9/10 issue
+To: jaharkes@cs.cmu.edu (Jan Harkes)
+Date: Tue, 4 Sep 2001 19:49:47 +0100 (BST)
+Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
+        riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org
+In-Reply-To: <20010904135427.A30503@cs.cmu.edu> from "Jan Harkes" at Sep 04, 2001 01:54:27 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15eLGd-0004Gd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Now for the past _9_ stable kernel releases, page aging hasn't worked
+> at all!! Nobody seems to even have bothered to check. I send in a patch
+> and you basically answer with "Ohh, but we know about that one. Just
+> apply patch wizzbangfoo#105 which basically does everything differently".
 
->Okay, make the definition
->
->"this kernel will not attempt to change anything on that filesystem".
+Maybe you should take issue with the people applying random patches, missing
+important ones and mixing and matching incompatible ideas in the main tree ?
 
-Not quite.  As mentioned a little earlier, you need to add "through this
-mount."  It's a state of the mount, not the kernel image.
+The VM tuning in the -ac tree is a lot more reliable for most loads (its
+certainly not perfect) and that is because the changes have been done and
+tested one at a time as they are merged. Real engineering process is the
+only way to get this sort of thing working well.
 
-It's a good point, though, that we shouldn't kid ourselves that having a
-mount in read-only state means the filesystem is read-only.  In the cases
-where it does, though, it's an especially useful state.
-
-
-
-
+Alan

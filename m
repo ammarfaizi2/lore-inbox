@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132758AbRDQQrX>; Tue, 17 Apr 2001 12:47:23 -0400
+	id <S132759AbRDQQuo>; Tue, 17 Apr 2001 12:50:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132759AbRDQQrE>; Tue, 17 Apr 2001 12:47:04 -0400
-Received: from jffdns01.or.intel.com ([134.134.248.3]:60880 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S132758AbRDQQq6>; Tue, 17 Apr 2001 12:46:58 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE847@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>,
-        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Let init know user wants to shutdown
-Date: Tue, 17 Apr 2001 09:45:07 -0700
+	id <S132764AbRDQQuf>; Tue, 17 Apr 2001 12:50:35 -0400
+Received: from mail.relex.ru ([213.24.247.153]:47378 "EHLO mail.relex.ru")
+	by vger.kernel.org with ESMTP id <S132759AbRDQQua>;
+	Tue, 17 Apr 2001 12:50:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Yaroslav Rastrigin <yarick@relex.ru>
+Organization: RELEX Inc.
+To: linux-kernel@vger.kernel.org
+Subject: IPC usage inside of kernel module
+Date: Tue, 17 Apr 2001 20:46:30 +0400
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Message-Id: <01041720463000.28962@yarick>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Pavel Machek [mailto:pavel@suse.cz]
-> > I would think that it would make sense to keep shutdown 
-> with all the other
-> > power management events. Perhaps it will makes more sense 
-> to handle UPS's
-> > through the power management code.
-> 
-> Yes, that would be another acceptable solution. Situation where half
-> of power managment (UPS) is done with init and half with acpid is not
-> acceptable. [I doubt UPS users will want to switch. Why invent new
-> daemon when init is doing perfect job?]
+Hello everybody !
 
-Hi Pavel,
+I needed to implement an IPC connectiovity between module and 
+userspace daemon, and came to this horrible code (after looking to 
+sys_msgsnd() ):
+...
+copy_to_user(msg_buf, &hlb1, sizeof(struct linfs_buffer));
+hi1 = sys_ipc(MSGSND, msgq_id, message_size, 0, \
+(struct msgbuf *)msg_buf,  0);
+...
+msg_buf is in userspace, hlb1 - module's prepared message (struct msgbuf ).
+Well, it works :) . Messages are delivered,
+but the whole construction looks rather ugly. The worst part of it is
+sys_msgsnd() does then copy_from_user to kmalloc()'ed buffer, just to enqueue 
+message. Can somebody tell me, is there any other way to implement IPC 
+functionality , without rewriting sys_msgsnd() and accompanying functions 
+(load_msg etc.) inside of my module ?
 
-I think init is doing a perfect job WRT UPSs because this is a trivial
-application of power management. init wasn't really meant for this.
-According to its man page:
-
-"init...it's primary role is to create processes from a script in the file
-/etc/inittab...It also controls autonomous processes required by any
-particular system"
-
-We are going to need some software that handles button events, as well as
-thermal events, battery events, polling the battery, AC adapter status
-changes, sleeping the system, and more.
-
-We need WAY more flexibility than init provides. I find the argument that
-init is already handling one minor power-related thing an unconvincing
-reason why we should cram all power management through it.
-
-Unix philosophy: "do one thing and do it well".
-
-Regards -- Andy
-
+With all the best, yarick at relex dot ru 

@@ -1,78 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262090AbRETRLX>; Sun, 20 May 2001 13:11:23 -0400
+	id <S262094AbRETRMx>; Sun, 20 May 2001 13:12:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262093AbRETRLO>; Sun, 20 May 2001 13:11:14 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:23991 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S262091AbRETRLG>; Sun, 20 May 2001 13:11:06 -0400
-Message-ID: <3B07FA9B.6000305@AnteFacto.com>
-Date: Sun, 20 May 2001 18:10:51 +0100
-From: Padraig Brady <Padraig@AnteFacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; rv:0.9) Gecko/20010505
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <E1519Xe-00005c-00@the-village.bc.nu> <Pine.LNX.4.21.0105191132420.14472-100000@penguin.transmeta.com> <20010520003400.N754@nightmaster.csn.tu-chemnitz.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262093AbRETRMn>; Sun, 20 May 2001 13:12:43 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:6424 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262092AbRETRMb>; Sun, 20 May 2001 13:12:31 -0400
+Date: Sun, 20 May 2001 19:12:06 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010520191206.A30738@athlon.random>
+In-Reply-To: <20010519231131.A2840@jurassic.park.msu.ru>; <20010520044013.A18119@athlon.random> <3B07AF49.5A85205F@uow.edu.au> <20010520154958.E18119@athlon.random>, <20010520154958.E18119@athlon.random>; <20010520181803.I18119@athlon.random> <3B07EEFE.43DDBA5C@uow.edu.au>, <3B07EEFE.43DDBA5C@uow.edu.au>; <20010520184411.K18119@athlon.random> <3B07F6B8.4EAB0142@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B07F6B8.4EAB0142@uow.edu.au>; from andrewm@uow.edu.au on Mon, May 21, 2001 at 02:54:16AM +1000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Obviously there has to be some standard base
-with which to work, especially for computer language
-keywords as these can't be converted due to name
-clashes. What would be cool is to pick a better base
-language than English that everyone would have to
-learn to "use computers". This is especially important
-for opensource as it would greatly ease the operation
-of the collective brain. Something easily parseable
-would be an obvious criterion and would allow us
-to interact with computers by voice(-recognition)
-with no ambiguity, etc. etc...
-tada: http://www.lojban.org/
+On Mon, May 21, 2001 at 02:54:16AM +1000, Andrew Morton wrote:
+> No.  Most of the pci_map_single() implementations just
+> use virt_to_bus()/virt_to_phys(). [..]
 
-will everything be changed over in the 2.5 timeframe? :-)
+then you are saying that on the platforms without an iommu the pci_map_*
+cannot fail, of course, furthmore even a missing pci_unmap cannot
+trigger an iommu address space leak on those platforms. That has nothing
+to do with the fact pci_map_single can fail or not, the device drivers
+are not architectural specific.
 
-Padraig.
+> [..]  Even sparc64's fancy
+> iommu-based pci_map_single() always succeeds.
 
-Ingo Oeser wrote:
+Whatever sparc64 does to hide the driver bugs you can break it if you
+pci_map 4G+1 bytes of phyical memory.  Otherwise it means it's sleeping
+or looping inside the pci_map functions which would break things in
+another manner.
 
->On Sat, May 19, 2001 at 11:34:48AM -0700, Linus Torvalds wrote:
->[Reasons]
->
->>So the "English is bad" argument is a complete non-argument.
->>
->
->Jepp, I have to agree. 
->
->English is used more or less as an communication protocol in
->computer science and for operating computers.
->
->Once you know how to operate an computer in English, you can
->operate nearly every computer in the world, because they have
->English as default locale.
->
->Let's not repeat Babel please :-(
->
->PS: English is neither mine, nor Linus native language. Why do
->   the English natives complain instead of us? ;-)
->
-><off topic side note>
->   And be glad that's not German, that has this role. English
->   sentences are WAY easier to parse by computers, because it
->   doesn't use much suffixes and prefixes on words and has very
->   few exceptions. Also these exceptions are eleminated from
->   command languages WITHOUT influencing readability and
->   comprehensability.
-></off topic side note>
->
->
->Regards
->
->Ingo Oeser
->
-
-
+Andrea

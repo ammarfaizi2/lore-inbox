@@ -1,104 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVAUHFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVAUHE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbVAUHFS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 02:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVAUHFS
+	id S262290AbVAUHE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 02:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVAUHE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 02:05:18 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:62298
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262291AbVAUHEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 02:04:30 -0500
-Date: Fri, 21 Jan 2005 08:04:29 +0100
-From: Andrea Arcangeli <andrea@suse.de>
+	Fri, 21 Jan 2005 02:04:57 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:25781 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262290AbVAUHEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 02:04:15 -0500
+Subject: [PATCH] Reserving backup region for kexec based crashdumps.
+From: Vivek Goyal <vgoyal@in.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: OOM fixes 2/5
-Message-ID: <20050121070429.GE17050@dualathlon.random>
-References: <20050121054840.GA12647@dualathlon.random> <20050121054916.GB12647@dualathlon.random> <20050120222056.61b8b1c3.akpm@osdl.org> <1106289375.5171.7.camel@npiggin-nld.site> <20050120224645.3351d22c.akpm@osdl.org>
+Cc: fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Hariprasad Nellitheertha <hari@in.ibm.com>,
+       Maneesh Soni <maneesh@in.ibm.com>
+In-Reply-To: <overview-11061198973484@ebiederm.dsl.xmission.com>
+References: <overview-11061198973484@ebiederm.dsl.xmission.com>
+Content-Type: multipart/mixed; boundary="=-jl27kn/fL7AFJ7exZAjR"
+Organization: 
+Message-Id: <1106294155.26219.26.camel@2fwv946.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050120224645.3351d22c.akpm@osdl.org>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Jan 2005 13:25:55 +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 10:46:45PM -0800, Andrew Morton wrote:
-> Thus empirically, it appears that the number of machines which need a
-> non-zero protection ratio is exceedingly small.  Why change the setting on
-> all machines for the benefit of the tiny few?  Seems weird.  Especially
-> when this problem could be solved with a few-line initscript.  Ho hum.
 
-It's up to you, IMHO you're doing a mistake, but I don't mind as long as our
-customers aren't at risk of early oom kills (or worse kernel crashes)
-with some db load (especially without swap the risk is huge for all
-users, since all anonymous memory will be pinned like ptes, but with ~3G
-of pagetables they're at risk even with swap).  At least you *must*
-admit that without my patch applied as I posted, there's a >0 probabity
-of running out of normal zone which will lead to an oom-kill or a
-deadlock despite 10G of highmem might still be freeeable (like with
-clean cache). And my patch obviously cannot make it impossible to run
-out of normal zone, since there's only 800m of normal zone and one can
-open more files than what fits in normal zone, but at least it gives the
-user the security that a certain workload can run reliably. Without this
-patch there's no guarantee at all that any workload will run when >1G of
-ptes is allocated.
+--=-jl27kn/fL7AFJ7exZAjR
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-This below fix as well is needed and you won't find reports of people
-reproducing this race condition. Please apply. CC'ed Hugh. Sorry Hugh, I
-know you were working on it (you said not in the weekend IIRC), but I've
-been upgraded to latest bk so I had to fixup quickly or I would have to
-run the racy code on my smp systems to test new kernels.
+Hi Andrew,
 
-From: Andrea Arcangeli <andrea@suse.de>
-Subject: fixup smp race introduced in 2.6.11-rc1
+Following patch is against 2.6.11-rc1-mm2. 
 
-Signed-off-by: Andrea Arcangeli <andrea@suse.de>
+As mentioned by following note from Eric, crashdump code is currently
+broken.
+> 
+> The crashdump code is currently slightly broken.  I have attempted to
+> minimize the breakage so things can quick be made to work again.
 
---- x/mm/memory.c.~1~	2005-01-21 06:58:14.747335048 +0100
-+++ x/mm/memory.c	2005-01-21 07:16:15.318063328 +0100
-@@ -1555,8 +1555,17 @@ void unmap_mapping_range(struct address_
- 
- 	spin_lock(&mapping->i_mmap_lock);
- 
-+	/* serialize i_size write against truncate_count write */
-+	smp_wmb(); 
- 	/* Protect against page faults, and endless unmapping loops */
- 	mapping->truncate_count++;
-+	/*
-+	 * For archs where spin_lock has inclusive semantics like ia64
-+	 * this smp_mb() will prevent to read pagetable contents
-+	 * before the truncate_count increment is visible to
-+	 * other cpus.
-+	 */
-+	smp_mb();
- 	if (unlikely(is_restart_addr(mapping->truncate_count))) {
- 		if (mapping->truncate_count == 0)
- 			reset_vma_truncate_counts(mapping);
-@@ -1864,10 +1873,18 @@ do_no_page(struct mm_struct *mm, struct 
- 	if (vma->vm_file) {
- 		mapping = vma->vm_file->f_mapping;
- 		sequence = mapping->truncate_count;
-+		smp_rmb(); /* serializes i_size against truncate_count */
+We have started doing changes to make crashdump up and running again.
+Following are few identified items to be done.
+
+1. Reserve the backup region (640k) during kernel bootup. 
+2. Copy the data to backup region during crash.(moved to kexec user
+space code, patch posted in separate mail)
+3. Prepare elf headers while loading kexec panic kernel and store in
+reserved memory area.
+4. Pass required information to crashdump kernel, which parses it and
+exports through /proc/vmcore. (may be user space utility, open to
+discussion)
+
+Following patch implements item 1) in the list. Soon we shall be rolling
+out the patches for rest.
+
+Thanks
+Vivek
+
+
+
+--=-jl27kn/fL7AFJ7exZAjR
+Content-Description: 
+Content-Disposition: attachment; filename=crashdump-x86-reserve-640k-memory.patch
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+
+This patch adds support for reserving 640k memory as backup region as required
+by crashdump kernel for x86. 
+---
+
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ linux-2.6.11-rc1-mm2-kexec-eric-root/arch/i386/kernel/setup.c |    8 ++++++++
+ linux-2.6.11-rc1-mm2-kexec-eric-root/include/linux/kexec.h    |    6 +++++-
+ linux-2.6.11-rc1-mm2-kexec-eric-root/kernel/kexec.c           |    8 ++++++++
+ 3 files changed, 21 insertions(+), 1 deletion(-)
+
+diff -puN arch/i386/kernel/setup.c~crashdump-x86-reserve-640k-memory arch/i386/kernel/setup.c
+--- linux-2.6.11-rc1-mm2-kexec-eric/arch/i386/kernel/setup.c~crashdump-x86-reserve-640k-memory	2005-01-20 13:55:33.000000000 +0530
++++ linux-2.6.11-rc1-mm2-kexec-eric-root/arch/i386/kernel/setup.c	2005-01-20 13:55:33.000000000 +0530
+@@ -1159,6 +1159,13 @@ static unsigned long __init setup_memory
+ #ifdef CONFIG_KEXEC
+ 	if (crashk_res.start != crashk_res.end) {
+ 		reserve_bootmem(crashk_res.start, crashk_res.end - crashk_res.start + 1);
++
++#define CRASH_DUMP_BACKUP 0xa0000
++		/* Reserve another 640Kb for crashdump backup. */
++		crashdumpk_res.start = crashk_res.end + 1;
++		crashdumpk_res.end = crashdumpk_res.start +
++					CRASH_DUMP_BACKUP -1;
++		reserve_bootmem(crashdumpk_res.start, CRASH_DUMP_BACKUP);
  	}
- retry:
- 	cond_resched();
- 	new_page = vma->vm_ops->nopage(vma, address & PAGE_MASK, &ret);
-+	/*
-+	 * No smp_rmb is needed here as long as there's a full
-+	 * spin_lock/unlock sequence inside the ->nopage callback
-+	 * (for the pagecache lookup) that acts as an implicit
-+	 * smp_mb() and prevents the i_size read to happen
-+	 * after the next truncate_count read.
-+	 */
+ #endif
+ 	return max_low_pfn;
+@@ -1202,6 +1209,7 @@ legacy_init_iomem_resources(struct resou
+ 			request_resource(res, data_resource);
+ #ifdef CONFIG_KEXEC
+ 			request_resource(res, &crashk_res);
++			request_resource(res, &crashdumpk_res);
+ #endif
+ 		}
+ 	}
+diff -puN include/linux/kexec.h~crashdump-x86-reserve-640k-memory include/linux/kexec.h
+--- linux-2.6.11-rc1-mm2-kexec-eric/include/linux/kexec.h~crashdump-x86-reserve-640k-memory	2005-01-20 13:55:33.000000000 +0530
++++ linux-2.6.11-rc1-mm2-kexec-eric-root/include/linux/kexec.h	2005-01-20 13:55:33.000000000 +0530
+@@ -79,7 +79,7 @@ struct kimage {
+ 	unsigned long control_page;
  
- 	/* no page was available -- either SIGBUS or OOM */
- 	if (new_page == NOPAGE_SIGBUS)
+ 	/* Flags to indicate special processing */
+-	int type : 1;
++	unsigned int type : 1;
+ #define KEXEC_TYPE_DEFAULT 0
+ #define KEXEC_TYPE_CRASH   1
+ };
+@@ -122,6 +122,10 @@ extern struct kimage *kexec_crash_image;
+  */
+ extern struct resource crashk_res;
+ 
++/* Location of backup region to hold the crashdump kernel data.
++ */
++extern struct resource crashdumpk_res;
++
+ #else /* !CONFIG_KEXEC */
+ static inline void crash_kexec(void) { }
+ #endif /* CONFIG_KEXEC */
+diff -puN kernel/kexec.c~crashdump-x86-reserve-640k-memory kernel/kexec.c
+--- linux-2.6.11-rc1-mm2-kexec-eric/kernel/kexec.c~crashdump-x86-reserve-640k-memory	2005-01-20 13:55:33.000000000 +0530
++++ linux-2.6.11-rc1-mm2-kexec-eric-root/kernel/kexec.c	2005-01-20 13:55:33.000000000 +0530
+@@ -32,6 +32,14 @@ struct resource crashk_res = {
+ 	.flags = IORESOURCE_BUSY | IORESOURCE_MEM
+ };
+ 
++/* Location of the backup area for the crash dump kernel */
++struct resource crashdumpk_res = {
++	.name  = "Crash Dump Backup",
++	.start = 0,
++	.end   = 0,
++	.flags = IORESOURCE_BUSY | IORESOURCE_MEM
++};
++
+ /*
+  * When kexec transitions to the new kernel there is a one-to-one
+  * mapping between physical and virtual addresses.  On processors
+_
+
+--=-jl27kn/fL7AFJ7exZAjR--
 

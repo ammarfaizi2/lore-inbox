@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262232AbRETVd5>; Sun, 20 May 2001 17:33:57 -0400
+	id <S262234AbRETVih>; Sun, 20 May 2001 17:38:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262234AbRETVdr>; Sun, 20 May 2001 17:33:47 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:39436 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S262232AbRETVdb>;
-	Sun, 20 May 2001 17:33:31 -0400
-Date: Mon, 21 May 2001 00:33:08 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Robert M. Love" <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sqrt in kernel?
-Message-ID: <20010521003308.R5947@mea-ext.zmailer.org>
-In-Reply-To: <990390802.1002.0.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <990390802.1002.0.camel@phantasy>; from rml@tech9.net on Sun, May 20, 2001 at 04:33:20PM -0400
+	id <S262246AbRETViR>; Sun, 20 May 2001 17:38:17 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:29702 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S262240AbRETViI>;
+	Sun, 20 May 2001 17:38:08 -0400
+Date: Sun, 20 May 2001 18:37:46 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Zlatko Calusic <zlatko.calusic@iskon.hr>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
+In-Reply-To: <Pine.LNX.4.33.0105201943510.1635-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0105201837240.5531-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 20, 2001 at 04:33:20PM -0400, Robert M. Love wrote:
-> hi,
+On Sun, 20 May 2001, Mike Galbraith wrote:
+> On 20 May 2001, Zlatko Calusic wrote:
+
+> > Also in all recent kernels, if the machine is swapping, swap cache
+> > grows without limits and is hard to recycle, but then again that is
+> > a known problem.
 > 
-> is there a sqrt function in the kernel? any other math functions?
+> This one bugs me.  I do not see that and can't understand why.
 
-	No.  (Assuming FP math sqrt function is your interest.)
+Could it be because we never free swap space and never
+delete pages from the swap cache ?
 
-	If you do scaled integers (fractions, with 2^n denominator),
-	you can do newton iteration for sqrt nicely.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-> i tried finding/grepping around, and found some various arch-specific
-> stuff for fpu emulation... is there a general sqrt function?  is there a
-> single file to look through with the various math functions?
+http://www.surriel.com/		http://distro.conectiva.com/
 
-	Yes.  Userspace.  ( <math.h> )
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 
-	As a rule:  NO FP MATH IS ALLOWED IN THE KERNEL!
-
-	Now the question:  Why do you think you need FP math ?
-
-	If your case is non-fast-path, you may do complete
-	state save before, and restore after your FP code.
-
-
-	In some cases even the fast-paths carry FP/MMX code,
-	but those are cases where the save/restore overhead
-	becomes negligible for all of the other processing
-	that is going on.
-
-> thanks,
-> -- 
-> Robert M. Love
-> rml@ufl.edu
-> rml@tech9.net
-
-/Matti Aarnio

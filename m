@@ -1,51 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131505AbRDWQMN>; Mon, 23 Apr 2001 12:12:13 -0400
+	id <S132805AbRDWQRD>; Mon, 23 Apr 2001 12:17:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132616AbRDWQME>; Mon, 23 Apr 2001 12:12:04 -0400
-Received: from theseus.mathematik.uni-ulm.de ([134.60.166.2]:43142 "HELO
-	theseus.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
-	id <S131505AbRDWQLv>; Mon, 23 Apr 2001 12:11:51 -0400
-Message-ID: <20010423161148.6465.qmail@theseus.mathematik.uni-ulm.de>
-From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Date: Mon, 23 Apr 2001 18:11:48 +0200
-To: Victor Zandy <zandy@cs.wisc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: Global FPU corruption in 2.2
-In-Reply-To: <cpx7l0g3mfk.fsf@goat.cs.wisc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <cpx7l0g3mfk.fsf@goat.cs.wisc.edu>; from zandy@cs.wisc.edu on Thu, Apr 19, 2001 at 11:05:03AM -0500
+	id <S133108AbRDWQQo>; Mon, 23 Apr 2001 12:16:44 -0400
+Received: from fe020.worldonline.dk ([212.54.64.196]:30735 "HELO
+	fe020.worldonline.dk") by vger.kernel.org with SMTP
+	id <S132805AbRDWQQb>; Mon, 23 Apr 2001 12:16:31 -0400
+Message-ID: <3AE456F8.4010707@eisenstein.dk>
+Date: Mon, 23 Apr 2001 18:23:20 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-mosix i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en, da
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pedantic code cleanup - am I wasting my time with this?
+In-Reply-To: <3AE449A3.3050601@eisenstein.dk> <200104231537.f3NFblv08166@mobilix.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19, 2001 at 11:05:03AM -0500, Victor Zandy wrote:
+Richard Gooch wrote:
+
+> Jesper Juhl writes:
+>
+>> All the above does is to remove the last comma from 3 enumeration
+>> lists.  I know that gcc has no problem with that, but to be strictly
+>> correct the last entry should not have a trailing comma.
 > 
-> We have found that one of our programs can cause system-wide
-> corruption of the x86 FPU under 2.2.16 and 2.2.17.  That is, after we
-> run this program, the FPU gives bad results to all subsequent
-> processes.
+> 
+> But it's more people-friendly to have that trailing comma. It makes
+> adding new enumerations just slightly easier, and also makes it easier
+> to manually apply failed patches. I'd rather see those trailing commas
+> left in.
 
-A few comments, not sure if they will help very much:
+> 
 
-1.) If I'm not mistaken switch_to changes current->flags without
-atomic operations and without any locks and sys_ptrace changes
-child->flags only protected by the big kernel lock.
-I could imagine that this causes local corruption on an SMP machine
-and this is something that changed in 2.4 kernels, but I don't see
-how this can corrupt FPU state globally. Maybe there is something else.
+You are right. As several people have pointed out to me it is in fact 
+legal to have the trailing comma. And it _does_ make it easier to add 
+new lines.
+At least I have learned a lesson here; be 100% sure of your facts before 
+posting to linux-kernel ;)
 
-2.) I guess a single finit (as proposed by someone else in this thread)
-won't assure that both FPUs are in a sane state.
+> 
+>> Another example is the following line (1266) from linux/include/net/sock.h
+>> 
+>>          return (waitall ? len : min(sk->rcvlowat, len)) ? : 1;
+>> 
+>> To be strictly correct the second expression (between '?' and ':' ) 
+>> should not be omitted (all you guys already know that ofcourse).
+> 
+> 
+> Yeah, that one's pretty ugly and unreadable.
+> 
 
-3.) It might be interesting to know if the problem can be triggered:
-a) If pi doesn't fork, i.e. just one process calculating pi and
-another one doing the attach/detach.
-b) If pi doesn't do FPU Operations, i.e. only the children call do_pi.
+That function (sock_rcvlowat()) only gets called a few places, so I'll 
+see if I can figure out exactely what's going on and come up with a 
+better construct (it might take me ages, but I'm determined to learn to 
+find my way around this code)...
 
-    regards    Christian
+> 
+> Go ahead and make suggestions. I expect some things will be accepted,
+> some rejected (just like I did). Steer clear of any brace or tabbing
+> style changes, though.
+> 
 
--- 
-THAT'S ALL FOLKS!
+Ok, I'll continue reading code and keep my eyes open for these things.
+
+[...]
+
+> The goal should *not* be to shut up gcc. The goal should be to produce
+> more readable code and to fix bugs. Gcc is merely a tool. And a flawed
+> one, at that.
+> 
+
+I'll remember that. Thank you to everyone who have taken their time to 
+answer my post, you have all been very helpfull!
+
+- Jesper Juhl - juhl@eisenstein.dk
+

@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317488AbSF2AvC>; Fri, 28 Jun 2002 20:51:02 -0400
+	id <S317489AbSF2BCl>; Fri, 28 Jun 2002 21:02:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317489AbSF2AvB>; Fri, 28 Jun 2002 20:51:01 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:45067 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S317488AbSF2AvA>;
-	Fri, 28 Jun 2002 20:51:00 -0400
-Message-Id: <200206290040.g5T0dhWX002388@sleipnir.valparaiso.cl>
-To: lgarfiel@students.depaul.edu
-cc: linux-kernel@vger.kernel.org, zaurus-general@lists.sourceforge.net
-Subject: Re: [Zaurus-general] Re: New Zaurus Wishlist - removable media handling 
-In-reply-to: Your message of "Wed, 26 Jun 2002 21:38:41 CDT."
-             <3D1A7AB1.D4955601@students.depaul.edu> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Fri, 28 Jun 2002 20:39:42 -0400
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S317491AbSF2BCk>; Fri, 28 Jun 2002 21:02:40 -0400
+Received: from adsl-64-164-18-186.dsl.snfc21.pacbell.net ([64.164.18.186]:33862
+	"HELO switchmanagement.com") by vger.kernel.org with SMTP
+	id <S317489AbSF2BCk>; Fri, 28 Jun 2002 21:02:40 -0400
+Message-ID: <3D1D07B8.3050904@switchmanagement.com>
+Date: Fri, 28 Jun 2002 18:04:56 -0700
+From: Brian Strand <bstrand@switchmanagement.com>
+Organization: Switch Management
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020610
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Weeks <dweeks02@tampabay.rr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: hp zt1130 laptop/via twister chipset support...
+References: <200206281829.19226.dweeks02@tampabay.rr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry Garfield <lgarfiel@students.depaul.edu> said:
+David Weeks wrote:
 
-[...]
+>I've installed the 2.4.18 source and looked for references to chipsets, but I 
+>am mostly lost.
+>
+>I'd never consider myself a competent coder, but I'm stuborn about fixing 
+>things.  Where do I find source for this and other chipsets?  
+>
+>Also, I understand via is supposed to be forthcoming in an open source sort of 
+>way regarding specification (as opposed to nvidia).  Any clue will help.
+>
+>David Weeks
+>
+>ps -- has anyone ever tried to htdig the source files?  Wouldn't that help, 
+>such as a concordance would?  I spend all my time looking for stuff, don't 
+>find what I'm looking for, and don't get anything done.
+>
+>Dave
+>  
+>
+You may find http://lxr.linux.no/source/ helpful, if you have decent 
+network access.
 
-> Well, I am neither a former Amiga user nor a kernel developer (but
-> GNU/Linux user), so I understood MOST of what you two said. ;-)  Coming
-> from a user-angle, though, the main problem with the Linux file system
-> "style", for lack of a better word, is the unified file tree.
+Regards,
+Brian
 
-Right. Something like mtools(1) for isofs would be nice...
---
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

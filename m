@@ -1,87 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264238AbTJOTsH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 15:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbTJOTsH
+	id S264253AbTJOT5K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 15:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbTJOT5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 15:48:07 -0400
-Received: from 62-43-29-55.user.ono.com ([62.43.29.55]:5303 "HELO mitago.net")
-	by vger.kernel.org with SMTP id S264238AbTJOTsD (ORCPT
+	Wed, 15 Oct 2003 15:57:10 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10661 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264253AbTJOT5E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 15:48:03 -0400
-Date: Wed, 15 Oct 2003 21:47:54 +0200
-From: Celso =?iso-8859-1?Q?Gonz=E1lez?= <celso@mitago.net>
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: Javier Achirica <achirica@telefonica.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: airo regression with Linux 2.4.23-pre2
-Message-ID: <20031015194754.GA14859@viac3>
-Reply-To: celso@mitago.net
-References: <Pine.LNX.4.55L.0308301220020.31588@freak.distro.conectiva> <20031015193202.54b5bb36.us15@os.inf.tu-dresden.de>
+	Wed, 15 Oct 2003 15:57:04 -0400
+Subject: Re: IA32 (2.6.0-test7 - 2003-10-09.18.30) - 1 New warnings (gcc
+	3.2.2)
+From: John Cherry <cherry@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0310101249380.15705@montezuma.fsmlabs.com>
+References: <200310100645.h9A6joFZ008847@cherrypit.pdx.osdl.net>
+	 <Pine.LNX.4.53.0310101249380.15705@montezuma.fsmlabs.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1066247805.5145.1.camel@cherrytest.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
-Content-Disposition: inline
-In-Reply-To: <20031015193202.54b5bb36.us15@os.inf.tu-dresden.de>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 15 Oct 2003 12:56:45 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is not bogus.  In linus' bk tree, line 374 is commented out!
 
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+/*
+        vbi_workaround(dev);
+*/
 
-On Wed, Oct 15, 2003 at 07:32:02PM +0200, Udo A. Steinberg wrote:
->=20
-> Hi,
->=20
-> My Cisco Aironet 350 Series PCMCIA network card does no longer work with =
-the
-> latest 2.4 and 2.6 kernels. For 2.4.23 I have been able to identify the p=
-oint
-> in time at which things broke. 2.4.23-pre1 still works and -pre2 does not.
-> The card is unable to acquire an IP address via DHCP and also doesn't see=
-m to
-> receive any networking traffic at all with -pre2 and later.
->=20
-> Looking at the 2.4 changelog it seems that the following patch introduced
-> the problem.
->=20
-> MT> Summary of changes from v2.4.23-pre1 to v2.4.23-pre2
-> MT> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> MT> <javier:tudela.mad.ttd.net>:
-> MT>   o [wireless airo] add support for MIC and latest firmwares
->=20
-> Do you have any idea what is going wrong here? If you need more informati=
-on
-> to narrow down the problem, just ask.
+John
 
-Same simptoms as me
-Try removing this line on airo.c
-Line 2948
-ai->config._reserved1a[0] =3D 2 /* ??? */
+On Fri, 2003-10-10 at 09:50, Zwane Mwaikambo wrote:
+> On Thu, 9 Oct 2003, John Cherry wrote:
+> 
+> > drivers/media/common/saa7146_vbi.c:6: warning: `vbi_workaround' defined but not used
+> 
+> That appears bogus, it's used in vbi_open on line 374
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-It works for me
-
---=20
-Celso
-
-
-
---vtzGhvizbBRQ85DL
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/jaRpW7HC4i2jZ7cRAtHCAJ9m07PzhvWWWup0XHLtkzBefL0prQCfehPQ
-O7XnwiSEoF9An2N/n0Y1bwg=
-=o5M3
------END PGP SIGNATURE-----
-
---vtzGhvizbBRQ85DL--

@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317261AbSGXNWT>; Wed, 24 Jul 2002 09:22:19 -0400
+	id <S317101AbSGXNSp>; Wed, 24 Jul 2002 09:18:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317182AbSGXNVd>; Wed, 24 Jul 2002 09:21:33 -0400
-Received: from ns.suse.de ([213.95.15.193]:57103 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317184AbSGXNU1>;
-	Wed, 24 Jul 2002 09:20:27 -0400
-To: "Martin Brulisauer" <martin@uceb.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: type safe lists (was Re: PATCH: type safe(r) list_entry repacement: generic_out_cast)
-References: <20020723114703.GM11081@unthought.net.suse.lists.linux.kernel> <3D3E75E9.28151.2A7FBB2@localhost.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 24 Jul 2002 15:23:39 +0200
-In-Reply-To: "Martin Brulisauer"'s message of "24 Jul 2002 09:44:34 +0200"
-Message-ID: <p73d6tdtg2s.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S317112AbSGXNSp>; Wed, 24 Jul 2002 09:18:45 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:24023 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317101AbSGXNSo>; Wed, 24 Jul 2002 09:18:44 -0400
+Date: Wed, 24 Jul 2002 15:21:35 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: <martin@dalecki.de>
+cc: <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: please DON'T run 2.5.27 with IDE!
+In-Reply-To: <3D3EA74F.4090706@evision.ag>
+Message-ID: <Pine.SOL.4.30.0207241520060.15605-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> As long as your pointers are 32bit this seems to be ok. But on 
-> 64bit implementations pointers are not (unsigned long) so this cast 
-> seems to be wrong.
 
-A pointer fits into unsigned long on all 64bit linux ports.
-The kernel very heavily relies on that.
+On Wed, 24 Jul 2002, Marcin Dalecki wrote:
 
-You are probably thinking of Win64, but this is not Windows.
+> Bartlomiej Zolnierkiewicz wrote:
+> > On Wed, 24 Jul 2002, Marcin Dalecki wrote:
+> >
+> >
+> >>[root@localhost block]# grep \>special *.c
+> >>elevator.c:         !rq->waiting && !rq->special)
+> >>^^^^^^ This one is supposed to have the required barrier effect.
+> >
+> >
+> > Go reread, no barrier effect, requests can slip in before your
+> > REQ_SPECIAL. They cannon only be merged with REQ_SPECIAL.
+>
+> Erm. Please note that I don't see any problem here. It's just
+> a matter of completeness.
 
--Andi
+For now yes.
+

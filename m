@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279317AbRKSPWy>; Mon, 19 Nov 2001 10:22:54 -0500
+	id <S279462AbRKSPYF>; Mon, 19 Nov 2001 10:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279454AbRKSPWr>; Mon, 19 Nov 2001 10:22:47 -0500
-Received: from hq2.fsmlabs.com ([209.155.42.199]:30483 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S279317AbRKSPVy>;
-	Mon, 19 Nov 2001 10:21:54 -0500
-Date: Mon, 19 Nov 2001 08:15:43 -0700
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>, lse-tech@lists.sourceforge.net,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Real Time Runqueue
-Message-ID: <20011119081543.A27011@hq2>
-In-Reply-To: <20011116154701.G1152@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.40.0111161620050.998-100000@blue1.dev.mcafeelabs.com> <20011116163224.H1152@w-mikek2.des.beaverton.ibm.com>
+	id <S279548AbRKSPXz>; Mon, 19 Nov 2001 10:23:55 -0500
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:26542 "EHLO
+	hawk.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S279547AbRKSPXj>; Mon, 19 Nov 2001 10:23:39 -0500
+Date: Mon, 19 Nov 2001 10:26:09 -0500
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: Re: I/O tests using elvtune to improve interactive performance
+Message-ID: <20011119102609.A3713@earthlink.net>
+In-Reply-To: <138.49c8e42.29247804@aol.com> <20011117030611.A214@earthlink.net> <20011119080922.S11826@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011116163224.H1152@w-mikek2.des.beaverton.ibm.com>
-User-Agent: Mutt/1.3.23i
-Organization: FSM Labs
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011119080922.S11826@suse.de>; from axboe@suse.de on Mon, Nov 19, 2001 at 08:09:22AM +0100
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 16, 2001 at 04:32:24PM -0800, Mike Kravetz wrote:
-> The reason I ask is that we went through the pains of a separate
-> realtime RQ in our MQ scheduler.  And yes, it does hurt the common
-> case, not to mention the extra/complex code paths.  I was hoping
-> that someone in the know could enlighten us as to how RT semantics
-> apply to SMP systems.  If the semantics I suggest above are required,
-> then it implies support must be added to any possible future
-> scheduler implementations.
-
-POSIX RT specs, at least last year, did not mention any SMP
-requirements for scheduling at all.
-What we do in RTLinux is require that RT threads be associated with a
-processor identifier on the theory that the user may have some idea what
-processors should run which RT threads, but the OS has no way of
-guessing.
-
-
-
-
+On Mon, Nov 19, 2001 at 08:09:22AM +0100, Jens Axboe wrote:
+> > Test:	Run growfiles tests from Linux Test Project that really hurt
+> > 	interactive performance.  Simultaneously run "ls -laR /".
+> > 	Change the elevator read latency value with elvtune.
+> > 	Also run mp3blaster tests.
 > 
+> Interesting tests, thanks. I wonder if you could be convinced to do
+> bonnie++ and dbench tests with the same read_latency values used? Also,
+> I'm assuming you kept write latency at its default of 16384?
 > -- 
-> Mike
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Jens Axboe
+> 
+
+Thanks for the feedback.  Write latency was 16384 for all tests.
+
+I'm downloading dbench and bonnie++ now.   I'll check them out.
+
+I'm still not sure how to measure/quantify interactive performance.  
+
+My ideal test will have these components:
+
+1) Simulate and measure user interactive response time.
+2) Disk I/O patterns capable of making interactive performance slow.
+3) Measurement of I/O throughput.
+4) Note how changes with elvtune effect throughput and response time.
+5) It's not too boring.  (i.e. type something, use a stop watch).
+
+It's the "measure interactive response time" that I haven't got a handle 
+on yet.  I'm looking at the SSBA benchmarks for something that simulates 
+users.  I don't know if it measures response time.
+
+I could resort to a stopwatch to test interactive response, but
+hopefully, something better will come to mind.
+-- 
+Randy Hron
+

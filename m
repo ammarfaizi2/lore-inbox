@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262430AbSKCUf6>; Sun, 3 Nov 2002 15:35:58 -0500
+	id <S262692AbSKCUas>; Sun, 3 Nov 2002 15:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262448AbSKCUf6>; Sun, 3 Nov 2002 15:35:58 -0500
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:22441 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262430AbSKCUf5>; Sun, 3 Nov 2002 15:35:57 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Mike Civil <mike@duncodin.org>, linux-kernel@vger.kernel.org
-Subject: Re: Htree ate my hard drive, was: post-halloween 0.2
-Date: Sun, 3 Nov 2002 21:42:42 +0100
-User-Agent: KMail/1.4.7
-References: <20021030171149.GA15007@suse.de> <200210312305.g9VN5Yvj021985@duncodin.demon.co.uk>
-In-Reply-To: <200210312305.g9VN5Yvj021985@duncodin.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200211032142.43432.baldrick@wanadoo.fr>
+	id <S262728AbSKCUas>; Sun, 3 Nov 2002 15:30:48 -0500
+Received: from main.gmane.org ([80.91.224.249]:26524 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S262692AbSKCUar>;
+	Sun, 3 Nov 2002 15:30:47 -0500
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: Petition against kernel configuration options madness...
+Date: Sun, 03 Nov 2002 15:38:21 -0500
+Message-ID: <aq41b9$dt9$1@main.gmane.org>
+References: <200211031809.45079.josh@stack.nl>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: main.gmane.org 1036355753 14249 130.127.121.177 (3 Nov 2002 20:35:53 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Sun, 3 Nov 2002 20:35:53 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 November 2002 00:05, Mike Civil wrote:
-> For info, I had this as well. Kernel 2.4.19 only. Using e2fsprogs 1.29.
+Jos Hulzink wrote:
 
-Do you mean that you did not run a 2.5 kernel, or that you tried several
-2.4 kernels and this was the only one that chewed on your hard drive?
+> Hi,
+> 
+> It took me about an hour to find out why my keyboard didn't work in
+> 2.5.45. Well... after all it seemed that I need to enable 4 ! options
+> inside the input configuration, just to get my default, nothing special
+> PS/2 keyboard up and running. Oh, and I didn't even have my not so fancy
+> boring default PS/2 mouse configured then. Guys, being able to configure
+> everything is nice, but with the 2.5 kernel, things are definitely getting
+> out of control IMHO.
+> 
 
-Ciao,
+Stop whining, 2.5 kernels are development kernels -> not *expected* to work 
+%100!
 
-Duncan.
+Cheers,
+Nicholas
+
+

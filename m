@@ -1,84 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbTFGQMW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 12:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTFGQMW
+	id S263245AbTFGQQM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 12:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263246AbTFGQQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 12:12:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11780 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263258AbTFGQMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 12:12:20 -0400
-Date: Sat, 7 Jun 2003 09:25:43 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: __user annotations
-In-Reply-To: <20030607143219.U626@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.44.0306070917150.2840-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Jun 2003 12:16:11 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:13216 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263245AbTFGQQH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 12:16:07 -0400
+Date: Sat, 7 Jun 2003 09:29:36 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: Always passing mm and vma down (was: [RFC][PATCH] Convert do_no_page() to a hook to avoid DFS race)
+Message-ID: <20030607162936.GD1552@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20030530164150.A26766@us.ibm.com> <20030531104617.J672@nightmaster.csn.tu-chemnitz.de> <20030531234816.GB1408@us.ibm.com> <20030601122200.GB1455@x30.local> <20030601200056.GA1471@us.ibm.com> <20030604103808.GP3412@x30.school.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030604103808.GP3412@x30.school.suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 7 Jun 2003, Ingo Oeser wrote:
+On Wed, Jun 04, 2003 at 12:38:08PM +0200, Andrea Arcangeli wrote:
+> On Sun, Jun 01, 2003 at 01:00:56PM -0700, Paul E. McKenney wrote:
+> > The immediate motivation is to avoid the race with zap_page_range()
+> > when another node writes to the corresponding portion of the file,
+> > similar to the situation with vmtruncate().  The thought was to
+> > leverage locking within the distributed filesystem, but if the
+> > race is solved locally, then, as you say, perhaps this is not 
+> > necessary.
 > 
-> That's a big pity. How do I workaround this? I would like to
-> help resolving this issues, if you are interested.
+> exactly, this was my idea. Since we've the same race locally even on
+> ext2, maybe it worth to share the fix for all the fs somehow, the
+> problem sounds the same. You may still need callbacks to get right the
+> distributed fs though. still I was just wondering if the conceptual fix
+> could live in the highlevel rather than replicating it in the lowlevel.
 
-The solution to these things is to _always_ have a separate type for the 
-user thing than for the kernel thing. 
+I believe that we would need callbacks for DFSes because many of them
+have different locking granularities.  For example, a number of them allow
+writes from different clients to different pages of the same file
+fully in parallel, with no communication between the clients required.
+Communication is required only when one client attempts to write to
+a page most recently written to by another client.
 
-In practice, a lot of code has ended up doing that _anyway_, since the
-kernel usually wants to have a few extra fields for its internal use. The
-classic unix example of this, of course, is "struct stat" vs "struct
-inode".
+The locking required to support this is more complex than would
+be justified in most local-filesystem cases, I suspect.  ;-)
 
-But if your structures are 100% the same, then you can just share them. 
-There's nothing wrong with having
+> > This sounds good to me, though am checking with some DFS people.
+> 
+> cool thanks!
 
-	struct ioctl_arg {
-		int value;
-		int another_value;
-		..
-	};
+Good news, they are OK with your approach for handling the truncation
+race!  They still believe they need the callback for handling fine-grained
+locking required for invalidations.
 
-and then in your ioctl routines you have
+> > > And w/o proper high level locking, the non distributed filesystems will
+> > > corrupt the VM too with truncate against nopage. I already fixed this in
+> > > my tree. (see the attachment) So I wonder if the fixes could be shared.
+> > > I mean, you definitely need my fixes even when using the DFS on a
+> > > isolated box, and if you don't need them while using the fs locally, it
+> > > means we're duplicating effort somehow.
+> > 
+> > True -- my patches simply provided hooks to allow DFSs and local
+> > filesystems to fix the problem.  
+> > 
+> > So, the idea is for the DFS to hold a fr_write_lock on the
+> > truncate_lock across the invalidate_mmap_range() call, thus
+> > preventing the PTEs from any racing pagefaults from being
+> > installed?  This seems plausible at first glance, but need
+> > to stare at it some more.  This might permit the current
+> > do_no_page(), do_anonymous_page(), and ->nopage APIs to
+> > be used, but again, need to stare at it some more.
+> 
+> btw, we can discuss this some more next month at OLS too, if we didn't
+> clear all the issues first.
 
-    int my_ioctl_routine(struct ioctl_arg __user *ptr)
-    {
-	struct ioctl_arg arg;
+Sounds great!!!  Of course, if we get it all agreed to before then,
+we will just have to find other things to talk about at OLS.  ;-)
 
-	if (copy_from_user(&arg, ptr, sizeof(*ptr))
-		return -EFAULT;
-	...
-    }
+Hopefully by that time, one of the DFSes will be released under GPL.
+Don't ask.  :-/
 
-and that's fine.
+> > (If I am not too confused, fr_write_lock() became
+> > write_seqlock() in the 2.5 tree...)
+> 
+> exactly, I didn't rename it yet in 2.4 since it would provide no runtime
+> benefit, but it is exactly the same thing ;).
 
-You can even have user pointers _inside_ the structure: because "sparse" 
-really understands C types at a very fundamental level (like a compiler 
-would, not like some simpler source scanner), you can have
+Cool!  Then there is no need to worry about fr_lock getting accepted
+into 2.5.  ;-)
 
-	struct ioctl_arg {
-		int value;
-		void __user *buf;
-	};
+> > > Since I don't see the users of the new hook, it's a bit hard to judje if
+> > > the duplication is legitimate or not. So overall I'd agree with Andrew
+> > > that to judje the patch it'd make sense to see (or know more) about the
+> > > users of the hook too.
+> > 
+> > A simple change that takes care of all the cases certainly does
+> > seem better than a more complex change that only takes care of
+> > distributed filesystems!
+> 
+> agreed.
 
-and do
+Unless you have other thoughts, I will take a stab at making
+the patches safe for each other.
 
-    int my_ioctl_routine(struct ioctl_arg __user *ptr)
-    {
-	struct ioctl_arg arg;
-	char buffer[10];
+					Thanx, Paul
 
-	if (copy_from_user(&arg, ptr, sizeof(*ptr))
-		return -EFAULT;
-
-and sparse will be aware of the fact that "arg.buf" is a user pointer, and 
-it will properly warn if you pass it to a function that expects a kernel 
-pointer (or assign it to a normal non-user pointer thing).
-
-		Linus
-
+> thanks,
+> 
+> Andrea

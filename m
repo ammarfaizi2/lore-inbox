@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312296AbSDDMdq>; Thu, 4 Apr 2002 07:33:46 -0500
+	id <S312290AbSDDMhq>; Thu, 4 Apr 2002 07:37:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312290AbSDDMdh>; Thu, 4 Apr 2002 07:33:37 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:54000 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S312253AbSDDMd0>; Thu, 4 Apr 2002 07:33:26 -0500
-Date: Thu, 4 Apr 2002 14:31:48 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-In-Reply-To: <Pine.LNX.4.33.0204041245340.1475-100000@einstein.homenet>
-Message-ID: <Pine.NEB.4.44.0204041423450.7845-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312253AbSDDMhh>; Thu, 4 Apr 2002 07:37:37 -0500
+Received: from ns.suse.de ([213.95.15.193]:14596 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312290AbSDDMhX>;
+	Thu, 4 Apr 2002 07:37:23 -0500
+Date: Thu, 4 Apr 2002 14:37:22 +0200
+From: Dave Jones <davej@suse.de>
+To: Adrian Bunk <bunk@fs.tum.de>,
+        "martin @ dalecki . de Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.7-dj3
+Message-ID: <20020404143722.V20040@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Adrian Bunk <bunk@fs.tum.de>,
+	"martin @ dalecki . de Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020404054923.A28437@suse.de> <Pine.NEB.4.44.0204040946500.7845-100000@mimas.fachschaften.tu-muenchen.de> <20020404141647.T20040@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Apr 2002, Tigran Aivazian wrote:
-
->...
-> sense, wrong. Namely, in the sense that it is inconsistent with the
-> similar situation in the case of libraries or even system calls. I don't
->...
-
-The COPYING file of Linux contains an explicit permission to use 'kernel
-services by normal system calls' and that this 'does *not* fall under the
-heading of "derived work"'. As stated in my previous mail in this thread
-I'm still wondering where the allowance for binary-only modules to link
-with the kernel is hidden.
-
-> Regards,
-> Tigran
-
-cu
-Adrian
+On Thu, Apr 04, 2002 at 02:16:47PM +0200, Dave Jones wrote:
+ > On Thu, Apr 04, 2002 at 09:50:32AM +0200, Adrian Bunk wrote:
+ >  > pdc4030.c: In function `promise_multwrite':
+ >  > pdc4030.c:447: warning: passing arg 2 of `bio_kmap_irq' makes pointer from
+ >  > integer without a cast
+ >  > pdc4030.c: In function `promise_rw_disk':
+ >  > pdc4030.c:664: structure has no member named `channel'
+ > 
+ > Ok, I'm confused.
+ > This is a compile failure from 2.5.8-pre1.
+ > The line numbers don't even match up to whats in -dj3
 
 
+My bad. _I_ was looking at a wrong tree.
+I'll fix these bits up later and push them Martins way, as there
+are a few other small IDE bits that have been lingering in my
+tree since 2.5.2 days.
 
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

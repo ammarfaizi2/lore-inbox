@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbTBSWo1>; Wed, 19 Feb 2003 17:44:27 -0500
+	id <S262384AbTBSWxy>; Wed, 19 Feb 2003 17:53:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262446AbTBSWo1>; Wed, 19 Feb 2003 17:44:27 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:49859 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262425AbTBSWo0>;
-	Wed, 19 Feb 2003 17:44:26 -0500
-Date: Wed, 19 Feb 2003 14:38:41 -0800 (PST)
-Message-Id: <20030219.143841.87628436.davem@redhat.com>
-To: ionut@badula.org
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       James.Bottomley@steeleye.com
-Subject: Re: [PATCH] add new DMA_ADDR_T_SIZE define
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0302191750580.29393-100000@guppy.limebrokerage.com>
-References: <20030219.142952.27404695.davem@redhat.com>
-	<Pine.LNX.4.44.0302191750580.29393-100000@guppy.limebrokerage.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262394AbTBSWxy>; Wed, 19 Feb 2003 17:53:54 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:2734 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262384AbTBSWxy>;
+	Wed, 19 Feb 2003 17:53:54 -0500
+Subject: Re: [PATCH] IPSec protocol application order
+To: "David S. Miller" <davem@redhat.com>
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF67D9F550.2E100257-ON86256CD2.007CE0BF-86256CD2.007E9FBD@pok.ibm.com>
+From: "Tom Lendacky" <toml@us.ibm.com>
+Date: Wed, 19 Feb 2003 17:03:04 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 02/19/2003 06:03:08 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ion Badulescu <ionut@badula.org>
-   Date: Wed, 19 Feb 2003 17:53:02 -0500 (EST)
-   
-   So is the current wisdom something like "always treat dma_addr_t as a u64
-   and be happy"?
 
-Yes.
+> setkey is for manual keying and debugging.  Therefore, disallowing
+> experimenting with non-rfc-compliant orderings seems to lack purpose
+> to me.
+
+I apologize if I missed it, but is there another way to set policy in the
+SPD besides the setkey command?  I am under the assumption that setkey's
+spdadd operation is what is to be used to define the policy on the system
+so that racoon can perform dynamic keying.
+
+Tom
+
+

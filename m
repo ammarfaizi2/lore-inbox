@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265305AbUGDBPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265310AbUGDB1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265305AbUGDBPI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 21:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265306AbUGDBPI
+	id S265310AbUGDB1i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 21:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbUGDB1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 21:15:08 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:20616 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S265305AbUGDBPC (ORCPT
+	Sat, 3 Jul 2004 21:27:38 -0400
+Received: from holomorphy.com ([207.189.100.168]:7879 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265310AbUGDB1f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 21:15:02 -0400
-Date: Sun, 4 Jul 2004 03:15:01 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: small perfctr bug or misunderstanding
-Message-ID: <20040704011501.GA28252@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-References: <200407031458.i63EwAGO023123@harpo.it.uu.se>
+	Sat, 3 Jul 2004 21:27:35 -0400
+Date: Sat, 3 Jul 2004 18:27:32 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: ak@muc.de
+Subject: x86_64 KBUILD_IMAGE
+Message-ID: <20040704012732.GW21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, ak@muc.de
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200407031458.i63EwAGO023123@harpo.it.uu.se>
-User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 03, 2004 at 04:58:10PM +0200, Mikael Pettersson wrote:
-> Currently no; I removed them while we've been debating the
-> API to the (IMO more important) per-process counters.
-> I intend to add them back once the current stuff has been
-> Linus-approved.
+x86_64 doesn't set KBUILD_IMAGE, and hence defaults to vmlinux. This
+confuses make rpm in such a manner that it copies a raw ELF executable
+to /boot/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION instead of
+the expected bzImage, which is surprisingly unbootable and not what's
+normally expected to be placed in /boot/ with that filename.
 
-Ok - I'd love the ability to diagnose an entire system. Furthermore, it'd be
-very cool if it were possible to profile another process, like strace -p
-pid.
+Just setting the variable is enough to convince it to use bzImage properly.
 
-I think this means looking at 'virtual counters' for arbitrary processes.
-Would this be possible?
 
-I currently have a client using a 2.6.7 kernel and they have performance
-problems and applications I can't recompile. It'd be very good if I could
-spot which of their many application is thrashing the cache.
+-- wli
 
-> The driver sees ENABLE set in EVNTSEL1 on your P-M,
-> and properly returns an error.
 
-Ahhhh, I see. With this line things work as intended:
-d_control.cpu_control.evntsel[count] = v | (1 << 16) | (!count << 22) | (unit << 8); 
-
-> handle any quirks. For P6 vs K7 the differences are
-> minor, but to program the P4 you _really_ need helper
-> procedures.
-
-Indeed. Thanks. I'll make a P6PerfCtr and an AMDPerfCtr and a P4PerfCtr. The
-pentium 1/2 people can work it out for themselves :-)
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Index: mm5-2.6.7/arch/x86_64/Makefile
+===================================================================
+--- mm5-2.6.7.orig/arch/x86_64/Makefile	2004-07-02 20:43:26.000000000 -0700
++++ mm5-2.6.7/arch/x86_64/Makefile	2004-07-03 18:10:06.390377824 -0700
+@@ -77,6 +77,7 @@
+ all: bzImage
+ 
+ BOOTIMAGE                     := arch/x86_64/boot/bzImage
++KBUILD_IMAGE                  := $(BOOTIMAGE)
+ 
+ bzImage: vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) $(BOOTIMAGE)

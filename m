@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266646AbUFWSzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266605AbUFWTBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266646AbUFWSzH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 14:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266644AbUFWSyY
+	id S266605AbUFWTBK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 15:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266609AbUFWTBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 14:54:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47806 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266650AbUFWSvR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 14:51:17 -0400
-Date: Wed, 23 Jun 2004 11:50:27 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: rahul b jain cs student <rbj2@oak.njit.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about ip_rcv() function
-Message-Id: <20040623115027.11ef0902.davem@redhat.com>
-In-Reply-To: <Pine.GSO.4.58.0406231441500.7099@chrome.njit.edu>
-References: <20040622212403.21346.qmail@lwn.net>
-	<Pine.GSO.4.58.0406231441500.7099@chrome.njit.edu>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 23 Jun 2004 15:01:10 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:8344 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S266605AbUFWS7c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 14:59:32 -0400
+Subject: Re: status of Preemptible Kernel 2.6.7
+From: Robert Love <rml@ximian.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: Marcus Hartig <m.f.h@web.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <40D9C48C.4060004@techsource.com>
+References: <40D9B20A.4070409@web.de>  <40D9C48C.4060004@techsource.com>
+Content-Type: text/plain
+Date: Wed, 23 Jun 2004 14:59:31 -0400
+Message-Id: <1088017171.14159.2.camel@betsy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 1.5.8 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jun 2004 14:45:47 -0400 (EDT)
-rahul b jain cs student <rbj2@oak.njit.edu> wrote:
+On Wed, 2004-06-23 at 13:57 -0400, Timothy Miller wrote:
 
-> can anyone explain what is the difference between the following two pieces
-> of code.
-> 
-> 1. if (!pskb_may_pull(skb, sizeof(struct iphdr)))
->                 goto inhdr_error;
-> 
->    iph = skb->nh.iph;
-> 
-> 2. if (!pskb_may_pull(skb, iph->ihl*4))
->                 goto inhdr_error;
-> 
->    iph = skb->nh.iph;
+> I vaguely recall someone recently talking about eliminating preempt by 
+> improving low-latency.  See, if everything were ideal, we wouldn't need 
+> preempt, because all drivers would yield the CPU at appropriate times. 
 
-We can't dereference any of the iphdr fields (such as iph->ihl) until
-we know that at least "sizeof(struct iphdr)" bytes are there first.
+If everything held locks for only sane periods of time, we would not
+need gross explicit yielding all over the place.
+
+To answer Marcus's question: go for it and use it.
+
+	Robert Love
+
+

@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281810AbRLCIvl>; Mon, 3 Dec 2001 03:51:41 -0500
+	id <S284326AbRLCIvn>; Mon, 3 Dec 2001 03:51:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284398AbRLCIuD>; Mon, 3 Dec 2001 03:50:03 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58152 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S282995AbRLBWTv>; Sun, 2 Dec 2001 17:19:51 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: lm@bitmover.com (Larry McVoy),
-        vonbrand@sleipnir.valparaiso.cl (Horst von Brand),
-        linux-kernel@vger.kernel.org (lkml)
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-In-Reply-To: <E16AeE3-0004ct-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 02 Dec 2001 14:59:32 -0700
-In-Reply-To: <E16AeE3-0004ct-00@the-village.bc.nu>
-Message-ID: <m1pu5xwaez.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S284409AbRLCIuJ>; Mon, 3 Dec 2001 03:50:09 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:15119 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S284897AbRLCI2T>;
+	Mon, 3 Dec 2001 03:28:19 -0500
+Message-Id: <200112030244.fB32iMx4024126@sleipnir.valparaiso.cl>
+To: Stanislav Meduna <stano@meduna.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue 
+In-Reply-To: Your message of "Sun, 02 Dec 2001 09:01:32 BST."
+             <200112020801.fB281Wt07893@meduna.org> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Sun, 02 Dec 2001 23:44:22 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Stanislav Meduna <stano@meduna.org> said:
+> "Alan Cox" at dec 01, 2001 09:18:15 said:
 
-> > The next incremental step is to get some good distributed and parallel
-> > file systems.  So you can share one filesystem across the cluster.
-> > And there is some work going on in those areas.  luster, gfs,
-> > intermezzo.
-> 
-> gfs went proprietary - you want opengfs
+[...]
 
-Right.
- 
-> A lot of good work on the rest of that multi-node clustering is going on
-> already - take a look at the compaq open source site.
+> > If you want a high quality, tested supported kernel which has been through
+> > extensive QA then use kernel for a reputable vendor, or do the QA work
+> > yourself or with other people.
 
-Basically my point.
- 
-> cccluster is more for numa boxes, but it needs the management and SSI views
-> that the compaq stuff offers simply because most programmers won't program
-> for a cccluster or manage one.
+> Correct. But this has one problem - it is splitting resources.
+> Pushing much of the QA work later in the process means
+> that the bugs are found later, that there is more people
+> doing this as absolutely necessary and that much more
+> communication (and this can be the most important bottleneck)
+> is needed as necessary.
 
-I've seen a fair number of mpi programs, and if you have a program
-that takes weeks to run on a single system.  There is a lot of
-incentive to work it out.  Plus I have read about a lot of web sites
-that are running on a farm of servers.  Admittedly the normal
-architecture has one fat database server behind the web servers, but
-that brings me back to needing a good distributed storage techniques.
+Have you got any idea how QA is done in closed environments?
 
-And I really don't care if most programmers won't program for a
-cccluster.  Most programmers don't have one or a problem that needs
-one to solve.  So you really only need those people interested in the
-problem to work on it.
+> The need of the VM change is probably a classical example -
+> why was it not clear at the 2.4.0-pre1, that the current
+> implementation is broken to the point of no repair?
 
-But single system image type projects are useful, but need to be
-watched.  You really need to standardize on how a cluster is put
-together (software wise), and making things easier always helps.  But
-you also need to be very careful because you can easily write code
-that does not scale.  And people doing cluster have wild notions of
-scaling o.k. 64 Nodes worked let's try a thousand...
+Perhaps because of the same phenomenon that made MS state "WinNT 4.0 has no
+flaws" when asked about a nasty problem shortly after release, and it is
+now at sp6a + numerous "hotfixes". Like Win2k which now has sp2. Like
+Solaris, which still is being fixed. Etc, ad nauseam. Complex software
+*has* bugs, bugs which aren't apparent except under unsusual circumstances
+are rarely found in the first round of bug chasing.
 
-As far as I can tell the only real difference between a numa box, and
-a normal cluster of machines running connected with fast ethernet is
-that a numa interconnect is a blazingly fast interconnect.  So if you
-can come up with a single system image solution over fast ethernet a
-ccNuma machine just magically works.
+[...]
 
-Eric
+> As a user of the vendor's kernel I have no idea what to do
+> with a bug.
+
+Report it to the vendor, through the documented channels?
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

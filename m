@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264893AbRFUHXE>; Thu, 21 Jun 2001 03:23:04 -0400
+	id <S264621AbRFUHTy>; Thu, 21 Jun 2001 03:19:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264926AbRFUHWy>; Thu, 21 Jun 2001 03:22:54 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:25615 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S264923AbRFUHWo>; Thu, 21 Jun 2001 03:22:44 -0400
-Date: 21 Jun 2001 09:33:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <83JR8lhmw-B@khms.westfalen.de>
-In-Reply-To: <B7471019.F9CF%bootc@worldnet.fr>
-Subject: Re: temperature standard - global config option?
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
+	id <S264883AbRFUHTp>; Thu, 21 Jun 2001 03:19:45 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:34986 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S264621AbRFUHTh>;
+	Thu, 21 Jun 2001 03:19:37 -0400
+Date: Thu, 21 Jun 2001 02:44:13 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.5-ac15
+In-Reply-To: <Pine.LNX.4.33.0106210836340.1043-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0106210226330.14247-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <200106082116.f58LGd2497562@saturn.cs.uml.edu> <B7471019.F9CF%bootc@worldnet.fr>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bootc@worldnet.fr (Chris Boot)  wrote on 08.06.01 in <B7471019.F9CF%bootc@worldnet.fr>:
 
-> > Only the truly stupid would assume accuracy from decimal places.
->
-> Well then, tell all the teachers in this world that they're stupid, and tell
-> everyone who learnt from them as well.
 
-*All*?
+On Thu, 21 Jun 2001, Mike Galbraith wrote:
 
-> I'm in high school (gd. 11, junior)
-> and my physics teacher is always screaming at us for putting too many
-> decimal places or having them inconsistent.
+> On Thu, 21 Jun 2001, Marcelo Tosatti wrote:
+> 
+> > >  2  4  2  77084   1524  18396  66904   0 1876   108  2220 2464 66079   198   1
+>                                                                    ^^^^^
+> > Ok, I suspect that GFP_BUFFER allocations are fucking up here (they can't
+> > block on IO, so they loop insanely).
+> 
+> Why doesn't the VM hang the syncing of queued IO on these guys via
+> wait_event or such instead of trying to just let the allocation fail?
 
-Ok, *yours*.
+Actually the VM should limit the amount of data being queued for _all_
+kind of allocations.
 
-But yours is not all. I certainly don't remember ever seeing that attitude  
-in school.
+The problem is the lack of a mechanism which allows us to account the
+approximated amount of queued IO by the VM. (except for swap pages)
 
-And yes, this behaviour *is* stupid. Someone who thinks like that should  
-never be allowed to become a science teacher.
+You can see it this way: To get free memory we're "polling" instead of
+waiting on the IO completion of pages.
 
-MfG Kai
+> (which seems to me will only cause the allocation to be resubmitted,
+> effectively changing nothing but adding overhead) 
+
+Yes.
+
+> Does failing the allocation in fact accomplish more than what I'm
+> (uhoh:) assuming?
+
+No.
+
+It sucks really badly.
+

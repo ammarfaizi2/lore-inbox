@@ -1,51 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264902AbUGMLNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264904AbUGMLQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264902AbUGMLNf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 07:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264897AbUGMLNe
+	id S264904AbUGMLQk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 07:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264897AbUGMLQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 07:13:34 -0400
-Received: from holomorphy.com ([207.189.100.168]:40084 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264656AbUGMLNU (ORCPT
+	Tue, 13 Jul 2004 07:16:40 -0400
+Received: from cantor.suse.de ([195.135.220.2]:10112 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264908AbUGMLQc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 07:13:20 -0400
-Date: Tue, 13 Jul 2004 04:13:14 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Lenar L?hmus <lenar@vision.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Preempt Threshold Measurements
-Message-ID: <20040713111314.GX21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Lenar L?hmus <lenar@vision.ee>, linux-kernel@vger.kernel.org
-References: <200407121943.25196.devenyga@mcmaster.ca> <20040713024051.GQ21066@holomorphy.com> <200407122248.50377.devenyga@mcmaster.ca> <cone.1089687290.911943.12958.502@pc.kolivas.org> <20040712210107.1945ac34.akpm@osdl.org> <20040713100815.GU21066@holomorphy.com> <20040713104059.GW21066@holomorphy.com> <40F3C28C.5070701@vision.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40F3C28C.5070701@vision.ee>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 13 Jul 2004 07:16:32 -0400
+Message-ID: <40F3C48F.30905@suse.de>
+Date: Tue, 13 Jul 2004 13:16:31 +0200
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: hotplug <linux-hotplug-devel@lists.sourceforge.net>
+Subject: [PATCH] Enable all events for initramfs
+Content-Type: multipart/mixed;
+ boundary="------------070904040203040305050202"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 13, 2004 at 02:07:56PM +0300, Lenar L?hmus wrote:
-> With all those little patches added and 2.6.8-rc1-ck5 I got this in
-> my dmesg (preempt=0 voluntary=1 if it makes difference):
-> bad: ld(3362) scheduling while atomic (1)!
-> [<c02797ff>] schedule+0x43f/0x480
-> [<c01161a3>] kmap_atomic+0x13/0x70
-> [<c0117b5b>] __touch_preempt_timing+0xb/0x30
-> [<c0146ef7>] shmem_file_write+0x2f7/0x320
-> [<c014d890>] vfs_write+0xb0/0x100
-> [<c014d978>] sys_write+0x38/0x60
-> [<c0103ee1>] sysenter_past_esp+0x52/0x71
-> bad: krootimage(3483) scheduling while atomic (1)!
-> [<c02797ff>] schedule+0x43f/0x480
-> [<c01161a3>] kmap_atomic+0x13/0x70
-> [<c0117b5b>] __touch_preempt_timing+0xb/0x30
-> [<c0146ef7>] shmem_file_write+0x2f7/0x320
-> [<c014d890>] vfs_write+0xb0/0x100
-> [<c014d978>] sys_write+0x38/0x60
-> [<c0103ee1>] sysenter_past_esp+0x52/0x71
+This is a multi-part message in MIME format.
+--------------070904040203040305050202
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Amazing. I'll get a coherent patch out vs. 2.6.8-rc1 and so on.
+Hi all,
 
--- wli
+currently most driver events are not sent out when using initramfs as 
+driver_init() (which triggers the events) is called before init_workqueues.
+
+This patch rearranges the init calls so that the hotplug event queue is 
+enabled prior to calling driver_init(), hence we're getting all hotplug 
+events again.
+
+Patch is relative to 2.6.7-mm6, but should apply to 2.6.8-rc1 also.
+
+Please apply.
+
+Cheers,
+
+Hannes
+-- 
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de
+
+--------------070904040203040305050202
+Content-Type: text/x-patch;
+ name="early-hotplug-events.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="early-hotplug-events.patch"
+
+--- linux-2.6.7-mm6/init/main.c.orig	2004-07-09 11:01:04.000000000 +0200
++++ linux-2.6.7-mm6/init/main.c	2004-07-09 11:14:19.000000000 +0200
+@@ -93,6 +93,7 @@
+ extern void populate_rootfs(void);
+ extern void driver_init(void);
+ extern void prepare_namespace(void);
++extern void usermodehelper_init(void);
+ 
+ #ifdef CONFIG_TC
+ extern void tc_init(void);
+@@ -599,6 +600,10 @@
+  */
+ static void __init do_basic_setup(void)
+ {
++	/* drivers will send hotplug events */
++	init_workqueues();
++	usermodehelper_init();
++
+ 	driver_init();
+ 
+ #ifdef CONFIG_SYSCTL
+@@ -608,7 +613,6 @@
+ 	/* Networking initialization needs a process context */ 
+ 	sock_init();
+ 
+-	init_workqueues();
+ 	do_initcalls();
+ }
+ 
+--- linux-2.6.7-mm6/kernel/kmod.c.orig	2004-07-09 11:02:32.000000000 +0200
++++ linux-2.6.7-mm6/kernel/kmod.c	2004-07-13 14:11:09.287575443 +0200
+@@ -272,10 +272,8 @@
+ }
+ EXPORT_SYMBOL(call_usermodehelper);
+ 
+-static __init int usermodehelper_init(void)
++void __init usermodehelper_init(void)
+ {
+ 	khelper_wq = create_singlethread_workqueue("khelper");
+ 	BUG_ON(!khelper_wq);
+-	return 0;
+ }
+-core_initcall(usermodehelper_init);
+
+--------------070904040203040305050202--

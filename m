@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289113AbSA1E7f>; Sun, 27 Jan 2002 23:59:35 -0500
+	id <S289116AbSA1F1m>; Mon, 28 Jan 2002 00:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289114AbSA1E7R>; Sun, 27 Jan 2002 23:59:17 -0500
-Received: from gear.torque.net ([204.138.244.1]:14858 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S289113AbSA1E7A>;
-	Sun, 27 Jan 2002 23:59:00 -0500
-Message-ID: <3C54DA60.B78092E7@torque.net>
-Date: Sun, 27 Jan 2002 23:58:08 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Can't compile Symbios 53c416 SCSI support
+	id <S289117AbSA1F1Y>; Mon, 28 Jan 2002 00:27:24 -0500
+Received: from holomorphy.com ([216.36.33.161]:3222 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S289116AbSA1F1N>;
+	Mon, 28 Jan 2002 00:27:13 -0500
+Date: Sun, 27 Jan 2002 21:28:38 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Rik van Riel's vm-rmap
+Message-ID: <20020127212838.F899@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Louis Garcia <louisg00@bellsouth.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1012193811.24890.4.camel@tiger>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <1012193811.24890.4.camel@tiger>; from louisg00@bellsouth.net on Sun, Jan 27, 2002 at 11:56:50PM -0500
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002.01.28 01:41 Evgeniy Polyakov wrote:
-> 
-> > So i hope this patch will help a bit in this direction.
-> 
-> Ooops, forgot to attach.
-> 
->       Evgeniy Polyakov ( s0mbre ).
+On Sun, Jan 27, 2002 at 11:56:50PM -0500, Louis Garcia wrote:
+> Does he still use classzones as the basis for the vm? I thought that
+> linux was trying to get away from classzones for better NUMA support in
+> 2.5??
 
-Only the callbacks to scsi_done() need to be protected by
-a spin_lock on host_lock. You may need to set up another
-lock (driver or host specific) for the other case(s).
+rmap does not use the classzone concept.
 
-Unfortunately there are more problems with this driver
-because it uses the old error handler scheme which has
-been dropped in the lk 2.5 series. Compare the scsi_debug
-driver in lk 2.5.2 with the one in lk 2.5.3-pre5 for an
-example of what is involved. Start with the header and
-look at the "eh_..." entries.
 
-Good luck.
-
-Doug Gilbert
+Cheers,
+Bill

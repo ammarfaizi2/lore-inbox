@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbUJYX55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUJYPKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbUJYX55 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 19:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbUJYXzC
+	id S261880AbUJYPKz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 11:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbUJYPKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 19:55:02 -0400
-Received: from gate.crashing.org ([63.228.1.57]:37589 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261943AbUJYWWu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 18:22:50 -0400
-Subject: Re: ia64 failure with [PATCH] 8250: Let arch provide the list of
-	leagacy ports
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1098742146.2144.200.camel@mulgrave>
-References: <1098742146.2144.200.camel@mulgrave>
-Content-Type: text/plain
-Date: Tue, 26 Oct 2004 08:20:04 +1000
-Message-Id: <1098742804.6719.27.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Oct 2004 11:10:25 -0400
+Received: from ipx20189.ipxserver.de ([80.190.249.56]:51591 "EHLO
+	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
+	id S261861AbUJYOqu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 10:46:50 -0400
+Date: Mon, 25 Oct 2004 17:45:16 +0300 (EAT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-mm1: NForce3 problem (IRQ sharing issue?)
+In-Reply-To: <200410251627.51939.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.61.0410251740060.3029@musoma.fsmlabs.com>
+References: <200410222354.44563.rjw@sisk.pl> <200410242308.31968.rjw@sisk.pl>
+ <Pine.LNX.4.61.0410251709490.3029@musoma.fsmlabs.com> <200410251627.51939.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-25 at 18:08 -0400, James Bottomley wrote:
-> ia64 seems to rely on empty ports being registered.  Without this, ia64
-> crashes on boot with
+On Mon, 25 Oct 2004, Rafael J. Wysocki wrote:
+
+> > So did the system still misbehave? What happened?
 > 
-> Removing wrong port: 0000000000000000 != a000000100781bd8
-
-I send this patch to Linus already, though he may have missed it, I'll
-resend.
-
-Ben.
-
-> James
+> So far, so good.  The problem has not happened yet, so I think it won't.  
+> Still, I have no such problems with 2.6.9*, although I do not boot them with 
+> noapic ...
 > 
-> ===== drivers/serial/8250.c 1.76 vs edited =====
-> --- 1.76/drivers/serial/8250.c	2004-10-22 18:31:26 -05:00
-> +++ edited/drivers/serial/8250.c	2004-10-25 16:59:22 -05:00
-> @@ -2001,13 +2001,6 @@
->  	for (i = 0; i < UART_NR; i++) {
->  		struct uart_8250_port *up = &serial8250_ports[i];
->  
-> -		/* Don't register "empty" ports, setting "ops" on them
-> -		 * makes the console driver "setup" routine to succeed,
-> -		 * which is wrong. --BenH.
-> -		 */
-> -		if (!up->port.iobase)
-> -			continue;
-> -
->  		up->port.line = i;
->  		up->port.ops = &serial8250_pops;
->  		up->port.dev = dev;
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Thanks for your help anyway,
 
+Ok, perhaps you shouldn't thank me ;) I actually sortof kinda broke your 
+box... The reason why it worked before was because the kernel defaulted to 
+disabling the IOAPIC on all nforce3 based systems but we found out that 
+most nforce3 systems are actually work with the IOAPIC if we just ignore 
+some bogus ACPI BIOS information. Your system happens to be one of the 
+more broken ones, i'd actually like to try debug your problem a bit 
+further, could you open up a bugzilla entry at bugzilla.kernel.org and 
+email me when you're done. In the meantime, just keep booting with 
+'noapic'
+
+Thanks!
+	Zwane

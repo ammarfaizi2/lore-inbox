@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265838AbUBBU3I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 15:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265837AbUBBU25
+	id S265939AbUBBTr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 14:47:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265958AbUBBTqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 15:28:57 -0500
-Received: from ns.suse.de ([195.135.220.2]:41689 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265766AbUBBU21 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 15:28:27 -0500
-Date: Mon, 2 Feb 2004 20:51:39 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: oops in old isdn4linux and 2.6.2-rc3 (was in -rc2 too)
-Message-ID: <20040202195139.GB2534@pingi3.kke.suse.de>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
-References: <401E4A80.4050907@web.de>
+	Mon, 2 Feb 2004 14:46:20 -0500
+Received: from mailr-1.tiscali.it ([212.123.84.81]:18004 "EHLO
+	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S265939AbUBBTox
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 14:44:53 -0500
+X-BrightmailFiltered: true
+Date: Mon, 2 Feb 2004 20:44:52 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [Compile Regression in 2.4.25-pre8][PATCH 11/42]
+Message-ID: <20040202194452.GK6785@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <401E4A80.4050907@web.de>
-User-Agent: Mutt/1.4.1i
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.4.21-166-default i686
+In-Reply-To: <20040202180940.GA6367@dreamland.darkstar.lan>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 02, 2004 at 02:02:56PM +0100, Todor Todorov wrote:
-> Hello everyone,
-> 
-> didn't find any more applicabale mailing list, so here it goes:
-> 
 
-try the actual I4L for 2.6 patch in 
-ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6
+include/asm/smpboot.h:126: warning: deprecated use of label at end of compound statement
+
+Move the return statement under 'default' label to suppress the warning.
+
+diff -Nru -X dontdiff linux-2.4-vanilla/include/asm-i386/smpboot.h linux-2.4/include/asm-i386/smpboot.h
+--- linux-2.4-vanilla/include/asm-i386/smpboot.h	Tue Nov 11 17:51:14 2003
++++ linux-2.4/include/asm-i386/smpboot.h	Sat Jan 31 17:10:50 2004
+@@ -123,8 +123,8 @@
+ 			cpu = (cpu+1)%smp_num_cpus;
+ 			return cpu_to_physical_apicid(cpu);
+ 		default:
++			return cpu_online_map;
+ 	}
+-	return cpu_online_map;
+ }
+ #else
+ #define target_cpus() (cpu_online_map)
+
 
 -- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+Ci sono due cose che l'uomo non puo` nascondere:
+essere ubriaco ed essere innamorato.

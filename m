@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUKHS1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUKHS2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUKHS1I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 13:27:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbUKHSYx
+	id S261169AbUKHS2y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 13:28:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUKHS1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 13:24:53 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:47301 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261174AbUKHSYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 13:24:05 -0500
-Message-ID: <418FB9BF.1000809@mvista.com>
-Date: Mon, 08 Nov 2004 12:23:59 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Mon, 8 Nov 2004 13:27:22 -0500
+Received: from alog0232.analogic.com ([208.224.220.247]:5760 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261169AbUKHS01
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 13:26:27 -0500
+Date: Mon, 8 Nov 2004 13:22:08 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Andi Kleen <ak@suse.de>
+cc: Adrian Bunk <bunk@stusta.de>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] kill IN_STRING_C
+In-Reply-To: <20041108161935.GC2456@wotan.suse.de>
+Message-ID: <Pine.LNX.4.61.0411081308320.5968@chaos.analogic.com>
+References: <20041107142445.GH14308@stusta.de> <20041108134448.GA2456@wotan.suse.de>
+ <20041108153436.GB9783@stusta.de> <20041108161935.GC2456@wotan.suse.de>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] small IPMI cleanup
-References: <20041106222839.GS1295@stusta.de> <418FB0EA.90006@mvista.com> <20041108180656.GA15077@stusta.de>
-In-Reply-To: <20041108180656.GA15077@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
+On Mon, 8 Nov 2004, Andi Kleen wrote:
 
->>these functions that are perhaps not in the kernel yet (and perhaps 
->>never make it into the mainstream kernel).  Some of the statics do need 
->>to be cleaned up, though.
->>    
->>
+>> Rethinking it, I don't even understand the sprintf example in your
+>> changelog entry - shouldn't an inclusion of kernel.h always get it
+>> right?
 >
->Why shouldn't they make it into the mainstream kernel?
->  
+> Newer gcc rewrites sprintf(buf,"%s",str) to strcpy(buf,str) transparently.
 >
-Sometimes people create specific tools that only support a specific type 
-of board.  I'm not sure every single thing written to go into the kernel 
-should be included i nthe mainstream kernel.  It's a hard call, but if 
-it for some very specific thing then the vendor may not be interested in 
-doing this.
+> -Andi
 
->  
->
->>The IPMI driver was designed so that in-kernel users can use it as 
->>easily as userland users.  So these are important parts of the interface.
->>    
->>
->
->For userland users, a global kernel function (even if EXPORT_SYMBOL'ed) 
->is useless.
->  
->
-Right, but it has to be there for the in-kernel users.
+Hmmm, how does it get the correct return-value and type? I don't
+think that a compiler is allowed to change the function(s) called.
+If gcc is doing this now, there are many potential problems and
+it needs to be fixed. For instance, one can't qualify a
+'C' runtime library and then have a compiler decide that it's
+not going to call the pre-qualified function.
 
--Corey
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

@@ -1,26 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317068AbSHPU60>; Fri, 16 Aug 2002 16:58:26 -0400
+	id <S319073AbSHPVTs>; Fri, 16 Aug 2002 17:19:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317072AbSHPU60>; Fri, 16 Aug 2002 16:58:26 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:40420 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317068AbSHPU60>; Fri, 16 Aug 2002 16:58:26 -0400
-Date: Fri, 16 Aug 2002 14:00:11 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: IDE?
-Message-ID: <2444170000.1029531611@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S319117AbSHPVTs>; Fri, 16 Aug 2002 17:19:48 -0400
+Received: from www.wotug.org ([194.106.52.201]:1848 "EHLO
+	gatemaster.ivimey.org") by vger.kernel.org with ESMTP
+	id <S319073AbSHPVTs>; Fri, 16 Aug 2002 17:19:48 -0400
+Date: Fri, 16 Aug 2002 22:21:28 +0100 (BST)
+From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+X-X-Sender: ruthc@sharra.ivimey.org
+To: henrique <henrique@cyclades.com>
+cc: Oliver Xymoron <oxymoron@waste.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with random.c and PPC
+In-Reply-To: <200208161751.35895.henrique@cyclades.com>
+Message-ID: <Pine.LNX.4.44.0208162219110.1659-100000@sharra.ivimey.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So did Linus get disk corruption or is something else afoot?
+On Fri, 16 Aug 2002, henrique wrote:
 
-9 hours  axboe  1.456.34.40  Delete 2.5 IDE core
-9 hours  axboe  1.456.34.41  Add 2.4 IDE core, based on late 2.4.19-pre-acX version  
+>What would you do in my situation. I am dealing with the Motorola MPC860T and 
+>my system has no disk (I use a flash), no mouse, no keyboard, no PCI bus. It 
+>has just a fast-ethernet, a console port and some serial ports. 
+>
+>After reading the discussion on the lkml I realize that the only places I can 
+>get randomness in my system is in the serial.c (that controls the serial 
+>ports) and arch/ppc/8xx_io/fec.c (fast eth driver) interrupts.
+
+Is there another way -- add a 'noise' device by connecting a PIO pin or 
+similar to suitable hardware? It shouldn't bee too hard to do as a one-off. 
+For example:
+
+ [noise-diode]--[amplifier]--[schmidt-trigger-inverter]---[PIO INT pin]
+
+
+Ruth
+
+-- 
+Ruth Ivimey-Cook
+Software engineer and technical writer.
 

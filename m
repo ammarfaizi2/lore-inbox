@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273723AbRJFLiq>; Sat, 6 Oct 2001 07:38:46 -0400
+	id <S274062AbRJFLfp>; Sat, 6 Oct 2001 07:35:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274064AbRJFLig>; Sat, 6 Oct 2001 07:38:36 -0400
-Received: from mail1.svr.pol.co.uk ([195.92.193.18]:30504 "EHLO
-	mail1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S273723AbRJFLiZ>; Sat, 6 Oct 2001 07:38:25 -0400
-Message-ID: <3BBEED4A.6030009@humboldt.co.uk>
-Date: Sat, 06 Oct 2001 12:38:50 +0100
-From: Adrian Cox <adrian@humboldt.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010914
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andrew Ebling <kernelhacker@lineone.net>
-CC: adam.keys@HOTARD.engr.smu.edu, linux-kernel@vger.kernel.org
-Subject: Re: Development Setups
-In-Reply-To: <20011005041759.OPDP14306.femail26.sdc1.sfba.home.com@there> <1002302124.1034.5.camel@kernighan>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S273723AbRJFLfg>; Sat, 6 Oct 2001 07:35:36 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:34823 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S274062AbRJFLfX>; Sat, 6 Oct 2001 07:35:23 -0400
+Date: Sat, 6 Oct 2001 13:35:38 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, jamey.hicks@compaq.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.11-pre4/drivers/mtd/bootldr.c does not compile
+Message-ID: <20011006133538.C12624@arthur.ubicom.tudelft.nl>
+In-Reply-To: <200110052048.NAA19993@baldur.yggdrasil.com> <20011005231732.B19985@flint.arm.linux.org.uk> <20011006120015.A12624@arthur.ubicom.tudelft.nl> <20011006111829.D23628@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011006111829.D23628@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sat, Oct 06, 2001 at 11:18:29AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Ebling wrote:
+On Sat, Oct 06, 2001 at 11:18:29AM +0100, Russell King wrote:
+> On Sat, Oct 06, 2001 at 12:00:15PM +0200, Erik Mouw wrote:
+> > Did you ever get a motivation on why they want to pass it from the boot
+> > loader? It sounds like a particularly bad idea to me.
+> 
+> See Jamey Hicks mail on linux-arm-kernel of the 24th September.
+
+Hmm, I missed that one. I'll followup on linux-arm-kernel.
 
 
-> Feedback on this document from anyone would be very much appreciated
-> from anyone :)
-
-
-The only thing I'd add is some pointers to setting up the target box 
-with NFS root. In my setup for driver development both my x86 and ppc 
-target boxes are diskless. The x86 boots using etherboot on a floppy, 
-and the ppc has network booting in the rom.  I just compile a new kernel 
-on the development box, copy it into my /tftpboot directory, and hit the 
-reset button on the target. No mess, no fuss, no fsck.
+Erik
 
 -- 
-Adrian Cox   http://www.humboldt.co.uk/
-
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

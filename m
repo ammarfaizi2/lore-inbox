@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271417AbTGQKxm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 06:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271419AbTGQKxl
+	id S271415AbTGQKw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 06:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271416AbTGQKw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 06:53:41 -0400
-Received: from ns0.eris.qinetiq.com ([128.98.1.1]:56199 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S271417AbTGQKxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 06:53:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: Thierry Vignaud <tvignaud@mandrakesoft.com>
-Subject: Re: devfsd/2.6.0-test1
-Date: Thu, 17 Jul 2003 12:07:24 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <200307171017.56778.m.watts@eris.qinetiq.com> <m265m1fp3u.fsf@vador.mandrakesoft.com>
-In-Reply-To: <m265m1fp3u.fsf@vador.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200307171207.25284.m.watts@eris.qinetiq.com>
+	Thu, 17 Jul 2003 06:52:28 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:29833 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S271415AbTGQKw1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 06:52:27 -0400
+Date: Thu, 17 Jul 2003 13:07:15 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] ikconfig update for 2.6.0-test1
+Message-ID: <20030717110715.GK8160@louise.pinerecords.com>
+References: <20030714134843.546eee36.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030714134843.546eee36.rddunlap@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> [rddunlap@osdl.org]
+> 
+> I've updated the ikconfig (in-kernel config option) patch for
+> Linux 2.6.0-test1.  It's now available at
+>   http://developer.osdl.org/rddunlap/patches/ikconfig/ikconfig_260b.patch
 
+I'd really love to see this nice useful bit go into both 2.4.22 & 2.6.0.
+Keep pushing, Randy.  8)
 
-> Mark Watts <m.watts@eris.qinetiq.com> writes:
-> > I'm running devfs on a 2.6.0-test1 box (Mandrake 9.1 with the new
-> > kernel)
-> >
-> > Every time I boot, it complains that I don't have an
-> > /etc/modprobe.devfs.  If I symlink modules.devfs, I get a wad of
-> > errors about 'probeall'.  What should a modprobe.devfs look like for
-> > a 2.5/6 kernel?
->
-> tv@vador ~ $ urpmf /etc/modprobe.devfs
-> module-init-tools:/etc/modprobe.devfs
->
-
-Interesting, an urpmf for that on my 9.1 box reveals nothing...
-
-Thanks for the pointer...
-
-Mark.
-
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ TIM
-St Andrews Road, Malvern
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/FoNtBn4EFUVUIO0RAtsrAKDv8zNE7UwPttJ50cw5IFT4riRzFACfRQYy
-dhUB9kqE4EX3ybdcieLiEbU=
-=xA0b
------END PGP SIGNATURE-----
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279470AbRKASWL>; Thu, 1 Nov 2001 13:22:11 -0500
+	id <S279472AbRKAS2b>; Thu, 1 Nov 2001 13:28:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279473AbRKASWC>; Thu, 1 Nov 2001 13:22:02 -0500
-Received: from ns.suse.de ([213.95.15.193]:42503 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S279470AbRKASVy>;
-	Thu, 1 Nov 2001 13:21:54 -0500
-Date: Thu, 1 Nov 2001 19:21:53 +0100
-From: Andi Kleen <ak@suse.de>
-To: kuznet@ms2.inr.ac.ru
-Cc: Andi Kleen <ak@suse.de>, joris@deadlock.et.tudelft.nl,
-        linux-kernel@vger.kernel.org
-Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
-Message-ID: <20011101192153.A30903@wotan.suse.de>
-In-Reply-To: <20011101184511.A22234@wotan.suse.de> <200111011809.VAA26876@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <200111011809.VAA26876@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Nov 01, 2001 at 09:09:07PM +0300
+	id <S279473AbRKAS2V>; Thu, 1 Nov 2001 13:28:21 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:6292 "EHLO softhome.net")
+	by vger.kernel.org with ESMTP id <S279472AbRKAS2I>;
+	Thu, 1 Nov 2001 13:28:08 -0500
+Message-ID: <3BE194BB.7090207@softhome.net>
+Date: Thu, 01 Nov 2001 18:30:19 +0000
+From: Ricardo Martins <thecrown@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en, pt
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: "unkillable processes" in linux 2.4.11 to 2.4.14-pre6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 01, 2001 at 09:09:07PM +0300, A.N.Kuznetsov wrote:
-> > ugly imho; if the feature exists it should be implemented for the full
-> > packet functionality which includes binding to protocols.
-> 
-> This is a silly abuse. Sniffers do not bind to protocols, should not
-> do this and have no reasons to do this.
+I'm using Linux kernel 2.4.10, and since the fatidic 2.4.11 release ( i
+tried 2.4.11 (one day :)))) 2.4.12, 2.4.13 and 2.4.14-pre6) I get the
+same bug on and on (that means I can reproduce the experience and obtain
+the same results).
 
-When you e.g. have a TCP sniffer it makes sense to only bind it to ETH_P_IP.
+Procedure
+In X windows (version 4.1.0 compiled from the sources) when writing
+"exit" in xterm to close the terminal emulator, the window freezes, and
+from that moment on, every process becomes "unkillable", including xterm
+and X (ps also freezes), and there's no way to shutdown GNU/Linux in a
+sane way (must hit reset or poweroff).
 
-If the sll_protocol field is not fully supported it should be removed.
+Environment
+I used Glibc 2.2.4 and GCC 3.0.1 (tried with 2.95.3, obtained the same
+results).
 
-> 
-> 
-> >  I think the patch should be added.
-> 
-> That which adds all the packet sockets to ptype_all? Do you jest? :-)
+The odd thing is, that with the same configuration, kernel 2.4.10 works
+just fine, but every other release since then ends up doing the same
+thing (the system can't maintain integrity after writing "exit" and
+hiting enter in xterm).
 
-Do you worry about the handling of hundreds of packet sockets? 
+Please help me, I getting slightly mad with the situation.
 
-Using the ptype hash before was nice, but does not look like it is absolutely
-required. The overhead this way is not much bigger for a reasonable number
-of packet sockets (and for a large number the current ptype hash is likely 
-inadequate anyways) 
+Ricardo Martins
 
 
--Andi

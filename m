@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268166AbUIPQbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268153AbUIPQfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268166AbUIPQbD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 12:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268425AbUIPQbB
+	id S268153AbUIPQfP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 12:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268229AbUIPQfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 12:31:01 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:26086 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268430AbUIPQHN (ORCPT
+	Thu, 16 Sep 2004 12:35:07 -0400
+Received: from voicebook.com ([128.121.231.235]:34321 "EHLO voicebook.com")
+	by vger.kernel.org with ESMTP id S268180AbUIPQ3z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 12:07:13 -0400
-Message-ID: <5d6b657504091609072c7be97c@mail.gmail.com>
-Date: Thu, 16 Sep 2004 18:07:07 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Stelian Pop <stelian@popies.net>, Buddy Lucas <buddy.lucas@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-In-Reply-To: <20040916155247.GI3146@crusoe.alcove-fr>
+	Thu, 16 Sep 2004 12:29:55 -0400
+Subject: Re: device driver for the SGI system clock, mmtimer
+From: Marcello Barnaba <marcello@softmedia.info>
+Reply-To: marcello@softmedia.info
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Christoph Lameter <clameter@sgi.com>,
+       linux-kernel@vger.kernel.org, Bob Picco <Robert.Picco@hp.com>,
+       venkatesh.pallipadi@intel.com
+In-Reply-To: <200409160909.12840.jbarnes@engr.sgi.com>
+References: <200409161003.39258.bjorn.helgaas@hp.com>
+	 <200409160909.12840.jbarnes@engr.sgi.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dLWZTAsN1hceH+GbTo80"
+Organization: Softmedia S.c.r.l.
+Message-Id: <1095352174.1659.2.camel@nowhere.openssl.softmedia.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040913135253.GA3118@crusoe.alcove-fr>
-	 <20040915153013.32e797c8.akpm@osdl.org>
-	 <20040916064320.GA9886@deep-space-9.dsnet>
-	 <20040916000438.46d91e94.akpm@osdl.org>
-	 <20040916104535.GA3146@crusoe.alcove-fr>
-	 <5d6b657504091608093b171e30@mail.gmail.com>
-	 <20040916152919.GG3146@crusoe.alcove-fr>
-	 <5d6b657504091608511f100109@mail.gmail.com>
-	 <20040916155247.GI3146@crusoe.alcove-fr>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 16 Sep 2004 18:29:34 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Sep 2004 17:52:47 +0200, Stelian Pop <stelian@popies.net> wrote:
-> On Thu, Sep 16, 2004 at 05:51:04PM +0200, Buddy Lucas wrote:
-> 
-> > > No, because the type is *unsigned* int.
-> >
-> > Indeed, that would exactly be the reason *why* this would fail. ;-)
-> >
-> > The expression fifo->size - fifo->tail + fifo->head might be negative
-> > at some point, right? (fifo->head has wrapped to some small value and
-> > fifo->tail > fifo->size)
-> 
-> And what is the value of an unsigned int holding that 'negative' value ? :)
-> 
 
-Which unsigned int?! ;-) The expression a - b is negative for unsigned
-ints a and b where a < b. So, your unsigned ints "total" and
-"remaining" won't be negative of
-course, but they won't reflect what is actually left in the buffer;
-they will equal the
-value of len (in some cases) after fifo->head has wrapped (because of the 
-unsignedness) and fifo->tail has not. Which would not be correct.
+--=-dLWZTAsN1hceH+GbTo80
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, 2004-09-16 at 18:09, Jesse Barnes wrote:
+> I think Christoph already looked at that.  And HPET doesn't provide mmap=20
+> functionality, does it?  I.e. allow a userspace program to dereference th=
+e=20
+> counter register directly?
 
-Cheers,
-Buddy
+drivers/char/Kconfig:
 
-> 
-> 
-> Stelian.
-> --
-> Stelian Pop <stelian@popies.net>
->
+config HPET_MMAP
+        bool "Allow mmap of HPET"
+        default y
+        depends on HPET
+        help=20
+          If you say Y here, user applications will be able to mmap
+          the HPET registers.
+
+          In some hardware implementations, the page containing HPET
+          registers may also contain other things that shouldn't be
+          exposed to the user.  If this applies to your hardware,
+          say N here.
+--=20
+Marcello Barnaba - SoftMedia S.c.r.l.    ::    Mobile: +39 (340) 3698342
+Via Mauro Amoruso, 11 - 70124 Bari       ::    Phone:  +39 (080) 5046314
+pub 1024D/F04476A2 :: 6807 EEA5 7F97 AC9A D8EF  AE73 64CD 71A2 F044 76A2
+
+--=-dLWZTAsN1hceH+GbTo80
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBSb9ukn504uXeT8sRArnqAJ9R+1abAb0PL4jgnCvkTAtOZvoPCgCfZK++
+Fr1PFHoBXSKUm4ZH6hiIJc4=
+=zYi8
+-----END PGP SIGNATURE-----
+
+--=-dLWZTAsN1hceH+GbTo80--

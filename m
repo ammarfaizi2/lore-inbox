@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290768AbSBOUTm>; Fri, 15 Feb 2002 15:19:42 -0500
+	id <S290772AbSBOUVW>; Fri, 15 Feb 2002 15:21:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290769AbSBOUTc>; Fri, 15 Feb 2002 15:19:32 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:3087 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S290768AbSBOUTT>; Fri, 15 Feb 2002 15:19:19 -0500
-To: Jos Hulzink <josh@stack.nl>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.5-pre1: mounting NTFS partitions -t VFAT
-In-Reply-To: <20020215112031.S68580-100000@toad.stack.nl>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 16 Feb 2002 05:18:54 +0900
-In-Reply-To: <20020215112031.S68580-100000@toad.stack.nl>
-Message-ID: <87aduamrbl.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S290771AbSBOUVL>; Fri, 15 Feb 2002 15:21:11 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:46097
+	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S290770AbSBOUUl>; Fri, 15 Feb 2002 15:20:41 -0500
+Date: Fri, 15 Feb 2002 14:54:21 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020215145421.A12540@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020215135557.B10961@thyrsus.com> <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215141433.B11369@thyrsus.com> <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com>; from arjan@pc1-camc5-0-cust78.cam.cable.ntl.com on Fri, Feb 15, 2002 at 07:58:18PM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jos Hulzink <josh@stack.nl> writes:
-
-> Hi,
+Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>:
+> > But I think you know very well that the usual flow looks like this:
+> > 
+> > 1. You throw a patch over the wall to Linus.
+> > 
+> > 2. Either it shows up in the next release...
+> > 
+> > 3. ...or you hear a vast and echoing silence.
 > 
-> Due to a recent change of filesystems, I found the following: 2.5.5-pre1
-> mounts my NTFS (win2k) partition as VFAT partition, if told to do so. The
-> kernel returns errors, but the mount is there. One write to the partition
-> was enough to destroy the entire NTFS partition.
-> 
-> Due to filesystem damage, I didn't test the behaviour of the VFAT driver
-> on other filesystems yet.
-> 
-> Kernel 2.4.17 also returns errors, but there the mount fails.
-> 
-> Will try to debug the problem myself this afternoon. Sounds like the VFAT
-> procedure ignores some errors.
+> You're telling me Linus never mailed you about splitting up Configure.help ?
 
-Sorry, my fault.
+That's right.  The only time I ever saw Linus express an opinion on
+this was in a post on lkml in which he said he didn't like the big
+monolithic help file.  It didn't seem especially directed to me; I am
+not the CML1 maintainer.
 
-The following patch should fix this bug. I'll submit it after test.
-
---- fat_bug-2.5.5-pre1/fs/fat/inode.c.orig	Thu Feb 14 13:47:54 2002
-+++ fat_bug-2.5.5-pre1/fs/fat/inode.c	Sat Feb 16 05:06:58 2002
-@@ -624,6 +624,18 @@
- 	}
- 
- 	b = (struct fat_boot_sector *) bh->b_data;
-+	if (!b->fats) {
-+		if (!silent)
-+			printk("FAT: bogus number of FAT structure\n");
-+		brelse(bh);
-+		goto out_invalid;
-+	}
-+	if (!b->reserved) {
-+		if (!silent)
-+			printk("FAT: bogus number of reserved sectors\n");
-+		brelse(bh);
-+		goto out_invalid;
-+	}
- 	if (!b->secs_track) {
- 		if (!silent)
- 			printk("FAT: bogus sectors-per-track value\n");
+But I took it as a suggestion for CML2.  I told him I was willing to
+do it after CML2 cutover, but was not sure he had considered the
+ramifications for maintaining rulebase translations.  To this request
+for clarification and guidance, I received no reply.
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

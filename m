@@ -1,74 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132700AbRAJN4X>; Wed, 10 Jan 2001 08:56:23 -0500
+	id <S135337AbRAJOSK>; Wed, 10 Jan 2001 09:18:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135259AbRAJN4O>; Wed, 10 Jan 2001 08:56:14 -0500
-Received: from lotus2.lotus.com ([192.233.136.8]:56494 "EHLO lotus2.lotus.com")
-	by vger.kernel.org with ESMTP id <S132700AbRAJN4H>;
-	Wed, 10 Jan 2001 08:56:07 -0500
-Subject: Re: linux-2.4.0 scsi problems on NetFinity servers
-To: "JP Navarro <navarro" <navarro@mcs.anl.gov>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Build V60_12122000 December 12, 2000
-Message-ID: <OF57A8F6A1.EBEE4C0B-ON852569D0.0048E35A@lotus.com>
-From: "Ken Brunsen/Iris" <kenbo@iris.com>
-Date: Wed, 10 Jan 2001 08:58:18 -0500
-X-MIMETrack: Serialize by Router on A3MAIL/CAM/H/Lotus(Build V507_12282000 |December 28, 2000) at
- 01/10/2001 09:00:24 AM
+	id <S135594AbRAJOSA>; Wed, 10 Jan 2001 09:18:00 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64786 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135337AbRAJORs>; Wed, 10 Jan 2001 09:17:48 -0500
+Subject: Re: Anybody got 2.4.0 running on a 386 ?
+To: richardj_moore@uk.ibm.com
+Date: Wed, 10 Jan 2001 14:19:26 +0000 (GMT)
+Cc: tleete@mountain.net (Tom Leete), rob@sysgo.de,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <802569D0.0033D9ED.00@d06mta06.portsmouth.uk.ibm.com> from "richardj_moore@uk.ibm.com" at Jan 10, 2001 09:25:31 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14GM64-0000Kc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, on a suggestion from JP, I've built the 2.4.0 kernel without SMP
-support.  I did, however, have to make one change to a header file to get
-it to compile the kernel and here is a diff
+> Does linux cater of all the old 386 chip bugs - especially the memory
+> management oddities?
 
-diff include/linux/linux/kernel_stat.h include/linux/linux/kernel_stat.h.sv
-48d47
-< #ifdef CONFIG_SMP
-50d48
-< #endif
+So called 'sigma sigma' 386 and higher. Ie we dont support the 386 with the
+32bit mul bugs.
 
-The code was only for stats, but did not have the appropriate wrapper
-around a for-loop clause to access an SMP only variable.
-
-So, with SMP support off, I started my tests and then headed home for the
-evening.  This morning when I arrived, I found my machine had crashed on
-the 2nd run of my copy test, but with a little bit of a different crash.
-First I'm getting multiple messages of the type
-
-I/O error:  dev 08:01
-
-and then I'm getting messages of the type
-
-EXT2-fs error (device sd(8,1)): read_inode_bitmap: Cannot read inode bitmap
-- block_group = 34, inode_bitmap = 1114113
-EXT2-fs error (device sd(8,1)): ext2_write_inode: unable to read inode
-block - inode=229832, block=458756
-
-where the numbers for the inodes, blocks, bitmaps, and groups vary; also
-attempting to run any process in my root tty (even just reboot) results in
-a segv and the I/O error messages some more (of note, the only filesystem
-that gets trashed, ever, is the one with the test running on it, the root
-partition is separate and never is affected, nor is any other partition).
-So, although SMP may aggrevate the situation, it is not, apparently, the
-cause of the problem.
-
-BTW:  this test case basically destroys my test filesystem such that I've
-taken to creating a new fs on the partition each time - I tried fixing it
-twice with fsck, and after 2 days it had still not completed the fixup in
-each case.
-
-thanks
-
-kenbo
-
-______________________
-Firebirds rule, `stangs serve!
-
-Kenneth "kenbo" Brunsen
-Iris Associates
+Also a lot of 386's crash if you abuse popad instructions from user space and
+there is no fix
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,102 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314740AbSEHSTI>; Wed, 8 May 2002 14:19:08 -0400
+	id <S314801AbSEHSV7>; Wed, 8 May 2002 14:21:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314758AbSEHSTI>; Wed, 8 May 2002 14:19:08 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:29963 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S314740AbSEHSTG>; Wed, 8 May 2002 14:19:06 -0400
-Message-Id: <5.1.0.14.2.20020508184421.040cdd70@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 08 May 2002 19:17:33 +0100
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: Fwd: NLS mappings for iso-8859-* encodings
-Cc: Urban Widmark <urban@teststation.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <48A1C5128EB@vcnet.vc.cvut.cz>
+	id <S314829AbSEHSV6>; Wed, 8 May 2002 14:21:58 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:40966 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314787AbSEHSV4>;
+	Wed, 8 May 2002 14:21:56 -0400
+Date: Wed, 8 May 2002 10:22:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Padraig Brady <padraig@antefacto.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 56
+Message-ID: <20020508172201.GG11620@kroah.com>
+In-Reply-To: <Pine.LNX.4.44.0205070827050.1343-100000@home.transmeta.com> <3CD800FE.4050004@antefacto.com> <3CD8D57B.4080702@evision-ventures.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 10 Apr 2002 15:28:34 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 00:07 08/05/02, Petr Vandrovec wrote:
->On  8 May 02 at 0:08, Urban Widmark wrote:
-> > On Tue, 7 May 2002, Petr Vandrovec wrote:
-> > But if you have checked that you are not mapping two values to the same
-> > thing (which would break the back-and-forth translation that smbfs does) I
-> > don't see how that patch can harm anything.
->
->Yes, I checked it. After changing iso* all singlebyte encodings except
->cp874 contain unique mapping for all byte values (cp874 is unique, but
->some values are unmappable).
+On Wed, May 08, 2002 at 09:36:27AM +0200, Martin Dalecki wrote:
+> >
+> >For e.g. could the same arguments could be made for lspci only
+> >interface to pci info rather than /proc/bus/pci? The following
+> >references are made to /proc/bus/pci on my system:
+> 
+> In esp. in sigth of the fact that we have a device tree filesystem, I
+> rather think that /prco/bus/pci is obsolete indeed.
 
-Wrong. The NLS tables do not guarantee unique mapping. So all fs which do 
-"back-and-forth" translation are broken, the only encoding which really 
-works is UTF-8.
+Not quite yet.  I considered moving the functionality of /proc/bus/pci
+into driverfs, but couldn't find a good solid reason to do it (and it
+would involve changing lspci and any other userspace programs that use
+it today.)
 
-We found out the hard way in ntfs. An example: take CP936 (GB2312).
+Now reimplementing /proc/bus/pci as a stand alone filesystem mounted in
+that position (like usbfs is) is another story.  pcifs anyone?  :)
 
-Take a Unicode character between 0x4e00 and 0x9fa5, i.e. the CJK Ideograph 
-range (yes we found examples using these characters on various (chinese?) 
-websites).
+thanks,
 
-Convert to gb2312 using NLS and then back to Unicode and you end up with a 
-Unicode character in the range 0xF900-0xFA2D, i.e. the CJK Compatibility 
-Ideographs.
-
-Concrete example we ran into with ntfs, Unicode character 0x884C (a CJK 
-Ideograph). Translates to gb2312 character sequence 0xD0, 0xD0, and then 
-back to Unicode character 0xFA08 (a CJK Compatibility Ideograph).
-
-I double checked the translation manually and I also checked the original 
-translation tables on the microsoft website and this is indeed what 
-happens. If you looks at the translation table there are several Unicode 
-characters mapping to the gb2312 character sequence 0xD0, 0xD0, but 
-obviously this only maps back to a single Unicode character.
-
-Also if you lookup the Unicode character database 2.1 (I checked rev 2.1.8) 
-from the Unicode Consortium it specifies this as correct:
-
-[snip]
-4E00;<CJK Ideograph, First>;Lo;0;L;;;;;N;;;;;
-9FA5;<CJK Ideograph, Last>;Lo;0;L;;;;;N;;;;;
-[snip]
-FA08;CJK COMPATIBILITY IDEOGRAPH-FA08;Lo;0;L;884C;;;;N;;;;;
-[snip]
-
-This means that Unicode itself is not a one-to-one mapping. Apparently 
-multiple characters have the same meanings... )))-:
-
-I never imagined I would find something so braindamaged in Unicode but 
-there you go!
-
-Basically this means, at least for NTFS, but I think it is the same for all 
-file systems, that on directory lookups, either we have to search the 
-directory by just looking at EVERY directory entry and converting each to 
-the current NLS and comparing for identity to the name being searched for 
-or we have to use UTF-8 as that guarantees to preserve back-and-forth 
-mappings one-to-one (I believe).
-
-Doing a directory lookup where the whole directory is scanned linearly is 
-incredibly slow and the overhead of having to convert every single 
-directory entry to compare it every time a lookup() happens is very large, 
-so I don't want to implement that on NTFS, so if anyone complains to me 
-about their character translation not working properly they will just hear 
-use UTF-8 and it will work.
-
-But you will have to find UTF-8 fonts and user space support code in order 
-to see the correct output displayed. Otherwise you just see random 
-characters in your filenames... But at least It Works(TM).
-
-Best regards,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+greg k-h

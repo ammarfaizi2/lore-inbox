@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265626AbUABUCl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 15:02:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265627AbUABUCl
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 15:02:41 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25104 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265626AbUABUCj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S265625AbUABUCj (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 2 Jan 2004 15:02:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265627AbUABUCj
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 2 Jan 2004 15:02:39 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:50770 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S265625AbUABUCi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 15:02:38 -0500
+Date: Fri, 2 Jan 2004 22:02:31 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: SCO's infringing files list
-Date: Fri, 02 Jan 2004 14:45:58 -0500
-Organization: TMR Associates, Inc
-Message-ID: <bt4i2i$6ek$1@gatekeeper.tmr.com>
-References: <20031223185246.GV1343@mea-ext.zmailer.org> <1072209500.13552.10.camel@www.enodev.com>
+Cc: Willy Tarreau <willy@w.ods.org>
+Subject: Re: Something corrupts raid5 disks slightly during reboot
+Message-ID: <20040102200231.GB11115091@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	linux-kernel@vger.kernel.org, Willy Tarreau <willy@w.ods.org>
+References: <20031031190829.GM4868@niksula.cs.hut.fi> <3FA30F4A.5030500@hundstad.net> <20031101082745.GF4640@niksula.cs.hut.fi> <20031101155604.GB530@alpha.home.local> <20031101182518.GL4640@niksula.cs.hut.fi> <20031101190114.GA936@alpha.home.local> <20040102194200.GA11115091@niksula.cs.hut.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1073073042 6612 192.168.12.10 (2 Jan 2004 19:50:42 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <1072209500.13552.10.camel@www.enodev.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040102194200.GA11115091@niksula.cs.hut.fi>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-500Shawn wrote:
-> Why is everyone looking in FTP sites? Doesn't anyone have those old CDs
-> with all the tsx-11/sunsite archives? I'm /sure/ someone has some in a
-> box somewhere.
+> So this is not a 2.2 kernel issue. I very much doubt it's a kernel issue at
+> all. Unless it is a bug in kernel partition detection that is still present
+> in 2.4.x.
 
-How about "Linux Quarterly Fall 1994" (now includes Slackware 
-Professional 2.1). And sunsite archives. I've also got some CheapBytes 
-"complete Linux" CDs from about the same time.
+Short addition: in the earlier thread, it was suggested to inspect the disk
+with another OS (DOS, Windows, something else) to rule out Linux kernel
+completely. I couldn't easily find anything that boots from cd or preferably
+from floppy (since I don't have cdrom attached due to ide cable shortage)
+*and* supports the HPT370 ide controller /dev/hdg is connected to.
+
+If I find something that fits the bill, I'll give it a shot.
 
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+-- v --
+
+v@iki.fi

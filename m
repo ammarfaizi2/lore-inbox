@@ -1,48 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269434AbRHGU4A>; Tue, 7 Aug 2001 16:56:00 -0400
+	id <S269433AbRHGU5U>; Tue, 7 Aug 2001 16:57:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269433AbRHGUzu>; Tue, 7 Aug 2001 16:55:50 -0400
-Received: from athena.intergrafix.net ([206.245.154.69]:65460 "HELO
-	athena.intergrafix.net") by vger.kernel.org with SMTP
-	id <S269434AbRHGUzj>; Tue, 7 Aug 2001 16:55:39 -0400
-Date: Tue, 7 Aug 2001 16:55:50 -0400 (EDT)
-From: Admin Mailing Lists <mlist@intergrafix.net>
-To: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] eepro100.c - Add option to disable power saving in
- 2.4.7-ac7
-In-Reply-To: <3B6EBC34.9578EA4E@TeraPort.de>
-Message-ID: <Pine.LNX.4.10.10108071655190.4770-100000@athena.intergrafix.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269435AbRHGU5L>; Tue, 7 Aug 2001 16:57:11 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:31319 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S269433AbRHGU47>; Tue, 7 Aug 2001 16:56:59 -0400
+Date: Tue, 7 Aug 2001 22:58:10 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.8pre5aa1
+Message-ID: <20010807225810.A688@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Diff between 2.4.8pre3aa1 and 2.4.8pre5aa1:
 
-On Mon, 6 Aug 2001, Martin Knoblauch wrote:
+Moved on top of 2.4.8pre5.
 
-> Hi,
-> 
->  after realizing that my first attempt for this patch was to
-> enthusiastic, I have no a somewhat stripped down version. Compiles
-> against 2.4.7-ac7.
-> 
->  The patch adds the option "power_save" to eepro100. If "1" (default),
-> power save handling is done as normal. If "0", no power saving is done.
-> This is to workaround some flaky eepro100 adapters that do not survive
-> D0->D2-D0 transitions.
-> 
+Only in 2.4.8pre5aa1: 00_alloc_skb-gfp_dma-1
 
-i'm assuming if APM isn't configured in the kernel, these options dont
-matter?
+	Allow skb metadata to be always allocated in the normal classzone.
 
--Tony
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-Anthony J. Biacco                       Network Administrator/Engineer
-thelittleprince@asteroid-b612.org       Intergrafix Internet Services
+Only in 2.4.8pre5aa1: 00_alloc_skb-gfp_dma-bugcheck-1
 
-    "Dream as if you'll live forever, live as if you'll die today"
-http://www.asteroid-b612.org                http://www.intergrafix.net
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+	Trap anybody calling kmem_cache_alloc with __GFP_DMA on a non DMA slab,
+	plus the other way around.
 
+Only in 2.4.8pre5aa1: 00_alpha-fp-disabled-1
+
+	local DoS fix (if fpu disabled via palcode) from Daniel Potts.
+
+Only in 2.4.8pre5aa1: 00_alpha-illop-1
+
+	kill task with illegal opcode from Rick Gorton.
+
+Only in 2.4.8pre5aa1: 00_alpha-mips-rtc-1
+
+	Alpha epoch guess updates from Christopher C. Chimelis.
+
+Only in 2.4.8pre5aa1: 00_alpha-smp_tune_scheduling-1
+
+	Christopher C. Chimelis reported some machine has trouble with the
+	tune_scheduling function, so updated to take care of the cpuid of the
+	boot cpu.
+
+Only in 2.4.8pre3aa1: 00_backout-local_bh_enable-debug-1
+Only in 2.4.8pre3aa1: 00_gcc-30-aironet-1
+Only in 2.4.8pre3aa1: 00_via-quirks-1
+
+	Merged in mainline.
+
+Only in 2.4.8pre3aa1: 00_gcc-30-extern-static-2
+Only in 2.4.8pre5aa1: 00_gcc-30-extern-static-3
+
+	Part of it merged in mainline so rediffed the rest.
+
+Only in 2.4.8pre3aa1: 00_ksoftirqd-7_ia64-2
+
+	ia64 is in sync in mainline.
+
+Only in 2.4.8pre3aa1: 00_lvm-0.9.1_beta7-5.bz2
+Only in 2.4.8pre3aa1: 00_lvm-0.9.1_beta7-5_rwsem-fast-path-2
+Only in 2.4.8pre5aa1: 00_lvm-0.9.1_beta7-6.bz2
+Only in 2.4.8pre5aa1: 00_lvm-0.9.1_beta7-6_rwsem-fast-path-2
+
+	Fix 64bit archs IOP (again).
+
+Only in 2.4.8pre3aa1: 00_o_direct-11
+Only in 2.4.8pre5aa1: 00_o_direct-12
+
+	Microoptimization, more a code-beauty cleanup (noticed by Anton
+	Altaparmakov).
+
+Only in 2.4.8pre3aa1: 00_rwsem-16
+Only in 2.4.8pre5aa1: 00_rwsem-17
+
+	Rediffed (didn't had time to check the asm version yet, after all it is
+	going to make a so small global performance difference in any real
+	benchmark).
+
+Only in 2.4.8pre5aa1: 40_blkdev-pagecache-10
+Only in 2.4.8pre3aa1: 40_blkdev-pagecache-8
+
+	Reduced granularity to 1k and be pedantic about the last bytes of the
+	blkdev, plus added further compatibility cruft so it can be used
+	without surprises in 2.4 (to make an example O_APPEND was ignored by
+	the buffer cache backed code and there are just application that get
+	confused by O_APPEND being honoured by the pagecache common code in
+	generic_file_write...).
+
+Only in 2.4.8pre3aa1: 50_uml-2.4.7-1.bz2
+Only in 2.4.8pre5aa1: 50_uml-2.4.7-3.bz2
+
+	Upgraded to -3 revision from Jeff.
+
+Only in 2.4.8pre3aa1: 60_pagecache-atomic-1
+Only in 2.4.8pre5aa1: 60_pagecache-atomic-2
+
+	Rediffed due rejects.
+
+URL:
+
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.8pre5aa1/
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.8pre5aa1.bz2
+
+Andrea

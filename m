@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262148AbSJDPza>; Fri, 4 Oct 2002 11:55:30 -0400
+	id <S262615AbSJDRMu>; Fri, 4 Oct 2002 13:12:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262155AbSJDPz0>; Fri, 4 Oct 2002 11:55:26 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:31405 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262148AbSJDPzZ> convert rfc822-to-8bit; Fri, 4 Oct 2002 11:55:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hasch@t-online.de (Juergen Hasch)
-To: Christian Reis <kiko@async.com.br>
-Subject: Re: [NFS] 2.4.19+trond and diskless locking problems
-Date: Fri, 4 Oct 2002 18:00:51 +0200
-X-Mailer: KMail [version 1.4]
-Cc: NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20021003184418.K3869@blackjesus.async.com.br> <200210040907.47257.hasch@t-online.de> <20021004101712.A333@blackjesus.async.com.br>
-In-Reply-To: <20021004101712.A333@blackjesus.async.com.br>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210041800.51540.hasch@t-online.de>
+	id <S262617AbSJDRMu>; Fri, 4 Oct 2002 13:12:50 -0400
+Received: from [198.149.18.6] ([198.149.18.6]:13706 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S262615AbSJDRMr>;
+	Fri, 4 Oct 2002 13:12:47 -0400
+Date: Fri, 4 Oct 2002 20:32:30 -0400
+From: Christoph Hellwig <hch@sgi.com>
+To: marcelo@conectiva.com.br
+Cc: gone@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH][RESENT] cleanup some i386 mm init code
+Message-ID: <20021004203230.A9813@sgi.com>
+Mail-Followup-To: Christoph Hellwig <hch@sgi.com>, marcelo@conectiva.com.br,
+	gone@us.ibm.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 4. Oktober 2002 15:17 schrieb Christian Reis:
-> On Fri, Oct 04, 2002 at 09:07:47AM +0200, Juergen Hasch wrote:
-> > I got the same messages when mounting an AIX client to a Linux server
-> > after upgrading to 2.4.19 Kernel.
-> > After installing the latest NFS utils, the problem went away.
->
-> Does this mean nfs-utils-1.0.1 vs 1.0, or were you using a much older
-> version?
+Cleanup one_highpage_init() as in 2.5.  Patricia ACKed this change long
+ago.
 
-Versions 0.3.3 and 1.0.1 are working fine for me, so it looks like
-your problem is different.
 
-...Juergen
-
+--- linux-2.4.20-pre5/arch/i386/mm/init.c	Tue Aug 20 11:36:59 2002
++++ linux/arch/i386/mm/init.c	Fri Sep  6 13:14:37 2002
+@@ -449,21 +449,14 @@ static inline int page_kills_ppro(unsign
+ #ifdef CONFIG_HIGHMEM
+ void __init one_highpage_init(struct page *page, int pfn, int bad_ppro)
+ {
+-	if (!page_is_ram(pfn)) {
++	if (page_is_ram(pfn) && !(bad_ppro && page_kills_ppro(pfn))) {
++		ClearPageReserved(page);
++		set_bit(PG_highmem, &page->flags);
++		set_page_count(page, 1);
++		__free_page(page);
++		totalhigh_pages++;
++	} else
+ 		SetPageReserved(page);
+-		return;
+-	}
+-	
+-	if (bad_ppro && page_kills_ppro(pfn)) {
+-		SetPageReserved(page);
+-		return;
+-	}
+-	
+-	ClearPageReserved(page);
+-	set_bit(PG_highmem, &page->flags);
+-	atomic_set(&page->count, 1);
+-	__free_page(page);
+-	totalhigh_pages++;
+ }
+ #endif /* CONFIG_HIGHMEM */
+ 

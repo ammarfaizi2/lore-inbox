@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262891AbSIPUhb>; Mon, 16 Sep 2002 16:37:31 -0400
+	id <S262922AbSIPU6F>; Mon, 16 Sep 2002 16:58:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262894AbSIPUha>; Mon, 16 Sep 2002 16:37:30 -0400
-Received: from pcp748446pcs.manass01.va.comcast.net ([68.49.120.237]:63719
-	"EHLO pcp748343pcs.manass01.va.comcast.net") by vger.kernel.org
-	with ESMTP id <S262891AbSIPUha>; Mon, 16 Sep 2002 16:37:30 -0400
-Date: Mon, 16 Sep 2002 16:42:23 -0400
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.5.35 mouse and keyboard flakiness report
-Message-ID: <20020916204223.GA26923@bittwiddlers.com>
-References: <20020909232641.GA736@bittwiddlers.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020909232641.GA736@bittwiddlers.com>
-User-Agent: Mutt/1.4i
-From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
-X-Delivery-Agent: TMDA/0.62
-Reply-To: Matthew Harrell 
-	  <mharrell-dated-1032640943.c57dd3@bittwiddlers.com>
+	id <S262942AbSIPU6F>; Mon, 16 Sep 2002 16:58:05 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:5643 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id <S262922AbSIPU6E>; Mon, 16 Sep 2002 16:58:04 -0400
+Date: Mon, 16 Sep 2002 23:06:35 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+To: "David S. Miller" <davem@redhat.com>
+cc: akropel1@rochester.rr.com, linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: Streaming DMA mapping question
+In-Reply-To: <20020915.203006.123845370.davem@redhat.com>
+Message-ID: <Pine.LNX.4.21.0209162144550.6230-100000@notebook.diehl.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 15 Sep 2002, David S. Miller wrote:
 
-The same thing happens on 2.5.35 as on 2.5.3[3-4]
+>    From: Adam Kropelin <akropel1@rochester.rr.com>
+>    Date: Fri, 13 Sep 2002 23:51:13 -0400
+>    
+>    It seems that pci_dma_sync_*() transfers ownership in either direction.
+> 
+> That's a bug in the documentation, and no platform which has to care
+> about this area actually does what you imply.
+> 
+> A new interface needs to be added to transfer control in the other
+> direction.  pci_dma_sync_*() only handles transferring control from
+> device to CPU..
+> 
+> I know this makes drivers like eepro100 buggy, this was discussed
+> a month or two ago wrt. MIPS on linux-kernel, check the archives
+> for the thread.
 
-: 
-: Running the attached config on my HP Pavilion zt1195 laptop I get some strange
-: keyboard and mouse behavior.  First, when I first try to log into X the keyboard
-: is a little wacky: alt behaves as Fn, m doesn't work at all, etc.  It seems 
-: to go away after a bunch of key presses for no apparent reason.  I do get
-: this from the kernel log
-: 
-:       atkbd.c: Unknown key (set 2, scancode 0xbc, on isa0060/serio0) pressed.
-: 
-: but that's about it.  Then when X windows starts first my mouse buttons have
-: been reversed from the normal left handed behavior and then when I try to
-: cut and paste the cut motion never turns off so subsequent movements of the
-: mouse just keep trying to select regions from that first window.  Eventually
-: I just have to reboot so I can actually work normally.
-: 
+Wasn't there a patch submitted which suggested to add pci_dma_prep_*()
+calls in order to sync the cpu-driven changes back to the bus? I'm asking
+because I'm dealing with a driver that needs to reuse streaming pci maps.
 
--- 
-  Matthew Harrell                          The best way to accelerate a 
-  Bit Twiddlers, Inc.                       Macintosh is at 9.8 meters per
-  mharrell@bittwiddlers.com                 second squared.
+IIRC my impression was you might be willing to accept this for inclusion
+but maybe I'm wrong or it got lost during the long "dmabuf inside struct
+may cross cacheline" thread shortly thereafter.
+
+Do you think it would be a good idea to add some nooped pci_dma_prep_*()
+calls at the right place and expect them to represent some future 
+solution?
+
+Martin
+

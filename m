@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270227AbTGRMLk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 08:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270228AbTGRMLg
+	id S271622AbTGRMPh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 08:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270237AbTGRMPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 08:11:36 -0400
-Received: from 65-124-64-15.rdsl.ktc.com ([65.124.64.15]:16825 "EHLO
-	csi.csimillwork.com") by vger.kernel.org with ESMTP id S270227AbTGRMLd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 08:11:33 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: joe briggs <jbriggs@briggsmedia.com>
-Organization: BMS
-To: <linux-kernel@vger.kernel.org>
-Subject: run-parts,find, kupdated: What are they and how to control them?
-Date: Fri, 18 Jul 2003 09:25:24 -0400
-User-Agent: KMail/1.4.3
+	Fri, 18 Jul 2003 08:15:35 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:5772 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S270230AbTGRMPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 08:15:33 -0400
+Date: Fri, 18 Jul 2003 09:23:10 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>,
+       riel@redhat.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
+In-Reply-To: <20030718112758.1da7ab03.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.55L.0307180921120.6642@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
+ <1058297936.4016.86.camel@tiny.suse.com> <Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
+ <20030718112758.1da7ab03.skraw@ithnet.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200307180925.24867.jbriggs@briggsmedia.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please - can someone explain what happens here once a day when my machine 
-becomes completely unusable, a tremendous amount of disk i/o begins to occur, 
-and 'top' shows "run-parts" and "find" at > 80% cpu utilization. What are 
-they doing?  Are they necessary?  Can they be controlled. In Googling for 
-these answers first, all I see are compaints, but no answers. Can someone 
-PLEASE either explain what these are doing and how they are controlled, or 
-point me in the right direction? Many thanks.
 
--- 
-Joe Briggs
-Briggs Media Systems
-105 Burnsen Ave.
-Manchester NH 01304 USA
-TEL 603-232-3115 FAX 603-625-5809 MOBILE 603-493-2386
-www.briggsmedia.com
+CCed lkml for obvious reasons
+
+On Fri, 18 Jul 2003, Stephan von Krawczynski wrote:
+
+> On Wed, 16 Jul 2003 08:37:51 -0300 (BRT)
+> Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+>
+> >
+> > Stephan, can you reproduce it easily?
+>
+> Hello,
+>
+> there is definitely something about it. pre6 froze after 2 days of
+> testing. I guess I was unlucky this time with logfiles, no messages
+> there.  There is something severe. You may call it reproducable, but not
+> easy.
+
+Stephan,
+
+What is your workload?
+
+I'll try to reproduce it.

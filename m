@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289342AbSAOBGW>; Mon, 14 Jan 2002 20:06:22 -0500
+	id <S289346AbSAOBIc>; Mon, 14 Jan 2002 20:08:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289344AbSAOBGN>; Mon, 14 Jan 2002 20:06:13 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:22162 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S289338AbSAOBGD>;
-	Mon, 14 Jan 2002 20:06:03 -0500
-Date: Mon, 14 Jan 2002 17:02:25 -0800
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: memory-mapped i/o barrier
-Message-ID: <20020114170225.A800421@sgi.com>
-Mail-Followup-To: Anton Blanchard <anton@samba.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020110134859.A729245@sgi.com> <20020114062454.GA18794@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020114062454.GA18794@krispykreme>
-User-Agent: Mutt/1.3.23i
+	id <S289345AbSAOBIX>; Mon, 14 Jan 2002 20:08:23 -0500
+Received: from amdext.amd.com ([139.95.251.1]:32399 "EHLO amdext.amd.com")
+	by vger.kernel.org with ESMTP id <S289338AbSAOBIK>;
+	Mon, 14 Jan 2002 20:08:10 -0500
+X-Server-Uuid: 02753650-11b0-11d5-bbc5-00508bf987eb
+Message-ID: <3C4380F2.292475B9@cmdmail.amd.com>
+Date: Mon, 14 Jan 2002 17:08:02 -0800
+From: "Amit Gupta" <amit.gupta@amd.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.16-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: arpd not working in 2.4.17 or 2.5.1
+X-WSS-ID: 105D5F79185166-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 05:24:54PM +1100, Anton Blanchard wrote:
-> Can loads/stores also complete out of order to IO? (the example just shows
-> a store from one cpu passing one from another cpu)
 
-I'm not sure what you mean, do you have an example?
+Hi All,
 
-> On ppc32/ppc64 this can happen, it is fixed up in the low level pci
-> routines. Is there a case where you cant wrap it up in the low level
-> routines like ppc32/ppc64?
+I am running 2.5.1 kernel on a 2 AMD processor system and have enable
+routing messages, netlink and arpd support inside kernel as described in
+arpd docs.
 
-You mean in each outX routine you essentially do an mmiob()?
+Then after making 36 character devices, when I run arpd, it's starts up
+but always keeps silent (strace) and the kernel also does not keep it's
+256 arp address limit.
 
-Jesse
+Pls help fix it, I need linux to be able to talk to more than 1024
+clients.
+
+Thanks in Advance.
+
+Amit
+amit.gupta@amd.com
+
+
+

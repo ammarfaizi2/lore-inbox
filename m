@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbTD3Pol (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 11:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbTD3Pol
+	id S262219AbTD3QCq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 12:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbTD3QCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 11:44:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7833 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262347AbTD3Pof
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 11:44:35 -0400
-Date: Wed, 30 Apr 2003 16:56:52 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Cc: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add a stub by which a module can bind to the AFS syscall
-Message-ID: <20030430155652.GU10374@parcelfarce.linux.theplanet.co.uk>
-References: <20030430160239.A8956@infradead.org> <200304301513.h3UFDNGi023355@locutus.cmf.nrl.navy.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304301513.h3UFDNGi023355@locutus.cmf.nrl.navy.mil>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Apr 2003 12:02:46 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60688 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262219AbTD3QCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 12:02:45 -0400
+Date: Wed, 30 Apr 2003 09:16:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+cc: dphillips@sistina.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Faster generic_fls
+In-Reply-To: <87el3kt1kt.fsf@student.uni-tuebingen.de>
+Message-ID: <Pine.LNX.4.44.0304300911420.16712-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 11:13:23AM -0400, chas williams wrote:
-> at the time afs was written it wasnt a mistake.  syscall was the only
-> (easy) way into the kernel from user space.  adding multiple syscalls
-> would have just been completely painful.  as for examples, pioctl() --
-> the user space of the afs syscall -- is a bit like syssgi() i am afraid:
-> 
-> venus/fs.c:     code = pioctl(0, VIOC_GETCELLSTATUS, &blob, 1);
-> venus/fs.c:    code = pioctl(0, VIOC_SETRXKCRYPT, &blob, 1);
-> vlserver/sascnvldb.c:   code = pioctl(ti->data, VIOCGETVOLSTAT, &blob, 1);
-> auth/ktc_nt.c:  code = pioctl(0, VIOCNEWGETTOK, &iob, 0);
-> auth/ktc_nt.c:  code = pioctl(0, VIOCDELTOK, &iob, 0);
-> package/package.c:  code = pioctl(0, VIOC_AFS_SYSNAME, &data, 1);
-> venus/up.c:          code = pioctl(file1, _VICEIOCTL(2), &blob, 1);
-> 
-> in reality, very few things other than afs are going to want to use
-> the afs syscall (arla might be a possible user).
 
-Which means only one thing - changing that API will affect very few
-things.
+On 30 Apr 2003, Falk Hueffner wrote:
+> Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+> > There is _never_ any excuse to use a lookup table for something that
+> > can be calculated with a few simple instructions. That's just
+> > stupid.
+> 
+> Well, the "few simple instructions" are 28 instructions on Alpha for
+> example, including 6 data-dependent branches. So I don't think it's
+> *that* stupid.
 
-Let's keep the kernel side sane.  We don't have to mess with multiplexors
-and even if we decide to use them, we will be better off by having decoder
-outside of AFS proper.  Again, take a look at interaction between userland
-and knfsd.  Right now we have a sane interface (IO on nfsctl files) and
-we have a wrapper (sys_nfsctl) that does decode/open/write/read/close.
+You're comparing apples to oranges.
+
+Clearly you're not going to make _one_ load to get fls, since having a 
+4GB lookup array for a 32-bit fls would be "somewhat" wasteful.
+
+So the lookup table would probably look up just the last 8 bits.
+
+So the lookup table version is several instructions in itself, doing about
+half of what the calculating version needs to do _anyway_. Including those
+data-dependent branches.
+
+		Linus
+

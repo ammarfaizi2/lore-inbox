@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131938AbQKJVjR>; Fri, 10 Nov 2000 16:39:17 -0500
+	id <S131952AbQKJVkH>; Fri, 10 Nov 2000 16:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131888AbQKJVi5>; Fri, 10 Nov 2000 16:38:57 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:44548 "EHLO
+	id <S131953AbQKJVj5>; Fri, 10 Nov 2000 16:39:57 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:47364 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131849AbQKJViu>; Fri, 10 Nov 2000 16:38:50 -0500
+	id <S131952AbQKJVjv>; Fri, 10 Nov 2000 16:39:51 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: rdtsc to mili secs?
-Date: 10 Nov 2000 13:38:16 -0800
+Subject: Re: APIC errors w/ 2.4.0-test11-pre2
+Date: 10 Nov 2000 13:39:31 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8uhps8$1tm$1@cesium.transmeta.com>
-In-Reply-To: <3A078C65.B3C146EC@mira.net> <E13t7ht-0007Kv-00@the-village.bc.nu> <20001110154254.A33@bug.ucw.cz>
+Message-ID: <8uhpuj$1uf$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0011101523170.14596-100000@bochum.redhat.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,24 +21,42 @@ Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001110154254.A33@bug.ucw.cz>
-By author:    Pavel Machek <pavel@suse.cz>
+Followup to:  <Pine.LNX.4.21.0011101523170.14596-100000@bochum.redhat.de>
+By author:    Bernhard Rosenkraenzer <bero@redhat.de>
 In newsgroup: linux.dev.kernel
-> > 
-> > Sensibly configured power saving/speed throttle systems do not change the
-> > frequency at all. The duty cycle is changed and this controls the cpu 
-> > performance but the tsc is constant
+>
+> Hi,
+> after booting a 2.4.0 (any testx-release I've tried so far, including
+> test11-pre2) on a Dual-Pentium III box, the system works ok, but the
+> console gets filled with
 > 
-> Do you have an example of notebook that does powersaving like that?
-> I have 2 examples of notebooks with changing TSC speed...
+> APIC error on CPU0: 08(08)
+> 
+> every couple of seconds, occasionally some lines in between say
+> 
+> APIC error on CPU0: 08(02)
+> 
+> and
+> 
+> APIC error on CPU0: 02(08)
+> 
+> This doesn't happen with 2.2.x, but I've seen "unexpected IRQ vector 208
+> on CPU0" in 2.2.18 occasionally (nowhere near as often, maybe once a
+> month).
+> 
+> This is an ASUS P2-D board (Intel 440BX chipset), 2 Pentium III-700
+> processors.
+> 
+> The same kernel works perfectly on a similar (but slower) system, Gigabyte
+> P2B-D board (Intel 440BX chipset), 2 Pentium III-450 processors.
 > 
 
-Intel PIIX-based systems will do duty-cycle throttling, for example.
-However, there are definitely notebooks that will mess with the
-frequency.  At Transmeta, we went through some considerable pain to
-make sure RDTSC would count walltime even across Longrun transitions.
+I have seen the same problem on the same motherboard.  It appears to
+be a motherboard bug that 2.4 exposes and 2.2 doesn't.
 
 	-hpa
+
+
 -- 
 <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
 "Unix gives you enough rope to shoot yourself in the foot."

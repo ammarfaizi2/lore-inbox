@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRBNRj0>; Wed, 14 Feb 2001 12:39:26 -0500
+	id <S129075AbRBNRkF>; Wed, 14 Feb 2001 12:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129075AbRBNRjP>; Wed, 14 Feb 2001 12:39:15 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:55257 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129066AbRBNRjJ>;
-	Wed, 14 Feb 2001 12:39:09 -0500
-From: Carlos Carvalho <carlos@fisica.ufpr.br>
-MIME-Version: 1.0
+	id <S129623AbRBNRjr>; Wed, 14 Feb 2001 12:39:47 -0500
+Received: from marine.sonic.net ([208.201.224.37]:49276 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S129075AbRBNRj1>;
+	Wed, 14 Feb 2001 12:39:27 -0500
+X-envelope-info: <dhinds@sonic.net>
+Message-ID: <20010214093859.B20503@sonic.net>
+Date: Wed, 14 Feb 2001 09:38:59 -0800
+From: David Hinds <dhinds@sonic.net>
+To: Andrew Morton <andrewm@uow.edu.au>,
+        Manfred Spraul <manfred@colorfullife.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] network driver updates
+In-Reply-To: <Pine.LNX.3.96.1010214020707.28011E-100000@mandrakesoft.mandrakesoft.com> <3A8A7159.AF0E6180@colorfullife.com> <3A8A8937.A77BA18D@uow.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14986.49817.44381.454285@hoggar.fisica.ufpr.br>
-Date: Wed, 14 Feb 2001 15:38:33 -0200
-To: Sean Hunter <sean@dev.sportingbet.com>
-Cc: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org,
-        axp-hardware@talisman.alphalinux.org
-Subject: Re: Alpha: bad unaligned access handling
-In-Reply-To: <20010214172607.E11048@dev.sportingbet.com>
-In-Reply-To: <20010214154808.A15974@lug-owl.de>
-	<14986.48181.55212.358637@hoggar.fisica.ufpr.br>
-	<20010214172607.E11048@dev.sportingbet.com>
-X-Mailer: VM 6.90 under Emacs 19.34.1
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3A8A8937.A77BA18D@uow.edu.au>; from Andrew Morton on Thu, Feb 15, 2001 at 12:33:43AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Hunter (sean@dev.sportingbet.com) wrote on 14 February 2001 17:26:
- >This is an application problem, not a kernel one.  You need to upgrade your
- >netkit.
+On Thu, Feb 15, 2001 at 12:33:43AM +1100, Andrew Morton wrote:
+> 
+> > * something is wrong in the vortex initialization: I don't have such a
+> > card, but the driver didn't return an error message on insmod. I'm not
+> > sure if my fix is correct.
+> 
+> That was intentional - dhinds suggested that if the hardware
+> isn't present the driver should float about in memory anyway.
 
-Yes, I was quite confident of this. However, unaligned traps are a
-frequent problem with alphas. For a looong time we had zsh produce
-lots of it, to the point of making it unusable. Strangely, the problem
-disappeared without changing anything in zsh. It was either a library
-or kernel problem.
+Say the driver is linked into the kernel.  Hot plug drivers should not
+all complain about not finding their hardware.
 
- >P.S. I wrote a small wrapper to aid in the debugging of unaligned
- >traps, which I'll send to anyone who's interested.
-
-I'd like it!
+-- Dave

@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUG2MLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264412AbUG2MOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbUG2MLO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 08:11:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbUG2MLO
+	id S264412AbUG2MOK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 08:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUG2MOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 08:11:14 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:64450 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264396AbUG2MLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 08:11:11 -0400
-Date: Thu, 29 Jul 2004 14:11:05 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] German court says the GPL is effective
-Message-ID: <20040729121105.GO2349@fs.tum.de>
-References: <20040723212423.GQ19329@fs.tum.de> <20040723222825.GA21989@merlin.emma.line.org>
+	Thu, 29 Jul 2004 08:14:10 -0400
+Received: from mail5.tpgi.com.au ([203.12.160.101]:15309 "EHLO
+	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S264412AbUG2MOH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 08:14:07 -0400
+Subject: Re: [Patch] Per kthread freezer flags
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091095341.4359.0.camel@teapot.felipe-alfaro.com>
+References: <1090999301.8316.12.camel@laptop.cunninghams>
+	 <20040728142026.79860177.akpm@osdl.org>
+	 <1091053822.1844.4.camel@teapot.felipe-alfaro.com>
+	 <1091054194.8867.26.camel@laptop.cunninghams>
+	 <1091056916.1844.14.camel@teapot.felipe-alfaro.com>
+	 <1091061983.8867.95.camel@laptop.cunninghams>
+	 <1091095341.4359.0.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain
+Message-Id: <1091103080.2703.6.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040723222825.GA21989@merlin.emma.line.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 29 Jul 2004 22:11:21 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 24, 2004 at 12:28:25AM +0200, Matthias Andree wrote:
-> On Fri, 23 Jul 2004, Adrian Bunk wrote:
+Hi.
+
+On Thu, 2004-07-29 at 20:02, Felipe Alfaro Solana wrote:
+> > It doesn't look like I've touched any of those threads. I have doubts
+> > about irqd/0 (is that kirqd reworked?), so you might try making setting
+> > PF_NOFREEZE and seeing if it makes a difference. I haven't done the
+> > switch to rc2-mm1 yet, so haven't gotten to those issues.
 > 
-> > I know this is off-topic, but a court in my home town Munich has decided 
-> > that a cease and desist letter Harald Welte sent to a router producer 
-> > (Sitecom) who used netfilter/iptables in his router but didn't publish 
-> > the sources of the firmware with a penalty of up to 100 000 Euro is  
-> > valid (a German version of the decision of the three judges is at [1]).
-> > 
-> > It's quite nice to hear that a court has decided that the GPL is 
-> > enforceable under German law.
-> > 
-> > [1] http://www.jbb.de/urteil_lg_muenchen_gpl.pdf
-> 
-> Has this verdict become final yet?
+> kirqd is voluntary-preempt patch by Ingo Molnar. I have also applied
+> several other patches, like Con's Staircase scheduler policy and some
+> latency fixes.
 
-No, it's not yet final.
+Okay. So, just to make sure I understand you correctly, suspending works
+fine with all of these other patches added and adding the extra
+refrigerator calls breaks it. Are you at all able to narrow it down to a
+particular change?
 
-> Matthias Andree
+Regards,
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Nigel
 

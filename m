@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315388AbSHNShW>; Wed, 14 Aug 2002 14:37:22 -0400
+	id <S319265AbSHNSjM>; Wed, 14 Aug 2002 14:39:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315406AbSHNShW>; Wed, 14 Aug 2002 14:37:22 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:22987 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S315388AbSHNShV>;
-	Wed, 14 Aug 2002 14:37:21 -0400
-Date: Wed, 14 Aug 2002 20:41:12 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200208141841.UAA23040@harpo.it.uu.se>
-To: alex14641@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: GA-7DX+ crashes
+	id <S319266AbSHNSjM>; Wed, 14 Aug 2002 14:39:12 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1152 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S319265AbSHNSjM>; Wed, 14 Aug 2002 14:39:12 -0400
+Date: Wed, 14 Aug 2002 14:43:01 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: jt@hpl.hp.com
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Problem : can't make pipe non-blocking on 2.5.X
+In-Reply-To: <20020814181902.GA24047@bougret.hpl.hp.com>
+Message-ID: <Pine.LNX.3.95.1020814143548.137A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On wed, 14 Aug 2002 10:08:50 -0700 (PDT), Alex Davis wrote:
->>We have no information on
->>workarounds (or if they are needed) for the AMD/VIA combo other than the
->>fact that the APIC cannot be used on them according to AMD docs.
->
->Really?? I have an Epox 8k7a (AMD761 North / VIA South) that I've been using for
->over a year now with APIC configured. In fact I'm sure I remember (haven't checked
->recently) one of the boot messages being 'found and enabled local APIC'. Am I 
->missing something??
+On Wed, 14 Aug 2002, Jean Tourrilhes wrote:
 
-Alan was a bit careless in his wording. He most likely meant the
-IO-APIC, which is broken in some/all(?) AMD north / VIA south combos.
-AMD has an errata sheet on this issue.
+> 
+>   pipe(trigger_pipe);
+> 
+    if((flags = fcntl(trigger_pipe[0], F_GETFL)) != -1);
+       flags &= ~O_NDELAY;
+    fcntl(trigger_pipe[0], F_SETFL, flags);
+ 
 
-/Mikael
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.19 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

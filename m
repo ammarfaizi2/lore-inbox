@@ -1,82 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbTLPX4j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 18:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTLPX4j
+	id S262331AbTLQAOU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 19:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTLQAOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 18:56:39 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:24584 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S262009AbTLPX4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 18:56:31 -0500
-Date: Tue, 16 Dec 2003 17:57:33 -0600 (CST)
-From: mikem@beardog.cca.cpqcorp.net
-To: axboe@suse.de, marcelo.tosatti@cyclades.com
-Cc: linux-kernel@vger.kernel.org, mike.miller@hp.com, scott.benesh@hp.com
-Subject: cciss update for 2.4.24-pre1, 2 of 2
-Message-ID: <Pine.LNX.4.58.0312161750290.30010@beardog.cca.cpqcorp.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Dec 2003 19:14:20 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:8387
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S262331AbTLQAON
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 19:14:13 -0500
+Subject: Re: [OT] "unauthorized" mini-pci wlan cards in thinkpads
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Scott Mcdermott <vaxerdec@frontiernet.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "Bryan O'Sullivan" <bos@serpentine.com>
+In-Reply-To: <20031215174349.C17007@newbox.localdomain>
+References: <20031215174349.C17007@newbox.localdomain>
+Content-Type: multipart/mixed; boundary="=-F4fwfRPYtMWUgrD18nuj"
+Message-Id: <1071619961.6205.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 16 Dec 2003 16:12:41 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some older cciss controllers may take a long time to become ready after
-hot replacing the controller. This patch addresses that problem by adding
-a check of the scratchpad register. This patch is intended to supplement
-the monitor thread when cciss is used in an md environment. In the event
-of a controller failure the failed board can now be more reliably
-replaced. This is patch #2 of 2.
-Please consider this patch for inclusion in the 2.4.24 kernel.
 
-Thanks,
-mikem
-mike.miller@hp.com
-------------------------------------------------------------------------------
-diff -burN lx2424pre1-p01/drivers/block/cciss.c lx2424pre1/drivers/block/cciss.c
---- lx2424pre1-p01/drivers/block/cciss.c	2003-12-16 17:25:50.000000000 -0600
-+++ lx2424pre1/drivers/block/cciss.c	2003-12-16 17:30:41.000000000 -0600
-@@ -2537,8 +2537,8 @@
- static int cciss_pci_init(ctlr_info_t *c, struct pci_dev *pdev)
- {
- 	ushort subsystem_vendor_id, subsystem_device_id, command;
--	unchar irq = pdev->irq;
--	__u32 board_id;
-+	unchar irq = pdev->irq, revision, ready = 0;
-+	__u32 board_id, scratchpad;
- 	__u64 cfg_offset;
- 	__u32 cfg_base_addr;
- 	__u64 cfg_base_addr_index;
-@@ -2609,6 +2609,21 @@
- 	printk("address 0 = %x\n", c->paddr);
- #endif /* CCISS_DEBUG */
- 	c->vaddr = remap_pci_mem(c->paddr, 200);
-+	/* Wait for the board to become ready.  (PCI hotplug needs this.)
-+	 * We poll for up to 120 secs, once per 100ms. */
-+	for (i=0; i < 1200; i++) {
-+		scratchpad = readl(c->vaddr + SA5_SCRATCHPAD_OFFSET);
-+		if (scratchpad == 0xffff0000) {
-+			ready = 1;
-+			break;
-+		}
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		schedule_timeout(HZ / 10); /* wait 100ms */
-+	}
-+	if (!ready) {
-+		printk(KERN_WARNING "cciss: Board not ready.  Timed out.\n");
-+		return -1;
-+	}
+--=-F4fwfRPYtMWUgrD18nuj
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
- 	/* get the address index number */
- 	cfg_base_addr = readl(c->vaddr + SA5_CTCFG_OFFSET);
-diff -burN lx2424pre1-p01/drivers/block/cciss.h lx2424pre1/drivers/block/cciss.h
---- lx2424pre1-p01/drivers/block/cciss.h	2003-11-28 12:26:19.000000000 -0600
-+++ lx2424pre1/drivers/block/cciss.h	2003-12-16 17:30:41.000000000 -0600
-@@ -137,6 +137,7 @@
- #define SA5_REPLY_INTR_MASK_OFFSET	0x34
- #define SA5_REPLY_PORT_OFFSET		0x44
- #define SA5_INTR_STATUS		0x30
-+#define SA5_SCRATCHPAD_OFFSET	0xB0
+On Mon, 2003-12-15 at 14:43, Scott Mcdermott wrote:
+> Has anyone heard more about this from IBM or know of some
+> way to disable the whitelist checking? It's really a shame
+> to not be able to use the nice builtin antennas in these
+> laptops with newer Mini-PCI cards (like the a/b/g combo that
+> IBM themselves make, which is still "unauthorized" on both
+> my X31 and T30 with latest BIOS) and instead be forced to
+> waste a PCMCIA slot and not get as good a signal.
 
- #define SA5_CTCFG_OFFSET	0xB4
- #define SA5_CTMEM_OFFSET	0xB8
-------------------------------------------------------------------------------
+Bryan O'Sullivan just posted saying that he got an Atheros card from IBM
+which works, but only after a BIOS update.  I've attached his message. 
+I'm hoping to try one of these out myself soon (I've got a Cisco card,
+but the driver is really only just works).
+
+	J
+
+--=-F4fwfRPYtMWUgrD18nuj
+Content-Disposition: inline
+Content-Type: message/rfc822
+
+Return-Path: <cyrus@gw.goop.org>
+X-Sieve: cmu-sieve 2.0
+Return-Path: <linux-kernel-owner+jeremy=40goop.org@vger.kernel.org>
+Received: by gw.goop.org (Postfix, from userid 525) id 1F06B78507; Wed, 10
+	Dec 2003 08:48:43 -0800 (PST)
+Received: from vger.kernel.org (vger.kernel.org [67.72.78.212]) by
+	gw.goop.org (Postfix) with ESMTP id 8F9B7784A7 for <jeremy@goop.org>; Wed,
+	10 Dec 2003 08:48:31 -0800 (PST)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id
+	S263636AbTLJQph (ORCPT <rfc822;jeremy@goop.org>); Wed, 10 Dec 2003 11:45:37
+	-0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbTLJQph
+	(ORCPT <rfc822;linux-kernel-outgoing>); Wed, 10 Dec 2003 11:45:37 -0500
+Received: from dsl092-013-071.sfo1.dsl.speakeasy.net ([66.92.13.71]:3248
+	"EHLO pelerin.serpentine.com") by vger.kernel.org with ESMTP id
+	S263636AbTLJQph (ORCPT <rfc822;linux-kernel@vger.kernel.org>); Wed, 10 Dec
+	2003 11:45:37 -0500
+Received: from [192.168.16.5] (camp4.serpentine.com [192.168.16.5]) by
+	pelerin.serpentine.com (Postfix) with ESMTP id 4B35776C330; Wed, 10 Dec
+	2003 08:45:36 -0800 (PST)
+Subject: Update for IBM Thinkpad X31 and T40 users wishing to use miniPCI
+	wifi cards
+From: Bryan O'Sullivan <bos@serpentine.com>
+To: linux-kernel@vger.kernel.org
+Cc: durey@EmperorLinux.com
+Content-Type: text/plain
+Message-Id: <1071074736.16162.12.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 10 Dec 2003 08:45:36 -0800
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+X-Spam-Checker-Version: SpamAssassin 2.60 (1.212-2003-09-23-exp) on 
+	gw.goop.org
+X-Spam-Status: No, hits=-4.3 required=6.0 tests=AWL,BAYES_00 autolearn=ham 
+	version=2.60
+X-Spam-Level: 
+X-Evolution-Source: imap://jeremy@mail.goop.org/
+Content-Transfer-Encoding: 7bit
+
+IBM has a newish Atheros-based 802.11a/b/g card, model number 31P9701,
+which works with the Thinkpad X31.  I received mine last night and got
+the infamous error 1802 (card not authorized).
+
+I unplugged the miniPCI card and updated the X31's BIOS to revision
+2.04, version 1QET66WW, dated 2003/12/02.  (I believe you must still
+have Windows available to do this.)  The system now boots happily, and
+the madwifi driver drives the card OK for me under both 2.4 and 2.6.
+
+I assume that the PCI whitelist of infamy is still in place in the
+latest BIOS, but at least it now supports a modern wifi card model.
+
+	<b
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+--=-F4fwfRPYtMWUgrD18nuj--
+

@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132982AbRDUWak>; Sat, 21 Apr 2001 18:30:40 -0400
+	id <S132993AbRDUWfj>; Sat, 21 Apr 2001 18:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132984AbRDUWaa>; Sat, 21 Apr 2001 18:30:30 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:55062 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S132982AbRDUWaV>;
-	Sat, 21 Apr 2001 18:30:21 -0400
-Message-ID: <20010422003013.A18236@win.tue.nl>
-Date: Sun, 22 Apr 2001 00:30:13 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: "Ville Holma" <ville.holma@pp.htv.fi>, <linux-kernel@vger.kernel.org>
-Subject: Re: a way to restore my hd ?
-In-Reply-To: <000701c0ca7b$051934a0$6786f3d5@pp.htv.fi>
+	id <S132998AbRDUWf3>; Sat, 21 Apr 2001 18:35:29 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:5124 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132993AbRDUWfU>;
+	Sat, 21 Apr 2001 18:35:20 -0400
+Date: Sat, 21 Apr 2001 18:35:54 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Francois Romieu <romieu@cogenit.fr>
+Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: Re: Request for comment -- a better attribution system
+Message-ID: <20010421183554.A14459@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Francois Romieu <romieu@cogenit.fr>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <200104212023.f3LKN7P188973@saturn.cs.uml.edu> <Pine.GSO.4.21.0104211630130.27021-100000@weyl.math.psu.edu> <20010421164659.A4704@thyrsus.com> <20010421231106.A15828@se1.cogenit.fr> <20010421172059.B5007@thyrsus.com> <20010422003057.A16063@se1.cogenit.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <000701c0ca7b$051934a0$6786f3d5@pp.htv.fi>; from Ville Holma on Sat, Apr 21, 2001 at 06:52:01PM +0300
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010422003057.A16063@se1.cogenit.fr>; from romieu@cogenit.fr on Sun, Apr 22, 2001 at 12:30:57AM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 21, 2001 at 06:52:01PM +0300, Ville Holma wrote:
+Francois Romieu <romieu@cogenit.fr>:
+> Provided it's kept up-to-date. I.e. it calls for some tools (and these
+> require the suggested changes).
 
-> EXT2-fs: #blocks per group too big: 2147516416
+Yes.  I'll write the tools.
 
-> debian:~# e2fsck /dev/hdb7
-> e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-> Corruption found in superblock.  (frags_per_group = 2147516416).
+> I'll only object that imvvvvho there is no global problem here:
+> * If user meets a serious problem, the maintainer will surely ask
+> him to test some fix, to specify some point or whatever. Thanks to
+> System, user will save 5 or 10 minutes. To be compared to the time spent
+> with said maintainer or preparing the bug report.
+> * If user don't know how to submit and don't use some exotic driver, I bet
+> he will start by posting to l-k and be eventually redirected.
+> * If user has identified problem with his FooBar SS6 adapter, chances
+> are that he knows who he should reach.
+> 
+> I have no problem with it but I'm not sure it's *really* useful.
 
-> debian:~# e2fsck -b -2147450879 /dev/hdb7
-> e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-> e2fsck: Attempt to read block from filesystem resulted in short read while
-> trying to open /dev/hdb7
+Reducing friction costs and increasing accountability is always useful.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-(1) e2fsck is very good at correcting minor problems. But if something
-really bad happened, e2fsck will make matters only worse. If your data
-is valuable, keep e2fsck far away. (For example, make a copy with dd
-before starting to fiddle with the disk contents.)
-
-(2) No doubt you do not really have a disk with over 2^31 blocks,
-so this suggestion from e2fsck is just a bug in e2fsck.
-Maybe -b 32768 would have been more successful.
-
-It might be interesting to look at the contents of the superblock
-to see what kind of corruption occurred. Bad memory tends to change
-a single bit. Here your data suggests more than one corrupted bit.
-With disk I/O problems one often sees lots of errors - maybe blocks
-with all zeros or all ones, or all data shifted by one or more bits, etc.
-
+No matter how one approaches the figures, one is forced to the rather
+startling conclusion that the use of firearms in crime was very much
+less when there were no controls of any sort and when anyone,
+convicted criminal or lunatic, could buy any type of firearm without
+restriction.  Half a century of strict controls on pistols has ended,
+perversely, with a far greater use of this weapon in crime than ever
+before.
+        -- Colin Greenwood, in the study "Firearms Control", 1972

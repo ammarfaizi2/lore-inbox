@@ -1,124 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267635AbUIAXVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268048AbUIAXOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267635AbUIAXVu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267971AbUIAXUR
+	id S268048AbUIAXOA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267708AbUIAXIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 19:20:17 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:64209 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267851AbUIAXP4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 19:15:56 -0400
-Subject: [patch 03/14] 
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Thu, 02 Sep 2004 01:15:55 +0200
-Message-ID: <E1C2eKZ-0002lZ-KX@sputnik>
+	Wed, 1 Sep 2004 19:08:17 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:42565 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S264726AbUIAXFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 19:05:37 -0400
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
+X-Message-Flag: Warning: May contain useful information
+References: <1094052981.431.7160.camel@cube> <52vfey0ylu.fsf@topspin.com>
+	<20040901215314.GC26044@mellanox.co.il>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 01 Sep 2004 15:58:44 -0700
+In-Reply-To: <20040901215314.GC26044@mellanox.co.il> (Michael S. Tsirkin's
+ message of "Thu, 2 Sep 2004 00:53:14 +0300")
+Message-ID: <52sma1y4t7.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 01 Sep 2004 22:58:44.0985 (UTC) FILETIME=[3BABF690:01C49077]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Roland> Yes, this is exactly right.  One issue raised by this
+    Roland> thread is that the ioctl32 compatibility code only allows
+    Roland> one compatibility handler per ioctl number.  It seems that
+    Roland> this creates all sorts of possibilities for mayhem because
+    Roland> it makes the ioctl namespace global in scope in some
+    Roland> situations.  Does anyone have any thoughts on if/how this
+    Roland> should be addressed?
 
+    Michael> Thats what my original patch attempts to address
+    Michael> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0409.0/0025.html
+    Michael> What do you think?
 
+That patch seems somewhat orthogonal to the issue I raised.  You're
+just fixing the problem for devices that don't use the ioctl32 compat
+layer.
 
-
-
-
-On Tue, Jul 27, 2004 at 09:10:52AM -0700, Nishanth Aravamudan wrote:
-
-<snip>
-
-> Here is this patch:
-> 
-> 
-> 
-> Description: Uses msleep() instead of my_wait() to guarantee the time
-> delay. Removes definition of my_wait().
-> 
-> Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
-Sorry, this previous patch will not compile due to a typo. Find the
-correct version below, thanks.
-
-
-
----
-
- linux-2.6.9-rc1-bk7-max/drivers/media/common/saa7146_i2c.c |   21 ++++---------
- 1 files changed, 7 insertions(+), 14 deletions(-)
-
-diff -puN drivers/media/common/saa7146_i2c.c~msleep-drivers_media_common_saa7146_i2c drivers/media/common/saa7146_i2c.c
---- linux-2.6.9-rc1-bk7/drivers/media/common/saa7146_i2c.c~msleep-drivers_media_common_saa7146_i2c	2004-09-01 19:34:56.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/media/common/saa7146_i2c.c	2004-09-01 19:34:56.000000000 +0200
-@@ -1,13 +1,6 @@
- #include <linux/version.h>
- #include <media/saa7146_vv.h>
- 
--/* helper function */
--static void my_wait(struct saa7146_dev *dev, long ms)
--{
--	set_current_state(TASK_INTERRUPTIBLE);
--	schedule_timeout((((ms+10)/10)*HZ)/1000);
--}
--
- u32 saa7146_i2c_func(struct i2c_adapter *adapter)
- {
- //fm	DEB_I2C(("'%s'.\n", adapter->name));
-@@ -136,12 +129,12 @@ static int saa7146_i2c_reset(struct saa7
- 		/* set "ABORT-OPERATION"-bit (bit 7)*/
- 		saa7146_write(dev, I2C_STATUS, (dev->i2c_bitrate | MASK_07));
- 		saa7146_write(dev, MC2, (MASK_00 | MASK_16));
--		my_wait(dev,SAA7146_I2C_DELAY);
-+		msleep(SAA7146_I2C_DELAY);
- 
- 		/* clear all error-bits pending; this is needed because p.123, note 1 */
- 		saa7146_write(dev, I2C_STATUS, dev->i2c_bitrate);
- 		saa7146_write(dev, MC2, (MASK_00 | MASK_16));
--		my_wait(dev,SAA7146_I2C_DELAY);
-+		msleep(SAA7146_I2C_DELAY);
-  	}
- 
- 	/* check if any error is (still) present. (this can be necessary because p.123, note 1) */
-@@ -155,18 +148,18 @@ static int saa7146_i2c_reset(struct saa7
- 		   after serious protocol errors caused by e.g. the SAA7740 */
- 		saa7146_write(dev, I2C_STATUS, (dev->i2c_bitrate | MASK_07));
- 		saa7146_write(dev, MC2, (MASK_00 | MASK_16));
--		my_wait(dev,SAA7146_I2C_DELAY);
-+		msleep(SAA7146_I2C_DELAY);
- 
- 		/* clear all error-bits pending */
- 		saa7146_write(dev, I2C_STATUS, dev->i2c_bitrate);
- 		saa7146_write(dev, MC2, (MASK_00 | MASK_16));
--		my_wait(dev,SAA7146_I2C_DELAY);
-+		msleep(SAA7146_I2C_DELAY);
- 
- 		/* the data sheet says it might be necessary to clear the status
- 		   twice after an abort */
- 		saa7146_write(dev, I2C_STATUS, dev->i2c_bitrate);
- 		saa7146_write(dev, MC2, (MASK_00 | MASK_16));
--		my_wait(dev,SAA7146_I2C_DELAY);
-+		msleep(SAA7146_I2C_DELAY);
-      	}
- 
- 	/* if any error is still present, a fatal error has occured ... */
-@@ -243,7 +236,7 @@ static int saa7146_i2c_writeout(struct s
- 			if ((++trial < 20) && short_delay)
- 				udelay(10);
- 			else
--			my_wait(dev,1);
-+			msleep(1);
- 		}
- 	}
- 
-@@ -345,7 +338,7 @@ int saa7146_i2c_transfer(struct saa7146_
- 		}
- 	        
- 	        /* delay a bit before retrying */
--	        my_wait(dev, 10);
-+	        msleep(10);
- 		
- 	} while (err != num && retries--);
- 
-
-_
+ - Roland

@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313507AbSDGXQr>; Sun, 7 Apr 2002 19:16:47 -0400
+	id <S313505AbSDGXQj>; Sun, 7 Apr 2002 19:16:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313508AbSDGXQq>; Sun, 7 Apr 2002 19:16:46 -0400
-Received: from zero.tech9.net ([209.61.188.187]:4875 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S313507AbSDGXQp>;
-	Sun, 7 Apr 2002 19:16:45 -0400
-Subject: Re: Linux 2.4.19-pre6
-From: Robert Love <rml@tech9.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>, viro@math.psu.edu
-In-Reply-To: <20020407163026.G46@toy.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 07 Apr 2002 19:16:33 -0400
-Message-Id: <1018221403.913.134.camel@phantasy>
-Mime-Version: 1.0
+	id <S313507AbSDGXQj>; Sun, 7 Apr 2002 19:16:39 -0400
+Received: from zork.zork.net ([66.92.188.166]:40200 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S313505AbSDGXQi>;
+	Sun, 7 Apr 2002 19:16:38 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Urgent Assistance Needed
+In-Reply-To: <20020407231011.AAA13684@shell.webmaster.com@whenever>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Message-Flag: Message text advisory: NON-SEQUITUR, IMPROPER FORETHOUGHT
+X-Mailer: Norman
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Mon, 08 Apr 2002 00:16:37 +0100
+Message-ID: <6uzo0fw14a.fsf@zork.zork.net>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-04-07 at 12:30, Pavel Machek wrote:
+commence  David Schwartz quotation:
 
-> > <viro@math.psu.edu> (02/04/01 1.322)
-> > 	turns (mount_sem,vfsmntlist,root_vfsmnt) into per-process object
-> > 
-> > <viro@math.psu.edu> (02/04/01 1.323)
-> > 	makes /proc/mounts a symlink to /proc/<pid>/mounts.
-> 
-> I don't see how this could be considered bugfix. Seems like new feature to
-> me, and dangerous one, too.
+>>THIS TRANSACTION IS 100% RISK FREE, FOR WE HAVE CONCLUDED EVERY ARRANGEMENT
+>>TO SAFEGUARD YOU IN THIS TRANSACTION.
+>
+> 	This was the best laugh I've had all week. It almost makes it worth enduring 
+> the spam.
 
-It isn't a bugfix, it is a new feature - and I am generally against new
-things in 2.4 like this but it is a pretty sane one.  Further it has
-seen testing in 2.5 and is without a doubt stable.
+apt-get install spamassassin
 
-The new semantics are such that applications inherit from their parent
-their namespace, so if user code is not changed everything is the same
-to applications.
-
-Oh, and Al knows what he is doing.
-
-	Robert Love
-
+-- 
+ /////////////////  |                  | The spark of a pin
+<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
+ \\\\\\\\\\\\\\\\\  |                  | There is too much noise.

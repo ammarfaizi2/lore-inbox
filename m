@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267520AbTGVIHL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 04:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270139AbTGVIHL
+	id S270139AbTGVIOA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 04:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270151AbTGVIOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 04:07:11 -0400
-Received: from adsl-67-124-157-42.dsl.pltn13.pacbell.net ([67.124.157.42]:5856
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S267520AbTGVIHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 04:07:09 -0400
-Date: Tue, 22 Jul 2003 01:22:12 -0700
-To: "Krishnakumar. R" <krishnakumar@naturesoft.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] - ac2-test1: Removing the obselete EXPORT_NO_SYMBOLS
-Message-ID: <20030722082212.GA24515@triplehelix.org>
-References: <200307221342.30374.krishnakumar@naturesoft.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-In-Reply-To: <200307221342.30374.krishnakumar@naturesoft.net>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+	Tue, 22 Jul 2003 04:14:00 -0400
+Received: from quechua.inka.de ([193.197.184.2]:39646 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S270139AbTGVIN7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 04:13:59 -0400
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SVR4 STREAMS (for example LiS)
+In-Reply-To: <3F1CE6B6.4020909@softhome.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.20-xfs (i686))
+Message-Id: <E19esW4-0000k8-00@calista.inka.de>
+Date: Tue, 22 Jul 2003 10:29:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <3F1CE6B6.4020909@softhome.net> you wrote:
+> [1] <blatant rant on>I absolutely do not need to use 64GB of memory - 
+> but kernel includes HIGH_MEM support.
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+of course if you do not enable HIGH_MEM support your 2.4 kernel will only allow
+960MB of main memory, so I dont think this is bloat and unneeded.
 
-On Tue, Jul 22, 2003 at 01:42:30PM +0530, Krishnakumar. R wrote:
->  #ifndef METH_DEBUG
-> -	EXPORT_NO_SYMBOLS;
->  #endif
-
-Why not just pull the whole #ifdef/#endif?
-
--Josh
-
---=20
-Using words to describe magic is like using a screwdriver to cut roast beef.
-		-- Tom Robbins
-
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/HPQ0T2bz5yevw+4RAjrFAJ4h8mlS2g4OQIr8cdl77mX8kh0z6wCfbUYR
-0PthozbGpo02jyyh2lBagY4=
-=4RMo
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

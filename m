@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQLKHED>; Mon, 11 Dec 2000 02:04:03 -0500
+	id <S129314AbQLKH17>; Mon, 11 Dec 2000 02:27:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbQLKHDx>; Mon, 11 Dec 2000 02:03:53 -0500
-Received: from pop.gmx.net ([194.221.183.20]:64291 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S129314AbQLKHDo>;
-	Mon, 11 Dec 2000 02:03:44 -0500
-From: Norbert Breun <nbreun@gmx.de>
-Reply-To: nbreun@gmx.de
-Organization: private
-Date: Mon, 11 Dec 2000 07:27:58 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: make modules exits on test12-pre8
+	id <S129345AbQLKH1u>; Mon, 11 Dec 2000 02:27:50 -0500
+Received: from ja.ssi.bg ([193.68.177.189]:7172 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S129314AbQLKH1e>;
+	Mon, 11 Dec 2000 02:27:34 -0500
+Date: Mon, 11 Dec 2000 08:57:19 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+To: "Victor J. Orlikowski" <v.j.orlikowski@gte.net>
+cc: srwalter@yahoo.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18pre25, S3, AMD K6-2, and MTRR....
+In-Reply-To: <14900.9881.51332.993356@critterling.garfield.home>
+Message-ID: <Pine.LNX.4.21.0012110833530.855-100000@u>
 MIME-Version: 1.0
-Message-Id: <00121107275800.01122@nmb>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
 
-tried to compile test12-pre8 and make modules exits with:
+	Hello,
+
+On Sun, 10 Dec 2000, Victor J. Orlikowski wrote:
+
+> You appear to be right, sir.
+> The SVGA xserver was what I was using. Changing over to use the S3
+> server, and then adding back in MTRRs, seems to have solved the
+
+	Hm, I have to see whether GX2 works with the S3V server. May
+be GX2 is not supported.
+
+> trouble. I'll let you know if it returns, but for now, all appears
+> well.
+
+	I'm using XF86_SVGA and it seems the s3v driver in 3.3.* and
+may be 4.0.* (as mentioned in the xfree-xpert list) has problem with
+the right usage of the accel FIFO for the GX2 cards. Not sure for
+your S3Trio32/64 card. It seems the faster CPU and the AGP speed hits the
+problem. I see some problems in the image (some dots are missing from
+different letters, sometimes).
+
+	regs3v.h approximates the loop to 6 seconds:
+#define MAXLOOP 0xffffff /* timeout value for engine waits, ~6 secs */
+
+	For my CPU the lockup takes 4.8 seconds. Not sure why they are
+sometimes infinite.
+
+	So, I'm leaving this mail list, it seems this is a s3v driver
+problem.
+
+> Victor
+
+In-Reply-To:
+http://marc.theaimsgroup.com/?l=xfree-xpert&r=1&w=2
 
 
->make[2]: Entering directory `/usr/src/linux-2.4.0.12pre8/fs/smbfs'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 
--fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 
--march=i586 -DMODULE -DMODVERSIONS -include 
-/usr/src/linux/include/linux/modversions.h -DSMBFS_PARANOIA  -c -o sock.o 
-sock.c
->sock.c: In function `smb_data_ready':
->sock.c:166: structure has no member named `next'
->make[2]: *** [sock.o] Error 1
->make[2]: Leaving directory `/usr/src/linux-2.4.0.12pre8/fs/smbfs'
->make[1]: *** [_modsubdir_smbfs] Error 2
->make[1]: Leaving directory `/usr/src/linux-2.4.0.12pre8/fs'
->make: *** [_mod_fs] Error 2
+Regards
 
-kind regards
-Norbert
+--
+Julian Anastasov <ja@ssi.bg>
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

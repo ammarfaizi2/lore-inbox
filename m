@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266819AbSKOSae>; Fri, 15 Nov 2002 13:30:34 -0500
+	id <S266825AbSKOScN>; Fri, 15 Nov 2002 13:32:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266822AbSKOSae>; Fri, 15 Nov 2002 13:30:34 -0500
-Received: from holomorphy.com ([66.224.33.161]:38864 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266819AbSKOSad>;
-	Fri, 15 Nov 2002 13:30:33 -0500
-Date: Fri, 15 Nov 2002 10:33:49 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] swsuspend and CONFIG_DISCONTIGMEM=y
-Message-ID: <20021115183349.GX23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-References: <20021115081044.GI18180@conectiva.com.br> <20021115084915.GS23425@holomorphy.com> <20021115094827.GT23425@holomorphy.com> <20021115120233.GC25902@atrey.karlin.mff.cuni.cz> <20021115120920.GV23425@holomorphy.com> <20021115180924.GA8763@elf.ucw.cz>
-Mime-Version: 1.0
+	id <S266826AbSKOScM>; Fri, 15 Nov 2002 13:32:12 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:65218 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266825AbSKOScL>; Fri, 15 Nov 2002 13:32:11 -0500
+From: Badari Pulavarty <pbadari@us.ibm.com>
+Message-Id: <200211151837.gAFIbm610839@eng2.beaverton.ibm.com>
+Subject: 2.5.47-mm3 IO rate question
+To: linux-kernel@vger.kernel.org (lkml)
+Date: Fri, 15 Nov 2002 10:37:48 -0800 (PST)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021115180924.GA8763@elf.ucw.cz>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> I'm not entirely sure either. Mostly I suspect that the deep arch
->> issues will be the tough ones, but things like this I can handle. =)
+Hi,
 
-On Fri, Nov 15, 2002 at 07:09:25PM +0100, Pavel Machek wrote:
-> Well, I'd really hate to do 64GB support for swsusp for i386. It would
-> mean wider pointers in on-disk format and probably would not be
-> exactly nice.
-> 								Pavel
+I am using 2.5.47-mm3 and qlogic driver qla2x00src-v6.03.00b8.
+I have 2 qlogic controllers connected to 2 trays (10 disks/tray).
 
-i386 is actually a poor cpu for numerical workloads due to the
-design of its FPU, so the interest will likely be low there, but...
+I do 256K IO on raw devices using "dd".
 
-It looks like the struct pbe is storing a physical address in an
-unsigned long; using page frame numbers instead of raw physical
-addresses should at least catch 36-bit i386 and a substantial fraction
-of PPC highmem (40-bit, so not all) with very little effort. A good
-chunk of the VM's arch support address calculation API (if not all)
-has been converted to pfn-based calculations already, so we're already
-in very good shape, aside from a one-shot format change.
+dd of=/dev/null bs=256k count=2000 if=/dev/raw/raw1 &
+dd of=/dev/null bs=256k count=2000 if=/dev/raw/raw2 &
+dd of=/dev/null bs=256k count=2000 if=/dev/raw/raw3 &
+...
+dd of=/dev/null bs=256k count=2000 if=/dev/raw/raw20 &
+
+IO throughput changes just by adjusting SG_SEGMENTS (from 32 to 64).
+I was wondering why such a significant difference. (20MB/sec).
+
+I used to get 194-198MB/sec with 2.5.37 (with DIO code sending
+(fixed) 64K requests - qlogic max_sector=512, SG_SEGMETS=32).
+
+Any thoughts ?
+
+Thanks,
+Badari
+
+max_sectors = 512
+SG_SEGMENTS = 64
+[root]# vmstat 5
+   procs                      memory      swap          io     system      cpu
+ r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+ 0 20  0      0 3642680   8832  42836    0    0 194765    15 1762  2183  0 100  0
+ 0 20  0      0 3642680   8836  42836    0    0 194611     3 1761  2122  0 100  0
+ 0 20  0      0 3642680   8840  42836    0    0 194509     3 1774  2150 10 81  8
+ 0 20  0      0 3642680   8844  42836    0    0 194816     3 1762  2132  2 98  0
+ 0 20  0      0 3642680   8848  42836    0    0 194765     3 1764  2177  2 98  0
 
 
-Bill
+max_sectors = 512
+SG_SEGMENTS = 32
+[root]# vmstat 5
+   procs                      memory      swap          io     system      cpu
+ r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+ 0 20  0      0 3652472   7752  34464    0    0 170755    15 2354  3477  2 98  0
+ 0 20  0      0 3652472   7756  34464    0    0 172771     3 2363  3512  2 98  0
+ 0 20  0      0 3652472   7760  34464    0    0 174031     3 2372  3576  0 100  0
+ 0 20  0      0 3652408   7764  34464    0    0 173074     7 2384  3538 10 87  3
+ 0 20  0      0 3652408   7768  34464    0    0 172670     3 2364  3502  2 98  0
+

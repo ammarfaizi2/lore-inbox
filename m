@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVBGTMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVBGTPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbVBGTMs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 14:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVBGTMp
+	id S261260AbVBGTPn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 14:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVBGTPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 14:12:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13975 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261245AbVBGTMj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 14:12:39 -0500
-Date: Mon, 7 Feb 2005 11:12:35 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: =?iso-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: [PATCH] Filesystem linking protections
-Message-ID: <20050207111235.Y24171@build.pdx.osdl.net>
-References: <1107802626.3754.224.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1107802626.3754.224.camel@localhost.localdomain>; from lorenzo@gnu.org on Mon, Feb 07, 2005 at 07:57:06PM +0100
+	Mon, 7 Feb 2005 14:15:42 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:14300 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261254AbVBGTPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 14:15:16 -0500
+Subject: [patch 1/2] uml - kbuild: add further cleaning [before 2.6.11]
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Mon, 07 Feb 2005 20:11:32 +0100
+Message-Id: <20050207191133.25DEF21251@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lorenzo Hernández García-Hierro (lorenzo@gnu.org) wrote:
-> This patch adds two checks to do_follow_link() and sys_link(), for
-> prevent users to follow (untrusted) symlinks owned by other users in
-> world-writable +t directories (i.e. /tmp), unless the owner of the
-> symlink is the owner of the directory, users will also not be able to
-> hardlink to files they do not own.
-> 
-> The direct advantage of this pretty simple patch is that /tmp races will
-> be prevented.
 
-The disadvantage is that it can break things and places policy in the
-kernel.
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Descend into arch/um/kernel/skas/util during make clean.
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ linux-2.6.11-paolo/arch/um/kernel/skas/Makefile |    2 ++
+ 1 files changed, 2 insertions(+)
+
+diff -puN arch/um/kernel/skas/Makefile~uml-kbuild-add-further-cleaning arch/um/kernel/skas/Makefile
+--- linux-2.6.11/arch/um/kernel/skas/Makefile~uml-kbuild-add-further-cleaning	2005-02-07 19:36:20.077171544 +0100
++++ linux-2.6.11-paolo/arch/um/kernel/skas/Makefile	2005-02-07 19:36:20.080171088 +0100
+@@ -11,3 +11,5 @@ USER_OBJS := $(foreach file,$(USER_OBJS)
+ 
+ $(USER_OBJS) : %.o: %.c
+ 	$(CC) $(CFLAGS_$(notdir $@)) $(USER_CFLAGS) -c -o $@ $<
++
++subdir- := util
+_

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292893AbSB0XQ7>; Wed, 27 Feb 2002 18:16:59 -0500
+	id <S293031AbSB0XIE>; Wed, 27 Feb 2002 18:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293044AbSB0XQn>; Wed, 27 Feb 2002 18:16:43 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:48144 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S293048AbSB0XPx>; Wed, 27 Feb 2002 18:15:53 -0500
-Date: Wed, 27 Feb 2002 15:15:35 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Miles Lane <miles@megapathdsl.net>
-cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.5-dj2 -- serial.c:649: too many arguments to function
- `handle_sysrq'
-In-Reply-To: <3C7D5ED5.2030500@megapathdsl.net>
-Message-ID: <Pine.LNX.4.10.10202271506460.13029-100000@www.transvirtual.com>
+	id <S293034AbSB0XHk>; Wed, 27 Feb 2002 18:07:40 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:54283 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S293032AbSB0XHA>;
+	Wed, 27 Feb 2002 18:07:00 -0500
+Date: Wed, 27 Feb 2002 20:06:46 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "Michael H. Warfield" <mhw@wittsend.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: crypto (was Re: Congrats Marcelo,)
+In-Reply-To: <20020227172947.A18053@alcove.wittsend.com>
+Message-ID: <Pine.LNX.4.33L.0202272005430.2801-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Feb 2002, Michael H. Warfield wrote:
 
-On Wed, 27 Feb 2002, Miles Lane wrote:
+> 	The one major downside, right now, is that Henry and Richard
+> et al, keep talking about redesigning the klips structure to fit
+> in with the more recent kernels better (ala netfilter, maybe).
 
-> 2.5.5-dj2 + nls.patch + migrate.diff + console_8.diff + roberto 
-> nibaldo's patches:
-> 
-> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
-> -pipe -mpreferred-stack-boundary=2 -march=athlon 
-> -DKBUILD_BASENAME=serial  -DEXPORT_SYMTAB -c serial.c
-> serial.c: In function `receive_chars':
-> serial.c:649: too many arguments to function `handle_sysrq'
-> make[3]: *** [serial.o] Error 1
-> make[3]: Leaving directory `/usr/src/linux/drivers/char'
+> FreeSWAN archives for discussions over routing and multiple tunnels
+> and the ipsec{n} interfaces to see what I meam about being hobbled
+> by the crufty klips interface.  Even they don't like the state
+> it's in.
 
-My fault :-( I cleaned up sysrq a little bit in relationship to the VT
-system. The change effected more drivers than I thought. Try
-console_8.diff again. I put a new version of the patch up. 
+That's another issue with freeswan.  Nobody seems happy with
+the current state of the code  ;)
 
-http://www.transvirtual.com/~jsimmons/console/console_8.diff
 
-I'm glad people are testing it out before it goes into the dj tree. I will
-post other patches before I send them in to be included into the dj tre
-since now we are getting into changes that effect alot of drivers. 
+regards,
 
-For example fg_console will be going away very soon!!!! This willeffect
-alot of drivers.
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
+http://www.surriel.com/		http://distro.conectiva.com/
 

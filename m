@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265501AbUFTRTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265300AbUFTRUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265501AbUFTRTH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 13:19:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbUFTRTH
+	id S265300AbUFTRUg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 13:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbUFTRUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 13:19:07 -0400
-Received: from mail.dif.dk ([193.138.115.101]:55525 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265501AbUFTRSr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 13:18:47 -0400
-Date: Sun, 20 Jun 2004 19:17:49 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Arun Sen <arunsen@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Restating the questions
-In-Reply-To: <02d701c456da$ee397a20$6401a8c0@waterdell>
-Message-ID: <Pine.LNX.4.56.0406201909370.20352@jjulnx.backbone.dif.dk>
-References: <02d701c456da$ee397a20$6401a8c0@waterdell>
+	Sun, 20 Jun 2004 13:20:35 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:34971 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S265300AbUFTRU0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 13:20:26 -0400
+Message-ID: <40D5C782.5060702@blue-labs.org>
+Date: Sun, 20 Jun 2004 13:21:06 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.7, more build warnings, SCTP, x86_64
+Content-Type: multipart/mixed;
+ boundary="------------000209060803090106090909"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jun 2004, Arun Sen wrote:
+This is a multi-part message in MIME format.
+--------------000209060803090106090909
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Q1.  I want to find out what the steps are for submitting and approving a
-> patch in the Linux kernel?   I know that Linus has sent out an email
-> regarding the patch approval process and I have read it.
->
-Read Documentation/SubmittingPatches
-Read http://www.tux.org/lkml/#s1-10
+  CC      net/sctp/sm_make_chunk.o
+net/sctp/sm_make_chunk.c: In function `sctp_process_init':
+net/sctp/sm_make_chunk.c:1849: warning: cast to pointer from integer of 
+different size
+net/sctp/sm_make_chunk.c:1851: warning: cast from pointer to integer of 
+different size
 
-> Q2.  I have looked into a mirror site for the kernel (in the university of
-> Wisconsin web site) for all kinds of patches for the kernel.  I am looking
-> at all patches for all versions of the kernel.  I would like to find out who
-> the authors are of these patches.  Can you help me find this info?
->
-ftp://ftp.kernel.org/pub/linux/kernel - for most recent versions
-ChangeLogs are available, amongst other things the ChangeLogs contain info
-on who wrote or submitted the patch. For more info read the MAINTAINERS
-& CREDITS files as well as source code comments in the source files
-themselves.
-
-Other people can probably point you at more...
-
-Btw, what are you going to use this info for? I'm currious (and I'm sure
-other people are as well).
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
+  CC      net/sctp/socket.o
+net/sctp/socket.c: In function `sctp_id2assoc':
+net/sctp/socket.c:142: warning: cast from pointer to integer of 
+different size
 
 
+--------------000209060803090106090909
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
+
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
+
+
+--------------000209060803090106090909--

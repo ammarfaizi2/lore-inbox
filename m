@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUE1Ndj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUE1Nh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbUE1Ndj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 09:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUE1Ndj
+	id S263062AbUE1Nh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 09:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUE1Nh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 09:33:39 -0400
-Received: from main.gmane.org ([80.91.224.249]:32417 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262972AbUE1Ndi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 09:33:38 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: keyboard problem with 2.6.6
-Date: Fri, 28 May 2004 15:33:21 +0200
-Message-ID: <MPG.1b2111558bc2d299896a2@news.gmane.org>
-References: <20040525201616.GE6512@gucio> <xb7hdu3fwsj.fsf@savona.informatik.uni-freiburg.de>
+	Fri, 28 May 2004 09:37:57 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:31926 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263062AbUE1Nh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 09:37:56 -0400
+Date: Fri, 28 May 2004 14:37:45 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Dave Jones <davej@redhat.com>, Andrey Panin <pazke@donpac.ru>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/13] 2.6.7-rc1-mm1, Simplify DMI matching data
+Message-ID: <20040528133745.GA28167@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andi Kleen <ak@muc.de>, Dave Jones <davej@redhat.com>,
+	Andrey Panin <pazke@donpac.ru>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20Oc4-HT-25@gated-at.bofh.it> <m3zn7su4lv.fsf@averell.firstfloor.org> <20040528125447.GB11265@redhat.com> <20040528132358.GA78847@colin2.muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-172-130.29-151.libero.it
-X-Newsreader: MicroPlanet Gravity v2.60
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040528132358.GA78847@colin2.muc.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sau Dan Lee wrote:
-> Yeah.   They   say  the  input  system  "unifies"   the  interface  to
-> keyboard/mouse  devices.   They're   also  proud  that  the  in-kernel
-> keyboard/mouse drivers  are supporting more and more  devices.  But at
-> the same  time, they're sacrificing  flexibility by moving  many codes
-> into kernel.   (GPM supports more  mouse types!)  The new  system also
-> breaks backward compatibility.
+On Fri, May 28, 2004 at 03:23:58PM +0200, Andi Kleen wrote:
+> My point stays that kernel interfaces should stay stable in the stable
+> series as far as possible (= unless terminally broken, but that's
+> clearly not the case here).  If you feel the need to clean up
+> something better wait for the unstable series.
 
-The new system has some ups and downs. The biggest "down", 
-which is that of RAW mode not being available anymore (it's 
-emulated!) could be circumvented by having both the RAW and 
-translated codes move between layers.
-
-Concerning GPM vs kernel support for mice, maybe we can hope 
-for a merging of the efforts and a reduction of code 
-duplication, if there is any?
-
-Overall, I think that the new system *could* be a good starting 
-point, but it still needs a *lot* of work.
-
-(Now, if we could have any reply from the maintainers?)
-
--- 
-Giuseppe "Oblomov" Bilotta
-
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
-
+So what interface doews the patch break?  I can only see that it
+adds interfaces.

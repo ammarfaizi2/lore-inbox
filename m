@@ -1,103 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbTDKSjR (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbTDKSjQ (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 14:39:16 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:49132 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261390AbTDKSjL (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 14:39:11 -0400
-Date: Fri, 11 Apr 2003 11:52:45 -0700
-From: Greg KH <greg@kroah.com>
-To: oliver@neukum.name
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
-       message-bus-list@redhat.com, Daniel Stekloff <dsteklof@us.ibm.com>
-Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-ID: <20030411185245.GF1821@kroah.com>
-References: <20030411032424.GA3688@kroah.com> <200304110837.37545.oliver@neukum.org> <20030411172011.GA1821@kroah.com> <200304112012.05054.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304112012.05054.oliver@neukum.org>
-User-Agent: Mutt/1.4.1i
+	id S261412AbTDKSmo (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTDKSmo (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 14:42:44 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:54262 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261412AbTDKSmk (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 14:42:40 -0400
+Message-ID: <3E970F37.7040409@mvista.com>
+Date: Fri, 11 Apr 2003 11:53:43 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: too much timer simplification...
+References: <200304110705.h3B75aQt026081@napali.hpl.hp.com> <20030411002816.786296e8.akpm@digeo.com>
+In-Reply-To: <20030411002816.786296e8.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 08:12:05PM +0200, Oliver Neukum wrote:
+Andrew Morton wrote:
+> David Mosberger <davidm@napali.hpl.hp.com> wrote:
 > 
-> > > - There's a race with replugging, which you can do little about
-> >
-> > True, but this can get smaller.
+>>It appears to me that this changeset:
+>>
+>>  http://linux.bkbits.net:8080/linux-2.5/diffs/kernel/timer.c@1.48
+>>
+>>may have gone a little too far.
+>>
+>>What I'm seeing is that if someone happens to arm a periodic timer at
+>>exactly 256 jiffies (as ohci happens to do on platforms with HZ=1024),
+>>then you end up getting an endless loop of timer activations, causing
+>>a machine hang.
+>>
+>>The problem is that __run_timers updates base->timer_jiffies _before_
+>>running the callback routines.  If a callback re-arms the timer at
+>>exactly 256 jiffies, add_timers() will reinsert the timer into the
+>>list that we're currently processing, which of course will cause the
+>>timer to expire immediately again, etc., etc., ad naseum...
+>>
 > 
-> There isn't such a thing as a small race. Either there is a race or there
-> is no race. 'Should usually work' is not enough, especially when security
-> is concerned.
-
-You are talking about the "issue" of /dev/foo going away because that
-device was removed, and then another device added which creates /dev/foo
-just as the user starts to open /dev/foo?  Or something else?
-
-> > > - Error handling. What do you do if the invocation ends in EIO ?
-> >
-> > Which invocation?  From /sbin/hotplug?
 > 
-> Yes.
-> This is a serious problem. Your scheme has very nasty failure modes.
-> By implementing this in user space you are introducing additional
-> failure modes.
-> - You need disk access -> EIO
+> OK, well unless George can pull a rabbit out of the hat it may
+> be best to just revert it.
+> 
+I think the answer here is to move the whole expired list to a local 
+header and to not look back.  I will work this into a patch...
 
-If udev becomes a deamon, disk access isn't needed.  Actually the
-current version of udev doesn't require any disk access, other than
-loading it into memory.
+-g
 
-> - You have no control over memory allocation -> ENOMEM, EIO in swap space
-> Usually I'd not care about EIO, but here security is threatened. EIO crashing
-> the system under some circumstances is inevitable, EIO opening a security
-> hole is not acceptable however.
+> This gives us the same algorithm as 2.4, which I think is good.
+> 
+> 
+> --- 25/kernel/timer.c~timer-simplification-revert	2003-04-11 00:19:48.000000000 -0700
+> +++ 25-akpm/kernel/timer.c	2003-04-11 00:19:48.000000000 -0700
+> @@ -56,6 +56,7 @@ struct tvec_t_base_s {
+>  	spinlock_t lock;
+>  	unsigned long timer_jiffies;
+>  	struct timer_list *running_timer;
+> +	struct list_head *run_timer_list_running;
+>  	tvec_root_t tv1;
+>  	tvec_t tv2;
+>  	tvec_t tv3;
+> @@ -100,6 +101,12 @@ static inline void check_timer(struct ti
+>  		check_timer_failed(timer);
+>  }
+>  
+> +/*
+> + * If a timer handler re-adds the timer with expires == jiffies, the timer
+> + * running code can lock up.  So here we detect that situation and park the
+> + * timer onto base->run_timer_list_running.  It will be added to the main timer
+> + * structures later, by __run_timers().
+> + */
+>  
+>  static void internal_add_timer(tvec_base_t *base, struct timer_list *timer)
+>  {
+> @@ -107,7 +114,9 @@ static void internal_add_timer(tvec_base
+>  	unsigned long idx = expires - base->timer_jiffies;
+>  	struct list_head *vec;
+>  
+> -	if (idx < TVR_SIZE) {
+> +	if (base->run_timer_list_running) {
+> +		vec = base->run_timer_list_running;
+> +	} else if (idx < TVR_SIZE) {
+>  		int i = expires & TVR_MASK;
+>  		vec = base->tv1.vec + i;
+>  	} else if (idx < 1 << (TVR_BITS + TVN_BITS)) {
+> @@ -397,6 +406,7 @@ static inline void __run_timers(tvec_bas
+>  
+>  	spin_lock_irq(&base->lock);
+>  	while (time_after_eq(jiffies, base->timer_jiffies)) {
+> +		LIST_HEAD(deferred_timers);
+>  		struct list_head *head;
+>   		int index = base->timer_jiffies & TVR_MASK;
+>   
+> @@ -408,7 +418,7 @@ static inline void __run_timers(tvec_bas
+>  				(!cascade(base, &base->tv3, INDEX(1))) &&
+>  					!cascade(base, &base->tv4, INDEX(2)))
+>  			cascade(base, &base->tv5, INDEX(3));
+> -		++base->timer_jiffies; 
+> +		base->run_timer_list_running = &deferred_timers;
+>  repeat:
+>  		head = base->tv1.vec + index;
+>  		if (!list_empty(head)) {
+> @@ -427,6 +437,14 @@ repeat:
+>  			spin_lock_irq(&base->lock);
+>  			goto repeat;
+>  		}
+> +		base->run_timer_list_running = NULL;
+> +		++base->timer_jiffies; 
+> +		while (!list_empty(&deferred_timers)) {
+> +			timer = list_entry(deferred_timers.prev,
+> +						struct timer_list, entry);
+> +			list_del(&timer->entry);
+> +			internal_add_timer(base, timer);
+> +		}
+>  	}
+>  	set_running_timer(base, NULL);
+>  	spin_unlock_irq(&base->lock);
+> 
+> _
+> 
+> 
 
-So yes, doing this in userspace causes a number of these kinds of
-"problems".  The same kinds of "problems" that all other user programs
-have to deal with, right?
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-So, if udev can't be read from the disk, the machine isn't in a very
-workable state, creating that new device node is going to be the least
-of your worries.
-
-If udev can't get access to memory (actually it does no malloc calls, so
-it would have to run out of stack space), or there is no memory to load
-udev into memory, then again, you have a unstable machine, and there's
-not much else we can do about it.
-
-> 4000 spawnings is 32MB for kernel stacks alone.
-> You cannot assume that resources will be sufficient for that.
-
-If you have 4000 disks, you have to have a _lot_ of memory just to deal
-with it.  See the other 4000 disk threads for more discussions about
-this issue.
-
-If we fix up the kernel to handle that many different disks, then
-userspace can surely handle 4000 tasks (it can handle that today,
-right?)
-
-Anyway, it will be quite difficult to plug 4000 disks in "all at once".
-There is a time delay inbetween discovering each of those disks from
-within the kernel, not to mention the physical issues of spinning them
-all up.
-
-> That again is a serious problem, because you cannot resync.
-> If you lose a 'remove' event you're screwed.
-
-Yes, if you lose a remove, things can get out of whack.  My goal is to
-not lose any.
-
-> And of course, what do you do if the driver is not yet loaded?
-
-Nothing.  udev requires that the kernel assign a major/minor to a
-device, which means that a driver has to be bound to the device.
-Binding drivers to devices is the current hotplug task, and has nothing
-to do with udev (with the exception that we have to be able to call both
-programs for each hotplug event, but I'm working on that.)
-
-thanks,
-
-greg k-h

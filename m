@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269512AbTGJSeL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 14:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269530AbTGJSeL
+	id S269528AbTGJS3w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 14:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269530AbTGJS3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 14:34:11 -0400
-Received: from cerebus.immunix.com ([198.145.28.33]:29432 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S269512AbTGJSeG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 14:34:06 -0400
-Date: Thu, 10 Jul 2003 11:45:58 -0700
-From: Chris Wright <chris@wirex.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>,
-       Jeff Muizelaar <kernel@infidigm.net>
-Subject: Re: [PATCH] add seq file helpers from 2.5 (fwd)
-Message-ID: <20030710114558.B29562@figure1.int.wirex.com>
-References: <Pine.LNX.4.55L.0307100000100.6316@freak.distro.conectiva> <20030710112807.A29562@figure1.int.wirex.com>
+	Thu, 10 Jul 2003 14:29:52 -0400
+Received: from pop.gmx.de ([213.165.64.20]:7654 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S269528AbTGJS3t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 14:29:49 -0400
+Date: Thu, 10 Jul 2003 21:44:29 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: auto-bk-get
+Message-ID: <20030710184429.GA28366@callisto.yi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030710112807.A29562@figure1.int.wirex.com>; from chris@wirex.com on Thu, Jul 10, 2003 at 11:28:07AM -0700
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Wright (chris@wirex.com) wrote:
-> * Marcelo Tosatti (marcelo@conectiva.com.br) wrote:
-> > +int single_open(struct file *file, int (*show)(struct seq_file *, void*), void *data)
-> > +{
-> > +	struct seq_operations *op = kmalloc(sizeof(*op), GFP_KERNEL);
-> > +	int res = -ENOMEM;
-> > +
-> > +	if (op) {
-> > +		op->start = single_start;
-> > +		op->next = single_next;
-> > +		op->stop = single_stop;
-> > +		op->show = show;
-> > +		res = seq_open(file, op);
-> 
-> Any reason not to simply allocate static ops struct?  As in:
+For kernel developers which are BitKeeper users, 
 
-Bah, nevermind, I didn't look closely enough to see that show is
-dynamic here (not to mention it is simple straight backport).  Sorry for
-senseless noise ;-)
+auto-bk-get is an on-demand 'bk get' libc wrapper tool.
 
-thanks,
--chris
+It means that you don't need to run 'bk -r get' in order to build 
+the kernel. Instead, you just run 'make config' or 'make bzImage', 
+using auto-bk-get in a clean repository and auto-bk-get will 
+only 'bk get' the files you need from the repository (one of my
+test cases showed only 2800 out of 14000 files were checked out). 
+
+It also supports building in an entirely different directory, 
+taking the files from a repository somewhere else.
+
+To download and compile auto-bk-get:
+
+# bk clone http://auto-bk-get.bkbits.net/auto-bk-get
+# cd auto-bk-get
+# make
+
+Read the README file.
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Dan Aloni
+da-x@gmx.net

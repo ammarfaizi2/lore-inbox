@@ -1,73 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281910AbRK2StP>; Thu, 29 Nov 2001 13:49:15 -0500
+	id <S279927AbRK2SxP>; Thu, 29 Nov 2001 13:53:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283267AbRK2StE>; Thu, 29 Nov 2001 13:49:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:17424 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283389AbRK2SsQ>;
-	Thu, 29 Nov 2001 13:48:16 -0500
-Date: Thu, 29 Nov 2001 19:47:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Dirk Pritsch <dirk@enterprise.in-berlin.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops with 2.5.1-pre3 in ide-scsi module
-Message-ID: <20011129194752.T10601@suse.de>
-In-Reply-To: <20011129191938.A1402@Enterprise.in-berlin.de> <20011129193956.S10601@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011129193956.S10601@suse.de>
+	id <S279326AbRK2Swj>; Thu, 29 Nov 2001 13:52:39 -0500
+Received: from [200.231.206.186] ([200.231.206.186]:7917 "EHLO
+	toole.uol.com.br") by vger.kernel.org with ESMTP id <S280766AbRK2Stw>;
+	Thu, 29 Nov 2001 13:49:52 -0500
+Date: Thu, 29 Nov 2001 16:41:59 -0200 (BRST)
+From: Usuario Universo Online <pablo.ninja@uol.com.br>
+Message-Id: <200111291841.QAA29161@toole.uol.com.br>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 29 2001, Jens Axboe wrote:
-> Hmm, I bet the problem is not really bio but the fact that someone is
-> still sending down a scatterlist with ->address set instead of
-> ->page/offset.
+--=._ES2k8puE+v6:5
+
+Date: Thu, 29 Nov 2001 16:43:54 -0200
+From: Pablo Ninja <pablo.ninja@uol.com.br>
+To: "imajina.ne" <informa@imajina.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: =?ISO-8859-1?B?SU5GT1JNQcfDTw==?=
+Message-Id: <20011129164354.1c1e010b.pablo.ninja@uol.com.br>
+In-Reply-To: <20011128213513Z280764-17408+23399@vger.kernel.org>
+In-Reply-To: <20011128213513Z280764-17408+23399@vger.kernel.org>
+X-Mailer: Sylpheed version 0.6.5claws17 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+
+
+How lame. Even more for ppl who speak portuguese. 
+
+pfff..
+
+On Wed, 28 Nov 2001 21:35:06 -0000
+"imajina.ne" <informa@imajina.net> wrote:
+
+> Caros Sr.s
 > 
-> Let me hack a quick fix up for you to test... 2 minutes.
+> 	Como freelancer, gostaria de colocar a V/ disposição os meus
+> 	conhecimentos no desenvolvimento de conteudos multimedia, quer
+> 	paginas de internet, cd-cards ou mesmo cd's de apresentação, 
+> 	realizados sempre com recurso a novas tecnologias, tal como o
+> 	FLASH da macromedia. Visitem o meu site, http://www.imajina.net ,
+> 	bem como os trabalhos ja realizados. Trabalho quer para agencias
+> 	quer para particulares. Trabalhos sempre sujeitos a orçamento.
+> 
+> Sempre ao V/ dispor,
+> 
+> Helder Pereira
+> 
+> 
+> Telef. - 256084579
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Please try this, and check for oops and "jens was right" in dmesg. Let
-me know how it goes, thanks.
 
---- /opt/kernel/linux-2.5.1-pre3/drivers/scsi/ide-scsi.c	Thu Nov 29 06:07:21 2001
-+++ drivers/scsi/ide-scsi.c	Thu Nov 29 13:44:04 2001
-@@ -708,16 +708,30 @@
- 		printk ("ide-scsi: %s: building DMA table, %d segments, %dkB total\n", drive->name, segments, pc->request_transfer >> 10);
- #endif /* IDESCSI_DEBUG_LOG */
- 		while (segments--) {
--			bh->bi_io_vec[0].bv_page = sg->page;
-+			struct page *page = sg->page;
-+			int offset = sg->offset;
-+			static int foo;
-+
-+			if (!page) {
-+				BUG_ON(!sg->address);
-+				if (!foo) {
-+					printk("jens was right\n");
-+					foo = 1;
-+				}
-+				page = virt_to_page(sg->address);
-+				offset = (unsigned long) sg->address & ~PAGE_MASK;
-+			}
-+				
-+			bh->bi_io_vec[0].bv_page = page;
- 			bh->bi_io_vec[0].bv_len = sg->length;
--			bh->bi_io_vec[0].bv_offset = sg->offset;
-+			bh->bi_io_vec[0].bv_offset = offset;
- 			bh->bi_size = sg->length;
- 			bh = bh->bi_next;
- 			/*
- 			 * just until scsi_merge is fixed up...
- 			 */
--			BUG_ON(PageHighMem(sg->page));
--			sg->address = page_address(sg->page) + sg->offset;
-+			BUG_ON(PageHighMem(page));
-+			sg->address = page_address(page) + offset;
- 			sg++;
- 		}
- 	} else {
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Pablo Borges                                pablo.borges@uol.com.br
+-------------------------------------------------------------------
+  ____                                               Tecnologia UOL
+ /    \    Debian:
+ |  =_/      The 100% suck free linux distro.
+  \
+    \      SETI is lame. http://www.distributed.net
+                                                     Dnetc is XNUG!
 
--- 
-Jens Axboe
+
+--=._ES2k8puE+v6:5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE8BoHtJ91x65D16ewRAuhfAJ0ZqRdY7Z6BG0qLkW2YhsaoIxiBiACfeIWG
+kMWfturwspfl4VmMcv6LU2s=
+=JhZV
+-----END PGP SIGNATURE-----
+
+--=._ES2k8puE+v6:5--
 

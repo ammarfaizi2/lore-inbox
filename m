@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261776AbSJDOC2>; Fri, 4 Oct 2002 10:02:28 -0400
+	id <S261799AbSJDOL0>; Fri, 4 Oct 2002 10:11:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261775AbSJDOC2>; Fri, 4 Oct 2002 10:02:28 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36624 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261774AbSJDOCY>; Fri, 4 Oct 2002 10:02:24 -0400
-Date: Fri, 4 Oct 2002 15:07:52 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-Subject: Re: RAID backup
-Message-ID: <20021004150752.B16727@flint.arm.linux.org.uk>
-References: <Pine.LNX.3.96.1021004041421.5688A-100000@Maggie.Linux-Consulting.com> <1033735943.31839.12.camel@irongate.swansea.linux.org.uk> <20021004132419.GF710@gallifrey>
+	id <S261803AbSJDOL0>; Fri, 4 Oct 2002 10:11:26 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:45074 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261799AbSJDOLZ>; Fri, 4 Oct 2002 10:11:25 -0400
+Date: Fri, 4 Oct 2002 15:16:56 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Mark Peloquin <peloquin@us.ibm.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 4/4: evms_biosplit.h
+Message-ID: <20021004151656.C30635@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mark Peloquin <peloquin@us.ibm.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+References: <OF2FC09D0D.E4C956E8-ON85256C47.006ECCC8@pok.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021004132419.GF710@gallifrey>; from gilbertd@treblig.org on Fri, Oct 04, 2002 at 02:24:19PM +0100
+In-Reply-To: <OF2FC09D0D.E4C956E8-ON85256C47.006ECCC8@pok.ibm.com>; from peloquin@us.ibm.com on Thu, Oct 03, 2002 at 03:36:24PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 02:24:19PM +0100, Dr. David Alan Gilbert wrote:
-> Not sure about that; DLT tapes are pretty bulky themselves; I think the
-> difference between say a set of 4 DLT tapes and a single Maxtor 320 in
-> caddy would be minimal.
+On Thu, Oct 03, 2002 at 03:36:24PM -0500, Mark Peloquin wrote:
+> 
+> On 10/03/2002 at 10:05 AM, Christoph Hellwig wrote:
+> 
+> >> +static mempool_t *my_bio_split_pool, *my_bio_pool;
+> >> +static kmem_cache_t *my_bio_split_slab, *my_bio_pool_slab;
+> 
+> > Umm, static variables in header files?
+> 
+> Yupp, that wasn't accidental.
+> 
+> Based on the conclusions mutually agreed on in the OLS
+> BOF on bio splitting, it was decided that each driver
+> having the need to split bios *should* have their own
+> private bio pools to use exclusively for this purpose.
+> Thus any plugin that includes this header gets their
+> own private copies of these variables.
 
-The 4 DLT tapes would take up twice the room.
-
-> As for stored media, I think Maxtor are quoting
-> 1M hours MTTF - (I hate to think how you measure such a figure) - for
-> the 320G, and that is probably longer than I'd trust either the tape or
-> the drive to survive.
-
-However, drive in caddy or no caddy, the accidental drop test would
-probably be more favourable to the DLT tape surviving over the drive.
-Physical accidents do happen.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Having variables and (non-inline) functions is very bad style and a
+perfect method for the obsfucated C contest.  Just let every module
+that needs bio-splitting declare it's own variables.
 

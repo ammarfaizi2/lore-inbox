@@ -1,93 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263191AbSJGUtU>; Mon, 7 Oct 2002 16:49:20 -0400
+	id <S263198AbSJGUuS>; Mon, 7 Oct 2002 16:50:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263195AbSJGUtU>; Mon, 7 Oct 2002 16:49:20 -0400
-Received: from colossus.systems.pipex.net ([62.241.160.73]:30105 "EHLO
-	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
-	id <S263191AbSJGUsI>; Mon, 7 Oct 2002 16:48:08 -0400
-Subject: Compile failure with 2.5.41 in serial/core.o
-From: Alastair Stevens <alastair@altruxsolutions.co.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 07 Oct 2002 21:53:44 +0100
-Message-Id: <1034024024.1962.15.camel@dolphin.entropy.net>
-Mime-Version: 1.0
+	id <S263195AbSJGUtY>; Mon, 7 Oct 2002 16:49:24 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:55172
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S263194AbSJGUtT>; Mon, 7 Oct 2002 16:49:19 -0400
+Date: Mon, 7 Oct 2002 16:54:47 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Pavel Machek <pavel@suse.cz>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ulrich Drepper <drepper@redhat.com>,
+       Larry McVoy <lm@bitmover.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <20021007203714.GC7428@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.44.0210071646170.913-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RH7.3 : gcc-2.96-112 : Athlon XP
+On Mon, 7 Oct 2002, Pavel Machek wrote:
 
-Here's the error when doing "make modules" from a clean build. The "make
-bzImage" works fine:
+> Hi!
+> 
+> 
+> > > > If BK migrates to proprietary format everybody will notice and you'll still
+> > > > have the opportunity to rescue a not too old repository and carry on with
+> > > > life using whatever alternate SCM you wish.  If such a thing happened Lary
+> > > > would be publicly and universally discredited and he's not looking for that
+> > > > I'm sure.
+> > > 
+> > > If BK migrates to a proprietary format the code won't be in the
+> > > preferred form of the work for making modifications.
+> > 
+> > Because you think BK will still have the backing of all kernel developers
+> > using it today if that happens?  Some might find BK's nice to use despite its
+> > license, but locking the main kernel repository into a proprietary format is
+> > totally unacceptable for most if not all of them I'm sure.  
+> 
+> Of course Larry would have to do the changes "slowly" so people would
+> not notice. And every time someone complains he can repeat his "I'm
+> running business".
 
-  gcc -Wp,-MD,drivers/serial/.core.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=athlon  -Iarch/i386/mach-generic -nostdinc -iwithprefix include
--DMODULE -include include/linux/modversions.h   -DKBUILD_BASENAME=core  
--c -o drivers/serial/core.o drivers/serial/core.c
-drivers/serial/core.c:2456: parse error before
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2456: warning: type defaults to `int' in
-declaration of
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2456: warning: data definition has no type or
-storage class
-drivers/serial/core.c:2457: parse error before
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2457: warning: type defaults to `int' in
-declaration of
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2457: warning: data definition has no type or
-storage class
-drivers/serial/core.c:2458: parse error before
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2458: warning: type defaults to `int' in
-declaration of
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2458: warning: data definition has no type or
-storage class
-drivers/serial/core.c:2459: parse error before
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2459: warning: type defaults to `int' in
-declaration of
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2459: warning: data definition has no type or
-storage class
-drivers/serial/core.c:2460: parse error before
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2460: warning: type defaults to `int' in
-declaration of
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2460: warning: data definition has no type or
-storage class
-drivers/serial/core.c:2461: parse error before
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2461: warning: type defaults to `int' in
-declaration of
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2461: warning: data definition has no type or
-storage class
-drivers/serial/core.c:2462: parse error before
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2462: warning: type defaults to `int' in
-declaration of
-`this_object_must_be_defined_as_export_objs_in_the_Makefile'
-drivers/serial/core.c:2462: warning: data definition has no type or
-storage class
-make[2]: *** [drivers/serial/core.o] Error 1
-make[1]: *** [drivers/serial] Error 2
-make: *** [drivers] Error 2
+At which point he'll piss of more and more kernel developers and lose them
+"slowly" as well, unless Linus himself gets pissed at which point the kernel
+user base will disappear in a single glitch.  Breaking SCCS compatibility
+"slowly" without anybody noticing before it's too late is a bit far fetched
+IMHO.
 
-_____________________________             o
-Alastair Stevens             \           /-'_
-Newport : Essex : UK          \   .     |\/(*)   /\__
-                               \__  . .(*)   ___/    \______
-www.altruxsolutions.co.uk         \_________/               \_________
-__________________________________/
+Anyway this whole story boils down to the New Conspiracy Theory:
 
-GPG fingerprint = 8920 D7B7 D3DE AC8C ECA6  EE8A FEE6 AADA 09D6 2BDB
+      "The world wants to screw Larry vs Larry wants to screw the world"
+
+
+Nicolas
 

@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271506AbTGQPle (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 11:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271504AbTGQPle
+	id S270938AbTGQPqX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 11:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270963AbTGQPqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 11:41:34 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:25265 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S271506AbTGQPlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 11:41:31 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Jeff Garzik <jgarzik@pobox.com>, ricardo.b@zmail.pt
-Subject: Re: SET_MODULE_OWNER
-Date: Thu, 17 Jul 2003 17:56:17 +0200
-User-Agent: KMail/1.5.9
+	Thu, 17 Jul 2003 11:46:23 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:15622 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S270938AbTGQPqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 11:46:21 -0400
+Date: Thu, 17 Jul 2003 17:01:01 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Oliver Neukum <oliver@neukum.org>
 Cc: linux-kernel@vger.kernel.org
-References: <1058446580.18647.11.camel@ezquiel.nara.homeip.net> <3F16C190.3080205@pobox.com>
-In-Reply-To: <3F16C190.3080205@pobox.com>
-MIME-Version: 1.0
+Subject: Re: usability of device nodes with devfs
+Message-ID: <20030717170101.A9432@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
+References: <200307161642.05966.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307171756.19826.schlicht@uni-mannheim.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200307161642.05966.oliver@neukum.org>; from oliver@neukum.org on Wed, Jul 16, 2003 at 04:42:05PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 July 2003 17:32, Jeff Garzik wrote:
-> Ricardo Bugalho wrote:
-> > Hi all,
-> >   most net device drivers have replaced MOD_INC/DEC_USE_COUNT with
-> > SET_MODULE_OWNER but SET_MODULE_OWNER doesn't do nothing.
-> >   Therefore, those modules (though I can only vouch for 8139too) always
-> > report 0 use. Some people that had "modprobe -r" in their cronttab found
-> > it quite annoying.
-> >   I'd guess that there's a good reason for why struct net_device doesn't
-> > have .owner field and why this happens. Can someone be so kind to point
-> > it
-> > out?
->
-> struct net_device does have an owner field, and SET_MODULE_OWNER
-> obviously _does_ do something.
+On Wed, Jul 16, 2003 at 04:42:05PM +0200, Oliver Neukum wrote:
+> Hi,
+> 
+> is it a requirement that nodes created with devfs can be opened
+> successfully from the moment the device is registered?
 
-That's not correct for 2.5.x anymore...
-Have a look at Changeset 1.1167 from davem.
+For 2.4 which has a direct connection from devfs entries to file operations
+this is indeed a requirement.  For 2.5 devfs is merely a way to perform
+mknod from kernelspace so there is no such requirement.  Just still have
+to be setup for I/O when calling register_chardev/add_disk, though.
 
-It removed the owner field about 9 weeks ago. That was the time where 
-SET_MODULE_OWNER became a NOP...
-
-> If your interface is up, your net driver's module refcount is greater
-> than zero.
-
-Well, as I looked now my netdevice is up, but its reference count is at 0, 
-too!
-
-  Thomas Schlichter

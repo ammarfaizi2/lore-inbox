@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264511AbRFOUSJ>; Fri, 15 Jun 2001 16:18:09 -0400
+	id <S264513AbRFOUW3>; Fri, 15 Jun 2001 16:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264512AbRFOUSB>; Fri, 15 Jun 2001 16:18:01 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:38496
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S264511AbRFOURn>; Fri, 15 Jun 2001 16:17:43 -0400
-Date: Fri, 15 Jun 2001 13:17:42 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Eugene Crosser <crosser@average.org>
+	id <S264516AbRFOUWT>; Fri, 15 Jun 2001 16:22:19 -0400
+Received: from devco.net ([196.15.188.2]:42882 "EHLO rinoa")
+	by vger.kernel.org with ESMTP id <S264514AbRFOUWP>;
+	Fri, 15 Jun 2001 16:22:15 -0400
+Date: Fri, 15 Jun 2001 22:22:14 +0200
+From: Leon Breedt <ljb@devco.net>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 data corruption
-Message-ID: <20010615131742.C27548@work.bitmover.com>
-Mail-Followup-To: Eugene Crosser <crosser@average.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E15Afvk-0005aV-00@the-village.bc.nu> <9gdp5c$pj$1@pccross.average.org>
+Subject: Re: [patch] nonblinking VGA block cursor
+Message-ID: <20010615222214.A3772@rinoa.prv.dev.itouchnet.net>
+In-Reply-To: <20010615162249.A1328@rinoa.rinoa> <200106151921.f5FJLsc03635@saturn.cs.uml.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <9gdp5c$pj$1@pccross.average.org>; from crosser@average.org on Fri, Jun 15, 2001 at 11:54:20PM +0400
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200106151921.f5FJLsc03635@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Fri, Jun 15, 2001 at 03:21:54PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 15, 2001 at 11:54:20PM +0400, Eugene Crosser wrote:
-> In article <E15Afvk-0005aV-00@the-village.bc.nu>,
->         Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> >> any problems since 2.4.5 was published, they seem to have surfaced
-> >> immediately after I created a rather big file capturing video with
-> >> broadcast2000 (video card is bt848).  Filesystem is ext2.
-> > 
-> > Thats something I've seen reported elsehwere. The high bandwidth capture card
-> > stuff seems to show up problems. It could be drivers could be hardware. On
-> > my AMD 751 pre release board I see that problem but on the 751 production board
-> > I dont
-> 
-> You must be right, today I created another big file with the same program
-> but without doing caputre and the filesystem was intact.  OTOH,
-> Russell Leighton reports curruption when creating a file with dd...
+On Fri, Jun 15, 2001 at 03:21:54PM -0400, Albert D. Cahalan wrote:
 
-For what it is worth, after having three failures in a row, now it isn't
-happening.  My test case is/was my nightly backup.  If it happens again,
-I'll save the corrupted data so we can do more digging.  I'm kicking 
-myself for not having done it the first time around.
+> Non-blinking cursors are just wrong. You need to patch your brain.
+> You really fucked up, because now apps can't restore your cursor
+> to proper behavior as defined by IBM.
+I don't want them to, because I prefer non-blinking. It feels more
+solid, kind of like driving a tank instead of a little dune buggy ;)
+
+> The blinking cursor is implemented in your video hardware.
+> IBM knew what was right for you. 
+Uh, said hardware lets you disable the blinking. Maybe in a slightly
+non-standard way, who cares?
+
+> Of course FreeBSD has a block cursor. It was easy to program,
+> and it seems nice to the pot-smoking hippies out in Berkeley.
+> FreeBSD doesn't define standards. FreeBSD breaks standards.
+> (zombie creation, "ps -ef", partition tables, pty allocation...)
+It's all about choice, man. I want the choice to have certain
+behaviour if I wish.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+lj breedt
+coder

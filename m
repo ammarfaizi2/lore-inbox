@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbTH1KIw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 06:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbTH1KHw
+	id S263842AbTH1KIx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 06:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbTH1KIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 06:07:52 -0400
-Received: from ip213-185-36-189.laajakaista.mtv3.fi ([213.185.36.189]:65485
-	"EHLO oma.irssi.org") by vger.kernel.org with ESMTP id S263842AbTH1Jfd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 05:35:33 -0400
+	Thu, 28 Aug 2003 06:08:01 -0400
+Received: from www.erfrakon.de ([193.197.159.57]:46341 "EHLO www.erfrakon.de")
+	by vger.kernel.org with ESMTP id S263870AbTH1Jyo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 05:54:44 -0400
+From: Martin Konold <martin.konold@erfrakon.de>
+Organization: erfrakon
+To: Timo Sirainen <tss@iki.fi>
 Subject: Re: Lockless file reading
-From: Timo Sirainen <tss@iki.fi>
-To: nagendra_tomar@adaptec.com
-Cc: Jamie Lokier <jamie@shareable.org>, root@chaos.analogic.com,
-       Martin Konold <martin.konold@erfrakon.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0308280242340.14580-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0308280242340.14580-100000@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1062063331.1459.263.camel@hurina>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 28 Aug 2003 12:35:31 +0300
+Date: Thu, 28 Aug 2003 11:48:39 +0200
+User-Agent: KMail/kroupware-1.0.0
+References: <3217CEE6-D906-11D7-A165-000393CC2E90@iki.fi> <200308281113.59112.martin.konold@erfrakon.de> <1062062858.1454.254.camel@hurina>
+In-Reply-To: <1062062858.1454.254.camel@hurina>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308281148.39515.martin.konold@erfrakon.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-08-28 at 00:15, Nagendra Singh Tomar wrote:
-> > >     I beleive ur original post was to address the case of a reader
-> > reading 
-> > > a file getting *incorrect* data due to the file being written 
-> > > simultaneously by another writer process.
-> > 
-> > Well, "old" data, which mixed with new data would become incorrect as a
-> > whole.
-> 
-> What is this mixing we are talking of ??
+Am Thursday 28 August 2003 11:27 am schrieben Sie:
 
-I can easily see that the data might be divided into two separate pages
-and between updating those pages, another process would have read the
-first page, but not the second page. That would result in a mixed old
-and new data. Probably just <old><new> or <new><old> instead of
-<new><old><new> what I was worrying about, but still it would be nicer
-to rely only on byte atomicity and read/write ordering. :)
+Hi,
 
-> > That was my original plan, to just rely on such kernel behaviour. I just
-> > don't know if it's such a good idea to rely on that, especially if I
-> > want to keep my program portable. I'll probably fallback to that anyway
-> > if my checksumming ideas won't work.
-> 
-> But I don't see any problem with a single writer and >=1 reader. There is 
-> no question of portability.
+> It's not about CPU usage. It's mostly about being able to modify the
+> file even when there's thousands of simultaneous readers that could
+> otherwise keep the file locked almost constantly.
 
-There are of multiple writers, but it's fine for them to do locking
-between each others.
+No, the readers only have to check if the file got locked by the writer(s).
+  
+> Also it'd be nice to support NFS with .lock files since no-one really
+> uses lockd.
 
+IMHO a lock file on nfs is the most inefficient locking mechanism in case of 
+readers and writer(s) on the same machine.
+
+BTW: What about moving this thread away from linux-kernel? It is already clear 
+that the kernel does not provide these guarantees you asked for.
+
+Regards,
+-- martin
+
+Dipl.-Phys. Martin Konold
+e r f r a k o n
+Erlewein, Frank, Konold & Partner - Beratende Ingenieure und Physiker
+Nobelstrasse 15, 70569 Stuttgart, Germany
+fon: 0711 67400963, fax: 0711 67400959
+email: martin.konold@erfrakon.de
 

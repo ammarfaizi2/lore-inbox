@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319011AbSIDCQd>; Tue, 3 Sep 2002 22:16:33 -0400
+	id <S319013AbSIDCXK>; Tue, 3 Sep 2002 22:23:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319015AbSIDCQd>; Tue, 3 Sep 2002 22:16:33 -0400
-Received: from antigonus.hosting.pacbell.net ([216.100.98.13]:10628 "EHLO
-	antigonus.hosting.pacbell.net") by vger.kernel.org with ESMTP
-	id <S319011AbSIDCQc>; Tue, 3 Sep 2002 22:16:32 -0400
-Reply-To: <imran.badr@cavium.com>
-From: "Imran Badr" <imran.badr@cavium.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: __get_free_pages
-Date: Tue, 3 Sep 2002 19:19:18 -0700
-Message-ID: <004201c253b9$79ab9ba0$9e10a8c0@IMRANPC>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id <S319014AbSIDCXK>; Tue, 3 Sep 2002 22:23:10 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:32266
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S319013AbSIDCXK>; Tue, 3 Sep 2002 22:23:10 -0400
+Subject: Re: __get_free_pages
+From: Robert Love <rml@tech9.net>
+To: imran.badr@cavium.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <004201c253b9$79ab9ba0$9e10a8c0@IMRANPC>
+References: <004201c253b9$79ab9ba0$9e10a8c0@IMRANPC>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <02cd01c2507c$84ec9860$9e10a8c0@IMRANPC>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 03 Sep 2002 22:27:49 -0400
+Message-Id: <1031106469.24330.3276.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-09-03 at 22:19, Imran Badr wrote:
 
-Hi,
-Does __get_free_pages(..) return physically contiguous pages?
+> Does __get_free_pages(..) return physically contiguous pages?
 
-Thanks,
-Imran.
+Yes.
+
+	Robert Love
 

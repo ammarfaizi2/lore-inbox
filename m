@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTLXWCK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 17:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbTLXWCK
+	id S263927AbTLXV75 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 16:59:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTLXV75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 17:02:10 -0500
-Received: from amber.ccs.neu.edu ([129.10.116.51]:27896 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S263930AbTLXWB0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 17:01:26 -0500
-Subject: Re: is it possible to have a kernel module with a BSD license?!
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FE9ADEE.1080103@baywinds.org>
-References: <3FE9ADEE.1080103@baywinds.org>
-Content-Type: text/plain
-Message-Id: <1072303285.2947.215.camel@duergar>
+	Wed, 24 Dec 2003 16:59:57 -0500
+Received: from hostmaster.org ([80.110.173.103]:43924 "HELO hostmaster.org")
+	by vger.kernel.org with SMTP id S263927AbTLXV7y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 16:59:54 -0500
+Subject: Re: allow process or user to listen on priviledged ports?
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <y2allp1c32o.fsf@cartman.at.fivegeeks.net>
+References: <bscg1m$1eg$1@sea.gmane.org>
+	 <y2allp1c32o.fsf@cartman.at.fivegeeks.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-O6YX5Lu85ebAW2jS1exQ"
+Message-Id: <1072303181.1441.70.camel@hostmaster.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 24 Dec 2003 17:01:25 -0500
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Wed, 24 Dec 2003 22:59:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why would anyone want to BSD license a kernel module, honestly...
 
--sb
+--=-O6YX5Lu85ebAW2jS1exQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2003-12-24 at 10:17, Bruce Ferrell wrote:
-> from the project announcement on freshmeat:
-> 
-> 
->   Dazuko 2.0.0-pre5 (Default)
->   by John Ogness - Tuesday, November 11th 2003 06:56 PST
-> 
-> About:
-> This project provides a kernel module which provides 3rd-party 
-> applications with an interface for file access control. It was 
-> originally developed for on-access virus scanning. Other uses include a 
-> file-access monitor/logger or external security implementations. It 
-> operates by intercepting file-access calls and passing the file 
-> information to a 3rd-party application. The 3rd-party application then 
-> has the opportunity to tell the kernel module to allow or deny the 
-> file-access. The 3rd-party application also receives information about 
-> the file, such as type of access, process ID, user ID, etc.
-> 
-> Release focus: Minor bugfixes
-> 
-> Changes:
-> Some "in use" problems with spontaneous context-switches when unloading 
-> under FreeBSD were fixed. Macros for hooking/unhooking system calls were 
-> added. Filename length restrictions were removed. Code for generating 
-> protocol13 was abstracted and moved into XP layer. Support for filenames 
-> with non-printable characters was added. The ability to compile the 
-> interface library without 1.x compatibility was added. An "off by one" 
-> bug which occurred when calculating include/exclude path lengths was 
-> fixed. Support for Linux 2.6 kernels was added (not yet complete, but 
-> very functional).
-> 
->                                  Last release   	 License   	
-> Default 	2.0.0-pre5 	24-Dec-2003 	BSD License (revised)
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I used this approach for some time but unfortunately IPv6 has only
+inherited the privileged ports problem but not the iptables solution.
+
+Regards
+Tom
+
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+       mail pgp-key-request@hostmaster.org
+
+If there is a god, you are an authorized representative.
+
+--=-O6YX5Lu85ebAW2jS1exQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iQEVAwUAP+oMSGD1OYqW/8uJAQInCQf/ZiuXMpbIti2N4+S+QWSzc0IRj6omq5om
+rWpweqZRqcJgudA7saAyVpNTz4AR5TtjNKsdNQopmJRAZdZdIlVZ6cF0X/9L3zux
+QuRHb3TpkCwhmEQBE1gnjljL66dUiqHVA80guDK63QzGVJVWpkA8rs61zWTp+ZoO
+bMZJGwxhTJDcMTEo/IQvqVC5cUbHsAVMiM0lwsILsPLGFDazxsKu+c1u7e58p2b5
+6Mz6qduWqxPkZjgJpps92w0CIZZUG0WYde4EDaZtsTZE7AXideBXkMUXi4tE4LOi
+xeFHFo4KDz7Bug/m7vRIkSUIydwMvnSWmJZr7mJEohX9dBCX1yrC+w==
+=QiqS
+-----END PGP SIGNATURE-----
+
+--=-O6YX5Lu85ebAW2jS1exQ--
 

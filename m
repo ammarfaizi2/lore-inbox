@@ -1,53 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbUBVT4y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 14:56:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUBVTz0
+	id S261735AbUBVTzN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 14:55:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbUBVTzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 14:55:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52133 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261738AbUBVTzT (ORCPT
+	Sun, 22 Feb 2004 14:55:13 -0500
+Received: from gprs144-14.eurotel.cz ([160.218.144.14]:42370 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261735AbUBVTzG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 14:55:19 -0500
-Date: Sun, 22 Feb 2004 11:55:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Miquel van Smoorenburg <miquels@cistron.net>
-Cc: axboe@suse.de, thornber@redhat.com, miquels@cistron.net,
-       piggin@cyberone.com.au, miquels@cistron.nl, linux-lvm@sistina.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bdi_congestion_funp (was: Re: [PATCH] per process
- request limits (was Re: IO scheduler, queue depth, nr_requests))
-Message-Id: <20040222115504.001384d1.akpm@osdl.org>
-In-Reply-To: <20040222140232.GE1375@drinkel.cistron.nl>
-References: <20040219205907.GE32263@drinkel.cistron.nl>
-	<40353E30.6000105@cyberone.com.au>
-	<20040219235303.GI32263@drinkel.cistron.nl>
-	<40355F03.9030207@cyberone.com.au>
-	<20040219172656.77c887cf.akpm@osdl.org>
-	<40356599.3080001@cyberone.com.au>
-	<20040219183218.2b3c4706.akpm@osdl.org>
-	<20040220144042.GC20917@traveler.cistron.net>
-	<20040220145944.GM27549@reti>
-	<20040220150013.GY27190@suse.de>
-	<20040222140232.GE1375@drinkel.cistron.nl>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 22 Feb 2004 14:55:06 -0500
+Date: Sun, 22 Feb 2004 20:54:44 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       "Amit S. Kale" <akale@users.sourceforge.net>
+Subject: Re: [1/3] kgdb-lite for 2.6.3
+Message-ID: <20040222195444.GB10857@elf.ucw.cz>
+References: <20040222160417.GA9535@elf.ucw.cz> <20040222202211.GA2063@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040222202211.GA2063@mars.ravnborg.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg <miquels@cistron.net> wrote:
->
-> The pdflush-is-running-on-this-queue bit can probably remain as-is. It's
->  mostly meant to prevent 2 pdflush daemons from running the same queue.
->  I don't see much harm in pdflush #1 running on /dev/md0 which consists
->  of /dev/sda1 and /dev/sdb1 and pdflush #2 running on /dev/sdb2, right ?
+Hi!
 
-Yes, having two pdflushes working the same spindle is a bit pointless but
-is presumably fairly harmless.
+> Just some random comments after browsing the code.
+> 
+> 	Sam
+> 
+> > +
+> > +int kgdb_hexToLong(char **ptr, long *longValue);
+> A patch has been posted by Tom Rini to convert this to the
+> linux naming: kgdb_hex2long(...).
 
-The most important thing here is to prevent pdflush from blocking on
-request exhaustion.  Because while pdflush sleeps on a particular disk, all
-the others remain unserviced.
+Yep, and I did the patch originially ;-).
 
+> +static const char hexchars[] = "0123456789abcdef";
+> Grepping after 0123456789 in the src tree gives a lot of hits.
+> Maybe we should pull in some functionality from klibc, and place it in lib/
+> at some point in time.
+> 
+> +
+> +static char remcomInBuffer[BUFMAX];
+> +static char remcomOutBuffer[BUFMAX];
+> This does not follow usual Linux naming convention.
+> Something like: remcom_in_buf, remcom_out_buf?
+
+Yes, and getpacket should also become get_packet...
+
+> > +static void getpacket(char *buffer)
+> > +{
+> > +	unsigned char checksum;
+> > +	unsigned char xmitcsum;
+> > +	int i;
+> > +	int count;
+> > +	char ch;
+> > +
+> > +	do {
+> > +	/* wait around for the start character, ignore all other characters */
+> > +		while ((ch = (kgdb_serial->read_char() & 0x7f)) != '$');
+> 
+> Placing ';' on a seperate line would be good for the readability.
+
+> > +int kgdb_handle_exception(int exVector, int signo, int err_code, 
+> > +                     struct pt_regs *linux_regs)
+> > +{
+> > +	unsigned long length, addr;
+> > +	char *ptr;
+> > +	unsigned long flags;
+> > +	unsigned long gdb_regs[NUMREGBYTES / sizeof (unsigned long)];
+> > +	int i;
+> > +	long threadid;
+> > +	threadref thref;
+> > +	struct task_struct *thread = NULL;
+> > +	unsigned procid;
+> > +	static char tmpstr[256];
+> 
+> Too? large varriable on the stack.
+
+Whi one?
+
+tmpstr is static....
+							Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

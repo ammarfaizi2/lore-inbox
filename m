@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271399AbTG2LHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 07:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271400AbTG2LHJ
+	id S271393AbTG2LJX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 07:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271391AbTG2LJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 07:07:09 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:43967 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S271399AbTG2LHF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 07:07:05 -0400
-Date: Tue, 29 Jul 2003 13:07:02 +0200 (MEST)
-Message-Id: <200307291107.h6TB72iP027715@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org, wturkal@cbu.edu
-Subject: RE: PROBLEM: ACPI hangs when invoked from keyboard
+	Tue, 29 Jul 2003 07:09:11 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:42248 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S271405AbTG2LHe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 07:07:34 -0400
+Date: Tue, 29 Jul 2003 13:14:23 +0200
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The well-factored 386
+Message-ID: <20030729111423.GA5320@hh.idb.hist.no>
+References: <03072809023201.00228@linux24> <20030728093245.60e46186.davem@redhat.com> <20030728194127.GA10673@mail.jlokier.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030728194127.GA10673@mail.jlokier.co.uk>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003 01:06:08 -0500, Warren Turkal wrote:
->Grover, Andrew wrote:
->> This isn't ACPI, it's because 2.5.74+ force the APIC enabled.
->
->You are correct, and here is my addition to this bug report.
-...
->At this point, I relized that I had been compiling these
->kerenels without SMP, which is not what I did when I
->noticed the bug. Therefor, it is an SMP-kernel-only bug.
->I have a 1.9GHz Pentium 4M. My understanding is that it
-...
->Therefore, the breaking patch is the changeset from svn
->revion 11314 to 11315, which is reproduced below,
->including the patch comment.
->
->patch comment:
->wt@braindead:/usr/src/linux-trunk$ svn log -r 11315
->------------------------------------------------------------------------
->rev 11315:  mikpe | 2003-06-24 14:50:23 -0500 (Tue, 24 Jun 2003) | 17 lines
->
->[PATCH] enable local APIC on P4
-...
->Either there is a bug with supporting my type of APIC or my APIC
->must have a bug and is disabled by the BIOS for a reason. Either
->my hardware should be blacklisted or the old behavior should be
->restored.
->
->AFAIK, I have an Intel 845 chipset. I don't know what other info
->is needed for blacklisting.
+On Mon, Jul 28, 2003 at 08:41:27PM +0100, Jamie Lokier wrote:
+> I didn't realise he was talking about an x86 emulator.  I thought he
+> was analyzing real hardware.
+> 
+> The one thing that made it on-topic for me was his quiet suggestion
+> that "forreal" mode interrupts are faster, and that it might, perhaps,
+> be possible to modify a Linux kernel to run in that mode - to take
+> advantage of the faster interrupts.
 
-The bug is not in the hardware but in the BIOS code.
-I'm planning a patch to revert P4s to a safe default, it'll
-be posted on LKML shortly.
+That would have to be a kernel for very special use.  The "forreal"
+mode has protection turned off.  As far as I know, that
+means any user process can take over the cpu as if
+it was running in kernel mode.
 
-Out of curiosity, what make & model is your laptop?
+Perhaps useful for some embedded use with only a couple well-tested
+processes running.  Still, a programming error could overwrite
+kernel memory instead of segfaulting.
 
-/Mikael
+Helge Hafting

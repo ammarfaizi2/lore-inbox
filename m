@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262269AbTERXff (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 19:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbTERXfe
+	id S262271AbTERXrG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 19:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTERXrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 19:35:34 -0400
-Received: from [155.223.251.1] ([155.223.251.1]:43734 "HELO
-	gatekeeper.ege.edu.tr") by vger.kernel.org with SMTP
-	id S262269AbTERXfe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 19:35:34 -0400
-Date: Mon, 19 May 2003 03:00:47 +0300
-From: Halil Demirezen <nitrium@bilmuh.ege.edu.tr>
-To: aradorlinux@yahoo.es
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: about buffer overflow.
-Message-ID: <20030519000047.GA23632@bilmuh.ege.edu.tr>
-References: <20030518222742.GA20916@bilmuh.ege.edu.tr> <20030519011145.11d1c3c1.aradorlinux@yahoo.es>
+	Sun, 18 May 2003 19:47:06 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:26056 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262271AbTERXrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 19:47:05 -0400
+Date: Mon, 19 May 2003 01:02:49 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
+       kraxel@suse.de, jsimmons@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
+Message-ID: <20030519000249.GA18507@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jamie Lokier <jamie@shareable.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
+	kraxel@suse.de, jsimmons@infradead.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030515145640.GA19152@averell> <20030515151633.GA6128@suse.de> <1053118296.5599.27.camel@dhcp22.swansea.linux.org.uk> <20030518053935.GA4112@averell> <20030518161105.GA7404@mail.jlokier.co.uk> <1053290431.27107.4.camel@dhcp22.swansea.linux.org.uk> <20030518223446.GA8591@mail.jlokier.co.uk> <20030518225204.GA21068@suse.de> <20030518233325.GA8888@mail.jlokier.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030519011145.11d1c3c1.aradorlinux@yahoo.es>
-User-Agent: Mutt/1.3.28i
-X-URL: http://www.pisus.com
+In-Reply-To: <20030518233325.GA8888@mail.jlokier.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=105189350008143&w=2
-> is quite interesting
+On Mon, May 19, 2003 at 12:33:25AM +0100, Jamie Lokier wrote:
 
+ > My point being that vesafb is used for maximum compatibility, when you
+ > have no other way to drive an unknown framebuffer.  It's the emergency
+ > backup driver.  Shouldn't it be robust when faced with an unknown
+ > framebuffer type, new or old?
 
-yes that is interesting, however, what i want to learn, clearly, is this patch available 
-from 2.4.20-rc1 at every default linux kernel from this moment on?
+It works just fine. Just you can't enable MTRRs for framebuffer memory.
+Losing a bit of performance for what is (by todays standards) a crap
+performing card anyways, is no big deal.
+
+		Dave
+

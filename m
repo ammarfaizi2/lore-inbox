@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262549AbTCMVi7>; Thu, 13 Mar 2003 16:38:59 -0500
+	id <S262550AbTCMVhv>; Thu, 13 Mar 2003 16:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262555AbTCMVi7>; Thu, 13 Mar 2003 16:38:59 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:39117 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S262549AbTCMViz>; Thu, 13 Mar 2003 16:38:55 -0500
-Message-ID: <20030313214908.27753.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S262561AbTCMVhv>; Thu, 13 Mar 2003 16:37:51 -0500
+Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:48302 "EHLO
+	renegade") by vger.kernel.org with ESMTP id <S262550AbTCMVhq>;
+	Thu, 13 Mar 2003 16:37:46 -0500
+Date: Thu, 13 Mar 2003 13:48:07 -0800
+From: Zack Brown <zbrown@tumblerings.org>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030313214807.GA11535@renegade>
+References: <200303130052.h2D0qFFT001062@eeyore.valparaiso.cl> <20030313165652.7CF10109CC9@mx12.arcor-online.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: tmolina@cox.net, akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Date: Thu, 13 Mar 2003 22:49:08 +0100
-Subject: Re: 2.5.64-mm6
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-7.us4.outblaze.com
+In-Reply-To: <20030313165652.7CF10109CC9@mx12.arcor-online.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: Thomas Molina <tmolina@cox.net> 
-Date: 	Thu, 13 Mar 2003 14:35:18 -0600 (CST) 
-To: Andrew Morton <akpm@digeo.com> 
-Subject: Re: 2.5.64-mm6 
- 
-> I downloaded the mm-6 patch and a pristine 2.5.64 tarball.  After applying  
-> the patch I compiled with the standard configuration I've been using all  
-> along.  No problems were noted during the compile cycle.  During bootup  
-> the system locked up at the point where it did a modprobe uhci-hcd for the  
-> USB controller.  Nothing of interest was noted in the log.  I rebooted  
-> with nousb in the command line and got a good boot.  After working with  
-> this kernel for awhile I don't see anything out of the ordainary except  
-> that on a 2.5.64-bk kernel I get 330 Kbytes per second download speed  
-> whereas with mm6 I get 280 Kbytes per second.  Several runs show this is  
-> fairly consistent, with results within one or two percent. 
- 
-Hmmm... I have experienced some hard locks similar to what 
-you describe: if I compile usb-uhci as a module, Phoebe3 
-(8.0.94) locks hard at the time of doing a "modprobe 
-usb-controller" (being usb-controller an alias for uhci-hcd) 
-during boot (rc.sysinit script). To fix this, I have had  to compile 
-usb-uhci in to the kernel and then fix rc.sysinit. I haven't tried 
-using usb-uhci as a module since then. 
- 
-What's curious is that doing a "modprobe usb-controller" by 
-hand doesn't cause hard locks. So, there must be some kind 
-of timing or interaction that's causing rc.sysinit to invoke 
-"modprobe uchi-hcd" and freeze the machine. Any ideas? 
- 
-   Felipe 
- 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+On Thu, Mar 13, 2003 at 06:00:48PM +0100, Daniel Phillips wrote:
+> Does anybody have a convenient mailing list for this design discussion?
 
-Powered by Outblaze
+Keep in mind that one part of the discussion is to figure out what is
+and is not required for adoption by the kernel team. For that, this is
+probably the best place to discuss it. Otherwise, it's just the same
+tail-chasing that has been going on with the various version control
+projects up till now.
+
+Later on, people can just be referred to an existing feature description,
+which will cut down on future flamewars on lkml.
+
+Be well,
+Zack
+
+> 
+> Regards,
+> 
+> Daniel
+
+-- 
+Zack Brown

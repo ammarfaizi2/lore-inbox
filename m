@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262949AbTDBJT2>; Wed, 2 Apr 2003 04:19:28 -0500
+	id <S262951AbTDBJYN>; Wed, 2 Apr 2003 04:24:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262951AbTDBJT2>; Wed, 2 Apr 2003 04:19:28 -0500
-Received: from unthought.net ([212.97.129.24]:32483 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S262949AbTDBJT1>;
-	Wed, 2 Apr 2003 04:19:27 -0500
-Date: Wed, 2 Apr 2003 11:30:50 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Kenny Simpson <theonetruekenny@yahoo.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: mmap-related questions
-Message-ID: <20030402093049.GB17859@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Kenny Simpson <theonetruekenny@yahoo.com>,
-	Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-References: <20030401125020.E25225@redhat.com> <20030402031840.60077.qmail@web20005.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S262952AbTDBJYN>; Wed, 2 Apr 2003 04:24:13 -0500
+Received: from cpe-024-033-021-148.midsouth.rr.com ([24.33.21.148]:5248 "EHLO
+	braindead") by vger.kernel.org with ESMTP id <S262951AbTDBJYM>;
+	Wed, 2 Apr 2003 04:24:12 -0500
+From: Warren Turkal <wturkal@cbu.edu>
+To: "Grover, Andrew" <andrew.grover@intel.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] laptop keyboard, tracked to ACPI
+Date: Wed, 2 Apr 2003 03:35:02 -0600
+User-Agent: KMail/1.5.1
+References: <F760B14C9561B941B89469F59BA3A847E96D93@orsmsx401.jf.intel.com>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A847E96D93@orsmsx401.jf.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030402031840.60077.qmail@web20005.mail.yahoo.com>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200304020335.03120.wturkal@cbu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 07:18:40PM -0800, Kenny Simpson wrote:
-> --- Benjamin LaHaise <bcrl@redhat.com> wrote:
-> > the act of unmapping them transfers the
-> > dirty bit from the page 
-> > tables into the page cache where fsync() acts on
-> > them.
-> >
-> Should this info be included with Mel Gorman's
-> excellent doc:
-> http://www.csn.ul.ie/~mel/projects/vm/guide/html/understand/node31.html#SECTION009411000000000000000
-> Or is it there, but I missed it?
-> 
-> > The
-> > one case this breaks down 
-> > on is when the mmap()'d file is on NFS -- the
-> > reordering there can result in 
-> > writebacks from mmap()s occuring in unexpected ways.
-> I sometimes wish mmap was not supported on NFS, or at
-> least require a special MAP_NFS flag be used.  It has
-> caused lots of pain over the years.
+On Monday 31 March 2003 12:09 pm, Grover, Andrew wrote:
+> > From: Warren Turkal [mailto:wturkal@cbu.edu]
+> > Andy Grover, ACPI Maintainer, I am CCing you directly as I
+> > think this is your
+> > bug at this point. When I compile a kernel without ACPI, the
+> > bug does not
+> > show its face. When I compile with ACPI in modules and load
+> > none of the
+> > modules, the bug still happens. I think that the bug exists
+> > in the base ACPI
+> > support code as a result. The bug is described below. I have
+> > not tried the
+> > latest linus bk patches. This current round of tests was
+> > performed on 2.5.66.
+> > 2.5.63 is the last version of the kernel that does not have this bug.
+>
+> Please try the ACPI patch from http://sf.net/projects/acpi and let me
+> know if it doesn't fix things.
+>
+> Thanks -- Regards -- Andy
 
-Could someone elaborate on this please?
+This does fix it. Thanks so much! :-D Now I just wonder if that OOPS on 
+shutdown is fixed yet.
 
-If my client does
-  big_map = mmap(... some file ...)
-  make_dirty(big_map)
-  msync(first half of big_map)
-  msync(second half of big_map)    { crash during this }
-
-Then I am guaranteed that (unless the server crashes), the first half of
-big_map *will* have reached the server, but not that all of the second
-half has.   Right?
-
-Like any local-disk backed file.
-
-Ignoring the case where the NFS *server* crashes, where could the write
-ordering differ, compared to local disk files ?
-
-In other words, what does Benjamin's "unexpected ways" refer to ?
-
-Thanks,
-
+Warren
 -- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Treasurer, GOLUM, Inc.
+http://www.golum.org
+

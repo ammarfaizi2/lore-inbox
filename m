@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130966AbRAZQro>; Fri, 26 Jan 2001 11:47:44 -0500
+	id <S131136AbRAZRGW>; Fri, 26 Jan 2001 12:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131246AbRAZQre>; Fri, 26 Jan 2001 11:47:34 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:57907 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S130966AbRAZQrZ>; Fri, 26 Jan 2001 11:47:25 -0500
-Date: Fri, 26 Jan 2001 18:47:13 +0200
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+	id <S131246AbRAZRGN>; Fri, 26 Jan 2001 12:06:13 -0500
+Received: from 041imtd176.chartermi.net ([24.247.41.176]:46479 "EHLO
+	oof.netnation.com") by vger.kernel.org with ESMTP
+	id <S131136AbRAZRGF>; Fri, 26 Jan 2001 12:06:05 -0500
+Date: Fri, 26 Jan 2001 12:05:56 -0500
+From: Simon Kirby <sim@stormix.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.0 quality [was: 2.4.0 uptime]
-Message-ID: <20010126184713.B1002@niksula.cs.hut.fi>
-In-Reply-To: <001601c0876a$db8b5a80$51a81aac@arrowhead.se>
+Subject: ECN
+Message-ID: <20010126120556.A13417@stormix.com>
+In-Reply-To: <20010126124426.O2360@marowsky-bree.de> <Pine.SOL.4.21.0101261344120.11126-100000@red.csi.cam.ac.uk> <20010126154447.L3849@marowsky-bree.de> <20010126160342.B7096@pcep-jamie.cern.ch> <14961.37986.469902.496834@pizda.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <001601c0876a$db8b5a80$51a81aac@arrowhead.se>; from hes@arrowhead.se on Fri, Jan 26, 2001 at 08:37:38AM +0100
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <14961.37986.469902.496834@pizda.ninka.net>; from davem@redhat.com on Fri, Jan 26, 2001 at 07:14:42AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 26, 2001 at 08:37:38AM +0100, you [Hans Eric Sandström] claimed:
-> BP6/Dual Cel 400 (the 2.0 load is setiathome)
-> --
-> [root@zekeserv /root]# uptime
->   8:28am  up 20 days, 13:04,  2 users,  load average: 2.00, 2.00, 2.00
-> [root@zekeserv /root]# uname -a
-> Linux zekeserv 2.4.0 #2 SMP Fri Jan 5 07:37:01 CET 2001 i686 unknown
-> [root@zekeserv /root]#
+On Fri, Jan 26, 2001 at 07:14:42AM -0800, David S. Miller wrote:
 
-Yeah. I think it can be concluded that 2.4.0 was pretty good for a .0
-release. IMHO and based on my own limited experience it's much better than
-2.2.0. It certainly does pretty well with that kind of ordinary CPU load,
-and the bugs (if any) are related to more exotic conditions.
+> Jamie Lokier writes:
+>  > Does ECN provide perceived benefits to the node using it?
+> 
+> Yes, endpoints and intermediate routers can tell the TCP sender about
+> congestion instead of TCP having to guess about it based upon observed
+> packet drop.
+> 
+> It is a major enhancement to performance over any WAN.
+> 
+> The endpoint based congestion notification happens _now_ if both
+> sides speak ECN.  The router based notification will be happening
+> in the near future as Cisco and others deploy ECN speaking versions of
+> their router software.
 
-For most people, it appears to have worked _well_. It certainly has worked
-fine for me (I had one X lock up with it, but I'd blame the nvidia drivers
-for that altough they are very stable on 2.2.).
+Hmm... Just wondering: what does TCP then do when it receives this ECN
+notification?  Try harder, try less?  Or does it get a specific packet
+saying "I dropped your packet", and then the sender retransmits?
 
-What known bugs are there btw? I think the only more serious were the
-software RAID5 bug and the VIA driver issues, both of which caused fs
-corruption. Some people reported problems with X (is this the same forking
-problem Jeff Merkey et all tried to hunt down pre-time), and some had
-trouble with booting 386 and/or other hardware. Any more? 
+I suppose I could go find the RFC...
 
-Hopefully Linux will squash all of them in 2.4.1!
+Simon-
 
-
--- v --
-
-v@iki.fi
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

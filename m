@@ -1,67 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267249AbUG1Pru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUG1Pwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267249AbUG1Pru (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 11:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267240AbUG1Ppu
+	id S267259AbUG1Pwp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 11:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267253AbUG1PwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 11:45:50 -0400
-Received: from mailbox.surfeu.se ([213.173.154.11]:36831 "EHLO surfeu.fi")
-	by vger.kernel.org with ESMTP id S267258AbUG1PpB (ORCPT
+	Wed, 28 Jul 2004 11:52:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51178 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267252AbUG1PuI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 11:45:01 -0400
-Message-ID: <4107CA36.2C105379@users.sourceforge.net>
-Date: Wed, 28 Jul 2004 18:45:58 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-crypto@nl.linux.org
-CC: linux-kernel@vger.kernel.org
-Subject: Announce loop-AES-v2.1c file/swap crypto package
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jul 2004 11:50:08 -0400
+Date: Wed, 28 Jul 2004 08:47:16 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Florian Lohoff <flo@rfc822.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at net/core/skbuff.c:104
+Message-Id: <20040728084716.7521fd88.davem@redhat.com>
+In-Reply-To: <20040728095757.GA602@paradigm.rfc822.org>
+References: <20040728095757.GA602@paradigm.rfc822.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-loop-AES changes since previous release:
-- Adapted and merged Russell King's loop.c flush_dcache_page() fix. Most
-  sane processors were not affected, but some processors with goofy aliasing
-  caches were indeed affected (2.4 and 2.6 kernels).
-- Added optimized assembler implementations of AES and MD5 functions for
-  AMD64 and compatible processors.
-- Pentium-2 optimized assembler implementations of AES and MD5 are really
-  i386 compatible, so now those assembler implementations are enabled for
-  all x86 processors.
-- Fixed Makefile to be compatible with distros that include "" characters in
-  KERNELRELEASE string.
-- Added dkms.conf configuration file for Dynamic Kernel Module Support.
-  Charles Duffy wrote original version.
-- Added support for /lib/modules/`uname -r`/source symlink.
-- Converted MODULE_PARM macros to module_param (2.6 kernels only).
-- Added workaround for scripts/modpost breakage (2.6 kernels only).
+On Wed, 28 Jul 2004 11:57:57 +0200
+Florian Lohoff <flo@rfc822.org> wrote:
 
-bzip2 compressed tarball is here:
+> 
+> bug with 2.6.7 (vanilla) - while tracepath6 - Only interfaces are lo
+> and eth0 (eepro100) - ipv6 address via radv - Host is dual-stacked.
+> gcc is a Debian/sarge 3.3.3
 
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.1c.tar.bz2
-    md5sum b404d9d679b7096dd3fb089345c52320
-
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.1c.tar.bz2.sign
-
-
-Additional ciphers package changes since previous release:
-- Fixed Makefile to be compatible with distros that include "" characters in
-  KERNELRELEASE string.
-- Added dkms.conf configuration file for Dynamic Kernel Module Support.
-  Adapted from version that was originally written by Charles Duffy.
-- Added support for /lib/modules/`uname -r`/source symlink.
-- Added workaround for scripts/modpost breakage (2.6 kernels only).
-
-bzip2 compressed tarball is here:
-
-    http://loop-aes.sourceforge.net/ciphers/ciphers-v2.0i.tar.bz2
-    md5sum 1a5e1d967bca0cde71a32e533ef26ce9
-
-    http://loop-aes.sourceforge.net/ciphers/ciphers-v2.0i.tar.bz2.sign
-
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+Well known bug in ipv6 fragmentation, fixed in current
+2.6.8-rcX kernels.

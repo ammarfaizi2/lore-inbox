@@ -1,121 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263423AbTJZTGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 14:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTJZTGQ
+	id S263427AbTJZTH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 14:07:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbTJZTH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 14:06:16 -0500
-Received: from gandalf.tausq.org ([64.81.244.94]:26505 "EHLO pippin.tausq.org")
-	by vger.kernel.org with ESMTP id S263423AbTJZTGN (ORCPT
+	Sun, 26 Oct 2003 14:07:29 -0500
+Received: from linuxhacker.ru ([217.76.32.60]:9702 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S263427AbTJZTH2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 14:06:13 -0500
-Date: Sun, 26 Oct 2003 11:10:20 -0800
-From: Randolph Chung <tausq@debian.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] fix __div64_32 to do division properly
-Message-ID: <20031026191020.GL24406@tausq.org>
-Reply-To: Randolph Chung <tausq@debian.org>
-References: <20031026152412.GK24406@tausq.org> <Pine.LNX.4.44.0310260931501.934-100000@home.osdl.org>
+	Sun, 26 Oct 2003 14:07:28 -0500
+Date: Sun, 26 Oct 2003 21:07:07 +0200
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Hans Reiser <reiser@namesys.com>
+Cc: ndiamond@wta.att.ne.jp, vitaly@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: Blockbusting news, results end
+Message-ID: <20031026190707.GC14147@linuxhacker.ru>
+References: <346101c39b9e$35932680$24ee4ca5@DIAMONDLX60> <3F9BA98B.20408@namesys.com> <200310261259.h9QCxhWv004314@car.linuxhacker.ru> <3F9BB870.1010500@namesys.com> <20031026123925.GA6412@linuxhacker.ru> <3F9BF5BE.9030601@namesys.com> <20031026171348.GA14147@linuxhacker.ru> <3F9C107D.3040401@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310260931501.934-100000@home.osdl.org>
-X-GPG: for GPG key, see http://www.tausq.org/gpg.txt
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <3F9C107D.3040401@namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As far as I can tell, this one is buggy and can cause total lockups with 
-> an infinite loop:
+Hello!
 
-oops, you are absolutely right....
+On Sun, Oct 26, 2003 at 09:20:45PM +0300, Hans Reiser wrote:
+> >Everything else should be handled
+> >by reiserfsprogs anyway. Without reiserfsprogs support (which was ready 
+> >too),
+> If it isn't included in what we release, the job isn't done, and the 
+> work is useless.  I don't know why people think that if they have 
+> written a patch that they and only they know where to get and how to 
+> apply, something useful has been done.
 
-your version seems to be ok. i tested it with all two-bit combinations
-of dividend and divisors,  i.e.
+The kernel patch was handed to Vitaly with instructions on how to apply and
+how to use. (And Vitaly added necessary support to reiserfsprogs, without
+which this patch would be useless)
+Now the decision of whenever to release this piece of code (the patch and
+the reiserfsprogs parts) is not mine.
 
-for (b1 = 63; b1 > 0; b1--) {
-    for (b2 = b1-1; b2 > 0; b2--) {
-        for (b3 = 31; b3 > 0; b3--) {
-            for (b4 = b3-1; b4 > 0; b4--) {
-                dividend = (1ULL<<b1) | (1ULL<<b2);
-                divisor = (1UL<<b3) | (1UL<<b4);
-                testdiv(dividend, divisor);
-            }
-        }
-    }
-}
-
-and it seems to be ok (and it catches the problem you pointed out). is
-that an interesting enough subset? :-)
-
-anyway, here's a new patch tested as above and with the original
-nanosleep problem. (i removed the top variable from your version since
-it's not used)
-
-thx
-randolph
--- 
-Randolph Chung
-Debian GNU/Linux Developer, hppa/ia64 ports
-http://www.tausq.org/
-
-
-Index: lib/div64.c
-===================================================================
-RCS file: /var/cvs/linux-2.6/lib/div64.c,v
-retrieving revision 1.1
-diff -u -p -r1.1 div64.c
---- lib/div64.c	29 Jul 2003 17:02:19 -0000	1.1
-+++ lib/div64.c	26 Oct 2003 19:04:47 -0000
-@@ -25,25 +25,34 @@
- 
- uint32_t __div64_32(uint64_t *n, uint32_t base)
- {
--	uint32_t low, low2, high, rem;
-+	uint64_t rem = *n;
-+	uint64_t b = base;
-+	uint64_t res, d = 1;
-+	uint32_t high = rem >> 32;
- 
--	low   = *n   & 0xffffffff;
--	high  = *n  >> 32;
--	rem   = high % (uint32_t)base;
--	high  = high / (uint32_t)base;
--	low2  = low >> 16;
--	low2 += rem << 16;
--	rem   = low2 % (uint32_t)base;
--	low2  = low2 / (uint32_t)base;
--	low   = low  & 0xffff;
--	low  += rem << 16;
--	rem   = low  % (uint32_t)base;
--	low   = low  / (uint32_t)base;
-+	/* Reduce the thing a bit first */
-+	res = 0;
-+	if (high >= base) {
-+		high /= base;
-+		res = (uint64_t) high << 32;
-+		rem -= (uint64_t) (high*base) << 32;
-+	}
- 
--	*n = low +
--		((uint64_t)low2 << 16) +
--		((uint64_t)high << 32);
-+	while ((int64_t)b > 0 && b < rem) {
-+		b <<= 1;
-+		d <<= 1;
-+	}
- 
-+	do {
-+		if (rem >= b) {
-+			rem -= b;
-+			res += d;
-+		}
-+		b >>= 1;
-+		d >>= 1;
-+	} while (d);
-+
-+	*n = res;
- 	return rem;
- }
- 
+Bye,
+    Oleg

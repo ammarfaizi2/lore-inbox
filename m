@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262641AbRFENB0>; Tue, 5 Jun 2001 09:01:26 -0400
+	id <S263245AbRFENF4>; Tue, 5 Jun 2001 09:05:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262999AbRFENBQ>; Tue, 5 Jun 2001 09:01:16 -0400
-Received: from smtp3.libero.it ([193.70.192.53]:44218 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S262641AbRFENBA> convert rfc822-to-8bit;
-	Tue, 5 Jun 2001 09:01:00 -0400
-Date: Tue,  5 Jun 2001 15:00:53 +0200
-Message-Id: <GEGK5H$IXkNoE_FHJoeiOHXWLjWb2HtA2ZGSm7PCRGtuESl_JfV2caz@iol.it>
-Subject: Agpgart for AMD761
+	id <S263246AbRFENFq>; Tue, 5 Jun 2001 09:05:46 -0400
+Received: from medusa.sparta.lu.se ([194.47.250.193]:16402 "EHLO
+	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
+	id <S263245AbRFENFm>; Tue, 5 Jun 2001 09:05:42 -0400
+Date: Tue, 5 Jun 2001 13:50:48 +0200 (MET DST)
+From: Bjorn Wesen <bjorn@sparta.lu.se>
+To: johan.adolfsson@axis.com
+cc: Oleg Drokin <green@linuxhacker.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: USB requiring PCI
+In-Reply-To: <005c01c0ecf6$4343ca40$a1b270d5@homeip.net>
+Message-ID: <Pine.LNX.3.96.1010605134927.9033A-100000@medusa.sparta.lu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "paolo.pedroni@iol.it" <paolo.pedroni@iol.it>
-To: linux-kernel@vger.kernel.org
-X-XaM3-API-Version: 1.1.9.1.37
-X-SenderIP: 131.175.176.132
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was wondering what is the state of support for the AMD761 Northbridge 
-chip, especially regarding agp operations since I don't see it listed 
-in the kernel configuration for the AGPGart device.
-Please CC any answer to my address, since I'm not subscribed to the 
-list.
-Thanks in advance.
+On Mon, 4 Jun 2001 johan.adolfsson@axis.com wrote:
+> I don't know the details of the implementation, but the CRIS port
+> (ETRAX 100LX) has support for USB but no PCI.
 
-Paolo Pedroni
+A builtin non-PCI USB-host controller, that is. And the driver is in the
+kernel so we do support it as well :) 
 
+/BW
+
+> > > AC> o       Make USB require PCI                            (me)
+> > > Huh?!
+> > > How about people from StrongArm sa11x0 port, who have USB host
+> controller (in
+> > > sa1111 companion chip) but do not have PCI?
+> >
+> > The strongarm doesnt have a USB master but a slave.
+> >
+> > > Probably there are more such embedded architectures with USB
+> controllers,
+> > > but not PCI bus.
+> >
+> > Currently we don't support any of them.
+> >
+> > > How about ISA USB host controllers?
+> >
+> > They do not exist.
 

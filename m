@@ -1,155 +1,447 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313364AbSC2Fqc>; Fri, 29 Mar 2002 00:46:32 -0500
+	id <S313365AbSC2Fqw>; Fri, 29 Mar 2002 00:46:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313361AbSC2FqM>; Fri, 29 Mar 2002 00:46:12 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:37068 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S313359AbSC2FqC>; Fri, 29 Mar 2002 00:46:02 -0500
-Date: Thu, 28 Mar 2002 21:43:39 -0800
-From: Jeff Jenkins <jefreyr@pacbell.net>
-Subject: RE: [PATCH] multithreaded coredumps for elf exeecutables
-In-Reply-To: <OF1F3C9069.75D95567-ON65256B84.001751A9@in.ibm.com>
-To: Suparna Bhattacharya <bsuparna@in.ibm.com>, mgross@unix-os.sc.intel.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        asit.k.mallick@intel.com, bharata@linux.ibm.com,
-        Daniel Jacobowitz <dan@debian.org>, david.p.howell@intel.com,
-        hanharat@us.ibm.com, linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br, Pavel Machek <pavel@suse.cz>,
-        Richard_J_Moore/UK/IBM%IBMGB <richardj_moore@uk.ibm.com>,
-        S Vamsikrishna <"Richard J Moore/UK/IBM%IBMGB"@d23rh902.au.ibm.com>,
-        sunil.saxena@intel.com, tachino@jp.fujitsu.com, tony.luck@intel.com,
-        vamsi@linux.ibm.com
-Message-id: <HFEPKLGPJDEHEGCKLKCCIEIJCFAA.jefreyr@pacbell.net>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	id <S313362AbSC2Fqf>; Fri, 29 Mar 2002 00:46:35 -0500
+Received: from mx18.nameplanet.com ([62.70.3.48]:64272 "HELO
+	mx18.nameplanet.com") by vger.kernel.org with SMTP
+	id <S313363AbSC2FqW>; Fri, 29 Mar 2002 00:46:22 -0500
+Date: 28 Mar 2002 21:53:20 -0000
+Message-ID: <20020328215320.1953.qmail@www4.nameplanet.com>
+From: david@shepard.tc
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com
+MIME-Version: 1.0
+Subject: 2.5.7 Compile failure at datafab.c
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, after all this discussion, is there a set of source that I can use to
-build a kernel that will
-dump ALL threads to a core file?
+I am attempting to add support for a USB Mass Storage device to kernel 2.5.7.
+Upon compile, I get the following errors:
 
-I recall that Vamsi initially send out the diffs that were to be used as a
-patch.  This sparked the issue raised by Daniel.
-
-Vamsi:  do you have a set of patches that differ than the original patch you
-sent?
-
-Thanks!
-
--- jrj
-
------Original Message-----
-From: Suparna Bhattacharya [mailto:bsuparna@in.ibm.com]
-Sent: Thursday, March 21, 2002 10:06 PM
-To: mgross@unix-os.sc.intel.com
-Cc: Alan Cox; Alan Cox; asit.k.mallick@intel.com; bharata@linux.ibm.com;
-Daniel Jacobowitz; david.p.howell@intel.com; hanharat@us.ibm.com;
-jefreyr@pacbell.net; linux-kernel@vger.kernel.org;
-marcelo@conectiva.com.br; Pavel Machek; Richard_J_Moore/UK/IBM%IBMGB; S
-Vamsikrishna; sunil.saxena@intel.com; tachino@jp.fujitsu.com;
-tony.luck@intel.com; vamsi@linux.ibm.com
-Subject: Re: [PATCH] multithreaded coredumps for elf exeecutables
-Importance: High
-
-
-
-IIRC there was an observation that spin_lock_irq seems to first disable
-interrupts and then start spinning on the lock, which is why such a
-situation could arise (even though the code in schedule doesn't appear to
-explicitly disable interrupts).
-
-However, in Mark's implementation, its only the first IPI that happens
-under the runqueue lock, and that actually doesn't wait for the other CPUs
-to receive the IPI. (The purpose of the first IPI was more a matter of
-trying to improve accuracy by notifying the other threads as soon as
-possible). So there shouldn't be a deadlock. The synchronization/wait
-happens in the case of the second IPI (i.e. the smp_call_function), and by
-that time the runqueue lock has been released, and cpus_allowed has been
-updated.
-
-Regards
-Suparna
-
-  Suparna Bhattacharya
-  Linux Technology Center
-  IBM Software Lab, India
-  E-mail : bsuparna@in.ibm.com
-  Phone :  91-80-5044961
+-D__KERNEL__ -I/usr/src/testing/2.5/linux-2.5.4/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE
+-DMODVERSIONS -include
+/usr/src/testing/2.5/linux-2.5.4/include/linux/modversions.h -I../../scsi/
+-DKBUILD_BASENAME=datafab  -c -o datafab.o datafab.c
+datafab.c: In function `datafab_read_data':
+datafab.c:259: structure has no member named `address'
+datafab.c:259: structure has no member named `address'
+datafab.c:268: structure has no member named `address'
+datafab.c:268: structure has no member named `address'
+datafab.c: In function `datafab_write_data':
+datafab.c:349: structure has no member named `address'
+datafab.c:349: structure has no member named `address'
+datafab.c:358: structure has no member named `address'
+datafab.c:358: structure has no member named `address'
+make[3]: *** [datafab.o] Error 1
+make[3]: Leaving directory `/usr/src/testing/2.5/linux-2.5.4/drivers/usb/storage'
+make[2]: *** [_modsubdir_storage] Error 2
+make[2]: Leaving directory `/usr/src/testing/2.5/linux-2.5.4/drivers/usb'
+make[1]: *** [_modsubdir_usb] Error 2
+make[1]: Leaving directory `/usr/src/testing/2.5/linux-2.5.4/drivers'
+make: *** [_mod_drivers] Error 2
 
 
 
+Config is as follows:
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+CONFIG_ISA=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
 
-                    Mark Gross
-                    <mgross@unix-os.sc.       To:     Alan Cox
-<alan@lxorguk.ukuu.org.uk>
-                    intel.com>                cc:
-alan@lxorguk.ukuu.org.uk (Alan Cox),
-                                               dan@debian.org (Daniel
-Jacobowitz),
-                    03/21/02 08:29 PM          vamsi@linux.ibm.com,
-pavel@suse.cz (Pavel
-                    Please respond to          Machek),
-linux-kernel@vger.kernel.org,
-                    mgross                     marcelo@conectiva.com.br,
-                                               tachino@jp.fujitsu.com,
-jefreyr@pacbell.net,
-                                               S
-Vamsikrishna/India/IBM@IBMIN, Richard J
-                                               Moore/UK/IBM@IBMGB,
-hanharat@us.ibm.com,
-                                               Suparna
-Bhattacharya/India/IBM@IBMIN,
-                                               bharata@linux.ibm.com,
-                                               asit.k.mallick@intel.com,
-                                               david.p.howell@intel.com,
-                                               tony.luck@intel.com,
-sunil.saxena@intel.com
-                                              Subject:     Re: [PATCH]
-multithreaded
-                                               coredumps for elf
-exeecutables
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
 
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
 
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
 
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+CONFIG_MPENTIUMIII=y
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_MICROCODE is not set
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM4G_HIGHPTE is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_HIGHMEM64G_HIGHPTE is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+# CONFIG_SMP is not set
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_HAVE_DEC_LOCK=y
 
+#
+# General options
+#
 
+#
+# ACPI Support
+#
+# CONFIG_ACPI is not set
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+CONFIG_HOTPLUG=y
 
-On Thursday 21 March 2002 12:34 pm, Alan Cox wrote:
-> > This why I grabbed all those locks, and did the two sets of IPI's in
-the
-> > tcore patch.  Once the runqueue lock is grabbed, even if that process
-on
-> > the
->
-> If you IPI holding a lock whats going to happen if while the IPI is going
-> across the cpus the other processor tries to grab the runqueue lock and
-> is spinning on it with interrupts off ?
+#
+# PCMCIA/CardBus support
+#
+CONFIG_PCMCIA=y
+CONFIG_CARDBUS=y
+# CONFIG_I82092 is not set
+# CONFIG_I82365 is not set
+# CONFIG_TCIC is not set
+# CONFIG_PCMCIA_SA1100 is not set
 
-Then the at least 2 CPU's would quickly become dead locked on the
-synchronization IPI this patch sends at the end of the
-suspend_other_threads
-function call.
+#
+# PCI Hotplug Support
+#
+# CONFIG_HOTPLUG_PCI is not set
+# CONFIG_HOTPLUG_PCI_COMPAQ is not set
+# CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM is not set
+# CONFIG_HOTPLUG_PCI_IBM is not set
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PM=y
+CONFIG_APM=m
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+# CONFIG_APM_RTC_IS_GMT is not set
+# CONFIG_APM_ALLOW_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
 
-Interrupts shouldn't be turned off when grabbing the runqueue lock.  Its
-also
-a bad thing if they would happen to be off while calling into to schedule.
+#
+# Memory Technology Devices (MTD)
+#
+CONFIG_MTD=m
+# CONFIG_MTD_DEBUG is not set
+# CONFIG_MTD_PARTITIONS is not set
+# CONFIG_MTD_REDBOOT_PARTS is not set
+# CONFIG_MTD_CHAR is not set
+# CONFIG_MTD_BLOCK is not set
+# CONFIG_MTD_BLOCK_RO is not set
+# CONFIG_FTL is not set
+# CONFIG_NFTL is not set
 
+#
+# RAM/ROM/Flash chip drivers
+#
+# CONFIG_MTD_CFI is not set
+# CONFIG_MTD_JEDECPROBE is not set
+# CONFIG_MTD_GEN_PROBE is not set
+# CONFIG_MTD_CFI_INTELEXT is not set
+# CONFIG_MTD_CFI_AMDSTD is not set
+# CONFIG_MTD_RAM is not set
+# CONFIG_MTD_ROM is not set
+# CONFIG_MTD_ABSENT is not set
+# CONFIG_MTD_OBSOLETE_CHIPS is not set
+# CONFIG_MTD_AMDSTD is not set
+# CONFIG_MTD_SHARP is not set
+# CONFIG_MTD_JEDEC is not set
 
-I think schedule was designed to be called only while interrupts are turned
+#
+# Mapping drivers for chip access
+#
+# CONFIG_MTD_PHYSMAP is not set
+# CONFIG_MTD_PNC2000 is not set
+# CONFIG_MTD_SC520CDP is not set
+# CONFIG_MTD_NETSC520 is not set
+# CONFIG_MTD_SBC_GXX is not set
+# CONFIG_MTD_ELAN_104NC is not set
+# CONFIG_MTD_MIXMEM is not set
+# CONFIG_MTD_OCTAGON is not set
+# CONFIG_MTD_VMAX is not set
+# CONFIG_MTD_L440GX is not set
 
-on.  It BUG's if "in_interrupt" to enforce this.
+#
+# Self-contained MTD device drivers
+#
+# CONFIG_MTD_PMC551 is not set
+# CONFIG_MTD_SLRAM is not set
+# CONFIG_MTD_MTDRAM is not set
+# CONFIG_MTD_BLKMTD is not set
+# CONFIG_MTD_DOC1000 is not set
+# CONFIG_MTD_DOC2000 is not set
+# CONFIG_MTD_DOC2001 is not set
+# CONFIG_MTD_DOCPROBE is not set
 
---mgross
+#
+# NAND Flash Device Drivers
+#
+# CONFIG_MTD_NAND is not set
 
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
 
+#
+# Plug and Play configuration
+#
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
 
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_CISS_SCSI_TAPE is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_BLK_DEV_INITRD is not set
 
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_MULTIPATH is not set
+# CONFIG_BLK_DEV_LVM is not set
 
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+# CONFIG_NETLINK_DEV is not set
+# CONFIG_NETFILTER is not set
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_IPV6 is not set
+# CONFIG_KHTTPD is not set
+# CONFIG_ATM is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+# CONFIG_PHONE_IXJ_PCMCIA is not set
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
+# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
+# CONFIG_BLK_DEV_IDEDISK_IBM is not set
+# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
+# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
+# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
+# CONFIG_BLK_DEV_IDEDISK_WD is not set
+# CONFIG_BLK_DEV_COMMERIAL is not set
+# CONFIG_BLK_DEV_TIVO is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+CONFIG_BLK_DEV_IDEPCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_PCI_WIP=y
+CONFIG_IDEDMA_NEW_DRIVE_LISTINGS=y
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_AEC62XX_TUNING is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+CONFIG_BLK_DEV_PIIX=y
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC_ADMA is not set
+# CONFIG_BLK_DEV_PDC202XX is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_PDC202XX_FORCE is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_DMA_NONPCI is not set
+# CONFIG_BLK_DEV_ATARAID is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+# CONFIG_BLK_DEV_ATARAID_HPT is not set
+
+#
+# SCSI support
+#
+CONFIG_SCSI=m
+# CONFIG_BLK_DEV_SD is not set
+# CONFIG_CHR_DEV_ST is not set
+# CONFIG_CHR_DEV_OSST is not set
+# CONFIG_BLK_DEV_SR is not set
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA152X is not set
+# CONFIG_SCSI_AHA1542 is not set
+# CONFIG_SCSI_AHA1740 is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+# CONFIG_SCSI_DPT_I2O is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+# CONFIG_SCSI_AM53C974 is not set
+# CONFIG_SCSI_MEGARAID is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_DMA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_NCR53C406A is not set
+# CONFIG_SCSI_NCR53C7xx is not set
+# CONFIG_SCSI_SYM53C8XX_2 is not set
+# CONFIG_SCSI_NCR53C8XX is not set
+# CONFIG_SCSI_SYM53C8XX is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PCI2000 is not set
+# 

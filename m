@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130069AbRAaSQw>; Wed, 31 Jan 2001 13:16:52 -0500
+	id <S130032AbRAaSeH>; Wed, 31 Jan 2001 13:34:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130968AbRAaSQm>; Wed, 31 Jan 2001 13:16:42 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21769 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130069AbRAaSQZ>; Wed, 31 Jan 2001 13:16:25 -0500
-Subject: Re: [PATCH] Making Cyrix III boot
-To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Date: Wed, 31 Jan 2001 18:16:16 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <20010129034300.I1173@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Jan 29, 2001 03:43:00 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130157AbRAaSdr>; Wed, 31 Jan 2001 13:33:47 -0500
+Received: from zurich.ai.mit.edu ([18.43.0.244]:8721 "EHLO zurich.ai.mit.edu")
+	by vger.kernel.org with ESMTP id <S130032AbRAaSd0>;
+	Wed, 31 Jan 2001 13:33:26 -0500
+To: Padraig@antefacto.com
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <3A7852A9.1060600@AnteFacto.com> (Padraig@AnteFacto.com)
+Subject: 2.4.1-pre10 -> 2.4.1 klogd at 100% CPU ; 2.4.0 OK
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14O1nm-0002pG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+User-Agent: IMAIL/1.9; Edwin/3.105; MIT-Scheme/7.5.13
+Message-Id: <E14O247-0002aT-00@qiwi.ai.mit.edu>
+From: Chris Hanson <cph@zurich.ai.mit.edu>
+Date: Wed, 31 Jan 2001 13:33:11 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The Cyrix III of my employer doesn't boot without this patch.
-> Reason: There are no MSRs in this range.
-> 
-> Since hpa didn't send a better fix, I attached the band-aid fix
-> for you, so that people can boot.
+   Date: Wed, 31 Jan 2001 18:00:09 +0000
+   From: Padraig Brady <Padraig@AnteFacto.com>
 
-HPA's suggested fix is in the -ac tree
+   Can we sort this out once and for all? There are a few emails
+   everyday relating to this bug.
 
-> Linus, please apply.
+   The following patch posted by "Troels Walsted Hansen" <troels@thule.no>
+   on Jan 11th fixes this. The problem is that when 2 consequtive
+   NULLs are sent to klogd it goes into a busy loop. Andrew Mortons
+   3c59x driver does this, but also on Jan 11th he replied that he had
+   fixed it. I'm using 2.4ac4 with no problems, so I presume some
+   of these patches have been lost along the way?
 
-Linus please apply hpa's correct fix instead
+Yes, that did it.  It also explains why my desktop works fine, since
+it uses an eepro100 network card.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

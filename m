@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263742AbUBREyr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 23:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUBREyq
+	id S263625AbUBREs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 23:48:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbUBREs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 23:54:46 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:65185 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263742AbUBREyp (ORCPT
+	Tue, 17 Feb 2004 23:48:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32685 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263625AbUBREsx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 23:54:45 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Matthew Rench <lists@pelennor.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem rmmod'ing module 
-In-reply-to: Your message of "Tue, 17 Feb 2004 15:38:58 MDT."
-             <20040217153858.A11859@pelennor.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 18 Feb 2004 15:06:21 +1100
-Message-ID: <7711.1077077181@kao2.melbourne.sgi.com>
+	Tue, 17 Feb 2004 23:48:53 -0500
+Date: Tue, 17 Feb 2004 20:48:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6] IBM PowerPC Virtual Ethernet Driver 
+In-Reply-To: <7789.1077077976@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.58.0402172047550.2686@home.osdl.org>
+References: <7789.1077077976@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Feb 2004 15:38:58 -0600, 
-Matthew Rench <lists@pelennor.net> wrote:
->I'm getting some strange behavior while trying to rmmod a module from my
->2.4.21 kernel. Each call to "rmmod" segfaults, leaving the module usage count
->incremented.
 
-kernel/module.c bumps the use count at the start of each query, to
-prevent the module being removed while it is being queried.  The use
-count is droped at the end of normal query processing, but
-kernel/module.c is breaking and leaving the raised use count.
 
->When I strace rmmod, the last few lines are:
->
->  query_module(NULL, QM_MODULES, { /* 5 entries */ }, 5) = 0
->  query_module("serial", QM_INFO, {address=0xd8816000, size=43620, flags=MOD_RUNNING, usecount=14}, 16) = 0
->  query_module( <unfinished ...>
->  +++ killed by SIGSEGV +++
+On Wed, 18 Feb 2004, Keith Owens wrote:
+> 
+> There is no scope for a compiler to reorder the members or the bit
+> fields of a structure.
 
-Information about the second module in the chain (after "serial") is
-corrupt.  What does lsmod report?
+The actual bit ordering is implementation-defined, though, so in effect 
+the bitfield setup _does_ depend on the compiler and architecture details.
 
-You should have several oops reports in your syslog.  Run the first two
-through ksymoops and send in the ksymoops output.
-
+		Linus

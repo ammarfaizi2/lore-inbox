@@ -1,26 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265757AbSKYWeK>; Mon, 25 Nov 2002 17:34:10 -0500
+	id <S265759AbSKYWoI>; Mon, 25 Nov 2002 17:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265773AbSKYWeK>; Mon, 25 Nov 2002 17:34:10 -0500
-Received: from h-64-105-35-74.SNVACAID.covad.net ([64.105.35.74]:40078 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265757AbSKYWeK>; Mon, 25 Nov 2002 17:34:10 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 25 Nov 2002 14:39:47 -0800
-Message-Id: <200211252239.OAA02120@baldur.yggdrasil.com>
-To: rusty@rustcorp.com.au, vandrove@vc.cvut.cz, zippel@linux-m68k.org
-Subject: Re: Modules with list
-Cc: linux-kernel@vger.kernel.org
+	id <S265787AbSKYWoI>; Mon, 25 Nov 2002 17:44:08 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:6283 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265759AbSKYWoH>; Mon, 25 Nov 2002 17:44:07 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 25 Nov 2002 14:52:16 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: John Myers <jgmyers@netscape.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] new poll callback'd wake up hell ...
+In-Reply-To: <Pine.LNX.4.50.0211251433200.1793-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.50.0211251451060.1793-100000@blue1.dev.mcafeelabs.com>
+References: <3DE29EB9.9050301@netscape.com>
+ <Pine.LNX.4.50.0211251433200.1793-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
->Subject: Modules with list
+On Mon, 25 Nov 2002, Davide Libenzi wrote:
 
-That should read "Modules wish list".  Sorry for the really stupid typo.
+> On Mon, 25 Nov 2002, John Myers wrote:
+>
+> > Davide Libenzi writes:
+> >  > 1) Move the wake_up() call done inside the poll callback outside the lock
+> >
+> > You can't.  You need to hold the lock over the callback or your callback
+> > could end up accessing a freed epitem.
+>
+> No, look at the code :
+>
+> http://www.xmailserver.org/linux-patches/sys_epoll-2.5.49-0.58.diff
+>
+> The function ep_collect_ready_items() increases the usage count under
+> lock. So the epintem is protected, and the file* cannot desappear because
+> of the read lock on epsem.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Ops, I understood the f_op->poll() not the wake_up(). It can be solved in
+the same way. I'll do it now.
+
+
+
+
+- Davide
+

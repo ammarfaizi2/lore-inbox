@@ -1,36 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbUL3XIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbUL3XKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbUL3XIR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 18:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbUL3XIR
+	id S261744AbUL3XKK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 18:10:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbUL3XKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 18:08:17 -0500
-Received: from mail.tyan.com ([66.122.195.4]:15379 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261742AbUL3XIN (ORCPT
+	Thu, 30 Dec 2004 18:10:10 -0500
+Received: from mail.tyan.com ([66.122.195.4]:8452 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S261744AbUL3XJz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 18:08:13 -0500
-Message-ID: <3174569B9743D511922F00A0C943142307290FE0@TYANWEB>
+	Thu, 30 Dec 2004 18:09:55 -0500
+Message-ID: <3174569B9743D511922F00A0C943142307290FE1@TYANWEB>
 From: YhLu <YhLu@tyan.com>
 To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, Matt_Domsch@dell.com,
-       "'Stefan Reinauer'" <stepan@openbios.org>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, Matt_Domsch@dell.com
 Subject: RE: 256 apic id for amd64
-Date: Thu, 30 Dec 2004 15:16:39 -0800
+Date: Thu, 30 Dec 2004 15:19:01 -0800
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For the 8 way dual core Opteron system.
-The CPUs will use 16 APIC ID, so BIOS or LinuxBIOS will enable APIC_EXT_ID
-to use 256 apic id. So the ioapic will begin from 16.....
+2.6.9 has a good feature and you remove that in 2.6.10.
 
-Another case : one system has two much 8131 will need to enable it.
-For example four way system with single core Opteron, will have 7 8131s and
-1 8111. So apic num will be 4+7*2+1=19.
-
-Thanks.
+That is if the io apic is set to above 0xf, io_apic.c will find one below
+0xf unused and update the table.
 
 YH
 

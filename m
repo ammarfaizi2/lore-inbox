@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132465AbRDNAOL>; Fri, 13 Apr 2001 20:14:11 -0400
+	id <S132508AbRDNAPx>; Fri, 13 Apr 2001 20:15:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132508AbRDNAOA>; Fri, 13 Apr 2001 20:14:00 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:58553 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132465AbRDNANx>;
-	Fri, 13 Apr 2001 20:13:53 -0400
-Date: Fri, 13 Apr 2001 20:13:41 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org,
-        Linus Torvalds <torvalds@transmeta.com>, Linux390@de.ibm.com
-Subject: Re: EXPORT_SYMBOL for chrdev_open 2.4.3
-In-Reply-To: <20010413173256.A14267@vger.timpanogas.org>
-Message-ID: <Pine.GSO.4.21.0104132004320.24992-100000@weyl.math.psu.edu>
+	id <S132531AbRDNAPo>; Fri, 13 Apr 2001 20:15:44 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:23289 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S132508AbRDNAPc>;
+	Fri, 13 Apr 2001 20:15:32 -0400
+To: Jerry Hong <jhong001@yahoo.com>
+Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: thread problem with libc for Linux
+In-Reply-To: <20010413204557.21595.qmail@web4306.mail.yahoo.com>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: GCC Team, Red Hat
+Date: 13 Apr 2001 21:15:13 -0300
+In-Reply-To: <20010413204557.21595.qmail@web4306.mail.yahoo.com>
+Message-ID: <orzodk49ri.fsf@guarana.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Apr 13, 2001, Jerry Hong <jhong001@yahoo.com> wrote:
 
+> Program received signal SIGSEGV, Segmentation fault.
+> 0x401ca0d6 in chunk_free (ar_ptr=0x4025ed60,
+> p=0x80a1ba8) at malloc.c:3097
 
-On Fri, 13 Apr 2001, Jeff V. Merkey wrote:
+This is usually a symptom of memory corruption in your own program.
+It's damaging libc's internal data structures.  I.e., this probably
+has nothing to do with GCC or the kernel.
 
-> It would be nice if chrdev_open were added to ksyms.c along with
-> blkdev_open since tape devices seem are always registered as character
-> rather than block devices.  
-> 
-> I am finding that kernel modules that need to open and close a tape 
-> drive have to export chrdev_open manually on 2.4.3.  Can this get 
-> exported as well?  Closing is not a problem since the method of 
-> calling (->release) seems to work OK with SCSI tape devices.
-
-They don't need it. Moreover, blkdev_open shouldn't be exported too -
-the only potentially modular piece of code that refers to it is
-drivers/block/rd.c and it's in initrd loading, so it isn't even
-compiled when we do rd as a module.
-
-BTW, Linus, could we remove blkdev_open() from the export list?
-I don't see any legitimate reason to export it - certainly not in
-the official tree.
-
-BTW, fs/partitions/ibm.c also doesn't need blkdev_open() - it should
-use ioctl_by_bdev() and be done with that.
-							Al
-
+-- 
+Alexandre Oliva   Enjoy Guarana', see http://www.ic.unicamp.br/~oliva/
+Red Hat GCC Developer                  aoliva@{cygnus.com, redhat.com}
+CS PhD student at IC-Unicamp        oliva@{lsd.ic.unicamp.br, gnu.org}
+Free Software Evangelist    *Please* write to mailing lists, not to me

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281805AbRL0VTA>; Thu, 27 Dec 2001 16:19:00 -0500
+	id <S282418AbRL0VVU>; Thu, 27 Dec 2001 16:21:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282271AbRL0VSu>; Thu, 27 Dec 2001 16:18:50 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:5135 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S281805AbRL0VSl>; Thu, 27 Dec 2001 16:18:41 -0500
-Date: Thu, 27 Dec 2001 19:18:25 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Troy Benjegerdes <hozer@drgw.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>, <linux-kernel@vger.kernel.org>
+	id <S282373AbRL0VVL>; Thu, 27 Dec 2001 16:21:11 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:33174 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S282276AbRL0VU6>;
+	Thu, 27 Dec 2001 16:20:58 -0500
+Date: Thu, 27 Dec 2001 16:20:57 -0500
+From: Legacy Fishtank <garzik@havoc.gtf.org>
+To: Dave Jones <davej@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: The direction linux is taking
-In-Reply-To: <20011227151319.E25200@altus.drgw.net>
-Message-ID: <Pine.LNX.4.33L.0112271917120.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20011227162057.C23942@havoc.gtf.org>
+In-Reply-To: <a0fntk$ukm$1@penguin.transmeta.com> <Pine.LNX.4.33.0112271928260.15706-100000@Appserv.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0112271928260.15706-100000@Appserv.suse.de>; from davej@suse.de on Thu, Dec 27, 2001 at 07:37:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Troy Benjegerdes wrote:
+On Thu, Dec 27, 2001 at 07:37:16PM +0100, Dave Jones wrote:
+> On Thu, 27 Dec 2001, Linus Torvalds wrote:
+> > We've seen this several times in Linux - David, for example, used to
+> > maintain his CVS tree, and he ended up being rather frustrated about
+> > having to then maintain it all and clean up the bad parts because I
+> > didn't want to apply them (and he didn't really want me to) and he
+> > couldn't make people clean up themselves because "once it was in, it was
+> > in".
+> 
+> "Used to" ? cvs @ vger.samba.org was still being maintained before
+> I went on xmas vacation. Did I miss something ?
 
-> Maintainers for a specific area of interest/kernel tree/whatever can run a
-> 'canned' set of scripts on a web server which act as a controller for a
-> patchbot, and a set of 'build machines' that actually do the compiles.
+Kinda-sorta...
 
-> http://altus.drgw.net/description.html
->
-> I'll volunteer these scripts as well as whatever amount of time I can
-> spare from 'real' work ;)
+vger cvs is maintained by DaveM and current, but one catches holy hell
+from Dave if the non-DaveM patches in vger are not merged into the
+Linus/Marcelo trees rapidly ;-)  So in that way vger cvs is not really a
+branch but a staging area for the official tree.
 
-Cool !
+	Jeff
 
-> Does anyone else this discussion merits it's own mailing list.. ?
-
-patchbot@nl.linux.org
-
-You can subscribe by mailing to listar@nl.linux.org with
-"subscribe patchbot" in the message.
-
-Once I've gotten around to it, http://patchbot.nl.linux.org/
-should contain some content, too. (or once somebody else has
-gotten around to it)
-
-cheers,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
 

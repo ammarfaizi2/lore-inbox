@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbTLDHYk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 02:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbTLDHYk
+	id S263158AbTLDHmi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 02:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbTLDHmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 02:24:40 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:27278 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263142AbTLDHYi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 02:24:38 -0500
-content-class: urn:content-classes:message
+	Thu, 4 Dec 2003 02:42:38 -0500
+Received: from mail.gmx.de ([213.165.64.20]:33938 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263158AbTLDHmh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 02:42:37 -0500
+X-Authenticated: #4512188
+Message-ID: <3FCEE56B.9040404@gmx.de>
+Date: Thu, 04 Dec 2003 08:42:35 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
+X-Accept-Language: de-de, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Jesse Allen <the3dfxdude@hotmail.com>
+CC: "b@netzentry.com" <b@netzentry.com>, linux-kernel@vger.kernel.org
+Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
+References: <3FCE90CD.6060501@netzentry.com> <20031204024547.GA175@tesore.local>
+In-Reply-To: <20031204024547.GA175@tesore.local>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Extremely slow network with e1000 & ip_conntrack
-Date: Wed, 3 Dec 2003 23:24:24 -0800
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD20@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Extremely slow network with e1000 & ip_conntrack
-Thread-Index: AcO4paDbQopOJrwLSfm5lMgBKgt5pABjVgugAAEHizA=
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Harald Welte" <laforge@netfilter.org>,
-       "Stephen Lee" <mukansai@emailplus.org>
-Cc: <netfilter-devel@lists.netfilter.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Dec 2003 07:24:25.0449 (UTC) FILETIME=[A5399D90:01C3BA37]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > 2.4.22		82540EM		N
-> > > > 2.5.26		82540EM		N
-> > > > 2.5.46		82540EM		Y
-> > > > 2.6.0-test10		82540EM		Y
-> > > > 2.6.0-test11		82540EM		Y
-> > > > 2.6.0-test11		82547EI		N
-> > > > 2.4.22nptlsmp		82547EI		N
+
 > 
-> In e1000, check this out:
-> 
->   #ifdef NETIF_F_TSO
->           if((adapter->hw.mac_type >= e1000_82544) &&
->              (adapter->hw.mac_type != e1000_82547))
->                   netdev->features |= NETIF_F_TSO;
->   #endif
+>>Thanks everyone for your continued interest in this, I'll
+>>try and test the no-onboard-PATA + UP LAPIC and IOAPIC and
+>>add-in-card-PATA with no onboard PATA + + UP LAPIC and IOAPIC
+>>when I get a spare moment which is rare.
 
-Oh, I forgot one thing: 82540 is actually greater than 82544.  The
-comparison is chronological order, not numerical.  This is the order the
-controllers where released:
+I don't think that the AMD IDE is the problem. I have compiled it in, as 
+well, but I am using the onboard SATA. Since this can be considered as 
+an pci-card (the chip is connected to the pci bridge) I think ölocking 
+occurs on high traffic on PCI bus. Like now I get over 60mb/s with my 
+HD. Formerly I got only 25mb/s. BEfore I could do some rounds of hdparm 
+-t, before it locks. Now it locks immediatly when doing hdparm -t when 
+APIC is enabled.
 
-82542
-82543
-82544
-82540
-82545
-82546
-82541
-82547
+SO, I think it is not IDE specific. DOes anybody have gigabit network 
+card? MAybe that oe should try to push something big through it (without 
+reading from hd). If that leads to lock up we have a semi proof that it 
+is due to high traffic on pci-bus.
 
-Don't ask.
-
--scott

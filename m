@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbVALCNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263009AbVALCQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263010AbVALCNA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 21:13:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbVALCMh
+	id S263009AbVALCQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 21:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVALCQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 21:12:37 -0500
-Received: from main.gmane.org ([80.91.229.2]:63661 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263004AbVALCL4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 21:11:56 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jim Zajkowski <jamesez@umich.edu>
-Subject: Re: Sparse LUN scanning - 2.4.x
-Date: Tue, 11 Jan 2005 21:11:40 -0500
-Message-ID: <cs210t$l8m$1@sea.gmane.org>
-References: <41E46A59.2010205@metaparadigm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsl093-002-011.det1.dsl.speakeasy.net
-User-Agent: Unison/1.5.2
+	Tue, 11 Jan 2005 21:16:58 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:61167 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S263005AbVALCOQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 21:14:16 -0500
+Message-Id: <200501120213.j0C2DjGO008084@localhost.localdomain>
+To: Matt Mackall <mpm@selenic.com>
+cc: Chris Wright <chrisw@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
+In-reply-to: Your message of "Tue, 11 Jan 2005 15:06:42 PST."
+             <20050111230642.GD2940@waste.org> 
+Date: Tue, 11 Jan 2005 21:13:44 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.197.39.54] at Tue, 11 Jan 2005 20:14:13 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-01-11 19:07:53 -0500, Michael Clark <michael@metaparadigm.com> said:
+>And that is a failure of imagination on the part of the JACK
 
->> The problem is this: since LUN 0 does not show up -- specifically, it 
->> can't read the vendor or model informaton -- the kernel SCSI scan does 
->> not match with the table to tell the kernel to do sparse LUN 
->> scanning... so the RAID does not appear.
+Please be careful with your words. Based on your comments below, it
+appears that you've never read any of the technical docs on it, and
+almost certainly never read the source code.
 
-> Add the Xserve with the BLIST_SPARSELUN flag into the blacklist/quirks 
-> table in drivers/scsi/scsi_scan.c
+>developers. Simply add a library function to libjack or whatever:
+>
+> jack_make_me_important(...); /* pretty please */
 
-It already is in the quirks list.
+like:
 
-The problem is that LUN 0 does not show up on this machine, so the 
-quirks table doesn't work.  Looking at /proc/scsi/scsi shows the device 
-but only sorta:
+  int jack_set_client_capabilities (jack_engine_t *engine, jack_client_id_t id);
 
-> Host: scsi1 Channel: 00 Id: 00 Lun: 00
->   Vendor:          Model:                  Rev:
->   Type:   Processor                        ANSI SCSI revision: ffffffff
+along with various other things that will ultimately get the client to
+call functions like:
 
-whereas the LUN that is mapped shows up like this:
+   int jack_drop_real_time_scheduling (pthread_t thread);
+   int jack_acquire_real_time_scheduling (pthread_t thread, int priority);
 
-> Host: scsi1 Channel: 00 Id: 00 Lun: 01
->   Vendor: APPLE    Model: Xserve RAID      Rev: 1.20
->   Type:   Direct-Access                    ANSI SCSI revision: 02
+these functions are exported to clients, because some clients have
+other threads that require RT scheduling.
 
-So since the information doesn't show up, the quirks table magic 
-doesn't work since it doesn't know that it needs to do a sparse lun 
-scan.
+>A client starts at normal priority, asks jack nicely to promote it to
+>RT, then jackd, if so configured/enabled, calls the wrapper with a PID
 
---Jim
+a PID? clients are multithreaded, and only specific threads run with
+RT scheduling (normally just the one created for them by
+libjack). So you presumably mean a TID, which in turn creates a
+problem for any system (e.g. 2.4) where all threads share the PID, and
+sched_setscheduler() really does use the PID as a PID, not a TID.
 
--- 
-Jim Zajkowski          OpenPGP 0x21135C3    http://www.jimz.net/pgp.asc
-System Administrator  8A9E 1DDF 944D 83C3 AEAB  8F74 8697 A823 2113 5C53
-UM Life Sciences Institute
+but its gets worse. JACK clients need to drop RT scheduling under
+certain, well-defined circumstances. how do they get it back under
+this scheme?
 
-
+--p

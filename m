@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUJTOmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUJTOmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267601AbUJTOmn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 10:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUJTOiK
+	id S264386AbUJTOmp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 10:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267866AbUJTOhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 10:38:10 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:12160 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S268497AbUJTOgY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 10:36:24 -0400
-Date: Wed, 20 Oct 2004 10:36:00 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Module compilation
-Message-ID: <Pine.LNX.4.61.0410201034590.12062@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 20 Oct 2004 10:37:47 -0400
+Received: from pop.gmx.net ([213.165.64.20]:6575 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266683AbUJTOhS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 10:37:18 -0400
+X-Authenticated: #4399952
+Date: Wed, 20 Oct 2004 16:53:26 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041020165326.5016fc5e@mango.fruits.de>
+In-Reply-To: <20041020141822.GA16965@elte.hu>
+References: <20041015102633.GA20132@elte.hu>
+	<20041016153344.GA16766@elte.hu>
+	<20041018145008.GA25707@elte.hu>
+	<20041019124605.GA28896@elte.hu>
+	<20041019180059.GA23113@elte.hu>
+	<20041020094508.GA29080@elte.hu>
+	<20041020145019.176826cb@mango.fruits.de>
+	<20041020125500.GA8693@elte.hu>
+	<20041020152507.3c167ca8@mango.fruits.de>
+	<20041020162428.7c4c5f53@mango.fruits.de>
+	<20041020141822.GA16965@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 20 Oct 2004 16:18:22 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
+> note that the keyboard and USB interrupts are SCHED_OTHER by default, so
+> they could be delayed quite long depending on the workload. To avoid
+> that i'd suggest to:
+> 
+>         chrt --fifo --pid 30 `pidof 'IRQ 1'`
+>         chrt --fifo --pid 30 `pidof 'IRQ 12'`
+> 
+> (do this for every IRQ you have for input devices.) This puts them below
+> jackd's priority (which is FIFO 50 iirc) but above all SCHED_OTHER
+> tasks. The soundcard IRQ i guess you have chrt-ed already?
+> 
+> or did you have them on SCHED_FIFO already?
 
-In Makefiles for compiling modules before the new
-kernel build procedure, we would just build up
-a gcc command-line with the correct parameters
-and definitions, i.e. :
+setting them to SCHED_FIFO even with a prio of 99 won't help. will try
+rebooting to see if it's reproducable 
 
-CC = gcc -Wall -O2 -etc -etc
-
-DEFINES = -DMODULE -D__KERNEL__ -DONE=1 -DTWO=2 -DETC=etc
-
-CC += $(DEFINES)
-
-In this manner, one could dynamically change definitions
-(-DEFINES) being passed to the compiler. The problem is
-that the new compile procedure doesn't allow this. It
-is possible to 'cheat' and add a string to CFLAGS like
-
-CFLAGS += -DONE=1 -DTWO=2 -DETC=etc
-
-...but it's not CFLAGS that needs to be modified, it's
-a named variable that doesn't exist yet, perhaps "USERDEF",
-or "DEFINES". I see that the normal "defines" is a constant 
-called "CHECKFLAGS", so this isn't appropriate for user
-modification.
-
-Could whomever remade the kernel Makefile, please add
-a variable, initially set to "", like CFLAGS_KERNEL, that
-is exported and is always included on the compiler command-
-line?
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
-                  98.36% of all statistics are fiction.
+flo

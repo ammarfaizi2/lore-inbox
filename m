@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbTIHHfl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 03:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTIHHfl
+	id S262072AbTIHHnF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 03:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTIHHnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 03:35:41 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43741 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262070AbTIHHfj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 03:35:39 -0400
-Date: Mon, 8 Sep 2003 09:35:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: mfedyk@matchmail.com
-Cc: markw@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: OSDL DBT-2 AS vs. Deadline 2.6.0-test4-mm3
-Message-ID: <20030908073527.GF840@suse.de>
-References: <200309051828.h85IRxo16644@mail.osdl.org> <20030905201722.GC19041@matchmail.com>
+	Mon, 8 Sep 2003 03:43:05 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10504 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262072AbTIHHnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 03:43:02 -0400
+Date: Mon, 8 Sep 2003 08:42:58 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6] arch/arm/mm/tlb-v4wb.S needs to lose a header
+Message-ID: <20030908084258.B1092@flint.arm.linux.org.uk>
+Mail-Followup-To: Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0309080029200.14426@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030905201722.GC19041@matchmail.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.53.0309080029200.14426@montezuma.fsmlabs.com>; from zwane@linuxpower.ca on Mon, Sep 08, 2003 at 12:40:10AM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05 2003, Mike Fedyk wrote:
-> On Fri, Sep 05, 2003 at 11:27:56AM -0700, markw@osdl.org wrote:
-> > FUNCTIONS SORTED BY LOAD:
-> > -- ------------------------- ------- ------------------------- -------
-> >  # as 2.6.0-test4-mm3        ticks   deadline 2.6.0-test4-mm3  ticks  
-> > -- ------------------------- ------- ------------------------- -------
-> >  1 default_idle              5746007 default_idle              5764451
-> >  2 schedule                    53609 schedule                    52174
-> >  3 scsi_request_fn             29340 
-> >                                      do_softirq                  25905
-> >  4 __make_request              25949 scsi_request_fn             23549
-> >  5 do_softirq                  25560 __make_request              20325
-> >  6 scsi_end_request            16524 try_to_wake_up              11723
-> >  7 try_to_wake_up              11939 scsi_end_request            11340
-> >  8 dio_bio_end_io              11253 dio_bio_end_io              10950
-> >  9 do_anonymous_page            8234 do_anonymous_page            8110
-> > 10 ipc_lock                     7366 ipc_lock                     6706
-> > 11 sys_semtimedop               5493 sys_semtimedop               5152
-> > 12 sysenter_past_esp            5080 sysenter_past_esp            5064
-> > 13 direct_io_worker             5065 direct_io_worker             4732
-> > 14 dio_await_one                4084 dio_await_one                3779
-> > 15 __copy_to_user_ll            3643 __mod_timer                  3571
-> > 16 __mod_timer                  3582 blk_run_queue                3521
-> > 17 blk_run_queue                3411 __copy_to_user_ll            3495
-> > 18 __might_sleep                3316 __might_sleep                3277
-> > 19 kmem_cache_alloc             3225 kmem_cache_alloc             3054
-> > 20 semctl_main                  3072 semctl_main                  3016
-> > 
+On Mon, Sep 08, 2003 at 12:40:10AM -0400, Zwane Mwaikambo wrote:
+> Whilst building for an SA1100 i got the following snippets;
 > 
-> Looking at this quickly, scsi_request_fn, __make_request, and
-> scsi_end_request are show the most additional cost on AS.  As well as
-> __copy_to_user_ll and ipc_lock.
+>   AS      arch/arm/mm/tlb-v4wb.o
+> In file included from include/linux/spinlock.h:13,
+>                  from include/linux/capability.h:45,
+>                  from include/linux/sched.h:7,
+>                  from include/linux/mm.h:4,
+>                  from include/asm/tlbflush.h:14,
+>                  from arch/arm/mm/tlb-v4wb.S:18:
+> include/linux/kernel.h:32: warning: `ALIGN' redefined
+> include/linux/linkage.h:24: warning: this is the location of the previous definition
+> In file included from include/asm/tlbflush.h:14,
+> 
+> In file included from include/asm/tlbflush.h:14,
+>                  from arch/arm/mm/tlb-v4wb.S:18:
+> include/linux/mm.h:87: warning: `VM_EXEC' redefined
+> include/asm/constants.h:16: warning: this is the location of the previous 
+> definition
 
-I think you forgot to include the interesting part of your email.
+This is caused by including linux/mm.h into asm/tlbflush.h, but it does
+show that we don't need asm/tlbflush.h included here.
+
+Same change applied to the other tlb-*.S files, thanks.
 
 -- 
-Jens Axboe
-
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

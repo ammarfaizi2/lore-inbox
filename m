@@ -1,58 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279416AbRKARpe>; Thu, 1 Nov 2001 12:45:34 -0500
+	id <S279449AbRKASEJ>; Thu, 1 Nov 2001 13:04:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279418AbRKARpY>; Thu, 1 Nov 2001 12:45:24 -0500
-Received: from ns.suse.de ([213.95.15.193]:11780 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S279416AbRKARpM>;
-	Thu, 1 Nov 2001 12:45:12 -0500
-Date: Thu, 1 Nov 2001 18:45:11 +0100
-From: Andi Kleen <ak@suse.de>
-To: kuznet@ms2.inr.ac.ru
-Cc: Andi Kleen <ak@suse.de>, joris@deadlock.et.tudelft.nl,
-        linux-kernel@vger.kernel.org
-Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
-Message-ID: <20011101184511.A22234@wotan.suse.de>
-In-Reply-To: <p733d3yr2b1.fsf@amdsim2.suse.de> <200111011733.UAA26651@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <200111011733.UAA26651@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Nov 01, 2001 at 08:33:15PM +0300
+	id <S279429AbRKASEA>; Thu, 1 Nov 2001 13:04:00 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:22658 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S279449AbRKASDy>; Thu, 1 Nov 2001 13:03:54 -0500
+Date: Thu, 1 Nov 2001 13:03:32 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: vda <vda@port.imtp.ilyichevsk.odessa.ua>,
+        Tim Schmielau <tim@physik3.uni-rostock.de>,
+        Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org,
+        J Sloan <jjs@lexus.com>
+Subject: Re: [Patch] Re: Nasty suprise with uptime
+In-Reply-To: <20011101120222.B11773@redhat.com>
+Message-ID: <Pine.LNX.3.95.1011101125206.1496A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 01, 2001 at 08:33:15PM +0300, A.N.Kuznetsov wrote:
-> Generally packet sockets MUST NOT tap on output packets. No differences
+On Thu, 1 Nov 2001, Benjamin LaHaise wrote:
 
-First if you really meant this dev_xmit_nit() (which you added) could be 
-removed. But I see no reason for this MUST NOT; IMHO it is a valid use
-case to tap outgoing packets.
+> On Thu, Nov 01, 2001 at 10:34:53AM -0500, Richard B. Johnson wrote:
+> > Well not exactly zealots. I test a lot of stuff. In fact, the code
+> > you propose:
+> > 
+> > 	if(++jiffies==0) jiffies_hi++;
+> > 
+> > ... actually works quite well:
+> 
+> Uhm, no, it really doesn't.  See how it pairs with other instructions and 
+> what the cost is when it doesn't have to be as bad:
+> 
+> this:
+> 	unsigned long a, b;
+> 	if (++a == 0) b++;
+> gives:
+>         movl    a, %eax
+>         movl    %esp, %ebp
+>         incl    %eax
+>         testl   %eax, %eax
+>         movl    %eax, a
+>         je      .L3
+> .L2:
+>         popl    %ebp
+>         ret
+>         .p2align 4,,7
+> .L3:
+>         incl    b
+>         jmp     .L2
+> 
+> which is really gross considering that:
+> 
+> 	unsigned long long c;
+> 	c++;
+> 
+> gives:
+> 
+>         addl    $1, c
+>         adcl    $0, c+4
+> 
+> which is quite excellent.
+> 
+> 		-ben
+> 
 
-> of socket of another protocols. UDP does not tap output right?
-> What the hell packet socket should do this?
+Look I tested it, and I provided code to test it! You will not
+convince the 'C' compiler to do:
 
-Packet sockets are a little bit more 'raw' than UDP sockets; and for
-sniffing it makes sense and people expect it.
+	addl	$1, c
+	adcl	$0, c+4
 
-It's also kind of promised by having a PACKET_OUTGOING type.
+... with a long long (at least not egcs-2.91.66). Further, that's
+not the whole story. If jiffies is a long long, then every operation
+on that counter, all the timing queues, sleeps, etc., end up doing
+multiple operations on the long long (which I showed on Monday with
+some additional, best possible, code).
 
-Now of course if you would be serious with this dev_queue_xmit would 
-need to be removed, making it impossible to debug/sniff local protocols
-without an external sniffer. That would be of course very broken. 
-So it has to be kept. But then allowing it for ETH_P_ALL only is really
-ugly imho; if the feature exists it should be implemented for the full
-packet functionality which includes binding to protocols.
+... which is code I showed initially. Knowing that the C compiler
+does the jumps on condition and tests for zero, even after the
+flags have been set by the previous operation, I tested what
+the result was. It turns out that it's only a couple of clock
+cycles, not the 6 extra clocks that the hand calculation shows.
+
+So, if you leave jiffies alone, but bump another variable when it
+wraps, you get to eat your cake and keep it too.
 
 
-> Snapping on output is feature which must be regulated by a separate option.
+Cheers,
+Dick Johnson
 
- When dev_xmit_nit is already there it is easy enough to do it, so no reason
- to add such complications.
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-> And to be honest I see no tragedy, if this option will not exist for sockets
-> bound to specific protocols.
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
- I think the patch should be added.
 
- -Andi

@@ -1,251 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261503AbTCJWee>; Mon, 10 Mar 2003 17:34:34 -0500
+	id <S262304AbTCJWkw>; Mon, 10 Mar 2003 17:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbTCJWee>; Mon, 10 Mar 2003 17:34:34 -0500
-Received: from quechua.inka.de ([193.197.184.2]:18409 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S261489AbTCJWe0>;
-	Mon, 10 Mar 2003 17:34:26 -0500
-Subject: 2.5.64 oops in ppp / pppo2 / kobject
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       linux-ppp@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047336461.10548.3.camel@simulacron>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 10 Mar 2003 23:47:41 +0100
-Content-Transfer-Encoding: 7bit
+	id <S262327AbTCJWkw>; Mon, 10 Mar 2003 17:40:52 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:57827 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262296AbTCJWks>;
+	Mon, 10 Mar 2003 17:40:48 -0500
+Date: Mon, 10 Mar 2003 16:27:01 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
+       <linux-ppp@vger.kernel.org>
+Subject: Re: 2.5.64 oops in ppp / pppo2 / kobject
+In-Reply-To: <1047336461.10548.3.camel@simulacron>
+Message-ID: <Pine.LNX.4.33.0303101625230.1002-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pppoe link failed, then ppp oopsed.
 
-Also, shutting down the system ends in a deadlock
-(or so? nothing is happening, lots of processes in __down.)
+On 10 Mar 2003, Andreas Jellinghaus wrote:
 
-plain 2.5.64 plus ipv6/setkey patch (unreleated i think).
+> pppoe link failed, then ppp oopsed.
+> 
+> Also, shutting down the system ends in a deadlock
+> (or so? nothing is happening, lots of processes in __down.)
+> 
+> plain 2.5.64 plus ipv6/setkey patch (unreleated i think).
 
- ------------[ cut here ]------------
- kernel BUG at include/linux/dcache.h:266!
- invalid operand: 0000
- CPU:    0
- EIP:    0060:[sysfs_remove_dir+24/278]    Not tainted
- EFLAGS: 00010246
- EIP is at sysfs_remove_dir+0x18/0x116
- eax: 00000000   ebx: c66ff990   ecx: c66ff800   edx: 00000000
- esi: c68e8980   edi: c6fd42c0   ebp: ffffffea   esp: c6723efc
- ds: 007b   es: 007b   ss: 0068
- Process pppd (pid: 148, threadinfo=c6722000 task=c6d2a0a0)
- Stack: c66ff990 c66ff800 c6fd42c0 ffffffea 00000006 c01a9897 c66ff990
-c66ff990 
-        c01a98af c66ff990 c66ff800 c022fc5a c66ff990 c66ff800 c030b7e0
-c6fd42c0 
-        ffffffea c66ff990 c01db815 c66ff800 c66ff800 4004743c 00000000
-c6fd42c0 
- Call Trace:
-  [kobject_del+11/24] kobject_del+0xb/0x18
-  [kobject_unregister+11/24] kobject_unregister+0xb/0x18
-  [unregister_netdevice+514/547] unregister_netdevice+0x202/0x223
-  [ppp_shutdown_interface+165/248] ppp_shutdown_interface+0xa5/0xf8
-  [ppp_ioctl+89/1560] ppp_ioctl+0x59/0x618
-  [__fput+122/156] __fput+0x7a/0x9c
-  [fput+19/20] fput+0x13/0x14
-  [filp_close+89/100] filp_close+0x59/0x64
-  [sys_ioctl+493/516] sys_ioctl+0x1ed/0x204
-  [syscall_call+7/11] syscall_call+0x7/0xb
+Please try the latest BK snapshot from 
+
+http://kernel.org/pub/linux/kernel/v2.5/snapshots/
+
+Plus this patch on top it. This problem has been reported before, and this
+patch should fix it..
+
+Thanks,
+
+	-pat
+
+===== fs/sysfs/dir.c 1.4 vs edited =====
+--- 1.4/fs/sysfs/dir.c	Sat Mar  8 23:42:32 2003
++++ edited/fs/sysfs/dir.c	Sun Mar  9 16:01:45 2003
+@@ -98,7 +98,6 @@
+ 			 * Unlink and unhash.
+ 			 */
+ 			spin_unlock(&dcache_lock);
+-			d_delete(d);
+ 			simple_unlink(dentry->d_inode,d);
+ 			dput(d);
+ 			spin_lock(&dcache_lock);
+@@ -108,16 +107,11 @@
+ 	}
+ 	spin_unlock(&dcache_lock);
+ 	up(&dentry->d_inode->i_sem);
+-	d_invalidate(dentry);
+-	simple_rmdir(parent->d_inode,dentry);
+ 	d_delete(dentry);
++	simple_rmdir(parent->d_inode,dentry);
  
- Code: 0f 0b 0a 01 ce 16 2b c0 ff 06 80 4e 04 08 85 f6 0f 84 e2 00 
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_SWAP=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_IDEDMA_IVB=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_NETFILTER=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_INET_AH=y
-CONFIG_INET_ESP=y
-CONFIG_XFRM_USER=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_AH_ESP=y
-CONFIG_IP_NF_MATCH_TTL=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_CONNTRACK=y
-CONFIG_IP_NF_MATCH_UNCLEAN=y
-CONFIG_IP_NF_MATCH_OWNER=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_MIRROR=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IPV6=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_HTB=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_PPP=y
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_SYNC_TTY=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-CONFIG_PPPOE=y
-CONFIG_NET_RADIO=y
-CONFIG_HOSTAP=y
-CONFIG_HOSTAP_HOSTAPD=y
-CONFIG_HOSTAP_FIRMWARE=y
-CONFIG_HOSTAP_PLX=y
-CONFIG_HOSTAP_PCI=y
-CONFIG_NET_WIRELESS=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_INPUT_UINPUT=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
-CONFIG_GEN_RTC=y
-CONFIG_GEN_RTC_X=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT2_FS_POSIX_ACL=y
-CONFIG_FS_MBCACHE=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_850=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=y
-CONFIG_NLS_UTF8=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_DYNAMIC_MINORS=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_KALLSYMS=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_SHA256=y
-CONFIG_CRYPTO_SHA512=y
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_BLOWFISH=y
-CONFIG_CRYPTO_TWOFISH=y
-CONFIG_CRYPTO_SERPENT=y
-CONFIG_CRYPTO_AES=y
-CONFIG_CRC32=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
-
-
+ 	pr_debug(" o %s removing done (%d)\n",dentry->d_name.name,
+ 		 atomic_read(&dentry->d_count));
+-	/**
+-	 * Drop reference from initial sysfs_get_dentry().
+-	 */
+-	dput(dentry);
+ 
+ 	/**
+ 	 * Drop reference from dget() on entrance.
+===== fs/sysfs/inode.c 1.83 vs edited =====
+--- 1.83/fs/sysfs/inode.c	Mon Mar  3 17:11:29 2003
++++ edited/fs/sysfs/inode.c	Sun Mar  9 14:25:45 2003
+@@ -93,19 +93,14 @@
+ 		/* make sure dentry is really there */
+ 		if (victim->d_inode && 
+ 		    (victim->d_parent->d_inode == dir->d_inode)) {
+-			simple_unlink(dir->d_inode,victim);
+-			d_delete(victim);
+-
+ 			pr_debug("sysfs: Removing %s (%d)\n", victim->d_name.name,
+ 				 atomic_read(&victim->d_count));
+-			/*
+-			 * Drop reference from initial sysfs_get_dentry().
+-			 */
+-			dput(victim);
++
++			simple_unlink(dir->d_inode,victim);
++
+ 		}
+-		
+-		/**
+-		 * Drop the reference acquired from sysfs_get_dentry() above.
++		/*
++		 * Drop reference from sysfs_get_dentry() above.
+ 		 */
+ 		dput(victim);
+ 	}
 

@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263664AbTEJGCh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 02:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbTEJGCh
+	id S263665AbTEJGRX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 02:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263668AbTEJGRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 02:02:37 -0400
-Received: from holomorphy.com ([66.224.33.161]:46500 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263664AbTEJGCg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 02:02:36 -0400
-Date: Fri, 9 May 2003 23:14:58 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Greg KH <greg@kroah.com>
-Cc: David Brownell <david-b@pacbell.net>, Max Krasnyansky <maxk@qualcomm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
-Message-ID: <20030510061458.GE8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-	Max Krasnyansky <maxk@qualcomm.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-usb-devel@lists.sourceforge.net
-References: <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com> <5.1.0.14.2.20030429145523.10c52e50@unixmail.qualcomm.com> <5.1.0.14.2.20030508123858.01c004f8@unixmail.qualcomm.com> <3EBBFC33.7050702@pacbell.net> <1052517124.10458.199.camel@localhost.localdomain> <20030509230542.GA3267@kroah.com> <3EBC4C50.8040304@pacbell.net> <20030510054015.GA1865@kroah.com> <20030510055516.GD8978@holomorphy.com> <20030510061113.GA2881@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030510061113.GA2881@kroah.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sat, 10 May 2003 02:17:23 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:40922 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263665AbTEJGRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 02:17:22 -0400
+Message-ID: <3EBC9C62.5010507@nortelnetworks.com>
+Date: Sat, 10 May 2003 02:29:54 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [RFC]  new syscall to allow notification when arbitrary pids die
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 10:55:16PM -0700, William Lee Irwin III wrote:
->> If someone could clarify the motive I'd be much obliged.
 
-On Fri, May 09, 2003 at 11:11:14PM -0700, Greg KH wrote:
-> Read Linus's comments in this thread for more insight:
-> 	http://marc.theaimsgroup.com/?t=102806382900001
+I would like to get some comments on a new syscall that I am planning on 
+implementing.  This syscall would allow a process to register to be notified 
+when another process dies.  The calling process would specify the pid of the 
+process in which it is interested and the signal which it wants to be sent when 
+the process with the specified pid dies.  The api would be:
 
-That looks relatively arbitrary but I honestly can't be arsed to have
-an opinion, only to be informed.
+int sigexit(pid_t pid, int signum)
 
-Thanks.
+The implementation would add a new linked list to the task struct which would 
+store pid/signal tuples for each process requesting notification.  On process 
+death, in do_notify_parent we walk the list and send the specified signals to 
+all the listeners.
+
+I see two immediate uses for this.  One would be to enable a "watcher" process 
+which can do useful things on the death of processes which registered with it 
+(logging, respawning, notifying other processes, etc).  The watcher could keep a 
+persistant list of what its monitoring and what for in a file, and if it ever 
+died, the new watcher could scan the list and register to watch them all again. 
+The second would be to enable mutual suicide pacts between processes. (I'm not 
+sure when I would use this, but it sounds kind of fun.)
+
+Anyone have any opinions on this?  There is a comment in exit_notify about not 
+sending signals to arbitrary processes using the thread signals, but I'm not 
+sure if that objection was to the idea or to the implementation.
+
+Thanks,
+
+Chris
 
 
--- wli
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

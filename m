@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262877AbSLUR5I>; Sat, 21 Dec 2002 12:57:08 -0500
+	id <S262838AbSLUSCV>; Sat, 21 Dec 2002 13:02:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262887AbSLUR5I>; Sat, 21 Dec 2002 12:57:08 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:25863 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S262877AbSLUR5G>; Sat, 21 Dec 2002 12:57:06 -0500
-Message-Id: <200212211805.gBLI55c03659@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com
-Subject: [PATCH] fix bug in scripts/kallsyms.c
+	id <S262901AbSLUSCV>; Sat, 21 Dec 2002 13:02:21 -0500
+Received: from dsl-213-023-066-023.arcor-ip.net ([213.23.66.23]:13964 "EHLO
+	neon.pearbough.net") by vger.kernel.org with ESMTP
+	id <S262838AbSLUSCU>; Sat, 21 Dec 2002 13:02:20 -0500
+Date: Sat, 21 Dec 2002 19:08:52 +0100
+From: axel@pearbough.net
+To: Ro0tSiEgE <lkml@ro0tsiege.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel GCC Optimizations
+Message-ID: <20021221180852.GA31293@neon.pearbough.net>
+Mail-Followup-To: Ro0tSiEgE <lkml@ro0tsiege.org>,
+	linux-kernel@vger.kernel.org
+References: <200212211135.10289.lkml@ro0tsiege.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed ;
-	boundary="==_Exmh_-14193470250"
-Date: Sat, 21 Dec 2002 12:05:05 -0600
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212211135.10289.lkml@ro0tsiege.org>
+User-Agent: Mutt/1.4i
+Organization: pearbough.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart MIME message.
+Hi Ro0tSiEgE!
 
---==_Exmh_-14193470250
-Content-Type: text/plain; charset=us-ascii
+On Sat, 21 Dec 2002, Ro0tSiEgE wrote:
 
-kallsyms.c generates the symbol table in a .S file using the assembler .string 
-macro.  Unfortunately, the .string macro is implemented in a platform specific 
-way (it may or may not zero terminate the string).  On parisc, it doesn't zero 
-terminate, so the symbol table search doesn't work.
+> Is there any risk using -O3 instead of -O2 to compile the kernel, and why?
+>  Also what about compiling against glibc 2.3.1 and gcc 3.2.x??
 
-The solution is to replace .string with .asciz which is guaranteed to do the 
-correct thing on all platforms.
+I believe because of some assembler stuff that needs to be compiled as is and
+may not be optimized more that -O2 you cannot use -O3.
 
-James
+There is no problem compiling the kernel with glibc 2.3.1 and gcc 3.2.x.
 
-
---==_Exmh_-14193470250
-Content-Type: text/plain ; name="tmp.diff"; charset=us-ascii
-Content-Description: tmp.diff
-Content-Disposition: attachment; filename="tmp.diff"
-
-===== scripts/kallsyms.c 1.2 vs edited =====
---- 1.2/scripts/kallsyms.c	Thu Dec  5 13:57:11 2002
-+++ edited/scripts/kallsyms.c	Sat Dec 21 11:43:11 2002
-@@ -128,7 +128,7 @@
- 		if (table[i].addr == last_addr)
- 			continue;
- 
--		printf("\t.string\t\"%s\"\n", table[i].sym);
-+		printf("\t.asciz\t\"%s\"\n", table[i].sym);
- 		last_addr = table[i].addr;
- 	}
- 	printf("\n");
-
---==_Exmh_-14193470250--
-
-
+Axel

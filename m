@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268209AbTCFT0J>; Thu, 6 Mar 2003 14:26:09 -0500
+	id <S268272AbTCFT1w>; Thu, 6 Mar 2003 14:27:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268272AbTCFT0J>; Thu, 6 Mar 2003 14:26:09 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13074 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268209AbTCFT0H>; Thu, 6 Mar 2003 14:26:07 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Oops in 2.5.64
-Date: Thu, 6 Mar 2003 19:36:12 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <b487vc$1u6$1@penguin.transmeta.com>
-References: <3E66E782.5010502@tmsusa.com>
-X-Trace: palladium.transmeta.com 1046979379 4453 127.0.0.1 (6 Mar 2003 19:36:19 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 6 Mar 2003 19:36:19 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S268281AbTCFT1w>; Thu, 6 Mar 2003 14:27:52 -0500
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:40408 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S268272AbTCFT1v>; Thu, 6 Mar 2003 14:27:51 -0500
+Date: Thu, 06 Mar 2003 13:38:07 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] nonlinear oddities
+Message-ID: <57080000.1046979487@baldur.austin.ibm.com>
+In-Reply-To: <Pine.LNX.4.44.0303061903170.1215-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0303061903170.1215-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3E66E782.5010502@tmsusa.com>, J Sloan  <joe@tmsusa.com> wrote:
->
->2.5.64 was running well, but after a day
->or so of uptime, in fairly busy use (squid,
->postfix, dhcp server, iptables, X desktop)
->I ssh'd in as root, issued an init 3, then
->a moment later, init 5. A moment after
->that, the ssh session froze and all internet
->access stopped as well.
->
->The console was frozen, with an oops -
 
-Are you using DRI? There is some evidence that exiting and restarting X
-will not correctly re-initialize the DRI stuff in the kernel, and
-_massive_ kernel memory corruption can ensure when the new X server
-starts. 
+--On Thursday, March 06, 2003 19:14:47 +0000 Hugh Dickins
+<hugh@veritas.com> wrote:
 
-At which point you'll get random oopses etc.
+> Now I think about it more, install_page's SetPageAnon is not good at all.
+> That (unlocked) page may already be mapped into other vmas as a shared
+> file page, non-zero mapcount, we can't suddenly switch it to Anon
+> (pte_chained) without doing the work to handle that case.
 
-	>CONFIG_AGP=y
-	># CONFIG_AGP3 is not set
-	>CONFIG_AGP_INTEL=y
-	># CONFIG_AGP_VIA is not set
-	># CONFIG_AGP_AMD is not set
-	># CONFIG_AGP_SIS is not set
-	># CONFIG_AGP_ALI is not set
-	># CONFIG_AGP_SWORKS is not set
-	># CONFIG_AGP_AMD_8151 is not set
-	>CONFIG_DRM=y
-	>CONFIG_DRM_TDFX=m
-	>CONFIG_DRM_R128=m
-	># CONFIG_DRM_RADEON is not set
-	>CONFIG_DRM_I810=y
-	># CONFIG_DRM_I830 is not set
-	># CONFIG_DRM_MGA is not set
+Ouch.  You're right.  I'll go stare at it for awhile and see if any
+solutions jump out at me.  I suppose at worst I could write a function to
+convert an object page to use pte_chains, but it'd be nice if that weren't
+necessary.
 
-Looks like you at least have the DRI kernel modules there.
+Dave McCracken
 
-Try to see if the problem goes away if you start X without DRI support
-(ie remove the "Load 'dri'" or whatever from the XF86Config file, or
-start up in a mode that DRI doesn't support, like 8bpp).
-
-		Linus
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

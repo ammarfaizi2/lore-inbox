@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135238AbRAJX3b>; Wed, 10 Jan 2001 18:29:31 -0500
+	id <S135419AbRAJXdV>; Wed, 10 Jan 2001 18:33:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135419AbRAJX3V>; Wed, 10 Jan 2001 18:29:21 -0500
-Received: from DKBH-T-003-p-249-160.tmns.net.au ([203.54.249.160]:4111 "EHLO
-	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S135238AbRAJX3E>;
-	Wed, 10 Jan 2001 18:29:04 -0500
-Message-ID: <3A5CEFB7.18262D97@eyal.emu.id.au>
-Date: Thu, 11 Jan 2001 10:26:47 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Announcement] linux-kernel v2.0.39
-In-Reply-To: <23111.979089494@kao2.melbourne.sgi.com>
+	id <S135565AbRAJXdM>; Wed, 10 Jan 2001 18:33:12 -0500
+Received: from uucp.gnuu.de ([151.189.0.84]:2055 "EHLO uucp.gnuu.de")
+	by vger.kernel.org with ESMTP id <S135419AbRAJXcv>;
+	Wed, 10 Jan 2001 18:32:51 -0500
+Date: Thu, 11 Jan 2001 00:31:32 +0100
+From: Ulrich Schwarz <uschwarz@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0 vm BUG
+Message-ID: <20010111003132.A2134@fruli.2y.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> On Wed, 10 Jan 2001 10:27:44 +1100,
-> Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
-> >My 'make dep' fails in the following way. This is on Debian 2.2, I
-> >commented
-> >if [ -n "amigamouse.c atarimouse.c atixlmouse.c baycom.c busmouse.c
-> >cd1865.h conmakehash.c console.c console_struct.h consolemap.c
-> >consolemap.h cyclades.c defkeymap.c diacr.h digi.h digi_bios.h
-> >digi_fep.h fbmem.c fep.h h8.c h8.h isicom.c istallion.c kbd_kern.h
-> >keyb_m68k.c keyboard.c lp.c lp_intern.c lp_m68k.c mem.c misc.c
-> >msbusmouse.c n_tty.c pcwd.c pcxx.c pcxx.h psaux.c pty.c random.c
-> >riscom8.c riscom8.h riscom8_reg.h rtc.c scc.c selection.c selection.h
-> >serial.c softdog.c specialix.c specialix_io8.h stallion.c tga.c
-> >tpqic02.c tty_io.c tty_ioctl.c vc_screen.c vesa_blank.c vga.c vt.c
-> >vt_kern.h wd501p.h wdt.c" ]; then \
-> >/usr/local/src/linux/scripts/mkdep *.[chS] > .depend; fi
-> >make[2]: *** [fastdep] Error 135
-> 
-> 135 == 128+7 => E2BIG (Arg list too long).  What does
->   ls -l /usr/local/src/linux/drivers/char/*.[chS] | wc
-> report?  And which kernel/libc are you compiling on?
+Hi,
+
+2.4.0 (final i386) patched with reiserfs 3.6.25 produced the following BUG:
+
+the console reported:
+kernel BUG at vmscan.c:452!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c01260fd>]
+EFLAGS: 00010282
+eax: 0000001c   ebx: c101322c   ecx: c0274608   edx: 00000000
+esi: c23acc24   edi: c1013210   ebp: 000000ef   esp: c23d9c80
+ds: 0018   es: 0018   ss: 0018
+Process bash (pid: 340, stackpage=c23d9000)
+Stack: c0225a73 c0225c12 000001c4 c02757a0 c0275a0c 00000001 00000000 c0127a28
+       c02757a0 00000000 c0275a10 00000000 00008038 c0127b9d c0275a04 00000000
+       00000001 00000001 00000000 00001000 00000000 00008038 00000003 00000001
+Call Trace: [<c0127a28>] [<c0127b9d>] [<c012f8e2>] [<c012da24>] [<c012da31>] [<c012de12>] [<c012e022>]
+       [<c0184a5b>] [<c0180b2d>] [<c01748d9>] [<c013eacb>] [<c013ecf6>] [<c0174950>] [<c0171351>] [<c0135dcb>]
+       [<c0136199>] [<c0136acc>] [<c0133786>] [<c0108e73>]
+
+Code: 0f 0b 83 c4 0c 31 c0 0f b3 47 18 19 c0 85 c0 75 19 68 c5 01
+
+However, in /var/log/kernlog, this incident was reported as follows:
+Jan 10 22:14:54 kernel: kernel BUG at page_alloc.c:74!
+Jan 10 22:14:54 kernel: invalid operand: 0000
 
 
-This is a current Debian 2.2 (potato, I think it is now at r3)
+So long.
+Ulrich
 
-
-# ls -l /usr/local/src/linux-2.0/drivers/char/*.[chS] | wc
-     62     558    6434
-
-# gcc --version
-2.95.2
-
-# uname -a
-Linux eyal 2.4.0-ac3 #1 Sun Jan 7 12:15:50 EST 2001 i686 unknown
-
-# ls -l /lib/libc-*.so
--rwxr-xr-x    1 root     root      1057576 Oct 14 05:45
-/lib/libc-2.1.95.so
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

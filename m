@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290289AbSA3RxG>; Wed, 30 Jan 2002 12:53:06 -0500
+	id <S290285AbSA3Rzs>; Wed, 30 Jan 2002 12:55:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290271AbSA3Rv3>; Wed, 30 Jan 2002 12:51:29 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26131 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290267AbSA3Ru4>; Wed, 30 Jan 2002 12:50:56 -0500
-Subject: Re: PROBLEM: Memory
-To: michael.may@tnt.de
-Date: Wed, 30 Jan 2002 18:03:49 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200201301648.g0UGmtj32611@pcchk.intra.tnt.de> from "Michael May" at Jan 30, 2002 05:48:54 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290286AbSA3Rym>; Wed, 30 Jan 2002 12:54:42 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:32292 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S290274AbSA3RxW>; Wed, 30 Jan 2002 12:53:22 -0500
+Date: Wed, 30 Jan 2002 17:55:38 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 18pre7aa1 pagetable corroops
+In-Reply-To: <20020130111810.A1309@athlon.random>
+Message-ID: <Pine.LNX.4.21.0201301753420.1035-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Vz5J-0007xU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think there is a little Problem with Kernel 2.4.17-pre4 - pre7
-> 
-> When the machine in up for longer than 2 days and is under higher load, the processes will killed, with some syslog-messages: 
-> 
-> kernel: Out of memory: Killed process <pid>
-> 
-> I don't know what the Problem is, and all machines where it is, are SMP-Machines on i386.
+clear_pagetable corrupts memory and oopses when CONFIG_HIGHMEM,
+but the pagetable has been allocated from low memory.
 
-If you use the rmap patches this one seems to go away. The 2.4.17 vm is still
-not quite perfect for all cases. 
+Hugh
+
+--- 2.4.18-pre7aa1/include/linux/highmem.h	Wed Jan 30 15:30:21 2002
++++ linux/include/linux/highmem.h	Wed Jan 30 15:30:21 2002
+@@ -103,7 +103,7 @@
+ {
+ 	void * vaddr = kmap_pagetable(page);
+ 	clear_page(vaddr);
+-	kunmap_high(vaddr);
++	kunmap_vaddr((unsigned long)vaddr);
+ }
+ 
+ /*
+

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130466AbRDYRZ1>; Wed, 25 Apr 2001 13:25:27 -0400
+	id <S131344AbRDYRij>; Wed, 25 Apr 2001 13:38:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130485AbRDYRZS>; Wed, 25 Apr 2001 13:25:18 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:31460 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S130466AbRDYRZF>; Wed, 25 Apr 2001 13:25:05 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDDC9@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>, acpi@phobos.fachschaften.tu-muenchen.de,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: RE: Lid support for ACPI
-Date: Wed, 25 Apr 2001 10:23:12 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130900AbRDYRi3>; Wed, 25 Apr 2001 13:38:29 -0400
+Received: from china.patternbook.com ([216.254.75.60]:36345 "EHLO
+	free.transpect.com") by vger.kernel.org with ESMTP
+	id <S130487AbRDYRiN>; Wed, 25 Apr 2001 13:38:13 -0400
+Date: Wed, 25 Apr 2001 13:38:04 -0500
+From: Whit Blauvelt <whit@transpect.com>
+To: Tim Moore <timothymoore@bigfoot.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19 Realaudio masq problem
+Message-ID: <20010425133804.A1094@free.transpect.com>
+In-Reply-To: <20010424201403.A1909@free.transpect.com> <3AE621D1.FE45602B@bigfoot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AE621D1.FE45602B@bigfoot.com>; from timothymoore@bigfoot.com on Tue, Apr 24, 2001 at 06:01:05PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel,
+On Tue, Apr 24, 2001 at 06:01:05PM -0700, Tim Moore wrote:
 
-We already have lid support in the latest ACPI versions (not in the official
-kernel yet.) You can download this code from
-http://developer.intel.com/technology/iapc/acpi/downloads.htm .
+> rtsp://rm.on24.com/media/news/04192001/palumbo_ted6.rm
+> --stop--
+> http://rm.on24.com/media/news/04192001/palumbo_ted6.rm
 
-It'd be great if you could focus your testing and patches on this code base
--- I think it's a lot better but it's still a work in progress.
+Hmm, the rtsp: fails while the http: works for that one. But then a tcp
+connection doesn't depend on the realaudio masq module.
 
-Regards -- Andy
+> Try '# strace /usr/bin/X11/realplay On24ram.asp > log' and see where the
+> connect fails if you aren't getting specific error messages.
 
-PS I'm not quite sure why you copied the acpi list *and* lkml.. ;-)
+Unfortunately this spits out a bunch of stuff and then totally freezes up my
+KDE 2.1.1 desktop. Probably totally unrelated, but that's what happens - the
+part of the log that ends up in the frozen display doesn't tell me much, and
+have to go to shell and kill strace to unfreeze things.
 
-> -----Original Message-----
-> From: Pavel Machek [mailto:pavel@suse.cz]
-> Hi!
-> 
-> Here's lid support for ACPI, please apply.
-> 
+Could the problem be that I have realplay 8.0.3.412 on the systems here and
+they've introduced some bug or incompatibility?
+
+Whit
+
 

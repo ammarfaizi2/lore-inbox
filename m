@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263285AbTKEXDy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 18:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263290AbTKEXDx
+	id S263274AbTKEXLT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 18:11:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTKEXLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 18:03:53 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:22969 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263285AbTKEXDw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 18:03:52 -0500
-Date: Wed, 5 Nov 2003 15:03:50 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Chad Kitching <CKitching@powerlandcomputers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK2CVS problem
-Message-ID: <20031105230350.GB12992@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Chad Kitching <CKitching@powerlandcomputers.com>,
-	linux-kernel@vger.kernel.org
-References: <18DFD6B776308241A200853F3F83D507169CBC@pl6w2kex.lan.powerlandcomputers.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <18DFD6B776308241A200853F3F83D507169CBC@pl6w2kex.lan.powerlandcomputers.com>
-User-Agent: Mutt/1.4i
+	Wed, 5 Nov 2003 18:11:19 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:4614 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S263274AbTKEXLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 18:11:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Denis <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>,
+       linux-kernel@vger.kernel.org
+Subject: Re: nforce2 random lockups - still no solution ?
+Date: Thu, 6 Nov 2003 01:11:06 +0200
+X-Mailer: KMail [version 1.4]
+References: <3F95748E.8020202@tuwien.ac.at>
+In-Reply-To: <3F95748E.8020202@tuwien.ac.at>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200311060111.06729.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 05, 2003 at 04:48:09PM -0600, Chad Kitching wrote:
-> From: Zwane Mwaikambo
-> > > +       if ((options == (__WCLONE|__WALL)) && (current->uid = 0))
-> > > +                       retval = -EINVAL;
-> > 
-> > That looks odd
-> > 
-> 
-> Setting current->uid to zero when options __WCLONE and __WALL are set?  The 
-> retval is dead code because of the next line, but it looks like an attempt
-> to backdoor the kernel, does it not?
+On Tuesday 21 October 2003 20:01, Samuel Kvasnica wrote:
+> Now, in the system with MSI K7N2 motherboard I have a framegrabber
+> (Hauppauge PVR-250) installed, using ivtv driver.
+> I'm able to lock-up the system when streaming uncompressed video
+> (e.g. cat /dev/yuv0 >/dev/null) and the lockups are also hard, w/o
+> debug info. The ivtv driver is using DMA very heavily  but seems to
+> work on other chipsets. So these lock-up problems might be rather DMA
+> then APIC related. Interesting is that I've never had such a lock-up
+> when running WinXP on same computer ( :-) seems impossible), even
+> under load and with the framegrabber.
 
-It sure does.  Note "current->uid = 0", not "current->uid == 0". 
-Good eyes, I missed that.  This function is sys_wait4() so by passing in
-__WCLONE|__WALL you are root.  How nice.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+It can be a too-aggressive chipset configuration triggering chipset big.
+
+Maybe do lspci -vvvxxx and it's WinXP equivalent (I think such tool
+for Win ought to exist somewhere, although I had no need for it yet)
+and compare the result.
+--
+vda

@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbUKWTkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbUKWTex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbUKWTkI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:40:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbUKWTh2
+	id S261519AbUKWTex (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 14:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbUKWTdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:37:28 -0500
-Received: from mail1.bluewin.ch ([195.186.1.74]:2781 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id S261525AbUKWTg0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 14:36:26 -0500
-Date: Tue, 23 Nov 2004 20:36:04 +0100
-From: Roger Luethi <rl@hellgate.ch>
+	Tue, 23 Nov 2004 14:33:15 -0500
+Received: from alog0426.analogic.com ([208.224.222.202]:32640 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261494AbUKWTcJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 14:32:09 -0500
+Date: Tue, 23 Nov 2004 14:30:52 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
 To: Greg KH <greg@kroah.com>
-Cc: Simon Fowler <simon@himi.org>, linux-kernel@vger.kernel.org
-Subject: [2.6 PATCH] visor: Don't count outstanding URBs twice
-Message-ID: <20041123193604.GA12605@k3.hellgate.ch>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Simon Fowler <simon@himi.org>, linux-kernel@vger.kernel.org
-References: <20041116154943.GA13874@k3.hellgate.ch> <20041119174405.GE20162@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041119174405.GE20162@kroah.com>
-X-Operating-System: Linux 2.6.10-rc2 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+cc: Johannes Erdfelt <johannes@erdfelt.com>, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] Re: [PATCH][RFC/v1][4/12] Add InfiniBand SA
+ (Subnet Administration) query support
+In-Reply-To: <20041123183813.GA31068@kroah.com>
+Message-ID: <Pine.LNX.4.61.0411231423340.7154@chaos.analogic.com>
+References: <20041122713.SDrx8l5Z4XR5FsjB@topspin.com>
+ <20041122713.g6bh6aqdXIN4RJYR@topspin.com> <20041122222507.GB15634@kroah.com>
+ <527jodbgqo.fsf@topspin.com> <20041123064120.GB22493@kroah.com>
+ <52hdnh83jy.fsf@topspin.com> <20041123072944.GA22786@kroah.com>
+ <20041123175246.GD4217@sventech.com> <20041123183813.GA31068@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys, can you please CC me when discussing patches of mine? I don't read
-LKML religiously, and my procmail filters are pretty dumb. Thanks. So
-my previous patch fixed the oops, but the driver's still borked.
+On Tue, 23 Nov 2004, Greg KH wrote:
 
-Incrementing the outstanding_urbs counter twice for the same URB can't
-be good. No wonder Simon didn't get far syncing his Palm.
+> On Tue, Nov 23, 2004 at 09:52:46AM -0800, Johannes Erdfelt wrote:
+>> On Mon, Nov 22, 2004, Greg KH <greg@kroah.com> wrote:
+>>> To be straightforward, either drop the RCU code completely, or change
+>>> the license of your code.
+>>
+>> Or compile against non-GPL RCU code, right?
+>
+> No.  RCU is covered by a patent that only allows for it to be
+> implemented in GPL licensed code.  If you want to use RCU in non-GPL
+> code, you need to sign a license agreement with the holder of the RCU
+> patent.
+>
+> This was all covered a few years ago when the RCU code first went into
+> the kernel tree.  See the lkml archives for details.
+>
+> So the very usage of RCU in the code is the issue here, not the fact
+> that it is being linked against a GPL licensed header file.
+>
+> This isn't a GPL interpretation here, but a patent license agreement
+> issue.  Sorry for not being clearer the first time around, I thought
+> everyone was aware of this issue by now.
+>
+> thanks,
 
-Signed-off-by: Roger Luethi <rl@hellgate.ch>
+Not! RCU was implemented by MIT in 1975 under a grant from NASA.
+A subsequent patent by Sequent is likely invalid because of prior
+art. Further, IBM purchased Sequent, not SCO.
 
---- linux-2.6.10-rc2-bk8/drivers/usb/serial/visor.c.orig	2004-11-23 20:23:27.592097112 +0100
-+++ linux-2.6.10-rc2-bk8/drivers/usb/serial/visor.c	2004-11-23 20:24:53.496037728 +0100
-@@ -497,7 +497,6 @@ static int visor_write (struct usb_seria
- 		dev_dbg(&port->dev, "write limit hit\n");
- 		return 0;
- 	}
--	++priv->outstanding_urbs;
- 	spin_unlock_irqrestore(&priv->lock, flags);
- 
- 	buffer = kmalloc (count, GFP_ATOMIC);
+Remember, regardless of how many times a lie is repeated, it
+never becomes true.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

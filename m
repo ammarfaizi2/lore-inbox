@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUDSEoF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 00:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUDSEoF
+	id S262238AbUDSEsM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 00:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbUDSEsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 00:44:05 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:4113 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262730AbUDSEoD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 00:44:03 -0400
-Date: Mon, 19 Apr 2004 06:42:57 +0200
-From: Willy Tarreau <w@w.ods.org>
-To: ameer armaly <ameer@charter.net>
-Cc: linux-kernel@vger.kernel.org, linus@osdl.org
-Subject: Re: [patch] config option to make at keyboards beep when too many keys are pressed
-Message-ID: <20040419044257.GH596@alpha.home.local>
-References: <Pine.LNX.4.58.0404182147160.828@debian>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0404182147160.828@debian>
-User-Agent: Mutt/1.4i
+	Mon, 19 Apr 2004 00:48:12 -0400
+Received: from w130.z209220038.sjc-ca.dsl.cnc.net ([209.220.38.130]:37373 "EHLO
+	mail.inostor.com") by vger.kernel.org with ESMTP id S262238AbUDSEsJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 00:48:09 -0400
+Message-ID: <40835B84.1090202@inostor.com>
+Date: Sun, 18 Apr 2004 21:54:28 -0700
+From: Shesha Sreenivasamurthy <shesha@inostor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: lvcreate -- ERROR "Cannot allocate memory" creating VGDA
+References: <20040414142410.17997.qmail@web20729.mail.yahoo.com>
+In-Reply-To: <20040414142410.17997.qmail@web20729.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 18, 2004 at 09:49:53PM -0400, ameer armaly wrote:
+Hi All,
+  I am trying the following "lvcreate" command and  I am hit an error. I 
+googled for this error, and I can see it being listed in lotz of places, 
+but without any solution or workaround.
 
-> +#else
-> +printk(KERN_ALERT, "\007");
-> +#endif			goto out;
+Configuration:
+----------------------
+    RH-Linux 2.4.26
+    1GB memory.
 
-Not speaking about poor indentation, this is not the right solution. You
-will pollute system logs with \007, and you might even send the beep far
-away from the keyboard, if the console is on a serial terminal. A better
-solution would be to call a function which activates the local speaker,
-typically the one used to output "\007" on a vt.
+But the same command works fine, if I have only 512 MB RAM. Any help is 
+highly appreciated.
 
-> +config BEEP_TOMANEY_KEYS
-> +bool "Beep when too many keys are pressed on at keyboards"
-> +depends on KEYBOARD_ATKBD
+Thanks
+Shesha
 
-please respect indentation here too, just as it is below :
+---------------
+[root@mc26300a root]# lvcreate -s -l 4306 -n stest /dev/VG_H41/LV_H41
+lvcreate -- WARNING: the snapshot will be automatically disabled once it 
+gets full
+lvcreate -- INFO: using default snapshot chunk size of 64 KB for 
+"/dev/VG_H41/ste1"
+lvcreate -- ERROR "Cannot allocate memory" creating VGDA for 
+"/dev/VG_H41/ste1" in kernel
+----------------
 
->  config KEYBOARD_SUNKBD
->  	tristate "Sun Type 4 and Type 5 keyboard support"
->  	depends on INPUT && INPUT_KEYBOARD
-
-Regards,
-Willy
 

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291463AbSBAAqr>; Thu, 31 Jan 2002 19:46:47 -0500
+	id <S291466AbSBAAri>; Thu, 31 Jan 2002 19:47:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291464AbSBAAqh>; Thu, 31 Jan 2002 19:46:37 -0500
-Received: from rj.sgi.com ([204.94.215.100]:6638 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S291463AbSBAAqT>;
-	Thu, 31 Jan 2002 19:46:19 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS 
-In-Reply-To: Your message of "31 Jan 2002 16:36:27 PDT."
-             <m1elk6t7no.fsf@frodo.biederman.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Feb 2002 11:46:09 +1100
-Message-ID: <22967.1012524369@kao2.melbourne.sgi.com>
+	id <S291465AbSBAArW>; Thu, 31 Jan 2002 19:47:22 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:23663 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S291464AbSBAArH>; Thu, 31 Jan 2002 19:47:07 -0500
+Date: Fri, 1 Feb 2002 01:46:59 +0100 (CET)
+From: Simon Richter <Simon.Richter@fs.tum.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: James Simmons <jsimmons@transvirtual.com>,
+        <linux-m68k@lists.linux-m68k.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] amiga input api drivers
+In-Reply-To: <3C59DCC4.EA3848E@linux-m68k.org>
+Message-Id: <Pine.LNX.4.33.0202010141100.14728-100000@phobos.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Jan 2002 16:36:27 -0700, 
-ebiederm@xmission.com (Eric W. Biederman) wrote:
->"Erik A. Hendriks" <hendriks@lanl.gov> writes:
->Sort of.  The assumptions change per architecture.  But I haven't
->heard of an architecture where some addresses are not safe.
+On Fri, 1 Feb 2002, Roman Zippel wrote:
 
-NUMA boxes with discontiguous physical memory.  You may not boot off
-node 0.  Whichever node you boot from may not be able to see all of
-physical memory yet, the cross node directrories may not be set up.
-The boot node may not even have physical address 0.  I don't say that
-these boxes exist yet but they are possible with discontiguous memory
-architectures.
+> > > > +   scancode = scancode >> 1;       /* lowest bit is release bit */
+> > > > +   down = scancode & 1;
 
->Dynamic linking with relocation is nasty.  
+> He's correct, the up/down event is received in the lsb bit, the other 7
+> bits are the keycode.
 
-I have some code in insmod that you can use ...  Nasty is an
-understatement.
+Well, I'm also unsure you mean the LSB here -- The hardware manual says
+that bit 7 indicates that the key had been released.
+
+   Simon
+
+-- 
+GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
+ Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
+Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
 

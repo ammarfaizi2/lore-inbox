@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbTLCUag (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 15:30:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTLCUag
+	id S265176AbTLCU02 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 15:26:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbTLCU02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 15:30:36 -0500
-Received: from stinkfoot.org ([65.75.25.34]:38279 "EHLO stinkfoot.org")
-	by vger.kernel.org with ESMTP id S261309AbTLCUaf (ORCPT
+	Wed, 3 Dec 2003 15:26:28 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:20882 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265176AbTLCU0Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 15:30:35 -0500
-Message-ID: <3FCE47D2.1010102@stinkfoot.org>
-Date: Wed, 03 Dec 2003 15:30:10 -0500
-From: Ethan Weinstein <lists@stinkfoot.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Wed, 3 Dec 2003 15:26:25 -0500
+Date: Wed, 3 Dec 2003 21:26:27 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+       Raj <raju@mailandnews.com>, linux-kernel@vger.kernel.org,
+       lhcs-devel@lists.sourceforge.net
+Subject: Re: kernel BUG at kernel/exit.c:792!
+In-Reply-To: <3FCE453D.9080701@colorfullife.com>
+Message-ID: <Pine.LNX.4.58.0312032122420.6622@earth>
+References: <20031203153858.C14999@in.ibm.com> <3FCDCEA3.1020209@mailandnews.com>
+ <20031203182319.D14999@in.ibm.com> <Pine.LNX.4.58.0312032059040.4438@earth>
+ <Pine.LNX.4.58.0312031203430.7406@home.osdl.org> <3FCE453D.9080701@colorfullife.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: HT apparently not detected properly on 2.4.23
-References: <3FCE2F8E.90104@stinkfoot.org> <1070480450.15415.85.camel@slurv.pasop.tomt.net> <20031203195631.GC29119@mis-mike-wstn.matchmail.com>
-In-Reply-To: <20031203195631.GC29119@mis-mike-wstn.matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
 
-> Depending on the logical addressing of your processors, CONFIG_NR_CPUS=8 may
-> work in this case too.
+On Wed, 3 Dec 2003, Manfred Spraul wrote:
+
+> It's wrong, because next_thread() relies on
 > 
-> Some processors/motherboards logically address the CPUs other that 0-3 if
-> there are 4 processors.
+>     task->pids[PIDTYPE_TGID].pid_chain.next
 > 
-> Currently CONFIG_NR_CPUS needs to be big enough to hold the largest logical
-> processor number.
+> That pointer is not valid after detach_pid(task, PIDTYPE_TGID), and
+> that's called within __unhash_process.  Thus next_thread() fails if it's
+> called on a dead task. Srivatsa's second patch is the right change: If
+> pid_alive() is wrong, then break from the loop without calling
+> next_thread().
 
-Thanks.  This rings a bell, I seem to remember what I thought to be
-"impossible numbering" on the CPUs such as "CPU7" or somesuch in a
-dmesg.. Will have to look through logs.  I'll raise CONFIG_NR_CPUS and
-see what I get.  Now, the question is, why do we only interrupt on CPU0
-on this pasrticular box|chipset with a vanilla kernel? ACPI problem?  My
-SMP G4 ppc has an option in menuconfig: "distribute interrupts on all
-CPUs by default", the x86 has no such option.
+yes. And for thread groups this can only happen for the thread group
+leader if all 'child' threads have exited. So it can never happen that we
+somehow get to a 'middle' thread, walk the chain and get to a task that is
+invalid. The only possibility is that the starting point is stale itself -
+and the pid_alive() test checks that.
 
-Ethan
+the thread group leader being 'zombie' does not mean it's unhashed. Thread
+group leaders are never detached threads, they have a parent that waits
+for them. So these zombies just hang around until the last thread goes
+away, and then the leader is released, unhashed from the PID space (and
+thus next_thread() stops being valid) and the parent is notified.
 
+	Ingo
 
+--- linux/fs/proc/base.c.orig	
++++ linux/fs/proc/base.c	
+@@ -1666,7 +1666,12 @@ static int get_tid_list(int index, unsig
+ 
+ 	index -= 2;
+ 	read_lock(&tasklist_lock);
+-	do {
++	/*
++	 * The starting point task (leader_task) might be an already
++	 * unlinked task, which cannot be used to access the task-list
++	 * via next_thread().
++	 */
++	if (pid_alive(task)) do {
+ 		int tid = task->pid;
+ 		if (!pid_alive(task))
+ 			continue;

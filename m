@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263524AbRFAOBD>; Fri, 1 Jun 2001 10:01:03 -0400
+	id <S263523AbRFAOCx>; Fri, 1 Jun 2001 10:02:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263523AbRFAOAx>; Fri, 1 Jun 2001 10:00:53 -0400
-Received: from [203.34.97.3] ([203.34.97.3]:15364 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S263527AbRFAOAp>;
-	Fri, 1 Jun 2001 10:00:45 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Matt Chapman <matthewc@cse.unsw.edu.au>
-cc: Dag Brattli <dag@brattli.net>, linux-kernel@vger.kernel.org,
-        linux-irda@pasta.cs.uit.no
-Subject: Re: [PATCH] for Linux IRDA initialisation bug 2.4.5 
-In-Reply-To: Your message of "Fri, 01 Jun 2001 23:32:46 +1000."
-             <20010601233245.A10478@cse.unsw.edu.au> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Jun 2001 23:59:13 +1000
-Message-ID: <6679.991403953@ocs3.ocs-net>
+	id <S263527AbRFAOCn>; Fri, 1 Jun 2001 10:02:43 -0400
+Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:54195 "EHLO
+	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S263523AbRFAOCf>; Fri, 1 Jun 2001 10:02:35 -0400
+Date: Fri, 1 Jun 2001 16:02:09 +0200 (CEST)
+From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+To: "David S. Miller" <davem@redhat.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (forrealthis
+In-Reply-To: <15127.38509.495537.405210@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.33.0106011556250.18082-100000@kenzo.iwr.uni-heidelberg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Jun 2001 23:32:46 +1000, 
-Matt Chapman <matthewc@cse.unsw.edu.au> wrote:
->I've found that if you compile IRDA into the kernel, irda_proto_init
->gets called twice - once at do_initcalls time, and once explicitly
->in do_basic_setup - eventually resulting in a hang (as
->register_netdevice_notifier gets called twice with the same struct,
->and it's list becomes circular).
+On Fri, 1 Jun 2001, David S. Miller wrote:
 
-The suggested patch has one non-obvious side effect which somebody in
-irda needs to verify is OK.  Previously irda_proto_init() and
-irda_device_init() were called after every other driver had
-initialized.  Now irda_proto_init() is called based on the object order
-in the top level Makefile, so irda is initialized before i2c,
-telephony, acpi and mddev.  Is this a valid initialization order?  If
-not, move
+> Don't such HA apps need to run as root anyways?
 
-  DRIVERS-$(CONFIG_IRDA) += drivers/net/irda/irda.o
+Not necessarily, but eventually you can let root (CAP_NET_ADMIN, anyway)
+go through without any limitations, root can bring down the system at will
+in other ways.
 
-to the end of the drivers list and document why it needs to be there.
+In addition, the rate limiting solution allows a warning to be issued when
+the limit is exceeded, so that the poor sysadmin knows what hit him 8-)
+
+-- 
+Bogdan Costescu
+
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
 

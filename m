@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264024AbRFMQJz>; Wed, 13 Jun 2001 12:09:55 -0400
+	id <S264026AbRFMQOr>; Wed, 13 Jun 2001 12:14:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264026AbRFMQJq>; Wed, 13 Jun 2001 12:09:46 -0400
-Received: from sense-robertk-129.oz.net ([216.39.160.129]:13184 "HELO
-	mail.kleemann.org") by vger.kernel.org with SMTP id <S264024AbRFMQJk>;
-	Wed, 13 Jun 2001 12:09:40 -0400
-Date: Wed, 13 Jun 2001 09:09:34 -0700 (PDT)
-From: Robert Kleemann <robert@kleemann.org>
-X-X-Sender: <robert@localhost.localdomain>
-To: Andi Kleen <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Client receives TCP packets but does not ACK
-In-Reply-To: <oup1yoon4to.fsf@pigdrop.muc.suse.de>
-Message-ID: <Pine.LNX.4.33.0106130856050.1153-100000@localhost.localdomain>
+	id <S264029AbRFMQOh>; Wed, 13 Jun 2001 12:14:37 -0400
+Received: from c017-h015.c017.sfo.cp.net ([209.228.12.229]:13041 "HELO
+	c017.sfo.cp.net") by vger.kernel.org with SMTP id <S264026AbRFMQOQ>;
+	Wed, 13 Jun 2001 12:14:16 -0400
+X-Sent: 13 Jun 2001 16:14:14 GMT
+Message-ID: <3B277C2A.B2CC3FCF@sangate.com>
+Date: Wed, 13 Jun 2001 17:43:54 +0300
+From: Mark Mokryn <mark@sangate.com>
+Organization: SANgate Systems
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rafael Herrera <raffo@neuronet.pitt.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SMP module compilation on UP?
+In-Reply-To: <3B276DDE.A19F60DF@sangate.com> <3B278602.B1C4DFB8@neuronet.pitt.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jun 2001, Andi Kleen wrote:
-> The packet likely doesn't fit into the socket buffer and is silently
-> dropped. The TCP stack doesn't force an ACK in this case, but it
-> probably should, although it wouldn't solve the deadlock. The deadlock
-> will be only solved if the local application reads data and clears the
-> socket buffer. If you have a single packet that is bigger than the
-> empty socket buffer / 2 you lose.
->
-> You can check the allocated socket buffer size using netstat.
+Rafael Herrera wrote:
+> 
+> Mark Mokryn wrote:
+> > Is it possible to build an SMP module on a machine running a UP kernel
+> > (or vice versa)? We of course get unresolved symbols during module load
+> > due to the smp prefix on the ksyms, and haven't seen how to get around
+> > it. (Defining __SMP__ does not cut it, though I believe this used to
+> > work a while ago).
+> 
+> Yes. It does not matter what kernel you are running. What's important is
+> that you configure your sources. Configure your kernel for SMP and do a
+> 'make dep', then compile your module.
+> --
+>      Rafael
 
-Thanks for the quick response!
+Is this the only way - to keep two separately configured kernel source
+trees? No way to do it via some flag?
 
-I tried most of the netstat options and was unable to see the buffer size.
-I do see the Recv-Q and the Send-Q which are usually zero except when the
-client stops ack-ing and then the server's Send-Q starts filling up.
-
-> You can increase it using the /proc/sys/net/core/rmem_{default,max}
-> sysctls; in 2.4 there is also a TCP memory limit that can be tuned
-> using /proc/sys/net/ipv4/tcp_mem. Doubling one of these will probably
-> fix your problems.
-
-On the client:
-/proc/sys/net/core/rmem_default = 65535
-/proc/sys/net/core/rmem_max = 65535
-/proc/sys/net/ipv4/tcp_mem = 48128	48640	49152
-
-On the server:
-/proc/sys/net/core/rmem_default = 65535
-/proc/sys/net/core/rmem_max = 65535
-/proc/sys/net/ipv4/tcp_mem = 23552	24064	24576
-
-The "bad" packet that seems to cause all the problems is only 1448
-bytes long so I don't think insufficient buffers is the problem.
-After the client stops ack-ing I can watch the server's Send-Q slowly
-rise 2K, 4K, 6K, but it never comes close to these buffer limits.
-
-Robert.
-
+thanks,
+-mark

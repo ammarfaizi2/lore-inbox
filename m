@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269432AbRHGUxU>; Tue, 7 Aug 2001 16:53:20 -0400
+	id <S269437AbRHGUzk>; Tue, 7 Aug 2001 16:55:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269433AbRHGUxE>; Tue, 7 Aug 2001 16:53:04 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:50189 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S269432AbRHGUw6>;
-	Tue, 7 Aug 2001 16:52:58 -0400
-Date: Tue, 7 Aug 2001 13:18:57 -0400
-From: Anton Blanchard <anton@samba.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Andrew Tridgell <tridge@valinux.com>, lkml <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: 2.4.8preX VM problems
-Message-ID: <20010807131857.A13210@krispykreme>
-In-Reply-To: <Pine.LNX.4.21.0108061954001.11203-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0108061954001.11203-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.18i
+	id <S269435AbRHGUza>; Tue, 7 Aug 2001 16:55:30 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:7041 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S269434AbRHGUzP>; Tue, 7 Aug 2001 16:55:15 -0400
+Date: Tue, 7 Aug 2001 16:55:08 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Igmar Palsenberg <maillist@jdimedia.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x VM problems thread
+In-Reply-To: <Pine.LNX.4.33.0108072240300.3714-200000@jdi.jdimedia.nl>
+Message-ID: <Pine.LNX.3.95.1010807165314.13578A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi Marcelo,
+On Tue, 7 Aug 2001, Igmar Palsenberg wrote:
 
-> Can you please use readprofile to find out where kswapd is spending its
-> time when you reach 4G of pagecache ?
 > 
-> I've never seen kswapd burn CPU time except cases where a lot of memory is
-> anonymous and there is a need for lots of swap space allocations.
-> (scan_swap_map() is where kswapd spends "all" of its time in such
-> workloads)
+> Hi,
+> 
+> I've followed the 2.4.x VM thread stuff. Someone mentioned he will
+> wite a test program. Attached program kills all boxen within 1 minute,
+> it's not hard to see what it does.
+> 
+> I'm willing to test experimental stuff if needed.
+> 
+> 	Regards,
 
-I was doing a run with 512M lowmem and 2.5G highmem and found this:
+Wow a memory-mapped fork bomb! Now what on earth did you expect?
+Run it from a user-account with ulimits enabled for slightly less
+than the total system resources. Then complain.
 
-__alloc_pages: 1-order allocation failed.
-__alloc_pages: 1-order allocation failed.
-__alloc_pages: 1-order allocation failed.
 
-# cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  3077513216 3067564032  9949184        0 13807616 2311172096
-Swap: 2098176000        0 2098176000
-MemTotal:      3005384 kB
-MemFree:          9716 kB
-MemShared:           0 kB
-Buffers:         13484 kB
-Cached:        2257004 kB
-SwapCached:          0 kB
-Active:         888916 kB
-Inact_dirty:   1335552 kB
-Inact_clean:     46020 kB
-Inact_target:      316 kB
-HighTotal:     2621440 kB
-HighFree:         7528 kB
-LowTotal:       383944 kB
-LowFree:          2188 kB
-SwapTotal:     2049000 kB
-SwapFree:      2049000 kB
+Cheers,
+Dick Johnson
 
-# readprofile | sort -nr | less
-11967239 total                                      7.3285
-7417874 idled                                    45230.9390
-363813 do_page_launder                          119.3612
-236764 ppc_irq_dispatch_handler                 332.5337
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-I can split out the do_page_launder usage if you want. I had a quick look
-at the raw profile information and it appears that we are just looping a
-lot.
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
-Paulus and I moved the ppc32 kernel to load at 2G so we have 1.75G of
-lowmem. This has stopped the kswapd problem, but I thought the above
-information might be useful to you anyway.
 
-Anton

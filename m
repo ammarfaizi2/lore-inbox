@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278120AbRJLUcI>; Fri, 12 Oct 2001 16:32:08 -0400
+	id <S278125AbRJLUei>; Fri, 12 Oct 2001 16:34:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278122AbRJLUb4>; Fri, 12 Oct 2001 16:31:56 -0400
-Received: from 216-175-173-2.client.dsl.net ([216.175.173.2]:20466 "HELO
-	mail.fdfl") by vger.kernel.org with SMTP id <S278120AbRJLUb3>;
-	Fri, 12 Oct 2001 16:31:29 -0400
-Message-ID: <3BC75340.7090800@frontierd-us.com>
-Date: Fri, 12 Oct 2001 16:32:00 -0400
-From: Jelle Foks <jelle-kernel@frontierd-us.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011010
-X-Accept-Language: en
+	id <S278126AbRJLUe2>; Fri, 12 Oct 2001 16:34:28 -0400
+Received: from nsd.mandrakesoft.com ([216.71.84.35]:46965 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S278125AbRJLUeW>; Fri, 12 Oct 2001 16:34:22 -0400
+Date: Fri, 12 Oct 2001 15:34:33 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Matt_Domsch@Dell.com
+cc: vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org
+Subject: RE: crc32 cleanups
+In-Reply-To: <71714C04806CD51193520090272892178BD709@ausxmrr502.us.dell.com>
+Message-ID: <Pine.LNX.3.96.1011012153014.31508A-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-Cc: John J Tobin <ogre@sirinet.net>, linux-kernel@vger.kernel.org
-Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
-In-Reply-To: <Pine.LNX.4.33.0110121203220.7418-100000@twin.uoregon.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Jaeggli wrote:
+On Fri, 12 Oct 2001 Matt_Domsch@Dell.com wrote:
+> > That leaves (a) unconditionally building 
+> > it into the kernel, or (b) Makefile and Config.in rules.
+> 
+> (a) is simple, but needs a 1KB malloc (or alternately, a 1KB static const
+> array - I've taken the approach that the malloc is better)
+> (b) isn't that much harder, but requires drivers to be sure to call
+> init_crc32 and cleanup_crc32.  If somehow they manage not to do that, Oops.
+> I don't want to add a runtime check for the existance of the array in
+> crc32().
 
->On 11 Oct 2001, John J Tobin wrote:
->
->>On Thu, 2001-10-11 at 14:14, bill davidsen wrote:
->>
->>>In article <1002667385.1673.129.camel@phantasy> rml@tech9.net wrote:
->>>
->>>>Completely Agreed.  I am thinking of getting a dual AMD system for doing
->>>>more kernel work (tackle AMD and SMP).  My main machine is a P3 now.
->>>>
->>>The issue right now may be RAM cost. I just bought 512MB PC133 for
->>>$140/GB, while "registered PC2100" memory is about $900 from the same
->>>source. I think that's what the Tiger wants, isn't it?
->>>
->
->registered ecc dimms from crucial and kingston valueram are barely more
->than non-registered parts... I see the 512MB kingston registered ecc ddram
->part for $220 from a large mailorder house. the same spec part from
->corsair is still $489 from the same vendor. given the headaches that
->result from having to debug problems/faulty dimms on a machine with 2GB of
->ram and the non-trivial engineering that went into getting 4 reasonably
->spaced ddr dimm sockets on the mainboard. I expect registered ecc dimms
->will be well worth it, if only so that you can rule out the memory as the
->culprit if you have certain kinds of issues...
->
+You are talking about the data; I was talking about the code.
 
-I have very good experience by testing with a memtest boot floppy (see 
-www.memtest86.com), and running overnight or a whole week-end. All new 
-configurations I build get a long memtest before deployment.
+I do not think kernels need the data table, kmalloc'd or statically
+built, unless it will be used.  That implies a refcounting scheme.
+[WRT "Oops", that is a driver bug, not a case to be considered.  In
+Linuxland we do not write code to protect us from rogue code.]
 
-Jelle.
+I was pondering whether it was ok to unconditionally include the
+lib/crc32.c code, regardless of need.  I am leaning towards "no," which
+implies Makefile and Config.in rules which must be updated for each
+driver that uses crc32.
 
->
->
->joelja
->
->
->>>--
->>>bill davidsen <davidsen@tmr.com>
->>>
->>The Tyan Tiger and Thunder both take Registered DDR DIMMs. Though
->>anandtech got it running using only one pair of unregistered, other
->>combinations of unregistered failed to boot. There are also no SMP
->>athlon chipsets that use PC133.
->>
->>
->>
->
+	Jeff
 
 
 

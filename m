@@ -1,35 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbUJaLUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbUJaLYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbUJaLUo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 06:20:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbUJaLUh
+	id S261544AbUJaLYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 06:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbUJaLYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 06:20:37 -0500
-Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:24357
+	Sun, 31 Oct 2004 06:24:25 -0500
+Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:18761
 	"EHLO amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261552AbUJaKE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 05:04:57 -0500
+	id S261553AbUJaKFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 05:05:02 -0500
 Date: Sun, 31 Oct 2004 11:03:40 +0100
-Message-Id: <200410311003.i9VA3enc009693@anakin.of.borg>
+Message-Id: <200410311003.i9VA3etG009662@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 515] M68k: Add defconfig for Sun 3
+Subject: [PATCH 509] M68k: Add defconfig for BVME4000 and BVME6000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Add defconfig for Sun 3 (based on the Debian config)
+M68k: Add defconfig for BVME4000 and BVME6000 (based on the Debian config)
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.9/arch/m68k/configs/sun3_defconfig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-m68k-2.6.9/arch/m68k/configs/sun3_defconfig	2004-09-20 11:03:03.000000000 +0200
-@@ -0,0 +1,791 @@
+--- linux-2.6.9/arch/m68k/configs/bvme6000_defconfig	1970-01-01 01:00:00.000000000 +0100
++++ linux-m68k-2.6.9/arch/m68k/configs/bvme6000_defconfig	2004-09-20 11:03:03.000000000 +0200
+@@ -0,0 +1,786 @@
 +#
 +# Automatically generated make config: don't edit
 +# Linux kernel version: 2.6.9-m68k
-+# Thu Oct 28 21:23:13 2004
++# Thu Oct 28 21:23:01 2004
 +#
 +CONFIG_M68K=y
 +CONFIG_MMU=y
@@ -46,7 +46,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# General setup
 +#
-+CONFIG_LOCALVERSION="-sun3"
++CONFIG_LOCALVERSION="-bvme6000"
 +CONFIG_SWAP=y
 +CONFIG_SYSVIPC=y
 +CONFIG_POSIX_MQUEUE=y
@@ -84,16 +84,28 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# Platform dependent setup
 +#
-+CONFIG_SUN3=y
++# CONFIG_SUN3 is not set
++# CONFIG_AMIGA is not set
++# CONFIG_ATARI is not set
++# CONFIG_MAC is not set
++# CONFIG_APOLLO is not set
++CONFIG_VME=y
++# CONFIG_MVME147 is not set
++# CONFIG_MVME16x is not set
++CONFIG_BVME6000=y
++# CONFIG_HP300 is not set
++# CONFIG_SUN3X is not set
++# CONFIG_Q40 is not set
 +
 +#
 +# Processor type
 +#
-+CONFIG_M68020=y
-+CONFIG_MMU_SUN3=y
-+CONFIG_M68KFPU_EMU=y
-+CONFIG_M68KFPU_EMU_EXTRAPREC=y
-+# CONFIG_M68KFPU_EMU_ONLY is not set
++# CONFIG_M68020 is not set
++# CONFIG_M68030 is not set
++CONFIG_M68040=y
++CONFIG_M68060=y
++CONFIG_MMU_MOTOROLA=y
++# CONFIG_M68KFPU_EMU is not set
 +# CONFIG_ADVANCED is not set
 +
 +#
@@ -178,7 +190,6 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# CONFIG_SCSI_SATA is not set
 +# CONFIG_SCSI_DEBUG is not set
-+CONFIG_SUN3_SCSI=y
 +
 +#
 +# Multi-device support (RAID and LVM)
@@ -342,7 +353,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +CONFIG_IP6_NF_TARGET_MARK=m
 +CONFIG_IP6_NF_RAW=m
 +CONFIG_XFRM=y
-+# CONFIG_XFRM_USER is not set
++CONFIG_XFRM_USER=m
 +
 +#
 +# SCTP Configuration (EXPERIMENTAL)
@@ -359,8 +370,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# CONFIG_DECNET is not set
 +CONFIG_LLC=m
 +# CONFIG_LLC2 is not set
-+CONFIG_IPX=m
-+# CONFIG_IPX_INTERN is not set
++# CONFIG_IPX is not set
 +CONFIG_ATALK=m
 +# CONFIG_DEV_APPLETALK is not set
 +# CONFIG_X25 is not set
@@ -399,8 +409,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +CONFIG_NET_ETHERNET=y
 +CONFIG_MII=m
-+CONFIG_SUN3LANCE=y
-+CONFIG_SUN3_82586=y
++CONFIG_BVME6000_NET=y
 +
 +#
 +# Ethernet (1000 Mbit)
@@ -425,7 +434,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# CONFIG_WAN is not set
 +CONFIG_PPP=m
 +# CONFIG_PPP_MULTILINK is not set
-+CONFIG_PPP_FILTER=y
++# CONFIG_PPP_FILTER is not set
 +CONFIG_PPP_ASYNC=m
 +CONFIG_PPP_SYNC_TTY=m
 +CONFIG_PPP_DEFLATE=m
@@ -470,7 +479,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# CONFIG_GAMEPORT is not set
 +CONFIG_SOUND_GAMEPORT=y
-+CONFIG_SERIO=y
++CONFIG_SERIO=m
 +CONFIG_SERIO_SERPORT=m
 +# CONFIG_SERIO_CT82C710 is not set
 +# CONFIG_SERIO_RAW is not set
@@ -480,7 +489,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +CONFIG_INPUT_KEYBOARD=y
 +# CONFIG_KEYBOARD_ATKBD is not set
-+CONFIG_KEYBOARD_SUNKBD=y
++# CONFIG_KEYBOARD_SUNKBD is not set
 +# CONFIG_KEYBOARD_LKKBD is not set
 +# CONFIG_KEYBOARD_XTKBD is not set
 +# CONFIG_KEYBOARD_NEWTON is not set
@@ -521,7 +530,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# Watchdog Cards
 +#
 +# CONFIG_WATCHDOG is not set
-+CONFIG_GEN_RTC=y
++CONFIG_GEN_RTC=m
 +CONFIG_GEN_RTC_X=y
 +# CONFIG_DTLK is not set
 +# CONFIG_R3964 is not set
@@ -559,26 +568,12 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# Graphics support
 +#
-+CONFIG_FB=y
-+CONFIG_FB_MODE_HELPERS=y
-+# CONFIG_FB_VIRTUAL is not set
++# CONFIG_FB is not set
 +
 +#
 +# Console display driver support
 +#
 +CONFIG_DUMMY_CONSOLE=y
-+CONFIG_FRAMEBUFFER_CONSOLE=y
-+# CONFIG_FONTS is not set
-+CONFIG_FONT_8x8=y
-+CONFIG_FONT_8x16=y
-+
-+#
-+# Logo configuration
-+#
-+CONFIG_LOGO=y
-+CONFIG_LOGO_LINUX_MONO=y
-+CONFIG_LOGO_LINUX_VGA16=y
-+CONFIG_LOGO_LINUX_CLUT224=y
 +
 +#
 +# Sound
@@ -597,6 +592,8 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# Character devices
 +#
++CONFIG_BVME6000_SCC=y
++CONFIG_SERIAL_CONSOLE=y
 +
 +#
 +# File systems
@@ -656,9 +653,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +CONFIG_PROC_FS=y
 +CONFIG_PROC_KCORE=y
 +CONFIG_SYSFS=y
-+CONFIG_DEVFS_FS=y
-+CONFIG_DEVFS_MOUNT=y
-+# CONFIG_DEVFS_DEBUG is not set
++# CONFIG_DEVFS_FS is not set
 +# CONFIG_DEVPTS_FS_XATTR is not set
 +CONFIG_TMPFS=y
 +# CONFIG_HUGETLB_PAGE is not set
@@ -680,7 +675,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# CONFIG_QNX4FS_FS is not set
 +CONFIG_SYSV_FS=m
 +CONFIG_UFS_FS=m
-+CONFIG_UFS_FS_WRITE=y
++# CONFIG_UFS_FS_WRITE is not set
 +
 +#
 +# Network File Systems
@@ -709,8 +704,8 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# CONFIG_NCPFS_PACKET_SIGNING is not set
 +# CONFIG_NCPFS_IOCTL_LOCKING is not set
 +# CONFIG_NCPFS_STRONG is not set
-+# CONFIG_NCPFS_NFS_NS is not set
-+# CONFIG_NCPFS_OS2_NS is not set
++CONFIG_NCPFS_NFS_NS=y
++CONFIG_NCPFS_OS2_NS=y
 +# CONFIG_NCPFS_SMALLDOS is not set
 +CONFIG_NCPFS_NLS=y
 +# CONFIG_NCPFS_EXTRAS is not set

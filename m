@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285940AbRLTDXD>; Wed, 19 Dec 2001 22:23:03 -0500
+	id <S285927AbRLTDVy>; Wed, 19 Dec 2001 22:21:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285937AbRLTDWz>; Wed, 19 Dec 2001 22:22:55 -0500
-Received: from svr3.applink.net ([206.50.88.3]:57099 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S285940AbRLTDWn>;
-	Wed, 19 Dec 2001 22:22:43 -0500
-Message-Id: <200112200322.fBK3MVSr013812@svr3.applink.net>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Jean-Francois Levesque <jfl@jfworld.net>
-Subject: Re: UDMA problem with Maxtor 7200rpm disk
-Date: Wed, 19 Dec 2001 21:18:51 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011219151636.50e930ac.jfl@jfworld.net> <20011219203804.4c68f1ee.jfl@jfworld.net> <20011219214341.66b6b83e.jfl@jfworld.net>
-In-Reply-To: <20011219214341.66b6b83e.jfl@jfworld.net>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S285940AbRLTDVn>; Wed, 19 Dec 2001 22:21:43 -0500
+Received: from tierra.ucsd.edu ([132.239.214.132]:34706 "EHLO burn")
+	by vger.kernel.org with ESMTP id <S285937AbRLTDVd>;
+	Wed, 19 Dec 2001 22:21:33 -0500
+Date: Wed, 19 Dec 2001 19:21:05 -0800
+To: "David S. Miller" <davem@redhat.com>
+Cc: kerndev@sc-software.com, billh@tierra.ucsd.edu, bcrl@redhat.com,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        linux-aio@kvack.org
+Subject: Re: aio
+Message-ID: <20011219192105.B26007@burn.ucsd.edu>
+In-Reply-To: <20011219.184527.31638196.davem@redhat.com> <Pine.LNX.3.95.1011219184950.581H-100000@scsoftware.sc-software.com> <20011219.190629.03111291.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011219.190629.03111291.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 07:06:29PM -0800
+From: Bill Huey <billh@tierra.ucsd.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 December 2001 20:43, Jean-Francois Levesque wrote:
-> I tried the 2.4.17-rc2 kernel and I was able to boot. (but I'm not with
-> 2.4.9, 2.4.12-ac5 and 2.4.16)
->
-> Unfortunately, when I try hdparm -d1 /dev/hda, I get the same errors
->
-> hda: timeout waiting for DMA
-> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> hda: timeout waiting for DMA
-> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> hda: timeout waiting for DMA
-> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> hda: timeout waiting for DMA
-> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> hda: DMA disabled
-> ide0: reset: success
->
->
-> What can influence the DMA on the BIOS else than the disk configuration?
->
-> I always get this PCI bus warning :
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
->
-> Maybe I have somthing wrong with PCI bus that change everything???
->
-> Jean-François
->
-> PS: I have the lastest asus BIOS update (1003).
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Wed, Dec 19, 2001 at 07:06:29PM -0800, David S. Miller wrote:
+> Firstly, you say this as if server java applets do not function at all
+> or with acceptable performance today.  That is not true for the vast
+> majority of cases.
+> 
+> If java server applet performance in all cases is dependent upon AIO
+> (it is not), that would be pretty sad.  But it wouldn't be the first
 
+Java is pretty incomplete in this area, which should be addressed to a
+great degree in the new NIO API.
 
-Three things occur to me:
+The core JVM isn't dependent on this stuff per se for performance, but
+it is critical to server side programs that have to deal with highly
+scalable IO systems, largely number of FDs, that go beyond the current
+expressiveness of select()/poll().
 
-1. I had a Maxtor disk (of many good ones) which died one month
-before its warranty ran out.  I just sent it back to Maxtor for a replacement.
+This is all standard fare in *any* kind of high performance networking
+application where some kind of high performance kernel/userspace event
+delivery system is needed, kqueue() principally.
 
-2. The PCI bus runs at 33 MHz unless, 
-	a) You have a server running at 66 MHz
-	b) You overclock your system.
+> time I've heard crap like that.  There is propaganda out there telling
+> people that 64-bit address spaces are needed for good java
+> performance.  Guess where that came from?  (hint: they invented java
+> and are in the buisness of selling 64-bit RISC processors)
 
-3. From your earlier post, I wasn't sure  if you understood PIO/DMA.
-Original disks used Programmed Input/Output to increase throughput.
-PIO Modes increase from 1 to 2 to 3 to 4.  And them the Direct Memory
-Access method gained acceptance and resulted in better throughput.
-DMA2 is good, DMA4 is great and DMA5 is the best of the best as
-of today.
+What ? oh god. HotSpot is a pretty amazing compiler and it performs well.
+Swing does well now, but the lingering issue in Java is the shear size
+of it and possibly GC issues. It pretty clear that it's going to get
+larger, which is fine since memory is cheap.
 
+bill
 
-Just my $0.02.
-
--- 
-timothy.covell@ashavan.org.

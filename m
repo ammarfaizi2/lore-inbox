@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281436AbRKPOni>; Fri, 16 Nov 2001 09:43:38 -0500
+	id <S281435AbRKPOmS>; Fri, 16 Nov 2001 09:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281433AbRKPOn3>; Fri, 16 Nov 2001 09:43:29 -0500
-Received: from yktgi01e0-s3.watson.ibm.com ([198.81.209.17]:43153 "HELO
-	ssm22.watson.ibm.com") by vger.kernel.org with SMTP
-	id <S281436AbRKPOnQ>; Fri, 16 Nov 2001 09:43:16 -0500
-Date: Fri, 16 Nov 2001 06:05:23 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-To: Anders Peter Fugmann <afu@fugmann.dhs.org>, linux-kernel@vger.kernel.org
-Subject: Re: Scheduler
-Message-ID: <20011116060523.A2370@watson.ibm.com>
-In-Reply-To: <3BF415F2.2010204@fugmann.dhs.org> <20011115134017.B23386@mikef-linux.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <20011115134017.B23386@mikef-linux.matchmail.com>; from Mike Fedyk on Thu, Nov 15, 2001 at 01:40:17PM -0800
+	id <S281433AbRKPOl7>; Fri, 16 Nov 2001 09:41:59 -0500
+Received: from mercury.lss.emc.com ([168.159.40.77]:60421 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S281435AbRKPOlv>; Fri, 16 Nov 2001 09:41:51 -0500
+Message-ID: <FA2F59D0E55B4B4892EA076FF8704F553D188E@srgraham.eng.emc.com>
+From: "chen, xiangping" <chen_xiangping@emc.com>
+To: "'Steve Whitehouse'" <Steve@ChyGwyn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: The memory usage of the network block device
+Date: Fri, 16 Nov 2001 09:41:46 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mike Fedyk <mfedyk@matchmail.com> [20011115 16;40]:"
-> On Thu, Nov 15, 2001 at 08:22:26PM +0100, Anders Peter Fugmann wrote:
-> > Hi all.
-> > 
-> > I'm about to start my master thesis, and for this I'm thinking of 
-> > implementing a new scheduler for Linux.
-> > 
-> > The project will be mostly theoretical, and I'm therefore looking for 
-> > pointers to papers describing schduling methods for SMP systems.
-> > 
-> > As a part of the project will be to implement a new scheduler, I also 
-> > would like to know if any of you have some good pointers to eksisting 
-> > scheduling projects.
-> > 
-> 
-> goto kernelnewbies.org/patches/ and search for "sched".
-> 
-> It'll list all of them that I know about except for the MQ secheduler.
+Hi, Steve
 
-The MQ you can find at http://lse.sourceforge.net/scheduling
+Thanks for the quick reply. I have tried a couple of 2.4.x kernel 
+version, got the same result. I did not tune the /proc/sys/net/ipv4/tcp*mem,
+so it should be the default value. Which value you recommend? The memory
+size in the driver machine is 256M, I run into problem when do a bonnie 
+test of 200M file size. I run nbd on two separate machines, so it should
+not be a localhost deadlock problem.
+
+
+Thanks,
+
+Xiangping
+
+-----Original Message-----
+From: Steven Whitehouse [mailto:steve@gw.chygwyn.com]
+Sent: Friday, November 16, 2001 5:16 AM
+To: chen, xiangping
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The memory usage of the network block device
+
+
+Hi,
+
+I'm on holiday this week, so apologies in advance if my replies are not
+as prompt as they would otherwise be....
+
+Which kernel version are you using ? What are your settings in the
+/proc/sys/net/ipv4/tcp_*mem files or did you just use the default
+values ? Did you run the nbd server on the same machine as the client ?
+How much memory do you have in the machine that you are testing with ?
+
+Its a little while since I looked at nbd in detail, so if you can send me
+enough info to reproduce your set up, then I'll try and have a go in the
+next few days,
+
+Steve.
 
 > 
-> Mike
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Hi, 
+> 
+> I am trying to use the network block device in the Linux kernel.
+> 
+> The nbd works good in light io load, but during intensive io load
+> testing, it seems that it fails to release the memory fast enough.
+> Eventually the driver blocks at tcp_sendmsg, and waits for the
+> memory that seems never come. A simple bonnie test to create
+> a file about the size of the host memory shows the problem.
+> 
+> Is there any way to free up memory more quickly? or why the
+> network memory is held without being released?
+> 
+> Thanks,
+> 
+> Xiangping
+> 

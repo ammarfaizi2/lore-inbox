@@ -1,286 +1,296 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263805AbTEWHKF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 03:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbTEWHKE
+	id S263807AbTEWHO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 03:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbTEWHO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 03:10:04 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:24769 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263855AbTEWHJm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 03:09:42 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 23 May 2003 09:22:44 +0200 (MEST)
-Message-Id: <UTC200305230722.h4N7Mid25812.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [patch] scsi: ten -> use_10_for_rw / use_10_for_ms
-Cc: torvalds@transmeta.com
+	Fri, 23 May 2003 03:14:28 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:59274 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S263932AbTEWHOV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 03:14:21 -0400
+From: Rusty Russell <rusty@au1.ibm.com>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       David Mosberger-Tang <davidm@hpl.hp.com>
+Subject: Re: [PATCH 4/3] Replace dynamic percpu implementation 
+In-reply-to: Your message of "Thu, 22 May 2003 16:19:44 +0530."
+             <20030522104944.GE27614@in.ibm.com> 
+Date: Fri, 23 May 2003 17:23:15 +1000
+Message-Id: <20030523072617.5CBAE18D58@ozlabs.au.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the old days, ancient scsi devices understood 6-byte commands
-and more recent ones also understood 10-byte commands.
-Thus, we had a "ten" flag indicating that 10-byte commands worked.
+In message <20030522104944.GE27614@in.ibm.com> you write:
+> On Thu, May 22, 2003 at 06:36:31PM +1000, Rusty Russell wrote:
+> > If you're interested I can probably produce such a patch for x86...
+> 
+> Sure, it might help per-cpu data but will it cause performance
+> regression elsewhere? (other users of smp_processor_id).  I can run it 
+> through the same tests and find out.  Maybe it'll make good paper material 
+> for later? ;)
 
-These days, especially for usb-storage devices, the opposite
-sometimes holds - 10-byte commands are supported, but 6-byte commands
-are not.
+OK, here's an x86-specific patch.  It boots for me.  I'm mainly
+interested in the question of whether it increases static percpu
+speed.
 
-The patch below changes the field ten into the pair of fields
-use_10_for_rw, use_10_for_ms set initially when the driver
-thinks these are supported. Ifthe device returns ILLEGAL_REQUEST
-they are cleared.
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-This patch obsoletes a large amount of code in usb-storage,
-and not only that, once the subsequent patch removes all this
-usb-storage code many devices will work that hang today.
+Name: Put __per_cpu_offset in the thread struct, remove cpu
+Author: Rusty Russell
+Status: Tested on 2.5.69-bk15, dual x86
 
+D: If we had an efficient kmalloc_percpu-equiv, and moved more structures
+D: across to it (or to DECLARE_PER_CPU), it makes more sense to derive
+D: smp_processor_id() from the per-cpu offset, rather than the other way
+D: around.
+D:
+D: This patch is an x86-only hack to do just that, for benchmarking.
+D: It introduces a new header, asm/task_cpu.h, because I couldn't
+D: resolve the horrible header tangle any other way.
 
-Andries
-
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/scsi.h b/drivers/scsi/scsi.h
---- a/drivers/scsi/scsi.h	Thu May 22 13:17:01 2003
-+++ b/drivers/scsi/scsi.h	Fri May 23 10:02:30 2003
-@@ -383,9 +383,10 @@
- 				 * time. */
- 	unsigned was_reset:1;	/* There was a bus reset on the bus for 
- 				 * this device */
--	unsigned expecting_cc_ua:1;	/* Expecting a CHECK_CONDITION/UNIT_ATTN
--					 * because we did a bus reset. */
--	unsigned ten:1;		/* support ten byte read / write */
-+	unsigned expecting_cc_ua:1; /* Expecting a CHECK_CONDITION/UNIT_ATTN
-+				     * because we did a bus reset. */
-+	unsigned use_10_for_rw:1; /* first try 10-byte read / write */
-+	unsigned use_10_for_ms:1; /* first try 10-byte mode sense/select */
- 	unsigned remap:1;	/* support remapping  */
- //	unsigned sync:1;	/* Sync transfer state, managed by host */
- //	unsigned wide:1;	/* WIDE transfer state, managed by host */
-@@ -402,10 +403,6 @@
- 	container_of(d, struct scsi_device, sdev_driverfs_dev)
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.69-bk15/arch/i386/kernel/i386_ksyms.c working-2.5.69-bk15-offset-uber-alles/arch/i386/kernel/i386_ksyms.c
+--- linux-2.5.69-bk15/arch/i386/kernel/i386_ksyms.c	2003-05-22 10:48:33.000000000 +1000
++++ working-2.5.69-bk15-offset-uber-alles/arch/i386/kernel/i386_ksyms.c	2003-05-23 16:13:53.000000000 +1000
+@@ -152,6 +152,7 @@ EXPORT_SYMBOL(cpu_online_map);
+ EXPORT_SYMBOL(cpu_callout_map);
+ EXPORT_SYMBOL_NOVERS(__write_lock_failed);
+ EXPORT_SYMBOL_NOVERS(__read_lock_failed);
++EXPORT_PER_CPU_SYMBOL(__processor_id);
  
+ /* Global SMP stuff */
+ EXPORT_SYMBOL(synchronize_irq);
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.69-bk15/arch/i386/kernel/smpboot.c working-2.5.69-bk15-offset-uber-alles/arch/i386/kernel/smpboot.c
+--- linux-2.5.69-bk15/arch/i386/kernel/smpboot.c	2003-05-22 10:48:33.000000000 +1000
++++ working-2.5.69-bk15-offset-uber-alles/arch/i386/kernel/smpboot.c	2003-05-23 16:12:27.000000000 +1000
+@@ -49,6 +49,7 @@
+ #include <asm/tlbflush.h>
+ #include <asm/desc.h>
+ #include <asm/arch_hooks.h>
++#include <asm/task_cpu.h>
  
--/*
-- * The Scsi_Cmnd structure is used by scsi.c internally, and for communication
-- * with low level drivers that support multiple outstanding commands.
-- */
- typedef struct scsi_pointer {
- 	char *ptr;		/* data pointer */
- 	int this_residual;	/* left in this buffer */
-@@ -458,12 +455,13 @@
- };
+ #include <mach_apic.h>
+ #include <mach_wakecpu.h>
+@@ -947,7 +948,6 @@ static void __init smp_boot_cpus(unsigne
  
- /*
-- * FIXME(eric) - one of the great regrets that I have is that I failed to define
-- * these structure elements as something like sc_foo instead of foo.  This would
-- * make it so much easier to grep through sources and so forth.  I propose that
-- * all new elements that get added to these structures follow this convention.
-- * As time goes on and as people have the stomach for it, it should be possible to 
-- * go back and retrofit at least some of the elements here with with the prefix.
-+ * FIXME(eric) - one of the great regrets that I have is that I failed to
-+ * define these structure elements as something like sc_foo instead of foo.
-+ * This would make it so much easier to grep through sources and so forth.
-+ * I propose that all new elements that get added to these structures follow
-+ * this convention.  As time goes on and as people have the stomach for it,
-+ * it should be possible to go back and retrofit at least some of the elements
-+ * here with with the prefix.
-  */
- struct scsi_cmnd {
- 	int     sc_magic;
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
---- a/drivers/scsi/scsi_lib.c	Thu May 22 13:17:01 2003
-+++ b/drivers/scsi/scsi_lib.c	Fri May 23 10:02:30 2003
-@@ -662,7 +662,6 @@
-  *
-  *		b) We can just use scsi_requeue_command() here.  This would
-  *		   be used if we just wanted to retry, for example.
-- *
-  */
- void scsi_io_completion(struct scsi_cmnd *cmd, int good_sectors,
- 			int block_sectors)
-@@ -796,17 +795,20 @@
- 				}
- 			}
- 		}
--		/* If we had an ILLEGAL REQUEST returned, then we may have
--		 * performed an unsupported command.  The only thing this should be
--		 * would be a ten byte read where only a six byte read was supported.
--		 * Also, on a system where READ CAPACITY failed, we have have read
--		 * past the end of the disk.
-+		/*
-+		 * If we had an ILLEGAL REQUEST returned, then we may have
-+		 * performed an unsupported command.  The only thing this
-+		 * should be would be a ten byte read where only a six byte
-+		 * read was supported.  Also, on a system where READ CAPACITY
-+		 * failed, we may have read past the end of the disk.
- 		 */
+ 	boot_cpu_logical_apicid = logical_smp_processor_id();
  
- 		switch (cmd->sense_buffer[2]) {
- 		case ILLEGAL_REQUEST:
--			if (cmd->device->ten) {
--				cmd->device->ten = 0;
-+			if (cmd->device->use_10_for_rw &&
-+			    (cmd->cmnd[0] == READ_10 ||
-+			     cmd->cmnd[0] == WRITE_10)) {
-+				cmd->device->use_10_for_rw = 0;
- 				/*
- 				 * This will cause a retry with a 6-byte
- 				 * command.
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/sd.c b/drivers/scsi/sd.c
---- a/drivers/scsi/sd.c	Thu May 22 13:17:01 2003
-+++ b/drivers/scsi/sd.c	Fri May 23 10:02:30 2003
-@@ -320,7 +320,8 @@
- 		SCpnt->cmnd[12] = (unsigned char) (this_count >> 8) & 0xff;
- 		SCpnt->cmnd[13] = (unsigned char) this_count & 0xff;
- 		SCpnt->cmnd[14] = SCpnt->cmnd[15] = 0;
--	} else if (((this_count > 0xff) || (block > 0x1fffff)) || SCpnt->device->ten) {
-+	} else if ((this_count > 0xff) || (block > 0x1fffff) ||
-+		   SCpnt->device->use_10_for_rw) {
- 		if (this_count > 0xffff)
- 			this_count = 0xffff;
+-	current_thread_info()->cpu = 0;
+ 	smp_tune_scheduling();
  
-@@ -768,11 +769,14 @@
- 			break;
- 
- 		case ILLEGAL_REQUEST:
--			if (SCpnt->device->ten == 1) {
--				if (SCpnt->cmnd[0] == READ_10 ||
--				    SCpnt->cmnd[0] == WRITE_10)
--					SCpnt->device->ten = 0;
--			}
-+			if (SCpnt->device->use_10_for_rw &&
-+			    (SCpnt->cmnd[0] == READ_10 ||
-+			     SCpnt->cmnd[0] == WRITE_10))
-+				SCpnt->device->use_10_for_rw = 0;
-+			if (SCpnt->device->use_10_for_ms &&
-+			    (SCpnt->cmnd[0] == MODE_SENSE_10 ||
-+			     SCpnt->cmnd[0] == MODE_SELECT_10))
-+				SCpnt->device->use_10_for_ms = 0;
- 			break;
- 
- 		default:
-@@ -1093,16 +1097,29 @@
- 	sdkp->device->sector_size = sector_size;
+ 	/*
+@@ -1129,6 +1130,38 @@ void __devinit smp_prepare_boot_cpu(void
+ 	set_bit(smp_processor_id(), &cpu_callout_map);
  }
  
-+/* called with buffer of length 512 */
- static int
--sd_do_mode_sense6(struct scsi_device *sdp, struct scsi_request *SRpnt,
--		  int dbd, int modepage, unsigned char *buffer, int len) {
--	unsigned char cmd[8];
-+sd_do_mode_sense(struct scsi_request *SRpnt, int dbd, int modepage,
-+		 unsigned char *buffer, int len) {
-+	unsigned char cmd[12];
- 
--	memset((void *) &cmd[0], 0, 8);
--	cmd[0] = MODE_SENSE;
-+	memset((void *) &cmd[0], 0, 12);
- 	cmd[1] = dbd;
- 	cmd[2] = modepage;
--	cmd[4] = len;
++DEFINE_PER_CPU(u32, __processor_id);
++unsigned long __per_cpu_offset[NR_CPUS];
 +
-+	if (SRpnt->sr_device->use_10_for_ms) {
-+		if (len < 8)
-+			len = 8;
++void __init setup_per_cpu_areas(void)
++{
++	unsigned long size, i;
++	char *ptr;
++	/* Created by linker magic */
++	extern char __per_cpu_start[], __per_cpu_end[];
 +
-+		cmd[0] = MODE_SENSE_10;
-+		cmd[8] = len;
-+	} else {
-+		if (len < 4)
-+			len = 4;
++	/* Copy section for each CPU (we discard the original) */
++	size = ALIGN(__per_cpu_end - __per_cpu_start, SMP_CACHE_BYTES);
++	if (!size)
++		return;
 +
-+		cmd[0] = MODE_SENSE;
-+		cmd[4] = len;
++	ptr = alloc_bootmem(size * NR_CPUS);
++
++	for (i = 0; i < NR_CPUS; i++, ptr += size) {
++		__per_cpu_offset[i] = ptr - __per_cpu_start;
++		memcpy(ptr, __per_cpu_start, size);
 +	}
++
++	/* Now, setup per-cpu stuff so smp_processor_id() will work when
++	 * we boot other CPUs */
++	for (i = 0; i < NR_CPUS; i++)
++		per_cpu(__processor_id, i) = i;
++
++	/* Our pcpuoff points into the original .data.percpu section:
++	   that will vanish, so fixup now. */
++	set_task_cpu(current, smp_processor_id());
++}
++
+ int __devinit __cpu_up(unsigned int cpu)
+ {
+ 	/* This only works at boot for x86.  See "rewrite" above. */
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.69-bk15/fs/proc/array.c working-2.5.69-bk15-offset-uber-alles/fs/proc/array.c
+--- linux-2.5.69-bk15/fs/proc/array.c	2003-05-05 12:37:09.000000000 +1000
++++ working-2.5.69-bk15-offset-uber-alles/fs/proc/array.c	2003-05-23 16:00:42.000000000 +1000
+@@ -78,6 +78,7 @@
+ #include <asm/pgtable.h>
+ #include <asm/io.h>
+ #include <asm/processor.h>
++#include <asm/task_cpu.h>
  
- 	SRpnt->sr_cmd_len = 0;
- 	SRpnt->sr_sense_buffer[0] = 0;
-@@ -1119,11 +1136,11 @@
+ /* Gcc optimizes away "strlen(x)" for constant x */
+ #define ADDBUF(buffer, string) \
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.69-bk15/include/asm-i386/percpu.h working-2.5.69-bk15-offset-uber-alles/include/asm-i386/percpu.h
+--- linux-2.5.69-bk15/include/asm-i386/percpu.h	2003-01-02 12:00:21.000000000 +1100
++++ working-2.5.69-bk15-offset-uber-alles/include/asm-i386/percpu.h	2003-05-23 16:05:22.000000000 +1000
+@@ -1,6 +1,40 @@
+ #ifndef __ARCH_I386_PERCPU__
+ #define __ARCH_I386_PERCPU__
  
- /*
-  * read write protect setting, if possible - called only in sd_init_onedisk()
-+ * called with buffer of length 512
+-#include <asm-generic/percpu.h>
++#include <linux/compiler.h>
++
++#ifdef CONFIG_SMP
++
++extern void setup_per_cpu_areas(void);
++extern unsigned long __per_cpu_offset[NR_CPUS];
++
++/* Separate out the type, so (int[3], foo) works. */
++#ifndef MODULE
++#define DEFINE_PER_CPU(type, name) \
++    __attribute__((__section__(".data.percpu"))) __typeof__(type) name##__per_cpu
++#endif
++
++/* var is in discarded region: offset to particular copy we want */
++#define per_cpu(var, cpu) (*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
++#define __get_cpu_var(var) \
++	(*RELOC_HIDE(&var##__per_cpu, current_thread_info()->pcpuoff))
++
++#else /* ! SMP */
++
++/* Can't define per-cpu variables in modules.  Sorry --RR */
++#ifndef MODULE
++#define DEFINE_PER_CPU(type, name) \
++    __typeof__(type) name##__per_cpu
++#endif
++
++#define per_cpu(var, cpu)			((void)cpu, var##__per_cpu)
++#define __get_cpu_var(var)			var##__per_cpu
++
++#endif	/* SMP */
++
++#define DECLARE_PER_CPU(type, name) extern __typeof__(type) name##__per_cpu
++
++#define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(var##__per_cpu)
++#define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
+ 
+ #endif /* __ARCH_I386_PERCPU__ */
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.69-bk15/include/asm-i386/smp.h working-2.5.69-bk15-offset-uber-alles/include/asm-i386/smp.h
+--- linux-2.5.69-bk15/include/asm-i386/smp.h	2003-05-22 10:49:07.000000000 +1000
++++ working-2.5.69-bk15-offset-uber-alles/include/asm-i386/smp.h	2003-05-23 16:02:53.000000000 +1000
+@@ -8,6 +8,7 @@
+ #include <linux/config.h>
+ #include <linux/kernel.h>
+ #include <linux/threads.h>
++#include <asm/percpu.h>
+ #endif
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+@@ -53,7 +54,8 @@ extern void zap_low_mappings (void);
+  * from the initial startup. We map APIC_BASE very early in page_setup(),
+  * so this is correct in the x86 case.
   */
- static void
- sd_read_write_protect_flag(struct scsi_disk *sdkp, char *diskname,
- 		   struct scsi_request *SRpnt, unsigned char *buffer) {
--	struct scsi_device *sdp = sdkp->device;
- 	int res;
+-#define smp_processor_id() (current_thread_info()->cpu)
++DECLARE_PER_CPU(u32, __processor_id);
++#define smp_processor_id() __get_cpu_var(__processor_id)
  
- 	/*
-@@ -1131,7 +1148,7 @@
- 	 * We have to start carefully: some devices hang if we ask
- 	 * for more than is available.
- 	 */
--	res = sd_do_mode_sense6(sdp, SRpnt, 0, 0x3F, buffer, 4);
-+	res = sd_do_mode_sense(SRpnt, 0, 0x3F, buffer, 4);
+ extern volatile unsigned long cpu_callout_map;
  
- 	/*
- 	 * Second attempt: ask for page 0
-@@ -1139,13 +1156,13 @@
- 	 * Sense Key 5: Illegal Request, Sense Code 24: Invalid field in CDB.
- 	 */
- 	if (res)
--		res = sd_do_mode_sense6(sdp, SRpnt, 0, 0, buffer, 4);
-+		res = sd_do_mode_sense(SRpnt, 0, 0, buffer, 4);
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.69-bk15/include/asm-i386/task_cpu.h working-2.5.69-bk15-offset-uber-alles/include/asm-i386/task_cpu.h
+--- linux-2.5.69-bk15/include/asm-i386/task_cpu.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.69-bk15-offset-uber-alles/include/asm-i386/task_cpu.h	2003-05-23 16:02:41.000000000 +1000
+@@ -0,0 +1,17 @@
++#ifndef _ASM_I386_TASK_CPU_H
++#define _ASM_I386_TASK_CPU_H
++#include <linux/percpu.h>
++#include <linux/sched.h>
++
++static inline unsigned int task_cpu(struct task_struct *p)
++{
++	return (*RELOC_HIDE(&__processor_id__per_cpu,
++			    p->thread_info->pcpuoff));
++}
++
++static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
++{
++	/* CPU is derived.  We need to set the per-cpu offset. */
++	p->thread_info->pcpuoff = __per_cpu_offset[cpu];
++}
++#endif
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.69-bk15/include/asm-i386/thread_info.h working-2.5.69-bk15-offset-uber-alles/include/asm-i386/thread_info.h
+--- linux-2.5.69-bk15/include/asm-i386/thread_info.h	2003-03-18 12:21:39.000000000 +1100
++++ working-2.5.69-bk15-offset-uber-alles/include/asm-i386/thread_info.h	2003-05-23 15:54:14.000000000 +1000
+@@ -26,7 +26,7 @@ struct thread_info {
+ 	struct exec_domain	*exec_domain;	/* execution domain */
+ 	unsigned long		flags;		/* low level flags */
+ 	unsigned long		status;		/* thread-synchronous flags */
+-	__u32			cpu;		/* current CPU */
++	unsigned long		pcpuoff;	/* per-cpu offset */
+ 	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
  
- 	/*
- 	 * Third attempt: ask 255 bytes, as we did earlier.
- 	 */
- 	if (res)
--		res = sd_do_mode_sense6(sdp, SRpnt, 0, 0x3F, buffer, 255);
-+		res = sd_do_mode_sense(SRpnt, 0, 0x3F, buffer, 255);
- 
- 	if (res) {
- 		printk(KERN_WARNING
-@@ -1161,25 +1178,25 @@
- 
+ 	mm_segment_t		addr_limit;	/* thread address space:
+@@ -45,7 +45,7 @@ struct thread_info {
+ #define TI_EXEC_DOMAIN	0x00000004
+ #define TI_FLAGS	0x00000008
+ #define TI_STATUS	0x0000000C
+-#define TI_CPU		0x00000010
++#define TI_PCPUOFF	0x00000010
+ #define TI_PRE_COUNT	0x00000014
+ #define TI_ADDR_LIMIT	0x00000018
+ #define TI_RESTART_BLOCK 0x000001C
+@@ -66,7 +66,7 @@ struct thread_info {
+ 	.task		= &tsk,			\
+ 	.exec_domain	= &default_exec_domain,	\
+ 	.flags		= 0,			\
+-	.cpu		= 0,			\
++	.pcpuoff	= 0,			\
+ 	.preempt_count	= 1,			\
+ 	.addr_limit	= KERNEL_DS,		\
+ 	.restart_block = {			\
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.69-bk15/include/linux/sched.h working-2.5.69-bk15-offset-uber-alles/include/linux/sched.h
+--- linux-2.5.69-bk15/include/linux/sched.h	2003-05-22 10:49:18.000000000 +1000
++++ working-2.5.69-bk15-offset-uber-alles/include/linux/sched.h	2003-05-23 15:38:53.000000000 +1000
+@@ -813,20 +813,7 @@ extern void signal_wake_up(struct task_s
  /*
-  * sd_read_cache_type - called only from sd_init_onedisk()
-+ * called with buffer of length 512
+  * Wrappers for p->thread_info->cpu access. No-op on UP.
   */
- static void
- sd_read_cache_type(struct scsi_disk *sdkp, char *diskname,
- 		   struct scsi_request *SRpnt, unsigned char *buffer) {
--	struct scsi_device *sdp = sdkp->device;
- 	int len = 0, res;
+-#ifdef CONFIG_SMP
+-
+-static inline unsigned int task_cpu(struct task_struct *p)
+-{
+-	return p->thread_info->cpu;
+-}
+-
+-static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
+-{
+-	p->thread_info->cpu = cpu;
+-}
+-
+-#else
+-
++#ifndef CONFIG_SMP
+ static inline unsigned int task_cpu(struct task_struct *p)
+ {
+ 	return 0;
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.69-bk15/kernel/sched.c working-2.5.69-bk15-offset-uber-alles/kernel/sched.c
+--- linux-2.5.69-bk15/kernel/sched.c	2003-05-22 10:49:22.000000000 +1000
++++ working-2.5.69-bk15-offset-uber-alles/kernel/sched.c	2003-05-23 16:03:55.000000000 +1000
+@@ -32,6 +32,7 @@
+ #include <linux/delay.h>
+ #include <linux/timer.h>
+ #include <linux/rcupdate.h>
++#include <asm/task_cpu.h>
  
- 	const int dbd = 0x08;	   /* DBD */
- 	const int modepage = 0x08; /* current values, cache page */
+ #ifdef CONFIG_NUMA
+ #define cpu_to_node_mask(cpu) node_to_cpumask(cpu_to_node(cpu))
+@@ -1312,7 +1313,7 @@ pick_next_task:
+ switch_tasks:
+ 	prefetch(next);
+ 	clear_tsk_need_resched(prev);
+-	RCU_qsctr(prev->thread_info->cpu)++;
++	RCU_qsctr(task_cpu(prev))++;
  
- 	/* cautiously ask */
--	res = sd_do_mode_sense6(sdp, SRpnt, dbd, modepage, buffer, 4);
-+	res = sd_do_mode_sense(SRpnt, dbd, modepage, buffer, 4);
- 
- 	if (res == 0) {
- 		/* that went OK, now ask for the proper length */
- 		len = buffer[0] + 1;
- 		if (len > 128)
- 			len = 128;
--		res = sd_do_mode_sense6(sdp, SRpnt, dbd, modepage, buffer, len);
-+		res = sd_do_mode_sense(SRpnt, dbd, modepage, buffer, len);
- 	}
- 
- 	if (res == 0 && buffer[3] + 6 < len) {
-@@ -1278,7 +1295,8 @@
- 	if (sdkp->media_present)
- 		sd_read_cache_type(sdkp, disk->disk_name, SRpnt, buffer);
- 		
--	SRpnt->sr_device->ten = 1;
-+	SRpnt->sr_device->use_10_for_rw = 1;
-+	SRpnt->sr_device->use_10_for_ms = 0;
- 	SRpnt->sr_device->remap = 1;
- 
-  leave:
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/sr.c b/drivers/scsi/sr.c
---- a/drivers/scsi/sr.c	Thu May 22 13:17:01 2003
-+++ b/drivers/scsi/sr.c	Fri May 23 10:02:30 2003
-@@ -559,7 +559,8 @@
- 	sprintf(cd->cdi.name, "sr%d", minor);
- 
- 	sdev->sector_size = 2048;	/* A guess, just in case */
--	sdev->ten = 1;
-+	sdev->use_10_for_rw = 1;
-+	sdev->use_10_for_ms = 0;
- 	sdev->remap = 1;
- 
- 	/* FIXME: need to handle a get_capabilities failure properly ?? */
+ 	if (likely(prev != next)) {
+ 		rq->nr_switches++;

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbQKGJhg>; Tue, 7 Nov 2000 04:37:36 -0500
+	id <S130125AbQKGJi4>; Tue, 7 Nov 2000 04:38:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130125AbQKGJh0>; Tue, 7 Nov 2000 04:37:26 -0500
-Received: from 4dyn176.delft.casema.net ([195.96.105.176]:64774 "EHLO
+	id <S130606AbQKGJiq>; Tue, 7 Nov 2000 04:38:46 -0500
+Received: from 4dyn176.delft.casema.net ([195.96.105.176]:519 "EHLO
 	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129562AbQKGJhR>; Tue, 7 Nov 2000 04:37:17 -0500
-Message-Id: <200011070935.KAA03412@cave.bitwizard.nl>
+	id <S130125AbQKGJii>; Tue, 7 Nov 2000 04:38:38 -0500
+Message-Id: <200011070938.KAA03419@cave.bitwizard.nl>
 Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
-In-Reply-To: <200011070533.VAA02179@pizda.ninka.net> from "David S. Miller" at
- "Nov 6, 2000 09:33:25 pm"
+In-Reply-To: <200011070656.WAA02435@pizda.ninka.net> from "David S. Miller" at
+ "Nov 6, 2000 10:56:07 pm"
 To: "David S. Miller" <davem@redhat.com>
-Date: Tue, 7 Nov 2000 10:35:21 +0100 (MET)
+Date: Tue, 7 Nov 2000 10:38:12 +0100 (MET)
 CC: jordy@napster.com, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
 From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
 X-Mailer: ELM [version 2.4ME+ PL60 (25)]
@@ -22,17 +22,13 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 David S. Miller wrote:
-> Linux resends 21:557, Windows95 (finally) acknowledges it.
-> 
-> Looking at the equivalent 220 traces, the only difference appears to
-> be that the packets are not getting dropped.
+> It is clear though, that something is messing with or corrupting the
+> packets.  One thing you might try is turning off TCP header
+> compression for the PPP link, does this make a difference?
 
-This smells of "wrong checksums getting generated", in my opinion. 
+Try specifying "asyncmap 0xffffffff" too. 
 
-(This is not my field of expertise. I'll keep my trap shut from now
-on, OK?)
-
-		Roger. 
+				Roger. 
 
 -- 
 ** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **

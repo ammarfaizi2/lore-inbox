@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbTI3PXE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 11:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTI3PXE
+	id S261569AbTI3PLs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 11:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTI3PLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 11:23:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52689 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261559AbTI3PXB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 11:23:01 -0400
-Date: Tue, 30 Sep 2003 08:14:59 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: mrproper@ximian.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make install problems
-Message-Id: <20030930081459.01f447bf.rddunlap@osdl.org>
-In-Reply-To: <1064927778.1575.0.camel@localhost.localdomain>
-References: <1064927778.1575.0.camel@localhost.localdomain>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 30 Sep 2003 11:11:48 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:5896 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261569AbTI3PLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 11:11:46 -0400
+Date: Tue, 30 Sep 2003 16:11:23 +0100
+From: Dave Jones <davej@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: John Bradford <john@grabjohn.com>, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-ID: <20030930151123.GA16397@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jamie Lokier <jamie@shareable.org>,
+	John Bradford <john@grabjohn.com>, akpm@osdl.org, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <200309300817.h8U8HGrf000881@81-2-122-30.bradfords.org.uk> <20030930133113.GC23333@redhat.com> <200309301410.h8UEAEgJ000652@81-2-122-30.bradfords.org.uk> <20030930145854.GD28876@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930145854.GD28876@mail.shareable.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Sep 2003 09:16:19 -0400 Kevin Breit <mrproper@ximian.com> wrote:
+On Tue, Sep 30, 2003 at 03:58:54PM +0100, Jamie Lokier wrote:
 
-| Hey,
-| 	I setup a test6 kernel without module support.  I did a make install
-| and got:
-| 
-| Kernel: arch/i386/boot/bzImage is ready
-| sh /usr/src/linux-2.6.0-test6/arch/i386/boot/install.sh 2.6.0-test6
-| arch/i386/boot/bzImage System.map ""
-| /lib/modules/2.6.0-test6 is not a directory.
-| mkinitrd failed
-| 
-| How can I fix this?
+ > (Aside: It is quite an anomaly that those cumbersome floating point
+ > instructions are emulated on the older CPUs, yet all the other
+ > instructions aren't emulated.  Emulation is very slow, and forcing
+ > userspace to just use different code instead is good, but that's just
+ > as valid for floating point as it is for MMX, cmpxchg etc.)
 
-We've seen this before, and I thought that we had determined that
-it was a tools problem.  Is "depmod" in $PATH the depmod from
-modutils or the one from module-init-tools?
-I.e., what does 'depmod -V' say?
+There was a patch around a while back that did 486 emulation on 386
+kernels. I think it even made into the Mandrake kernel.
 
-and what execs mkinitrd?  I don't find it with a quick grep.
+ > To be fair, the kernel really ought to just say that and halt.  That
+ > is a fine compromise.  It won't make embedded systems folks completely
+ > happy, because if you've only got 2MB of NVRAM for your whole kernel
+ > _and_ filesystem including user data (think PDA or cellphone), then a
+ > hundred bytes here or there is actually worth trimming.
 
---
-~Randy
+With such tight constraints, why not just use 2.4 (or even 2.2) which
+has much lower memory usage and diskspace requirements ?
+
+		Dave
+
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261214AbREUPR0>; Mon, 21 May 2001 11:17:26 -0400
+	id <S261280AbREUPZH>; Mon, 21 May 2001 11:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261246AbREUPRQ>; Mon, 21 May 2001 11:17:16 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:54027 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261214AbREUPRD>; Mon, 21 May 2001 11:17:03 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@transmeta.com (H. Peter Anvin)
-Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-Date: 21 May 2001 08:16:18 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9ebbg2$m62$1@tazenda.transmeta.com>
-In-Reply-To: <3B090C81.53F163C3@TeraPort.de>
-Reply-To: hpa@transmeta.com (H. Peter Anvin)
+	id <S261281AbREUPY5>; Mon, 21 May 2001 11:24:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28420 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261280AbREUPYt>; Mon, 21 May 2001 11:24:49 -0400
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+To: wichert@cistron.nl (Wichert Akkerman)
+Date: Mon, 21 May 2001 16:21:40 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9ebbk7$3uq$1@picard.cistron.nl> from "Wichert Akkerman" at May 21, 2001 05:18:31 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E151rV6-0000Nz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3B090C81.53F163C3@TeraPort.de>
-By author:    "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-In newsgroup: linux.dev.kernel
->
-> Hi,
-> 
->  while trying to enhance a small hardware inventory script, I found that
-> cpuinfo is missing the details of L1, L2 and L3 size, although they may
-> be available at boot time. One could of cource grep them from "dmesg"
-> output, but that may scroll away on long lived systems.
-> 
+> Mike A. Harris <mharris@opensourceadvocate.org> wrote:
+> >For the record, the kgcc "mess" you speak of was used by
+> >Conectiva, and I believe also by debian
+> Debian never had that mess.
 
-Any particular reason this needs to be done in the kernel, as opposed
-to having your script read /dev/cpu/*/cpuid?
+Debians variant was gcc272 not kgcc. The 2.2.19 makefile knows about both of
+them
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt

@@ -1,43 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVCPHPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbVCPHce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbVCPHPm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 02:15:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVCPHPm
+	id S262540AbVCPHce (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 02:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVCPHcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 02:15:42 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58514 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262539AbVCPHPj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 02:15:39 -0500
-Date: Tue, 15 Mar 2005 23:14:48 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Junio C Hamano <junkio@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/2] SquashFS
-Message-Id: <20050315231448.64f91251.pj@engr.sgi.com>
-In-Reply-To: <7vmzt4pdf9.fsf@assigned-by-dhcp.cox.net>
-References: <4235BAC0.6020001@lougher.demon.co.uk>
-	<20050315003802.GH3163@waste.org>
-	<42363EAB.3050603@yahoo.com.au>
-	<20050315004759.473f6a0b.pj@engr.sgi.com>
-	<42370442.7020401@lougher.demon.co.uk>
-	<20050315172724.GO32638@waste.org>
-	<42370B14.50608@lougher.demon.co.uk>
-	<20050315110632.07fc8d09.pj@engr.sgi.com>
-	<7vmzt4pdf9.fsf@assigned-by-dhcp.cox.net>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Mar 2005 02:32:33 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:18907 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262540AbVCPHcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 02:32:12 -0500
+Date: Wed, 16 Mar 2005 02:31:41 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+In-Reply-To: <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0503160157360.11824@localhost.localdomain>
+References: <Pine.LNX.4.58.0503111440190.22043@localhost.localdomain>
+ <1110574019.19093.23.camel@mindpipe> <1110578809.19661.2.camel@mindpipe>
+ <Pine.LNX.4.58.0503140214360.697@localhost.localdomain>
+ <Pine.LNX.4.58.0503140427560.697@localhost.localdomain>
+ <Pine.LNX.4.58.0503140509170.697@localhost.localdomain>
+ <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
+ <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain> <20050315120053.GA4686@elte.hu>
+ <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> <20050315133540.GB4686@elte.hu>
+ <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  the King Penguin used these two constructs with consistency:
 
-Nice distinction - thanks.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+On Tue, 15 Mar 2005, Steven Rostedt wrote:
+
+>
+>
+> On Tue, 15 Mar 2005, Ingo Molnar wrote:
+> >
+> > i'd go for removing bit-spinlocks altogether, in the upstream kernel. It
+> > would simplify things, besides making PREEMPT_RT simpler as well. The
+> > memory overhead is not a big issue i believe. (8 more bytes per ext3 bh,
+> > on x86)
+> >
+>
+> Hi Ingo,
+>
+> Damn! The answer was right there in front of my eyes! Here's the cleanest
+> solution. I forgot about wait_on_bit_lock.  I've converted all the locks
+> to use this instead.  We probably need to get priority inheritence working
+> on this too someday, but for now it's better than wasting memory or
+> getting into deadlocks.
+>
+
+One bit of caution on these. If we don't have PREEMPT_RT, then don't the
+spinlocks on SMP act the same as normal spinlocks, and that we should not
+schedule holding a spinlock? I believe that some of this locks are called
+within holding spin_locks. So this isn't the right solution for other than
+PREEMPT_RT. I also forgot to add might_sleep in the locking calls. Here's
+the patch with the might_sleep added.  What should we do for non
+PREEPMT_RT?  Maybe put the bit_spinlocks back in for that case?
+
+-- Steve
+
+diff -ur linux-2.6.11-final-V0.7.40-00.orig/fs/jbd/journal.c linux-2.6.11-final-V0.7.40-00/fs/jbd/journal.c
+--- linux-2.6.11-final-V0.7.40-00.orig/fs/jbd/journal.c	2005-03-02 02:37:49.000000000 -0500
++++ linux-2.6.11-final-V0.7.40-00/fs/jbd/journal.c	2005-03-15 11:58:14.000000000 -0500
+@@ -82,6 +82,17 @@
+
+ static int journal_convert_superblock_v1(journal_t *, journal_superblock_t *);
+
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
++/*
++ * Used in the locking of the bh_state and bh_journalhead bit locks.
++ */
++int jbd_lock_bh_sleep(void *notused)
++{
++	schedule();
++	return 0;
++}
++#endif
++
+ /*
+  * Helper function used to manage commit timeouts
+  */
+diff -ur linux-2.6.11-final-V0.7.40-00.orig/include/linux/jbd.h linux-2.6.11-final-V0.7.40-00/include/linux/jbd.h
+--- linux-2.6.11-final-V0.7.40-00.orig/include/linux/jbd.h	2005-03-02 02:38:19.000000000 -0500
++++ linux-2.6.11-final-V0.7.40-00/include/linux/jbd.h	2005-03-16 02:25:31.881251828 -0500
+@@ -324,34 +324,65 @@
+ 	return bh->b_private;
+ }
+
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
++int jbd_lock_bh_sleep(void *notused);
++#endif
++
+ static inline void jbd_lock_bh_state(struct buffer_head *bh)
+ {
+-	bit_spin_lock(BH_State, &bh->b_state);
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
++	might_sleep();
++	wait_on_bit_lock(&bh->b_state,BH_State,&jbd_lock_bh_sleep,TASK_UNINTERRUPTIBLE);
++#endif
++	__acquire(bitlock);
+ }
+
+ static inline int jbd_trylock_bh_state(struct buffer_head *bh)
+ {
+-	return bit_spin_trylock(BH_State, &bh->b_state);
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
++	if (test_and_set_bit(BH_State, &bh->b_state))
++		return 0;
++#endif
++	__acquire(bitlock);
++	return 1;
+ }
+
+ static inline int jbd_is_locked_bh_state(struct buffer_head *bh)
+ {
+-	return bit_spin_is_locked(BH_State, &bh->b_state);
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
++	return test_bit(BH_State, &bh->b_state);
++#else
++	return 1;
++#endif
+ }
+
+ static inline void jbd_unlock_bh_state(struct buffer_head *bh)
+ {
+-	bit_spin_unlock(BH_State, &bh->b_state);
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
++	clear_bit(BH_State, &bh->b_state);
++	smp_mb__after_clear_bit();
++	wake_up_bit(&bh->b_state, BH_State);
++#endif
++	__release(bitlock);
+ }
+
+ static inline void jbd_lock_bh_journal_head(struct buffer_head *bh)
+ {
+-	bit_spin_lock(BH_JournalHead, &bh->b_state);
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
++	might_sleep();
++	wait_on_bit_lock(&bh->b_state,BH_JournalHead,&jbd_lock_bh_sleep,TASK_UNINTERRUPTIBLE);
++#endif
++	__acquire(bitlock);
+ }
+
+ static inline void jbd_unlock_bh_journal_head(struct buffer_head *bh)
+ {
+-	bit_spin_unlock(BH_JournalHead, &bh->b_state);
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
++	clear_bit(BH_JournalHead, &bh->b_state);
++	smp_mb__after_clear_bit();
++	wake_up_bit(&bh->b_state, BH_JournalHead);
++#endif
++	__release(bitlock);
+ }
+
+ struct jbd_revoke_table_s;
+diff -ur linux-2.6.11-final-V0.7.40-00.orig/include/linux/spinlock.h linux-2.6.11-final-V0.7.40-00/include/linux/spinlock.h
+--- linux-2.6.11-final-V0.7.40-00.orig/include/linux/spinlock.h	2005-03-14 06:00:54.000000000 -0500
++++ linux-2.6.11-final-V0.7.40-00/include/linux/spinlock.h	2005-03-15 12:19:11.000000000 -0500
+@@ -774,67 +774,6 @@
+ }))
+
+
+-/*
+- *  bit-based spin_lock()
+- *
+- * Don't use this unless you really need to: spin_lock() and spin_unlock()
+- * are significantly faster.
+- */
+-static inline void bit_spin_lock(int bitnum, unsigned long *addr)
+-{
+-	/*
+-	 * Assuming the lock is uncontended, this never enters
+-	 * the body of the outer loop. If it is contended, then
+-	 * within the inner loop a non-atomic test is used to
+-	 * busywait with less bus contention for a good time to
+-	 * attempt to acquire the lock bit.
+-	 */
+-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
+-	while (test_and_set_bit(bitnum, addr))
+-		while (test_bit(bitnum, addr))
+-			cpu_relax();
+-#endif
+-	__acquire(bitlock);
+-}
+-
+-/*
+- * Return true if it was acquired
+- */
+-static inline int bit_spin_trylock(int bitnum, unsigned long *addr)
+-{
+-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
+-	if (test_and_set_bit(bitnum, addr))
+-		return 0;
+-#endif
+-	__acquire(bitlock);
+-	return 1;
+-}
+-
+-/*
+- *  bit-based spin_unlock()
+- */
+-static inline void bit_spin_unlock(int bitnum, unsigned long *addr)
+-{
+-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
+-	BUG_ON(!test_bit(bitnum, addr));
+-	smp_mb__before_clear_bit();
+-	clear_bit(bitnum, addr);
+-#endif
+-	__release(bitlock);
+-}
+-
+-/*
+- * Return true if the lock is held.
+- */
+-static inline int bit_spin_is_locked(int bitnum, unsigned long *addr)
+-{
+-#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
+-	return test_bit(bitnum, addr);
+-#else
+-	return 1;
+-#endif
+-}
+-
+ #define DEFINE_SPINLOCK(name) \
+ 	spinlock_t name __cacheline_aligned_in_smp = _SPIN_LOCK_UNLOCKED(name)
+

@@ -1,66 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266010AbTAOIa1>; Wed, 15 Jan 2003 03:30:27 -0500
+	id <S265894AbTAOIdu>; Wed, 15 Jan 2003 03:33:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266020AbTAOIa0>; Wed, 15 Jan 2003 03:30:26 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:53778 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S266010AbTAOIa0>; Wed, 15 Jan 2003 03:30:26 -0500
-Message-Id: <200301150806.h0F86Ts05193@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: jt@hpl.hp.com, Jean Tourrilhes <jt@bougret.hpl.hp.com>
-Subject: Re: 2.4.20-pre11: PCI Wavelan card loses connection
-Date: Wed, 15 Jan 2003 10:06:04 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <200301130821.h0D8Kis26772@Port.imtp.ilyichevsk.odessa.ua> <20030113172435.GC20409@bougret.hpl.hp.com>
-In-Reply-To: <20030113172435.GC20409@bougret.hpl.hp.com>
+	id <S265898AbTAOIdt>; Wed, 15 Jan 2003 03:33:49 -0500
+Received: from host177-156.pool80116.interbusiness.it ([80.116.156.177]:17792
+	"EHLO igor.opun.it") by vger.kernel.org with ESMTP
+	id <S265894AbTAOIds>; Wed, 15 Jan 2003 03:33:48 -0500
+Message-ID: <3E251EFC.65949EB4@libero.it>
+Date: Wed, 15 Jan 2003 09:42:36 +0100
+From: Abramo Bagnara <abramo.bagnara@libero.it>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en, it
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Larry McVoy <lm@bitmover.com>, Dax Kelson <dax@gurulabs.com>,
+       Richard Stallman <rms@gnu.org>, root@chaos.analogic.com,
+       pollard@admin.navo.hpc.mil, R.E.Wolff@BitWizard.nl, jalvo@mbay.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+References: <Pine.LNX.4.10.10301141347010.23438-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 January 2003 19:24, Jean Tourrilhes wrote:
-> On Mon, Jan 13, 2003 at 10:20:14AM +0200, Denis Vlasenko wrote:
-> > I bought a PCI wireless card, a DLink-520 (I think, I forgot
-> > exactly (it's at home), anyway, lspci dump is below).
+Andre Hedrick wrote:
+> 
+> On Tue, 14 Jan 2003, Abramo Bagnara wrote:
+> 
+> > Larry McVoy wrote:
+> > >
+> > > If I calmly, rationally, and clearly state things which are not true,
+> > > are self serving, and are not relevant to a forum, what should I expect
+> > > in response?
 > >
-> > We (my father and me) made a fairly long helical aerial.
-> > We are trying to communicate over ~15 km with a small wireless
-> > cell. (~10 hosts, one AP).
+> > Are you serious about that?
 > >
-> > We can successfully associate with it, signal is weak as expected.
-> > But after a short while our eth0 seems to 'fall off the net'
-> > and while it looks like we can send packets, we see no incoming
-> > data at all.
+> > Do you known *any* absolute, objective, irrefutable truth?
 > >
-> > Since I have almost zero wireless experience, I'll be happy if
-> > someone with said experience can read further and say what bites
-> > us.
->
-> 	Personally, I never managed to get this hardware to work at
-> all. And Orinoco is known to have problems with PrismII cards. Please
-> use the HostAP or linux-wlan-ng driver.
+> > Would you like to perjury that *every* one of your posting is not self
+> > serving and fully relevant?
+> >
+> > Please stop that: I think you know as well as me that Dax is right.
+> 
+> Yeah,
+> 
+> <FIREBALL BAIT>
+> 
+> Just like the Pope does not believe in screwing little children, but
+> refuses to punish and pay for the actions of his advocates.
+> 
+> </FIREBALL BAIT>
+> 
+> The goal is to piss you off, and was selected because you live in Italy.
+> 
+> Regardless there is a little truth in the above, but must of it is twisted
+> to make a point which is not relivant (sp).
 
-Count me in. I want to make it work.
+I'm definitely unable to parse what you wrote, but I think that after:
 
-It's not a Prism II, it says Prism I. It is a D-Link DWL-520 PCI card.
-Does that matter?
+- Larry has kindly sent me a message about my insertion in his killfile
+- Andre is speaking about Pope, priest pedophilia and his intention to
+piss me off (?)
 
-By the way, I wouldn't want to admit it, but it works much better under
-Win98 (ick). It cycles between "Associated: (mac addr)" and "Scanning..."
-for _several minutes_ before giving up. And ping is working all this time.
-Under Linux, average time before failure is 20 sec :(
+the point that Dax made at the beginning of this thread is very well
+taken.
 
-I presume card is considering AP to be too weak and try to find a better
-one. There isn't any. How can I disable this reassociation or lower
-reassociation threshold?
+I'm getting convinced that the point of some of the angry people Dax is
+referring is:
 
-At the very least, how can I see whether it is associated or scanning?
-Pointers to 802.1b docs? (I am googling in parallel...)
+"I strongly believe that RMS postings might corrupt the virgin minds on
+lkml and unwillingly I'm forced to transform myself in an holy crusader
+to defend them"
 
-Meanwhile will download and look into HostAP.
---
-vda
+Believe me, it's childish. Nobody on lkml need/want to be defended.
+
+Let people free to express their opinion (although they are definitely
+false or supposedly so) and try to keep yourself and your comments as
+calm as possible: you're a smart guy and your impetuous energies are
+very well spent otherwise, as the past and present teach us.
+
+-- 
+Abramo Bagnara                       mailto:abramo.bagnara@libero.it
+
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy

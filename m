@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbTJFOqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 10:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbTJFOqQ
+	id S262259AbTJFOoz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 10:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbTJFOoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 10:46:16 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:21245 "EHLO
-	executor.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S262272AbTJFOqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 10:46:12 -0400
-Subject: Re: [PATCH] Memory leak in mtd/chips/cfi_cmdset_0020
-From: David Woodhouse <dwmw2@redhat.com>
-To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: linux-mtd@lists.infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F81800A.5000500@terra.com.br>
-References: <3F81800A.5000500@terra.com.br>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Red Hat UK Ltd.
-Message-Id: <1065451568.22491.215.camel@hades.cambridge.redhat.com>
+	Mon, 6 Oct 2003 10:44:54 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:28177 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262259AbTJFOox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 10:44:53 -0400
+Date: Mon, 6 Oct 2003 15:44:51 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] s390 (2/7): common i/o layer.
+Message-ID: <20031006154451.A20620@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <OF0C1219E4.69DD3439-ONC1256DB7.004E702C-C1256DB7.00509377@de.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Mon, 06 Oct 2003 15:46:09 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OF0C1219E4.69DD3439-ONC1256DB7.004E702C-C1256DB7.00509377@de.ibm.com>; from schwidefsky@de.ibm.com on Mon, Oct 06, 2003 at 04:40:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-10-06 at 11:45 -0300, Felipe W Damasio wrote:
-> 	Hi David,
+On Mon, Oct 06, 2003 at 04:40:06PM +0200, Martin Schwidefsky wrote:
 > 
-> 	Patch against 2.6.0-test6.
+> Hi Christoph,
 > 
-> 	- Frees a previous allocated kmalloced variable before returning NULL;
+> > Eek.  How is the dummy release function supposed to help
+> > anything?  you must free the object in ->release.  Also
+> > the assignment is horrible as hell.
 > 
-> 	Found by smatch.
+> Just checked. You right about chp_release which should do
+> a kfree on the struct channel_path object. But the two
+> other release functions are really dummy functions because
+> cu3088_root_dev and iucv_root are static structures.
 
-Applied; thanks. It'll be in the next update sent to Linus, when I get a
-few spare moments for merging and testing.
+Even in that case you're screwed in case they are in modules..
 
-Out of interest, why didn't smatch also find the same error 25 lines
-further down?
-
--- 
-dwmw2

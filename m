@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbQL1In6>; Thu, 28 Dec 2000 03:43:58 -0500
+	id <S129552AbQL1Is2>; Thu, 28 Dec 2000 03:48:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129552AbQL1Inh>; Thu, 28 Dec 2000 03:43:37 -0500
-Received: from c290168-a.stcla1.sfba.home.com ([65.0.213.53]:7154 "HELO
-	top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S129525AbQL1Inf>; Thu, 28 Dec 2000 03:43:35 -0500
-From: brian@worldcontrol.com
-Date: Thu, 28 Dec 2000 00:19:49 -0800
+	id <S129931AbQL1IsS>; Thu, 28 Dec 2000 03:48:18 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:6058 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129552AbQL1IsE>; Thu, 28 Dec 2000 03:48:04 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Which resource is temporarily unavailable
-Message-ID: <20001228001949.A7365@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+Subject: DOS vm86 not working?
+From: Gregory Stark <gsstark@mit.edu>
+Date: 28 Dec 2000 03:16:49 -0500
+Message-ID: <87u27prmdq.fsf@localhost.freelotto.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting
 
-zsh: fork failed: resource temporarily unavailable
+I just tried dosemu again after upgrading to 2.4.0pre11, and it ran my program
+about halfway and then started spinning with strace reporting:
 
-on a machine.  It has 510 processes which are mostly
-asleep, running under various user ids.
+vm86(0x1, 0x811f540, 0xa6, 0xfff8fff1, 0x81d30a4) = -1 ENOSYS (Function not implemented)
+vm86(0x1, 0x811f540, 0xa6, 0xfff8fff1, 0x81d30a4) = -1 ENOSYS (Function not implemented)
+vm86(0x1, 0x811f540, 0xa6, 0xfff8fff1, 0x81d30a4) = -1 ENOSYS (Function not implemented)
 
-Multiple user accounts get the error when it occurs, though
-root seems to continue to work fine.
+I don't see any reason in the source why vm86 would report ENOSYS except if
+the system call simply wasn't present. I'm not really familiar with this
+source though so I could be missing something. Is there something wrong with
+the vm86 code and it's just always returning ENOSYS now?
 
-How do I determine which resource is the problem so I can
-fix the shortage?
-
-System is Linux 2.2.18 with 384MB RAM.
-
-Thanks,
+I haven't tried this program in 2.2 yet, I'll have to do that next time I get
+a chance to reboot.
 
 -- 
-Brian Litzinger <brian@worldcontrol.com>
+greg
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUHCGZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265086AbUHCG3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbUHCGZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 02:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbUHCGZM
+	id S265086AbUHCG3w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 02:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265091AbUHCG3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 02:25:12 -0400
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:3504 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265055AbUHCGZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 02:25:10 -0400
-Date: Tue, 3 Aug 2004 14:25:17 +0800
-From: dlion <dlion2005@yahoo.com.cn>
-X-Mailer: The Bat! (v2.00)
-Reply-To: dlion <dlion2005@yahoo.com.cn>
-X-Priority: 3 (Normal)
-Message-ID: <1677288031.20040803142517@yahoo.com.cn>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Realtek 8169 NIC driver version
-MIME-Version: 1.0
+	Tue, 3 Aug 2004 02:29:51 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:36844 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265086AbUHCG3u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 02:29:50 -0400
+Date: Tue, 3 Aug 2004 11:58:48 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [patchset] Lockfree fd lookup 2 of 5
+Message-ID: <20040803062847.GA1753@vitalstatistix.in.ibm.com>
+References: <20040802101053.GB4385@vitalstatistix.in.ibm.com> <20040802101604.GD4385@vitalstatistix.in.ibm.com> <20040803004343.GC26323@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040803004343.GC26323@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello lkml,
+On Mon, Aug 02, 2004 at 05:43:43PM -0700, Greg KH wrote:
+> On Mon, Aug 02, 2004 at 03:46:06PM +0530, Ravikiran G Thirumalai wrote:
+> > Here's the second patch.  This changes the current kref users to use
+> > the 'shrunk' kref objects and api.  GregKH has applied this to his tree too.
+> 
+> Well, I applied this, and then fixed it to actually link and work
+> properly.  Next time, please at least build your patches...
+> ...
 
-  I have read some driver codes in the Linux kernel. I noticed
-that the RTL-8169 driver(r8169.c) is an older version (v1.2).
-There is a newer drivers on Realtek's website. It's version
-number is v1.6 , and it is really much better than v1.2. Why
-not merge it into official kernel realease?
+I did build it before sending it.  My initial submission to you
+was based on 2.6.7 and you'd said it was applied.  My current submission
+is 2.6.7 based too, and I didn't check for any driver changes since
+you'd said you already applied it (although I couldn't confirm it since 
+I did not know which bk tree you use).  The current patchset builds fine on
+my setup on 2.6.7.  Please let me know what I missed so that I can take
+care of such things in future.
 
--- 
-Best regards,
- dlion                          mailto:dlion2005@yahoo.com.cn
-
+Thanks,
+Kiran

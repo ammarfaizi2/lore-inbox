@@ -1,81 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319254AbSIKR5u>; Wed, 11 Sep 2002 13:57:50 -0400
+	id <S319253AbSIKRzZ>; Wed, 11 Sep 2002 13:55:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319256AbSIKR5u>; Wed, 11 Sep 2002 13:57:50 -0400
-Received: from CPE00c0f0141dc1.cpe.net.cable.rogers.com ([24.42.47.5]:38865
-	"EHLO jukie.net") by vger.kernel.org with ESMTP id <S319254AbSIKR5t>;
-	Wed, 11 Sep 2002 13:57:49 -0400
-Date: Wed, 11 Sep 2002 14:02:32 -0400
-From: Bart Trojanowski <bart@jukie.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.19 fix for fuzzy hash <linux/ghash.h>
-Message-ID: <20020911140232.R32387@jukie.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="yrxji9MxLi9YGTOD"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S319254AbSIKRzZ>; Wed, 11 Sep 2002 13:55:25 -0400
+Received: from pC19F9AAB.dip.t-dialin.net ([193.159.154.171]:17156 "EHLO
+	router.abc") by vger.kernel.org with ESMTP id <S319253AbSIKRzY> convert rfc822-to-8bit;
+	Wed, 11 Sep 2002 13:55:24 -0400
+Message-ID: <3D7F83BC.5DF306A@baldauf.org>
+Date: Wed, 11 Sep 2002 19:56:12 +0200
+From: Xuan Baldauf <xuan--reiserfs@baldauf.org>
+X-Mailer: Mozilla 4.79 [en] (Win98; U)
+X-Accept-Language: de-DE,en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Xuan Baldauf <xuan--lkml@baldauf.org>, linux-kernel@vger.kernel.org,
+       Reiserfs List <reiserfs-list@namesys.com>
+Subject: Re: Heuristic readahead for filesystems
+References: <Pine.LNX.4.44L.0209111340060.1857-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---yrxji9MxLi9YGTOD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-The DEF_HASH_FUZZY macro allows the user to template their hash; it
-takes on a paramter for the hashing-function, namely HASHFN.  When used
-with a hashing-function named anything other than 'hashfn()', a module
-using the kernel's fuzzy hash implementation will not compile.
+Rik van Riel wrote:
 
-None of the in-kernel 2.4.x drivers use this primitive (yet) so it's no
-wonder no one has spotted it.  The patch is very trivial and makes me
-think that I am the very first user of the include/linux/ghash.h
-hash-table primitive.   ;)
+> On Wed, 11 Sep 2002, Xuan Baldauf wrote:
+>
+> > I wonder wether Linux implements a kind of heuristic
+> > readahead for filesystems:
+>
+> > If an application did a stat()..open()..read() sequence on a
+> > file, it is likely that, after the next stat(), it will open
+> > and read the mentioned file. Thus, one could readahead the
+> > start of a file on stat() of that file.
+>
+> > Example: See this diff strace:
+>
+> Your observation is right, but I'm not sure how much it will
+> matter if we start reading the file at stat() time or at
+> read() time.
+>
+> This is because one disk seek takes about 10 million CPU
+> cycles on modern systems and we'll have completed the stat(),
+> open() and started the read() before the disk arm has started
+> moving ;)
+>
+> regards,
+>
+> Rik
 
-Bart.
+The point here is not to optimize latency but to optimize throughput: If the
+filesystem is able to recognize that a whole tree is being read, it may issue
+read requests for all the blocks of that tree, which are (with a high
+probability) in such a close location to each other that all the read requests
+can result in a single, large, megabyte-big disk-read-burst, taking few
+seconds instead of minutes.
 
-diff -ruN linux-2.4.19/include/linux/ghash.h linux-2.4.19+ghash-fix/include/linux/ghash.h
---- linux-2.4.19/include/linux/ghash.h	Wed Sep 11 10:09:57 2002
-+++ linux-2.4.19+ghash-fix/include/linux/ghash.h	Wed Sep 11 10:12:52 2002
-@@ -106,7 +106,7 @@
- \
- LINKAGE TYPE * find_##NAME##_hash(struct NAME##_table * tbl, KEYTYPE pos)\
- {\
--	int ix = hashfn(pos);\
-+	int ix = HASHFN(pos);\
- 	TYPE * ptr = tbl->hashtable[ix];\
- 	while(ptr && KEYCMP(ptr->KEY, pos))\
- 		ptr = ptr->PTRS.next_hash;\
-@@ -206,7 +206,7 @@
- \
- LINKAGE TYPE * find_##NAME##_hash(struct NAME##_table * tbl, KEYTYPE pos)\
- {\
--	int ix = hashfn(pos);\
-+	int ix = HASHFN(pos);\
- 	TYPE * ptr = tbl->hashtable[ix];\
- 	while(ptr && KEYCMP(ptr->KEY, pos))\
- 		ptr = ptr->PTRS.next_hash;\
-diff -ruN linux-2.4.19/include/linux/ghash.h~ linux-2.4.19+ghash-fix/include/linux/ghash.h~
---- linux-2.4.19/include/linux/ghash.h~	Wed Sep 11 10:09:49 2002
-+++ linux-2.4.19+ghash-fix/include/linux/ghash.h~	Wed Sep 11 10:10:57 2002
-@@ -1,4 +1,3 @@
--
- /*
-  * include/linux/ghash.h -- generic hashing with fuzzy retrieval
-  *
+In theory, this also could be implemented explicitly if the application could
+tell the kernel "I'm going to read these 100 files in the very near future,
+please make them ready for me". But wait, maybe the application can do this
+(for regular files, not for directory entries and stat() data): Could it be
+efficient if the application used open(file,O_NONBLOCK) for the next 100 files
+and subsequent read()s on each of the returned filedescriptors?
 
---yrxji9MxLi9YGTOD
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Xuân.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQE9f4U4/zRZ1SKJaI8RAvOaAKCT7+saiMZytWcqA6sfWNEdTmZyTwCg4fsI
-thR3NhPB9DwpuhG6urAGcvk=
-=2b3h
------END PGP SIGNATURE-----
-
---yrxji9MxLi9YGTOD--

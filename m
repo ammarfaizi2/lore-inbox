@@ -1,99 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265008AbTFLVlX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 17:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265004AbTFLVlX
+	id S265007AbTFLVjb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 17:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbTFLVjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 17:41:23 -0400
-Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:46520 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S265010AbTFLVkV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 17:40:21 -0400
-Subject: [PATCH] Fix perfctr on x86_64
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: mikpe@csd.uu.se
-Cc: linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-Content-Type: multipart/mixed; boundary="=-LY9JbX/ISlQI5xr6QzjS"
-Message-Id: <1055454843.1043.21.camel@serpentine.internal.keyresearch.com>
+	Thu, 12 Jun 2003 17:39:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49156 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265007AbTFLVj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 17:39:28 -0400
+Date: Thu, 12 Jun 2003 22:53:10 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Matt Porter <mporter@kernel.crashing.org>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] early_port_register
+Message-ID: <20030612225310.G3348@flint.arm.linux.org.uk>
+Mail-Followup-To: Matt Porter <mporter@kernel.crashing.org>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+References: <20030612132001.A4693@home.com> <20030612212723.A15400@infradead.org> <20030612134113.B4693@home.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 12 Jun 2003 14:54:03 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030612134113.B4693@home.com>; from mporter@kernel.crashing.org on Thu, Jun 12, 2003 at 01:41:13PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 12, 2003 at 01:41:13PM -0700, Matt Porter wrote:
+> On Thu, Jun 12, 2003 at 09:27:23PM +0100, Christoph Hellwig wrote:
+> > On Thu, Jun 12, 2003 at 01:20:01PM -0700, Matt Porter wrote:
+> > > Linus, please apply.
+> > 
+> > Umm, isn't Russell the serial maintainer?  I think you should
+> > discuss changes in that area with him..  (And I remember having
+> > sent him a similar patch..)
+> 
+> Well, I didn't mention that I first sent this to him more than two
+> months ago.  He hasn't had time to reply about it so it may be that
+> he's not actively maintaining the serial driver.  Queried a couple
+> more times with no reply.  This is the next stop.
 
---=-LY9JbX/ISlQI5xr6QzjS
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Sigh, there seems to be one cset still pending in my serial BK tree:
 
-Mikael -
+ChangeSet@1.1113.2.1, 2003-05-14 16:50:47+02:00, hch@lab343.munich.sgi.com
+  acpi serial stuff
 
-One of Andi's pre-2.5.70 x86_64 merges converted the x86_64 APIC code to
-using the new driver model.  This patch against perfctr-2.5.4 fixes the
-kernel portion of the perfctr build.
+I'll request Linus pulls this tonight.
 
-	<b
-
---=-LY9JbX/ISlQI5xr6QzjS
-Content-Description: 
-Content-Disposition: attachment; filename=perfctr-2.5.4.patch
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1441  -> 1.1442 
-#	drivers/perfctr/x86_64.c	1.1     -> 1.2    
-#	drivers/perfctr/x86_64_setup.c	1.1     -> 1.2    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/06/12	bos@serpentine.com	1.1442
-# x86_64_setup.c, x86_64.c:
-#   perfctr: Use new driver model for x86_64.
-# --------------------------------------------
-#
-diff -Nru a/drivers/perfctr/x86_64.c b/drivers/perfctr/x86_64.c
---- a/drivers/perfctr/x86_64.c	Thu Jun 12 14:50:18 2003
-+++ b/drivers/perfctr/x86_64.c	Thu Jun 12 14:50:18 2003
-@@ -533,8 +533,8 @@
- 	printk("perfctr: PM resume\n");
- }
- 
--/* XXX: x86_64 hasn't converted apic & nmi to driver model yet */
--#if 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,67)
-+/* x86_64 didn't convert apic & nmi to driver model until 2.5.70 */
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,70)
- 
- #include <linux/device.h>
- 
-@@ -623,8 +623,8 @@
- 
- #ifdef NMI_LOCAL_APIC
- 
--/* XXX: x86_64 hasn't converted apic & nmi to driver model yet */
--#if 1 || LINUX_VERSION_CODE < KERNEL_VERSION(2,5,67)
-+/* XXX: x86_64 didn't convert apic & nmi to driver model until 2.5.70 */
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,70)
- static void __init disable_lapic_nmi_watchdog(void)
- {
- #ifdef CONFIG_PM
-diff -Nru a/drivers/perfctr/x86_64_setup.c b/drivers/perfctr/x86_64_setup.c
---- a/drivers/perfctr/x86_64_setup.c	Thu Jun 12 14:50:18 2003
-+++ b/drivers/perfctr/x86_64_setup.c	Thu Jun 12 14:50:18 2003
-@@ -59,8 +59,8 @@
- #ifdef NMI_LOCAL_APIC
- EXPORT_SYMBOL(nmi_perfctr_msr);
- 
--/* XXX: x86_64 hasn't converted apic & nmi to driver model yet */
--#if /*LINUX_VERSION_CODE < KERNEL_VERSION(2,5,67) &&*/ defined(CONFIG_PM)
-+/* x86_64 didn't convert apic & nmi to driver model until 2.5.70 */
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,70) && defined(CONFIG_PM)
- EXPORT_SYMBOL(apic_pm_register);
- EXPORT_SYMBOL(apic_pm_unregister);
- EXPORT_SYMBOL(nmi_pmdev);
-
---=-LY9JbX/ISlQI5xr6QzjS--
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

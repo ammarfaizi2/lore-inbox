@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbUBBXhl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 18:37:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBBXhl
+	id S262425AbUBBXie (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 18:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUBBXic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 18:37:41 -0500
-Received: from www1.proofpoint.com ([207.111.236.2]:28402 "EHLO
-	mail.us.proofpoint.com") by vger.kernel.org with ESMTP
-	id S261506AbUBBXhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 18:37:39 -0500
-Subject: broken maxcpus in 2.4.24
-From: Dan Christian <dac@proofpoint.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1075765034.17943.79.camel@reactor.us.proofpoint.com>
+	Mon, 2 Feb 2004 18:38:32 -0500
+Received: from mail.kroah.org ([65.200.24.183]:61658 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262425AbUBBXi1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 18:38:27 -0500
+Date: Mon, 2 Feb 2004 15:32:43 -0800
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] udev 015 release
+Message-ID: <20040202233243.GA1688@kroah.com>
+References: <20040126215036.GA6906@kroah.com> <1075401020.7680.25.camel@nosferatu.lan>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Mon, 02 Feb 2004 15:37:14 -0800
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Score: mlxscore=0 adultscore=50 adjust=0 score=0 rule=notspam version=2.0.0-04012200 mlxdetails="spam=0.00152511832388382,adult=0.5,sa=0"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1075401020.7680.25.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I compiled a vanilla 2.4.24 for a 2 processor Xeon.  
+On Thu, Jan 29, 2004 at 08:30:20PM +0200, Martin Schlemmer wrote:
+> On Mon, 2004-01-26 at 23:50, Greg KH wrote:
+> 
+> I see latest version is very noisy, and although it is a good option
+> to have, I think it should be tweakable (and recompiling is not always
+> an option if you want some quick debugging).
+> 
+> Attached is a simple patch to add a config option to udev.conf to toggle
+> logging.
 
-I set CONFIG_NR_CPUS to 4 (2 CPUs x 2 hyperthreads each).
+I'm going to hold off on this patch for now for a number of reasons:
+	- doesn't apply anymore
+	- is buggy as your follow on message stated
+	- I don't think it's really needed.
 
-When I boot the kernel, /proc/cpuinfo only shows 2 cpus (0-1) and
-performance is bad.
+But feel free to convince me otherwise :)
 
-I reconfigure CONFIG_NR_CPUS back to 32.  Now it shows 4 cpus (0-3) and
-performance is normal.
+thanks,
 
-Is this a bug or am misunderstanding how to set this configuration
-variable?
-
--Dan Christian
-
-
+greg k-h

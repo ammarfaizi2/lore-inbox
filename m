@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbTEZRq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTEZRq1
+	id S261906AbTEZRr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTEZRr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:46:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17080 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261919AbTEZRqZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:46:25 -0400
-Message-ID: <3ED255FE.10609@pobox.com>
-Date: Mon, 26 May 2003 13:59:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Mon, 26 May 2003 13:47:26 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:47310 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S261906AbTEZRrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:47:23 -0400
+Date: Mon, 26 May 2003 14:58:35 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: "David S. Miller" <davem@redhat.com>
+Cc: Willy Tarreau <willy@w.ods.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gibbs@scsiguy.com,
+       acme@conectiva.com.br
+Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+In-Reply-To: <1053923112.14018.16.camel@rth.ninka.net>
+Message-ID: <Pine.LNX.4.55L.0305261456260.20790@freak.distro.conectiva>
+References: <1053732598.1951.13.camel@mulgrave>  <20030524064340.GA1451@alpha.home.local>
+ <1053923112.14018.16.camel@rth.ninka.net>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCHES] add ata scsi driver
-References: <3ED1B261.8030708@pobox.com> <Pine.LNX.4.44.0305260956590.11328-100000@home.transmeta.com> <20030526172405.GJ845@suse.de>
-In-Reply-To: <20030526172405.GJ845@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Mon, May 26 2003, Linus Torvalds wrote:
-> 
->>>What does the block layer need, that it doesn't have now?
->>
->>Exactly. I'd _love_ for people to really think about this.
-> 
-> 
-> In discussion with Jeff, it seems most of what he wants is already
-> there. He just doesn't know it yet :-)
 
 
-Another important point is time.
+On Mon, 25 May 2003, David S. Miller wrote:
 
-I continue to agree that a native block driver is the best direction.
+> On Fri, 2003-05-23 at 23:43, Willy Tarreau wrote:
+> > As I said, I really hope that we'll have a quick 2.4.22 with bug fixes taken
+> > as a priority. The current pre-releases are as frequent and as big as what
+> > used to be full releases in the past.
+>
+> I really think 2.4.x development is becoming almost non-existent
+> lately.
+>
+> It's 5 or 6 days of silence, nothing happening at all, then a flurry
+> of 10 or 20 checkins and a -rc or -pre release.
+>
+> If Conectiva needs to task Marcelo to so much work that he can only
+> really put 1 or 2 days a week into 2.4.x, this needs be rethought at
+> either one end (Conectiva finding a way to give him more 2.4.x time) or
+> another (Marcelo splits up the work with someone else or we simply find
+> another 2.4.x maintainer).
+>
+> I really want something more -ac paced although that may be too extreme
+> for some people. :-)
 
-But with 2.6.0 looming, I think it's best to evolve my ATA driver to be 
-a native block driver from a scsi one.   Not start out as a native 
-driver.  That's significant pre-2.6 churn.
+I said publically that this situation will change in 2.4.22-pre.
 
-Or, it lives out-of-tree until 2.7 and people with SATA hardware have to 
-go out-of-tree for their driver for months and months, until the working 
-driver is deemed sufficiently native :)  In the meantime, distros 
-wanting working SATA will just ship the SCSI driver as-is.  :(
+If you think the situation didnt got better during that time, I'm pleased
+to giveup 2.4.x maintenance.
 
-	Jeff
-
-
-
+Is that fine for you?

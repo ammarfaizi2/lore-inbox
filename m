@@ -1,29 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267447AbSLLKCC>; Thu, 12 Dec 2002 05:02:02 -0500
+	id <S267450AbSLLKF2>; Thu, 12 Dec 2002 05:05:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267450AbSLLKCC>; Thu, 12 Dec 2002 05:02:02 -0500
-Received: from PA1-1C-u-0320.mc.onolab.com ([62.42.201.65]:21376 "EHLO
-	auditoriabalear.com") by vger.kernel.org with ESMTP
-	id <S267447AbSLLKCB>; Thu, 12 Dec 2002 05:02:01 -0500
-Date: Thu, 12 Dec 2002 11:08:23 +0100
-From: Nico <nico@auditoriabalear.com>
-Message-Id: <200212121008.gBCA8ND04353@auditoriabalear.com>
+	id <S267455AbSLLKF2>; Thu, 12 Dec 2002 05:05:28 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:56325 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S267450AbSLLKF0>;
+	Thu, 12 Dec 2002 05:05:26 -0500
 To: linux-kernel@vger.kernel.org
-Subject: free entry in gdt_table
+Subject: Re: Is this going to be true ?
+References: <001801c2a0a9$02613f40$2e863841@joe>
+	<071a01c2a137$a8646460$9c094d8e@wcom.ca>
+	<200212111826.06737.roy@karlsbakk.net>
+	<20021211220112.GB22549@higherplane.net>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 12 Dec 2002 11:13:13 +0100
+In-Reply-To: john slee's message of "Thu, 12 Dec 2002 09:01:12 +1100"
+Message-ID: <yw1xznrbfsue.fsf@tophat.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+john slee <indigoid@higherplane.net> writes:
 
-Hello
+> > libraries part of it as well? Is X part it? Windows has a good
+> > bunch of APIs that quite a few userspace programmers love. Unices
+> > + libs + X don't have the
+> 
+> which ones would they be?
 
-I have a doubt, in kernels like 2.4.18 the second entry in gdt is not used
+Perhaps the 10K calls in the Win32 API.  Or the 100K bugs in MFC.
 
-ENTRY(gdt_table)
-        .quad 0x0000000000000000	/* NULL descriptor */
-	.quad 0x0000000000000000	/* not used */
-	.quad 0x00cf9a000000ffff	/* 0x10 kernel 4GB code at 0x00000000 */
-
-there are 4 bytes lost!        
-
-Why?
+-- 
+Måns Rullgård
+mru@users.sf.net

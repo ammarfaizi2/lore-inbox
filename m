@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbUF0OIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbUF0ORW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbUF0OIx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 10:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUF0OIx
+	id S262744AbUF0ORW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 10:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUF0ORW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 10:08:53 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:17681 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262585AbUF0OIw (ORCPT
+	Sun, 27 Jun 2004 10:17:22 -0400
+Received: from tor.morecom.no ([64.28.24.90]:54445 "EHLO tor.morecom.no")
+	by vger.kernel.org with ESMTP id S262744AbUF0ORU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 10:08:52 -0400
-Date: Sun, 27 Jun 2004 16:08:47 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Pete Zaitcev <zaitcev@redhat.com>,
-       greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com,
-       tburke@redhat.com, linux-kernel@vger.kernel.org,
-       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
-       david-b@pacbell.net
-Subject: Re: drivers/block/ub.c
-Message-ID: <20040627140847.GG5526@pclin040.win.tue.nl>
-References: <20040626130645.55be13ce@lembas.zaitcev.lan> <200406270059.04436.oliver@neukum.org> <20040626230801.GF5526@pclin040.win.tue.nl> <200406270704.36063.oliver@neukum.org>
+	Sun, 27 Jun 2004 10:17:20 -0400
+Subject: Re: mode data=journal in ext3. Is it safe to use?
+From: Petter Larsen <pla@morecom.no>
+To: Daniel Pittman <daniel@rimspace.net>
+Cc: ext3 <ext3-users@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <87wu26mto2.fsf@enki.rimspace.net>
+References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan>
+	 <1087322976.1874.36.camel@pla.lokal.lan> <40D06C0B.7020005@techsource.com>
+	 <1087460983.2765.34.camel@pla.lokal.lan> <87wu26mto2.fsf@enki.rimspace.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1088345837.5288.1.camel@pla.lokal.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200406270704.36063.oliver@neukum.org>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 27 Jun 2004 16:17:17 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 27, 2004 at 07:04:36AM +0200, Oliver Neukum wrote:
-> > >> Yes, we have macros. Using those macros would not at all be an improvement here.
-> > > 
-> > > How do you arrive at that unusual conclusion?
-> > 
-> > The above writes clearly and simply what one wants.
-> > I expect that you propose writing
-> > 
-> >         *((u32 *)(cmd->cdb + 2)) = cpu_to_be32(block);
-> > 
-> > or some similar unspeakable ugliness.
-> > If you had something else in mind, please reveal what.
+> > We are using ext3 on a compact flash disk in an embedded device. So we
+> > are not using RAID systems.
 > 
-> That "ugliness" has the unspeakable advantage of producing sane code
-> on big endian architectures.
+> Watch out - even with the internal wear leveling the CF disk will do,
+> ext3 is still a pretty heavy filesystem to use there.
+> 
+>      Daniel
 
-I am not so sure. It tells the compiler to do a 4-byte access
-on an address that possibly is not 4-byte aligned.
+Well, which filesystem would you then used for read-write on this CF?
 
+
+-- 
+Petter Larsen
+cand. scient.
+moreCom as
+913 17 222

@@ -1,59 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267502AbUHRTEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267497AbUHRTG5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267502AbUHRTEh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 15:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267508AbUHRTEh
+	id S267497AbUHRTG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 15:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267518AbUHRTG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 15:04:37 -0400
-Received: from mr04.conversent.net ([155.212.2.21]:30166 "EHLO
-	mr04.conversent.net") by vger.kernel.org with ESMTP id S267502AbUHRTEf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 15:04:35 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Is it possible to have a Kernel & initrd in 1 binary?
-Date: Wed, 18 Aug 2004 15:04:31 -0400
-Message-ID: <E8F8DBCB0468204E856114A2CD20741F1A9309@mail.local.ActualitySystems.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Is it possible to have a Kernel & initrd in 1 binary?
-thread-index: AcSFVGHLXxO2TUubTEeIuRikVnOG5AAAYTLA
-From: "Dave Aubin" <daubin@actuality-systems.com>
-To: "Chris Wedgwood" <cw@f00f.org>
-Cc: <linux-kernel@vger.kernel.org>
+	Wed, 18 Aug 2004 15:06:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63458 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267497AbUHRTGW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 15:06:22 -0400
+Date: Wed, 18 Aug 2004 21:06:10 +0200
+From: Heinz Mauelshagen <mauelshagen@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: *** Announcement: dmraid 1.0.0-rc3 ***
+Message-ID: <20040818190610.GA6279@redhat.com>
+Reply-To: mauelshagen@redhat.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Chris,
 
-  Yes, that's the stuff.  I am at a loss finding
-any detailed how to's or what have you.  I'm looking 
-for a little bit more.  A simple tutorial would be awesome! 
-Can anyone point me as to where to find more info on
-Initramfs?
+               *** Announcement: dmraid 1.0.0-rc3 ***
 
-Thanks again,
-Dave
+dmraid 1.0.0-rc3 is available at
+http://people.redhat.com:/~heinzm/sw/dmraid/ in source, source rpm and i386 rpm.
 
------Original Message-----
-From: Chris Wedgwood [mailto:cw@f00f.org] 
-Sent: Wednesday, August 18, 2004 2:52 PM
-To: Dave Aubin
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is it possible to have a Kernel & initrd in 1 binary?
+dmraid (Device-Mapper Raid tool) discovers, [de]activates and displays
+properties of software RAID sets (ie. ATARAID) and contained DOS
+partitions using the device-mapper runtime of the 2.6 kernel.
 
-On Wed, Aug 18, 2004 at 02:32:07PM -0400, Dave Aubin wrote:
+The following ATARAID types are supported on Linux 2.6:
 
-> Question, is there a way to bundle both the kernel and initrd in to 
-> just a kernel binary?
+Highpoint HPT37X
+Highpoint HPT45X
+Intel Software RAID
+Promise FastTrack
+Silicon Image Medley
 
-see the initramfs stuff in linux/usr
+This ATARAID type is only basically supported in this version (I need
+better metadata format specs; please help):
+LSI Logic MegaRAID
+
+Please provide insight to support those metadata formats completely.
+
+Thanks.
+
+See files README and CHANGELOG, which come with the source tarball for
+prerequisites to run this software, further instructions on installing
+and using dmraid!
+
+CHANGELOG is contained below for your convenience as well.
 
 
-  --cw
+Call for testers:
+-----------------
+
+I need testers with the above ATARAID types, to check that the mapping
+created by this tool is correct (see options "-t -ay") and access to the ATARAID
+data is proper.
+
+You can activate your ATARAID sets without danger of overwriting
+your metadata, because dmraid accesses it read-only unless you use
+option -E with -r in order to erase ATARAID metadata (see 'man dmraid')!
+
+This is a release candidate version so you want to have backups of your valuable
+data *and* you want to test accessing your data read-only first in order to
+make sure that the mapping is correct before you go for read-write access.
 
 
+The author is reachable at <Mauelshagen@RedHat.com>.
+
+For test results, mapping information, discussions, questions, patches,
+enhancement requests and the like, please subscribe and mail
+to <ataraid@redhat.com>.
+
+--
+
+Regards,
+Heinz    -- The LVM Guy --
+
+
+CHANGELOG:
+---------
+
+Changelog from dmraid 1.0.0-rc2 to 1.0.0-rc3		2004.08.18
+
+FIXES:
+------
+o HPT37X mapping on first disk of set
+o dietlibc sscanf() use prevented activation
+o le*_to_cpu() for certain glibc environments (Luca Berra)
+o sysfs discovery (Luca Berra)
+o permissions to write on binary, which is needed
+  by newer strip versions (Luca Berra)
+o SCSI serial number string length bug
+o valgrinded memory leaks
+o updated design document
+o comments
+
+FEATURES:
+---------
+o added basic support for activation of LSI Logic MegaRAID/MegaIDE;
+  more reengineering of the metadata needed!
+o root check using certain options (eg, activation of RAID sets)
+o implemented locking abstraction
+o implemented writing device metadata offsets with "-r[D/E]"
+  for ease of manual restore
+o file based locking to avoid parallel tool runs competing
+  with each other for the same resources
+o streamlined library context
+o implemented access functions for library context
+o streamlined RAID set consistency checks
+o implemented log function and removed macros to shrink binary size further
+o removed superfluous disk geometry code
+o cleaned up metadata.c collapsing free_*() functions
+o slimmed down minimal binary (configure option DMRAID_MINI
+  for early boot environment)
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Red Hat GmbH
+Consulting Development Engineer                   Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@RedHat.com                            +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

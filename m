@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316599AbSHOGOz>; Thu, 15 Aug 2002 02:14:55 -0400
+	id <S316585AbSHOGTi>; Thu, 15 Aug 2002 02:19:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319321AbSHOGOy>; Thu, 15 Aug 2002 02:14:54 -0400
-Received: from citi.umich.edu ([141.211.92.141]:51334 "HELO citi.umich.edu")
-	by vger.kernel.org with SMTP id <S316599AbSHOGOy>;
-	Thu, 15 Aug 2002 02:14:54 -0400
-Date: Thu, 15 Aug 2002 02:18:48 -0400
+	id <S316595AbSHOGTi>; Thu, 15 Aug 2002 02:19:38 -0400
+Received: from citi.umich.edu ([141.211.92.141]:63267 "HELO citi.umich.edu")
+	by vger.kernel.org with SMTP id <S316585AbSHOGTh>;
+	Thu, 15 Aug 2002 02:19:37 -0400
+Date: Thu, 15 Aug 2002 02:23:32 -0400
 From: marius aamodt eriksen <marius@umich.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Brian Pawlowski <beepy@netapp.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>, dax@gurulabs.com,
-       Linus Torvalds <torvalds@transmeta.com>, kmsmith@umich.edu,
-       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+To: Brian Pawlowski <beepy@netapp.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, dax@gurulabs.com,
+       torvalds@transmeta.com, kmsmith@umich.edu, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
 Subject: Re: [NFS] Re: Will NFSv4 be accepted?
-Message-ID: <20020815061848.GA9122@umich.edu>
+Message-ID: <20020815062332.GB9122@umich.edu>
 Reply-To: marius@citi.umich.edu
-References: <200208142234.g7EMYvQ21700@tooting-fe.eng> <1029373829.28240.16.camel@irongate.swansea.linux.org.uk>
+References: <shs8z39dr15.fsf@charged.uio.no> <200208142234.g7EMYvQ21700@tooting-fe.eng>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1029373829.28240.16.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <200208142234.g7EMYvQ21700@tooting-fe.eng>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox <alan@lxorguk.ukuu.org.uk> [020814 21:13]:
-
-> On Wed, 2002-08-14 at 23:34, Brian Pawlowski wrote:
-> > But ACL support over the wire is an argument for V4 - and fine grained
-> > authorization coupled to strong authentication makes for a flexible 
-> > security package.
+* Brian Pawlowski <beepy@netapp.com> [020814 18:36]:
+> > RPCSEC_GSS is not an argument for NFSv4...
 > 
-> ACL works in NFSv2 and nicely in NFSv3 - again the problems Linux has
-> are the client failing to respect basic NFS rules of operation.
+> yes.
+> 
+> But ACL support over the wire is an argument for V4 - and fine grained
+> authorization coupled to strong authentication makes for a flexible 
+> security package.
 
-there is no over-the-wire specification for sending or receving ACLs
-on NFSv{2,3} - hence the server may choose to obey them, but an
-arbitrary client cannot set them, or view them.
+and let's not forget such things as getting rid of the representation
+of users as UIDs over the wire, as well as delegations (i.e. better
+caching == better performance), named (extended) attributes support,
+soon-to-come interoperability with a vast array of operating systems,
+etc. etc.
 
 marius.
 

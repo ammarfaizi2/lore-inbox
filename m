@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265153AbSJWTEr>; Wed, 23 Oct 2002 15:04:47 -0400
+	id <S265165AbSJWTJN>; Wed, 23 Oct 2002 15:09:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265161AbSJWTEr>; Wed, 23 Oct 2002 15:04:47 -0400
-Received: from blowme.phunnypharm.org ([65.207.35.140]:12550 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S265153AbSJWTEp>; Wed, 23 Oct 2002 15:04:45 -0400
-Date: Wed, 23 Oct 2002 15:10:57 -0400
-From: Ben Collins <bcollins@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] potential NULL deref in serial/core.c
-Message-ID: <20021023191057.GH536@phunnypharm.org>
-References: <20021023190211.GG536@phunnypharm.org>
+	id <S265166AbSJWTJM>; Wed, 23 Oct 2002 15:09:12 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:6671 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265165AbSJWTJL>; Wed, 23 Oct 2002 15:09:11 -0400
+Date: Wed, 23 Oct 2002 20:15:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Matt D. Robinson" <yakker@aparity.com>
+Cc: linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
+Subject: Re: [PATCH] LKCD for 2.5.44 (3/8): kerntypes addition
+Message-ID: <20021023201521.A21529@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Matt D. Robinson" <yakker@aparity.com>,
+	linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
+References: <20021023175938.A16547@infradead.org> <Pine.LNX.4.44.0210231051250.28800-100000@nakedeye.aparity.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021023190211.GG536@phunnypharm.org>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210231051250.28800-100000@nakedeye.aparity.com>; from yakker@aparity.com on Wed, Oct 23, 2002 at 10:52:35AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 03:02:11PM -0400, Ben Collins wrote:
-> Not sure if it's supposed to be a BUG() for tty to be NULL, but it's
-> surely a bug to dereference it before checking for that.
+On Wed, Oct 23, 2002 at 10:52:35AM -0700, Matt D. Robinson wrote:
+> On Wed, 23 Oct 2002, Christoph Hellwig wrote:
+> |>On Wed, Oct 23, 2002 at 02:44:04AM -0700, Matt D. Robinson wrote:
+> |>> This adds kerntypes into the build so that symbols can be
+> |>> extracted from a single build object in the kernel.  This
+> |>> also modifies the install process (where applicable) to
+> |>> copy the Kerntypes file along with the kernel and map.
+> |>
+> |>Why can't you directly link in init/kerntypes.o?
 > 
+> We wanted to keep the bloat down, even as far as the
+> file size is concerned.  Some people have problems with
+> making the kernel image larger than it already is.  If
+> Kerntypes adds another 100K to the image, that isn't a
+> good thing in the eyes of some people.
 
-Ug. Find one more after I sent this email.
+I meant using init/kerntypes.o directly instead of copying it
+to Kerntypes.  But after looking more into the build process
+I've now noticed that Kerntypes isn't actually linked into
+vmlinux at all.  But as it's a separate file you don't need
+the ifdef CONFIG_CRASH_DUMP - people not wanting on their
+potentially small root filesystems just don't have to copy
+it.  That would be the last ifdef on CONFIG_CRASH_DUMP, so
+dump.o can now be loaded into any kernel with the patch
+applied.  cool! :)
 
-
---- drivers/serial/core.c~	2002-10-23 14:59:17.000000000 -0400
-+++ drivers/serial/core.c	2002-10-23 15:07:55.000000000 -0400
-@@ -472,10 +472,12 @@
- 
- static void uart_put_char(struct tty_struct *tty, unsigned char ch)
- {
--	struct uart_info *info = tty->driver_data;
-+	struct uart_info *info;
- 
--	if (tty)
-+	if (tty) {
-+		info = tty->driver_data;
- 		__uart_put_char(info->port, &info->xmit, ch);
-+	}
- }
- 
- static void uart_flush_chars(struct tty_struct *tty)
-@@ -487,10 +489,15 @@
- uart_write(struct tty_struct *tty, int from_user, const unsigned char * buf,
- 	   int count)
- {
--	struct uart_info *info = tty->driver_data;
-+	struct uart_info *info;
- 	int ret;
- 
--	if (!tty || !info->xmit.buf)
-+	if (!tty)
-+		return 0;
-+
-+	info = tty->driver_data;
-+
-+	if (!info->xmit.buf)
- 		return 0;
- 
- 	if (from_user)
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/

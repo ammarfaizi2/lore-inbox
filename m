@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261891AbTCaWw2>; Mon, 31 Mar 2003 17:52:28 -0500
+	id <S261892AbTCaW7K>; Mon, 31 Mar 2003 17:59:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261892AbTCaWw2>; Mon, 31 Mar 2003 17:52:28 -0500
-Received: from dyn-ctb-210-9-246-105.webone.com.au ([210.9.246.105]:17924 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S261891AbTCaWw1>;
-	Mon, 31 Mar 2003 17:52:27 -0500
-Message-ID: <3E88C93D.3020107@cyberone.com.au>
-Date: Tue, 01 Apr 2003 09:03:25 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: helgehaf@aitel.hist.no, erik@hensema.net, linux-kernel@vger.kernel.org
-Subject: Re: Delaying writes to disk when there's no need
-References: <slrnb843gi.2tt.usenet@bender.home.hensema.net>	<20030328231248.GH5147@zaurus.ucw.cz>	<slrnb8gbfp.1d6.erik@bender.home.hensema.net>	<3E8845A8.20107@aitel.hist.no>	<3E88BAF9.8040100@cyberone.com.au> <20030331144500.17bf3a2e.akpm@digeo.com>
-In-Reply-To: <20030331144500.17bf3a2e.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261893AbTCaW7K>; Mon, 31 Mar 2003 17:59:10 -0500
+Received: from inet-mail3.oracle.com ([148.87.2.203]:464 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S261892AbTCaW7J>; Mon, 31 Mar 2003 17:59:09 -0500
+Date: Mon, 31 Mar 2003 15:07:21 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: bert hubert <ahu@ds9a.nl>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries.Brouwer@cwi.nl,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Wim Coekaerts <Wim.Coekaerts@oracle.com>
+Subject: Re: 64-bit kdev_t - just for playing
+Message-ID: <20030331230720.GP32000@ca-server1.us.oracle.com>
+References: <1048805732.3953.1.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.44.0303280008530.5042-100000@serv> <20030327234820.GE1687@kroah.com> <Pine.LNX.4.44.0303281031120.5042-100000@serv> <20030328180545.GG32000@ca-server1.us.oracle.com> <Pine.LNX.4.44.0303281924530.5042-100000@serv> <20030331083157.GA29029@outpost.ds9a.nl> <Pine.LNX.4.44.0303311039190.5042-100000@serv> <20030331172403.GM32000@ca-server1.us.oracle.com> <Pine.LNX.4.44.0303312215020.5042-100000@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303312215020.5042-100000@serv>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 31, 2003 at 11:32:55PM +0200, Roman Zippel wrote:
+> later. The ones who ask now for a larger dev_t the loudest are likely the 
+> first to demand later not change anything for "compability", because they 
+> hardcoded certain assumptions about dev_t into their applications.
 
+	I'm right here campaigning loudly for a larger dev_t.  I intend
+to never, ever make assumptions about dev_t.  In fact, I'd rather not
+deal with dev_t.  But I do need a way to map 4k or 8k or 16k disks.
+now.
 
-Andrew Morton wrote:
+Joel
 
->Nick Piggin <piggin@cyberone.com.au> wrote:
->  
->
->>it seems to me that
->>doing writeout whenever the disk would otherwise be idle
->>(and we have dirty memory to write out) would be a good
->>solution.
->>    
->>
->
->This is what the recently-removed BDI_read_active flag in backing_dev_info
->was supposed to be for.  I let it go because I don't think it's terribly
->important and it's time to stop fiddling with the vfs writeout code and it
->wasn't right anyway.
->
->Note that 2.5 starts pdflush writeout at 10% of memory dirty.  Or even lower
->if there is a lot of mapped memory around.  Whereas 2.4 will start background
->writeout at 30% or 40% dirty.  That's a fairly significant tuning change.
->
->The algorithm for utilisation of an idle disk should be, in
->balance_dirty_pages():
->
->	if (ps.nr_dirty + ps.nr_writeback < background_thresh) {
->		if (time_after(jiffies, bdi->last_read + HZ/100)) {
->			if (bdi->write_requests_in_flight < 2) {
->				struct writeback_control wbc = {
->					.bdi		= bdi,
->					.sync_mode	= WB_SYNC_NONE,
->					.nr_to_write	= write_chunk,
->				};
->
->				writeback_inodes(&wbc);
->			}
->		}
->		return;
->	}
->
->
->Or something like that.  It's pretty close.
->
-Yeah something like that looks alright.
+-- 
 
->
->It could have pretty bad failure modes.  Short-lived files in /tmp now
->perform writeout, which needs to be waited on when those files are removed.
->  
->
-I didn't think of that.
+"Up and down that road in our worn out shoes,
+ Talking bout good things and singing the blues."
 
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

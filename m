@@ -1,77 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbUDHV0V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 17:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUDHV0V
+	id S262499AbUDHVd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 17:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbUDHVd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 17:26:21 -0400
-Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:17309 "EHLO
-	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
-	id S262648AbUDHV0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 17:26:18 -0400
-Date: Fri, 9 Apr 2004 01:27:11 +0400
-From: Kirill Korotaev <kirillx@7ka.mipt.ru>
-Reply-To: Kirill Korotaev <kirillx@7ka.mipt.ru>
-Organization: SWsoft
-X-Priority: 3 (Normal)
-Message-ID: <791543157.20040409012711@7ka.mipt.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Errors in load_elf_binary()?
-In-Reply-To: <40753919.2070202@sw.ru>
-References: <40753919.2070202@sw.ru>
+	Thu, 8 Apr 2004 17:33:58 -0400
+Received: from meyering.net1.nerim.net ([62.212.115.149]:3627 "EHLO
+	elf.meyering.net") by vger.kernel.org with ESMTP id S262499AbUDHVd4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 17:33:56 -0400
+To: Paul Eggert <eggert@CS.UCLA.EDU>
+Cc: bug-coreutils@gnu.org, Andrew Morton <akpm@osdl.org>,
+       Bruce Allen <ballen@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org,
+       Andy Isaacson <adi@hexapodia.org>
+Subject: Re: dd PATCH: add conv=direct
+In-Reply-To: <87vfkaw9i9.fsf@penguin.cs.ucla.edu> (Paul Eggert's message of "Thu, 08 Apr 2004 12:32:46 -0700")
+References: <Pine.GSO.4.21.0404071627530.9017-100000@dirac.phys.uwm.edu>
+	<87r7uzlzz7.fsf@penguin.cs.ucla.edu> <85k70qsp71.fsf@pi.meyering.net>
+	<87vfkaw9i9.fsf@penguin.cs.ucla.edu>
+From: Jim Meyering <jim@meyering.net>
+Date: Thu, 08 Apr 2004 23:34:25 +0200
+Message-ID: <85isgaqhlq.fsf@pi.meyering.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-File: fs/binfmt_elf.c
+Paul Eggert <eggert@CS.UCLA.EDU> wrote:
+> Jim Meyering <jim@meyering.net> writes:
+>
+>> 2004-04-08  Jim Meyering  <jim@meyering.net>
+>>
+>> 	* src/dd.c (set_fd_flags): Don't OR in -1 when fcntl fails.
+>
+> Doesn't that fix generate worse code in the usual case, since it
+> causes two conditional branches instead of one?
+>
+> How about this further patch?  It relies on common subexpression
+> elimination, but that's common these days.
+>
+> 2004-04-08  Paul Eggert  <eggert@twinsun.com>
+>
+> 	* src/dd.c (set_fd_flags): Don't test old_flags < 0 twice.
 
-1.
+I see your point.  Thanks for the comment fix.
+I've gone ahead and reverted my change,
+since I think your original code is a little more
+readable than the more-efficient-when-fcntl-fails code
+that you're proposing.
 
-load_elf_binary()
+	(set_fd_flags): Undo part of today's change: it's a little
+	cleaner -- and more efficient in the common case -- to go
+	ahead and OR in the -1 when fcntl fails.
 
-2002/02/05 torvalds   | retval = kernel_read(bprm->file, elf_ex.e_phoff, (char *) elf_phdata, size);
-2002/02/05 torvalds   | if (retval < 0)
-2002/02/05 torvalds   |       goto out_free_ph;
-2003/06/29 alan       |
-2003/06/29 alan       | files = current->files;           /* Refcounted so ok */
-2003/06/29 alan       | if(unshare_files() < 0)
-2003/06/29 alan       |       goto out_free_ph;
-<<<< retval is not set >>>>
-should be something like:
-retval = unshare_files()
-if (retval < 0)
-   goto ....;
-2003/08/09 agruen     | if (files == current->files) {
-2003/08/09 agruen     |       put_files_struct(files);
-2003/08/09 agruen     |       files = NULL;
-2003/08/09 agruen     | }
-
-........
-
-2.
-
-load_elf_binary()
-
-2002/02/05 torvalds   | out_free_dentry:
-2002/02/05 torvalds   |       allow_write_access(interpreter);
-2002/02/05 torvalds   |       fput(interpreter);
-<<<< interpreter can be NULL >>>>
-e.g. we got oopses here when flush_old_exec()
-returns error
-should be something like:
-if (interpreter)
-   fput(interpreter);
-2002/02/05 torvalds   | out_free_interp:
-
-3.
-
-load_elf_binary()
-
-Why there is no steal_locks() call in exit path (after label 
-"out_free_fh")? Shouldn't were steal locks back when undoing our changes?
-
-Kirill
-
-
+Index: src/dd.c
+===================================================================
+RCS file: /fetish/cu/src/dd.c,v
+retrieving revision 1.158
+retrieving revision 1.159
+diff -u -p -u -r1.158 -r1.159
+--- a/src/dd.c	8 Apr 2004 21:26:28 -0000	1.158
++++ b/src/dd.c	8 Apr 2004 21:30:18 -0000	1.159
+@@ -1014,7 +1014,7 @@ copy_with_unblock (char const *buf, size
+ }
+ 
+ /* Set the file descriptor flags for FD that correspond to the nonzero bits
+-   in FLAGS.  The file's name is NAME.  */
++   in ADD_FLAGS.  The file's name is NAME.  */
+ 
+ static void
+ set_fd_flags (int fd, int add_flags, char const *name)
+@@ -1022,7 +1022,7 @@ set_fd_flags (int fd, int add_flags, cha
+   if (add_flags)
+     {
+       int old_flags = fcntl (fd, F_GETFL);
+-      int new_flags = old_flags < 0 ? add_flags : (old_flags | add_flags);
++      int new_flags = old_flags | add_flags;
+       if (old_flags < 0
+ 	  || (new_flags != old_flags && fcntl (fd, F_SETFL, new_flags) == -1))
+ 	error (EXIT_FAILURE, errno, _("setting flags for %s"), quote (name));

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284956AbRLUSpW>; Fri, 21 Dec 2001 13:45:22 -0500
+	id <S284966AbRLUSuT>; Fri, 21 Dec 2001 13:50:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284963AbRLUSpJ>; Fri, 21 Dec 2001 13:45:09 -0500
-Received: from aldebaran.sra.com ([163.252.31.31]:4014 "EHLO aldebaran.sra.com")
-	by vger.kernel.org with ESMTP id <S284956AbRLUSpB>;
-	Fri, 21 Dec 2001 13:45:01 -0500
-From: David Garfield <garfield@irving.iisd.sra.com>
+	id <S284973AbRLUSuJ>; Fri, 21 Dec 2001 13:50:09 -0500
+Received: from Aniela.EU.ORG ([194.102.102.235]:3333 "EHLO NS1.Aniela.EU.ORG")
+	by vger.kernel.org with ESMTP id <S284966AbRLUStv>;
+	Fri, 21 Dec 2001 13:49:51 -0500
+Date: Fri, 21 Dec 2001 20:49:44 +0200 (EET)
+From: <lk@Aniela.EU.ORG>
+To: Kent Borg <kentborg@borg.org>
+Cc: Mike Harrold <mharrold@cas.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        <nknight@pocketinet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+In-Reply-To: <20011221134150.O3736@borg.org>
+Message-ID: <Pine.LNX.4.33.0112212048230.4311-100000@ns1.Aniela.EU.ORG>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15395.33489.779730.767039@irving.iisd.sra.com>
-Date: Fri, 21 Dec 2001 13:43:29 -0500
-To: esr@thyrsus.com
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-In-Reply-To: <20011220185226.A25080@thyrsus.com>
-In-Reply-To: <20011220143247.A19377@thyrsus.com>
-	<15394.29882.361540.200600@irving.iisd.sra.com>
-	<20011220185226.A25080@thyrsus.com>
-X-Mailer: VM 6.96 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond writes:
- > David Garfield <garfield@irving.iisd.sra.com>:
- > > Another option: maybe the choice of KB vs KiB vs KKB should be a
- > > configuration choice.
- > 
- > You *must* be joking.
- > 
- > Please tell me you're joking.
+>
+> Hell, your kernel isn't even going to barf if the "40GB" disk turns
+> out to be 39,501,824, or some other less than 40GB-of-any-flavor
+> value.  Why do a version of "40GB" that means 40,000,000,000 when
+> disks are *never* that size anyway?
+>
 
-No, I'm serious.  I will understand if CML2 does not support
-meta-configuration.  A configuration choice as I described above could
-be viewed as a minor facet of a language configuration choice.
-(Should kernel configuration be internationalized or at least
-internationalizable?)
+If you would pay more attention, you can see that on most drives there is
+a small note that says: 1MB = 1000000 bytes. This is why the drive
+capacity is smaller than the manufacturer says.
 
-Choice of kB vs KB vs KiB vs KKB could also be used in some places in
-the kernel.  For instance, /proc/meminfo currently shows "kB".
 
---David
+> Just because disk manufacturers are, um, creatve, with their marketing
+> numbers, do we have to mess with the numbers that are trustworthy?
+>
+>
+> -kb, the Kent who is not so sure he has *ever* seen anything in a
+> computer that really was such a big round decimal number, but the Kent
+> who sees precise round binary numbers frequently.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

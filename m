@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267621AbUGWK4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267624AbUGWK6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267621AbUGWK4t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 06:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267624AbUGWK4s
+	id S267624AbUGWK6H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 06:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267625AbUGWK6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 06:56:48 -0400
-Received: from mproxy.gmail.com ([216.239.56.246]:10060 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267621AbUGWK4q (ORCPT
+	Fri, 23 Jul 2004 06:58:06 -0400
+Received: from [221.2.232.138] ([221.2.232.138]:41463 "ehlo sohu.com")
+	by vger.kernel.org with ESMTP id S267624AbUGWK5t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 06:56:46 -0400
-Message-ID: <4d8e3fd304072303561f7d94df@mail.gmail.com>
-Date: Fri, 23 Jul 2004 12:56:45 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Subject: Re: linux compressed
-Cc: Jan Knutar <jk-lkml@sci.fi>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1090577344.28644.19.camel@tara.firmix.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <4d8e3fd30407210502e8ee0da@mail.gmail.com>
-	 <200407220117.38892.jk-lkml@sci.fi>
-	 <4d8e3fd3040722002638530b10@mail.gmail.com> <1090577344.28644.19.camel@tara.firmix.at>
+	Fri, 23 Jul 2004 06:57:49 -0400
+From: "Tony" <zlblzm@sohu.com>
+Subject: Seeking joint-venture partners for ERW oil casing project
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: zlblzm@sohu.com
+Date: Fri, 23 Jul 2004 19:57:25 +0800
+X-Priority: 3
+X-Mailer: Foxmail 4.1 [cn]
+Message-Id: <S267624AbUGWK5t/20040723105749Z+267@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jul 2004 12:09:04 +0200, Bernd Petrovitsch <bernd@firmix.at> wrote:
-> 
-> 
-> On Don, 2004-07-22 at 09:26 +0200, Paolo Ciarrocchi wrote:
-> > On Thu, 22 Jul 2004 01:17:38 +0300, Jan Knutar <jk-lkml@sci.fi> wrote:
-> > > On Wednesday 21 July 2004 15:02, you wrote:
-> > > > Hi all,
-> > > > I don't know if someone is still playing with a linuxcompressed kernel,
-> > > > anyway here you can find a GUI  which can be used to verify the memory usage.
-> > >
-> > > Do you know if there are there any 'linuxcompressed' patches available for anything
-> > > more recent than 2.4.18 anywhere?
-> > >
-> > > I assume you're talking about this: http://linuxcompressed.sourceforge.net/
-> >
-> > Hello Jan,
-> > yes I'm talking about that project.
-> >
-> > AFAIK 2.4.18 is the latest kernel available.
-> 
-> Please verify this on http://www.kernel.org/
+Dear Sir or Madam:
 
-We were talking about linux compressed kernel...
+We are keenly interested in setting up a new factory to produce 120,000 ERW oil casings per year to meet the big market of Shengli Oilfied. Since we lack some starting-up capital, we are seeking for investments. I will give you a brief introduction to the project as follow:
 
--- 
-paoloc.doesntexist.org
+I. Background:
+Shengli Oilfield, the second largest oilfield in China and the leading company of Sinopec Corp. (http://www.sinopec.com), as well as neighboring oilfields as Dagang Oilfield, Central Plain Oilfield and Jiangsu Oilfield are potential market of ERW oil casing. It is expected that the total oil casing needed in the above area is about 400,000 tons, including 260,000 tons in Sinopec and 150,000 tons in Shengli Oilfield. To meet the great need, we plan to set up a joint venture to produce 120,000 tons of ERW casings per year in Shengli Oilfield.  With good management and market outlets, we believe that this JV also has the potential to expand beyond China to other nations. 
+
+II. About us
+Shengli Oilfield Engineering Machinery Factory is one of sub-companies of Shengli Oilfield Co., Ltd, with total assets of 267 million yuan, net assets of 170 million yuan and 2462 staff. The factory mainly produces oilfield special equipment such as beam unit, Spiral-seam submerged-arc weldedsteel pipe, sucker rod, line pipe, casing, tubing, plastic compound pipe etc. It produces 200,000 tons of line pipes, 1 million meters of strengthened plastic compound pipes, 500 beam units, 2.5 million meters of sucker rods, 12,000 tons of PP gas pipes and 50,000 tons of oil tubings yearly, and has become important pipe base in Shandong and Shengli Oilfield. Its products have entering many areas as Shengli Oilfield, Daqing Oilfield, Liaohe Oilfield, Dagang Oilfield and so on. In 2002, the sale income amounted to over 600 million yuan.
+The Factory holds Quality accreditations as ISO9001, API and so on.
+
+III. Content of the project
+It is planned to introduce Japanese technology and equipment to set up one production line with range of casing diameter from¦Õ114 to ¦Õ339.7 and produce 120,000 tons of ERW casings and delivery pipes per year.
+
+IV. Product specifications
+For Casing: grade of steel are J55 and N80, specification ranges from ¦Õ114 to ¦Õ339.7
+For delivery: grade of steel are X52¡¢X60¡¢X70, specification ranges from ¦Õ114 to ¦Õ339.7.
+
+V. Economic Analysis
+The total investment in this project is 142.41 million yuan. After the completion of the project, it is estimated that the internal financial rate of return before paying tax is 24.9 percent with a payback period of 5.6 years, and the internal rate of return after paying tax is 21.8 percent with a payback period of 5.9 years.
+The break-even point of the project is 46.95 percent, which means the project can keep balance if the annual output amount to 42,000 tons.
+
+VI. Plans for cooperation
+We have set up a joint venture with Japan's Marubeni in the early of the year, with a registered capital of 57 million yuan. The capital structure is as follow:
+a. Shengli Oilfield Bureau of Administration          19.95 million yuan   35£¥
+b. Shengli Oilfield Engineering Machinery Facotry     17.10 million yuan   30£¥
+c. Dongying District State Assets Operation & Management Co., Ltd 5.70million yuan 10£¥
+d. Marubeni Engineering Technology Co., Ltd           14.25 million yuan   25£¥
+
+To meet our capital need for this project, we are now planned to increase our registered capital to 118.88 million yuan. Taking our added investment into consideration, we need another 34.68 million yuan to get the plan executed. So we are seeking a new joint venture partner who'd like to join this project and meet our capital requirement.
+We would like to exchange the information with the manufacturers and suppliers who are interested in this project and have discussion on raw material supply as well as jointly investing the factory establishment. And we hope we could have good cooperation in future.
+For additional information regarding this project, please feel free to contact us.
+
+Looking forward to your prompt reply.
+
+Sincerely yours, 
+
+Tony Leung
+Project officer
+
+Tel: +86-546-833 9362
+Fax:+86-546-832 9817
+Mobile: +86-133 4505 3225
+Email: tony@mpbdy.com

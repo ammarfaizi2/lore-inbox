@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVCKSZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVCKSbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbVCKSZU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVCKSYy
+	id S261276AbVCKSbK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:31:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVCKS3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:24:54 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:16913 "HELO
+	Fri, 11 Mar 2005 13:29:19 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:20497 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261261AbVCKSQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:16:16 -0500
-Date: Fri, 11 Mar 2005 19:16:09 +0100
+	id S261273AbVCKSQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 13:16:32 -0500
+Date: Fri, 11 Mar 2005 19:16:25 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: aeb@cwi.nl, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small partitions/msdos cleanups
-Message-ID: <20050311181609.GD3723@stusta.de>
+To: jgarzik@pobox.com
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       David Dillow <dave@thedillows.org>
+Subject: [2.6 patch] drivers/net/typhoon: make a firmware image static
+Message-ID: <20050311181625.GH3723@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,75 +23,26 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the following changes to the msdos partition code:
-- remove CONFIG_NEC98_PARTITION leftovers
-- make parse_bsd static
+This patch makes a nedlessly global firmware image static.
 
-This patch was already ACK'ed by Andries Brouwer.
+This patch was already ACK'ed by David Dillow.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 25 Feb 2005
-- 1 Feb 2005
-- 7 Jan 2005
-- 14 Dec 2004
-- 7 Dec 2004
-- 30 Oct 2004
+- 19 Feb 2005
 
-diffstat output:
- fs/partitions/Makefile |    1 -
- fs/partitions/check.c  |    3 ---
- fs/partitions/check.h  |    4 ----
- fs/partitions/msdos.c  |    4 ++--
- 4 files changed, 2 insertions(+), 10 deletions(-)
-
---- linux-2.6.10-rc1-mm2-full/fs/partitions/Makefile.old	2004-10-30 14:42:03.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full//fs/partitions/Makefile	2004-10-30 14:42:13.000000000 +0200
-@@ -17,4 +17,3 @@
- obj-$(CONFIG_ULTRIX_PARTITION) += ultrix.o
- obj-$(CONFIG_IBM_PARTITION) += ibm.o
- obj-$(CONFIG_EFI_PARTITION) += efi.o
--obj-$(CONFIG_NEC98_PARTITION) += nec98.o msdos.o
---- linux-2.6.10-rc1-mm2-full/fs/partitions/check.h.old	2004-10-30 14:40:20.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full//fs/partitions/check.h	2004-10-30 14:40:41.000000000 +0200
-@@ -30,7 +30,3 @@
+--- linux-2.6.11-rc3-mm2-full/drivers/net/typhoon-firmware.h.old	2005-02-16 18:56:23.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/typhoon-firmware.h	2005-02-16 18:56:31.000000000 +0100
+@@ -32,7 +32,7 @@
+  */ 
  
- extern int warn_no_part;
- 
--extern void parse_bsd(struct parsed_partitions *state,
--			struct block_device *bdev, u32 offset, u32 size,
--			int origin, char *flavour, int max_partitions);
--
---- linux-2.6.10-rc1-mm2-full/fs/partitions/check.c.old	2004-10-30 14:41:32.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full//fs/partitions/check.c	2004-10-30 14:41:43.000000000 +0200
-@@ -76,9 +76,6 @@
- #ifdef CONFIG_LDM_PARTITION
- 	ldm_partition,		/* this must come before msdos */
- #endif
--#ifdef CONFIG_NEC98_PARTITION
--	nec98_partition,	/* must be come before `msdos_partition' */
--#endif
- #ifdef CONFIG_MSDOS_PARTITION
- 	msdos_partition,
- #endif
---- linux-2.6.10-rc1-mm2-full/fs/partitions/msdos.c.old	2004-10-30 14:38:38.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full//fs/partitions/msdos.c	2004-10-30 14:41:57.000000000 +0200
-@@ -202,12 +202,12 @@
- #endif
- }
- 
--#if defined(CONFIG_BSD_DISKLABEL) || defined(CONFIG_NEC98_PARTITION)
-+#if defined(CONFIG_BSD_DISKLABEL)
- /* 
-  * Create devices for BSD partitions listed in a disklabel, under a
-  * dos-like partition. See parse_extended() for more information.
-  */
--void
-+static void
- parse_bsd(struct parsed_partitions *state, struct block_device *bdev,
- 		u32 offset, u32 size, int origin, char *flavour,
- 		int max_partitions)
+  /* ver 03.001.008 */
+-const u8 typhoon_firmware_image[] = {
++static const u8 typhoon_firmware_image[] = {
+ 0x54, 0x59, 0x50, 0x48, 0x4f, 0x4f, 0x4e, 0x00, 0x02, 0x00, 0x00, 0x00, 
+ 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xcb, 0x99, 0xb1, 0xd4, 
+ 0x4c, 0xb8, 0xd0, 0x4b, 0x32, 0x02, 0xd4, 0xee, 0x73, 0x7e, 0x0b, 0x13, 
 

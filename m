@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129818AbRAHTMx>; Mon, 8 Jan 2001 14:12:53 -0500
+	id <S130311AbRAHTNx>; Mon, 8 Jan 2001 14:13:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130311AbRAHTMn>; Mon, 8 Jan 2001 14:12:43 -0500
-Received: from topaz.3com.com ([192.156.136.158]:35534 "EHLO topaz.3com.com")
-	by vger.kernel.org with ESMTP id <S129818AbRAHTM1>;
-	Mon, 8 Jan 2001 14:12:27 -0500
-X-Lotus-FromDomain: 3COM
-From: Steven_Snyder@3com.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <882569CE.0069993A.00@hqoutbound.ops.3com.com>
-Date: Mon, 8 Jan 2001 13:11:19 -0600
-Subject: Shared memory not enabled in 2.4.0?
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S131574AbRAHTNn>; Mon, 8 Jan 2001 14:13:43 -0500
+Received: from smtp.alacritech.com ([209.10.208.82]:30982 "EHLO
+	smtp.alacritech.com") by vger.kernel.org with ESMTP
+	id <S130311AbRAHTNk>; Mon, 8 Jan 2001 14:13:40 -0500
+From: "Christopher Harrer" <charrer@alacritech.com>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: Modules Question
+Date: Mon, 8 Jan 2001 14:13:20 -0500
+Message-ID: <POELKPJGDHAPIPMEMHGAGELIDJAA.charrer@alacritech.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+I've built a module I'm trying to run on various (2.2.x) levels of the
+kernel.  I compiled the module against a 2.2.18 Source Tree.  I strip out
+the __module_kernel_version symbol and re-link the module on the target
+system to get the __module_kernel_version symbol in it.  My problem is that
+I cannot run the module on any version of the kernel other than the version
+the module was compiled against without getting a slew of unresolved
+symbols.  Can anyone please provide a little advice?
 
-For some reason shared memory is not being enabled on my system running kernel
-v2.4.0 (on RedHat v6.2,  with all updates applied).
+Thanks!
 
-Per the documentation I have this line in my /etc/fstab:
-
-     none  /dev/shm  shm defaults  0 0
-
-Yes, I have created this subdirectory:
-
-     # ls -l /dev | grep shm
-     drwxrwxrwt    1 root     root            0 Jan  7 11:54 shm
-
-No complaints are seen at startup, yet I still have no shared memory:
-
-     # cat /proc/meminfo
-             total:    used:    free:  shared: buffers:  cached:
-     Mem:  130293760 123133952  7159808        0 30371840 15179776
-     Swap: 136241152        0 136241152
-     MemTotal:       127240 kB
-     MemFree:          6992 kB
-     MemShared:           0 kB
-     Buffers:         29660 kB
-     Cached:          14824 kB
-     Active:           3400 kB
-     Inact_dirty:     37872 kB
-     Inact_clean:      3212 kB
-     Inact_target:        4 kB
-     HighTotal:           0 kB
-     HighFree:            0 kB
-     LowTotal:       127240 kB
-     LowFree:          6992 kB
-     SwapTotal:      133048 kB
-     SwapFree:       133048 kB
-
-Is there some configuration option which I missed?  Some trick not mentioned in
-the doc?
-
-Thank you.
+Chris
 
 
 -

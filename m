@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316579AbSFFAYv>; Wed, 5 Jun 2002 20:24:51 -0400
+	id <S316578AbSFFAXc>; Wed, 5 Jun 2002 20:23:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316586AbSFFAYu>; Wed, 5 Jun 2002 20:24:50 -0400
-Received: from bitmover.com ([192.132.92.2]:34215 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S316579AbSFFAYt>;
-	Wed, 5 Jun 2002 20:24:49 -0400
-Date: Wed, 5 Jun 2002 17:24:49 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: bcrl@redhat.com, lord@sgi.com, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [RFC] 4KB stack + irq stack for x86
-Message-ID: <20020605172449.K2938@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"David S. Miller" <davem@redhat.com>, bcrl@redhat.com, lord@sgi.com,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <20020604225539.F9111@redhat.com> <1023315323.17160.522.camel@jen.americas.sgi.com> <20020605183152.H4697@redhat.com> <20020605.161342.71552259.davem@redhat.com>
-Mime-Version: 1.0
+	id <S316579AbSFFAXb>; Wed, 5 Jun 2002 20:23:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31495 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316578AbSFFAXa>;
+	Wed, 5 Jun 2002 20:23:30 -0400
+Message-ID: <3CFEAB2F.C3203ED8@zip.com.au>
+Date: Wed, 05 Jun 2002 17:22:07 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Patch: linux-2.5.20/fs/bio.c - ll_rw_kio made incorrect assumptions 
+ about queue handler's capabilities
+In-Reply-To: <200206060004.RAA00496@baldur.yggdrasil.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 04:13:42PM -0700, David S. Miller wrote:
->    From: Benjamin LaHaise <bcrl@redhat.com>
->    Date: Wed, 5 Jun 2002 18:31:52 -0400
+"Adam J. Richter" wrote:
 > 
->    On Wed, Jun 05, 2002 at 05:15:23PM -0500, Steve Lord wrote:
->    > Just what are the tasks you normally run - and how many code
->    > paths do you think there are out there which you do not run. XFS
->    > might get a bit stack hungry in places, we try to keep it down,
->    > but when you get into file system land things can stack up quickly:
->    
->    You already lose in that case today, as multiple irqs may come in 
->    from devices and eat up the stack.
-> 
-> I agree with Ben, if things explode due to stack overflow with his
-> changes they are almost certain to explode before his changes.
+> ..
+> +       max_bytes = q->max_sectors << 9;
 
-Just a "me too".  I like Ben's patch, it seems like it is a sort of
-"bloat meter", if you overflow the stack that suggests something is
-wrong, and it isn't stack size.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Does this not also need to be done in fs/mpage.c?  It's
+just using BIO_MAX_SIZE.
+
+What particular problem are you trying to solve here?
+
+>         /*
+>          * maybe kio is bigger than the max we can easily map into a bio.
+>          * if so, split it up in appropriately sized chunks.
+> @@ -367,8 +370,14 @@
+> 
+>         map_i = 0;
+> 
+> +       max_pages = (max_bytes + PAGE_MASK) >> PAGE_SHIFT;
+> +       if (max_pages > q->max_phys_segments)
+> +               max_pages = q->max_phys_segments;
+> +       if (max_pages > q->max_hw_segments)
+> +               max_pages = q->max_hw_segments;
+> +
+
+I think probably this should be implemented as a block API
+function.
+
+This is going to drag us back into the BIO splitting quagmire.
+
+>  next_chunk:
+> -       nr_pages = BIO_MAX_SECTORS >> (PAGE_SHIFT - 9);
+> +       nr_pages = max_pages;
+
+hmm.  So BIO is based on PAGE_SIZE pages.  Not PAGE_CACHE_SIZE.
+I currently have:
+
+                unsigned nr_bvecs = MPAGE_BIO_MAX_SIZE / PAGE_CACHE_SIZE;
+
+Which is about the only sane way in which the pagecache BIO
+assembly code can go from "bytes" to "number of pages".
+It's going to get interesting if someone makes PAGE_SIZE != PAGE_CACHE_SIZE.

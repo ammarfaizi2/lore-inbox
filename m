@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268454AbTGIRUk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 13:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268460AbTGIRUk
+	id S268449AbTGIRaB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 13:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268451AbTGIRaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 13:20:40 -0400
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:50441 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268454AbTGIRUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 13:20:37 -0400
-From: "Alan Shih" <alan@storlinksemi.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: Question regarding DMA xfer to user space directly
-Date: Wed, 9 Jul 2003 10:35:15 -0700
-Message-ID: <ODEIIOAOPGGCDIKEOPILKEBGCMAA.alan@storlinksemi.com>
+	Wed, 9 Jul 2003 13:30:01 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:19206 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S268449AbTGIRaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 13:30:00 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       Andrea Arcangeli <andrea@suse.de>
+Subject: Re: ->direct_IO API change in current 2.4 BK
+Date: Wed, 9 Jul 2003 19:43:13 +0200
+User-Agent: KMail/1.5.2
+Cc: Christoph Hellwig <hch@infradead.org>, marcelo@connectiva.com.br,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <20030709133109.A23587@infradead.org> <20030709100336.H4482@schatzie.adilger.int> <Pine.LNX.4.55L.0307091421070.26373@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.55L.0307091421070.26373@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <1057677742.4358.36.camel@dhcp22.swansea.linux.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2727.1300
-Importance: Normal
+Content-Disposition: inline
+Message-Id: <200307091943.13680.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Next question would be what are the steps that the driver need to ping user
-pages before setting up the xfer?
+On Wednesday 09 July 2003 19:24, Marcelo Tosatti wrote:
 
-Thanks.
+Hi,
 
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Tuesday, July 08, 2003 8:22 AM
-To: Alan Shih
-Cc: Linux Kernel Mailing List
-Subject: Re: Question regarding DMA xfer to user space directly
+> > > I just got a nice XFS oops due to the direct_IO API change in
+> > > 2.4.  Guys, this is a STABLE series and APIs are supposed to be exactly
+> > > that, _STABLE_.  If you really think O_DIRECT on NFS is soo important
+> > > please add a ->direct_IO2 for NFS like the reiserfs read_inode2 hack.
+I wonder why -aa and -wolk don't have these problems with O_DIRECT vs. XFS.
 
-
-On Maw, 2003-07-08 at 15:50, Alan Shih wrote:
-> Is there a provision in MM for DMA transfer to user space directly without
-> allocating a kernel buffer?
-
-Yes. Its used both for O_DIRECT I/O (direct to disk I/O from userspace)
-and for things like tv capture cards. The kernel allows a driver to pin
-user pages and obtain mappings for them. Note that for large systems
-user pages may be above the 32bit boundary so you need DAC capable
-hardware to get the best results
+ciao, Marc
 

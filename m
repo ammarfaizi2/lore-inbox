@@ -1,111 +1,226 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267141AbTBLLIi>; Wed, 12 Feb 2003 06:08:38 -0500
+	id <S267041AbTBLKzc>; Wed, 12 Feb 2003 05:55:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267035AbTBLKzl>; Wed, 12 Feb 2003 05:55:41 -0500
-Received: from ns.suse.de ([213.95.15.193]:3333 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267038AbTBLKyK>;
-	Wed, 12 Feb 2003 05:54:10 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Labs, SuSE Linux AG
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] Extended attribute fixes, etc.
-Date: Wed, 12 Feb 2003 12:03:58 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, tytso@mit.edu
-References: <200302112018.58862.agruen@suse.de> <20030211123223.1d95ad72.akpm@digeo.com>
-In-Reply-To: <20030211123223.1d95ad72.akpm@digeo.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_M207LNY2W3W7QXT4NMVM"
-Message-Id: <200302121203.58216.agruen@suse.de>
+	id <S267035AbTBLKzc>; Wed, 12 Feb 2003 05:55:32 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:20873 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267041AbTBLKxn>;
+	Wed, 12 Feb 2003 05:53:43 -0500
+Date: Wed, 12 Feb 2003 12:03:21 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [patch] input: Support for NEC PC-9800 beeper and support for Kana Lock [6/14]
+Message-ID: <20030212120321.E1563@ucw.cz>
+References: <20030212115954.A1268@ucw.cz> <20030212120038.A1563@ucw.cz> <20030212120119.B1563@ucw.cz> <20030212120154.C1563@ucw.cz> <20030212120242.D1563@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030212120242.D1563@ucw.cz>; from vojtech@suse.cz on Wed, Feb 12, 2003 at 12:02:42PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_M207LNY2W3W7QXT4NMVM
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/input
 
-On Tuesday 11 February 2003 21:32, Andrew Morton wrote:
-> Andreas Gruenbacher <agruen@suse.de> wrote:
-> > Hi Andrew,
-> >
-> > here are five patches against 2.5.60. Each file contains a brief
-> > description of what it does.
->
-> Minor point:
-> ext3_journal_stop() can return an error code - most notable -EIO if
-> it was a synchronous transaction, or the filesystem has detected
-> corruption.
+===================================================================
 
-Thanks, I have overlooked this third bug. An incremental patch on top of=20
-my previous kernel_lock_bug.diff is attached. (I have also uploaded the=20
-patches to <http://acl.bestbits.at/pre/v2.5/> in the meantime).
-
-> > The third to fifth are all steps towards trusted extended
-> > attributes, which are useful for privileged processes (mostly
-> > daemons). One use for this is Hierarchical Storage Management, in
-> > which a user space daemon stores online/offline information for
-> > files in trusted EA's, and the kernel communicates requests to
-> > bring files online to that daemon. This class of EA's will also
-> > find its way into XFS and ReiserFS, and expectedly also into JFS in
-> > this form. (Trusted EAs are included in the 2.4.19/2.4.20 patches
-> > as well.)
->
-> So is this new code actually functional yet?  As in: something
-> in-kernel using it?
->
-> If not, what is involved in completing the kernel side of trusted
-> EA's?
-
-The important point for me now is to get the iops xattr-flags and=20
-xattr-flags-policy patches into 2.5 so that the API won't change during=20
-2.6. The xattr-trusted patch only affects file systems locally, so it's=20
-far less critical.
-
-The kernel side of trusted EAs is completely implemented with the=20
-patches I sent. In the future there will very likely be modules=20
-actually making use of the XATTR_KERNEL_CONTEXT flag, but Trusted EAs=20
-are quite useful from user space alone.
-
-Cheers,
-Andreas.
+ChangeSet@1.1009, 2003-02-12 10:49:26+01:00, tomita@cinet.co.jp
+  input: Support for NEC PC-9800 beeper and support for Kana Lock LED.
 
 
---------------Boundary-00=_M207LNY2W3W7QXT4NMVM
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="kernel_lock_bug2.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="kernel_lock_bug2.diff"
+ drivers/char/keyboard.c     |   12 ++---
+ drivers/input/misc/98spkr.c |   95 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/input/misc/Kconfig  |    4 +
+ drivers/input/misc/Makefile |    1 
+ include/linux/kbd_kern.h    |    5 +-
+ include/linux/keyboard.h    |    1 
+ 6 files changed, 110 insertions(+), 8 deletions(-)
 
-diff -u linux-2.5.60/fs/ext3/xattr.c linux-2.5.60/fs/ext3/xattr.c
---- linux-2.5.60/fs/ext3/xattr.c	2003-02-11 12:33:45.000000000 +0100
-+++ linux-2.5.60/fs/ext3/xattr.c	2003-02-12 11:18:18.000000000 +0100
-@@ -848,7 +848,7 @@
- 	       const void *value, size_t value_len, int flags)
- {
- 	handle_t *handle;
--	int error;
-+	int error, error2;
+===================================================================
+
+diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+--- a/drivers/char/keyboard.c	Wed Feb 12 11:57:03 2003
++++ b/drivers/char/keyboard.c	Wed Feb 12 11:57:03 2003
+@@ -48,21 +48,21 @@
+  * Exported functions/variables
+  */
  
- 	lock_kernel();
- 	handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
-@@ -857,10 +857,10 @@
- 	else
- 		error = ext3_xattr_set_handle(handle, inode, name_index, name,
- 					      value, value_len, flags);
--	ext3_journal_stop(handle, inode);
-+	error2 = ext3_journal_stop(handle, inode);
- 	unlock_kernel();
+-#ifndef KBD_DEFMODE
+ #define KBD_DEFMODE ((1 << VC_REPEAT) | (1 << VC_META))
+-#endif
  
--	return error;
-+	return error ? error : error2;
- }
- 
+-#ifndef KBD_DEFLEDS
  /*
-
---------------Boundary-00=_M207LNY2W3W7QXT4NMVM--
-
+  * Some laptops take the 789uiojklm,. keys as number pad when NumLock is on.
+- * This seems a good reason to start with NumLock off.
++ * This seems a good reason to start with NumLock off. On PC9800 however there
++ * is no NumLock key and everyone expects the keypad to be used for numbers.
+  */
++
++#ifdef CONFIG_X86_PC9800
++#define KBD_DEFLEDS (1 << VC_NUMLOCK)
++#else
+ #define KBD_DEFLEDS 0
+ #endif
+ 
+-#ifndef KBD_DEFLOCK
+ #define KBD_DEFLOCK 0
+-#endif
+ 
+ void compute_shiftstate(void);
+ 
+diff -Nru a/drivers/input/misc/98spkr.c b/drivers/input/misc/98spkr.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/input/misc/98spkr.c	Wed Feb 12 11:57:03 2003
+@@ -0,0 +1,95 @@
++/*
++ *  PC-9800 Speaker beeper driver for Linux
++ *
++ *  Copyright (c) 2002 Osamu Tomita
++ *  Copyright (c) 2002 Vojtech Pavlik
++ *  Copyright (c) 1992 Orest Zborowski
++ *
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/input.h>
++#include <asm/io.h>
++
++MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
++MODULE_DESCRIPTION("PC-9800 Speaker beeper driver");
++MODULE_LICENSE("GPL");
++
++static char spkr98_name[] = "PC-9801 Speaker";
++static char spkr98_phys[] = "isa3fdb/input0";
++static struct input_dev spkr98_dev;
++
++spinlock_t i8253_beep_lock = SPIN_LOCK_UNLOCKED;
++
++static int spkr98_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
++{
++	unsigned int count = 0;
++	unsigned long flags;
++
++	if (type != EV_SND)
++		return -1;
++
++	switch (code) {
++		case SND_BELL: if (value) value = 1000;
++		case SND_TONE: break;
++		default: return -1;
++	} 
++
++	if (value > 20 && value < 32767)
++		count = CLOCK_TICK_RATE / value;
++	
++	spin_lock_irqsave(&i8253_beep_lock, flags);
++
++	if (count) {
++		outb(0x76, 0x3fdf);
++		outb(0, 0x5f);
++		outb(count & 0xff, 0x3fdb);
++		outb(0, 0x5f);
++		outb((count >> 8) & 0xff, 0x3fdb);
++		/* beep on */
++		outb(6, 0x37);
++	} else {
++		/* beep off */
++		outb(7, 0x37);
++	}
++
++	spin_unlock_irqrestore(&i8253_beep_lock, flags);
++
++	return 0;
++}
++
++static int __init spkr98_init(void)
++{
++	spkr98_dev.evbit[0] = BIT(EV_SND);
++	spkr98_dev.sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
++	spkr98_dev.event = spkr98_event;
++
++	spkr98_dev.name = spkr98_name;
++	spkr98_dev.phys = spkr98_phys;
++	spkr98_dev.id.bustype = BUS_ISA;
++	spkr98_dev.id.vendor = 0x001f;
++	spkr98_dev.id.product = 0x0001;
++	spkr98_dev.id.version = 0x0100;
++
++	input_register_device(&spkr98_dev);
++
++        printk(KERN_INFO "input: %s\n", spkr98_name);
++
++	return 0;
++}
++
++static void __exit spkr98_exit(void)
++{
++        input_unregister_device(&spkr98_dev);
++}
++
++module_init(spkr98_init);
++module_exit(spkr98_exit);
+diff -Nru a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+--- a/drivers/input/misc/Kconfig	Wed Feb 12 11:57:03 2003
++++ b/drivers/input/misc/Kconfig	Wed Feb 12 11:57:03 2003
+@@ -44,6 +44,10 @@
+ 	tristate "M68k Beeper support"
+ 	depends on M68K && INPUT && INPUT_MISC
+ 
++config INPUT_98SPKR
++	tristate "PC-9800 Speaker support"
++	depends on X86_PC9800 && INPUT && INPUT_MISC
++
+ config INPUT_UINPUT
+ 	tristate "User level driver support"
+ 	depends on INPUT && INPUT_MISC
+diff -Nru a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+--- a/drivers/input/misc/Makefile	Wed Feb 12 11:57:03 2003
++++ b/drivers/input/misc/Makefile	Wed Feb 12 11:57:03 2003
+@@ -7,5 +7,6 @@
+ obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
+ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
+ obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
++obj-$(CONFIG_INPUT_98SPKR)		+= 98spkr.o
+ obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
+ obj-$(CONFIG_INPUT_GSC)			+= gsc_ps2.o
+diff -Nru a/include/linux/kbd_kern.h b/include/linux/kbd_kern.h
+--- a/include/linux/kbd_kern.h	Wed Feb 12 11:57:03 2003
++++ b/include/linux/kbd_kern.h	Wed Feb 12 11:57:03 2003
+@@ -43,11 +43,12 @@
+ #define LED_SHOW_IOCTL 1        /* only change leds upon ioctl */
+ #define LED_SHOW_MEM 2          /* `heartbeat': peek into memory */
+ 
+-	unsigned char ledflagstate:3;	/* flags, not lights */
+-	unsigned char default_ledflagstate:3;
++	unsigned char ledflagstate:4;	/* flags, not lights */
++	unsigned char default_ledflagstate:4;
+ #define VC_SCROLLOCK	0	/* scroll-lock mode */
+ #define VC_NUMLOCK	1	/* numeric lock mode */
+ #define VC_CAPSLOCK	2	/* capslock mode */
++#define VC_KANALOCK	3	/* kanalock mode */
+ 
+ 	unsigned char kbdmode:2;	/* one 2-bit value */
+ #define VC_XLATE	0	/* translate keycodes using keymap */
+diff -Nru a/include/linux/keyboard.h b/include/linux/keyboard.h
+--- a/include/linux/keyboard.h	Wed Feb 12 11:57:03 2003
++++ b/include/linux/keyboard.h	Wed Feb 12 11:57:03 2003
+@@ -9,6 +9,7 @@
+ #define KG_ALT		3
+ #define KG_ALTGR	1
+ #define KG_SHIFTL	4
++#define KG_KANASHIFT	4
+ #define KG_SHIFTR	5
+ #define KG_CTRLL	6
+ #define KG_CTRLR	7

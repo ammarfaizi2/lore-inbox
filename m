@@ -1,86 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbVBGS3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVBGSbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbVBGS3b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 13:29:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVBGS3b
+	id S261230AbVBGSbp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 13:31:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVBGSbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 13:29:31 -0500
-Received: from web30206.mail.mud.yahoo.com ([68.142.200.89]:34964 "HELO
-	web30206.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261224AbVBGS3W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 13:29:22 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=McEzWFDzILcQRGCR2vLeF7sDRgaygfgmAWWMYhRxH0JV90m0/jv6siHbF61lPLMMnggIvC5pkcUuSD3ZFTmYpC3HMwIAbrIvTTKlFSME5LkEslOcHz/3yOAU0/Ga+B77dbKu+wW39DXRm2ovlTpb05pZrija/mOQTK0Ln4AbsWg=  ;
-Message-ID: <20050207182921.3015.qmail@web30206.mail.mud.yahoo.com>
-Date: Mon, 7 Feb 2005 10:29:21 -0800 (PST)
-From: Martins Krikis <mkrikis@yahoo.com>
-Subject: Re: [ANNOUNCE] "iswraid" (ICHxR ataraid sub-driver) for 2.4.29
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Martins Krikis <mkrikis@yahoo.com>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <1107701373.22680.115.camel@laptopd505.fenrus.org>
+	Mon, 7 Feb 2005 13:31:44 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:38786 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261230AbVBGSbN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 13:31:13 -0500
+Message-ID: <4207B3E5.6040101@comcast.net>
+Date: Mon, 07 Feb 2005 13:31:01 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Peter Busser <busser@m-privacy.de>, pageexec@freemail.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
+References: <4201DBE7.30569.2F5D446@localhost> <200502031455.22100.busser@m-privacy.de> <Pine.LNX.4.61.0502031537410.6118@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0502031537410.6118@scrub.home>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---- Arjan van de Ven <arjan@infradead.org> wrote:
 
+
+Roman Zippel wrote:
+> Hi,
 > 
-> > I consider it not a new feature, but a missing feature, since
-> otherwise 
-> > user data cannot be accessed in the RAID setups.
+> On Thu, 3 Feb 2005, Peter Busser wrote:
 > 
-> the same is true for all new hardware drivers and hardware support
-> patches. And for new DRM (since new X may need it) and new .. and
-> new ... where is the line?
 > 
-> for me a deep maintenance mode is about keeping existing stuff
-> working;
-> all new hw support and derivative hardware support (such as this) can
-> be
-> pointed at the new stable series... which has been out for quite some
-> time now..
+>>- What happens when you run existing commercial applications which have not 
+>>been compiled using GCC.
+> 
+> 
+>>From http://pax.grsecurity.net/docs/pax.txt:
+> 
+>    The goal of the PaX project is to research various defense mechanisms
+>    against the exploitation of software bugs that give an attacker arbitrary
+>    read/write access to the attacked task's address space. 
+> 
+> Could you please explain how PaX makes such applications secure?
+> 
 
-Would it help my case if I swore that iswraid has been released
-for longer than the "new stable series" and that it is in "deep
-maintenance mode" itself, just outside the 2.4 kernel tree?
-(Version 0.0.6 (for 2.4.22) was announced Nov. 24, 2003.) 
- 
-I do realize that Intel should have asked a long time ago for it
-to be considered for acceptance (I did ask back in October for
-2.4.28). But there are positive aspects to accepting a driver
-late---there is a much higher chance that all the issues have
-been solved. (If there are any particular worries about the
-newly added RAID1E code, well, it's only useful for ICH7R, I'd
-be almost as happy if an older version without it got accepted.)
+I wrote an easy-to-chew article[1] about PaX on Wikipedia, although
+looking back at it I think there may be some erratta in the ASLR
+concept; I think the mmap() base is randomized, but I'm not sure now if
+the actual base of each mmap() call is individually randomized as shown
+in my diagrams.  I'm also no longer sure where I got the notion that the
+heap/.bss/data segments are the same entity, and I'll have to check on that.
 
-To conclude, Marcelo's words back in October 9 were:
-  "New drivers are OK, as long as they don't break existing setups, 
-  and if substantial amount of users will benefit from it."
-So here is a "new driver" (that's been around for a while)
-which I don't think can break anything. As to the "substantial
-amount of users", the two SourceForge releases with download
-statistics have each seen about 800 downloads, I have no idea
-whether that counts as substantial.
+Nevertheless, it's basically accurate, in the same way that saying you
+have a gameboy advance SP when you just have a gameboy advance is
+basically accurate.
 
-  Martins Krikis
-  Storage Components Division
-  Intel Massachusetts
+[1] http://en.wikipedia.org/wiki/PaX
 
+> bye, Roman
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Take Yahoo! Mail with you! Get it on your mobile phone. 
-http://mobile.yahoo.com/maildemo 
+iD8DBQFCB7PlhDd4aOud5P8RAr+pAKCCcbqLuG7OQzZlJrd5UdsA3NooUgCePXnp
+D+xS98fWm9MVEBZpB+pIrTY=
+=r+20
+-----END PGP SIGNATURE-----

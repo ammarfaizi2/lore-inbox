@@ -1,139 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292035AbSCDG6J>; Mon, 4 Mar 2002 01:58:09 -0500
+	id <S292036AbSCDG7A>; Mon, 4 Mar 2002 01:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292036AbSCDG6A>; Mon, 4 Mar 2002 01:58:00 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:15009 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S292035AbSCDG5q>; Mon, 4 Mar 2002 01:57:46 -0500
-Date: Mon, 4 Mar 2002 00:12:23 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+	id <S292045AbSCDG6l>; Mon, 4 Mar 2002 01:58:41 -0500
+Received: from smtp.cogeco.net ([216.221.81.25]:37090 "EHLO fep9.cogeco.net")
+	by vger.kernel.org with ESMTP id <S292036AbSCDG6b>;
+	Mon, 4 Mar 2002 01:58:31 -0500
+Subject: SIS DRI module unresolved symbols
+From: "Nix N. Nix" <nix@go-nix.ca>
 To: linux-kernel@vger.kernel.org
-Subject: Gigabit Performance 2.4.19-preX - Excessive locks, calls, waits
-Message-ID: <20020304001223.A29448@vger.timpanogas.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 04 Mar 2002 01:57:35 -0500
+Message-Id: <1015225109.992.30.camel@tux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm trying to set up a friend of mine with a Linux box (RedHat 7.2 -
+XFree86 4.1.0). I'm running into problems getting the SIS DRI module to
+load into the kernel because sis_malloc and, I believe sis_free do not
+resolve.  I tried compiling it into the kernel, but the link at the end
+failed, for the same reasons. The details:
 
+<*> /dev/agpgart (AGP Support)                                       
+[*]   Intel 440LX/BX/GX and I815/I830M/I840/I850 support             
+[*]   Intel I810/I815/I830M (on-board) support                       
+[*]   VIA chipset support                                            
+[*]   AMD Irongate, 761, and 762 support                             
+[*]   Generic SiS support                                            
+[*]   ALI chipset support                                            
+[*]   Serverworks LE/HE support                                      
+[*] Direct Rendering Manager (XFree86 DRI support)                   
+[ ]   Build drivers for old (XFree 4.0) DRM                          
+--- DRM 4.1 drivers                                                  
+<M>   3dfx Banshee/Voodoo3+                                          
+<M>   ATI Rage 128                                                   
+<M>   ATI Radeon                                                     
+<M>   Intel I810                                                     
+<M>   Matrox g200/g400                                               
+<*>   SiS                                                            
 
-More bottlenecks located during SCI/Gigabit Ethernet testing
-and profiling.  Configuration is 2.4.19-pre2(3) running SCI 
-and Intel e1000 gigbit ethernet adapters.  In this scenario,
-the Gnet adapter is DMA'ing frames from a gigabit segment 
-directly into reflective memory mapped into an SCI adapter
-address space, then immediately triggering an outbound
-DMA of the data over an SCI clustering fabric into
-the memory of a remote node.  In essense a GNET to SCI 
-routing fabric.  
+This produces:
+... -o vmlinux
+drivers/char/drm/drm.o: In function `sis_fb_alloc':
+drivers/char/drm/drm.o(.text+0x6893): undefined reference to
+`sis_malloc'
+drivers/char/drm/drm.o(.text+0x68d6): undefined reference to `sis_free'
+drivers/char/drm/drm.o: In function `sis_fb_free':
+drivers/char/drm/drm.o(.text+0x69c8): undefined reference to `sis_free'
+drivers/char/drm/drm.o: In function `sis_final_context':
+drivers/char/drm/drm.o(.text+0x6e4e): undefined reference to `sis_free'
 
-Performance thoughput numbers are stable for the most part since
-we are at the maximum throughput with Intel's GNET adapters at 
-124 MB/S, however, processor utilization, locking, etc. is far more 
-excessive than necessary.   We are also spending too much time calling 
-kmalloc/kfree during skb contruct/destruct operations.  Also, 
-Intel's adapter by default has the ring buffer size in the driver 
-set to 256 packets, and our skb hot_list count we before discarding
-free skb header frames is too low for these GNET adapters (128),
-resulting in packet overruns intermittently.  
+Granted, he does have the one chipset not supported: 5591/5592. 
+Nonetheless, the kernel should still compile and link.  Anyway, here's
+his lspci output:
 
-Increasing these numbers and using a fixed frame size consistent with GNET
-(less 9K jumbo frames) instead of kmalloc'ing/kfree'ing the 
-skb->data portion of these frames all the time yields a decrease  
-in remote receipt latency and lower utilization and bus 
-utilization. 
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 21)
+00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev
+d0)
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
+00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
+10/100 Ethernet (rev 83)
+00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+00:01.4 Multimedia audio controller: Silicon Integrated Systems [SiS]
+SiS PCI Audio Accelerator (rev 02)
+00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS]
+SiS630 GUI Accelerator+3D (rev 21)
 
-Measured latency of packets coming off the SCI interface on the remote
-side of the clustering fabric is 3-4% higher between the two 
-test scenarios.
-
-The modifications made to skbuff.c are extensive and driver changes 
-were also required to get around these performance problems.  Data
-provided for review.  Recommend a minumum change of increasing 
-the sysctl_hot_list_len from 128 to 1024 by default.  I have reviewed 
-(and modified) the skbuff and all the copy stuff related to mapping
-fragment lists, etc. and this code is quite a mess.  
-
-NetWare always created ECB's (Event Control Blocks) at the max size
-of the network adpapter rather than trying to allocate fragment 
-elements on the fly the way is being done in Linux with skb's.  
-
-Bottom line is this stuff is impacting performance and IO bandwidth,
-and needs to be corrected.  Default hot_list size should be 
-increased by default.
-
-
-/usr/src/linux/net/core/skbuff.c
-
-//int sysctl_hot_list_len = 128;
-int sysctl_hot_list_len = 1024;  // bump this value up
-
-
-alloc_skb with calls to kmalloc/kfree 2.4.19-pre2 with code
-"as is".  Notice high call rate to kmalloc/kfree and corresponding
-higher utilization (@ 7%)
-
- 36324 total                                      0.0210
- 28044 default_idle                             584.2500
-  1117 __rdtsc_delay                             34.9062
-   927 eth_type_trans                             4.4567
-   733 skb_release_data                           5.0903
-   645 kmalloc                                    2.5195
-   638 kfree                                      3.9875
-   463 __make_request                             0.3180
-   415 __scsi_end_request                         1.3651
-   382 alloc_skb                                  0.8843
-   372 tw_interrupt                               0.3633
-   241 kfree_skbmem                               1.8828
-   233 scsi_dispatch_cmd                          0.4161
-   233 __generic_copy_to_user                     3.6406
-   194 __kfree_skb                                0.9327
-   184 scsi_request_fn                            0.2396
-   103 ip_rcv                                     0.1238
-    88 __wake_up                                  0.5000
-    84 do_anonymous_page                          0.4773
-    72 do_softirq                                 0.4091
-
-52 processes: 51 sleeping, 1 running, 0 zombie, 0 stopped
-CPU states:  0.0% user, 32.8% system,  0.0% nice, 67.1% idle
-Mem:   897904K av,  869248K used,   28656K free,       0K shrd,    3724K buff
-Swap: 1052216K av,       0K used, 1052216K free                   46596K cached
+The same thing happens with 2.4.17 .
 
 
 
-alloc_skb_frame with fixed 1514 + fragment list allocations, 
-sysctl_hot_list_len = 1024.  
-
- 34880 total                                      0.0202
- 28581 default_idle                             595.4375
-  1125 __rdtsc_delay                             35.1562
-  1094 eth_type_trans                             5.2596
-   657 skb_release_data                           4.5625
-   378 __make_request                             0.2596
-   335 alloc_skb_frame                            1.1020
-   334 tw_interrupt                               0.3262
-   293 __scsi_end_request                         0.9638
-   208 scsi_dispatch_cmd                          0.3714
-   193 __kfree_skb                                0.9279
-   184 scsi_request_fn                            0.2396
-   160 kfree_skbmem                               1.2500
-    90 __generic_copy_to_user                     1.4062
-    81 ip_rcv                                     0.0974
-    68 __wake_up                                  0.3864
-    59 do_anonymous_page                          0.3352
-    48 do_softirq                                 0.2727
-    43 generic_make_request                       0.1493
-    43 alloc_skb                                  0.0995
-
-50 processes: 49 sleeping, 1 running, 0 zombie, 0 stopped
-CPU states:  0.0% user, 27.5% system,  0.0% nice, 72.4% idle
-Mem:   897904K av,  841280K used,   56624K free,       0K shrd,    2220K buff
-Swap: 1052216K av,       0K used, 1052216K free                   22292K cached
-
-
-Jeff
-
+Thanks for your help.
 

@@ -1,67 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263574AbUGNUhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263725AbUGNUnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263574AbUGNUhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 16:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUGNUhY
+	id S263725AbUGNUnX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 16:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbUGNUnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 16:37:24 -0400
-Received: from gprs214-176.eurotel.cz ([160.218.214.176]:59264 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263574AbUGNUhW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 16:37:22 -0400
-Date: Wed, 14 Jul 2004 22:32:58 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: ext3: bump mount count on journal replay
-Message-ID: <20040714203258.GC25802@elf.ucw.cz>
-References: <20040714131525.GA1369@elf.ucw.cz> <20040714200554.GR23346@schnapps.adilger.int>
+	Wed, 14 Jul 2004 16:43:22 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39666 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263725AbUGNUnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 16:43:17 -0400
+Date: Wed, 14 Jul 2004 22:43:09 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dominik Karall <dominik.karall@gmx.net>, Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: [patch] 2.6.8-rc1-mm1: 8139too: uninline rtl8139_start_thread
+Message-ID: <20040714204309.GM7308@fs.tum.de>
+References: <20040713182559.7534e46d.akpm@osdl.org> <200407142229.20241.dominik.karall@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040714200554.GR23346@schnapps.adilger.int>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200407142229.20241.dominik.karall@gmx.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Currently, you get fsck "just to be sure" once every ~30 clean
-> > mounts or ~30 hard shutdowns. I believe that hard shutdown is way more
-> > likely to cause some disk corruption, so it would make sense to fsck
-> > more often when system is hit by hard shutdown.
-> > 
-> > What about this patch?
-> >
-> > @@ -1484,9 +1485,11 @@
-> >  	 * root first: it may be modified in the journal!
-> >  	 */
-> >  	if (!test_opt(sb, NOLOAD) &&
-> > -	    EXT3_HAS_COMPAT_FEATURE(sb, EXT3_FEATURE_COMPAT_HAS_JOURNAL)) {
-> > -		if (ext3_load_journal(sb, es))
-> > -			goto failed_mount2;
-> > +	    EXT3_HAS_COMPAT_FEATURE(sb, EXT3_FEATURE_COMPAT_HAS_JOURNAL)) { {
-> > +		    mount_cost = 5;
-> > +		    if (ext3_load_journal(sb, es))
-> > +			    goto failed_mount2;
-> > +	    }
+On Wed, Jul 14, 2004 at 10:29:18PM +0200, Dominik Karall wrote:
+> On Wednesday 14 July 2004 03:25, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc1/2.6
+> >.8-rc1-mm1/
 > 
-> AFAICS, this just means that if you have an ext3 filesystem
-> (i.e. has_journal) that you will fsck 5x as often, not so great.  You
-> should instead check for INCOMPAT_RECOVER instead of HAS_JOURNAL.
+>   CC [M]  drivers/net/8139too.o
+> drivers/net/8139too.c: In function `rtl8139_open':
+> drivers/net/8139too.c:616: nicht implementiert: >>inline<< beim Aufruf von 
+> >>rtl8139_start_thread<< gescheitert: function body not available
+> drivers/net/8139too.c:1362: nicht implementiert: von hier aufgerufen
+> make[3]: *** [drivers/net/8139too.o] Fehler 1
+> make[2]: *** [drivers/net] Fehler 2
+> make[1]: *** [drivers] Fehler 2
+> make[1]: Verlasse Verzeichnis »/usr/src/linux-2.6.6«
+> make: *** [stamp-build] Fehler 2
+> 
+> gcc 3.4
 
-Oops, you are right. Updated patch is attached.
+I should be fast at going through my gcc 3.4 TODO list...
 
-> Instead, you could change this to only increment the mount count after
-> a clean unmount 20% of the time (randomly).  Since most people bitch
-> about the full fsck anyways this is probably the better choice than
-> increasing the frequency of checks and forcing the users to change the
-> check interval to get the old behaviour.
+Fix below.
 
-Nice hack.... would that be acceptable?
-									Pavel
+> greets
+> dominik
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+uninline rtl8139_start_thread in drivers/net/8139too.c .
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.7-mm6-full-gcc3.4/drivers/net/8139too.c.old	2004-07-09 00:49:24.000000000 +0200
++++ linux-2.6.7-mm6-full-gcc3.4/drivers/net/8139too.c	2004-07-09 00:52:55.000000000 +0200
+@@ -613,7 +613,7 @@
+ static int mdio_read (struct net_device *dev, int phy_id, int location);
+ static void mdio_write (struct net_device *dev, int phy_id, int location,
+ 			int val);
+-static inline void rtl8139_start_thread(struct net_device *dev);
++static void rtl8139_start_thread(struct net_device *dev);
+ static void rtl8139_tx_timeout (struct net_device *dev);
+ static void rtl8139_init_ring (struct net_device *dev);
+ static int rtl8139_start_xmit (struct sk_buff *skb,
+@@ -1643,7 +1643,7 @@
+ 	complete_and_exit (&tp->thr_exited, 0);
+ }
+ 
+-static inline void rtl8139_start_thread(struct net_device *dev)
++static void rtl8139_start_thread(struct net_device *dev)
+ {
+ 	struct rtl8139_private *tp = dev->priv;
+ 

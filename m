@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129616AbRCCROS>; Sat, 3 Mar 2001 12:14:18 -0500
+	id <S129608AbRCCRH5>; Sat, 3 Mar 2001 12:07:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129613AbRCCROI>; Sat, 3 Mar 2001 12:14:08 -0500
-Received: from slamp.tomt.net ([195.139.204.145]:11238 "HELO slamp.tomt.net")
-	by vger.kernel.org with SMTP id <S129609AbRCCRNv>;
-	Sat, 3 Mar 2001 12:13:51 -0500
-From: "Andre Tomt" <andre@tomt.net>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.1 crashing every other day
-Date: Sat, 3 Mar 2001 18:14:02 +0100
-Message-ID: <OPECLOJPBIHLFIBNOMGBGECCDGAA.andre@tomt.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <OPECLOJPBIHLFIBNOMGBIEHEDBAA.andre@tomt.net>
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S129609AbRCCRHs>; Sat, 3 Mar 2001 12:07:48 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:41437 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S129608AbRCCRHp>; Sat, 3 Mar 2001 12:07:45 -0500
+Message-Id: <200103031758.f23HwMQ22642@513.holly-springs.nc.us>
+Subject: Re: VT82C586B USB PCI card, Linux USB
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010303125436.A803@suse.cz>
+In-Reply-To: <200103030503.f2353PQ21936@513.holly-springs.nc.us> 
+	<20010303125436.A803@suse.cz>
+Content-Type: text/plain
+X-Mailer: Evolution (0.8/+cvs.2001.02.14.08.55 - Preview Release)
+Date: 03 Mar 2001 13:08:48 -0500
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Looks like you were bitten by either the RAID 1 bugs or the
-> > elevator bugs.
-> > Try a 2.4.2-pre4 or an 2.4.1-ac18 kernel.  Should solve it.
->
-> Just installed 2.4.2pre4, seems to be stable for now (testing it
-> ATM, running dnetc, several kernel compiles etc.). On 2.4.1 even
-> su segfault'd if the server were loaded. But, the problems have
-> never appeared before after one or two days uptime, so we'll just
-> have to see what happens later on.
->
-> As the BIOS settings are the same on both servers, and the CPU
-> temperature peaked at +43.5C on the crashing server, I might just
-> think it's a software bug. Well, time will tell :-)
->
-> Thanks for the input
+On 03 Mar 2001 12:54:36 +0100, Vojtech Pavlik wrote:
+> No, they have a separate USB chip, but it has the same PCI ID as the
+> builtin silicon in the southbridge.
 
-PS: I'm replying to my own message.
 
-We have solved this problem, it was a CPU fault. It gave all sort of strange
-behaviour, like failing pop3 auth, random crashes, files just getting lost
-etc. After changing the motherboard and CPU for new ones, this server has
-been running flawlessly ever since on 2.4.2-pre4.
-
-Now all I need is some OpenWall'ish patch for 2.4.x that works ;)
-
-Great work guys :-)
-
---
-Regards,
-Andre Tomt
+Ah. I went and looked up that chip ID at via's website, and saw only
+southbridge chips, no USB-only chips at all. But, my real question was,
+is there a way to get it to work right under Linux? I have two machines;
+one is an Athlon with built-in (Via) USB support, and it seems to work
+ok. I also have a P-200 that's my print server, file server and
+(hopefully) scanner server. It is an old HX-chipset pre-USB socket-7
+intel machine, but I've put a Via-chipset 2-port USB card into it. I
+keep getting timeouts on it. I've looked all over the net for clues as
+to what I can do to get it to work, and nothing has. Both uhci and
+usb-uhci have the same problems. Is there a generic cause for timeout
+problems when doing bulk transfers?
 

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264190AbTCXNDY>; Mon, 24 Mar 2003 08:03:24 -0500
+	id <S264376AbTCXNQ3>; Mon, 24 Mar 2003 08:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264191AbTCXNDX>; Mon, 24 Mar 2003 08:03:23 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:19840 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S264190AbTCXNDU>; Mon, 24 Mar 2003 08:03:20 -0500
-Date: Mon, 24 Mar 2003 22:13:31 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2.5.65-ac4] Complete support for PC-9800 sub-arch (8/9) PCMCIA
-Message-ID: <20030324131331.GH2508@yuzuki.cinet.co.jp>
-References: <20030324130025.GA2465@yuzuki.cinet.co.jp>
+	id <S264378AbTCXNQ3>; Mon, 24 Mar 2003 08:16:29 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:16804 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S264376AbTCXNQ2>;
+	Mon, 24 Mar 2003 08:16:28 -0500
+Subject: Re: An oops while running 2.5.65-mm2
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: J Sloan <joe@tmsusa.com>
+Cc: linux-kernel@vger.kernel.org,
+       Netfilter-devel <netfilter-devel@lists.netfilter.org>
+In-Reply-To: <3E7E8CD7.3060507@tmsusa.com>
+References: <3E7A1ABF.7050402@tmsusa.com>
+	 <20030320122931.0d2f208f.akpm@digeo.com>
+	 <1048209554.1103.21.camel@tux.rsn.bth.se>  <3E7E8CD7.3060507@tmsusa.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048512453.14720.3.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030324130025.GA2465@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 24 Mar 2003 14:27:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.65-ac4. (8/9)
+On Mon, 2003-03-24 at 05:43, J Sloan wrote:
 
-Small change for PCMCIA (16bits) support.
-For fix usable IRQ number.
+> I've been running 2.5.65-kb2 + your patch
+> for the past 2 days and everything is fully
+> functional, with no repeat of the problems
+> we saw before.
 
-Regards,
-Osamu Tomita
+Great, glad it seems to work. If you see anything like that again,
+please let me know.
 
-diff -Nru linux-2.5.62-ac1/drivers/pcmcia/i82365.c linux98-2.5.62-ac1/drivers/pcmcia/i82365.c
---- linux-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-18 07:56:55.000000000 +0900
-+++ linux98-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-21 11:14:30.000000000 +0900
-@@ -188,7 +188,11 @@
- };
- 
- /* Default ISA interrupt mask */
-+#ifndef CONFIG_X86_PC9800
- #define I365_MASK	0xdeb8	/* irq 15,14,12,11,10,9,7,5,4,3 */
-+#else
-+#define I365_MASK	0xd668	/* irq 15,14,12,10,9,6,5,3 */
-+#endif
- 
- #ifdef CONFIG_ISA
- static int grab_irq;
+> Nice work.
+
+Thanks, Andrew's notes realy helped.
+
+-- 
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.

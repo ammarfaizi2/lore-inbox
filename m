@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUIPNrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268060AbUIPNsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268080AbUIPNrO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 09:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUIPNrN
+	id S268060AbUIPNsq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 09:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268064AbUIPNsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 09:47:13 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:4093 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268095AbUIPNq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 09:46:26 -0400
-Subject: Re: get_current is __pure__, maybe __const__ even
-From: Albert Cahalan <albert@users.sf.net>
-To: Andi Kleen <ak@muc.de>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <m3llfaya29.fsf@averell.firstfloor.org>
-References: <2ER4z-46B-17@gated-at.bofh.it>
-	 <m3llfaya29.fsf@averell.firstfloor.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095342181.3866.1316.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 16 Sep 2004 09:43:01 -0400
+	Thu, 16 Sep 2004 09:48:46 -0400
+Received: from host62-24-231-115.dsl.vispa.com ([62.24.231.115]:3200 "EHLO
+	orac.walrond.org") by vger.kernel.org with ESMTP id S268060AbUIPNsk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 09:48:40 -0400
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: lost memory on a 4GB amd64
+Date: Thu, 16 Sep 2004 14:48:38 +0100
+User-Agent: KMail/1.7
+Cc: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
+References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
+In-Reply-To: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409161448.39033.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-16 at 02:58, Andi Kleen wrote:
-> Albert Cahalan <albert@users.sf.net> writes:
-> 
-> > Andi Kleen writes:
-> >
-> >> Please CSE "current" manually. It generates
-> >> much better code on some architectures
-> >> because the compiler cannot do it for you.
-> >
-> > This looks fixable.
-> 
-> I tried it some years ago, but I ran into problems with the scheduler
-> and some other code and dropped it.
+On Thursday 16 Sep 2004 05:48, Sergei Haller wrote:
+> Hello,
+>
+> A friend of mine has a new Opteron based machine (Tyan Tiger K8W with two
+> Opteron 24?) and 4GB main memory.
 
-Since then, have you changed:
+Typo? Tyan Thunder?
 
-a. the minimum required compiler version?
-b. the clobbers on your switch_to asm?
+>
+> the problem is that about 512 MB of that memory is lost (AGP aperture and
+> stuff). Although everything is perfect otherwise.
+> As far as I understand, all the PCI/AGP hardware uses the top end of the
+> 4GB address range to access their memory and there is just an
+> "overlapping" of the addresses. thus only the remaining 3.5 GB are
+> available.
+>
+>
+> Now there is an option in the BIOS called "Adjust Memory" which puts a
+> certain amount of memory (several choices between 64MB and 2GB) above the
+> 4GB address range. I tried the 2GB setting which results in 2GB main
+> memory at addresses 0-2GB and 2GB memory at addresses 4GB-6GB.
+>
 
-If not, maybe you should.
+Ok;
 
-> One problem is that gcc doesn't have a "drop all const/pure
-> cache values" barrier. Without this I don't think it can be 
-> safely implemented.
+Assuming bios version 2.02. (upgrade if you haven't already);
 
-That's only if gcc can find some place to
-hide state which will contaminate another task.
-Where could that be? Remember, arm works.
+The option you mention should be set to 'Auto'
 
-Also, glibc works, with per-thread errno:
+Chipset->Northbridge->Memory Configuration->Adjust Memory = Auto
 
-/* Function to get address of global `errno' variable.  */
-extern int *__errno_location (void) __THROW __attribute__ ((__const__));
+but set
 
-/* Function to get address of global `h_errno' variable.  */
-extern int *__h_errno_location (void) __THROW __attribute__ ((__const__));
+Advanced->Cpu Configuration->MTRR Mapping = Continuous
 
+That fixed it for me if I remember correctly :)
 
+Andrew Walrond

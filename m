@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbUKHHeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbUKHHh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbUKHHeh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 02:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUKHHef
+	id S261764AbUKHHh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 02:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbUKHHh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 02:34:35 -0500
-Received: from mail.convergence.de ([212.227.36.84]:47581 "EHLO
-	email.convergence2.de") by vger.kernel.org with ESMTP
-	id S261768AbUKHHeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 02:34:19 -0500
-Message-ID: <418F2151.6030800@linuxtv.org>
-Date: Mon, 08 Nov 2004 08:33:37 +0100
-From: Michael Hunold <hunold@linuxtv.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Mon, 8 Nov 2004 02:37:56 -0500
+Received: from linaeum.absolutedigital.net ([63.87.232.45]:61870 "EHLO
+	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S261764AbUKHHhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 02:37:39 -0500
+Date: Mon, 8 Nov 2004 02:37:34 -0500 (EST)
+From: Cal Peake <cp@absolutedigital.net>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kernel SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: [PATCH] Documentation/kernel-parameters.txt: scsi param updates
+ [RESEND]
+Message-ID: <Pine.LNX.4.61.0411062327150.31630@linaeum.absolutedigital.net>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: Re: [linux-dvb-maintainer] [2.6 patch] some DVB cleanups
-References: <20041107121047.GE14308@stusta.de>
-In-Reply-To: <20041107121047.GE14308@stusta.de>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On 07.11.2004 13:10, Adrian Bunk wrote:
-> The patch below does some cleanuos under drivers/media/dvb/ .
-> Most of them are:
-> - make needlessly global code static
-> - remove unused code
+This patch updates Documentation/kernel-parameters.txt with the proper 
+SCSI LUNs params and adds a description for 'max_luns'.
 
-Thanks for your work!
+thanks,
 
-> Most interesting might the the changes to bt878.c:
-> Why did you export the init/exit functions of this module?
+-- Cal
 
-I don't know. Before Gerd Knorr stepped in an helped to integrate the 
-bt8xx based driver into bttv there were several approaches to have these 
-driver co-exist with bttv. I think these are remains of such an 
-approach. Don't worry. 8-)
+Signed-off-by: Cal Peake <cp@absolutedigital.net>
 
-> Please review and comment on this patch.
-
-I integrated it into the LinuxTV.org CVS repository. These changes will 
-go into mainline with my next patchset.
-
-CU
-Michael.
+--- linux-2.6.10-rc1-bk16/Documentation/kernel-parameters.txt	2004-11-06 23:11:03.000000000 -0500
++++ linux-2.6.10-rc1-bk16-1/Documentation/kernel-parameters.txt	2004-11-06 23:21:07.000000000 -0500
+@@ -652,9 +652,10 @@
+ 	maxcpus=	[SMP] Maximum number of processors that	an SMP kernel
+ 			should make use of
+ 
+-	max_scsi_luns=	[SCSI]
++	max_luns=	[SCSI] Maximum number of LUNs to probe
++			Should be between 1 and 2^32-1.
+ 
+-	max_scsi_report_luns=
++	max_report_luns=
+ 			[SCSI] Maximum number of LUNs received
+ 			Should be between 1 and 16384.
+ 

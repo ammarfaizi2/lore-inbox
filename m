@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262759AbVDAPmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVDAPxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262759AbVDAPmz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbVDAPmz
+	id S261785AbVDAPxg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 10:53:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbVDAPxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:42:55 -0500
-Received: from phoenix.infradead.org ([81.187.226.98]:27147 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262759AbVDAPmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:42:11 -0500
-Date: Fri, 1 Apr 2005 16:41:44 +0100 (BST)
-From: "Artem B. Bityuckiy" <dedekind@infradead.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org
-Subject: Re: [RFC] CryptoAPI & Compression
-In-Reply-To: <20050401152325.GB4150@gondor.apana.org.au>
-Message-ID: <Pine.LNX.4.58.0504011640340.9305@phoenix.infradead.org>
-References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au>
- <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org>
- <20050401152325.GB4150@gondor.apana.org.au>
+	Fri, 1 Apr 2005 10:53:36 -0500
+Received: from smtp2.netcabo.pt ([212.113.174.29]:14275 "EHLO
+	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S261785AbVDAPxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 10:53:34 -0500
+Message-ID: <46028.195.245.190.93.1112370726.squirrel@www.rncbc.org>
+In-Reply-To: <20050401150620.GA6618@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
+    <20050401104724.GA31971@elte.hu>
+    <55598.195.245.190.93.1112357613.squirrel@www.rncbc.org>
+    <20050401125219.GA2560@elte.hu>
+    <8294.195.245.190.93.1112366538.squirrel@www.rncbc.org>
+    <20050401150620.GA6618@elte.hu>
+Date: Fri, 1 Apr 2005 16:52:06 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       "Steven Rostedt" <rostedt@goodmis.org>
+User-Agent: SquirrelMail/1.4.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dedekind@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 01 Apr 2005 15:53:33.0469 (UTC) FILETIME=[F5328CD0:01C536D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I thought stored blocks (incompressible blocks) were limited to 64K
-> in size, no?
-Blocks are limited in size by 64K, true. But why it matters for us? 
+> * Rui Nuno Capela wrote:
+>
+>> > thx - i've uploaded -43-01 which should fix this.
+>> >
+>>
+>> Now it's dying-on-the-beach:
+>
+>> needs unknown symbol __compat_down_failed_interruptible
+>
+> ok - does -43-02 work any better?
+>
 
-Suppose we compress 1 GiB of input, and have a 70K output buffer. We 
-reserve 5 bytes at the end and start calling zlib_deflate(stream, 
-Z_SYNCK_FLUSH) recurrently. It puts one 64K block, puts its end marker, 
-then puts a part of a second block. Then we call zlib_deflate(strem, 
-Z_FINISH) and it puts the end marker of the second block and the adler32 
-checksum of the entire stream. So I don't see any problem albeit I didn't 
-try yet :-) But I'll do.
+Nope. Same error output as last report.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 
-> Please double check zlib_deflate/deflate.c and
-> zlib_deflate/deftree.c.
-Surely I'll check. I'll even test the new implementation (which I didn't 
-actually do) with a large input before sending it next time.
-
---
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.

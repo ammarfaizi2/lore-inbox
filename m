@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269503AbRHCRUw>; Fri, 3 Aug 2001 13:20:52 -0400
+	id <S269491AbRHCRXC>; Fri, 3 Aug 2001 13:23:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269495AbRHCRUm>; Fri, 3 Aug 2001 13:20:42 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61454 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269505AbRHCRUd>; Fri, 3 Aug 2001 13:20:33 -0400
-Subject: Re: Fw: PATCH: creating devices for multiple sound cards
-To: bpringle@sympatico.ca (Bill Pringlemeir)
-Date: Fri, 3 Aug 2001 18:22:17 +0100 (BST)
-Cc: zab@zabbo.net (Zach Brown), rankincj@yahoo.com (Chris Rankin),
-        linux-kernel@vger.kernel.org, nerijus@users.sourceforge.net
-In-Reply-To: <m2y9p1nk5a.fsf@sympatico.ca> from "Bill Pringlemeir" at Aug 03, 2001 01:11:29 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S269505AbRHCRWx>; Fri, 3 Aug 2001 13:22:53 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:57357 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S269482AbRHCRWe>;
+	Fri, 3 Aug 2001 13:22:34 -0400
+Message-Id: <200108022231.CAA00375@mops.inr.ac.ru>
+Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
+To: samudrala@us.ibm.com (Sridhar Samudrala)
+Date: Fri, 3 Aug 2001 02:31:51 +0400 (MSD)
+Cc: kuznet@ms2.inr.ac.ru, thiemo@sics.se, dmfreim@us.ibm.com, hadi@cybeus.ca,
+        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        diffserv-general@lists.sourceforge.net, rusty@rustcorp.com.au
+In-Reply-To: <Pine.LNX.4.21.0108020956320.25553-100000@w-sridhar2.des.sequent.com> from "Sridhar Samudrala" at Aug 2, 1 10:17:11 am
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15SieP-0003bz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If ALSA will replace OSS, then does it make it somewhat futile to add
-> things to the current set of sound drivers?  I was going to look at
-> the SBLive driver.  I have been side tracked by an xterm bug; it seems
-> to have bad handling of utmp on Linux.
+Hello!
 
-Most folks I know are using utmpter for that - it avoids xterm being setuid
-setgid or anything else that you really dont want to make it.
+> This looks like an elegant way of prioritizing without penalizing low priority
+> connections in the absence of high priority ones.
+> There may be an issue with sockets in accept queue which have received data.
+> Is it OK to move a socket which has already received some data back to SYN-RECV 
+> state and expect the data to be resent?
 
-As to the sblive - well its probably 2 years away from 2.6 and much of the 
-work is being shared - the same bugs turn up in both ALSA and OSS quite
-often and several OSS drivers are based off ALSA ones
+No, if you ACKed it. 500msec is maximum... Not so big number.
+
+But inside 500msec there are no problems with HTTP, where this ACK is
+better to maximally delay to piggyback to reply in any case.
+
+Alexey
+

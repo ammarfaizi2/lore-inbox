@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318026AbSHHWWO>; Thu, 8 Aug 2002 18:22:14 -0400
+	id <S318067AbSHHWV1>; Thu, 8 Aug 2002 18:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318071AbSHHWWN>; Thu, 8 Aug 2002 18:22:13 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:31476 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318026AbSHHWWM>; Thu, 8 Aug 2002 18:22:12 -0400
-Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc,
-	mips, m68k, sh, cris to use it
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1028844681.1669.80.camel@ldb>
-References: <Pine.LNX.4.44.0208082357170.8911-100000@serv> 
-	<1028844681.1669.80.camel@ldb>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 09 Aug 2002 00:45:50 +0100
-Message-Id: <1028850350.28882.121.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318071AbSHHWV1>; Thu, 8 Aug 2002 18:21:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18703 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318067AbSHHWV0>; Thu, 8 Aug 2002 18:21:26 -0400
+Date: Thu, 8 Aug 2002 15:26:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Hubertus Franke <frankeh@us.ibm.com>
+cc: Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
+       Andrew Morton <akpm@zip.com.au>, <andrea@suse.de>, <davej@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>, Paul Larson <plars@austin.ibm.com>
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
+In-Reply-To: <Pine.LNX.4.44.0208081500550.9114-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208081519010.1661236-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-08 at 23:11, Luca Barbieri wrote:
-> - Had inline assembly for things the compiler should be able to generate
-> on its own
 
-The compiler is free to generate them several other ways
+On Thu, 8 Aug 2002, Linus Torvalds wrote:
+> 
+> So let's just try Andries approach, suggested patch as follows..
 
-> - Didn't work on SMP (irrelevant in practice, but we already need that
-> in asm-generic/atomic.h for parisc so m68k gets it for free)
+"ps" seems to do ok from a visual standpoint at least up to 99 million. 
+Maybe it won't look that good after that, I'm too lazy to test.
 
-Doesn't matter
+The following trivial program is useful for efficiently allocating pid
+numbers without blowing chunks on the VM subsystem and spending all the
+time on page table updates - for people who want to test (look out: I've
+got dual 2.4GHz CPU's with HT, so getting up to 10+ million was easy, your
+milage may wary and at some point you should just compile a kernel that
+starts higher ;).
 
-> The actual assembly generated should be the same and the header is
-> shorter.
+		Linus
 
-Possibly not - volatile doesnt guarantee the compiler won't do
+---
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 
-	x = 1
-	add *p into x
-	store x into *p
-
-
-The general idea looks fine, but you can't drop asm stuff for volatile C
-and be sure you will get away with it. On M68K it works because the
-instructions it forces are those guaranteed to be indivisible relative
-to an interrupt. You lose that assumption.
-
+int main()
+{
+        int i;
+        for (i = 1; i < 250000; i++) {
+                if (!vfork())
+                        exit(1);
+                if (waitpid(-1, NULL, WNOHANG) < 0)
+                        perror("waitpid");
+        }
+        return 0;
+}
 
 

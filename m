@@ -1,56 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267699AbTBUVEb>; Fri, 21 Feb 2003 16:04:31 -0500
+	id <S267679AbTBUVOn>; Fri, 21 Feb 2003 16:14:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267701AbTBUVEb>; Fri, 21 Feb 2003 16:04:31 -0500
-Received: from packet.digeo.com ([12.110.80.53]:61166 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267699AbTBUVE2>;
-	Fri, 21 Feb 2003 16:04:28 -0500
-Date: Fri, 21 Feb 2003 13:11:58 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: iosched: impact of streaming read on read-many-files
-Message-Id: <20030221131158.180125d7.akpm@digeo.com>
-In-Reply-To: <20030221104028.GO31480@x30.school.suse.de>
-References: <20030220212304.4712fee9.akpm@digeo.com>
-	<20030220212758.5064927f.akpm@digeo.com>
-	<20030221104028.GO31480@x30.school.suse.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S267710AbTBUVOn>; Fri, 21 Feb 2003 16:14:43 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:10760 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S267679AbTBUVOl>; Fri, 21 Feb 2003 16:14:41 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302212125.h1LLPgxE001759@81-2-122-30.bradfords.org.uk>
+Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
+To: warp@mercury.d2dc.net (Zephaniah E\. Hull)
+Date: Fri, 21 Feb 2003 21:25:42 +0000 (GMT)
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <20030221205333.GA1684@babylon.d2dc.net> from "Zephaniah E\. Hull" at Feb 21, 2003 03:53:33 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Feb 2003 21:14:29.0615 (UTC) FILETIME=[38ADBFF0:01C2D9EE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> CFQ is made for multimedia desktop usage only, you want to be sure
-> mplayer or xmms will never skip frames, not for parallel cp reading
-> floods of data at max speed like a database with zillon of threads. For
-> multimedia not to skip frames 1M/sec is  more than enough bandwidth,
-> doesn't matter if the huge database in background runs much slower as
-> far as you never skip a frame.
+> 
+> 
+> --W/nzBZO5zC0uMSeA
+> Content-Type: text/plain; charset=us-ascii
+> Content-Disposition: inline
+> Content-Transfer-Encoding: quoted-printable
+> 
+> </lurk>
+> 
+> On Fri, Feb 21, 2003 at 08:40:45PM +0000, John Bradford wrote:
+> > > RFC3168 section 6.1.1.1 says this:
+> > >=20
+> > >    A host that receives no reply to an ECN-setup SYN within the normal
+> > >    SYN retransmission timeout interval MAY resend the SYN and any
+> > >    subsequent SYN retransmissions with CWR and ECE cleared.  To overcome
+> > >    normal packet loss that results in the original SYN being lost, the
+> > >    originating host may retransmit one or more ECN-setup SYN packets
+> > >    before giving up and retransmitting the SYN with the CWR and ECE bits
+> > >    cleared.
+> > >=20
+> > > Supporting this would make using ECN a lot less painful - currently, if
+> > > I want to use ECN by default, I get to turn it off anytime I find an
+> > > ECN-hostile site that I'd like to communicate with.
+> >=20
+> > Linux shouldn't encourage the use of equipment that violates RFCs, in
+> > this case, RFC 739.
+> 
+> Linux shouldn't encourage the use of equipment that attempts to emulate
+> <insert thing here> but screws it up.
+> >=20
+> > The correct way to deal with it, is to contact the maintainers of the
+> > site, and ask them to fix the non conforming equipment.
+> 
+> The correct way to deal with it, is to contact the manufactures of the
+> equipment.
+> >=20
+> > If the problem is caused upstream, by equipment out of the
+> > site's maintainers' control, it is their responsibility to contact the
+> > relevant maintainers, or change their upstream provider.
+> 
+> If the hardware is provided by people upstream, and is out of the
+> control of the sysadmin's control, it is their responsibility to contact
+> the relevant people, or change hardware providers.
+> 
+> Oh, look, does that mean that we can now remove all the work arounds in
+> the various network, ide, etc drivers?
 
-These applications are broken.  The kernel shouldn't be bending over
-backwards trying to fix them up.  Because this will never ever work as well
-as fixing the applications.
+No, I'm suggesting that at all.
 
-The correct way to design such an application is to use an RT thread to
-perform the display/audio device I/O and a non-RT thread to perform the disk
-I/O.  The disk IO thread keeps the shared 8 megabyte buffer full.  The RT
-thread mlocks that buffer.
+> No, I believe Linus has stated many times that Linux is not a research
+> project, it is meant to actually be USED.
 
-The deadline scheduler will handle that OK.  The anticipatory scheduler
-(which is also deadline) will handle it better.
+As far as I can see, though, implementing this gains less than we
+stand to loose.
 
+What if the first SYN packet, or the response to it is lost, (which is
+more possible on congested links, which is when ECN would be most
+useful), and we disable ECN - then we loose out on functionality we
+could have, and the work around is actually detremental to
+performance.  Once 99% of internet hosts support ECN, we could be
+loosing more than we gain.
 
+If a site is unreachable, ECN can be disabled, and the RFC violating
+equipment is easily identified.  Automatically disabling ECN just
+hides the problem from the user, who might then not be benefiting from
+ECN, and will quite possibly accept the degraded performance as
+normal.
 
-If an RT thread performs disk I/O it is bust, and we should not try to fix
-it.  The only place where VFS/VM/block needs to care for RT tasks is in the
-page allocator.  Because even well-designed RT tasks need to allocate pages.
-
-The 2.4 page allocator has a tendency to cause 5-10 second stalls for a
-single page allocation when the system is under writeout load.  That is fixed
-in 2.5, but special-casing RT tasks in the allocator would make sense.
+John.

@@ -1,94 +1,140 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQLEXcf>; Tue, 5 Dec 2000 18:32:35 -0500
+	id <S129257AbQLEXff>; Tue, 5 Dec 2000 18:35:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129257AbQLEXcZ>; Tue, 5 Dec 2000 18:32:25 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:58384 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129210AbQLEXcL>;
-	Tue, 5 Dec 2000 18:32:11 -0500
-Date: Wed, 6 Dec 2000 00:01:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Russell Cattelan <cattelan@thebarn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] livelock in elevator scheduling
-Message-ID: <20001206000108.F747@suse.de>
-In-Reply-To: <200011210838.RAA27382@asami.proc.flab.fujitsu.co.jp> <20001121112836.B10007@suse.de> <200011211130.UAA27961@asami.proc.flab.fujitsu.co.jp> <20001121123608.F10007@suse.de> <3A2840AB.EE085CAA@thebarn.com> <20001202164234.B31217@suse.de> <3A2C472B.DBEA9E9@thebarn.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bg08WKrSYDhXBjb5"
-Content-Disposition: inline
-In-Reply-To: <3A2C472B.DBEA9E9@thebarn.com>; from cattelan@thebarn.com on Mon, Dec 04, 2000 at 07:38:52PM -0600
+	id <S129183AbQLEXfZ>; Tue, 5 Dec 2000 18:35:25 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:9478 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129348AbQLEXfJ>; Tue, 5 Dec 2000 18:35:09 -0500
+Date: Tue, 5 Dec 2000 15:04:24 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>,
+        "Adam J. Richter" <adam@yggdrasil.com>, Martin Mares <mj@suse.cz>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PCI irq routing..
+In-Reply-To: <Pine.LNX.4.30.0012052110590.968-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.10.10012051442100.7318-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Ok, I now have two confirmations from independent people (Adam Richter
+and Kai Germaschewski) who have completely different hardware, but have
+the same problem: irq routing seems to not work for them.
 
-On Mon, Dec 04 2000, Russell Cattelan wrote:
-> I'm going to take a closer look at the scsi_back_merge_fn.
-> This may  have more to due with our/Chait's kiobuf modifications than
-> anything else.
-> 
-> 
-> 
-> XFS (dev: 8/20) mounting with KIOBUFIO
-> Start mounting filesystem: sd(8,20)
-> Ending clean XFS mount for filesystem: sd(8,20)
-> kmem_alloc doing a vmalloc 262144 size & PAGE_SIZE 0 rval=0xe0a10000
-> Unable to handle kernel NULL pointer dereference at virtual address
-> 00000008
->  printing eip:
-> c019f8b5
-> *pde = 00000000
-> 
-> Entering kdb (current=0xc1910000, pid 5) on processor 1 Panic: Oops
-> due to panic @ 0xc019f8b5
-> eax = 0x00000002 ebx = 0x00000001 ecx = 0x00081478 edx = 0x00000000
-> esi = 0xc1957da0 edi = 0xc1923ac8 esp = 0xc1911e94 eip = 0xc019f8b5
-> ebp = 0xc1911e9c xss = 0x00000018 xcs = 0x00000010 eflags = 0x00010046
-> xds = 0x00000018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xc1911e60
-> [1]kdb> bt
->     EBP       EIP         Function(args)
-> 0xc1911e9c 0x00000000c019f8b5 scsi_back_merge_fn_c+0x15 (0xc1923a98,
-> 0xc1957da0, 0xcfb05780, 0x80)
->                                kernel .text 0xc0100000 0xc019f8a0
+In both cases it is because the PCI device config space already has an
+entry for the interrupt, but the interrupt is apparently not actually
+routed on the irq router.
 
-Ah, I see what it is now. The elevator is attempting to merge a buffer
-head into a kio based request, poof. The attached diff should take
-care of that in your tree.
+WHY this happens is unclear, but it could be several reasons:
+ - undocumented "Plug'n'Play OS true behaviour"
+ - BIOS bugs. 'nuff said.
+ - warm-booting from an OS that _does_ set the interrupt routing,
+   and also sets the PCI config space thing
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+The problem can be fairly easily fixed by just removing the test for
+whether "pci->dev" has already got set. This, btw, is important for
+another reason too - there is nothing that says that a sleep event
+wouldn't turn off the irq routing, so we _have_ to have some way of
+forcing the interrupt routing to take effect even if we already think we
+have the correct irq.
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=xfs-elv-1
+However, Martin is certainly also right in claiming that there might be
+bugs the "other" way, and just completely dismissing the irq we already
+are claimed to have would be bad.
 
---- drivers/block/elevator.c~	Tue Dec  5 23:59:01 2000
-+++ drivers/block/elevator.c	Tue Dec  5 23:59:41 2000
-@@ -39,6 +39,9 @@
- 	while ((entry = entry->prev) != head) {
- 		struct request *__rq = blkdev_entry_to_request(entry);
+This is my current suggested patch for the problem.
+
+Adam, Kai, can you verify that it fixes the issues on your systems?
+
+Anybody else who has had problems with PCI interrupt routing (tends to be
+"new" devices like CardBus, ACPI, USB etc), can you verify that this
+either fixes things or at least doesn't break a setup that had started
+working earlier..
+
+Martin, what do you think? We definitely need something like this, but
+maybe we could add a few more sanity-tests?
+
+			Linus
+
+----
+--- v2.4.0-test11/linux/arch/i386/kernel/pci-irq.c	Sun Nov 19 18:44:03 2000
++++ linux/arch/i386/kernel/pci-irq.c	Tue Dec  5 14:38:13 2000
+@@ -405,9 +424,12 @@
+ 	DBG(" -> PIRQ %02x, mask %04x, excl %04x", pirq, mask, pirq_table->exclusive_irqs);
+ 	mask &= pcibios_irq_mask;
  
-+		if (req->kiobuf)
-+			continue;
-+
- 		/*
- 		 * simply "aging" of requests in queue
- 		 */
-@@ -105,6 +108,8 @@
- 	while ((entry = entry->prev) != head) {
- 		struct request *__rq = blkdev_entry_to_request(entry);
+-	/* Find the best IRQ to assign */
+-	newirq = 0;
+-	if (assign) {
++	/*
++	 * Find the best IRQ to assign: use the one
++	 * reported by the device if possible.
++	 */
++	newirq = dev->irq;
++	if (!newirq && assign) {
+ 		for (i = 0; i < 16; i++) {
+ 			if (!(mask & (1 << i)))
+ 				continue;
+@@ -417,16 +439,22 @@
+ 				newirq = i;
+ 			}
+ 		}
+-		DBG(" -> newirq=%d", newirq);
+ 	}
++	DBG(" -> newirq=%d", newirq);
  
-+		if (req->kiobuf)
-+			continue;
- 		if (__rq->cmd != rw)
- 			continue;
- 		if (__rq->rq_dev != bh->b_rdev)
+ 	/* Try to get current IRQ */
+ 	if (r->get && (irq = r->get(pirq_router_dev, d, pirq))) {
+ 		DBG(" -> got IRQ %d\n", irq);
+ 		msg = "Found";
++		/* We refuse to override the dev->irq information. Give a warning! */
++	    	if (dev->irq && dev->irq != irq) {
++	    		printk("IRQ routing conflict in pirq table! Try 'pci=autoirq'\n");
++	    		return 0;
++	    	}
+ 	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
+ 		DBG(" -> assigning IRQ %d", newirq);
+ 		if (r->set(pirq_router_dev, d, pirq, newirq)) {
++			eisa_set_level_irq(newirq);
+ 			DBG(" ... OK\n");
+ 			msg = "Assigned";
+ 			irq = newirq;
+@@ -556,19 +584,17 @@
+ 
+ void pcibios_enable_irq(struct pci_dev *dev)
+ {
+-	if (!dev->irq) {
+-		u8 pin;
+-		pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+-		if (pin && !pcibios_lookup_irq(dev, 1)) {
+-			char *msg;
+-			if (io_apic_assign_pci_irqs)
+-				msg = " Probably buggy MP table.";
+-			else if (pci_probe & PCI_BIOS_IRQ_SCAN)
+-				msg = "";
+-			else
+-				msg = " Please try using pci=biosirq.";
+-			printk(KERN_WARNING "PCI: No IRQ known for interrupt pin %c of device %s.%s\n",
+-			       'A' + pin - 1, dev->slot_name, msg);
+-		}
++	u8 pin;
++	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
++	if (pin && !pcibios_lookup_irq(dev, 1) && !dev->irq) {
++		char *msg;
++		if (io_apic_assign_pci_irqs)
++			msg = " Probably buggy MP table.";
++		else if (pci_probe & PCI_BIOS_IRQ_SCAN)
++			msg = "";
++		else
++			msg = " Please try using pci=biosirq.";
++		printk(KERN_WARNING "PCI: No IRQ known for interrupt pin %c of device %s.%s\n",
++		       'A' + pin - 1, dev->slot_name, msg);
+ 	}
+ }
 
---bg08WKrSYDhXBjb5--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

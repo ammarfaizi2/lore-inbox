@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263409AbTDMJ6O (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 05:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbTDMJ6O (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 05:58:14 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49668 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263409AbTDMJ6N (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 05:58:13 -0400
-Date: Sun, 13 Apr 2003 12:09:59 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: mikpe@csd.uu.se
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       trivial@rustcorp.com.au
-Subject: Re: APIC is not properly suspending in 2.5.67 on UP
-Message-ID: <20030413100959.GA880@atrey.karlin.mff.cuni.cz>
-References: <200304130044.h3D0i3lQ029020@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304130044.h3D0i3lQ029020@harpo.it.uu.se>
-User-Agent: Mutt/1.3.28i
+	id S263410AbTDMKLF (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 06:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTDMKLF (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 06:11:05 -0400
+Received: from 82-41-208-76.cable.ubr12.edin.blueyonder.co.uk ([82.41.208.76]:4224
+	"EHLO savagelandz.cjb.net") by vger.kernel.org with ESMTP
+	id S263410AbTDMKLE (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 06:11:04 -0400
+Message-ID: <36716.192.18.240.6.1050229446.squirrel@savagelandz.cjb.net>
+Date: Sun, 13 Apr 2003 11:24:06 +0100 (BST)
+Subject: PCI: Device 02:04.0 not available because of resource collisions
+From: <iain@savagelandz.cjb.net>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Kernel Developers,
 
-> >This is needed otherwise APIC thinks it is not active, does not
-> >suspend properly, and kills machine.
-> 
-> This can only happen with UP if the machine boots with local
-> APIC enabled and the BIOS announces an MP table.
-> 
-> If this is the case, then yes apic_pm_activate() needs to be done.
-> 
-> > Extra whitespace killed (looks
-> >ugly). Please apply,
-> 
-> I think some fixes are needed first:
-> - You're calling apic_pm_activate() from setup_local_APIC(), which
->   is before its definition. This will cause a compile warning, and
->   a linkage error if CONFIG_PM=n.
+I have been trying to get this Texas Instruments PCI1410 PC card Cardbus
+Controller to work in a l440gx+ based SMP system. However whenever pcmcia
+tries to start I get the following
 
-Okay, this needs to be fixed.
+* Starting pcmcia...
+cardmgr[5854]: no sockets found!
+ * cardmgr failed to start.  Make sure that you have PCMCIA
+ * modules built or support compiled into the kernel
 
-> - While calling apic_pm_activate() from setup_local_APIC() sort of
->   works in the UP case, it's wrong since setup_local_APIC() is called
->   for each CPU in SMP, and we must not run the suspend and resume
->   code if there is more than one CPU in the machine.
->   I don't have a good solution for this right now: I don't think
->   cpu_online_map is valid when init_lapi_devicefs() runs, and I
->   don't know how else to check the number of CPUs.
->   Changing the #ifdef CONFIG_PM block to be #if defined(CONFIG_PM)
->   && !defined(CONFIG_SMP) would fix UP kernels, but SMP kernels on
->   UP HW would lose PM. Adding "if (num_online_cpus() > 1) return;"
->   to the suspend & resume procedures is ugly but should work.
+A look in the system log reveals the following
 
-That's future work. As soon as I get SMP machine I'll do something
-about SMP. (Most probably hot unplugging all but one CPUs before
-suspend and hot plugging them all back after resume.) I'd ignore SMP
-problems in suspendresume for now: apm just refuses to do it on SMP,
-and acpi is broken in more than one way with regard to that.
+Linux Kernel Card Services 3.1.22
+  options:  [pci] [cardbus] [pm]
+PCI: Device 02:04.0 not available because of resource collisions
 
-							Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+This error occurs with both 2.5.66 and 2.5.67. I submitted this query to
+David Hinds on the PCMCIA forum and he suggested that I should bring this
+to you guys.
+
+I also recieved similar errors under 2.4.20. This kernel was patched with
+the xfs patches from SGI. Ihave tried this with both the in-kernel pcmcia
+and the drivers from the the pcmcia-cs package but the same is always
+recieved.
+
+What other information do you need? I'm afraid I'm not really a programmer
+and the insides of the kernel are a bit beyond me.
+
+Anyway any help would be greatly appreciated.
+
+Cheers
+
+iain
+
+
+

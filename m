@@ -1,73 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130236AbQJ2TMh>; Sun, 29 Oct 2000 14:12:37 -0500
+	id <S130339AbQJ2TOI>; Sun, 29 Oct 2000 14:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130339AbQJ2TM2>; Sun, 29 Oct 2000 14:12:28 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:39437 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130236AbQJ2TMT>; Sun, 29 Oct 2000 14:12:19 -0500
-Date: Sun, 29 Oct 2000 11:12:15 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Paul Mackerras <paulus@linuxcare.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: page->mapping == 0
-In-Reply-To: <Pine.GSO.4.21.0010291308260.27484-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10010291100030.18939-100000@penguin.transmeta.com>
+	id <S131606AbQJ2TN6>; Sun, 29 Oct 2000 14:13:58 -0500
+Received: from sigtrap.GUUG.DE ([134.95.80.189]:59750 "EHLO sigtrap.guug.de")
+	by vger.kernel.org with ESMTP id <S130339AbQJ2TNn>;
+	Sun, 29 Oct 2000 14:13:43 -0500
+Date: Sun, 29 Oct 2000 20:11:15 +0100 (CET)
+From: Winfried Truemper <winni@xpilot.org>
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test10pre5: still IDE lockups on HPT366 controller.
+In-Reply-To: <Pine.LNX.4.10.10010242047010.31835-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.21.0010291807580.3243-100000@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 29 Oct 2000, Alexander Viro wrote:
+On Tue, 24 Oct 2000, Mark Hahn wrote:
+
+> > APIC error on CPU1 00(02)       or 02(02)  or 00(08)  or 00(04)
 > 
-> One possible way is to access page->mapping _only_ under the page lock
-> and in cases when we call ->i_mapping->a_ops->foo check the ->mapping
-> before the method call.
+> BP6 bugs, not linux's, and especially not ide's fault.  you have to
+> do the usual BP6 voodoo: bios update, extra fans, big PS, higher voltage.
 
-I'm leaning towards this for a 2.4.x solution.
+On friday I bought a power supply with 431 watts, updated the BIOS to the
+latest versions, put a fan on the BX chip like described on www.bp6.com,
+screwed two high performance fans on the top of the non-overclocked
+celerons (what a waste :) ) and set the voltage to 2.1 volts (tested 2.0,
+too). No improvement in stability: after a few seconds bonnie crashes the
+machine when used on hde4 or hdg4. Today I replaced the cables to enforce
+UDMA 33 instead of UDMA 66 on hde and hdg. No problems so far. I can start
+20 parallel bonnie's on the disks without any errors. This is an
+acceptable fix for me, because the raid5-array would be limited by UDMA33
+on hda and hdc anyways.
 
-As far as I can tell, page->mapping is _already_ only accessed and
-modified with the page lock held. It's just that we don't test it for
-NULL, in case an earlier lock holder decided to clear it.
+Regarding the APIC messages... I see no rule when they occur. I believe
+they were gone when using the better power supply, but perhaps I just
+didn't tested long enough before I returned this expensive box... 
 
-(No, I didn't look through all the users, but at least conceptually it
-_should_ be true that we only look at "mapping" with the lock held: it's
-mainly used for pagein, and pageout, buth with the lock held for other
-reasons already. Certainly all the places where we have had bug-reports
-have been of this type).
 
-Making it policy that we have to re-test page->mapping after aquireing the
-page lock might be the simplest fix for 2.4.x. It still means that we
-might end up allowing people to have a "bad" page in the VM space due to
-the "test->insert" race condition, but it woul dmake that event pretty
-much a harmless bug (and thus move it to the "beauty wart - to be fixed
-later" category).
-
-And the places where we get the page lock and use page->mapping are not
-that many, I think. 
-
-(And notice how we actually _have_ this approach already in
-do_buffer_fdatasync(), for similar reasons - we use the "re-test the
-page->buffers" thing there. Of course, there we do it because the clearing
-of page->buffers is easier to see, and can happen as a result of memory
-pressure, and not just truncate()).
-
-So, for example, in __find_lock_page() we should re-test the mapping after
-we aquired the page lock. Which is fairly easy, just add something like
-
-	/* Race: did the mapping go away before we got the page lock? */
-	if (page && page->mapping != mapping) {
-		page_cache_release(page);
-		goto repeat;
-	}
-
-to the end of __find_lock_page(). Add similar logic to
-do_generic_file_read(), filemap_nopage() and filemap_sync_pte() and
-read_cache_page(), and you're pretty much done.
-
-		Linus
+Regards
+-Winfried
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

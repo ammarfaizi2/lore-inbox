@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264088AbRFKLiM>; Mon, 11 Jun 2001 07:38:12 -0400
+	id <S264090AbRFKLqC>; Mon, 11 Jun 2001 07:46:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264089AbRFKLiC>; Mon, 11 Jun 2001 07:38:02 -0400
-Received: from HSE-MTL-ppp72834.qc.sympatico.ca ([64.229.202.135]:8076 "HELO
-	oscar.casa.dyndns.org") by vger.kernel.org with SMTP
-	id <S264088AbRFKLht>; Mon, 11 Jun 2001 07:37:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Jonathan Morton <chromi@cyberspace.org>, Ed Tomlinson <tomlins@cam.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: what is using memory?
-Date: Mon, 11 Jun 2001 07:37:46 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-mm@kvack.org
-In-Reply-To: <l03130300b74a2f8d4db6@[192.168.239.105]>
-In-Reply-To: <l03130300b74a2f8d4db6@[192.168.239.105]>
+	id <S264091AbRFKLpn>; Mon, 11 Jun 2001 07:45:43 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:61875 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S264090AbRFKLpd>; Mon, 11 Jun 2001 07:45:33 -0400
+Message-ID: <3B24AF66.3010602@AnteFacto.com>
+Date: Mon, 11 Jun 2001 12:45:42 +0100
+From: Padraig Brady <Padraig@AnteFacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; rv:0.9.1) Gecko/20010607
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Message-Id: <01061107374601.06951@oscar>
-Content-Transfer-Encoding: 7BIT
+To: Pavel Machek <pavel@suse.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>, jffs-dev@axis.com
+Subject: Re: jffs on non-MTD device?
+In-Reply-To: <20010525005253.A16005@bug.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 June 2001 04:20, Jonathan Morton wrote:
-> >My box has
-> >
-> >320280K
-> >
-> >from proc/meminfo
-> >
-> > 17140	buffer
-> >123696	cache
-> > 32303	free
-> >
-> >leaving unaccounted
-> >
-> >123627K
+Some (most?) CF disks have hareware wareleveling.
+I use ext2 with e2compr patch.
+
+Padraig.
+
+Pavel Machek wrote:
+
+>Hi!
 >
-> This is your processes' memory, the inode and dentry caches, and possibly
-> some extra kernel memory which may be allocated after boot time.  It is
-> *very* much accounted for.
+>I'm trying to run jffs on my ATA-flash disk (running ext2 could kill
+>some flash cells too soon, right?) but it refuses:
+>
+>        if (MAJOR(dev) != MTD_BLOCK_MAJOR) {
+>                printk(KERN_WARNING "JFFS: Trying to mount a "
+>                       "non-mtd device.\n");
+>                return 0;
+>        }
+>
+>What are reasons for this check?
+>
+>								Pavel
+>
 
-No its not.  For instance the slab caches encompass the inode and dentry
-caches.  Point I was/am tring to make is not that this memory is lost or
-not need, but that is it _not_ accounted.  ie. There is not way to tell
-what is using it, hense we cannot see leaks or places that could be 
-optimized.
 
-I have attempted to count all memory I could.  The 123M is what is left in
-the kernel overhead bucket...
-
-Ed Tomlinson

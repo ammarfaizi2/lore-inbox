@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315217AbSD2WNu>; Mon, 29 Apr 2002 18:13:50 -0400
+	id <S315220AbSD2WPT>; Mon, 29 Apr 2002 18:15:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315218AbSD2WNt>; Mon, 29 Apr 2002 18:13:49 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28681 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315217AbSD2WNt>; Mon, 29 Apr 2002 18:13:49 -0400
-To: linux-kernel@vger.kernel.org
-From: Daniel Quinlan <quinlan@transmeta.com>
-Subject: Re: [RFC/FYI] cramfs 6/6 - boot/root stuff
-Date: 29 Apr 2002 15:13:05 -0700
-Organization: Transmeta Corporation
-Message-ID: <6yy9f6rw5q.fsf@transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0204291553570.25892-100000@ado-2.axis.se>
-X-Trace: palladium.transmeta.com 1020118389 16901 127.0.0.1 (29 Apr 2002 22:13:09 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 29 Apr 2002 22:13:09 GMT
-Original-Sender: quinlan@transmeta.com
-X-Newsreader: Gnus v5.7/Emacs 20.7
-Cache-Post-Path: palladium.transmeta.com!unknown@sodium.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S315219AbSD2WPS>; Mon, 29 Apr 2002 18:15:18 -0400
+Received: from mx2.ews.uiuc.edu ([130.126.161.238]:4069 "EHLO mx2.ews.uiuc.edu")
+	by vger.kernel.org with ESMTP id <S315216AbSD2WPS>;
+	Mon, 29 Apr 2002 18:15:18 -0400
+Message-ID: <005d01c1efcb$561b8c10$e6f7ae80@ad.uiuc.edu>
+From: "Wanghong Yuan" <wyuan1@ews.uiuc.edu>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020427.194302.02285733.davem@redhat.com><467685860.avixxmail@nexxnet.epcnet.de> <20020428.204911.63038910.davem@redhat.com> <001001c1ef3d$890a6d50$e6f7ae80@ad.uiuc.edu>
+Subject: Accurately measure CPU cycles used by a program? thanks
+Date: Mon, 29 Apr 2002 17:15:14 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johan Adolfsson <johan.adolfsson@axis.com> writes:
+Is there any package or program, which can be used to accurately measure the
+CPU cycles used by a program? I think the following code can only provide an
+inaccurate one, beause it may count on the waiting time of the program.
 
-> <ugly hack warning>
-> 6. (RFC/FYI) In our tree we have a hack that allows us
->    to append the cramfs image to the kernel image and use it to boot from.
-> [...]
-> Any hints of other approaches?
+gettimeofday(t1)
+runprogam
+gettimeofday(t2)
+t2-t1
 
-It seems much cleaner to use the padding option to put some boot code
-in the first 512 bytes of the cramfs image which you can use to jump
-to anywhere in the image.
+If I need to instrument the kernel, which part I should investigate? Thanks
+a lot in advance
 
-What we did for x86 was to put boot code in the first 512 bytes (the
-"-p" option to mkcramfs), then jump to 512 bytes after the superblock
-start (offset 1024) which was where we put the kernel (put there via the
-"-i" option to mkcramfs, just a normal kernel image padded at the
-beginning by 436 bytes so it would start at offset 1024).
+Wanghong
 
-We could have just jumped to offset 588 instead of 1024 and not padded
-the kernel, but we used even numbers for some (aesthetic?) reason that I
-can't recall.
-
-Dan

@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286161AbSBIUEX>; Sat, 9 Feb 2002 15:04:23 -0500
+	id <S286758AbSBIUGe>; Sat, 9 Feb 2002 15:06:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286590AbSBIUEN>; Sat, 9 Feb 2002 15:04:13 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30985 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286161AbSBIUEA>; Sat, 9 Feb 2002 15:04:00 -0500
-Date: Sat, 9 Feb 2002 13:49:42 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] BUG preserve registers
-In-Reply-To: <3C657FDF.5070605@zytor.com>
-Message-ID: <Pine.LNX.4.33.0202091348230.1497-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286871AbSBIUGX>; Sat, 9 Feb 2002 15:06:23 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:9742 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S286758AbSBIUGL>; Sat, 9 Feb 2002 15:06:11 -0500
+Date: Sat, 9 Feb 2002 21:06:09 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Felix Seeger <felix.seeger@gmx.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sonypi in 2.4.18-pre9
+Message-ID: <20020209200609.GC32401@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <20020209115453Z288878-13996+19685@vger.kernel.org> <20020209181955.GB32401@come.alcove-fr> <E16ZcwO-0000ee-00@smtp.fr.alcove.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16ZcwO-0000ee-00@smtp.fr.alcove.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 09, 2002 at 08:07:12PM +0100, Felix Seeger wrote:
 
-
-On Sat, 9 Feb 2002, H. Peter Anvin wrote:
+> Am Samstag, 9. Februar 2002 19:19 schrieb Stelian Pop:
+> > On Sat, Feb 09, 2002 at 12:48:34PM +0100, Felix Seeger wrote:
+> > > Great I just want to say that sonypi in 2.4.18-pre9 works fine.
 > >
-> > This is all assuming that gcc doesn't create the string for inline
-> > functions that aren't used, which it probably cannot, so maybe this
-> > doesn't work out.
->
-> Since gcc wouldn't even *see* a macro it didn't use, I find it hard to
-> imagine it would create anything.
+> > Thanks.
+> >
+> > > I have a vaio pcg qr10. This is the first kernel Version in which I can
+> > > changing the background lite.
+> >
+> > Strange, the screen brightness code wasn't modified in a while. What
+> > was your latest kernel ?
 
-Oh, but I was talking about the case of the macro being used in an "static
-inline" in a header file, and that inline is not actually _used_
-anywhere..
+> 2.4.17 ;)
 
-> However, you really want to do "asm volatile" rather than "asm"...
+Strange, there weren't changes supposed to affect this in 2.4.18pre patches.
+Well, at least it is not the other way around (you reporting something
+broken...)
 
-Without any inputs and outputs, asms default to volatile, but yes, I
-agree. Better make it explicit.
+> There I had the problem that spicctrl always told me and error with ioctl or 
+> so.
+> Maybe this error is gone because I have compilde the kernel with io Device 
+> support.
 
-		Linus
+???
 
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

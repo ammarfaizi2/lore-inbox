@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266219AbUHWUH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266116AbUHWUGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266219AbUHWUH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 16:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266081AbUHWUHP
+	id S266116AbUHWUGl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 16:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUHWUEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 16:07:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52892 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267310AbUHWS7r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:59:47 -0400
-Date: Mon, 23 Aug 2004 11:57:02 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dhowells@redhat.com, rjw@sisk.pl, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm4 (strange behavior on dual Opteron w/ NUMA)
-Message-Id: <20040823115702.4084afac.rddunlap@osdl.org>
-In-Reply-To: <20040823112718.628eb84e.akpm@osdl.org>
-References: <200408221620.00692.rjw@sisk.pl>
-	<20040822013402.5917b991.akpm@osdl.org>
-	<798.1093274973@redhat.com>
-	<20040823084640.1195f4f3.rddunlap@osdl.org>
-	<20040823112718.628eb84e.akpm@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 23 Aug 2004 16:04:44 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:33800 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266670AbUHWSts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 14:49:48 -0400
+Date: Mon, 23 Aug 2004 19:49:36 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/7] xattr consolidation - libfs
+Message-ID: <20040823194936.A20008@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org
+References: <Xine.LNX.4.44.0408231408030.13728-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0408231414270.13728-100000@thoron.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Xine.LNX.4.44.0408231414270.13728-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Mon, Aug 23, 2004 at 02:15:15PM -0400
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Aug 2004 11:27:18 -0700 Andrew Morton wrote:
+On Mon, Aug 23, 2004 at 02:15:15PM -0400, James Morris wrote:
+> This patch consolidates common xattr handling logic into libfs, for
+> use by ext2, ext3 and devpts, as well as upcoming ramfs and tmpfs xattr code.
 
-| "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-| >
-| > This oops is fixed by this trivial patch:
-| > 
-| >  http://marc.theaimsgroup.com/?l=linux-kernel&m=109313574928853&w=2
-| 
-| But that patch was in -mm4.
+Please don't do it this way.  By making the xattr handlers constant for
+a superblock's lifetime you can get rid of all the locking, and the arbitrary
+limit on the number of xattrs.  Please also move the code to xattr.c where
+it belong (long-term I'd like to kill the old inode ops so we can do things
+like moving the permission checks for user xattrs into common code where they
+belong)
 
-Yup.  Alexander Nyberg just posted an x86-64 patch.  I missed
-those bits.   :(
+Also s/simple_// for most symbols as this stuff isn't simple, in fact it's
+quite complex :)
 
-(His patch is in this thread:
-Subject: Re: 2.6.8.1-mm IRQ routing problems)
-
---
-~Randy

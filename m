@@ -1,77 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbUAAMff (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 07:35:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUAAMff
+	id S261605AbUAAMdW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 07:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbUAAMdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 07:35:35 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:25522
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261731AbUAAMf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 07:35:27 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Rob Love <rml@ximian.com>, Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: udev and devfs - The final word
-Date: Thu, 1 Jan 2004 06:34:28 -0600
-User-Agent: KMail/1.5.4
-Cc: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-References: <18Cz7-7Ep-7@gated-at.bofh.it> <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur>
-In-Reply-To: <1072917113.11003.34.camel@fur>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Thu, 1 Jan 2004 07:33:22 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:5483 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S261605AbUAAMdO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 07:33:14 -0500
+Date: Thu, 1 Jan 2004 04:33:33 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] disable gcc warnings of sign/unsigned comparison
+Message-Id: <20040101043333.186a3268.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401010634.28559.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 December 2003 18:31, Rob Love wrote:
-> On Wed, 2003-12-31 at 19:15, Andries Brouwer wrote:
-> > My plan has been to essentially use a hashed disk serial number
-> > for this "any old unique value". The problem is that "any old"
-> > is easy enough, but "unique" is more difficult.
-> > Naming devices is very difficult, but in some important cases,
-> > like SCSI or IDE disks, that would work and give a stable name.
->
-> Yup.
->
-> > The kernel must not invent consecutive numbers - that does not
-> > lead to stable names. Setting this up correctly is nontrivial.
->
-> This is definitely an interesting problem space.
->
-> I agree wrt just inventing consecutive numbers.  If there was a nice way
-> to trivially generate a random and unique number from some
-> device-inherent information, that would be nice.
->
-> 	Rob Love
+Andrew,
 
-Fundamental problem: "Unique" depends on the other devices in the system.  You 
-can't guarantee unique by looking at one device, more or less by definition.
+Please consider applying the following patch.
 
-Combine that with hotplug and you have a world of pain.  Generating a number 
-from a device is just a fancy hashing function, but as soon as you have two 
-devices that generate the same number independently (when in separate 
-systems) and you plug them both into the same system: boom.
+This patch turns off all gcc warnings on comparing signed with unsigned
+numbers, by setting the gcc option -Wno-sign-compare in the top
+Makefile.
 
-Now if you don't care about hotplug, it gets a little easier.  You can have a 
-collission handler that does some kind of hashing thing, figuring out which 
-device needs to get bumped and bumping it.  (As long as it consistently picks 
-the same victim, you're okay, although that in and of itself could get 
-interesting.  And if you remove the earlier device it conflicted with and 
-reboot, the device could get renumbered which is evil...)
+These warnings state:
 
-Of course the EASY way to deal with collisions is to just fail the hash thingy 
-in a detectable way, and punt to some kind of udev override.  So if you yank 
-a drive from system A, throw it in system B, try to re-export it NFS, and 
-it's not going to work, it TELLS you.
+  warning: comparison between signed and unsigned
 
-Solve 90% of the problem space and have a human deal with the exceptions.  How 
-big's the unique number being exported, anyway?  (If it's 32 bits, the 
-exceptions are 1 in 4 billion.  It may never be seen in the wild...)
+This patch is a "personal preference" decision.  If you choose to
+reject it, I seek no justifications.
 
-Rob
+I like it, and at least with the version of gcc I happen to be using
+(3.3), find it really helps.  This version of gcc dumps out many such
+complaints otherwise.
 
+And one could make a case that Linus would like this patch, from his
+remark of a couple months ago, on a thread with the Subject of:
+
+  [PATCH] irda: fix type of struct irda_ias_set.attribute.irda_attrib_string.len
+
+in which Linus wrote:
+> That's why I hate the "sign compare" warning of gcc so much - it warns 
+> about things that you CANNOT sanely write in any other way. That makes 
+> that particular warning _evil_, since it encourages people to write crap 
+> code.
+
+But what Linus actually thinks of this, I've no further clues.
+
+The patch was computed against 2.6.0-mm2.
+
+Thank-you for your consideration.
+
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1536  -> 1.1537 
+#	            Makefile	1.441   -> 1.442  
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/01/01	pj@sgi.com	1.1537
+# ignore gcc sign compare warnings
+# --------------------------------------------
+#
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	Thu Jan  1 04:13:04 2004
++++ b/Makefile	Thu Jan  1 04:13:04 2004
+@@ -161,7 +161,7 @@
+ 
+ HOSTCC  	= gcc
+ HOSTCXX  	= g++
+-HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS	= -Wall -Wstrict-prototypes -Wno-sign-compare -O2 -fomit-frame-pointer
+ HOSTCXXFLAGS	= -O2
+ 
+ # 	Decide whether to build built-in, modular, or both.
+@@ -275,7 +275,7 @@
+ CPPFLAGS        := -D__KERNEL__ -Iinclude \
+ 		   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
+ 
+-CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-trigraphs \
++CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-sign-compare -Wno-trigraphs \
+ 	  	   -fno-strict-aliasing -fno-common
+ AFLAGS		:= -D__ASSEMBLY__
+ 
+
+
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

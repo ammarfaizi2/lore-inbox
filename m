@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbTABMpX>; Thu, 2 Jan 2003 07:45:23 -0500
+	id <S261836AbTABMuk>; Thu, 2 Jan 2003 07:50:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261733AbTABMpX>; Thu, 2 Jan 2003 07:45:23 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:41167 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261701AbTABMpW>;
-	Thu, 2 Jan 2003 07:45:22 -0500
-Date: Thu, 2 Jan 2003 12:51:48 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au, hch@infradead.org
-Subject: Re: RFC/Patch - Implode devfs
-Message-ID: <20030102125148.GD26479@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Adam J. Richter" <adam@yggdrasil.com>,
-	linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au,
-	hch@infradead.org
-References: <20030101165121.A3091@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030101165121.A3091@baldur.yggdrasil.com>
-User-Agent: Mutt/1.4i
+	id <S261742AbTABMuk>; Thu, 2 Jan 2003 07:50:40 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:8380 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP
+	id <S261836AbTABMuj>; Thu, 2 Jan 2003 07:50:39 -0500
+To: linux-kernel@vger.kernel.org
+Subject: /proc/partitions statistics: how to find block size?
+Message-ID: <1041512348.3e14379c5675c@imp.free.fr>
+Date: Thu, 02 Jan 2003 13:59:08 +0100 (CET)
+From: jfontain@free.fr
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.6
+X-Originating-IP: 195.101.92.253
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 01, 2003 at 04:51:21PM -0800, Adam J. Richter wrote:
- > 	This code now tries to implement almost all of the devfs
- > functionality that anything outside of arch/ia64/sn uses.  The most
- > significant except that I'm aware of is the ability to create a plain
- > file with custom file operations, which is done the Memory Type Range
- > Register code, but that code also provides a proc interface for the
- > same thing, and I think the proc interface is what everyone uses right
- > now anyhow.
+(please CC me as I am not subscribed: apologies...)
 
-Ignore other mail. -ENOTAWAKEYET
-testgart uses /proc/mtrr too, and thinking about it I guess X does
-too, or it would break in the non-devfs case.
+First I wish to thank very much those who wrote the 'Per partition statistics in
+/proc/partitions' patch, now available in 2.4.20. It is a very useful feature IMHO.
+I am using it to write a new module for the modular monotoring software moodss
+(http://jfontain.free.fr/moodss/).
 
-		Dave
+Now, from /proc/partitions, I can find the number of blocks per partition or
+disk, but what I also need is the size of each disk, or the block size of each
+disk, so that I could display the size in bytes for each disk, which would be
+more user friendly.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Is there a way to find that information within the /proc filesystem or by any
+other mean (that has to work for any disk type (IDE, SCSI, USB, ...)).
+
+Many thanks in advance and sorry for posting here, but I really need expert
+advice...
+
+Happy New Year,
+
+Jean-Luc (jfontain@free.fr)

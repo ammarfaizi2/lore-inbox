@@ -1,108 +1,264 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVADQuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVADQv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVADQuM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 11:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVADQuL
+	id S261711AbVADQv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 11:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVADQv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 11:50:11 -0500
-Received: from [212.20.225.142] ([212.20.225.142]:44071 "EHLO
-	orlando.wolfsonmicro.main") by vger.kernel.org with ESMTP
-	id S261717AbVADQtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 11:49:06 -0500
-Subject: [RESEND PATCH] AC97 plugin suspend/resume
-From: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-rgB+CN5xsMRpRJtHbz5C"
-Message-Id: <1104857340.9143.421.camel@cearnarfon>
+	Tue, 4 Jan 2005 11:51:56 -0500
+Received: from smtp07.web.de ([217.72.192.225]:7394 "EHLO smtp07.web.de")
+	by vger.kernel.org with ESMTP id S261711AbVADQsj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 11:48:39 -0500
+Date: Tue, 4 Jan 2005 17:50:43 +0100
+From: Arne Ahrend <aahrend@web.de>
+To: linux-dvb-maintainer@linuxtv.org
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH: DVB bt8xx in 2.6.10
+Message-Id: <20050104175043.6a8fd195.aahrend@web.de>
+X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 04 Jan 2005 16:49:00 +0000
-X-OriginalArrivalTime: 04 Jan 2005 16:49:00.0790 (UTC) FILETIME=[4A7F3160:01C4F27D]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch allows the user to select only actually desired frontend driver(s) for
+bt8xx based DVB cards by removing calls to frontend-specific XXX_attach()
+functions and returning NULL instead for unconfigured frontends.
 
---=-rgB+CN5xsMRpRJtHbz5C
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+To keep this patch small, no attempt is made to #ifdef away other static functions or data
+for unselected frontends. This leads to compiler warnings about defined, but unused
+code, unless all four frontends relevant to bt8xx based cards are selected.
 
-Hi Alan,
+I have tested this on the Avermedia 771 (the only DVB card I have access to).
 
-Please disregard the previous AC97 suspend/resume patch.
 
-Changes:-
+Signed-off-by: Arne Ahrend <aahrend@web.de>
 
-- Add suspend/resume methods to the ac97 codec plugin driver structure.
-- Add code to ac97_codec to allow these methods to be safely called for
-  the specified codec.
 
-Signed-off-by: Russell King <rmk@arm.linux.org.uk>
-
-Liam
-
---=-rgB+CN5xsMRpRJtHbz5C
-Content-Disposition: attachment; filename=ac97_codec_pm.diff
-Content-Type: text/x-patch; name=ac97_codec_pm.diff; charset=
-Content-Transfer-Encoding: 7bit
-
---- a/sound/oss/ac97_codec.c	2004-12-24 21:34:00.000000000 +0000
-+++ b/sound/oss/ac97_codec.c	2004-12-08 17:08:42.000000000 +0000
-@@ -1391,6 +1421,33 @@
+diff -uprN -X dontdiff linux-2.6.10-vanilla/drivers/media/dvb/bt8xx/Kconfig linux-2.6.10/drivers/media/dvb/bt8xx/Kconfig
+--- linux-2.6.10-vanilla/drivers/media/dvb/bt8xx/Kconfig	2005-01-04 15:36:33.000000000 +0100
++++ linux-2.6.10/drivers/media/dvb/bt8xx/Kconfig	2005-01-04 15:17:16.000000000 +0100
+@@ -1,8 +1,6 @@
+ config DVB_BT8XX
+-	tristate "Nebula/Pinnacle PCTV/Twinhan PCI cards"
++	tristate "Avermedia/Nebula/Pinnacle PCTV/Twinhan PCI cards"
+ 	depends on DVB_CORE && PCI && VIDEO_BT848
+-	select DVB_MT352
+-	select DVB_SP887X
+ 	help
+ 	  Support for PCI cards based on the Bt8xx PCI bridge. Examples are
+ 	  the Nebula cards, the Pinnacle PCTV cards and Twinhan DST cards.
+@@ -11,8 +9,24 @@ config DVB_BT8XX
+ 	  only compressed MPEG data over the PCI bus, so you need
+ 	  an external software decoder to watch TV on your computer.
  
- EXPORT_SYMBOL(ac97_restore_state);
++	  It is safe to select more than one of the frontends.
++
++	  If you have an Avermedia (761) DVB-T card, select
++	  "Spase sp887x based" frontend.
++
++	  If you have an Avermedia 771 DVB-T card, select
++	  "Zarlink MT352 based" frontend.
++
++	  For Nebula or Pinnacle cards "NxtWave Communications NXT6000"
++	  frontend might suit you.
++
+ 	  If you have a Twinhan card, don't forget to select
+ 	  "Twinhan DST based DVB-S/-T frontend".
  
-+int ac97_suspend(struct ac97_codec *codec, int state)
-+{
-+	struct ac97_driver *driver;
-+	int ret = 0;
-+
-+	down(&codec_sem);
-+	driver = codec->driver;
-+	if (driver != NULL && driver->suspend)
-+		ret = driver->suspend(codec, state);
-+	up(&codec_sem);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(ac97_suspend);
-+
-+void ac97_resume(struct ac97_codec *codec)
-+{
-+	struct ac97_driver *driver;
-+
-+	down(&codec_sem);
-+	driver = codec->driver;
-+	if (driver != NULL && driver->resume)
-+		driver->resume(codec);
-+	up(&codec_sem);
-+}
-+EXPORT_SYMBOL(ac97_resume);
-+
- /**
-  *	ac97_register_driver	-	register a codec helper
-  *	@driver: Driver handler
---- a/include/linux/ac97_codec.h	2004-12-24 21:33:50.000000000 +0000
-+++ b/include/linux/ac97_codec.h	2004-12-08 13:28:42.000000000 +0000
-@@ -299,6 +300,8 @@
- extern unsigned int ac97_set_dac_rate(struct ac97_codec *codec, unsigned int rate);
- extern int ac97_save_state(struct ac97_codec *codec);
- extern int ac97_restore_state(struct ac97_codec *codec);
-+extern int ac97_suspend(struct ac97_codec *codec, int state);
-+extern void ac97_resume(struct ac97_codec *codec);
+ 	  Say Y if you own such a device and want to use it.
  
- extern struct ac97_codec *ac97_alloc_codec(void);
- extern void ac97_release_codec(struct ac97_codec *codec);
-@@ -310,6 +313,8 @@
- 	u32 codec_mask;
- 	int (*probe) (struct ac97_codec *codec, struct ac97_driver *driver);
- 	void (*remove) (struct ac97_codec *codec, struct ac97_driver *driver);
-+	int (*suspend) (struct ac97_codec *codec, int state);
-+	void (*resume) (struct ac97_codec *codec);
++config DVB_TWINHAN_DST
++	tristate "Twinhan DST based DVB-S/-T frontend"
++	depends on DVB_CORE && PCI && VIDEO_BT848
++	help
++	  The Twinham DST frontend for DVB.
+diff -uprN -X dontdiff linux-2.6.10-vanilla/drivers/media/dvb/bt8xx/Makefile linux-2.6.10/drivers/media/dvb/bt8xx/Makefile
+--- linux-2.6.10-vanilla/drivers/media/dvb/bt8xx/Makefile	2005-01-04 15:36:33.000000000 +0100
++++ linux-2.6.10/drivers/media/dvb/bt8xx/Makefile	2005-01-03 22:49:06.000000000 +0100
+@@ -1,5 +1,6 @@
+ 
+-obj-$(CONFIG_DVB_BT8XX) += bt878.o dvb-bt8xx.o dst.o
++obj-$(CONFIG_DVB_BT8XX) += bt878.o dvb-bt8xx.o
++obj-$(CONFIG_DVB_TWINHAN_DST) += dst.o
+ 
+ EXTRA_CFLAGS = -Idrivers/media/dvb/dvb-core/ -Idrivers/media/video -Idrivers/media/dvb/frontends
+ 
+diff -uprN -X dontdiff linux-2.6.10-vanilla/drivers/media/dvb/bt8xx/dvb-bt8xx.c linux-2.6.10/drivers/media/dvb/bt8xx/dvb-bt8xx.c
+--- linux-2.6.10-vanilla/drivers/media/dvb/bt8xx/dvb-bt8xx.c	2005-01-04 15:36:33.000000000 +0100
++++ linux-2.6.10/drivers/media/dvb/bt8xx/dvb-bt8xx.c	2005-01-04 17:01:59.000000000 +0100
+@@ -220,7 +220,7 @@ static int microtune_mt7202dtf_request_f
+ 	return request_firmware(fw, name, &bt->bt->dev->dev);
+ }
+ 
+-struct sp887x_config microtune_mt7202dtf_config = {
++static struct sp887x_config microtune_mt7202dtf_config = {
+ 
+ 	.demod_address = 0x70,
+ 	.pll_set = microtune_mt7202dtf_pll_set,
+@@ -340,12 +340,108 @@ static struct nxt6000_config vp3021_alps
  };
  
- extern int ac97_register_driver(struct ac97_driver *driver);
-
---=-rgB+CN5xsMRpRJtHbz5C--
-
+ 
++
++#if(defined(CONFIG_DVB_MT352) || defined(CONFIG_DVB_MT352_MODULE))
++static inline struct dvb_frontend*
++thomson_dtt7579_frontend(struct i2c_adapter* i2c)
++{
++  return mt352_attach(&thomson_dtt7579_config, i2c);
++}
++
++#else
++
++static inline struct dvb_frontend*
++thomson_dtt7579_frontend(struct i2c_adapter* i2c)
++{
++  return NULL;
++}
++#endif /* CONFIG_DVB_MT352 || CONFIG_DVB_MT352_MODULE */
++
++
++
++
++#if(defined(CONFIG_DVB_SP887X) || defined(CONFIG_DVB_SP887X_MODULE))
++static inline struct dvb_frontend*
++microtune_mt7202dtf_frontend(struct i2c_adapter* i2c)
++{
++  return sp887x_attach(&microtune_mt7202dtf_config, i2c);
++}
++
++#else
++
++static inline struct dvb_frontend*
++microtune_mt7202dtf_frontend(struct i2c_adapter* i2c)
++{
++  return NULL;
++}
++#endif /* CONFIG_DVB_SP887X || CONFIG_DVB_SP887X_MODULE */
++
++
++
++
++#if(defined(CONFIG_DVB_MT352) || defined(CONFIG_DVB_MT352_MODULE))
++static inline struct dvb_frontend*
++advbt771_samsung_tdtc9251dh0_frontend(struct i2c_adapter* i2c)
++{
++  return mt352_attach(&advbt771_samsung_tdtc9251dh0_config, i2c);
++}
++
++#else
++
++static inline struct dvb_frontend*
++advbt771_samsung_tdtc9251dh0_frontend(struct i2c_adapter* i2c)
++{
++  return NULL;
++}
++#endif /* CONFIG_DVB_MT352 || CONFIG_DVB_MT352_MODULE */
++
++
++
++
++#if(defined(CONFIG_DVB_TWINHAN_DST) || defined(CONFIG_DVB_TWINHAN_DST_MODULE))
++static inline struct dvb_frontend*
++dst_frontend(struct i2c_adapter* i2c, struct bt878* bt)
++{
++  return dst_attach(&dst_config, i2c, bt);
++}
++
++#else
++
++static inline struct dvb_frontend*
++dst_frontend(struct i2c_adapter* i2c, struct bt878* bt)
++{
++  return NULL;
++}
++#endif /* CONFIG_DVB_TWINHAN_DST || CONFIG_DVB_TWINHAN_DST_MODULE */
++
++
++
++
++#if(defined(CONFIG_DVB_NXT6000) || defined(CONFIG_DVB_NXT6000_MODULE))
++static inline struct dvb_frontend*
++vp3021_alps_tded4_frontend(struct i2c_adapter* i2c)
++{
++  return nxt6000_attach(&vp3021_alps_tded4_config, i2c);
++}
++
++#else
++
++static inline struct dvb_frontend*
++vp3021_alps_tded4_frontend(struct i2c_adapter* i2c)
++{
++  return NULL;
++}
++#endif /* CONFIG_DVB_NXT6000 || CONFIG_DVB_NXT6000_MODULE */
++
++
++
++
+ static void frontend_init(struct dvb_bt8xx_card *card, u32 type)
+ {
+ 	switch(type) {
+ #ifdef BTTV_DVICO_DVBT_LITE
+ 	case BTTV_DVICO_DVBT_LITE:
+-		card->fe = mt352_attach(&thomson_dtt7579_config, card->i2c_adapter);
++		card->fe = thomson_dtt7579_frontend(card->i2c_adapter);
+ 		if (card->fe != NULL) {
+ 			card->fe->ops->info.frequency_min = 174000000;
+ 			card->fe->ops->info.frequency_max = 862000000;
+@@ -359,21 +455,21 @@ static void frontend_init(struct dvb_bt8
+ #else
+ 	case BTTV_NEBULA_DIGITV:
+ #endif
+-		card->fe = nxt6000_attach(&vp3021_alps_tded4_config, card->i2c_adapter);
++		card->fe = vp3021_alps_tded4_frontend(card->i2c_adapter);
+ 		if (card->fe != NULL) {
+ 			break;
+ 		}
+ 		break;
+ 
+ 	case BTTV_AVDVBT_761:
+-		card->fe = sp887x_attach(&microtune_mt7202dtf_config, card->i2c_adapter);
++		card->fe = microtune_mt7202dtf_frontend(card->i2c_adapter);
+ 		if (card->fe != NULL) {
+ 			break;
+ 		}
+ 		break;
+ 
+ 	case BTTV_AVDVBT_771:
+-		card->fe = mt352_attach(&advbt771_samsung_tdtc9251dh0_config, card->i2c_adapter);
++		card->fe = advbt771_samsung_tdtc9251dh0_frontend(card->i2c_adapter);
+ 		if (card->fe != NULL) {
+ 			card->fe->ops->info.frequency_min = 174000000;
+ 			card->fe->ops->info.frequency_max = 862000000;
+@@ -382,7 +478,7 @@ static void frontend_init(struct dvb_bt8
+ 		break;
+ 
+ 	case BTTV_TWINHAN_DST:
+-		card->fe = dst_attach(&dst_config, card->i2c_adapter, card->bt);
++		card->fe = dst_frontend(card->i2c_adapter, card->bt);
+ 		if (card->fe != NULL) {
+ 			break;
+ 		}
+diff -uprN -X dontdiff linux-2.6.10-vanilla/drivers/media/dvb/bt8xx/dvb-bt8xx.h linux-2.6.10/drivers/media/dvb/bt8xx/dvb-bt8xx.h
+--- linux-2.6.10-vanilla/drivers/media/dvb/bt8xx/dvb-bt8xx.h	2005-01-04 15:36:33.000000000 +0100
++++ linux-2.6.10/drivers/media/dvb/bt8xx/dvb-bt8xx.h	2005-01-04 17:01:36.000000000 +0100
+@@ -22,6 +22,10 @@
+  *
+  */
+ 
++#ifndef DVB_BT8XX_H
++#define DVB_BT8XX_H
++
++
+ #include <linux/i2c.h>
+ #include "dvbdev.h"
+ #include "dvb_net.h"
+@@ -50,3 +54,6 @@ struct dvb_bt8xx_card {
+ 				
+ 	struct dvb_frontend* fe;
+ };
++
++
++#endif /* DVB_BT8XX_H */

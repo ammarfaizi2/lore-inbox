@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277512AbRJOMa0>; Mon, 15 Oct 2001 08:30:26 -0400
+	id <S277524AbRJOMf0>; Mon, 15 Oct 2001 08:35:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277514AbRJOMaQ>; Mon, 15 Oct 2001 08:30:16 -0400
-Received: from pcephc56.cern.ch ([137.138.38.92]:53632 "EHLO
+	id <S277527AbRJOMfQ>; Mon, 15 Oct 2001 08:35:16 -0400
+Received: from pcephc56.cern.ch ([137.138.38.92]:55680 "EHLO
 	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S277512AbRJOM35>; Mon, 15 Oct 2001 08:29:57 -0400
-Date: Mon, 15 Oct 2001 14:29:03 +0200
+	id <S277519AbRJOMe4>; Mon, 15 Oct 2001 08:34:56 -0400
+Date: Mon, 15 Oct 2001 14:34:29 +0200
 From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Jelson <jelson@circlemud.org>,
         linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-Message-ID: <20011015142903.E4269@kushida.jlokier.co.uk>
-In-Reply-To: <20011015133506.B4269@kushida.jlokier.co.uk> <Pine.GSO.4.21.0110150742230.8707-100000@weyl.math.psu.edu>
+Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
+Message-ID: <20011015143429.F4269@kushida.jlokier.co.uk>
+In-Reply-To: <20011002204836.B3026@bug.ucw.cz> <200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu> <20011005205136.A1272@elf.ucw.cz> <m1n132x4qg.fsf@frodo.biederman.org> <20011008122013.B38@toy.ucw.cz> <m1wv1zqk37.fsf@frodo.biederman.org> <20011014081233.A31752@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0110150742230.8707-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Oct 15, 2001 at 07:51:11AM -0400
+In-Reply-To: <20011014081233.A31752@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Sun, Oct 14, 2001 at 08:12:34AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> > This does not work.  Example:
-> > 
-> >   1. JamieEmacs loads file using MAP_PRIVATE.
-> >   2. Something else writes to the file.
-> >   3. Scroll to the bottom of the file in JamieEmacs.  It displays some
-> >      of the newly written data, though not all of it.
-> > 
-> > --> Wrong editor semantics.
+Pavel Machek wrote:
+> > Additionally you still don't need a FUSD driver for that case.  All
+> > you need is to have is a ptty.  Because that is what modem drivers
+> > are now.  And the ptty route has binary and source compatiblity
+> > to multiple unix platforms.
 > 
-> --> Wrong permissions or hopelessly crappy source control system.
-> 
-> At point 2 you are _already_ screwed.  Depending on who hits (hell,
-> what's the equivalent of :x in Emacsese?) first, one of you is
-> going to lose results of editing.  Doctor, it hurts when I do it...
+> I do not think tty/pty pair does cut it for AT emulation. Can you
+> really emulate all neccessary features using pty/tty?
 
-I am _not_ saving anything.  Viewing
-/home/web/automatically_generated_every_hour.html from a particular
-moment is a perfectly reasonable thing to do in Emacs, and it's a
-perfectly reasonable thing to do in Less and Midnight Commander and
-Mozilla for that matter.
+Perhaps.  Terminal modes & speeds & special lines and so on set on the
+tty side can be seen on the pty side, although I think the pty is not
+notified immediately so it has to poll if it wants to detect terminal
+programs sending a BREAK signal and things like that.
 
-_If_ I hit :x (in Vi-mode in Emacs ;-) then I expect the editor to warn
-me that the file was updated by some other program.  Some editors will
-warn before that.  Some will reload the file automatically if I haven't
-made changed within the editor.
-
-However, at all times I expect a consistent display of the file either
-from read time, or from the current time.  _Never_ some unparsable,
-invalid, mixed up combination of pages.
-
-> If you want versioning - use source control system.  Or go play
-> with DEC cra^WOSes.  In RSX that "feature" sucked (and so did
-> editor semantics, but that's a separate story).
-
-I do _not_ want versioning.  I want to load a file into an editor and
-look at _that_ snapshot, at my leisure.  (Almost) every editor ever
-written works this way, and I am quite happy with it.
-
-read() gives the correct semantics.
-
-There is potential to make read() more efficient, both in execution time
-and in memory consumption.
-
-Enjoy :-)
+I had a look at this about a year ago.  I remember that a couple of
+small changes to the pty/tty layer would have been very handy to improve
+the quality of serial port emulation, and that might be the thing to do.
 
 -- Jamie

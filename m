@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266345AbUAHAAN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 19:00:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266379AbUAHAAM
+	id S266434AbUAHACO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 19:02:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266374AbUAHAAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 19:00:12 -0500
-Received: from ee.oulu.fi ([130.231.61.23]:11700 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S266345AbUAGX7S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 18:59:18 -0500
-Date: Thu, 8 Jan 2004 01:59:12 +0200
-From: Pekka Pietikainen <pp@ee.oulu.fi>
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb@linuxtv.org
-Subject: Use of floating point in the kernel
-Message-ID: <20040107235912.GA23812@ee.oulu.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 7 Jan 2004 19:00:22 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32193 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265778AbUAGX5T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 18:57:19 -0500
+Message-ID: <3FFC9CC6.6010701@pobox.com>
+Date: Wed, 07 Jan 2004 18:56:54 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+References: <1b5GC-29h-1@gated-at.bofh.it> <1b6CO-3v0-15@gated-at.bofh.it> <m3ad50tmlq.fsf@averell.firstfloor.org> <3FFC46EB.9050201@zytor.com> <3FFC7469.3050700@sun.com> <3FFC7469.3050700@sun.com> <3FFC790A.3060206@pobox.com> <3FFC9A76.4070407@sun.com>
+In-Reply-To: <3FFC9A76.4070407@sun.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-
-There are a few instances of use of floating point in 2.6,
-
---- linux-2.6.0-1.30/drivers/media/dvb/ttpci/av7110.c~	2004-01-07 23:14:14.000000000 +0200
-+++ linux-2.6.0-1.30/drivers/media/dvb/ttpci/av7110.c	2004-01-07 23:14:14.000000000 +0200
-@@ -2673,9 +2673,9 @@
- 	buf[1] = div & 0xff;
- 	buf[2] = 0x8e;
- 
--	if (freq < (u32) 16*168.25 )
-+	if (freq < 2692 ) /* 16*168.25 */
- 		config = 0xa0;
--	else if (freq < (u32) 16*447.25)
-+	else if (freq < 7156) /* 16*447.25 */
- 		config = 0x90;
- 	else
- 		config = 0x30;
-
-(If I'm not mistaken a similar patch for this has already been sent to
-Linus, just making sure the DVB people get this in their trees as well)
-(u32) (16*168.25) would work too, I suppose.
-
-The other case is a bit more widespread, patch below is mostly rhetoric :-)
-http://www.winischhofer.net/linuxsisvga.shtml#download contains the latest version
-of the sisfb that doesn't use floating point at all, so that is certainly the better
-option.
-
---- linux-2.6.0-1.30/drivers/video/sis/sis_main.c~	2004-01-08 01:27:44.909006216 +0200
-+++ linux-2.6.0-1.30/drivers/video/sis/sis_main.c	2004-01-08 01:28:19.111806600 +0200
-@@ -616,6 +616,7 @@
- 		var->left_margin + var->xres + var->right_margin +
- 		var->hsync_len;
- 	unsigned int vtotal = 0; 
-+#error Use of floating point in the kernel is NOT safe!
- 	double drate = 0, hrate = 0;
- 	int found_mode = 0;
- 	int old_mode;
---- linux-2.6.0-1.30/drivers/video/Kconfig~	2004-01-08 01:25:37.570364632 +0200
-+++ linux-2.6.0-1.30/drivers/video/Kconfig	2004-01-08 01:25:37.571364480 +0200
-@@ -704,7 +704,7 @@
- 
- config FB_SIS
- 	tristate "SIS acceleration"
--	depends on FB && PCI
-+	depends on FB && PCI && BROKEN
- 	help
- 	  This is the frame buffer device driver for the SiS 630 and 640 Super
- 	  Socket 7 UMA cards.  Specs available at <http://www.sis.com.tw/>.
+Mike Waychison wrote:
+> You wouldn't put a bdflush daemon in userspace either would you?  The 
+> loop in question is just that; (overly simplified):
+> 
+> while (1) {
+>     f = ask_kernel_if_anything_looks_inactive();
+>     if (f) {
+>         try_to_umount(f);
+>         continue;
+>     } else {
+>         sleep(x seconds);
+>     }
+> }
+> 
+> My point is, if this is the only active action done by userspace, why 
+> open it up to being broken?
 
 
--- 
-Pekka Pietikainen
+You're still using arguments -against- putting software in the kernel. 
+You don't decrease software's chances of "being broken" by putting it in 
+the kernel, the opposite occurs -- you increase the likelihood of making 
+the entire system unstable.  This is one point that Solaris and Win32 
+have both missed :)
+
+	Jeff
+
+
+

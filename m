@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262111AbTELMmo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 08:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbTELMmo
+	id S261399AbTELMtd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 08:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTELMtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 08:42:44 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:18611 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S262111AbTELMmo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 08:42:44 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Oleg Drokin <green@namesys.com>, lkhelp@rekl.yi.org
-Subject: Re: 2.5.69, IDE TCQ can't be enabled
-Date: Mon, 12 May 2003 14:55:58 +0200
-User-Agent: KMail/1.5.1
+	Mon, 12 May 2003 08:49:33 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:28737 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S261399AbTELMtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 08:49:32 -0400
+Date: Mon, 12 May 2003 06:02:10 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Paul Mackerras <paulus@samba.org>
 Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.53.0305092018530.16627@rekl.yi.org> <20030512124654.GA2699@namesys.com>
-In-Reply-To: <20030512124654.GA2699@namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: MPPE in kernel?
+Message-ID: <20030512060210.C29881@google.com>
+References: <20030512045929.C29781@google.com> <16063.38221.73659.403481@argo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305121455.58022.oliver@neukum.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16063.38221.73659.403481@argo.ozlabs.ibm.com>; from paulus@samba.org on Mon, May 12, 2003 at 10:36:29PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 12, 2003 at 10:36:29PM +1000, Paul Mackerras wrote:
+> Frank Cusack writes:
+> 
+> > What are the chances of getting MPPE (PPP encryption) into the 2.4.21
+> > and/or 2.5.x kernels?
+> 
+> First, are there any patent issues that you are aware of?
 
-> Just a note that we have found TCQ unusable on our IBM drives and we had
-> some reports about TCQ unusable on some WD drives.
->
-> Unusable means severe FS corruptions starting from mount.
-> So if your FSs will suddenly start to break, start looking for cause with
-> disabling TCQ, please.
+There are none for MPPE.  It's just MPPC that has patent problems.
 
-I can confirm that. This drive Model=IBM-DTLA-307045, FwRev=TX6OA60A, 
-SerialNo=YMCYMT3Y229 has eaten my filesystem with TCQ on 2.5.69
+> The fundamental problem is that MPPE is misusing CCP (compression
+> control protocol) for something for which it was never intended.  The
+> specific place where this is a problem is that the compression code in
+> ppp_generic doesn't guarantee that it will never send a packet out
+> uncompressed, but MPPE requires that.  How do you get around that
+> problem?
 
-	Regards
-		Oliver
+I have the compressor return a 3-valued return code (<0, 0, >0) instead of
+two-valued (>0, other).  A negative value tells ppp_generic to drop the
+packet.  0 means the same as it does now--the compressor failed for some
+reason.  (All current compressors always return 0 or >0, so the negative
+return is compatible.)
 
+0 could also mean that CCP isn't up yet, but pppd userland doesn't allow
+NCP's to come up until CCP completes (iff trying to negotiate MPPE).
+
+Note that ECP would have this same problem, it's addressed the same way.
+
+/fc

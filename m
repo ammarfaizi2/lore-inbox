@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267542AbUHJQNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267476AbUHJQOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267542AbUHJQNG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 12:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267531AbUHJQLy
+	id S267476AbUHJQOK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267511AbUHJQKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 12:11:54 -0400
-Received: from zcamail04.zca.compaq.com ([161.114.32.104]:33550 "EHLO
-	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S267490AbUHJQJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 12:09:57 -0400
-Date: Tue, 10 Aug 2004 11:09:17 -0500
+	Tue, 10 Aug 2004 12:10:51 -0400
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:9222 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S267503AbUHJQGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 12:06:39 -0400
+Date: Tue, 10 Aug 2004 11:05:56 -0500
 From: mikem <mikem@beardog.cca.cpqcorp.net>
 To: akpm@osdl.org, axboe@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: cciss update [5/8] PCI ID fix for cciss based SATA hba
-Message-ID: <20040810160917.GE19909@beardog.cca.cpqcorp.net>
+Subject: cciss update [3/8] /proc fixes for RAID level & size
+Message-ID: <20040810160556.GC19909@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,52 +23,80 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Patch 5 of 8
+Patch 3 of 8
 
-This patch fixes the vendor ID for our cciss based SATA controller due
-out later this year. It also adds the new PCI ID to pci_ids.h
-Applies to 2.6.8-rc4. Please apply patches in order.
-
-Thanks,
-mikem
+This patch fixes our output in /proc to display the logical volume
+sizes and RAID levels correctly. Without this patch RAID level will
+always be 0 and size may be displayed as 0GB.
+Applies to 2.6.8-rc4. Please apply in order.
 -------------------------------------------------------------------------------
-diff -burNp lx268-rc3-p004/drivers/block/cciss.c lx268-rc3/drivers/block/cciss.c
---- lx268-rc3-p004/drivers/block/cciss.c	2004-08-05 11:16:03.000000000 -0500
-+++ lx268-rc3/drivers/block/cciss.c	2004-08-05 14:16:11.567565016 -0500
-@@ -46,14 +46,14 @@
- #include <linux/completion.h>
+diff -burpN lx268-rc3-p002/drivers/block/cciss.c lx268-rc3/drivers/block/cciss.c
+--- lx268-rc3-p002/drivers/block/cciss.c	2004-08-05 10:28:36.993875000 -0500
++++ lx268-rc3/drivers/block/cciss.c	2004-08-05 10:40:00.865910760 -0500
+@@ -192,10 +192,10 @@ static inline CommandList_struct *remove
+ /*
+  * Report information about this controller.
+  */
+-#define ENG_GIG 1048576000
++#define ENG_GIG 1000000000
+ #define ENG_GIG_FACTOR (ENG_GIG/512)
+ #define RAID_UNKNOWN 6
+-static const char *raid_label[] = {"0","4","1(0+1)","5","5+1","ADG",
++static const char *raid_label[] = {"0","4","1(1+0)","5","5+1","ADG",
+ 	                                   "UNKNOWN"};
  
- #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
--#define DRIVER_NAME "Compaq CISS Driver (v 2.6.2)"
-+#define DRIVER_NAME "HP CISS Driver (v 2.6.2)"
- #define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,2)
+ static struct proc_dir_entry *proc_cciss;
+@@ -209,7 +209,7 @@ static int cciss_proc_get_info(char *buf
+         ctlr_info_t *h = (ctlr_info_t*)data;
+         drive_info_struct *drv;
+ 	unsigned long flags;
+-	unsigned int vol_sz, vol_sz_frac;
++        sector_t vol_sz, vol_sz_frac;
  
- /* Embedded module documentation macros - see modules.h */
- MODULE_AUTHOR("Hewlett-Packard Company");
- MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 2.6.2");
- MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"
--			" SA6i");
-+			" SA6i V100");
- MODULE_LICENSE("GPL");
+         ctlr = h->ctlr;
  
- #include "cciss_cmd.h"
-@@ -82,7 +82,7 @@ const struct pci_device_id cciss_pci_dev
- 		0x0E11, 0x4091, 0, 0, 0},
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
- 		0x0E11, 0x409E, 0, 0, 0},
--	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
-+	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISS,
- 		0x103C, 0x3211, 0, 0, 0},
- 	{0,}
- };
-diff -burNp lx268-rc3-p004/include/linux/pci_ids.h lx268-rc3/include/linux/pci_ids.h
---- lx268-rc3-p004/include/linux/pci_ids.h	2004-08-05 09:56:00.000000000 -0500
-+++ lx268-rc3/include/linux/pci_ids.h	2004-08-05 14:16:33.841178912 -0500
-@@ -670,6 +670,7 @@
- #define PCI_DEVICE_ID_HP_SX1000_IOC	0x127c
- #define PCI_DEVICE_ID_HP_DIVA_EVEREST	0x1282
- #define PCI_DEVICE_ID_HP_DIVA_AUX	0x1290
-+#define PCI_DEVICE_ID_HP_CISS		0x3211
+@@ -246,32 +246,21 @@ static int cciss_proc_get_info(char *buf
+         pos += size; len += size;
+ 	cciss_proc_tape_report(ctlr, buffer, &pos, &len);
+ 	for(i=0; i<=h->highest_lun; i++) {
+-		sector_t tmp;
  
- #define PCI_VENDOR_ID_PCTECH		0x1042
- #define PCI_DEVICE_ID_PCTECH_RZ1000	0x1000
+                 drv = &h->drv[i];
+ 		if (drv->block_size == 0)
+ 			continue;
+-		vol_sz = drv->nr_blocks;
+-		sector_div(vol_sz, ENG_GIG_FACTOR);
+-
+-		/*
+-		 * Awkwardly do this:
+-		 * vol_sz_frac =
+-		 *     (drv->nr_blocks%ENG_GIG_FACTOR)*100/ENG_GIG_FACTOR;
+-		 */
+-		tmp = drv->nr_blocks;
+-		vol_sz_frac = sector_div(tmp, ENG_GIG_FACTOR);
+-
+-		/* Now, vol_sz_frac = (drv->nr_blocks%ENG_GIG_FACTOR) */
+ 
++		vol_sz = drv->nr_blocks;
++		vol_sz_frac = sector_div(vol_sz, ENG_GIG_FACTOR);
+ 		vol_sz_frac *= 100;
+ 		sector_div(vol_sz_frac, ENG_GIG_FACTOR);
+ 
+ 		if (drv->raid_level > 5)
+ 			drv->raid_level = RAID_UNKNOWN;
+ 		size = sprintf(buffer+len, "cciss/c%dd%d:"
+-				"\t%4d.%02dGB\tRAID %s\n",
+-				ctlr, i, vol_sz,vol_sz_frac,
++				"\t%4u.%02uGB\tRAID %s\n",
++				ctlr, i, (int)vol_sz, (int)vol_sz_frac,
+ 				raid_label[drv->raid_level]);
+                 pos += size; len += size;
+         }
+@@ -1487,6 +1476,7 @@ static void cciss_geometry_inquiry(int c
+ 			drv->sectors = inq_buff->data_byte[7];
+ 			drv->cylinders = (inq_buff->data_byte[4] & 0xff) << 8;
+ 			drv->cylinders += inq_buff->data_byte[5];
++			drv->raid_level = inq_buff->data_byte[8];
+ 		}
+ 	} else { /* Get geometry failed */
+ 		printk(KERN_WARNING "cciss: reading geometry failed, "

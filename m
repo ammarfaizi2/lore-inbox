@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315546AbSE2Vmm>; Wed, 29 May 2002 17:42:42 -0400
+	id <S315536AbSE2Vpp>; Wed, 29 May 2002 17:45:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315539AbSE2Vmi>; Wed, 29 May 2002 17:42:38 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:42500 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S315536AbSE2Vmh>; Wed, 29 May 2002 17:42:37 -0400
-Date: Wed, 29 May 2002 23:42:12 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Colin Gibbs <colin@gibbs.dhs.org>
-Cc: linux-kernel@vger.kernel.org, tcallawa@redhat.com,
-        sparclinux@vger.kernel.org, aurora-sparc-devel@linuxpower.org,
-        davem@redhat.com
-Subject: Re: 2.4 SRMMU bug revisited
-Message-ID: <20020529214212.GE1397@louise.pinerecords.com>
-In-Reply-To: <20020527092408.GD345@louise.pinerecords.com> <1022525198.19147.29.camel@monolith>
+	id <S315539AbSE2Vpo>; Wed, 29 May 2002 17:45:44 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:22525 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S315536AbSE2Vpn>;
+	Wed, 29 May 2002 17:45:43 -0400
+Date: Wed, 29 May 2002 23:44:45 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Adam J. Richter" <adam@freya.yggdrasil.com>, gilad@benyossef.com,
+        linux-kernel@vger.kernel.org, lm@bitmover.com, phillips@bonn-fries.net
+Subject: Re: business models [was patent stuff]
+Message-ID: <20020529234445.O9911@khan.acc.umu.se>
+In-Reply-To: <200205281713.KAA22774@freya.yggdrasil.com> <1022610136.4124.131.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: GNU/Linux 2.4.19-pre9 SMP
-X-Architecture: sparc
-X-Uptime: 49 min
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- 2.4.19-pre4/kernel/fork.c	Thu Mar 28 19:49:36 2002
-> +++ tortoise-19-pre4/kernel/fork.c	Sun Apr 21 22:01:18 2002
-> @@ -336,6 +336,9 @@
->  	if (!mm_init(mm))
->  		goto fail_nomem;
->  
-> +	if (init_new_context(tsk,mm))
-> +		goto free_pt;
-> +
->  	down_write(&oldmm->mmap_sem);
->  	retval = dup_mmap(mm);
->  	up_write(&oldmm->mmap_sem);
-> @@ -347,9 +350,6 @@
->  	 * child gets a private LDT (if there was an LDT in the parent)
->  	 */
->  	copy_segments(tsk, mm);
-> -
-> -	if (init_new_context(tsk,mm))
-> -		goto free_pt;
->  
->  good_mm:
->  	tsk->mm = mm;
+On Tue, May 28, 2002 at 07:22:16PM +0100, Alan Cox wrote:
+> On Tue, 2002-05-28 at 18:13, Adam J. Richter wrote:
+> > 	You could license all programs that consist entirely of
+> > free software.  That way, BSD, LGPL, and MPL software that did
+> > not link in proprietary software would be allowed too, but your
+> > example of a proprietary program that linked in the BSD'ed
+> > libpatent.o/c would not be covered by this permission.
+> 
+> Define "free software" using only legally defined phrases which have
+> precedent. In fact put four people in a room and get them to define free
+> software.
+> 
+> > software would address issues like GPL'ed software that contains
+> > content that is GPL compatible but not GPL'ed, future versions of
+> 
+> If its linked then it is GPL in the linked form, otherwise you wouldn't
+> be allowed to link it
+
+An interesting question is whether the licensing terms used for this
+patent would pass the DFSG (Debian Free Software Guidelines)?!
 
 
-A big, big thankyou to Colin.
-
-This patch indeed makes difference. I stressed -pre9 as much as I could
-(simultaneous reading from raid devices - ext3/reiserfs/ext2, NFS traffic,
-sendmail+apache fork storms... you name it, I ran it, all at the same time)
-and the kernel lives. Processes still get killed by VM much earlier than
-they should (100+ MB RAM free), but that's not critical.
-
-A nice conclusion to this thread, isn't it? :)
-
-T.
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,91 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbTINEhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 00:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTINEhQ
+	id S262303AbTINEia (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 00:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbTINEia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 00:37:16 -0400
-Received: from codepoet.org ([166.70.99.138]:29093 "EHLO mail.codepoet.org")
-	by vger.kernel.org with ESMTP id S262301AbTINEhO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 00:37:14 -0400
-Date: Sat, 13 Sep 2003 22:37:17 -0600
-From: Erik Andersen <andersen@codepoet.org>
+	Sun, 14 Sep 2003 00:38:30 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:23999 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S262303AbTINEi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 00:38:28 -0400
+Message-ID: <3F63F0E6.70106@myrealbox.com>
+Date: Sat, 13 Sep 2003 21:39:02 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.5b) Gecko/20030906 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
 Subject: Re: People, not GPL  [was: Re: Driver Model]
-Message-ID: <20030914043716.GA19223@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-References: <20030914034218.GA18627@codepoet.org> <Pine.LNX.4.10.10309132029350.16744-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10309132029350.16744-100000@master.linux-ide.org>
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
+References: <fa.fq1hscm.1b7ai1k@ifi.uio.no> <fa.n3hqp6f.1rkg0ob@ifi.uio.no>
+In-Reply-To: <fa.n3hqp6f.1rkg0ob@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat Sep 13, 2003 at 08:36:36PM -0700, Andre Hedrick wrote:
-> Wow ... Does "Original Work" have meaning?
+Andre Hedrick wrote:
+> Erik:
 > 
-> Does an "Original Work" using only the standard kernel API headers to
-> interface mean it is a derived work?  You better go find a new lawyer.
-
-You seem to be somewhat confused as to who needs a lawyer.  I'm
-not the one asking this question.   I am also not the one trying
-to make a closed source binary only product that runs within the
-context of the Linux kernel, and then complaining that the GPL
-wackos are ruining my business...  It seems to be that doing such
-a thing would be a really stupid business model.
-
-As I recall it is the One True(tm) iSCSI stack you are working
-on, right?
-
-> "fair usage" of .h files as the API is standard.
+> One more thing you forgot!
 > 
-> Using any .c or kernel C code is a NO NO.
+> Before you run around ranting about DMCA and CPRM and making suttle legal
+> threats.  Everyone here knows who put it on the line to gain control of
+> technology to prevent Content Protection Recordable Media from covering
+> the storage industry wide.  That is correct it was me...
 
-I invite you to read the COPYING file included in each and every
-kernel tarball.  There is exactly ONE exception granted in the
-linux kernel copyright:
+Hi Andre,
 
-    This copyright does *not* cover user programs that use kernel
-    services by normal system calls - this is merely considered
-    normal use of the kernel, and does *not* fall under the
-    heading of "derived work".
+I'm not a technical person but I've been following the linux-kernel list
+for enough years to know who you are and approximately what you have
+contributed to the open-source community.  Let me start by saying THANK
+YOU!  I very much appreciate what you do for all of us.
 
-All the noise in the world about other exceptions is precisely
-that, since the license granting use of the Linux kernel does
-not contain any additional provisions.
+I would like to help you in return, if I can.
 
-Anything that can be identified as a "user program" that "use[s]
-kernel services by normal system calls" is, by virtue of the above
-license grant, doing so with permission and is therefore within
-its rights.  So you can make all the closed source user space
-only One True(tm) iSCSI stacks you want.
+I have tried my best for several years to understand your posts and I
+simply cannot.  I want to understand you because I know you know you
+have a great deal to offer -- but I just don't know what the fuck you
+are talking about most of the time, no matter how many times I read
+your posts.
 
-Anything that is not a "user program" (and I think everyone can
-agree a kernel module is not a "user program") is therefore a
-derivitive work.
+Please don't be insulted, I beg you.  I don't mean to criticize in any
+way, but I see that you need help with communication skills.  Many of
+your posts in this mailing list probably are ignored simply because
+very few people understand what you are trying to say.
 
-Anything that is linked into the kernel (and I think everyone can
-agree a kernel module is linked into the kernel) and is therefore
-interfacing with kernel internals, rather than using "kernel
-services by normal system calls" is therefore a derivitive work.
+I'm a married man so I understand how frustrating it is to have every
+word misinterpreted.  But such frustration should not be necessary in
+a technical forum like this one.  Anyone who can talk to a disk should
+be able to talk to this crowd, but I think you need a wrapper for the
+PMLI (Programmer Mailing List Interface).
 
-Laugh at people, mock people, rant, rave, wantever you want.
-When you are done making noise, please have your laywer explain
-how a closed source binary only product that runs within the
-context of the Linux kernel is not a derivitive work, per the
-very definition given in the kernel COPYING file that grants you
-your limited rights for copying, distribution and modification,
+I can't help feeling that a lot of your frustration is caused by
+miscommunciation rather than real issues.
 
- -Erik
+I hate to see you so frustrated and upset when your coronaries are at
+risk!  Take your heart medication and hire a translator....please!
+We are depending on you to be around for many more years.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

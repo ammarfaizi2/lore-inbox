@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285850AbRLTCsJ>; Wed, 19 Dec 2001 21:48:09 -0500
+	id <S285878AbRLTC5K>; Wed, 19 Dec 2001 21:57:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285849AbRLTCr7>; Wed, 19 Dec 2001 21:47:59 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:57985 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285857AbRLTCrp>;
-	Wed, 19 Dec 2001 21:47:45 -0500
-Date: Wed, 19 Dec 2001 18:47:18 -0800 (PST)
-Message-Id: <20011219.184718.88473152.davem@redhat.com>
-To: cs@zip.com.au
-Cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-aio@kvack.org
+	id <S285881AbRLTC5A>; Wed, 19 Dec 2001 21:57:00 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:23780 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S285878AbRLTC4w>;
+	Wed, 19 Dec 2001 21:56:52 -0500
+Date: Thu, 20 Dec 2001 03:56:46 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200112200256.DAA18860@harpo.it.uu.se>
+To: bcrl@redhat.com
 Subject: Re: aio
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011220133705.A21648@zapff.research.canon.com.au>
-In-Reply-To: <20011219171631.A544@burn.ucsd.edu>
-	<20011219.172046.08320763.davem@redhat.com>
-	<20011220133705.A21648@zapff.research.canon.com.au>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Cameron Simpson <cs@zip.com.au>
-   Date: Thu, 20 Dec 2001 13:37:05 +1100
-   
-   (Though an attitude like yours is a core reason Java is
-   spreading as slowly as it is - much like Linux desktops...)
-   
-It's actually Sun's fault more than anyone else's.
+On Wed, 19 Dec 2001 19:21:36 -0500, Benjamin LaHaise wrote:
+>People are throwing money at the problem.  We're now at a point that in 
+>order to provide the interested people with something they can use, we 
+>need some kind of way to protect their applications against calling an 
+>unsuspecting new mmap syscall instead of the aio syscall specified in 
+>the kernel they compiled against.
 
-   However, heavily threaded apps regardless of language are hardly likely
-   to disappear; threads are the natural way to write many many things. And
-   if the kernel implements threads as on Linux, then the scheduler will
-   become much more important to good performance.
+One option is to use a mechanism where the kernel selects the aio
+syscall number from any of the available numbers, and publishes it
+in some easily accessible location. User-space then needs to grab it
+from that location at app/lib init time before doing any actual work.
+(This of course goes away when/if you do get an official syscall number.)
 
-We are not talking about the scheduler, we are talking about
-AIO.
+This is at least how I intend to do the "ioctl on device" to "real
+syscall" transition for my x86 performance counters driver.
+
+/Mikael

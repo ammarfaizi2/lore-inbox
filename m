@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290779AbSARTFF>; Fri, 18 Jan 2002 14:05:05 -0500
+	id <S290668AbSARTGp>; Fri, 18 Jan 2002 14:06:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290668AbSARTE4>; Fri, 18 Jan 2002 14:04:56 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:49036 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S290774AbSARTEm>; Fri, 18 Jan 2002 14:04:42 -0500
-Message-Id: <200201181904.g0IJ4ThP001576@tigger.cs.uni-dortmund.de>
-To: Juhan Ernits <juhan@cc.ioc.ee>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: misconfiguration of ne.o module in 2.2.19 damaged hardware. Is it normal? 
-In-Reply-To: Message from Juhan Ernits <juhan@cc.ioc.ee> 
-   of "Thu, 17 Jan 2002 21:33:31 +0200." <Pine.GSO.4.21.0201172119110.18678-100000@suhkur.cc.ioc.ee> 
-Date: Fri, 18 Jan 2002 20:04:29 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S290780AbSARTGj>; Fri, 18 Jan 2002 14:06:39 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:22578 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S290668AbSARTGb>; Fri, 18 Jan 2002 14:06:31 -0500
+Date: Fri, 18 Jan 2002 20:07:01 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Wilhelm Nuesser <wilhelm.nuesser@sap.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: clarification about redhat and vm
+Message-ID: <20020118200700.A21279@athlon.random>
+In-Reply-To: <E16RFE9-00042W-00@the-village.bc.nu> <3C485169.7070005@sap.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3C485169.7070005@sap.com>; from wilhelm.nuesser@sap.com on Fri, Jan 18, 2002 at 05:46:33PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juhan Ernits <juhan@cc.ioc.ee> said:
-
-[...]
-
-> I installed linux on this box (Debian 2.2r4, kernel version 2.2.19).
-> Then when configuring the network the module ne.o was chosen. 
-> I was sure about the io address but not so sure about the irq. So I
-> configured the module with only io address parameter.
-
-This is enough, IRQ can be found from that datum. I assume this is an ISA
-NIC? If PCI, no such parameters are needed. BTW, NE clones are (in)famous
-for their bizarre assortment of bugs, you might have hit one that doesn't
-work with Linux.
-
-> At this point no problems occurred.
+On Fri, Jan 18, 2002 at 05:46:33PM +0100, Wilhelm Nuesser wrote:
+> Alan Cox wrote:
 > 
-> Then I configured the network address but the device eth0 did not appear
-> to be available (naturally, due to misconfiguration). Since it was part of
-> automated install I decided to reboot after this.
+> >>"If redhat doesn't use the -aa VM " was a short form of "if redhat
+> >>cannot see the goodness of all the bugfixing work that happened between
+> >>the 2.4.9 VM and any current branch 2.4, and so if they keep shipping
+> >>2.4.9 VM as the best one for DBMS and critical VM apps like the SAP
+> >>benchmark".
+> >>
+> >
+> >The RH VM is totally unrelated to the crap in 2.4.9 vanilla. The SAP comment
+> >begs a question. 2.4.10 seems to have problems remembering to actually 
+> >do fsync()'s. How much of your SAP benchmark is from fsync's that dont
+> >happen ? Do you get the same values with 2.4.18-aa ?
+> >
+> Well, basically we checked the thing many times with quite different 
+> kernels.
+> Our current tests - which show exactly the same results as 
+> 2.4.[10,14,15] - run
+> on the new "official" SuSE kernel 2.4.16.  Again, we  observe a 
+> performance increase
+> in high swap situations of about  a factor of ten compared to 2.4.[7,9].
+>  
+> IMO, this shows that errors like fsync etc. are _not_ responsible for 
+> the improved
+> performance.
 
-What does lsmod(8) tell you? If you do an "modprobe ne io=..." what does it
-say?
+and I assume you were using either ext2 or reiserfs anyways, so the
+fsync problem never affected you since the first place (also with older
+kernels) I believe.
 
-If your guess at IO is wrong, nothing happens. If the NIC is _not_ an NE,
-strange things could very well happen. It might be broken, not installed
-correctly, jumpers set wrong, ...
--- 
-Horst von Brand			     http://counter.li.org # 22616
+Andrea

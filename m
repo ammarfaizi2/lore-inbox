@@ -1,120 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTF0Fw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 01:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbTF0Fw0
+	id S263875AbTF0GJt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 02:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTF0GJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 01:52:26 -0400
-Received: from netcore.fi ([193.94.160.1]:53009 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id S263861AbTF0FwQ (ORCPT
+	Fri, 27 Jun 2003 02:09:49 -0400
+Received: from mho.net ([64.58.22.200]:16542 "EHLO es1036.belits.com")
+	by vger.kernel.org with ESMTP id S263875AbTF0GJq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 01:52:16 -0400
-Date: Fri, 27 Jun 2003 09:06:27 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: Michael Bellion and Thomas Heinz <nf@hipac.org>
-cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>
-Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
-In-Reply-To: <200306252248.44224.nf@hipac.org>
-Message-ID: <Pine.LNX.4.44.0306270900260.3068-100000@netcore.fi>
+	Fri, 27 Jun 2003 02:09:46 -0400
+Date: Fri, 27 Jun 2003 00:18:04 -0600 (MDT)
+From: Alex Belits <abelits@phobos.illtel.denver.co.us>
+To: Guennadi Liakhovetski <gl@dsa-ac.de>
+cc: linux-kernel@vger.kernel.org, debian-glibc@lists.debian.org
+Subject: Re: VIA Ezra CentaurHauls
+In-Reply-To: <Pine.LNX.4.33.0306181205180.2967-100000@pcgl.dsa-ac.de>
+Message-ID: <Pine.LNX.4.53.0306262351040.29477@phobos.illtel.denver.co.us>
+References: <Pine.LNX.4.33.0306181205180.2967-100000@pcgl.dsa-ac.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 18 Jun 2003, Guennadi Liakhovetski wrote:
 
-Looks interesting.  Is there experience about this in bridging firewall 
-scenarios? (With or without external patchset's like 
-http://ebtables.sourceforge.net/)
+> Hello
+>
+> We have a platform with the above processor, and we happened to have 2
+> revisions thereof: stepping 8 and 10. With stepping 8 we are getting
+> "random" application crashes (segfaults), sometimes with kernel-Oopses.
+> The distribution is Debian-Woody. I saw some messages on the Debian
+> mailing list about problems with exactly this CPU, however, it was not
+> related to different revisions (stepping), perhaps, the author only had
+>  / tried stepping 8. The fix was to upgrade libc. I've done this (to
+> version libc6_2.3.1-16, but it didn't help. Any ideas?
 
-Further, you mention the performance reasons for this approach.  I would 
-be very interested to see some figures.
+  I have two EPIA 800 motherboards with different CPUs:
 
-(As it happens, we've done some testing with different iptables rules
-ourselves, and noticed significant problems especially when you go down
-from IP addresses to UDP/TCP ports, for example.)
+1. The board has "Revision B" printed on it.
+CPU is:
+processor       : 0
+vendor_id       : CentaurHauls
+cpu family      : 6
+model           : 7
+model name      : VIA Ezra
+stepping        : 8
+cpu MHz         : 800.047
+cache size      : 64 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu de tsc msr cx8 mtrr pge mmx 3dnow
+bogomips        : 1595.80
 
-On Wed, 25 Jun 2003, Michael Bellion and Thomas Heinz wrote:
-> We have released a new version of nf-hipac. We rewrote most of the code
-> and added a bunch of new features. The main enhancements are
-> user-defined chains, generic support for iptables targets and matches
-> and 64 bit atomic counters.
-> 
-> 
-> For all of you who don't know nf-hipac yet, here is a short overview:
-> 
-> nf-hipac is a drop-in replacement for the iptables packet filtering module.
-> It implements a novel framework for packet classification which uses an
-> advanced algorithm to reduce the number of memory lookups per packet.
-> The module is ideal for environments where large rulesets and/or high
-> bandwidth networks are involved. Its userspace tool, which is also called 
-> 'nf-hipac', is designed to be as compatible as possible to 'iptables -t 
-> filter'.
-> 
-> The official project web page is:    http://www.hipac.org
-> The releases can be downloaded from: http://sourceforge.net/projects/nf-hipac
-> 
-> Features:
->      - optimized for high performance packet classification with moderate
->        memory usage
->      - completely dynamic: data structure isn't rebuild from scratch when
->        inserting or deleting rules, so fast updates are possible
->      - very short locking times during rule updates: packet matching is
->        not blocked
->      - support for 64 bit architectures
->      - optimized kernel-user protocol (netlink): improved rule listing
->        speed
->      - libnfhipac: netlink library for kernel-user communication
->      - native match support for:
->          + source/destination ip
->          + in/out interface
->          + protocol (udp, tcp, icmp)
->          + fragments
->          + source/destination ports (udp, tcp)
->          + tcp flags
->          + icmp type
->          + connection state
->          + ttl
->      - match negation (!)
->      - iptables compatibility: syntax and semantics of the userspace tool
->        are very similar to iptables
->      - coexistence of nf-hipac and iptables: both facilities can be used
->        at the same time
->      - generic support for iptables targets and matches (binary
->        compatibility)
->      - integration into the netfilter connection tracking facility
->      - user-defined chains support
->      - 64 bit atomic counters
->      - kernel module autoloading
->      - /proc/net/nf-hipac/info:
->            + dynamically limit the maximum memory usage
->            + change invokation order of nf-hipac and iptables
->      - extended statistics via /proc/net/nf-hipac/statistics/*
-> 
-> 
-> We are currently working on extending the hipac algorithm to do classification 
-> with several stages. The hipac algorithm will then be capable of combining 
-> several classification problems in one data structure, e.g. it will be 
-> possible to solve routing and firewalling with one hipac lookup. The idea is 
-> to shorten the packet forwarding path by combining fib_lookup and iptables 
-> filter lookup into one hipac query. To further improve the performance in 
-> this scenario the upcoming flow cache could be used to cache recent hipac 
-> results.
-> 
-> 
-> 
-> Enjoy,
-> 
-> +-----------------------+----------------------+
-> |   Michael Bellion     |     Thomas Heinz     |
-> | <mbellion@hipac.org>  |  <creatix@hipac.org> |
-> +-----------------------+----------------------+
-> 
-> 
+2. The board is "Revision D", but otherwise looks exactly the same.
+CPU is:
+processor       : 0
+vendor_id       : CentaurHauls
+cpu family      : 6
+model           : 7
+model name      : VIA Samuel 2
+stepping        : 3
+cpu MHz         : 800.047
+cache size      : 64 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu de tsc msr cx8 mtrr pge mmx 3dnow
+bogomips        : 1595.80
+
+  Both boards were used in exactly the same environment, as a replacement
+for a failed FV24 motherboard in SV24 box that had Debian Woody already
+installed. Obviously, to make it boot I had to recompile the kernel, and
+I had to recompile mplayer that I have previously built for i686
+(everything was done with gcc 2.95.4).
+
+  First board worked perfectly until I have started (as a regular user)
+RealPlayer 8. After that the box became unstable, and other applications
+(mozilla, mplayer, gcc) started to crash randomly with SEGV. However I
+have not seen a kernel crash.
+
+  I have tried different X drivers (trident from 4.3.0, trident from
+current, vesa), different memory, one or two sticks, different power
+supplies (including a known-good ATX power supply just in case), different
+CMOS settings (including "safe" default, all caches off, etc.), and the
+result was the same -- no problems without RealPlayer, application crashes
+after it started. TRplayer, that uses RealPlayer's libraries, has the same
+effect, however mplayer (tested only with non-Realmedia sources) worked
+perfectly, and even shown an impressive performance by playing SVCD in
+vidix mode with no dropped frames (as long as I was not doing anything
+else at the same time). When I have started RealPlayer, programs started
+to randomly crash, and whatever the problem was, it was not confined to
+the userid that RealPlayer was running as -- mplayer and gcc were running
+as root when they crashed. Usually things crashed with segmentation fault,
+however once RealPlayer crashed with floating point exception. Puzzled, I
+have ran memtest86, and all memory that ever was in that box passed all
+basic tests (I had no patience for anything more than that).
+
+  When I have installed the second motherboard (obviously, with no other
+modifications), all problems disappeared. I have also checked the
+RealPlayer binaries, and objdump shown no cmov.
+
+  I don't know what exactly happens, but it looks for me very strange that
+a single piece of code causes all this havoc, and that over all that time
+apparently no SIGILLs happened. I can only speculate that "something"
+leaves some piece of state in CPU (or maybe in cache) that survives a
+context switch, and messes up the state of other processes (registers or
+maybe memory). And whatever it is, "VIA Samuel 2, stepping 3" does not
+have it.
 
 -- 
-Pekka Savola                 "You each name yourselves king, yet the
-Netcore Oy                    kingdom bleeds."
-Systems. Networks. Security. -- George R.R. Martin: A Clash of Kings
-
-
+Alex

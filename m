@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUBNJN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 04:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbUBNJN5
+	id S261522AbUBNJip (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 04:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUBNJip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 04:13:57 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:460 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261500AbUBNJN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 04:13:56 -0500
-From: Christian Borntraeger <kernel@borntraeger.net>
-To: Mike Bell <kernel@mikebell.org>, Greg KH <greg@kroah.com>
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Date: Sat, 14 Feb 2004 10:13:50 +0100
-User-Agent: KMail/1.5.4
+	Sat, 14 Feb 2004 04:38:45 -0500
+Received: from fiberbit.xs4all.nl ([213.84.224.214]:25476 "EHLO
+	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S261522AbUBNJio
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 04:38:44 -0500
+Date: Sat, 14 Feb 2004 10:38:00 +0100
+From: Marco Roeland <marco.roeland@xs4all.nl>
+To: yiding_wang@agilent.com
 Cc: linux-kernel@vger.kernel.org
-References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040213211920.GH14048@kroah.com> <20040214085110.GG5649@tinyvaio.nome.ca>
-In-Reply-To: <20040214085110.GG5649@tinyvaio.nome.ca>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: what is the best 2.6.2 kernel code?
+Message-ID: <20040214093800.GA32714@localhost>
+References: <0A78D025ACD7C24F84BD52449D8505A15A80CF@wcosmb01.cos.agilent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200402141013.50633.kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+In-Reply-To: <0A78D025ACD7C24F84BD52449D8505A15A80CF@wcosmb01.cos.agilent.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Bell wrote:
-> On Fri, Feb 13, 2004 at 01:19:20PM -0800, Greg KH wrote:
-> > > That's a pretty minor difference, from the kernel's point of view.
-> > > It's basically putting the same numbers in different fields.
-> >
-> > Heh, that's a HUGE difference!
+On Friday february 13 th 2004 yiding_wang@agilent.com wrote:
+
+> I downloaded kernel linux-2.6.2.tar.gz and patch-2.6.2.bz2 from kernel
+> source. Both files are dated 03-Feb.-2004.
 >
-> Only from userspace's point of view. To the kernel, it's basically the
-> same thing.
+> Building new kernel from the source failed on fs/proc/array.o.
 
-No. Giving a major and minor number is simple. 
-Creating a device node means: you have to define a policy. Now the kernel 
-has to think about:
-- user id
-- group id
-- access rights
-- naming
+This is a known compiler bug for gcc 2.96. See the following link for a
+workaround patch, or upgrade your compiler.
 
-These are the reasons why devfsd was/is necessary for devfs.
-A Kernel should only enforce a policy, it should not define it.
-
-cheers
-
-Christian
-
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107567013416122&w=2
+-- 
+Marco Roeland

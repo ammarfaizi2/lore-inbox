@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264212AbRFFWjN>; Wed, 6 Jun 2001 18:39:13 -0400
+	id <S264216AbRFFWnn>; Wed, 6 Jun 2001 18:43:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264216AbRFFWjD>; Wed, 6 Jun 2001 18:39:03 -0400
-Received: from smtp6.mindspring.com ([207.69.200.110]:56328 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S264215AbRFFWiy>; Wed, 6 Jun 2001 18:38:54 -0400
-Subject: Re: Break 2.4 VM in five easy steps
-From: Robert Love <rml@tech9.net>
-To: android <linux@ansa.hostings.com>
-Cc: Jonathan Morton <chromi@cyberspace.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20010606152347.028e21d0@ansa.hostings.com>
-In-Reply-To: <5.1.0.14.2.20010606143453.028ed400@ansa.hostings.com>
-	<9fm4t7$412$1@penguin.transmeta.com> <3B1D5ADE.7FA50CD0@illusionary.com> 
-	<5.1.0.14.2.20010606152347.028e21d0@ansa.hostings.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 06 Jun 2001 18:38:44 -0400
-Message-Id: <991867131.807.4.camel@phantasy>
-Mime-Version: 1.0
+	id <S264220AbRFFWnd>; Wed, 6 Jun 2001 18:43:33 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:16008 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S264216AbRFFWnW>; Wed, 6 Jun 2001 18:43:22 -0400
+Date: Wed, 6 Jun 2001 16:42:53 -0600
+Message-Id: <200106062242.f56Mgrx20007@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "David S. Miller" <davem@redhat.com>,
+        "La Monte H.P. Yarroll" <piggy@em.cig.mot.com>,
+        "Matt D. Robinson" <yakker@alacritech.com>,
+        linux-kernel@vger.kernel.org, sctp-developers-list@cig.mot.com
+Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister
+ table
+In-Reply-To: <Pine.GSO.4.21.0106061832220.10233-100000@weyl.math.psu.edu>
+In-Reply-To: <15134.43914.98253.998655@pizda.ninka.net>
+	<Pine.GSO.4.21.0106061832220.10233-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06 Jun 2001 15:27:57 -0700, android wrote:
-> >I sincerely hope you're joking.
->
-> I realize that assembly is platform-specific. Being that I use the IA32 class
-> machine, that's what I would write for. Others who use other platforms could
-> do the deed for their native language.<snip>
+Alexander Viro writes:
+> 
+> 
+> On Wed, 6 Jun 2001, David S. Miller wrote:
+> 
+> > This allows people to make proprietary implementations of TCP under
+> > Linux.  And we don't want this just as we don't want to add a way to
+> > allow someone to do a proprietary Linux VM.
+> 
+> 	Erm... What stops those who want to do such implementations
+> from using AF_PACKET and handling the whole thing in userland?
 
-no, look at the code. it is not going to benefit from assembly (assuming
-you can even implement it cleanly in assembly).  its basically an
-iteration of other function calls.
+Just that their performance will suck. People are far less likely to
+adopt a product (with an "embrace and extend" side effect) if said
+product sucks performance.
 
-doing a new implementation in assembly for each platform is not
-feasible, anyhow. this is the sort of thing that needs to be uniform.
+Besides, it's better if people send patches to speed up our stack,
+rather than having a proprietary product. Patches benefit all
+mankind. Products benefit the vendor.
 
-this really has nothing to do with the "iron" of the computer -- its a
-loop to check and free swap pages. assembly will not provide benefit.
+				Regards,
 
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

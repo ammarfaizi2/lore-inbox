@@ -1,57 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129283AbRBGFVW>; Wed, 7 Feb 2001 00:21:22 -0500
+	id <S129138AbRBGFfJ>; Wed, 7 Feb 2001 00:35:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129339AbRBGFVL>; Wed, 7 Feb 2001 00:21:11 -0500
-Received: from [203.20.159.141] ([203.20.159.141]:25874 "EHLO memim01")
-	by vger.kernel.org with ESMTP id <S129283AbRBGFUy>;
-	Wed, 7 Feb 2001 00:20:54 -0500
-Message-Id: <974A613A43EED311ACBD00508B5EF8C1D66DEF@meexc04.jbwere.com.au>
-From: JShaw@jbwere.com.au
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x and oops on 'mount -t smbfs'
-Date: Wed, 7 Feb 2001 17:19:45 +1100 
+	id <S129114AbRBGFet>; Wed, 7 Feb 2001 00:34:49 -0500
+Received: from 218-MADR-X32.libre.retevision.es ([62.83.5.218]:65042 "EHLO
+	vivaldi.ddts.net") by vger.kernel.org with ESMTP id <S129138AbRBGFes> convert rfc822-to-8bit;
+	Wed, 7 Feb 2001 00:34:48 -0500
+Date: Wed, 7 Feb 2001 06:34:33 +0100 (MET)
+From: Roberto Diaz <rdiazmartin@vivaldi.ddts.net>
+To: linux-legal@nl.linux.org
+cc: Roberto Diaz <rdiazmartin@vivaldi.net.dhis.org>,
+        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
+        Guido Socher <guido@bearix.oche.de>
+Subject: Re: Software Mestizo Manifesto 
+In-Reply-To: <Pine.LNX.4.21.0102070252580.1535-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0102070625350.494-100000@vivaldi.ddts.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy,
+> Quoted from the GPL:
+> -------
+>   6. Each time you redistribute the Program (or any work based on the
+> Program), the recipient automatically receives a license from the
+> original licensor to copy, distribute or modify the Program subject to
+> these terms and conditions.  You may not impose any further
+> restrictions on the recipients' exercise of the rights granted herein.
+> You are not responsible for enforcing compliance by third parties to
+> this License.
+> -------
+> 
+> Your "ethical" statement is incompatible with the GPL.
 
-I'm running RedHat 7.0 on a Compaq Proliant 5500, 4x Xeon 550MHz, 4GB 50Ns
-EDO RAM.  Under kernel 2.2.16-22 I'm able to use
+Thank you very much.. do you find incompatibilities here:
 
-	'mount -t smbfs //ntserver/share /net -o
-username=me,password=mine,workgroup=yours'
+/******************  Software Mestizo Manifesto  *********************
+ * This code is **Software Mestizo** meaning it has been developed with
+ * the help of many diverse individuals worldwide; no matter their 
+ * racial or cultural origin, they all work together in peace and harmony 
+ * in the belief of humankind fraternity.  Using this software with the 
+ * purpose of harming these principles is to harm the software itself,
+ * We advice to use it only in the context of these principles or refrain 
+ * from its use if you don't agree with the spirit in which it was 
+ * written.
+ */ 
 
-... without a problem.  NT files become available under '/net', as expected.
-I've compiled a number of 2.4.1 and 2.4.0 kernels (actually supports the 4GB
-RAM!!!  Yay!!!!), and I have only one more problem to sort out.  Under
-2.4.x, the mount completes successfully, but 'ls /net' causes an OOPS: 0000.
+Please let the people to decide wether they want to attach this to their
+source code.. I am only trying to do a manifesto which I think is valuable
 
-I've compiled Samba support into the kernel, and the version of Samba utils
-is 2.0.7-21ssl
+Please send a CC: to Guido Socher <guido@bearix.oche.de> he is the
+Editor-in-Chief of www.linuxfocus.org maybe he could help (or kill me
+still dont know.. anyway).
 
-Any clues or similar experiences???
 
-Thanx,
+Regards
 
-Jim Shaw.
-		      JBWere Limited
-			DISCLAIMER
+Roberto
 
-JBWere Limited and its related entities distributing this document and 
-each of their respective directors, officers and agents ("the Were Group") 
-believe that the information contained in this document is correct and that
-any estimates, opinions, conclusions or recommendations contained in this 
-document are reasonably held or made as at the time of compilation. However, 
-no warranty is made as to the accuracy or reliability of any estimates, 
-opinions, conclusions, recommendations (which may change without notice) or 
-other information contained in this document and, to the maximum extent 
-permitted by law, the Were Group disclaims all liability and responsibility 
-for any direct or indirect loss or damage which may be suffered by any recipient 
-through relying on anything contained in or omitted from this document.
+------------------------------------------------------------------------
+Roberto Diaz <rdiazmartin@vivaldi.dtts.net>
+http://vivaldi.dtts.net 
+Powered by ddt dynamic DNS
+Powered by GNU running on a Linux kernel.
+Powered by Debian (The real wonder)
+
+Concerto Grosso Op. 3/8 A minor
+Antonio Vivaldi (so... do you need beautiful words?)
+------------------------------------------------------------------------
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

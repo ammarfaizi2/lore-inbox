@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293219AbSCFElu>; Tue, 5 Mar 2002 23:41:50 -0500
+	id <S293217AbSCFEwO>; Tue, 5 Mar 2002 23:52:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293217AbSCFElc>; Tue, 5 Mar 2002 23:41:32 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:6917 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S293216AbSCFEl0>; Tue, 5 Mar 2002 23:41:26 -0500
+	id <S293222AbSCFEwD>; Tue, 5 Mar 2002 23:52:03 -0500
+Received: from ns0.auctionwatch.com ([66.7.130.2]:48648 "EHLO
+	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
+	id <S293217AbSCFEvv>; Tue, 5 Mar 2002 23:51:51 -0500
+Date: Tue, 5 Mar 2002 20:51:50 -0800
+From: Petro <petro@auctionwatch.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: SSSCA: We're in trouble now
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Petro <petro@auctionwatch.com>
-Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-In-Reply-To: <20020306042630.GG22934@auctionwatch.com>
-In-Reply-To: <3C7FDAB1.6F687440@randomlogic.com>
-	<1015014449.16520.9.camel@unaropia> <1015014637.811.0.camel@bip>
-	<1015018176.16520.66.camel@unaropia> <87henzoqgy.fsf@CERT.Uni-Stuttgart.DE>
-	<3C80400F.9A3B49CA@randomlogic.com> 
-	<20020306042630.GG22934@auctionwatch.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 05 Mar 2002 23:41:03 -0500
-Message-Id: <1015389666.1228.20.camel@aurora>
+Message-ID: <20020306045150.GJ22934@auctionwatch.com>
+In-Reply-To: <1015028463.2276.231.camel@thanatos> <20020302183041.P6075@stingr.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020302183041.P6075@stingr.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-03-05 at 23:26, Petro wrote:
->     Do what they tell you, or go to jail. (Well, there is a third
->     choice, but it would best not be discussed here). 
+On Sat, Mar 02, 2002 at 06:30:42PM +0300, Paul P Komkoff Jr wrote:
+> 
+> the one difference between govt and corporations - corporations want
+> citizens become idiots that generate money and gift it to a corporate CEO :)
 
-And for the safety of those in the USA and around the world,
-particularly on this list... it is best not to even think about it...
-until it is the only option.
+    Nope. 
 
+    The biggest difference is that Corporations have to convince you to
+    give them money so they can pay the governments to point guns at
+    you, while goverments just point guns at you to take your money. 
+
+    It's all about money and force. 
+
+-- 
+Share and Enjoy. 

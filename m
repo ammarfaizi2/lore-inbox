@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285394AbRLNPgt>; Fri, 14 Dec 2001 10:36:49 -0500
+	id <S285399AbRLNPni>; Fri, 14 Dec 2001 10:43:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285398AbRLNPgi>; Fri, 14 Dec 2001 10:36:38 -0500
-Received: from [208.248.202.76] ([208.248.202.76]:62980 "EHLO mail.emacinc.com")
-	by vger.kernel.org with ESMTP id <S285394AbRLNPgX>;
-	Fri, 14 Dec 2001 10:36:23 -0500
-Date: Fri, 14 Dec 2001 09:37:04 +0100
-From: root <ngustavson@emacinc.com>
-To: linux-kernel@vger.kernel.org
-Subject: copy_to_user count seg-fault
-Message-ID: <20011214093704.C376@nate>
-Reply-To: root <ngustavson@emacinc.com>
+	id <S285398AbRLNPn3>; Fri, 14 Dec 2001 10:43:29 -0500
+Received: from eos.telenet-ops.be ([195.130.132.40]:16323 "EHLO
+	eos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S285399AbRLNPnI>; Fri, 14 Dec 2001 10:43:08 -0500
+Date: Fri, 14 Dec 2001 16:43:01 +0100
+From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
+To: Linux-Kernel Development Mailinglist 
+	<linux-kernel@vger.kernel.org>
+Subject: 2.4.17-rc1 doesn't boot (on K6-II)
+Message-ID: <20011214164301.A512@Zenith.starcenter>
+Mail-Followup-To: Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Balsa 0.6.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.4.17-pre8
+X-Telephone: +32 486 460306
+X-Requested: Beautiful, smart and Linux-lovin' girlfriend
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am working on a device driver for a 2.4.14 kernel.
+Hi,
 
-In my standard read function I use copy_to_user(buff,&reloc,count);
-buff is the buffer passed from the read function, reloc is a char, and 
-count is the size_t count paramenter from the read function.
+When booting 2.4.17-rc1, the following text appears:
 
-as long as I pass it count it works fine, however if I replace count 
-with a constant 1 I get a seg fault.
+-------------------------------------------- BEGIN --
+Loading 2.4.17-rc1............. 
+Uncompressing Linux...
 
-if I set count=1 I get a seg fault.
+ran out of input data
 
-and finally and weirdest of all, if I do an if(count==1) I get a seg 
-fault.
+  -- System halted
+--------------------------------------------- END ---
 
-has anyone seen anything like this before, what could possibly be 
-causing this?
+This has never occured to me before. I'm compiling -rc1 now on another box
+(with a different gcc - mine is 2.96-85 - yes, RedHat packaged it) to make
+sure this isn't due to gcc.
 
+	Sven Vermeulen
 
+-- 
+I would rather spend 10 hours reading someone else's source code than
+10 minutes listening to Musak waiting for technical support which 
+isn't. ~(Wettstein)

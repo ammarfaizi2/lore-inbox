@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270858AbTHSQSj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 12:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270805AbTHSQPm
+	id S276311AbTHSQ1U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 12:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275383AbTHSQTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 12:15:42 -0400
+	Tue, 19 Aug 2003 12:19:14 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:53499 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S270984AbTHSQNY (ORCPT
+	by vger.kernel.org with ESMTP id S272323AbTHSQQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:13:24 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Happe <andreashappe@gmx.net>
-Subject: 2.6.0-test3-mm2: JFS/cryptoapi OOPS
-Date: Tue, 19 Aug 2003 15:43:30 +0000
-Message-ID: <slrnbk4hd2.8pm.andreashappe@flatline.ath.cx>
-Reply-To: Andreas Happe <andreashappe@gmx.net>
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+	Tue, 19 Aug 2003 12:16:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Simon Haynes <simon@baydel.com>
+Reply-To: simon@baydel.com
+Organization: Baydel Ltd.
+To: root@chaos.analogic.com
+Subject: Re: File access
+Date: Tue, 19 Aug 2003 14:36:51 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <67597854DA5@baydel.com> <1FDBD34B76B1@baydel.com> <Pine.LNX.4.53.0308190814420.3760@chaos>
+In-Reply-To: <Pine.LNX.4.53.0308190814420.3760@chaos>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20A82354434A@baydel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-trying to run 'mkfs.jfs /dev/loop1' on a file backed cryptoloop using
-aes creates following OOPS. System is a P3m, UP with enabled preemption.
+Thanks I have looked at the attached file and I would really not like to 
+access a file from the kernel but I cannot seem to get the user land app to 
+work with writing. If you consider a kernel module which, in some event, 
+needs to save some information in a file. The usr app is blocked in a read 
+with interruptible_sleep_on. When the first write occurs the module calls 
+wake_up_interruptible to write the data. Before the module can write the next 
+chunk of data it needs to stall until the user process has finished. 
+I can not find a method of stalling the module so it seems my only solution 
+is to write the file from the kernel or dump the data somewhere manually.
 
-kernel BUG at mm/filemap.c:1930!
-invalid operand: 0000 [#1]
-PREEMPT 
-CPU:    0
-EIP:    0060:[<c013e919>]    Not tainted VLI
-EFLAGS: 00010282
-EIP is at generic_file_aio_write_nolock+0xe9/0x100
-eax: c1523c20   ebx: 0ff01000   ecx: c156bdab   edx: c014b1ab
-esi: 00000000   edi: cfc19f6c   ebp: cfc19e84   esp: cfc19e40
-ds: 007b   es: 007b   ss: 0068
-Process mkfs.jfs (pid: 8985, threadinfo=cfc18000 task=cb42b920)
-Stack: 00000000 cfc18000 c03837d0 c0383898 c03837d0 cf84dba0 cf84dc30 cbd635e0 
-       cfc19e84 cbd635e0 0ff01000 00000000 c013ea92 cfc19e84 cfc19f6c 00000001 
-       cbd63600 00000000 00000002 00000000 00000001 ffffffff cbd635e0 c20a630c 
-Call Trace:
- [<c013ea92>] __crc_generic_read_dir+0x14/0x32
- [<c014b1ab>] do_anonymous_page+0x13b/0x250
- [<c011d630>] autoremove_wake_function+0x0/0x50
- [<c01192dc>] do_page_fault+0x23c/0x456
- [<c01d94b2>] tty_read+0xf2/0x170
- [<c0163107>] blkdev_file_write+0x37/0x40
- [<c0159ce2>] vfs_write+0xe2/0x150
- [<c0159e02>] sys_write+0x42/0x70
- [<c03320cb>] syscall_call+0x7/0xb
+Cheers
 
-Code: f2 90 89 7c 24 04 8b 44 24 40 c7 44 24 08 01 00 00 00 89 2c 24 89 44 24 0c e8 74 f3 ff ff 83 7d 10 ff 89 c7 75 cd e9 6f ff ff ff <0f> 0b 8a 07 9f a1 34 c0 e9 53 ff ff ff 8d 76 00 8d bc 27 00 00 
+Simon.  
 
-	--Andreas
-
+On Tuesday 19 Aug 2003 1:17 pm, Richard B. Johnson wrote:
+> On Tue, 19 Aug 2003, Simon Haynes wrote:
+> > I actually had a character interface which I use for on the fly
+> > configuration. I have now implemented some code which uses a user process
+> > to pass the configuration to the driver. I have however run into problems
+> > trying to write files from the driver. I have tried implementing a user
+> > process which performs a blocking read. The user process is blocked with
+> > interruptible_sleep_on and is woken by the main part of the driver when
+> > it needs to write. The problem is I then need to stall the main part of
+> > the driver while the data gets written out. My problem is that this write
+> > needs to happen from an interrupt handler or a timer process. I cannot
+> > seem to block these with interruptible_sleep_on, the kernel crashes. I
+> > guess you cannot use this in these cases ? I have also tried semaphores
+> > without much success. I have looked for the howto but failed there also.
+> >
+> > Could you please tell me where I could find this FAQ.
+> >
+> > Many Thanks
+> >
+> > Simon.
+>
+> You may want to post this somewhere. I don't have a web-page.
+> We are treated like prisoners here ;;;))   Just kidding, Thor
+> (network spy).
+>
+> Cheers,
+> Dick Johnson
+>
+>
+> Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+>             Note 96.31% of all statistics are fiction.

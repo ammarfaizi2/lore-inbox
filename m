@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274530AbRITO4q>; Thu, 20 Sep 2001 10:56:46 -0400
+	id <S274529AbRITOuQ>; Thu, 20 Sep 2001 10:50:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274531AbRITO4g>; Thu, 20 Sep 2001 10:56:36 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:51474 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id <S274530AbRITO4c>; Thu, 20 Sep 2001 10:56:32 -0400
-Message-ID: <3BAA0465.C02DFEB7@cyclades.com>
-Date: Thu, 20 Sep 2001 11:59:49 -0300
-From: "Daniela P. R. Magri Squassoni" <daniela@cyclades.com>
-Organization: Cyclades
-X-Mailer: Mozilla 4.7 [en] (Win98; I)
-X-Accept-Language: en
+	id <S274530AbRITOuG>; Thu, 20 Sep 2001 10:50:06 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:15769 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274529AbRITOt4>;
+	Thu, 20 Sep 2001 10:49:56 -0400
+Date: Thu, 20 Sep 2001 10:50:16 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Chris Mason <mason@suse.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <627000000.1000996685@tiny>
+Message-ID: <Pine.GSO.4.21.0109201046270.3498-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Krzysztof Halasa <khc@intrepid.pm.waw.pl>, linux-kernel@vger.kernel.org
-Subject: Re: New generic HDLC available
-In-Reply-To: <m3bsoumbtv.fsf@intrepid.pm.waw.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Are there any news about the inclusion of these changes in the kernel?
 
-Best regards,
+On Thu, 20 Sep 2001, Chris Mason wrote:
 
-Daniela
-
-Krzysztof Halasa wrote:
 > 
-> Hi,
 > 
-> I've put new experimental version of my generic HDLC code on
-> http://hq.pm.waw.pl/hdlc/ ( ftp://ftp.pm.waw.pl/pub/linux/hdlc/experimental/ )
+> On Thursday, September 20, 2001 09:56:22 AM -0400 Alexander Viro <viro@math.psu.edu> wrote:
 > 
-> Currently supported (hw drivers) are C101 and N2 (untested) boards.
-> Protocols supported:
-> - X.25 and PPP (via X.25 and syncppp routines)
-> - Frame Relay (CCITT and ANSI LMI, or no LMI)
-> - Cisco HDLC
-> - raw HDLC (you can select NRZ/NRZI/Manchester/FM codes and parity)
+> > Had you actually read the fsync_dev()?  Let me make it clear: you are
+> > flushing _buffer_ cache upon blkdev_put(bdev, BDEV_FILE).  It was
+> > the right thing when file access went through buffer cache.  It's
+> > blatantly wrong with page cache.
 > 
-> This version uses new ioctl interface. Comments welcome.
+> Well, fsync_dev will flush anything on the dirty list.  Since 
+> blkdev_commit_write puts things on the dirty list, andrea's current 
+> code will flush changes through the page cache.
 > 
-> No HDLC/FR bridging code yet. No Cisco LMI support (for FR) yet.
-> No docs (except Documentation/networking/generic-hdlc.txt) yet.
-> I'm thinking about implementing asynchronous HDLC driver.
-> 
-> The patch has been generated against 2.4.4-ac6 tree. It should apply to
-> pure 2.4.4 as well. Protocol support is now split into separate files
-> hdlc_fr.c, hdlc_cisco.c etc.
-> --
-> Krzysztof Halasa
-> Network Administrator
+> The biggest exception is blkdev_writepage directly submits the io instead
+> of marking the buffers dirty.  This means the buffers won't be on
+> the locked/dirty list, and they won't get waited on.  Similar problem
+> for direct io.
 
--- 
-________________________________________________
+<nod>  And if you add Andrea's (perfectly valid) observation re having no
+need to sync any fs structures we might have for that device, you get
+__block_fsync().  After that it's easy to merge blkdev_close() code into
+blkdev_put().
 
- Daniela P. R. M. Squassoni
-     Software Engineer
-  
- mailto:daniela@cyclades.com
-
- Cyclades Corporation - http://www.cyclades.com
-________________________________________________

@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312783AbSCVSPT>; Fri, 22 Mar 2002 13:15:19 -0500
+	id <S312787AbSCVSYu>; Fri, 22 Mar 2002 13:24:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312784AbSCVSPI>; Fri, 22 Mar 2002 13:15:08 -0500
-Received: from ns.suse.de ([213.95.15.193]:59659 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312783AbSCVSOz>;
-	Fri, 22 Mar 2002 13:14:55 -0500
-Date: Fri, 22 Mar 2002 19:14:54 +0100
-From: Dave Jones <davej@suse.de>
-To: Jon Hourd <jonhourd@telus.net>
+	id <S312788AbSCVSYk>; Fri, 22 Mar 2002 13:24:40 -0500
+Received: from [209.58.5.130] ([209.58.5.130]:7892 "EHLO smtp.discreet.com")
+	by vger.kernel.org with ESMTP id <S312787AbSCVSY0>;
+	Fri, 22 Mar 2002 13:24:26 -0500
+Message-Id: <200203221824.NAA5677457@cuba.discreet.qc.ca>
+Content-Type: text/plain; charset=US-ASCII
+From: Martin Blais <blais@discreet.com>
+Organization: Discreet Logic
+To: Pavel Machek <pavel@ucw.cz>, Martin Blais <blais@IRO.UMontreal.CA>
+Subject: Re: xxdiff as a visual diff tool (shameless plug)
+Date: Fri, 22 Mar 2002 13:19:40 -0500
+X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.18 - 2.5.7  bluesmoke.c corrected MCA setup for different Pentium cores.
-Message-ID: <20020322191454.O22861@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Jon Hourd <jonhourd@telus.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.0.20020322094928.009e6ec0@pop.telus.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <20020321061423.HIXG2746.tomts17-srv.bellnexxia.net@there> <20020322092712.GA233@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 22, 2002 at 10:05:16AM -0800, Jon Hourd wrote:
- > Hello,
- > 	Here are some patches to correct the MCA setup for different Pentium cores 
- > in bluesmoke.c.  The P6 family must not initialize MSR_IA32_MC0_CTL in 
- > software, it must be done by the bios.  The P4/Xeon cores must have this 
- > bank initialized in software.  Added check for processor type and 
- > associated init loops.  Included patches against 2.5.7 and 2.4.18.
+On Friday 22 March 2002 04:27, Pavel Machek wrote:
+> Hi!
+>
+> > I actually wanted to implement it exactly like this in xxdiff,
+> > and I think it may not be too hard. Something like
+> >
+> >   "xxdiff --patch file1 < patch"
+> >
+> > and it would display as two files, and allow you to save merged
+> > results. That was the plan (read more below).
+> >
+> > I wanted to spawn a patch command on it and recuperate the
+> > output and then run diff and display that, so one could use and
+> > alternate patch program as well, and I would reuse patch's
+> > heuristics automatically (e.g. i don't have to code it myself).
+>
+> ... but ...
+>
+> > > Neil Brown agreed with this, and said, "I would like a tool
+> > > (actually an emacs mode) that would show me exactly why a patch
+> > > fails, and allow me to edit bits until it fits, and then apply
+> > > it. I assume that is what you mean by "wiggle a patch into a
+> > > file"." Pavel Machek also thought this would be a rerally great
+> > > thing.
+> >
+> > The part I haven't figured out a nice solution for yet, is for
+> > the failed hunks... how to display them sensibly.  I was
+> > thinking of using the 3-file display with the third file
+> > showing only the failed hunks in the approximate location where
+> > they were supposed to be. Not sure how to do this yet. Any
+> > ideas welcome.
+>
+> It would be great to somehow split patches before feeding them to the
+> patch. If you have one big hunk, and it fails because of one letter
+> added somewhere in file, it is *big pain* to find/kill offending
+> letter.
 
-Just a tiny nit to pick...
+i though patch did that by itself, by attempting to merge per-hunk, and that 
+it saved all the failed merges in a reject file (file.rej). or perhaps 
+i'm missing something. isn't it the case?
 
-@@ -167,9 +169,25 @@
- 	if(l&(1<<8))
- 		wrmsr(MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
- 	banks = l&0xff;
--	for(i=1;i<banks;i++)
--	{
--		wrmsr(MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
-+
-+	/* Check Core version for P6 or P4/Xeon */
-+
-+	if(c->x86 == 6)	{
-+		printk(KERN_INFO "Detected P6 Core.\n");
-+		for(i=1;i<banks;i++)			/* Must start with bank 1 for P6 Cores */
-+		{
-+			wrmsr(MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
-+		}
-+	} else if(c->x86 == 15) {
-+		printk(KERN_INFO "Detected P4/Xeon Core.\n");
-+		for(i=0;i<banks;i++)			/* Must start with bank 0 for Pentium 4 and Xeon Processors */
-
-This function can be called by non-Intel hardware. No other vendor has
-a family 15 CPU, but it's one less surprise if ever someone does make
-one.
-
-Also, take a look at bluesmoke.c in 2.5.7-dj1, it's quite a bit
-different from mainline (in particular the timer foo), and also
-incorporates some of the bits from your patch already.
-
-Other than that, looks fine to me.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+(note that i don't have much experience using patch itself)

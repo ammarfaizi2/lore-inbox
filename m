@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269040AbRG3Rq6>; Mon, 30 Jul 2001 13:46:58 -0400
+	id <S269043AbRG3Rr2>; Mon, 30 Jul 2001 13:47:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269047AbRG3Rqt>; Mon, 30 Jul 2001 13:46:49 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:23701 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S269043AbRG3Rqo>; Mon, 30 Jul 2001 13:46:44 -0400
-Importance: Normal
-Subject: [PATCH] Mwave for kernel 2.4.7 (repost)
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OF3276BC96.0BEE581B-ON85256A99.00600876@raleigh.ibm.com>
-From: "Paul Schroeder" <paulsch@us.ibm.com>
-Date: Mon, 30 Jul 2001 12:40:46 -0500
-X-MIMETrack: Serialize by Router on D04NM208/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 07/30/2001 01:46:36 PM
+	id <S269047AbRG3RrT>; Mon, 30 Jul 2001 13:47:19 -0400
+Received: from atlrel1.hp.com ([156.153.255.210]:61651 "HELO atlrel1.hp.com")
+	by vger.kernel.org with SMTP id <S269043AbRG3RrH>;
+	Mon, 30 Jul 2001 13:47:07 -0400
+Message-ID: <3B659DB8.42FECCEF@fc.hp.com>
+Date: Mon, 30 Jul 2001 11:47:36 -0600
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Support for serial console on legacy free machines
+In-Reply-To: <E15PtU8-0004cZ-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hmm..  I tried posting this yesterday, but I didn't see it show up on the
-list...  Sorry if you're seeing this a second time...
+Alan Cox wrote:
+> 
+> > console is "Serial Port Console Redirection" (SPCR) table. This table
+> > gives me almost all the information I need to initialize and use a
+> > serial console. The bummer is this table was designed by Microsoft and
+> > Microsoft owns the copyright on it. Microsoft primarily designed this
+> > table for use by Whistler. Their copyright may cause potential problems
+> > with using it in Linux. This makes me reluctant to use this table. I
+> 
+> Such as ?
+> 
+> If its a table that microsoft added to ACPI and its well thought out I don't
+> see a big problem technically. There are a collection of BIOS services we
+> use that were microsoft originated
 
-Get it here:  http://oss.software.ibm.com/acpmodem/
-Or directly:
-http://oss.software.ibm.com/pub/acpmodem/mwave_linux-2.4.7.patch
+I can not say this table is part of ACPI 2.0. ACPI 2.0 Spec document
+lists SPCR in the DESCRIPTION_HEADER signatures but calls it Microsoft
+Serial Port Console Redirection Table and refers to the URL on Microsoft
+web site. If you go to this URL, you see the Microsoft copyright and
+terms of use license. The same applies to DBGP (Debug Port Table).
 
-changes:
+-- 
+Khalid
 
-- Cleanup proc stuff for picky compilers
-- More consistent naming for module opts and /proc info (Thomas Hood)
-- Sanity checking on port and irq values for register_serial() (Hood)
-- In mwave_init, back out initialization steps properly (Hood)
-- MW_TRACE macro now defined in Makefile (Hood)
-- Driver parms actually work now (Hood)
-
-Cheers...Paul..
-
-
----
-Paul B Schroeder  <paulsch@us.ibm.com>
-Software Engineer, Linux Technology Center
-IBM Corporation, Austin, TX
-
+====================================================================
+Khalid Aziz                              Linux Systems Operation R&D
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

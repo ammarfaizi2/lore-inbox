@@ -1,65 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144032AbRA1T4U>; Sun, 28 Jan 2001 14:56:20 -0500
+	id <S143901AbRA1UCe>; Sun, 28 Jan 2001 15:02:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143978AbRA1T4K>; Sun, 28 Jan 2001 14:56:10 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:32524 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S143901AbRA1Tzy>;
-	Sun, 28 Jan 2001 14:55:54 -0500
-Date: Sun, 28 Jan 2001 14:55:53 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: James Sutherland <jas88@cam.ac.uk>
-Cc: Ben Ford <ben@kalifornia.com>, jamal <hadi@cyberus.ca>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ECN: Clearing the air (fwd)
-Message-ID: <20010128145553.E13195@xi.linuxpower.cx>
-In-Reply-To: <3A7426E1.728BB87D@kalifornia.com> <Pine.SOL.4.21.0101281406560.21057-100000@red.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <Pine.SOL.4.21.0101281406560.21057-100000@red.csi.cam.ac.uk>; from jas88@cam.ac.uk on Sun, Jan 28, 2001 at 02:09:19PM +0000
+	id <S143978AbRA1UCQ>; Sun, 28 Jan 2001 15:02:16 -0500
+Received: from smtp-server.maine.rr.com ([204.210.65.66]:35022 "HELO
+	smtp-server.maine.rr.com") by vger.kernel.org with SMTP
+	id <S143901AbRA1UB7>; Sun, 28 Jan 2001 15:01:59 -0500
+Message-ID: <001401c08963$da160e20$b001a8c0@caesar>
+From: "paradox3" <paradox3@maine.rr.com>
+To: "Bruce Harada" <bruce@ask.ne.jp>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <003f01c088fb$a35c06e0$b001a8c0@caesar> <20010128174016.3fba71ad.bruce@ask.ne.jp><002901c08951$f751bfa0$b001a8c0@caesar> <20010129043143.3ac5fd99.bruce@ask.ne.jp>
+Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
+Date: Sun, 28 Jan 2001 14:52:31 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 28, 2001 at 02:09:19PM +0000, James Sutherland wrote:
-> On Sun, 28 Jan 2001, Ben Ford wrote:
-> > Do keep in mind, we aren't breaking connectivity, they are.
-> 
-> Let me guess: you're a lawyer? :-)
-> 
-> This is a very strange definition: if someone makes a change such that
-> their machine can no longer communicate with existing systems, I would say
-> the person making the incompatible change is the one who broke it.
+I did this:
 
-No. If one day your city decides to make the rode into and out of your
-neighorbhood only 1 meter wide, sooner or later someone will expects to drive
-a car or truck into the area (rather then a motorcycle), the person city is
-at fault for building a non-standard road.
+date
+dd if=/dev/zero of=TESTFILE bs=1024 count=102400
+date
+sync
+date
 
-The person who chose to operate a perfectly standard car/truck is not in the
-wrong.
- 
-> Maybe my mains sockets should be waterproof: it's still my fault when
-> pouring water over them causes problems, even if the standards say the
-> socket should be waterproof!
 
-No it's not. If you had a waterproof socket, it would certantly be the
-makers fault if it wasn't actually waterproof. 
+and I gave the time differences from the first to the last timestamp.
 
-I suppose you think I should be tried for murder because my sneeze was an
-element that contributed to a weather pattern which caused a monsoon on the
-other side of the world and killed people?
+Regards, Para-dox (paradox3@maine.rr.com)
 
-It's perfectly reasonable for Linux to impliment an IETF standard.
-It's not reasonable for networks to make expectations/decisions about reserved
-bits in headers. If you want to break your networks, great, do things like
-that. But it's your problem to fix it when it becomes an issue.
 
-They expended effort to willfully break their networks, they can now expend
-the effort to fix them. This type of thing is part of the
-total-cost-of-ownership of a firewall, it isn't Linux's fault if they were
-too foolish to understand they would have ongoing costs.
+
+----- Original Message -----
+From: "Bruce Harada" <bruce@ask.ne.jp>
+To: "paradox3" <paradox3@maine.rr.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Sunday, January 28, 2001 2:31 PM
+Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
+
+
+>
+> Hm. As a point of comparison, I use a similar system to yours (full SCSI,
+> though, no IDE) and I can copy a 100MB file from disk-to-disk, or on the
+> same disk, in around 13 seconds. Where are you copying to the SCSI drive
+> from - the same drive, an IDE disk, CDROM? If IDE, what are its
+> particulars? (Check with hdparm -iI /dev/hd?)
+>
+> --
+> Bruce Harada
+> bruce@ask.ne.jp
+>
+>
+>
+> On Sun, 28 Jan 2001 12:44:29 -0500
+> "paradox3" <paradox3@maine.rr.com> wrote:
+> >
+> > I don't get any messages relating to the drives in any syslog output.
+> >
+> > >
+> > > Do you get messages like the ones below in /var/log/messages?
+> > >
+> > >   sym53c875-0-<0,0>: QUEUE FULL! 8 busy, 7 disconnected CCBs
+> > >   sym53c875-0-<0,0>: tagged command queue depth set to 7
+> > >
+> > > In fact, do you get any messages in your log files that look like they
+> > > might be related?
+> > >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

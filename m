@@ -1,84 +1,163 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbSJQAEZ>; Wed, 16 Oct 2002 20:04:25 -0400
+	id <S261712AbSJQAHO>; Wed, 16 Oct 2002 20:07:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261569AbSJQAEZ>; Wed, 16 Oct 2002 20:04:25 -0400
-Received: from tufnell.london1.poggs.net ([193.109.194.18]:13526 "EHLO
-	tufnell.london1.poggs.net") by vger.kernel.org with ESMTP
-	id <S261561AbSJQAEY>; Wed, 16 Oct 2002 20:04:24 -0400
-Message-ID: <3DAE0047.3050900@POGGS.CO.UK>
-Date: Thu, 17 Oct 2002 01:11:51 +0100
-From: Peter Hicks <Peter.Hicks@POGGS.CO.UK>
-Organization: Poggs Computer Services
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-gb, en-us, en-au, en-ie, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19 - bug in page_alloc.c?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261713AbSJQAHO>; Wed, 16 Oct 2002 20:07:14 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:63989 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S261712AbSJQAHL>; Wed, 16 Oct 2002 20:07:11 -0400
+Date: Wed, 16 Oct 2002 17:04:03 -0700
+From: Chris Wright <chris@wirex.com>
+To: Matt Reppert <arashi@arashi.yi.org>
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AFS compile breakage in 2.5.43
+Message-ID: <20021016170403.A28039@figure1.int.wirex.com>
+Mail-Followup-To: Matt Reppert <arashi@arashi.yi.org>, dhowells@redhat.com,
+	linux-kernel@vger.kernel.org
+References: <20021016180350.52bc09ad.arashi@arashi.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021016180350.52bc09ad.arashi@arashi.yi.org>; from arashi@arashi.yi.org on Wed, Oct 16, 2002 at 06:03:50PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks
+* Matt Reppert (arashi@arashi.yi.org) wrote:
+> Is this valid? gcc-2.95.3 doesn't like it at all.
 
-I've had my system die with the follwing two messages in 'dmesg'.
+Yes, it's valid for newer compilers.  I have a similar patch that also
+updates the varargs macro stuff used in AFS (and rxrpc) (for akpm's "crusty"
+compilers ;-)
 
-Can anybody shed light on what's tipped over? The system wasn't under 
-much load at the time.
+thanks,
+-chris
 
-If you need more info, just shout.  I'm not subscribed to the list, so 
-cc'ing would be very much appreciated :)
-
-Best wishes,
-
-
-Peter.
-
-
-kernel BUG at page_alloc.c:91!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c013105d>]
-EFLAGS: 00010286
-eax: c11ff33c   ebx: c121dd24   ecx: d888e7e4   edx: c152d9c4
-esi: 00000000   edi: 00000000   ebp: 0000015b   esp: db271edc
-ds: 0018   es: 0018   ss: 0018
-Process licq (pid: 2160, stackpage=db271000)
-Stack: c021ebfc c100001c d888e7e4 d393285c 001be000 c0129270 d888e740 
-00000004
-       0015d000 d393285c 001be000 0000015b c01279f7 c121dd24 dbaa04c0 
-c0129064
-       dbaa04c0 c121dd24 08400000 c1b8a084 08278000 00000000 c012622b 
-dbaa04c0
-Call Trace:    [<c0129270>] [<c01279f7>] [<c0129064>] [<c012622b>] 
-[<c0128f6f>]
-  [<c01161b6>] [<c011ab6f>] [<c011ad53>] [<c0109007>]
-
-Code: 0f 0b 5b 00 12 81 1f c0 8b 15 b0 93 26 c0 89 d8 29 d0 c1 f8
-
-
- kernel BUG at page_alloc.c:91!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c013105d>]
-EFLAGS: 00013286
-eax: 00000000   ebx: c121dd24   ecx: d888e7e4   edx: 00000000
-esi: 00000000   edi: 00000000   ebp: d2167860   esp: df563ee4
-ds: 0018   es: 0018   ss: 0018
-Process rpciod (pid: 59, stackpage=df563000)
-Stack: 00000000 3dadfd92 00001770 01d9dc37 00000000 00000000 00001770 
-01d9dc37
-       d2167860 d888e740 d888e8e4 d2167860 e08e0daf dd73c140 d2167860 
-e08e62da
-       d2167860 d14120f4 d21678b4 d1412208 e08e5caf d2167860 d1412190 
-d14120a0
-Call Trace:    [<e08e0daf>] [<e08e62da>] [<e08e5caf>] [<e08e9650>] 
-[<e08bd0fe>]
-  [<e08c062d>] [<c0114c5c>] [<e08c09e7>] [<e08c1271>] [<e08c11c0>] 
-[<e08ca4a4>]
-  [<e08ca4a4>] [<c010737e>] [<e08ca4ac>] [<e08c11c0>]
-
-Code: 0f 0b 5b 00 12 81 1f c0 8b 15 b0 93 26 c0 89 d8 29 d0 c1 f8
-
-
+--- 2.5.43/fs/afs/dir.c.egcs	Wed Oct 16 16:57:40 2002
++++ 2.5.43/fs/afs/dir.c	Wed Oct 16 16:57:51 2002
+@@ -72,7 +72,7 @@
+ 		u8	name[16];
+ 		u8	overflow[4];	/* if any char of the name (inc NUL) reaches here, consume
+ 					 * the next dirent too */
+-	};
++	} de;
+ 	u8	extended_name[32];
+ } afs_dirent_t;
+ 
+@@ -258,7 +258,7 @@
+ 
+ 		/* got a valid entry */
+ 		dire = &block->dirents[offset];
+-		nlen = strnlen(dire->name,sizeof(*block) - offset*sizeof(afs_dirent_t));
++		nlen = strnlen(dire->de.name,sizeof(*block) - offset*sizeof(afs_dirent_t));
+ 
+ 		_debug("ENT[%u.%u]: %s %u \"%.*s\"\n",
+ 		       blkoff/sizeof(afs_dir_block_t),offset,
+@@ -290,11 +290,11 @@
+ 
+ 		/* found the next entry */
+ 		ret = filldir(cookie,
+-			      dire->name,
++			      dire->de.name,
+ 			      nlen,
+ 			      blkoff + offset * sizeof(afs_dirent_t),
+-			      ntohl(dire->vnode),
+-			      filldir==afs_dir_lookup_filldir ? dire->unique : DT_UNKNOWN);
++			      ntohl(dire->de.vnode),
++			      filldir==afs_dir_lookup_filldir ? dire->de.unique : DT_UNKNOWN);
+ 		if (ret<0) {
+ 			_leave(" = 0 [full]");
+ 			return 0;
+--- 2.5.43/fs/afs/internal.h.egcs	Wed Oct 16 16:57:40 2002
++++ 2.5.43/fs/afs/internal.h	Wed Oct 16 17:07:17 2002
+@@ -21,24 +21,24 @@
+ /*
+  * debug tracing
+  */
+-#define kenter(FMT,...)	printk("==> %s("FMT")\n",__FUNCTION__,##__VA_ARGS__)
+-#define kleave(FMT,...)	printk("<== %s()"FMT"\n",__FUNCTION__,##__VA_ARGS__)
+-#define kdebug(FMT,...)	printk(FMT"\n",##__VA_ARGS__)
+-#define kproto(FMT,...)	printk("### "FMT"\n",##__VA_ARGS__)
+-#define knet(FMT,...)	printk(FMT"\n",##__VA_ARGS__)
++#define kenter(FMT, VA...) printk("==> %s("FMT")\n", __FUNCTION__ , ##VA)
++#define kleave(FMT, VA...) printk("<== %s()"FMT"\n", __FUNCTION__ , ##VA)
++#define kdebug(FMT, VA...) printk(FMT"\n", ##VA)
++#define kproto(FMT, VA...) printk("### "FMT"\n", ##VA)
++#define knet(FMT, VA...)   printk(FMT"\n", ##VA)
+ 
+ #if 0
+-#define _enter(FMT,...)	kenter(FMT,##__VA_ARGS__)
+-#define _leave(FMT,...)	kleave(FMT,##__VA_ARGS__)
+-#define _debug(FMT,...)	kdebug(FMT,##__VA_ARGS__)
+-#define _proto(FMT,...)	kproto(FMT,##__VA_ARGS__)
+-#define _net(FMT,...)	knet(FMT,##__VA_ARGS__)
++#define _enter(FMT, VA...) kenter(FMT, ##VA)
++#define _leave(FMT, VA...) kleave(FMT, ##VA)
++#define _debug(FMT, VA...) kdebug(FMT, ##VA)
++#define _proto(FMT, VA...) kproto(FMT, ##VA)
++#define _net(FMT, VA...)   knet(FMT, ##VA)
+ #else
+-#define _enter(FMT,...)	do { } while(0)
+-#define _leave(FMT,...)	do { } while(0)
+-#define _debug(FMT,...)	do { } while(0)
+-#define _proto(FMT,...)	do { } while(0)
+-#define _net(FMT,...)	do { } while(0)
++#define _enter(FMT, VA...) do { } while(0)
++#define _leave(FMT, VA...) do { } while(0)
++#define _debug(FMT, VA...) do { } while(0)
++#define _proto(FMT, VA...) do { } while(0)
++#define _net(FMT, VA...)   do { } while(0)
+ #endif
+ 
+ #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,0)
+--- 2.5.43/net/rxrpc/internal.h.egcs	Wed Oct 16 16:57:40 2002
++++ 2.5.43/net/rxrpc/internal.h	Wed Oct 16 17:08:49 2002
+@@ -29,24 +29,24 @@
+ /*
+  * debug tracing
+  */
+-#define kenter(FMT,...)	printk("==> %s("FMT")\n",__FUNCTION__,##__VA_ARGS__)
+-#define kleave(FMT,...)	printk("<== %s()"FMT"\n",__FUNCTION__,##__VA_ARGS__)
+-#define kdebug(FMT,...)	printk("    "FMT"\n",##__VA_ARGS__)
+-#define kproto(FMT,...)	printk("### "FMT"\n",##__VA_ARGS__)
+-#define knet(FMT,...)	printk("    "FMT"\n",##__VA_ARGS__)
++#define kenter(FMT, VA...)	printk("==> %s("FMT")\n", __FUNCTION__ , ##VA)
++#define kleave(FMT, VA...)	printk("<== %s()"FMT"\n", __FUNCTION__ , ##VA)
++#define kdebug(FMT, VA...)	printk("    "FMT"\n", ##VA)
++#define kproto(FMT, VA...)	printk("### "FMT"\n", ##VA)
++#define knet(FMT, VA...)	printk("    "FMT"\n", ##VA)
+ 
+ #if 0
+-#define _enter(FMT,...)	kenter(FMT,##__VA_ARGS__)
+-#define _leave(FMT,...)	kleave(FMT,##__VA_ARGS__)
+-#define _debug(FMT,...)	kdebug(FMT,##__VA_ARGS__)
+-#define _proto(FMT,...)	kproto(FMT,##__VA_ARGS__)
+-#define _net(FMT,...)	knet(FMT,##__VA_ARGS__)
++#define _enter(FMT, VA...)	kenter(FMT,##VA)
++#define _leave(FMT, VA...)	kleave(FMT,##VA)
++#define _debug(FMT, VA...)	kdebug(FMT,##VA)
++#define _proto(FMT, VA...)	kproto(FMT,##VA)
++#define _net(FMT, VA...)	knet(FMT,##VA)
+ #else
+-#define _enter(FMT,...)	do { if (rxrpc_ktrace) kenter(FMT,##__VA_ARGS__); } while(0)
+-#define _leave(FMT,...)	do { if (rxrpc_ktrace) kleave(FMT,##__VA_ARGS__); } while(0)
+-#define _debug(FMT,...)	do { if (rxrpc_kdebug) kdebug(FMT,##__VA_ARGS__); } while(0)
+-#define _proto(FMT,...)	do { if (rxrpc_kproto) kproto(FMT,##__VA_ARGS__); } while(0)
+-#define _net(FMT,...)	do { if (rxrpc_knet)   knet  (FMT,##__VA_ARGS__); } while(0)
++#define _enter(FMT, VA...)	do { if (rxrpc_ktrace) kenter(FMT, ##VA); } while(0)
++#define _leave(FMT, VA...)	do { if (rxrpc_ktrace) kleave(FMT, ##VA); } while(0)
++#define _debug(FMT, VA...)	do { if (rxrpc_kdebug) kdebug(FMT, ##VA); } while(0)
++#define _proto(FMT, VA...)	do { if (rxrpc_kproto) kproto(FMT, ##VA); } while(0)
++#define _net(FMT, VA...)	do { if (rxrpc_knet)   knet  (FMT, ##VA); } while(0)
+ #endif
+ 
+ static inline void rxrpc_discard_my_signals(void)
+--- 2.5.43/net/rxrpc/main.c.egcs	Wed Oct 16 16:57:40 2002
++++ 2.5.43/net/rxrpc/main.c	Wed Oct 16 16:57:51 2002
+@@ -123,5 +123,5 @@
+ 	__RXACCT(printk("Outstanding Peers      : %d\n",atomic_read(&rxrpc_peer_count)));
+ 	__RXACCT(printk("Outstanding Transports : %d\n",atomic_read(&rxrpc_transport_count)));
+ 
+-	kleave();
++	kleave("");
+ } /* end rxrpc_cleanup() */

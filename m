@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263204AbSKMVFt>; Wed, 13 Nov 2002 16:05:49 -0500
+	id <S262464AbSKMVPa>; Wed, 13 Nov 2002 16:15:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263281AbSKMVFs>; Wed, 13 Nov 2002 16:05:48 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:10259 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263204AbSKMVFo>;
-	Wed, 13 Nov 2002 16:05:44 -0500
-Date: Wed, 13 Nov 2002 13:07:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: David Brownell <david-b@pacbell.net>, rusty@rustcorp.com.au,
-       kaos <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.47bk2 + current modutils == broken hotplug
-Message-ID: <20021113210711.GA7810@kroah.com>
-References: <3DD2B1D5.7020903@pacbell.net> <20021113201710.GB7238@kroah.com> <3DD2B8D3.6060106@pacbell.net> <3DD2BD4C.7060502@pobox.com>
+	id <S262790AbSKMVPa>; Wed, 13 Nov 2002 16:15:30 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:49578 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262464AbSKMVOm>; Wed, 13 Nov 2002 16:14:42 -0500
+Subject: Re: FW: i386 Linux kernel DoS (clarification)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Leif Sawyer <lsawyer@gci.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021113211318.GA1962@vana>
+References: <76C6E114FA8@vcnet.vc.cvut.cz>
+	<1037221814.12445.126.camel@irongate.swansea.linux.org.uk> 
+	<20021113211318.GA1962@vana>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Nov 2002 21:47:07 +0000
+Message-Id: <1037224027.12445.154.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD2BD4C.7060502@pobox.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 13, 2002 at 03:59:56PM -0500, Jeff Garzik wrote:
-> 
-> (tangent warning!)
-> Another long term idea I would eventually like to realize is the removal 
-> of device ids from the C source code.  I don't care where they go -- 
-> drivers/net/pci_ids [per directory ids?], drivers/net/3c59x.meta, 
-> whereever.  Anywhere but the C source code.  It's quite silly to require 
-> a driver rebuild just to add a single PCI id, and further, embedding 
-> metadata in C source is rarely a good idea in the long term.  [reference 
-> some of Linus's counter-arguments when it was mentioned that Donald 
-> Becker's method of including Config.{in,help} data in C source might be 
-> useful]
+On Wed, 2002-11-13 at 21:13, Petr Vandrovec wrote:
+> This fixes it for me. I'll have to look at ia32 manual at home, why I
+> must do pushl %eax & popfl, as NT should be already cleared by
+> do_debug(). I probably miss something obvious, but I do not think that
+> adding these three instructions into lcall7/27 fastpath is acceptable.
 
-True, this would be nice, but how would the driver know to bind to a new
-device, if it isn't rebuilt, and doesn't know about the new id that was
-just added?  In the current scheme of driver matching to devices, I
-don't see how this could be done.
+I dont think you can avoid it without ceasing to be clever. The problem
+is Linus or someone pulled a nifty track so that we do an lcall in and
+an iret.
 
-Not to say I would not want to see this changed to allow this to happen,
-I'm very tired of telling USB Palm users to get a new kernel version
-just because a single device id was added which their new device has.
+lcall doesnt clear NT
+iret when it sees NT is set performs a task switch to the link field in
+the current TSS. 
 
-thanks,
 
-greg k-h

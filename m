@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290574AbSBFOcZ>; Wed, 6 Feb 2002 09:32:25 -0500
+	id <S290578AbSBFOhP>; Wed, 6 Feb 2002 09:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290578AbSBFOcP>; Wed, 6 Feb 2002 09:32:15 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49160 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290574AbSBFOcF>; Wed, 6 Feb 2002 09:32:05 -0500
-Subject: Re: kernel: ldt allocation failed
-To: ak@suse.de (Andi Kleen)
-Date: Wed, 6 Feb 2002 14:39:48 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
-        vda@port.imtp.ilyichevsk.odessa.ua (Denis Vlasenko),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020206150949.A10871@wotan.suse.de> from "Andi Kleen" at Feb 06, 2002 03:09:49 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S290586AbSBFOhF>; Wed, 6 Feb 2002 09:37:05 -0500
+Received: from [195.163.186.27] ([195.163.186.27]:29657 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S290578AbSBFOgr>;
+	Wed, 6 Feb 2002 09:36:47 -0500
+Date: Wed, 6 Feb 2002 16:36:33 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Shiva Raman Pandey <shiva@sasken.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Router Discovery Messages
+Message-ID: <20020206163633.B20396@mea-ext.zmailer.org>
+In-Reply-To: <a3r2k6$rk3$1@ncc-z.sasken.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16YTEi-0005KG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <a3r2k6$rk3$1@ncc-z.sasken.com>; from shiva@sasken.com on Wed, Feb 06, 2002 at 04:37:21PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are you sure it does? LGDT with non zero argument shouldn't be that costly. 
-> The %fs switching adds some locked cycles for reloading the segment cache, 
-> but because Windows uses that I would it expect to be reasonably optimized 
-> on CPUs. 
+On Wed, Feb 06, 2002 at 04:37:21PM +0530, Shiva Raman Pandey wrote:
+> Can any body tell me, whether the ICMP Router Discovery Messages (RFC 1256)
+> are implemented in Linux kernel code of version 2.2.14 or 2.4.9 or not?
+> If yes then in which .c file(s) and .h(files) ?
 
-Its measurable, even on an Athlon. 
+   It is not supported in kernel.
+   It is alike BOOTP/DHCP client, fully implementable in usermode process.
 
-> I actually tried to complain because on x86-64 it is more costly, but to
-> no avail. 
+   To be exact, RFC 1256 predates BOOTP, which was created to solve this
+   same problem, plus a bunch of other issues.  The DHCP is just refinement
+   of BOOTP.
 
-The more I see from glibc the more I realise that Linus is right - it needs
-replacing 
+> Regards
+> Shiva
 
+/Matti Aarnio

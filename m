@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266163AbUAGJjR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 04:39:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266164AbUAGJjR
+	id S266156AbUAGJum (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 04:50:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266159AbUAGJul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 04:39:17 -0500
-Received: from gizmo07bw.bigpond.com ([144.140.70.17]:2225 "HELO
-	gizmo07bw.bigpond.com") by vger.kernel.org with SMTP
-	id S266163AbUAGJjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 04:39:14 -0500
-Message-ID: <3FFBD3BE.F2584F7C@eyal.emu.id.au>
-Date: Wed, 07 Jan 2004 20:39:10 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.25-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pawel Kot <pkot@linuxnews.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.24 asm/timex.h
-References: <Pine.LNX.4.33.0401070027540.13426-100000@urtica.linuxnews.pl>
+	Wed, 7 Jan 2004 04:50:41 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:28562 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266156AbUAGJui (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 04:50:38 -0500
+Date: Wed, 7 Jan 2004 10:50:29 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrey Borzenkov <arvidjaar@mail.ru>, Andries Brouwer <aebr@win.tue.nl>,
+       Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+Message-ID: <20040107095029.GX3483@suse.de>
+References: <200401012333.04930.arvidjaar@mail.ru> <20040103133749.A3393@pclin040.win.tue.nl> <20040103124216.GA31006@suse.de> <200401031905.31806.arvidjaar@mail.ru> <20040103175414.GX5523@suse.de> <20040107094321.GC21059@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040107094321.GC21059@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pawel Kot wrote:
+On Wed, Jan 07 2004, Olaf Hering wrote:
+>  On Sat, Jan 03, Jens Axboe wrote:
 > 
-> On Wed, 7 Jan 2004, Eyal Lebedinsky wrote:
+> > On Sat, Jan 03 2004, Andrey Borzenkov wrote:
+> > > > Is there really no way to get a media change notification from ZIP or
+> > > > JAZ drives?
+> > > 
+> > > If anyone knows please tell me - I will put it into supermount ...
+> > > 
+> > > AFAIK in case of SCSI this is impossible simply by virtue of protocol - SCSI 
+> > > device is not initiator. So you need something to poll device for status. 
+> > > That is usually done on device open except in this case you can't open 
+> > > because you do not yet have handle.
+> > 
+> > You could queue a media notification request for long periods of time,
+> > being completed by the drive when a media change happens. At least mmc
+> > allows for this, doubt anyone has ever done it.
+> > 
+> > So yeah, poll...
 > 
-> > Building valgrind, it includes <linux/timex.h> and then tries
-> > to use the adjtimex syscall. This ends up with an undefined
-> > error for 'cpu_has_tsc'. This did not happen with earlier
-> > kernels.
-> >
-> > In file included from /usr/include/linux/timex.h:152,
-> >                  from vg_unsafe.h:66,
-> >                  from vg_syscalls.c:35:
-> > /usr/include/asm/timex.h: In function `get_cycles':
-> > /usr/include/asm/timex.h:44: `cpu_has_tsc' undeclared (first use in this
-> > function)
-> 
-> cpu_has_tsc is defined in cpufeature.h, so probably adding:
-> #include <asm/cpufeature.h>
-> to the include/asm-i386/timex.h would help.
+> Poll how? "kmediachangethread"? Or polling in userland? The latter would
+> (probably) lead to endless IO errors. Not very good.
 
-Not really, I already tried a few such fixes.
+No need to put it in the kernel, user space fits the bil nicely. I don't
+see how this would lead to IO errors?
 
-gcc -DHAVE_CONFIG_H -I. -I. -I..  -I./demangle -I../include -I./x86
--DVG_LIBDIR="\"/usr/local/lib/valgrind"\"   -Winline -Wall -Wshadow -O
--fno-omit-frame-pointer -mpreferred-stack-boundary=2 -g -DELFSZ=32  -c
-`test -f vg_syscalls.c || echo './'`vg_syscalls.c
-In file included from /usr/include/linux/timex.h:152,
-                 from vg_unsafe.h:68,
-                 from vg_syscalls.c:35:
-/usr/include/asm/timex.h: In function `get_cycles':
-/usr/include/asm/timex.h:44: warning: implicit declaration of function
-`test_bit'
-/usr/include/asm/timex.h:44: `boot_cpu_data' undeclared (first use in
-this function)
-/usr/include/asm/timex.h:44: (Each undeclared identifier is reported
-only once
-/usr/include/asm/timex.h:44: for each function it appears in.)
-make[4]: *** [vg_syscalls.o] Error 1
-make[4]: Leaving directory `/data2/download/valgrind/valgrind/coregrind'
+> If I understand the Darwin sources correctly, a polling is used. But I
+> havent looked hard how they do it.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+It's the only way to do it.
+
+-- 
+Jens Axboe
+

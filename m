@@ -1,62 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbRAHUVo>; Mon, 8 Jan 2001 15:21:44 -0500
+	id <S130188AbRAHUWy>; Mon, 8 Jan 2001 15:22:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbRAHUVe>; Mon, 8 Jan 2001 15:21:34 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55313 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129226AbRAHUVX>; Mon, 8 Jan 2001 15:21:23 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: setfsuid on ext2 weirdness (2.4)
-Date: 8 Jan 2001 12:21:15 -0800
-Organization: Transmeta Corporation
-Message-ID: <93d7fr$429$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.3.96.1010108025520.14610B-100000@medusa.sparta.lu.se>
+	id <S130098AbRAHUWo>; Mon, 8 Jan 2001 15:22:44 -0500
+Received: from cannet.com ([206.156.188.2]:35334 "HELO mail.cannet.com")
+	by vger.kernel.org with SMTP id <S130063AbRAHUWe>;
+	Mon, 8 Jan 2001 15:22:34 -0500
+Message-ID: <001201c079b0$a968da40$7930000a@hcd.net>
+From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: real talk cards in 2.2.18.
+Date: Mon, 8 Jan 2001 15:22:01 -0500
+Organization: Himebaugh Consulting, Inc.
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_000F_01C07986.BFEC8020"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.3.96.1010108025520.14610B-100000@medusa.sparta.lu.se>,
-Bjorn Wesen  <bjorn@sparta.lu.se> wrote:
->
->in fact, 0 and 500 are the ONLY ones who let a filesystem op through after
->the setfsuid call. all other cause an EACCESS error on the open (or any
->other fs op). and yes, the actual filepermissions on /etc and /etc/passwd
->are correct.
+This is a multi-part message in MIME format.
 
-Please show them, anyway. What does "ls -ld / /etc /etc/passwd" say?
+------=_NextPart_000_000F_01C07986.BFEC8020
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
->so... the quick question is... is there anything in EXT2 or VFS that can
->cause a quite normal ext2 filesystem on a 2.4.0 kernel to behave remotely
->like this ?
+Hello,
 
-Most easily if /etc/passwd (or /etc or /) is owned by uid 500 (your
-normal uid).  That would do this.  And it's pretty much the _only_ thing
-that I can see doing it. 
+    I am trying to compile the rtl8139 driver for my SMC
+10/100 NIC.  I have turned on all 10/100 devices (i.e. 3Com
+cards -n- such); however, I can not get the rtl driver to show
+up as an option in my menuconfig.  What to I need to do to
+compile this driver as a module.  Am I missing something
+else perhaps not in Network Devices.  I do see the rtl8139.c file in my =
+drivers/net source tree. =20
 
-I seriously doubt it has anything to do with the kernel or with RH 7.
-The fact that uid 500 is special, and the fact that uid 500 is your
-regular uid makes me suspect _very_ stronly that you've done something
-as root to make some path be special to your regular uid.
 
-The only paths that /etc/passwd touches are /, /etc and /etc/passwd. 
-99% says that one of the three will be wrong (probably "/", because you
-probably checked the others already and overlooked root), and you'll
-feel really silly. 
 
-Oh, there is _one_ special case.  Is either / or /etc a mount-point (ie
-you may be playing games with over-mounting)? The permissions _under_
-the mount-point can actually matter, and they are not visible when doing
-an "ls", because the mounted thing will be shown.
+Thanks in advance.
 
-And hey, if you think the above is confusing, try making your /dev/null
-a regular (writable) file by mistake.  Now THAT will be confusing as
-hell: things will actually work surprisingly well, but some thing
-_really_ don't work the way they are intended to.  And chasing it down
-is an exercise in futility.  Yes, I've done that at least twice as root
-by mistake. 
+------=_NextPart_000_000F_01C07986.BFEC8020
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-		Linus
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META content=3D"text/html; charset=3Dwindows-1252" =
+http-equiv=3DContent-Type>
+<META content=3D"MSHTML 5.00.3211.1700" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>Hello,</FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>&nbsp;&nbsp;&nbsp; I am trying to =
+compile the=20
+rtl8139 driver for my SMC</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>10/100 NIC.&nbsp; I have turned on all =
+10/100=20
+devices (i.e. 3Com</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>cards -n- such); however, I can not get =
+the rtl=20
+driver to show</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>up as an option in my menuconfig.&nbsp; =
+What to I=20
+need to do to</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>compile this driver as a module.&nbsp; =
+Am I missing=20
+something</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>else perhaps not in Network =
+Devices.&nbsp; I do see=20
+the rtl8139.c file in my drivers/net source tree.&nbsp; </FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Thanks in =
+advance.</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_000F_01C07986.BFEC8020--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

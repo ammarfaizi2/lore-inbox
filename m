@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVBHT6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVBHUDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbVBHT6I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 14:58:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVBHT6I
+	id S261648AbVBHUDk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 15:03:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVBHUDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 14:58:08 -0500
-Received: from mail.kroah.org ([69.55.234.183]:53985 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261647AbVBHT6E (ORCPT
+	Tue, 8 Feb 2005 15:03:40 -0500
+Received: from galileo.bork.org ([134.117.69.57]:45447 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S261648AbVBHUDi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 14:58:04 -0500
-Date: Tue, 8 Feb 2005 11:54:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Nico Schottelius <nico-kernel@schottelius.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] compile error: 2.6.10 / megaraid_mbox
-Message-ID: <20050208195425.GB24698@kroah.com>
-References: <20050208081057.GC21154@schottelius.org>
+	Tue, 8 Feb 2005 15:03:38 -0500
+Date: Tue, 8 Feb 2005 15:03:38 -0500
+From: Martin Hicks <mort@wildopensource.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix ACPI_BOOT for ia64 (2.6.11-rc3-mm1)
+Message-ID: <20050208200338.GF11310@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050208081057.GC21154@schottelius.org>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 08, 2005 at 09:10:57AM +0100, Nico Schottelius wrote:
-> Good morning!
-> 
-> I was trying to compile Megaraid on 2.6.10 and
-> noticed that pci_dma_sync_single and pci_dma_sync_sg
-> are deprecated. Greg seems to tried to patch it in 2.6.9
-> (http://lkml.org/lkml/2004/10/19/425), but it seems he didn't catch it
-> all.
-> 
-> A patch against vanialla 2.6.10 is attached.
 
-Hm, can you redo the patch so that I can apply it with "-p1" to patch,
-and add a Signed-off-by: line (also keep the same description as above.)
+Hi Andrew,
 
-thanks,
+One of your patches in 2.6.11-rc3-mm1 breaks ACPI_BOOT for ia64.  It
+removes the dependence on CONFIG_ACPI and makes it exclusively depend on
+X86_HT, which is wrong.
 
-greg k-h
+Signed-off-by: Martin Hicks <mort@wildopensource.com>
+
+Index: linux-2.6.11-rc3-mm1/drivers/acpi/Kconfig
+===================================================================
+--- linux-2.6.11-rc3-mm1.orig/drivers/acpi/Kconfig	2005-02-07 12:31:54.000000000 -0800
++++ linux-2.6.11-rc3-mm1/drivers/acpi/Kconfig	2005-02-08 11:57:04.000000000 -0800
+@@ -42,7 +42,7 @@
+ 
+ config ACPI_BOOT
+ 	bool
+-	depends on X86_HT
++	depends on X86_HT || IA64
+ 	default y
+ 
+ if ACPI

@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266566AbUHINYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266565AbUHIN0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266566AbUHINYU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 09:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266565AbUHINYU
+	id S266565AbUHIN0v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 09:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUHIN0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 09:24:20 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:56970 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S266566AbUHINYO
+	Mon, 9 Aug 2004 09:26:51 -0400
+Received: from bay12-f12.bay12.hotmail.com ([64.4.35.12]:48910 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S266565AbUHIN0r
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 09:24:14 -0400
-Subject: Re: 2.6.8-rc2-mm1: bluetooth broken?
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Stephane Jourdois <stephane@rubis.org>
-Cc: Filip Van Raemdonck <filipvr@xs4all.be>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040809120705.GA23073@diamant.rubis.org>
-References: <20040808191912.GA620@elf.ucw.cz>
-	 <1092003277.2773.45.camel@pegasus> <20040809095425.GA12667@debian>
-	 <1092046959.21815.15.camel@pegasus>
-	 <20040809120705.GA23073@diamant.rubis.org>
-Content-Type: text/plain
-Message-Id: <1092057843.21815.21.camel@pegasus>
+	Mon, 9 Aug 2004 09:26:47 -0400
+X-Originating-IP: [136.182.2.222]
+X-Originating-Email: [rameshred@hotmail.com]
+From: "Ramesh Sudini" <rameshred@hotmail.com>
+To: kernoulas@sisifus.ceid.upatras.gr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Copy_to_user and copy_from_user
+Date: Mon, 09 Aug 2004 13:26:45 +0000
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 09 Aug 2004 15:24:03 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY12-F12qunLOyDc4100039e06@hotmail.com>
+X-OriginalArrivalTime: 09 Aug 2004 13:26:46.0104 (UTC) FILETIME=[84860D80:01C47E14]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephane,
 
-> > this is what I was thinking, because I always run the latest stuff from
-> > the Bitkeeper repository directly. Seems that there is something in the
-> > -mm patches that broke it. Can someone test the latest -mm and report if
-> > the Bluetooth subsystem is working or not?
-> 
-> Not working here since 2.6.8-rc2-mm2.
-> Works in 2.6.8-rc2-mm1.
+Then, how do I make sure that all the data I wanted to be copied is infact 
+copied?? What are the scenarios where copy_to/from_user could fail and how 
+can I avoid it.
 
-I never used a -mm patch, so you must be a little bit more specific what
-is not working. What Bluetooth hardware are you using? Do the logfiles
-or dmesg include anything helpful?
+Thanks
+-Ramesh
 
-Regards
 
-Marcel
+>
+>No you cannot call it until all data has been copied. copy_{to,from}_user 
+>fails when a fault happens during the copy process. So you simply cannot 
+>try again... It will fault again.
+>Well, not 100% true. An other running thread (same mm with the process 
+>which copies data) can "fix" the faulty adress space. Bad thread....
+>
+>Ramesh Sudini wrote:
+>>Hi,
+>>
+>>If copy_from_user returns non zero value, then I do not see any driver(for 
+>>example PPP) try to copy the remaining data. It treats it as an error 
+>>scenario.
+>>
+>>Why is this? Shouldnt it have a while loop and attempt to copy_from_user 
+>>till all the data is copied??
+>>
+>>I am writing a driver and trying to understand what needs to be done in 
+>>case it returns a non-zero value? I have huge amount of data to be copied 
+>>from user space Ex: 3000byte messages.
+>>
+>>Can somebody suggest me what is the best I could do...(Please cc me 
+>>personally with your response)
+>>
+>>Thanks
+>>Ramesh
+>>
 
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today - it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
 

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262899AbSIPSx3>; Mon, 16 Sep 2002 14:53:29 -0400
+	id <S262898AbSIPSxO>; Mon, 16 Sep 2002 14:53:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262922AbSIPSx2>; Mon, 16 Sep 2002 14:53:28 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:13581 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262899AbSIPSx0>; Mon, 16 Sep 2002 14:53:26 -0400
-Date: Mon, 16 Sep 2002 14:51:13 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andi Kleen <ak@suse.de>
-cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: 2.5.34-mm4
-In-Reply-To: <20020915211002.A13470@wotan.suse.de>
-Message-ID: <Pine.LNX.3.96.1020916144915.6180F-100000@gatekeeper.tmr.com>
+	id <S262899AbSIPSxO>; Mon, 16 Sep 2002 14:53:14 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43278 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262898AbSIPSxN>; Mon, 16 Sep 2002 14:53:13 -0400
+Date: Mon, 16 Sep 2002 12:01:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Love <rml@tech9.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+In-Reply-To: <1032202138.969.12.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0209161157300.1352-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002, Andi Kleen wrote:
 
-> > Overall I find Marcelo kernels to be the most comfortable, followed
-> > by 2.5.  Alan's kernels I find to be the least comfortable in a
+On 16 Sep 2002, Robert Love wrote:
 > 
-> ... and -aa kernels are marcelo kernels, just with the the corner
-> cases fixed too. Works very nicely here.
+> The current in_atomic() check fails with kernel preemption enabled since
+> we set preempt_count to PREEMPT_ACTIVE in preempt_schedule().
+> 
+> We need to additionally check whether PREEMPT_ACTIVE is set.
 
-Corner cases? The IDE, VM and scheduler are different...
+Would it not be a lot better to just mask off PREEMPT_ACTIVE() instead of 
+checking for it explicitly.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+The in_interrupt() etc stuff already effectively do this by masking off
+the HARDIRQ_MASK etc. I would prefer a patch to hardirq.h that just adds a
+#define to make preempt_count() not contain PREEMPT_ACTIVE - and make the
+PREEMPT_ACTIVE checks be a totally separate check (logic: it's not a
+count, so it shouldn't show up in preempt_count())
+
+> There is also still the issue that bugging out is a bit drastic and a
+> hindrance to debugging; but I will tackle that later.  For now, please
+> apply this so we can at least boot with preemption enabled.
+
+I certainly wouldn't mind the DEBUG/WARNING/FATAL infrastructure discussed 
+earlier..
+
+		Linus
 

@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262720AbTFTKXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 06:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbTFTKXZ
+	id S262710AbTFTKgO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 06:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTFTKgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 06:23:25 -0400
-Received: from www01.ies.inet6.fr ([62.210.153.201]:59615 "EHLO
-	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S262720AbTFTKXM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 06:23:12 -0400
-Message-ID: <3EF2E3D5.90908@inet6.fr>
-Date: Fri, 20 Jun 2003 12:37:09 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030314
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [SIS IDE] Enhanced SiS96x support
-References: <3EF0FC4E.4090805@inet6.fr> <20030620092613.A13834@ucw.cz>
-In-Reply-To: <20030620092613.A13834@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jun 2003 06:36:14 -0400
+Received: from ns.suse.de ([213.95.15.193]:15370 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262710AbTFTKgN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 06:36:13 -0400
+Date: Fri, 20 Jun 2003 12:49:53 +0200
+From: Andi Kleen <ak@suse.de>
+To: J?rn Engel <joern@wohnheim.fh-wedel.de>
+Cc: Andi Kleen <ak@suse.de>,
+       Fruhwirth Clemens <clemens-dated-1056968093.cf44@endorphin.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Initial Vector Fix for loop.c.
+Message-ID: <20030620104953.GD26678@wotan.suse.de>
+References: <20030620090612.GA1322@ghanima.endorphin.org.suse.lists.linux.kernel> <p73u1al3xlw.fsf@oldwotan.suse.de> <20030620101452.GA2233@ghanima.endorphin.org> <20030620102455.GC26678@wotan.suse.de> <20030620103538.GA28711@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030620103538.GA28711@wohnheim.fh-wedel.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Vojtech Pavlik wrote:
+> That leaves the question of what the default behaviour should be.  If
+> we have to switch to 512Byte in the long run anyway, there is little
+> point in postponing the pain.  Make it the default, and old behaviour
+> depends on the flag.
 
->On Thu, Jun 19, 2003 at 01:57:02AM +0200, Lionel Bouton wrote:
->  
->
->>Hi,
->>
->>you'll find attached a patch against 2.4.21-ac1 for the SiS IDE driver.
->>
->>This is a 99% Vojtech work :
->>- Independant southbridge detection (no need to add MuTIOL northbridge 
->>PCI ids to the driver),
->>- Lots of code cleanup,
->>- Debug code removed (unused for a while, I will maintain it in my tree 
->>if needed),
->>
->>I changed 2 things :
->>- SiS745 was reported to me as a MuTIOL northbridge chip, it is treated 
->>as such by removing it from the integrated chip table,
->>    
->>
->
->Look at http://www.sis.com/products/chipsets/oa/socketa/745.htm
->The chip has internal MuTIOL, but no 961/2/3 chip can be connected
->to it. I'm not sure, of course, whether the internal IDE of this chip
->behaves like a 961/2/3, though.
->  
->
+In my opinion it doesn't make much difference. crypto-loop 
+has broken beyond belief[1] IV anyways, so they will
+eventually need to change it. Or just use CBC, which is simpler 
+and compatible and has nearly equivalent security to the easily 
+predictable IV :-) And when they change it they can as well set the flag.
 
-The SiS chipset line can be quite confusing :
+Also I think Clemens is exaggerating the problem too. 
+The old 2.2 behaviour of using absolute IVs caused quite
+some problems, but the relative IVs used in 2.4 are
+not that bad because it is near always used with 4K 
+blocks (there are exceptions to this, but they're quite
+rare assuming your file systems are all big enough 
+and you don't use a S390) 
 
-- the 730 was roughly a 735 with integrated video,
-- the 740 is a pure northbridge with integrated video whereas the 745 
-docs mention MuTIOL (usually a hint for separated north/south bridges) 
-but the southbridge is still integrated and seems to be ATA100 like the 
-735. I hope there isn't any 745 revision with different capabilities I'm 
-not yet aware of...
+-Andi
 
-I'll post a one liner this evening or a full patch if Alan and/or Linus 
-didn't already patch their tree.
-
-LB.
+[1] the problem is that it is too predictable. consider block 0,
+which is usually filled with zeros. It also has IV==0. This means
+it it 100% equivalent to CBC and worse even has known plain text.
+Same problem applies to other blocks - the layout of most 
+installations generated by standard installers is quite predictible.
+Fixing it is simple, but requires a new secret per file system.
 

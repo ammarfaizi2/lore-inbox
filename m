@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262061AbRETQAn>; Sun, 20 May 2001 12:00:43 -0400
+	id <S262066AbRETQCD>; Sun, 20 May 2001 12:02:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262062AbRETQAd>; Sun, 20 May 2001 12:00:33 -0400
-Received: from geos.coastside.net ([207.213.212.4]:3536 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S262061AbRETQAR>; Sun, 20 May 2001 12:00:17 -0400
-Mime-Version: 1.0
-Message-Id: <p05100303b72d95fa36d1@[207.213.214.37]>
-In-Reply-To: <m1wv7cgy45.fsf@frodo.biederman.org>
-In-Reply-To: <811opRpHw-B@khms.westfalen.de>
- <Pine.LNX.4.21.0105151107290.2112-100000@penguin.transmeta.com>
- <p05100316b7272cdfd50c@[207.213.214.37]> <811opRpHw-B@khms.westfalen.de>
- <p05100301b72a335d4b61@[10.128.7.49]> <81BywVLHw-B@khms.westfalen.de>
- <p0510031eb72c5f11b8c7@[207.213.214.37]>
- <m1wv7cgy45.fsf@frodo.biederman.org>
-Date: Sun, 20 May 2001 08:54:50 -0700
-To: ebiederm@xmission.com (Eric W. Biederman)
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Cc: kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S262067AbRETQBr>; Sun, 20 May 2001 12:01:47 -0400
+Received: from pop.gmx.net ([194.221.183.20]:54217 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262062AbRETQAz>;
+	Sun, 20 May 2001 12:00:55 -0400
+Message-ID: <3B07E6F6.E5C543B2@gmx.de>
+Date: Sun, 20 May 2001 17:47:02 +0200
+From: Edgar Toernig <froese@gmx.de>
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: F_CTRLFD (was Re: Why side-effects on open(2) are evil.)
+In-Reply-To: <Pine.GSO.4.21.0105191933280.7162-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 3:37 AM -0600 2001-05-20, Eric W. Biederman wrote:
->Jonathan Lundell <jlundell@pobox.com> writes:
->
->>  At 10:42 AM +0200 2001-05-19, Kai Henningsen wrote:
->>  >  > Jeff Garzik's ethtool
->>  >  > extension at least tells me the PCI bus/dev/fcn, though, and from
->>  >>  that I can write a userland mapping function to the physical
->>  >>  location.
->>  >
->>  >I don't see how PCI bus/dev/fcn lets you do that.
->>
->>  I know from system documentation, or can figure out once and for all
->>  by experimentation, the correspondence between PCI bus/dev/fcn and
->>  physical locations. Jeff's extension gives me the mapping between
->>  eth# and PCI bus/dev/fcn, which is not otherwise available (outside
->>  the kernel).
->
->Just a second let me reenumerate your pci busses, and change all of the bus
->numbers.  Not that this is a bad thought.  It is just you need to know
->the tree of PCI busses/bridges up to the root on the machine in question.
+Alexander Viro wrote:
+> 
+> For the latter, though,
+> we need to write commands into files and here your miscdevices (or procfs
+> files, or /dev/foo/ctl - whatever) is needed.
 
-Yes, you do. And it's true that renumbering is problematical; I 
-hadn't thought of all the implications. Say, you have a system with 
-hot-plug slots on two buses, and someone hot-plugs a card with a 
-bridge (fairly common; most dual/quad Ethernet boards have a bridge). 
-If the buses were numbered densely to begin with, they're going to 
-have to be renumbered above the point that the new bridge was added.
+IMHO any scheme that requires a special name to perform ioctl like
+functions will not work.  Often you don't known the name of the
+device you're talking to and then you're lost.
 
-Phooey. Well, it can still be done, but it's a bit more complicated 
-than the bus/dev/fcn-to-location map I was imagining. You'd have to 
-describe the topology of the built-in buses, and dynamically make the 
-correspondences. As you say, "know the tree", by topology, not bus 
-numbers.
+So, if you want an additional communication channel to a device why
+not introduce an fcntl or system call like
+
+	cltrfd = fcntl(fd, F_CTRLFD)    or  openctrl(fd)  ?
+
+That way you can always get access to the control channel and use
+regular read/write for communication [1].  To make it more versatile,
+you may want to extent the shell syntax, i.e. a '@' in redirection
+operators get the control fd:
+
+	echo "eject" >@/dev/cdrom
+	{ echo "b19200,onlcr" >@1 ; echo "Hello World!" ; } >/dev/ttyS0
+
+Yes, requires support in user space apps but doesn't mess around
+with the file namespace.  It's too precious to sacrifice ;-)
+
+I don't know how much infrastructure in the kernel is required for this 
+- i.e. add readctrl/writectrl methods or create virtual inodes/devices
+on the fly?  There are more capable people than me to judge on that...
+
+Ciao, ET.
 
 
--- 
-/Jonathan Lundell.
+[1] If you want you can even allow this flag as an open mode to
+open the ctrl channel without opening the dev.

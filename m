@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314783AbSESTDh>; Sun, 19 May 2002 15:03:37 -0400
+	id <S314885AbSESTb7>; Sun, 19 May 2002 15:31:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314838AbSESTDg>; Sun, 19 May 2002 15:03:36 -0400
-Received: from grande.dcc.unicamp.br ([143.106.7.8]:50677 "EHLO
-	grande.dcc.unicamp.br") by vger.kernel.org with ESMTP
-	id <S314783AbSESTDf>; Sun, 19 May 2002 15:03:35 -0400
-Date: Sun, 19 May 2002 16:03:25 -0300 (EST)
-From: ULISSES FURQUIM FREIRE DA SILVA <ra993482@ic.unicamp.br>
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Hardware, IDE or ext3 problem?
-In-Reply-To: <20020519201359.A17179@bouton.inet6-interne.fr>
-Message-ID: <Pine.GSO.4.10.10205191549330.16639-100000@tigre.dcc.unicamp.br>
+	id <S314906AbSESTb7>; Sun, 19 May 2002 15:31:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34323 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314885AbSESTb6>;
+	Sun, 19 May 2002 15:31:58 -0400
+Message-ID: <3CE7FE84.8205F047@zip.com.au>
+Date: Sun, 19 May 2002 12:35:32 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch 1/15] reduce lock contention in do_pagecache_readahead
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> What's your exact chipset ?
 
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 620 Host (rev 03)
-00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
+Anton Blanchard has a workload (the SDET benchmark) which is showing some
+moderate lock contention in do_pagecache_readahead().
 
-> The IDE code should lower the DMA mode by itself when it sees BadCRC, what's
-> the output of `hdparm -i /dev/hda` after these errors show up ?
+Seems that SDET has many threads performing seeky reads against a
+cached file.  The average number of pagecache probes in a single
+do_pagecache_readahead() is six, which seems reasonable.
 
- # hdparm -i /dev/hda
+The patch (from Anton) flips the locking around to optimise for the
+fast case (page was present).  So the kernel takes the lock less often,
+and does more work once it has been acquired.
 
-/dev/hda:
 
- Model=QUANTUM FIREBALLlct15 20, FwRev=A01.0F00, SerialNo=313061620944
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=32256, SectSize=21298, ECCbytes=4
- BuffType=DualPortCache, BuffSize=418kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39876480
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 
- AdvancedPM=no WriteCache=enabled
- Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-1 ATA-2 ATA-3
-ATA-4 ATA-5 
+=====================================
 
-	I noticed that I have to enable DMA for my CD-ROM(/dev/hdb), cause
-it's disabled on boot.
+--- 2.5.16/mm/readahead.c~anton-readahead-locking	Sun May 19 11:49:45 2002
++++ 2.5.16-akpm/mm/readahead.c	Sun May 19 12:02:58 2002
+@@ -117,25 +117,27 @@ void do_page_cache_readahead(struct file
+ 	/*
+ 	 * Preallocate as many pages as we will need.
+ 	 */
++	read_lock(&mapping->page_lock);
+ 	for (page_idx = 0; page_idx < nr_to_read; page_idx++) {
+ 		unsigned long page_offset = offset + page_idx;
+ 		
+ 		if (page_offset > end_index)
+ 			break;
+ 
+-		read_lock(&mapping->page_lock);
+ 		page = radix_tree_lookup(&mapping->page_tree, page_offset);
+-		read_unlock(&mapping->page_lock);
+ 		if (page)
+ 			continue;
+ 
++		read_unlock(&mapping->page_lock);
+ 		page = page_cache_alloc(mapping);
++		read_lock(&mapping->page_lock);
+ 		if (!page)
+ 			break;
+ 		page->index = page_offset;
+ 		list_add(&page->list, &page_pool);
+ 		nr_to_really_read++;
+ 	}
++	read_unlock(&mapping->page_lock);
+ 
+ 	/*
+ 	 * Now start the IO.  We ignore I/O errors - if the page is not
 
--- Ulisses
 
+-

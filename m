@@ -1,27 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312464AbSDARBV>; Mon, 1 Apr 2002 12:01:21 -0500
+	id <S312480AbSDARFc>; Mon, 1 Apr 2002 12:05:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312489AbSDARBL>; Mon, 1 Apr 2002 12:01:11 -0500
-Received: from topaz.3com.com ([192.156.136.158]:63726 "EHLO topaz.3com.com")
-	by vger.kernel.org with ESMTP id <S312464AbSDARBD>;
-	Mon, 1 Apr 2002 12:01:03 -0500
-Subject: how to increase UNIX98 pty number?
-To: linux-kernel@vger.kernel.org
-From: Hui_Ning@3com.com
-Date: Mon, 1 Apr 2002 11:03:48 -0600
-Message-ID: <OF391D2B4A.E68BC179-ON86256B8E.005D10CA@3com.com>
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S312489AbSDARFW>; Mon, 1 Apr 2002 12:05:22 -0500
+Received: from ns.suse.de ([213.95.15.193]:49680 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312480AbSDARFL>;
+	Mon, 1 Apr 2002 12:05:11 -0500
+To: Beng Asuncion <asmismn1@globalsources.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CLOSE_WAIT bug?
+In-Reply-To: <3CA82F7F.312547B8@globalsources.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 01 Apr 2002 19:05:10 +0200
+Message-ID: <p734rivtkmx.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Beng Asuncion <asmismn1@globalsources.com> writes:
 
-hi,
+> Dear List,
+> 
+> We are using 2.4.17 kernel for our Production machines running JRun/Java
+> applications + Apache. We are encountering a lot of CLOSE_WAITs like the
+> following before our JRun applications die (port 53001 is the Jrun
+> port):
 
-Where should I change to increase the UNIX98 pty number beyond 2048? The
-maximum allowed in xconfig is 2048.
-Is there any reason that this number can't go beyond 2048? Thanks,
+You can do a very simple test: if you kill your application completely
+(= killing all threads and processes that could keep a socket open) 
+and then wait a few minutes the CLOSE_WAITs should go away. If they do
+it's not a kernel problem and you just need to fix the application 
+to close sockets properly.
 
-hui
-
+-Andi

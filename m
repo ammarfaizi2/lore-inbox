@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310850AbSCNHJL>; Thu, 14 Mar 2002 02:09:11 -0500
+	id <S292530AbSCNHXF>; Thu, 14 Mar 2002 02:23:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSCNHJB>; Thu, 14 Mar 2002 02:09:01 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:3483 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S310850AbSCNHIx>; Thu, 14 Mar 2002 02:08:53 -0500
-Date: Thu, 14 Mar 2002 02:08:34 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Dan Kegel <dkegel@ixiacom.com>
-Cc: Ulrich Drepper <drepper@redhat.com>, darkeye@tyrell.hu, libc-gnats@gnu.org,
-        gnats-admin@cygnus.com, sam@zoy.org,
-        Xavier Leroy <Xavier.Leroy@inria.fr>, linux-kernel@vger.kernel.org,
-        babt@us.ibm.com
-Subject: Re: libc/1427: gprof does not profile threads <synopsis of the problem (one li\ne)>
-Message-ID: <20020314020834.Z2434@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <1016062486.16743.1091.camel@myware.mynet> <3C8FEC76.F1411739@ixiacom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C8FEC76.F1411739@ixiacom.com>; from dkegel@ixiacom.com on Wed, Mar 13, 2002 at 04:19:02PM -0800
+	id <S292535AbSCNHWz>; Thu, 14 Mar 2002 02:22:55 -0500
+Received: from mail.medav.de ([213.95.12.190]:14345 "HELO mail.medav.de")
+	by vger.kernel.org with SMTP id <S292530AbSCNHWo> convert rfc822-to-8bit;
+	Thu, 14 Mar 2002 02:22:44 -0500
+From: "Daniela Engert" <dani@ngrt.de>
+To: "Shawn Starr" <spstarr@sh0n.net>, "Vojtech Pavlik" <vojtech@suse.cz>
+Cc: "LKML" <linux-kernel@vger.kernel.org>,
+        "Martin Dalecki" <martin@dalecki.de>,
+        "Vojtech Pavlik" <vojtech@suse.cz>
+Date: Thu, 14 Mar 2002 08:24:02 +0100 (CET)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.05
+In-Reply-To: <20020314075258.A31815@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: [patch] PIIX rewrite patch, pre-final
+Message-Id: <20020314061803.EDF56E415@mail.medav.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2002 at 04:19:02PM -0800, Dan Kegel wrote:
-> Ulrich Drepper wrote:
-> > 
-> > On Wed, 2002-03-13 at 15:17, Dan Kegel wrote:
-> > 
-> > > So let's break the logjam and fix glibc's linuxthreads' pthread_create
-> > > to [support profiling multithreaded programs]
-> > 
-> > I will add nothing like this.  The implementation is broken enough and
-> > any addition just makes it worse.  If you patch your own code you'll get
-> > what you want at your own risk.
-> 
-> OK.  What's the right way to fix this, then?
+On Thu, 14 Mar 2002 07:52:58 +0100, Vojtech Pavlik wrote:
 
-Surely don't use timer for profiling.
-Have the compiler generate profiling calls both at function entry and exit
-and use rdtsc/whatever other register your machine has (or even better
-profiling registers) to note time of that function being entered/left.
+>> This will benifit PIIX3 chipsets? :)
+>It should.
 
-	Jakub
+Are you aware of the batches of broken PIIX3 chips ?
+
+Ciao,
+  Dani
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Daniela Engert, systems engineer at MEDAV GmbH
+Gräfenberger Str. 34, 91080 Uttenreuth, Germany
+Phone ++49-9131-583-348, Fax ++49-9131-583-11
+
+

@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262242AbTCJWuQ>; Mon, 10 Mar 2003 17:50:16 -0500
+	id <S262240AbTCJWtp>; Mon, 10 Mar 2003 17:49:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262289AbTCJWuP>; Mon, 10 Mar 2003 17:50:15 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:33511 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S262242AbTCJWuN>; Mon, 10 Mar 2003 17:50:13 -0500
-Message-ID: <20030310230012.26391.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S262242AbTCJWtp>; Mon, 10 Mar 2003 17:49:45 -0500
+Received: from jsl.com ([66.92.44.10]:23008 "EHLO jsl.com")
+	by vger.kernel.org with ESMTP id <S262240AbTCJWto>;
+	Mon, 10 Mar 2003 17:49:44 -0500
+From: System Administrator <root@jsl.com>
+Message-Id: <200303102300.h2AN0OO28470@jsl.com>
+Subject: Re: 2.5.63 and 3ware 7810 IDE raid controller
+To: linux-kernel@vger.kernel.org
+Date: Mon, 10 Mar 2003 15:00:24 -0800 (PST)
+Cc: Ray.OConnor@verizon.net (Ray O'Connor)
+Reply-To: kernel1@jsl.com
+In-Reply-To: <Pine.LNX.4.44.0303010007330.12711-100000@bertha> from "Ray O'Connor" at Mar 01, 2003 12:19:51 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: linux-kernel@vger.kernel.org, phoebe-list@redhat.com
-Date: Tue, 11 Mar 2003 00:00:12 +0100
-Subject: Stack growing and buffer overflows
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-7.us4.outblaze.com
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi `who | cut -f1 d' '`, 
- 
-Lately, I have been reading some articles on buffer overflows. Many of them seem to be caused by using local 
-variables that are allocated on the stack and then written to with no proper bounds checking. I don't know of 
-other architectures, but on x86, the stack grows downwards (from higher memory addresses to lower memory 
-addresses). This makes buffer overflows attacks easy to exploit: if a function uses strcpy() instead of strncpy() to 
-copy data (or memset or anything else that normally works upwards), due to the downwards nature of the stack 
-implementation, it's possible to overwrite the function's return address, or even another function local data 
-waiting in the call stack -> the stack grows downwards, but strcpy() works upwards, thus being able to cross 
-stack function boundaries (overwritting other functions local data or even its return address). 
- 
-However, what would happen if the stack was implemented to grow upwards (from lower memory addresses to 
-higher memory addresses)? With this kind of implementation, if the last function in the call stack invokes 
-strcpy() over a local variable (allocated onto the stack) without checking bounds, the extra data would not 
-overwrite neither the own function's return address nor any other function waiting onto the call stack -> the 
-stack grows upwards and so does strcpy() when writting memory. 
- 
-I know there are hardware implementation details involved in this issue, like the way PUSH and POP work, but 
-this is just an idea :-) 
- 
-Comments on this? Could this be viable? Is the whole idea stupid in general? 
- 
-Thanks! 
- 
-   Felipe Alfaro 
- 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+> Hello,
+> 
+> I've using a 3ware 7810 IDE raid controller without problems thru 2.5.50.
+> 
+> Using 2.5.63, I'm now seeing %CPU > 90 for 3dmd, which is 3ware's
+> monitoring daemon.  Other than CPU usage, things work normally.
+> 
+> Any clues as to why I'm seeing this?
+> 
+> Don't have the source for the 3dmd, which is released only as a binary.
+> 
+> Thanks,
+> Ray
+> 
+> -- 
+>   Ray O'Connor    <Ray.OConnor@verizon.net>
 
-Powered by Outblaze
+Maybe completely off here but since nobody else answered you, I thought I
+would.  I've reported a problem to 3ware which they haven't yet solved.
+3dmd seems to probe all SCSI disks on the system; not just the RAID array.
+It caused problems for me whenever I had the usb-storage.o module loaded
+because I have a USB CF reader in the same box.  3dmd seems to probe the
+media, and errors are spewed to the logs because there is no media present.
+The load average stays high while this is happening too.
+
+I really wish 3ware would either fix 3dmd or release the source.
+
+Jeff Laing
+kernel1@jsl.com

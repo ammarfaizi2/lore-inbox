@@ -1,67 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265352AbUAJVZI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 16:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265391AbUAJVZI
+	id S265415AbUAJVa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 16:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265422AbUAJVa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 16:25:08 -0500
-Received: from vaino.wakkanet.fi ([212.83.117.4]:62609 "EHLO vaino.wakkanet.fi")
-	by vger.kernel.org with ESMTP id S265352AbUAJVZD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 16:25:03 -0500
-Date: Sat, 10 Jan 2004 23:23:43 +0200 (EET)
-From: Kai Vehmanen <kai.vehmanen@wakkanet.fi>
-X-X-Sender: kaiv@vaino.wakkanet.fi
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20- boot freezes; works on 2.4.19
-Message-ID: <Pine.LNX.4.44.0401101856210.18078-100000@vaino.wakkanet.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Jan 2004 16:30:26 -0500
+Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:45219 "EHLO
+	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S265415AbUAJVaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 16:30:19 -0500
+Subject: Re: 2.4.23: user/kernel pointer bugs (drivers/char/vt.c,
+	drivers/char/drm/gamma_dma.c)
+From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+FCC: imap://rtjohnso@imap.cs.berkeley.edu/Sent
+X-Identity-Key: id1
+X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; uuencode=0
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105
+	Thunderbird/0.3
+X-Accept-Language: en-us, en
+References: <1073592494.18588.77.camel@dooby.cs.berkeley.edu>
+	<Pine.LNX.4.58L.0401101543410.4057@logos.cnet>
+In-Reply-To: <Pine.LNX.4.58L.0401101543410.4057@logos.cnet>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 10 Jan 2004 13:30:16 -0800
+Message-Id: <1073770216.22193.79.camel@dooby.cs.berkeley.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With kernel 2.4.20 and newer (tested all 2.4 kernels until the new
-2.4.24), my machine hangs during the boot sequence, right _after_ local
-filesystems cheched and _before_ they are succesfully mounted.
+Marcelo Tosatti wrote:
 
-This happens every time, and always at the same place. 2.4.19 (and
-earlier, have ran various kernels since 2.2.xx on this machine) have never
-frozen during boot. I know this sounds crazy, but I've tested dozens of
-times and the problem occurs systematically each and every time. 2.4.19
-otoh has not froze even once.
+    On Thu, 8 Jan 2004, Robert T. Johnson wrote:
+    
+      
+        Both of these bugs look exploitable.  The vt.c patch is
+        self-explanatory.
+        
+        Thanks for looking at this, and let me know if you have any questions.
+        
+        Best,
+        Rob
+        
+        P.S. Both of these bugs were found using the source code verification
+        tool, CQual, developed by Jeff Foster, myself, and others, and available
+        from http://www.cs.umd.edu/~jfoster/cqual/.
+        
+        
+        --- drivers/char/vt.c.orig	Thu Jan  8 10:53:01 2004
+        +++ drivers/char/vt.c	Wed Jan  7 15:22:17 2004
+        @@ -288,7 +288,7 @@
+         	case KDGKBSENT:
+         		sz = sizeof(tmp.kb_string) - 1; /* sz should have been
+         						  a struct member */
+        -		q = user_kdgkb->kb_string;
+        +		q = tmp.kb_string;
+         		p = func_table[i];
+         		if(p)
+         			for ( ; *p && sz; p++, sz--)
+            
+    The "q" variable is only used as an argument to put_user() (the kernel is
+    not reading from that address), so I think it is not a problem.
+    
+    I think your patch will break the ioctl.
+      
+Whoops.  I thought user_kdgkb->kb_string was a pointer, not an array. 
+You're absolutely right.  Please ignore this patch.  I'm very sorry for
+the mistake.
 
-Now what makes this more curious is that if I do a cold-boot (press the
-reset-button after boot freezes), the second boot goes through fine, and
-once up, system works like a charm. The freeze-on-boot error only occurs
-if I do a sw-reboot, or after power-up.
+Best,
+Rob
 
-When the boot seq freezes, the console still works (I can type "foobar"
-and see the results), but kernel does not respond to any commands
-(ctrl-alt-del does not work, neither does SysReq). And no oopses either.
-As the system is not yet fully up, I cannot gather any other info
-about the system state.
-
-Anyone else seen this problem? Ideas where to start testing? The
-2.4.19->2.4.20 patch is quite large (5MB gzipped!), so manually going
-through all the changesets would take me forever (2 boots per try :(). 
-I haven't yet tested 2.6.
-
-Hw-details:
-- Abit BP6 motherboad with 2x466Mhz Celerons, 384MB of mem 
-- the integrated HPT366 IDE interface _not_ used
-- 80GB samsumg IDE-drive as /dev/hda
-
-Sw-details
-- vanilla 2.4 kernels, no patches applied, no tainting drivers
-- kernels compiled with gcc-2.95.3
-- base system is a heavily modified redhat-6.1
-- / and /boot are ext2, /home is /ext3, all mounted
-  during boot
-- kernel .config exactly the same in all tests (minus
-  new/removed features between kernel versions)
-- tried with "acpi=off" and "nosmp" kernel params but no help
-
---
- http://www.eca.cx
- Audio software for Linux!
 

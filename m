@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268105AbTBYSVA>; Tue, 25 Feb 2003 13:21:00 -0500
+	id <S268128AbTBYS1d>; Tue, 25 Feb 2003 13:27:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268128AbTBYSVA>; Tue, 25 Feb 2003 13:21:00 -0500
-Received: from bay2-dav37.bay2.hotmail.com ([65.54.246.94]:18954 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id <S268105AbTBYSU7>;
-	Tue, 25 Feb 2003 13:20:59 -0500
-X-Originating-IP: [24.186.227.45]
-From: "Mark F." <daracerz@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [2.5.63] Kernel Panic During Boot (Swap???)
-Date: Tue, 25 Feb 2003 12:44:03 -0500
+	id <S268140AbTBYS1c>; Tue, 25 Feb 2003 13:27:32 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:60108 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S268128AbTBYS1c>;
+	Tue, 25 Feb 2003 13:27:32 -0500
+Message-ID: <3E5BB7EE.5090301@colorfullife.com>
+Date: Tue, 25 Feb 2003 19:37:34 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: Horrible L2 cache effects from kernel compile
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Message-ID: <BAY2-DAV37gUSp3sJWG0000bad4@hotmail.com>
-X-OriginalArrivalTime: 25 Feb 2003 18:31:10.0047 (UTC) FILETIME=[115556F0:01C2DCFC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello, heres the situation.  Compiled 2.5.63 with the mod-utils 0.9.9
-version.  Kernel worked the first couple of times using it.  but then, while
-trying to loaded some changes to it.  It now crashes each time with a Kernel
-Panic.  Reverting back to the my saved 2.4.21-pre3 I can still boot.  Also,
-undoing the kernel changes isn't kelping me.   Heres some of the code snip
-the kernel boot out.  and the location where:  (sorry if there are a couple
-of typos, typing it on another machine):  This is redhat 8 based on a Compaq
-900z which runs off of the Radeon IGP 320M Chipset.
+Andi wrote:
 
+>The reason:
+>
+>Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
+>Inode cache hash table entries: 65536 (order: 7, 524288 bytes)
+>
+>(1GB) I bet on your big memory box it is even worse. No cache
+>in the world can cache that.
+>
+[snip]
 
-Enabling local filesystem quotas:            [ OK ]
-Enabling swap space:                            [ OK ]
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:        0060:[<00000000>]    Not tainted
-EFLAGS: 00010246
-eax:  c037a640    ebc: c037a6ec    ecx: c1380040    edx: 00000174
-esi:    ce538700    edi: c1380040    ebp: 00000001    esp: c031beb4
-ds: 007b    es: 007b    ss: 0068
-Process swapper (pid: 0, threadinfo=c031a000 task=c02d3500
-Stack: cf8bbd06 c037a6ec 00000174 ce538740 c037a6ec c138b818 c037a6ec
-00000000
-           c138b0c0 0000000f c020e419 c037a6ec ce538700 00000000 00000088
-0000001e
-            cee8ad80 c138b0c0 c037a6ec cee8ad80 c020e619 c037a6ec c138b0c0
-c037a820
-Call Trace:  [<cf8bbd06>] [<c020e419>] [<c020e619>] [<c020ec08>]
-[<cf8bb760>]
-    [<c010cd78>] [<c010cfa7>] [<c0108af0>] [<c0108af0>] [<c010b94c>]
-[<c0108af0>]
-    [<c0108af0>] [<c0108b14>] [<c0108b8e>] [<c0105000>]
-Code:    Bad EIP value.
-    <0> Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
+>Try the appended experimental patch. It replaces the hash table madness
+>with relatively small fixed tables.
+>  
+>
+Are you sure that this will help?
+With a smaller table, you might cause fewer cache misses for the table 
+lookup. Instead you get longer hash chains. Walking linked lists 
+probably causes more cache line misses than the single array lookup.
 
+Dave, how many entries are in the dcache?
 
-I can reproduce this consistantly so far, so will give any information I can
-give ya.  I'm gonna go and continue modding the kernel to see if i can break
-it down or see the solution.
-Mark
+Btw, has anyone tried to replaced the global dcache with something 
+local, perhaps a tree instead of d_child, and then lookup in d_child_tree?
+
+--
+    Manfred
+

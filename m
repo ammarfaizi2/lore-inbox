@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288967AbSBZXeU>; Tue, 26 Feb 2002 18:34:20 -0500
+	id <S288980AbSBZXhL>; Tue, 26 Feb 2002 18:37:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289046AbSBZXeB>; Tue, 26 Feb 2002 18:34:01 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:15859 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S288967AbSBZXdl>;
-	Tue, 26 Feb 2002 18:33:41 -0500
-Date: Tue, 26 Feb 2002 16:33:23 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: george anzinger <george@mvista.com>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch][rfc] enable uptime display > 497 days on 32 bit
-Message-ID: <20020226163323.G12832@lynx.adilger.int>
-Mail-Followup-To: george anzinger <george@mvista.com>,
-	Tim Schmielau <tim@physik3.uni-rostock.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0202261754030.14645-100000@gans.physik3.uni-rostock.de> <3C7BE53E.BB789BC6@mvista.com> <20020226135006.R12832@lynx.adilger.int> <3C7C16AC.D08F8152@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C7C16AC.D08F8152@mvista.com>; from george@mvista.com on Tue, Feb 26, 2002 at 03:13:48PM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S289026AbSBZXhD>; Tue, 26 Feb 2002 18:37:03 -0500
+Received: from dsl-213-023-039-032.arcor-ip.net ([213.23.39.32]:55949 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288980AbSBZXgw>;
+	Tue, 26 Feb 2002 18:36:52 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Steve Lord <lord@sgi.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Whither XFS? (was: Congrats Marcelo)
+Date: Mon, 25 Feb 2002 01:28:55 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Andreas Dilger <adilger@turbolabs.com>,
+        Dennis Jim <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16fqZK-0002NE-00@the-village.bc.nu> <1014764374.5993.183.camel@jen.americas.sgi.com>
+In-Reply-To: <1014764374.5993.183.camel@jen.americas.sgi.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16f90h-0002rt-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 26, 2002  15:13 -0800, george anzinger wrote:
-> Andreas Dilger wrote:
-> > Do you think that doing a 64-bit add-with-carry to memory on each
-> > timer interrupt and doing multiple volatile reads is faster than
-> > doing a spinlock with an optional 32-bit increment?  
+On February 26, 2002 11:59 pm, Steve Lord wrote:
+> Yes jfs went in cleanly, because they reimplemented their filesystem
+> from the ground up, and had a large budget to do it. XFS does not fit
+> so cleanly because we brought along some features other filesystems did
+> not have:
 > 
-> I think the memory cycle is "almost" free as we are also updating
-> jiffies which is in the same cache line, so, yes, in the overall scheme
-> of things the overhead of the additional add-with-carry is very small. 
-> On the read side of things, the issue is not so much the lock, but the
-> irq nature of it.  This will be VERY long, much longer than the double
-> load of the high order bits, again from the same cache line.
+>   o Posix ACL support
 
-I was wondering about that myself when looking at the code again.  I'm
-not quite sure why we need to use the irq spinlock, since we already
-make a local copy of jiffies so another timer IRQ changing the jiffies
-value shouldn't affect the return value of get_jiffies64().  Then again,
-that isn't exactly stuff I'm familiar with, so I could be totally
-off-base here.
+Are you able to leverage the new EA interface?  (Which I still don't like
+because of the namespace syntax embedded in the attribute names, btw,
+please don't misinterpret silence as happiness.)
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+>   o The ability to do online filesystem dumps which are coherent with
+>     the system call interface
 
+It would be nice if some other filesystems could share that mechanism, do
+you think it's feasible?  If not, what's the stumbling block?  I haven't
+looked at this for some time and there's was some furious work going on
+exactly there just before 2.5.  It seems we've at least progressed a
+little from the viewpoint that nobody would want that.
+
+>   o delayed allocation of file data
+
+Andrew Morton is working on generic delayed allocation at the vfs level I
+believe, why not bang heads with him and see if it can be made to work with
+VFS?
+
+>   o DMAPI
+
+It would be nice to have unsucky file events.  But there's been roughly zero
+discussion of dmapi on lkml as far as I can see.
+
+> As it is we did all of these, and we seem to have half the Linux NAS
+> vendors in the world building xfs into their boxes.
+
+True enough.
+
+-- 
+Daniel

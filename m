@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUHDUhk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267407AbUHDUqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267411AbUHDUhk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 16:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267415AbUHDUhk
+	id S267407AbUHDUqW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 16:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267414AbUHDUqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 16:37:40 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:34279 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267414AbUHDUh3 (ORCPT
+	Wed, 4 Aug 2004 16:46:22 -0400
+Received: from mail3.bluewin.ch ([195.186.1.75]:37112 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id S267407AbUHDUqU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 16:37:29 -0400
-Date: Wed, 04 Aug 2004 13:36:36 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, Rick Lindsley <ricklind@us.ibm.com>
-Subject: Re: 2.6.8-rc2-mm2 performance improvements (scheduler?)
-Message-ID: <216720000.1091651795@flay>
-In-Reply-To: <20040804201019.GA25908@elte.hu>
-References: <20040804122414.4f8649df.akpm@osdl.org> <211490000.1091648060@flay> <20040804201019.GA25908@elte.hu>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 4 Aug 2004 16:46:20 -0400
+Date: Wed, 4 Aug 2004 22:42:16 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Robert White <rwhite@casabyte.com>
+Cc: "'Bill Davidsen'" <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Interesting race condition...
+Message-ID: <20040804204216.GA23314@k3.hellgate.ch>
+Mail-Followup-To: Robert White <rwhite@casabyte.com>,
+	'Bill Davidsen' <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+References: <ce6e3r$i4n$1@gatekeeper.tmr.com> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAtvmiCqH5I06YSBiFSV8ZAgEAAAAA@casabyte.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAtvmiCqH5I06YSBiFSV8ZAgEAAAAA@casabyte.com>
+X-Operating-System: Linux 2.6.8-rc2-bk1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Wednesday, August 04, 2004 22:10:19 +0200 Ingo Molnar <mingo@elte.hu> wrote:
+On Wed, 04 Aug 2004 13:03:50 -0700, Robert White wrote:
+> Using procps version 2.0.7 the inclusion of "e" in the arguments is
+> documented to return environment of the process.
 
-> 
-> * Martin J. Bligh <mbligh@aracnet.com> wrote:
-> 
->> >>  SDET 16  (see disclaimer)
->> >>                             Throughput    Std. Dev
->> >>                      2.6.7       100.0%         0.3%
->> >>                  2.6.8-rc2        99.5%         0.3%
->> >>              2.6.8-rc2-mm2       118.5%         0.6%
->> > 
->> > hum, interesting.  Can Con's changes affect the inter-node and inter-cpu
->> > balancing decisions, or is this all due to caching effects, reduced context
->> > switching etc?
-> 
-> Martin, could you try 2.6.8-rc2-mm2 with staircase-cpu-scheduler 
-> unapplied a re-run at least part of your tests?
-> 
-> there are a number of NUMA improvements queued up on -mm, and it would
-> be nice to know what effect these cause, and what effect the staircase
-> scheduler has.
+Not the environment of somebody else's process, though. But that is
+currently possible in mainline, the problem is not with ps but with
+the kernel.
 
-Sure. I presume it's just the one patch:
+> The question of why the original poster was getting the environment when
+> only using "ps ax" is interesting.  I'd look for PS_PERSONALITY (etc) in
 
-staircase-cpu-scheduler-268-rc2-mm1.patch
+Basically, if anyone reads /proc/pid/cmdline early enough, when
+mm->arg_end is still 0, the kernel will blast out the process environment
+through that interface. Thus, you get the data of /proc/pid/environ
+without the access restrictions of that file. Not good if you happen
+to pass sensitive information using environment variables.
 
-which seemed to back out clean and is building now. Scream if that's not
-all of it ...
+Check out the patch I posted earlier in this thread.
 
-M.
-
+Roger

@@ -1,130 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbUKAQ47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270817AbUKARCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbUKAQ47 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 11:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273529AbUKAPt0
+	id S270817AbUKARCy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 12:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270697AbUKARCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 10:49:26 -0500
-Received: from mail3.utc.com ([192.249.46.192]:13229 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S271716AbUKAPaI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 10:30:08 -0500
-Message-ID: <41865662.3080902@cybsft.com>
-Date: Mon, 01 Nov 2004 09:29:38 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Mon, 1 Nov 2004 12:02:54 -0500
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:44813 "EHLO
+	cyclades.com.br") by vger.kernel.org with ESMTP id S271187AbUKARBS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 12:01:18 -0500
+From: "germano.barreiro" <germano.barreiro@cyclades.com.br>
+To: Greg KH <greg@kroah.com>
+Subject: Re: patch for sysfs in the cyclades driver
+Message-ID: <1099328490.41866bead2525@200.246.93.2>
+Date: Mon, 01 Nov 2004 14:01:30 -0300 (EST)
+Cc: Germano Barreiro <germano.barreiro@cyclades.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Wanda Rosalino <wanda.rosalino@cyclades.com>
+References: <1098989790.6605.3.camel@germano.cyclades.com> <20041030044056.GB1907@kroah.com>
+In-Reply-To: <20041030044056.GB1907@kroah.com>
 MIME-Version: 1.0
-To: Florian Schmidt <mista.tapas@gmx.net>
-CC: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-References: <1099171567.1424.9.camel@krustophenia.net>	<20041030233849.498fbb0f@mango.fruits.de>	<20041031120721.GA19450@elte.hu>	<20041031124828.GA22008@elte.hu>	<1099227269.1459.45.camel@krustophenia.net>	<20041031131318.GA23437@elte.hu>	<20041031134016.GA24645@elte.hu>	<20041031162059.1a3dd9eb@mango.fruits.de>	<20041031165913.2d0ad21e@mango.fruits.de>	<20041031200621.212ee044@mango.fruits.de>	<20041101134235.GA18009@elte.hu> <20041101150356.4324c4c9@mango.fruits.de>
-In-Reply-To: <20041101150356.4324c4c9@mango.fruits.de>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: IMP/PHP IMAP webmail program 2.2.5-cvs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Schmidt wrote:
-> On Mon, 1 Nov 2004 14:42:35 +0100
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> 
->>* Florian Schmidt <mista.tapas@gmx.net> wrote:
->>
->>
->>>new max. jitter: 4.3% (41 usec)
->>>new max. jitter: 4.9% (47 usec)
->>
->>a couple of conceptual questions: why does rtc_wakeup poll() on
->>/dev/rtc? Shouldnt a read() be enough?
-> 
-> 
-> well, it works like this:
-> 
-> 
-> while(!stopit) {
-> 	// returns when data is ready
-> 	poll(on /dev/rtc);
-> 
-> 	// when ready generate the timestamp
-> 	cycles = get_cycles();
-> 
-> 	// now read the data	
-> 	read(on /dev/rtc);			
-> 
-> 	// and now stuff the data (including timestamp) into the ringbuffer
-> 
-> 	// rinse and repeat
-> }
-> 
-> i get the timestamp before reading because i figured i want to take the
-> timestamp as close as possible to data being available. The read() and
-> passing the data to the other thread done after the timestamp generation (in
-> that ca. 1 - 0.1 ms (1024 - 8192 hz) time window which we have until the
-> next irq occurs)
-> 
-> 
->>i'm seeing some weird traces, which show rtc_wakeup doing this cycle:
->>
->>	[~900 usecs pass]
->>
->>	hardirq 8 comes in, wakes IRQ 8 thread
->>	IRQ 8 thread wakes up rtc_wakeup
->>
->>	rtc_wakeup fast-thread returns from sys_read()
->>	rtc_wakeup fast-thread enters sys_poll() and returns immediately
->>	rtc_wakeup fast-thread enters sys_read() and blocks
-> 
-> 
-> weird. why could poll return immeaditly? Only when data should be available
-> right? Ahh, maybe there's less data available than which is needed by
-> read(). I suppose i need to check if enough data is available. If not,
-> repoll(), then generate the timestamp. Then read(). I had the impression
-> that this small amount of data which rtc delivers (4 bytes i think) would
-> not be split into smaller parts.
-> 
-> It never occured to me that poll() could return with incomplete rtc data
-> available..
-> 
-> As i don't know of any way of finding out how much data is available i
-> suppose we can just make the poll() a read(). I suppose overhead is
-> neglectable right?
-> 
-Someone please correct me if I'm wrong, but is there any MORE overhead 
-associated with a blocking read than with a poll or select? Won't the 
-process just go to sleep until there is data available?
+Hi Greg
 
-> 
->>	rtc_wakeup slow-thread runs and does the calculations.
->>
->>	[repeat]
->>
->>this i think shows that the logic is wrong somewhere and that read()
->>will achieve the blocking. This also means that the sys_read()-return +
->>sys_poll() overhead is added to the 'IRQ wakeup' overhead!
->>
->>removing the poll() lines doesnt seem to impact the quality of the data,
->>but i still see roughly 50 usecs added to the 'real' latency that i see
->>in traces.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Firstly, very thanks again you for your comments. I think I understood them and
+I will check the driver you pointed as an example.
 
+Kind regards, 
+Germano 
+
+
+
+Cópia Greg KH <greg@kroah.com>:
+
+> On Thu, Oct 28, 2004 at 04:56:30PM -0200, Germano Barreiro wrote:
+> > Hi
+> > 
+> > This patch implements the sysfs support in the cyclades async driver,
+> > which is needed by the Cyclades' CyMonitor application. It is based
+> in
+> > the last one sent (see copied message below), but implements the
+> changes
+> > asked for that patch by Greg (the array of attributes was eliminated
+> and
+> > now there is only one file for each value to be exported).
+> > I hope it is ok to be applied now, but if more changes are needed I
+> > would be pleased to listen about them. By the way, I'm grateful to
+> > Marcelo for taking time to examining many "middle" versions of this
+> > patch, and also to Greg for his comments to the last patch.
+> 
+> Close, it's getting better, but you still have a ways to go...
+> 
+> > --- linux-2.6.10rc1.orig/drivers/char/cyclades.c	2004-10-25
+> 16:40:00.000000000 -0200
+> > +++ linux-2.6.10rc1/drivers/char/cyclades.c	2004-10-26
+> 17:13:20.000000000 -0200
+> > @@ -646,6 +646,7 @@ static char rcsid[] =
+> >  #include <linux/string.h>
+> >  #include <linux/fcntl.h>
+> >  #include <linux/ptrace.h>
+> > +#include <linux/device.h>
+> >  #include <linux/cyclades.h>
+> >  #include <linux/mm.h>
+> >  #include <linux/ioport.h>
+> > @@ -700,8 +701,36 @@ static void cy_send_xchar (struct tty_st
+> >  
+> >  #define	JIFFIES_DIFF(n, j)	((j) - (n))
+> >  
+> > +static char _version[150];
+> >  static struct tty_driver *cy_serial_driver;
+> >  
+> > +
+> > +const static char
+> sysufixes[18][10]={"stat","card","baud","flow","rxfl","txfl","dcd","dsr","cts",
+> > +                                    
+> "rts","dtr","rx","tx","bdrx","bdtx","par","stop","chlen"};
+> 
+> Ick, this isn't needed.
+> 
+> > +ssize_t (*showfunctions[])(struct device *, char *)={
+> > +	show_sys_stat,
+> > +	show_sys_card,
+> > +	show_sys_baud,
+> > +	show_sys_flow,
+> > +	show_sys_rxfl,
+> > +	show_sys_txfl,
+> > +	show_sys_dcd,
+> > +	show_sys_dsr,
+> > +	show_sys_cts,
+> > +	show_sys_rts,
+> > +	show_sys_dtr,
+> > +	show_sys_rx,
+> > +	show_sys_tx,
+> > +	show_sys_bdrx,
+> > +	show_sys_bdtx,
+> > +	show_sys_par,
+> > +	show_sys_stop,
+> > +	show_sys_chlen
+> > +};
+> 
+> Why not just do as the i2c chip drivers do?  Use a macro for your
+> show functions, it's much simpler.
+> 
+> > +        switch(whatinfo){
+> > +
+> > +		case STAT: //open/closed
+> 
+> Break this big switch statement up into the individual show functions.
+> Hm, ok, you can't use a macro for them then, sorry.  But it should be
+> simpler.
+> 
+> > +			if ( tty == 0 ) 
+> > +				len = sprintf(buf, "%s:%s\n", cysys_state, cysys_close);
+> > +			else
+> > +				len = sprintf(buf, "%s:%s\n", cysys_state, cysys_open);
+> 
+> No, don't put the %s: stuff in there.  The user read from the "stat"
+> file.  They know what the value should be, you don't have to remind
+> them
+> again :)
+> 
+> thanks,
+> 
+> greg k-h
+> 

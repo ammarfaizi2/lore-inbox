@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbUBVO2O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 09:28:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbUBVO2O
+	id S261344AbUBVOeK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 09:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbUBVOeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 09:28:14 -0500
-Received: from ore.jhcloos.com ([64.240.156.239]:29449 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S261335AbUBVO2N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 09:28:13 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: make help ARCH=xx fun
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <20040222095021.GB2266@mars.ravnborg.org> (Sam Ravnborg's
- message of "Sun, 22 Feb 2004 10:50:21 +0100")
-References: <m3y8qwv78e.fsf@lugabout.jhcloos.org>
-	<20040222095021.GB2266@mars.ravnborg.org>
-Date: Sun, 22 Feb 2004 09:28:04 -0500
-Message-ID: <m3ishzqjd7.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+	Sun, 22 Feb 2004 09:34:10 -0500
+Received: from p10068181.pureserver.de ([217.160.75.209]:49424 "EHLO
+	www.kuix.de") by vger.kernel.org with ESMTP id S261344AbUBVOeH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 09:34:07 -0500
+Message-ID: <4038BDC3.9030304@kuix.de>
+Date: Sun, 22 Feb 2004 15:33:39 +0100
+From: Kai Engert <kaie@kuix.de>
+Reply-To: kai.engert@gmx.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030721 wamcom.org
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: only ieee1394 from 2.4.20 works for me
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Sam" == Sam Ravnborg <sam@ravnborg.org> writes:
+In the last year I have been playing with a variety of combinations of 
+ieee1394 controllers, machines, external mass storage devices and linux 
+kernel versions. So have some friends of mine.
 
-Sam> The sh people have decided to create the list based on the
-Sam> content of the directory.  Therefore you see the SCCS entry,
+The only version that works for us is the ieee1394 code that was 
+included with kernel version 2.4.20.
 
-I thought that went w/o saying....
+(I removed drivers/ieee1394 completely, and replaced it with 
+drivers/ieee1394 from 2.4.20)
 
-The points were that if doing a readdir(3) in the tree for config
-files, it would not be a bad idea to ignore directories and that
-each arch should have arch-specific make help support (the cited
-example was that ppc64 lacked it even though ppc had some).
+Using that snapshot, we are able to transfer data to disks and video 
+from a camcorder just fine, in all combinations we have tested.
 
--JimC
+Every other kernel version, both older or newer than 2.4.20, is broken. 
+We either see random errors, or writing data to disks stalls 
+immediately, or daisy chained devices don't work.
+
+I'm currently using the official Fedora core 1 series kernels, patched 
+that way, and it works like a charm.
+
+Please consider to use the 2.4.20 ieee1394 snapshot in future 2.4.x 
+releases.
+
+Best Regards,
+Kai
+
+
+PS: Please CC me on replies.
 

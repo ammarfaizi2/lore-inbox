@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269581AbUJLJqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269586AbUJLJwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269581AbUJLJqq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 05:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269593AbUJLJqp
+	id S269586AbUJLJwd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 05:52:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269590AbUJLJwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 05:46:45 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:30734 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S269591AbUJLJom (ORCPT
+	Tue, 12 Oct 2004 05:52:33 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:21378 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269586AbUJLJwb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 05:44:42 -0400
-Date: Tue, 12 Oct 2004 11:44:39 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG]  oom killer not triggering in 2.6.9-rc3
-Message-ID: <20041012094439.GA3223@pclin040.win.tue.nl>
-References: <41672D4A.4090200@nortelnetworks.com> <1097503078.31290.23.camel@localhost.localdomain> <416B6594.5080002@nortelnetworks.com>
+	Tue, 12 Oct 2004 05:52:31 -0400
+Date: Tue, 12 Oct 2004 11:53:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Daniel Walker <dwalker@mvista.com>, "K.R. Foley" <kr@cybsft.com>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>,
+       Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] VP-2.6.9-rc4-mm1-T6
+Message-ID: <20041012095339.GA22249@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012094228.GA19751@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <416B6594.5080002@nortelnetworks.com>
+In-Reply-To: <20041012094228.GA19751@elte.hu>
 User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 11:03:16PM -0600, Chris Friesen wrote:
 
-> Alan Cox wrote:
-> >The OOM killer is a heuristic. 
-> 
-> Sure, but presumably it's a bad thing for a user with no priorities to be 
-> able to lock up a machine by running two tasks?  I'm not complaining that 
-> its killing the wrong thing, I'm complaining that the machine locked up.
-> 
-> > Switch the machine to strict accounting
-> >and it'll kill or block memory access correctly.
-> 
-> I must be able to run an app that uses over 90% of system memory, and calls 
-> fork().  I was under the impression this made strict accounting unfeasable?
-> 
-> Chris
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-No.
+> one more warning wrt. PREEMPT_REALTIME: if this option is enabled then
+> it is not safe to make interrupts non-threaded via
+> /proc/irq/*/*/threaded. If you need to turn an interrupt into a
+> high-prio event then its irq thread should be set to RT priority via
+> 'chrt'. (-T7 will turn off /proc/irq/*/*/threaded altogether, to make
+> sure it's not set accidentally.)
 
-The default allows a job to take ten times what is available,
-and bad things happen later.
-With overcommit mode 2 there is an upper bound, but you can
-twiddle the bound as desired. From proc(5):
+in fact i've re-uploaded a new version of the -T6 patch to disable
+direct interrupts under PREEMPT_REALTIME kernels. The only exception is
+IRQ1 on PCs (the keyboard irq), which can be useful for debugging
+purposes (SysRq, etc.). I turned the keyboard related locks into raw
+spinlocks to make this safe.
 
-    /proc/sys/vm/overcommit_memory
-              This   file  contains  the  kernel  virtual  memory
-              accounting mode. Values are:
-              0: heuristic overcommit (this is the default)
-              1: always overcommit, never check
-              2: always check, never overcommit
-              In mode 0, calls of mmap(2) with MAP_NORESERVE  set
-              are  not  checked,  and  the  default check is very
-              weak, leading to the  risk  of  getting  a  process
-              "OOM-killed".   Under  Linux  2.4 any nonzero value
-              implies mode 1.  In mode 2 (available  since  Linux
-              2.6), the total virtual address space on the system
-              is limited to (SS + RAM*(r/100)), where SS  is  the
-              size  of the swap space, and RAM is the size of the
-              physical memory, and r is the contents of the  file
-              /proc/sys/vm/overcommit_ratio.
-
-       /proc/sys/vm/overcommit_ratio
-              See the description of /proc/sys/vm/overcommit_mem
-
-So, what you have is a bound on virtual memory, and that bound
-can very easily be larger than twice physical memory.
-
-Andries
+	Ingo

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289413AbSAVWCL>; Tue, 22 Jan 2002 17:02:11 -0500
+	id <S289415AbSAVWBW>; Tue, 22 Jan 2002 17:01:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289446AbSAVWBx>; Tue, 22 Jan 2002 17:01:53 -0500
-Received: from paloma14.e0k.nbg-hannover.de ([62.181.130.14]:13763 "HELO
-	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S289413AbSAVWBu>; Tue, 22 Jan 2002 17:01:50 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-Date: Tue, 22 Jan 2002 23:01:37 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Dave Jones <davej@suse.de>, Andreas Jaeger <aj@suse.de>,
-        Martin Peters <mpet@bigfoot.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020122220151Z289413-13996+10273@vger.kernel.org>
+	id <S289413AbSAVWBM>; Tue, 22 Jan 2002 17:01:12 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3341 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S289415AbSAVWA5>; Tue, 22 Jan 2002 17:00:57 -0500
+Date: Tue, 22 Jan 2002 22:00:46 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-pre6
+Message-ID: <20020122220046.C21383@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.21.0201221602360.2059-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0201221602360.2059-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Jan 22, 2002 at 04:06:38PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You wrote:
-> hi there!
->
-> a few month ago someone has posted a patch for enabling the disconneect
-> on STPGND detect function in the kt133/kt133a chipset.
+On Tue, Jan 22, 2002 at 04:06:38PM -0200, Marcelo Tosatti wrote:
+> pre6:
+> 
+> - Removed patch in icmp code: its not needed 
+>   and causes problems				(me)
 
-Maybe it's time for AMD/VIA/SiS/Nvidia, etc. to come up with there code for 
-_ALL_ Athlon/Duron chipsets???
-As we are in trouble with AMD 4MB pages, yet.
-
-Have a look at www.vcool.de
-
-Regards,
-	Dieter
+Can you enlighten us as to why it is "not needed" ?  I haven't seen any
+followups from Andi nor Davem to saying that.
 
 -- 
-Dieter Nützel
-Graduate Student, Computer Science
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135705AbRDVIsx>; Sun, 22 Apr 2001 04:48:53 -0400
+	id <S136001AbRDVJiA>; Sun, 22 Apr 2001 05:38:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135798AbRDVIso>; Sun, 22 Apr 2001 04:48:44 -0400
-Received: from [212.150.138.2] ([212.150.138.2]:49157 "EHLO
-	ntserver.voltaire.com") by vger.kernel.org with ESMTP
-	id <S135705AbRDVIsc> convert rfc822-to-8bit; Sun, 22 Apr 2001 04:48:32 -0400
-Message-ID: <20083A3BAEF9D211BDB600805F8B14F3D857E1@NTSERVER>
-From: Miri Groentman <mirig@voltaire.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: ip forwarding ans kernel networking questions
-Date: Sun, 22 Apr 2001 11:47:05 +0200
-X-Message-Flag: Follow up
+	id <S136002AbRDVJhu>; Sun, 22 Apr 2001 05:37:50 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:58892 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S136001AbRDVJhh>; Sun, 22 Apr 2001 05:37:37 -0400
+Message-ID: <3AE2A660.CDD35707@egu.schule.ulm.de>
+Date: Sun, 22 Apr 2001 11:37:36 +0200
+From: Steffen Moser <moser@egu.schule.ulm.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="windows-1255"
-Content-Transfer-Encoding: 8BIT
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linker Error With Kernel 2.4.4pre6 and GCC 2.95.3 (Debian)
+In-Reply-To: <20010421161851.A24134@brimstone.ucr.edu> <3AE22753.702859E7@eyal.emu.id.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-I’m a newbie to Linux kernel, and I’m trying to understand some networking
-issues in kernel 2.4. 
-I will highly appreciate it if anyone could refer me to kernel networking
-documentation in general, and tcp / ip stack documentation in particular.
-I’ve been reading tcp/ip illustrated (vol. II), but it seems like in these
-issues the 2.4 kernel version is quite different from BSD.
-I’m especially looking for answers to questions such as where in the code a
-host validates the packet ip? 
-Where in the code the a packet which is addressed to a different ip is
-dropped / discarded  (when the kernel isn’t configured as a router), and
-where in the code a packet is forwarded when the kernel IS configured as a
-router?
-Thanks
--Miri
+Hello,
+
+Eyal Lebedinsky wrote:
+
+> I get the same error with Debian stable (2.2-r3)
+> 
+> # gcc --version
+> 2.95.2
+
+The same here (SuSE Linux 7.0, x86 edition):
+
+  steffen@fs01:~ > gcc --version
+  2.95.2
+
+I was able to compile and link it successfully after applying Niels'
+patch which is available at:
+
+  http://boudicca.tux.org/hypermail/linux-kernel/2001week17/0009.html
+
+Best regards,
+Steffen

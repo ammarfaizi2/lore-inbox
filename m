@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316491AbSGQTQS>; Wed, 17 Jul 2002 15:16:18 -0400
+	id <S316579AbSGQTZB>; Wed, 17 Jul 2002 15:25:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316530AbSGQTQS>; Wed, 17 Jul 2002 15:16:18 -0400
-Received: from ns.suse.de ([213.95.15.193]:38417 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316491AbSGQTQQ>;
-	Wed, 17 Jul 2002 15:16:16 -0400
-Date: Wed, 17 Jul 2002 21:19:07 +0200
-From: Dave Jones <davej@suse.de>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
+	id <S316580AbSGQTZB>; Wed, 17 Jul 2002 15:25:01 -0400
+Received: from dsl-213-023-038-064.arcor-ip.net ([213.23.38.64]:14782 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316579AbSGQTZA>;
+	Wed, 17 Jul 2002 15:25:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>, Lincoln Dale <ltd@cisco.com>
+Subject: Re: ext2 performance in 2.5.25 versus 2.4.19pre8aa2
+Date: Wed, 17 Jul 2002 21:22:14 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Benjamin LaHaise <bcrl@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, Steve Lord <lord@sgi.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  July 17, 2002
-Message-ID: <20020717211907.H18170@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Patrick Mochel <mochel@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-	Guillaume Boissiere <boissiere@adiglobal.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.33L2.0207170908060.29653-100000@dragon.pdx.osdl.net> <Pine.LNX.4.44.0207170916360.2542-100000@cherise.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207170916360.2542-100000@cherise.pdx.osdl.net>
-User-Agent: Mutt/1.3.22.1i
+References: <3D2CFF48.9EFF9C59@zip.com.au> <5.1.0.14.2.20020714202539.022c4270@mira-sjcm-3.cisco.com> <3D325DEB.A9920C12@zip.com.au>
+In-Reply-To: <3D325DEB.A9920C12@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17UuNL-0004P5-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 09:19:39AM -0700, Patrick Mochel wrote:
+On Monday 15 July 2002 07:30, Andrew Morton wrote:
+> Lincoln Dale wrote:
+> > 
+> > Andrew Morton wanted me to do some benchmarking of large files on ext2
+> > filesystems rather than the usual block-device testing
+> > i've had some time to do this, here are the results.
+> > 
+> > one-line summary is that some results are better, some are worse; CPU
+> > usage is better in 2.5.25, but thoughput is sometimes worse.
+> 
+> Well thanks for doing this.  All rather strange though.
 
- > > | With the code freeze date approaching soon, it is obvious that many
- > > Oct. 31 is feature freeze date, or so several of us understood.
- > 
- > That is correct. And, for a feature, we only need a header file to be in, 
- > right? ;)
+One result that seems pretty consistent in these tests is that avoiding the 
+page cache is good for about 20% overall throughput improvement.  Which is 
+significant, but less than I would have thought if bus bandwidth is the only 
+major bottleneck.  Something in the vfs/filesystem/blockio path is still 
+eating too much cpu.
 
-Hmmmmmm 8-)
-wrt to post-halloween features, things like new drivers that require no
-core changes aren't an issue, but things like ripping out the VM and
-replacing with a new one should probably wait until 2.6.10 or so.[*]
-
- > Please don't. While it would be nice if x86 init were a bit nicer, and 
- > things like CPUs were added in a 'hotpluggable' manner, I won't be 
- > dedicating time to this. At least not in near future...
-
-Rusty seems to have a good handle on the hotplug bits, whether
-bringing them up in a hotplug manner is his intention I'm not sure,
-but it does seem to be going in that direction afaics.
-
-        Dave
-
-[*] j/k of course. (at least, I hope so).
+Another observation: though only one of the tests hit 100% CPU, total 
+throughput is still shows consistent improvement as a result of reducing CPU. 
+This should not be, it means there is excessive latency between submission of 
+requests, that is, the IO pipes are not being kept full.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Daniel

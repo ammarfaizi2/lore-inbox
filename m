@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266654AbUHBRXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266666AbUHBR3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266654AbUHBRXN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 13:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266655AbUHBRXM
+	id S266666AbUHBR3T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 13:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUHBR3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 13:23:12 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:55213 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S266654AbUHBRXJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 13:23:09 -0400
-Date: Mon, 02 Aug 2004 10:23:03 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: jmoyer@redhat.com
-cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: finding out the boot cpu number from userspace
-Message-ID: <30660000.1091467382@[10.10.2.4]>
-In-Reply-To: <16654.29342.977105.723775@segfault.boston.redhat.com>
-References: <20040802121635.GE14477@devserv.devel.redhat.com><12690000.1091461852@[10.10.2.4]> <16654.29342.977105.723775@segfault.boston.redhat.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 2 Aug 2004 13:29:19 -0400
+Received: from web14929.mail.yahoo.com ([216.136.225.94]:1427 "HELO
+	web14929.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266666AbUHBR3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 13:29:17 -0400
+Message-ID: <20040802172916.76436.qmail@web14929.mail.yahoo.com>
+Date: Mon, 2 Aug 2004 10:29:16 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <200408021002.31117.jbarnes@engr.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ==> Regarding Re: finding out the boot cpu number from userspace; "Martin J. Bligh" <mbligh@aracnet.com> adds:
-> 
->>> assuming cpu 0 is the boot cpu sounds fragile/incorrect, but for
->>> irqbalanced I'd like to find out which cpu is the boot cpu, is there a
->>> good way of doing so ?
->>> 
->>> The reason for needing this is that some firmware only likes running on
->>> the boot cpu so I need to bind firmware-related irq's to that cpu
->>> ideally.
-> 
-> mbligh> On any sane arch, cpu 0 *IS* always the boot CPU, as we dynamically
-> mbligh> number CPUs that way ... that doesn't mean that it's apicid 0. I
-> mbligh> believe that PPC64 screwed this up, but AFAIK, everyone else gets
-> mbligh> it correct ... ;-)
-> 
-> Hmm, do we need to do any special handling for this in the kexec case?
-> ISTR having some issues with this when using bootimg years back.
+--- Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+> look, Greg?  It it suitable for the mainline yet?  I expect those
+> familiar  with the various cards to add the necessary quirks code
+> as needed.
 
-Eric went to some lengths to migrate us back to the original boot CPU 
-before kexec'ing. I think this is unnecessary - the new kernel should
-handle booting on any CPU just fine (there was a panic in there at one
-point if the boot CPU didn't match the BIOS's spec'ed one, but I removed
-it).
+Radeons need this quirk for broken VBIOS's that leave the ROM decoding
+disabled.
 
-M.
+   unsigned int temp;
+   temp = DRM_READ32(mmio, RADEON_MPP_TB_CONFIG);
+   temp &= 0x00ffffffu;
+   temp |= 0x04 << 24;
+   DRM_WRITE32(mmio, RADEON_MPP_TB_CONFIG, temp);
+   temp = DRM_READ32(mmio, RADEON_MPP_TB_CONFIG);
 
+Shouldn't this go into the radeon driver so that it will work with
+hotplug? Or should it go in both places, a _devinit pci_quirk and the
+radeon driver?
+
+
+=====
+Jon Smirl
+jonsmirl@yahoo.com
+
+
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

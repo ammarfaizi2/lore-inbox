@@ -1,80 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265833AbUBPR6x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 12:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265835AbUBPR6w
+	id S265433AbUBPSS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 13:18:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbUBPSS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 12:58:52 -0500
-Received: from h80ad244c.async.vt.edu ([128.173.36.76]:34075 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265833AbUBPR6t (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 12:58:49 -0500
-Message-Id: <200402161758.i1GHwfek031651@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.) 
-In-Reply-To: Your message of "Mon, 16 Feb 2004 18:26:47 +0100."
-             <E1AsmW7-0000bV-DM@localhost> 
-From: Valdis.Kletnieks@vt.edu
-References: <1pvrI-8bq-29@gated-at.bofh.it> <1pvrI-8bq-31@gated-at.bofh.it> <1pvrJ-8bq-33@gated-at.bofh.it> <1pvrJ-8bq-35@gated-at.bofh.it> <1pvrJ-8bq-37@gated-at.bofh.it> <1pvrJ-8bq-39@gated-at.bofh.it> <1pvrJ-8bq-41@gated-at.bofh.it> <1pvrJ-8bq-43@gated-at.bofh.it> <1pTay-3hc-13@gated-at.bofh.it> <1pTay-3hc-15@gated-at.bofh.it> <1pTay-3hc-11@gated-at.bofh.it> <1pTu7-3Ce-7@gated-at.bofh.it>
-            <E1AsmW7-0000bV-DM@localhost>
+	Mon, 16 Feb 2004 13:18:26 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:26764 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265433AbUBPSSY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 13:18:24 -0500
+Subject: Re: [PATCH] PPC64 PCI Hotplug Driver for RPA
+From: John Rose <johnrose@austin.ibm.com>
+To: Rusty Russell <rusty@au1.ibm.com>
+Cc: linux-kernel@vger.kernel.org, gregkh@us.ibm.com,
+       Mike Wortman <wortman@us.ibm.com>
+In-Reply-To: <20040215222211.4F99817DE7@ozlabs.au.ibm.com>
+References: <20040215222211.4F99817DE7@ozlabs.au.ibm.com>
+Content-Type: text/plain
+Message-Id: <1076955537.10130.18.camel@verve.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_2028654288P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 16 Feb 2004 12:18:57 -0600
 Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Feb 2004 12:58:40 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_2028654288P
-Content-Type: text/plain; charset=us-ascii
+> Please:
+> 	module_param(debug, int, 0644);
 
-On Mon, 16 Feb 2004 18:26:47 +0100, Pascal Schmidt said:
-> On Mon, 16 Feb 2004 17:10:23 +0100, you wrote in linux.kernel:
-> 
-> >> file and created another with the same name between you calling creat()
-> >> and doing the readdir(). What would be the use of this, anyway?
-> > How does the shell do 'echo foo*'?
-> 
-> I fail to see the connection with creat() followed by readdir(). The shell
-> is surely not expecting the names that follow from the glob expansion to
-> have any relationship with previous shell operations
+New patch below for this modification to the RPA PCI Hotplug Driver.
 
-Oh?
+Thanks-
+John
 
-% rm *
-% touch foo1 bar1    # this calls creat() or open() or similar
-% touch foo2 bar2	# as will this...
-% echo foo*	# and this will do a readdir(), presumably
+diff -Nru a/drivers/pci/hotplug/Kconfig b/drivers/pci/hotplug/Kconfig
+--- a/drivers/pci/hotplug/Kconfig	Mon Feb 16 12:12:05 2004
++++ b/drivers/pci/hotplug/Kconfig	Mon Feb 16 12:12:05 2004
+@@ -122,5 +122,16 @@
+ 
+ 	  When in doubt, say N.
+ 
++config HOTPLUG_PCI_RPA
++	tristate "RPA PCI Hotplug driver"
++	depends on HOTPLUG_PCI && PPC_PSERIES && PPC64
++	help
++	  Say Y here if you have a a RPA system that supports PCI Hotplug.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called rpaphp.
++
++	  When in doubt, say N.
++
+ endmenu
+ 
+diff -Nru a/drivers/pci/hotplug/Makefile b/drivers/pci/hotplug/Makefile
+--- a/drivers/pci/hotplug/Makefile	Mon Feb 16 12:12:05 2004
++++ b/drivers/pci/hotplug/Makefile	Mon Feb 16 12:12:05 2004
+@@ -9,6 +9,7 @@
+ obj-$(CONFIG_HOTPLUG_PCI_ACPI)		+= acpiphp.o
+ obj-$(CONFIG_HOTPLUG_PCI_CPCI_ZT5550)	+= cpcihp_zt5550.o
+ obj-$(CONFIG_HOTPLUG_PCI_CPCI_GENERIC)	+= cpcihp_generic.o
++obj-$(CONFIG_HOTPLUG_PCI_RPA)		+= rpaphp.o
+ 
+ pci_hotplug-objs	:=	pci_hotplug_core.o
+ 
+@@ -32,6 +33,9 @@
+ 				acpiphp_glue.o	\
+ 				acpiphp_pci.o	\
+ 				acpiphp_res.o
++
++rpaphp-objs		:=	rpaphp_core.o	\
++				rpaphp_pci.o	
+ 
+ ifdef CONFIG_HOTPLUG_PCI_ACPI
+   EXTRA_CFLAGS  += -D_LINUX -I$(TOPDIR)/drivers/acpi
+diff -Nru a/drivers/pci/hotplug/rpaphp.h b/drivers/pci/hotplug/rpaphp.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/pci/hotplug/rpaphp.h	Mon Feb 16 12:12:05 2004
+@@ -0,0 +1,106 @@
++/*
++ * PCI Hot Plug Controller Driver for RPA-compliant PPC64 platform.
++ *
++ * Copyright (C) 2003 Linda Xie <lxie@us.ibm.com>
++ *
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
 
-Do you have any expectations what the echo will do?  Obviously the glob
-DOES have a relationship with previous shell operations.
 
-The point is that *if* we assume that glibc is going to do some magic
-conversion when creating a file, we are assuming that glibc will *always* keep
-the conversion hidden. No matter what.  Because the user now has expectations
-of what that file was called when he created it - the string he passed to
-open()/creat().  If what gets handed to the kernel is something different, we
-have to make sure that the user never finds out about it.
-
-And if there's special iso8859-* chars in the filename, this means that the magic
-handwave to convert to utf-8 inside glibc will either have to do it in-place (mangling
-the user-supplied filename, and bad karma) or it gets to call malloc() to get a work
-space (can't use a 'static char[MAXPATHLEN]', that's not thread-safe.
-
-This gets *very* interesting if the malloc() fails.. ;)
-
---==_Exmh_2028654288P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAMQTQcC3lWbTT17ARAqxCAKCRijGqLDQqozKdBRF31W7WX3fDdwCfT72f
-v9NGPCsJlBgrLr2ygRK2/Tw=
-=2DBH
------END PGP SIGNATURE-----
-
---==_Exmh_2028654288P--

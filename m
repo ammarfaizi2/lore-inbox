@@ -1,122 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266605AbUGKOhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUGKOzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266605AbUGKOhz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 10:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266607AbUGKOhz
+	id S266611AbUGKOzw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 10:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266610AbUGKOzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 10:37:55 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:20880 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266605AbUGKOhv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 10:37:51 -0400
-Date: Sun, 11 Jul 2004 16:38:53 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: ck kernel mailing list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [ck] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040711143853.GA6555@elte.hu>
-References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040710124814.GA27345@elte.hu> <40F0075C.2070607@kolivas.org> <40F016D9.8070300@kolivas.org> <20040711064730.GA11254@elte.hu> <40F14E53.2030300@kolivas.org>
+	Sun, 11 Jul 2004 10:55:52 -0400
+Received: from smtp1.wanadoo.fr ([193.252.22.30]:51477 "EHLO
+	mwinf0107.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S266611AbUGKOzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 10:55:48 -0400
+Date: Sun, 11 Jul 2004 16:55:46 +0200
+From: Michelle Konzack <linux4michelle@freenet.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Ext3 File System "Too many files" with snort
+Message-ID: <20040711145546.GF720@freenet.de>
+References: <070820041751.25643.40ED899E0006C76E0000642B2200748184970A059D0A0306@comcast.net> <20040708182143.GD23346@schnapps.adilger.int>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="M9NhX3UHpAaciwkO"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kbCYTQG2MZjuOjyn"
 Content-Disposition: inline
-In-Reply-To: <40F14E53.2030300@kolivas.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040708182143.GD23346@schnapps.adilger.int>
+X-Message-Flag: Improper configuration of Outlook is a breeding ground for viruses. Please take care your Client is configured correctly. Greetings MIchelle.
+X-Disclaimer-DE: Eine weitere Verwendung oder die Veroeffentlichung dieser Mail oder dieser Mailadresse ist nur mit der Einwilligung des Autors gestattet.
+Organisation: Michelle's Selbstgebrautes
+X-Operating-System: Linux michelle1 2.4.26-1-686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---M9NhX3UHpAaciwkO
+--kbCYTQG2MZjuOjyn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hello Andreas,=20
 
-* Con Kolivas <kernel@kolivas.org> wrote:
+Am 2004-07-08 12:21:43, schrieb Andreas Dilger:
 
-> Ok I've done one better than that ;) I had wli help make some
-> instrumentation for me to help find the remaining non preemptible
-> kernel portions and set the cutoff to 2ms. Here is what I found:
-> 
-> 7ms non-preemptible critical section violated 2 ms preempt threshold 
-> starting at reiserfs_sync_fs+0x2d/0xc2 and ending at reiser
-> fs_lookup+0xe2/0x221
-> 
-> 9ms non-preemptible critical section violated 2 ms preempt threshold 
-> starting at reiserfs_dirty_inode+0x37/0x10e and ending at r
-> eiserfs_dirty_inode+0xb0/0x10e
-> 
-> These seem to be the two offenders. Hope this helps.
+>If you are actually running out of inodes, then you can use "-i" or "-N"
+>to mke2fs to increase the number of inodes in a new filesystem.  Since
+>this defaults to 1 inode per 8kB of space, it seems unlikely that you
+>would run out of inodes before blocks unless you have lots of small files
+>(maildir perhaps?  even then "modern" emails usually average > 8kB in size
+>because of HTML crap, lots of headers, attachments, etc).
 
-great!
+I have a courier-imap Server where I share all all mailinglists where=20
+I am subscribed... Curently I have 5,2 Millionen Messages in the ext3.
 
-meanwhile i spent an afternoon with another latency testing suite:
+I have already striped the messages with=20
 
-  http://www.alsa-project.org/~iwai/latencytest-0.5.3.tar.gz
+:0 fh
+| formail -f -I Received: -I Envelope-to: -I Delivered-To:  -I Return-path:=
+ \
+-I X-Spam-Checker-Version:   -I X-Spam-Status: -I X-Spam-Level:=20
 
-it was reporting more accurate latencies, except that there were strange
-spikes of latencies. It turned out that for whatever reason, userspace
-RDTSC is not always reliable on my box (!).
+I have a mailsize of around 2,5 kBytes...
 
-I've attached two fixes against latencytest - one makes rdtsc timestamps
-more reliable, the other one fixes an SMP bug in the kernel module (it
-would lock up under SMP otherwise.).
+So I habe used 'mkfs.ext3 -b 1024 -N 8000000 ... /dev/sda..'
 
-here's a latencytest QuickStart: 'cd latencytest; make', then
-'insmod kernel/latency-test.ko', then 'cd tests; ../bin/run_tests'.  
+My question is, how many Inodes can I create on a ext3 filesystem  ?
 
-Assuming you have RTC and audio enabled in your kernel it should work 
-fine. It produces PNGs in the same format as Benno's latencytest suite.
+Curently I am running a 3Ware Raid-5 Controller 75xx with 3 x 80 GByte.
 
-	Ingo
+>Cheers, Andreas
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="latencytest-fixes.diff"
+Greetings
+Michelle
 
---- latencytest/kernel/latencytest.c.orig	2004-07-11 12:29:30.000000000 +0200
-+++ latencytest/kernel/latencytest.c	2004-07-11 16:29:48.883109752 +0200
-@@ -41,7 +41,7 @@ static void my_interrupt(void *private_d
- 	spin_lock(&my_lock);
- 	count++;
- 	if (count < irq_count)
--		return;
-+		goto out_unlock;
- 	count = 0;
- 	if (irq_info.processed < MAX_PROC_CNTS) {
- 		int i;
-@@ -69,6 +69,7 @@ static void my_interrupt(void *private_d
- 	}
- 	irq_info.processed++;
- 	wake_up(&my_sleep);
-+out_unlock:
- 	spin_unlock(&my_lock);
- }
- 
---- latencytest/src/measure.c.orig	2004-07-11 14:20:57.000000000 +0200
-+++ latencytest/src/measure.c	2004-07-11 16:25:32.375104896 +0200
-@@ -35,9 +35,13 @@ static FILE *profile_fd;
- 
- static inline unsigned long long int rdtsc(void)
- {
--	unsigned long long int x;
--	__asm__ volatile ("rdtsc" : "=A" (x));
--	return x;
-+	unsigned long long int x, y;
-+	for (;;) {
-+		__asm__ volatile ("rdtsc" : "=A" (x));
-+		__asm__ volatile ("rdtsc" : "=A" (y));
-+		if (y - x < 1000)
-+			return y;
-+	}
- }
- 
- static unsigned long long time_offset;
+--=20
+Linux-User #280138 with the Linux Counter, http://counter.li.org/=20
+Michelle Konzack   Apt. 917                  ICQ #328449886
+                   50, rue de Soultz         MSM LinuxMichi
+0033/3/88452356    67100 Strasbourg/France   IRC #Debian (irc.icq.com)
 
---M9NhX3UHpAaciwkO--
+--kbCYTQG2MZjuOjyn
+Content-Type: application/pgp-signature; name="signature.pgp"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA8VTyC0FPBMSS+BIRAjvaAKCJdAFdLoGsVWjPW3veavXjEr77EACfX1K3
+cjbIsHN9gp3uw0yhKMF8fJk=
+=bgV2
+-----END PGP SIGNATURE-----
+
+--kbCYTQG2MZjuOjyn--

@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268276AbUHXUfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268259AbUHXUjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268276AbUHXUfh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 16:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268286AbUHXUfg
+	id S268259AbUHXUjY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 16:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268295AbUHXUjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 16:35:36 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:62113 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268285AbUHXUfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 16:35:19 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Lee Revell <rlrevell@joe-job.com>
+	Tue, 24 Aug 2004 16:39:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65191 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268280AbUHXUig
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 16:38:36 -0400
+Message-ID: <412BA741.4060006@pobox.com>
+Date: Tue, 24 Aug 2004 16:38:25 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@osdl.org>, reiser@namesys.com,
-       linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040824202521.GA26705@lst.de>
+CC: akpm@osdl.org, reiser@namesys.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: silent semantic changes with reiser4
 References: <20040824202521.GA26705@lst.de>
-Content-Type: text/plain
-Message-Id: <1093379718.817.63.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 24 Aug 2004 16:35:18 -0400
+In-Reply-To: <20040824202521.GA26705@lst.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-24 at 16:25, Christoph Hellwig wrote:
+Christoph Hellwig wrote:
+>  o files as directories
 >    - O_DIRECTORY opens succeed on all files on reiser4.  Besides breaking
 >      .htaccess handling in apache and glibc compilation this also renders
 >      this flag entirely useless and opens up the races it tries to
 >      prevent against cmpletely useless
 
-So `find -type d' would list every file on the system?
 
-Lee
+Ouch.
+
+I would definitely classify this as a security hole, since userland 
+definitely uses O_DIRECTORY to avoid races.
+
+	Jeff
+
 

@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266675AbUAWTkq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 14:40:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUAWTkq
+	id S266681AbUAWTpw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 14:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266682AbUAWTpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 14:40:46 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:53428 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S266675AbUAWTki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 14:40:38 -0500
-Message-ID: <4011788D.3070606@nortelnetworks.com>
-Date: Fri, 23 Jan 2004 14:39:57 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: Mariusz Mazur <mmazur@kernel.pl>, linux-kernel@vger.kernel.org,
-       debian-glibc@lists.debian.org
-Subject: Re: Userland headers available
-References: <200401231907.17802.mmazur@kernel.pl> <20040123184755.GA2138@nevyn.them.org> <401172D8.8040507@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Jan 2004 14:45:51 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59321 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266681AbUAWTpr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 14:45:47 -0500
+Date: Fri, 23 Jan 2004 19:45:46 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core
+Message-ID: <20040123194546.GK21151@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44L0.0401231135400.856-100000@ida.rowland.org> <Pine.LNX.4.58.0401230939170.2151@home.osdl.org> <20040123181106.GD23169@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040123181106.GD23169@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Friesen, Christopher [CAR:7Q28:EXCH] wrote:
+On Fri, Jan 23, 2004 at 10:11:06AM -0800, Greg KH wrote:
+> On Fri, Jan 23, 2004 at 09:42:09AM -0800, Linus Torvalds wrote:
+> > 
+> > 
+> > On Fri, 23 Jan 2004, Alan Stern wrote:
+> > >
+> > > Since I haven't seen any progress towards implementing the 
+> > > class_device_unregister_wait() and platform_device_unregister_wait() 
+> > > functions, here is my attempt.
+> > 
+> > So why would this not deadlock?
+> 
+> It will deadlock if the user does something braindead like:
+> 	rmmod foo < /sys/class/foo_class/foo1/file
+> 
+> Now I know the network code can handle something like that, but they
+> have their own thread to handle issues like this...  It's not sane to
+> make every driver subsystem do that...
 
-> The obvious way is to have the kernel headers include the userland
-> headers, then everything below that be wrapped in "#ifdef __KERNEL__". 
-> Userland then includes the normal kernel headers, but only gets the 
-> userland-safe ones.
+Network code does *NOT* wait for references to kobject to disappear.
+->release() for those buggers is not in a module and freeing can
+happen way after the rmmod.  No threads involved.
 
-I just realized this wasn't clear.  I envision a new set of headers in 
-the kernel that are clean to export to userland.  The current headers 
-then include the appropriate userland-clean ones, and everything below 
-that is kernel only.
+What it does wait for is different - in effect, net_device has a special-cased
+rwsem in it, heavily optimised for down_read().  dev_hold() is an equivalent
+of down_read().  dev_put() - up_read().  And unregister_netdev() does an
+equivalent of down_write() after removing from all search structures.
 
-This lets the kernel maintain the userland-clean headers explicitly, and 
-we don't have the work of cleaning them up for glibc.
+That's what it is waiting for - it wants all readers (semaphore is unfair)
+to go away.  It's not a refcounting issue at all - it's an exclusion around
+the net_device shutdown, freeing resources, etc.
 
-Chris
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+There was an optimistic attempt to turn that animal into sysfs refcount.
+It didn't work - we had to add real refcounting there and make sysfs code
+do essentially an equivalent of down_try_read() before accessing the guts
+of net_device().  And we have ->release() for those buggers in core kernel.

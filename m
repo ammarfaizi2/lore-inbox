@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbUKKTDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbUKKTFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262293AbUKKTDy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 14:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbUKKTDy
+	id S262301AbUKKTFm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 14:05:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbUKKTFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 14:03:54 -0500
-Received: from mail.epost.de ([193.28.100.151]:63644 "EHLO mail.epost.de")
-	by vger.kernel.org with ESMTP id S262293AbUKKTDx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 14:03:53 -0500
-From: Gregor Jasny <Gregor.Jasny@epost.de>
-To: linux-kernel@vger.kernel.org
-Subject: USB-1.1 fails with USB 2.0 Hub [was: Re: USB-Serial fails with USB 2.0 Hub]
-Date: Thu, 11 Nov 2004 20:03:43 +0100
-User-Agent: KMail/1.7
-References: <6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com>
-In-Reply-To: <6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com>
-Cc: Robin Getz <rgetz@blackfin.uclinux.org>
+	Thu, 11 Nov 2004 14:05:42 -0500
+Received: from mail2.designassembly.de ([217.11.62.46]:63641 "EHLO
+	mail2.designassembly.de") by vger.kernel.org with ESMTP
+	id S262301AbUKKTFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 14:05:32 -0500
+Message-ID: <4193B80C.60104@designassembly.de>
+Date: Thu, 11 Nov 2004 20:05:48 +0100
+From: Michael Heyse <mhk@designassembly.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041109)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: new sk98lin driver
+References: <4192C60A.1050205@designassembly.de> <4192D2A0.2060808@pobox.com>
+In-Reply-To: <4192D2A0.2060808@pobox.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411112003.43598.Gregor.Jasny@epost.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 November 2004 16:49, you wrote:
-> Two problems with kernel 2.6.4 (SuSe 9.1):
->
-> 1) When I use a Belkin F5U409 usb-serial converter:
->      - when plugged directly into chipset (Intel ICH5), works great.
->      - when plugged in through a USB 1.0 hub, works great
->      - when plugged in throught USB 2.0 Hub (Belkin F5U237), fails.
->        Failure mechanism is: Tx works, Rx does not.
+Jeff Garzik wrote:
+> Michael Heyse wrote:
+> 
+>> Hi,
+>>
+>> there's a new sk98lin driver available from
+>> http://www.syskonnect.com/syskonnect/support/driver/zip/linux/install-7_09.tar.bz2 
+>>
+>> (now with ethtool support) dated Oct 20. It's not in 2.6.10-rc1, will 
+>> it be included in 2.6.10?
+> 
+> 
+> I think Stephen Hemminger volunteered to split up the changes into 
+> separate patches.
 
-Just a simple me, too. I've got the problem with a TerraCAM USB Pro. Plugged 
-into my Apple Keyboard it works (with a warning about high power 
-consumption). But if I plug it into my Belkin F5U237 the driver complains 
-with: "drivers/usb/media/ov511.c: init isoc: usb_submit_urb(0) ret -38".
+OK, that will probably take quite a while, the patch is large. Thanks for the info!
 
-Have you already tried another USBv2 hub?
-
-Cheers,
--Gregor
-
-PS: I'm using a ASUS P4C800deluxe and Linux 2.6.9
+Michael

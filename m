@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261391AbTCGGiy>; Fri, 7 Mar 2003 01:38:54 -0500
+	id <S261381AbTCGGfI>; Fri, 7 Mar 2003 01:35:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261392AbTCGGiy>; Fri, 7 Mar 2003 01:38:54 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:18165 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S261391AbTCGGix>; Fri, 7 Mar 2003 01:38:53 -0500
-Date: Thu, 6 Mar 2003 23:48:19 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Corruption problem with ext3 and htree
-Message-ID: <20030306234819.Q1373@schatzie.adilger.int>
-Mail-Followup-To: Martin Schlemmer <azarah@gentoo.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030307063940.6d81780e.azarah@gentoo.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261385AbTCGGfH>; Fri, 7 Mar 2003 01:35:07 -0500
+Received: from 205-158-62-95.outblaze.com ([205.158.62.95]:60353 "HELO
+	ws3-5.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S261381AbTCGGfG>; Fri, 7 Mar 2003 01:35:06 -0500
+Message-ID: <20030307064535.20769.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030307063940.6d81780e.azarah@gentoo.org>; from azarah@gentoo.org on Fri, Mar 07, 2003 at 06:39:40AM +0200
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "dan carpenter" <error27@email.com>
+To: green@namesys.com
+Cc: linux-kernel@vger.kernel.org, smatch-discuss@lists.sf.net
+Date: Fri, 07 Mar 2003 01:45:35 -0500
+Subject: Re: smatch update / 2.5.64 / kbugs.org
+X-Originating-Ip: 66.127.101.73
+X-Originating-Server: ws3-5.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 07, 2003  06:39 +0200, Martin Schlemmer wrote:
-> For some time now I have been having a problem with ext3 and htree.
+From: Oleg Drokin <green@namesys.com>
+> > The smatch bugs for kernel 2.5.64 are up.  The 
+> > new url for the smatch bug database is http://kbugs.org.  
 > 
-> I use Gentoo, with portage as package system.  My root is on ext3
-> without htree, and my portage tmp/build directory is on another
-> drive with ext3 and htree.
+> Unfortunatelly the bug database does not work. I mean I cannot connect to it.
 > 
-> Now, when you install something, it unpacks and compile and then
-> install it to the build root on the tmp partition (ext3 with htree),
-> and then 'merge' it to / (ext3 without htree) from that build root.
 
-There have been a number of ext3+htree fixes in the last week or so.
-I'm not sure if all of them are in the kernel yet, but I think the -mm
-tree will have the majority of them.  Please also see the ext2-devel
-and ext3-users mailing list archives for the last week for the patches.
+Crap...  sorry about that, I screwed up.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> This script can produce a lot less false positives with even more custom merge rules.
+> Here's the diff that if run on fs/ext3/super.c from current bk tree, produces
+> only one true bug. (your version from cvs produces one real bug and two false positives)
+> (8 less hits on my default build).
+
+I have uploaded your modifications to CVS.  I'll use it 
+on the next kernel release.  The unfree.pl was just a few
+modifications to the deference_check.pl so your patch
+will cut down on the false positives with that also.
+
+thanks,
+dan carpenter
+
+
+-- 
+_______________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+
+Meet Singles
+http://corp.mail.com/lavalife
 

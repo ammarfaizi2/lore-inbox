@@ -1,115 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310666AbSDDGFl>; Thu, 4 Apr 2002 01:05:41 -0500
+	id <S310749AbSDDGFb>; Thu, 4 Apr 2002 01:05:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310740AbSDDGFc>; Thu, 4 Apr 2002 01:05:32 -0500
-Received: from c17736.belrs2.nsw.optusnet.com.au ([211.28.31.90]:38352 "EHLO
-	bozar") by vger.kernel.org with ESMTP id <S310666AbSDDGFW>;
-	Thu, 4 Apr 2002 01:05:22 -0500
-Date: Thu, 4 Apr 2002 16:04:11 +1000
-From: Andre Pang <ozone@algorithm.com.au>
-To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.7-dj3 KL133/KM133 problems (screen corruption/MWQ)
-Mail-Followup-To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S310740AbSDDGFV>; Thu, 4 Apr 2002 01:05:21 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:5310 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S310666AbSDDGFR>;
+	Thu, 4 Apr 2002 01:05:17 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Frame Relay stack on Linux
+In-Reply-To: <3CA99EA0.1B2391FF@wipro.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 03 Apr 2002 21:14:43 +0200
+Message-ID: <m3pu1g8uho.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Message-Id: <1017900251.760478.2242.nullmailer@bozar.algorithm.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+"Madhavan N.S." <madhavan.nair@wipro.com> writes:
 
-People with KL133/KM133 motherboards who use the integrated
-on-board video see major video corruption problems with 2.4.18.
+> We are developing  Frame Relay stack on Linux 2.4 kernel.
 
-This is because of the MWQ patch[1] which was submitted for
-2.4.18.  The patch below fixes the video corruption by not
-clearing bit 5, but _only_ on the K[LM]133 motherboards.  The
-K[LM]133 northbridge is detected by the revision ID of the
-northbridge chipset.  It thus does not affect people who use the
-same VT836[35] northbridge which is present on other
-motherboards, such as the KT133.
+Have you looked at existing implementations: drivers/net/wan/hdlc_fr.c
+(and other files) and comx-proto-fr.c in the same dir?
 
-Without the patch, the KL133 is completely unusable in text mode
-and suffers major video corruption in graphics mode; it really
-needs to be fixed.  Other motherboards are completely unaffected.
-
-Note that this is exactly what the VIA patches for Windows do:
-the VIA 4in1 drivers normally clear bits 5, 6 and 7 of register
-55, but they do not clear bit 5 if the motherboard is a K[LM]133.
-This occurs on Windows 98 and Windows XP, and indicates to me
-that what this patch does should be the correct behaviour.
-
-The patch is against 2.5.7-dj3.  It's being submitted to Marcelo
-for inclusion in 2.4.19, and Alan has picked it up for
-2.4-ac.  Please forward it to Linus for inclusion in the main
-kernel tree, or let me know if you want me to send it to him.
-
-Thanks!
-
-1. http://marc.theaimsgroup.com/?l=linux-kernel&m=100772126208656&w=2
-
-
---- linux-2.5.7-dj3/arch/i386/kernel/pci-pc.c	Thu Apr  4 15:46:19 2002
-+++ linux-2.5.7-dj3-rx55-fix/arch/i386/kernel/pci-pc.c	Thu Apr  4 15:48:10 2002
-@@ -1186,28 +1186,48 @@
- 
- /*
-  * Addresses issues with problems in the memory write queue timer in
-- * certain VIA Northbridges.  This bugfix is per VIA's specifications.
-- *
-+ * certain VIA Northbridges.  This bugfix is per VIA's specifications,
-+ * except for the KL133/KM133: clearing bit 5 on those Northbridges seems
-+ * to trigger a bug in its integrated ProSavage video card, which
-+ * causes screen corruption.  We only clear bits 6 and 7 for that chipset,
-+ * until VIA can provide us with definitive information on why screen
-+ * corruption occurs, and what exactly those bits do.
-+ * 
-  * VIA 8363,8622,8361 Northbridges:
-  *  - bits  5, 6, 7 at offset 0x55 need to be turned off
-  * VIA 8367 (KT266x) Northbridges:
-  *  - bits  5, 6, 7 at offset 0x95 need to be turned off
-+ * VIA 8363 rev 0x81/0x84 (KL133/KM133) Northbridges:
-+ *  - bits     6, 7 at offset 0x55 need to be turned off
-  */
-+
-+#define VIA_8363_KL133_REVISION_ID 0x81
-+#define VIA_8363_KM133_REVISION_ID 0x84
-+
- static void __init pci_fixup_via_northbridge_bug(struct pci_dev *d)
- {
- 	u8 v;
-+	u8 revision;
- 	int where = 0x55;
-+	int mask = 0x1f; /* clear bits 5, 6, 7 by default */
- 
-+	pci_read_config_byte(d, PCI_REVISION_ID, &revision);
-+	
- 	if (d->device == PCI_DEVICE_ID_VIA_8367_0) {
-   	        where = 0x95; /* the memory write queue timer register is 
-                                  different for the kt266x's: 0x95 not 0x55 */
-+	} else if (d->device == PCI_DEVICE_ID_VIA_8363_0 &&
-+	           (revision == VIA_8363_KL133_REVISION_ID || 
-+		    revision == VIA_8363_KM133_REVISION_ID)) {
-+		mask = 0x3f; /* clear only bits 6 and 7; clearing bit 5
-+				causes screen corruption on the KL133/KM133 */
- 	}
- 
-         pci_read_config_byte(d, where, &v);
--	if (v & 0xe0) {
--		printk("Disabling broken memory write queue: [%02x] %02x->%02x\n",
--			where, v, v & 0x1f);
--		v &= 0x1f; /* clear bits 5, 6, 7 */
-+	if (v & ~mask) {
-+		printk("Disabling VIA memory write queue (PCI ID %04x, rev %02x): [%02x] %02x & %02x -> %02x\n", \
-+			d->device, revision, where, v, mask, v & mask);
-+		v &= mask;
- 		pci_write_config_byte(d, where, v);
- 	}
- }
-
-
+I'm also told "Tulika Pradhan" <tulikapradhan@hotmail.com> is going to
+start working on SVC support.
 -- 
-#ozone/algorithm <ozone@algorithm.com.au>          - trust.in.love.to.save
+Krzysztof Halasa
+Network Administrator

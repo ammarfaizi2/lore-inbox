@@ -1,49 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263308AbRFKAOY>; Sun, 10 Jun 2001 20:14:24 -0400
+	id <S263318AbRFKAlc>; Sun, 10 Jun 2001 20:41:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263313AbRFKAOO>; Sun, 10 Jun 2001 20:14:14 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:62482 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263308AbRFKAOJ>; Sun, 10 Jun 2001 20:14:09 -0400
-Date: Sun, 10 Jun 2001 17:13:40 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: egger@suse.de
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
-In-Reply-To: <20010611014012.CB4ABA6C6@Nicole.muc.suse.de>
-Message-ID: <Pine.LNX.4.21.0106101659380.2242-100000@penguin.transmeta.com>
+	id <S263333AbRFKAlX>; Sun, 10 Jun 2001 20:41:23 -0400
+Received: from femail12.sdc1.sfba.home.com ([24.0.95.108]:25024 "EHLO
+	femail12.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S263318AbRFKAlM>; Sun, 10 Jun 2001 20:41:12 -0400
+Message-ID: <008401c0f20f$4458dec0$643b090a@sulaco>
+From: "Michael Johnson" <johnsom@home.com>
+To: "John Fremlin" <vii@users.sourceforge.net>
+Cc: "Jens Axboe" <axboe@suse.de>, <Andries.Brouwer@cwi.nl>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <001801c09e3a$4a189270$653b090a@sulaco><m27l29tj87.fsf@boreas.yi.org.> <m28zj05j7y.fsf@boreas.yi.org.>
+Subject: Re: Changes to ide-cd for 2.4.1 are broken?
+Date: Sun, 10 Jun 2001 17:41:34 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+So, the patch you are proposing will always consider the tray open, even if
+it is closed.  Why do you need this behavior?
 
-On Mon, 11 Jun 2001 egger@suse.de wrote:
+Why is checking CDS_TRAY_OPEN, to see if the tray is open, broken?
+
+The code in cdrom.c looks fine to me.
+
+Michael
+
+----- Original Message -----
+From: "John Fremlin" <vii@users.sourceforge.net>
+To: "Michael Johnson" <johnsom@home.com>
+Cc: "Jens Axboe" <axboe@suse.de>; <Andries.Brouwer@cwi.nl>; "Alan Cox"
+<alan@lxorguk.ukuu.org.uk>; <linux-kernel@vger.kernel.org>
+Sent: Sunday, June 10, 2001 10:37 AM
+Subject: Re: Changes to ide-cd for 2.4.1 are broken?
+
+
 >
-> On 10 Jun, Linus Torvalds wrote:
-> 
-> > I've not figured out why the ATI Xv stuff from gatos seems to not have
-> > made it into the XFree86 CVS tree - it works better than much of the
-> > Xv stuff for some other chipsets that _are_ in the CVS tree.
-> >  
-> > I imported it into the XFree86 CVS some months ago, it was trivial.  I
-> > don't have the patches lying around any more, though. I can try to
-> > re-create them if anybody needs help.
-> 
->  Did it look endiansafe to you? The ATI Xv stuff from XFree86 4.1.0
->  produces psychadelic results for me on PPC.
+> Hi all, this is an old thread. It was started because the return value
+> from cd info was changed in 2.4.1 in the case when the tray might be
+> open or there simply be no disc in the drive for an IDE
+> CD-ROM.
+>
+> John Fremlin <chief@bandits.org> writes:
+>
+> > "Michael Johnson" <johnsom@home.com> writes:
+>
+> [...]
+>
+> > > >Right, old ATAPI has 3a/02 as the only possible condition, so we
+> > > >can't really tell between no disc and tray open. I guess the safest
+> > > >is to just keep the old behaviour for !ascq and report open.
+> >
+> > > I don't understand why the current(2.4.1) behavior is a problem...
+>
+> Unfortunately changing the return code means that the generic cdrom.c
+> code is broekn, in particular wrt to having the cdrom drive open
+> automatically when umounted, and to close when attempted to be
+> mounted.
+>
+> (You can set this mode with "cdd auto" if you have my asm-toys installed
+>         http://ape.n3.net/programs/linux/asm-toys
+> )
+>
+> The following patch fixes that. I also attempted to fix up similar
+> problems (where checking CDS_TRAY_OPEN is used to see if the tray is
+> open, which is obviously broekn).
+>
+>
 
-I have to say that I have absolutely no idea. I only use little-endian
-machines myself (and 99% x86).
 
-Also, which ATI Xv stuff are you talking about? The ATI Rage128 and ATI
-Radeon Xv code was at least a few months ago completely separate from the
-ATI Rage code (the first two were in X CVS, while the latter only existed
-in the gatos version). 
+----------------------------------------------------------------------------
+----
 
-Has the Gatos code (or some other code) maybe been integrated into 4.1.0
-now? I haven't followed X CVS for the last months very closely..
 
-		Linus
+>
+> --
+>
+> http://ape.n3.net
+>
 

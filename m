@@ -1,172 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316489AbSFFI22>; Thu, 6 Jun 2002 04:28:28 -0400
+	id <S316889AbSFFIcc>; Thu, 6 Jun 2002 04:32:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316883AbSFFI21>; Thu, 6 Jun 2002 04:28:27 -0400
-Received: from niobium.golden.net ([199.166.210.90]:51694 "EHLO
-	niobium.golden.net") by vger.kernel.org with ESMTP
-	id <S316489AbSFFI2Z>; Thu, 6 Jun 2002 04:28:25 -0400
-Date: Thu, 6 Jun 2002 04:17:07 -0400
-From: "John L. Males" <jlmales@yahoo.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Is there something strange going on with the ext2 Filesystem?
-Message-Id: <20020606041707.7fac8668.jlmales@yahoo.com>
-Reply-To: jlmales@yahoo.com
-Organization: Toronto, Ontario - Canada
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.3J1RuRy_I,JN?C"
+	id <S316895AbSFFIcb>; Thu, 6 Jun 2002 04:32:31 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:45327 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S316889AbSFFIca>; Thu, 6 Jun 2002 04:32:30 -0400
+Message-ID: <3CFF1EA3.80300@loewe-komp.de>
+Date: Thu, 06 Jun 2002 10:34:43 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Mark Mielke <mark@mark.mielke.cc>
+CC: Oliver Xymoron <oxymoron@waste.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+In-Reply-To: <E17FfU7-0001dP-00@starship> <Pine.LNX.4.44.0206051330060.2614-100000@waste.org> <20020605164837.A25348@mark.mielke.cc>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.3J1RuRy_I,JN?C
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Mark Mielke wrote:
+> I like the idea of Adeos, and nanokernels. I like the idea of RT, and
+> I like the fact that the Open Source community is interested in all of
+> these topics. It means that solutions such as VxWorks now have real
+> competition, and they will be forced to make their large price tag
+> purchase real value for customers, or customers will shop elsewhere.
+> 
 
-Hi,
+I'm also not against such approaches.
+As I worked for QNX I liked to provoke my Canadian coworkers
+with arguments like: RTLinux is able to swap - not bad for a hack ;-)
 
-***** Please BCC me in on any reply, not CC me.  Two reasons, I am not
-on the LKML, and second I am suffering BIG time with SPAM from posting
-to the mailing list.  Thanks in advance. *****
+http://groups.google.de/groups?selm=378b7d25%240%24199%40nntp1.ba.best.com&output=gplain
 
-Ok, I have been having some odd, to very serious problems with the
-ext2 file system.  The problems seemed to have started when I started
-using the 2.4.x kernels.  Possible suspect are in the 2.4.15-pre5. I
-had used 2.4.9-ac10, 2.4.9-ac18, 2.4.10-ac12, 2.4.13-ac5 in the past
-and a SuSE 2.4.9 varient that was simply had some odd problems, not
-file system related, that I used for a very short one session, and
-short boot.
+> Just... an .mp3 player for a desktop environment? This is a
+> joke. Maybe the RTOS can perform my compiles too? That way will be
+> able to accurately predict how long it will take to compile
+> linux-2.4.18 each and every time.
 
-There are three basic issues at hand:
+When talking about hard realtime it's all about worst case
+considerations. Average does not count (then you are talking about
+*soft realtime* -> like multimedia apps, where only the quality counts).
+So you could only tell how long your compile lasts at *maximum*
 
- 1) e2fsck 1.19 would hang with a 2.4.x kernel.  Kernel occurred on
-was 2.4.15-pre5, then tried 2.4.13-ac5, and 2.4.9-ac18 and these two
-also had e2fsch hang.  No changes made, just booted to 2.2.19 (current
-at time) on same system as already had 2.4.19 with the OpenWall patch
-and e2fsck run to completion.  I do not recall if there were errors
-detected.  I may have notes on this, as in the comsole messages, but I
-have to do a bit of digging.
+As I said before: the OS is only the foundation for realtime *systems*
+> 
+> Summary: Linux + RTOS should never become VxWorks.
+> 
 
-  2) BIG TIME cross node problems, BIG BIG time bit map problems that
-is either realted to the special test programs I have developed for
-testing the kernel VM subsystem, or maybe unrelated.  Bottom line I
-had real serious problems after this e2fsck wherein many files were
-lost or say the "ps" name entry no longer pointed to the "ps" program,
-but say the Free Pascal compiler.  There were a number of these messes
-and so I have since moved back to the 2.2.x kernel series.  There had
-been "smaller scale" problems like these, but not with cross
-linked/duplicae nodes or the like with other 2.4.x kernels before
-2.4.15-pre5.  I therefore feel there is a problem sitting about that
-may not have been addressed yet.  I have no notes on this as these
-problems were with the root file system and I had no ability to hold
-the messages and try to copy the, at times, several hundred, numbers,
-messages.  For my other mounts I can as I have XFree up at that time
-and can cut and past the console messages into an editor and save the
-messages and all.
+Yes, given that vxworks is more like a realtime executive
+(but this seems to change: only true when running without VxVMI? )
 
- 3) I am starting to see a parallel even not that I have been using
-the 2.2.19/2.2.20 kernel for a number of months now.  The parallel is
-when the file system gets full, I will skip how this happens but it
-does frequently in what things I do, either the next boot of the
-system or the next scheduled e2fsck reults in various bitmap, wrong
-group, directory counts, etc.  The number of times this has happened
-is more than suggestive of a problem.  I currently do not have the
-time or a "current" mainstream release of Linux to try testing my
-theory on this without risking my one and only Linux day to day use
-system.  I am trying to find time and current distribution I can
-download over 56K modem line to do such a test.  I aslo need to see if
-my VM tests are a factor, as in when the kernel is stressed in the VM
-context, it has secondary negative effects.  Not to mention seeing
-what progress the VM subsystem has made.  My last check with
-2.4.15-pre5 was ok, but still many problems.
-
-  4) Now in past few days I had a case where the system was shut down
-normally,  Then started again next day for a few hours of very light
-activity and shut down again normally,  Then the next startup there
-are group/directory count problems, and bitmap problems.  All after
-two clean shutdowns and no mount/device full conditions during any of
-these prior sessions.
-
-In conclusion, I think there needs to be some more formalized and
-specific QA/Testing testing of file systems.  The conditions to be
-tested needs to bacome a formal and routine part Linux kernel testing.
- I realize it can be time consuming, but there can be "creative" ways
-and techniques applied to ease the effort and automate the process to
-a great extent I am sure.  From my ongoing experiences the ext2 file
-system with regard to device/file system full conditions, using
-different block sizes, inode density configurations, and kernel stress
-conditions are key starting elements in such a ongoing sanity check of
-the kernel.  I would expect all the other file systems to be put
-throught the generic file system tests as well as in combination with
-their own specific file system configurations/options.  I happened not
-to take the defaults and therefore these may not have been tested at
-all or not very well tested for any file system, not just the ext2
-file system.
-
-I would like to trust Linux with its file system management, as I can
-tell you first hand The Other OS has big time problems, on a routine
-basis with thw two primary file systems it uses.  I know from first
-hand experience, BIT TIME.  I can tell you I am not your average user,
-and I know there are many very large installations that have used
-Linux under what are believed stressful and demanding uses over
-several hours.  All I can tell you is for some reason I seem to break
-the general 80/20 rule more often and my uses of systems tend to be
-more a 70/30 or 60/40 split.
-
-For that reason I seem to encounter and find by "accident" more
-problems than others in my day to day use of systems.  I will not tell
-you what happens when I actually try to test and break software to
-validate its design/stability/duty cycles.
-
-I am taking the time now to articulate my experiences with my "modest"
-ext2 use to give a heads up before a possibility more serious problem
-is experienced.  Again I am aware there are clearly more complicated
-stressed systems that my "workstation" useage.  PErhaps my
-"experience" is an opportunity to detect something before it becomes
-much worse.  I do read the Kernel patch/release updates on regular
-basis, and so far I cannot say I have seen anything that suggests the
-problem I am experiencing is somehow directly or indirectly addressed.
- I do recall the 2.4.x kernel had some superblock related activity.  I
-have no idea if what I have experienced is somehow related or not. 
-All I can say is a very remote "maybe" as I am not a KErnel
-developer/hacker, and I have no concept of the details or impact of
-such work.  I know there has been SCSI subsustem work done as well,
-but again I have no real knowledge if, maybe, not a chance impact
-these may be having on what I have experienced.  All I know is without
-being able to duplicate the problem, it will be difficult to
-invesigate the problem and fid out what issues there may be.
-
-
-Regards,
-
-John L. Males
-Willowdale, Ontario
-Canada
-06 June 2002 04:17
-
-
-==================================================================
-Please BCC me by replacing yahoo.com after the "@" as follows"
-TLD =         The last three letters of the word internet
-Domain name = The first four letters of the word software,
-              followed by the last four letters of the word
-              homeless.
-My appologies in advance for the jumbled eMail address
-and request to BCC me, but SPAM has become a very serious
-problem.  The eMail address in my header information is
-not a valid eMail address for me.  I needed to use a valid
-domain due to ISP SMTP screen rules.
---=.3J1RuRy_I,JN?C
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iEYEARECAAYFAjz/Go4ACgkQsrsjS27q9xZ7+ACbBvrup9ESDfBrAaLNEyKuSHgY
-tIAAn1skxuSl/PjwaQCRUPbn//XiOT1c
-=foVV
------END PGP SIGNATURE-----
-
---=.3J1RuRy_I,JN?C--
+http://www.windriver.com/products/html/vxwks5x_ds.html
 

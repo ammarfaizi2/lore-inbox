@@ -1,78 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264435AbTCXVfu>; Mon, 24 Mar 2003 16:35:50 -0500
+	id <S264301AbTCXVh5>; Mon, 24 Mar 2003 16:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264436AbTCXVfu>; Mon, 24 Mar 2003 16:35:50 -0500
-Received: from 67-122-122-226.ded.pacbell.net ([67.122.122.226]:39972 "EHLO
-	siamese.engr.3ware.com") by vger.kernel.org with ESMTP
-	id <S264435AbTCXVfs>; Mon, 24 Mar 2003 16:35:48 -0500
-Message-ID: <A1964EDB64C8094DA12D2271C04B812672CB38@tabby>
-From: Adam Radford <aradford@3WARE.com>
-To: "'Steven Pritchard'" <steve@silug.org>, linux-kernel@vger.kernel.org
-Subject: RE: 3ware driver errors
-Date: Mon, 24 Mar 2003 13:44:23 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S264431AbTCXVh5>; Mon, 24 Mar 2003 16:37:57 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:48102 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S264301AbTCXVh4>; Mon, 24 Mar 2003 16:37:56 -0500
+Message-Id: <5.1.0.14.2.20030324134343.075a00d8@unixmail.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 24 Mar 2003 13:44:22 -0800
+To: Greg KH <greg@kroah.com>, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: Sleeping in illegal context with 2.5.65-mm2
+Cc: linux-kernel@vger.kernel.org, Alexander Hoogerhuis <alexh@ihatent.com>
+In-Reply-To: <20030320050537.GA19436@kroah.com>
+References: <Pine.LNX.4.44.0303192300410.11075-100000@chaos.physics.uiowa.edu>
+ <20030320043931.GC18787@kroah.com>
+ <Pine.LNX.4.44.0303192300410.11075-100000@chaos.physics.uiowa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is fixed in driver 1.02.00.032, the scsi layer is looping on sense key
-'aborted command' after you lost power to a jbod drive, and not checking the
-ASC 
-which is 0x04 (Logical Unit Not Ready).  If you want to fix it by hand in
-your
-driver before .032 comes out, in 3w-xxxx.h, change:
+At 09:05 PM 3/19/2003, Greg KH wrote:
+>On Wed, Mar 19, 2003 at 11:03:51PM -0600, Kai Germaschewski wrote:
+>> On Wed, 19 Mar 2003, Greg KH wrote:
+>> 
+>> > > Debug: sleeping function called from illegal context at mm/slab.c:1723
+>> > > Call Trace:
+>> > >  [<c0119d92>] __might_sleep+0x5f/0x65
+>> > >  [<c013a097>] kmalloc+0x88/0x8f
+>> > >  [<c0238111>] usb_alloc_urb+0x21/0x51
+>> > >  [<f09180bc>] hci_usb_enable_intr+0x20/0xf8 [hci_usb]
+>> > 
+>> > The call to usb_alloc_urb() here is being done with the GFP_ATOMIC flag,
+>> > which is correct.  Do we need to fix up the warning message to prevent
+>> > false positives like this from happening?
+>> 
+>> Not in my tree: (drivers/bluetooth/hci_sb.c)
+>> 
+>>       if (!(urb = usb_alloc_urb(0, GFP_KERNEL)))
+>>               return -ENOMEM;
+>
+>Doh, nevermind, I was looking at the wrong function, sorry.
+>
+>> And the function is called in a write_lock_irqsave(), so the complaint is 
+>> justified. 
+>
+>Max, you should probably fix this up.
+Will do.
 
-{0x37, 0x0b, 0x04, 0x00},
-
-to:
-
-{0x37, 0x02, 0x04, 0x00}
-
-This will return sense key 'Not Ready', and you will will not infinitely
-loop.
-If I were you, I would jiggle the power cables on that box and replace flaky
-ones.
-
--Adam
-
------Original Message-----
-From: Steven Pritchard [mailto:steve@silug.org]
-Sent: Monday, March 24, 2003 1:28 PM
-To: linux-kernel@vger.kernel.org
-Subject: 3ware driver errors
+Thanks
+Max
 
 
-(Apparently 3w-xxxx in the Subject gets caught as spam.  Somebody
-might want to adjust that regular expression.  :-)
-
-I have a server that is locking up every day or two with a console
-full of this error:
-
-    3w-xxxx: scsi0: Command failed: status = 0xcb, flags = 0x37, unit #0.
-
-This is on a Dell PowerEdge 1400SC (dual PIII/1.13GHz, 1.1GB RAM),
-with a 3ware Escalade 7000-2 and two WD1600JB drives, running Red Hat
-8.0 with kernel-smp 2.4.18-27.8.0.
-
-I plan to report this to Red Hat's bugzilla, but I'm hoping for some
-ideas or big red flags to jump out at somebody here...  I use this box
-for a UML hosting server, so all this downtime is affecting *way* too
-many people.
-
-This box has been having other stability problems, so I'm guessing
-this might not be directly related to the 3ware card/driver.  It did
-survive a memtest86 pass.
-
-Steve
--- 
-steve@silug.org           | Southern Illinois Linux Users Group
-(618)398-7360             | See web site for meeting details.
-Steven Pritchard          | http://www.silug.org/
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

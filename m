@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264965AbUGHL36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUGHLnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264965AbUGHL36 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 07:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUGHL35
+	id S261169AbUGHLnP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 07:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUGHLnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 07:29:57 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:62384 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S264965AbUGHL34 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 07:29:56 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: root@chaos.analogic.com
+	Thu, 8 Jul 2004 07:43:14 -0400
+Received: from spanner.eng.cam.ac.uk ([129.169.8.9]:34301 "EHLO
+	spanner.eng.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261169AbUGHLnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 07:43:13 -0400
+Date: Thu, 8 Jul 2004 12:43:16 +0100 (BST)
+From: "P. Benie" <pjb1008@eng.cam.ac.uk>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-Date: Thu, 8 Jul 2004 13:28:38 +0200
-User-Agent: KMail/1.6.2
-References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <Pine.LNX.4.53.0407080707010.21439@chaos>
 In-Reply-To: <Pine.LNX.4.53.0407080707010.21439@chaos>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Chris Wright <chrisw@osdl.org>,
-       akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       sds@epoch.ncsc.mil, jmorris@redhat.com, mika@osdl.org
+Message-ID: <Pine.HPX.4.58L.0407081224460.28859@punch.eng.cam.ac.uk>
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+ <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <Pine.LNX.4.53.0407080707010.21439@chaos>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200407081328.40545.mbuesch@freenet.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Quoting "Richard B. Johnson" <root@chaos.analogic.com>:
+On Thu, 8 Jul 2004, Richard B. Johnson wrote:
+> On Thu, 8 Jul 2004, Herbert Xu wrote:
+> > What's wrong with using 0 as the NULL pointer?
+>
 > Because NULL is a valid pointer value. 0 is not. If you were
 > to make 0 valid, you would use "(void *)0", which is what
 > NULL just happens to be in all known architectures so far,
 > although that could change in an alternate universe.
 
-No, that is not true.
-In C/C++ this is true:
-NULL == 0
+False. "An integer constant expressions with the value 0, or such an
+expression cast to type void *, is called a null pointer constant. If a
+null pointer constant is assigned to or compared for equality with a
+pointer, the constant is converted to a pointer of that type", and "Any
+two null pointers shall compare equal."
 
-You can _always_ use 0 instead of NULL. The use of NULL is
-_only_ for readability reasons. When you assign 0 to a
-pointer, the compiler knows that you want to assign a
-NULL-pointer and not the value 0.
-Even on architectures where the NULL-pointer is not
-represented as 0 in memory (another bitmask), it's still
-valid to assign 0 to a pointer, because the compiler
-_knows_ that you are handling with a pointer and does
-The Right Thing (tm).
+In other words, when you use 0 as a null pointer, you really do get a null
+pointer. If you are working on an architecture where the bit pattern of
+the integer 0 and null pointers are not the same, the compiler will
+perform the appropriate conversion for you, so it is always correct to
+define NULL as (void *)0.
 
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+Personally, I always use 0 and NULL for integers and null pointers
+respectively, but that's because of long estalished conventions that make
+the code readabile, rather than anything to do with validity of the code.
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA7S/mFGK1OIvVOP4RAoJ4AKCVY9QbxaXEjGthqGXpoN1Wqw8bzACgwzW/
-AZVhE8MYOGNwKC/k74qZUBw=
-=Vy7x
------END PGP SIGNATURE-----
+Peter

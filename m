@@ -1,33 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129326AbRBTCr6>; Mon, 19 Feb 2001 21:47:58 -0500
+	id <S129066AbRBTCyA>; Mon, 19 Feb 2001 21:54:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129384AbRBTCrs>; Mon, 19 Feb 2001 21:47:48 -0500
-Received: from baldur.fh-brandenburg.de ([195.37.0.5]:14809 "HELO
-	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
-	id <S129326AbRBTCr2>; Mon, 19 Feb 2001 21:47:28 -0500
-Date: Tue, 20 Feb 2001 03:38:32 +0100 (MET)
-From: Roman Zippel <zippel@fh-brandenburg.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dek_ml@konerding.com,
-        linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
-        mason@suse.com
-Subject: Re: problems with reiserfs + nfs using 2.4.2-pre4
-In-Reply-To: <14993.48376.203279.390285@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.GSO.4.10.10102200330330.25095-100000@zeus.fh-brandenburg.de>
+	id <S129069AbRBTCxv>; Mon, 19 Feb 2001 21:53:51 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:17925 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129066AbRBTCxb>; Mon, 19 Feb 2001 21:53:31 -0500
+Date: Mon, 19 Feb 2001 23:05:23 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: __lock_page calls run_task_queue(&tq_disk) unecessarily?
+In-Reply-To: <Pine.LNX.4.21.0102192051150.3008-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0102192302290.3338-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, 20 Feb 2001, Neil Brown wrote:
+Btw ___wait_on_page() does something similar.
 
-> 2/ lookup("..").
+Here goes the patch for both __lock_page() and ___wait_on_page().
 
-A small question:
-Why exactly is this needed?
 
-bye, Roman
+--- linux/mm/filemap.c.orig     Mon Feb 19 23:51:02 2001
++++ linux/mm/filemap.c  Mon Feb 19 23:51:33 2001
+@@ -611,11 +611,11 @@
+ 
+        add_wait_queue(&page->wait, &wait);
+        do {
+-               sync_page(page);
+                set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+                if (!PageLocked(page))
+                        break;
+-               run_task_queue(&tq_disk);
++
++               sync_page(page);
+                schedule();
+        } while (PageLocked(page));
+        tsk->state = TASK_RUNNING;
+@@ -633,10 +633,9 @@
+ 
+        add_wait_queue_exclusive(&page->wait, &wait);
+        for (;;) {
+-               sync_page(page);
+                set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+                if (PageLocked(page)) {
+-                       run_task_queue(&tq_disk);
++                       sync_page(page);
+                        schedule();
+                        continue;
+                }
+
+
+On Mon, 19 Feb 2001, Marcelo Tosatti wrote:
+
+> 
+> Hi Linus,
+> 
+> Take a look at __lock_page:
+> 
+> static void __lock_page(struct page *page)
+> {
+>         struct task_struct *tsk = current;
+>         DECLARE_WAITQUEUE(wait, tsk);
+> 
+>         add_wait_queue_exclusive(&page->wait, &wait);
+>         for (;;) {
+>                 sync_page(page);
+>                 set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+>                 if (PageLocked(page)) {
+>                         run_task_queue(&tq_disk);
+>                         schedule();
+>                         continue;
+>                 }
+>                 if (!TryLockPage(page))
+>                         break;
+>         }
+>         tsk->state = TASK_RUNNING;
+>         remove_wait_queue(&page->wait, &wait);
+> }
+> 
+> 
+> Af a process sleeps in __lock_page, sync_page() will be called even if the
+> page is already unlocked. (block_sync_page(), the sync_page routine for
+> generic block based filesystem calls run_task_queue(&tq_disk)).
+> 
+> I don't see any problem if we remove the run_task_queue(&tq_disk) and put
+> sync_page(page) there instead, removing the other sync_page(page) at the
+> beginning of the loop.
+> 
+> Comments?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

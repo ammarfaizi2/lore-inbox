@@ -1,86 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285666AbRLYRII>; Tue, 25 Dec 2001 12:08:08 -0500
+	id <S285668AbRLYRWI>; Tue, 25 Dec 2001 12:22:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285668AbRLYRHs>; Tue, 25 Dec 2001 12:07:48 -0500
-Received: from N605P024.adsl.highway.telekom.at ([62.47.19.152]:64897 "HELO
-	twinny.dyndns.org") by vger.kernel.org with SMTP id <S285666AbRLYRHr>;
-	Tue, 25 Dec 2001 12:07:47 -0500
-Message-ID: <3C28B113.7F4CFA0E@webit.com>
-Date: Tue, 25 Dec 2001 18:02:11 +0100
-From: Thomas Winischhofer <tw@webit.com>
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
-MIME-Version: 1.0
+	id <S285669AbRLYRV6>; Tue, 25 Dec 2001 12:21:58 -0500
+Received: from host213-1-139-246.btinternet.com ([213.1.139.246]:26884 "EHLO
+	Wasteland") by vger.kernel.org with ESMTP id <S285668AbRLYRVw>;
+	Tue, 25 Dec 2001 12:21:52 -0500
+Message-Id: <m16IvGv-000Ce9C@Wasteland>
+Content-Type: text/plain; charset=US-ASCII
+From: Matthew M <matthew.macleod@btinternet.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: @Linus, Marcello, (Alan?) (regards sisfb)
-In-Reply-To: <3C2349C8.1DF70E5F@falke.mail>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: Maybe I have a bad day or something
+Date: Tue, 25 Dec 2001 17:21:46 +0000
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <01122415075100.02141@manta> <3C273A67.7BA0F5AC@monmouth.com>
+In-Reply-To: <3C273A67.7BA0F5AC@monmouth.com>
+X-Operating-System: Debian Linux 2.2 Kernel 2.5
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 24 December 2001 14:23, Pat Villani wrote:
+> You're not alone.  Frankly, I just skim the subjects and some messages to
+> figure out whether or not to read further.
 
-Hi again.
+Of course you do. I assume almost everyone here does. Why would you sit and 
+read hundreds of messages that you have no interest in?
 
-I just finished an update for the new sisfb driver which is available
-here:
-
-http://members.aon.at/~twinisch/sisfb_src_251201.tar.gz
-
-The update was necessary for making sisfb co-operate better with the new
-X driver.
-
-Feedback welcome.
-
-Thomas
-
-
-Thomas Winischhofer wrote:
-> 
-> Hi, as you might know, the sisfb driver did not work correctly on
-> systems with SiS630 and LCD panels, i.e laptops. The problem was the
-> type of video bridge used, which is LVDS in most cases.
-> 
-> The current driver contained in the kernel can't even work in theory,
-> because
-> 
-> 1) the tables that should have contained necessary data for refresh and
-> timing were empty, and
-> 
-> 2) this data depends on the type of LCD panels attached and is not the
-> same on all machines.
-> 
-> So, the whole theory with this driver is a failure.
-> 
-> I therefore re-wrote (and commented) the sisfb driver to read out the
-> BIOS data, instead of its very own tables. On non-SiS630 or non-LVDS
-> systems, the old code is used.
-> 
-> From the feedback I got, I know that the driver is working in about 50%
-> of the SiS630-LVDS-machines out there, depending on what revision of the
-> SiS630 and LCD panel being used. This is 50% more than before!
-> 
-> The driver has been tested on systems without a video bridge as well
-> (ie. desktop machines) and it works there as well. This means I didn't
-> break it for other configurations.
-> 
-> The dark side: The driver is - when used on SiS630 and LVDS - not
-> LinuxBIOS-capable (because it depends on data stored in the SiS-BIOS)
-> 
-> Are you willing to include the new driver in the kernel?
-> 
-> It's available here: <old link, outdated - see above>
-> 
-> I have not made a patch, because this patch would be about as twice as
-> huge than the whole code. But if you insist, I could make a patch as
-> well. The code is based on 2.4.16. AFAIK there were no changes to sisfb
-> up to current 17-rc2. The archive is to be extracted over the existing
-> code while in /usr/src/linux/drivers/video/sis/
-> 
-> Thomas
-
+*MatthewM*
 -- 
-Thomas Winischhofer
-Vienna/Austria
-mailto:tw@webit.com              *** http://www.webit.com/tw
+
+Children aren't happy without something to ignore,
+And that's what parents were created for.
+		-- Ogden Nash

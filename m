@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264273AbTDOFTL (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 01:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbTDOFTK (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 01:19:10 -0400
-Received: from terminus.zytor.com ([63.209.29.3]:35821 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S264273AbTDOFTK (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 01:19:10 -0400
-Message-ID: <3E9B990C.5000503@zytor.com>
-Date: Mon, 14 Apr 2003 22:30:52 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Memory mapped files question
-References: <A46BBDB345A7D5118EC90002A5072C780BEBAD8D@orsmsx116.jf.intel.com> <004301c302bd$ed548680$fe64a8c0@webserver> <b7fbhg$sq4$1@cesium.transmeta.com> <20030415045637.GB25139@mail.jlokier.co.uk>
-In-Reply-To: <20030415045637.GB25139@mail.jlokier.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id S264291AbTDOFXq (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 01:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264293AbTDOFXp (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 01:23:45 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:309 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S264291AbTDOFXo (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 01:23:44 -0400
+Date: Mon, 14 Apr 2003 22:35:37 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.67-mm3
+Message-Id: <20030414223537.45808bd9.akpm@digeo.com>
+In-Reply-To: <20030415051534.GE706@holomorphy.com>
+References: <20030414015313.4f6333ad.akpm@digeo.com>
+	<20030415020057.GC706@holomorphy.com>
+	<20030415041759.GA12487@holomorphy.com>
+	<20030414213114.37dc7879.akpm@digeo.com>
+	<20030415043947.GD706@holomorphy.com>
+	<20030414215541.0aff47bc.akpm@digeo.com>
+	<20030415051534.GE706@holomorphy.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Apr 2003 05:35:27.0919 (UTC) FILETIME=[D24DF3F0:01C30310]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> On Mon, Apr 14, 2003 at 09:55:41PM -0700, Andrew Morton wrote:
+> > Sort-of.  The code is doing two things.
+> > a) Make sure that all the relevant pte's are established in the correct
+> >    state so we don't take a fault while holding the subsequent atomic kmap.
+> >    This is just an optimisation.  If we _do_ take the fault while holding
+> >    an atomic kmap, we fall back to sleeping kmap, and do the whole copy
+> >    again.  It almost never happens.
 > 
-> It's a quality of implementation issue if data can remain dirty in RAM
-> forever without ever being flushed.
-> 
-> Can this really happen with normal open/mmap/munmap/close usage, or
-> does it only occur with long-lived processes like innd which mmap a
-> file, dirty the pages but never munmap them?
-> 
-> If the former case does happen, I'd say we're failing on quality of
-> implementation.  If it's only the latter case, though, fair enough: the
-> application writer will have to use msync().
-> 
+> This is the easy part; we're basically just prefaulting.
 
-The latter, I'm pretty sure.  After all, that's what pgflush/bdflush is 
-all about.
+btw, this may sound like a lot of futzing about, but the other day I
+timed four concurrent instances of
+
+	dd if=/dev/zero of=$i bs=1 count=1M
+
+on the four-way.  2.5 ran eight times faster than 2.4.  2.4's kmap_lock
+contention was astonishing.
 

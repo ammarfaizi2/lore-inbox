@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267528AbUIJQXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267587AbUIJQQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267528AbUIJQXT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 12:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267543AbUIJQUQ
+	id S267587AbUIJQQz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 12:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUIJQP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 12:20:16 -0400
-Received: from pegasus.allegientsystems.com ([208.251.178.236]:55822 "EHLO
-	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
-	id S267528AbUIJQTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 12:19:38 -0400
-Message-ID: <4141D415.6050705@optonline.net>
-Date: Fri, 10 Sep 2004 12:19:33 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040806
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-CC: linux-kernel@vger.kernel.org
+	Fri, 10 Sep 2004 12:15:26 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:40881 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267538AbUIJQOp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 12:14:45 -0400
 Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-References: <20040909232532.GA13572@taniwha.stupidest.org> <1094798428.2800.3.camel@laptop.fenrus.com> <1094807650.17041.3.camel@localhost.localdomain> <593560000.1094826651@[10.10.2.4]> <chsivd$827$1@sea.gmane.org>
-In-Reply-To: <chsivd$827$1@sea.gmane.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrea Arcangeli <andrea@suse.de>,
+       arjanv@redhat.com, Chris Wedgwood <cw@f00f.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1094829125.17464.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 10 Sep 2004 16:12:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander E. Patrakov wrote:
-> Martin J. Bligh wrote:
-> 
->> --Alan Cox <alan@lxorguk.ukuu.org.uk> wrote (on Friday, September 10, 
->> 2004 10:14:11 +0100):
->>
->>> Its probably appropriate to drop gcc 2.x support at that point too since
->>> it's the major cause of remaining problems
->>
->>
->> What problems does it cause? 2.95.4 still seems to work fine for me.
-> 
-> 
-> The latest gcc2 on the ftp.gnu.org site is gcc 2.95.3. There is 
-> officially no such thing as "gcc 2.95.4". Probably you are talking about 
-> a patched version of some gcc2 cvs snapshot - that's what distros 
-> provide. Please specify exactly what gcc version you are talking about.
+On Gwe, 2004-09-10 at 16:07, Hugh Dickins wrote:
+> Chris's patch seems eminently sensible to me.  Why should having separate
+> interrupt stack depend on whether you're configured for 4K or 8K stacks?
 
-2.95.4, if I remember correctly, contained fixes that went onto the gcc 
-2.95 branch after 2.95.3 was released. Some of the fixes were for 
-Linux-2.2/2.4 and glibc2.2 compatibility. This compiler was distributed 
-by Debian, I think.
+You only have 4K safe to use in all current configurations. Its a case
+of simply fixing the sloppy code (and or pushing up compiler versions 
+where the compiler is the offender). 
 
-> 
-> And there _is_ problem with gcc-2.95.3-compiled kernel: latest cvs glibc 
-> testsuite segfaults in nptl tests. There are no failures with the kernel 
-> identically configured, but compiled with gcc 3.3.4 or 3.4.1. So gcc 
-> 2.95.3 as supplied by gnu.org miscompiles the kernel (futexes?). Either 
-> fix the kernel or drop gcc2 support.
-> 
+> Wasn't Andrea worried, a couple of months back, about nested interrupts
+> overflowing the 4K interrupt stack? 
+
+We've seen no evidence of this and assuming apps could use 4K safely the
+interrupt "stack" was about 2.5K before. Limiting it either by size or
+by depth is not a big problem at all.
 

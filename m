@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTEEWlO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 18:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTEEWlO
+	id S261548AbTEEWjT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 18:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTEEWjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 18:41:14 -0400
-Received: from [155.223.251.1] ([155.223.251.1]:26330 "HELO
-	gatekeeper.ege.edu.tr") by vger.kernel.org with SMTP
-	id S261807AbTEEWlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 18:41:12 -0400
-Date: Tue, 6 May 2003 02:04:25 +0300
-From: Halil Demirezen <nitrium@bilmuh.ege.edu.tr>
-To: Thomas Horsten <thomas@horsten.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: about bios
-Message-ID: <20030505230425.GA17060@bilmuh.ege.edu.tr>
-References: <20030505225013.GA5375@bilmuh.ege.edu.tr> <Pine.LNX.4.40.0305060041550.7106-100000@jehova.dsm.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 5 May 2003 18:39:19 -0400
+Received: from siaab1ab.compuserve.com ([149.174.40.2]:18361 "EHLO
+	siaab1ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S261548AbTEEWjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 18:39:13 -0400
+Date: Mon, 5 May 2003 18:49:12 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: partitions in meta devices
+To: "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200305051851_MC3-1-3782-9001@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0305060041550.7106-100000@jehova.dsm.dk>
-User-Agent: Mutt/1.3.28i
-X-URL: http://www.pisus.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>       No, it should not.  And devfs, for once, has nothing to do with it.
+> RAID devices (md*) have _one_ (1) minor allocated to each.  Consequently,
+> they could not be partitioned by any kernel - there is no device numbers
+> to be assigned to their partitions.
+>  
+> > Could you please tell us which kernel version you're using?
 > 
-> What you do in the BIOS does not only disable the BIOS calls for the
-> floppy controller, it turns it completely off in the chipset (software
-> disconnect) so it is never accessed with the IO access, and therefore is
-> not detected.
-> 
-> It would probably be possible to turn it on again in floppy.c, but it
-> would be chipset dependent how to do it.
-> 
-> Cheers,
-> Thomas
-> 
+>       What would be much more interesting, which kernel are _you_ using
+> and what device numbers, in your experience, do these partitions get?
 
+ These patches appear to contain raid partitioning code of some sort:
 
+   http://www.cse.unsw.edu.au/~neilb/patches/linux-stable/
 
-So can we say that, during initialization, setup.s pushes some bios info 
-to the memory, and then after entering protected mode in i386, it pops
-these information and sets kernel depending on it. Because of absence of
-FDC controller info at this data area linux does not recognize FDC. However,
+Only the first 16 md devices can be partitioned, though... major is 60,
+minors are 0-15 for md0, 16-31 for md1, etc.
 
-I can turn it on still usin IO ports and using in, out assembly instructions.
-
-what i mention above for sure is not correct, however, is the procedure something like that?
-
-thank you..
 

@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268337AbRGZQzK>; Thu, 26 Jul 2001 12:55:10 -0400
+	id <S267758AbRGZQxk>; Thu, 26 Jul 2001 12:53:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268335AbRGZQzA>; Thu, 26 Jul 2001 12:55:00 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:47702
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S268337AbRGZQyq>; Thu, 26 Jul 2001 12:54:46 -0400
-Date: Thu, 26 Jul 2001 09:54:52 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010726095452.L27780@work.bitmover.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010726174844.W17244@emma1.emma.line.org> <E15PnTJ-0003z0-00@the-village.bc.nu> <9jpftj$356$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <9jpftj$356$1@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jul 26, 2001 at 04:18:59PM +0000
+	id <S268335AbRGZQxb>; Thu, 26 Jul 2001 12:53:31 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:52096 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267758AbRGZQxS>; Thu, 26 Jul 2001 12:53:18 -0400
+Date: Thu, 26 Jul 2001 12:52:48 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Wayne.Brown@altec.com
+cc: sentry21@cdslash.net, linux-kernel@vger.kernel.org
+Subject: Re: Weird ext2fs immortal directory bug
+In-Reply-To: <86256A95.00581EDA.00@smtpnotes.altec.com>
+Message-ID: <Pine.LNX.3.95.1010726124930.18506A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, Jul 26, 2001 at 04:18:59PM +0000, Linus Torvalds wrote:
-> In article <E15PnTJ-0003z0-00@the-village.bc.nu>,
-> Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
-> >> Go tell your opinion to those people that refuse to wrap their
-> >> rename/link calls with open()/fsync() calls to the respective parents,
-> >> particularly Daniel J. Bernstein, Wietse Z. Venema, among others. I
-> >> don't possibly know all MTAs.
-> >
-> >I've pointed things out to Mr Bernstein before. His normal replies are not
-> >helpful and generally vary between random ravings and threatening to sue
-> >people who publish things on web pages he disagrees with.
+On Thu, 26 Jul 2001 Wayne.Brown@altec.com wrote:
+
 > 
-> Now, now, Alan. He has strong opinions, I'll agree, but I've never see
-> him threaten to _sue_.
+> 
+> Try lsattr ./#3147 and see if the i attribute is set.  If so, then
+> (as root) do
+> chattr -i ./#3147 and try again to remove it.
+> 
+> Wayne
 
-In the for what it is worth department, I spent the day with Daniel after
-the kernel summit meeting a while back, we talked file systems for about
-6 or 7 hours.  While I'll plead guilty to getting mad at him (his ego
-is up there with mine :-), I came away impressed with his knowledge.
-I get the feeling that he thinks deeply about the problems he works on,
-he's probably right a lot of the time, *and* as with many deep thinkers,
-he has a problem communicating his ideas.
+If you try that from a shell, it may fail because '#' means
+"ignore everything thereafter", so you are trying to do muck
+with the directory. I think:
 
-This is a common problem, and I'm not sure Daniel is fully aware of it.
-One cannot expect other people to have done the same thinking and have
-the same context, and when they do not, it is easy to get frustrated.
-I think that some of Daniel's "ravings" are probably just frustration
-that the other person "doesn't get it".
+chattr -i ./\#3147 had ought to do it.
 
-That doesn't mean that Daniel is the right hand of God or anything, I've
-seen him do some stupid things but I've seen all of us do some stupid
-things, so that doesn't mean much.  I think Daniel does way more smart
-things than stupid things, and not all of us can claim that (sort of
-like half of the drivers are below average, noone likes that idea either).
 
-What I'm trying to say is that I think Daniel is one of the good guys,
-even though his user interface could stand improvement (a common thing
-amongst smart people) and it looks like it would be smart to figure out
-how to work with him.
+Cheers,
+Dick Johnson
 
-Just my opinion...
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

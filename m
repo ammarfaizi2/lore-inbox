@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314460AbSDRVUG>; Thu, 18 Apr 2002 17:20:06 -0400
+	id <S314461AbSDRVUv>; Thu, 18 Apr 2002 17:20:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314461AbSDRVUF>; Thu, 18 Apr 2002 17:20:05 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:54770
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S314460AbSDRVUF>; Thu, 18 Apr 2002 17:20:05 -0400
-Date: Thu, 18 Apr 2002 14:22:20 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
+	id <S314462AbSDRVUu>; Thu, 18 Apr 2002 17:20:50 -0400
+Received: from cpe.atm2-0-1071208.0x50c4d862.boanxx10.customer.tele.dk ([80.196.216.98]:63629
+	"EHLO fugmann.dhs.org") by vger.kernel.org with ESMTP
+	id <S314461AbSDRVUt>; Thu, 18 Apr 2002 17:20:49 -0400
+Message-ID: <3CBF389F.7010807@fugmann.dhs.org>
+Date: Thu, 18 Apr 2002 23:20:31 +0200
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020412 Debian/0.9.9-6
+MIME-Version: 1.0
+To: "Nicolae P. Costescu" <nick@strongholdtech.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/raid performance
-Message-ID: <20020418212220.GH574@matchmail.com>
-Mail-Followup-To: Helge Hafting <helgehaf@aitel.hist.no>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0204171108480.3300-100000@ns> <E16xrfQ-0002VF-00@the-village.bc.nu> <20020417102722.B26720@vger.timpanogas.org> <20020417134716.D10041@borg.org> <20020417232634.GC574@matchmail.com> <3CBE78A0.D5AD8AC2@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Subject: Re: CPU scheduler question: processes created faster than  destroyed?
+In-Reply-To: <4.3.2.7.2.20020418153151.019a98e0@mail.qrts.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 18, 2002 at 09:41:20AM +0200, Helge Hafting wrote:
-> Mike Fedyk wrote:
-> 
-> > I'd imagine that IDE would need some protocol spec changes before this could
-> > be supported (at least a "spin the drive up" message...).
-> > 
-> Exists already.  You may use hdparm to tell IDE drives
-> to spin up and down or even set a timeout.  This is
-> mostly for power-saving or no-noise setups.
->
+Nicolae P. Costescu wrote:
+> At the point where the server replied to the client, the client 
+> disconnects and is ready to send another message to the master server, 
+> which will cause another 4 forks, etc.
 
-Oh yes, I know about that, but didn't remember it when I posted.
+So, your clients are contacting the server repeatably...
 
-> So they could indeed add a jumper to IDE drives to let them
-> power up in the spun-down state.  But that's not what
-> the vast majority of one-disk users want.
-> 
+First there is something in your desctiption that was not entirely clear.
+After the server has received a request and has spawned four processes, does it sleep while
+waiting for data?
 
-This is the specific thing I was talking about.  Even if the drive can power
-down with a command, it doesn't wait for a command to perform the spinup
-when power is applied, and that's what's missing.
+If yes, the server would get a high counter. This means that the "dynamic proirity" of the server
+process would be higher than the spawned processes, and hence be able to starve the child processes
+for a small ammount of time. Therefore it is able to send the answer back to the client and receive a
+new request before any of the first spawned processes has terminated. Also the new spawned children will
+possibly have a higher "dynamic priority" (Really hate to use this term) than the first spawned processes.
 
-It seems like there is already protocol support in IDE, so the drive just
-needs a way to be configured...  Maybe some drives will allow software
-config of this when they implement it?
+Try and understand the line:
+     p->counter = (p->counter >> 1) + NICE_TO_TICKS(p->nice);
+in kernel/sched.c#624 - 2.4.18, especially when a process is sleeping.
+
+ > Is this just bad design on our part, or is there something in the CPU scheduler that leads to this
+ > behavior - where processes are started quicker than they die?
+
+Well. If my assumptions are correct it is both. The scheduler works in this way, but
+that should not harm your application (it actually speed it up), but you might want
+to redesign your application to avoid too many proccesse being spawned.
+
+I would suggest one of two ways to do this.
+
+1) Let the server wait for the spawned processes to die, before accepting new requests.
+The draw back migh be that it will slow down the server process a bit.
+
+2) Dont spawn new processes all the time. Spawn the four needed processes once and for all,
+and insted of terminating after proccessing, let them wait for a new command (acting just like your server).
+
+Hope it helps.
+Anders Fugmann
+
+
+
+
+
+
+
+
 

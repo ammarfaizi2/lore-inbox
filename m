@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290984AbSBGSJ2>; Thu, 7 Feb 2002 13:09:28 -0500
+	id <S291158AbSBGSMI>; Thu, 7 Feb 2002 13:12:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291155AbSBGSJS>; Thu, 7 Feb 2002 13:09:18 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:20413 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S290984AbSBGSJK>; Thu, 7 Feb 2002 13:09:10 -0500
-Date: Thu, 7 Feb 2002 11:06:23 -0700
-Message-Id: <200202071806.g17I6Ns27196@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Martin Wirth <Martin.Wirth@dlr.de>, linux-kernel@vger.kernel.org,
-        akpm@zip.com.au, torvalds@transmet.com, mingo@elte.hu, rml@tech9.net,
-        nigel@nrg.org
-Subject: Re: [RFC] New locking primitive for 2.5
-In-Reply-To: <E16Ysuo-00014w-00@starship.berlin>
-In-Reply-To: <3C629F91.2869CB1F@dlr.de>
-	<E16Ysuo-00014w-00@starship.berlin>
+	id <S291171AbSBGSLu>; Thu, 7 Feb 2002 13:11:50 -0500
+Received: from jhuml4.jhu.edu ([128.220.2.67]:63646 "EHLO jhuml4.jhu.edu")
+	by vger.kernel.org with ESMTP id <S291158AbSBGSLd>;
+	Thu, 7 Feb 2002 13:11:33 -0500
+Date: Thu, 07 Feb 2002 13:11:43 -0500
+From: Thomas Hood <jdthood@mail.com>
+Subject: Re: [PATCH] read() from driverfs files can read more bytes
+To: linux-kernel@vger.kernel.org
+Message-id: <1013105503.3986.687.camel@thanatos>
+MIME-version: 1.0
+X-Mailer: Evolution/1.0.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
-> On February 7, 2002 04:38 pm, Martin Wirth wrote:
-> > The new lock uses a combination of a spinlock and a (mutex-)semaphore.
-> 
-> Spinaphore :-)
+> Can you also check for size >= PAGE_SIZE on enter
+> to entry->show() procedure?
 
-Or mutabloat :-(
+FYI I recently wrote a patch for procfs which addresses a
+similar problem there.  See the link at:
+   http://panopticon.csustan.edu/thood/pnpbios.html
 
-				Regards,
+--
+Thomas Hood
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+

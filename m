@@ -1,84 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264877AbRFTNpA>; Wed, 20 Jun 2001 09:45:00 -0400
+	id <S264880AbRFTN4l>; Wed, 20 Jun 2001 09:56:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264878AbRFTNou>; Wed, 20 Jun 2001 09:44:50 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:37648 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S264877AbRFTNoi>; Wed, 20 Jun 2001 09:44:38 -0400
-Date: Wed, 20 Jun 2001 15:44:30 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.6pre3aa2
-Message-ID: <20010620154430.D22569@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S264879AbRFTN4a>; Wed, 20 Jun 2001 09:56:30 -0400
+Received: from [32.97.182.101] ([32.97.182.101]:31713 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264614AbRFTN4V>;
+	Wed, 20 Jun 2001 09:56:21 -0400
+Importance: Normal
+Subject: Re: [RFQ] aic7xxx driver panics under heavy swap.
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OFADEE406A.252C680F-ON85256A71.004A4502@pok.ibm.com>
+From: "Bulent Abali" <abali@us.ibm.com>
+Date: Wed, 20 Jun 2001 09:56:54 -0400
+X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Build V508_06042001 |June 4, 2001) at
+ 06/20/2001 09:55:54 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diff between 2.4.6pre3aa1 and 2.4.6pre3aa2:
 
-Only in 2.4.6pre3aa2: 00_alpha-numa-initrd-1
 
-	Release initrd memory from right numa node.
+Justin,
+Your patch works for me.  printk "Temporary Resource Shortage"
+has to go, or may be you can make it a debug option.
 
-	(recommended)
+Here is the cleaned up patch for 2.4.5-ac15 with TAILQ
+macros replaced with LIST macros.  Thanks for the help.
+Bulent
 
-Only in 2.4.6pre3aa2: 00_alpha-srm-2.4.6-pre1-1
 
-	Access the srm variables via /proc/srm_environment.
-	Patch posted to l-k by Jan-Benedict Glaw <jbglaw@lug-owl.de>.
 
-	(nice to have)
+--- aic7xxx_linux.c.save Mon Jun 18 20:25:35 2001
++++ aic7xxx_linux.c Tue Jun 19 17:35:55 2001
+@@ -1516,7 +1516,11 @@
+     }
+     cmd->result = CAM_REQ_INPROG << 16;
+     TAILQ_INSERT_TAIL(&dev->busyq, (struct ahc_cmd *)cmd, acmd_links.tqe);
+-    ahc_linux_run_device_queue(ahc, dev);
++    if ((dev->flags & AHC_DEV_ON_RUN_LIST) == 0) {
++         LIST_INSERT_HEAD(&ahc->platform_data->device_runq, dev, links);
++         dev->flags |= AHC_DEV_ON_RUN_LIST;
++         ahc_linux_run_device_queues(ahc);
++    }
+     ahc_unlock(ahc, &flags);
+     return (0);
+ }
+@@ -1532,6 +1536,9 @@
+     struct     ahc_tmode_tstate *tstate;
+     uint16_t mask;
 
-Only in 2.4.6pre3aa2: 00_initrd-release-blkdev-1
++    if ((dev->flags & AHC_DEV_ON_RUN_LIST) != 0)
++         panic("running device on run list");
++
+     while ((acmd = TAILQ_FIRST(&dev->busyq)) != NULL
+         && dev->openings > 0 && dev->qfrozen == 0) {
 
-	Remeber to release the opened blkdev after initrd load.
+@@ -1540,8 +1547,6 @@
+           * running is because the whole controller Q is frozen.
+           */
+          if (ahc->platform_data->qfrozen != 0) {
+-              if ((dev->flags & AHC_DEV_ON_RUN_LIST) != 0)
+-                   return;
 
-	(recommended)
+               LIST_INSERT_HEAD(&ahc->platform_data->device_runq,
+                          dev, links);
+@@ -1552,8 +1557,6 @@
+           * Get an scb to use.
+           */
+          if ((scb = ahc_get_scb(ahc)) == NULL) {
+-              if ((dev->flags & AHC_DEV_ON_RUN_LIST) != 0)
+-                   panic("running device on run list");
+               LIST_INSERT_HEAD(&ahc->platform_data->device_runq,
+                          dev, links);
+               dev->flags |= AHC_DEV_ON_RUN_LIST;
 
-Only in 2.4.6pre3aa2: 00_ksoftirqd-6_ia64-1
-Only in 2.4.6pre3aa2: 00_ksoftirqd-6_ppc-1
 
-	softirq updates for ppc and ia64.
 
-	(recommended)
 
-Only in 2.4.6pre3aa2: 00_locks-1
 
-	Fix from ac16 (avoid corrupting the lock_depth).
 
-	(recommended)
 
-Only in 2.4.6pre3aa2: 00_max-threads-1
 
-	Each task is going to take more than 2 pages. There's
-	also the pid limit and the per-user limit but turning
-	the default down is good idea. Fix from Rik from ac16.
-
-	(recommended)
-
-Only in 2.4.6pre3aa2: 00_swapinfo-1
-
-	Only show deviecs when then swap_map is been allocated
-	to avoid oops during swapon. Fix from
-	Paul Menage <pmenage@ensim.com>.
-
-	(nice to have)
-
-Only in 2.4.6pre3aa1/30_tux: 30_atomic-lookup-3
-Only in 2.4.6pre3aa2/30_tux: 30_atomic-lookup-4
-
-	Introduce O_ATOMICLOOKUP for ppc equal to 01000000.
-
-Only in 2.4.6pre3aa2: 40_experimental/40_blkdev-pagecache-3
-
-	Optional patch to apply to move the blkdev from buffercache to
-	pagecache. At the moment this breaks the ramdisk and in turn initrd.
-	Read the 40_experimental/README for more details. Like the tux patches
-	this one is not included into the global diff (2.4.6pre3aa2.{gz,bz2}).
-
-Andrea

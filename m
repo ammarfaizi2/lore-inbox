@@ -1,38 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265513AbTBFE2G>; Wed, 5 Feb 2003 23:28:06 -0500
+	id <S267368AbTBFFED>; Thu, 6 Feb 2003 00:04:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265670AbTBFE2G>; Wed, 5 Feb 2003 23:28:06 -0500
-Received: from bitmover.com ([192.132.92.2]:62661 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S265513AbTBFE2F>;
-	Wed, 5 Feb 2003 23:28:05 -0500
-Date: Wed, 5 Feb 2003 20:37:37 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: Larry McVoy <lm@bitmover.com>, Andrea Arcangeli <andrea@e-mind.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: openbkweb-0.0
-Message-ID: <20030206043737.GA27374@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ben Collins <bcollins@debian.org>, Larry McVoy <lm@bitmover.com>,
-	Andrea Arcangeli <andrea@e-mind.com>, linux-kernel@vger.kernel.org
-References: <20030206021029.GW19678@dualathlon.random> <20030206030908.GA26137@work.bitmover.com> <20030206042303.GB523@phunnypharm.org>
-Mime-Version: 1.0
+	id <S267370AbTBFFED>; Thu, 6 Feb 2003 00:04:03 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:39390 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267368AbTBFFEB>; Thu, 6 Feb 2003 00:04:01 -0500
+Date: Wed, 05 Feb 2003 21:13:28 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: James Bottomley <James.Bottomley@steeleye.com>, mikeand@us.ibm.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Broken SCSI code in the BK tree (was: 2.5.59-mm8)
+Message-ID: <211570000.1044508407@[10.10.2.4]>
+In-Reply-To: <384960000.1044396931@flay>
+References: <20030203233156.39be7770.akpm@digeo.com>
+ <167540000.1044346173@[10.10.2.4]> <20030204001709.5e2942e8.akpm@digeo.com>
+ <384960000.1044396931@flay>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030206042303.GB523@phunnypharm.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You may want to enable mod_deflate, and then scripts can easily make use
-> of gzip compressed data. May not be an end-all, but something to
-> consider.
+>> There are a lot of scsi updates in Linus's tree.  Can you please
+>> test just
+>> 
+>> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm8/broken-o
+>> ut/linus.patch
+> 
+> Yup, the SCSI code in Linus' tree has broken since 2.5.59.
+> I reproduced this on my 4-way SMP machine (panic from that below), 
+> so it's not just NUMA-Q wierdness ;-)
+> 
+> M.
 
-Gzip will give 4:1 what these scripts are doing is more like 1000:1.  
-So gzipping the data gets you down to 250:1.  That's still way more
-bandwidth, way too much to be acceptable.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+elm3b13:~/linux/2.5.59-linus# addr2line -e vmlinux c01c1986
+/root/linux/2.5.59-linus/drivers/scsi/qlogicisp.c:632
+
+which is the readw of:
+
+static inline u_short isp_inw(struct Scsi_Host *host, long offset)
+{
+        struct isp1020_hostdata *h = (struct isp1020_hostdata
+*)host->hostdata;
+        if (h->memaddr)
+                return readw(h->memaddr + offset);
+        else
+                return inw(host->io_port + offset);
+}
+ 
+> Unable to handle kernel NULL pointer dereference at virtual address
+> 0000013c  printing eip:
+> c01c1986
+> *pde = 00000000
+> Oops: 0002
+> CPU:    3
+> EIP:    0060:[<c01c1986>]    Not tainted
+> EFLAGS: 00010046
+> EIP is at isp1020_intr_handler+0x1e6/0x290
+> eax: 00000000   ebx: f7c42080   ecx: 00000000   edx: 00000054
+> esi: 00000002   edi: 00000013   ebp: 00000000   esp: f7f97efc
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 0, threadinfo=f7f96000 task=f7f9d240)
+> Stack: f7c42080 f7c52800 00000002 00000013 f7f97f80 00000003 00000003
+> f7c5289c         f7c52800 c01c1791 00000013 f7c52800 f7f97f80 f7ffe1e0
+> 24000001 c010a815         00000013 f7c52800 f7f97f80 c028fa60 00000260
+> 00000013 f7f97f78 c010a9e6  Call Trace:
+>  [<c01c1791>] do_isp1020_intr_handler+0x25/0x34
+>  [<c010a815>] handle_IRQ_event+0x29/0x4c
+>  [<c010a9e6>] do_IRQ+0x96/0x100
+>  [<c0106ca0>] default_idle+0x0/0x34
+>  [<c01094a8>] common_interrupt+0x18/0x20
+>  [<c0106ca0>] default_idle+0x0/0x34
+>  [<c0106cc9>] default_idle+0x29/0x34
+>  [<c0106d53>] cpu_idle+0x37/0x48
+>  [<c0119d21>] printk+0x149/0x160
+> 
+> Code: 89 85 3c 01 00 00 83 c4 04 eb 0a c7 85 3c 01 00 00 00 00 07 
+>  <0>Kernel panic: Aiee, killing interrupt handler!
+> In interrupt handler - not syncing
+
+

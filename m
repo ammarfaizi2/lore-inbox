@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284761AbRLRTMp>; Tue, 18 Dec 2001 14:12:45 -0500
+	id <S284711AbRLRTJy>; Tue, 18 Dec 2001 14:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284752AbRLRTLg>; Tue, 18 Dec 2001 14:11:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15365 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284762AbRLRTKv>; Tue, 18 Dec 2001 14:10:51 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Date: 18 Dec 2001 11:10:27 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9vo4b3$iet$1@cesium.transmeta.com>
-In-Reply-To: <Pine.GSO.4.21.0112180350550.6100-100000@weyl.math.psu.edu> <T57e612d0dbac1785e6169@pcow028o.blueyonder.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S284775AbRLRTGs>; Tue, 18 Dec 2001 14:06:48 -0500
+Received: from pc3-stoc4-0-cust138.mid.cable.ntl.com ([213.107.175.138]:45316
+	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
+	id <S284759AbRLRTG1>; Tue, 18 Dec 2001 14:06:27 -0500
+Date: Tue, 18 Dec 2001 19:06:21 +0000
+From: Ian Chilton <ian@ichilton.co.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: 2.4.17-rc1 wont do nfs root on Javastation
+Message-ID: <20011218190621.A28147@buzz.ichilton.local>
+Reply-To: Ian Chilton <ian@ichilton.co.uk>
+In-Reply-To: <20011214181816.B28794@woody.ichilton.co.uk> <20011215.220646.69411478.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011215.220646.69411478.davem@redhat.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <T57e612d0dbac1785e6169@pcow028o.blueyonder.co.uk>
-By author:    James A Sutherland <james@sutherland.net>
-In newsgroup: linux.dev.kernel
->
-> On Tuesday 18 December 2001 8:55 am, Alexander Viro wrote:
-> > On Tue, 18 Dec 2001, James A Sutherland wrote:
-> > > Not necessarily. You could, say, put the modules in a small filesystem
-> > > image - say, Minix, or maybe ext2. Then just have the loader put that
-> > > disk image into RAM, and have the kernel able to read disk images from
-> > > RAM initially.
-> > >
-> > > Of course, this revolutionary new features needs a name. Something like
-> > > initrd, perhaps?
-> >
-> > Had you actually looked at initrd-related code?  I had and "bloody mess"
-> > is the kindest description I've been able to come up with.  Even after
-> > cleanups and boy, were they painful...
-> 
-> With a choice between that, or teaching lilo, grub etc how to link modules - 
-> and how to read NTFS and XFS, and losing the ability to boot from fat, minix 
-> etc floppies, tftp or nfs servers - almost any level of existing nastiness 
-> would be preferable to that sort of insane codebloat!
-> 
+Hello,
 
-Note that Al is working on a replacement; he's not just bitching.  The
-replacement is called "initramfs" which means populating a ramfs from
-an archive or collection of archives passwd by the bootloader.  With
-that in there, lots of things can be done in userspace.
+> Add "root=nfs" to your kernel command line.
 
-I had my own idea for how to do this, but I don't really seem to be
-able to get the time to work it...
+I checked with Pete and as I suspected, putting kernel parameters on the
+command line doesn't work as proll just drops them.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+So, I made a bit of a hack:
+
+[ian@slinky:~/tmp/js/linux/arch/sparc/kernel]$ diff -u setup.c.orig
+setup.c
+--- setup.c.orig        Sat Nov 17 00:30:25 2001
++++ setup.c     Tue Dec 18 19:44:16 2001
+@@ -306,6 +306,10 @@
+ 
+        /* Initialize PROM console and command line. */
+        *cmdline_p = prom_getbootargs();
++
++       /* Hack to hard code root=nfs. */
++       strcat(*cmdline_p,"root=nfs");
++
+        strcpy(saved_command_line, *cmdline_p);
+ 
+        /* Set sparc_cpu_model */
+
+
+Now when it boots, it says "Kernel command line: root=nfs" but still,
+the kernel does not try and do the IP-Config/bootp stuff so it fails
+saying it can't find the NFS server which is obvious as it doesn't have
+an ip etc...
+
+
+Any other ideas?
+
+
+Thanks!
+
+Ian
+

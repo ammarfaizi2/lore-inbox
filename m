@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131724AbRDWUiX>; Mon, 23 Apr 2001 16:38:23 -0400
+	id <S131742AbRDWUok>; Mon, 23 Apr 2001 16:44:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131742AbRDWUhk>; Mon, 23 Apr 2001 16:37:40 -0400
-Received: from esteel10.client.dti.net ([209.73.14.10]:38564 "EHLO
-	nynetops04.e-steel.com") by vger.kernel.org with ESMTP
-	id <S131724AbRDWUhe>; Mon, 23 Apr 2001 16:37:34 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Mathieu Chouquet-Stringer <mchouque@e-steel.com>
-Newsgroups: e-steel.mailing-lists.linux.linux-kernel
-Subject: Re: ioctl arg passing
-Date: 23 Apr 2001 16:37:28 -0400
-Organization: e-STEEL Netops news server
-Message-ID: <m3wv8bl5dj.fsf@shookay.e-steel.com>
-In-Reply-To: <20010423195043.S682@nightmaster.csn.tu-chemnitz.de> <Pine.LNX.4.33.0104232155230.1417-100000@localhost.localdomain>
-NNTP-Posting-Host: shookay.e-steel.com
-Mime-Version: 1.0
+	id <S131806AbRDWUob>; Mon, 23 Apr 2001 16:44:31 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:40789 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S131742AbRDWUo1>; Mon, 23 Apr 2001 16:44:27 -0400
+Message-ID: <3AE49402.BB093022@mvista.com>
+Date: Mon, 23 Apr 2001 13:43:46 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Robert H. de Vries" <rhdv@rhdv.cistron.nl>,
+        high-res-timers-discourse@lists.sourceforge.net,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: high-res-timers start code.
+In-Reply-To: <3AE45D01.F7B91E73@mvista.com> <01042319085701.01113@calvin> <3AE46A37.A0AF78BC@mvista.com> <01042320013203.01113@calvin>
 Content-Type: text/plain; charset=us-ascii
-X-Trace: nynetops04.e-steel.com 988054558 18412 192.168.3.43 (23 Apr 2001 19:35:58 GMT)
-X-Complaints-To: news@nynetops04.e-steel.com
-NNTP-Posting-Date: 23 Apr 2001 19:35:58 GMT
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<rui.sousa@mindspeed.com> writes:
-
-> On Mon, 23 Apr 2001, Ingo Oeser wrote:
+"Robert H. de Vries" wrote:
 > 
-> > On Mon, Apr 23, 2001 at 05:06:48PM +0100, Matt wrote:
-> > > I'm writing a char device driver for a dsp card that drives a motion
-> > > platform.
-> >
-> > Can you elaborate on the dsp card? Is it freely programmable? I'm
-> > working on a project to support this kind of stuff via a
-> > dedicated subsystem for Linux.
+> On Monday 23 April 2001 19:45, you wrote:
 > 
-> Very interesting... The emu10k1 driver (SBLive!) that will appear
-> shortly in acXX will support loading code to it's DSP. It's a very
-> simple chip with only 16 instructions but it can generate
-> hardware interrupts, DMA to host memory, 32 bit math. The maximum
-> program size is 512 instructions (64 bits each) and can make use of 256
-> registers (32 bits).
+> > By the way, is the user land stuff the same for all "arch"s?
+> 
+> Not if you plan to handle the CPU cycle counter in user space. That is at
+> least what I would propose.
 
-Do you mean we will be able to have the same kind of stuff they have on
-Windows (like the mp3 encoding computed by the SB Live)??
+Just got interesting, lets let the world look in.
 
--- 
-Mathieu CHOUQUET-STRINGER              E-Mail : mchouque@e-steel.com
-     Learning French is trivial: the word for horse is cheval, and
-               everything else follows in the same way.
-                        -- Alan J. Perlis
+What did you have in mind here?  I suspect that on some archs the cycle
+counter is not available to user code.  I know that on parisc it is
+optionally available (kernel can set a bit to make it available), but by
+it self it is only good for intervals.  You need to peg some value to a
+CLOCK to use it to get timeofday, for instance.
+
+On the other hand, if there is an area of memory that both users and
+system can read but only system can write, one might put the soft clock
+there.  This would allow gettimeofday (with the cycle counter) to work
+without a system call.  To the best of my knowledge the system does not
+have such an area as yet.
+
+comments?
+
+George
+
+> System call stuff, yes. There may be gotcha's in the area of 32/64
+> interfaces. Almost all 64 bit archs also support 32 bit interfaces (check out
+> the stuff in my patch regarding the SPARC, kindly donated by Jakub Jelinek).
+> 
+>         Robert
+> 
+> --
+> Robert de Vries
+> rhdv@rhdv.cistron.nl

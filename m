@@ -1,46 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbTICCwl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 22:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbTICCwl
+	id S261499AbTICC4L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 22:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbTICC4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 22:52:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19104 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261409AbTICCwk (ORCPT
+	Tue, 2 Sep 2003 22:56:11 -0400
+Received: from dp.samba.org ([66.70.73.150]:62414 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261499AbTICC4F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 22:52:40 -0400
-Message-ID: <32886.4.4.25.4.1062557559.squirrel@www.osdl.org>
-Date: Tue, 2 Sep 2003 19:52:39 -0700 (PDT)
-Subject: RE: Compressed VMLINUX Kernel
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <diskman@kc.rr.com>
-In-Reply-To: <004801c371c1$fc64b0f0$6501a8c0@zephyr>
-References: <004801c371c1$fc64b0f0$6501a8c0@zephyr>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.11)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 2 Sep 2003 22:56:05 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] Futex non-page-pinning fix 
+In-reply-to: Your message of "Tue, 02 Sep 2003 17:14:15 +0100."
+             <Pine.LNX.4.44.0309021626540.1542-100000@localhost.localdomain> 
+Date: Wed, 03 Sep 2003 12:40:38 +1000
+Message-Id: <20030903025605.5C1722C05F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was wondering, is there some method or utility that will allow me to
-> compress my kernel (vmlinux)? I was running an alpha and bzImage and zImage
-> don’t work.  I read all the mans that I could lay my grubby little hands on
-> but none of them mentioned HOW one is the compress a vmlinux kernel.
-> The reason ask this is, I boot to linux using an OLD IDE drive and it takes
-> sometime to read a 7mb file. I noticed that the original kernel
-> (Redhat/Compaq derivative) was compressed and somewhat smaller, about less
-> than half the size. Thanks, Will L G
+In message <Pine.LNX.4.44.0309021626540.1542-100000@localhost.localdomain> you 
+write:
+> On Tue, 2 Sep 2003, Hugh Dickins wrote:
+> When sys_futex passes a uaddr in a VM_MAYSHARE vma, it should be handled
+> by mapping/index (or inode/offset).  When sys_futex passes a uaddr in a
+> !VM_MAYSHARE vma, it should be handled by mm/uaddr.  (If outside vma?)
+> 
+> That's it.  Doesn't a whole lot of code and complication fall away?
+> The physical page is pretty much irrelevant.
 
-Kernel version?
+The physical page is a relic from my original implementation, which
+did "pin page and hash on it".  Life was simple and good, and then
+came FUTEX_FD (which allows more than one futex per process) and
+before Ingo found the COW issue, and added the vcache stuff.
 
-In 2.4.22 and 2.6.0-test, there are targets for ALPHA called vmlinux.gz.
-Have you tried 'make vmlinux.gz' ?
+Now, I am lost in a maze of VM hackers' advice, all slightly
+different 8)
 
-~Randy
+Assume that we do:
+1) Look up vma.
+2) If vma->vm_flags & VM_SHARED, index by page->mapping & page->index.
+3) Otherwise, index by vma->vm_mm & uaddr.
 
+Questions:
+1) What is the difference between VM_SHARED and VM_MAYSHARE?  They
+   always seem to be set/reset together.
 
+2) If VM_SHARED, and page->mapping is NULL, what to do?  AFAICT, this
+   can happen in the case of anonymous shared mappings, say mmap
+   /dev/zero MAP_SHARED and fork()? Treating it as !VM_SHARED (and
+   hence matching in mm & uaddr) won't work, since the mm's will be
+   different (and with mremap, the uaddrs may be different).
 
+3) Since we need the offset in the file anyway for the VM_SHARED, it
+   makes more sense to use get_user_pages() to get the vma and page in
+   one call, rather than find_extend_vma().
+
+4) mremap on a futex: same case as munmap, it's undefined behavior.  A
+   correct program will need to re-wait on the futex anyway.
+
+BTW, the other solution to the COW problem which Ingo thought about (I
+was away on my honeymoon), was to have the child always get the copied
+page, even if the parent caused the COW fault.  If you also always
+un-COW the page in FUTEX_WAIT, this scheme works.  IIRC he said the
+implementation was icky.
+
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

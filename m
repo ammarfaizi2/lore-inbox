@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267373AbSLEU3k>; Thu, 5 Dec 2002 15:29:40 -0500
+	id <S267418AbSLEUkH>; Thu, 5 Dec 2002 15:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267374AbSLEU3k>; Thu, 5 Dec 2002 15:29:40 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:30468 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267373AbSLEU3k>; Thu, 5 Dec 2002 15:29:40 -0500
-Date: Thu, 5 Dec 2002 20:37:08 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Sven Luther <luther@dpt-info.u-strasbg.fr>
-cc: Antonino Daplas <adaplas@pol.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] FBDev: vga16fb port
-In-Reply-To: <20021205180314.GA860@iliana>
-Message-ID: <Pine.LNX.4.44.0212052035330.31967-100000@phoenix.infradead.org>
+	id <S267419AbSLEUkH>; Thu, 5 Dec 2002 15:40:07 -0500
+Received: from adsl-64-163-212-31.dsl.snfc21.pacbell.net ([64.163.212.31]:38393
+	"EHLO gateway.sf.frob.com") by vger.kernel.org with ESMTP
+	id <S267418AbSLEUkG>; Thu, 5 Dec 2002 15:40:06 -0500
+Date: Thu, 5 Dec 2002 12:47:40 -0800
+Message-Id: <200212052047.gB5Kle620684@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: phil-list@redhat.com
+Cc: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: what's the relationship between tgid, tid and pid ?
+In-Reply-To: Hu, Boris's message of  Friday, 6 December 2002 03:36:21 +0800 <957BD1C2BF3CD411B6C500A0C944CA260216C228@pdsmsx32.pd.intel.com>
+X-Shopping-List: (1) Characteristic honey ponds
+   (2) Deboned sycophants
+   (3) Constant approval
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> It seems tid = pid, while tgid is head pthread pid. 
 
-> > Not really. When X closes /dev/fb then fb_release is called which if the 
-> 
-> That supposes X is fbdev aware (either using the fbdev driver or the
-> UseFBDev option), right ? What if X knows nothing about fbdev, it will
-> try restoring stuff as if it was in text mode.
+"tgid" is the PID of the whole POSIX.1 process.
+"pid" is a per-thread PID-like number.
 
-That is what X will try. 
+> But the following lines let me confused.
 
-> >     X on VESA fb always foobars my system when I exit X.
-> 
-> With which driver ? (i am happily running the vesa X driver on top of
-> vesafb without problems).
-
-G400 X server 4.0.2 ontop of VESA framebuffer.
-
-
+You didn't read the rest of the function to see where it's changed again.

@@ -1,83 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313867AbSHBORW>; Fri, 2 Aug 2002 10:17:22 -0400
+	id <S314278AbSHBOTG>; Fri, 2 Aug 2002 10:19:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314077AbSHBORW>; Fri, 2 Aug 2002 10:17:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:28841 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313867AbSHBORV>;
-	Fri, 2 Aug 2002 10:17:21 -0400
-Date: Fri, 2 Aug 2002 16:20:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: martin@dalecki.de, Stephen Lord <lord@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A new ide warning message
-Message-ID: <20020802142037.GT3010@suse.de>
-References: <20020802115940.GF1055@suse.de> <Pine.SOL.4.30.0208021513490.3612-100000@mion.elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0208021513490.3612-100000@mion.elka.pw.edu.pl>
+	id <S314459AbSHBOTG>; Fri, 2 Aug 2002 10:19:06 -0400
+Received: from mail1.cirrus.com ([141.131.3.20]:35996 "EHLO mail1.cirrus.com")
+	by vger.kernel.org with ESMTP id <S314278AbSHBOTF>;
+	Fri, 2 Aug 2002 10:19:05 -0400
+Message-ID: <973C11FE0E3ED41183B200508BC7774C05233F06@csexchange.crystal.cirrus.com>
+From: "Woller, Thomas" <tom.woller@cirrus.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, davidm@hpl.hp.com
+Cc: "Woller, Thomas" <tom.woller@cirrus.com>, audio@crystal.cirrus.com,
+       linux-kernel@vger.kernel.org
+Subject: RE: cs4281 driver cleanup (includes synchronize_irq() update)
+Date: Fri, 2 Aug 2002 09:22:24 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 02 2002, Bartlomiej Zolnierkiewicz wrote:
-> 
-> On Fri, 2 Aug 2002, Jens Axboe wrote:
-> 
-> > On Fri, Aug 02 2002, Jens Axboe wrote:
-> > > On Fri, Aug 02 2002, Marcin Dalecki wrote:
-> > > > U?ytkownik Stephen Lord napisa?:
-> > > > >In 2.5.30 I started getting these warning messages out ide during
-> > > > >the mount of an XFS filesystem:
-> > > > >
-> > > > >ide-dma: received 1 phys segments, build 2
-> > > > >
-> > > > >Can anyone translate that into English please.
-> > > >
-> > > > It can be found in pcidma.c.
-> > > > It is repoting that we have one physical segment needed by
-> > > > the request in question but the sctter gather list allocation
-> > > > needed to break it up for mapping in two.
-> > >
-> > > You don't seem to realise that this is a BUG (somewhere, could even be
-> > > in the generic mapping functions)! blk_rq_map_sg() must never map a
-> > > request to more entries that rq->nr_segments, that's just very wrong.
-> > >
-> > > That's why I'm suspecting the recent pcidma changes. Just a feeling, I
-> > > have not looked at them.
-> >
-> > I'll take that back. Having looked at Adam's changes there are perfectly
-> > fine. I'm now putting my money on IDE breakage somewhere instead. It
-> 
-> Look again Jens. Adam's changes made IDE queue handling inconsistent.
-> hint: 2 * 127 != 255
-> 
-> But noticed warning deals with design of ll_rw_blk.c. ;-)
-> (right now max_segment_size have to be max bv->bv_len aligned)
+thanks david/alan. we just turned our ia64 bit machines back to
+intel, so I can't test itanium any longer.  INTEL didn't have any
+issues with 64-bit functionality that they reported as of the 2.4
+base quite a while back. i looked over the mods and they seem
+fine to me. thanks for the work on the driver
+tom
 
-Yeah that's true, actually was just saying that on linux-scsi
-yesterday/today. 
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Friday, August 02, 2002 8:06 AM
+To: davidm@hpl.hp.com
+Cc: twoller@crystal.cirrus.com; audio@crystal.cirrus.com;
+linux-kernel@vger.kernel.org
+Subject: Re: cs4281 driver cleanup (includes synchronize_irq()
+update)
 
-> Jens, please look at segment checking/counting code, it does it on
-> bv->bv_len (4kb most likely) not sector granuality...
-> 
-> So for not 4kb aligned max_segment_size we will get new segment...
-> 
-> Best fix will be to make block layer count sectors not bv->bv_len...
 
-Well I'm inclined to just make that page size granularity. It's like
-that in 2.4 as well (no guarentees that we will honor anything less than
-that granularity).
+On Fri, 2002-08-02 at 00:31, David Mosberger wrote:
+> The patch below cleans up the cs4281 sound driver to compile
+cleanly
+> (no warnings) on 64-bit platforms such as ia64.  Also, the
+patch
+> updated the calls to synchronize_irq() according to the new
+interface
+> (which takes an irq number as an argument).  Someone who
+understands
+> this driver might want to double check that this is indeed
+working as
+> intended.
 
-> btw. I like Adam's patch but it was draft not to include in mainline (?).
-
-The concept is sound, so it has a bug... I can say the same for other
-stuff in the kernel as well :-)
-
-I probably just wanted more review (my 1 minute review surely wasn't
-enough).
-
--- 
-Jens Axboe
-
+I'll double check it and backport the changes to 2.4

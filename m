@@ -1,73 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265292AbUAQNN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 08:13:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbUAQNN0
+	id S265607AbUAQNQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 08:16:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbUAQNQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 08:13:26 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:54922 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265292AbUAQNNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 08:13:21 -0500
-Date: Sat, 17 Jan 2004 08:13:12 -0500 (EST)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@osdl.org>
-Subject: 2.6.1-mm4
-Message-ID: <Pine.LNX.4.58.0401170708280.14572@localhost.localdomain>
+	Sat, 17 Jan 2004 08:16:28 -0500
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:30529 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S265607AbUAQNPi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 08:15:38 -0500
+From: Bart Samwel <bart@samwel.tk>
+To: Timothy Miller <miller@techsource.com>, Valdis.Kletnieks@vt.edu
+Subject: Re: [OT] Redundancy eliminating file systems, breaking MD5, donating money to OSDL
+Date: Sat, 17 Jan 2004 14:15:31 +0100
+User-Agent: KMail/1.5.4
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <4008480F.70206@techsource.com> <200401162037.i0GKbgWY005453@turing-police.cc.vt.edu> <4008509B.2060707@techsource.com>
+In-Reply-To: <4008509B.2060707@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401171415.31645.bart@samwel.tk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I issued a reboot command under -mm4 and received the following oops some 
-time after the "Sending all processes the TERM signal" message.  This 
-message did not make it into syslog.  Following this oops are one 
-"sleeping function called from invalid context at 
-include/linux/rwsem.h:43" and one "bad: scheduling while atomic!" message.  
-Then I get the message "no more processes left in this runlevel", after 
-which processing stops.  Nothing further appears to happen, but I can 
-still use <SHIFT><PAGE [UP|DOWN]> to scroll screen.
+On Friday 16 January 2004 21:59, Timothy Miller wrote:
+> Valdis.Kletnieks@vt.edu wrote:
+> > On Fri, 16 Jan 2004 15:22:39 EST, Timothy Miller <miller@techsource.com>  
+said:
+> >>Think about it!  If we had a filesystem that actually DID this, and it
+> >>was in the Linux kernel, it would spread far and wide.  It's bound to
+> >>happen that someone will identify a collision.  We then report that to
+> >>the committee offering the reward and then donate it to OSDL to help
+> >>Linux development.
+> >
+> > Actually, it's *not* "bound to happen".  Figure out the number of blocks
+> > you'd need to have even a 1% chance of a birthday collision in a 2**128
+> > space.
+> >
+> > And you'd need that many disk blocks on *a single system*.
+> >
+> > Then figure out the chances of a collision on a small machine that only
+> > has 20 or 30 terabytes (yes, in this case terabytes is small).
+>
+> Certainly.  No one machine is going to find it in a reasonable period.
+> OTOH, if a million machines were doing it, it increases the chances by
+> just that much.
 
-I've typed this in by hand so there may be errors.  This machine is a 
-Presario 12XL325 laptop and does not have a serial port to use as a remote 
-console.  This oops is reproducable, but does not happen on every reboot.
+Let's take a look at the chances. 30 terabytes is, in a best-case scenario 
+(with 512-byte blocks) about 6e10 blocks. That would be roughly 
+6e10*6e10*(2**(-128)), or about 1e-17. With a hundred million machines, the 
+chances of a collision would be about 1e-9, disregarding the fact that all 
+these machines have a large chance of containing similar blocks -- their data 
+isn't truly random, so some blocks have a larger chance of occurring than 
+others. The data sets on the machines are probably reasonably static, so if 
+the collision isn't found *at once* the chances of it occurring later are 
+much smaller. So, even under the most positive assumptions, with a hundred 
+million machines with 30 terabytes of storage each, it's extremely probable 
+that you won't find a collision. (A 96-bit hash could have been broken with 
+this setup however. :) )
 
-Unable to handle kernel paging request at virtual address c778c950
- printing eip:
-c0130555
-*pde = 0001a063
-*pte = 0778c000
-Oops: 0000 (#1]
-PREEMPT DEBUG_PAGEALLOC
-CPU:	0
-EIP:	0060:[<c0130555>]    Not tainted VLI
-EFLAGS: 00010086
-EIP is at __tasklet_schedule+0x35/0x50
-eax: c6e9c000   ebx: 00000046   ecx: 00000186   edx: c778c950
-esi: 00000000   edi: c6eb6950   ebp: c6e9de74   esp: c6e9de70
-ds: 007b   es: 007b   ss: 0068
-Process S01reboot (pid: 3322, threadinfo=c6e9c000 task=c6eb6950)
-Stack: 00000000 c6e9dea8 c012267e 00000000 00000000 c2213fc4 c6e9dec0 
-13aaa68c
-       00895486 3f33cb49 00001640 00000000 c6e9c000 401610c8 c6e9dec0 
-c012212c
-       00000000 00000000 c2117950 c6eb6fe0 c6e9df20 c0128880 00000000 
-01200011
-Call Trace:
-[<c012267e>] scheduler_tick+0x6e/0x6b0
-[<c012212c>] sched_fork+0xbc/0xe0
-[<c0128880>] copy_process+0x5e0/0xfe0
-[<c01292cd>] do_fork+0x4d/0x1c1
-[<c013bba7>] sigprocmask+0xf7/0x2a0
-[<c017b54a>] generic_file_llseek+0x3a/0xf0
-[<c017bc90>] sys_llseek+0xd0/0x100
-[<c0109cef>] sys_clone+0x3f/0x50
-[<c02ec24a>] sysenter_past_esp+0x43/0x65
-
-Code: 0a 3c c0 89 10 83 0d 20 0a 3c c0 20 a3 00 0a 3c c0 b8 00 e0 ff ff 21 
-e0 f7 40 14 00 ff ff 00 75 15 8b 15 40 0b 3c c0 85 d2 74 0b <8b> 02 85 c0 
-75 0a 90 8d 74 26 00 53 9d 5b 5d c3 89 d0 e8 b4 1a
-<6>note: S01reboot[2352] exited with preempt_count 1
-
+-- Bart

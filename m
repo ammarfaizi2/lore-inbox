@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129485AbQK2J2T>; Wed, 29 Nov 2000 04:28:19 -0500
+        id <S129805AbQK2J33>; Wed, 29 Nov 2000 04:29:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129805AbQK2J2K>; Wed, 29 Nov 2000 04:28:10 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:34831 "EHLO zeus.kernel.org")
-        by vger.kernel.org with ESMTP id <S129485AbQK2J17>;
-        Wed, 29 Nov 2000 04:27:59 -0500
-Date: Wed, 29 Nov 2000 09:57:07 +0100 (MET)
+        id <S130671AbQK2J3J>; Wed, 29 Nov 2000 04:29:09 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:43535 "EHLO zeus.kernel.org")
+        by vger.kernel.org with ESMTP id <S129805AbQK2J3C>;
+        Wed, 29 Nov 2000 04:29:02 -0500
+Date: Wed, 29 Nov 2000 09:58:20 +0100 (MET)
 From: Patrick van de Lageweg <patrick@bitwizard.nl>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: Rogier Wolff <wolff@bitwizard.nl>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: [PATCH] atmrefcount
-Message-ID: <Pine.LNX.4.10.10011290948090.492-100000@cave.bitwizard.nl>
+Message-ID: <Pine.LNX.4.10.10011290958010.590-100000@cave.bitwizard.nl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
@@ -1016,6 +1016,7 @@ diff -u -r linux-2.4.0-test11.clean/net/atm/signaling.c linux-2.4.0-test11.atmre
  }
  
  
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

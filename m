@@ -1,98 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271978AbRIMULM>; Thu, 13 Sep 2001 16:11:12 -0400
+	id <S271995AbRIMUSc>; Thu, 13 Sep 2001 16:18:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272020AbRIMULC>; Thu, 13 Sep 2001 16:11:02 -0400
-Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:40646 "HELO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with SMTP
-	id <S272056AbRIMUKs> convert rfc822-to-8bit; Thu, 13 Sep 2001 16:10:48 -0400
-Subject: RE: FW: OT: Integrating Directory Services for Linux
-From: Nils Philippsen <nils@wombat.dialup.fht-esslingen.de>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <001c01c139ee$bef37330$1f0201c0@w2k001>
-In-Reply-To: <001c01c139ee$bef37330$1f0201c0@w2k001>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.13.99 (Preview Release)
-Date: 13 Sep 2001 22:10:04 +0200
-Message-Id: <1000411805.19631.29.camel@wombat>
+	id <S272020AbRIMUSW>; Thu, 13 Sep 2001 16:18:22 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:16907 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S271995AbRIMUSG>; Thu, 13 Sep 2001 16:18:06 -0400
+Date: Thu, 13 Sep 2001 22:18:26 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: chris@boojiboy.eorbit.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9-ac9 APM w/Compaq 16xx laptop...
+Message-ID: <20010913221826.C742@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010913091748.A21626@arthur.ubicom.tudelft.nl> <200109131955.MAA07591@boojiboy.eorbit.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200109131955.MAA07591@boojiboy.eorbit.net>; from chris@boojiboy.eorbit.net on Thu, Sep 13, 2001 at 12:55:56PM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-09-10 at 13:50, Ron Van Dam wrote:
-[snip]
-> >>PAM is the standardized and agreed-upon method for divorcing
-> >>authentication from the system.  It's been like that for quite some time
-> >>now.  What if this discussion was about some Linux GUI apps not being
-> >>compatible with X?  The boat's been sailing for quite some time, either
-> >>hop on or build your own, I say, or swim (sink?).
-> <snip>
-> >>What's wrong with the name service switch stuff?  and more importantly,
-> >>PAM?
+On Thu, Sep 13, 2001 at 12:55:56PM -0700, chris@boojiboy.eorbit.net wrote:
+> > Could you also tell what the kernel thinks about your laptop? It should
+> > print things like "BIOS Vendor: Phoenix Technologies LTD".
 > 
-> In my opinion PAM is a hack, and it breaks a compatibly with a lot of stuff
+> Here is the newly patched dmesg output:
+> 
+> Linux version 2.4.9-ac9 (root@oso) (gcc version 2.95.3 20010315 (release)) #1 Thu Sep 13 10:51:23 PDT 2001
+> ...
+> Initializing RT netlink socket
+> DMI 2.2 present.
+> 11 structures occupying 403 bytes.
+> DMI table at 0x000DC010.
+> BIOS Vendor: Phoenix Technologies LTD
+> BIOS Version: 4.06
+> BIOS Release: 08/16/99
+> System Vendor: Compaq.
+> Product Name: Compaq PC.
+> Version 0F0B.
+> Serial Number 1V96CLS9D42J.
+> Board Vendor: Compaq.
+> Board Name: 0548h.
+> Board Version: Rev.A.
+> Asset Tag: No Asset Tag.
+> apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)
 
-Can you elaborate on that? IMO what PAM does is the only sensible thing
-to do: abstraction of the authentication procedure. You cannot have
-different authentication schemata (passwords (encrypted with Unix
-crypt(), MD5, algorithm-of-the-month), smart-cards, biometrical
-methods), multiple independently developed programs and stay sane
-without such a thing as PAM in place. One can discuss _how_ PAM does
-what it does, but _what_ it does only makes sense.
+Right, this might give some clues to diferentiate between board
+revisions. Now we only need the output from a Compaq 12XL125 to see if
+it differs.
 
-> out there. I really don't care what technology is used to get the job done.
-> But as I said in a earlier post I don't see how DS can become reality unless
-> there is a standard supported by everyone.
+But the most important question now is: does it work? Can you halt and
+reboot your machine?
 
-That won't happen. What you propose induces a single point of failure
-where it isn't necessary. Personally I like that if something screws up
-my nameserver configuration that I still can login -- this is one point
-why I abhor anything remotely resembling to a registry, a centralized
-configuration database (or directory if you wish). Think of what would
-happen if some bits flipped in your directory and all of a sudden root
-can't write to disk anymore (ok, I'm painting black here).
 
-> What if some less then enthusiastic has semi-mangled a /etc file. Can you
-> guarantee that the  script will correctly parse and modify it? Scripting
-> works fine if the machines are completely uniform, but I bet you there are a
-> lot of sysadmins that would be weary of perform a large scale change on
-> /etc/*.conf files.
+Erik
 
-In that scale, any configuration files rolled out to my machines would
-be generated from scratch, i.e. with templates or a similar technique.
-
-> I know I am going to get some dirty looks about this, but also consider the
-> scenerio that a larger company wants to move off of Windows to Linux for the
-> desktop. To start off most of your desktop support technicians will NOT be
-> capable of writing scripts to apply changes. With a DS system in place you
-> can create admin tools that dumb down the configuration. I know some people
-> will consider this a week argument,but its true.
-
-You can even create "admin tools that dumb down the configuration" with
-the current arcane method of plain ASCII configuration files. Not that
-I'd like admins who need dumbed down configuration to administer my
-machines. If you want working machines, you need skilled personnel to
-operate them -- that's my opinion. If you have a network of NT machines,
-you know a decent admin by his ability to script his tasks. Switching
-from scripting on Windows to Unix/Linux shouldn't be hard, rather the
-opposite.
-
-> I believe that in order for Linux to reach the desktop, there has to be a
-> method to manage them easier than the current available tools. I think
-> DS is the best approach.
-
-In order for Linux to reach the desktop, there is a lot to be done, but
-I suspect it more in the areas of user interfaces (interoperability
-between KDE and GNOME for instance, decent help systems),
-interoperability with MS Office, games. The admin tools that exist now
-are mostly sufficient when it comes to end users.
-
-Nils
 -- 
- Nils Philippsen / Berliner Straﬂe 39 / D-71229 Leonberg //
-+49.7152.209647
-nils@wombat.dialup.fht-esslingen.de / nils@redhat.de /
-nils@fht-esslingen.de
-        Ever noticed that common sense isn't really all that common?
-
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

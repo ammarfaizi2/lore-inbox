@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265965AbTFWGWv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 02:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265969AbTFWGWv
+	id S262321AbTFWG3f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 02:29:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTFWG3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 02:22:51 -0400
-Received: from dp.samba.org ([66.70.73.150]:16554 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265965AbTFWGWu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 02:22:50 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ed Okerson <eokerson@quicknet.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@rustcorp.com.au
-Subject: Re: [patch] ixj.c: EXPORT_SYMBOL of static functions 
-In-reply-to: Your message of "22 Jun 2003 12:23:07 +0100."
-             <1056280986.2075.8.camel@dhcp22.swansea.linux.org.uk> 
-Date: Mon, 23 Jun 2003 16:31:42 +1000
-Message-Id: <20030623063657.36B612C413@lists.samba.org>
+	Mon, 23 Jun 2003 02:29:35 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:45324 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S262321AbTFWG3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 02:29:33 -0400
+Message-ID: <3EF6A1A3.4080401@snapgear.com>
+Date: Mon, 23 Jun 2003 16:43:47 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.73-uc0 (MMU-less fix ups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1056280986.2075.8.camel@dhcp22.swansea.linux.org.uk> you write:
-> On Sul, 2003-06-22 at 02:02, Adrian Bunk wrote:
-> > drivers/telephony/ixj.c EXPORT_SYMBOL's two static functions.
-> > 
-> > Does this make any sense or is the patch below OK?
-> 
-> It's meant to export them. An exported static function is visible to
-> other modules.
+Hi All,
 
-But only to modules.  In general, exported shouldn't be static.
+An update of the uClinux (MMU-less) fixups against 2.5.73.
+Nothing much new in this one over the 2.5.72-uc0, but the ChangeLog
+(below) mostly still applies.
 
-Someone care to clarify who uses these?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.73-uc0.patch.gz
+
+
+
+Change Log:
+
+. patch against 2.5.73                          me
+. merge flat format shared lib support          David McCullough
+. CONFIG_BOOT_PARAM for m68knommu               Bernardo Innocenti
+. avoid ROMfs copy if not enabled               Bernardo Innocenti
+. fix ColdFire serial irq handler return type   me
+. separate m68knommu int setup code             Georges Menie
+. Dragon Engine 2 start code fixups             Georges Menie
+. fixup m68knommu do_fork() calls               me
+. clean up m68knommu access_ok()                me
+. simplify show_process_blocks() for !MMU       Bernardo Innocenti
+. !MMU stubs for proc_pid_maps                  me
+. clean up types in bitops.h for m68knommu      me
+. change args to m68knommu show_stack()         me
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264978AbTFYT3l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 15:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbTFYT3k
+	id S264973AbTFYT3A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 15:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbTFYT3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 15:29:40 -0400
-Received: from pushme.nist.gov ([129.6.16.92]:48537 "EHLO postmark.nist.gov")
-	by vger.kernel.org with ESMTP id S264978AbTFYT3Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 15:29:24 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Relieving lowmem pressure on a highmem box, 2.4
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: Wed, 25 Jun 2003 15:43:11 -0400
-Message-ID: <m3k7balz8w.fsf@nist.gov>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 Jun 2003 15:29:00 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:59047 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264973AbTFYT25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 15:28:57 -0400
+Date: Wed, 25 Jun 2003 21:42:50 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Marcus Metzler <mocm@metzlerbros.de>
+Cc: Christoph Hellwig <hch@infradead.org>, mocm@mocm.de,
+       Michael Hunold <hunold@convergence.de>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: DVB Include files
+Message-ID: <20030625194250.GF1770@wohnheim.fh-wedel.de>
+References: <20030625175513.A28776@infradead.org> <16121.55366.94360.338786@sheridan.metzler> <20030625181606.A29104@infradead.org> <16121.55873.675690.542574@sheridan.metzler> <20030625182409.A29252@infradead.org> <16121.56382.444838.485646@sheridan.metzler> <20030625185036.C29537@infradead.org> <16121.58735.59911.813354@sheridan.metzler> <20030625191532.A1083@infradead.org> <16121.60747.537424.961385@sheridan.metzler>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <16121.60747.537424.961385@sheridan.metzler>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 25 June 2003 20:43:23 +0200, Marcus Metzler wrote:
+> Christoph Hellwig writes:
+>  > On Wed, Jun 25, 2003 at 08:09:51PM +0200, Marcus Metzler wrote:
+>  > >  > If the structures change incompatibly you're fucked anyway.  Better
+>  > > 
+>  > > Not necessarily, e.g. changing
+>  > > 
+>  > > #define AUDIO_SET_ATTRIBUTES       _IOW('o', 17, audio_attributes_t)
+>  > > #define AUDIO_SET_KARAOKE          _IOW('o', 18, audio_karaoke_t)
+>  > > 
+>  > > to 
+>  > > 
+>  > > #define AUDIO_SET_ATTRIBUTES       _IOW('o', 47, audio_attributes_t)
+>  > > #define AUDIO_SET_KARAOKE          _IOW('o', 48, audio_karaoke_t)
+>  > > 
+>  > > or
+>  > 
+>  > In that case yes, you are screwed.  Your ABI just changed incompatibly.
+> 
+> Not if you recompile.
 
-I have a Dell server with 12GB of RAM in it which is having a lot of
-trouble with lowmem pressure.  wli's bloatmeter script shows that it's
-a lot of buffer-heads and inodes.
+Isn't the point of an application _binary_ interface, that you don't
+have to recompile?
 
-$ bloatmost | head -4
-         buffer_head:   191316KB   211893KB   90.28
-         inode_cache:    64813KB    66097KB   98.5
-             size-64:       82KB    10871KB    0.75
-             size-32:       95KB     5694KB    1.68
+Jörn
 
-$ cat /proc/slabinfo | sort -k 2,2n | tail
-size-512            1052   1176    512  132  147    1 :  124   62
-dentry_cache        1068   2580    128   86   86    1 :  252  126
-blkdev_requests     1200   1200    128   40   40    1 :  252  126
-filp                1230   1230    128   41   41    1 :  252  126
-size-32             1532  91118     64   42 1571    1 :  252  126
-pte_chain           2466  13050    128  157  435    1 :  252  126
-size-128            2946   3450    128  115  115    1 :  252  126
-vm_area_struct      3192   4830    128  138  161    1 :  252  126
-inode_cache       129503 132195    512 18885 18885    1 :  124   62
-buffer_head       2043732 2260200     96 56450 56505    1 :  252  126
-
-What's a good solution for this?  I'm not ready to move to 2.5, since
-stability is pretty important for us, but patching 2.4 should be OK.
-The current kernel is RedHat's 2.4.20-18.8 (SMP, BIGMEM; HIGHMEM
-option set to 64GB).
-
-Thanks in advance,
-Ian
-
+-- 
+It does not matter how slowly you go, so long as you do not stop.
+-- Confucius

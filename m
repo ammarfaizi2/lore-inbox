@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284902AbSAPSHS>; Wed, 16 Jan 2002 13:07:18 -0500
+	id <S285369AbSAPSI4>; Wed, 16 Jan 2002 13:08:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285666AbSAPSHI>; Wed, 16 Jan 2002 13:07:08 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:676 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S284902AbSAPSGw>;
-	Wed, 16 Jan 2002 13:06:52 -0500
-From: Janet Morgan <janetmor@us.ibm.com>
-Message-Id: <200201161806.g0GI6cE18783@eng4.beaverton.ibm.com>
-Subject: raw readv/writev
-To: linux-kernel@vger.kernel.org
-Date: Wed, 16 Jan 2002 10:06:38 -0800 (PST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S285498AbSAPSIu>; Wed, 16 Jan 2002 13:08:50 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:44041 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S285369AbSAPSIb>;
+	Wed, 16 Jan 2002 13:08:31 -0500
+Date: Wed, 16 Jan 2002 19:08:20 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Frank Jacobberger <f1j@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sysv.o and 2.4.18-pre4
+Message-Id: <20020116190820.69ed3909.skraw@ithnet.com>
+In-Reply-To: <3C45B8BC.4060600@xmission.com>
+In-Reply-To: <3C45B8BC.4060600@xmission.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two versions of a patch for improving the performance of readv/writev  
-for raw io, and I'm not sure which is the better approach.
+On Wed, 16 Jan 2002 10:30:36 -0700
+Frank Jacobberger <f1j@xmission.com> wrote:
 
-The current implementation calls read/write for each iovec (unless an override 
-routine is defined).  So an 8x32K readv, for example, runs about twice as
-slow as a single 256K read.  Both versions of the patch nearly eliminate 
-this performance gap.
+> Alan Cox stated:
+> 
+> ac>Please check the archives of the list. The sis_ drm one has been 
+> discussed
+> 
+> sysv hasn't.
 
-The first version coalesces the iovecs (up to KIO_MAX_SECTORS bytes of data) 
-into a single kiobuf (pre-allocated at file open) and issues 1 call to 
-brw_kiovec to submit the io.  The 2nd version of the patch also groups the 
-iovecs into a single call to brw_kiovec, but uses one kiobuf per iovec.
+No, but the problem has:
 
-Mapping discontiguous virtual memory into a single kiobuf is unconventional,
-but minimizes the number of pre-allocated buffer heads (1024 per kiobuf).
-It also avoids some of the logistics involved in using one kiobuf for each 
-iovec (e.g., when should the kiobufs be allocated/freed and should there
-be a system-wide limit on the number of kiobufs in use for this purpose).
+Add "EXPORT_SYMBOL(waitfor_one_page);" to kernel/ksyms.c.
 
-Thanks, 
--Janet 
+(Marcelo)
+
+Regards,
+Stephan
+
+

@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264711AbTAEMxb>; Sun, 5 Jan 2003 07:53:31 -0500
+	id <S264729AbTAEM7Y>; Sun, 5 Jan 2003 07:59:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264715AbTAEMxb>; Sun, 5 Jan 2003 07:53:31 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:17157 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S264711AbTAEMxa>;
-	Sun, 5 Jan 2003 07:53:30 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301051302.h05D21DT001147@darkstar.example.net>
-Subject: Re: inconsistent xconfig menu for "Wirless LAN (non-hamradio)"
-To: rpjday@mindspring.com (Robert P. J. Day)
-Date: Sun, 5 Jan 2003 13:02:01 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0301050737500.18541-100000@dell> from "Robert P. J. Day" at Jan 05, 2003 07:45:12 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264716AbTAEM7Y>; Sun, 5 Jan 2003 07:59:24 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:6342 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264715AbTAEM7W>;
+	Sun, 5 Jan 2003 07:59:22 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 5 Jan 2003 14:07:39 +0100 (MET)
+Message-Id: <UTC200301051307.h05D7da08203.aeb@smtp.cwi.nl>
+To: mdharm-kernel@one-eyed-alien.net
+Subject: Re: inquiry in scsi_scan.c
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   since that card uses the hermes chipset, i naturally selected
-> "Hermes chipset 802.11b ...".  but wait -- a few lines down, there's
-> a comment, "Wireless Pcmcia/Cardbus cards support."  strange, i
-> could have sworn i selected something like that a few lines up
-> already.
+Matthew Dharm writes:
 
-In my opinion, options like that should be called "Generic Hermes
-chipset 802.11b support".
+> Instead of fixing this in usb-storage, I think I would rather make
+> scsi_scan.c just assume a minimum of 36.
 
->   worse, even further down, there's "Hermes PCMCIA card support,"
-> for which the original selection has help that tells me that it was
-> necessary for me to select this later feature.  in that case,
-> if it's *required*, i shouldn't have any freedom -- the config
-> should select it for me.
+No, because (for SCSI-1) the minimum is 5.
 
-No, there might be a reason not to have options selected which are
-"required", and that needs to be possible whichever kernel
-configurator is being used.
+> Or, put another way, if the first request indicates less than 36, why
+> should we do a second request?  We already have all the data...
 
->   anyway, you the idea -- for my poor, little LinkSys WFC-11 card,
-> there are too many selections in that menu that seem to apply to me,
-> some of which should be more tightly related, or subsumed in a 
-> submenu.
+We don't do a second request.
 
-The *best* thing to do is to make the help text more helpful, because
-that way it explains the configuration to the user, instead of just
-doing it for them.
+> Actually, we ask for 36 and get 36, but the field in the response which is
+> supposed to tell us how much there is total is zeroed out, instead of
+> having a real value.
 
-John.
+Right.
+
+> All we need to do is recognize when that field indicates less than 36
+> bytes, and then stop asking for anything else.  Either (a) the device is
+> lying, in which case our original INQUIRY is fine, or (b) the device really
+> has less than 36 bytes, which means that we already have all the data.
+
+I think you misunderstand the problems. We do not ask for anything else.
+There are two problems: a SCSI and a USB problem.
+
+In the SCSI code a length of 5 is legal. Now the code
+allocates space for these 5 bytes but subsequently uses
+pointers to vendor etc that point past the end of the allocated area.
+If ever anything is written via these pointers random memory is corrupted.
+And "cat /proc/scsi/scsi" shows randow junk.
+A bug that has to be fixed, independently of USB.
+
+The SCSI code has no means of knowing the actual length transferred,
+so has no choice but to believe the length byte in the reply.
+But the USB code does the transferring itself, and knows precisely
+how many bytes were transferred. If 36 bytes were transferred and
+the additional length byte is 0, indicating a length of 5, then the
+USB code can fix the response and change the additional length byte
+to 31, indicating a length of 36. That way the SCSI code knows that
+not 5 but 36 bytes are valid, and it gets actual vendor and model strings.
+
+Andries
+
+
+[the code I showed does the right things; will submit actual diffs
+sooner or later]

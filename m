@@ -1,54 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVDEFjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVDEFkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbVDEFjP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 01:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVDEFjP
+	id S261503AbVDEFkH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 01:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVDEFkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 01:39:15 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:33173 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261494AbVDEFjM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 01:39:12 -0400
-Date: Tue, 5 Apr 2005 07:39:06 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Frank Rowand <frowand@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] ppc RT: Realtime preempt support for PPC
-Message-ID: <20050405053906.GA19062@elte.hu>
-References: <422CCC1D.1050902@mvista.com> <20050316100914.GA16012@elte.hu> <423F691E.200@mvista.com> <424B542F.9090308@mvista.com> <20050331091614.GB22397@elte.hu> <424DDF5F.9080909@mvista.com>
+	Tue, 5 Apr 2005 01:40:07 -0400
+Received: from smtp12.wanadoo.fr ([193.252.22.20]:18513 "EHLO
+	smtp12.wanadoo.fr") by vger.kernel.org with ESMTP id S261503AbVDEFj4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 01:39:56 -0400
+X-ME-UUID: 20050405053955605.93C831C00088@mwinf1209.wanadoo.fr
+Date: Tue, 5 Apr 2005 07:36:38 +0200
+To: Greg KH <greg@kroah.com>, Sven Luther <sven.luther@wanadoo.fr>,
+       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/04] Load keyspan firmware with hotplug
+Message-ID: <20050405053638.GB4604@pegasos>
+References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com> <20050405042329.GA10171@delft.aura.cs.cmu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <424DDF5F.9080909@mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050405042329.GA10171@delft.aura.cs.cmu.edu>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 05, 2005 at 12:23:29AM -0400, Jan Harkes wrote:
+> On Mon, Apr 04, 2005 at 12:17:46PM -0700, Greg KH wrote:
+> > On Mon, Apr 04, 2005 at 08:27:53PM +0200, Sven Luther wrote:
+> > > Mmm, probably that 2001 discussion about the keyspan firmware, right ?
+> > > 
+> > >   http://lists.debian.org/debian-legal/2001/04/msg00145.html
+> > > 
+> > > Can you summarize the conclusion of the thread, or what you did get from it,
+> > > please ? 
+> > 
+> > That people didn't like the inclusion of firmware, I posted how you can
+> > fix it by moving it outside of the kernel, and asked for patches.
+> > 
+> > None have come.
+> 
+> Didn't know you were waiting for it. How about something like the
+> following series of patches?
+> 
+> [01/04] - add simple Intel IHEX format parser to the firmware loader.
+> [02/04] - make the keyspan driver use request_firmware.
+> [03/04] - converter program used to dump the keyspan headers as IHex files.
+> [04/04] - result of running the previous program.
+> 
+> This ofcourse doesn't actually solve Debian's distribution issues since
+> the keyspan firmware can only be distributed as part of 'Linux or other
+> Open Source operating system kernel'.
 
-* Frank Rowand <frowand@mvista.com> wrote:
+Well, if this is the case, it can be distributed on the non-free archive.
 
-> I looked at all the architectures and found that the disparity of the 
-> type of the "lock" field in struct rwlock_t is even larger than I had 
-> indicated in my earlier email.  I am attaching a proof of concept 
-> patch to handle this.  If this looks like a good method to you then I 
-> will create a real patch against your current patch, and include i386, 
-> mips, x86_64, and ppc.
+> > So I refuse to listen to talk about this, as obviously, no one cares
+> > enough about this to actually fix the issue.
+> 
+> I got tired of always building my own kernels on Debian just to get my
+> serial dongle to work since their included keyspan.ko driver is so
+> useless that it isn't even worth having. The only way to use it with a
+> Debian kernel is to have the dongle in a powered hub and first boot into
+> Windows or a normal kernel.org kernel to get the thing initialized.
 
-> +#include <asm/raw_spinlock.h>
+The non-free driver package should solve that for you.
 
->  typedef struct {
-> -       volatile unsigned long lock;
-> +       ARCH_RAW_RWLOCK_LOCK
+> Didn't send the patch earlier since I wanted to split off the
+> pre-numeration part of the driver so that after intialization we can
+> unload the unused parts of the driver as well as the the firmware class
+> module.
 
-maybe the simplest method would be to let architectures to define the 
-raw spinlock type after all. I was hoping to standardize things across 
-all architectures, but maybe it's not possible.
+Friendly,
 
-	Ingo
+Sven Luther
+

@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263910AbRFIXPm>; Sat, 9 Jun 2001 19:15:42 -0400
+	id <S264492AbRFIXiu>; Sat, 9 Jun 2001 19:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263916AbRFIXPc>; Sat, 9 Jun 2001 19:15:32 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:28063 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263910AbRFIXP3>;
-	Sat, 9 Jun 2001 19:15:29 -0400
-Date: Sat, 9 Jun 2001 19:15:27 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: watermodem <aquamodem@ameritech.net>
-cc: Mike Galbraith <mikeg@wen-online.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregistertable
-In-Reply-To: <3B229E95.F7E85C90@ameritech.net>
-Message-ID: <Pine.GSO.4.21.0106091850440.19361-100000@weyl.math.psu.edu>
+	id <S264491AbRFIXij>; Sat, 9 Jun 2001 19:38:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46089 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263916AbRFIXic>; Sat, 9 Jun 2001 19:38:32 -0400
+Subject: Re: [patch] ess maestro, support for hardware volume control
+To: pfaffben@msu.edu
+Date: Sun, 10 Jun 2001 00:36:21 +0100 (BST)
+Cc: alan@redhat.com (Alan Cox), lukas@edeal.de (Lukas Schroeder),
+        zab@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <87elst2vr2.fsf@pfaffben.user.msu.edu> from "Ben Pfaff" at Jun 09, 2001 05:23:13 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E158sHF-0004Vl-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> BTW, what is the officially approved way to open a device on a
+> dynamic misc minor?  Reading /proc/misc for the minor number,
 
+Ask for minor 0 I believe, then load the module then see what you got.
 
-On Sat, 9 Jun 2001, watermodem wrote:
+> then mknod'ing a device and opening it seems to me to have a
+> nasty race condition, am I missing something here?
 
-> He is discussing a theme with legal implications. (Legal and Slow tended
-> to be intertwined)  I know what his position in the linux kernel
-> hierarchy is, and if he were in a corporation with that position he
-> could just say NO without any reason.  But, linux development is
-> portrayed as something "open" and "of the people" not a closed corporate
-> offering.  Now, if that is not the case, then just take out all the
-> flowery words from the license and replace it with the unstated but
-> defacto communist motto "What's mine is mine What's yours is mine!". 
-
-Pot. Kettle. Black.  You are one who tries to tell other people what
-can be done with their code.  With all my personal dislike of GPL
-(I use it if the project I'm working on does, but I won't use it
-for anything else), Dave _has_ right to choose the license he likes
-and you'd bloody better respect that.  Author has absolute right
-to set the conditions for using his thing.  If they are unacceptable
-for you - nobody forces you to use it.  Any whining about that places
-you on the level of Napster wankers.  Now, bugger off - go play with
-"social hackers" or something...
+Ultimately if its a device of its own it probably wants to be part of the
+input device frame work - as for example the volume knob on my USB speakers is
 

@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318190AbSGPVDt>; Tue, 16 Jul 2002 17:03:49 -0400
+	id <S318217AbSGPVKR>; Tue, 16 Jul 2002 17:10:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318191AbSGPVDs>; Tue, 16 Jul 2002 17:03:48 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:15880 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S318190AbSGPVDq>; Tue, 16 Jul 2002 17:03:46 -0400
-Date: Tue, 16 Jul 2002 23:06:39 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020716210639.GC30235@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020716193831.GC22053@merlin.emma.line.org> <Pine.LNX.4.44.0207161408270.3452-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: application/pgp; x-action=sign; format=text
-Content-Disposition: inline; filename="msg.pgp"
-In-Reply-To: <Pine.LNX.4.44.0207161408270.3452-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.4i
+	id <S318219AbSGPVKQ>; Tue, 16 Jul 2002 17:10:16 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:18175 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318217AbSGPVKO>; Tue, 16 Jul 2002 17:10:14 -0400
+Date: Tue, 16 Jul 2002 23:13:00 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Daiki Ueno <ueno@unixuser.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] orinoco_pci.c build fix
+In-Reply-To: <44a4b565-6a1b-420d-9729-378868991c76@deisui.org>
+Message-ID: <Pine.NEB.4.44.0207162025010.16056-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Tue, 16 Jul 2002, Thunder from the hill wrote:
+On Wed, 17 Jul 2002, Daiki Ueno wrote:
 
 > Hi,
-> 
-> On Tue, 16 Jul 2002, Matthias Andree wrote:
-> > > or the blockdevice-level snapshots already implemented in Linux..
-> > 
-> > That would require three atomic steps:
-> > 
-> > 1. mount read-only, flushing all pending updates
-> > 2. take snapshot
-> > 3. mount read-write
-> > 
-> > and then backup the snapshot. A snapshots of a live file system won't
-> > do, it can be as inconsistent as it desires -- if your corrupt target is
-> > moving or not, dumping it is not of much use.
-> 
-> Well, couldn't we just kindof lock the file system so that while backing 
-> up no writes get through to the real filesystem? This will possibly 
-> require a lot of memory (or another space to write to), but it might be 
-> done?
 
-But you would want to backup a consistent file system, so when entering
-the freeze or snapshot mode, you must flush all pending data in such a
-way that the snapshot is consistent (i. e. needs not fsck action
-whatsoever).
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Hi,
 
-iD8DBQE9NIrfFmbjPHp/pcMRAkAyAJ4wQhTUafOHDrmmA2DGrFKn9NEOHwCdHM3Q
-UdlrkGbhUynS86ogxstbdQM=
-=vK/f
------END PGP SIGNATURE-----
+> While I've tried to get drivers/net/wireless/orinoco_pci.c compiled in,
+> I happened to get an error:
+>
+> >drivers/net/wireless/wireless_net.o(.data+0x534): undefined reference to `local symbols in discarded section .text.exit'
+>
+> Is there a missing __devexit_p?  Here is the patch to 2.4.19-rc1.
+>
+> --- drivers/net/wireless/orinoco_pci.c~	Wed Jul 17 02:37:33 2002
+> +++ drivers/net/wireless/orinoco_pci.c	Wed Jul 17 02:38:22 2002
+> @@ -364,9 +364,11 @@
+>  	name:"orinoco_pci",
+>  	id_table:orinoco_pci_pci_id_table,
+>  	probe:orinoco_pci_init_one,
+> -	remove:orinoco_pci_remove_one,
+> +	remove:__devexit_p(orinoco_pci_remove_one),
+> +#ifdef CONFIG_PM
+>  	suspend:0,
+>  	resume:0
+> +#endif /* CONFIG_PM */
+>  };
+>
+>  static int __init orinoco_pci_init(void)
+
+
+a similar __devexit_p-patch is already in in Marcelo's BK repository (and
+it will therefore be in -rc2). Why do you think the #ifdef CONFIG_PM is
+needed?
+
+
+> Regards,
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+
+

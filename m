@@ -1,48 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVBPQGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVBPQHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262058AbVBPQGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 11:06:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVBPQGY
+	id S262061AbVBPQHb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 11:07:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVBPQHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 11:06:24 -0500
-Received: from fire.osdl.org ([65.172.181.4]:56249 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262058AbVBPQGK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 11:06:10 -0500
-Date: Wed, 16 Feb 2005 08:06:00 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: Roman Zippel <zippel@linux-m68k.org>, Andreas Schwab <schwab@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Pty is losing bytes
-In-Reply-To: <20050216144203.GB7767@thunk.org>
-Message-ID: <Pine.LNX.4.58.0502160802510.2383@ppc970.osdl.org>
-References: <jebramy75q.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
- <je1xbhy3ap.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151239160.2330@ppc970.osdl.org>
- <Pine.LNX.4.61.0502160405410.15339@scrub.home> <Pine.LNX.4.58.0502151942530.2383@ppc970.osdl.org>
- <20050216144203.GB7767@thunk.org>
+	Wed, 16 Feb 2005 11:07:30 -0500
+Received: from web50201.mail.yahoo.com ([206.190.38.42]:3430 "HELO
+	web50201.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262061AbVBPQHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 11:07:11 -0500
+Message-ID: <20050216160710.23689.qmail@web50201.mail.yahoo.com>
+Date: Wed, 16 Feb 2005 08:07:10 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: Thoughts on the "No Linux Security Modules framework" old claims
+To: Lorenzo =?ISO-8859-1?Q?=20=22Hern=E1ndez=22?=
+	 =?ISO-8859-1?Q?=20=22Garc=EDa-Hierro=22?= <lorenzo@gnu.org>,
+       Valdis.Kletnieks@vt.edu
+Cc: rsbac@rsbac.org,
+       "linux-security-module@wirex.com" <linux-security-module@wirex.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1108560543.3826.89.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--- Lorenzo Hernández García-Hierro <lorenzo@gnu.org>
+wrote:
 
-On Wed, 16 Feb 2005, Theodore Ts'o wrote:
-> 
-> The comment above the test explains why that test is there in
-> n_tty_receive_room.  If that test isn't there, and we are doing input
-> canonicalization, when the buffer gets full
 
-Yes, yes, but did you see my suggested version that I had just below that
-explained what I thought the real fix was?
+> ... but think it's main
+> shortcoming is that it cuts
+> performance
 
-Th eproblem with checking for the "canon but no canon data" is that it's a
-special case that IS ONLY VALID WHEN THE BUFFER IS FULL! Until that
-happens, it means that the code returns the wrong value, and then can
-(obviously, as seen by the bug) drop bytes even when it shouldn't.
+Ya'know, I keep hearing this assertion, but
+the evidence of actual system implementations
+that have been measured to determine this
+"performance impact" is that there is no
+difference except in contrived cases. In
+contrived cases the performance is better
+if you do the "special" checks first.
 
-That's why my suggested work-around moved things around, to only return 
-the "we'll take anything" thing if the buffer really was full.
+> and adds further overlapping to the DAC
+> checks, that should
+> be the first ones being called (as most times they
+> do) and then apply
+> the LSM basis, so, post-processing will be only
+> required if the DAC
+> checks get in override or passed, without adding
+> too-much overhead to
+> the current behavior.
 
-		Linus
+No. There are a number of reasons, including
+audit and nearline storage issues that make it
+important to do the special checks first. Some
+access control schemes may not work if the
+Classic DAC check is done first.
+
+> So, I just agree partially, but yes, maybe modifying
+> the DAC checks
+> themselves and add what-ever-else helper function to
+> handle by-default
+> auditing in certain operations could be interesting.
+
+I remain a advocate of authoritative hooks.
+
+> I think it could be worthy to have a roadmap in a
+> wiki or even talk
+> about a one, trying to write it, so, we all could
+> know what needs to be
+> improved and done, getting a higher percentage of
+> mainline-accepted
+> approaches.
+
+Sigh.
+
+
+=====
+Casey Schaufler
+casey@schaufler-ca.com
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

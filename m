@@ -1,66 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318242AbSGWU3d>; Tue, 23 Jul 2002 16:29:33 -0400
+	id <S318228AbSGWUZP>; Tue, 23 Jul 2002 16:25:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318244AbSGWU3d>; Tue, 23 Jul 2002 16:29:33 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38900 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S318242AbSGWU3c>;
-	Tue, 23 Jul 2002 16:29:32 -0400
-Message-ID: <3D3DBD4B.4EFD3543@mvista.com>
-Date: Tue, 23 Jul 2002 13:32:11 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S318227AbSGWUZP>; Tue, 23 Jul 2002 16:25:15 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:3712 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S318228AbSGWUZN>;
+	Tue, 23 Jul 2002 16:25:13 -0400
+Date: Tue, 23 Jul 2002 13:26:38 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Dave Jones <davej@suse.de>
+cc: Markus Pfeiffer <profmakx@profmakx.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: CPU detection broken in 2.5.27?
+In-Reply-To: <20020723212957.B16446@suse.de>
+Message-ID: <Pine.LNX.4.44.0207231314390.954-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: odd memory corruption in 2.5.27?
-References: <Pine.LNX.4.44.0207231053190.32636-100000@linux-box.realnet.co.sz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> 
-> On Tue, 23 Jul 2002, Trond Myklebust wrote:
-> 
-> > Just means that some RPC message reply from the server was crap. We should
-> > deal fine with that sort of thing...
-> >
-> > AFAICS The Oops itself happened deep down in the socket layer in the part
-> > which has to do with reassembling fragments into packets. The garbage
-> > collector tried to release a fragment that had timed out and Oopsed.
-> >
-> > Suggests either memory corruption or else that the networking driver is doing
-> > something odd ('cos at that point in the socket layer *only* the driver + the
-> > fragment handler should have touched the skb).
-> 
-> Thanks, that helps quite a bit, i'll see if i can pinpoint it and send it
-> to the relevant people.
-> 
-I just spent a month tracking down this issue.  It comes
-down to the slab allocater using per cpu data structures and
-protecting them with a combination of interrupt disables and
-spin_locks.  Preemption is allowed (incorrectly) if
-interrupts are off and preempt_count goes to zero on the
-spin_unlock.  I will wager that this is an SMP machine. 
-After the preemption interrupts will be on (schedule() does
-that) AND you could be on a different cpu.  Either of these
-is a BAD thing.
 
-The proposed fix is to catch the attempted preemption in
-preempt_schedule() and just return if the interrupt system
-is off.  (Of course there is more that this to it, but I do
-believe that the problem is known.  You could blow this
-assertion out of the water by asserting that the machine is
-NOT smp.)
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+On Tue, 23 Jul 2002, Dave Jones wrote:
+
+> On Tue, Jul 23, 2002 at 12:14:08PM -0700, Patrick Mochel wrote:
+> 
+> There are some problems here.
+
+Heh. They've always been there, then. I really did re-add the table from 
+an older arch/i386/kernel/setup.c ;)
+
+>  > +		{ X86_VENDOR_INTEL,     6,
+
+> [4] is Deschutes according to the docs I used for x86info.
+
+Ok, I added it. 
+
+>  > +			  [5] "Pentium II (Deschutes)", 
+> 
+> What [5] is is dependant upon cache size & stepping.
+> 
+> stepping 0:
+>     0KB - Celeron (Covington)
+>     256KB - Mobile Pentium II (Dixon)
+> stepping 1-3 Pentium II (Deschutes)
+
+The Celeron detection happens in init_intel(). 
+
+>  > +			  [6] "Mobile Pentium II",
+> 
+> cache size 128KB - Celeron (Mendocino)
+
+Handled in init_intel().
+
+> Stepping 0/5 - Celeron-A
+
+Added to init_intel().
+
+> Stepping A - Mobile PII
+
+Um, leave as default? 
+
+>  > +			  [8] "Pentium III (Coppermine)", 
+> 
+> L2 Cachesize == 128 == Celeron (Else P3)
+
+Handled in init_intel().
+
+>  > +			  [10] "Pentium III (Cascades)",
+> 
+> 6a0 is another P2 Deschutes aparently, but this seems
+> odd, and I should double check this sometime.
+
+Leaving unchanged.
+
+>  > +			  [11] "Pentium III (Tualatin)",
+> 
+> Could be a celeron too. Not sure of cache size.
+
+Ditto, for the sake of ignorance. 
+
+>  > + [1] "Pentium 4 (Unknown)",
+> 
+> Model 5 = (Foster)
+
+Added. Wait, isn't Foster the one with HT? The ones I have say that they 
+support it, so wouldn't that be a Foster (as well as stepping 5)? 
+
+Updated patch appended. This updated version hasn't been tested, as I
+don't have any of those processors at my disposal...
+
+	-pat
+

@@ -1,38 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135296AbRDLTxG>; Thu, 12 Apr 2001 15:53:06 -0400
+	id <S135297AbRDLTyx>; Thu, 12 Apr 2001 15:54:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135297AbRDLTwy>; Thu, 12 Apr 2001 15:52:54 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:31916 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S135296AbRDLTwm>;
-	Thu, 12 Apr 2001 15:52:42 -0400
-Message-ID: <3AD6078A.AB086F5C@mandrakesoft.com>
-Date: Thu, 12 Apr 2001 15:52:42 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre2 i686)
-X-Accept-Language: en
+	id <S135298AbRDLTyp>; Thu, 12 Apr 2001 15:54:45 -0400
+Received: from d247.as5200.mesatop.com ([208.164.122.247]:908 "HELO
+	gopnik.dom-duraki") by vger.kernel.org with SMTP id <S135297AbRDLTyh>;
+	Thu, 12 Apr 2001 15:54:37 -0400
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+Date: Thu, 12 Apr 2001 13:54:13 -0600
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Request for Configure.help entries for newly added config options.
 MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: List of all-zero .data variables in linux-2.4.3 available
-In-Reply-To: <200104121236.FAA03613@adam.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01041213541300.00836@gopnik.dom-duraki>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" wrote:
->         For anyone who is interested, I have produced a list of all
-> of the .data variables that contain all zeroes and could be moved to
-> .bss within the kernel and all of the modules (all of the modules
-> that we build at Yggdrasil for x86, which is almost all).  These
-> are global or static variables that have been declared
+As of kernel 2.4.3-ac5, there are now 574 config options which have
+no help text in Configure.help. I believe these are not derived options,
+but setable options which could use a help entry.
 
-Thanks, but Andrey Panin did you one better -- he produced a patch which
-fixes up a good number of these.  You should follow lkml more closely :)
+Here is a list of these items which have been introduced very recently.
+Each group is incremental, versus 2.4.3-ac[n-1].
 
--- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
+Of course, there are 548 other options which also should have texts.
+
+If you see one of your options here, please consider generating a patch
+for Configure.help, or send me the information and I'll do the rest.
+
+Thanks,
+Steven
+
+2.4.3-ac5
+
+        CONFIG_IA64_EFIVARS
+        CONFIG_ITANIUM
+        CONFIG_MCKINLEY
+        CONFIG_MCKINLEY_A0_SPECIFIC
+        CONFIG_MCKINLEY_ASTEP_SPECIFIC
+
+2.4.3-ac4
+
+        CONFIG_ARCH_CLPS711X
+        CONFIG_ARCH_P720T
+        CONFIG_ARM_THUMB
+        CONFIG_CPU_ARM1020
+        CONFIG_CPU_ARM610
+        CONFIG_CPU_ARM710
+        CONFIG_CPU_ARM720T
+        CONFIG_CPU_ARM920T
+        CONFIG_CPU_SA110
+        CONFIG_DASD_DIAG
+        CONFIG_DEBUG_CLPS711X_UART2
+        CONFIG_DEBUGSYM
+        CONFIG_GCOV
+        CONFIG_GPROF
+        CONFIG_HOSTFS
+        CONFIG_NET_UM_ETH
+        CONFIG_NET_UMN
+        CONFIG_SA1100_PANGOLIN
+        CONFIG_SA1100_SHERMAN
+        CONFIG_SSL
+
+2.4.3-ac3
+
+        none
+
+2.4.3-ac2
+
+        CONFIG_GEMINI

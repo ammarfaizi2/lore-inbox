@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265609AbUAPTQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 14:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265613AbUAPTQ1
+	id S264927AbUAPTLL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 14:11:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265507AbUAPTLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 14:16:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:6804 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265609AbUAPTQZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 14:16:25 -0500
-Date: Fri, 16 Jan 2004 11:17:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: [PATCH] add sysfs class support for vc devices [10/10]
-Message-Id: <20040116111738.74636496.akpm@osdl.org>
-In-Reply-To: <1074279897.23742.754.camel@nosferatu.lan>
-References: <20040115204048.GA22199@kroah.com>
-	<20040115204111.GB22199@kroah.com>
-	<20040115204125.GC22199@kroah.com>
-	<20040115204138.GD22199@kroah.com>
-	<20040115204153.GE22199@kroah.com>
-	<20040115204209.GF22199@kroah.com>
-	<20040115204241.GG22199@kroah.com>
-	<20040115204259.GH22199@kroah.com>
-	<20040115204311.GI22199@kroah.com>
-	<20040115204329.GJ22199@kroah.com>
-	<20040115204356.GK22199@kroah.com>
-	<20040115201358.75ffc660.akpm@osdl.org>
-	<1074279897.23742.754.camel@nosferatu.lan>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jan 2004 14:11:10 -0500
+Received: from web40602.mail.yahoo.com ([66.218.78.139]:58686 "HELO
+	web40602.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264927AbUAPTLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 14:11:07 -0500
+Message-ID: <20040116191102.98783.qmail@web40602.mail.yahoo.com>
+Date: Fri, 16 Jan 2004 11:11:02 -0800 (PST)
+From: Ravi Wijayaratne <ravi_wija@yahoo.com>
+Subject: Linux Page Cache performance
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schlemmer <azarah@nosferatu.za.org> wrote:
->
-> On Fri, 2004-01-16 at 06:13, Andrew Morton wrote:
-> > Greg KH <greg@kroah.com> wrote:
-> > >
-> > > This patch add sysfs support for vc char devices.
-> > > 
-> > >  Note, Andrew Morton has reported some very strange oopses with this
-> > >  patch, that I can not reproduce at all.  If anyone else also has
-> > >  problems with this patch, please let me know.
-> > 
-> > It seems to have magically healed itself :(
-> > 
-> > Several people were hitting it.  We shall see.
-> 
-> Might it be due to the vt-locking-fixes patch?
-> 
+Hi All.
 
-No, I was able to reproduce the oops with just two of Greg's patches on
-bare 2.6.1-rcX.
+We are running dbench on a machine with Dual Xeon (Hyper threading 
+turned off), 1GB RAM
+and 4 Drive software RAID5. The kernel is 2.4.29-xfs 1.2. We are using 
+LVM. However
+similar test done using ext2 on a disk partiotion (no md or LVM) shows 
 
-It was some refcounting problem in the tty layer.  100% deterministic, not
-a race.
+The throughput is find till the number of clients are Around 16. At 
+that point the throughput
+plummets about 40%. We are trying to avoid that and see how we could 
+have a consistent throughput
+perhaps sacrificing some peak performance.
 
+One could argue that at the point the performance drops we are actualy 
+beggining to see 
+I/O requests missing page cache and going to disk. That is our current 
+guess. We try to tune
+the buffer age and the interval page buffer daemon runs, but had no 
+effect on the curve.
+So transactional meta data operations seems not be causing the bottle 
+neck.
+
+Are there any VM patches that smooths out the Page Cache dirty page 
+swapping process so that we
+wont see this sudden drop of through put, but could have a smoother 
+transition. I ran a 
+kernel profiler on the test and I dont see any dentry cache flushes or 
+inode cache flushes.
+
+Similar test done using ext2 on a disk partiotion (no md or LVM) shows 
+us similar performances.
+However for ext2 when we tweak the bdflush parameters in /proc 
+(specifically the max age of meta
+data buffers) we can push the point where the data throughput falls to 
+around 40 clients. 
+
+But we are more interested in finding out ways to solve the XFS case.
+
+Any insights on this ?
+
+Thanx
+Ravi
+
+
+
+=====
+------------------------------
+Ravi Wijayaratne
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Hotjobs: Enter the "Signing Bonus" Sweepstakes
+http://hotjobs.sweepstakes.yahoo.com/signingbonus

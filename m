@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266176AbRGOLYZ>; Sun, 15 Jul 2001 07:24:25 -0400
+	id <S266198AbRGOL2Z>; Sun, 15 Jul 2001 07:28:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266192AbRGOLYP>; Sun, 15 Jul 2001 07:24:15 -0400
-Received: from beasley.gator.com ([63.197.87.202]:44812 "EHLO
+	id <S266220AbRGOL2P>; Sun, 15 Jul 2001 07:28:15 -0400
+Received: from beasley.gator.com ([63.197.87.202]:50700 "EHLO
 	beasley.gator.com") by vger.kernel.org with ESMTP
-	id <S266176AbRGOLYI>; Sun, 15 Jul 2001 07:24:08 -0400
+	id <S266198AbRGOL2E>; Sun, 15 Jul 2001 07:28:04 -0400
 From: "George Bonser" <george@gator.com>
 To: "David S. Miller" <davem@redhat.com>
 Cc: <linux-kernel@vger.kernel.org>
 Subject: RE: [PATCH] Linux default IP ttl
-Date: Sun, 15 Jul 2001 04:28:36 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJAEEPDKAA.george@gator.com>
+Date: Sun, 15 Jul 2001 04:32:32 -0700
+Message-ID: <CHEKKPICCNOGICGMDODJGEEPDKAA.george@gator.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -25,10 +25,15 @@ X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right, which is why I suggest that Linux match that default TTL ...
-otherwise people will think that Microsoft sites are more reliable than
-Linux sites since they ( the user ) can reach more sites running Microsoft
-servers than they can running Linxu servers.
+It really does not matter all that much to me, I can simply:
+
+echo 128 >/proc/sys/net/ipv4/ip_default_ttl
+
+on every single one of my servers.
+
+But I thought I would "share the wealth" with other admins out there and
+have that the kernel default.
+
 
 
 > -----Original Message-----

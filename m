@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266168AbRF2UMT>; Fri, 29 Jun 2001 16:12:19 -0400
+	id <S266167AbRF2UJ7>; Fri, 29 Jun 2001 16:09:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266171AbRF2UMJ>; Fri, 29 Jun 2001 16:12:09 -0400
-Received: from [63.140.126.166] ([63.140.126.166]:34308 "EHLO helium.inexs.com")
-	by vger.kernel.org with ESMTP id <S266168AbRF2ULv>;
-	Fri, 29 Jun 2001 16:11:51 -0400
-Date: Fri, 29 Jun 2001 15:11:51 -0500
-From: Chuck Campbell <campbell@neosoft.com>
-To: linux-kernel@vger.kernel.org
-Cc: campbell@neosoft.com
-Subject: motherboard/chipset confusion
-Message-ID: <20010629151151.A27538@helium.inexs.com>
-Reply-To: campbell@neosoft.com
-Mail-Followup-To: Chuck Campbell <campbell@neosoft.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S266168AbRF2UJt>; Fri, 29 Jun 2001 16:09:49 -0400
+Received: from femail12.sdc1.sfba.home.com ([24.0.95.108]:58759 "EHLO
+	femail12.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S266167AbRF2UJ3>; Fri, 29 Jun 2001 16:09:29 -0400
+Message-ID: <3B3CE127.33A89C9E@home.com>
+Date: Fri, 29 Jun 2001 13:12:23 -0700
+From: John Golubenko <jeneago@home.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: ru, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: John Nilsson <pzycrow@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Some experience of linux on a Laptop
+In-Reply-To: <fa.inojkfv.1tiu4gb@ifi.uio.no> <fa.gblj07v.1blumpa@ifi.uio.no>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been lurking lkml for a number of years, I follow most of what goes 
-on here, and I don't pipe up often, but I'm trying to id a new system, and
-I'm confused about all of the via chipset problems/issues talked about here
-recently.
+Alan Cox wrote:
+> 
+> > Features I would like in the kernel:
+> > 1: Make the whole insmod-rmmod tingie a kernel internal so they could be
+> > trigged before rootmount.
+> 
+> Already there. In fact Red Hat uses it for the scsi devices. That is what
+> initrd is for.
+> 
+> > 2: Compile time optimization options in Make menuconfig
+> 
+> such as ?
+> 
+> > 3: Lilo/grub config in make menuconfig
+> 
+> make bzlilo does the lilo install - what else would you expect there
+> 
+> > 4: make bzImage && make modules && make modules install && cp
+> > arch/i386/boot/bzImage /boot/'uname -r' something inside make menuconfig
+> 
+> So really you want an outside GUI tool that lets you reconfigure build and
+> install kernels. Yeah I'd agree with that. Someone just needs to write the
+> killer gnome/kde config tool. I've got C code for parsing/loading config.in
+> files and deducing the dependancy constraints if anyone ever wants to try
+> and write such a tool 8)
+> 
+> > 5: Better support for toshiba computers... well try =)
+> 
+> modprobe toshiba and look at http://www.buzzard.org.uk/toshiba/
+> 
+> > 6: Wouldn't it be easier for svgalib/framebuffer/GGI/X11 and others if the
+> > graphiccard drivers where kernel modules?
+> 
+> No.
+> 
+> > 8: A way to change kernel without rebooting. I have no diskdrive or cddrive
+> > in my laptop so I often do drastic things when I install a new distribution.
+> 
+> Thats actually an incredibly hard problem to solve. The only people who do
+> this level of stuff are some of the telephony folks, and the expensive
+> tandem non-stop boxes.
+> 
+> Alan
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Simply put, what chipset(s) should I consider for purchase, or if the 
-converse subset is smaller, what should I avoid?
-
-I've searched and found nothing about the VIA VT8633 chipset, but a lot
-about problematic VIA chipsets, so I'm wary.  Any feed back on this chipset
-or, specifically the ASUS CUV266 motherboard?
-
-thanks,
--chuck
-
--- 
-ACCEL Services, Inc.| Specialists in Gravity, Magnetics |  1(713)993-0671 ph.
-1980 Post Oak Blvd. |   and Integrated Interpretation   |  1(713)960-1157 fax
-    Suite 2050      |                                   |
- Houston, TX, 77056 |          Chuck Campbell           | campbell@neosoft.com
-                    |  President & Senior Geoscientist  |
-
-     "Integration means more than having all the maps at the same scale!"
+Could you please send me that peace of code to parse/loading config.in,
+It would be interesting thing to do.
+Thanks,
+John.

@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274091AbRISPTD>; Wed, 19 Sep 2001 11:19:03 -0400
+	id <S274093AbRISPQN>; Wed, 19 Sep 2001 11:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274090AbRISPSx>; Wed, 19 Sep 2001 11:18:53 -0400
-Received: from discord.ws.crane.stargate.net ([216.151.124.71]:64432 "EHLO
-	discord") by vger.kernel.org with ESMTP id <S274089AbRISPSf>;
-	Wed, 19 Sep 2001 11:18:35 -0400
-Subject: encrypted swap on loop in 2.4.10-pre12?
-From: "steve j. kondik" <shade@chemlab.org>
-To: linux-kernel@vger.kernel.org
-X-Mailer: Evolution/0.13 (Preview Release)
-Date: 19 Sep 2001 11:18:59 -0400
-Message-Id: <1000912739.17522.2.camel@discord>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_discord-18753-1000912739-0001-2"
+	id <S274089AbRISPQE>; Wed, 19 Sep 2001 11:16:04 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:47119 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S274094AbRISPQA>;
+	Wed, 19 Sep 2001 11:16:00 -0400
+Date: Wed, 19 Sep 2001 12:16:13 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: __alloc_pages: 0-order allocation failed still in -pre12
+In-Reply-To: <Pine.OSF.4.21.0109191615070.3826-100000@prfdec.natur.cuni.cz>
+Message-ID: <Pine.LNX.4.33L.0109191215180.4279-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+On Wed, 19 Sep 2001, [iso-8859-2] Martin MOKREJ© wrote:
 
---=_discord-18753-1000912739-0001-2
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>   I tried 2.4.10-pre12
 
-i've been using encrypted swap over loopdev using the new cryptoapi
-patches.  i just built a 2.4.10-pre12 kernel and i got a panic doing
-mkswap on the loopdev.  the mkswap process becomes unkillable after this
-and never finishes.  this is repeatable everytime.  i've had no problems
-whatsoever until this kernel even under high load..  any ideas? :>
+> I have to say I've been using for a week without any "0-order allocation
+> failed" patch from Marcelo. Now I see am back to the old stage. ;(
 
-Sep 19 11:06:13 discord kernel: Unabl
-Sep 19 11:06:13 discord kernel: e to handle kernel NULL pointer
-dereference at virtual address 00000000
-Sep 19 11:06:13 discord kernel:  printing eip:
-Sep 19 11:06:13 discord kernel: 00000000
-Sep 19 11:06:13 discord kernel: *pde =3D 0f444067
-Sep 19 11:06:13 discord kernel: *pte =3D 00000000
-Sep 19 11:06:13 discord kernel: Oops: 0000
-Sep 19 11:06:13 discord kernel: CPU:    0
-Sep 19 11:06:13 discord kernel: EIP:    0010:[<00000000>]
-Sep 19 11:06:13 discord kernel: EFLAGS: 00010206
-Sep 19 11:06:13 discord kernel: eax: c02fbca0   ebx: cf47d000   ecx:
-00000400   edx: cfb428c0
-Sep 19 11:06:13 discord kernel: esi: 00001000   edi: 00000c00   ebp:
-c1394d78   esp: cf447efc
-Sep 19 11:06:13 discord kernel: ds: 0018   es: 0018   ss: 0018
-Sep 19 11:06:13 discord kernel: Process mkswap (pid: 9902,
-stackpage=3Dcf447000)
-Sep 19 11:06:13 discord kernel: Stack: c012a371 cfb428c0 c1394d78
-00000400 00001000 cfcd61b0 001828c4 00000000=20
-Sep 19 11:06:13 discord kernel:        00000000 00001000 00000400
-00000c00 fffffff4 00000000 00000400 00000000=20
-Sep 19 11:06:13 discord kernel:        cfa9210c cfa92060 00000000
-c01a1ba0 00126000 00001000 00000003 32000022=20
-Sep 19 11:06:13 discord kernel: Call Trace: [<c012a371>] [<c01a1ba0>]
-[<c01359c0>] [<c01357fe>] [<c0106ebb>]=20
-Sep 19 11:06:13 discord kernel:=20
-Sep 19 11:06:13 discord kernel: Code:  Bad EIP value.
-Sep 19 11:06:13 discord kernel:  Unable to find swap-space signature
+Impossible, the VM code which is in 2.4.10-pre11 and newer
+wasn't published until sunday night, so you can't have been
+using it for a week already. ;)
 
---=20
-http://chemlab.org  -  email shade-pgpkey@chemlab.org for pgp public key
-  chemlab radio!    -  drop out @ http://mp3.chemlab.org:8000   24-7-365
+cheers,
 
-"i could build anything if i could just find my tools.."=09
+Rik
+-- 
+IA64: a worthy successor to i860.
 
---=_discord-18753-1000912739-0001-2
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
+http://www.surriel.com/		http://distro.conectiva.com/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 
-iD8DBQA7qLdjq7nxKnD1kxkRAgdBAKCAUIMcsvLGu16QETpf4SbksXluNACeK88+
-UFrqU6J9BCOpd0uhjC/WQEw=
-=X7CT
------END PGP SIGNATURE-----
-
---=_discord-18753-1000912739-0001-2--

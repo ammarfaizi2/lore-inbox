@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbTEUQSd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 12:18:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbTEUQSd
+	id S262193AbTEUQXH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 12:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbTEUQXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 12:18:33 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:8452 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262192AbTEUQSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 12:18:32 -0400
-Subject: Re: userspace irq balancer
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 21 May 2003 11:31:30 -0500
-Message-Id: <1053534694.1681.10.camel@mulgrave>
+	Wed, 21 May 2003 12:23:07 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:6134 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262193AbTEUQXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 12:23:06 -0400
+Date: Wed, 21 May 2003 09:38:48 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: sct@redhat.com, bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] [RFC] probably bug in current ext3/jbd
+Message-Id: <20030521093848.59ada625.akpm@digeo.com>
+In-Reply-To: <87addhd2mc.fsf@gw.home.net>
+References: <87d6igmarf.fsf@gw.home.net>
+	<1053376482.11943.15.camel@sisko.scot.redhat.com>
+	<87he7qe979.fsf@gw.home.net>
+	<1053377493.11943.32.camel@sisko.scot.redhat.com>
+	<87addhd2mc.fsf@gw.home.net>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 May 2003 16:36:09.0138 (UTC) FILETIME=[152EF120:01C31FB7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm interested in using this for voyager.  However, I have a problem in
-that voyager may have CPUs that can't accept interrupts (this is global
-on voyager, but may be per-interrupt on NUMA like systems).  I think
-before we move to a userspace solution, some thought about how to cope
-with this is needed.
+Alex Tomas <bzzz@tmi.comex.ru> wrote:
+>
+> looks Andrew Morton should return BKL in ext3_get_block_handle() in -mm tree?
+>  this BKL protects ext3_alloc_branch() -> ext3_alloc_block() -> ext3_new_block()
+>  call chain. or we may implement new protection schema where each jh has some
+>  reference alike 'used by transaction N'
 
-I have several suggestions:
-
-1. Place the masks into /proc/irq/<n>/smp_affinity at start of day and
-have the userspace irqbalancer take this as the maximal mask
-
-2. Have a separate file /proc/irq/<n>/mask(?) to expose the mask always
-
-3. Some other method...
-
-Comments would be welcome
-
-James
-
-
+Can this be solved by spinlocking the relevant buffer_head, in a similar
+way to your recent changes to journal_add_journal_head()?

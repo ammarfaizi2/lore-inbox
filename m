@@ -1,74 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbTKRA2K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 19:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTKRA2K
+	id S262161AbTKRA07 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 19:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTKRA07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 19:28:10 -0500
-Received: from ns.media-solutions.ie ([212.67.195.98]:47887 "EHLO
-	mx.media-solutions.ie") by vger.kernel.org with ESMTP
-	id S262196AbTKRA2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 19:28:02 -0500
-Message-ID: <3FB96718.20103@media-solutions.ie>
-Date: Mon, 17 Nov 2003 18:26:00 -0600
-From: Keith Whyte <keith@media-solutions.ie>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: es-mx, es-es, en, en-us
-MIME-Version: 1.0
-To: Edgar Toernig <froese@gmx.de>, linux-kernel@vger.kernel.org,
-       linux-gcc@vger.kernel.org, linux-admin@vger.kernel.org
-Subject: Re: 2.4.18 fork & defunct child.
-References: <1069053524.3fb87654286b5@ssl.buz.org> <3FB8E40F.EF61CA7@gmx.de>
-In-Reply-To: <3FB8E40F.EF61CA7@gmx.de>
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-RelayImmunity: 212.67.195.98
+	Mon, 17 Nov 2003 19:26:59 -0500
+Received: from holomorphy.com ([199.26.172.102]:32933 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262161AbTKRA05 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 19:26:57 -0500
+Date: Mon, 17 Nov 2003 16:26:47 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: format_cpumask()
+Message-ID: <20031118002647.GH22764@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Joe Korty <joe.korty@ccur.com>, "Luck, Tony" <tony.luck@intel.com>,
+	linux-kernel@vger.kernel.org
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0F37B8@scsmsx401.sc.intel.com> <20031118002213.GA6272@tsunami.ccur.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031118002213.GA6272@tsunami.ccur.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edgar Toernig wrote:
+On Mon, Nov 17, 2003 at 07:22:13PM -0500, Joe Korty wrote:
+> How about this? (eye-checked only).
+> static int format_cpumask(char *buf, cpumask_t cpus)
+> {
+> 	int i, d, len = 0;
+> 	cpumask_t tmp;
+> 
+> 	for(i = (NR_CPUS - 1) & ~3; i >= 0; i -= 4) {
+> 		cpus_shift_right(tmp, cpus, i);
+> 		d = (int)cpus_coerce(tmp) & 0xf;
+> 		buf[len++] = "0123456789abcdef"[d];
+> 	}
+> 	return len;
+> }
 
-{ strace listing deleted, see 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106905386725308&w=2 }
-
->That is not normal /bin/true behaviour.  Sure your system
->isn't hacked?  Give the -f option to ptrace to see what the
->forked process is trying to do...  Compare the size of
->/bin/true with a known-good one.
->
->Ciao, ET.
->
-
-I'm not sure. I should be running tripwire or something, this is the 
-only one of my systems that doesn't run such a thing, as i have the  
-firewall locked down and have been busy.
-But it is true i accidently did iptables -F and it was left that way for 
-a few days.
-
-But this happens with any program, not just /bin/true, also the 
-/bin/true on the root and chroot systems are identical. and with much 
-interest i discovered, that if i unmount /proc, the problem goes away. aggh.
-
-that is why it is not exhibiting itself in the chroot system, - no /proc.
-
-I also remember that when this first happen nearly a year ago, some 
-"unix engineer" at the ISP said, oh yeah that's because something in the 
-ext2 filesystem header is corrupted.. i don't quite remember what he 
-said exactly, something  that sounded so far fetched that i ignored it. 
-does that ring any bells with anyone?
-
-please help, ug, i hate having a linux system that's not reliable. feels 
-like having a pet that's in pain or something.
-
-btw,
-/lib/libc.so.6 -> libc-2.2.5.so
-
-Keith
-
-(i'm cross-posting here to gcc and admin in the hopes of finding someone 
-who has seen this, thanks!)
+I think Keith Owens had a much better suggestion: using '*' in the
+format string.
 
 
-
+===== include/linux/cpumask.h 1.1 vs edited =====
+--- 1.1/include/linux/cpumask.h	Mon Aug 18 19:46:23 2003
++++ edited/include/linux/cpumask.h	Mon Nov 17 16:25:18 2003
+@@ -68,4 +68,20 @@
+ 		cpu < NR_CPUS;						\
+ 		cpu = next_online_cpu(cpu,map))
+ 
++static inline int format_cpumask(char *buf, cpumask_t cpus)
++{
++	int k, len = 0;
++
++	for (k = sizeof(cpumask_t)/sizeof(long) - 1; k >= 0; --k) {
++		int m;
++		cpumask_t tmp;
++
++		cpus_shift_right(tmp, cpus, BITS_PER_LONG*k);
++		m = sprintf(buf, "%0*lx", 2*sizeof(long), cpus_coerce(tmp));
++		len += m;
++		buf += m;
++	}
++	return len;
++}
++
+ #endif /* __LINUX_CPUMASK_H */

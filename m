@@ -1,30 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274684AbRITWib>; Thu, 20 Sep 2001 18:38:31 -0400
+	id <S274686AbRITWoL>; Thu, 20 Sep 2001 18:44:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274687AbRITWiW>; Thu, 20 Sep 2001 18:38:22 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:6390 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274682AbRITWiO>;
-	Thu, 20 Sep 2001 18:38:14 -0400
-Date: Fri, 21 Sep 2001 00:38:45 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: flush_tlb_all in vmalloc_area_pages
-Message-ID: <20010921003845.J729@athlon.random>
-In-Reply-To: <20010907165612.T11329@athlon.random> <20010920.142638.68040129.davem@redhat.com> <20010921002547.G729@athlon.random> <20010920.152919.35356833.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010920.152919.35356833.davem@redhat.com>; from davem@redhat.com on Thu, Sep 20, 2001 at 03:29:19PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274687AbRITWoC>; Thu, 20 Sep 2001 18:44:02 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38317 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274686AbRITWny>;
+	Thu, 20 Sep 2001 18:43:54 -0400
+Date: Thu, 20 Sep 2001 18:44:18 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <20010921003136.H729@athlon.random>
+Message-ID: <Pine.GSO.4.21.0109201835320.5631-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20, 2001 at 03:29:19PM -0700, David S. Miller wrote:
-> Please, I would heavily suggest leaving this area until 2.5.x there
 
-ok
 
-Andrea
+On Fri, 21 Sep 2001, Andrea Arcangeli wrote:
+
+> Of course, however if you want I can first fix initrd (I was just
+> looking into it in the last minutes), the security fix broke initrd
+> badly unfortunately [didn't tested initrd but just the ramdisks before
+> posting it] (not sure why initrd broke at the moment but I believe the
+> design of the fix was the right one, so it is probably an implementation
+> detail). So unless you need it urgently I will try to fix initrd first,
+> then I will send to you so you can go ahead without risk of future rejects.
+
+I'd suggest to stop treating initrd as block device.  It has to keep
+S_IFBLK in mode bits, indeed, but I'd rather set ->f_op upon open() and
+stop worrying about it.
+
+We don't need buffer-cache access to it anyway - if you look carefully
+you will see that we actually copy its contents to normal ramdisk
+first.  So just having ->read() (essentially copy_to_user()) is
+perfectly OK. 
+
+Check how old code was dealing with it - it's really the best way to
+treat that sucker.  We probably will be better off if we make it a
+character device at some point in 2.5 and move the thing to char/mem.c,
+but anyway, it had never been a proper block device (== one with
+requests queue, etc.) and there's no point in making it such now.
+
+Again, the proper way to treat it is to convert it into character
+device at some point.  Userland won't actually care - after the
+boot it's gone.  And kernel is using it only via ->read(), so
+there's no point trying to make it similar to real ramdisks.
+

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbUCVOth (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 09:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUCVOth
+	id S262020AbUCVPA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 10:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUCVPA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 09:49:37 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:32175 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262040AbUCVOtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 09:49:32 -0500
-Date: Mon, 22 Mar 2004 15:49:26 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.4.25 SMP - BUG at page_alloc.c:105
-Message-ID: <20040322144926.GD31615@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+	Mon, 22 Mar 2004 10:00:27 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:60898 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262020AbUCVPA0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 10:00:26 -0500
+Message-Id: <200403221500.i2MF0EI7003024@eeyore.valparaiso.cl>
+To: rudi@lambda-computing.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: File change notification (enhanced dnotify) 
+In-Reply-To: Your message of "Mon, 22 Mar 2004 12:18:15 +0100."
+             <405ECB77.9080803@gamemakers.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Mon, 22 Mar 2004 11:00:14 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+=?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de> said:
+> Horst von Brand wrote:
+> > =?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de> said:
+> >>I am working on a mechanism to let programs watch for file system 
+> >>changes in large directory trees or on the whole system. Since my last 
+> >>post in january I have been trying various approaches.
 
-I found this in the logs of a Dual Athlon MP machine (Tyan board)
-running 2.4.25-SMP:
+> > How do you propose to handle the fact that there are changes to _files_,
+> > which happen to be pointed to by entries in directories? There is no
+> > "change in the directory tree" in Unix...
 
-kernel BUG at page_alloc.c:105! 
-invalid operand: 0000 
-CPU:    0 
-EIP: 0010:[__free_pages_ok+80/704]    Not tainted 
-EFLAGS: 00010286 
-eax: c0333674   ebx: c1b2d720   ecx: 00000000   edx: f22f7a84 
-esi: 00000001   edi: 00000000   ebp: 00000001   esp: f6901e3c 
-ds: 0018   es: 0018   ss: 0018 
-Process svscan (pid: 1348, stackpage=f6901000) 
-Stack: c033364c f741cbc0 f22f7a84 00000001 0804c000 c0133ea6 f22f79c0 00000004  
-       00000001 00000001 0804c000 00000001 c01308fa c1b2d720 f68e3080 0804b000  
-       00001000 0844b000 c03ac4e0 00000001 0804c000 f68e3084 f42baa40 f7212440  
-Call Trace: [set_page_dirty+166/176] [zap_page_range+330/400] [exit_mmap+221/352] [mmput+88/176] [do_exit+259/800] 
-  [sig_exit+195/208] [dequeue_signal+95/192] [do_signal+448/694] [schedule_timeout+94/176] [process_timeout+0/96] [sys_nanosleep+232/448] 
-  [do_page_fault+0/1347] [signal_return+20/24] 
+> Of course it is files that change. But as you say each file is pointed 
+> to by one or more dentry, so I use the dentry hierarchy to propagate the 
+> information about the change. Just like the old dnotify.
 
-Other than this BUG (that took down the machine hard, I was lucky to log
-across the network), there appear to be no relevant logs shortly before
-this crash.
+dentries just keep the path travelled by hard links to get to the file in
+memory for fast future access. So if you have, say:
 
-What's causing this?
+   dir1  dir2
+    |     |
+    .     .
+    .     .
+    .     .
+     \   /
+    somefile
 
+and you referenced somefile by the path through dir1, if you monitor dir2
+you won't notice the change. There is no on-disk data to trace back through
+all the directories that reference the file, and reading all of the
+filesystem's metadata to find this out is ludicrous (ever seen fsck(8)
+taking an hour or so to make much the same?).
 -- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

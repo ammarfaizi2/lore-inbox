@@ -1,104 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267604AbUIAVgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267433AbUIAWoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267604AbUIAVgU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 17:36:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267953AbUIAVHn
+	id S267433AbUIAWoI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 18:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267343AbUIAWmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:07:43 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:13024 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267951AbUIAU4X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:56:23 -0400
-Subject: [patch 08/25]  drivers/char/riscom8.c MIN/MAX removal
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Wed, 01 Sep 2004 22:56:22 +0200
-Message-ID: <E1C2c9W-0007Kr-N1@sputnik>
+	Wed, 1 Sep 2004 18:42:19 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:50564 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267708AbUIAW0O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 18:26:14 -0400
+From: Limin Gu <limin@dbear.engr.sgi.com>
+Message-Id: <200409012226.i81MQ7D19183@dbear.engr.sgi.com>
+Subject: Re: [PATCH] improving JOB kernel/user interface
+To: chrisw@osdl.org (Chris Wright)
+Date: Wed, 1 Sep 2004 15:26:07 -0700 (PDT)
+Cc: jh@SGI.com (John Hesterberg), limin@engr.sgi.com (Limin Gu),
+       linux-kernel@vger.kernel.org, jlan@engr.sgi.com, erikj@SGI.com,
+       chrisw@osdl.org
+In-Reply-To: <20040901130623.F1924@build.pdx.osdl.net> from "Chris Wright" at Sep 01, 2004 01:06:23 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> * John Hesterberg (jh@sgi.com) wrote:
+> > The current job /proc ioctl interface is really a fake-syscall interface.
+> > We only did that so that our product didn't have to lock into a syscall
+> > number that would eventually be used by something else.
+> > 
+> > The easiest thing for us would probably be to turn it back into a system
+> > call, if that would be acceptable for inclusion into the kernel.  We're
+> > open to other job interfaces, such as a real /proc character interface,
+> > or a new virtual filesystem, or a device driver using ioctls.
+> 
+> But that system call would still be a single mutliplexor for many calls, right?
+> Not ideal.  Have you tried to map to an fs?  It's nice and contained, and may be a
+> simple mapping.  Question comes with CKRM, and if they'll have similar needs.  If
+> that's the case, first class syscalls (no multiplexor) may be way to go.
 
+Hi Chris,
 
-Patch (against 2.6.7) removes unnecessary min/max macros and changes
-calls to use kernel.h macros instead.
+I don't have much experience on implementing virtual filesystem, 
+but I am willing to try it if that is the right interface for job. 
+However, I am not sure how to map all current job ioctls to a 
+nice and simple filesystem, at the same time I would like to keep 
+the user library interface the same so our applications will not 
+break.
 
-Feedback is always welcome
-Michael
+Would you mind giving me some help on the job ioctls and fs
+mapping? Thanks in advance!
 
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Limin
 
+> 
+> thanks,
+> -chris
+> -- 
+> Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+> 
 
-
----
-
- linux-2.6.9-rc1-bk7-max/drivers/char/riscom8.c |   20 ++++++++------------
- 1 files changed, 8 insertions(+), 12 deletions(-)
-
-diff -puN drivers/char/riscom8.c~min-max-char_riscom8 drivers/char/riscom8.c
---- linux-2.6.9-rc1-bk7/drivers/char/riscom8.c~min-max-char_riscom8	2004-09-01 19:34:08.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/char/riscom8.c	2004-09-01 19:34:08.000000000 +0200
-@@ -75,10 +75,6 @@
- 	 ASYNC_SPD_HI       | ASYNC_SPEED_VHI    | ASYNC_SESSION_LOCKOUT | \
- 	 ASYNC_PGRP_LOCKOUT | ASYNC_CALLOUT_NOHUP)
- 
--#ifndef MIN
--#define MIN(a,b) ((a) < (b) ? (a) : (b))
--#endif
--
- #define RS_EVENT_WRITE_WAKEUP	0
- 
- static struct riscom_board * IRQ_to_board[16];
-@@ -107,7 +103,7 @@ static struct riscom_board rc_board[RC_N
- };
- 
- static struct riscom_port rc_port[RC_NBOARD * RC_NPORT];
--		
-+
- /* RISCom/8 I/O ports addresses (without address translation) */
- static unsigned short rc_ioport[] =  {
- #if 1	
-@@ -483,7 +479,7 @@ static inline void rc_transmit(struct ri
- 				rc_out(bp, CD180_TDR, CD180_C_SBRK);
- 				port->COR2 &= ~COR2_ETC;
- 			}
--			count = MIN(port->break_length, 0xff);
-+			count = min_t(int, port->break_length, 0xff);
- 			rc_out(bp, CD180_TDR, CD180_C_ESC);
- 			rc_out(bp, CD180_TDR, CD180_C_DELAY);
- 			rc_out(bp, CD180_TDR, count);
-@@ -1165,8 +1161,8 @@ static int rc_write(struct tty_struct * 
- 		down(&tmp_buf_sem);
- 		while (1) {
- 			cli();		
--			c = MIN(count, MIN(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
--					   SERIAL_XMIT_SIZE - port->xmit_head));
-+			c = min_t(int, count, min(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
-+						  SERIAL_XMIT_SIZE - port->xmit_head));
- 			if (c <= 0)
- 				break;
- 
-@@ -1178,8 +1174,8 @@ static int rc_write(struct tty_struct * 
- 			}
- 
- 			cli();
--			c = MIN(c, MIN(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
--				       SERIAL_XMIT_SIZE - port->xmit_head));
-+			c = min_t(c, min(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
-+					 SERIAL_XMIT_SIZE - port->xmit_head));
- 			memcpy(port->xmit_buf + port->xmit_head, tmp_buf, c);
- 			port->xmit_head = (port->xmit_head + c) & (SERIAL_XMIT_SIZE-1);
- 			port->xmit_cnt += c;
-@@ -1193,8 +1189,8 @@ static int rc_write(struct tty_struct * 
- 	} else {
- 		while (1) {
- 			cli();		
--			c = MIN(count, MIN(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
--					   SERIAL_XMIT_SIZE - port->xmit_head));
-+			c = min_t(int, count, min(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
-+						  SERIAL_XMIT_SIZE - port->xmit_head));
- 			if (c <= 0) {
- 				restore_flags(flags);
- 				break;
-
-_

@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287565AbSBIVDP>; Sat, 9 Feb 2002 16:03:15 -0500
+	id <S287798AbSBIVDf>; Sat, 9 Feb 2002 16:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287563AbSBIVDF>; Sat, 9 Feb 2002 16:03:05 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:28646 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S287565AbSBIVCv>; Sat, 9 Feb 2002 16:02:51 -0500
-Message-ID: <3C658EC2.158C2B2C@oracle.com>
-Date: Sat, 09 Feb 2002 22:04:02 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.4-pre2 i686)
-X-Accept-Language: en
+	id <S287596AbSBIVD0>; Sat, 9 Feb 2002 16:03:26 -0500
+Received: from [208.147.64.186] ([208.147.64.186]:12189 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id <S287563AbSBIVDR>; Sat, 9 Feb 2002 16:03:17 -0500
+Date: Sat, 9 Feb 2002 13:01:34 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: Tom Rini <trini@kernel.crashing.org>, Patrick Mochel <mochel@osdl.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [bk patch] Make cardbus compile in -pre4
+In-Reply-To: <20020209090527.B13735@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0202091258110.25220-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.4-pre5 fails to build (sounddrivers.o/pcmcia_net.o)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make[1]: Leaving directory `/usr/src/linux-2.5.4-pre5/arch/i386/lib'
-ld -m elf_i386 -T /usr/src/linux-2.5.4-pre5/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
-	--start-group \
-	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-	/usr/src/linux-2.5.4-pre5/arch/i386/lib/lib.a /usr/src/linux-2.5.4-pre5/lib/lib.a /usr/src/linux-2.5.4-pre5/arch/i386/lib/lib.a \
-	 drivers/base/base.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pcmcia/pcmcia.o drivers/net/pcmcia/pcmcia_net.o drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o
-drivers/input/serio/seriodrv.o \
-	net/network.o \
-	--end-group \
-	-o vmlinux
-drivers/sound/sounddrivers.o: In function `m3_play_setup':
-drivers/sound/sounddrivers.o(.text+0xf4e): undefined reference to `virt_to_bus_not_defined_use_pci_map'
-drivers/sound/sounddrivers.o(.text+0xf6e): undefined reference to `virt_to_bus_not_defined_use_pci_map'
-drivers/sound/sounddrivers.o(.text+0xf93): undefined reference to `virt_to_bus_not_defined_use_pci_map'
-drivers/sound/sounddrivers.o(.text+0xfb7): undefined reference to `virt_to_bus_not_defined_use_pci_map'
-drivers/sound/sounddrivers.o(.text+0xfde): undefined reference to `virt_to_bus_not_defined_use_pci_map'
-drivers/sound/sounddrivers.o(.text+0x1000): more undefined references to `virt_to_bus_not_defined_use_pci_map' follow
-drivers/net/pcmcia/pcmcia_net.o: In function `xircom_rx':
-drivers/net/pcmcia/pcmcia_net.o(.text+0x1801): undefined reference to `bus_to_virt_not_defined_use_pci_map'
-drivers/net/pcmcia/pcmcia_net.o(.text+0x19a2): undefined reference to `virt_to_bus_not_defined_use_pci_map'
-drivers/net/pcmcia/pcmcia_net.o: In function `set_rx_mode':
-drivers/net/pcmcia/pcmcia_net.o(.text+0x22d4): undefined reference to `virt_to_bus_not_defined_use_pci_map'
-make: *** [vmlinux] Error 1
+do you have a script that can go back after the fact and see what can be
+hardlinked?
 
---alessandro
+I'm thinking specififcly of the type of thing that will be happening to
+your server where you have a bunch of people putting in a clone of one
+tree who will probably not be doing a clone -l to set it up, but who could
+have and you want to clean up after the fact (and perhapse again on a
+periodic basis, becouse after all of these trees apply a changeset from
+linus they will all have changed (breaking the origional hardlinks) but
+will still be duplicates of each other.
 
- "If your heart is a flame burning brightly
-   you'll have light and you'll never be cold
-  And soon you will know that you just grow / You're not growing old"
-                              (Husker Du, "Flexible Flyer")
+David Lang
+
+
+On Sat, 9 Feb 2002, Larry McVoy wrote:
+
+> Date: Sat, 9 Feb 2002 09:05:27 -0800
+> From: Larry McVoy <lm@bitmover.com>
+> To: Tom Rini <trini@kernel.crashing.org>
+> Cc: David Lang <dlang@diginsite.com>, Larry McVoy <lm@bitmover.com>,
+>      Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+> Subject: Re: [bk patch] Make cardbus compile in -pre4
+>
+> > > bk clone -l
+> >
+> > $ bk version
+> > BitKeeper/Free version is bk-2.1.4 20020205155016 for x86-glibc22-linux
+> > Built by: lm@redhat71.bitmover.com in /build/bk-2.1.x-lm/src
+> > Built on: Tue Feb  5 08:01:19 PST 2002
+> > $ bk clone -l
+> > usage:  bk clone [-ql] [-E<env>=<val>] [-r<rev>] [-z[<d>]] <from> [<to>]
+>
+> Tom, I can't believe you are running that ancient version of BK, why it is
+> already 4 days old!  Try and stay current :-)
+>
+> There is a 2.1.4b release that has clone -l in it, along with some rollup
+> fixes/enhancements for Linus.
+>
+> There is an undocumented version of clone -l in your release which works like
+>
+> 	bk lclone from to
+>
+> and does the hardlinks.
+> --
+> ---
+> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm
+>

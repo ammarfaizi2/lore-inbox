@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264265AbTLVJcX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 04:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbTLVJcX
+	id S264364AbTLVJaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 04:30:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTLVJaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 04:32:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50566 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264265AbTLVJcV (ORCPT
+	Mon, 22 Dec 2003 04:30:09 -0500
+Received: from mail.kroah.org ([65.200.24.183]:10410 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264364AbTLVJaF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 04:32:21 -0500
-Date: Mon, 22 Dec 2003 01:32:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Wiktor Wodecki <wodecki@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 Ooops while accessing ejected floppy
-Message-Id: <20031222013215.7dc0595e.akpm@osdl.org>
-In-Reply-To: <20031221163947.GA897@gmx.de>
-References: <20031221163947.GA897@gmx.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 22 Dec 2003 04:30:05 -0500
+Date: Mon, 22 Dec 2003 01:23:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Scott James Remnant <scott@netsplit.com>
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: udev LABEL not working: sysfs_path_is_file: stat() failed
+Message-ID: <20031222092329.GA30235@kroah.com>
+References: <1072054829.1225.11.camel@descent.netsplit.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072054829.1225.11.camel@descent.netsplit.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wiktor Wodecki <wodecki@gmx.de> wrote:
->
-> I forgot to unmount my floppy before ejecting it. No problem here (it is
->  my fault after all) but the kernel gave me an Ooops.
->  Nothing bad really happend, and I could continue work. However, I
->  thought to give a note here.
+On Mon, Dec 22, 2003 at 01:00:29AM +0000, Scott James Remnant wrote:
+> [I am not subscribed to linux-kernel, please Cc: me on replies.]
+
+The linux-hotplug-devel mailing list is best place for questions about
+udev, not lkml...
+
+> I'm having a problem getting udev to honour my LABEL lines in
+> /etc/udev/udev.rules.  At the top of this I've got:
 > 
->  Dec 21 14:50:38 kakerlak kernel: floppy0: disk absent or changed during
->  operation
->  Dec 21 14:50:38 kakerlak kernel: end_request: I/O error, dev fd0, sector
->  7
->  Dec 21 14:50:38 kakerlak kernel: lost page write due to I/O error on fd0 
->  Dec 21 14:50:38 kakerlak kernel: buffer layer error at fs/buffer.c:2827
+> LABEL, BUS="usb", SYSFS_vendor="Fujifilm", SYSFS_model="FinePix 1400Zoom", NAME="camera"
 
-It's a warning, not an oops.  The below should shut it up.
+Try changing BUS="usb" to BUS="scsi".  Also make sure that the model
+file doesn't contain any trailing spaces.  That's a very common thing on
+usb devices.
 
+And you are trying to match up 2 files, right now udev only supports 1,
+so the last one (model) is used.  The vendor rule there is ignored.
 
+There is also a problem with udev beating the kernel.  It can easily get
+the hotplug event before the kernel has created the sysfs file.  I'm
+currently working on fixing this in udev, should have it done by the
+next release.  You can tell if you are seeing this race by just running
+the test.block script in the test directory in udev.  If your device
+node is created properly with that script, but not when you plug the
+device in, you have that problem.
 
+And people tried to tell us that the hotplug interface was slow without
+ever testing it out...
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Hope this helps,
 
-Suppress a buffer_error() warning which occurs when a page which previously
-had an I/O error gets its buffers stripped.
-
-
-
- fs/buffer.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN fs/buffer.c~buffer_error-suppression fs/buffer.c
---- 25/fs/buffer.c~buffer_error-suppression	2003-12-21 22:11:33.000000000 -0800
-+++ 25-akpm/fs/buffer.c	2003-12-21 22:11:33.000000000 -0800
-@@ -2820,7 +2820,7 @@ drop_buffers(struct page *page, struct b
- 		bh = bh->b_this_page;
- 	} while (bh != head);
- 
--	if (!was_uptodate && PageUptodate(page))
-+	if (!was_uptodate && PageUptodate(page) && !PageError(page))
- 		buffer_error();
- 
- 	do {
-
-_
-
+greg k-h

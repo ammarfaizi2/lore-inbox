@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267957AbUH0Vsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265770AbUH0WSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267957AbUH0Vsm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 17:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268860AbUH0Vpl
+	id S265770AbUH0WSS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 18:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUH0WRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 17:45:41 -0400
-Received: from holomorphy.com ([207.189.100.168]:36769 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268788AbUH0VnH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 17:43:07 -0400
-Date: Fri, 27 Aug 2004 14:42:49 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm1
-Message-ID: <20040827214249.GW2793@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040826014745.225d7a2c.akpm@osdl.org> <20040827043132.GJ2793@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040827043132.GJ2793@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 27 Aug 2004 18:17:50 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:56976 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S265222AbUH0WHo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 18:07:44 -0400
+Message-ID: <412FB0A7.1000607@blue-labs.org>
+Date: Fri, 27 Aug 2004 18:07:35 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040825
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Wouter Van Hemel <wouter@pair.com>
+CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [OT] Re: Summarizing the PWC driver questions/answers
+References: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk> <412F99CE.2070906@blue-labs.org> <Pine.LNX.4.61.0408272322050.731@senta.theria.org>
+In-Reply-To: <Pine.LNX.4.61.0408272322050.731@senta.theria.org>
+Content-Type: multipart/mixed;
+ boundary="------------050605090707020909060805"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 01:47:45AM -0700, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/
-[...]
+This is a multi-part message in MIME format.
+--------------050605090707020909060805
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Aug 26, 2004 at 09:31:32PM -0700, William Lee Irwin III wrote:
-> Hmm. Something odd is going on; initcall_debug doesn't seem to function
-> as expected. It reports strings with "queue" as a substring instead of
-> the expected function names. There may be a bootstrap ordering issue
-> (though apparently benign, just initcall_debug) with kallsyms bits.
+Wouter Van Hemel wrote:
 
-I suspect endianness; sparc64 is affected, but not x86-64. Now checking
-kallsyms lookup -related results on ppc64...
+> On Fri, 27 Aug 2004, David Ford wrote:
+>
+>> - Since the NDA has long since expired, why not investigate using the 
+>> whole of the code?
+>>
+>
+> Because we can't find Nemo.
 
 
--- wli
+mine. mine. mine. mine. mine. mine. mine.
+
+Just keep coding.  Just keep coding.
+
+-david
+
+--------------050605090707020909060805
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
+
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
+
+
+--------------050605090707020909060805--

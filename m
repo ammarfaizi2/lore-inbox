@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310187AbSB1W6J>; Thu, 28 Feb 2002 17:58:09 -0500
+	id <S293159AbSB1XSg>; Thu, 28 Feb 2002 18:18:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310192AbSB1W4M>; Thu, 28 Feb 2002 17:56:12 -0500
-Received: from smtp.comcast.net ([24.153.64.2]:47144 "EHLO smtp.comcast.net")
-	by vger.kernel.org with ESMTP id <S293758AbSB1WvD>;
-	Thu, 28 Feb 2002 17:51:03 -0500
-X-URL: genehack.org
-Date: Thu, 28 Feb 2002 17:51:00 -0500
-From: jacobs@genehack.org (John S. J. Anderson)
-Subject: Procfs-related core dump deadlock
-To: linux-kernel@vger.kernel.org
-Message-id: <877koxxlt7.fsf@mendel.genehack.org>
-Organization: genehackCorps
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
- i386-debian-linux)
-X-Attribution: john
+	id <S293630AbSB1XQ4>; Thu, 28 Feb 2002 18:16:56 -0500
+Received: from jffdns01.or.intel.com ([134.134.248.3]:8442 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S310196AbSB1XLx>; Thu, 28 Feb 2002 18:11:53 -0500
+Message-ID: <BD9B60A108C4D511AAA10002A50708F22C1451@orsmsx118.jf.intel.com>
+From: "Leech, Christopher" <christopher.leech@intel.com>
+To: "'David S. Miller'" <davem@redhat.com>,
+        "Leech, Christopher" <christopher.leech@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: RE: [BETA-0.92] Third test release of Tigon3 driver
+Date: Thu, 28 Feb 2002 15:11:45 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings --
 
-We've been experiencing some strange situations on our production
-machines, which look identical to the problems described in
-<http://lists.insecure.org/linux-kernel/2001/Dec/1539.html>.
+Sounds good to me, this should work nicely.
 
-A follow-up to that message
-(<http://lists.insecure.org/linux-kernel/2001/Dec/1604.html>) mentions
-that the problem is likely to be due to a deadlock associated with the
-coredump process.
+	Chris
 
-The first message has some quoted text claiming that the problem went
-away in 2.4.10, but the poster is seeing it in 2.4.14, and we're still
-seeing it in 2.4.17-aa.
-
-Does anybody have any idea of where to start looking, or what could
-have changed in the 2.4.10 -> 2.4.14 time frame that would have
-re-introduced this behavior?
-
-We're currently kludging around the problem with 'ulimit -c 0' in
-relevant environments, but it would be nice to have a real fix.
-
-john.
--- 
-The only skills I have the patience to learn are those that have no real
-application in life.  -- Calvin
+> -----Original Message-----
+> From: David S. Miller [mailto:davem@redhat.com]
+> Sent: Thursday, February 28, 2002 2:57 PM
+>
+> This is exactly the kind of thing I wanted people to discover
+> and discuss.  Thanks for bringing this up.
+> 
+> It would be quite simple to hook back into your driver for this
+> purpose, proposed API:
+> 
+> /* For netdev->features */
+> #define NETIF_F_HW_VLAN_FILTER		1024
+> 
+> /* For NETIF_F_VLAN_RX_FILTER devices */
+> 	void (*vlan_rx_new_vid)(struct net_device *dev,
+> 				unsigned short vid);
+> 
+> We call dev->vlan_rx_kill_vid() in all cases because it has to
+> deal with interlocking, as described in an earlier email.
+> 
+> But if NETIF_F_HW_VLAN_FILTER is set, when new VLAN devices are
+> registered that go through your card, you will get a
+> dev->vlan_rx_new_vid() call.
+> 
+> I do not think you would need any more informatin than the
+> VID itself.  If this is wrong, tell me now :-)
+> 

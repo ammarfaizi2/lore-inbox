@@ -1,51 +1,411 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265607AbUEZPB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265550AbUEZPTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265607AbUEZPB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 11:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265550AbUEZPBj
+	id S265550AbUEZPTg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 11:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265591AbUEZPTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 11:01:39 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:59554 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265728AbUEZO7y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 10:59:54 -0400
-From: Andreas Hess <hess@tkn.tu-berlin.de>
-To: linux-kernel@vger.kernel.org
-Subject: Soft and Hard Interrupts
-Date: Wed, 26 May 2004 16:52:23 +0200
-User-Agent: KMail/1.5.4
+	Wed, 26 May 2004 11:19:36 -0400
+Received: from grisu.bik-gmbh.de ([217.110.154.194]:2061 "EHLO
+	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP id S265550AbUEZPTW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 11:19:22 -0400
+Message-ID: <40B4B561.4030207@bik-gmbh.de>
+Date: Wed, 26 May 2004 17:18:57 +0200
+From: Florian Hars <hars@bik-gmbh.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: de, de-de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405261652.23367.hess@tkn.tu-berlin.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at usb:848
+References: <40B4AF96.5090608@bik-gmbh.de>
+In-Reply-To: <40B4AF96.5090608@bik-gmbh.de>
+Content-Type: multipart/mixed;
+ boundary="------------050607090607080709000705"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------050607090607080709000705
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I have difficulties in understanding the interplay between hard and soft 
-interrupts. Perhaps things get clearer with the following example:
-1.) a packet is arriving at a NIC and triggers the execution of a hardware 
-interrupt
-2.) the do_irq() routine is called
-3.) the according interrupt service routine (ISR) is executed (which triggers 
-a soft interrupt)
-4.) the kernel terminates the do_irq() routine and checks if there is a soft 
-interrupt waiting to be processed
-5.) the soft interrupt is processed
+Florian Hars wrote:
+> Do you need anything else, besides the attached gunziped config.gz?
 
-The higher the arrival rate of packets, the higher the amount of interrupts to 
-be processed. In order to prevent the system from permanently processing 
-interrupts --- in case that a certain threshold value is reached --- the 
-ksoftirqd daemon takes over the responsibility for the software interrupt 
-handling. Then software interrupts are processed in the event that the 
-ksoftirqd is scheduled and running. 
-Is this so far correct? If yes, I wonder how the threshold value, the point at 
-which the ksoftirqd gets into charge, is defined?
-Please 'CC' me as I am not subscribed to the list.
+Thou shallst not forget the z on zcat... here is the stripped, unziped config.
 
-Thanks Andreas
+This might be relevant, too:
 
+hars@prony:~/tmp$ cat /sys/devices/pci0000\:00/0000\:00\:10.4/pools
+poolinfo - 0.1
+ehci_sitd           0    0   96  0
+ehci_itd            0    0  192  0
+ehci_qh             4   25  160  1
+ehci_qtd            4   42   96  1
+buffer-2048         0    0 2048  0
+buffer-512          0    0  512  0
+buffer-128          1   32  128  1
+buffer-32           2  128   32  1
+hars@prony:~/tmp$ cat /sys/devices/pci0000\:00/0000\:00\:10.4/subsystem_vendor
+0x1106
+hars@prony:~/tmp$ cat /sys/devices/pci0000\:00/0000\:00\:10.4/subsystem_device
+0x3104
 
+The whole thing is a VIA K8T800 an Epox 8HDA Mainboard.
+
+Yours, Florian.
+
+--------------050607090607080709000705
+Content-Type: text/plain;
+ name="config.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="config.txt"
+
+CONFIG_X86_64=y
+CONFIG_64BIT=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_RWSEM_GENERIC_SPINLOCK=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_GENERIC_ISA_DMA=y
+
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=18
+CONFIG_HOTPLUG=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+
+CONFIG_MK8=y
+CONFIG_X86_L1_CACHE_BYTES=64
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_MTRR=y
+CONFIG_SMP=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_NR_CPUS=2
+CONFIG_GART_IOMMU=y
+CONFIG_SWIOTLB=y
+CONFIG_X86_MCE=y
+
+CONFIG_PM=y
+
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_DEBUG=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_TABLE=y
+
+CONFIG_X86_POWERNOW_K8=y
+
+CONFIG_PCI=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_NAMES=y
+
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_IA32_EMULATION=y
+CONFIG_IA32_AOUT=y
+CONFIG_COMPAT=y
+CONFIG_SYSVIPC_COMPAT=y
+CONFIG_UID16=y
+
+CONFIG_FW_LOADER=y
+
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_CRYPTOLOOP=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_LBD=y
+
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+
+CONFIG_BLK_DEV_SD=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+CONFIG_BLK_DEV_3W_XXXX_RAID=y
+CONFIG_SCSI_SATA=y
+CONFIG_SCSI_SATA_SIL=y
+CONFIG_SCSI_SATA_VIA=y
+CONFIG_SCSI_QLA2XXX=y
+
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_DM_CRYPT=y
+
+CONFIG_NET=y
+
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IPV6=y
+
+CONFIG_NETPOLL=y
+CONFIG_NET_POLL_CONTROLLER=y
+CONFIG_NETDEVICES=y
+
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+
+CONFIG_NET_PCI=y
+CONFIG_VIA_RHINE=y
+CONFIG_VIA_RHINE_MMIO=y
+
+CONFIG_SK98LIN=y
+
+CONFIG_NETCONSOLE=y
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=y
+
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+
+CONFIG_RTC=y
+
+CONFIG_AGP=y
+CONFIG_AGP_AMD64=y
+CONFIG_DRM=y
+CONFIG_HANGCHECK_TIMER=y
+
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+
+CONFIG_I2C_ALGOBIT=y
+
+CONFIG_I2C_VIAPRO=y
+
+CONFIG_I2C_SENSOR=y
+CONFIG_SENSORS_W83627HF=y
+
+CONFIG_FB=y
+CONFIG_FB_VESA=y
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_FONT_SUN8x16=y
+CONFIG_FONT_SUN12x22=y
+
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+
+CONFIG_SOUND=y
+
+CONFIG_SND=y
+CONFIG_SND_BIT32_EMUL=y
+CONFIG_SND_TIMER=y
+CONFIG_SND_PCM=y
+CONFIG_SND_RAWMIDI=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_SEQ_DUMMY=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=y
+
+CONFIG_SND_DUMMY=y
+CONFIG_SND_VIRMIDI=y
+
+CONFIG_SOUND_PRIME=y
+CONFIG_SOUND_ICH=y
+
+CONFIG_USB=y
+CONFIG_USB_DEBUG=y
+
+CONFIG_USB_DEVICEFS=y
+
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+
+CONFIG_USB_STORAGE=y
+CONFIG_USB_STORAGE_DEBUG=y
+
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_XFS_FS=y
+CONFIG_XFS_POSIX_ACL=y
+
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_HUGETLBFS=y
+CONFIG_HUGETLB_PAGE=y
+CONFIG_RAMFS=y
+
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_SMB_FS=y
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp850"
+CONFIG_CODA_FS=y
+
+CONFIG_MSDOS_PARTITION=y
+
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_UTF8=y
+
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=y
+
+CONFIG_DEBUG_KERNEL=y
+
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=y
+CONFIG_CRYPTO_TWOFISH=y
+CONFIG_CRYPTO_AES=y
+CONFIG_CRYPTO_ARC4=y
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRYPTO_CRC32C=y
+
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+
+--------------050607090607080709000705--

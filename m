@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283703AbRLECng>; Tue, 4 Dec 2001 21:43:36 -0500
+	id <S283710AbRLECs4>; Tue, 4 Dec 2001 21:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283705AbRLECn0>; Tue, 4 Dec 2001 21:43:26 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:48625
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S283703AbRLECnU>; Tue, 4 Dec 2001 21:43:20 -0500
-Date: Tue, 4 Dec 2001 18:43:14 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: EXT3 - freeze ups during disk writes
-Message-ID: <20011204184314.A25292@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0112011209190.3893-100000@localhost.localdomain> <E16AX5E-0006pH-00@calista.inka.de> <20011203085258.A4072@billgotchy.de> <3C0C1628.5D73F05A@zip.com.au> <20011204215319.GA8239@billgotchy.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011204215319.GA8239@billgotchy.de>
-User-Agent: Mutt/1.3.23i
+	id <S283708AbRLECsq>; Tue, 4 Dec 2001 21:48:46 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:22913 "EHLO
+	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
+	id <S283707AbRLECsk>; Tue, 4 Dec 2001 21:48:40 -0500
+Message-ID: <3C0D8B00.2040603@optonline.net>
+Date: Tue, 04 Dec 2001 21:48:32 -0500
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nathan Bryant <nbryant@optonline.net>
+CC: Doug Ledford <dledford@redhat.com>, Mario Mikocevic <mozgy@hinet.hr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 10:53:19PM +0100, Jan-Hendrik Palic wrote:
-> Hi ... 
-> 
-> On Mon, Dec 03, 2001 at 04:17:44PM -0800, Andrew Morton wrote:
-> >> The IBook freezed and I reseted it .. but I had to install the whole
-> >> system .. the yaboot wasn't able to find a kernel on the / Partition.
-> >> (ext3 too) :)
-> >An unrecovered ext3 filesystem is probably unrecognisable to
-> >yaboot.  I'm told that yaboot 1.3.5 and later have changes which
-> >permit booting from unrecovered ext3 filesystems.
-> 
-> hmmm ok ... thnx ... :)
-> 
-> But the IBook freezed with the 2.4.15-ben0 on haevy harddisk/IO .... 
-> 
-> what could it be?
-> 
+Nathan Bryant wrote:
 
-I would suggest you try another ben0, or use a kernel available from the bk
-repositories.
+> glquake.glx doesn't: "i810_audio: drain_dac, dma timeout?" 
 
-Check out www.penguinppc.org/
+Turns out this has been broken for a while; stock 2.4.17pre1 has a 
+broken mmap too...
 
-mf

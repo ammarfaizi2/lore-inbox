@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276857AbRJCEYe>; Wed, 3 Oct 2001 00:24:34 -0400
+	id <S276860AbRJCEg0>; Wed, 3 Oct 2001 00:36:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276858AbRJCEYY>; Wed, 3 Oct 2001 00:24:24 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:63900 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S276857AbRJCEYT>; Wed, 3 Oct 2001 00:24:19 -0400
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200110030423.FAA07107@mauve.demon.co.uk>
-Subject: Re: [PATCH] Stateful Magic Sysrq Key
+	id <S276861AbRJCEgH>; Wed, 3 Oct 2001 00:36:07 -0400
+Received: from rj.SGI.COM ([204.94.215.100]:56235 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S276860AbRJCEgD>;
+	Wed, 3 Oct 2001 00:36:03 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Date: Wed, 3 Oct 2001 05:23:56 +0100 (BST)
-In-Reply-To: <20011002185016.90E271F9BA@zion.rivenstone.net> from "Joseph Fannin" at Oct 02, 2001 07:44:10 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+Subject: Modutils 2.5 change, start running this command now
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 03 Oct 2001 14:36:24 +1000
+Message-ID: <31135.1002083784@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Tuesday 02 October 2001 03:02, Ian Stirling wrote:
-> > > The following patch is a reworked patch which originated from Amazon.
-> > > It makes the sysrq key stateful, giving it the following behaviours:
-> >
-> > IMO, this is needed for broken keyboards, but in this exact form will
-> > cause problems for those without them.
-<snip>
->     This behavior *is* optional -- both as a compile-time option and as a
-> value in /proc/sys.
+In current modutils, a module that does not export symbols and does not
+say EXPORT_NO_SYMBOLS defaults to exporting all symbols.  This is a
+hangover from kernel 2.0 and will be removed when modutils 2.5 appears,
+shortly after the kernel 2.5 branch is created.
 
-Sorry, I diddn't see it, I had a quick scan, and it seemed to me that
-it was a replacement for the current magic-sysrq, not an alternative.
+Starting with modutils 2.5, modules must explicitly say what their
+intention is for symbols.  That will break a lot of existing modules.
+The command below lists the modules on your system that will be
+affected.  All code maintainers need to run this against their 2.4
+modules and do one of two things.  Either export the required symbols
+(remember to add the .o file to export-objs in the Makefile) or add
+EXPORT_NO_SYMBOLS; somewhere in the module (no change to Makefile).
+
+ objdump -h `modprobe -l` | \
+ awk '/file format/{file = $1}/__ksymtab/{file = ""}/\.comment/ && file != "" {print file}'
+

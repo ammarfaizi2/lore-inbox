@@ -1,90 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbTKRDK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 22:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTKRDK2
+	id S262331AbTKRDED (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 22:04:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTKRDED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 22:10:28 -0500
-Received: from web13001.mail.yahoo.com ([216.136.174.11]:23140 "HELO
-	web13001.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262407AbTKRDKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 22:10:24 -0500
-Message-ID: <20031118031024.2308.qmail@web13001.mail.yahoo.com>
-Date: Mon, 17 Nov 2003 19:10:23 -0800 (PST)
-From: Amit Patel <patelamitv@yahoo.com>
-Subject: Re: scsi_report_lun_scan bug?
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20031118025440.GH30485@parcelfarce.linux.theplanet.co.uk>
+	Mon, 17 Nov 2003 22:04:03 -0500
+Received: from imap.gmx.net ([213.165.64.20]:9362 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262331AbTKRDEB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 22:04:01 -0500
+X-Authenticated: #15936885
+Message-ID: <3FB98C18.8090305@gmx.net>
+Date: Tue, 18 Nov 2003 04:03:52 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
+X-Accept-Language: de, en
 MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: netdev@oss.sgi.com, Brad House <brad_mssw@gentoo.org>
+Subject: Re: forcedeth: version 0.17 available
+References: <3FB807A3.8010207@gmx.net>
+In-Reply-To: <3FB807A3.8010207@gmx.net>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops sorry did not know about that...
-
-Here it is.
-
-[root@Host200-w2k root]# diff -u
-/cdrive/mm1/linux-2.6.0-test9/drivers/scsi/scsi_scan.c
-/cdrive/mm3/linux-2.6.0-test9/drivers/scsi/scsi_scan.c
----
-/cdrive/mm1/linux-2.6.0-test9/drivers/scsi/scsi_scan.c
-     2003-11-04 11:52:30.000000000 -0800
-+++
-/cdrive/mm3/linux-2.6.0-test9/drivers/scsi/scsi_scan.c
-     2003-11-17 18:25:30.534512992 -0800
-@@ -899,7 +899,7 @@
-        unsigned int retries;
-        struct scsi_lun *lunp, *lun_data;
-        struct scsi_request *sreq;
--       char *data;
-+       unsigned char *data;
- 
-        /*
-         * Only support SCSI-3 and up devices.
-@@ -990,7 +990,7 @@
-        /*
-         * Get the length from the first four bytes of
-lun_data.
-         */
--       data = (char *) lun_data->scsi_lun;
-+       data = (unsigned char *) lun_data->scsi_lun;
-        length = ((data[0] << 24) | (data[1] << 16) |
-                  (data[2] << 8) | (data[3] << 0));
- 
-[root@Host200-w2k root]# 
-[root@Host200-w2k root]# 
-
---- Matthew Wilcox <willy@debian.org> wrote:
-> On Mon, Nov 17, 2003 at 06:48:33PM -0800, Amit Patel
-> wrote:
-> > [root@Host200-w2k root]# diff
-> >
+Carl-Daniel Hailfinger wrote:
 >
-/cdrive/mm1/linux-2.6.0-test9/drivers/scsi/scsi_scan.c
-> >
->
-/cdrive/mm3/linux-2.6.0-test9/drivers/scsi/scsi_scan.c
-> > 902c902
-> > <       char *data;
-> > ---
-> > >       unsigned char *data;
-> 
-> Hi Amit.  Can you send diffs in unified format in
-> the future, ie diff -u
-> Thanks.
-> 
-> -- 
-> "It's not Hollywood.  War is real, war is primarily
-> not about defeat or
-> victory, it is about death.  I've seen thousands and
-> thousands of dead bodies.
-> Do you think I want to have an academic debate on
-> this subject?" -- Robert Fisk
+> version 0.17 of forcedeth for Linux 2.4 and 2.6 is available at
+> http://www.hailfinger.org/carldani/linux/patches/forcedeth/
+
+The patches for Linux 2.4 were malformed. Corrected versions have been
+uploaded a few hours ago.
+Thanks to Brad House for spotting this.
 
 
-__________________________________
-Do you Yahoo!?
-Protect your identity with Yahoo! Mail AddressGuard
-http://antispam.yahoo.com/whatsnewfree
+Regards,
+Carl-Daniel
+

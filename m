@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263383AbTDGLVv (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 07:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbTDGLVv (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 07:21:51 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:6091 "EHLO dns.toxicfilms.tv")
-	by vger.kernel.org with ESMTP id S263383AbTDGLVu (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 07:21:50 -0400
-Date: Mon, 7 Apr 2003 13:33:20 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+	id S263379AbTDGLZC (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 07:25:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbTDGLZC (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 07:25:02 -0400
+Received: from werbeagentur-aufwind.com ([217.160.128.76]:10695 "EHLO
+	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
+	id S263379AbTDGLZB (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 07:25:01 -0400
+Subject: Re: An idea for prefetching swapped memory...
+From: Christophe Saout <christophe@saout.de>
 To: linux-kernel@vger.kernel.org
-Subject: ext3 features/options
-Message-ID: <Pine.LNX.4.51.0304071323240.15910@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <200304072021.17080.kernel@kolivas.org>
+References: <200304071026.47557.schlicht@uni-mannheim.de>
+	 <200304072021.17080.kernel@kolivas.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049715389.1096.7.camel@chtephan.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.1.99 (Preview Release)
+Date: 07 Apr 2003 13:36:29 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Am Mon, 2003-04-07 um 12.21 schrieb Con Kolivas:
 
-how do i see which features / options filesystem has set ?
-i think tune2fs can only set or clear the flags.
+> > With this feature there should be no performance decrease because only free
+> > resources would be used, and if pages were swapped in but not be used, they
+> > stay not dirty and so have not to be written to disk when they are swapped
+> > out again. But the improvements should be obvious if simply the last swaped
+> > out pages are swapped in again...
+> 
+> This has been argued before. Why would the last swapped out pages be the best 
+> to swap in? The vm subsystem has (somehow) decided they're the least likely 
+> to be used again so why swap them in?
 
-I am asking of this because i set some features on ext3, and i want
-to resize the fs using ext2resize (I have read it is okay to do that)
-and ext2resize says i have incomptible features set. And it is not
-about the journaling, because i have been resizing journaled fs earlier
-on.
+Are you sure this is working? When I'm watching a video ofer NFS on my
+machine which is idle (just X and mplayer, gnome in background, 256 MB
+of memory, 512 swap), after 30 minutes or so, the playback starts to
+jump. The cpu usage is below 10%, and it even does this when both X and
+mplayer are renice to -19 (!). So the VM swapped everything out and
+after 30 minutes it starts to swap out X oder mplayer itself, which is
+immediately swapped back in but the video jumps... :-(
 
-Regards,
-Maciej
+-- 
+Christophe Saout <christophe@saout.de>
 

@@ -1,82 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136216AbRECIRj>; Thu, 3 May 2001 04:17:39 -0400
+	id <S136222AbRECI1w>; Thu, 3 May 2001 04:27:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136222AbRECIR3>; Thu, 3 May 2001 04:17:29 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40046 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S136216AbRECIRM>; Thu, 3 May 2001 04:17:12 -0400
-To: Fabrice Gautier <gautier@email.enst.fr>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: serial console problems with 2.4.4
-In-Reply-To: <20010502130958.38BB.GAUTIER@email.enst.fr> <m1elu7pv0e.fsf@frodo.biederman.org> <20010502201026.CB69.GAUTIER@email.enst.fr>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 May 2001 02:15:03 -0600
-In-Reply-To: Fabrice Gautier's message of "Wed, 02 May 2001 20:52:36 +0200"
-Message-ID: <m166fiq260.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S136227AbRECI1n>; Thu, 3 May 2001 04:27:43 -0400
+Received: from hood.tvd.be ([195.162.196.21]:19072 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S136222AbRECI1e>;
+	Thu, 3 May 2001 04:27:34 -0400
+Date: Thu, 3 May 2001 10:26:15 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Abramo Bagnara <abramo@alsa-project.org>,
+        "David S. Miller" <davem@redhat.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: unsigned long ioremap()?
+In-Reply-To: <3AF11211.B226543D@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.05.10105031024340.9438-100000@callisto.of.borg>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fabrice Gautier <gautier@email.enst.fr> writes:
-
-> On 02 May 2001 10:37:21 -0600
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
+On Thu, 3 May 2001, Jeff Garzik wrote:
+> Abramo Bagnara wrote:
+> > "David S. Miller" wrote:
+> > > There is a school of thought which believes that:
+> > >
+> > > struct xdev_regs {
+> > >         u32 reg1;
+> > >         u32 reg2;
+> > > };
+> > >
+> > >         val = readl(&regs->reg2);
+> > >
+> > > is cleaner than:
+> > >
+> > > #define REG1 0x00
+> > > #define REG2 0x04
+> > >
+> > >         val = readl(regs + REG2);
 > 
-> > Fabrice Gautier <gautier@email.enst.fr> writes:
-> > > So this this probably a sulogin/mingetty problem. They should set the
-> > > CREAD flag in your tty c_cflag.
-> > > 
-> > > the patch for busybox repalced the line
-> > > 	tty.c_cflag |= HUPCL|CLOCAL
-> > > by
-> > > 	tty.c_cflag |= CREAD|HUPCL|CLOCAL
-> > > 	
-> > > Hope this help.
+> > The problem I see is that with the former solution nothing prevents from
+> > to do:
 > > 
-> > This part is correct.  
-> > 
-> > However the kernel sets CREAD by default.  
+> >         regs->reg2 = 13;
 > 
-> Are your sure? Wasn't this the behaviour for 2.4.2  but changed in 2.4.3
+> Why should there be something to prevent that?
 
-init=/bin/bash works fine over a serial console in 2.4.4.  So I am
-certain.
+Because people can't seem to be teached to not do it?
 
-I get the impression that something in 2.4.3 fixed CREAD handling, and we
-started noticing the buggy user space.
-
-> > sysvinit (and possibly other inits) clears CREAD.
+> If a programmer does that to an ioremapped area, that is a bug.  Pure
+> and simple.
 > 
-> In my case I was using busybox as init. So there is no sysinit or any other
-> init called before this line.
-
-The busy box init is also clearing CREAD (as of 0.51 anyway).
-
-> > I wish I knew where the breakage actually occured.
+> We do not need extra mechanisms simply to guard against programmers
+> doing the wrong thing all the time.
 > 
-> Just look at this diff on serial.c between 2.4.2 and 2.4.3:
-
-If it was a real diff between 2.4.2 and 2.4.3 I would agree, however it looks
-like your attempt to fix 2.4.3. 
-
-Eric
-
-
-> --- serial.c	Sat Apr 21 17:22:53 2001
-> +++ ../../../linux-2.4.2/drivers/char/serial.c	Sat Feb 17 01:02:36 2001
-> @@ -1764,8 +1765,8 @@
->  	/*
->  	 * !!! ignore all characters if CREAD is not set
->  	 */
-> -//	if ((cflag & CREAD) == 0)
-> -//		info->ignore_status_mask |= UART_LSR_DR;
-> +	if ((cflag & CREAD) == 0)
-> +		info->ignore_status_mask |= UART_LSR_DR;
->  	save_flags(flags); cli();
->  	if (uart_config[info->state->type].flags & UART_STARTECH) {
->  		serial_outp(info, UART_LCR, 0xBF);
+> > That's indeed the reason to change ioremap prototype for 2.5.
 > 
+> Say what??
+> 
+> I have heard a good argument from rth about creating a pci_ioremap,
+> which takes a struct pci_dev argument.  But there is no reason to change
+> the ioremap prototype.
+
+If ioremap() would return unsigned long, the programmer at least has to cast it
+before he can do the buggy thing. But indeed bad programmers probably don't
+know that casts are evil (except when used very carefully).
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

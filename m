@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130403AbRCIAkp>; Thu, 8 Mar 2001 19:40:45 -0500
+	id <S130383AbRCIAjf>; Thu, 8 Mar 2001 19:39:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130428AbRCIAkf>; Thu, 8 Mar 2001 19:40:35 -0500
-Received: from Mail.ubishops.ca ([192.197.190.5]:28681 "EHLO Mail.ubishops.ca")
-	by vger.kernel.org with ESMTP id <S130403AbRCIAkU>;
-	Thu, 8 Mar 2001 19:40:20 -0500
-Message-ID: <3AA82616.F467A9B9@yahoo.co.uk>
-Date: Thu, 08 Mar 2001 19:38:46 -0500
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-thinkpad@www.bm-soft.com
-Subject: Re: 2.2.18 corruption: IDE + PCMCIA ?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130401AbRCIAjZ>; Thu, 8 Mar 2001 19:39:25 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:18339 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130383AbRCIAjS>; Thu, 8 Mar 2001 19:39:18 -0500
+Message-Id: <5.0.2.1.2.20010309003257.00abeac0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Fri, 09 Mar 2001 00:39:40 +0000
+To: Rik van Riel <riel@conectiva.com.br>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH] documentation mm.h + swap.h
+Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0103081807260.1314-100000@duckman.distro.con
+ ectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have seen the same sort of problem in the past.
+At 21:10 08/03/2001, Rik van Riel wrote:
+>+ * There is also a hash table mapping (inode,offset) to the page
+>+ * in memory if present. The lists for this hash table use the fields
+>+ * page->next_hash and page->pprev_hash.
 
-My conclusion was that there was a problem with dynamic 
-registering and unregistering of ide interfaces.
+Shouldn't (inode,offset) be (inode,index), or possibly (mapping,index)?
 
-Thomas Hood
-jdthood_AT_yahoo.co.uk
+>+ * For choosing which pages to swap out, inode pages carry a
+>+ * PG_referenced bit, which is set any time the system accesses
+>+ * that page through the (inode,offset) hash table. This referenced
 
-> I've experienced some disk corruption on my laptop.
-> 
-> Scenario:
-> I'm cross-compiling tons of sources and I felt the need
-> to insert a CompactFlash card (via PCMCIA) in my laptop.
-> So I did, no problem: 
-> mounted, touched a file, umounted, cardctl-ejected.
-> 
-> Pretty soon my compilation stops:
-> bash: /usr/bin/sort: cannot execute binary file
-> 
-> Okey. The date on /usr/bin/sort is unchanged. Must be root to write.
-> [...]
+And here, too?
+
+I know these are small details, but just for completeness sake...
+
+Best regards,
+
+         Anton
+
+
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

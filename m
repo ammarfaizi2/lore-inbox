@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271193AbTGWSDY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 14:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271194AbTGWSDX
+	id S271194AbTGWSIB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 14:08:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271196AbTGWSIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 14:03:23 -0400
-Received: from smtp.terra.es ([213.4.129.129]:35701 "EHLO tsmtp8.mail.isp")
-	by vger.kernel.org with ESMTP id S271193AbTGWSDU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 14:03:20 -0400
-Date: Wed, 23 Jul 2003 20:17:37 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: hch@infradead.org, tcfelker@mtco.com, linux-kernel@vger.kernel.org
-Subject: Re: root= needs hex in 2.6.0-test1-mm2
-Message-Id: <20030723201737.27c8fce9.diegocg@teleline.es>
-In-Reply-To: <1058972911.718.1.camel@teapot.felipe-alfaro.com>
-References: <200307230156.40762.tcfelker@mtco.com>
-	<20030723144351.A3367@infradead.org>
-	<1058972911.718.1.camel@teapot.felipe-alfaro.com>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 23 Jul 2003 14:08:01 -0400
+Received: from rth.ninka.net ([216.101.162.244]:35713 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S271194AbTGWSH6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 14:07:58 -0400
+Date: Wed, 23 Jul 2003 11:22:29 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: jw schultz <jw@pegasys.ws>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ICMP REQUEST
+Message-Id: <20030723112229.4b4903ed.davem@redhat.com>
+In-Reply-To: <20030723181212.GB15719@pegasys.ws>
+References: <E04CF3F88ACBD5119EFE00508BBB212104BCD649@exch-01.noida.hcltech.com>
+	<20030723181212.GB15719@pegasys.ws>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El 23 Jul 2003 17:08:31 +0200 Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> escribió:
+On Wed, 23 Jul 2003 11:12:12 -0700
+jw schultz <jw@pegasys.ws> wrote:
 
-> I didn't compile devfs in... However, root=/dev/xxx caused a panic
-> during bootup. So, I guess those panics aren't related exclusively to
-> devfs.
+> On Wed, Jul 23, 2003 at 12:53:35PM +0530, Hemanshu Kanji Bhadra, Noida wrote:
+> > Hi, All
+> > 
+> > i am developing a  ping program, through my program I get ECHO_REPLY..but I
+> > dont get ECHO_REQUEST.
+> > 
+> > is that the ECHO_REQUEST is handled by kernel.?
+> > 
+> > please respond as it is urgent.
+> 
+> In most cases ICMP ECHO_REQUEST is handled by the NIC.  The
+> kernel doesn't even see it.  That is why you can ping a
+> crashed system; the NIC is still configured.
 
-I can confirm this. It happens without devfsd.
-The hex trick worked ;)
+False.
+
+The reason you can ping a crashed system is that the network
+stack and the card are still functioning in the kernel.

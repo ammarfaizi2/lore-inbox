@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263182AbUDMDov (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 23:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263252AbUDMDov
+	id S263252AbUDMEBs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 00:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbUDMEBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 23:44:51 -0400
-Received: from usea-naimss2.unisys.com ([192.61.61.104]:784 "EHLO
-	usea-naimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S263182AbUDMDot convert rfc822-to-8bit (ORCPT
+	Tue, 13 Apr 2004 00:01:48 -0400
+Received: from Sophia.Soo.com ([199.202.113.33]:51725 "EHLO Soo.com")
+	by vger.kernel.org with ESMTP id S263252AbUDMEBr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 23:44:49 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH] 2.6.5- es7000 subarch update
-Date: Mon, 12 Apr 2004 22:44:36 -0500
-Message-ID: <452548B29F0CCE48B8ABB094307EBA1C04220150@USRV-EXCH2.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.6.5- es7000 subarch update
-Thread-Index: AcQhBmGs5QsrFh58RbCTpLPxYTHehgAACvsw
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Len Brown" <len.brown@intel.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       <linux-kernel@vger.kernel.org>, <lse-tech@lists.sourceforge.net>
-X-OriginalArrivalTime: 13 Apr 2004 03:44:36.0546 (UTC) FILETIME=[A423FA20:01C42109]
+	Tue, 13 Apr 2004 00:01:47 -0400
+Date: Tue, 13 Apr 2004 00:01:45 -0400
+From: really bensoo_at_soo_dot_com <lnx-kern@soo.com>
+To: linux-kernel@vger.kernel.org, Ross Dickson <ross@datscreative.com.au>
+Subject: Re: IO-APIC on nforce2
+Message-ID: <20040413040145.GA3327@Sophia.soo.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Ross Dickson <ross@datscreative.com.au>
+References: <200404131117.31306.ross@datscreative.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404131117.31306.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Len,
+Very odd.  i'm using plain 2.6.5 with your 2.6.3
+APIC patches, and left all this io_apic_set_pci_routing()
+stuff in.  And, for this first time in who knows
+how long i seem to have a stable computer.  Actually
+been up more than eight days.
 
->The ES7000 sure is a great tester of the over-ride code!
+This is an old overclocked MSI K7N2 with the first
+revision of the nForce2 chipset, the one that's only
+supposed to have UDMA100 (dunno if that's the chipset
+or the MSI mboard: the 2.6.X kernels have always said
+during bootup that it's running UDMA133).  i use an
+old Tulip ethercard instead of the onboard LAN.
 
-Yes, indeed...
+This machine is the beater box: an HTPC and a 24/7
+file share client, compile and test stuff, play music
+thru an Audigy sound card, burn DVD's, play video
+files, many of these things at the same time.
 
->But I don't like the proposal to selectively invalidate
->existing mp_irqs[] entries.
->I think the proper fix is to parse the over-ride entries before
->filling in the (remaining) identity mappings.  This also gets
->rid of the special case for IRQ2, which would be handled exactly
->like the mappings to < 16 on the ES7000 above.
+Before this kernel i was lucky to have uptimes over
+two days.
 
-This is great idea! I know that the patch I suggested was "patching the symptom", not really addressing the cause. I didn't really expect it to be used, mostly just to illustrate the problem.
+b
 
->Perhaps I should send you a patch you can test on the ES7000,
->since I don't have one of those?
+On Tue, Apr 13, 2004 at 11:17:31AM +1000, Ross Dickson wrote:
+> I am working with 2.4.26-rc2 and have noticed a change with the the recent acpi?
+> update. The recent fix to stop unnecessary ioapic irq routing entries puts the 
+> following if statement into io_apic.c, io_apic_set_pci_routing()
+> 
+> 	/*
+> 	 * IRQs < 16 are already in the irq_2_pin[] map
+> 	 */
+> 	if (irq >= 16)
+> 		add_pin_to_irq(irq, ioapic, pin);
+> 
+> which prevents my io-apic patch from using that function to reprogram the
+> io-apic pin on irq0 from pin2 to pin0. 
 
-Yes, please send me the patch and I will test it immediately.
-
->In any case, I'd prefer that proposed patches to this code come
->through me, since it is ACPI specific.
-
-Actually, I was just looking for you, and this is my email to one of my friends, who I think won't get it till tomorrow: "The alternative patch I came up with I think is correct, but looks really ugly.  There are like 3 or 4 places where it can be done, maybe someone could give me a hand to decide where to put the fix. Who is actually in charge of the mpparse and things like that I could cc to?"
-:)
-Thanks,
---Natalie

@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264335AbTKOA4w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 19:56:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTKOA4w
+	id S263998AbTKOAzf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 19:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTKOAzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 19:56:52 -0500
-Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:41857
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264335AbTKOA4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 19:56:50 -0500
-Date: Fri, 14 Nov 2003 19:55:51 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test9-mm3
-In-Reply-To: <Pine.LNX.4.44.0311141344290.5877-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.53.0311141954160.27998@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.44.0311141344290.5877-100000@home.osdl.org>
+	Fri, 14 Nov 2003 19:55:35 -0500
+Received: from mail.bahnhof.se ([213.136.33.1]:41967 "EHLO smtp2.bahnhof.se")
+	by vger.kernel.org with ESMTP id S262575AbTKOAze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 19:55:34 -0500
+Reply-To: <vm@netcity.ru>
+From: "Valentin" <vm@netcity.ru>
+Subject: Letter from Russia
+Date: Sat, 15 Nov 2003 08:56:27 +0300
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-Id: <20031115005513.326A8B8676@smtp2.bahnhof.se>
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Nov 2003, Linus Torvalds wrote:
+Dear Friend,
+ 
+I send you this letter from a library of our small city and I pray that this letter reached your address.
 
-> Triple faults you can't debug, they raise a line outside the CPU, and 
-> normal PC hardware will cause that to just trigger a reboot.
-> 
-> But double faults do get caught, and that debugging stuff actually is in
-> the standard kernel. It won't give _nearly_ as good a debug report as a
-> "normal" oops, since I didn't want the double-fault handler to touch
-> anything even remotely unsafe, but it often gives a good hint about what
-> might be wrong. Certainly better than triple-faulting did (which we still
-> do for _catastrophic_ corruption, eg totally munged kernel page tables etc
-> - it's just very hard to avoid once you get corrupted enough).
+My name is Valentin, I'm student and I live with my blind mother in Russia. I work very hard every day to be able take care of my mother, but my salary is very small because my studies are not finished. 
+ 
+Due to the crisis our authorities recently stoped gas in our district. Now we cannot heat our home because we don't have gas anymore. I don't know what to do, because the winter is coming and the temperature outside will be minus 30 degrees Celsius. I'm afraid that the temperature inside our home can be lower than 0 degrees and we will not be able to survive.
+ 
+Therefore I send you this desperate message with a prayer in my heart and I hope you can help us. If you have any old warm clothes, warm blankets, sleeping bag, electric heater or portable stove, high-calories food, vitamins, medicaments against cold, I will be very grateful to you if you could send it to our postal address which is: 
+ 
+Valentin Mihailin,
+Ryleeva Street, 6-45,
+Kaluga. 248030,
+Russia. 
+ 
+If you think that it would be better or easier for you to help with some money, please write me back and I will give you details for sending it safely if you agree. This way to help is very good because the necessities here are not very expensive.
+ 
+I pray to hear from you soon. From all my heart I wish you Happiness, Love and Peace. 
 
-"Catastrophic" seems to be rather apt here. 2.6.0-test8-mm1 produced the 
-following, i'm still doing a binary search.
-
-Unable to handle kernel paging request at virtual address 00002000
- printing eip:
-00007341
-*pde = 00000000
-Oops: 0004 [#1]
-PREEMPT SMP DEBUG_PAGEALLOC
-CPU:    0
-EIP:    c000:[<00007341>]    Not tainted VLI
-EFLAGS: 00033246
-EIP is at 0x7341
-eax: 32454256   ebx: 00000000   ecx: 00000000   edx: 00000000
-esi: 00000000   edi: 00002000   ebp: 00000fd6   esp: 08763f24
-ds: 0000   es: 0000   ss: 0068
-Process X (pid: 939, threadinfo=08762000 task=0890b330)
-Stack: 00000fcb 00000100 00000000 0000c000 00000000 00000000 00000000 00000000
-       00000005 ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff
-       ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff
-Call Trace:
-
-Code:  Bad EIP value.
+God Bless You,
+ 
+Valentin and my Mother Elena.
+Kaluga. Russia. 

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbTJIMjA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 08:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbTJIMjA
+	id S262131AbTJIMlX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 08:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbTJIMlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 08:39:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32218 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262094AbTJIMi6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 08:38:58 -0400
-Date: Thu, 9 Oct 2003 13:38:57 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Xose Vazquez Perez <xose@wanadoo.es>,
-       linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: two sym53c8xx.o modules
-Message-ID: <20031009123857.GC27861@parcelfarce.linux.theplanet.co.uk>
-References: <3F84AF3C.9050408@wanadoo.es> <Pine.LNX.4.44.0310090826290.2569-100000@logos.cnet> <20031009122428.GF11525@bitwizard.nl>
-Mime-Version: 1.0
+	Thu, 9 Oct 2003 08:41:23 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:43511 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262131AbTJIMlW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 08:41:22 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031009122428.GF11525@bitwizard.nl>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16261.22374.861491.176410@gargle.gargle.HOWL>
+Date: Thu, 9 Oct 2003 14:41:10 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.6.0-test7] ftape linkage error
+Cc: torvalds@osdl.org
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 09, 2003 at 02:24:28PM +0200, Erik Mouw wrote:
-> No, it's not allright. Modprobe can't distinguish between
-> sym53c8xx_2/sym53c8xx.o and sym53c8xx.o, you have to figure out the
-> full path and insmod one of them manually. Xose is right in that
-> sym53c8xx_2/sym53c8xx.o should be renamed in sym53c8xx_2/sym53c8xx_2.o.
-> Compare with aic7xxx and aic7xxx_old.
+Since 2.6.0-test6, ftape can't be configured as a built-in driver.
+test6 changed ftape-init.c to call ftape_proc_destroy() also in
+the non-MODULE case; however, ftape_proc_destroy() is only defined
+when the driver is built as a module. The result is a linkage error.
 
-Is it really important to change this at this stage of 2.4?  For
-reference, sym1 has already gone away in 2.6, so it'll be incovenient
-for users no matter what you change.  Let's stick with the devil we know.
+This patch fixes this by deleting the #if MODULE around
+ftape_proc_destroy()'s definition.
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+/Mikael
+
+--- linux-2.6.0-test7/drivers/char/ftape/lowlevel/ftape-proc.c.~1~	2002-02-20 03:11:01.000000000 +0100
++++ linux-2.6.0-test7/drivers/char/ftape/lowlevel/ftape-proc.c	2003-10-09 10:23:08.000000000 +0200
+@@ -207,11 +207,9 @@
+ 		ftape_read_proc, NULL) != NULL;
+ }
+ 
+-#ifdef MODULE
+ void ftape_proc_destroy(void)
+ {
+ 	remove_proc_entry("ftape", &proc_root);
+ }
+-#endif
+ 
+ #endif /* defined(CONFIG_PROC_FS) && defined(CONFIG_FT_PROC_FS) */

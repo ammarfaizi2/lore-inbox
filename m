@@ -1,64 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbTIYSZH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 14:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbTIYSYW
+	id S261528AbTIYSgY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbTIYSgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 14:24:22 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:8413 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261683AbTIYRzp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:55:45 -0400
-Date: Thu, 25 Sep 2003 08:49:50 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@digeo.com>
-Subject: ext3 panic on test4 running dbench
-Message-ID: <20610000.1064504990@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Thu, 25 Sep 2003 14:36:24 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:54415 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261528AbTIYSgT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 14:36:19 -0400
+Date: Thu, 25 Sep 2003 11:34:15 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Dave Jones <davej@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@osdl.org>, andrea@kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030925183415.GB18749@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Dave Jones <davej@redhat.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Linus Torvalds <torvalds@osdl.org>, andrea@kernel.org,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Matthew Wilcox <willy@debian.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	Larry McVoy <lm@bitmover.com>
+References: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org> <m1n0csiybu.fsf@ebiederm.dsl.xmission.com> <20030925173648.GA19626@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030925173648.GA19626@redhat.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-maybe this is fixed already ... but:
+On Thu, Sep 25, 2003 at 06:36:48PM +0100, Dave Jones wrote:
+> On Thu, Sep 25, 2003 at 11:15:33AM -0600, Eric W. Biederman wrote:
+> 
+>  > And for the core kernel development this is true.  There are subprojects
+>  > that are currently using BK that you can't even get the code without
+>  > BK.  And the only reason they are using BK is they are attempting to
+>  > following how Linux is managed.  So having the Linux kernel
+>  > development use BK does have some down sides.
+> 
+> I was expecting this to come up when Linus first made sparse publically
+> available only by bitkeeper, so I started the nightly snapshots.
 
-Sep 24 02:26:14 elm3b67 kernel: invalid operand: 0000 [#1]
-Sep 24 02:26:14 elm3b67 kernel: CPU:    11
-Sep 24 02:26:14 elm3b67 kernel: EIP:    0060:[_end+404081921/1069412752]    Not tainted
-Sep 24 02:26:14 elm3b67 kernel: EFLAGS: 00010206
-Sep 24 02:26:14 elm3b67 kernel: EIP is at 0xd857bb71
-Sep 24 02:26:14 elm3b67 kernel: eax: 00038815   ebx: 00000002   ecx: cbe4ab20   edx: 00000011
-Sep 24 02:26:14 elm3b67 kernel: esi: 00000000   edi: d82c6690   ebp: d4ecd1b0   esp: d857bb80
-Sep 24 02:26:14 elm3b67 kernel: ds: 007b   es: 007b   ss: 0068
-Sep 24 02:26:14 elm3b67 kernel: Process dbench (pid: 20747, threadinfo=d857a000 task=d4015900)
-Sep 24 02:26:14 elm3b67 kernel: Stack: cf768ea4 00000000 d82c6690 d857bc1c d8841400 d5f0a180 00000000 00000000 
-Sep 24 02:26:14 elm3b67 kernel:        00818006 d8841400 00000000 d5489310 cf768ea4 c017f65f cc218280 c01892b9 
-Sep 24 02:26:14 elm3b67 kernel:        cf768ea4 d82c6690 00000000 00000000 d4ecd1b0 00000000 d4ecd1b0 cf768ea4 
-Sep 24 02:26:14 elm3b67 kernel: Call Trace:
-Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_inode_loc+87/572] ext3_get_inode_loc+0x57/0x23c
-Sep 24 02:26:14 elm3b67 kernel:  [journal_get_write_access+33/52] journal_get_write_access+0x21/0x34
-Sep 24 02:26:14 elm3b67 kernel:  [ext3_reserve_inode_write+52/152] ext3_reserve_inode_write+0x34/0x98
-Sep 24 02:26:14 elm3b67 kernel:  [ext3_mark_inode_dirty+26/52] ext3_mark_inode_dirty+0x1a/0x34
-Sep 24 02:26:14 elm3b67 kernel:  [ext3_splice_branch+209/388] ext3_splice_branch+0xd1/0x184
-Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_block_handle+479/640] ext3_get_block_handle+0x1df/0x280
-Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_block+96/104] ext3_get_block+0x60/0x68
-Sep 24 02:26:14 elm3b67 kernel:  [__block_prepare_write+300/972] __block_prepare_write+0x12c/0x3cc
-Sep 24 02:26:14 elm3b67 kernel:  [block_prepare_write+33/56] block_prepare_write+0x21/0x38
-Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_block+0/104] ext3_get_block+0x0/0x68
-Sep 24 02:26:14 elm3b67 kernel:  [ext3_prepare_write+69/216] ext3_prepare_write+0x45/0xd8
-Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_block+0/104] ext3_get_block+0x0/0x68
-Sep 24 02:26:14 elm3b67 kernel:  [generic_file_aio_write_nolock+1693/2608] generic_file_aio_write_nolock+0x69d/0xa30
-Sep 24 02:26:14 elm3b67 kernel:  [generic_file_aio_write+103/128] generic_file_aio_write+0x67/0x80
-Sep 24 02:26:14 elm3b67 kernel:  [ext3_file_write+43/183] ext3_file_write+0x2b/0xb7
-Sep 24 02:26:14 elm3b67 kernel:  [do_sync_write+129/176] do_sync_write+0x81/0xb0
-Sep 24 02:26:14 elm3b67 kernel:  [sys_fstat64+37/48] sys_fstat64+0x25/0x30
-Sep 24 02:26:14 elm3b67 kernel:  [vfs_write+160/208] vfs_write+0xa0/0xd0
-Sep 24 02:26:14 elm3b67 kernel:  [sys_pwrite64+64/92] sys_pwrite64+0x40/0x5c
-Sep 24 02:26:14 elm3b67 kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Sep 24 02:26:14 elm3b67 kernel: 
-Sep 24 02:26:14 elm3b67 kernel: Code: ff ff ff 71 bb 57 d8 60 00 00 00 06 02 01 00 a4 8e 76 cf 00 
+Qwest is taking forever with our T1 lines but once that problem is solved
+we'll put up a version of the BK server on bkbits that will give you
+either GNU style patches or tarballs of an exported tree.  Then *all*
+projects mirrored on bkbits are automagically exported to good old plain 
+text format.
+
+And, because people might want to build their own gateways (we can only
+hope) the diffs can be extracted with checkin comments as shown below.
+That ought to be sufficient so that you can do whatever you want.  I'm
+pretty sure that patch(1) will just ignore all the leading comments.
+
+How's that?
+
+===== panic.c 1.12 vs + =====
+2003/08/07 10:29:13 akpm@osdl.org 1.13 +6 -1
+   Don't trigger NMI watchdog for panic delay
+
+--- 1.12/kernel/panic.c Mon May 12 11:11:38 2003
++++ +/kernel/panic.c    Thu Aug  7 10:29:13 2003
+@@ -16,6 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/sysrq.h>
+ #include <linux/interrupt.h>
++#include <linux/nmi.h>
+ 
+ asmlinkage void sys_sync(void);        /* it's really int */
+ 
+@@ -71,12 +72,16 @@ NORET_TYPE void panic(const char * fmt, 
+ 
+        if (panic_timeout > 0)
+        {
++               int i;
+                /*
+                 * Delay timeout seconds before rebooting the machine. 
+                 * We can't use the "normal" timers since we just panicked..
+                 */
+                printk(KERN_EMERG "Rebooting in %d seconds..",panic_timeout);
+-               mdelay(panic_timeout*1000);
++               for (i = 0; i < panic_timeout; i++) {
++                       touch_nmi_watchdog();
++                       mdelay(1000);
++               }
+                /*
+                 *      Should we run the reboot notifier. For the moment Im
+                 *      choosing not too. It might crash, be corrupt or do
 
 

@@ -1,67 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVBFMZx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVBFM32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVBFMZx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 07:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVBFMZx
+	id S261188AbVBFM32 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 07:29:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVBFM32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 07:25:53 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:11677 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261160AbVBFMZq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 07:25:46 -0500
-Date: Sun, 6 Feb 2005 13:25:07 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, drepper@redhat.com
-Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
-Message-ID: <20050206122507.GA30091@elte.hu>
-References: <20050206113635.GA30109@wotan.suse.de> <20050206114758.GA8437@infradead.org> <20050206120244.GA28061@elte.hu>
+	Sun, 6 Feb 2005 07:29:28 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:27918 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261188AbVBFM3U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 07:29:20 -0500
+Date: Sun, 06 Feb 2005 21:30:18 +0900 (JST)
+Message-Id: <20050206.213018.92031627.yoshfuji@linux-ipv6.org>
+To: herbert@gondor.apana.org.au
+Cc: davem@davemloft.net, mirko.parthey@informatik.tu-chemnitz.de,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, shemminger@osdl.org,
+       yoshfuji@linux-ipv6.org
+Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20050206114145.GA20883@gondor.apana.org.au>
+References: <20050205064643.GA29758@gondor.apana.org.au>
+	<20050205104559.GA30981@gondor.apana.org.au>
+	<20050206114145.GA20883@gondor.apana.org.au>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050206120244.GA28061@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20050206114145.GA20883@gondor.apana.org.au> (at Sun, 6 Feb 2005 22:41:45 +1100), Herbert Xu <herbert@gondor.apana.org.au> says:
 
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > > [...] when the program has trampolines and has PT_GNU_STACK
-> > > header with an E bit on the stack it still won't get an executable
-> > > heap by default  (this is what broke grub)
-
-> > So I rather see the patch below merged instead; it fixes the worst
-> > problems (RWE not marking the heap executable) while keeping this
-> > useful feature enabled.
+> On Sat, Feb 05, 2005 at 09:45:59PM +1100, herbert wrote:
 > > 
-> > Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+> > Although I still think this is a bug, I'm now starting to suspect
+> > that there is another bug around as well.
+> > 
+> > There is probably an ifp leak which in turn leads to a split dst
+> > leak that allows the first bug to make its mark.
 > 
-> looks good.
+> Found it.  This is what happens:
 > 
->  Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> lo goes down =>
+> 	rt6_ifdown =>
+> 		eth0's local address route gets deleted
 > 
-> (I'd like to stress that this problem only affects packages
-> _recompiled_ with new gcc, running on NX capable CPUs - legacy apps or
-> CPUs are in no way affected. Also, even with a recompile,
-> apps/kernels/distros have a number of other options as well even
-> without this kernel fix, of varying granularity: to use the setarch
-> utility, to set the READ_IMPLIES_EXEC personality bit within the code,
-> or to pass in the noexec=off kernel commandline option, or to add a
-> oneliner patch to their heap of 1500+ kernel patches, or to fix the
-> application. Also, with Arjan's patch applied, the execstack utility
-> can be used to remark the binary permanently, if needed.)
+> eth0 goes down =>
+> 	__ipv6_ifa_notify =>
+> 		ip6_del_rt fails so we fall through to the
+> 		dst_free path.  At this point the refcount
+> 		taken by __ipv6_ifa_notify is leaked.
 
-another, purely userspace solution is to add an execstack.c flag that
-clears the PT_GNU_STACK ELF program header and changes it to e.g.
-PT_NULL. That makes it a 'legacy' binary for the purposes of the kernel.
+Oh, you're right! Thanks.
 
-	Ingo
+How about this; Ignore entries addrconf_dst_alloc'ed entries in rt6_ifdown()?
+
+Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+
+===== include/linux/ipv6_route.h 1.6 vs edited =====
+--- 1.6/include/linux/ipv6_route.h	2004-10-26 12:54:23 +09:00
++++ edited/include/linux/ipv6_route.h	2005-02-06 21:27:02 +09:00
+@@ -26,6 +26,7 @@
+ #define RTF_FLOW	0x02000000	/* flow significant route	*/
+ #define RTF_POLICY	0x04000000	/* policy route			*/
+ 
++#define RTF_ANYCAST	0x40000000
+ #define RTF_LOCAL	0x80000000
+ 
+ struct in6_rtmsg {
+===== net/ipv6/route.c 1.105 vs edited =====
+--- 1.105/net/ipv6/route.c	2005-01-15 17:44:48 +09:00
++++ edited/net/ipv6/route.c	2005-02-06 21:26:35 +09:00
+@@ -1408,7 +1408,9 @@
+ 	rt->u.dst.obsolete = -1;
+ 
+ 	rt->rt6i_flags = RTF_UP | RTF_NONEXTHOP;
+-	if (!anycast)
++	if (anycast)
++		rt->rt6i_flags |= RTF_ANYCAST;
++	else
+ 		rt->rt6i_flags |= RTF_LOCAL;
+ 	rt->rt6i_nexthop = ndisc_get_neigh(rt->rt6i_dev, &rt->rt6i_gateway);
+ 	if (rt->rt6i_nexthop == NULL) {
+@@ -1427,7 +1429,8 @@
+ static int fib6_ifdown(struct rt6_info *rt, void *arg)
+ {
+ 	if (((void*)rt->rt6i_dev == arg || arg == NULL) &&
+-	    rt != &ip6_null_entry) {
++	    rt != &ip6_null_entry &&
++	    !(rt->rt6i_flags & (RTF_LOCAL|RTF_ANYCAST))) {
+ 		RT6_TRACE("deleted by ifdown %p\n", rt);
+ 		return -1;
+ 	}
+
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

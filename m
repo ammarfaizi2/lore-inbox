@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264813AbTBXHvg>; Mon, 24 Feb 2003 02:51:36 -0500
+	id <S265637AbTBXHqv>; Mon, 24 Feb 2003 02:46:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265039AbTBXHvg>; Mon, 24 Feb 2003 02:51:36 -0500
-Received: from ms-2.rz.RWTH-Aachen.DE ([134.130.3.131]:47310 "EHLO
-	ms-dienst.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
-	id <S264813AbTBXHve>; Mon, 24 Feb 2003 02:51:34 -0500
-Date: Mon, 24 Feb 2003 09:00:28 +0100
-From: jarausch@igpm.rwth-aachen.de
-Subject: 2.4.21-pre4(-ac4) ppp modules don't build
-To: linux-kernel@vger.kernel.org
-Reply-to: jarausch@igpm.rwth-aachen.de
-Message-id: <200302240800.JAA13853@numa1.igpm.rwth-aachen.de>
-MIME-version: 1.0
-Content-type: TEXT/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
+	id <S265675AbTBXHqu>; Mon, 24 Feb 2003 02:46:50 -0500
+Received: from dp.samba.org ([66.70.73.150]:21948 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265637AbTBXHqt>;
+	Mon, 24 Feb 2003 02:46:49 -0500
+Date: Mon, 24 Feb 2003 18:42:32 +1100
+From: Anton Blanchard <anton@samba.org>
+To: "Randy.Dunlap" <randy.dunlap@verizon.net>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] convert /proc/io{mem,ports} to seq_file
+Message-ID: <20030224074232.GA15887@krispykreme>
+References: <3E59BDA1.AE4D483A@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E59BDA1.AE4D483A@verizon.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have no problems building a kernel with the ppp-modules
-builtin from the beginning.
-But when I try to include these as modules only I
-get lots of undefined symbols during modules_install.
 
-Is this known and is there a work-around?
+> This patch is to Linux 2.5.62.
+> 
+> This converts /proc/io{mem,ports} to the seq_file interface
+> (single_open).
 
-Many thanks for a hint,
+Nice work! I have some machines that are very close to overflowing a
+page:
 
-Helmut Jarausch
+4040 iomem
+4082 ioports
 
-Lehrstuhl fuer Numerische Mathematik
-Aachen University
-D 52056 Aachen, Germany
-
-
+Anton

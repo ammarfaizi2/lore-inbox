@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267908AbUBRT1h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 14:27:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267909AbUBRT1f
+	id S267699AbUBRUdl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 15:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268061AbUBRUdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 14:27:35 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:57221 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S267906AbUBRT12 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 14:27:28 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 18 Feb 2004 15:33:41 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:37572 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S267699AbUBRUdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 15:33:37 -0500
+Date: Wed, 18 Feb 2004 15:33:03 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Alexander Hoogerhuis <alexh@ihatent.com>, Zoltan NAGY <nagyz@nefty.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: v2.6 in vmware?
+In-Reply-To: <20040218200607.GA12982@vana.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.58.0402181532210.7734@montezuma.fsmlabs.com>
+References: <10ADD433537@vcnet.vc.cvut.cz> <8765e4fayx.fsf@lapper.ihatent.com>
+ <20040218200607.GA12982@vana.vc.cvut.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16435.48279.217876.842831@napali.hpl.hp.com>
-Date: Wed, 18 Feb 2004 11:27:19 -0800
-To: Christoph Hellwig <hch@infradead.org>
-Cc: davidm@hpl.hp.com, Pat Gefre <pfg@sgi.com>, akpm@osdl.org,
-       davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [2.6 PATCH] Altix update
-In-Reply-To: <20040218191559.B11957@infradead.org>
-References: <200402181441.i1IEfIWX024531@fsgi900.americas.sgi.com>
-	<20040218170601.A10490@infradead.org>
-	<16435.45326.877129.189633@napali.hpl.hp.com>
-	<20040218184411.A11714@infradead.org>
-	<16435.46665.488393.913044@napali.hpl.hp.com>
-	<20040218191559.B11957@infradead.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 18 Feb 2004 19:15:59 +0000, Christoph Hellwig <hch@infradead.org> said:
+On Wed, 18 Feb 2004, Petr Vandrovec wrote:
 
-  Christoph> On Wed, Feb 18, 2004 at 11:00:25AM -0800, David Mosberger wrote:
-  >> Where?  On linux-ia64 or on lkml?  I don't recall these discussions
-  >> (but then again, I'm admittedly very good at forgetting stuff...).
+> On Wed, Feb 18, 2004 at 08:23:34PM +0100, Alexander Hoogerhuis wrote:
+> > "Petr Vandrovec" <VANDROVE@vc.cvut.cz> writes:
+> >
+> > > On 18 Feb 04 at 14:37, Zoltan NAGY wrote:
+> > > > I've been trying to get 2.6.x working in vmware4, but it drops some
+> > > > oopses during init... I cannot provide details, but I'm sure that it
+> > > > does not just me who are having problems with it..
+> > >
+> > > Definitely you are... I do not know about any problems with running
+> > > 2.6.x as a guest under VMware.
+> > >
+> >
+> > There was something about sysenter support or something in that
+> > general direction; I had Zwane Mwaikambo send me a patch that worked
+> > around this for pre 4.0.5 vmware, but never got around to test it as I
+> > upgraded the vmware software.
+>
+> I have all reasons to believe that this is fixed in 4.0.5. It is definitely
+> fixed in 4.5.
 
-  Christoph> Linux-IA64.  I sent a bunch of patches to you and Jesse
-  Christoph> that you applied but large parts of SGI didn't for
-  Christoph> certain reasons (NIH comes to mind).
+Yes that sysenter patch is not required to run Linux 2.6 as a guest in
+VMWare 4.05 (verified on build 6030)
 
-Thankfully, I have no control over SGI's tree but if you have any
-pending improvements for the generic ia64 portions, I'd certainly be
-happy to take (another) look.  I really didn't (and still don't)
-remember of there being anything pending in this area.  Not entirely
-surprising though: I'm quite easy to satisfy as far as the PCI
-subsystem goes (if it works, I'm happy ;-).
-
-	--david

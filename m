@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312892AbSCZA36>; Mon, 25 Mar 2002 19:29:58 -0500
+	id <S312889AbSCZAjb>; Mon, 25 Mar 2002 19:39:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312893AbSCZA3t>; Mon, 25 Mar 2002 19:29:49 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:31066 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S312892AbSCZA3q>; Mon, 25 Mar 2002 19:29:46 -0500
-Message-ID: <3C9FC016.2040307@ngforever.de>
-Date: Mon, 25 Mar 2002 17:25:58 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-Organization: The LuckyNet Administration
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.9) Gecko/20020313
-X-Accept-Language: en-us, en
+	id <S312894AbSCZAjV>; Mon, 25 Mar 2002 19:39:21 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:18437 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S312889AbSCZAjN>; Mon, 25 Mar 2002 19:39:13 -0500
+Date: Mon, 25 Mar 2002 20:33:51 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bk repository compile bug (zoran)
+In-Reply-To: <3C9D799C.3070300@candelatech.com>
+Message-ID: <Pine.LNX.4.21.0203252033340.3456-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: nahshon@actcom.co.il
-CC: Herman Oosthuysen <Herman@WirelessNetworksInc.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: SSSCA Hits the Senate
-In-Reply-To: <Pine.LNX.4.44L.0203251736130.18660-100000@imladris.surriel.com> <002601c1d443$779d9d40$0100007f@localdomain.wni.com.wirelessnetworksinc.com> <200203252243.g2PMhEq32144@lmail.actcom.co.il>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Itai Nahshon wrote:
-> So the music industry can move itself 30 years back, but why do they insist
-> of taking the computer industry to that journey?
-Guess that's not the problem. Seems they're looking for someone to blame for
-their problems. I think they don't see themselves as loosing anything here.
-Just getting someone punished, will be us. Maybe it is helpful to them.
-Also, the congressmen need something to say we do work on that. Anyway, 
-do they know what they're doing? Someone go and ask them?
 
-Thunder
--- 
-Thunder from the hill.
-Citizen of our universe.
+
+On Sun, 24 Mar 2002, Ben Greear wrote:
+
+> Just in case this has not been caught yet, from repository:
+>   bk://linux.bkbits.net/linux-2.4
+> 
+> 
+> gcc -D__KERNEL__ -I/home/greear/kernel/2.4/bk/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE -DMODVERSIONS -include /home/greear/kernel/2.4/bk/linux-2.4/include/linux/modversions.h  -DKBUILD_BASENAME=zr36067  -c -o zr36067.o zr36067.c
+> zr36067.c: In function `zoran_open':
+> zr36067.c:3268: structure has no member named `busy'
+> zr36067.c: At top level:
+> zr36067.c:4405: warning: initialization makes integer from pointer without a cast
+> zr36067.c:4406: warning: initialization makes integer from pointer without a cast
+> zr36067.c:4407: warning: initialization from incompatible pointer type
+> zr36067.c:4408: warning: initialization from incompatible pointer type
+> zr36067.c:4410: warning: initialization from incompatible pointer type
+> zr36067.c:4411: warning: initialization from incompatible pointer type
+> zr36067.c:4412: warning: initialization from incompatible pointer type
+> make[3]: *** [zr36067.o] Error 1
+> make[3]: Leaving directory `/home/greear/kernel/2.4/bk/linux-2.4/drivers/media/video'
+
+Already fixed by Gerd patches... Thanks.
 

@@ -1,34 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbUKOW3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbUKOWer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbUKOW3x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 17:29:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUKOW3x
+	id S261482AbUKOWer (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 17:34:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUKOWer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 17:29:53 -0500
-Received: from ns.suse.de ([195.135.220.2]:60379 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261341AbUKOW3w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 17:29:52 -0500
-Date: Mon, 15 Nov 2004 23:14:32 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, ak@suse.de, discuss@x86-64.org
-Subject: Re: [discuss] [PATCH] x8664 hpet: fix function warning
-Message-ID: <20041115221431.GD3062@wotan.suse.de>
-References: <419906BB.9080405@osdl.org>
+	Mon, 15 Nov 2004 17:34:47 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:31715 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261482AbUKOWeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 17:34:31 -0500
+Date: Mon, 15 Nov 2004 23:34:30 +0100
+From: Andrea Arcangeli <andrea@novell.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Christoph Rohland <cr@sap.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tmpfs symlink corrupts mempolicy
+Message-ID: <20041115223430.GF4758@dualathlon.random>
+References: <Pine.LNX.4.44.0411152037340.4131-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <419906BB.9080405@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0411152037340.4131-100000@localhost.localdomain>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 15, 2004 at 11:42:51AM -0800, Randy.Dunlap wrote:
+On Mon, Nov 15, 2004 at 08:41:12PM +0000, Hugh Dickins wrote:
+> Andrea discovered that short symlinks on tmpfs, stored within the inode
+> itself, overwrote the NUMA mempolicy field which shmem_destroy_inode
+> expected to find there.  His fix was good, but Hugh changed it around a
+> little, to match existing shmem.c practice (now mpol_init in cases which
+> might allocate a page, mpol_free in shmem_truncate_inode), and allow for
+> possibility that mpol_init for a long symlink might one day do something
+> which really needs mpol_free.
 > 
-> put function prototype outside of #ifdef block, to fix:
-> arch/x86_64/kernel/time.c:941: warning: implicit declaration of
-> function `oem_force_hpet_timer'
+> Signed-off-by: Hugh Dickins <hugh@veritas.com>
+> ---
+> 
+> Thanks a lot for working that out, Andrea: is this version okay with you?
+> I've not studied the mempolicy.c part of the patch you posted, which
+> seemed to be an entirely separate (and less urgent) patch,
+> better reviewed by Andi.
+> 
+> --- 2.6.10-rc2/mm/shmem.c	2004-11-15 16:21:24.000000000 +0000
+> +++ linux/mm/shmem.c	2004-11-15 19:08:58.366829456 +0000
+> @@ -672,6 +672,7 @@ static void shmem_delete_inode(struct in
+>  		shmem_unacct_size(info->flags, inode->i_size);
+>  		inode->i_size = 0;
+>  		shmem_truncate(inode);
+> +		mpol_free_shared_policy(&info->policy);
+>  		if (!list_empty(&info->swaplist)) {
+>  			spin_lock(&shmem_swaplist_lock);
+>  			list_del_init(&info->swaplist);
 
-Thanks, added.
+this patch is completely broken, delete_inode isn't going to be called
+when the inode is being shrunk. delete_inode is only good for truncate,
+mpol_free_shared_policy has nothing to do with the nlink value.
 
--Andi
+this patch will tend to work until the vm shrink the dcache, then it'll
+crash, sorry.

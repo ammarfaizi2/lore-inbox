@@ -1,67 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267623AbUHPNdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267624AbUHPNdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267623AbUHPNdI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 09:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267630AbUHPNdH
+	id S267624AbUHPNdR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 09:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267630AbUHPNdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 09:33:07 -0400
-Received: from stokkie.demon.nl ([82.161.49.184]:32182 "HELO stokkie.net")
-	by vger.kernel.org with SMTP id S267623AbUHPNcw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 09:32:52 -0400
-Date: Mon, 16 Aug 2004 15:32:46 +0200 (CEST)
-From: "Robert M. Stockmann" <stock@stokkie.net>
-To: Patrick McFarland <diablod3@gmail.com>
-cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-In-Reply-To: <d577e56904081605514c3e987f@mail.gmail.com>
-Message-ID: <Pine.LNX.4.44.0408161528570.24315-100000@hubble.stokkie.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
+	Mon, 16 Aug 2004 09:33:17 -0400
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:15499 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S267624AbUHPNcy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 09:32:54 -0400
+Date: Mon, 16 Aug 2004 16:32:51 +0300
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
+Message-ID: <20040816133250.GA17379@elektroni.ee.tut.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <411FD919.9030702@comcast.net> <20040816143817.0de30197.Ballarin.Marc@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040816143817.0de30197.Ballarin.Marc@gmx.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004, Patrick McFarland wrote:
-
-> On Mon, 16 Aug 2004 14:47:00 +0200 (CEST), Robert M. Stockmann
-> <stock@stokkie.net> wrote:
-> > On Mon, 16 Aug 2004, Patrick McFarland wrote:
-> > 
-> > > On Fri, 13 Aug 2004 04:39:46 +0200 (CEST), Robert M. Stockmann
-> > > <stock@stokkie.net> wrote:
-> > > > On Thu, 12 Aug 2004, Jens Axboe wrote:
-> > > >
-> > > > > On Thu, Aug 12 2004, Robert M. Stockmann wrote:
-> > > > > > On Thu, 12 Aug 2004, Jens Axboe wrote:
-> > > > > >
-> > > > > > > On Thu, Aug 12 2004, Robert M. Stockmann wrote:
-> > > > > > > > On Thu, 12 Aug 2004, Jens Axboe wrote:
-> > > > > > > >
-> > > > > > > > > On Thu, Aug 12 2004, Robert M. Stockmann wrote:
-> > > > > > > > > > On Thu, 12 Aug 2004, Frank Steiner wrote:
-> > > > > > > > > >
-> > > > > > > > > > > Robert M. Stockmann wrote:
-> > >
-> > > Have you ever heard of trimming replies?
-> > >
-> > > 
-> > Yes i do, in important matters, i explicit do not.
+On Mon, Aug 16, 2004 at 02:38:17PM +0200, Marc Ballarin wrote:
+> On Sun, 15 Aug 2004 14:43:53 -0700
+> John Wendel <jwendel10@comcast.net> wrote:
 > 
-> Flaming Mr. Axboe in public is important?
+> > K3B detects my Lite-on LTR-52327S CDRW as a CDROM when run with 2.6.8.1.
 > 
+> Due to the newly added command filtering, you now need to run cdrecord as
+> root. Since cdrecord will drop root privileges before accessing the drive,
+> setuid root won't help.
 
-I was surprised to see a SuSE developer advise me to just do the
-auto/auto thingy and _hope_ for the best, concerning burning a DVD-R.
 
-I would like to emphasise, its Open Source what we are discussing here!
+I can't confirm this.
 
-thanks,
-best regards,
-
-Robert
--- 
-Robert M. Stockmann - RHCE
-Network Engineer - UNIX/Linux Specialist
-crashrecovery.org  stock@stokkie.net
-
+I also have LITE-ON LTR-52327S and suid-root cdrecord burns just fine with
+kernel 2.6.8.1. It's cdrecord 2.00.3 from Slackware. (I don't use any
+graphic front end). cdrecord -checkdrive tells among other things this:
+Supported modes: TAO PACKET SAO SAO/R96P SAO/R96R RAW/R16 RAW/R96P RAW/R96R

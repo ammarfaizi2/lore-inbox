@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319099AbSHSXZu>; Mon, 19 Aug 2002 19:25:50 -0400
+	id <S319108AbSHSX3G>; Mon, 19 Aug 2002 19:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319102AbSHSXZu>; Mon, 19 Aug 2002 19:25:50 -0400
-Received: from pD952A30B.dip.t-dialin.net ([217.82.163.11]:33923 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S319099AbSHSXZt>; Mon, 19 Aug 2002 19:25:49 -0400
-Date: Mon, 19 Aug 2002 17:29:40 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alexander Viro <viro@math.psu.edu>, Larry McVoy <lm@bitmover.com>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: IDE?
-In-Reply-To: <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208191728180.3234-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S319109AbSHSX3G>; Mon, 19 Aug 2002 19:29:06 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33996 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S319108AbSHSX3G>;
+	Mon, 19 Aug 2002 19:29:06 -0400
+Date: Tue, 20 Aug 2002 01:34:27 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: MAX_PID changes in 2.5.31
+In-Reply-To: <1029799751.21212.0.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0208200131590.7206-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 16 Aug 2002, Linus Torvalds wrote:
->  - phase 2: IDE-TNG.
+On 20 Aug 2002, Alan Cox wrote:
 
-Couldn't we give it another name? Such as LUI - Linux Unified IDE? 
-Whatever? TNG is too much mainstream and sounds just too clumsy...
+> libc5 is very much 16bit pid throughout. It would make sense that our
+> default (proc settable) pid max is 30000 still so that it only breaks
+> stuff if you increase it
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+We can have the safe low value in 2.6 i think - it's not that the typical
+2.6 kernel is expected to run tens of thousands of tasks.
+
+	Ingo
 

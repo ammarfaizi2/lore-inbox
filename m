@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129814AbRBCVId>; Sat, 3 Feb 2001 16:08:33 -0500
+	id <S130421AbRBCVLW>; Sat, 3 Feb 2001 16:11:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130421AbRBCVIX>; Sat, 3 Feb 2001 16:08:23 -0500
-Received: from srvr3.telecom.lt ([212.59.0.2]:12037 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S129814AbRBCVIE>;
-	Sat, 3 Feb 2001 16:08:04 -0500
-Reply-To: <nerijus@freemail.lt>
-From: "Nerijus Baliunas" <nerijus@users.sourceforge.net>
-To: "Rhys Jones" <linux-kernel@postwales.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Need for more ISO8859 codepages?
-Date: Sat, 3 Feb 2001 23:08:00 +0200
-Message-ID: <MPBBJGBJAHHNDMMBBLMIKEPNFKAB.nerijus@users.sourceforge.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <4755.137.44.4.15.981028098.squirrel@www.sucs.swan.ac.uk>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+	id <S130727AbRBCVLN>; Sat, 3 Feb 2001 16:11:13 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:2876 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S130421AbRBCVLA>;
+	Sat, 3 Feb 2001 16:11:00 -0500
+Message-ID: <20010203221057.A17106@win.tue.nl>
+Date: Sat, 3 Feb 2001 22:10:57 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: thunder7@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: one of the most useless patches you'll ever see
+In-Reply-To: <20010203173606.A7821@middle.of.nowhere>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010203173606.A7821@middle.of.nowhere>; from thunder7@xs4all.nl on Sat, Feb 03, 2001 at 05:36:06PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> About 18 months ago I patched fs/nls/ to include support for the
-> Celtic character set, ISO8859-14. I notice that there are still gaps
-> in nls, specifically in ISO8859 codepages 10 to 13.
-> 
-> The missing codepages are for Nordic/Icelandic (ISO8859-10), Thai
-> (ISO8859-11), and Baltic Rim (ISO8859-13) languages. I'm still trying
-> to determine the status of ISO8859-12 at the moment.
-> 
-> Two questions, really. The general one is whether anyone would find
-> these codepages useful. If they would, I'm willing to provide the
-> patches in due course. More specifically, can anyone tell me why
-> ISO8859-10 (Icelandic etc.) is mentioned in Documentation/Configure.help
-> whilst nls_iso8859-10.c is missing from the fs/nls directory?
+On Sat, Feb 03, 2001 at 05:36:06PM +0100, thunder7@xs4all.nl wrote:
 
-Hello,
+> This copies the sun 12x22 font to a 12x20 font.
+> Readability on a 21" monitor remains very high @ 1600x1200, but you get
+> 60 lines instead of 55.
 
-ISO8859-13 is used in Latvia and Lithuania, so it would be useful.
-I don't think ISO8859-12 is really used, it is reserved for
-Devanagari (Indian), but I think they will use unicode eventually...
-So it would be nice to add support for ISO8859-10 and ISO8859-13
-at least.
+Wouldnt it suffice to do
+	setfont -h20 sun12x22
+?
 
-Regards,
-Nerijus
+[With a setfont from kbd-1.04.]
 
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

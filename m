@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265011AbRFZQM4>; Tue, 26 Jun 2001 12:12:56 -0400
+	id <S265017AbRFZQSQ>; Tue, 26 Jun 2001 12:18:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265010AbRFZQMi>; Tue, 26 Jun 2001 12:12:38 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:42257 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265008AbRFZQMd>; Tue, 26 Jun 2001 12:12:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>, Jocelyn Mayer <jma@netgem.com>
-Subject: Re: Microsoft and Xenix.
-Date: Tue, 26 Jun 2001 18:15:47 +0200
-X-Mailer: KMail [version 1.2]
-Cc: <landley@webofficenow.com>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106260804540.2823-100000@twin.uoregon.edu>
-In-Reply-To: <Pine.LNX.4.33.0106260804540.2823-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Message-Id: <0106261815470G.01008@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S265015AbRFZQR4>; Tue, 26 Jun 2001 12:17:56 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:22800 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S265008AbRFZQRo>; Tue, 26 Jun 2001 12:17:44 -0400
+Date: Tue, 26 Jun 2001 11:17:32 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10106261020270.7781-100000@blrmail>
+In-Reply-To: <Pine.LNX.4.10.10106251238230.28707-100000@blrmail>
+Subject: Re: Reg Kernel Debugger kgdb
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <yqS6PD.A.ycD.fWLO7@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 June 2001 17:15, Joel Jaeggli wrote:
-> On Tue, 26 Jun 2001, Jocelyn Mayer wrote:
->
-> you get DR-DOS = Digital Research DOS, then you get Novell DOS, then
-> you get Caldera OpenDOS, currently opendos is owned by lineo
+** Reply to message from "SATHISH.J" <sathish.j@tatainfotech.com> on Tue, 26
+Jun 2001 10:24:02 +0530 (IST)
 
-Yes, and the source actually was open for a short time when Caldera had it, 
-then it snapped back shut like a clam.  I wanted to use DrDos for an 
-industrial project because of less paranoid licensing than MS-Dos, but after 
-being rebuffed in no uncertain terms when I offered to fix a bug I ran away 
-shuddering and jumped on the Linux cluetrain.
 
-> > I think I remember that DR-DOS was the name that Caldera
-> > gave to the Digital Research OS, previously known as GEMDOS,
+> I couls see http://kgdb.sourceforge.net/ the kgdb for 2.4.5 kernel
+> version. Can I use the same for 2.2.14 kernel which I am using?
 
---
-Daniel
+Definitely not.  Kernel patches are version-specific, especially ones of this
+magnitude.
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+

@@ -1,95 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265476AbUFWP6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266006AbUFWQAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265476AbUFWP6T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 11:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265930AbUFWP6S
+	id S266006AbUFWQAz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 12:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265786AbUFWQAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 11:58:18 -0400
-Received: from imap.gmx.net ([213.165.64.20]:57514 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265476AbUFWP55 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 11:57:57 -0400
-X-Authenticated: #21910825
-Message-ID: <40D9A857.5040901@gmx.net>
-Date: Wed, 23 Jun 2004 17:57:11 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: de, en
+	Wed, 23 Jun 2004 12:00:55 -0400
+Received: from web81304.mail.yahoo.com ([206.190.37.79]:63887 "HELO
+	web81304.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266483AbUFWP7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 11:59:45 -0400
+Message-ID: <20040623155944.96871.qmail@web81304.mail.yahoo.com>
+Date: Wed, 23 Jun 2004 08:59:44 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: RE: Continue: psmouse.c - synaptics touchpad driver sync problem
+To: Marc Waeckerlin <marc.waeckerlin@siemens.com>
+Cc: t.hirsch@web.de, laflipas@telefonica.net, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Kalin KOZHUHAROV <kalin@ThinRope.net>
-CC: Mikael Bouillot <xaajimri@corbac.com>, linux-kernel@vger.kernel.org,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Brian Lazara <blazara@nvidia.com>
-Subject: Re: Forcedeth driver bug
-References: <20040623142936.GA10440@mail.nute.net> <40D99A08.90707@ThinRope.net>
-In-Reply-To: <40D99A08.90707@ThinRope.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kalin KOZHUHAROV wrote:
-> Mikael Bouillot wrote:
+Marc Waeckerlin wrote:
+> >
+> > If your psmouse module is compiled it then use "psmouse.resetafter=3"
+> > as a boot parameter. If psmouse is a module then put
+> > "options psmouse resetafer=3" in your /etc/modprobe.conf
 > 
->>   Hi all,
->>
->>   I'm having trouble with the forcedeth driver in kernel version 2.6.7.
->>
->>> From what I can see, it seems that incoming packets sometime get stuck
->>
->> on their way in.
->>
->>   What happens is this: some packet enters the NIC, and for some reason,
->> it doesn't come out of the driver. As soon as another incoming packet
->> gets in, both packets are handed down by the driver.
->>
->>   It is usually invisible during normal TCP operation, as there are
->> several packets in flight and the stuck packet gets pushed down by the
->> one following it very soon. But for lockstep protocols like SMB, it very
->> annoying as it means you get "blanks" of 2 to 5 seconds during the
->> transfer.
->>
->>   I can reproduce this very easily with a modified version of ping. I
->> do a flood ping from another machine to the one with the nvnet NIC, but
->> I modified ping to send a new packet if one gets "lost" only 10 seconds
->> later instead of after 10 ms. The result is that after a couple hundred
->> ping-pong at full speed, one ping gets stuck. After 10 seconds, another
->> ping is sent and both pong come back.
+> I am sorry, both options do not help at all - well, perhaps the jumping of
+> the
+> cursor when using the touchpad without external keyboard/mouse
+> disconnected
+> may be slightly better. But as soon as I plug in the external keyboard,
+> the
+> old problem occurs.
+>
 
-Are you sure both come back? If so, what does dmesg say during this time?
-Is the system in question under heavy load?
+Hmm... OK, I see that you have an active multiplexing controller.
+I wonder if it gets reset back to legacy mode when you plug your
+external keyboard. (btw, it it just a keyboard or a docking station/
+port replicator?). Try passing i8042.nomux to the kernel and try using
+your touchpad/keyboard. If nomux does not help you may try to use
+psmouse.proto=bare or psmouse.proto=imps to disable Synaptics-specific
+extensions.
 
-Can you confirm that the ping packet got stuck in the receive path or
-could the associated pong reply have gotten stuck in the send path?
-
-
->>   This didn't happen with the proprietary nvnet driver on kernel 2.4.24.
->> My hardware is a nForce 2 mobo (in a shuttle SN45G barebones).
->>
->>   Is this a know bug? If someone working on it already or should I
->> investigate the matter further? Please CC any reply to me as I'm not on
->> the list.
-
-It could be a weird interaction with interrupt mitigation, but I doubt it.
-Nobody has ever mailed me about such problems with the driver.
-
-
-> Search http://groups.google.com/ or somewhere else in LKML for "new
-> device support for forcedeth.c"
+Also, if you have time, please change #undef DEBUG to #define DEBUG in
+drivers/input/serio/i8042.c, reboot, play a bit with touchpad; plug
+external keyboard and send me output of "dmesg -s 100000".
+ 
+> Also I have a problem not yet mentioned, but it happened again this
+> morning:
+> Sometimes - without external keyboard/mouse, only using touchpad and
+> internal
+> keyboard -, sometimes the keyboard does not work anymore. If I hit any
+> arbitrary key, nothing happens anymore. The mouse still works with the
+> touchpad. Since I am often mobile, I can't acces the notebook through LAN
+> and
+> sice keynoard does not work anymore, I cant hit ctrl-alt-f1 or so to
+> switch
+> to a terminal or to watch the syslog on ctrl-alt-f10. The only thing I can
+> do
+> is to reboot using the mouse only.
 > 
-> Try the latest patch ( forcedeth_gigabit_try17.txt was the one I tested
-> last) and report back.
-> The driver has undergone quite a lot of patching lately.
-> AFAIR, while testing it, similar effect was observed, but the it was way
-> broken anyway.
 
-forcedeth_gigabit_try19.txt is the most recent one.
-Changes against try17:
-- fix compilation warnings and rename the Kconfig entry
+Ok, we were getting reports about this happening with Toshibas, no
+resolution yet...
 
-Get it at
-http://www.hailfinger.org/carldani/linux/patches/forcedeth/
-and please report if it fixes your problem.
+--
+Dmitry
 
-Regards,
-Carl-Daniel

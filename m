@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263621AbTDWWRP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 18:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbTDWWRP
+	id S263631AbTDWWSC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 18:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264230AbTDWWSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 18:17:15 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:20160 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263621AbTDWWRO
+	Wed, 23 Apr 2003 18:18:02 -0400
+Received: from smtp2.clear.net.nz ([203.97.37.27]:30865 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S263631AbTDWWR6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 18:17:14 -0400
-Date: Wed, 23 Apr 2003 15:18:50 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Werner Almesberger <wa@almesberger.net>
-cc: Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <1570840000.1051136330@flay>
-In-Reply-To: <20030423191427.D3557@almesberger.net>
-References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423183413.C1425@almesberger.net> <1560860000.1051133781@flay> <20030423191427.D3557@almesberger.net>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 23 Apr 2003 18:17:58 -0400
+Date: Thu, 24 Apr 2003 10:25:25 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Fix SWSUSP & !SWAP
+In-reply-to: <20030423223639.7cc6a796.gigerstyle@gmx.ch>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: Pavel Machek <pavel@ucw.cz>, Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Message-id: <1051136725.4439.5.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <20030423135100.GA320@elf.ucw.cz>
+ <Pine.GSO.4.21.0304231631560.1343-100000@vervain.sonytel.be>
+ <20030423144705.GA2823@elf.ucw.cz> <20030423175629.7cfc9087.gigerstyle@gmx.ch>
+ <1051126871.1893.35.camel@laptop-linux>
+ <20030423223639.7cc6a796.gigerstyle@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I'm more concerned with new installs, and the poor user having no idea
->> why his sound card "doesn't work". Been there myself. Pain in the ass.
-> 
-> Yes, but that's a user space problem too. Nothing prevents your
-> distribution to crank up the volume to 100% also on a first-time
-> installation.
 
-100% would be stupid too. If the distro can pick a reasonable value,
-the kernel can too. Thus the argument "push the problem into userspace"
-doesn't do anything for me.
- 
-> The kernel should pick a value that's safe in all cases. And
-> this is zero. Don't forget that there can be several seconds
-> between the driver's initialization and the moment when the
-> user-space utility gets to change the settings.
 
-So if people want 0 volume for some reason, they can set *that*
-in userspace. Windows can manage to do this without cocking it up. 
-I don't see why we can't achieve it. 
+On Thu, 2003-04-24 at 08:36, Marc Giger wrote:
+> Ok! I see the advantages / disadvantages of each version. But what
+> happens if the memory AND swap space are full and nothing can't be
+> freed? When I watch the memory and swap consumption on my laptop, I
+> think it's the most time the case...
 
-M.
+If you're getting yourself in that situation, you should be increasing
+your swap space (and memory if possible) anyway.
+
+> Another question:
+> Is it a big problem to save the memory in a separate file on the file
+> system, and save somewhere the pointer to it (as example in swap. Also
+> we could set a flag in swap so that we now that the last shutdown was
+> a hybernation). One Problem will be, that we don't know the filesystem
+> type on resume...(We could save the module in swap...)
+> All that is just theoretical. It's only a idea.
+
+I guess the simplest answer is would it be worth the pain? Since disk
+space is cheap, it just requires a little forethought when installing
+Linux, to ensure enough swap is allocated. I certainly understand that
+using a file rather than swap makes adjusting the amount of space
+available easier, but as you rightly acknowledge, it does complicate
+things a fair bit more.
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+Be diligent to present yourself approved to God as a workman who does
+not need to be ashamed, handling accurately the word of truth.
+	-- 2 Timothy 2:14, NASB.
 

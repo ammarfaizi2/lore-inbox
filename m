@@ -1,195 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbUDNKh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 06:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264031AbUDNKh1
+	id S264027AbUDNKhm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 06:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264033AbUDNKhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 06:37:27 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:59304 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S264030AbUDNKgz
+	Wed, 14 Apr 2004 06:37:42 -0400
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:40115 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264027AbUDNKhi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 06:36:55 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Greg KH <greg@kroah.com>
-Subject: [PATCH 2/9] USB usbfs: replace the per-file semaphore with the per-device semaphore
-Date: Wed, 14 Apr 2004 12:36:52 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-usb-devel@lists.sf.net, linux-kernel@vger.kernel.org,
-       Frederic Detienne <fd@cisco.com>
+	Wed, 14 Apr 2004 06:37:38 -0400
+Date: Wed, 14 Apr 2004 12:37:37 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ross Dickson <ross@datscreative.com.au>
+Cc: Len Brown <len.brown@intel.com>, christian.kroener@tu-harburg.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: IO-APIC on nforce2 [PATCH]
+In-Reply-To: <200404141502.14023.ross@datscreative.com.au>
+Message-ID: <Pine.LNX.4.55.0404141220500.17639@jurand.ds.pg.gda.pl>
+References: <200404131117.31306.ross@datscreative.com.au>
+ <200404131703.09572.ross@datscreative.com.au> <1081893978.2251.653.camel@dhcppc4>
+ <200404141502.14023.ross@datscreative.com.au>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404141236.52823.baldrick@free.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- devio.c		|   43 +++++++++++++++++++++++--------------------
- usbdevice_fs.h	|    1 -
- 2 files changed, 23 insertions(+), 21 deletions(-)
+On Wed, 14 Apr 2004, Ross Dickson wrote:
 
+> e.g. for 2.4.26-rc2 io_apic.c line 1613 or 2.6.5 line 2180 
+> 	if (pin1 != -1) {
+> 		/*
+> 		 * Ok, does IRQ0 through the IOAPIC work?
+> 		 */
+> +		if(acpi_skip_timer_override)
+> +			timer_ack=0;
+> 		unmask_IO_APIC_irq(0);
+> 
+> I might also grab the pci quirk source from the old nforce2 disconnect bit
+> patch and try it as a means of detection for automatic trigger. i.e. instead
+> of writing the pci config bit, set acpi_skip_timer_override instead - but then
+> if someone gets clock skew we would need the kern arg to turn it off - 
+> unless the potential for clock skew is fixed.
 
-diff -Nru a/include/linux/usbdevice_fs.h b/include/linux/usbdevice_fs.h
---- a/include/linux/usbdevice_fs.h	Wed Apr 14 12:34:00 2004
-+++ b/include/linux/usbdevice_fs.h	Wed Apr 14 12:34:00 2004
-@@ -154,7 +154,6 @@
- 
- struct dev_state {
- 	struct list_head list;      /* state list */
--	struct rw_semaphore devsem; /* protects modifications to dev (dev == NULL indicating disconnect) */ 
- 	struct usb_device *dev;
- 	struct file *file;
- 	spinlock_t lock;            /* protects the async urb lists */
-diff -Nru a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
---- a/drivers/usb/core/devio.c	Wed Apr 14 12:17:29 2004
-+++ b/drivers/usb/core/devio.c	Wed Apr 14 12:17:29 2004
-@@ -92,14 +92,15 @@
- static ssize_t usbdev_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
- {
- 	struct dev_state *ps = (struct dev_state *)file->private_data;
-+	struct usb_device *dev = ps->dev;
- 	ssize_t ret = 0;
- 	unsigned len;
- 	loff_t pos;
- 	int i;
- 
- 	pos = *ppos;
--	down_read(&ps->devsem);
--	if (!connected(ps->dev)) {
-+	down(&dev->serialize);
-+	if (!connected(dev)) {
- 		ret = -ENODEV;
- 		goto err;
- 	} else if (pos < 0) {
-@@ -111,7 +112,7 @@
- 		len = sizeof(struct usb_device_descriptor) - pos;
- 		if (len > nbytes)
- 			len = nbytes;
--		if (copy_to_user(buf, ((char *)&ps->dev->descriptor) + pos, len)) {
-+		if (copy_to_user(buf, ((char *)&dev->descriptor) + pos, len)) {
- 			ret = -EFAULT;
- 			goto err;
- 		}
-@@ -123,9 +124,9 @@
- 	}
- 
- 	pos = sizeof(struct usb_device_descriptor);
--	for (i = 0; nbytes && i < ps->dev->descriptor.bNumConfigurations; i++) {
-+	for (i = 0; nbytes && i < dev->descriptor.bNumConfigurations; i++) {
- 		struct usb_config_descriptor *config =
--			(struct usb_config_descriptor *)ps->dev->rawdescriptors[i];
-+			(struct usb_config_descriptor *)dev->rawdescriptors[i];
- 		unsigned int length = le16_to_cpu(config->wTotalLength);
- 
- 		if (*ppos < pos + length) {
-@@ -133,7 +134,7 @@
- 			/* The descriptor may claim to be longer than it
- 			 * really is.  Here is the actual allocated length. */
- 			unsigned alloclen =
--				ps->dev->config[i].desc.wTotalLength;
-+				dev->config[i].desc.wTotalLength;
- 
- 			len = length - (*ppos - pos);
- 			if (len > nbytes)
-@@ -143,7 +144,7 @@
- 			if (alloclen > (*ppos - pos)) {
- 				alloclen -= (*ppos - pos);
- 				if (copy_to_user(buf,
--				    ps->dev->rawdescriptors[i] + (*ppos - pos),
-+				    dev->rawdescriptors[i] + (*ppos - pos),
- 				    min(len, alloclen))) {
- 					ret = -EFAULT;
- 					goto err;
-@@ -160,7 +161,7 @@
- 	}
- 
- err:
--	up_read(&ps->devsem);
-+	up(&dev->serialize);
- 	return ret;
- }
- 
-@@ -521,7 +522,6 @@
- 	INIT_LIST_HEAD(&ps->async_pending);
- 	INIT_LIST_HEAD(&ps->async_completed);
- 	init_waitqueue_head(&ps->wait);
--	init_rwsem(&ps->devsem);
- 	ps->discsignr = 0;
- 	ps->disctask = current;
- 	ps->disccontext = NULL;
-@@ -538,19 +538,20 @@
- static int usbdev_release(struct inode *inode, struct file *file)
- {
- 	struct dev_state *ps = (struct dev_state *)file->private_data;
-+	struct usb_device *dev = ps->dev;
- 	unsigned int i;
- 
--	lock_kernel();
-+	down(&dev->serialize);
- 	list_del_init(&ps->list);
- 
--	if (connected(ps->dev)) {
-+	if (connected(dev)) {
- 		for (i = 0; ps->ifclaimed && i < 8*sizeof(ps->ifclaimed); i++)
- 			if (test_bit(i, &ps->ifclaimed))
- 				releaseintf(ps, i);
- 		destroy_all_async(ps);
- 	}
--	unlock_kernel();
--	usb_put_dev(ps->dev);
-+	up(&dev->serialize);
-+	usb_put_dev(dev);
- 	ps->dev = NULL;
- 	kfree(ps);
-         return 0;
-@@ -1017,18 +1018,19 @@
-         DECLARE_WAITQUEUE(wait, current);
- 	struct async *as = NULL;
- 	void __user *addr;
-+	struct usb_device *dev = ps->dev;
- 	int ret;
- 
- 	add_wait_queue(&ps->wait, &wait);
--	while (connected(ps->dev)) {
-+	while (connected(dev)) {
- 		__set_current_state(TASK_INTERRUPTIBLE);
- 		if ((as = async_getcompleted(ps)))
- 			break;
- 		if (signal_pending(current))
- 			break;
--		up_read(&ps->devsem);
-+		up(&dev->serialize);
- 		schedule();
--		down_read(&ps->devsem);
-+		down(&dev->serialize);
- 	}
- 	remove_wait_queue(&ps->wait, &wait);
- 	set_current_state(TASK_RUNNING);
-@@ -1195,13 +1197,14 @@
- static int usbdev_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
- {
- 	struct dev_state *ps = (struct dev_state *)file->private_data;
-+	struct usb_device *dev = ps->dev;
- 	int ret = -ENOTTY;
- 
- 	if (!(file->f_mode & FMODE_WRITE))
- 		return -EPERM;
--	down_read(&ps->devsem);
--	if (!connected(ps->dev)) {
--		up_read(&ps->devsem);
-+	down(&dev->serialize);
-+	if (!connected(dev)) {
-+		up(&dev->serialize);
- 		return -ENODEV;
- 	}
- 	switch (cmd) {
-@@ -1283,7 +1286,7 @@
- 		ret = proc_ioctl(ps, (void __user *) arg);
- 		break;
- 	}
--	up_read(&ps->devsem);
-+	up(&dev->serialize);
- 	if (ret >= 0)
- 		inode->i_atime = CURRENT_TIME;
- 	return ret;
+ Well, the question is whether the timer->INTIN0 routing is hardwired
+inside the nforce2 chipset or is it external and thus board-dependent.  
+Any way to get this clarified by the chipset's manufacturer?
+
+> The clock skew is an interesting one, I think the clock uses tsc if available
+> to interpolate between timer ints and if so should it not also be used to 
+> validate the timer ints in case of noise? Apparently the clock speeds up not
+> slows down in those cases?
+
+ With real hardware perhaps it can be debugged.  The interaction between
+the 8254, the 8259As and the APICs seems interesting in the chipset.  
+Perhaps the override to INTIN2 is to tell the timer is really unavailable
+directly?  I can't see a way to have an ACPI override that specifies an
+ISA interrupt is not connected to the I/O APIC (unlike with the MPS).
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

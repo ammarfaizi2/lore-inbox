@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVCNRxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVCNRxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbVCNRxt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 12:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVCNRwP
+	id S261651AbVCNRxu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 12:53:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVCNRwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 12:52:15 -0500
-Received: from mail.kroah.org ([69.55.234.183]:63943 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261658AbVCNRve (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 12:51:34 -0500
-Date: Mon, 14 Mar 2005 09:32:29 -0800
-From: Greg KH <greg@kroah.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       Pavel Machek <pavel@ucw.cz>,
-       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: Linux 2.6.11.2
-Message-ID: <20050314173229.GA838@kroah.com>
-References: <20050311220150.GA4925@kroah.com> <Pine.LNX.3.96.1050314115353.4343A-100000@gatekeeper.tmr.com>
+	Mon, 14 Mar 2005 12:52:05 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:49058 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261651AbVCNRsK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 12:48:10 -0500
+Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for
+	2.6.11)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <16948.55096.598031.618338@wombat.chubb.wattle.id.au>
+References: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU>
+	 <20050311071825.GA28613@kroah.com>
+	 <16945.22566.593812.759201@wombat.chubb.wattle.id.au>
+	 <20050311152106.GA32584@kroah.com>
+	 <16948.55096.598031.618338@wombat.chubb.wattle.id.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1110822361.17740.141.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1050314115353.4343A-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 14 Mar 2005 17:46:02 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 12:10:19PM -0500, Bill Davidsen wrote:
-> I didn't like the initial decision to go incremental, and I even less like
-> changing now, but it's the right thing to do. It's not like we have a big
-> investment in scripts or anything, and you're doing the work.
+On Llu, 2005-03-14 at 00:13, Peter Chubb wrote:
+> Greg> see mmap(2)
+> 
+> mmap maps a file's contents into your own virtual memory.
+> usr_pci_map maps part of your own virtual memory into pci bus space
+> for a particular device (using the IOMMU if your machine has one), and
+> returns a scatterlist of bus addresses to hand to the device.
 
-And it's already done, see the 2.6.11.3 release announcement :)
+You can't really do it that way around because you don't know what the
+memory constraints of the device are compared to your user pages.
+Suppose your user pages are in high memory over 4GB and the device is
+32bit DMA constrained ? You don't want bounce buffers clearly.
 
-greg k-h
+In addition you have to be very careful about shared pages when doing
+DMA because you don't want to DMA into a COW page but that is handleable
+(as is done by O_DIRECT)
+
+Alan
+

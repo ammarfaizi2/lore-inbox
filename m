@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262835AbUCJWDq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 17:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbUCJWDq
+	id S262855AbUCJWFi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 17:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUCJWFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 17:03:46 -0500
-Received: from main.gmane.org ([80.91.224.249]:40171 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262835AbUCJWDp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 17:03:45 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
-Date: Wed, 10 Mar 2004 23:03:42 +0100
-Message-ID: <yw1xk71sxsu9.fsf@kth.se>
-References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org>
- <Pine.LNX.4.53.0403101324120.18709@chaos> <404F6375.3080500@blue-labs.org>
- <52ad2o4j4b.fsf@topspin.com> <404F6BF8.9010405@blue-labs.org>
- <52y8q82y29.fsf@topspin.com>
+	Wed, 10 Mar 2004 17:05:38 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:10486 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262855AbUCJWFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 17:05:31 -0500
+Subject: Re: [PATCH] 2.6.x BSD Process Accounting w/High UID
+From: Albert Cahalan <albert@users.sf.net>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       corliss@digitalmages.com, riel@redhat.com, jerj@coplanar.net
+In-Reply-To: <Pine.LNX.4.53.0403101844140.15085@gockel.physik3.uni-rostock.de>
+References: <1078883951.2232.501.camel@cube>
+	 <Pine.LNX.4.53.0403100940240.12833@gockel.physik3.uni-rostock.de>
+	 <1078936898.2232.571.camel@cube>
+	 <Pine.LNX.4.53.0403101844140.15085@gockel.physik3.uni-rostock.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1078956556.2233.586.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti211310a080-2480.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:axlNe4ew9sC+4I5ywyzMxAaby44=
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 Mar 2004 17:09:16 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier <roland@topspin.com> writes:
+On Wed, 2004-03-10 at 12:47, Tim Schmielau wrote:
+> On Wed, 10 Mar 2004, Albert Cahalan wrote:
+> 
+> > That's a 42-bit number instead of a 36-bit one.
+> 
+> OK, your format clearly wins. Especially since I think that comp_t can
+> only encode a 34-bit number.
 
->     David> No, the problem is your mail reader or configuration is
->     David> broken.  Both Pine and Mutt both wrap lines just fine,
->     David> and all the GUI interface I've used (in recent years)
->     David> wrap just fine.  a) they aren't recognizing soft line
->     David> breaks or b) you're not acknowledging lines sent without
->     David> any wraps.
->
-> How do these mail readers wrap quotes like the above?
+That is correct. 42 - 8 != 36
 
-Don't know about those, but gnus does a good job.  BTW, quotes should
-use the string "> " at column 0, nothing else.
+My diagram was right; the math was not.
 
--- 
-Måns Rullgård
-mru@kth.se
+> But I favor your suggestion of 32-bit IEEE floats even more,
+> as it doesn't need a change to the GNU acct tools.
+
+I'm surprised. Do the tools rely on a #define for this?
+
+Is there a reason to have the whole struct be a
+power of two? If so, and you don't wish to expand
+it to 128 bytes, consider packing 3 80-byte records
+and a 16-byte header into 256 bytes.
+
 

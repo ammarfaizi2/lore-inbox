@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269112AbRG3Wxh>; Mon, 30 Jul 2001 18:53:37 -0400
+	id <S268723AbRG3W5r>; Mon, 30 Jul 2001 18:57:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269129AbRG3WxS>; Mon, 30 Jul 2001 18:53:18 -0400
-Received: from venus.Sun.COM ([192.9.25.5]:34951 "EHLO venus.Sun.COM")
-	by vger.kernel.org with ESMTP id <S269126AbRG3Ww7>;
-	Mon, 30 Jul 2001 18:52:59 -0400
-From: "Pawel Worach" <pworach@mysun.com>
-To: linux-kernel@vger.kernel.org
-Reply-To: pawel.worach@mysun.com
-Message-ID: <2b13928a5c.28a5c2b139@mysun.com>
-Date: Tue, 31 Jul 2001 00:43:38 +0200
-X-Mailer: Netscape Webmail
-MIME-Version: 1.0
-Content-Language: en
-Subject: eepro100 2.4.7-ac3 problems (apm related)
-X-Accept-Language: en
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S268709AbRG3W5h>; Mon, 30 Jul 2001 18:57:37 -0400
+Received: from ns.caldera.de ([212.34.180.1]:11695 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S268762AbRG3W5X>;
+	Mon, 30 Jul 2001 18:57:23 -0400
+Date: Tue, 31 Jul 2001 00:56:47 +0200
+Message-Id: <200107302256.f6UMuli30314@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: nigel@nrg.org (Nigel Gamble)
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        mingo@redhat.com
+Subject: Re: [PATCH] [IMPORTANT] Re: 2.4.7 softirq incorrectness.
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <Pine.LNX.4.05.10107301529300.11108-100000@cosmic.nrg.org>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi!
+In article <Pine.LNX.4.05.10107301529300.11108-100000@cosmic.nrg.org> you wrote:
+> I'd like to see all the various execution contexts of Linux (irqs,
+> softirqs, tasklets, kernel daemons) all become (real-time where
+> necessary) kernel threads like ksoftirqd, scheduled with the appropriate
+> scheduling class and priority.  The resulting kernel code would be much
+> simpler and more maintainable; and it would make it possible to change
+> the scheduling priority of the threads to optimize for different
+> application loads.
 
-The eepro100 interface in my Fujitsy/Siemens Lifebook S-4546
-won't come up after a suspend, if I unload the module and load it again
-it works fine...
-"ioctl SIOCSIFFLAGS: No such device" is the error message.
+That's how solaris does it, btw.  From time to time sun seems to get
+something right ;)
 
-This happend in 2.4.5 i think.
+	Christoph
 
-/Pawel
-
-
+-- 
+Whip me.  Beat me.  Make me maintain AIX.

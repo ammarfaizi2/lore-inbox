@@ -1,102 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262895AbTCYQ45>; Tue, 25 Mar 2003 11:56:57 -0500
+	id <S262933AbTCYRAC>; Tue, 25 Mar 2003 12:00:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262933AbTCYQ45>; Tue, 25 Mar 2003 11:56:57 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:17038 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262895AbTCYQ4z>; Tue, 25 Mar 2003 11:56:55 -0500
-Date: Tue, 25 Mar 2003 12:07:52 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Fionn Behrens <fionn@unix-ag.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: System time warping around real time problem - please help
-In-Reply-To: <1048609931.1601.49.camel@rtfm>
-Message-ID: <Pine.LNX.4.53.0303251152080.29361@chaos>
-References: <1048609931.1601.49.camel@rtfm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262970AbTCYRAC>; Tue, 25 Mar 2003 12:00:02 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:2578 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262933AbTCYRAB>;
+	Tue, 25 Mar 2003 12:00:01 -0500
+Date: Tue, 25 Mar 2003 09:10:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i2c-via686a driver
+Message-ID: <20030325171032.GB15823@kroah.com>
+References: <3E7E0B37.5060505@portrix.net> <20030323202743.A11150@infradead.org> <200303232136.10089.dominik@kubla.de> <20030323204810.A11421@infradead.org> <3E7E2963.4070302@portrix.net> <20030325035451.GG11874@kroah.com> <3E801D8B.2040107@portrix.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E801D8B.2040107@portrix.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Mar 2003, Fionn Behrens wrote:
+On Tue, Mar 25, 2003 at 10:12:43AM +0100, Jan Dittmer wrote:
+> Greg KH wrote:
+> >On Sun, Mar 23, 2003 at 10:38:43PM +0100, Jan Dittmer wrote:
+> >
+> >>Anyway, here is a corrected version.
+> >
+> >
+> >Oops, one other thing.  The pci_device_id structure should be
+> >initialized by using the .field = method, not the way the driver is
+> >currently.
+> >
+> >Oh, and one patch that adds the Kconfig, Makefile, and driver to the
+> >tree would be great.
+> >
+> I included that one with the first mail, but here it is again together 
+> with the hopefully correctly fixed driver.
 
->
-> Hello all,
->
->
-> I have got an increasingly annoying problem with our fairly new (fall
-> '02) Dual Athlon2k+ Gigabyte 7dpxdw linux system running 2.4.20.
-> The only kernel patch applied is Alan Cox's ptrace patch.
->
+Yes, but you didn't include it all in one patch.  It's tough to apply a
+.c file with 'patch' :)
 
-I am using the exact same kernel (a lot of folks are). There
-is no such jumping on my system.
-Try this program:
+Also, you need to set up the adapter.dev.parent pointer before calling
+i2c_add_adapter().
 
-#include <stdio.h>
-#include <time.h>
-int main() {
-   time_t x,y;
-   (void)time(&x);
-   (void)time(&y);
-   for(;;) {
-       (void)time(&x);
-       if(x < y)
-           printf("Prev %ld New %ld\n", y, x);
-       y = x;
-   }
-   return 0;
-}
-If this shows time jumping around you have one of either:
+Can you make that one change, and send a single patch?
 
-(1)	Bad timer channel 0 chip (PIT).
-(2)	Some daemon trying to sync time with another system.
-(3)	You are traveling too close to the speed of light.
+thanks,
 
-Now, your script shows time in fractional seconds.
-
-> 1048608745.61 > 1048608745.60
-
-You can modify the program to do this:
-
-
-#include <stdio.h>
-#include <sys/time.h>
-int main() {
-   struct timeval tv;
-   double x, y;
-   (void)gettimeofday(&tv, NULL);
-   x = (double) tv.tv_sec * 1e6;
-   x += (double) tv.tv_usec;
-   y = x;
-   for(;;) {
-       (void)gettimeofday(&tv, NULL);
-       x = (double) tv.tv_sec * 1e6;
-       x += (double) tv.tv_usec;
-       if(x < y)
-           printf("Prev %f New %f\n", y, x);
-       y = x;
-   }
-   return 0;
-}
-
-There should be no jumping around -- and there isn't on
-any system I've tested this on.
-
-> Software crashes are regularly - naturally. No programmer expects system
-> timers going back in time.
->
-
-Hmmm, software should never crash. Even if the timers jump backwards
-as you say, they should eventually time-out. If you have crashes, this
-may point to other hardware problems as well.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+greg k-h

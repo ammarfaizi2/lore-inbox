@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275012AbRKSIk2>; Mon, 19 Nov 2001 03:40:28 -0500
+	id <S274875AbRKSIqj>; Mon, 19 Nov 2001 03:46:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274875AbRKSIkJ>; Mon, 19 Nov 2001 03:40:09 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:1800 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S275012AbRKSIj7>;
-	Mon, 19 Nov 2001 03:39:59 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200111190839.fAJ8dve95358@saturn.cs.uml.edu>
-Subject: Re: [patch] scheduler cache affinity improvement in 2.4 kernels by Ingo Molnar
-To: partha@us.ibm.com (Partha Narayanan)
-Date: Mon, 19 Nov 2001 03:39:57 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF130223C2.EFFE9842-ON85256B07.0052CC33@raleigh.ibm.com> from "Partha Narayanan" at Nov 17, 2001 10:58:05 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S275265AbRKSIq3>; Mon, 19 Nov 2001 03:46:29 -0500
+Received: from t2.redhat.com ([199.183.24.243]:9462 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S274875AbRKSIqP>; Mon, 19 Nov 2001 03:46:15 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20011118202252.A8708@vger.timpanogas.org> 
+In-Reply-To: <20011118202252.A8708@vger.timpanogas.org>  <200111181710.fAIHAlCF011794@sleipnir.valparaiso.cl> <Pine.LNX.4.33.0111181803040.7482-100000@penguin.transmeta.com> 
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        Andrea Arcangeli <andrea@suse.de>, ehrhardt@mathematik.uni-ulm.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: VM-related Oops: 2.4.15pre1 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 19 Nov 2001 08:44:28 +0000
+Message-ID: <588.1006159468@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Partha Narayanan writes:
 
-> The above patch for scheduler cache affinity improvement in 2.4 kernels by
-> Ingo Molnar was applied to 2.4.14 kernel;
+jmerkey@vger.timpanogas.org said:
+>  This is true.  They Generate what's called a "split lock" bus
+> transaction where the bus will hold LOCK# low across the several clock
+> cycles to  complete the write.  They are **VERY** heavy, BTW, and
+> really cause  nasty performance hits. 
 
-Just a thought: some processors tell you how many cache lines
-have been thrown out. Look in whatever performance monitoring
-registers are available.
+Is it worth making put_unaligned and get_unaligned on x86 avoid this by 
+loading/storing the two halves of the required datum separately, then? 
+
+--
+dwmw2
+
+

@@ -1,89 +1,266 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbTEUQrz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 12:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTEUQrz
+	id S262197AbTEURJp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 13:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTEURJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 12:47:55 -0400
-Received: from 12-225-92-115.client.attbi.com ([12.225.92.115]:50048 "EHLO
-	p3.coop.hom") by vger.kernel.org with ESMTP id S262153AbTEUQry
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 12:47:54 -0400
-Date: Wed, 21 May 2003 10:00:45 -0700
-From: Jerry Cooperstein <coop@axian.com>
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Wrong clock initialization
-Message-ID: <20030521170045.GA2130@p3.attbi.com>
-References: <3ECA673F.7B3FB388@uni-mb.si>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ECA673F.7B3FB388@uni-mb.si>
-User-Agent: Mutt/1.4.1i
+	Wed, 21 May 2003 13:09:45 -0400
+Received: from c3po.aoltw.net ([64.236.137.25]:29059 "EHLO netscape.com")
+	by vger.kernel.org with ESMTP id S262197AbTEURJk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 13:09:40 -0400
+Message-ID: <3ECBB5DA.40408@netscape.com>
+Date: Wed, 21 May 2003 10:22:34 -0700
+From: jgmyers@netscape.com (John Myers)
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Fwd: Re: Comparing the aio and epoll event frameworks.]
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms040808010108020702000406"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is not directly a kernel problem.  I developed this after
-a glibc upgrade.  The problem is most distros (such as redhat)
-make a symbolic link
+This is a cryptographically signed message in MIME format.
 
-   /etc/localtime -> /usr/share/zoneinfo/America/Los_Angeles
+--------------ms040808010108020702000406
+Content-Type: multipart/mixed;
+ boundary="------------010300010507080904000800"
 
-or whatever your timezone is.  On some of my systems, /usr/share is on
-a disk partition that is not mounted at the time the link is needed
-during initialization; the system then defaults to UTC.  As a result,
-each time you boot up your system loses a time equal to the difference
-between UTC and your local time zone.
+This is a multi-part message in MIME format.
+--------------010300010507080904000800
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-To fix this, just make sure /etc/localtime is actually a file on the
-root filesystem, not a link to a possibly unmounted filesystem.
-Just copy the one pointed to by the link.
-
-I have systems with the same partition/mount layout which have no
-problem, so I don't know why some systems get confused.  So far I
-have only seen this on laptops.
-
-======================================================================
- Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
- Axian, Inc., Software Consulting and Training
- 4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
- http://www.axian.com/               
-======================================================================
+Previously bounced due to some internal error on vger.
 
 
+--------------010300010507080904000800
+Content-Type: message/rfc822;
+ name="Re: Comparing the aio and epoll event frameworks."
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Re: Comparing the aio and epoll event frameworks."
 
-On Tue, May 20, 2003 at 07:34:55PM +0200, David Balazic wrote:
-> Hi!
-> 
-> When the kernel is booted ( ia32 version at least ) , it reads
-> the time from from the hardware CMOS clock , _assumes_ it is in
-> UTC and set the system time to it.
-> 
-> As almost nobody runs their clock in UTC, this means that the system
-> is running on wrong time until some userspace tool corrects it.
-> 
-> This can lead to situtation when time goes backwards :
-> 
-> timezone is 2hours east of UTC.
-> UTC time : 20:00
-> local time : 22:00
-> 
-> System time between boot and userspace fix : 22:00UTC
-> System time after fix : 20:00UTC
-> 
-> Comments ?
-> 
-> 
-> -- 
-> David Balazic
-> --------------
-> "Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore
-> Logan
-> - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-> - - -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Message-ID: <3ECAC473.1040806@netscape.com>
+Date: Tue, 20 May 2003 17:12:35 -0700
+From: John Gardiner Myers <jgmyers@netscape.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: linux-aio@kvack.org,  linux-kernel@vger.kernel.org
+Subject: Re: Comparing the aio and epoll event frameworks.
+References: <200305192333.QAA12018@pagarcia.nscp.aoltw.net> <Pine.LNX.4.55.0305191657540.6565@bigblue.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.55.0305191657540.6565@bigblue.dev.mcafeelabs.com>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms040803070308030104050009"
+
+This is a cryptographically signed message in MIME format.
+
+--------------ms040803070308030104050009
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Davide Libenzi wrote:
+
+>
+>Hi John, you seem to have lost a few episodes of the epoll saga. You can
+>use epoll in both Edge Triggered or Level Triggered ways
+>
+I was aware of that.
+
+>You can easily do thread pooling also.
+>
+Using epoll with thread pooling has the problems I describe.  You can 
+get multiple threads simultaneously handling the same event.  This is 
+particularly true when using epoll in level triggered mode.  
+ep_reinject_items() reinjects items immediately before returning from 
+sys_epoll_wait(), so any second thread calling epoll_wait() shortly 
+thereafter is likely to also get a copy of the event.  In edge triggered 
+mode, the window is significantly limited, but it is still there.
+
+One can work around this issue by having user space maintain its own 
+globally locked data structure containing its idea of the current epoll 
+state, but this wastes CPU and becomes a likely site for locking 
+contention.  The kernel is already serializing its own access to the 
+struct eventpoll; user space should be able to exploit that.
+
+>Is poll/select a single threading API ?
+>
+Yes.
+
+> A thread pooling one ?
+>
+No.  You have to have a single thread calling poll/select on any given 
+set of file descriptors.  The resulting events can then be farmed out to 
+threads using some other synchronization method, but the API can only 
+reasonably deliver events to that single calling thread.
+
+Another difference I hadn't noticed before is that aio's 
+sys_io_getevents() uses wake-one semantics, whereas epoll's 
+sys_epoll_wait() appears to use wake-all semantics.  Wake-one semantics 
+are important for thread pool callers in order to avoid thundering herd 
+performance problems.  Aio unfortunately appears to wake up threads in 
+FIFO order, which results in pessimal use of cache.  This should be 
+changed to LIFO order.
+
+
+
+
+--------------ms040803070308030104050009
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
+A4UwggLuoAMCAQICAmY3MA0GCSqGSIb3DQEBBQUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
+CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
+IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
+dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMTIwNDE4MjEyNVoXDTAzMDYwMjE4MjEyNVowfTEL
+MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
+AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
+VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqJgOlF/SyGXPi
+zXeXCKvZunjEm0pWk6lUHC+dN4WCoG8lMoPXeWZQz9MfOsJr+gQWRiU/yyoP6L7/M6ePZoIE
+UKPNsHoJcZ9AlloHqW5U0xtDUoGs9NuXg0aSxriy7mTn9bFzKhzIX6DhZk4ASxNv+H2K2ZI8
+by7nrhdzD12oVQIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
+BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
+aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
+Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
+NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
+MA0GCSqGSIb3DQEBBQUAA4GBAK/MMlDXEvX6zMYaq2Pdq6NiP9anXSjzn6yQOxOajyNlWz22
+nQikMD/FlQ90O2UWbavlg8Nl9yLNNYqb5+1Ei+PDn/oTOPGPDgItbiu8z4U1waYsrsdDbS7r
+PhmOvHGCb0gmzCD6e0P2Dnsc0FvKIqtg/jqV23g0kbM1BB4yAbtPMIIDhjCCAu+gAwIBAgIC
+ZjgwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkwHhcNMDIxMjA0MTgyMTI1WhcNMDMwNjAyMTgyMTI1WjB9MQswCQYDVQQGEwJVUzEb
+MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
+MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
+cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAOP5+pg+nlWO6PQvnRaHIj94fgJd8bXm
+JS+ac/S6mpuMS5PD2hzkHtAcRhxkSpe0c3ieIO3cZgM8sFYUvFuwQv+rm1N6sjHx53tMalhM
+bN9M1HiIbwLYDUmnqPZdqZkuBHt666X/PjCHtVJC9/Vq/CtysIce7pdqOjWa1EchDVqnAgMB
+AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
+AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
+Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
+VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
+BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
+BAUAA4GBAMYEyHgc/ladelTg424TXjozOcoy0Fcz7+bJoxtc+7kubVX7QXdfemcQtLXT3LZ3
+z6Lydnp70JaEgQQOHGAKAEdcdsss3EhG4ROWO4954nxlNKx4Tq1Q8vADClVriCjq2GGb75vE
+Hba1P/6rtSdM6ilVAt4mL3x+blBqCGYQw520MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
+9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
+VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
+MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
+dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
+aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
+/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
+eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
+BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
+Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
+MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
+bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
+VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
+MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
+MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
+AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
+XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
+e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggNUMIIDUAIBATCB
+mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
+MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
+ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICZjgwCQYFKw4D
+AhoFAKCCAg8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDMw
+NTIxMDAxMjM1WjAjBgkqhkiG9w0BCQQxFgQUGvDwIxgFMEiR/hZsRck2lo3mGFcwUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwgasGCSsGAQQBgjcQBDGBnTCBmjCBkzELMAkGA1UE
+BhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRswGQYDVQQKExJB
+bWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dpZXMxJzAlBgNVBAMT
+HkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICZjcwga0GCyqGSIb3DQEJEAILMYGd
+oIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZp
+ZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xv
+Z2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJmNzANBgkq
+hkiG9w0BAQEFAASBgKHuLguRpT2/4ogSGk3eI8F24Ve4x/VgYuBla3koi/roOXoxNu3BpA7n
+j+HTElbWfhO7yCPZXDe81Lqlk98rzVOIZ045nanTzG6WdZgpjzujyh6yzBDeSYXPu7vbRmgg
+yvPll3fpDEoORe1Lm9KAlud5/DLs8h9WZ0N1yVBRLoNNAAAAAAAA
+--------------ms040803070308030104050009--
+
+
+--------------010300010507080904000800--
+
+--------------ms040808010108020702000406
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
+A4UwggLuoAMCAQICAmY3MA0GCSqGSIb3DQEBBQUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
+CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
+IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
+dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMTIwNDE4MjEyNVoXDTAzMDYwMjE4MjEyNVowfTEL
+MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
+AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
+VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqJgOlF/SyGXPi
+zXeXCKvZunjEm0pWk6lUHC+dN4WCoG8lMoPXeWZQz9MfOsJr+gQWRiU/yyoP6L7/M6ePZoIE
+UKPNsHoJcZ9AlloHqW5U0xtDUoGs9NuXg0aSxriy7mTn9bFzKhzIX6DhZk4ASxNv+H2K2ZI8
+by7nrhdzD12oVQIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
+BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
+aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
+Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
+NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
+MA0GCSqGSIb3DQEBBQUAA4GBAK/MMlDXEvX6zMYaq2Pdq6NiP9anXSjzn6yQOxOajyNlWz22
+nQikMD/FlQ90O2UWbavlg8Nl9yLNNYqb5+1Ei+PDn/oTOPGPDgItbiu8z4U1waYsrsdDbS7r
+PhmOvHGCb0gmzCD6e0P2Dnsc0FvKIqtg/jqV23g0kbM1BB4yAbtPMIIDhjCCAu+gAwIBAgIC
+ZjgwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkwHhcNMDIxMjA0MTgyMTI1WhcNMDMwNjAyMTgyMTI1WjB9MQswCQYDVQQGEwJVUzEb
+MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
+MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
+cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAOP5+pg+nlWO6PQvnRaHIj94fgJd8bXm
+JS+ac/S6mpuMS5PD2hzkHtAcRhxkSpe0c3ieIO3cZgM8sFYUvFuwQv+rm1N6sjHx53tMalhM
+bN9M1HiIbwLYDUmnqPZdqZkuBHt666X/PjCHtVJC9/Vq/CtysIce7pdqOjWa1EchDVqnAgMB
+AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
+AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
+Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
+VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
+BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
+BAUAA4GBAMYEyHgc/ladelTg424TXjozOcoy0Fcz7+bJoxtc+7kubVX7QXdfemcQtLXT3LZ3
+z6Lydnp70JaEgQQOHGAKAEdcdsss3EhG4ROWO4954nxlNKx4Tq1Q8vADClVriCjq2GGb75vE
+Hba1P/6rtSdM6ilVAt4mL3x+blBqCGYQw520MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
+9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
+VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
+MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
+dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
+aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
+/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
+eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
+BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
+Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
+MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
+bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
+VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
+MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
+MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
+AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
+XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
+e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggNUMIIDUAIBATCB
+mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
+MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
+ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICZjgwCQYFKw4D
+AhoFAKCCAg8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDMw
+NTIxMTcyMjM0WjAjBgkqhkiG9w0BCQQxFgQUBJAW9UDDm3dPCxNqzVH8Tlb4odAwUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwgasGCSsGAQQBgjcQBDGBnTCBmjCBkzELMAkGA1UE
+BhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRswGQYDVQQKExJB
+bWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dpZXMxJzAlBgNVBAMT
+HkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICZjcwga0GCyqGSIb3DQEJEAILMYGd
+oIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZp
+ZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xv
+Z2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJmNzANBgkq
+hkiG9w0BAQEFAASBgAy4tYuoFeC7Jlw+ksE2EO/clJNsGa4ZToM80u/BqYQKJE3LywnbtF9M
+t1tODkDSXisMzqpxSDMM9Ax2J3wwu152imSJg3zGYRLVMzjScJOGmhsq50ASaxw08UktuD9Q
+tlBpXsbxg/0zbdkugNJf/eJPBarbP2qVncDOhYz8JscOAAAAAAAA
+--------------ms040808010108020702000406--
+

@@ -1,138 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129091AbQKYWuK>; Sat, 25 Nov 2000 17:50:10 -0500
+        id <S129703AbQKYWyV>; Sat, 25 Nov 2000 17:54:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129703AbQKYWuB>; Sat, 25 Nov 2000 17:50:01 -0500
-Received: from ha1.rdc2.occa.home.com ([24.2.8.66]:666 "EHLO
-        mail.rdc2.occa.home.com") by vger.kernel.org with ESMTP
-        id <S129091AbQKYWts>; Sat, 25 Nov 2000 17:49:48 -0500
-Message-ID: <001e01c0572d$f18a6e60$19211518@vnnys1.ca.home.com>
-From: "Android" <android@turbosport.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Questions about Kernel 2.4.0.?
-Date: Sat, 25 Nov 2000 14:20:39 -0800
+        id <S131600AbQKYWyM>; Sat, 25 Nov 2000 17:54:12 -0500
+Received: from taku.hut.fi ([130.233.228.87]:56588 "EHLO taku.hut.fi")
+        by vger.kernel.org with ESMTP id <S129703AbQKYWx7>;
+        Sat, 25 Nov 2000 17:53:59 -0500
+Date: Sun, 26 Nov 2000 00:23:11 +0200 (EET)
+From: Tuomas Heino <iheino@cc.hut.fi>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PIIX4 BX Errata for DMA errors.
+In-Reply-To: <Pine.LNX.4.10.10011241823350.7446-100000@master.linux-ide.org>
+Message-ID: <Pine.OSF.4.10.10011252332030.30210-100000@smaragdi.hut.fi>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_001B_01C056EA.E3259180"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Fri, 24 Nov 2000, Andre Hedrick wrote:
 
-------=_NextPart_000_001B_01C056EA.E3259180
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+> Anyone having DMA errors that are dmaproc: error 14, there is not a clean
+> workaround yet.  Also the Intel erratas state that only a bus reset will
+> clear the hang, but the details are loose.
 
-There is a link in /lib/modules/2.4.0.11: build->/usr/src/linux
-created by the Makefile (make modules_install).
-What for? depmod doesn't like this link. It gets confused.
+We talking about errors like the following one? :
 
-Lines missing from /usr/src/linux/include/asm/uaccess.h:
-   #define put_user_ret(x,ptr,ret) ({ if (put_user(x,ptr)) return ret; =
-})
-   #define get_user_ret(x,ptr,ret) ({ if (get_user(x,ptr)) return ret; =
-})
-   #define __put_user_ret(x,ptr,ret) ({ if (__put_user(x,ptr)) return =
-ret; })
-   #define __get_user_ret(x,ptr,ret) ({ if (__get_user(x,ptr)) return =
-ret; })
-Some modules will not compile without these lines included.
+Nov 18 10:08:46 bx3 kernel: hdb: timeout waiting for DMA
+Nov 18 10:08:46 bx3 kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Nov 18 10:08:46 bx3 kernel: hdb: irq timeout: status=0xd0 { Busy }
+Nov 18 10:08:46 bx3 kernel: hda: DMA disabled
+Nov 18 10:08:46 bx3 kernel: hdb: DMA disabled
+Nov 18 10:08:48 bx3 kernel: ide0: reset: success
 
-Where are the drivers for bt878 (Video For Linux)?
+If so, anyone happen to be able to help me figure out why that keeps
+happening on hdb & hdd while it never happens on hda?
 
-Some of the device special files are missing when using devfs.
-devfsd is running (loaded at the beginning of rc.S by init).
-There was no /dev/lp0 on my system, even though module lp was loaded.
-After creating this file explicitly with mknod, the printer worked.
+/dev/hda:
 
-This problem is probably the fault of X11 - it doesn't repaint the =
-screen properly
-after coming out of console mode. I have to switch back and forth =
-several times
-before I get a proper repaint. May be related to using framebuffer with =
-X.
-X crashes and locks completely when using sound. Anyone know why?
+ Model=IBM-DJNA-352500, FwRev=J51OA30K, SerialNo=GW0GWF37316
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=34
+ BuffType=DualPortCache, BuffSize=1966kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=49981680
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
 
-                                     -- Ted
+/dev/hdb:
 
+ Model=IBM-DTTA-371440, FwRev=T71OA73A, SerialNo=WK0WKG29267
+ BuffType=DualPortCache, BuffSize=462kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=28229040
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 *udma1 udma2
 
-------=_NextPart_000_001B_01C056EA.E3259180
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+/dev/hdd:
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 5.50.4134.100" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>There is a link in =
-/lib/modules/2.4.0.11:=20
-build-&gt;/usr/src/linux</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>created by the Makefile (make=20
-modules_install).<BR>What for? depmod doesn't like this link. It gets=20
-confused.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Lines missing from=20
-/usr/src/linux/include/asm/uaccess.h:<BR>&nbsp;&nbsp; #define=20
-put_user_ret(x,ptr,ret) ({ if (put_user(x,ptr)) return ret; =
-})<BR>&nbsp;&nbsp;=20
-#define get_user_ret(x,ptr,ret) ({ if (get_user(x,ptr)) return ret;=20
-})<BR>&nbsp;&nbsp; #define __put_user_ret(x,ptr,ret) ({ if =
-(__put_user(x,ptr))=20
-return ret; })<BR>&nbsp;&nbsp; #define __get_user_ret(x,ptr,ret) ({ if=20
-(__get_user(x,ptr)) return ret; })</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Some modules will not compile without =
-these lines=20
-included.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Where are the drivers for bt878 (Video =
-For=20
-Linux)?</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Some of the device special files are =
-missing when=20
-using devfs.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>devfsd is running (loaded at the =
-beginning of rc.S=20
-by init).</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>There was no /dev/lp0 on my system, =
-even though=20
-module lp was loaded.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>After creating this file explicitly =
-with mknod, the=20
-printer worked.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>This problem is probably the fault of =
-X11 - it=20
-doesn't repaint the screen properly</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>after coming out of console mode. I =
-have to switch=20
-back and forth several times</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>before I get a proper repaint. May be =
-related to=20
-using framebuffer with X.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>X crashes and locks completely when =
-using sound.=20
-Anyone know why?</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial=20
-size=3D2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;=20
--- Ted</FONT></DIV>
-<DIV>&nbsp;</DIV></BODY></HTML>
+ Model=IBM-DTTA-371440, FwRev=T71OA73A, SerialNo=WK0WKA28245
+ BuffType=DualPortCache, BuffSize=462kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=28229040
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2
 
-------=_NextPart_000_001B_01C056EA.E3259180--
+Also is there a way to actually use /proc/ide/hd?/smart_* ?
+
+# diff -u --recursive 19990822 20001125 | diffstat
+ hda/smart_values |   14 +++++++-------
+ hdb/smart_values |   12 ++++++------
+ hdd/smart_values |   10 +++++-----
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

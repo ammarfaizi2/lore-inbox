@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVAMB0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVAMBS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbVAMB0e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 20:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVAMBYZ
+	id S261401AbVAMBS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 20:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVAMBRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 20:24:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:62918 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261479AbVAMBTo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 20:19:44 -0500
-Date: Wed, 12 Jan 2005 17:19:28 -0800
-From: Greg KH <greg@kroah.com>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, Dominik Brodowski <linux@dominikbrodowski.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Downgrade printk that complains about unsupported PCI PM caps
-Message-ID: <20050113011927.GA16245@kroah.com>
-References: <20050112004147.GA22156@kroah.com> <20050108055142.GB8571@kroah.com> <20050106123710.GA8125@dominikbrodowski.de> <9726.1105105388@redhat.com> <26980.1105357916@redhat.com> <15971.1105557696@redhat.com>
+	Wed, 12 Jan 2005 20:17:11 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:39078 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261412AbVALVr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 16:47:57 -0500
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: 
+X-Mailer: Roland's Patchbomber
+Date: Wed, 12 Jan 2005 13:47:38 -0800
+Message-Id: <20051121347.unEev2HOanwhx9cL@topspin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15971.1105557696@redhat.com>
-User-Agent: Mutt/1.5.6i
+To: akpm@osdl.org
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][0/18] InfiniBand: updates for 2.6.11-rc1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 12 Jan 2005 21:47:44.0344 (UTC) FILETIME=[59127D80:01C4F8F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 07:21:36PM +0000, David Howells wrote:
-> 
-> The attached patch downgrades to KERN_DEBUG level the printk that issues a
-> notification that an unsupported version of the PCI power management registers
-> has been encountered by pci_set_power_state().
-> 
-> Signed-Off-By: David Howells <dhowells@redhat.com>
+Here are updates since the initial merge to drivers/infiniband taken
+from the OpenIB repository.  This is a mix of cleanups, bug fixes and
+small features.  There shouldn't be anything controversial or risky.
 
-Applied, thanks.
+Thanks,
+  Roland
 
-greg k-h

@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269353AbUJFSYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269363AbUJFS1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269353AbUJFSYi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 14:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269352AbUJFSYi
+	id S269363AbUJFS1K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 14:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269362AbUJFS1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 14:24:38 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:33997 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S269357AbUJFSU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 14:20:56 -0400
-Message-Id: <200410061821.i96IL9a07610@raceme.attbi.com>
-Subject: Re: Solaris developer wants a Linux Mentor for drivers. 
-To: linux-kernel@vger.kernel.org
-Date: Wed, 6 Oct 2004 13:21:09 -0500 (CDT)
-From: kilian@bobodyne.com (Alan Kilian)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Oct 2004 14:27:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62387 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269360AbUJFS0L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 14:26:11 -0400
+Date: Wed, 6 Oct 2004 11:26:09 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Cc: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
+Message-ID: <20041006112609.C2441@build.pdx.osdl.net>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041005212712.I6910@flint.arm.linux.org.uk> <20041005210659.GA5276@kroah.com> <20041005221333.L6910@flint.arm.linux.org.uk> <1097074822.29251.51.camel@localhost.localdomain> <20041006174108.GA26797@kroah.com> <20041006180145.GC10153@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041006180145.GC10153@wohnheim.fh-wedel.de>; from joern@wohnheim.fh-wedel.de on Wed, Oct 06, 2004 at 08:01:45PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forwarded message:
-> From: Greg KH <greg@kroah.com>
+* Jörn Engel (joern@wohnheim.fh-wedel.de) wrote:
+> On Wed, 6 October 2004 10:41:08 -0700, Greg KH wrote:
+> > 
+> > Good point.  So, should we do it in the kernel, in call_usermodehelper,
+> > so that all users of this function get it correct, or should I do it in
+> > userspace, in the /sbin/hotplug program?
+> > 
+> > Any opinions?
 > 
-> Why not 2.6?  No new Linux distros are shipping 2.4 kernels anymore...
+> Kernel.
 
-  Well, I down loaded and installed RedHat-9 5 weeks ago, and it
-  is a 2.4 kernel, so I thought that would be fine.
-  (See what a novice I am?)
+I agree.  There's code in the kernel doing that already, but IIRC, it's
+only in SELinux.
 
-> And a PCI bus driver?  
-> What kind of hardware is this?  
-> Is this a driver for a pci card, or a pci bus controller?
-
-  This is a driver for talking to my hardware which is a PCI bus card.
-
-  This card has 5 large FPGAs, SRAM and dram on it which is used to
-  accelerate bioinformatics search algorithms.
-
-  The card works under Sun Solaris and Windows/2000, and of course,
-  we would like to add Linux to the list.
-
-  Eventually, I'll need to support DMA to and from the card, but
-  I can get by for a while just doing single-dword I/O.
-
-  
-
-  I just hacked in dev->bus->ops->read_dword(dev,1,&retval);
-  and I can read memory on the card! (Well, things don't crash anyway)
-
-  If this is absolutely the wrong way to do this, please let me know!
-
-  Note: I have no idea what the second parameter to read_dword() is!
-
-                            -Alan
-
+thanks,
+-chris
 -- 
-- Alan Kilian <kilian(at)timelogic.com> 
-Director of Bioinformatics, TimeLogic Corporation 763-449-7622
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

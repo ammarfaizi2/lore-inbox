@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129036AbQKFIyW>; Mon, 6 Nov 2000 03:54:22 -0500
+	id <S129238AbQKFJBL>; Mon, 6 Nov 2000 04:01:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129405AbQKFIyB>; Mon, 6 Nov 2000 03:54:01 -0500
-Received: from nef.ens.fr ([129.199.96.32]:36879 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id <S129034AbQKFIxz>;
-	Mon, 6 Nov 2000 03:53:55 -0500
-Date: Mon, 6 Nov 2000 09:53:47 +0100
-From: Thomas Pornin <Thomas.Pornin@ens.fr>
-To: Tim@rikers.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: non-gcc linux?
-Message-ID: <20001106095347.A6078@bolet.ens.fr>
-Mime-Version: 1.0
+	id <S129270AbQKFJBC>; Mon, 6 Nov 2000 04:01:02 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:65033 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129238AbQKFJAr>;
+	Mon, 6 Nov 2000 04:00:47 -0500
+Message-ID: <3A067318.E9C6ADDF@mandrakesoft.com>
+Date: Mon, 06 Nov 2000 04:00:08 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: ryan <ryan@netidea.com>, linux-kernel@vger.kernel.org,
+        linux-raid@vger.kernel.org
+Subject: Re: Kernel 2.4.0test10 crash (RAID+SMP)
+In-Reply-To: <1459.973469046@kao2.melbourne.sgi.com>
+		<3A060BE5.8877F477@netidea.com> <14854.8617.282831.205647@notabene.cse.unsw.edu.au>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3A05E7A1.C97B85D9@Rikers.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A05E7A1.C97B85D9@Rikers.org> you write:
-> In short, I do not see any enforceable advantages to the current FSF
-> policies.
+Neil Brown wrote:
+> It looks like an interupt is happening while another interrupt is
+> happening, which should be impossible... but it isn't.
 
-As a sidenote, this transfer of intellectual property of code is not
-doable, according to French law (and other non-anglo-saxon countries).
-In France, the author of a an "intellectual production" cannot give
-away this authorship; all he can give is the ability to reproduce,
-reuse and redistribute his work.
+If multiple interrupts are hitting a single code path (like IDE irqs 14
+-and- 15), you definitely have to think about that.  The reentrancy
+guarantee only exists when a single IRQ is assigned to a single
+handler...
 
-However, this intellectual property, which is eternal (it does not stop
-with the death of the author, and yet may not be transfered to other
-people even in such an occurence), is not bound by any scriptural glyph
-such as '(c)'. I can add '(c) Free Software Fundation' in all my source
-files, and they will remain mine.
-
-So, where I live, the point is moot.
+	Jeff
 
 
-	--Thomas Pornin
+-- 
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,107 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUBYPkW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 10:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbUBYPkV
+	id S261365AbUBYPqo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 10:46:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbUBYPqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 10:40:21 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:2689 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261366AbUBYPkH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 10:40:07 -0500
-Date: Wed, 25 Feb 2004 10:42:02 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Grigor Gatchev <grigor@zadnik.org>
-cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: A Layered Kernel: Proposal
-In-Reply-To: <Pine.LNX.4.44.0402251647190.17570-100000@lugburz.zadnik.org>
-Message-ID: <Pine.LNX.4.53.0402251023330.9271@chaos>
-References: <Pine.LNX.4.44.0402251647190.17570-100000@lugburz.zadnik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Feb 2004 10:46:44 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:3005 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261365AbUBYPqm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 10:46:42 -0500
+In-Reply-To: <1077708874.22213.13.camel@gaston>
+References: <1077667227.21201.73.camel@SigurRos.rchland.ibm.com> <20040225012845.GA3909@kroah.com> <opr3woijnwl6e53g@us.ibm.com> <20040225042224.GA5135@kroah.com> <1077708874.22213.13.camel@gaston>
+Mime-Version: 1.0 (Apple Message framework v612)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <C4149BD3-67A9-11D8-B826-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+Cc: Ryan Arnold <rsa@us.ibm.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Dave Boutcher <sleddog@us.ibm.com>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+Subject: Re: device/kobject naming
+Date: Wed, 25 Feb 2004 09:46:24 -0600
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.612)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Feb 2004, Grigor Gatchev wrote:
-
+On Feb 25, 2004, at 5:34 AM, Benjamin Herrenschmidt wrote:
+> On Wed, 2004-02-25 at 15:22, Greg KH wrote:
+>> I agree.  Is there any reason we _have_ to stick with the OF names?  
+>> It
+>> seems to me to make more sense here not to, to make it more like the
+>> rest of the kernel.
+>>
+>> That is, if the address after the @ is unique.  Is that always the 
+>> case?
 >
-> > But the idea that the kernel should exist as a kind of onion,
-> > depicted by child college professors in their children's coloring
-> > books is wrong. The optimum operating system will always be the
-> > one that performs its functions in the most expedient way, not
-> > the one that is the "prettiest" or easiest to understand. There
-> > can't be any such thing as a "layering violation".
->
-> Hm.
->
-> I won't agree. In my 25 years of programming, I am yet to see a case whe
-> ugly, "write-only" code performed well. And the cases when "pretty"
-> code has performed badly were rather rare.
->
-> Isolation and layering have already proved themselves a lot. If not so,
-> Unix would be dead, and we would be using now Multics or another similar
-> OS. Also, Windows would be immesurably superior to any Unix in existence,
-> especially in performance...
->
+> One thing though is that it's only unique at a given level of
+> hierarchy. The Unit Address in OF has no meaning outside of the
+> context of the parent bus. That may be just fine for sysfs, but
+> if I take as an example the PCI devices, they do have a globally
+> unique ID here with the domain number.
 
-Not correct. Layering has isolated the designer (coder) of a
-function from the required understanding of its ultimate goal.
-This construct started with the idea of 'objects' wherein
-the coder didn't need to understand the underlying goal, only
-the immediate logic of the function. The result is, _always_,
-bloat where one function simply converts its data to that
-required by another. The other function converts its data,
-etc. Everybody wants to deal will objects and then can claim
-that they have done their work.
+Yes, that's certainly the case. Every unit address on the virtual bus 
+will be unique, but device_add() uses dev.bus_id as the kobject name, 
+which is system-wide.
 
-Ultimately somebody in the coding food-chain needs to do
-actual work, i.e., communicate with the hardware to get
-the work done. If you get rid of the layers and layers
-of absolute repetitive junk and do the work at hand, you
-end up with a lean-and-mean kernel that outperforms
-the ones that were written in the "layered" construct.
+Apparently PCI gets away with multiple busses by encoding the domain 
+and bus IDs into dev.bus_id along with the slot number. Even then, it's 
+just kind of coincidence that nothing else wants to register kobjects 
+with names like 0000:00:0b.0, right? Unless we want to start defining 
+mandatory "domains" for every type of device and prefixing things like 
+that...
 
-Early on, I wrote code in assembly. Everybody who wrote
-code understood the ultimate goal. Later on, I had to
-write in Pascal because it was "understandable" and,
-therefore documentable. But ultimately I had to write
-drivers in assembly to do the actual work. Then along
-came 'C'. I had to write code in 'C'. Ultimately, I
-had to do the actual work with drivers or runtime
-libraries written in assembly. Then there came C++.
-Nobody was able to do any actual work anymore. Instead,
-with a coding staff of hundreds, only a few actually
-understand what the code does. They make the ultimate
-"objects" that talk to the hardware. You could throw
-away 90 percent or more of the code, improving its
-performance considerably in the process, by getting
-rid of the ^$(^##)) layers and directly performing
-the required function at the upper-most level.
+At any rate, virtual IO devices effectively have just a slot number and 
+nothing else. Do you really want to start registering kobjects with 
+names like "30000000"? Or what about "vio:30000000", and then have it 
+show up as "/sys/devices/vio/vio:30000000"? Seems redundant to me.
 
-So don't claim that layering does anything useful except
-to create jobs. It is a make-work technique that creates
-jobs for inadequate or incompetent programmers.
-
-> > Layering is wrong. However modularizing, although it may
-> > have some negative effects, has many redeeming values. It
-> > allows for the removal of dead code, code that will never
-> > function in a particular system.
->
-> I won't agree here, too. Dead code can be removed perfectly well from a
-> big kernel, too - maybe even easier. With a modular approach, you may
-> exclude certain module from your modules list, but I won't call that
-> removal of dead code.
->
-> Also, (logical) layering and modularizing do not contradict - they are
-> practically independent. I apologize for not being able to see the point
-> here.
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 

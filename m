@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132728AbRDQPdK>; Tue, 17 Apr 2001 11:33:10 -0400
+	id <S132727AbRDQPlK>; Tue, 17 Apr 2001 11:41:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132727AbRDQPdA>; Tue, 17 Apr 2001 11:33:00 -0400
-Received: from nef.ens.fr ([129.199.96.32]:50948 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id <S132726AbRDQPcv>;
-	Tue, 17 Apr 2001 11:32:51 -0400
-Date: Tue, 17 Apr 2001 17:32:46 +0200
-From: =?ISO-8859-1?Q?=C9ric?= Brunet <ebrunet@quatramaran.ens.fr>
-Message-Id: <200104171532.RAA12722@quatramaran.ens.fr>
+	id <S132729AbRDQPlA>; Tue, 17 Apr 2001 11:41:00 -0400
+Received: from feral.com ([192.67.166.1]:25890 "EHLO feral.com")
+	by vger.kernel.org with ESMTP id <S132727AbRDQPkn>;
+	Tue, 17 Apr 2001 11:40:43 -0400
+Date: Tue, 17 Apr 2001 08:40:41 -0700 (PDT)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: mjacob@feral.com
 To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
-In-Reply-To: <200104171426.JAA76050@tomcat.admin.navo.hpc.mil>
-In-Reply-To: <200104170915.LAA00596@quatramaran.ens.fr> <200104171426.JAA76050@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: active after unmount?
+Message-ID: <Pine.LNX.4.21.0104170839400.30662-100000@zeppo.feral.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In ens.mailing-lists.linux-kernel, you wrote:
->
->I believe it allows the debugger to start the process to be debugged.
->
-Well, the debugger simply needs to do something like
 
-        pid_t child = fork();
-        if (child == 0) {
-                ptrace(PTRACE_TRACEME,0,0,0);
-                execve(the_debugged_process,args,env);
-        }
+Unmounting a SCSI disk device succeeded, and yielded:
 
-It is more portable, more traditionnal and works very well.
+Red Hat Linux release 6.2 (Zoot)
+Kernel 2.4.3 on a 2-processor i686
 
-Éric Brunet
+chico login: VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have
+a nice day...
+
+
+
+
+

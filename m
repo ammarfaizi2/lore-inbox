@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266234AbSKEECd>; Mon, 4 Nov 2002 23:02:33 -0500
+	id <S265268AbSKEEAp>; Mon, 4 Nov 2002 23:00:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266240AbSKEECd>; Mon, 4 Nov 2002 23:02:33 -0500
-Received: from almesberger.net ([63.105.73.239]:25609 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S266234AbSKEECa>; Mon, 4 Nov 2002 23:02:30 -0500
-Date: Tue, 5 Nov 2002 01:08:48 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Module loader against 2.5.46: 8/9
-Message-ID: <20021105010848.D1408@almesberger.net>
-References: <20021105001905.D1407@almesberger.net> <20021105035229.B20202C0E8@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021105035229.B20202C0E8@lists.samba.org>; from rusty@rustcorp.com.au on Tue, Nov 05, 2002 at 02:51:39PM +1100
+	id <S266235AbSKEEAo>; Mon, 4 Nov 2002 23:00:44 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:45712 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265268AbSKEEAm>; Mon, 4 Nov 2002 23:00:42 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 4 Nov 2002 20:17:04 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Skip Ford <skip.ford@verizon.net>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.46
+In-Reply-To: <200211050401.gA541YPi006905@pool-141-150-241-241.delv.east.verizon.net>
+Message-ID: <Pine.LNX.4.44.0211042016050.956-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Point taken
+On Mon, 4 Nov 2002, Skip Ford wrote:
 
-Thanks :-)
+> Kai Germaschewski wrote:
+> > On Mon, 4 Nov 2002, george anzinger wrote:
+> >
+> > > I think we need a newer objcopy :(
+> >
+> > Alternatively, use this patch. (It's not really needed to force people to
+> > upgrade binutils when ld can do the job, as it e.g. does in
+> > arch/i386/boot/compressed/Makefile already).
+> >
+> > -	( cd $(obj) ; ./gen_init_cpio | gzip -9c > initramfs_data.cpio.gz )
+> > +	( cd $(obj) ; ./$< | gzip -9c > $@ )
+>
+> I get errors with your patch.  I had to remove the 'cd $(obj)' above
+> from usr/Makefile.
 
-> (although note that this option is never prompted for).
+With the latest binutils it works flawlessy w/out any patches ...
 
-Aha, learned something new about Kconfig. Subtle ! ;-)
-Well, I guess, some fine day, it will ...
 
-- Werner
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+- Davide
+
+

@@ -1,55 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267609AbSLSKIs>; Thu, 19 Dec 2002 05:08:48 -0500
+	id <S267607AbSLSKS4>; Thu, 19 Dec 2002 05:18:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267610AbSLSKIs>; Thu, 19 Dec 2002 05:08:48 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:20740 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S267609AbSLSKIr>; Thu, 19 Dec 2002 05:08:47 -0500
-Message-Id: <200212191010.gBJAAJs28289@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Till Immanuel Patzschke <tip@inw.de>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: 15000+ processes -- poor performance ?!
-Date: Thu, 19 Dec 2002 12:59:28 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <3E0116D6.35CA202A@inw.de>
-In-Reply-To: <3E0116D6.35CA202A@inw.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S267608AbSLSKSz>; Thu, 19 Dec 2002 05:18:55 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:31409 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267607AbSLSKSy>;
+	Thu, 19 Dec 2002 05:18:54 -0500
+Date: Thu, 19 Dec 2002 11:26:40 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: John Reiser <jreiser@BitWagon.com>, AnonimoVeneziano <voloterreno@tin.it>,
+       Patrick Petermair <black666@inode.at>,
+       Roland Quast <rquast@hotshed.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: vt8235 fix, hopefully last variant
+Message-ID: <20021219112640.A21164@ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="vtzGhvizbBRQ85DL"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 December 2002 22:46, Till Immanuel Patzschke wrote:
-> Dear List(s),
->
-> as part of my project I need to run a very high number of
-> processes/threads on a linux machine.  Right now I have a Dual-PIII
-> 1.4G w/ 8GB RAM -- I am running 4000 processes w/ 2-3 threads each
-> totaling in a process count of 15000+ processes (since Linux doesn't
-> really distinguish between threads and processes...).
 
-BTW, can you say _what_ are you trying to do?
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Once I pass the 10000 (+/-) pocesses load increases drastically (on
-> startup, although it returns to normal), however the system time (on
-> one processor) reaches for 54% (12061 procs) while the only non
-> sleeping process is top -- the system is basically doing nothing
-> (except scheduling the "nothing" which consumes significant system
-> time).
-> Is there anything I can do to reduce that system load/time?  (I
-> haven't been able to exactly define the "line" but it definitly gets
-> worse the more processes need to be handled.)
-> Does any of the patchsets address this particular problem?
-> BTW: The processes are all alike...
+Hi!
 
-You need to collect memory info (especially lowmem and highmem situation)
-and maybe profile your kernel to find out where does it spend that time
-doing "nothing".
+Can you guys try out this last take on a fix for your ATAPI device
+problems? Applies against clean 2.4.20.
 
-BTW, your .config?
---
-vda
+Please report failure/success.
+
+Thanks.
+
+-- 
+Vojtech Pavlik
+SuSE Labs
+
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=vt8235-atapi
+
+ChangeSet@1.884, 2002-12-19 11:23:11+01:00, vojtech@suse.cz
+  VIA IDE: Always use slow address setup timings for ATAPI devices.
+
+
+ via82cxxx.c |   19 ++++++-------------
+ 1 files changed, 6 insertions(+), 13 deletions(-)
+
+
+diff -Nru a/drivers/ide/pci/via82cxxx.c b/drivers/ide/pci/via82cxxx.c
+--- a/drivers/ide/pci/via82cxxx.c	Thu Dec 19 11:23:42 2002
++++ b/drivers/ide/pci/via82cxxx.c	Thu Dec 19 11:23:42 2002
+@@ -1,16 +1,5 @@
+ /*
+- * $Id: via82cxxx.c,v 3.35-ac2 2002/09/111 Alan Exp $
+- *
+- *  Copyright (c) 2000-2001 Vojtech Pavlik
+- *
+- *  Based on the work of:
+- *	Michel Aubry
+- *	Jeff Garzik
+- *	Andre Hedrick
+- */
+-
+-/*
+- * Version 3.35
++ * Version 3.36
+  *
+  * VIA IDE driver for Linux. Supported southbridges:
+  *
+@@ -152,7 +141,7 @@
+ 	via_print("----------VIA BusMastering IDE Configuration"
+ 		"----------------");
+ 
+-	via_print("Driver Version:                     3.35-ac");
++	via_print("Driver Version:                     3.36");
+ 	via_print("South Bridge:                       VIA %s",
+ 		via_config->name);
+ 
+@@ -351,6 +340,10 @@
+ 		ide_timing_compute(peer, peer->current_speed, &p, T, UT);
+ 		ide_timing_merge(&p, &t, &t, IDE_TIMING_8BIT);
+ 	}
++
++	/* Always use 4 address setup clocks on ATAPI devices */
++	if (drive->media != ide_disk)
++		t.setup = 4;
+ 
+ 	via_set_speed(HWIF(drive)->pci_dev, drive->dn, &t);
+ 
+
+--vtzGhvizbBRQ85DL--

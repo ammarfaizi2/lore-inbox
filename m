@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264729AbSLTSm7>; Fri, 20 Dec 2002 13:42:59 -0500
+	id <S264945AbSLTSmV>; Fri, 20 Dec 2002 13:42:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264766AbSLTSm7>; Fri, 20 Dec 2002 13:42:59 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:42247 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S264729AbSLTSmx>; Fri, 20 Dec 2002 13:42:53 -0500
-Date: Fri, 20 Dec 2002 21:50:29 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.x disable BAR when sizing
-Message-ID: <20021220215029.A22996@jurassic.park.msu.ru>
-References: <15874.58889.846488.868570@napali.hpl.hp.com> <Pine.LNX.4.44.0212200849090.2035-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0212200849090.2035-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 20, 2002 at 09:05:53AM -0800
+	id <S264950AbSLTSmV>; Fri, 20 Dec 2002 13:42:21 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S264945AbSLTSmU>; Fri, 20 Dec 2002 13:42:20 -0500
+Date: Fri, 20 Dec 2002 13:48:22 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jurgen Kramer <gtm.kramer@inter.nl.net>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: Which Gigabit ethernet card?
+In-Reply-To: <1040391936.973.14.camel@paragon.slim>
+Message-ID: <Pine.LNX.3.96.1021220134612.1509A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 20, 2002 at 09:05:53AM -0800, Linus Torvalds wrote:
-> One solution in the long term may be to not even probe the BAR's at all in
-> generic code, and only do it in the pci_enable_dev() stuff. That way it
-> would literally only be done by the driver, who can hopefully make sure
-> that the device is ok with it.
+On Fri, 20 Dec 2002, Jurgen Kramer wrote:
 
-I don't think that generic BAR probing is ever avoidable - too often
-it's the only way to build a consistent resource tree. Without that
-the driver cannot know whether the BAR setting is safe or there is a
-conflict with something else.
-Anyway, in the short term we could give the architecture ability to use its
-own probing code, something like this:
+> I know this is a bit OT but because here are the kernel driver hackers
+> this might be the right place to ask.
+> 
+> I am looking for a couple of PCI Gigabit ethernet adapters to play
+> around with SAN/NAS stuff like iSCSI and HyperSCSI and the like. There
+> are variuos adapters around which work with Linux. My choice would be
+> based on the following:
+> 
+> - Relatively cheap, around $100/EUR100
+> - 32 bit/33MHz PCI compatible
+> - Low cpu usage
+> - Busmaster DMA
+> - Opensource Linux driver
+> - zero-copy capable
+> - etc.
+> 
+> What card is best? 3Com, Intel or National Semi based?
 
-In include/linux/pci.h:
+01:07.0 Ethernet controller: Alteon Networks Inc. AceNIC Gigabit Ethernet
+  (Fibre) (rev 01)
 
-#include <asm/pci.h>
+Works for me, and I have a fait amount of other traffic on other NICs.
 
-+#ifndef HAVE_ARCH_PCI_BAR_PROBE
-+#define pcibios_read_bases(dev, n, rom)	0
-+#endif
+00:02.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 
+  [PCnet LANCE] (rev 44)
+00:09.0 Ethernet controller: Intel Corporation 82557
+  [Ethernet Pro 100] (rev 08)
 
-In drivers/pci/probe.c:
 
-static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
-{
-	unsigned int pos, reg, next;
-	u32 l, sz;
-	struct resource *res;
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-+	if (pcibios_read_bases(dev, howmany, rom))
-+		return;
-+
-	for(pos=0; pos<howmany; pos = next) {
-	...
-
-Ivan.

@@ -1,35 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311633AbSCNO4q>; Thu, 14 Mar 2002 09:56:46 -0500
+	id <S311468AbSCNPD0>; Thu, 14 Mar 2002 10:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311635AbSCNO4g>; Thu, 14 Mar 2002 09:56:36 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59153 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311633AbSCNO4b>;
-	Thu, 14 Mar 2002 09:56:31 -0500
-Message-ID: <3C90BA11.40106@mandrakesoft.com>
-Date: Thu, 14 Mar 2002 09:56:17 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
-MIME-Version: 1.0
-To: quintela@mandrakesoft.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: pcmcia oops problem?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S311454AbSCNPDR>; Thu, 14 Mar 2002 10:03:17 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:5092 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S311468AbSCNPDC>;
+	Thu, 14 Mar 2002 10:03:02 -0500
+Date: Thu, 14 Mar 2002 16:02:56 +0100
+From: Hanno =?ISO-8859-1?Q?B=F6ck?= <hanno@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Where to get supermount??
+Message-Id: <20020314160256.16eda4b9.hanno@gmx.de>
+Organization: Mecronome Webdesign - http://www.mecronome.de/
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you describe the pcmcia oops problem in detail?
-
-What output do you get from a serial console?
-
-what do you mean, oops got infinite trace?  were there (a) many oops or 
-(b) one oops with long trace
-what do you mean, double fix of /dev/XXXXX name?
-is pcmcia-cs creating and removing /dev entries too?
-
-    Jeff
-
-
-
-
+Does anyone know where I can get supermount for current kernels?

@@ -1,22 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbUKTM05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbUKTMhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262810AbUKTM05 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 07:26:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbUKTM05
+	id S262744AbUKTMhj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 07:37:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbUKTMhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 07:26:57 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:61448 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262810AbUKTM0s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 07:26:48 -0500
-Date: Sat, 20 Nov 2004 13:26:47 +0100
+	Sat, 20 Nov 2004 07:37:39 -0500
+Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:18956 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262744AbUKTMhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 07:37:35 -0500
+Date: Sat, 20 Nov 2004 13:37:30 +0100
 From: Jean Delvare <khali@linux-fr.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] I2C updates for 2.4.28 (3/5)
-Message-Id: <20041120132647.364b2fa4.khali@linux-fr.org>
-In-Reply-To: <20041120125423.42527051.khali@linux-fr.org>
-References: <20041120125423.42527051.khali@linux-fr.org>
+Subject: [PATCH 2.4] I2C updates for 2.4.28 (4/5)
+Message-Id: <20041120133730.7bce8458.khali@linux-fr.org>
 X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,33 +22,27 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Original report and discussion:
-http://marc.theaimsgroup.com/?l=linux-arm-kernel&m=109816546827995&w=2
-http://marc.theaimsgroup.com/?l=linux-arm-kernel&m=109926079025024&w=2
-
-Bottom line:
-Two hardcoded buffer sizes in i2c_smbus_xfer_emulated (i2c-core) should
-depend on I2C_SMBUS_BLOCK_MAX. Else increasing I2C_SMBUS_BLOCK_MAX (in
-include/linux/i2c.h) will result in buffer overflows.
-
-Credits go to Tehn Yit Chin for noticing the suspicious hardcoded
-values.
+Two defined constants in include/linux/i2c.h aren't used anywhere,
+haven't ever been and won't ever be. They simply don't correspond to
+anything in the i2c core. Let's get rid of them.
 
 Signed-off-by: Jean Delvare <khali@linux-fr.org>
 
---- linux-2.4.28-rc1/drivers/i2c/i2c-core.c.orig	2004-10-27 23:45:48.000000000 +0200
-+++ linux-2.4.28-rc1/drivers/i2c/i2c-core.c	2004-10-29 19:18:09.000000000 +0200
-@@ -1098,8 +1098,8 @@
- 	  need to use only one message; when reading, we need two. We initialize
- 	  most things with sane defaults, to keep the code below somewhat
- 	  simpler. */
--	unsigned char msgbuf0[34];
--	unsigned char msgbuf1[34];
-+	unsigned char msgbuf0[I2C_SMBUS_BLOCK_MAX+2];
-+	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2];
- 	int num = read_write == I2C_SMBUS_READ?2:1;
- 	struct i2c_msg msg[2] = { { addr, flags, 1, msgbuf0 }, 
- 	                          { addr, flags | I2C_M_RD, 0, msgbuf1 }
+--- linux-2.4.28-rc1/include/linux/i2c.h.orig	2004-10-27 23:45:50.000000000 +0200
++++ linux-2.4.28-rc1/include/linux/i2c.h	2004-10-29 19:28:38.000000000 +0200
+@@ -47,11 +47,9 @@
+ 
+ /* --- General options ------------------------------------------------	*/
+ 
+-#define I2C_ALGO_MAX	4		/* control memory consumption	*/
+-#define I2C_ADAP_MAX	16
++#define I2C_ADAP_MAX	16		/* control memory consumption	*/
+ #define I2C_DRIVER_MAX	16
+ #define I2C_CLIENT_MAX	32
+-#define I2C_DUMMY_MAX 4
+ 
+ struct i2c_algorithm;
+ struct i2c_adapter;
 
 
 -- 

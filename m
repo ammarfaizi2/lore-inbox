@@ -1,94 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262433AbTC1Hvp>; Fri, 28 Mar 2003 02:51:45 -0500
+	id <S262272AbTC1Hth>; Fri, 28 Mar 2003 02:49:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262523AbTC1Hvo>; Fri, 28 Mar 2003 02:51:44 -0500
-Received: from mailproxy.de.uu.net ([192.76.144.34]:36579 "EHLO
-	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
-	id <S262433AbTC1Hvl>; Fri, 28 Mar 2003 02:51:41 -0500
-Message-ID: <7A5D4FEED80CD61192F2001083FC1CF9065148@CHARLY>
-From: "Filipau, Ihar" <ifilipau@sussdd.de>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: inw/outw performance
-Date: Fri, 28 Mar 2003 09:00:54 +0100
+	id <S262284AbTC1Hth>; Fri, 28 Mar 2003 02:49:37 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:29161 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S262272AbTC1Htg>;
+	Fri, 28 Mar 2003 02:49:36 -0500
+Date: Fri, 28 Mar 2003 09:00:26 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@infradead.org>
+cc: Antonino Daplas <adaplas@pol.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Framebuffer fixes.
+In-Reply-To: <Pine.LNX.4.44.0303280443170.11648-100000@phoenix.infradead.org>
+Message-ID: <Pine.GSO.4.21.0303280857240.7286-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="koi8-r"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All!
+On Fri, 28 Mar 2003, James Simmons wrote:
+> > > > > Shouldn't these be info->var.bits_per_pixel instead of fb_logo.depth?
+> > > > 
+> > > > Yes, fb_logo.depth == info->var.bits_per_pixel.
+> > > 
+> > > Euh, now I get confused... Do you mean
+> > > `Yes, it should be replaced by info->var.bits_per_pixel' or
+> > > `No, logo.depth is always equal to info->var.bits_per_pixel'?
+> > 
+> > :)  Sorry about that. I meant:
+> > 
+> > 
+> > `No, fb_logo.depth is always equal to info->var.bits_per_pixel'
+> 
+> No this is no longer true. For example last night I displayed the 16 color 
+> logo perfectly fine on a 16 bpp display!!!! The mono display still has 
+> bugs tho. The new logo tries to pick the best image to display. Say for 
+> example we have two video cards. One running VESA fbdev at 16 bpp and a 
+> another at vga 4 planar via vga16fb. This way we can have the both the 16 
+> color and 224 color logo compiled in.  The correct logo will be displayed 
+> then on the correct display. Now say we only have a mono display but all 
 
-  [ please CC me - I'm not subscribed ]
+Didn't it always work like that? You got the 16 color logo on vga16fb and the
+224 color logo on displays with more than 256 colors (except for directcolor).
 
-  [ do not know where else to send - so it goes here,
-    I hope some-one more qualified can advice something ]
+> the cards support 8 bpp or better. That logo still gets displayed.
+                                     ^^^^
+Which logo do you mean with `that'? On a monochrome display, it should be the
+monochrome logo.
 
-  I have a little question which comes down to two little 
-  CPU instructions - inw/outw.
+Gr{oetje,eeting}s,
 
-  I have a proprietary PCI board (PMD MC2140 motion controller with PLX).
-  I have wrote device driver for it (heap of ioctl()s - not more).
+						Geert
 
-  Now my company investigates possibilities to go to high-performance 
-  market - and I have hit the problem with performance.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-  Communication with controller (sending of the command and reading back 
-  response) looks like this:
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-    outw(cmd_port, command);
-    while( !(inw(status_port)&READY) );
-    outw(data_port, param1);
-    while( !(inw(status_port)&READY) );
-    outw(data_port, param2);
-    while( !(inw(status_port)&READY) );
-    ...
-    outw(data_port, paramN);
-    while( !(inw(status_port)&COMMAND_DONE) );
-
-    resp_data1 = inw(data_port);
-    while( !(inw(status_port)&READY) );
-    ...
-    resp_dataM = inw(data_port);
-    while( !(inw(status_port)&READY) );
- 
-  And actually what I have found that on my development P3/1GHz system
-  every inw() takes more that 3us. I wasn't measuring outw() yet - but 
-  I do not expect its timing to be better.
-
-  Whole communication sequence on average takes ~55us. I need to execute 
-  tens of commands for every user request - and time goes to some hefty 
-  3millis just to program motion controller. And on deployment (embedded) 
-  platform this is going to be even worse.
-
-  Okay. Our motion controller has 20MHz clock inside. So for every 50 
-  cycles of CPU I have only 1 cycle of motion controller. 3us ~ 1k
-  commands of CPU, and at top 20MHz/3us == 6,(6) commands of motion 
-  controller.
-
-  Am I right in my calculations? I have hit the limit of our device 
-  bandwidth?
-  Is there any other way to communicate over PCI bus with controller?
-  - I can ask our hw enginers to implement something, if there is something
-  possible to implement to improve performance.
-
-  I'm using interrupt-driven IO to communicate with user space. I have 
-  to execute several commands with motion controller: and it takes 200-400us
-
-  just to clear interrupt state of motion controller - Is it okay timing for
-
-  interrupt handler? Or should I try move stuff to BH or something like
-this?
-
-  Thanks in advance.
-
---- Regards&Wishes! With respect  Ihar "Philips" Filipau, Phil for friends
-
-- - - - - - - - - - - - - - - - - - - - - - - - -
-MCS/Mathematician - System Programmer
-Ihar Filipau 
-Software entwickler @ SUSS MicroTec Test Systems GmbH, 
-Suss-Strasse 1, D-01561 Sacka (bei Dresden)
-e-mail: ifilipau@sussdd.de  tel: +49-(0)-352-4073-327
-fax: +49-(0)-352-4073-700   web: http://www.suss.com/

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262481AbRENUbC>; Mon, 14 May 2001 16:31:02 -0400
+	id <S262483AbRENU2c>; Mon, 14 May 2001 16:28:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262484AbRENUaw>; Mon, 14 May 2001 16:30:52 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:23556 "EHLO
+	id <S262481AbRENU2M>; Mon, 14 May 2001 16:28:12 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:16132 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262481AbRENUai>; Mon, 14 May 2001 16:30:38 -0400
-Date: Mon, 14 May 2001 13:29:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <viro@math.psu.edu>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <3B003EFC.61D9C16A@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>
+	id <S262479AbRENU2D>; Mon, 14 May 2001 16:28:03 -0400
+Message-ID: <3B003FB0.9D12436A@transmeta.com>
+Date: Mon, 14 May 2001 13:27:28 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <E14zOfH-0001LG-00@the-village.bc.nu> <3B003EFC.61D9C16A@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 14 May 2001, Jeff Garzik wrote:
->
+Jeff Garzik wrote:
+> 
 > Note also that persistence of permissions and hardcoded in-kernel naming
 > is a problem throughout proc...  It's not unique to in-driver
 > filesystems.
+>
 
-Also note how a 32-bit (or 64-bit) dev_t does NOT make it any easier to
-manage permissions or anything like that anyway. Look at the current mess
-/dev is. Imagine it an order of magnitude worse.
+It's not so much about hardcoding the names as hardcoding the *STRUCTURE*
+of the names.  For example, the current devfs has /dev/misc/* which is
+completely bogus -- it exposes an implementation detail (using the
+miscdev API as opposed to the charmajor API) which should be hidden; in
+fact a number of drivers have started their lives as miscdev devices and
+changed over time.
 
-Big device numbers are _not_ a solution. I will accept a 32-bit one, but
-no more, and I will _not_ accept a "manage by hand" approach any more. The
-time has long since come to say "No". Which I've done. If you can't make
-it manage the thing automatically with a script, you won't get a hardcoded
-major device number just because you're lazy.
+	-hpa
 
-End of discussion.
-
-		Linus
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136490AbRD3JKA>; Mon, 30 Apr 2001 05:10:00 -0400
+	id <S136487AbRD3JWV>; Mon, 30 Apr 2001 05:22:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136488AbRD3JJl>; Mon, 30 Apr 2001 05:09:41 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:10113 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S136487AbRD3JJi>; Mon, 30 Apr 2001 05:09:38 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: [Moving rapidly offtopic] Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-Date: Mon, 30 Apr 2001 09:09:36 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9cja4g$3nr$1@forge.intermeta.de>
-In-Reply-To: <Pine.LNX.4.20.0104300303530.4671-100000@node2.localnet.net> <Pine.GSO.4.21.0104300317250.4113-100000@weyl.math.psu.edu> <20010430034001.A5520@thyrsus.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 988621776 9712 212.34.181.4 (30 Apr 2001 09:09:36 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 30 Apr 2001 09:09:36 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S136488AbRD3JWL>; Mon, 30 Apr 2001 05:22:11 -0400
+Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:41991 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S136487AbRD3JWE>; Mon, 30 Apr 2001 05:22:04 -0400
+Date: Mon, 30 Apr 2001 02:22:00 -0700
+Message-Id: <200104300922.f3U9M0T15608@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: bert hubert <ahu@ds9a.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19 locks up on SMP
+In-Reply-To: <20010429011604.A976@home.ds9a.nl>
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" <esr@thyrsus.com> writes:
+On Sun, 29 Apr 2001 01:16:04 +0200, bert hubert <ahu@ds9a.nl> wrote:
+> On Sat, Apr 28, 2001 at 02:21:29PM -0700, Ion Badulescu wrote:
+>> Hi Alan,
+>> 
+>> Over the last week I've tried to upgrade a 4-CPU Xeon box to 2.2.19, but 
+>> the it keeps locking up whenever the disks are stresses a bit, e.g. when 
+>> updatedb is running. I get the following messages on the console:
+>> 
+>> wait_on_bh, CPU 1:
+>> irq:  1 [1 0]
+>> bh:   1 [1 0]
+>> <[8010af71]>
+> 
+> Obvious question is, which compiler.
 
->@hd{McQuary limit} @p{} 4 lines of at most 80 characters each,
->   sometimes still cited on Usenet as the maximum acceptable size of a
->   @es{sig block}.  Before the great bandwidth explosion of the early
->   1990s, long sigs actually cost people running Usenet servers
->   significant amounts of money.  Nowadays social pressure against
->   long sigs is intended to avoid waste of human attention rather
->   than machine bandwidth.  Accordingly, the McQuary limit should 
->   be considered a rule of thumb rather than a hard limit; it's
->   best to avoid sigs that are large, repetitive, and distracting.
->   See also @es{warlording}.
+These are rh62 systems, the compiler is egcs-1.1.2. So that's not it.
 
-Don't tell me how to live my life
-Don't tell me what to do
-Repression is always brought about
-By people with politics
-and attitudes like you
+I'd be willing to do the binary search through the 2.2.19pre series,
+but I'd rather avoid it if it's a known bug. It's pretty painful, both
+for myself and for the real users of this box, to go through the pains
+of 10-20 cycles of reboot-crash-fsck_3_large_disks...
 
- -- Anne Clark, The power game, 1982
-
-
-	Regards
-		Henning
-
-
+Thanks,
+Ion
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265103AbTFCQxx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 12:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbTFCQxc
+	id S265101AbTFCQxY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 12:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265107AbTFCQxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 12:53:32 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:54662 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S265103AbTFCQxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 12:53:21 -0400
-Date: Tue, 3 Jun 2003 14:04:44 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.21-rc7
-Message-ID: <Pine.LNX.4.55L.0306031353580.3892@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Jun 2003 12:53:23 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:48893 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S265101AbTFCQwZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 12:52:25 -0400
+Subject: Re: [BENCHMARK] 100Hz preempt v nopreempt contest results
+From: Robert Love <rml@tech9.net>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+In-Reply-To: <200306031639.49515.kernel@kolivas.org>
+References: <200306031639.49515.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1054659956.633.85.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (1.3.92-1) (Preview Release)
+Date: 03 Jun 2003 10:05:58 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-06-02 at 23:39, Con Kolivas wrote:
 
-Hallo,
+> Note this time the ratio is less useful since they are both 100Hz. The 
+> difference this time shows a large preempt improvement in process_load much 
+> like 1000Hz did. Interestingly, even unloaded kernels no_load and cache_load 
+> runs are faster with preempt. Only in xtar_load (repeatedly extracting a tar 
+> with multiple small files) was no preempt faster.
 
-Now I really hope its the last one, all this rc's are making me mad.
+Thanks for running these, Con.
 
-Ok, here it is.
+I think this is an example of kernel preemption doing exactly what we
+want it to (improve interactive performance)... probably primarily
+because of the more accurate timeslice distribution.
 
+Would be interested to figure out why xtar_load is slower.
 
-Summary of changes from v2.4.21-rc6 to v2.4.21-rc7
-============================================
+	Robert Love
 
-<ehabkost@conectiva.com.br>:
-  o [SPARC]: Export phys_base on sparc32
-
-<jgarzik@pobox.com>:
-  o fix olympic driver build
-
-<lethal@linux-sh.org>:
-  o Fix Solution Engine 7751 Build
-  o Define VM_DATA_DEFAULT_FLAGS for SH
-
-<wesolows@foobazco.org>:
-  o [sparc]: Attempt mul/div emulation handling on all cpus
-
-David S. Miller <davem@nuts.ninka.net>:
-  o [SPARC]: Fix sys_ipc to return ENOSYS instead of EINVAL as appropriate
-  o [SPARC64]: Implement dump_stack in 2.4.x
-  o [SPARC64]: Only use power interrupt when button property exists
-  o [IPV4/IPV6]: Use Jenkins hash for fragment reassembly handling
-  o [IPV6]: Input full addresses into TCP_SYNQ hash function
-  o [IPV4]: Add sysctl to control ipfrag_secret_interval
-  o [SPARC64]: Fix probe error handling in envctrl.c driver
-  o [SPARC64]: Fix probe error handling in bbc_{envctrl,i2c}.c driver
-  o [SPARC64]: Fix exploitable holes and bugs in ioctl32 translations
-
-Douglas Gilbert <dougg@torque.net>:
-  o sg: Fix side effect introduced by last "off by one" fix
-
-Eric Brower <ebrower@usa.net>:
-  o [SPARC]: Refactor AUXIO support
-
-Marcelo Tosatti <marcelo@freak.distro.conectiva>:
-  o Changed EXTRAVERSION to -rc7
-
-Pete Zaitcev <zaitcev@redhat.com>:
-  o [sparc] Force type in __put_user
-  o [SPARC]: Fix gcc-3.x builds
-
-Rob Radez <rob@osinvestor.com>:
-  o [sparc]: Fix uninitialized spinlock in SRMMU code
-  o [SPARC]: Kill initialize_secondary, unused
 

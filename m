@@ -1,939 +1,379 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267448AbTAMIRk>; Mon, 13 Jan 2003 03:17:40 -0500
+	id <S267602AbTAMIYd>; Mon, 13 Jan 2003 03:24:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267457AbTAMIRj>; Mon, 13 Jan 2003 03:17:39 -0500
-Received: from smtp.rhein-zeitung.DE ([212.7.160.14]:14991 "EHLO
-	smtp.rhein-zeitung.DE") by vger.kernel.org with ESMTP
-	id <S267448AbTAMIRE>; Mon, 13 Jan 2003 03:17:04 -0500
-Date: Mon, 13 Jan 2003 09:25:53 +0100
-From: Oliver Graf <ograf@rz-online.net>
-To: linux-kernel@vger.kernel.org
-Subject: usb-storage problem with >2.4.19
-Message-ID: <20030113082553.GA22704@rz-online.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="cNdxnHkX5QqsyA0e"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-PGP-Key: http://wwwkeys.de.pgp.net:11371/pks/lookup?op=get&search=0x0B17417A
-X-RIPE-Key-Cert: PGPKEY-0B17417A
-Organization: KEVAG Telekom GmbH / RZ-Online GmbH
+	id <S267614AbTAMIYd>; Mon, 13 Jan 2003 03:24:33 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:65298 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S267602AbTAMIY0>; Mon, 13 Jan 2003 03:24:26 -0500
+Message-Id: <200301130821.h0D8Kis26772@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Jean Tourrilhes <jt@bougret.hpl.hp.com>, alan_mcreynolds@hpl.hp.com,
+       jkaba@sarnoff.com, torgeir@trenger.ro
+Subject: 2.4.20-pre11: PCI Wavelan card loses connection
+Date: Mon, 13 Jan 2003 10:20:14 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I bought a PCI wireless card, a DLink-520 (I think, I forgot exactly
+(it's at home), anyway, lspci dump is below).
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+We (my father and me) made a fairly long helical aerial.
+We are trying to communicate over ~15 km with a small wireless cell.
+(~10 hosts, one AP).
 
-Hi!
+We can successfully associate with it, signal is weak as expected.
+But after a short while our eth0 seems to 'fall off the net'
+and while it looks like we can send packets, we see no incoming data
+at all.
 
-If have problems with a Tevion 6in1 Flash Card Reader and newer 2.4
-kernels.
+Since I have almost zero wireless experience, I'll be happy if someone
+with said experience can read further and say what bites us.
 
-With 2.4.19(-ac?) everthing works fine. The reader and its four
-subdevices are detectet and accessible. But starting with 2.4.20 the
-kernel will only detect one (the first) subdevice of the reader.
+Typical bcast ping:
+===================
+PING 10.206.173.127 (10.206.173.127): 56 octets data
+64 octets from 10.206.173.111: icmp_seq=0 ttl=64 time=0.4 ms
+64 octets from 10.206.173.4: icmp_seq=0 ttl=64 time=13.8 ms (DUP!)
+64 octets from 10.206.173.6: icmp_seq=0 ttl=255 time=27.2 ms (DUP!)
+64 octets from 10.206.173.5: icmp_seq=0 ttl=255 time=50.0 ms (DUP!)
+64 octets from 10.206.173.111: icmp_seq=1 ttl=64 time=0.3 ms
+64 octets from 10.206.173.4: icmp_seq=1 ttl=64 time=5.5 ms (DUP!)
+64 octets from 10.206.173.6: icmp_seq=1 ttl=255 time=20.3 ms (DUP!)
+64 octets from 10.206.173.5: icmp_seq=1 ttl=255 time=59.8 ms (DUP!)
+64 octets from 10.206.173.3: icmp_seq=1 ttl=64 time=99.5 ms (DUP!)
+64 octets from 10.206.173.111: icmp_seq=2 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=3 ttl=64 time=0.4 ms
+64 octets from 10.206.173.111: icmp_seq=4 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=5 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=6 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=7 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=8 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=9 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=10 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=11 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=12 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=13 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=14 ttl=64 time=0.3 ms
+64 octets from 10.206.173.4: icmp_seq=14 ttl=64 time=4.1 ms (DUP!)
+64 octets from 10.206.173.6: icmp_seq=14 ttl=255 time=19.3 ms (DUP!)
+64 octets from 10.206.173.3: icmp_seq=14 ttl=64 time=73.9 ms (DUP!)
+64 octets from 10.206.173.5: icmp_seq=14 ttl=255 time=153.1 ms (DUP!)
+64 octets from 10.206.173.111: icmp_seq=15 ttl=64 time=0.3 ms
+64 octets from 10.206.173.4: icmp_seq=15 ttl=64 time=4.7 ms (DUP!)
+64 octets from 10.206.173.6: icmp_seq=15 ttl=255 time=24.1 ms (DUP!)
+64 octets from 10.206.173.3: icmp_seq=15 ttl=64 time=107.8 ms (DUP!)
+64 octets from 10.206.173.5: icmp_seq=15 ttl=255 time=149.9 ms (DUP!)
+64 octets from 10.206.173.111: icmp_seq=16 ttl=64 time=0.3 ms
+64 octets from 10.206.173.4: icmp_seq=16 ttl=64 time=4.1 ms (DUP!)
+64 octets from 10.206.173.6: icmp_seq=16 ttl=255 time=22.4 ms (DUP!)
+64 octets from 10.206.173.3: icmp_seq=16 ttl=64 time=91.6 ms (DUP!)
+64 octets from 10.206.173.5: icmp_seq=16 ttl=255 time=143.1 ms (DUP!)
+64 octets from 10.206.173.111: icmp_seq=17 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=18 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=19 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=20 ttl=64 time=0.3 ms
+64 octets from 10.206.173.111: icmp_seq=21 ttl=64 time=0.3 ms
+....no more replies ever except .111 (i.e. us)....
 
-I tried to find the changes that caused that behaviour, but it did not
-jump at me, so I try here, perhaps someone with more intimate knowledge
-of usb stuff can find the problem.
+As you see, replies come irregularly. Maybe it is due to big distance
+and weak signal. But soon icmp replies stop coming at all, no matter
+how long I ping. Either Tx or Rx does not really happen I think :(
 
-If you should test something, give some additional logs, etc., just mail
-me.
+I tried to reset (ifconfig down/up) the card every 10 mins
+and pinging and tcpdumping overnight (automated ;).
+It helps but not for long. The longest period of replies coming
+is less than 2 minutes. Usually card 'falls off the net' much sooner
+(~30 seconds).
 
-Regards,
-  Oliver.
+Looking at syslog I think sometimes card timeouts at Tx and gets
+reset by network code. Then the cycle repeats. It works for some
+30 seconds on average, then go deaf.
 
-P.S.: The outputs are of 2.4.19-ac4 and 2.4.21-pre3-ac3, but the problem
-will happen with any patch after ands including 2.4.20. config is
-usb-storage as module + debugging, plus all special device handling
-options activated. but it will happen witrh all specials deactivated
-too.
+Here are all kinds of more-or-less relevant information:
 
-P.P.S.: The logs show a normal attach / detach action with the reader,
-as you can see.
+syslog at modprobe orinoco_pci
+==============================
+kernel: hermes.c: 5 Apr 2002 David Gibson <hermes@gibson.dropbear.id.au>
+kernel: orinoco.c 0.11b (David Gibson <hermes@gibson.dropbear.id.au> and others)
+kernel: PCI: Found IRQ 11 for device 00:0f.0
+kernel: PCI: Sharing IRQ 11 with 00:07.5
+kernel: Detected Orinoco/Prism2 PCI device at 00:0f.0,
+    mem:0xD8000000 to 0xD8000FFF -> 0xd0c66000, irq:11
+kernel: Reset done....................................
+    ..................................................
+    ..................................................
+    ..................................................
+    ..................................................
+    ...........;
+kernel: Clear Reset...................................
+    ..................................................
+    ..................................................
+    ..................................................
+    ..................................................
+    ..................................................
+    ..................................................
+    ..................................................
+    ..................................................
+    ..................................................
+    .................;
+kernel: pci_cor : reg = 0x0 - DD5 - DA3
+kernel: eth0: Station identity 001f:0006:0001:0003
+kernel: eth0: Looks like an Intersil firmware version 1.03
+kernel: eth0: Ad-hoc demo mode supported
+kernel: eth0: IEEE standard IBSS ad-hoc mode supported
+kernel: eth0: WEP supported, 104-bit key
+kernel: eth0: MAC address 00:05:5D:FA:1A:DA
+kernel: eth0: Station name "Prism  I"
+kernel: eth0: ready
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usb-devices.working-2.4.19-ac4"
+syslog while I play with ping and iwconfig
+==========================================
+kernel: eth0: Channel out of range (0)!
+	*** LOTS of these. Is this normal?
+kernel: eth0: Channel out of range (0)!
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+	*** (110 == ETIMEDOUT) Why? Do I have to worry?
+last message repeated 5 times
+kernel: eth0: Channel out of range (0)!
+kernel: eth0: Channel out of range (0)!
+last message repeated 3 times
+kernel: eth0: Channel out of range (0)!
+kernel: eth0: Channel out of range (0)!
+kernel: eth0: Channel out of range (0)!
+kernel: eth0: Channel out of range (0)!
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+last message repeated 6 times
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+kernel: eth0: Channel out of range (0)!
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+last message repeated 9 times
+last message repeated 2 times
+kernel: eth0: Channel out of range (0)!
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+last message repeated 8 times
+last message repeated 5 times
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+last message repeated 7 times
+kernel: eth0: Channel out of range (0)!
+last message repeated 16 times
+last message repeated 30 times
+last message repeated 30 times
+kernel: eth0: Channel out of range (0)!
+last message repeated 2 times
+kernel: eth0: Channel out of range (0)!
+last message repeated 15 times
+	*** _TONS_ of 'eth0: Channel out of range (0)!' snipped ***
+kernel: eth0: Channel out of range (0)!
+last message repeated 8 times
+kernel: eth0: Channel out of range (0)!
+last message repeated 16 times
+last message repeated 31 times
+last message repeated 30 times
+kernel: eth0: error -5 reading info frame. Frame dropped.
+	*** (5 == EIO) This is probably a mangled packet. okay...
+kernel: eth0: Channel out of range (0)!
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+last message repeated 17 times
+last message repeated 4 times
+last message repeated 2 times
+kernel: NETDEV WATCHDOG: eth0: transmit timed out
+kernel: eth0: Tx timeout! Resetting card. ALLOCFID=ffff, TXCOMPLFID=ffff, EVSTAT=8000
+	*** What do these numbers mean?
+kernel: eth0: Channel out of range (0)!
+last message repeated 2 times
+-- MARK --
+-- MARK --
+kernel: eth0: Channel out of range (0)!
+last message repeated 2 times
+kernel: eth0: Error -110 writing Tx descriptor to BAP
+last message repeated 13 times
+last message repeated 6 times
 
-T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 4
-B:  Alloc=146/900 us (16%), #Int=  3, #Iso=  0
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0000 ProdID=0000 Rev= 0.00
-S:  Product=USB OHCI Root Hub
-S:  SerialNumber=f882b000
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
-T:  Bus=01 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=12  MxCh= 5
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=046a ProdID=0003 Rev= 2.10
-S:  Manufacturer=Cherry GmbH
-S:  Product=Cherry GmbH USB-Hub
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=255ms
-T:  Bus=01 Lev=02 Prnt=03 Port=00 Cnt=01 Dev#=  4 Spd=1.5 MxCh= 0
-D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=046d ProdID=c401 Rev= 2.10
-S:  Manufacturer=Logitech
-S:  Product=USB-PS/2 Trackball
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 50mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=hid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
-T:  Bus=01 Lev=02 Prnt=03 Port=02 Cnt=02 Dev#=  6 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=16 #Cfgs=  1
-P:  Vendor=0483 ProdID=1307 Rev= 1.33
-S:  Manufacturer=Generic
-S:  Product=USBMass Storage Device
-S:  SerialNumber=Mass Storage - 7
-C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50 Driver=usb-storage
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-T:  Bus=01 Lev=02 Prnt=03 Port=04 Cnt=03 Dev#=  5 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=046a ProdID=0001 Rev= 2.10
-S:  Manufacturer=Cherry GmbH
-S:  Product=Cherry GmbH USB-Keyboard
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=hid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
+ifconfig:
+=========
+eth0      Link encap:Ethernet  HWaddr 00:05:5D:FA:1A:DA
+          inet addr:10.206.173.111  Bcast:10.206.173.127  Mask:255.255.255.128
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:789 errors:565 dropped:0 overruns:0 frame:436
+          TX packets:1140 errors:2397 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100
+          RX bytes:72416 (70.7 Kb)  TX bytes:640704 (625.6 Kb)
+          Interrupt:11 Base address:0x6000 Memory:d8000000-d8000fff
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usb-devices.notwork-2.4.21-pre3-ac3"
+iwconfig after reset (ifconfig eth0 down/up cycle):
+===================================================
+eth0      IEEE 802.11-DS  ESSID:"AirNet"  Nickname:"Prism  I"
+          Mode:Managed  Frequency:2.462GHz  Access Point: 00:10:E7:F5:82:CC
+          Bit Rate:2Mb/s   Tx-Power=15 dBm   Sensitivity:1/3
+          Retry min limit:8   RTS thr:off   Fragment thr:off
+          Encryption key:off
+          Power Management:off
+          Link Quality:10/92  Signal level:-89 dBm  Noise level:-134 dBm
+                       ^^^^^               ^^^^^^^              ^^^^^^^^
+          Rx invalid nwid:0  Rx invalid crypt:129  Rx invalid frag:0
+          Tx excessive retries:6  Invalid misc:0   Missed beacon:0
+	  
+iwconfig when card 'falls off the net':
+=======================================
+eth0      IEEE 802.11-DS  ESSID:"AirNet"  Nickname:"Prism  I"
+          Mode:Managed  Frequency:2.427GHz  Access Point: 00:10:E7:F5:82:CC
+          Bit Rate:2Mb/s   Tx-Power=15 dBm   Sensitivity:1/3
+          Retry min limit:8   RTS thr:off   Fragment thr:off
+          Encryption key:off
+          Power Management:off
+          Link Quality:0/92  Signal level:107/153  Noise level:123/153
+                       ^^^^               ^^^^^^^              ^^^^^^^
+          Rx invalid nwid:0  Rx invalid crypt:122  Rx invalid frag:0
+          Tx excessive retries:6  Invalid misc:0   Missed beacon:0
 
-T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 4
-B:  Alloc=146/900 us (16%), #Int=  3, #Iso=  0
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0000 ProdID=0000 Rev= 0.00
-S:  Product=USB OHCI Root Hub
-S:  SerialNumber=f882b000
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
-T:  Bus=01 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=12  MxCh= 5
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=046a ProdID=0003 Rev= 2.10
-S:  Manufacturer=Cherry GmbH
-S:  Product=Cherry GmbH USB-Hub
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=255ms
-T:  Bus=01 Lev=02 Prnt=03 Port=00 Cnt=01 Dev#=  4 Spd=1.5 MxCh= 0
-D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=046d ProdID=c401 Rev= 2.10
-S:  Manufacturer=Logitech
-S:  Product=USB-PS/2 Trackball
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 50mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=hid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
-T:  Bus=01 Lev=02 Prnt=03 Port=04 Cnt=02 Dev#=  5 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=046a ProdID=0001 Rev= 2.10
-S:  Manufacturer=Cherry GmbH
-S:  Product=Cherry GmbH USB-Keyboard
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=hid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
+What makes me wonder: how come there is no signal *while I am pinging*?
+AP *has to* retranslate it to the peers, we have to see it too!
+Maybe there is *no* Tx happening on our side?
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usb-storage.working-2.4.19-ac4.log"
+lspci -vvvxxx:
+==============
+00:0f.0 Network controller: Harris Semiconductor: Unknown device 3873 (rev 01)
+	Subsystem: D-Link System Inc: Unknown device 3501
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32, cache line size 08
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at d8000000 (32-bit, prefetchable) [size=4K]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00: 60 12 73 38 07 00 90 02 01 00 80 02 08 20 00 00
+10: 08 00 00 d8 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 86 11 01 35
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 00 00
+40: 80 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 02 7e
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-Jan 13 09:04:01 maus kernel: hub.c: USB new device connect on bus1/2/3, assigned device number 6
-Jan 13 09:04:01 maus kernel: Initializing USB Mass Storage driver...
-Jan 13 09:04:01 maus kernel: usb.c: registered new driver usb-storage
-Jan 13 09:04:01 maus kernel: usb-storage: act_altsettting is 0
-Jan 13 09:04:01 maus kernel: usb-storage: id_index calculated to be: 85
-Jan 13 09:04:01 maus kernel: usb-storage: Array length appears to be: 87
-Jan 13 09:04:01 maus kernel: usb-storage: USB Mass Storage device detected
-Jan 13 09:04:01 maus kernel: usb-storage: Endpoints: In: 0xf794a180 Out: 0xf794a194 Int: 0x00000000 (Period 0)
-Jan 13 09:04:01 maus kernel: usb-storage: New GUID 04831307fffe9ffffffffe97
-Jan 13 09:04:01 maus kernel: usb-storage: GetMaxLUN command result is 1, data is 3
-Jan 13 09:04:01 maus kernel: usb-storage: Transport: Bulk
-Jan 13 09:04:01 maus kernel: usb-storage: Protocol: Transparent SCSI
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: scsi1 : SCSI emulation for USB Mass Storage devices
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Command INQUIRY (6 bytes)
-Jan 13 09:04:01 maus kernel: usb-storage: 12 00 00 00 ff 00 00 00 00 a0 eb f7
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk command S 0x43425355 T 0xe Trg 0 LUN 0 L 255 F 128 CL 6
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:01 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
-Jan 13 09:04:01 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 96/255
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk data transfer result 0x1
-Jan 13 09:04:01 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0xe R 159 Stat 0x0
-Jan 13 09:04:01 maus kernel: usb-storage: Fixing INQUIRY data to show SCSI rev 2
-Jan 13 09:04:01 maus kernel: usb-storage: scsi cmd done, result=0x0
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Command INQUIRY (6 bytes)
-Jan 13 09:04:01 maus kernel: usb-storage: 12 20 00 00 ff 00 00 00 00 a0 eb f7
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk command S 0x43425355 T 0xf Trg 0 LUN 1 L 255 F 128 CL 6
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:01 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
-Jan 13 09:04:01 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 96/255
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk data transfer result 0x1
-Jan 13 09:04:01 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0xf R 159 Stat 0x0
-Jan 13 09:04:01 maus kernel: usb-storage: Fixing INQUIRY data to show SCSI rev 2
-Jan 13 09:04:01 maus kernel: usb-storage: scsi cmd done, result=0x0
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Command INQUIRY (6 bytes)
-Jan 13 09:04:01 maus kernel: usb-storage: 12 40 00 00 ff 00 00 00 00 a0 eb f7
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x10 Trg 0 LUN 2 L 255 F 128 CL 6
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:01 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
-Jan 13 09:04:01 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 96/255
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk data transfer result 0x1
-Jan 13 09:04:01 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x10 R 159 Stat 0x0
-Jan 13 09:04:01 maus kernel: usb-storage: Fixing INQUIRY data to show SCSI rev 2
-Jan 13 09:04:01 maus kernel: usb-storage: scsi cmd done, result=0x0
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Command INQUIRY (6 bytes)
-Jan 13 09:04:01 maus kernel: usb-storage: 12 60 00 00 ff 00 00 00 00 a0 eb f7
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x11 Trg 0 LUN 3 L 255 F 128 CL 6
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:01 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
-Jan 13 09:04:01 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 96/255
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk data transfer result 0x1
-Jan 13 09:04:01 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:01 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x11 R 159 Stat 0x0
-Jan 13 09:04:01 maus kernel: usb-storage: Fixing INQUIRY data to show SCSI rev 2
-Jan 13 09:04:01 maus kernel: usb-storage: scsi cmd done, result=0x0
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Bad LUN (0/4)
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Bad target number (1/0)
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Bad target number (2/0)
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Bad target number (3/0)
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Bad target number (4/0)
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Bad target number (5/0)
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Bad target number (6/0)
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:01 maus kernel: usb-storage: Bad target number (7/0)
-Jan 13 09:04:01 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:01 maus kernel: WARNING: USB Mass Storage data integrity not assured
-Jan 13 09:04:01 maus kernel: USB Mass Storage device found at 6
-Jan 13 09:04:01 maus kernel: USB Mass Storage support registered.
-Jan 13 09:04:01 maus kernel: usb.c: USB device 6 (vend/prod 0x483/0x1307) is not claimed by any active driver.
-Jan 13 09:04:01 maus kernel:   Vendor: Generic   Model: Flash R/W         Rev: 2002
-Jan 13 09:04:01 maus kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Jan 13 09:04:01 maus kernel:   Vendor: Generic   Model: Flash R/W         Rev: 2002
-Jan 13 09:04:01 maus kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Jan 13 09:04:01 maus kernel:   Vendor: Generic   Model: Flash R/W         Rev: 2002
-Jan 13 09:04:01 maus kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Jan 13 09:04:01 maus kernel:   Vendor: Generic   Model: Flash R/W         Rev: 2002
-Jan 13 09:04:01 maus kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command TEST_UNIT_READY (6 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 00 00 00 00 00 00 00 00 00 00 92 f8
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1a Trg 0 LUN 0 L 0 F 0 CL 6
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1a R 0 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1a Trg 0 LUN 0 L 18 F 128 CL 6
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1a R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 25 00 00 00 00 00 00 00 00 00 92 f8
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1b Trg 0 LUN 0 L 8 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:04:22 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1b R 8 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1b Trg 0 LUN 0 L 18 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1b R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 25 00 00 00 00 00 00 00 00 00 92 f8
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1c Trg 0 LUN 0 L 8 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:04:22 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1c R 8 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1c Trg 0 LUN 0 L 18 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1c R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 25 00 00 00 00 00 00 00 00 00 92 f8
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1d Trg 0 LUN 0 L 8 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:04:22 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1d R 8 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1d Trg 0 LUN 0 L 18 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1d R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel:  /dev/scsi/host1/bus0/target0/lun0: I/O error: dev 08:00, sector 0
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command TEST_UNIT_READY (6 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 00 20 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1e Trg 0 LUN 1 L 0 F 0 CL 6
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1e R 0 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1e Trg 0 LUN 1 L 18 F 128 CL 6
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1e R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x6, ASC: 0x28, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Unit Attention: not ready to ready transition
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command TEST_UNIT_READY (6 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 00 20 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1f Trg 0 LUN 1 L 0 F 0 CL 6
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1f R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x0
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 25 20 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x20 Trg 0 LUN 1 L 8 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 8/8
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x20 R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x0
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command MODE_SENSE (6 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 1a 20 3f 00 ff 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x21 Trg 0 LUN 1 L 255 F 128 CL 6
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 4/255
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x21 R 251 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x0
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel:  /dev/scsi/host1/bus0/target0/lun1:<7>usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_10 (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 28 20 00 00 00 00 00 00 08 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x22 Trg 0 LUN 1 L 4096 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 4096 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 4096/4096
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x22 R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x0
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command TEST_UNIT_READY (6 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 00 40 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x23 Trg 0 LUN 2 L 0 F 0 CL 6
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x23 R 0 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x23 Trg 0 LUN 2 L 18 F 128 CL 6
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x23 R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 25 40 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x24 Trg 0 LUN 2 L 8 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:04:22 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x24 R 8 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x24 Trg 0 LUN 2 L 18 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x24 R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 25 40 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x25 Trg 0 LUN 2 L 8 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:04:22 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x25 R 8 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x25 Trg 0 LUN 2 L 18 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x25 R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 25 40 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x26 Trg 0 LUN 2 L 8 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:04:22 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x26 R 8 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x26 Trg 0 LUN 2 L 18 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x26 R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel:  /dev/scsi/host1/bus0/target0/lun2: I/O error: dev 08:20, sector 0
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command TEST_UNIT_READY (6 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 00 60 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x27 Trg 0 LUN 3 L 0 F 0 CL 6
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x27 R 0 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x27 Trg 0 LUN 3 L 18 F 128 CL 6
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x27 R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 25 60 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x28 Trg 0 LUN 3 L 8 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:04:22 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x28 R 8 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x28 Trg 0 LUN 3 L 18 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x28 R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 25 60 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x29 Trg 0 LUN 3 L 8 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:04:22 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x29 R 8 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x29 Trg 0 LUN 3 L 18 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x29 R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:04:22 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:04:22 maus kernel: usb-storage: 25 60 00 00 00 00 00 00 00 00 00 00
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x2a Trg 0 LUN 3 L 8 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:04:22 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x2a R 8 Stat 0x1
-Jan 13 09:04:22 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:04:22 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x2a Trg 0 LUN 3 L 18 F 128 CL 10
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:04:22 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:04:22 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x2a R 0 Stat 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:04:22 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:04:22 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:04:22 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:04:22 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:04:22 maus kernel:  /dev/scsi/host1/bus0/target0/lun3: I/O error: dev 08:30, sector 0
-Jan 13 09:04:22 maus kernel: Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
-Jan 13 09:04:22 maus kernel: Attached scsi removable disk sdb at scsi1, channel 0, id 0, lun 1
-Jan 13 09:04:22 maus kernel: Attached scsi removable disk sdc at scsi1, channel 0, id 0, lun 2
-Jan 13 09:04:22 maus kernel: Attached scsi removable disk sdd at scsi1, channel 0, id 0, lun 3
-Jan 13 09:04:22 maus kernel: sda : READ CAPACITY failed.
-Jan 13 09:04:22 maus kernel: sda : status = 1, message = 00, host = 0, driver = 08 
-Jan 13 09:04:22 maus kernel: Current sd00:00: sense key Not Ready
-Jan 13 09:04:22 maus kernel: Additional sense indicates Medium not present
-Jan 13 09:04:22 maus kernel: sda : block size assumed to be 512 bytes, disk size 1GB.  
-Jan 13 09:04:22 maus kernel:  I/O error: dev 08:00, sector 0
-Jan 13 09:04:22 maus kernel:  unable to read partition table
-Jan 13 09:04:22 maus kernel: SCSI device sdb: 500816 512-byte hdwr sectors (256 MB)
-Jan 13 09:04:22 maus kernel: sdb: Write Protect is off
-Jan 13 09:04:22 maus kernel:  p1
-Jan 13 09:04:22 maus kernel: sdc : READ CAPACITY failed.
-Jan 13 09:04:22 maus kernel: sdc : status = 1, message = 00, host = 0, driver = 08 
-Jan 13 09:04:22 maus kernel: Current sd00:00: sense key Not Ready
-Jan 13 09:04:22 maus kernel: Additional sense indicates Medium not present
-Jan 13 09:04:22 maus kernel: sdc : block size assumed to be 512 bytes, disk size 1GB.  
-Jan 13 09:04:22 maus kernel:  I/O error: dev 08:20, sector 0
-Jan 13 09:04:22 maus kernel:  unable to read partition table
-Jan 13 09:04:22 maus kernel: sdd : READ CAPACITY failed.
-Jan 13 09:04:22 maus kernel: sdd : status = 1, message = 00, host = 0, driver = 08 
-Jan 13 09:04:22 maus kernel: Current sd00:00: sense key Not Ready
-Jan 13 09:04:22 maus kernel: Additional sense indicates Medium not present
-Jan 13 09:04:22 maus kernel: sdd : block size assumed to be 512 bytes, disk size 1GB.  
-Jan 13 09:04:22 maus kernel:  I/O error: dev 08:30, sector 0
-Jan 13 09:04:22 maus kernel:  unable to read partition table
-Jan 13 09:04:54 maus kernel: usb.c: USB disconnect on device 6
-Jan 13 09:04:54 maus kernel: usb-storage: storage_disconnect() called
-Jan 13 09:04:54 maus kernel: usb-storage: -- releasing main URB
-Jan 13 09:04:54 maus kernel: usb-storage: -- usb_unlink_urb() returned -19
+lsmod
+=====
+Module                  Size  Used by    Not tainted
+nls_iso8859-1           2880   0  (autoclean)
+nls_cp437               4384   0  (autoclean)
+af_packet              11336   0  (autoclean)
+orinoco_pci             2560   1
+orinoco                35072   0  [orinoco_pci]
+hermes                  6624   0  [orinoco_pci orinoco]
+nls_koi8-r              3872   0  (autoclean)
+nls_cp866               3872   0  (autoclean)
+nfsd                   66112   0  (unused)
+autofs                 11172   1
+via82cxxx_audio        19200   0
+soundcore               4260   2  [via82cxxx_audio]
+ac97_codec              9824   0  [via82cxxx_audio]
+serial                 55712   0  (unused)
+isa-pnp                29148   0  [serial]
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usb-storage.notwork-2.4.21-pre3-ac3.log"
+uname -a
+========
+Linux localhost 2.4.20-pre11 #5 SMP Sat Nov 2 11:53:37 GMT+2 2002 i686 unknown
 
-Jan 13 09:11:14 maus kernel: hub.c: new USB device 02:00.0-2.3, assigned address 6
-Jan 13 09:11:14 maus kernel: Initializing USB Mass Storage driver...
-Jan 13 09:11:14 maus kernel: usb.c: registered new driver usb-storage
-Jan 13 09:11:14 maus kernel: usb-storage: act_altsettting is 0
-Jan 13 09:11:14 maus kernel: usb-storage: id_index calculated to be: 70
-Jan 13 09:11:14 maus kernel: usb-storage: Array length appears to be: 72
-Jan 13 09:11:14 maus kernel: usb-storage: USB Mass Storage device detected
-Jan 13 09:11:14 maus kernel: usb-storage: Endpoints: In: 0xf729eb80 Out: 0xf729eb94 Int: 0x00000000 (Period 0)
-Jan 13 09:11:14 maus kernel: usb-storage: New GUID 04831307fffe9ffffffffe97
-Jan 13 09:11:14 maus kernel: usb-storage: GetMaxLUN command result is -32, data is 128
-Jan 13 09:11:14 maus kernel: usb-storage: clearing endpoint halt for pipe 0x80000680
-Jan 13 09:11:14 maus kernel: usb-storage: Transport: Bulk
-Jan 13 09:11:14 maus kernel: usb-storage: Protocol: Transparent SCSI
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:14 maus kernel: scsi1 : SCSI emulation for USB Mass Storage devices
-Jan 13 09:11:14 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:14 maus kernel: usb-storage: Command INQUIRY (6 bytes)
-Jan 13 09:11:14 maus kernel: usb-storage: 12 00 00 00 ff 00 14 f7 c4 8c ae f7
-Jan 13 09:11:14 maus kernel: usb-storage: Bulk command S 0x43425355 T 0xe Trg 0 LUN 0 L 255 F 128 CL 6
-Jan 13 09:11:14 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:11:14 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
-Jan 13 09:11:14 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 96/255
-Jan 13 09:11:14 maus kernel: usb-storage: Bulk data transfer result 0x1
-Jan 13 09:11:14 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:11:14 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:11:14 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0xe R 159 Stat 0x0
-Jan 13 09:11:14 maus kernel: usb-storage: Fixing INQUIRY data to show SCSI rev 2
-Jan 13 09:11:14 maus kernel: usb-storage: scsi cmd done, result=0x0
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:14 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:14 maus kernel: usb-storage: Bad LUN (0/1)
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:14 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:14 maus kernel: usb-storage: Bad target number (1/0)
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:14 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:14 maus kernel: usb-storage: Bad target number (2/0)
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:14 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:14 maus kernel: usb-storage: Bad target number (3/0)
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:14 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:14 maus kernel: usb-storage: Bad target number (4/0)
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:14 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:14 maus kernel: usb-storage: Bad target number (5/0)
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:14 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:14 maus kernel: usb-storage: Bad target number (6/0)
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:14 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:14 maus kernel: usb-storage: Bad target number (7/0)
-Jan 13 09:11:14 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:14 maus kernel: WARNING: USB Mass Storage data integrity not assured
-Jan 13 09:11:14 maus kernel: USB Mass Storage device found at 6
-Jan 13 09:11:14 maus kernel: USB Mass Storage support registered.
-Jan 13 09:11:14 maus kernel: usb.c: USB device 6 (vend/prod 0x483/0x1307) is not claimed by any active driver.
-Jan 13 09:11:14 maus kernel:   Vendor: Generic   Model: Flash R/W         Rev: 2002
-Jan 13 09:11:14 maus kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Jan 13 09:11:23 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:23 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:23 maus kernel: usb-storage: Command TEST_UNIT_READY (6 bytes)
-Jan 13 09:11:23 maus kernel: usb-storage: 00 00 00 00 00 00 00 00 00 00 92 f8
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x17 Trg 0 LUN 0 L 0 F 0 CL 6
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:11:23 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x17 R 0 Stat 0x1
-Jan 13 09:11:23 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:11:23 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x17 Trg 0 LUN 0 L 18 F 128 CL 6
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x17 R 0 Stat 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:11:23 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:11:23 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:11:23 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:23 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:23 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:23 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:11:23 maus kernel: usb-storage: 25 00 00 00 00 00 00 00 00 00 92 f8
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x18 Trg 0 LUN 0 L 8 F 128 CL 10
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:11:23 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:11:23 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x18 R 8 Stat 0x1
-Jan 13 09:11:23 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:11:23 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x18 Trg 0 LUN 0 L 18 F 128 CL 10
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x18 R 0 Stat 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:11:23 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:11:23 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:11:23 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:23 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:23 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:23 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:11:23 maus kernel: usb-storage: 25 00 00 00 00 00 00 00 00 00 92 f8
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x19 Trg 0 LUN 0 L 8 F 128 CL 10
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:11:23 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:11:23 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x19 R 8 Stat 0x1
-Jan 13 09:11:23 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:11:23 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x19 Trg 0 LUN 0 L 18 F 128 CL 10
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x19 R 0 Stat 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:11:23 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:11:23 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:11:23 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:23 maus kernel: usb-storage: queuecommand() called
-Jan 13 09:11:23 maus kernel: usb-storage: *** thread awakened.
-Jan 13 09:11:23 maus kernel: usb-storage: Command READ_CAPACITY (10 bytes)
-Jan 13 09:11:23 maus kernel: usb-storage: 25 00 00 00 00 00 00 00 00 00 92 f8
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1a Trg 0 LUN 0 L 8 F 128 CL 10
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/8
-Jan 13 09:11:23 maus kernel: usb-storage: clearing endpoint halt for pipe 0xc0010680
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_clear_halt: result=0
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): unknown error
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk data transfer result 0x2
-Jan 13 09:11:23 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1a R 8 Stat 0x1
-Jan 13 09:11:23 maus kernel: usb-storage: -- transport indicates command failure
-Jan 13 09:11:23 maus kernel: usb-storage: Issuing auto-REQUEST_SENSE
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command S 0x43425355 T 0x1a Trg 0 LUN 0 L 18 F 128 CL 10
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk command transfer result=0
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-Jan 13 09:11:23 maus kernel: usb-storage: usb_stor_transfer_partial(): transfer complete
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk data transfer result 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: Attempting to get CSW...
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status result = 0
-Jan 13 09:11:23 maus kernel: usb-storage: Bulk status Sig 0x53425355 T 0x1a R 0 Stat 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: -- Result from auto-sense is 0
-Jan 13 09:11:23 maus kernel: usb-storage: -- code: 0x70, key: 0x2, ASC: 0x3a, ASCQ: 0x0
-Jan 13 09:11:23 maus kernel: usb-storage: Not Ready: media not present
-Jan 13 09:11:23 maus kernel: usb-storage: scsi cmd done, result=0x2
-Jan 13 09:11:23 maus kernel: usb-storage: *** thread sleeping.
-Jan 13 09:11:23 maus kernel:  /dev/scsi/host1/bus0/target0/lun0: I/O error: dev 08:00, sector 0
-Jan 13 09:11:23 maus kernel: Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
-Jan 13 09:11:23 maus kernel: sda : READ CAPACITY failed.
-Jan 13 09:11:23 maus kernel: sda : status = 1, message = 00, host = 0, driver = 08 
-Jan 13 09:11:23 maus kernel: Current sd00:00: sense key Not Ready
-Jan 13 09:11:23 maus kernel: Additional sense indicates Medium not present
-Jan 13 09:11:23 maus kernel: sda : block size assumed to be 512 bytes, disk size 1GB.  
-Jan 13 09:11:23 maus kernel:  I/O error: dev 08:00, sector 0
-Jan 13 09:11:23 maus kernel:  unable to read partition table
-Jan 13 09:11:33 maus kernel: usb.c: USB disconnect on device 02:00.0-2.3 address 6
-Jan 13 09:11:33 maus kernel: usb-storage: storage_disconnect() called
-Jan 13 09:11:33 maus kernel: usb-storage: -- releasing main URB
-Jan 13 09:11:33 maus kernel: usb-storage: -- usb_unlink_urb() returned -19
+Not really SMP, it's a SMP kernel on UP box.
 
---cNdxnHkX5QqsyA0e--
+
+Here are parts of driver code responsible for syslog messages,
+for your easy reference:
+
+drivers/net/wireless/orinoco.c
+==============================
+static long orinoco_hw_get_freq(struct orinoco_private *priv)
+{
+
+        hermes_t *hw = &priv->hw;
+        int err = 0;
+        u16 channel;
+        long freq = 0;
+
+        orinoco_lock(priv);
+
+        err = hermes_read_wordrec(hw, USER_BAP, HERMES_RID_CURRENTCHANNEL, &channel);
+        if (err)
+                goto out;
+
+        if ( (channel < 1) || (channel > NUM_CHANNELS) ) {
+                struct net_device *dev = priv->ndev;
+
+                printk(KERN_WARNING "%s: Channel out of range (%d)!\n", dev->name, channel);
+                err = -EBUSY;
+                goto out;
+
+        }
+        freq = channel_frequency[channel-1] * 100000;
+
+ out:
+        orinoco_unlock(priv);
+
+        if (err > 0)
+                err = -EBUSY;
+        return err ? err : freq;
+}
+...................
+static int
+orinoco_xmit(struct sk_buff *skb, struct net_device *dev)
+{
+        struct orinoco_private *priv = (struct orinoco_private *)dev->priv;
+        struct net_device_stats *stats = &priv->stats;
+        hermes_t *hw = &priv->hw;
+        int err = 0;
+
+	....sanity checks here, we met them....
+
+        orinoco_lock(priv);
+
+        /* Length of the packet body */
+        /* FIXME: what if the skb is smaller than this? */
+        len = max_t(int,skb->len - ETH_HLEN, ETH_ZLEN);
+
+        eh = (struct ethhdr *)skb->data;
+
+        memset(&desc, 0, sizeof(desc));
+        desc.tx_control = cpu_to_le16(HERMES_TXCTRL_TX_OK | HERMES_TXCTRL_TX_EX);
+        err = hermes_bap_pwrite(hw, USER_BAP, &desc, sizeof(desc), txfid, 0);
+        if (err) {
+                printk(KERN_ERR "%s: Error %d writing Tx descriptor to BAP\n",
+                       dev->name, err);
+                stats->tx_errors++;
+                goto fail;
+        }
+....................
+static void
+orinoco_tx_timeout(struct net_device *dev)
+{
+        struct orinoco_private *priv = (struct orinoco_private *)dev->priv;
+        struct net_device_stats *stats = &priv->stats;
+        struct hermes *hw = &priv->hw;
+        int err = 0;
+
+        printk(KERN_WARNING "%s: Tx timeout! Resetting card. ALLOCFID=%04x,
+	    TXCOMPLFID=%04x, EVSTAT=%04x\n", dev->name,
+	    hermes_read_regn(hw, ALLOCFID), hermes_read_regn(hw, TXCOMPLFID),
+	    hermes_read_regn(hw, EVSTAT));
+
+        stats->tx_errors++;
+....................
+--
+vda

@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261495AbTCBWF3>; Sun, 2 Mar 2003 17:05:29 -0500
+	id <S261855AbTCBWU2>; Sun, 2 Mar 2003 17:20:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261523AbTCBWF3>; Sun, 2 Mar 2003 17:05:29 -0500
-Received: from tudela.mad.ttd.net ([194.179.1.233]:33159 "EHLO
-	tudela.mad.ttd.net") by vger.kernel.org with ESMTP
-	id <S261495AbTCBWF2>; Sun, 2 Mar 2003 17:05:28 -0500
-Date: Sun, 2 Mar 2003 23:14:59 +0100 (MET)
-From: <achirica@users.sourceforge.net>
-To: Brad Laue <brad@brad-x.com>
-cc: James Morris <jmorris@intercode.com.au>, Marc Giger <gigerstyle@gmx.ch>,
-       <jt@hpl.hp.com>, <linux-kernel@vger.kernel.org>,
-       <achirica@users.sourceforge.net>
-Subject: Re: Cisco Aironet 340 oops with 2.4.20
-In-Reply-To: <3E6238EE.7050802@brad-x.com>
-Message-ID: <Pine.SOL.4.30.0303022313500.17887-100000@tudela.mad.ttd.net>
+	id <S261857AbTCBWU2>; Sun, 2 Mar 2003 17:20:28 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:64988 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S261855AbTCBWU0>; Sun, 2 Mar 2003 17:20:26 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Date: Mon, 3 Mar 2003 09:30:38 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15970.34318.504586.674652@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove DEVFS_FL_AUTO_DEVNUM
+In-Reply-To: message from H. Peter Anvin on  March 2
+References: <20030301190724.B1900@lst.de>
+	<b3tor7$uqu$1@cesium.transmeta.com>
+X-Mailer: VM 7.08 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On  March 2, hpa@zytor.com wrote:
+> Followup to:  <20030301190724.B1900@lst.de>
+> By author:    Christoph Hellwig <hch@lst.de>
+> In newsgroup: linux.dev.kernel
+> > 
+> > Rationale:  while dynamic major/minors are a good idea, devfs is the
+> > wrong layer to do it because all code relying on it would break with
+> > out devfs.
+> > 
+> 
+> Your first clause here is a *highly* questionable statement...
 
-I have updated the CVS (airo-linux.sf.net) with a version that correctly
-implementes locking (there was a bug there). Please test it and tell me if
-it still panics.
+Given the premise "Linus will not allow new static major/minors",
+I think it is essential :-(
 
-Javier Achirica
+NeilBrown
 
-On Sun, 2 Mar 2003, Brad Laue wrote:
-
-> James Morris wrote:
->
-> >The latter two are still happening with a tainted kernel.  Are you able to
-> >generate the crash if these modules have never been loaded?
-> >
-> >
-> >- James
-> >
-> >
-> I'm not sure I follow - the NVdriver module had not been loaded at all
-> for the other two. How is the kernel tainted?
->
->  Brad
->
-> --
-> // -- http://www.BRAD-X.com/ -- //
->
->
->
->
-
+> 
+> 	-hpa
+> -- 
+> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+> "Unix gives you enough rope to shoot yourself in the foot."
+> Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

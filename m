@@ -1,81 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUI0TZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUI0T2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267254AbUI0TZb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 15:25:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUI0TZb
+	id S267263AbUI0T2f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 15:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267283AbUI0T2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 15:25:31 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:6715 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S267254AbUI0TZE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 15:25:04 -0400
-Subject: 2.6.9-rc2-mm4 e100 enable_irq unbalanced from
-From: Paul Fulghum <paulkf@microgate.com>
-To: scott.feldman@intel.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1096313095.2601.20.camel@deimos.microgate.com>
+	Mon, 27 Sep 2004 15:28:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1480 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267263AbUI0T2T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 15:28:19 -0400
+Date: Mon, 27 Sep 2004 12:26:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Pratt <slpratt@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH/RFC] Simplified Readahead
+Message-Id: <20040927122606.78feb424.akpm@osdl.org>
+In-Reply-To: <4158342B.4020505@austin.ibm.com>
+References: <4152F46D.1060200@austin.ibm.com>
+	<20040923194216.1f2b7b05.akpm@osdl.org>
+	<41543FE2.5040807@austin.ibm.com>
+	<20040924150523.4853465b.akpm@osdl.org>
+	<4154A2F7.1050909@austin.ibm.com>
+	<20040924160147.27dbc589.akpm@osdl.org>
+	<4158342B.4020505@austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 27 Sep 2004 14:24:55 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The e100 module is generating a warning:
+Steven Pratt <slpratt@austin.ibm.com> wrote:
+>
+> >yup.  POSIX_FADV_WILLNEED should just populate pagecache and should launch
+>  >asynchronous I/O.
+>  >
+> 
+>  Well then this could cause problems (other than congestion) on both the 
+>  current and new code since both will effectivly see 2 reads, the second 
+>  of which may appear to be a seek backwards thus confusing the code 
+>  slightly.  Would it be best to just special case the POSIX_FADV_WILLNEED 
+>  and issue the I/O required (via do_page_cache_readahead) without 
+>  updating any of the window or current page offset  information ?
 
-Sep 27 13:30:29 deimos kernel: e100: Intel(R) PRO/100 Network Driver, 3.1.4-NAPI
-Sep 27 13:30:29 deimos kernel: e100: Copyright(c) 1999-2004 Intel Corporation
-Sep 27 13:30:29 deimos kernel: e100: eth0: e100_probe: addr 0xfecfc000, irq 16, MAC addr 00:90:27:3A:C5:E3
-Sep 27 13:30:29 deimos kernel: enable_irq(16) unbalanced from ec83ff33
-Sep 27 13:30:29 deimos kernel:  [<c010923f>] enable_irq+0xcf/0xe0
-Sep 27 13:30:29 deimos kernel:  [<ec83ff33>] e100_up+0xf3/0x1f0 [e100]
-Sep 27 13:30:29 deimos kernel:  [<ec83ff33>] e100_up+0xf3/0x1f0 [e100]
-Sep 27 13:30:29 deimos kernel:  [<ec83f410>] e100_intr+0x0/0x140 [e100]
-Sep 27 13:30:29 deimos kernel:  [<ec841131>] e100_open+0x31/0x80 [e100]
-Sep 27 13:30:29 deimos kernel:  [<c0318d4c>] dev_open+0x8c/0xa0
-Sep 27 13:30:29 deimos kernel:  [<c031cc74>] dev_mc_upload+0x24/0x40
-Sep 27 13:30:29 deimos kernel:  [<c031a4ea>] dev_change_flags+0x12a/0x150
-Sep 27 13:30:29 deimos kernel:  [<c0318c0d>] dev_load+0x2d/0x80
-Sep 27 13:30:29 deimos kernel:  [<c0355b37>] devinet_ioctl+0x277/0x730
+That's what we do at present.  do_page_cache_readahead() and
+force_page_cache_readahead() are low-level functions which do not affect
+file->ra_state.
 
-e100_up calls disable_irq, request_irq, then enable_irq
-as shown below.
+Except whoops.  POSIX_FADV_WILLNEED is using force_page_cache_readahead(),
+which bypasses the congested check.  Wonder how that happened.
 
-static int e100_up(struct nic *nic)
-{
-	...
-	disable_irq(nic->pdev->irq);
-	...
-	if((err = request_irq(nic->pdev->irq, e100_intr, SA_SHIRQ,
-		nic->netdev->name, nic->netdev)))
-		goto err_no_irq;
-	e100_enable_irq(nic);
-	enable_irq(nic->pdev->irq);
-	netif_wake_queue(nic->netdev);
-	return 0;
-	...
-}
+<digs out the changeset>
 
-On this machine, the e100 is the only device on that IRQ.
+ChangeSet 1.1046.589.14 2003/08/01 10:02:32 akpm@osdl.org
+  [PATCH] rework readahead for congested queues
+  
+  Since Jens changed the block layer to fail readahead if the queue has no
+  requests free, a few changes suggest themselves.
+  
+  - It's a bit silly to go and alocate a bunch of pages, build BIOs for them,
+    submit the IO only to have it fail, forcing us to free the pages again.
+  
+    So the patch changes do_page_cache_readahead() to peek at the queue's
+    read_congested state.  If the queue is read-congested we abandon the entire
+    readahead up-front without doing all that work.
+  
+  - If the queue is not read-congested, we go ahead and do the readahead,
+    after having set PF_READAHEAD.
+  
+    The backing_dev_info's read-congested threshold cuts in when 7/8ths of
+    the queue's requests are in flight, so it is probable that the readahead
+    abandonment code in __make_request will now almost never trigger.
+  
+  - The above changes make do_page_cache_readahead() "unreliable", in that it
+    may do nothing at all.
+  
+    However there are some system calls:
+  
+  	- fadvise(POSIX_FADV_WILLNEED)
+  	- madvise(MADV_WILLNEED)
+  	- sys_readahead()
+  
+    In which the user has an expectation that the kernel will actually
+    perform the IO.
+  
+    So the patch creates a new "force_page_cache_readahead()" which will
+    perform the IO regardless of the queue's congestion state.
+  
+    Arguably, this is the wrong thing to do: even though the application
+    requested readahead it could be that the kernel _should_ abandon the user's
+    request because the disk is so busy.
+  
+    I don't know.  But for now, let's keep the above syscalls behaviour
+    unchanged.  It is trivial to switch back to do_page_cache_readahead()
+    later.
 
-request_irq calls setup_irq which clears the irq descriptor
-depth member to 0 and enables the interrupt because this
-is the first device to use that interrupt. 
-This results in the warning on the next enable_irq().
 
-I'm not sure why the driver is calling disable_irq
-IRQ before calling request_irq. You can't get that
-interrupt until you call request_irq, and once you
-call request_irq you can (at least when this is
-the first device on that IRQ) even before the
-call to enable_irq.
+So there we have it.  The reason why normal readahead skips congested
+queues is because the block layer will drop the I/O on the floor *anyway*
+because it also skips congested queues for readahead I/O requests.
 
-I suspect the correct thing is to remove
-disable_irq/enable_irq from e100_up.
-I don't see any purpose for these calls in e100_up.
+And fadvise() was switched to force_page_cache_readahead() because that was
+the old behaviour.
 
--- 
-Paul Fulghum
-paulkf@microgate.com
+But PF_READAHEAD isn't there any more, and BIO_RW_AHEAD and BIO_RW_BLOCK
+are not used anywhere, so we broke that.  Jens, do you remember what
+happened there?
 

@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbUD2VvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264983AbUD2VxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbUD2VvG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264990AbUD2VtL
+	id S264983AbUD2VxH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264987AbUD2VxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 17:49:11 -0400
-Received: from mesa.unizar.es ([155.210.11.66]:18664 "EHLO relay.unizar.es")
-	by vger.kernel.org with ESMTP id S264981AbUD2VsI (ORCPT
+	Thu, 29 Apr 2004 17:53:07 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:64826 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264983AbUD2Vvr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 17:48:08 -0400
-From: "Jorge Bernal (Koke)" <koke_lkml@amedias.org>
-Reply-To: koke@sindominio.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Date: Thu, 29 Apr 2004 23:47:16 +0200
-User-Agent: KMail/1.6.1
-Cc: Timothy Miller <miller@techsource.com>, Paul Wagland <paul@wagland.net>,
-       Rik van Riel <riel@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       David Gibson <david@gibson.dropbear.id.au>,
-       Marc Boucher <marc@linuxant.com>
-References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com> <4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net> <4091757B.3090209@techsource.com>
-In-Reply-To: <4091757B.3090209@techsource.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 29 Apr 2004 17:51:47 -0400
+Date: Thu, 29 Apr 2004 14:47:37 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au, jgarzik@pobox.com,
+       akpm@osdl.org, brettspamacct@fastclick.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-Id: <20040429144737.3b0c736b.pj@sgi.com>
+In-Reply-To: <409175CF.9040608@techsource.com>
+References: <40904A84.2030307@yahoo.com.au>
+	<200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
+	<20040429133613.791f9f9b.pj@sgi.com>
+	<409175CF.9040608@techsource.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404292347.17431.koke_lkml@amedias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jueves, 29 de Abril de 2004 23:36, Timothy Miller wrote:
->
-> Hmmm... how about "untrusted"?  Not sure...
->
+Timothy wrote:
+> Perhaps nice level could influence how much a process is allowed to 
+> affect page cache.
 
-I like "untrusted". Another option is some like "binary only modules can make 
-your system unstable and kernel developers have nothing to do with that" (but 
-well written, and shorter if possible).
+I'm from the school that says 'nice' applies to scheduling priority,
+not memory usage.
+
+I'd expect a different knob, a per-task inherited value as is 'nice',
+to control memory usage.
 
 -- 
-Jorge Bernal aka. Koke
-koke@amedias.org // koke@sindominio.net
-JID: koke@zgzjabber.ath.cx
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

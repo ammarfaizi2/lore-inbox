@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbULVO4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbULVO7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbULVO4p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 09:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261846AbULVO4o
+	id S261846AbULVO7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 09:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbULVO7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 09:56:44 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:50879 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261775AbULVO4a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 09:56:30 -0500
-Date: Wed, 22 Dec 2004 15:56:28 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Steve French <smfrench@austin.rr.com>
-Cc: linux-cifs-client@lists.samba.org, linux-kernel@vger.kernel.org
-Subject: Re: cifs large write performance improvements to Samba
-Message-ID: <20041222145628.GA5727@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Steve French <smfrench@austin.rr.com>,
-	linux-cifs-client@lists.samba.org, linux-kernel@vger.kernel.org
-References: <1102916738.5937.48.camel@smfhome.smfdom> <20041213143831.GA3743@outpost.ds9a.nl> <41BDC911.9010600@austin.rr.com>
+	Wed, 22 Dec 2004 09:59:24 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:38539 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261846AbULVO7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 09:59:19 -0500
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.10-rc3-bk11
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ed L Cashin <ecashin@coraid.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <87hdme31xl.fsf@coraid.com>
+References: <87k6rhc4uk.fsf@coraid.com>
+	 <1103356085.3369.140.camel@sfeldma-mobl.dsl-verizon.net>
+	 <87hdme31xl.fsf@coraid.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1103723728.8165.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41BDC911.9010600@austin.rr.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 22 Dec 2004 13:55:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 10:53:37AM -0600, Steve French wrote:
+On Mer, 2004-12-22 at 13:19, Ed L Cashin wrote:
+> Scott Feldman <sfeldma@pobox.com> writes:
+> > Is there a better way to handle errors than flooding the log?
 > 
-> The current mainline (very recent 2.6.10-rc Linux tree) should be fine 
-> from memory leak perspective.  No such leaks have been reported AFAIK on 
-> current cifs code and certainly none that I have detected in heavy 
-> stress testing. 
+> These errors haven't happened much, but if they did, I'd want
+> everybody to know.  Would you suggest a per-device counter to limit
+> how many times this message gets printed?  
 
-Indeed, thank you Steve! I had not noticed this progression from the
-changelog messages. I've since verified on a multimillion file share that
-cifs indeed shrinks the cifs_inode_cache under memory pressure. I've turned
-on updatedb again, hope that the box survives it now.
+And a sensible KERN_ level like KERN_WARNING. KERN_CRIT is used when
+something catastrophic just occurred and the box is as good as defunct.
+Take a look at "net_ratelimit()"
 
-> On the issue of regressing back to smbfs :)  There are a few things 
-> which can be done that would help.
+Alan
 
-I've since moved some stuff back to cifs to see what happens. I'll try to
-convince some other people so they can share/report their problems properly.
-
-> 2) Public view of the status of testing - the raw data needs to be 
-> posted regularly as kernel updated (and against five or six different 
-> server types) so users see what is broken in smbfs (and so users can see 
-> what posix issues are still being worked on cifs and any known 
-> problems).   smbfs fails about half of the filesystem tests that I have 
-> tried, due to stress issues, or because the tests requires better posix 
-> compliance or because of various smbfs stability fixes.
-
-That may be so but the definite perception is that cifs is unstable compared
-to smbfs. Then again, this may have been related to out of memory conditions
-which generaly tend to make things suck.
-
-Thanks for your thoughtful reply, I'll see if I can provide useful feedback.
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

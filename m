@@ -1,77 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266887AbRGFW7W>; Fri, 6 Jul 2001 18:59:22 -0400
+	id <S266888AbRGFXKw>; Fri, 6 Jul 2001 19:10:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266888AbRGFW7M>; Fri, 6 Jul 2001 18:59:12 -0400
-Received: from mysql.sashanet.com ([209.181.82.108]:40875 "EHLO
-	mysql.sashanet.com") by vger.kernel.org with ESMTP
-	id <S266887AbRGFW65>; Fri, 6 Jul 2001 18:58:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Sasha Pachev <sasha@mysql.com>
-Organization: MySQL
-To: linux-kernel@vger.kernel.org
-Subject: memory allocation mystery
-Date: Fri, 6 Jul 2001 16:59:28 -0600
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <0107061659281B.17811@mysql>
-Content-Transfer-Encoding: 7BIT
+	id <S266889AbRGFXKn>; Fri, 6 Jul 2001 19:10:43 -0400
+Received: from juicer03.bigpond.com ([139.134.6.79]:4338 "EHLO
+	mailin6.bigpond.com") by vger.kernel.org with ESMTP
+	id <S266888AbRGFXK1>; Fri, 6 Jul 2001 19:10:27 -0400
+Message-Id: <m15ISwa-000CGGC@localhost>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: kaos@ocs.com.au, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: modules and 2.5 
+In-Reply-To: Your message of "Tue, 03 Jul 2001 01:13:45 -0400."
+             <3B415489.77425364@mandrakesoft.com> 
+Date: Fri, 06 Jul 2001 20:34:40 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In message <3B415489.77425364@mandrakesoft.com> you write:
+> A couple things that would be nice for 2.5 is
+> - let MOD_INC_USE_COUNT work even when module is built into kernel, and
+> - let THIS_MODULE exist and be valid even when module is built into
+> kernel
 
-I have been investigating kernel behavior ( I am running 2.4.3) in out of 
-memory conditions with swap completely disabled and discovered a rather 
-interesting behavior. If you run the following code:
+Hi Jeff,
 
-#include <stdio.h>
-#include <stdlib.h>
+What use are module use counts, if not used to prevent unloading?
 
-#define LEAK_BLOCK (1024*1024)
-#define MB (1024*1024)
+> The reasoning behind this is that module use counts are useful sometimes
+> even when the driver is built into the kernel.  Other facilities like
+> inter_xxx are [obviously] useful when built into the kernel, so it makes
 
-int main()
-{
-  unsigned long total = 0;
-  for (;;)
-  {
-    char* p, *p_end;
-    if(!(p=malloc(LEAK_BLOCK)))
-    {
-      fprintf(stderr, "malloc() failed\n");
-      exit(1);
-    }
-    p_end = p + LEAK_BLOCK;
-    while(p < p_end)
-      *p++ = 0;
-    total += LEAK_BLOCK;
-    printf("Allocated %d MB\n", total/MB);
-  }
-  
-  return 0;   
-}
+Let's be clear: inter_module_xxx is Broken as Designed.  It's a
+terrible interface that has the added merit of being badly
+implemented.
 
+If you have a module B which has a soft dependency ("must use if
+there") on module A, inter_xxx doesn't help without opening a can of
+worms (if module B inserted after module A, oops).
 
-the process eventually gets killed by the kernel, rather than getting an 
-error from malloc() as you would logically expect
+The best ways out of this are:
+1) Create two versions of module B: an A+B one, and a B-alone one.
+2) Place infrastructure in the core kernel.
+   (This is what I did for ipt_REJECT needing to know about NAT).
 
-I have straced the process and see just a bunch of old_mmap() calls like this:
+Also, I far prefer the simplicity of get_symbol and put_symbol.
 
-old_mmap(NULL, 1052672, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 
-0)
-= 0x46b6a000
-
-( in addition to writes to stdout, of course). So it looks like old_mmap() 
-never returns an error.
-
-Can somebody explain this behavior? To me it looks like a bug...
-
--- 
-MySQL Development Team
-For technical support contracts, visit https://order.mysql.com/
-   __  ___     ___ ____  __ 
-  /  |/  /_ __/ __/ __ \/ /   Sasha Pachev <sasha@mysql.com>
- / /|_/ / // /\ \/ /_/ / /__  MySQL AB, http://www.mysql.com/
-/_/  /_/\_, /___/\___\_\___/  Provo, Utah, USA
-       <___/                  
+Cheers,
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

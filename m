@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135545AbRD2OOp>; Sun, 29 Apr 2001 10:14:45 -0400
+	id <S135380AbRD2OOP>; Sun, 29 Apr 2001 10:14:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135651AbRD2OOg>; Sun, 29 Apr 2001 10:14:36 -0400
-Received: from finch-post-11.mail.demon.net ([194.217.242.39]:39949 "EHLO
-	finch-post-11.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S135545AbRD2OOZ>; Sun, 29 Apr 2001 10:14:25 -0400
-Message-ID: <004001c0d0b6$f8d4e120$0a01a8c0@spamtastic.demon.co.uk>
-From: "Lee Mitchell" <lee@spamtastic.demon.co.uk>
-To: "Steven Walter" <srwalter@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <006901c0cfc8$982452a0$0a01a8c0@spamtastic.demon.co.uk> <20010428161323.A593@hapablap.dyn.dhs.org>
-Subject: Re: 2.4.4 Sound corruption
-Date: Sun, 29 Apr 2001 15:16:24 +0100
+	id <S135545AbRD2OOG>; Sun, 29 Apr 2001 10:14:06 -0400
+Received: from viper.haque.net ([66.88.179.82]:52610 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S135380AbRD2ONx>;
+	Sun, 29 Apr 2001 10:13:53 -0400
+Message-ID: <3AEC219C.3B4618AB@haque.net>
+Date: Sun, 29 Apr 2001 10:13:48 -0400
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: David Konerding <dek_ml@konerding.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: traceroute breaks with 2.4.4
+In-Reply-To: <3AEBE142.E3CAD85E@konerding.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2014.211
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2014.211
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> It would appear that something in the kernel broke esd.
->
+David Konerding wrote:
+> As far as I can tell, somewhere between 2.4.2 and 2.4.4, traceroute
+> stopped working.
+> I see the problem on RH7.x.  Regular kernel compile with near-defaults
+> for networking,
+> no firewalling is enabled.  Rebootiing to a similar config under 2.4.2
+> works OK.
 
-I can confirm that on my system also, the problem only appears when using
-esd for output.
+Traceroute is working fine here. You sure you didn't inadvertantly turn
+on ECN w/o knowing it?
 
+-- 
 
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
 
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133092AbRDRL6B>; Wed, 18 Apr 2001 07:58:01 -0400
+	id <S133093AbRDRMCL>; Wed, 18 Apr 2001 08:02:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133093AbRDRL5v>; Wed, 18 Apr 2001 07:57:51 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26629 "EHLO
+	id <S133094AbRDRMCB>; Wed, 18 Apr 2001 08:02:01 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27909 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133092AbRDRL5j>; Wed, 18 Apr 2001 07:57:39 -0400
-Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get better audio.
-To: acahalan@cs.uml.edu (Albert D. Cahalan)
-Date: Wed, 18 Apr 2001 12:58:31 +0100 (BST)
-Cc: tytso@mit.edu (Theodore Tso), davem@redhat.com (David S. Miller),
-        miles@megapathdsl.net (Miles Lane), linux-kernel@vger.kernel.org
-In-Reply-To: <200104180246.f3I2kL1192784@saturn.cs.uml.edu> from "Albert D. Cahalan" at Apr 17, 2001 10:46:20 PM
+	id <S133093AbRDRMBq>; Wed, 18 Apr 2001 08:01:46 -0400
+Subject: Re: performance degradation on -ac tree
+To: jjs@mirai.cx (J Sloan)
+Date: Wed, 18 Apr 2001 13:03:24 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <3ADD140E.A4E2974D@mirai.cx> from "J Sloan" at Apr 17, 2001 09:12:00 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14pqbS-0004YM-00@the-village.bc.nu>
+Message-Id: <E14pqgA-0004Yt-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Being an outsider, I'm still trying to find out WTF happened
-> on friday evening when NUMA was discussed. I can't find any
-> video, audio, or even technical notes. This sucks; I'm writing
-> support for NUMA hardware (it's not cache coherent) right now
-> and I don't have any idea where things will be going.
+> I have noticed that with e.g. the 2.4.0-test kernels, and e.g.
+> 2.4.2, netperf to localhost gets between 350-400 MB/s.
+> With recent -ac kernels, e.g. 2.4.3-ac5, netperf to localhost
+> gets more like 250 MB/sec.
 
-Something like
+Thats one to ask Dave Miller.
 
-View 1:	(The SGI view)
-	NUMA should be implemented as a single kernel on a numa system. Andrea
-has done some work on this (see his kernel.org patches), as have SGI.
+> The same activity with recent -ac kernels feels like running
+> through molasses, very sluggish, and it is I who am repeatedly
+> outmaneuvered and embarrassed. It's quite awful.
 
-View 2: (The McVoy view)
-	NUMA is best viewed as another misguided attempt to do DSM and we
-should run a kernel on each DSM node and do page cache borrows between nodes.
-
-Alan
-
+The 2.4.3ac VM is far from ideal at the moment. Its a lot smoother for server
+use and it doesnt spend so much time randomly killing wrong things but it does
+stall too much

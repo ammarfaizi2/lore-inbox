@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262747AbTLULsE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 06:48:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbTLULsE
+	id S262674AbTLUMMA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 07:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbTLUMMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 06:48:04 -0500
-Received: from ns1.skjellin.no ([80.239.42.66]:46563 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S262747AbTLULsC (ORCPT
+	Sun, 21 Dec 2003 07:12:00 -0500
+Received: from crisium.vnl.com ([194.46.8.33]:12050 "EHLO crisium.vnl.com")
+	by vger.kernel.org with ESMTP id S262674AbTLUML7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 06:48:02 -0500
-Subject: Re: 3ware driver broken with 2.4.22/23 ?
-From: Andre Tomt <lkml@tomt.net>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031221112113.GE916@mail.muni.cz>
-References: <20031221112113.GE916@mail.muni.cz>
-Content-Type: text/plain
-Message-Id: <1072007285.1088.223.camel@slurv.pasop.tomt.net>
+	Sun, 21 Dec 2003 07:11:59 -0500
+Date: Sun, 21 Dec 2003 12:11:58 +0000
+From: Dale Amon <amon@vnl.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is there still at 2TB limit?
+Message-ID: <20031221121158.GA5126@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
+References: <20031221010112.GX25351@vnl.com> <20031221101406.GA3211@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 21 Dec 2003 12:48:06 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031221101406.GA3211@localhost>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-12-21 at 12:21, Lukas Hejtmanek wrote:
-> Hello,
-> 
-> I have 3ware Escalade 8500-8 card with 8 SATA WD 250GB drives. I set up HW RAID5
-> configuration over all drives.
-> I'm using kernel 2.4.23 vanilla with XFS patch. RAID5 partition is formated to
-> XFS.
+On Sun, Dec 21, 2003 at 11:14:06AM +0100, Jose Luis Domingo Lopez wrote:
+> You will also need filesystems that support that big sizes and can hold
+> big files on them, have a look at the following URL for more information:
+> http://www.suse.de/~aj/linux_lfs.html
 
-Reproducing with a different filesystem would probably be a useful
-datapoint.
+Thanks. I notice the notes there are quite old. Are 
+there libraries available now that work with LFS?
 
-
+-- 
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------

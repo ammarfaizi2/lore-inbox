@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTKLKTb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 05:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbTKLKTb
+	id S261875AbTKLKbG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 05:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbTKLKbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 05:19:31 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:48839 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261825AbTKLKTa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 05:19:30 -0500
-Date: Wed, 12 Nov 2003 11:19:10 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Okrain Genady <mafteah@mafteah.co.il>
-Cc: Vid Strpic <vms@bofhlet.net>, Berke Durak <obdk65536@ouvaton.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi: "Sleeping function called from invalid context", 2.6.0-test9
-Message-ID: <20031112101910.GB21141@suse.de>
-References: <20031112080119.GD21265@home.bofhlet.net> <200311121206.55323.mafteah@mafteah.co.il>
+	Wed, 12 Nov 2003 05:31:05 -0500
+Received: from ACaen-202-1-7-4.w81-248.abo.wanadoo.fr ([81.248.160.4]:13096
+	"HELO Genesyme.localdomain") by vger.kernel.org with SMTP
+	id S261875AbTKLKbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 05:31:03 -0500
+Subject: Re: reiserfs 3.6 problem with test9
+From: Philippe <rouquier.p@wanadoo.fr>
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031111135948.GA5229@linalco.com>
+References: <1068553197.1018.43.camel@Genesyme>
+	 <20031111135948.GA5229@linalco.com>
+Content-Type: text/plain
+Message-Id: <1068633363.1197.19.camel@Genesyme>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311121206.55323.mafteah@mafteah.co.il>
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 12 Nov 2003 11:36:03 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 12 2003, Okrain Genady wrote:
-Content-Description: signed data
-> Yep, I have that problem too.
+> Just as a data point, have you tried simply unmounting and remounting
+> the f/s? 
 
-does burning without ide-scsi not work?
+Mounting and unmounting is done every time I boot my computer, that is every
+day. I haven't seen any error message so far with fsck. 
+Maybe I haven't understood what you meant.
 
--- 
-Jens Axboe
+If the fsck found anything wrong then I didn't say that, but if
+> there were no reported errors in the actual f/s then it is possible that
+> the metadata in memory is being corrupted. 
+
+The errors I mentionned are the same every time on the same files.
+I get them whenever I check for corrupted files with find / -name klqsjdfhkjlsdfh.
+Of course I don't have any file with this name but find write on stdout all files 
+it could not access in the system.
+
+which metadata are you talking about? The one in memory or those on the disk?
+I check the memory with memtest (no problem) and the disk with badblocks (no problem)
+and rebuilt the SB and the FS so there shouldn't be any problem with metadata.
+
+Sorry if I sound stupid but I don't know anything about all that. I'm at loss about what
+to do and even think about switchin between reiserfs and ext3.
+
+regards
+
 

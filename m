@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277413AbRJEP3H>; Fri, 5 Oct 2001 11:29:07 -0400
+	id <S277420AbRJEP2t>; Fri, 5 Oct 2001 11:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277414AbRJEP2u>; Fri, 5 Oct 2001 11:28:50 -0400
-Received: from embolism.psychosis.com ([216.242.103.100]:33289 "EHLO
-	embolism.psychosis.com") by vger.kernel.org with ESMTP
-	id <S277418AbRJEP2c>; Fri, 5 Oct 2001 11:28:32 -0400
+	id <S277414AbRJEP21>; Fri, 5 Oct 2001 11:28:27 -0400
+Received: from ultra02.rbg.informatik.tu-darmstadt.de ([130.83.9.52]:10493
+	"EHLO mail.rbg.informatik.tu-darmstadt.de") by vger.kernel.org
+	with ESMTP id <S277413AbRJEP2X>; Fri, 5 Oct 2001 11:28:23 -0400
+Date: Fri, 5 Oct 2001 17:26:52 +0200
+From: Philipp Matthias Hahn <pmhahn@informatik.tu-darmstadt.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [FIX] Compiler error on linux-2.4.11-pre4/arch/i386/kernel/mpparse.c
+Message-ID: <20011005172652.C3260@walker.iti.informatik.tu-darmstadt.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: [POT] Linux SAN?
-Date: Fri, 5 Oct 2001 11:30:26 -0400
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <200110051447.f95ElUj01488@localhost.localdomain>
-In-Reply-To: <200110051447.f95ElUj01488@localhost.localdomain>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E15pWtS-0007kl-00@schizo.psychosis.com>
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 October 2001 10:47, you wrote:
-> > The FC HBA driver put out by Qlogic works well but does a silly thing;
-> > it  enumerates devices from 0, instead of by the actually loop ID.
-> > This makes  it impossible to spec absolute paths to the device, as
-> > everything will shift when devices are moved on the FC loop.
->
-> There are several reasons why this is done:
+Hello LKML!
 
-Note that there is clear distiction between devices that are on the *local 
-loop* and those you obtain from fabric login. My bitch, and my patch, fixes 
-the logical issue that a local loop devices requesting a hard ID, should be 
-accessable by *that ID* from userland if it is available. Very simple, and 
-what the FC spec requires, and what the QLogic HBA BIOS does. However the 
-Qlogic Linux driver attempts to present all devices as found from unit 0. 
-This makes no sense because there are 2 assignment loops in the QLA source,
-the second one for the purposes of login/softid resolution. I fixed the first 
-loop. The second loop still starts from zero and will catch any conflicts 
-from the first...
- 
-As for persistent binding, I just couldn't make it work with any of the 
-QLA2x00 drivers I tried. Their parsing code is just fubar. 
-Persistent binding is also not much fun to keep track of, and can run you out 
-of cmdline space *really* quick if you try to spec devices at boot.
-For a small SAN, devices (bays) with hard id's are usually much more 
-desirable.
+patch-2.4.11-pre4 adds the following lines to include/acm-i386/smp.h:90
++#ifndef clustered_apic_mode
++ #ifdef CONFIG_MULTIQUAD
++  #define clustered_apic_mode (1)
++  #define esr_disable (1)
++ #else /* !CONFIG_MULTIQUAD */
++  #define clustered_apic_mode (0)
++  #define esr_disable (0)
++ #endif /* CONFIG_MULTIQUAD */
++#endif
 
+which don't get included when compiling for non-SMP. Move those lines up
+before
+line 37 with "#ifdef CONFIG_SMP" and compiling should work again.
+
+BYtE
+Philipp
 -- 
-The time is now 22:19 (Totalitarian)  -  http://www.ccops.org/clock.html
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de

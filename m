@@ -1,65 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266186AbRF3Opm>; Sat, 30 Jun 2001 10:45:42 -0400
+	id <S266194AbRF3O5d>; Sat, 30 Jun 2001 10:57:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266188AbRF3Opc>; Sat, 30 Jun 2001 10:45:32 -0400
-Received: from mail.fmtc.com ([137.118.131.7]:16851 "EHLO
-	ponyexpress.neonova.net") by vger.kernel.org with ESMTP
-	id <S266186AbRF3Op3>; Sat, 30 Jun 2001 10:45:29 -0400
-Message-ID: <3B3D0B4A.9040603@fmtc.com>
-Date: Fri, 29 Jun 2001 17:12:10 -0600
-From: Joshua Schmidklofer <menion@fmtc.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.1+) Gecko/20010623
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.5 - IpConfig, BOOTP not functioning.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266195AbRF3O5X>; Sat, 30 Jun 2001 10:57:23 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:34185 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S266194AbRF3O5O>; Sat, 30 Jun 2001 10:57:14 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 30 Jun 2001 07:57:10 -0700
+Message-Id: <200106301457.HAA14801@adam.yggdrasil.com>
+To: alan@lxorguk.ukuu.org.uk
+Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
+Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel developers,
-   I hate to burden you with menial quetions, but:   How does ipconfig 
-get called & initialized?   I am new to attempting to _read_ kernel 
-source, and not nearly a good C progammer.   This is killing me, But 
-after two hours of looking,I can't figure out how ipconfig get 
-initialized & called.   I am using 2.4.5, I enabled ipconfig debug <via 
-the define>, because i am trying to see why my floppy-only NFS 
-workstation is not functioning, and I am getting no where.   There are 
-no debug messages.   10 different kernel compiles, 2 with save 
-.config-mrproper-reconfig cycles.  I am stumped, and i don't know what 
-to do.
+I am following up my own message here.
 
+>>> = Adam Richter
+>>  = Alan Cox
+>   = Adam Richter
 
-I am trying to boot a system w/an epic100 card in it using BOOTP.  I 
-have a 10 meg network, dumb hub, and 5 clients.   10.0.0.3 is running 
-Redhat's bootparamd.   2 entries in /etc/bootparams.   Both look fine.   
-Running a syslog monitor in one term, and a tcpdump in another.  Niether
-report any BOOTP, ARP, RARP, or DHCP traffic.
-Floppy client boots, says something very similar to this.
-.
-.<snip>
-<epic100 initialization>
-eth0: SCSC EPIC/100 83c170 at 0x6100 IRQ 10.....
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
-IP: Route cache hash table of 512 buckets
-TCP: Hash tables configures (established 4096 bind 4096(
-NET4: Unix Domain Sockets 1.0/SMP for Linux NET4.
-Root-NFS: No NFS Server Availibl, giving up
-VFS:  Unable to mount root, trying floppy
-<snip>
+>>> 	Argh!  I just accidentally sent and older version of my
+>>> patch.  Here is the current version.  Sorry about that.
 
-I do have CONFIG_IP_PNP_BOOTP set, and I can verify from the System.map 
-that ipconfig is being compiled, and linked.  However, there is no 
-evidence that it initializes, and certainly no debug messages.  From the 
-look of it, the system has moved passed init'ing the network.   I have 
-no idea what to do next.
+>>This just breaks stuff
 
+>>> +for var in $(cat arch/*/config.in |
+>>> +	     egrep -w -v '^[ 	]*int' |
+>>> +             tr '   $"' '\n\n\n' |
+>>> +	     egrep '^CONFIG_[A-Z0-9_]*$' |
+>>> +	     sort -u) ; do
+>>> +	define_bool "$var" "n"
+>>> +done
+>>> +set -f
+>>>  
 
-thanks,
- Joshua
+>>You've changed the entire semantics of dep_tristate by doing this
 
+>	Please provide a real example.
 
+	Although I am curious about what you had in mind about
+dep_tristate, I no longer need to see this example to see a problem
+with my patch.  My patch breaks detection of "new" variables in
+arch/*/config.in by "make oldconfig."
 
+	So, I guess something like Keith Owens's patch would be the
+way to go, with some additional definitions (CONFIG_AGP, CONFIG_PCI,
+CONFIG_ISA, CONFIG_EISA, CONFIG_PCMCIA, and possibly others).  I am
+not sure which other conditionals might also be incorrectly ignored by
+some instances of dep_xxx.  Below, I have included a list of the 52
+CONFIG_* variables that are used as arguments to dep_xxx in 2.4.6-pre6
+and appear in arch/*/config.in.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+CONFIG_ACPI
+CONFIG_AGP
+CONFIG_AMIGA
+CONFIG_ARCH_ACORN
+CONFIG_ARCH_ARCA5K
+CONFIG_ARCH_CLPS711X
+CONFIG_ARCH_FOOTBRIDGE
+CONFIG_ARCH_NETWINDER
+CONFIG_ARCH_SA1100
+CONFIG_ATARI
+CONFIG_ATM
+CONFIG_BLK_DEV_IDE
+CONFIG_BLK_DEV_LOOP
+CONFIG_BLK_DEV_RAM
+CONFIG_BUSMOUSE
+CONFIG_CPU_26
+CONFIG_CPU_32
+CONFIG_DEBUG_LL
+CONFIG_DEVFS_FS
+CONFIG_DRM
+CONFIG_EISA
+CONFIG_EXPERIMENTAL
+CONFIG_FOOTBRIDGE
+CONFIG_GVPIOEXT
+CONFIG_IDE
+CONFIG_IEEE1394
+CONFIG_IEEE1394_OHCI1394
+CONFIG_INPUT
+CONFIG_ISA
+CONFIG_ISDN
+CONFIG_MAC
+CONFIG_MCA
+CONFIG_MD
+CONFIG_MODULES
+CONFIG_NET
+CONFIG_PARPORT
+CONFIG_PCI
+CONFIG_PCMCIA
+CONFIG_PM
+CONFIG_PPP
+CONFIG_PROC_FS
+CONFIG_SA1100_ASSABET
+CONFIG_SBUS
+CONFIG_SCSI
+CONFIG_SERIAL
+CONFIG_SGI
+CONFIG_SOUND
+CONFIG_SPARC64
+CONFIG_UNIX98_PTYS
+CONFIG_VIDEO_DEV
+CONFIG_X86
+CONFIG_ZORRO

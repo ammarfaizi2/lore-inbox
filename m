@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291989AbSBNXya>; Thu, 14 Feb 2002 18:54:30 -0500
+	id <S291992AbSBNXzL>; Thu, 14 Feb 2002 18:55:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291992AbSBNXyK>; Thu, 14 Feb 2002 18:54:10 -0500
-Received: from are.twiddle.net ([64.81.246.98]:5257 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S291989AbSBNXyE>;
-	Thu, 14 Feb 2002 18:54:04 -0500
-Date: Thu, 14 Feb 2002 15:53:55 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: David Howells <dhowells@redhat.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, torvalds@transmeta.com,
-        davidm@hpl.hp.com, "David S. Miller" <davem@redhat.com>,
-        anton@samba.org, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] move task_struct allocation to arch
-Message-ID: <20020214155355.A32018@twiddle.net>
-Mail-Followup-To: David Howells <dhowells@redhat.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>, torvalds@transmeta.com,
-	davidm@hpl.hp.com, "David S. Miller" <davem@redhat.com>,
-	anton@samba.org, linux-kernel@vger.kernel.org,
-	zippel@linux-m68k.org
-In-Reply-To: <jgarzik@mandrakesoft.com> <12214.1013706194@warthog.cambridge.redhat.com>
+	id <S291994AbSBNXzB>; Thu, 14 Feb 2002 18:55:01 -0500
+Received: from zero.tech9.net ([209.61.188.187]:25352 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S291992AbSBNXyp>;
+	Thu, 14 Feb 2002 18:54:45 -0500
+Subject: Re: tux officially in kernel?
+From: Robert Love <rml@tech9.net>
+To: J Sloan <jjs@lexus.com>
+Cc: john slee <indigoid@higherplane.net>, J Sloan <joe@tmsusa.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C6C4942.4050305@lexus.com>
+In-Reply-To: <Pine.LNX.4.30.0202111313100.28040-100000@mustard.heime.net>
+	<3C67F327.8010404@tmsusa.com> <20020213135841.GB4826@higherplane.net> 
+	<3C6C4942.4050305@lexus.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 14 Feb 2002 18:54:41 -0500
+Message-Id: <1013730883.807.251.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <12214.1013706194@warthog.cambridge.redhat.com>; from dhowells@redhat.com on Thu, Feb 14, 2002 at 05:03:14PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 14, 2002 at 05:03:14PM +0000, David Howells wrote:
-> Ask Linus, he asked for the task_struct/thread_info split. Various people have
-> complained about the two things being allocated separately (maintainers for
-> m68k and ia64 archs certainly, and if I remember rightly, x86_64 as well,
-> though I don't appear to have saved the message for that). However, DaveM
-> (sparc64) appears to really be in favour of it.
+On Thu, 2002-02-14 at 18:33, J Sloan wrote:
 
-I'm not especially in favour of it for Alpha either.
+> So, just out of curioisity, why is khttpd in
+> the kernel? If there were any web server
+> in the mainline kernel I'd think it'd be tux -
 
-As far as I can see all it's done is added a memory load on the
-fast path when a constant displacement folded into the address
-would previously have sufficed.
+Personally khttpd should be ripped from the kernel.  It is a nice, uh,
+example.  Or something.
 
+TUX touches enough code that it isn't a clear decision to merge,
+although it is certainly worth it.  I, however, think we are rapidly
+approaching the point, if not there already, that with a zero-copy
+network driver userspace can perform as good as TUX with none of the
+downsides.  That was part of Ingo's goal and a lot of the benefits -
+sendfile etc - are a result of TUX.
 
+Anyhow, if I recall correctly, X15 performed better than TUX.
 
-r~
+	Robert Love
+

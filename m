@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265629AbTGDBnA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 21:43:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265633AbTGDBm7
+	id S265620AbTGDBku (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 21:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265628AbTGDBku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 21:42:59 -0400
-Received: from [208.199.87.79] ([208.199.87.79]:59336 "EHLO amboise.dolphin")
-	by vger.kernel.org with ESMTP id S265629AbTGDBms convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 21:42:48 -0400
-Date: Thu, 3 Jul 2003 18:56:54 -0700 (PDT)
-From: Francois Gouget <fgouget@free.fr>
-X-X-Sender: fgouget@amboise.dolphin
-To: Dan Kegel <dkegel@ixiacom.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: re: Spelling fixes
-In-Reply-To: <3F03580E.4080203@ixiacom.com>
-Message-ID: <Pine.LNX.4.44.0307031837170.29535-100000@amboise.dolphin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 3 Jul 2003 21:40:50 -0400
+Received: from dp.samba.org ([66.70.73.150]:18357 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265620AbTGDBks (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 21:40:48 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [PATCH] Per-cpuification of mm/slab.c reap_timers
+Date: Fri, 04 Jul 2003 11:54:23 +1000
+Message-Id: <20030704015516.7B6352C078@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jul 2003, Dan Kegel wrote:
+Linus, please apply.  From Zwane.
 
-> Patch looks pretty good, if big.  I haven't checked more than 10% of it, though.
-> You might want to split it up some as you intended.
+Name: Make slab.c reap_timers per-cpu
+Author: Zwane Mwaikambo
+Status: Tested on 2.5.74-bk1
 
-I have split it along directory lines. I also updated it for 2.5.74 and
-included fixes for a couple more typos that people pointed me to. The
-latest patches can be found at:
+D: Rather trivial conversion.  Tested on SMP.
 
-http://fgouget.free.fr/tmp/linux-spelling/
+Index: linux-2.5/mm/slab.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/mm/slab.c,v
+retrieving revision 1.91
+diff -u -p -B -r1.91 slab.c
+--- linux-2.5/mm/slab.c	28 Jun 2003 21:10:44 -0000	1.91
++++ linux-2.5/mm/slab.c	3 Jul 2003 01:34:36 -0000
+@@ -441,7 +441,7 @@ enum {
+ 	FULL
+ } g_cpucache_up;
+ 
+-static struct timer_list reap_timers[NR_CPUS];
++static DEFINE_PER_CPU(struct timer_list, reap_timers);
+ 
+ static void reap_timer_fnc(unsigned long data);
+ 
+@@ -491,7 +491,7 @@ static void __slab_error(const char *fun
+  */
+ static void start_cpu_timer(int cpu)
+ {
+-	struct timer_list *rt = &reap_timers[cpu];
++	struct timer_list *rt = &per_cpu(reap_timers, cpu);
+ 
+ 	if (rt->function == NULL) {
+ 		init_timer(rt);
+@@ -2382,7 +2382,7 @@ next:
+ static void reap_timer_fnc(unsigned long data)
+ {
+ 	int cpu = smp_processor_id();
+-	struct timer_list *rt = &reap_timers[cpu];
++	struct timer_list *rt = &__get_cpu_var(reap_timers);
+ 
+ 	cache_reap();
+ 	mod_timer(rt, jiffies + REAPTIMEOUT_CPUC + cpu);
 
-The files are smaller but maybe they need to be split some more:
-    324 linux-2.5.74-Documentation.diff
-    102 linux-2.5.74-arch-cris.diff
-    581 linux-2.5.74-arch.diff
-    173 linux-2.5.74-drivers-char.diff
-    275 linux-2.5.74-drivers-isdn.diff
-    177 linux-2.5.74-drivers-mtd.diff
-    774 linux-2.5.74-drivers-net.diff
-    643 linux-2.5.74-drivers-scsi.diff
-    129 linux-2.5.74-drivers-usb.diff
-    706 linux-2.5.74-drivers.diff
-    215 linux-2.5.74-fs.diff
-    769 linux-2.5.74-include.diff
-    223 linux-2.5.74-net.diff
-     21 linux-2.5.74-scripts.diff
-    156 linux-2.5.74-sound.diff
-
-
-> I'll link to your script from http://kegel.com/kerspell/
-
-Cool. I uploaded it to my site. It can be downloaded from:
-
-http://fgouget.free.fr/typos/typos
-
-
--- 
-Francois Gouget         fgouget@free.fr        http://fgouget.free.fr/
-                           La terre est une bêta...
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

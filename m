@@ -1,50 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265605AbSJSOAA>; Sat, 19 Oct 2002 10:00:00 -0400
+	id <S265603AbSJSN6P>; Sat, 19 Oct 2002 09:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265606AbSJSOAA>; Sat, 19 Oct 2002 10:00:00 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5645 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265605AbSJSN77>; Sat, 19 Oct 2002 09:59:59 -0400
-Date: Sat, 19 Oct 2002 15:05:58 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Nicholas Wourms <nwourms@netscape.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.44 - and offline for a week
-Message-ID: <20021019150558.A21819@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0210182117500.12531-100000@penguin.transmeta.com> <aorjq3$3dm$1@main.gmane.org>
+	id <S265604AbSJSN6P>; Sat, 19 Oct 2002 09:58:15 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:43015 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S265603AbSJSN6O>;
+	Sat, 19 Oct 2002 09:58:14 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: reference_discarded.pl updated for 2.5.44
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <aorjq3$3dm$1@main.gmane.org>; from nwourms@netscape.net on Sat, Oct 19, 2002 at 08:41:18AM -0400
+Date: Sun, 20 Oct 2002 00:04:03 +1000
+Message-ID: <11237.1035036243@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19, 2002 at 08:41:18AM -0400, Nicholas Wourms wrote:
-> Perhaps this is good reason to delay the freeze for an additional 2 weeks or 
-> so?
+>Summary of changes from v2.5.43 to v2.5.44
+>============================================
+>Matthew Wilcox <willy@debian.org>:
+>  o Allow compilation with -ffunction-sections
 
-The same thing will happen.  You will always get people rushing to get
-their projects into the kernel just before a feature freeze no matter
-what date gets set.
+If you get linker error 'undefined reference to local symbols in
+discarded section' then run this script (reference_discarded.pl) in the
+kernel object tree.  It has been updated for kernel 2.5.44, this
+updated version will also work on older kernels.
 
-> Again, I really don't see what the rush is all about.
+#!/usr/bin/perl -w
+#
+# reference_discarded.pl (C) Keith Owens 2001 <kaos@ocs.com.au>
+#
+# List dangling references to vmlinux discarded sections.
 
-It's only a rush because that's what people with their features are doing.
-The deadline of October 31 was set at the kernel summit on Ottawa around
-the middle of June.
+use strict;
+die($0 . " takes no arguments\n") if($#ARGV >= 0);
 
-The whole idea of shortening the feature development time is to (hopefully)
-shorten the stabilisation time after, and hopefully get 2.6 out earlier.
-This then means 2.7 can open earlier.
+my %object;
+my $object;
+my $line;
+my $ignore;
 
-Although this means that there will be fewer features between each stable
-version, hopefully the stable version series will stabilise earlier.
+$| = 1;
 
-Oh, and Oct 31st is one deadline we're trying not to miss. 8)
+printf("Finding objects, ");
+open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
+while (defined($line = <OBJDUMP_LIST>)) {
+	chomp($line);
+	if ($line =~ /:\s+file format/) {
+		($object = $line) =~ s/:.*//;
+		$object{$object}->{'module'} = 0;
+		$object{$object}->{'size'} = 0;
+		$object{$object}->{'off'} = 0;
+	}
+	if ($line =~ /^\s*\d+\s+\.modinfo\s+/) {
+		$object{$object}->{'module'} = 1;
+	}
+	if ($line =~ /^\s*\d+\s+\.comment\s+/) {
+		($object{$object}->{'size'}, $object{$object}->{'off'}) = (split(' ', $line))[2,5]; 
+	}
+}
+close(OBJDUMP_LIST);
+printf("%d objects, ", scalar keys(%object));
+$ignore = 0;
+foreach $object (keys(%object)) {
+	if ($object{$object}->{'module'}) {
+		++$ignore;
+		delete($object{$object});
+	}
+}
+printf("ignoring %d module(s)\n", $ignore);
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+# Ignore conglomerate objects, they have been built from multiple objects and we
+# only care about the individual objects.  If an object has more than one GCC:
+# string in the comment section then it is conglomerate.  This does not filter
+# out conglomerates that consist of exactly one object, can't be helped.
+
+printf("Finding conglomerates, ");
+$ignore = 0;
+foreach $object (keys(%object)) {
+	if (exists($object{$object}->{'off'})) {
+		my ($off, $size, $comment, $l);
+		$off = hex($object{$object}->{'off'});
+		$size = hex($object{$object}->{'size'});
+		open(OBJECT, "<$object") || die "cannot read $object";
+		seek(OBJECT, $off, 0) || die "seek to $off in $object failed";
+		$l = read(OBJECT, $comment, $size);
+		die "read $size bytes from $object .comment failed" if ($l != $size);
+		close(OBJECT);
+		if ($comment =~ /GCC\:.*GCC\:/m) {
+			++$ignore;
+			delete($object{$object});
+		}
+	}
+}
+printf("ignoring %d conglomerate(s)\n", $ignore);
+
+printf("Scanning objects\n");
+foreach $object (keys(%object)) {
+	my $from;
+	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
+	while (defined($line = <OBJDUMP>)) {
+		chomp($line);
+		if ($line =~ /RELOCATION RECORDS FOR /) {
+			($from = $line) =~ s/.*\[([^]]*).*/$1/;
+		}
+		if (($line =~ /\.text\.exit$/ ||
+		     $line =~ /\.exit\.text$/ ||
+		     $line =~ /\.data\.exit$/ ||
+		     $line =~ /\.exit\.data$/ ||
+		     $line =~ /\.exitcall\.exit$/) &&
+		    ($from !~ /\.text\.exit$/ &&
+		     $from !~ /\.exit\.text$/ &&
+		     $from !~ /\.data\.exit$/ &&
+		     $from !~ /\.exit\.data$/ &&
+		     $from !~ /\.exitcall\.exit$/ &&
+		     $from !~ /\.stab$/)) {
+			printf("Error: %s %s refers to %s\n", $object, $from, $line);
+		}
+	}
+	close(OBJDUMP);
+}
+printf("Done\n");
 

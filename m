@@ -1,83 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264029AbTDWN17 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 09:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTDWN17
+	id S264030AbTDWNew (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 09:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264031AbTDWNew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 09:27:59 -0400
-Received: from mail.gmx.de ([213.165.65.60]:61029 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264029AbTDWN15 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 09:27:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Kirilenko <icedank@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Stored data missed in setup.S
-Date: Wed, 23 Apr 2003 16:39:57 +0300
-User-Agent: KMail/1.4.3
-References: <200304231617.23243.icedank@gmx.net> <Pine.LNX.4.53.0304230925150.23037@chaos>
-In-Reply-To: <Pine.LNX.4.53.0304230925150.23037@chaos>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304231639.57148.icedank@gmx.net>
+	Wed, 23 Apr 2003 09:34:52 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:28893 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264030AbTDWNev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 09:34:51 -0400
+Date: Wed, 23 Apr 2003 09:32:56 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Stelian Pop <stelian.pop@fr.alcove.com>,
+       Tony Spinillo <tspinillo@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IEEE-1394 problem on init [ was Re: Linux 2.4.21-rc1 ]
+Message-ID: <20030423133256.GG354@phunnypharm.org>
+References: <20030423122940.51011.qmail@web14002.mail.yahoo.com> <20030423125315.GH820@hottah.alcove-fr> <20030423130139.GD354@phunnypharm.org> <20030423132227.GI820@hottah.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030423132227.GI820@hottah.alcove-fr>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, Apr 23, 2003 at 03:22:27PM +0200, Stelian Pop wrote:
+> On Wed, Apr 23, 2003 at 09:01:39AM -0400, Ben Collins wrote:
+> 
+> > > I'll leave up to the ieee1394 developpers to decide if some other,
+> > > semaphore based, locking is still necessary here.
+> > 
+> > The patch is broken, and the problem is already fixed in our repo. Just
+> > a matter of getting Marcelo to accept my patch before 2.4.21 is
+> > released.
+> 
+> Can we see it please ?
 
-> > I feel myself stupid, when fighting against setup.S. Here is small piece
-> > of code (/arch/i386/boot/setup.S)
-> >
-> > --->
-> > start_of_setup: # line 160
-> > 	# bla bla bla - some checking code
-> >         movb    $1, %al
-> >         movb    %al, (0x100)
-> > ....
-> > ....
-> >         pushw   %ax
-> >         movb    (0x100), %al
->
-> You put something from offset 0x100 into %al.
->
-> >         cmpb    $1, %al
->
-> Then you compared it against 1. This is where the comparaison
-> occurred.
->
-> >         popw    %ax # pop don't change any flags - 386 asm reference
->
-> Then you put something else into %ax. Whatever it is, doesn't count.
->
-> >         je     bail820 # and it don't jump -- al != 1
->
-> Then you jumped based upon the comparison you made before you
-> destroyed the contents of %al by poping %eax (%eax is (%ah << 8) | %al).
->
-> If you don't want to muck with registers, just do:
->
-> 		cmpb	$1, (0x100)
-> 		jz	wherever
->
-> You don't need to put memory oprands into registers to compare.
->
-> > meme820: # line 300
-> > <---
+Stelia,
 
-OK. And now code looks like:
--->
-start_of_setup: # line 160
-	# bla bla bla - some checking code
-        movb    $1, %al
-        movb    %al, (0x100)
-....
-....
-	cmpb    $1, (0x100)
-	je bail820 # and it DON'T jump here
-<--
+http://www.linux1394.org/viewcvs/ieee1394/branches/linux-2.4
 
-I'm sure, I'm doing something wrong. But what???
+Click the "Download tarball" link and replace drivers/ieee1394 with what
+you get.
 
-Best regards,
-Andrew.
 
+Tony, you are seeing a different problem. I'll get you a patch soon (for
+the record, I'm not even subscribed to linux1394-user, but to
+linux1394-devel).
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

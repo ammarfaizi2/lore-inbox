@@ -1,74 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268609AbUHTSIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268498AbUHTSId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268609AbUHTSIm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 14:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268632AbUHTSG0
+	id S268498AbUHTSId (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 14:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268609AbUHTSGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 14:06:26 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60321 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S268594AbUHTSEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 14:04:08 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH 6/14] kexec: ioapic-virtwire-on-shutdown.x86_64
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Aug 2004 12:02:51 -0600
-Message-ID: <m1isbd662c.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Fri, 20 Aug 2004 14:06:05 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:61408 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S268498AbUHTSCQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 14:02:16 -0400
+From: mita akinobu <amgta@yacht.ocn.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] shows Active/Inactive on per-node meminfo
+Date: Sat, 21 Aug 2004 03:02:25 +0900
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>, Matthew Dobson <colpatch@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408210302.25053.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-Restore an ioapic to virtual wire mode on reboot if it has an ExtInt
-input.
+The patch below enable to display the size of Active/Inactive pages on per-node
+meminfo (/sys/devices/system/node/node%d/meminfo) like /proc/meminfo.
 
-diff -uNr linux-2.6.8.1-mm2-ioapic-virtwire-on-shutdown.i386/arch/x86_64/kernel/io_apic.c linux-2.6.8.1-mm2-ioapic-virtwire-on-shutdown.x86_64/arch/x86_64/kernel/io_apic.c
---- linux-2.6.8.1-mm2-ioapic-virtwire-on-shutdown.i386/arch/x86_64/kernel/io_apic.c	Sat Aug 14 11:55:02 2004
-+++ linux-2.6.8.1-mm2-ioapic-virtwire-on-shutdown.x86_64/arch/x86_64/kernel/io_apic.c	Fri Aug 20 10:13:41 2004
-@@ -1123,10 +1123,42 @@
-  */
- void disable_IO_APIC(void)
- {
-+	int pin;
- 	/*
- 	 * Clear the IO-APIC before rebooting:
- 	 */
- 	clear_IO_APIC();
+By a little change to procps, "vmstat -a" can show these statistics about
+particular node.
+
+Please apply.
+
+Signed-off-by: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+
+ drivers/base/node.c    |   10 ++++++++++
+ include/linux/mmzone.h |    2 ++
+ mm/page_alloc.c        |   28 +++++++++++++++++++++++-----
+ 3 files changed, 35 insertions(+), 5 deletions(-)
+
+diff -Nurp linux-2.6.8.1-mm3.orig/drivers/base/node.c linux-2.6.8.1-mm3/drivers/base/node.c
+--- linux-2.6.8.1-mm3.orig/drivers/base/node.c	2004-08-21 00:15:43.000000000 +0900
++++ linux-2.6.8.1-mm3/drivers/base/node.c	2004-08-21 00:16:47.000000000 +0900
+@@ -38,11 +38,19 @@ static ssize_t node_read_meminfo(struct 
+ 	int n;
+ 	int nid = dev->id;
+ 	struct sysinfo i;
++	unsigned long inactive;
++	unsigned long active;
++	unsigned long free;
 +
-+	/*
-+	 * If the i82559 is routed through an IOAPIC
-+	 * Put that IOAPIC in virtual wire mode
-+	 * so legacy interrups can be delivered.
-+	 */
-+	pin = find_isa_irq_pin(0, mp_ExtINT);
-+	if (pin != -1) {
-+		struct IO_APIC_route_entry entry;
-+		unsigned long flags;
+ 	si_meminfo_node(&i, nid);
++	__get_zone_counts(&active, &inactive, &free, NODE_DATA(nid));
 +
-+		memset(&entry, 0, sizeof(entry));
-+		entry.mask            = 0; /* Enabled */
-+		entry.trigger         = 0; /* Edge */
-+		entry.irr             = 0;
-+		entry.polarity        = 0; /* High */
-+		entry.delivery_status = 0;
-+		entry.dest_mode       = 0; /* Physical */
-+		entry.delivery_mode   = 7; /* ExtInt */
-+		entry.vector          = 0;
-+		entry.dest.physical.physical_dest = 0;
-+
-+
-+		/*
-+		 * Add it to the IO-APIC irq-routing table:
-+		 */
-+		spin_lock_irqsave(&ioapic_lock, flags);
-+		io_apic_write(0, 0x11+2*pin, *(((int *)&entry)+1));
-+		io_apic_write(0, 0x10+2*pin, *(((int *)&entry)+0));
-+		spin_unlock_irqrestore(&ioapic_lock, flags);
-+	}
+ 	n = sprintf(buf, "\n"
+ 		       "Node %d MemTotal:     %8lu kB\n"
+ 		       "Node %d MemFree:      %8lu kB\n"
+ 		       "Node %d MemUsed:      %8lu kB\n"
++		       "Node %d Active:       %8lu kB\n"
++		       "Node %d Inactive:     %8lu kB\n"
+ 		       "Node %d HighTotal:    %8lu kB\n"
+ 		       "Node %d HighFree:     %8lu kB\n"
+ 		       "Node %d LowTotal:     %8lu kB\n"
+@@ -50,6 +58,8 @@ static ssize_t node_read_meminfo(struct 
+ 		       nid, K(i.totalram),
+ 		       nid, K(i.freeram),
+ 		       nid, K(i.totalram - i.freeram),
++		       nid, K(active),
++		       nid, K(inactive),
+ 		       nid, K(i.totalhigh),
+ 		       nid, K(i.freehigh),
+ 		       nid, K(i.totalram - i.totalhigh),
+diff -Nurp linux-2.6.8.1-mm3.orig/include/linux/mmzone.h linux-2.6.8.1-mm3/include/linux/mmzone.h
+--- linux-2.6.8.1-mm3.orig/include/linux/mmzone.h	2004-08-21 00:15:17.000000000 +0900
++++ linux-2.6.8.1-mm3/include/linux/mmzone.h	2004-08-21 00:16:46.000000000 +0900
+@@ -272,6 +272,8 @@ typedef struct pglist_data {
+ extern int numnodes;
+ extern struct pglist_data *pgdat_list;
  
- 	disconnect_bsp_APIC();
++void __get_zone_counts(unsigned long *active, unsigned long *inactive,
++			unsigned long *free, struct pglist_data *pgdat);
+ void get_zone_counts(unsigned long *active, unsigned long *inactive,
+ 			unsigned long *free);
+ void build_all_zonelists(void);
+diff -Nurp linux-2.6.8.1-mm3.orig/mm/page_alloc.c linux-2.6.8.1-mm3/mm/page_alloc.c
+--- linux-2.6.8.1-mm3.orig/mm/page_alloc.c	2004-08-21 00:16:18.000000000 +0900
++++ linux-2.6.8.1-mm3/mm/page_alloc.c	2004-08-21 00:16:47.000000000 +0900
+@@ -1072,18 +1072,36 @@ unsigned long __read_page_state(unsigned
+ 	return ret;
  }
+ 
++void __get_zone_counts(unsigned long *active, unsigned long *inactive,
++			unsigned long *free, struct pglist_data *pgdat)
++{
++	struct zone *zones = pgdat->node_zones;
++	int i;
++
++	*active = 0;
++	*inactive = 0;
++	*free = 0;
++	for (i = 0; i < MAX_NR_ZONES; i++) {
++		*active += zones[i].nr_active;
++		*inactive += zones[i].nr_inactive;
++		*free += zones[i].free_pages;
++	}
++}
++
+ void get_zone_counts(unsigned long *active,
+ 		unsigned long *inactive, unsigned long *free)
+ {
+-	struct zone *zone;
++	struct pglist_data *pgdat;
+ 
+ 	*active = 0;
+ 	*inactive = 0;
+ 	*free = 0;
+-	for_each_zone(zone) {
+-		*active += zone->nr_active;
+-		*inactive += zone->nr_inactive;
+-		*free += zone->free_pages;
++	for_each_pgdat(pgdat) {
++		unsigned long l, m, n;
++		__get_zone_counts(&l, &m, &n, pgdat);
++		*active += l;
++		*inactive += m;
++		*free += n;
+ 	}
+ }
+ 
 

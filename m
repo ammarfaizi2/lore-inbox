@@ -1,88 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292486AbSBPSe1>; Sat, 16 Feb 2002 13:34:27 -0500
+	id <S292483AbSBPSt2>; Sat, 16 Feb 2002 13:49:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292487AbSBPSeR>; Sat, 16 Feb 2002 13:34:17 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:47630
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S292486AbSBPSd7>; Sat, 16 Feb 2002 13:33:59 -0500
-Date: Sat, 16 Feb 2002 10:22:43 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>,
-        Martin Dalecki <md@evision-ventures.com>
-cc: Pavel Machek <pavel@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>,
-        Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
-        torvalds@transmeta.com
-Subject: Re: IDE cleanup for 2.5.4-pre3
-In-Reply-To: <3C6E2886.8070600@evision-ventures.com>
-Message-ID: <Pine.LNX.4.10.10202161016380.10501-100000@master.linux-ide.org>
+	id <S292485AbSBPStJ>; Sat, 16 Feb 2002 13:49:09 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17229 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S292483AbSBPStE>; Sat, 16 Feb 2002 13:49:04 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: tyson@rwii.com (Tyson D Sawyer), linux-kernel@vger.kernel.org
+Subject: Re: Missed jiffies
+In-Reply-To: <E16c7yN-0006a2-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 Feb 2002 11:44:30 -0700
+In-Reply-To: <E16c7yN-0006a2-00@the-village.bc.nu>
+Message-ID: <m14rkh5ks1.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Martin,
+> > My system looses about 8 seconds every 20 minutes.  This is reported
+> > by ntp and verified by comparing 'date' to 'hwclock --show' and a wall
+> > clock.
+> > 
+> > My system is a x86 Dell laptop with HZ=1024.
+> > 
+> > I am quite certain that the issue is the System Management Interrupt
+> > (SMI).
+> 
+> Possibly and if it is you can't really do much about it.
 
-I asked you off line to slow down so I can fix a few issues.
-I have acknowledged you ideas are good but are woefully untimely.
-Obviously you have some agenada with a StartUp company because you work
-for a Germnay Venture Capital firm.
+Except usually the truly annoyed can reprogram the chipset so an SMI
+interrupt is not generated.  But I doubt that is practical on a
+laptop. 
 
-Maybe it would be more useful if you bothered to feed the code via the
-correct paths.  Since I am going to reject it until I can review it, and
-have made very clear there are some core problems to address.  You can
-make all kinds of fancy rewrites all day long but until the bottom
-transport is finished it will still break.
+> ACPI may help here but lots of vendors implement their ACPI subsystem using
+> I/O cycles to jump into SMM mode so its game over again.
 
-Regards,
+Hmm.  I wonder if this is a simple transition technique or if it is
+their long term strategy.  
 
-On Sat, 16 Feb 2002, Martin Dalecki wrote:
+Now I'm going to research and see if SMM mode is supported on with
+x86-64 and ia64.  With ACPI the case can at least be made that SMM
+mode is not strictly necessary and should be dropped.  I'm dreaming
+but if the processors didn't have this super protected mode, BIOS
+vendors and operating system vendors would be force to cooperate on
+these issues.
 
-> Pavel Machek wrote:
-> 
-> >Hi!
-> >
-> >>It seems bigger as it is at first glance, however if you start to read 
-> >>it at ide.h, the rest should
-> >>be, well,  obivous...
-> >>
-> >
-> >Ouch, its *big*. You should probably start pushing it to Jens ASAP,
-> >because if you'll clean up it a bit more, you'll end with really big
-> >patch which rewrites whole drivers/ide... [Not that it would be a bad
-> >thing.]
-> >
-> 
-> Well the atomic part of the patch is rather small if you look at it. But 
-> in hell unfortunately there is
-> no way around to make the consequences smaller. I would be much happier 
-> if it could be
-> done otherway around... but I see no way if one want's to preserve the 
-> drivers in a functional state.
-> 
-> >My favourite cleanup would be 
-> >
-> >struct ide_drive_s {} ide_drive_t;
-> >
-> >=>
-> >
-> >struct ide_drive {};
-> >
-> >and replacing all ide_drive_t with struct ide_drive...
-> >
-> 
-> That will happen.
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
-
+Eric

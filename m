@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261952AbTCTUXO>; Thu, 20 Mar 2003 15:23:14 -0500
+	id <S262100AbTCTUcU>; Thu, 20 Mar 2003 15:32:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262045AbTCTUXN>; Thu, 20 Mar 2003 15:23:13 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:8918 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S261952AbTCTUXM>;
-	Thu, 20 Mar 2003 15:23:12 -0500
-Date: Thu, 20 Mar 2003 15:34:07 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+	id <S262132AbTCTUcT>; Thu, 20 Mar 2003 15:32:19 -0500
+Received: from cygnus-ext.enyo.de ([212.9.189.162]:10501 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id <S262100AbTCTUcC>;
+	Thu, 20 Mar 2003 15:32:02 -0500
+To: linux-kernel@vger.kernel.org
 Subject: Re: Release of 2.4.21
-Message-ID: <20030320203407.GF8256@gtf.org>
-References: <20030320195657.GA3270@drcomp.erfurt.thur.de> <874r5xyeky.fsf@sdbk.de>
-Mime-Version: 1.0
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Thu, 20 Mar 2003 21:43:01 +0100
+In-Reply-To: <20030320203015$4839@gated-at.bofh.it> (krause@sdbk.de's
+ message of "Thu, 20 Mar 2003 21:30:15 +0100")
+Message-ID: <8765qdg46i.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
+References: <20030320200019$6ddc@gated-at.bofh.it>
+	<20030320203015$4839@gated-at.bofh.it>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <874r5xyeky.fsf@sdbk.de>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 09:21:01PM +0100, Sebastian D.B. Krause wrote:
-> On 3487 September 1993, Adrian Knoth wrote:
-> > how about releasing 2.4.21 with the ptrace()-fix applied immediately
-> > like it has been done with 2.2.25?
-> >
-> > I think it's a serious bug and therefore it's time for a security-update.
-> 
+krause@sdbk.de (Sebastian D.B. Krause) writes:
+
 > I think the best way is to release a 2.4.21 kernel with only the
-> most important fixes (e.g. ptrace, ext3) and no new features. All
-> new featues which need more testing and are now in 2.4.21-pre could
-> then go to 2.4.22-pre for more testing (as Alan did with
+> most important fixes (e.g. ptrace, ext3) and no new features.
 
-Something vaguely like this has been suggested, which I think is a good
-idea:
+You can do this on your own.  So what?
 
-For critical fixes, release a 2.4.20.1, 2.4.20.2, etc.  Don't disrupt
-the 2.4.21-pre cycle, that would be less productive than just patching
-2.4.20 and rolling a separate release off of that.
-
-	Jeff
-
-
-
+Releasing an official 2.4.21 with some fixes (and no new features) is
+just a PR issue.  I've already seen people comparing the alleged IIS
+bug (or this new IE hole) and the ptrace() bug...

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSHAONj>; Thu, 1 Aug 2002 10:13:39 -0400
+	id <S313190AbSHAOON>; Thu, 1 Aug 2002 10:14:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313190AbSHAONj>; Thu, 1 Aug 2002 10:13:39 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:25727 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S312973AbSHAONi>; Thu, 1 Aug 2002 10:13:38 -0400
-Date: Thu, 1 Aug 2002 16:17:03 +0200
-From: Andrea Arcangeli <andrea@suse.de>
+	id <S313773AbSHAOON>; Thu, 1 Aug 2002 10:14:13 -0400
+Received: from hdfdns02.hd.intel.com ([192.52.58.11]:59335 "EHLO
+	mail2.hd.intel.com") by vger.kernel.org with ESMTP
+	id <S313190AbSHAOOM>; Thu, 1 Aug 2002 10:14:12 -0400
+Message-ID: <A5974D8E5F98D511BB910002A50A664702CD66AB@hdsmsx103.hd.intel.com>
+From: "Cress, Andrew R" <andrew.r.cress@intel.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc4aa1
-Message-ID: <20020801141703.GT1132@dualathlon.random>
-References: <20020801055124.GB1132@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020801055124.GB1132@dualathlon.random>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Subject: hang in 2.4.18 with CONFIG_SERIAL=m (?)
+Date: Thu, 1 Aug 2002 07:17:45 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 07:51:24AM +0200, Andrea Arcangeli wrote:
-> This may be the last update for a week (unless there's a quick bug to
-> fix before next morning :). I wanted to ship async-io and largepage
+I'm hoping that someone has seen this before and can help me understand why
+this happens.  
 
-I would like to thank Randy Hron for reproducing this problem so
-quickly with the ltp testsuite:
+FAILING CONFIGURATION:
+kernel 2.4.18
+CONFIG_SERIAL=m
+CONFIG_SCSI_AIC7XXX=m
 
->>EIP; 80132cc2 <shmem_writepage+22/130>   <=====
+WORKING CONFIGURATION:
+kernel 2.4.18
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_SCSI_AIC7XXX=m
 
-here the fix:
+The boot disk is SCSI, attached to the aic7xxx, and the initrd.img contains
+aic7xxx.  The hardware (arch=i386) supports two on-board aic7899 channels,
+and two on-board serial ports.  
+com1 = IRQ 4, IOAddr  3F8
+com2 = IRQ 3, IOAddr  2F8
+aic1 = IRQ 7, IOAddr 2400
+aic2 = IRQ 9, IOAddr 2000
 
---- 2.4.19rc4aa1/include/linux/mm.h.~1~	Thu Aug  1 07:15:54 2002
-+++ 2.4.19rc4aa1/include/linux/mm.h	Thu Aug  1 16:13:56 2002
-@@ -296,8 +296,8 @@ typedef struct page {
- #define PG_checked		12	/* kill me in 2.5.<early>. */
- #define PG_arch_1		13
- #define PG_reserved		14
--#define PG_bigpage		15
- #define PG_launder		15	/* written out by VM pressure.. */
-+#define PG_bigpage		16
- 
- /* Make it prettier to test the above... */
- #define UnlockPage(page)	unlock_page(page)
+Failure symptoms:
+System hangs during boot, fails to insmod aic7xxx.  
+By inserting some printk's in the driver, it is found that:
+The hang occurs when the MMIO physical address for the second channel is 
+mapped into the kernel space by using ioremap. And in the ioremap, the hang 
+really happens when the inline function flush_tlb_all() is called.
+I did try applying the free_pgtables tlb patch, and it still happens.
+It is also found that only this only affects the MMIO approach of the
+driver. 
+If the driver is built with MMIO disabled, it works fine. 
 
+If the failing configuration is modified to set CONFIG_SERIAL=y, the normal
+aic7xxx with MMIO comes up fine.  
 
-new rc4aa2 with this single fix is coming, if anybody else found any
-other problem please let me know ASAP :), thanks.
+Could there be some kind of IO space conflict between SERIAL=m and SCSI?
 
-Andrea
+Andy Cress

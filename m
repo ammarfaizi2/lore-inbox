@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262799AbSJRCVJ>; Thu, 17 Oct 2002 22:21:09 -0400
+	id <S262789AbSJRCRo>; Thu, 17 Oct 2002 22:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262788AbSJRCTm>; Thu, 17 Oct 2002 22:19:42 -0400
-Received: from dp.samba.org ([66.70.73.150]:6891 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262793AbSJRCTG>;
-	Thu, 17 Oct 2002 22:19:06 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Module loader preparation 
-In-reply-to: Your message of "Thu, 17 Oct 2002 14:33:08 +0100."
-             <20021017143308.A24271@infradead.org> 
-Date: Fri, 18 Oct 2002 11:39:04 +1000
-Message-Id: <20021018022503.2B1A22C24E@lists.samba.org>
+	id <S262790AbSJRCRo>; Thu, 17 Oct 2002 22:17:44 -0400
+Received: from smtp.comcast.net ([24.153.64.2]:5218 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S262789AbSJRCRn>;
+	Thu, 17 Oct 2002 22:17:43 -0400
+Date: Thu, 17 Oct 2002 22:22:03 -0400
+From: Jerry McBride <mcbrides9@comcast.net>
+Subject: LEX = flex
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Message-id: <0H4500IQMNZE4K@mtaout05.icomcast.net>
+Organization: TEAM LINUX
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.8; )
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+X-message-flag: Join the Wave and install Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021017143308.A24271@infradead.org> you write:
-> I don't think requiring a init func is a good idea.  Please fix
-> your module loader to generate a stub if no module_init() is
-> present instead.
 
-But where do you generate the module name (a module now knows its own
-name, in the .modulename section)?  We could do an extra step in the
-module build where we generate this and link it in, bit given that
-we're talking about a handful of trivial modules, I don't think it's
-worth it.
+It's an old one... and it's BACK. 2.4.20-pre11... make kernel on i386 fails in
+/drivers/scsi/aic7xxx/aicasm/Makefile
 
-> init_module() sounds like a good idea to me, though.
+LEX is not assigned a value... 
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+However making LEX=flex works and make modules completes 100%... 
+
+Where is this failing to be set?
+
+-- 
+
+******************************************************************************
+                     Registered Linux User Number 185956
+          http://groups.google.com/groups?hl=en&safe=off&group=linux
+             Join me in chat at #linux-users on irc.freenode.net
+    10:02pm  up 219 days,  3:11,  6 users,  load average: 0.29, 0.25, 0.21

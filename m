@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136113AbRDVN2k>; Sun, 22 Apr 2001 09:28:40 -0400
+	id <S136116AbRDVNrZ>; Sun, 22 Apr 2001 09:47:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136114AbRDVN2a>; Sun, 22 Apr 2001 09:28:30 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61199 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136113AbRDVN2Y>; Sun, 22 Apr 2001 09:28:24 -0400
-Subject: Re: Linux 2.4.3-ac12
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Sun, 22 Apr 2001 14:29:51 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), philb@gnu.org (Philip Blundell),
-        junio@siamese.dhis.twinsun.com, manuel@mclure.org (Manuel McLure),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010422142224.D20807@flint.arm.linux.org.uk> from "Russell King" at Apr 22, 2001 02:22:24 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S136119AbRDVNrP>; Sun, 22 Apr 2001 09:47:15 -0400
+Received: from marine.sonic.net ([208.201.224.37]:3337 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S136116AbRDVNq6>;
+	Sun, 22 Apr 2001 09:46:58 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Sun, 22 Apr 2001 06:46:55 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.3+ sound distortion
+Message-ID: <20010422064655.A5682@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <01042118044700.01268@victor>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14rJw2-0005r5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.6i
+In-Reply-To: <01042118044700.01268@victor>; from v.p.p.julien@let.rug.nl on Sat, Apr 21, 2001 at 06:04:47PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, Apr 22, 2001 at 02:10:41PM +0100, Alan Cox wrote:
-> > 	Recommended
-> > 	-----------
-> > 	egcs-1.1.2		(miscompiles strstr  <2.4.4pre)
-> > 	gcc 2.95.*		(miscompiles strstr  <2.4.4pre)
-> 
-> Aren't both of these "miscompilation" problems are referring to the file
-> arch/i386/lib/strstr.c?  Therefore, its an x86 problem.  To use a phrase
-> that Linus uses, "its not an interesting problem" for the other
-> architectures.
+On Sat, Apr 21, 2001 at 06:04:47PM +0200, Victor Julien wrote:
+> I have a problem with kernels higher than 2.4.2, the sound distorts when 
+> playing a song with xmms while the seti@home client runs. 2.4.2 did not have 
 
-In theory the strstr miscompile might bite any other architecture with a 
-braindead set of string instructions, a ludicrously low register count and
-inlined strsr. So yes its x86 only
+Would this be the same issue as describe in these threads:
 
-The recommended compilers for non x86 are different too - eg you need
-2.96 gcc for IA64, you need 2.95 not egcs for mips and so on.
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0104.0/0233.html
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0104.1/0231.html
 
+That is, the change in how nice is recalculated.
+
+mrc
+-- 
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen

@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144489AbRA2AKR>; Sun, 28 Jan 2001 19:10:17 -0500
+	id <S144496AbRA2AQI>; Sun, 28 Jan 2001 19:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144496AbRA2AKH>; Sun, 28 Jan 2001 19:10:07 -0500
-Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:25085
-	"EHLO champ.drew.net") by vger.kernel.org with ESMTP
-	id <S144489AbRA2AKB>; Sun, 28 Jan 2001 19:10:01 -0500
-From: Drew Bertola <drew@drewb.com>
-MIME-Version: 1.0
+	id <S144575AbRA2AP6>; Sun, 28 Jan 2001 19:15:58 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:8198 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S144496AbRA2APq>; Sun, 28 Jan 2001 19:15:46 -0500
+Date: Mon, 29 Jan 2001 01:14:59 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Gregory Maxwell <greg@linuxpower.cx>
+Cc: James Sutherland <jas88@cam.ac.uk>, jamal <hadi@cyberus.ca>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ECN: Clearing the air (fwd)
+Message-ID: <20010129011459.B9408@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.GSO.4.30.0101280700580.24762-100000@shell.cyberus.ca> <Pine.SOL.4.21.0101281324210.26837-100000@yellow.csi.cam.ac.uk> <20010128144204.B13195@xi.linuxpower.cx>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14964.46295.560446.827593@champ.drew.net>
-Date: Mon, 29 Jan 2001 00:09:59 +0000 ()
-To: drew@drewb.com
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Dieter Nützel <Dieter.Nuetzel@hamburg.de>,
-        Andrew Grover <andrew.grover@intel.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.1-pre11
-In-Reply-To: <14964.44473.518811.451472@champ.drew.net>
-In-Reply-To: <Pine.LNX.4.10.10101281346030.4151-100000@penguin.transmeta.com>
-	<3A7494B1.70799C19@mandrakesoft.com>
-	<14964.41681.126496.746739@champ.drew.net>
-	<14964.44473.518811.451472@champ.drew.net>
-X-Mailer: VM 6.75 under Emacs 19.34.1
-Reply-To: drew@drewb.com
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010128144204.B13195@xi.linuxpower.cx>; from greg@linuxpower.cx on Sun, Jan 28, 2001 at 02:42:04PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Drew Bertola writes:
-> Drew Bertola writes:
-> > Andrew's latest ACPI fixes (acpica-linux-20000125 patched against
-> > 2.4.0) compile fine here and don't hang on my Vaio after loading
-> > tables.
+Gregory Maxwell wrote:
+> > > There is nothing silly with the decision, davem is simply a modern day
+> > > internet hero.
 > > 
-> > That's a start.  I'll play around some more.
+> > No. If it were something essential, perhaps, but it's just a minor
+> > performance tweak to cut packet loss over congested links. It's not
+> > IPv6. It's not PMTU. It's not even very useful right now!
 > 
-> Unfortunately, pcmcia modules fail to load.  I can't understand the
-> interaction.  
-> 
-> The message displayed on boot when starting the service says:
-> 
-> ds: no socket drivers loaded
+> No. ECN is essential to the continued stability of the Internet. Without
+> probabilistic queuing (i.e. RED) and ECN the Internet will continue to have
+> retransmit synchronization and once congested stay congested until people get
+> frustrated and give it up for a little bit.
 
-I resolved this issue by using yenta_socket.
+There are other forms of probabilistic queuing, and RED+ECN may not be
+one of the ones which scales as the net gets larger....  We're keen on
+latency, burst avoidance and other quality guarantees these days.  ECN
+is an improvement of just RED alone of course.
 
-For my RH7.0 system, /etc/sysconfig/pcmcia needs to be edited to show:
-
-PCIC=yenta_socket
-
--- 
-Drew Bertola  | Send a text message to my pager or cell ... 
-              |   http://jpager.com/Drew
-
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

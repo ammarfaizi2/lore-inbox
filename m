@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262015AbSI3LDO>; Mon, 30 Sep 2002 07:03:14 -0400
+	id <S262016AbSI3LEj>; Mon, 30 Sep 2002 07:04:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262016AbSI3LDN>; Mon, 30 Sep 2002 07:03:13 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4814 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262015AbSI3LDM>; Mon, 30 Sep 2002 07:03:12 -0400
-Date: Mon, 30 Sep 2002 13:08:32 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Jochen Friedrich <jochen@scram.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.3.39 compile errors on Alpha
-In-Reply-To: <Pine.NEB.4.44.0209300934330.7633-100000@www2.scram.de>
-Message-ID: <Pine.NEB.4.44.0209301257210.12605-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262017AbSI3LEj>; Mon, 30 Sep 2002 07:04:39 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:32666 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262016AbSI3LEi>; Mon, 30 Sep 2002 07:04:38 -0400
+Date: Mon, 30 Sep 2002 16:45:47 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.39-mm1 fixes 2/3
+Message-ID: <20020930164547.B27121@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20020930164314.A27121@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020930164314.A27121@in.ibm.com>; from dipankar@in.ibm.com on Mon, Sep 30, 2002 at 04:43:14PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Sep 2002, Jochen Friedrich wrote:
+The read_barrier_depends patch didn't have compilable list_for_each_rcu()
+macros. These macros allow a simpler interface to use RCU by taking
+care of memory barriers. Fix against 2.5.39-mm1.
 
-> Hi,
-
-Hi Jochen,
-
-> these are the errors i found in my log from a "make -k modules" on Alpha:
->
-> drivers/atm/atmtcp.c:
->
-> atmtcp.c:278: incompatible types in assignment
-
-this is a known issue, the following patch (already in Linus' BK tree)
-fixes it:
-
---- linux-2.5.35-VIRGIN/drivers/atm/atmtcp.c	2002-08-24 00:08:21.000000000 -0700
-+++ linux-2.5.35/drivers/atm/atmtcp.c	2002-09-16 21:04:30.000000000 -0700
-@@ -275,7 +275,7 @@
- 		result = -ENOBUFS;
- 		goto done;
- 	}
--	new_skb->stamp = xtime;
-+	do_gettimeofday(&new_skb->stamp);
- 	memcpy(skb_put(new_skb,skb->len),skb->data,skb->len);
- 	out_vcc->push(out_vcc,new_skb);
- 	atomic_inc(&vcc->stats->tx);
-
->...
-> drivers/md/lvm.c:
->
-> lvm.c:1: #error Broken until maintainers will sanitize kdev_t handling
->
-> drivers/md/lvm-snap.c:
->
-> lvm-snap.c:248: incompatible type for argument 1 of `block_size'
->...
-
-LVM is currently completely broken, see the current discussions about how
-to get LVM2 into 2.5 before Halloween.
-
-> Cheers,
-> --jochen
->...
-
-cu
-Adrian
-
+Thanks
 -- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
 
+--- include/linux/list.h.orig	Mon Sep 30 13:59:10 2002
++++ include/linux/list.h	Mon Sep 30 13:59:23 2002
+@@ -307,7 +307,7 @@
+  */
+ #define list_for_each_rcu(pos, head) \
+ 	for (pos = (head)->next, prefetch(pos->next); pos != (head); \
+-        	pos = pos->next, ({ read_barrier_depends(); 0}), prefetch(pos->next))
++        	pos = pos->next, ({ read_barrier_depends(); 0;}), prefetch(pos->next))
+         	
+ /**
+  * list_for_each_safe_rcu	-	iterate over an rcu-protected list safe
+@@ -318,7 +318,7 @@
+  */
+ #define list_for_each_safe_rcu(pos, n, head) \
+ 	for (pos = (head)->next, n = pos->next; pos != (head); \
+-		pos = n, ({ read_barrier_depends(); 0}), n = pos->next)
++		pos = n, ({ read_barrier_depends(); 0;}), n = pos->next)
+ 
+ #endif /* __KERNEL__ || _LVM_H_INCLUDE */
+ 

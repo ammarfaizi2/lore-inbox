@@ -1,52 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265550AbUFDCUC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265548AbUFDCYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265550AbUFDCUC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 22:20:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUFDCUC
+	id S265548AbUFDCYz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 22:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265554AbUFDCYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 22:20:02 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:40905 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S265554AbUFDCT7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 22:19:59 -0400
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
-	implementation
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Paul Jackson <pj@sgi.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <40BFD839.7060101@yahoo.com.au>
-References: <20040603094339.03ddfd42.pj@sgi.com>
-	 <20040603101010.4b15734a.pj@sgi.com> <1086313667.29381.897.camel@bach>
-	 <40BFD839.7060101@yahoo.com.au>
-Content-Type: text/plain
-Message-Id: <1086315563.7990.905.camel@bach>
+	Thu, 3 Jun 2004 22:24:55 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:16827 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S265548AbUFDCYw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 22:24:52 -0400
+Date: Thu, 3 Jun 2004 22:24:50 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: adaplas@pol.net, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] fbcon: prefer pan when available
+Message-ID: <20040604022450.GA4175@havoc.gtf.org>
+References: <20040603023653.GA20951@havoc.gtf.org> <200406032307.13121.adaplas@hotpop.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 04 Jun 2004 12:19:23 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406032307.13121.adaplas@hotpop.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-04 at 12:02, Nick Piggin wrote:
-> Rusty Russell wrote:
-> > So, opinion alert: if I were doing this, I'd probably live without this
-> > macro; in my mind it crosses the "too much abstraction" line.  I did
-> > momentarily wonder what this macro did when I saw it used in the
-> > succeeding patches.
-> 
-> I think if you don't like that abstraction, there should be no
-> cpumask type at all, just use the bitmap.
-> 
-> I don't see what you gain from having the cpumask type but having
-> to get at its internals with the bitop functions.
 
-Yes, that was the previous debate to which I alluded, although having a
-separate type helps make typesafe functions.
+Dear Andrew,
 
-But to clarify: my question here was over the cpu_addr() macro.
+Thomas and Antonino are right; the following are better heuristics
+than I had for interpreting the accel flags.  please apply on top of
+2.6.7-rc2-mm2
 
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+-dte
 
+fbcon: improve heuristics to favor panning over copyarea()
+  thanks to pseudocode from Antonino Daplas <adaplas@hotpop.com>
+
+Signed-off-by: David Eger <eger@havoc.gtf.org>
+
+diff -Nru a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
+--- a/drivers/video/console/fbcon.c	Fri Jun  4 02:58:58 2004
++++ b/drivers/video/console/fbcon.c	Fri Jun  4 02:58:58 2004
+@@ -1469,22 +1469,26 @@
+ static __inline__ void updatescrollmode(struct display *p, struct fb_info *info, struct vc_data *vc)
+ {
+ 	int cap = info->flags;
++	int good_pan = (cap & FBINFO_HWACCEL_YPAN)
++		 && divides(info->fix.ypanstep, vc->vc_font.height)
++		 && info->var.yres_virtual >= 2*info->var.yres;
++	int good_wrap = (cap & FBINFO_HWACCEL_YWRAP)
++		 && divides(info->fix.ywrapstep, vc->vc_font.height)
++		 && divides(vc->vc_font.height, info->var.yres_virtual);
++	int reading_fast = cap & FBINFO_READS_FAST;
++	int fast_copyarea = (cap & FBINFO_HWACCEL_COPYAREA) && !(cap & FBINFO_HWACCEL_DISABLED);
+ 
+-	if ((cap & FBINFO_HWACCEL_COPYAREA) && !(cap & FBINFO_HWACCEL_DISABLED))
+-		p->scrollmode = SCROLL_ACCEL;
+-	else if ((cap & FBINFO_HWACCEL_YWRAP) &&
+-		 divides(info->fix.ywrapstep, vc->vc_font.height) &&
+-		 divides(vc->vc_font.height, info->var.yres_virtual))
+-		p->scrollmode = SCROLL_WRAP;
+-	else if ((cap & FBINFO_HWACCEL_YPAN) &&
+-		 divides(info->fix.ypanstep, vc->vc_font.height) &&
+-		 info->var.yres_virtual >= info->var.yres + vc->vc_font.height)
+-		p->scrollmode = SCROLL_PAN;
+-	else if (cap & FBINFO_READS_FAST)
+-		/* okay, we'll use software version of accel funcs... */
+-		p->scrollmode = SCROLL_ACCEL; 
+-	else
+-		p->scrollmode = SCROLL_REDRAW;
++	if (good_wrap || good_pan) {
++		if (reading_fast || fast_copyarea)	
++			p->scrollmode = good_wrap ? SCROLL_WRAP : SCROLL_PAN;
++		else
++			p->scrollmode = SCROLL_REDRAW;
++	} else {
++		if (reading_fast || fast_copyarea)
++			p->scrollmode = SCROLL_ACCEL;
++		else
++			p->scrollmode = SCROLL_REDRAW;
++	}
+ }
+ 
+ static int fbcon_resize(struct vc_data *vc, unsigned int width, 

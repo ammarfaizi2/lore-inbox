@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263972AbUHJKQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUHJKSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263972AbUHJKQk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 06:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbUHJKPF
+	id S264098AbUHJKSR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 06:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUHJKOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 06:15:05 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50371 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263980AbUHJKNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 06:13:10 -0400
-Date: Tue, 10 Aug 2004 12:13:08 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
-       david-b@pacbell.net
-Subject: Re: [RFC] Fix Device Power Management States
-Message-ID: <20040810101308.GE9034@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net> <20040809113829.GB9793@elf.ucw.cz> <Pine.LNX.4.50.0408090840560.16137-100000@monsoon.he.net> <20040809212949.GA1120@elf.ucw.cz> <Pine.LNX.4.50.0408092156480.24154-100000@monsoon.he.net>
+	Tue, 10 Aug 2004 06:14:41 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:53440 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264251AbUHJKNY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 06:13:24 -0400
+Date: Tue, 10 Aug 2004 12:12:24 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040810101224.GD11201@suse.de>
+References: <200408061330.i76DU2Tm005937@burner.fokus.fraunhofer.de> <20040806151017.GG23263@suse.de> <20040810084159.GD10361@merlin.emma.line.org> <20040810101123.GB2743@harddisk-recovery.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0408092156480.24154-100000@monsoon.he.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040810101123.GB2743@harddisk-recovery.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Well, "no DMA" needs to be part of definition, too, because some
-> > devices (USB) do DMA only if they have nothing to do.
+On Tue, Aug 10 2004, Erik Mouw wrote:
+> On Tue, Aug 10, 2004 at 10:41:59AM +0200, Matthias Andree wrote:
+> > It's not exactly fun if everything can do 48X but your favorite OS
+> > (Linux 2.4) is limited to say 8X because it only does PIO in spite of
+> > hdparm settings and everything else.
 > 
-> I don't understand; that doesn't sound healthy.
+> FWIW, we burn CDs at 40x with a 2.4 kernel. It is however a hardware or
+> driver related issue: no problems whatsoever with VIA IDE interfaces,
+> but only PIO with the CD writer connected to a Promise 20268.
 
-It is not healthy. It is basicaly misdesigned piece of hardware called
-UHCI. It simply does DMA all the time :-(.
+It's not a problem with data CDs, it's only a problem with non-512b
+aligned sector sizes (like audio CDs).
 
-> > if something like this gets merged, it will immediately break swsusp
-> > because initially no drivers will have "stop" methods.
-> >
-> > Passing system state down to drivers and having special "quiesce"
-> > (as discussed in rather long thread) state has advantage of
-> > automagicaly working on drivers that ignore u32 parameter of suspend
-> > callback (and that's most of them). David's patches do not bring us
-> > runtime suspend capabilities, but do not force us to go through all
-> > the drivers, either...
-> 
-> Nothing is free. ;)
-> 
-> We've been talking about creating and merging a sane power management
-> model for 3+ years now. It's always been known that the drivers will have
-> to be modified to support a sane model. It's a fact of life. At some
-> point, we have to bite the bullet and do the work. I see that time rapidly
-> approaching.
-> 
-> I do not intend to merge a patch that will break swsusp in a stable
-> kernel. However, we do have this wonderful thing called the -mm tree in
-> which we can a) evolve the model, b) get large testing coverage and c)
-> solicit driver fixes.
-> 
-> Once the swsusp consolidation is merged upstream, I will merge a new
-> device power model in -mm, and we can start working on the drivers. How
-> does that sound?
-
-It sounds like an acceptable plan. I see no real disadvantage in
-"suspend with parameter X means quiesce", and I think we'd get smaller
-patch that way, but if you go through -mm like this, we can do it.
-
-								Pavel
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Jens Axboe
+

@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbTKGWJg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:09:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTKGWIy
+	id S261667AbTKGWMP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:12:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbTKGWLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:08:54 -0500
-Received: from nat9.steeleye.com ([65.114.3.137]:30471 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264460AbTKGQ1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 11:27:13 -0500
-Subject: Re: lib.a causing modules not to load
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <1068222065.1894.21.camel@mulgrave>
-References: <1068222065.1894.21.camel@mulgrave>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 07 Nov 2003 10:27:09 -0600
-Message-Id: <1068222431.1894.24.camel@mulgrave>
+	Fri, 7 Nov 2003 17:11:30 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:55727 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S264474AbTKGQs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 11:48:26 -0500
+X-Sender-Authentication: net64
+Date: Fri, 7 Nov 2003 17:48:24 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Bug Report: 2.4.23-pre9 / SIS chipset / sundance
+Message-Id: <20031107174824.4853e437.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-11-07 at 10:21, James Bottomley wrote:
-[...]
+Hello,
 
-And with the actual patch
+I just experienced a problem with a configuration that is known to only work
+with ACPI. It consists of:
 
-James
+P-III 1,4 GHz
+Mainboard with SIS 630E chipset
+Adaptec 29160 Controller
+DLINK DFE-580 TX (four port card) (sundance driver)
 
-===== fs/Makefile 1.59 vs edited =====
---- 1.59/fs/Makefile	Thu Aug 14 20:17:09 2003
-+++ edited/fs/Makefile	Tue Nov  4 16:33:42 2003
-@@ -46,8 +46,10 @@
-  
- # Do not add any filesystems before this line
- obj-$(CONFIG_EXT3_FS)		+= ext3/ # Before ext2 so root fs can be ext3
-+libobj-$(CONFIG_EXT3_FS)	+= ext3/
- obj-$(CONFIG_JBD)		+= jbd/
- obj-$(CONFIG_EXT2_FS)		+= ext2/
-+libobj-$(CONFIG_EXT2_FS)	+= ext2/
- obj-$(CONFIG_CRAMFS)		+= cramfs/
- obj-$(CONFIG_RAMFS)		+= ramfs/
- obj-$(CONFIG_HUGETLBFS)		+= hugetlbfs/
-@@ -91,3 +93,6 @@
- obj-$(CONFIG_XFS_FS)		+= xfs/
- obj-$(CONFIG_AFS_FS)		+= afs/
- obj-$(CONFIG_BEFS_FS)		+= befs/
-+
-+# now pick up the lib resolving refs
-+obj-y				+= $(libobj-m)
-\ No newline at end of file
-===== fs/ext2/Makefile 1.10 vs edited =====
---- 1.10/fs/ext2/Makefile	Sat Jul 19 16:53:59 2003
-+++ edited/fs/ext2/Makefile	Tue Nov  4 16:32:35 2003
-@@ -3,6 +3,10 @@
- #
- 
- obj-$(CONFIG_EXT2_FS) += ext2.o
-+libobj-$(CONFIG_EXT2_FS) := librefs.o
-+
-+# if we're a module, add our lib requirements to the kernel
-+obj-y	+= $(libobj-m)
- 
- ext2-y := balloc.o bitmap.o dir.o file.o fsync.o ialloc.o inode.o \
- 	  ioctl.o namei.o super.o symlink.o
---- /dev/null	2003-11-02 22:37:48.000000000 -0600
-+++ edited/fs/ext2/librefs.c	2003-11-05 11:42:37.000000000 -0600
-@@ -0,0 +1,7 @@
-+#include <linux/init.h>
-+#include <linux/percpu_counter.h>
-+
-+__init __attribute__((unused)) static void dummy(void)
-+{
-+	percpu_counter_mod(NULL, 0);
-+}
+A slightly different setup is known to work with 2.4.19 and ACPI patch. Problem
+with this SIS chipset is interrupt sharing. If you do not use ACPI the box
+freezes sometime.
+The known-to-work setup is identical besides it contains a tulip-based four
+port ethernet card (old DLINK cards).
+We stress-tested the working box by NFS-copying data to the local hd over an
+ethernet port that shares its interrupt with the aic.
 
+The above failing setup with sundance driver results in network hanging, but no
+other negative points. The network hang can be cured by "mii-tool -r <device>"
+(restart autonegotiation). After that everything works well, until the next
+hang.
+During the network hang the shared interrupt (aic + ethernet) still counts up. 
+Maybe the sundance driver just misses an interrupt and hangs, and restarting
+autonegotiation resets some internals.
+
+I can try whatever patch you like, this is no production setup.
+
+Regards,
+Stephan

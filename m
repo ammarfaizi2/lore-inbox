@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280037AbRKIT17>; Fri, 9 Nov 2001 14:27:59 -0500
+	id <S280043AbRKITbJ>; Fri, 9 Nov 2001 14:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280043AbRKIT1u>; Fri, 9 Nov 2001 14:27:50 -0500
-Received: from barn.holstein.com ([198.134.143.193]:47367 "EHLO holstein.com")
-	by vger.kernel.org with ESMTP id <S280037AbRKIT1h>;
-	Fri, 9 Nov 2001 14:27:37 -0500
-Date: Fri, 9 Nov 2001 14:26:41 -0500
-Message-Id: <200111091926.fA9JQfq11345@pcx4168.holstein.com>
-From: "Todd M. Roy" <troy@holstein.com>
-To: lkml-frank@unternet.org
-Cc: VANDROVE@vc.cvut.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <20011108233954.D11523@unternet.org> (message from Frank de Lange
-	on Thu, 8 Nov 2001 23:39:54 +0100)
-Subject: Re: hang with 2.4.14 & vmware 3.0.x, anyone else seen this?
-Reply-To: troy@holstein.com
-In-Reply-To: <8A11A922758@vcnet.vc.cvut.cz> <20011108233954.D11523@unternet.org>
-X-MIMETrack: Itemize by SMTP Server on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 11/09/2001 02:26:45 PM,
-	Serialize by Router on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 11/09/2001 02:26:46 PM,
-	Serialize complete at 11/09/2001 02:26:46 PM
-X-Priority: 3 (Normal)
-MIME-Version: 1.0
+	id <S280052AbRKITa7>; Fri, 9 Nov 2001 14:30:59 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:31756 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S280043AbRKITaq>; Fri, 9 Nov 2001 14:30:46 -0500
+Date: Fri, 9 Nov 2001 14:30:40 -0500
+From: Bill Davidsen <davidsen@deathstar.prodigy.com>
+Message-Id: <200111091930.fA9JUeH26971@deathstar.prodigy.com>
+To: tmills@ica.net
+Subject: Re: Included NIC module in newly compiled 2.4.130 finds only the first of 3 NICs 3c509
+X-Newsgroups: linux.dev.kernel,linux.kernel
+In-Reply-To: <6LdG7.12321$Re4.1880126@news20.bellglobal.com>
+Organization: Prodigy http://www.prodigy.com/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a matter of fact, yes.  In fact, I think this was actually to problem
-I encountered a few days ago that I reported (I thought it was a loopback
-problem).  I'm running on a DELL Optiplex GX1 though.
+In article <6LdG7.12321$Re4.1880126@news20.bellglobal.com> you write:
+>
+>All my three 3c509 cards work correctly under the original 2.2X kernel,
+>using the modules (eth0,eth1 eth2)
+>
+>I downloaded the new kernel 2.4.130 and compiled it up.
+>I said YES "*" to add my NIC driver (3c509.0)
+>New kernel compiled fine and "teddy" boots up fine.
+>
+>However the new kernel (which has 3c509.0 support in it) only finds the
+>first 3c509, it says "Delayed initialization"
+>on eth1 and eth2.
+>
+>Why doesn't the new kernel with built in support find multiple instances of
+>my card??
+>
+>I ran depmod -a and created the /lib/modules/2.4.13 folder...still nada....
+>Any ideas????
 
--- todd --
+Well, I would try the 3c59x driver for starters, built as a module.
+Source code claims that it does the 3c905 and I believe I have it
+running on some of my servers which are behind a firewall and can't
+readily be checked.
 
---text follows this line--
->  X-Apparently-To: todd_m_roy@yahoo.com via web13603.mail.yahoo.com; 08 Nov 2001 14:44:59 -0800 (PST)
->  X-RocketRCL: -1;0;0
->  X-Track: 1: 40
->  X-Authentication-Warning: www.unternet.org: frank set sender to lkml-frank@unternet.org using -f
->  Date:	Thu, 8 Nov 2001 23:39:54 +0100
->  From:	Frank de Lange <lkml-frank@unternet.org>
->  Cc:	linux-kernel@vger.kernel.org
->  Content-Disposition: inline
->  Sender:	linux-kernel-owner@vger.kernel.org
->  X-Mailing-List:	linux-kernel@vger.kernel.org
->  
->  On Thu, Nov 08, 2001 at 11:34:38PM +0000, Petr Vandrovec wrote:
->  > If you see something different from your box, or from your VMs, tell me. 
->  > But adding some SCSI adapter is beyond PCI slots of my box. I also
->  > assume that you are using released VMware version, build 1455.
->  
->  Yeah, using VMware build 1455 on ABit BP-6 with 2 * Celeron 466@466, 768 MB RAM
->  (dirt cheap nowadays so why not...), 2 * Maxtor 40GB IDE on BX controller, HPT
->  controller not in use, Matrox G400. I've seen the rtc: blah errors, stressed
->  the box to its limits with VM's with Linux/WinXP, and every now and then...
->  
->  it just freezes... (only when using a Linus kernel, and only when using VMware)
->  
->  I'll try 2.4.15pre, maybe it helps...
->  
->  Cheers//Frank
->  -- 
->    WWWWW      _______________________
->   ## o o\    /     Frank de Lange     \
->   }#   \|   /                          \
->    ##---# _/     <Hacker for Hire>      \
->     ####   \      +31-320-252965        /
->             \    frank@unternet.org    /
->              -------------------------
->   [ "Omnis enim res, quae dando non deficit, dum habetur
->      et non datur, nondum habetur, quomodo habenda est."  ]
->  -
->  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->  the body of a message to majordomo@vger.kernel.org
->  More majordomo info at  http://vger.kernel.org/majordomo-info.html
->  Please read the FAQ at  http://www.tux.org/lkml/
->  
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

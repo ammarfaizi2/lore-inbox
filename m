@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVCRX5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbVCSANb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbVCRX5t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 18:57:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVCRX5t
+	id S262188AbVCSANb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 19:13:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVCSANb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 18:57:49 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:21914 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262118AbVCRX5n (ORCPT
+	Fri, 18 Mar 2005 19:13:31 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49124 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262188AbVCSAAZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 18:57:43 -0500
-Subject: Re: RFC: Bug in generic_forget_inode() ?
-From: Russ Weight <rweight@us.ibm.com>
-Reply-To: rweight@us.ibm.com
+	Fri, 18 Mar 2005 19:00:25 -0500
+Date: Sat, 19 Mar 2005 01:00:12 +0100
+From: Pavel Machek <pavel@suse.cz>
 To: Andrew Morton <akpm@osdl.org>
-Cc: dev@sw.ru, linux-kernel@vger.kernel.org
-In-Reply-To: <20050318141716.494ab02a.akpm@osdl.org>
-References: <1111183051.7102.33.camel@russw.beaverton.ibm.com>
-	 <20050318141716.494ab02a.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Mar 2005 15:57:40 -0800
-Message-Id: <1111190260.7102.78.camel@russw.beaverton.ibm.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: fix-u32-vs-pm_message_t-in-usb
+Message-ID: <20050319000012.GG24449@elf.ucw.cz>
+References: <20050310223353.47601d54.akpm@osdl.org> <20050311130831.GC1379@elf.ucw.cz> <20050318214335.GA17813@kroah.com> <20050318234440.GF24449@elf.ucw.cz> <20050318155313.60a4670f.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050318155313.60a4670f.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-18 at 14:17 -0800, Andrew Morton wrote:
-> Russ Weight <rweight@us.ibm.com> wrote:
-> >
-> > generic_forget_inode() is eventually called (within the context of
-> >  iput), the inode is placed on the unused list, and the inode_lock is
-> >  dropped.
+Hi!
+
+> > > Care to just rediff off of 2.6.12-rc1?  Then we can hopefully get these
+> >  > changes in :)
 > > 
-> >  kswapd calls prune_icache(), locks the inode_lock, and pulls the same
-> >  inode off of the unused list. Upon completion, prune_icache() calls
-> >  dispose_list() for the inodes that it has collected.
-> > 
-> >  generic_forget_inode() calls write_inode_now(), which calls
-> >  __writeback_single_inode() which calls __sync_single_inode().
-> >  __sync_single_inode() panics when attempting to move the inode onto the
-> >  unused list (the last call to list_move). This is due to the poison
-> >  values that were previously loaded into the next and prev list pointers
-> >  by list_del().
+> >  I can do the rediff tommorow. I just hope there are not some other
+> >  changis waiting in -mm to spoil this ;-).
 > 
-> It's not clear what the actual bug is here.  When you say that
-> __sync_single_inode() panics over the list pointers, who was it that
-> poisoned them?  dispose_list()?
+> I have a boatload of these darn pm_message_t patches floating about.  I
+> don't know if they depend on Greg's stuff or not.
 > 
-> Certainly isofs_fill_super() could trivially be rewritten to not do the
-> iget()/iput() but we should be sure that that's really the bug.  The inode
-> lifetime management is rather messy, I'm afraid.
+> Should I just hose them at him?
 
-The pointers are poisoned by dispose_list(). The race condition is
-between prune_icache() and generic_forget_inode().
+I don't know what "hose" means in this context... Greg, can you take
+those patches from Andrew? I think we managed to fix it right in his
+tree.
 
-When I suggested that a change to isofs_fill_super() might be
-considered, I was speculating that isofs_fill_super() might be creating
-an unexpected state by doing something unconventional in its usage of
-iget() and iput(). This is something I had not investigated.
+								Pavel
 
-The problem is more likely in generic_forget_inode(). It releases the
-inode_lock and then locks it again without doing anything to prevent the
-inode from being stolen, and without checking to see if it has been
-stolen. Likewise, write_inode_now() does not do any checks to see if the
-inode has been stolen.
+> fix-pm_message_t-in-generic-code.patch
+> fix-u32-vs-pm_message_t-in-usb.patch
+> fix-u32-vs-pm_message_t-in-usb-fix.patch
+> more-pm_message_t-fixes.patch
+> fix-u32-vs-pm_message_t-confusion-in-oss.patch
+> fix-u32-vs-pm_message_t-confusion-in-pcmcia.patch
+> fix-u32-vs-pm_message_t-confusion-in-framebuffers.patch
+> fix-u32-vs-pm_message_t-confusion-in-mmc.patch
+> fix-u32-vs-pm_message_t-confusion-in-serials.patch
+> fix-u32-vs-pm_message_t-in-macintosh.patch
+> fix-u32-vs-pm_message_t-confusion-in-agp.patch
+> 
 
-- Russ 
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,112 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279483AbRJXHjB>; Wed, 24 Oct 2001 03:39:01 -0400
+	id <S279457AbRJXH4g>; Wed, 24 Oct 2001 03:56:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279457AbRJXHiv>; Wed, 24 Oct 2001 03:38:51 -0400
-Received: from postfix1-2.free.fr ([213.228.0.130]:48294 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S279482AbRJXHif> convert rfc822-to-8bit; Wed, 24 Oct 2001 03:38:35 -0400
-Subject: Re: linux-2.4.13..
-From: christophe barbe <christophe.barbe.ml@online.fr>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 24 Oct 2001 09:39:05 +0200
-Message-Id: <1003909145.1101.9.camel@turing>
+	id <S279484AbRJXH41>; Wed, 24 Oct 2001 03:56:27 -0400
+Received: from gatekeeper.bm.ipex.cz ([212.71.138.4]:5883 "EHLO v0jta.net")
+	by vger.kernel.org with ESMTP id <S279457AbRJXH4R>;
+	Wed, 24 Oct 2001 03:56:17 -0400
+Date: Wed, 24 Oct 2001 09:54:23 +0200
+From: Robert Vojta <robert@v0jta.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Henrique de Moraes Holschuh <hmh@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: SiS630S FrameBuffer & LCD
+Message-ID: <20011024095423.E1178@ipex.cz>
+In-Reply-To: <20011023153015.F4709@khazad-dum> <E15w5Yw-0000Q5-00@the-village.bc.nu>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="RE3pQJLXZi4fr8Xo"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15w5Yw-0000Q5-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Oct 23, 2001 at 06:42:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Normally we send only failure reports but after the 2.4.11 and 2.4.12 I
-would like to thank you, Linus, for you dedication.
-I enjoy the linux kernel as a OS user and as a source code reader (as
-far as I can).
 
-2.4.13 builds and boots perfectly for me.
+--RE3pQJLXZi4fr8Xo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Christophe Barbé ...
+> SiS actually had a much updated frame buffer console driver that never ma=
+de
+> it into the kernel (stuff needed fixing and I never got a reply so it
+> dropped out of the tree)
 
-PS: If the DMCA and other scary stuff bother you too much, what about
-exiling in Paris in France ;-)
+  AFAIK the new informations from SiS are still doesn't working. I have this
+SiS630 chipset too and I must use VesaFB for correct chipset initialization
+and correct settings. VesaFB must have the same resolution and bpp which
+I want in X. And I can use accelerated functions in X (not FB) by ugly hack
+in sis_driver.c like, so it leaves settings from VesaFB and functions like
+SiSPreSetMode(pScrn) and SiSSetMode(xf86Screens[scrnIndex], mode) are
+skipped. I have this driver (precompiled) available on my pages
+http://www.v0jta.net/gericom/gericom.php3?&menu=3D4#vga with all steps how
+to make this chipset working with linux.
 
-le mer 24-10-2001 at 07:52 Linus Torvalds a écrit :
-> 
-> Things seem to be calming down a bit, which is nice.
-> 
-> Of course, it might possibly also be that everybody is off flaming about
-> the DMCA and getting no work done ;)
-> 
-> Whatever the cause, here's a 2.4.13. See if you can break it,
-> 
-> 		Linus
-> 
-> ----
-> final:
->  - page write-out throttling
->  - Pete Zaitcev: ymfpci sound driver update (make Civ:CTP happy with it)
->  - Alan Cox: i2o sync-up
->  - Andrea Arcangeli: revert broken x86 smp_call_function patch
->  - me: handle VM write load more gracefully. Merge parts of -aa VM
-> 
-> pre6:
->  - Stephen Rothwell: APM idle time handling fixes, docbook update, cleanup
->  - Jeff Garzik: network driver updates
->  - Greg KH: USB updates
->  - Al Viro: UFS update, binfmt_misc rewrite.
->  - Andreas Dilger: /dev/random fixes
->  - David Miller: network/sparc updates
-> 
-> pre5:
->  - Greg KH: usbnet fix
->  - Johannes Erdfelt: uhci.c bulk queueing fixes
-> 
-> pre4:
->  - Al Viro: mnt_list init
->  - Jeff Garzik: network driver update (license tags, tulip driver)
->  - David Miller: sparc, net updates
->  - Ben Collins: firewire update
->  - Gerd Knorr: btaudio/bttv update
->  - Tim Hockin: MD cleanups
->  - Greg KH, Petko Manolov: USB updates
->  - Leonard Zubkoff: DAC960 driver update
-> 
-> pre3:
->  - Jens Axboe: clean up duplicate unused request list
->  - Jeff Mahoney: reiserfs endianness finishing touches
->  - Hugh Dickins: some further swapoff fixes and cleanups
->  - prepare-for-Alan: move drivers/i2o into drivers/message/i2o
->  - Leonard Zubkoff: 2TB disk device fixes
->  - Paul Schroeder: mwave config enable
->  - Urban Widmark: fix via-rhine double free..
->  - Tom Rini: PPC fixes
->  - NIIBE Yutaka: SuperH update
-> 
-> pre2:
->  - Alan Cox: more merging
->  - Ben Fennema: UDF module license
->  - Jeff Mahoney: reiserfs endian safeness
->  - Chris Mason: reiserfs O_SYNC/fsync performance improvements
->  - Jean Tourrilhes: wireless extension update
->  - Joerg Reuter: AX.25 updates
->  - David Miller: 64-bit DMA interfaces
-> 
-> pre1:
->  - Trond Myklebust: deadlock checking in lockd server
->  - Tim Waugh: fix up parport wrong #define
->  - Christoph Hellwig: i2c update, ext2 cleanup
->  - Al Viro: fix partition handling sanity check.
->  - Trond Myklebust: make NFS use SLAB_NOFS, and not play games with PF_MEMALLOC
->  - Ben Fennema: UDF update
->  - Alan Cox: continued merging
->  - Chris Mason: get /proc buffer memory sizes right after buf-in-page-cache
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+---
+XFree86-4.1.0/xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c.orig
+Fri Jul 13 20:42:56 2001
++++
+XFree86-4.1.0/xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c
+@@ -1210,7 +1210,9 @@
+     vgaHWRestore(pScrn, vgaReg, VGA_SR_MODE);
 
+     if ((pSiS->Chipset =3D=3D PCI_CHIP_SIS300) ||
++#if 0
+             (pSiS->Chipset =3D=3D PCI_CHIP_SIS630) ||
++#endif
+             (pSiS->Chipset =3D=3D PCI_CHIP_SIS540)) {
+         SiSPreSetMode(pScrn);
+         SiSSetMode(pScrn, pScrn->currentMode);
+@@ -1550,7 +1552,9 @@
+     ScrnInfoPtr pScrn =3D xf86Screens[scrnIndex];
+     SISPtr pSiS =3D SISPTR(pScrn);
+     if ((pSiS->Chipset =3D=3D PCI_CHIP_SIS300) ||
++#if 0
+             (pSiS->Chipset =3D=3D PCI_CHIP_SIS630) ||
++#endif
+             (pSiS->Chipset =3D=3D PCI_CHIP_SIS540))
+         return SiSSetMode(xf86Screens[scrnIndex], mode);
+     else
+@@ -1661,7 +1665,9 @@
+
+     /* Should we re-save the text mode on each VT enter? */
+     if((pSiS->Chipset =3D=3D PCI_CHIP_SIS300) ||
++#if 0
+             (pSiS->Chipset =3D=3D PCI_CHIP_SIS630) ||
++#endif
+             (pSiS->Chipset =3D=3D PCI_CHIP_SIS540)) {
+         SiSPreSetMode(pScrn);
+         if (!SiSSetMode(pScrn, pScrn->currentMode))
+
+                                                            --Robert V0jta
+
+--=20
+    Robert Vojta <vojta at {pharocom.net - work | v0jta.net - private}>
+          GPG: ID 1024D/A0CB7953            http://www.v0jta.net/=20
+
+--RE3pQJLXZi4fr8Xo
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjvWc68ACgkQInNB3KDLeVPbQACeO4QCyt0WudZAFUWHRkVULV8z
+ysIAoIHOCFm8dcfhKD7SfLIq9kqEEx7S
+=O9fR
+-----END PGP SIGNATURE-----
+
+--RE3pQJLXZi4fr8Xo--

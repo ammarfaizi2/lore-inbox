@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314414AbSDRSuM>; Thu, 18 Apr 2002 14:50:12 -0400
+	id <S314417AbSDRSwr>; Thu, 18 Apr 2002 14:52:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314417AbSDRSuL>; Thu, 18 Apr 2002 14:50:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:17285 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S314414AbSDRSuK>; Thu, 18 Apr 2002 14:50:10 -0400
-Date: Thu, 18 Apr 2002 14:53:02 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: linux@horizon.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SSE related security hole
-In-Reply-To: <20020418183639.20946.qmail@science.horizon.com>
-Message-ID: <Pine.LNX.3.95.1020418144215.30908A-100000@chaos.analogic.com>
+	id <S314420AbSDRSwq>; Thu, 18 Apr 2002 14:52:46 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:47121 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S314417AbSDRSwp> convert rfc822-to-8bit;
+	Thu, 18 Apr 2002 14:52:45 -0400
+Date: Thu, 18 Apr 2002 11:48:35 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Anthony Chee <anthony.chee@polyu.edu.hk>
+cc: =?iso-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@loewe-komp.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: read proc entry
+In-Reply-To: <002001c1e2f4$983f7e00$0100a8c0@winxp>
+Message-ID: <Pine.LNX.4.33L2.0204181121000.11734-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Apr 2002 linux@horizon.com wrote:
+Hi,
 
-> Um, people here seem to be assuming that, in the absence of MMX,
-> fninit *doesn't* leak information.
-> 
-> I thought it was well-known to just clear (set to all-ones) the
-> tag register and not alter the actual floating-point registers.
-> 
-> Thus, it seems quite feasible to reset the tag word with FLDENV and
-> store out the FPU registers, even on an 80387.
-> 
-> Isn't this the same security hole?  Shouldn't there be 8 FLDZ instructions
-> (or equivalent) in the processor state initialization?
+Another thing that you could do is use the seq_file
+interface for proc-fs.  That should do away with
+the EOF/double-read problem.
 
-Well, if what's on the internal stack of the FPU can actually leak
-information, I think the notion of "leak" has expanded just a bit
-too much.
+seq_file is available in kernel 2.4.15 and later.
 
-A rogue process could not even know what instruction was about to
-be executed, nor what the previous instruction was, nor when since
-boot it was executed, nor by whom. The 'data' associated with those
-unknown instructions would make a good random number generator,
-or a round-about method of obtaining PI (st0 almost always contains it).
-That's about all.
+~Randy
 
-Cheers,
-Dick Johnson
+On Sat, 13 Apr 2002, Anthony Chee wrote:
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+| After I added *eof =1, that message appears two times. How can I reduce it
+| only one?
+|
+| ----- Original Message -----
+| From: "Peter Wächtler" <pwaechtler@loewe-komp.de>
+| To: "Anthony Chee" <anthony.chee@polyu.edu.hk>
+| Cc: <linux-kernel@vger.kernel.org>
+| Sent: Saturday, April 13, 2002 9:58 PM
+| Subject: Re: read proc entry
+|
+|
+| > Anthony Chee wrote:
+| > >
+| > > I written the following code in a module
+| > >
+| > > static struct proc_dir_entry *test_proc;
+| > > test_proc = create_proc_read_entry(test_proc, 0444, NULL,
+| read_test_proc,
+| > > NULL);
+| > >
+| > > void show_kernel_message() {
+| > >     printk("\nkernel test\n");
+| > > }
+| > >
+| > > int read_test_info(char* page, char** start, off_t off, int count, int*
+| eof,
+| > > void* data) {
+| > >     show_kernel_message();
+| >
+| > I think you have to signal EOF
+| >
+| > *eof=1;
+| >
+| > > }
+| > >
+| > > After I use "cat /proc/test_proc", it is found that there are three
+| "kernel
+| > > test" messages
+| > > appear. Why it happened like this? I expected the message should be
+| shown
+| > > once.
+| > >
+| >
+| -
 

@@ -1,63 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261297AbRE1MBb>; Mon, 28 May 2001 08:01:31 -0400
+	id <S261254AbRE1L7J>; Mon, 28 May 2001 07:59:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261807AbRE1MBV>; Mon, 28 May 2001 08:01:21 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:24228 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S261297AbRE1MBL>; Mon, 28 May 2001 08:01:11 -0400
-Message-Id: <5.1.0.14.2.20010528125630.04729ba0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 28 May 2001 13:01:53 +0100
-To: Martin von Loewis <loewis@informatik.hu-berlin.de>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [Linux-ntfs] Re: [Linux-NTFS-Dev] Re: ANN: NTFS new 
-  release available (1.1.15)
-Cc: yuri@acronis.com, linux-kernel@vger.kernel.org,
-        Linux-ntfs@tiger.informatik.hu-berlin.de,
-        linux-ntfs-dev@lists.sourceforge.net
-In-Reply-To: <200105281110.NAA28612@pandora.informatik.hu-berlin.de>
-In-Reply-To: <3B11E3F1.1090400@acronis.com>
- <5.1.0.14.2.20010526011903.00aab050@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20010526000503.04716ec0@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20010526011903.00aab050@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20010527123154.00a96640@pop.cus.cam.ac.uk>
- <200105271253.OAA22557@pandora.informatik.hu-berlin.de>
- <3B11E3F1.1090400@acronis.com>
+	id <S261297AbRE1L67>; Mon, 28 May 2001 07:58:59 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:52493 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S261254AbRE1L6p>;
+	Mon, 28 May 2001 07:58:45 -0400
+Date: Mon, 28 May 2001 15:58:41 +0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][RFC][REPOST] __init_msg(x) and friends macro
+Message-ID: <20010528155841.A24736@orbita1.ru>
+Reply-To: pazke@orbita1.ru
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
+User-Agent: Mutt/1.0.1i
+X-Uptime: 3:24pm  up 2 days, 23:49,  3 users,  load average: 0.00, 0.00, 0.00
+From: <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:10 28/05/2001, Martin von Loewis wrote:
-> > >That would not work: NT would split individual runs across extends
-> > >(i.e. split them in the middle). Did I misunderstand, or do you have a
-> > >solution for that as well.
-> > >
-> > Are you sure that it's true? My NTFS resizer interprets parts of runlist
-> > stored in different FILE records independently and I never experienced
-> > any problems with that.
->
->I'm sure it could happen on NT 3.1. Maybe MS has fixed it since.
 
-Hm, in that case I think I will implement it the way I was thinking and I 
-will assume that it can't happen any more. - I will add some kind of sanity 
-check at the beginning to catch problems and scream to the syslog which we 
-can remove later.
-
-Does anyone know what NTFS version the NT 3.1 / 3.51 volumes had? If I know 
-I can make sure we don't mount such beasts considering we know the driver 
-would fail on them... - I am aware of only one person stil using NT 3.51 
-and he doesn't believe in the NTFS Linux driver any more, so I guess we can 
-just say we support NT 4.0 and above only.
-
-Anton
+--wq9mPyueHGvFACwf
+Content-Type: multipart/mixed; boundary="bp/iNruPH9dso1Pn"
 
 
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sf.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
+Hi all,
+
+soryy for such ugly subject line, but I already sent this patch=20
+to LKML and didn't get any reply.
+
+Patch adds __init_msg (and friends) macro that places its argument=20
+(string constant) into corresponding .data.init section and returns
+pointer to it. The goal of this patch is to allow constructions like this:
+
+        static void __init foo(void)
+	{
+		printk(__init_msg(KERN_INFO "Some random long message "
+				  "going to .data.init and then to bit bucket\n"));
+	}
+
+I hope this patch can save some memory and will be usefull :))
+
+Best regards.
+
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-__init_msg
+Content-Transfer-Encoding: quoted-printable
+
+diff -ur linux.vanilla/include/linux/init.h linux/include/linux/init.h
+--- linux.vanilla/include/linux/init.h	Mon May 14 15:51:20 2001
++++ linux/include/linux/init.h	Mon May 14 15:54:05 2001
+@@ -155,4 +155,9 @@
+ #define __devexitdata __exitdata
+ #endif
+=20
++#define __init_msg(x) ({ static char msg[] __initdata =3D (x); msg; })
++#define __exit_msg(x) ({ static char msg[] __exitdata =3D (x); msg; })
++#define __devinit_msg(x) ({ static char msg[] __devinitdata =3D (x); msg; =
+})
++#define __devexit_msg(x) ({ static char msg[] __devexitdata =3D (x); msg; =
+})
++
+ #endif /* _LINUX_INIT_H */
+
+--bp/iNruPH9dso1Pn--
+
+--wq9mPyueHGvFACwf
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7Ej1xBm4rlNOo3YgRAgk9AKCD31y8TGPtgLl6TLnXs0n7PriyhQCgiFUp
+SqabDiYMl+HuxHZ7O+Ga+os=
+=VoaD
+-----END PGP SIGNATURE-----
+
+--wq9mPyueHGvFACwf--

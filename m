@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276836AbRJHJcn>; Mon, 8 Oct 2001 05:32:43 -0400
+	id <S272080AbRJHJto>; Mon, 8 Oct 2001 05:49:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276841AbRJHJce>; Mon, 8 Oct 2001 05:32:34 -0400
-Received: from mailserv.intranet.GR ([146.124.14.106]:39653 "EHLO
-	mailserv.intranet.gr") by vger.kernel.org with ESMTP
-	id <S276839AbRJHJcZ>; Mon, 8 Oct 2001 05:32:25 -0400
-Message-ID: <3BC1735F.41CBF5C1@intracom.gr>
-Date: Mon, 08 Oct 2001 12:35:27 +0300
-From: Pantelis Antoniou <panto@intracom.gr>
-Organization: INTRACOM S.A.
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.18pre21 ppc)
-X-Accept-Language: el, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+	id <S276831AbRJHJte>; Mon, 8 Oct 2001 05:49:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7808 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S272080AbRJHJtV>;
+	Mon, 8 Oct 2001 05:49:21 -0400
+Date: Mon, 08 Oct 2001 02:49:46 -0700 (PDT)
+Message-Id: <20011008.024946.74749362.davem@redhat.com>
+To: panto@intracom.gr
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Standard way of generating assembler offsets
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BC1735F.41CBF5C1@intracom.gr>
 In-Reply-To: <28136.1002196028@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii
+	<3BC1735F.41CBF5C1@intracom.gr>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there.
+   From: Pantelis Antoniou <panto@intracom.gr>
+   Date: Mon, 08 Oct 2001 12:35:27 +0300
+   
+   If anyone is interested I have already made a perl
+   script that produces assembler offsets from structure
+   members.
+   
+   It doesn't need to run native since it reads the
+   header files, extract the structures and by using
+   objdump calculates the offsets automatically.
 
-If anyone is interested I have already made a perl
-script that produces assembler offsets from structure
-members.
+BTW, I assume you have already taken a look at how we
+do this on Sparc64.  See arch/sparc64/kernel/check_asm.sh
+and the "check_asm" target in arch/sparc64/kernel/Makefile
 
-It doesn't need to run native since it reads the
-header files, extract the structures and by using
-objdump calculates the offsets automatically.
+It also works in all cross-compilation etc. environments.
+And I bet it would work on every platform with very minimal
+changes, if any.
 
-Maybe it needs some more work for what you describe, 
-but it's exactly what you describe.
-
-If you're interested please email me directly for
-more information.
-
-Regards
+Franks a lot,
+David S. Miller
+davem@redhat.com

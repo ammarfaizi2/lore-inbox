@@ -1,27 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310438AbSCPRLN>; Sat, 16 Mar 2002 12:11:13 -0500
+	id <S310439AbSCPRMD>; Sat, 16 Mar 2002 12:12:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310439AbSCPRLD>; Sat, 16 Mar 2002 12:11:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49672 "EHLO
+	id <S310440AbSCPRLo>; Sat, 16 Mar 2002 12:11:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50440 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310438AbSCPRKv>; Sat, 16 Mar 2002 12:10:51 -0500
-Subject: Re: Linux 2.4.19pre2-ac3
-To: mfedyk@matchmail.com (Mike Fedyk)
-Date: Sat, 16 Mar 2002 17:26:17 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020316024925.GB23938@matchmail.com> from "Mike Fedyk" at Mar 15, 2002 06:49:25 PM
+	id <S310439AbSCPRLb>; Sat, 16 Mar 2002 12:11:31 -0500
+Subject: Re: debugging eth driver
+To: pmanolov@Lnxw.COM (Petko Manolov)
+Date: Sat, 16 Mar 2002 17:27:14 +0000 (GMT)
+Cc: davem@redhat.com (David S. Miller), alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C92C7D6.4020907@lnxw.com> from "Petko Manolov" at Mar 15, 2002 08:19:34 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16mHwf-0006k8-00@the-village.bc.nu>
+Message-Id: <E16mHxa-0006kH-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -o	Fix drm build problem on CPU=386		(Mark Cooke)
-> +o	Fix drm build problem on CPU=3D386		(Mark Cooke)
+> upper layer they just disappear.  I passed complete junk to
+> the IP layer expecting it to scream, but surprisingly (to me)
+> nothing happened.
+> 
+> How am i supposed to get a feedback from the upper layers?
 
-The mail was in 8bit quoted printable because it contains accented 
-characters. Fix your mail client
+Keep an eye on /proc/net/snmp
+

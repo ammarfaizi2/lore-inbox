@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315279AbSIPHFz>; Mon, 16 Sep 2002 03:05:55 -0400
+	id <S315503AbSIPHI2>; Mon, 16 Sep 2002 03:08:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315388AbSIPHFz>; Mon, 16 Sep 2002 03:05:55 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:13243 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S315276AbSIPHFw>;
-	Mon, 16 Sep 2002 03:05:52 -0400
-Date: Mon, 16 Sep 2002 17:10:35 +1000
+	id <S315634AbSIPHI2>; Mon, 16 Sep 2002 03:08:28 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:34747 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S315503AbSIPHIR>;
+	Mon, 16 Sep 2002 03:08:17 -0400
+Date: Mon, 16 Sep 2002 17:13:05 +1000
 From: Stephen Rothwell <sfr@canb.auug.org.au>
 To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, gniibe@m17n.org
-Subject: [PATCH] fcntl.h consolidation 15/18
-Message-Id: <20020916171035.399be594.sfr@canb.auug.org.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, ak@suse.de
+Subject: [PATCH] fcntl.h consolidation 18/18
+Message-Id: <20020916171305.6cffc77d.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -19,19 +19,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The SH part.
+Last, but not least ...
+
+The X86_64 bit.
 
 -- 
 Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au
 http://www.canb.auug.org.au/~sfr/
 
-diff -ruN 2.5.35/include/asm-sh/fcntl.h 2.5.35-fcntl.1/include/asm-sh/fcntl.h
---- 2.5.35/include/asm-sh/fcntl.h	2000-10-03 05:57:34.000000000 +1100
-+++ 2.5.35-fcntl.1/include/asm-sh/fcntl.h	2002-09-16 16:04:22.000000000 +1000
-@@ -1,87 +1,6 @@
- #ifndef __ASM_SH_FCNTL_H
- #define __ASM_SH_FCNTL_H
+diff -ruN 2.5.35/include/asm-x86_64/fcntl.h 2.5.35-fcntl.1/include/asm-x86_64/fcntl.h
+--- 2.5.35/include/asm-x86_64/fcntl.h	2002-02-20 14:13:21.000000000 +1100
++++ 2.5.35-fcntl.1/include/asm-x86_64/fcntl.h	2002-09-16 16:04:22.000000000 +1000
+@@ -1,79 +1,13 @@
+ #ifndef _X86_64_FCNTL_H
+ #define _X86_64_FCNTL_H
  
 -/* open/fcntl - O_SYNC is only implemented on blocks devices and on files
 -   located on an ext2 file system */
@@ -48,12 +50,11 @@ diff -ruN 2.5.35/include/asm-sh/fcntl.h 2.5.35-fcntl.1/include/asm-sh/fcntl.h
 -#define O_NDELAY	O_NONBLOCK
 -#define O_SYNC		 010000
 -#define FASYNC		 020000	/* fcntl, for BSD compatibility */
--#define O_DIRECT	 040000	/* direct disk access hint - currently ignored */
+-#define O_DIRECT	 040000	/* direct disk access hint */
 -#define O_LARGEFILE	0100000
 -#define O_DIRECTORY	0200000	/* must be a directory */
 -#define O_NOFOLLOW	0400000 /* don't follow links */
-+#include <asm-generic/fcntl.h>
- 
+-
 -#define F_DUPFD		0	/* dup */
 -#define F_GETFD		1	/* get close_on_exec */
 -#define F_SETFD		2	/* set/clear close_on_exec */
@@ -67,10 +68,6 @@ diff -ruN 2.5.35/include/asm-sh/fcntl.h 2.5.35-fcntl.1/include/asm-sh/fcntl.h
 -#define F_GETOWN	9	/*  for sockets. */
 -#define F_SETSIG	10	/*  for sockets. */
 -#define F_GETSIG	11	/*  for sockets. */
--
--#define F_GETLK64	12	/*  using 'struct flock64' */
--#define F_SETLK64	13
--#define F_SETLKW64	14
 -
 -/* for F_[GET|SET]FL */
 -#define FD_CLOEXEC	1	/* actually anything with low bit set goes */
@@ -100,21 +97,21 @@ diff -ruN 2.5.35/include/asm-sh/fcntl.h 2.5.35-fcntl.1/include/asm-sh/fcntl.h
 -#define LOCK_RW		192	/* ... Which allows concurrent read & write ops */
 -
 -struct flock {
--	short l_type;
--	short l_whence;
--	off_t l_start;
--	off_t l_len;
--	pid_t l_pid;
--};
--
--struct flock64 {
 -	short  l_type;
 -	short  l_whence;
--	loff_t l_start;
--	loff_t l_len;
+-	off_t l_start;
+-	off_t l_len;
 -	pid_t  l_pid;
 -};
 -
 -#define F_LINUX_SPECIFIC_BASE	1024
- #endif /* __ASM_SH_FCNTL_H */
--
++#define __NO_FCNTL_LK64
+ 
+ #ifdef __KERNEL__
+ #define flock64	flock
+ #endif
++#define HAVE_ARCH_STRUCT_FLOCK64
++
++#include <asm-generic/fcntl.h>
+ 
+ #endif /* !_X86_64_FCNTL_H */

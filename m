@@ -1,85 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262513AbTCZWQR>; Wed, 26 Mar 2003 17:16:17 -0500
+	id <S262559AbTCZWRq>; Wed, 26 Mar 2003 17:17:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262559AbTCZWQR>; Wed, 26 Mar 2003 17:16:17 -0500
-Received: from [12.47.58.223] ([12.47.58.223]:50996 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id <S262513AbTCZWQQ>; Wed, 26 Mar 2003 17:16:16 -0500
-Date: Wed, 26 Mar 2003 16:31:45 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Hugh Dickins <hugh@veritas.com>
+	id <S262577AbTCZWRq>; Wed, 26 Mar 2003 17:17:46 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:65183 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262559AbTCZWRm>; Wed, 26 Mar 2003 17:17:42 -0500
+Date: Wed, 26 Mar 2003 23:28:51 +0000
+From: norbert_wolff@t-online.de (Norbert Wolff)
+To: "jds" <jds@soltis.cc>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] swap 13/13 may_enter_fs?
-Message-Id: <20030326163145.22c90521.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0303261649020.1315-100000@localhost.localdomain>
-References: <20030325171223.7a2c50ee.akpm@digeo.com>
-	<Pine.LNX.4.44.0303261649020.1315-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Linux 2.5.65 can't mount root Partition - PANIC
+Message-Id: <20030326232851.4c9d1906.norbert_wolff@t-online.de>
+In-Reply-To: <20030326015511.M32266@soltis.cc>
+References: <20030325190214.M66226@soltis.cc>
+	<20030326014652.5b9f44a3.norbert_wolff@t-online.de>
+	<20030326015511.M32266@soltis.cc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Mar 2003 22:27:22.0143 (UTC) FILETIME=[DE8A52F0:01C2F3E6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
+> Hi my name is Jesus Delgado from Mexico City:
 >
-> On Tue, 25 Mar 2003, Andrew Morton wrote:
-> > 
-> > For example, a memory-backed filesystem may be trying to allocate GFP_NOFS
-> > memory while holding filesystem locks which are taken by its writepage.
-> > 
-> > How about adding a new field to backing_dev_info for this case?  Damned if I
-> > can think of a name for it though.
-> 
-> I think you're overcomplicating it.  Of the existing memory_backed bdis
-> (ramdisk, hugetlbfs, ramfs, sysfs, tmpfs, swap) only two have non-NULL
-> writepage, and both of those two go (indirectly and directly) to swap
-> (and neither holds FS lock while waiting to allocate memory).
+>  I need help for resolve this problems, compile kernel 2.5.66 in rh 8,
+> update
+> my lvm to lvm2 utils, devmapper, modutil 2.4.24, when try to boot with new
+> kernel recive this messages:
+>
+>   VFS: Cannot open root device "rootvg/lvol1" or unknown-block(0,0)
+>   Please append a coorect "root=" boot option
+>   kernel panic
+>   VFS= Unable to mount fs on unknown-block(0,0).
 
-But this is a much nicer patch.  Thanks for doing all this btw.  I was
-barfing at ?:, not your code ;)
+Hi Jesus !
 
-> If we were looking for a correct solution, I don't think backing_dev_info
-> would be the right place: we're talking about GFP_ needed for writepage,
-> which should be specified in the struct address_space filled in by the
-> FS: I think it's more a limitation of the FS than its backing device.
+I have tried to hunt down our problem a lot of hours, but without Success.
 
-Good point.
+Neither the bk-patches nor the mm-patches cure the panic, i've tried 3
+different compilers and two binutils.
 
-> +			bdi = mapping->backing_dev_info;
-> +			if (bdi->swap_backed)
-> +				gfp_needed_for_writepage = __GFP_IO;
-> +			else
-> +				gfp_needed_for_writepage = __GFP_FS;
-> +			if (!(gfp_mask & gfp_needed_for_writepage))
+The strangest thing about this is that we seem to be the only people triggering
+the bug, as there is no echo in the LKML.
 
-This is inaccurate?  shmem_writepage() performs no IO and could/should be
-called even for GFP_NOIO allocations.
+I give up and go back to 2.5.65 :-(
 
-It's probably not very important but if we're going to make a change it may
-as well be the right one.
+Below some debugging statements, if there should be somewhere outside
+who likes to spent his time in frustrating debugging Sessions ...
 
-Could you live with
+Bye
+    Norbert
 
-	if (bdi->has_special_writepage)
-		gfp_needed_for_writepage = bfi->gfp_needed_for_writepage;
+----
+Kernel: Linux 2.5.66  (no Problems with 2.5.65 with same .config ! )
+Compiler: gcc 2.95.3 (also tried 3.2.2 and 3.4-CVS)
+No Modules, no lvm, no raid, no initrd, tried with and without devfs.
 
-?  So swap_backing_dev_info uses __GFP_IO and shmem_backing_dev_info() (which
-is competely atomic) uses zero?
+VFS: Cannot open root device "301" or ide(3,1)  <- my /dev/hda1 boot-partition
+                                                                     (reiserfs)
 
-Yeah, it's a bit awkward.  I'm OK with the special-casing.  Both swap and
-tmpfs _are_ special, and unique.  Recognising that fact in vmscan.c is
-reasonable.  ->gfp_needed_for_writepage should probably be in the superblock,
-but that's just too far away.
-
-> -	int memory_backed;	/* Cannot clean pages with writepage */
-> +	unsigned int
-> +		memory_backed:1,/* Do not count its dirty pages in nr_dirty */
-> +		swap_backed:1;	/* Its memory_backed writepage goes to swap */
->  };
-
-Hard call.  It is a tradeoff between icache misses and dcache misses. 
-Obviously that is trivia in this case.
-
+sys_mount("sysfs", "/sys", "sysfs", 0, NULL) succeeds
+sys_mknod for /dev/root                      succeeds
+sys_mount for /dev/root   returns ENOENT     -> Panic

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129751AbQKGMqi>; Tue, 7 Nov 2000 07:46:38 -0500
+	id <S130518AbQKGMv2>; Tue, 7 Nov 2000 07:51:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129926AbQKGMq3>; Tue, 7 Nov 2000 07:46:29 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:10763 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S129751AbQKGMqL>; Tue, 7 Nov 2000 07:46:11 -0500
-Message-Id: <200011071245.eA7Cjhw20987@pincoya.inf.utfsm.cl>
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage - modutils design 
-In-Reply-To: Message from Keith Owens <kaos@ocs.com.au> 
-   of "Tue, 07 Nov 2000 15:00:11 +1100." <9980.973569611@ocs3.ocs-net> 
-Date: Tue, 07 Nov 2000 09:45:42 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S130435AbQKGMvT>; Tue, 7 Nov 2000 07:51:19 -0500
+Received: from navy.csi.cam.ac.uk ([131.111.8.49]:54010 "EHLO
+	navy.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129926AbQKGMvN>; Tue, 7 Nov 2000 07:51:13 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, jas88@cam.ac.uk (James A. Sutherland)
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+Date: Tue, 7 Nov 2000 12:49:19 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jas88@cam.ac.uk (James A. Sutherland),
+        goemon@anime.net (Dan Hollis), dwmw2@infradead.org (David Woodhouse),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E13t7yE-0007MV-00@the-village.bc.nu>
+In-Reply-To: <E13t7yE-0007MV-00@the-village.bc.nu>
+MIME-Version: 1.0
+Message-Id: <00110712495300.01753@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> said:
+On Tue, 07 Nov 2000, Alan Cox wrote:
+> > In the NIC example, I might well want the DHCP client to run whenever I
+> > activate the card. Bringing the NIC up with the old configuration - which, with
+> > dynamic IP addresses, could now include someone else's IP address! - is worse
+> > than useless.
+> 
+> You'll notice the pcmcia subsystem already handles this, and keeps data in user
+> space although it doesnt support saving it back. And it all works
+> 
+> In your case it would be something like
+> 
+> eth0	pegasus
+> nopersist eth0
+> post-install eth0 /usr/local/sbin/my-dhcp-stuff
 
-[...]
+So, in short, this is already done perfectly well in userspace without some
+sort of Registry-style kernelside hack?
 
-> I have not decided where to save the persistent module parameters.  It
-> could be under /lib/modules/<version>/persist or it could be under
-> /var/log or /var/run.  I am tending towards /var/run/module_persist, in
-> any case it will be a modules.conf parameter.
 
-/var/lib/persist/<version>/<wherever-the-module-is-in-/lib/modules/<version>/>
-
-or some such. It has to match the kernel version somewhere (in case module
-interfaces change), and it also should mirror the tree under
-/lib/modules/<version> if for no other reason that there might show up
-several modules named <foo>.
--- 
-Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

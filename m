@@ -1,28 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268949AbRHPWy0>; Thu, 16 Aug 2001 18:54:26 -0400
+	id <S268968AbRHPW5Q>; Thu, 16 Aug 2001 18:57:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268936AbRHPWyQ>; Thu, 16 Aug 2001 18:54:16 -0400
-Received: from [209.10.41.242] ([209.10.41.242]:12734 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S268929AbRHPWx6>;
-	Thu, 16 Aug 2001 18:53:58 -0400
-Subject: Re: 2.4.9 does not compile [PATCH]
-To: davem@redhat.com (David S. Miller)
-Date: Thu, 16 Aug 2001 23:55:44 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, tpepper@vato.org, f5ibh@db0bm.ampr.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "David S. Miller" at Aug 16, 2001 03:48:58 PM
+	id <S268963AbRHPW5G>; Thu, 16 Aug 2001 18:57:06 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27145 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268929AbRHPW44>; Thu, 16 Aug 2001 18:56:56 -0400
+Subject: Re: Dual 1.7 GHz Xeon -- slow, interrupts not balance, etc
+To: ossama@doc.ece.uci.edu (Ossama Othman)
+Date: Thu, 16 Aug 2001 23:59:15 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, ossama@uci.edu
+In-Reply-To: <20010816154525.A11206@ece.uci.edu> from "Ossama Othman" at Aug 16, 2001 03:45:25 PM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15XW3E-0006GP-00@the-village.bc.nu>
+Message-Id: <E15XW6d-0006Gm-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2) You were CC:'d on every single email
->    that Linus and I had on these changes, and you
->    saw every single revision of the patch.
+> I wasn't expecting a 70% increase in speed but I did expect a
+> noticeable performance boost rather than a equal or lesser
+> performance.  Was I expecting too much?
 
-Yep. And at the time I asked you to send it to the maintainers and the like.
+It certainly seems so. The PIV seems to be very touchy about code 
+patterns and the kind of jobs its fed. Gcc at the moment doesn't have PIV
+optimisations either. The Athlon by contrast is extremely good at handling
+code compiled for any CPU variant and that meant Athlon didnt need much
+if any work for performance
+
+> I'll send this stuff off to linux-smp, as stated by the message.  I
+> also get the following (probably unrelated) messages:
+
+OK
+
+> agpgart: Unsupported Intel chipset (device id: 2531), you might want
+> to try agp_try_unsupported=1.
+> agpgart: no supported devices found.
+
+Thats fine - your chipset is newer than the AGP code knows. 
+
+> BTW, if this mailing list isn't the appropriate forum for these
+> issues, I'd be glad to move it to another forum.  I certainly don't
+> want to both the community with noise.
+
+Its the right one for the IRQ problems certainly

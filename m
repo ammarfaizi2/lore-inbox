@@ -1,65 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUJTGTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270145AbUJTGao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266143AbUJTGTo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 02:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269536AbUJTGTR
+	id S270145AbUJTGao (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 02:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269883AbUJTG1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 02:19:17 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:39647 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S266143AbUJTGQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 02:16:52 -0400
-Date: Wed, 20 Oct 2004 08:16:47 +0200
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Instances of visor us devices are not deleted (2.6.9-rc4-mm1)
-Message-ID: <20041020061647.GA20692@gamma.logic.tuwien.ac.at>
+	Wed, 20 Oct 2004 02:27:10 -0400
+Received: from ozlabs.org ([203.10.76.45]:64943 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266611AbUJTGVL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 02:21:11 -0400
+Subject: Re: [PATCH] boot parameters: quoting of environment variables
+	revisited
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Werner Almesberger <werner@almesberger.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20041019192336.K18873@almesberger.net>
+References: <20041019192336.K18873@almesberger.net>
+Content-Type: text/plain
+Message-Id: <1098253261.10571.129.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 16:21:12 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi USB developers!
+On Wed, 2004-10-20 at 08:23, Werner Almesberger wrote:
+> When passing boot parameters, they can be quoted as follows:
+> param="value"
+> 
+> Unfortunately, when passing environment variables this way, the
+> quoting causes confusion: in 2.6.7 (etc.), only the variable name
+> was placed in the environment, which caused it to be ignored.
+> I've sent a patch that adjusted the name, but this patch was
+> dropped. Instead, apparently a different fix was attempted in
+> 2.6.9, but this now yields param="value in the environment (note
+> the embeded double quote), which isn't much better.
+> 
+> I've attached a patch for 2.6.9 that fixes this. This time, I'm
+> shifting the value. Maybe you like it better this way :-)
 
-I have the following problem with 2.6.9-rc4-mm1 which includes bk-usb:
+Sorry, I had a patch lying around for this which I didn't send to
+Andrew.
 
-Everytime I sync my palm I get a new device id:
+AFAICT 2.4 didn't remove quotes, but I have no problem with removing
+them now, and for __setup for that matter.  Hope noone relies on it.
 
-...start sync...
-usb 4-2.1: new full speed USB device using address 8
-visor 4-2.1:1.0: Handspring Visor / Palm OS converter detected
-usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB2
-usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB3
-...
-...many usb usb2: string descriptor 0 read error: -113 ...
-...
-...end of sync...
-usb 4-2.1: USB disconnect, address 8
-visor 4-2.1:1.0: device disconnected
-visor ttyUSB3: visor_write - usb_submit_urb(write bulk) failed with status = -19
-...new sync...
-usb 4-2.1: new full speed USB device using address 9
-visor 4-2.1:1.0: Handspring Visor / Palm OS converter detected
-usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB4
-usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB5
+This seems to work here...
+Rusty.
+Name: Remove quotes around environment variables
+Status: Booted on 2.6-bk
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-etc etc.
+As noticed by Joey Hess (and thanks for Christoph for forwarding it).
+Also requirements from Werner Almesberger.
 
-Is this a known problem?
+If someone passes 'foo="some value"' the param engine removes the
+quotes and hands 'foo' and 'some value'.  The __setup() parameters
+expect a single string, and so we try to regenerate it from the two
+parts.  Finally, we try to place it as an environment variable.
 
-(debian/sid, 2.6.9-rc4-mm1)
+Werner wants quotes stripped out of the environment variable.  It
+makes sense to do that for __setup, too (so it sees 'foo=some value'),
+since __setup functions don't usually handle quotes.
 
-Best wishes
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .23831-linux-2.6.9-bk3/init/main.c .23831-linux-2.6.9-bk3.updated/init/main.c
+--- .23831-linux-2.6.9-bk3/init/main.c	2004-10-19 14:34:23.000000000 +1000
++++ .23831-linux-2.6.9-bk3.updated/init/main.c	2004-10-20 14:48:20.000000000 +1000
+@@ -287,8 +287,15 @@ static int __init unknown_bootoption(cha
+ {
+ 	/* Change NUL term back to "=", to make "param" the whole string. */
+ 	if (val) {
+-		if (val[-1] == '"') val[-2] = '=';
+-		else val[-1] = '=';
++		/* param=val or param="val"? */
++		if (val == param+strlen(param)+1)
++			val[-1] = '=';
++		else if (val == param+strlen(param)+2) {
++			val[-2] = '=';
++			memmove(val-1, val, strlen(val)+1);
++			val--;
++		} else
++			BUG();
+ 	}
+ 
+ 	/* Handle obsolete-style parameters */
 
-Norbert
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-WIDDICOMBE (n.)
-The sort of person who impersonates trim phones.
-			--- Douglas Adams, The Meaning of Liff

@@ -1,106 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288759AbSANSkm>; Mon, 14 Jan 2002 13:40:42 -0500
+	id <S288763AbSANSkm>; Mon, 14 Jan 2002 13:40:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288781AbSANSk3>; Mon, 14 Jan 2002 13:40:29 -0500
-Received: from web14908.mail.yahoo.com ([216.136.225.60]:10515 "HELO
-	web14908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S287827AbSANSkL>; Mon, 14 Jan 2002 13:40:11 -0500
-Message-ID: <20020114184010.66277.qmail@web14908.mail.yahoo.com>
-Date: Mon, 14 Jan 2002 13:40:10 -0500 (EST)
-From: Michael Zhu <mylinuxk@yahoo.ca>
-Subject: Re: "dd" collapsed the loop device
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020114111843.P26688@lynx.adilger.int>
+	id <S287827AbSANSkd>; Mon, 14 Jan 2002 13:40:33 -0500
+Received: from webcon.net ([216.187.106.140]:35258 "EHLO webcon.net")
+	by vger.kernel.org with ESMTP id <S288763AbSANSjb>;
+	Mon, 14 Jan 2002 13:39:31 -0500
+Date: Mon, 14 Jan 2002 13:39:24 -0500 (EST)
+From: Ian Morgan <imorgan@webcon.net>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide.2.4.16.12102001 chokes on HPT366
+In-Reply-To: <Pine.LNX.4.10.10201132041350.18708-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.40.0201141336480.2591-100000@light.webcon.net>
+Organization: "Webcon, Inc."
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That means that I couldn't access /dev/fd0 directly
-when I use it via loopback? Is there any way that I
-can use to avoid this accident erase?
+On Sun, 13 Jan 2002, Andre Hedrick wrote:
 
-Michael
+> Quantum Fireball LM30 -- stuff it in a quirk list in the top of the file
+> and see if that fixes it.
 
+--- hpt366.c~	Sun Jan 13 18:38:52 2002
++++ hpt366.c	Mon Jan 14 01:24:55 2002
+@@ -82,7 +82,8 @@
+ 	"QUANTUM FIREBALLP KA6.4",
+ 	"QUANTUM FIREBALLP LM20.4",
+ 	"QUANTUM FIREBALLP LM20.5",
+-        NULL
++	"QUANTUM FIREBALLP LM30",
++	NULL
+ };
 
---- Andreas Dilger <adilger@turbolabs.com> wrote:
-> On Jan 14, 2002  12:54 -0500, Michael Zhu wrote:
-> > Hello,everyone,I have a problem when I used the
-> loop
-> > device. I don't know whether is a loop device bug.
-> 
-> User bug.
-> 
-> > I used the following commands to connect the loop
-> device
-> > with the floppy disk device.
-> > 
-> > losetup -e xor /dev/loop0 /dev/fd0
-> > mke2fs /dev/loop0
-> > mount /dev/loop0 /floppy
-> > 
-> > Then I copy something to the floppy and read it
-> back.
-> > Everything is OK. It works perfectly. 
-> 
-> Great.
-> 
-> > The problem was happened when I try to copy
-> something
-> > directly from the /dev/fd0. I use the following
-> > demand.
-> > 
-> > dd if=test.c of=/dev/fd0
-> > 
-> > The output of the upper command is:
-> > 50+1 records in
-> > 50+1 records out
-> > 
-> > Then I used the "ls /floppy". I found nothing
-> copied
-> > to the floppy.
-> 
-> Well, this is wrong for several reasons:
-> 1) don't access /dev/fd0 when you use it via
-> loopback, use /dev/loop0
-> 2) don't use "dd" to copy a file, use "cp"
-> 3) don't write into the device, but the filesystem
-> instead:
->    cp test.c /floppy
-> 
-> > Then I used "umount /floppy" to umount the floppy
-> disk
-> > device. After that I used the following command to
-> try
-> > to mount the floppy disk again.
-> >
-> > mount /dev/loop0 /floppy
-> > 
-> > It returned an error. Say:
-> > 
-> > mount: wrong fs type. bad option. bad superblock
-> on
-> > /dev/loop0. or too many mounted file systems
-> > 
-> > It seemed that the "dd if=test.c of=/dev/fd0"
-> > corrupted the data on the floppy disk. What is
-> wrong?
-> 
-> Because test.c is not a filesystem, and you have
-> overwritten
-> the filesystem on /dev/fd0 with junk.  This is not a
-> bug
-> in the loop driver.
-> 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> http://sourceforge.net/projects/ext2resize/
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/
-> 
+ const char *bad_ata100_5[] = {
 
 
-______________________________________________________________________ 
-Web-hosting solutions for home and business! http://website.yahoo.ca
+... made no difference. Also tried ignoring the speed test and running the
+system as usual, but it consistently locks up during high disk IO.
+
+Regards,
+Ian Morgan
+-- 
+-------------------------------------------------------------------
+ Ian E. Morgan        Vice President & C.O.O.         Webcon, Inc.
+ imorgan@webcon.net         PGP: #2DA40D07          www.webcon.net
+-------------------------------------------------------------------
+

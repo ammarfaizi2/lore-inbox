@@ -1,174 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261789AbSIXUrD>; Tue, 24 Sep 2002 16:47:03 -0400
+	id <S261785AbSIXUmT>; Tue, 24 Sep 2002 16:42:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261792AbSIXUp7>; Tue, 24 Sep 2002 16:45:59 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:40452
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261796AbSIXUpu>; Tue, 24 Sep 2002 16:45:50 -0400
-Subject: [PATCH] per-cpu data preempt-safing
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-ahTzg9joQ0rarf1NgN6v"
-Organization: 
-Message-Id: <1032900657.1007.93.camel@phantasy>
+	id <S261789AbSIXUmT>; Tue, 24 Sep 2002 16:42:19 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:1796 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261785AbSIXUmS>;
+	Tue, 24 Sep 2002 16:42:18 -0400
+Date: Sun, 22 Sep 2002 00:48:25 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, akpm@zip.com.au, ingo@redhat.com,
+       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [PATCH] de-xchg fork.c
+Message-ID: <20020922004825.A35@toy.ucw.cz>
+References: <20020923011053.436B22C12D@lists.samba.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1 (Preview Release)
-Date: 24 Sep 2002 16:50:58 -0400
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020923011053.436B22C12D@lists.samba.org>; from rusty@rustcorp.com.au on Mon, Sep 23, 2002 at 11:06:14AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-ahTzg9joQ0rarf1NgN6v
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Don't know who put this in for 2.5.38.
+> 
+> I realize that using xchg() makes you 'leet.  But doing an atomic op
+> where none is required is suboptimal and confusing.
 
-Linus,
+Well, atomic op is also more expensive. i think ingo did this. Ingo, is
+patch below safe? It is faster *and* it works on 386.
+								Pavel 
 
-Attached patch fixes unsafe access to per-CPU data via reordering of
-instructions or use of "get_cpu()".
+> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.38/kernel/fork.c working-2.5.38-unxchg/kernel/fork.c
+> --- linux-2.5.38/kernel/fork.c	2002-09-21 13:55:19.000000000 +1000
+> +++ working-2.5.38-unxchg/kernel/fork.c	2002-09-23 11:00:31.000000000 +1000
+> @@ -64,11 +64,12 @@ void __put_task_struct(struct task_struc
+>  	} else {
+>  		int cpu = smp_processor_id();
+>  
+> -		tsk = xchg(task_cache + cpu, tsk);
+> +		tsk = task_cache[cpu];
+>  		if (tsk) {
+>  			free_thread_info(tsk->thread_info);
+>  			kmem_cache_free(task_struct_cachep,tsk);
+>  		}
+> +		task_cache[cpu] = current;
+>  	}
+>  }
 
-The following files were affected:
-
- include/linux/brlock.h     |    5 ++++-
- include/linux/netdevice.h  |   12 ++++++++----
- include/linux/page-flags.h |    6 +++---
- mm/highmem.c               |    2 ++
- 4 files changed, 17 insertions(+), 8 deletions(-)
-
-Before anyone balks at the brlock.h fix, note this was in the
-alternative version of the code which is not used by default.
-
-Patch is against current BK.  Please, apply.
-
-	Robert Love
-
-
---=-ahTzg9joQ0rarf1NgN6v
-Content-Description: 
-Content-Disposition: attachment; filename=bad-smp_processor_id-uses-rml-2.5.38-1.patch
-Content-Type: text/x-patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-diff -urN linux-2.5.38/include/linux/brlock.h linux/include/linux/brlock.h
---- linux-2.5.38/include/linux/brlock.h	Sun Sep 22 00:25:06 2002
-+++ linux/include/linux/brlock.h	Tue Sep 24 16:24:23 2002
-@@ -85,7 +85,8 @@
- 	if (idx >= __BR_END)
- 		__br_lock_usage_bug();
- 
--	read_lock(&__brlock_array[smp_processor_id()][idx]);
-+	preempt_disable();
-+	_raw_read_lock(&__brlock_array[smp_processor_id()][idx]);
- }
- 
- static inline void br_read_unlock (enum brlock_indices idx)
-@@ -109,6 +110,7 @@
- 	if (idx >= __BR_END)
- 		__br_lock_usage_bug();
- 
-+	preempt_disable();
- 	ctr = &__brlock_array[smp_processor_id()][idx];
- 	lock = &__br_write_locks[idx].lock;
- again:
-@@ -147,6 +149,7 @@
- 
- 	wmb();
- 	(*ctr)--;
-+	preempt_enable();
- }
- #endif /* __BRLOCK_USE_ATOMICS */
- 
-diff -urN linux-2.5.38/include/linux/netdevice.h linux/include/linux/netdevice.h
---- linux-2.5.38/include/linux/netdevice.h	Sun Sep 22 00:25:27 2002
-+++ linux/include/linux/netdevice.h	Tue Sep 24 16:24:23 2002
-@@ -514,9 +514,10 @@
- {
- 	if (!test_and_set_bit(__LINK_STATE_SCHED, &dev->state)) {
- 		unsigned long flags;
--		int cpu = smp_processor_id();
-+		int cpu;
- 
- 		local_irq_save(flags);
-+		cpu = smp_processor_id();
- 		dev->next_sched = softnet_data[cpu].output_queue;
- 		softnet_data[cpu].output_queue = dev;
- 		cpu_raise_softirq(cpu, NET_TX_SOFTIRQ);
-@@ -563,10 +564,11 @@
- static inline void dev_kfree_skb_irq(struct sk_buff *skb)
- {
- 	if (atomic_dec_and_test(&skb->users)) {
--		int cpu =smp_processor_id();
-+		int cpu;
- 		unsigned long flags;
- 
- 		local_irq_save(flags);
-+		cpu = smp_processor_id();
- 		skb->next = softnet_data[cpu].completion_queue;
- 		softnet_data[cpu].completion_queue = skb;
- 		cpu_raise_softirq(cpu, NET_TX_SOFTIRQ);
-@@ -726,9 +728,10 @@
- static inline void __netif_rx_schedule(struct net_device *dev)
- {
- 	unsigned long flags;
--	int cpu = smp_processor_id();
-+	int cpu;
- 
- 	local_irq_save(flags);
-+	cpu = smp_processor_id();
- 	dev_hold(dev);
- 	list_add_tail(&dev->poll_list, &softnet_data[cpu].poll_list);
- 	if (dev->quota < 0)
-@@ -754,11 +757,12 @@
- {
- 	if (netif_rx_schedule_prep(dev)) {
- 		unsigned long flags;
--		int cpu = smp_processor_id();
-+		int cpu;
- 
- 		dev->quota += undo;
- 
- 		local_irq_save(flags);
-+		cpu = smp_processor_id();
- 		list_add_tail(&dev->poll_list, &softnet_data[cpu].poll_list);
- 		__cpu_raise_softirq(cpu, NET_RX_SOFTIRQ);
- 		local_irq_restore(flags);
-diff -urN linux-2.5.38/include/linux/page-flags.h linux/include/linux/page-flags.h
---- linux-2.5.38/include/linux/page-flags.h	Sun Sep 22 00:25:16 2002
-+++ linux/include/linux/page-flags.h	Tue Sep 24 16:24:23 2002
-@@ -86,9 +86,9 @@
- 
- #define mod_page_state(member, delta)					\
- 	do {								\
--		preempt_disable();					\
--		page_states[smp_processor_id()].member += (delta);	\
--		preempt_enable();					\
-+		int cpu = get_cpu();					\
-+		page_states[cpu].member += (delta);			\
-+		put_cpu();						\
- 	} while (0)
- 
- #define inc_page_state(member)	mod_page_state(member, 1UL)
-diff -urN linux-2.5.38/mm/highmem.c linux/mm/highmem.c
---- linux-2.5.38/mm/highmem.c	Sun Sep 22 00:25:12 2002
-+++ linux/mm/highmem.c	Tue Sep 24 16:24:23 2002
-@@ -472,6 +472,7 @@
- {
- 	int idx, type;
- 
-+	preempt_disable();
- 	for (type = 0; type < KM_TYPE_NR; type++) {
- 		idx = type + KM_TYPE_NR*smp_processor_id();
- 		if (!pte_none(*(kmap_pte-idx))) {
-@@ -479,6 +480,7 @@
- 			BUG();
- 		}
- 	}
-+	preempt_enable();
- }
- #endif
- 
-
---=-ahTzg9joQ0rarf1NgN6v--
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

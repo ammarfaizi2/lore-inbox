@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131520AbQKBAYI>; Wed, 1 Nov 2000 19:24:08 -0500
+	id <S131925AbQKBAZi>; Wed, 1 Nov 2000 19:25:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131925AbQKBAXs>; Wed, 1 Nov 2000 19:23:48 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:34827 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131520AbQKBAXq>;
-	Wed, 1 Nov 2000 19:23:46 -0500
-Message-ID: <3A00B3D6.AC53E32@mandrakesoft.com>
-Date: Wed, 01 Nov 2000 19:22:46 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Tom Rini <trini@kernel.crashing.org>, "David S. Miller" <davem@redhat.com>,
-        garloff@suse.de, jamagallon@able.es, linux-kernel@vger.kernel.org
+	id <S131961AbQKBAZ2>; Wed, 1 Nov 2000 19:25:28 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:34447 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131925AbQKBAZZ>;
+	Wed, 1 Nov 2000 19:25:25 -0500
+Date: Wed, 1 Nov 2000 16:11:01 -0800
+Message-Id: <200011020011.QAA20585@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: npsimons@fsmlabs.com
+CC: cort@fsmlabs.com, garloff@suse.de, jamagallon@able.es,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20001101172100.A5081@fsmlabs.com> (message from Nathan Paul
+	Simons on Wed, 1 Nov 2000 17:21:00 -0700)
 Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-In-Reply-To: <E13r7LH-0000z2-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20001101234058.B1598@werewolf.able.es> <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <200011012247.OAA19546@pizda.ninka.net> <20001101163752.B2616@fsmlabs.com> <200011012329.PAA19890@pizda.ninka.net> <20001101165418.B3444@hq.fsmlabs.com> <200011012345.PAA20284@pizda.ninka.net> <20001101172100.A5081@fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Mandrake kgcc I believe is egcs 1.1.2
+   X-Coding-System: undecided-unix
+   Date: Wed, 1 Nov 2000 17:21:00 -0700
+   From: Nathan Paul Simons <npsimons@fsmlabs.com>
 
-Correct...
+	   i meant no personal affront to yourself or RedHat; i just
+   thought i'd let you know why myself (and i'm sure many others)
+   don't use your distro anymore.  i did label that little comment
+   with a "<rant mode="flame">", now didn't i? ;)
 
-Though Richard Henderson's message recent about 'gcc -V ...' not doing
-the right thing has me worried...  egcs 1.1.2 not gcc 2.95.2 is
-definitely being called when '/usr/bin/kgcc' is executed, but I'm still
-worried that some details might be getting lost... 
-http://boudicca.tux.org/hypermail/linux-kernel/2000week44/1069.html
+One is allowed to flame only if they get their facts
+straight :-)
 
--- 
-Jeff Garzik             | "Mind if I drive?"  -Sam
-Building 1024           | "Not if you don't mind me clawing at the
-MandrakeSoft            |  dash and shrieking like a cheerleader."
-                        |                     -Max
+	   BTW, if someone did say we were a bunch of pinheads, i'm
+   sure we would listen and ask "why?" then try to fix what was making
+   us pinheads, not just dismiss it by saying, "oh, everyone else is a
+   pinhead too".
+
+We already know we are a bunch of pinheads wrt. the userland compiler
+issue, full stop.  It need not be restated several hundred more times.
+Believe me, after such a large fiasco, we have listened :-)
+
+But, on the other hand, to say that "kgcc" comceptually is something
+only Red Hat has ever done is a factual error, that is all I am trying
+to state, nothing more.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290850AbSBFWbq>; Wed, 6 Feb 2002 17:31:46 -0500
+	id <S290864AbSBFWqn>; Wed, 6 Feb 2002 17:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290852AbSBFWbg>; Wed, 6 Feb 2002 17:31:36 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:8385 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S290850AbSBFWbX> convert rfc822-to-8bit;
-	Wed, 6 Feb 2002 17:31:23 -0500
-Date: Wed, 06 Feb 2002 22:31:18 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Brian <hiryuu@envisiongames.net>, linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: =?koi8-r?b?Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/?=
-Message-ID: <2094646627.1013034678@[195.224.237.69]>
-In-Reply-To: <0GR400G9IRB2XW@mtaout03.icomcast.net>
-In-Reply-To: <0GR400G9IRB2XW@mtaout03.icomcast.net>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S290858AbSBFWqc>; Wed, 6 Feb 2002 17:46:32 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:58893 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290853AbSBFWqN>;
+	Wed, 6 Feb 2002 17:46:13 -0500
+Date: Wed, 6 Feb 2002 15:42:45 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Warning, 2.5.3 eats filesystems
+Message-ID: <20020206154245.D37@toy.ucw.cz>
+In-Reply-To: <20020205192826.GA112@elf.ucw.cz> <878za7wmg0.fsf@inanna.rimspace.net> <20020206010219.YXFM10804.out006.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020206010219.YXFM10804.out006.verizon.net@pool-141-150-235-204.delv.east.verizon.net>; from skip.ford@verizon.net on Tue, Feb 05, 2002 at 07:59:57PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-like
+Hi!
 
-Subject: [ANNOUNCE] blah blah?
+> I can confirm inode errors also.  However, I can't be sure it's 2.5.3 that
+> did it.
 
+I *know* it is 2.5.3. 
+									Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-
---On Wednesday, 06 February, 2002 4:21 PM -0500 Brian 
-<hiryuu@envisiongames.net> wrote:
-
-> Can we get something like
-> 	/[\200-\377]{6}/   (6 upper ACSII characters in a row)
-> added to the taboo list?
->
-> 	-- Brian
->
-> On Tuesday 05 February 2002 06:48 pm, au_ru@yahoo.com wrote:
->> Для главного бухгалтера.
->>
->> Приказ о налоговой и учетной политике на 2002 год (в редакции от 1
->>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
-
---
-Alex Bligh

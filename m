@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTGOEh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 00:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbTGOEh0
+	id S261874AbTGOEjg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 00:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbTGOEjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 00:37:26 -0400
-Received: from imap.gmx.net ([213.165.64.20]:58817 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261825AbTGOEhZ (ORCPT
+	Tue, 15 Jul 2003 00:39:36 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:2000 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261874AbTGOEjf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 00:37:25 -0400
-Message-Id: <5.2.1.1.2.20030715054158.01b19b48@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Tue, 15 Jul 2003 06:56:33 +0200
-To: Davide Libenzi <davidel@xmailserver.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy  
-   ...
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0307141015010.4828@bigblue.dev.mcafeelabs.co
- m>
-References: <5.2.1.1.2.20030714174719.01bce3f8@pop.gmx.net>
- <5.2.1.1.2.20030714100438.01be5008@pop.gmx.net>
- <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net>
- <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net>
- <5.2.1.1.2.20030714100438.01be5008@pop.gmx.net>
- <5.2.1.1.2.20030714174719.01bce3f8@pop.gmx.net>
+	Tue, 15 Jul 2003 00:39:35 -0400
+Date: Mon, 14 Jul 2003 21:45:10 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: "Feldman, Scott" <scott.feldman@intel.com>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [patch] e1000 TSO parameter
+Message-Id: <20030714214510.17e02a9f.davem@redhat.com>
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0102229169@orsmsx402.jf.intel.com>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E0102229169@orsmsx402.jf.intel.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:22 AM 7/14/2003 -0700, Davide Libenzi wrote:
->On Mon, 14 Jul 2003, Mike Galbraith wrote:
->
-> > Yes, and it worked fine.  No cpu load I tossed at it caused a skip.
->
->I tried yesterday a thud.c load and it did not get a single skip here
->either. It is interesting what thud.c can do to latency (let's not talk
->about irman because things get really nasty). With a simple `thud 5` the
->latency rised to more then one full second, as you can see by the graphs
->inside the SOFTRR page. No buffer size can cope with that.
+On Mon, 14 Jul 2003 21:42:40 -0700
+"Feldman, Scott" <scott.feldman@intel.com> wrote:
 
-Yes, thud is well named.  It's easy to kill, but not so easy to kill 
-without hurting important dynamic response characteristics and/or 
-interactivity.
+> > Note that I had to move the e1000_check_options() call to a 
+> > slighly earlier place.  You may want to double-check that 
+> > it's really OK.
+> 
+> I'm not too keen on adding another module parameter.  Maybe a
+> CONFIG_E1000_TSO option?
 
-For sound purposes, all you have to do is make damn sure that thud/others 
-can't get to the queue where your sound client lives.  I'm using a very 
-short term weighted slice_avg for that... your %cpu is calculated for each 
-slice, and once you approach interactive status, it doubles for each 
-priority you climb.  That makes it very hard indeed for a cpu hog to ever 
-reach the top.  Almost nothing can touch xmms here.  It doesn't provide the 
-nearly 100% guarantee that SOFT_RR does, but otoh, it's absolutely 
-impossible to abuse.
-
-(my best interactive effort combined that with non-linear decay, and 
-throttled backboost to offset the fairness pain that X any friends feel... 
-it's quite good, but [butt ugly and:] not quite good enough)
-
-         -Mike 
-
+Extend ethtool please :-)

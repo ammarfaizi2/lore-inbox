@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132866AbRDUTyy>; Sat, 21 Apr 2001 15:54:54 -0400
+	id <S132881AbRDUTzy>; Sat, 21 Apr 2001 15:55:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132869AbRDUTyo>; Sat, 21 Apr 2001 15:54:44 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:12051 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132870AbRDUTye>;
-	Sat, 21 Apr 2001 15:54:34 -0400
-Date: Sat, 21 Apr 2001 15:55:09 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: "Giacomo A. Catenazzi" <cate@dplanet.ch>
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Request for comment -- a better attribution system
-Message-ID: <20010421155509.B4185@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	"Giacomo A. Catenazzi" <cate@dplanet.ch>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010421114942.A26415@thyrsus.com> <3AE1E77C.AF1402F4@dplanet.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AE1E77C.AF1402F4@dplanet.ch>; from cate@dplanet.ch on Sat, Apr 21, 2001 at 10:03:08PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S132875AbRDUTzp>; Sat, 21 Apr 2001 15:55:45 -0400
+Received: from diup-184-214.inter.net.il ([213.8.184.214]:63493 "EHLO
+	callisto.yi.org") by vger.kernel.org with ESMTP id <S132869AbRDUTz2>;
+	Sat, 21 Apr 2001 15:55:28 -0400
+Date: Sat, 21 Apr 2001 22:55:06 +0300 (IDT)
+From: Dan Aloni <karrde@callisto.yi.org>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@image.dk>
+Subject: Re: cdrom driver dependency problem (and a workaround patch)
+In-Reply-To: <20010421212645.W719@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.32.0104212250150.31353-100000@callisto.yi.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giacomo A. Catenazzi <cate@dplanet.ch>:
-> We should use the same filed name of CREDITS e.g. D: for Description.
-> (maybe you can invert D: description and T: time of last update)
+On Sat, 21 Apr 2001, Ingo Oeser wrote:
 
-Good point.
- 
-> It whould nice also if we include the type of the license (GPL,...).
-> This for a fast parsing (and maybe also to replace the few lines
-> of license)
+> On Sat, Apr 21, 2001 at 08:33:05PM +0300, Dan Aloni wrote:
+> > On Sat, 21 Apr 2001, Ingo Oeser wrote:
+> > > The link order is wrong. So why not changing the link order then?
+> >
+> > I remember doing what the patch below does.
+> > It didn't help.
+>
+> Hmm, maybe you had a typo?
 
-Is there any kernel code that isn't GPLed?
+No, I meant I tested this exact patch you wrote on my system and it
+doesn't fix the Oops on boot problem. Maybe I forgot to recompile the
+kernel while I tested it, but I doubt.
 
-> Instead of C: it is more important (IMHO) to include the module name.
+> > Did you try this patch?
+>
+> Yes, just booted an SMP machine with 2.4.3-ac11 and this patch.
+>
+> I booted remote, so it was some kind of dangerous, if it wouldn't
+> work ;-)
+>
+> We also have SCSI enabled there. So it really works ;-)
 
-That we get from the name of the file we're visiting, I think.
+I'm happy to hear it works on your system, but I don't think we should
+relay on link ordering in order to resolve dependency problems. More
+generally, it's kinda dirty the way it works now in the kernel, where the
+initialization order is determined by the linkage order.
 
-> Maybe we can include both (modules name are always lower case).
-> I think that the inclusion of the config option is not important (
-> considering that it can be easily parsed from the kaos' new makefiles).
+--
+Dan Aloni
+dax@karrde.org
 
-Interesting point.  Maybe that field should drop out once we transition.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-A right is not what someone gives you; it's what no one can take from you. 
-	-- Ramsey Clark

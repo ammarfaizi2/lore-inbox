@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVAUHxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVAUICS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbVAUHxH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 02:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbVAUHwo
+	id S261287AbVAUICS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 03:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVAUICS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 02:52:44 -0500
-Received: from mail.kroah.org ([69.55.234.183]:50408 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262312AbVAUHw2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 02:52:28 -0500
-Date: Thu, 20 Jan 2005 23:46:01 -0800
-From: Greg KH <greg@kroah.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: karim@opersys.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Roman Zippel <zippel@linux-m68k.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>
-Subject: Re: [PATCH] relayfs redux for 2.6.10: lean and mean
-Message-ID: <20050121074601.GA19550@kroah.com>
-References: <41EF4E74.2000304@opersys.com> <20050120145046.GF13036@kroah.com> <41F05D11.5020109@opersys.com> <41F065C0.7070603@bigpond.net.au> <20050121063956.GB19288@kroah.com> <41F0AEEF.8060707@bigpond.net.au>
-Mime-Version: 1.0
+	Fri, 21 Jan 2005 03:02:18 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47300 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261287AbVAUHzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 02:55:43 -0500
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
+References: <overview-11061198973484@ebiederm.dsl.xmission.com>
+	<1106294155.26219.26.camel@2fwv946.in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 21 Jan 2005 00:54:06 -0700
+In-Reply-To: <1106294155.26219.26.camel@2fwv946.in.ibm.com>
+Message-ID: <m1sm4v2p5t.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F0AEEF.8060707@bigpond.net.au>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 21, 2005 at 06:27:43PM +1100, Peter Williams wrote:
-> Greg KH wrote:
-> >On Fri, Jan 21, 2005 at 01:15:28PM +1100, Peter Williams wrote:
-> >
-> >>Perhaps the logical solution is to implement debugfs in terms of relayfs?
-> >
-> >
-> >What do you mean by this statement?
+Vivek Goyal <vgoyal@in.ibm.com> writes:
+
+> Hi Andrew,
 > 
-> I mean that if, as you say, debugfs is very similar to relayfs only more 
-> restricted (i.e. a debugging option) then it should be implementable as 
-> an instance or specialization of the more general relayfs and that this 
-> should be a better solution than two independent implementations of 
-> similar functionality.
+> Following patch is against 2.6.11-rc1-mm2. 
+> 
+> As mentioned by following note from Eric, crashdump code is currently
+> broken.
+> > 
+> > The crashdump code is currently slightly broken.  I have attempted to
+> > minimize the breakage so things can quick be made to work again.
+> 
+> We have started doing changes to make crashdump up and running again.
+> Following are few identified items to be done.
+> 
+> 1. Reserve the backup region (640k) during kernel bootup. 
 
-Ah.
+Why do we need a separate region for this?
 
-No.
+It should be simple enough to take 640 out of the area kexec reserves
+for the crash dump kernel.  That is what the previous code implemented.
 
-The implementations are not of the same functionality, or so Karim says.
+> 2. Copy the data to backup region during crash.(moved to kexec user
+> space code, patch posted in separate mail)
 
-thanks,
+Thanks by and large it looks sane, it won't work yet the but it is
+moving in the right direction.
 
-greg k-h
+> +++ linux-2.6.11-rc1-mm2-kexec-eric-root/include/linux/kexec.h 2005-01-20
+> 13:55:33.000000000 +0530
+> 
+> @@ -79,7 +79,7 @@ struct kimage {
+>  	unsigned long control_page;
+>  
+>  	/* Flags to indicate special processing */
+> -	int type : 1;
+> +	unsigned int type : 1;
+
+That looks like a sane bug fix.  Having values of 0 and -1 is quite what
+I was expecting...
+
+Eric
+
+
+

@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130988AbRBAQeU>; Thu, 1 Feb 2001 11:34:20 -0500
+	id <S130060AbRBAQqC>; Thu, 1 Feb 2001 11:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131022AbRBAQeK>; Thu, 1 Feb 2001 11:34:10 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63502 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130988AbRBAQeB>; Thu, 1 Feb 2001 11:34:01 -0500
-Subject: Re: 2.4.1 DAC960 driver bug or what's going on?
-To: silviu@delrom.ro (Silviu Marin-Caea)
-Date: Thu, 1 Feb 2001 16:35:07 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010201181233.21076d38.silviu@delrom.ro> from "Silviu Marin-Caea" at Feb 01, 2001 06:12:33 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129442AbRBAQpv>; Thu, 1 Feb 2001 11:45:51 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:1776 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130264AbRBAQpn>; Thu, 1 Feb 2001 11:45:43 -0500
+Date: Thu, 1 Feb 2001 14:45:04 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, David Gould <dg@suse.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH] vma limited swapin readahead
+In-Reply-To: <20010201143606.P11607@redhat.com>
+Message-ID: <Pine.LNX.4.21.0102011441380.1321-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14OMhR-0004ZR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 1 Feb 2001 15:31:44 +0000 (GMT)
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Thu, 1 Feb 2001, Stephen C. Tweedie wrote:
+> On Thu, Feb 01, 2001 at 08:53:33AM -0200, Marcelo Tosatti wrote:
+> > On Thu, 1 Feb 2001, Stephen C. Tweedie wrote:
+> > 
+> > If we're under free memory shortage, "unlucky" readaheads will be harmful.
 > 
-> > Which compiler out of curiosity
-> Works with kgcc.  Thank you Alan.
-> 
-> I thought RedHat fixed their compiler.
+> I know, it's a balancing act.  But given that even one
+> successful readahead per read will halve the number of swapin
+> seeks, the performance loss due to the extra scavenging has got
+> to be bad to outweigh the benefit.
 
-Im not yet sure if its the compiler or the DAC960 driver which is at fault
-here. I'm looking at some 'interesting' reports about bitfield behaviour
-which is why I suspected this
+But only when the extra pages we're reading in don't
+displace useful data from memory, making us fault in
+those other pages ... causing us to go to the disk
+again and do more readahead, which could potentially
+displace even more pages, etc...
 
-Alan
+One solution could be to put (most of) the swapin readahead
+pages on the inactive_dirty list, so pressure by readahead
+on the resident pages is smaller and the not used readahead
+pages are reclaimed faster.
+
+(and with the size of the inactive list being 1 second worth
+of page steals, those pages still have a good chance of being
+used before they're being recycled)
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,43 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbUKRB1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbUKRB3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbUKRB1d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 20:27:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbUKRBZC
+	id S262647AbUKRB3J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 20:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbUKRB1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 20:25:02 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:2721 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262673AbUKRBXn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 20:23:43 -0500
-Subject: Re: [patch] inotify: add sysfs store support
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1100739641.8984.10.camel@vertex>
-References: <1100710677.6280.2.camel@betsy.boston.ximian.com>
-	 <1100714560.6280.7.camel@betsy.boston.ximian.com>
-	 <1100722226.4981.46.camel@betsy.boston.ximian.com>
-	 <1100739641.8984.10.camel@vertex>
+	Wed, 17 Nov 2004 20:27:55 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:11509 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262705AbUKRB0p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 20:26:45 -0500
+Subject: Re: [patch 2] Xen core patch : arch_free_page return value
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Keir.Fraser@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk
+In-Reply-To: <E1CUaxA-0006Fa-00@mta1.cl.cam.ac.uk>
+References: <E1CUaxA-0006Fa-00@mta1.cl.cam.ac.uk>
 Content-Type: text/plain
-Date: Wed, 17 Nov 2004 20:24:41 -0500
-Message-Id: <1100741081.5656.81.camel@localhost>
+Message-Id: <1100741201.12373.276.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 17 Nov 2004 17:26:41 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-17 at 20:00 -0500, John McCutchan wrote:
-> Awesome work!
+On Wed, 2004-11-17 at 17:19, Ian Pratt wrote:
+> > On Wed, 2004-11-17 at 15:48, Ian Pratt wrote:
+> > > This patch adds a return value to the existing arch_free_page function
+> > > that indicates whether the normal free routine still has work to
+> > > do. The only architecture that currently uses arch_free_page is arch
+> > > 'um'. arch-xen needs this for 'foreign pages' - pages that don't
+> > > belong to the page allocator but are instead managed by custom
+> > > allocators.
+> > 
+> > But, you're modifying page allocator functions to do this.  Why would
+> > you call __free_pages_ok() on a page that didn't belong to the page
+> > allocator?
+> 
+> Pages that have been allocated by our custom allocators get passed
+> into standard linux subsystems where we get no control over how
+> they're freed.
 
-Thanks.
+OK, then how are they allocated?  Are they only allocated by your
+special drivers or in your architecture?
 
-> But I am going to hold off applying this, until the
-> mainline kernel gets the misc device changes.
+I think allowing this is weird:
 
-OK, but it is going to be awhile.  It is too late for 2.6.10, so it
-won't go in until 2.6.11.
+        foo = special_zen_malloc();
+        bar = kmalloc();
+        kfree(foo);
+        kfree(bar);
+        
+Shoudn't it be
 
-	Robert Love
+	special_zen_free(free);?
+        
+BTW, your arch-specific definition of PG_foreign is a little goofy.  If
+you need the bit, then put it in page-flags.h now.  The memory hotplug
+people have an evil plan to consume all unused bits in page->flags
+(determined at compile-time) and that little gem will certainly break
+it.  
 
+It's great that you contained stuff to your architecture, but little
+bits like the page-flags thing don't make me think you've done it for
+real, only hacked around it :)
+
+-- Dave
 

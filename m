@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269900AbUJSUPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269893AbUJSUPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269900AbUJSUPh (ORCPT <rfc822;willy@w.ods.org>);
+	id S269893AbUJSUPh (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 19 Oct 2004 16:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269524AbUJSUPR
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269900AbUJSUP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 16:15:17 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:40111 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S269893AbUJSUNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 16:13:42 -0400
-Message-ID: <41756CA5.5040208@drdos.com>
-Date: Tue, 19 Oct 2004 13:36:05 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ross Biro <ross.biro@gmail.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 19 Oct 2004 16:15:29 -0400
+Received: from smtp.terra.es ([213.4.129.129]:39233 "EHLO tsmtp1.mail.isp")
+	by vger.kernel.org with ESMTP id S269773AbUJSUO4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 16:14:56 -0400
+Date: Tue, 19 Oct 2004 22:14:57 +0200
+From: Diego Calleja <diegocg@teleline.es>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: riel@redhat.com, linux-kernel@vger.kernel.org
 Subject: Re: Linux v2.6.9 and GPL Buyout
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>	 <417550FB.8020404@drdos.com> <8783be660410191245684df007@mail.gmail.com>
-In-Reply-To: <8783be660410191245684df007@mail.gmail.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <20041019221457.3ad7dbea.diegocg@teleline.es>
+In-Reply-To: <4175657E.7040800@drdos.com>
+References: <Pine.LNX.4.44.0410191530060.18723-100000@chimarrao.boston.redhat.com>
+	<4175657E.7040800@drdos.com>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ross Biro wrote:
+El Tue, 19 Oct 2004 13:05:34 -0600 "Jeff V. Merkey" <jmerkey@drdos.com> escribió:
 
->Jeff V. Merkey <jmerkey@drdos.com>
->
->IIRC, SCO bought drdos a long time ago (when they were caldera).  That
->makes me think your evaluation of the situation is a little biased.
->
->And to save you time, I'm with Russell, none of the work I've ever
->contributed is available under any license other than the GPL.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Bryan Sparks (who left Caldera years back and bought DRDOS from Canopy) 
-owns DRDOS and
-not SCO. Bryan also supports Linux and always has. Bryan also is the 
-person who backed M$
-into a corner and stopped them from crushing planet earth. He's one of 
-the biggest friends Linux has
-and was pushing Linux in the early 1990s. Caldera and Canopy do not deal 
-in DRDOS anymore.
 
-Jeff
+> You're awesome. We don't use XFS, JFS, or SMP for our appliances so 
+> these changes
+> have little impact for us.
 
+Just wondering, how did you remove RCU? From a quick grep it's used in generic
+code like fs/dcache.c or kernel/sched.c. Did you remove process scheduler and
+filesystem support for your customers too? Or I'm missing something about RCU?

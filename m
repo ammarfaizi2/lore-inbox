@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277581AbRJHWp0>; Mon, 8 Oct 2001 18:45:26 -0400
+	id <S277585AbRJHWtF>; Mon, 8 Oct 2001 18:49:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277586AbRJHWpP>; Mon, 8 Oct 2001 18:45:15 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19475 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277581AbRJHWo4>; Mon, 8 Oct 2001 18:44:56 -0400
-Subject: Re: [PATCH] change name of rep_nop
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Mon, 8 Oct 2001 23:49:41 +0100 (BST)
-Cc: frival@zk3.dec.com (Peter Rival), paulus@samba.org,
-        Martin.Bligh@us.ibm.com (Martin J. Bligh),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), torvalds@transmeta.com,
+	id <S277577AbRJHWsz>; Mon, 8 Oct 2001 18:48:55 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:41606 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277587AbRJHWsk>;
+	Mon, 8 Oct 2001 18:48:40 -0400
+Date: Mon, 08 Oct 2001 15:46:50 -0700 (PDT)
+Message-Id: <20011008.154650.48796051.davem@redhat.com>
+To: dwmw2@infradead.org
+Cc: frival@zk3.dec.com, paulus@samba.org, Martin.Bligh@us.ibm.com,
+        alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
         linux-kernel@vger.kernel.org, jay.estabrook@compaq.com,
         rth@twiddle.net
-In-Reply-To: <13962.1002580586@redhat.com> from "David Woodhouse" at Oct 08, 2001 11:36:26 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] change name of rep_nop 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <13962.1002580586@redhat.com>
+In-Reply-To: <1573466920.1002300846@mbligh.des.sequent.com>
+	<15294.24873.866942.423260@cargo.ozlabs.ibm.com>
+	<13962.1002580586@redhat.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15qjDR-0002AQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> While we're on the subject of stupidly named routines and x86-isms, I'm 
-> having trouble reconciling this text in Documentation/cachetlb.txt:
-> 
-> 	1) void flush_cache_all(void)
-> 
-> 	        The most severe flush of all.  After this interface runs,
-> 	        the entire cpu cache is flushed.
+   From: David Woodhouse <dwmw2@infradead.org>
+   Date: Mon, 08 Oct 2001 23:36:26 +0100
 
-I suspect the real definition should be
+   While we're on the subject of stupidly named routines and x86-isms, I'm 
+   having trouble reconciling this text in Documentation/cachetlb.txt:
+   
+   	1) void flush_cache_all(void)
+   
+   	        The most severe flush of all.  After this interface runs,
+   	        the entire cpu cache is flushed.
+   
+   ... with this implementation in include/asm-i386/pgtable.h:
+   
+   	#define flush_cache_all()			do { } while (0)
+   
+   That really doesn't seem to be doing what it says on the tin.
+   
+"for the purposes of having the processor maintain cache coherency
+ due to a kernel level TLB mapping change"
 
-	"After this interface runs the device and other views of 
-	 memory includes all dirty cache lines on the processor. On 
-	 processors with cache coherent bus interfaces this may well
-	 be a no operation
+Yes, I know the text isn't there, but that is the implication.
+Add the text, don't add a stupid "simon_says.." interface.
 
-	 Footnote: AGP tends to have its own coherency and caching setup
-	 so the AGP drivers use their own interfaces to avoid needless
-	 overhead"
+The mtrr stuff, if it really does need the flush, should probably
+make it's own macro/inline with a huge comment about it explaining
+why the flush is actually needed.
 
+   Some people have asserted, falsely, that it's never sane to want an i386 to
+   flush its cache.
+
+"for the purposes of having the processor maintain cache coherency
+ due to a kernel level TLB mapping change"
+
+All of these flush_foo interfaces are about cache flushes needed when
+address space changes occur.  They are not meant to be a way to deal
+with all sorts of other cache details, for those we have the PCI DMA
+interfaces, flush_dcache_page etc.
+
+   Even if that were true, it wouldn't really be an excuse for
+   the above discrepancy.
+   
+There is no discrepancy, only missing text in cachetlb.txt, please
+add it, but I thought that the location of the routine made it obvious
+what context it is meant to operate and be used.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,77 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbTIOXPi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 19:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTIOXOy
+	id S261723AbTIOXUW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 19:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTIOXUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 19:14:54 -0400
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:20418 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S261673AbTIOXOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 19:14:33 -0400
-From: James Clark <jimwclark@ntlworld.com>
-Reply-To: jimwclark@ntlworld.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Discourage Uniform Driver Model
-Date: Tue, 16 Sep 2003 00:13:38 +0100
-User-Agent: KMail/1.5
-References: <200309140027.08610.jimwclark@ntlworld.com> <200309142138.32222.jimwclark@ntlworld.com> <1063577498.2472.3.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1063577498.2472.3.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 15 Sep 2003 19:20:21 -0400
+Received: from nelson.SEDSystems.ca ([192.107.131.136]:36843 "EHLO
+	nelson.sedsystems.ca") by vger.kernel.org with ESMTP
+	id S261723AbTIOXUN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 19:20:13 -0400
+Message-ID: <3F6649A1.6070103@sedsystems.ca>
+Date: Mon, 15 Sep 2003 17:22:09 -0600
+From: Kendrick Hamilton <hamilton@sedsystems.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCI probe, please CC hamilton@sedsystems.ca
+References: <3F66441F.3010206@sedsystems.ca> <20030915230949.GA18153@kroah.com>
+In-Reply-To: <20030915230949.GA18153@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309160013.38466.jimwclark@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg,
+    We don't have a hardware address to use. What I am looking for is a 
+way to tie it to the slot number. Is there any way of getting the slot 
+number?
+Kendrick
 
-> How does your proposal differ/improve on the demand-load module system?
+PS. I just subscribed to the linux kernel mailing list so I don't need 
+the CC hamilton@sedsystems.ca anymore.
 
-Modules must be (re)compiled for each specific kernel release. This is because 
-of the very tight coupling with the kernel. The kernel changes so much that 
-it is often necessary to amend a module to keep up. My suggestion is to 
-create an abstract interface between the two. The interface (called a binary 
-interface) would define the way the two 'talk' to one another. Once the 
-interface has been released as v1.0 any module could be made compatible with 
-the v1.0 interface. After a while it would be necessary to release improved 
-interfaces. This would not break the existing modules as the old interface 
-could remain due to its abstract nature. This technique is used in everything 
-from Windows drivers, Netscape pluggins and even normal programs - image 
-saying you must buy a new version of Word Perfect for every minor release of 
-the OS - it has 'binary' compatibility. Unfortunately many see this as active 
-encouragement of 'binary only' modules which have no source code. This idea 
-would cost in performance. I suggest this loss is worthwhile to resolve 
-compatibility and usability.
 
->   This seemed to work well in Mandrake, or am I missing the point?!?
+Greg KH wrote:
 
-Unless you build the module yourself you are the mercy of Mandrake to make 
-each module - I don't see this as being much different from the situation 
-with Windows.  Poor old Mandrake must remake almost every module almost 
-everytime. You cannot use a module from Redhat's kernel. In effect everyone 
-is duplicating effort. Modules must currently be compiled, this requires a 
-degree of expertise and can be daunting to someone who just wants to use the 
-OS. My suggestion would not remove need to release modules in source form, 
-but once compiled they could be plugged into any kernel and distributed in 
-binary+source form. 
-
-> Also, the only reply to your posting that I read (and I've only read a
-> fraction of them!) which offered any genuine usefulness was the point
-> that if you offer the code then they'll consider the merits.  Are you
-> considering an actual solution, or just suggesting a policy change?
-
-I understand the way competitor binary interfaces work. Currently I'm not 
-going to roll up my sleeves and write this system. I don't have the technical 
-expertise to design such a thing and although I could learn the curve at this 
-time is too steep. I do think that my experience with similar competitor 
-systems allows me to speak on the subject. However, I feel that pushing for 
-this change is a positive thing. It has started a debate on 'misusing' the 
-GPL to prevent binary only modules and has resulted in some positive 
-comments. If they debate it  rationally and then decide not to bother I will 
-have achieved a lot. I do  feel qualified to make this (obvious) suggestion 
-and comment on the design of any resulting interface.
-
-James
+>On Mon, Sep 15, 2003 at 04:58:39PM -0600, Kendrick Hamilton wrote:
+>  
+>
+>>Hello,
+>>   we are using the Linux 2.2.16 kernel (some of the code we purchased 
+>>does not work with 2.4.x kernels and we would have to do a lot of 
+>>regression testing to upgrade) on an IBM e-server. We wrote a module for 
+>>a modulator card we are using. The code uses pci_find_device to find the 
+>>modulator cards. The problem we are having is that it finds the cards in 
+>>different orders. One time hss0 is the card in slot 4 and hss1 is the 
+>>card in slot5. The next time we power up the computer, hss0 is the card 
+>>in slot5 and hss1 is the card in slot 4.
+>>   The IBM e-server has about 5 PCI bridges.
+>>   Do you have any suggestion as to how I might be able to ensure the 
+>>cards are always detected in the same order? Our system requires that 
+>>they always be in the same order.
+>>    
+>>
+>
+>Are the pci device ids different across different boots?  If not, is
+>there any way you can tie a specific device to a specific interface
+>(unique hardware addresses, mac addresses, etc.)?
+>
+>thanks,
+>
+>greg k-h
+>  
+>
 

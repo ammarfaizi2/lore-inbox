@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269080AbUJQI43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269085AbUJQI7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269080AbUJQI43 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 04:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269081AbUJQI43
+	id S269085AbUJQI7i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 04:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269083AbUJQI7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 04:56:29 -0400
-Received: from relaismsg.minefi.gouv.fr ([194.250.149.46]:32203 "EHLO
-	relaismsg.minefi.gouv.fr") by vger.kernel.org with ESMTP
-	id S269080AbUJQI40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 04:56:26 -0400
-From: postmaster@cp.finances.gouv.fr
-To: <linux-kernel@vger.kernel.org>
-Subject: Notification e-manager Av1-bercy (Attachment Removal)
-Date: Sun, 17 Oct 2004 10:56:16 +0200
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_1098003376_B78506032.R82506026"
-Message-Id: <20041017085622.753BA13AC4F@av2-acct.cp.finances.gouv.fr>
+	Sun, 17 Oct 2004 04:59:38 -0400
+Received: from main.gmane.org ([80.91.229.2]:37098 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269085AbUJQI7f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 04:59:35 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Anand Kumria <wildfire@progsoc.org>
+Subject: Re: Building on case-insensitive systems
+Date: Sun, 17 Oct 2004 19:05:41 +1000
+Message-ID: <pan.2004.10.17.09.05.38.680715@progsoc.org>
+References: <1097989574.2674.14246.camel@cube> <4171F741.2070209@kegel.com> <1097991836.2666.14274.camel@cube> <20041017092730.GA9081@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 203.7.227.188
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Sun, 17 Oct 2004 11:27:30 +0200, Sam Ravnborg wrote:
 
-------=_NextPart_000_1098003376_B78506032.R82506026
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+> On Sun, Oct 17, 2004 at 01:43:56AM -0400, Albert Cahalan wrote:
+>> > 
+>> > You are betting that you can force developers to switch away
+>> > from Windows and MacOSX workstations.
+>> 
+>> Actually, I'm betting that "required to build product"
+>> is a magic phrase that overrides corporate IT's desire
+>> to brutally enforce a Microsoft-only environment.
+> 
+> Seems you are not part of one of these organisations.
+> That argument will not suffice.
 
-**************** eManager Notification *****************
+While I don't work for one of these organisation, I am involved with one.
+I've certainly seem "corporate IT" dictate a specific platform. The
+response from the project / device engineers was "Do you want this product
+to ship, or do you want us to conform to corporate IT?".
 
-The following mail was blocked since it contains sensitive content.
+Considering the amount of money involved, it was no surprise that
+corporate IT desires were overridden.
 
-Source mailbox: <linux-kernel@vger.kernel.org>
-Destination mailbox(es): michelle.pedauge@cp.finances.gouv.fr
-Policy: Attachment Removal
-Attachment file name: attachment.rtf.com - application/octet-stream
-Action: Replaced with text
+> 
+> Try to estimate the cost associated with the shift:
+[...]
+Try estimating the cost of losing market share in a specific customer
+segment versus what you listed. All those costs pale into insignificance.
 
-La pièce jointe a été suprimée. Elle est interdite en raison de sa non-conformité avec les règles d'utilisation de la messagerie en usage à la DGCP
+Anand
 
-******************* End of message *********************
-
-------=_NextPart_000_1098003376_B78506032.R82506026
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-Received: from relaismsg 
-	with id i9H8uGD10339
-	for <michelle.pedauge@cp.finances.gouv.fr>; Sun, 17 Oct 2004 10:56:16 +0200 (MEST)
-Received: from relaismsg 
-	by relaismsg.minefi.gouv.fr with id i9H8u9F15051
-	for <michelle.pedauge@cp.finances.gouv.fr>; Sun, 17 Oct 2004 10:56:09 +0200 (MEST)
-Message-Id: <200410170856.i9H8u9F15051@relaismsg.minefi.gouv.fr>
-From: linux-kernel@vger.kernel.org
-To: michelle.pedauge@cp.finances.gouv.fr
-Subject: File is bad.
-Date: Sun, 17 Oct 2004 10:56:13 +0200
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0006_00000F9D.000027D5"
-X-Priority: 3
-X-MSMail-Priority: Normal
-
-------=_NextPart_000_1098003376_B78506032.R82506026--

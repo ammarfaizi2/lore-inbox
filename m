@@ -1,74 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267548AbTGLDtm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 23:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbTGLDtm
+	id S267561AbTGLE24 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 00:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267589AbTGLE24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 23:49:42 -0400
-Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:34527
-	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S267548AbTGLDtk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 23:49:40 -0400
-Date: Sat, 12 Jul 2003 06:05:06 +0200
-From: Voluspa <lista1@telia.com>
+	Sat, 12 Jul 2003 00:28:56 -0400
+Received: from sps.nus.edu.sg ([137.132.69.89]:62980 "HELO sps.nus.edu.sg")
+	by vger.kernel.org with SMTP id S267561AbTGLE2q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 00:28:46 -0400
+Date: Sat, 12 Jul 2003 12:36:56 +0800 (SGT)
+From: Didier Casse <didierbe@sps.nus.edu.sg>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.75 does not boot - TCQ oops
-Message-Id: <20030712060506.0b152432.lista1@telia.com>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Bug in redhat 9 kernel-> problems with cpufreq.c during recompilation
+In-Reply-To: <Pine.LNX.4.44.0307121057360.26536-100000@kepler.sps.nus.edu.sg>
+Message-ID: <Pine.LNX.4.44.0307121224480.26761-100000@kepler.sps.nus.edu.sg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there,
+         I tried to patch my Linux kernel 2.4.20-8 i686 i386 GNU/Linux (on 
+redhat 9)  with the linux-ppscsi patch so that I can add my parallel port 
+scanner to my pc. 
 
-On 2003-07-11 20:58:09 Ivan Gyurdiev wrote:
+I started as follows in the /usr/src/linux-2.4.20-8/ directory
 
-> Patch confirmed to work - the machine boots.
-[...]
-> Most massive fs corruption I've ever had.
-[...]
-> I blamed the reiserfs bk work at first (which I applied along with
-> [Axboe's] tcq patch), but I noted that the fs only gets corrupted
-> with a tcq-enabled kernel
+step 1. patch -p1 < linux.ppscsi.patch
+step 2. make menuconfig to ensure SCSI suppoer and parallel port support
+step 3. make dep
+step 4. make bzImage
+step 5. make modules
 
-I took home 2.5.75-bk1, applied the tcq patch and then used the computer
-for five hours in the TCQ+TASKFILE environment. Filesystem is ext2.
+then error occures at step 5 as shown below:
 
-Untarred a kernel. Copied it to a couple of destinations. Compiled.
-Listened to music. Watched part of a movie. Did a nfs move of a file
-(which by the way was a pure horror... 600k in ca 3 minutes) from a
-machine with a 2.2.16 kernel. Then read about your woes.
++--------------------------------------------------------------------+
+/usr/src/linux-2.4.20-8/include/linux/dcache.h: In function `dget':
+/usr/src/linux-2.4.20-8/include/linux/dcache.h:254: warning: implicit 
+declaration of function `__out_of_line_bug_R8b0fd3c5'
+cpufreq.c: In function `cpufreq_parse_policy':
+cpufreq.c:111: warning: implicit declaration of function 
+`sscanf_R859204af'
+cpufreq.c: In function `cpufreq_proc_read':
+cpufreq.c:225: warning: implicit declaration of function 
+`sprintf_R1d26aa98'
+cpufreq.c: In function `cpufreq_proc_init':
+cpufreq.c:327: warning: implicit declaration of function 
+`printk_R1b7d4074'
+cpufreq.c: In function `cpufreq_restore_Re39890df':
+cpufreq.c:1109: warning: implicit declaration of function 
+`panic_R01075bf0'
+cpufreq.c: At top level:
+cpufreq.c:192: warning: `cpufreq_setup' defined but not used
+make[1]: *** [cpufreq.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4.20-8/kernel'
+make: *** [_mod_kernel] Error 2
++--------------------------------------------------------------------+
 
-Checked the md5sum of a large file that I keep for... corruption checks.
-Was ok. Did a read massage by "cd /usr ; find . -type f -exec md5sum {}
-\;". No hickups. Except...
+Can anybody help me out with this thing as i really need to get that
+scanner going? I have no clue how to solve this type of error and
+everybody on the redhat mailing list is clueless too!  Thanks for helping 
+out.
 
-Found 1 error in /var/log/kernel that I _never_ get with the 2.4.19:
-Jul 12 02:03:39 loke kernel: hda: status error: status=0x48 { DriveReady
-DataRequest }
-Jul 12 02:03:39 loke kernel: 
-Jul 12 02:03:39 loke kernel: hda: drive not ready for command
+regards,
 
-So I shut down X in preparation for a reboot and full fs check, waiting
-for the distributed project foldingathome to checkpoint its work, and
-there was another never experienced error (time is UTC):
+Didier
 
-[01:10:00] [SPG] 100.0 % 
-[01:10:00] [SPG] Writing current.xyz                                   
-[01:10:01] [SPG] Sequence 15 completed:                                
-[01:10:01] SNEYSGTFSFKTKQSKDEMLDALQIKNSYISQMRQITPKMAIEYPKGTPT . . .    
-[01:10:01] - Error: Checksums don't match (work/wudata_06.arc)
-[01:10:01] [SPG] Error: checksum error                                 
-[01:10:02] CoreStatus = 0 (0)
-[01:10:02] Client-core communications error: ERROR 0x0
-[01:10:02] Deleting current work unit & continuing...
+---
+PhD student
 
-The reboot didn't reveal any fs corruption. Still, I've returned to a
-safe kernel :-) Disk where TCQ was enabled (using depth 8)
-is a IBM-DTLA-307015. Unfortunately, or luckily, my 
-IC35L080AVVA07-0 shares its life with a CD, so no TCQ there.
+Singapore Synchrotron Light Source (SSLS)
+5 Research Link,
+Singapore 117603
 
-Mvh
-Mats Johannesson
+Email: slsbdfc@nus.edu.sg or didierbe@sps.nus.edu.sg
+Website: http://ssls.nus.edu.sg
+
+
+
+

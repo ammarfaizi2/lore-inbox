@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131614AbRDWJEF>; Mon, 23 Apr 2001 05:04:05 -0400
+	id <S131626AbRDWJTa>; Mon, 23 Apr 2001 05:19:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131588AbRDWJDy>; Mon, 23 Apr 2001 05:03:54 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:36624 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S131587AbRDWJDo>; Mon, 23 Apr 2001 05:03:44 -0400
-Message-ID: <3AE3ED20.FD685CE@evision-ventures.com>
-Date: Mon, 23 Apr 2001 10:51:44 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
-X-Accept-Language: en, de
+	id <S131630AbRDWJTV>; Mon, 23 Apr 2001 05:19:21 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3332 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131626AbRDWJTL>; Mon, 23 Apr 2001 05:19:11 -0400
+Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
+To: whitney@math.berkeley.edu
+Date: Mon, 23 Apr 2001 10:19:27 +0100 (BST)
+Cc: manuel@mclure.org,
+        kufel!ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200104230242.f3N2gns08877@adsl-209-76-109-63.dsl.snfc21.pacbell.net> from "Wayne Whitney" at Apr 22, 2001 07:42:49 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org,
-        linux-openlvm@nl.linux.org, linux-lvm@sistina.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [BUG] lvm beta7 and ac11 problems
-In-Reply-To: <01042110002200.00707@oscar> <20010421162003.F26732@suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14rcVF-0007cJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+> > Did you try nesting more than one "su -"? The first one after a boot
+> > works for me - every other one fails.
 > 
-> On Sat, Apr 21 2001, Ed Tomlinson wrote:
-> > Hi,
-> >
-> > building a kernel with 2.4.3-ac11 and lvm beta7 + vfs_locking_patch-2.4.2 yields:
-> >
-> > oscar# depmod -ae 2.4.3-ac11
-> > depmod: *** Unresolved symbols in /lib/modules/2.4.3-ac11/kernel/drivers/md/lvm-mod.o
-> > depmod:         get_hardblocksize
-> >
-> > ideas?
-> 
-> s/get_hardblocksize/get_hardsect_size
+> Same here: the first "su -" works OK, but a second nested one hangs:
 
-And don't forget to have a look whatever the get_hardblocksize == 0
-check
-or similar can't be killed alltogether as well....
+It appears to be a bug in PAM. Someone seems to reply on parent/child running
+order and just got caught out
+

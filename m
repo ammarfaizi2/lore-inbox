@@ -1,61 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135721AbRDSVgz>; Thu, 19 Apr 2001 17:36:55 -0400
+	id <S135723AbRDSVip>; Thu, 19 Apr 2001 17:38:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135722AbRDSVgq>; Thu, 19 Apr 2001 17:36:46 -0400
-Received: from bing55.watson121.binghamton.edu ([128.226.121.55]:38157 "EHLO
-	kybl") by vger.kernel.org with ESMTP id <S135721AbRDSVge>;
-	Thu, 19 Apr 2001 17:36:34 -0400
-Date: Thu, 19 Apr 2001 17:36:11 -0400
-To: Giuliano Pochini <pochini@denise.shiny.it>, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.linuxppc.org
-Subject: Re: I can eject a mounted CD
-Message-ID: <20010419173611.A26995@kybl>
-In-Reply-To: <3AD779CB.ED7C1656@denise.shiny.it>
-Mime-Version: 1.0
+	id <S135722AbRDSVii>; Thu, 19 Apr 2001 17:38:38 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17680 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135723AbRDSViH>; Thu, 19 Apr 2001 17:38:07 -0400
+Subject: Re: light weight user level semaphores
+To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
+Date: Thu, 19 Apr 2001 22:38:42 +0100 (BST)
+Cc: drepper@cygnus.com (Ulrich Drepper),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <20010419222228.J682@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Apr 19, 2001 10:22:28 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3AD779CB.ED7C1656@denise.shiny.it>; from pochini@denise.shiny.it on Sat, Apr 14, 2001 at 12:12:28AM +0200
-From: Tomas Jura <tjura@binghamton.edu>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14qM8S-00089B-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 14, 2001 at 12:12:28AM +0200, Giuliano Pochini wrote:
-> 
-> My fstab:
-> 
-> /dev/cdrom              /mnt/cdrom              iso9660 noauto,user,ro 0 0
-> /dev/cdrom              /mnt/cdmac              hfs noauto,user,ro 0 0
-> 
-> I insert an apple cd (hfs) and mount /mnt/cdmac If I type eject /mnt/cdrom
-> the cd momes out but df shows it's still mounted:
-> 
-> /dev/sr0                667978    667978         0 100% /mnt/cdmac
-> 
-> It's funny it don't let me eject cdmac
-> 
-> [Giu@Jay Giu]$ eject /mnt/cdmac/ umount: /dev/sr0 is not in the fstab (and
-> you are not root) eject: unmount of `/dev/sr0' failed
-> 
+> Are you sure, you can implement SMP-safe, atomic operations (which you need
+> for all up()/down() in user space) WITHOUT using privileged
+> instructions on ALL archs Linux supports?
 
-I have similar problem with my swim3 floppy drive. Digging deeply I found that
-when I make do folowing steps then disk is lost and I have to reboot to get it
-back:
-
-floppy = open(/dev/fd0);
-ioctl( floopy, FDGETDRVPRM, &fdp) /* some *invalid* ioctl */
-exit
-
-Device is lost for root too. It is impossible to make any operation on this
-device anymore. And adding some debuging messages showed me that there is no
-problem in swim3 device driver. Still digging...(but have no much time to do
-this ;-( )
-
-Hw&Sw: PowerPC G3 beige, kernel 2.4.3, devfs
-
-Tomas
-
-P.S. CC to me, I'm not in linux-kernel list. Only in linux-ppc
+You don't need to. For some architectures the semaphore code would always call
+into the kernel. For those that allow fast locks in userspace it won't. The
+API is the thing, and the public exposure would I assume be pthreads 
 
 

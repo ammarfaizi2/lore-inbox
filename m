@@ -1,92 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbTLPVui (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 16:50:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262844AbTLPVui
+	id S262901AbTLPVzp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 16:55:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbTLPVzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 16:50:38 -0500
-Received: from s383.jpl.nasa.gov ([137.79.94.127]:33991 "EHLO
-	s383.jpl.nasa.gov") by vger.kernel.org with ESMTP id S262838AbTLPVua
+	Tue, 16 Dec 2003 16:55:45 -0500
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:44043 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262901AbTLPVzj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 16:50:30 -0500
-Message-ID: <3FDF7E1C.9040807@jpl.nasa.gov>
-Date: Tue, 16 Dec 2003 13:50:20 -0800
-From: Bryan Whitehead <driver@jpl.nasa.gov>
-Organization: Jet Propulsion Laboratory
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en-us, en, zh, zh-cn, zh-hk, zh-sg, zh-tw, ja
-MIME-Version: 1.0
-To: Bryan Whitehead <driver@jpl.nasa.gov>
-CC: "Stephen C. Tweedie" <sct@redhat.com>, tsuchiya@labs.fujitsu.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-References: <3FDD7DFD.7020306@labs.fujitsu.com> <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov>
-In-Reply-To: <3FDF7BE0.205@jpl.nasa.gov>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 16 Dec 2003 16:55:39 -0500
+Date: Tue, 16 Dec 2003 22:56:14 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: sensors@stimpy.netroedge.com
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] sensors chip updates
+Message-Id: <20031216225614.7824d575.khali@linux-fr.org>
+In-Reply-To: <20031216035219.GA1658@earth.solarsys.private>
+References: <20031216035219.GA1658@earth.solarsys.private>
+Reply-To: sensors@stimpy.netroedge.com
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, this happens on these filesystems we tried: ext2, ext3, and XFS.
+> The following are four patchsets for 2.6 which were either direct
+> from or inspired by recent updates in the lm_sensors CVS.
+> 
+> These patches should be applied, in order, on top of your -test11
+> megapatch.  Please queue these up for inclusion after 2.6.0.
 
-Bryan Whitehead wrote:
-> I get this problem all the time here at JPL. I can always get the files 
-> back by remounting the filesystem.
-> 
-> For example if /dev/sdb1 mounted on /export/project is getting wierd 
-> "Input/output" errors I can simply run this command:
-> mount -o remount /dev/sdb1 /export/project
-> 
-> It's been about a year of these problems... I'll try running the test 
-> Tsuchiya Yoshihiro made to reproduce. (I have not been able to create a 
-> test that can consistantly reproduce... but the problem has sure screwed 
-> up some data-gathering runs in the lab).
-> 
-> These are all on Mandrake kernels though.... (from the 9.0 series). so 
-> that's 2.4.19+tonOfPatches.
-> 
-> Stephen C. Tweedie wrote:
-> 
->> Hi,
->>
->> On Mon, 2003-12-15 at 09:25, Tsuchiya Yoshihiro wrote:
->>
->>
->>> Following is an Ext2 result and the inode is filled by zero.
->>> I think the inode becomes a badinode.
->>
->>
->>
->>> [root@dell04 tsuchiya]# ls -l 
->>> /mnt/foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html
->>> ls: 
->>> /mnt/foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html: 
->>> Input/output error
->>
->>
->>
->> "Input/output error" can sometimes mean that the kernel has found a
->> filesystem problem, but it also often indicates a device-layer 
->> problem. Is there anything helpful in the kernel logs?
->>
->> Cheers,
->>  Stephen
->>
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> 
+Checked to apply correctly, with my other patches too. Checked to
+compile too. Not tested to work since I don't have a system running 2.6
+these days (hopefully such a situtation won't last) but I'm confident
+(the same changes were made to our CVS repository some times ago after
+all).
 
+I've added these patches to my personal i2c-related for-Linux-2.6
+patches repository [1], and regenerated my own "megapatch" (which is a
+superset of Greg's one, and will melt after Greg's changes are actually
+merged into the 2.6 kernel). You'll notice that I've merged parts 2 and
+3 into one single patch, since both do the same thing on different
+drivers.
+
+Thanks Mark for the patches, we really need to keep merging our CVS
+changes to Linux 2.6 each time it applies.
+
+[1] http://www.ensicaen.ismra.fr/~delvare/devel/i2c/linux-2.6/
+mirrored at http://delvare.nerim.net/i2c/linux-2.6/.
 
 -- 
-Bryan Whitehead
-SysAdmin - JPL - Interferometry and Large Optical Systems
-Phone: 818 354 2903
-driver@jpl.nasa.gov
-
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

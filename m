@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbUCANXN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 08:23:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbUCANXM
+	id S261258AbUCANWm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 08:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbUCANWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 08:23:12 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:62215 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261263AbUCANXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 08:23:08 -0500
-Subject: Re: Worrisome IDE PIO transfers...
-From: Christophe Saout <christophe@saout.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Matt Mackall <mpm@selenic.com>,
-       Jens Axboe <axboe@suse.de>, Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200403010147.47808.bzolnier@elka.pw.edu.pl>
-References: <4041232C.7030305@pobox.com> <20040229015041.GQ3883@waste.org>
-	 <40415152.8040205@pobox.com>  <200403010147.47808.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Message-Id: <1078147381.7497.15.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 01 Mar 2004 14:23:02 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Mar 2004 08:22:42 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:18368 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S261258AbUCANWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 08:22:40 -0500
+Date: Mon, 01 Mar 2004 21:22:19 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: "Martin Wickman" <martin.wickman@xms.se>,
+       "Karol Kozimor" <sziwan@hell.org.pl>
+Subject: Re: [Swsusp-devel] Re: Dropping CONFIG_PM_DISK?
+Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Micha Feigin" <michf@post.tau.ac.il>,
+       "Software suspend" <swsusp-devel@lists.sourceforge.net>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz> <yw1x4qt93i6y.fsf@kth.se> <opr348q7yi4evsfm@smtp.pacific.net.th> <20040229213302.GA23719@luna.mooo.com> <opr35wvvrw4evsfm@smtp.pacific.net.th> <1078139361.21578.65.camel@gaston> <20040301113528.GA21778@hell.org.pl> <1078140515.21578.76.camel@gaston> <20040301115135.GA2774@hell.org.pl> <40433303.1020506@xms.se>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr36p3hq14evsfm@smtp.pacific.net.th>
+In-Reply-To: <40433303.1020506@xms.se>
+User-Agent: Opera M2/7.50 (Linux, build 600)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mo, den 01.03.2004 schrieb Bartlomiej Zolnierkiewicz um 01:47:
+On Mon, 01 Mar 2004 13:56:35 +0100, Martin Wickman <martin.wickman@xms.se> wrote:
 
-> http://www.kernel.org/pub/linux/kernel/people/bart/dm-byteswap-2.6.4-rc1.patch
-> 
-> Guess what's this? :)
+> Karol Kozimor wrote:
+>> Thus wrote Benjamin Herrenschmidt:
+>> Right, but the point is that while 2.6 has such an infrastructure, its
+>> introduction actually completely broke UHCI suspend / resume.
+>>
+>>>> There's also a great deal of people, who can't resume when AGP is being
+>>>> used -- that is again a regression over 2.4.
+>>>
+>>> There haven't been a regression in the AGP drivers themselves afaik.
+>>
+>> Which, again, leads us to conclusion that it was the driver model change
+>> that broke that.
+>>
+>> I'm not trying to criticize the driver model itself (I'm sure others have
+>> already done enough), but merely to emphasize that 2.6 is not yet ready for
+>> laptop users.
+>
+> ...and it's pretty obvious that it'll never be unless it's
+> fixed. Its kinda frustrating this agp resume thing keeps holding swsusp2
+> back -- everything else works (on my laptop at least).
+> -
 
-The thieves... they've stolen my precioussss. ;)
+PM and driver issues are holding back many non-server applications moving
+ from 2.4 to 2.6, and to a substantial extend prevent people moving away
+ from XP...
 
-> It is simply a stripped down dm-crypt.c, so all credits go to Christophe.
-> I have tested it quickly with loop device and it seems to work.
-
-Yes, it's not that complicated. Looks good.
-BTW: You don't need the km_types voodoo as the conversion routine is
-never called from a softirq context and you are allowed (but should try
-to avoid it) to sleep. You could add a conditional reschedule after
-kunmapping the buffers to keep the latency low on non-preempt kernels.
-
-BTW: I've got some cleanups and a small fix in Andrew's latest tree
-(using a #define for the log prefix and I bvec array thingy).
-
+Regards
+Michael
 

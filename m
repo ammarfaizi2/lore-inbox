@@ -1,83 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135817AbREFTe1>; Sun, 6 May 2001 15:34:27 -0400
+	id <S135818AbREFTtj>; Sun, 6 May 2001 15:49:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135813AbREFTeR>; Sun, 6 May 2001 15:34:17 -0400
-Received: from s02.hamberger.co.at ([193.83.64.20]:44294 "EHLO
-	khan.hamberger.loc") by vger.kernel.org with ESMTP
-	id <S135675AbREFTd6>; Sun, 6 May 2001 15:33:58 -0400
-Message-ID: <3AF5A68E.479471E1@tcp-ip.at>
-Date: Sun, 06 May 2001 21:31:26 +0200
-From: Thomas Warwaris <war@tcp-ip.at>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
+	id <S135819AbREFTta>; Sun, 6 May 2001 15:49:30 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:34032 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S135818AbREFTtS>; Sun, 6 May 2001 15:49:18 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105061946.f46JkkFr026005@webber.adilger.int>
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <E14wNwy-00022t-00@the-village.bc.nu> "from Alan Cox at May 6, 2001
+ 01:47:47 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sun, 6 May 2001 13:46:46 -0600 (MDT)
+CC: Alexander Viro <viro@math.psu.edu>, Chris Wedgwood <cw@f00f.org>,
+        Andrea Arcangeli <andrea@suse.de>, Jens Axboe <axboe@suse.de>,
+        Rogier Wolff <R.E.Wolff@bitwizard.nl>,
+        Linus Torvalds <torvalds@transmeta.com>, volodya@mindspring.com,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] capabilities instead of suser in vt.c
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan writes:
+> > an interesting task when your root lives on /dev/sda1. Ditto for destroying
+> > a single partition (not mounted/used by swap/etc.) while you have some
+> > other partition in use. IWBNI we had a decent API for handling partition
+> > tables...
+> 
+> Partitions are just very crude logical volumes, and ultimiately I believe
+> should be handled exactly that way
 
-this patch (on 2.4.4) replaces the calls for suser()
-in vt.c by capable(CAP_SYS_ADMIN).
+Actually, the EVMS project does exactly this.  All I/O is done on a full
+disk basis, and essentially does block remapping for each partition.  This
+also solves the problem of cache inconsistency if accessing the parent
+device vs. accessing the partition.
 
-Any comments are welcome.
-
-I am not on the kernel list. Please CC me followups
-to war@tcp-ip.at
-
-Thomas
-
-diff -urN -X dontdiff linux-2.4.4.ori/drivers/char/vt.c linux/drivers/char/vt.c
---- linux-2.4.4.ori/drivers/char/vt.c	Fri Feb  9 20:30:22 2001
-+++ linux/drivers/char/vt.c	Sun May  6 23:16:06 2001
-@@ -435,10 +435,10 @@
- 
- 	/*
- 	 * To have permissions to do most of the vt ioctls, we either have
--	 * to be the owner of the tty, or super-user.
-+	 * to be the owner of the tty, or SYS_ADMIN capability.
- 	 */
- 	perm = 0;
--	if (current->tty == tty || suser())
-+	if (current->tty == tty || capable(CAP_SYS_ADMIN))
- 		perm = 1;
-  
- 	kbd = kbd_table + console;
-@@ -505,7 +505,7 @@
- 		struct kbd_repeat kbrep;
- 		
- 		if (!mach_kbdrate) return( -EINVAL );
--		if (!suser()) return( -EPERM );
-+		if (!capable(CAP_SYS_ADMIN)) return( -EPERM );
- 
- 		if (copy_from_user(&kbrep, (void *)arg,
- 				   sizeof(struct kbd_repeat)))
-@@ -1038,12 +1038,12 @@
- 		return do_unimap_ioctl(cmd, (struct unimapdesc *)arg, perm);
- 
- 	case VT_LOCKSWITCH:
--		if (!suser())
-+		if (!capable(CAP_SYS_ADMIN))
- 		   return -EPERM;
- 		vt_dont_switch = 1;
- 		return 0;
- 	case VT_UNLOCKSWITCH:
--		if (!suser())
-+		if (!capable(CAP_SYS_ADMIN))
- 		   return -EPERM;
- 		vt_dont_switch = 0;
- 		return 0;
-diff -urN -X dontdiff linux-2.4.4.ori/include/linux/capability.h linux/include/linux/capability.h
---- linux-2.4.4.ori/include/linux/capability.h	Sat Apr 28 00:48:29 2001
-+++ linux/include/linux/capability.h	Sun May  6 23:22:31 2001
-@@ -231,6 +231,7 @@
- /* Allow enabling/disabling tagged queuing on SCSI controllers and sending
-    arbitrary SCSI commands */
- /* Allow setting encryption key on loopback filesystem */
-+/* Allow using virtual terminal administrative ioctl() */
- 
- #define CAP_SYS_ADMIN        21
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVAUJAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVAUJCd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbVAUJAp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 04:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVAUJAp
+	id S261601AbVAUJCd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 04:02:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVAUJCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 04:00:45 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:14497 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261578AbVAUJAl (ORCPT
+	Fri, 21 Jan 2005 04:02:33 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:18064 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261601AbVAUJCN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 04:00:41 -0500
-Date: Fri, 21 Jan 2005 10:00:14 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: George Anzinger <george@mvista.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH] to fix xtime lock for in the RT kernel patch
-Message-ID: <20050121090014.GA30379@elte.hu>
-References: <41F04573.7070508@mvista.com> <20050121063519.GA19954@elte.hu> <41F0BA56.9000605@mvista.com> <20050121082125.GA28267@elte.hu> <41F0BFA4.5030107@mvista.com> <20050121084557.GA29550@elte.hu> <41F0C33D.60908@mvista.com>
+	Fri, 21 Jan 2005 04:02:13 -0500
+Date: Fri, 21 Jan 2005 10:02:02 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Dave Olien <dmo@osdl.org>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, kevcorry@us.ibm.com,
+       agk@sourceware.org
+Subject: Re: [RFC] [PATCH] move bio code from dm into bio
+Message-ID: <20050121090202.GA2790@suse.de>
+References: <20050120235826.GA3041@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41F0C33D.60908@mvista.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050120235826.GA3041@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 20 2005, Dave Olien wrote:
+> 
+> Jens, last December you observed there was bio code
+> duplicated in the dm drivers.
 
-* George Anzinger <george@mvista.com> wrote:
+Yep
 
-> What I am suggesting is spliting the mark code so that it would only
-> grap the offset (current TSC in most systems) during interrupt
-> processing.  Applying this would be done later in the thread.  Since
-> it is not applying the offset, the xtime_lock would not need to be
-> taken.
+> Here are a collection of patches that implements
+> support for local bio and bvec pools into bio.c and then
+> removes the duplicate bio code from the dm drivers.
+> 
+> It also replaces a call to alloc_bio() in dm.c with
+> a call to use a local bio pool.  This removes a 
+> deadlock case in that code.
+> 
+> These patches are against 2.6.11-rc1.  If that's not
+> a good source version to patch against, let me now
+> what versions I should generate patches for.
 
-ok, you are right, and this would be fine with me. Wanna take a shot at
-it? I've uploaded the -03 patch which is my most current tree. (with the
-do_timer() moving done already.) I've reviewed the TSC offset codepath
-again and i'm not sure where i got the 10 usecs from ... it's a pretty
-cheap codepath that can be done in the direct interrupt just fine.
+Just check if they apply to current BK tree, in general it's just best
+to do patches against latest -rc1-bkX (or just the bk tree, if you use
+that).
 
-	Ingo
+But the patch looks good, the bio_set approach is the cleanest way to
+fix it I think. It will be easy to fix the bounce deadlock as well, by
+adding a bio_set_bounce to mm/highmem.c as well.
+
+Thanks for doing this! I'll review the patch in detail, the concept and
+solution is definitely good though.
+
+-- 
+Jens Axboe
+

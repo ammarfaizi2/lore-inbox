@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263959AbTJFDQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 23:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbTJFDQ6
+	id S263963AbTJFDOv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 23:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263966AbTJFDOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 23:16:58 -0400
-Received: from covilha.procergs.com.br ([200.198.128.212]:12809 "EHLO
-	covilha.procergs.com.br") by vger.kernel.org with ESMTP
-	id S263959AbTJFDQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 23:16:57 -0400
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Normal Flopply should depend of ISA?
-From: Otavio Salvador <otavio@debian.org>
-Date: Mon, 06 Oct 2003 00:16:09 -0300
-Message-ID: <87he2n2gzq.fsf@retteb.casa>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 5 Oct 2003 23:14:51 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33029 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263963AbTJFDOt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 23:14:49 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Linux 2.6.0-test6
+Date: 6 Oct 2003 03:05:14 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <blqm5a$dje$1@gatekeeper.tmr.com>
+References: <&lt;3F7CBDD4.7010503@cyberone.com.au&gt;> <ddcbaa61f5ab6ec90c71a70bb3990b49@stdbev.com>
+X-Trace: gatekeeper.tmr.com 1065409514 13934 192.168.12.62 (6 Oct 2003 03:05:14 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello folks,
+In article <ddcbaa61f5ab6ec90c71a70bb3990b49@stdbev.com>,
+Jason Munro <jason@stdbev.com> wrote:
+| On October 2, 7:07 pm Nick Piggin <piggin@cyberone.com.au> wrote:
+| >
+| > Pedro Larroy wrote:
+| >
+| > > On Thu, Oct 02, 2003 at 01:05:36PM +1000, Nick Piggin wrote:
+| > > I'm afraid this selection criteria leads to a scheduler that isn't
+| > > predictable for situations that aren't the ones for which is tuned to
+| > > work. Of course I may be wrong, but to me, seems that saying
+| > > explicitly which tasks are interactive sounds better.
+| > >
+| >
+| > Have a look at my scheduler if you like. It won't estimate interactivity
+| > but it works quite well if you nice -10 your X server. Ie. explicitly
+| > state which process should be favoured.
+| > http://www.kerneltrap.org/~npiggin/v15a/
+| 
+| I don't know much about kernel internals but of the 2.5 and 2.6 kernels I
+| have tried, 2.6.0-test6 is by far the best on the desktop for my use (xmms,
+| vmware, firebird, loads of other apps). With this patch it's better still.
+| Before patching simple things like ls or ps have an annoying slowness while
+| under a moderate/heavy load. For the most part things are fine but after
+| patching commands respond more quickly. This is the first time for me a
+| 2.5+ kernel has been responsive enough to use on a daily basis.
 
-I'm current have problem to use normal floppy disk in 2.6.0-test6-bk7
-and looking at last patchset I found one possible cause.
-
---- a/drivers/block/Kconfig Thu Sep 25 11:33:27 2003
-+++ b/drivers/block/Kconfig Thu Oct 2 00:12:22 2003
-@@ -6,7 +6,7 @@
-config BLK_DEV_FD
-tristate "Normal floppy disk support"
-- depends on !X86_PC9800 && !ARCH_S390
-+ depends on ISA || M68 || SPARC64
----help---
-If you want to use the floppy disk drive(s) of your PC under Linux,
-say Y. Information about this driver, especially important for IBM
-
-Is right normal floppy depends of ISA? I'll include this by the moment
-but I doesn't have any ISA hardware in my system.
-
-Thanks in Advance,
-Otavio
-
+I would like to add my thoughts that test6-np15a is the winner for the
+things I do. I can live with a sound skip (I haven't seen any, but it's
+not my test app), I really want my typing to echo, to click on a header
+in Kmail and see the text, to have ls works, etc. Nick has given me that
+far more than test6 plain or with -mm flavor.
 -- 
-        O T A V I O    S A L V A D O R
----------------------------------------------
- E-mail: otavio@debian.org      UIN: 5906116
- GNU/Linux User: 239058     GPG ID: 49A5F855
- Home Page: http://www.freedom.ind.br/otavio
----------------------------------------------
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262137AbTCHVXP>; Sat, 8 Mar 2003 16:23:15 -0500
+	id <S262215AbTCHV3L>; Sat, 8 Mar 2003 16:29:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbTCHVXP>; Sat, 8 Mar 2003 16:23:15 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:49843
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262137AbTCHVXO>; Sat, 8 Mar 2003 16:23:14 -0500
-Subject: Re: 2.4.21-pre5-ac2:  kernel oops with "swapoff -a"
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: walt <wa1ter@myrealbox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E69CEF9.9050808@myrealbox.com>
-References: <3E69CEF9.9050808@myrealbox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047163205.26745.1.camel@irongate.swansea.linux.org.uk>
+	id <S262219AbTCHV3L>; Sat, 8 Mar 2003 16:29:11 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:24503 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S262215AbTCHV3K>; Sat, 8 Mar 2003 16:29:10 -0500
+Date: Sat, 8 Mar 2003 13:39:33 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@digeo.com>,
+       cherry@osdl.org, rddunlap@osdl.org, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] register_blkdev
+Message-ID: <20030308213932.GJ2835@ca-server1.us.oracle.com>
+References: <20030307225710.A18005@infradead.org> <20030307151744.73738fdd.rddunlap@osdl.org> <1047080297.10926.180.camel@cherrytest.pdx.osdl.net> <20030307233636.A19260@infradead.org> <20030307154624.12105fa3.akpm@digeo.com> <20030307235454.A19662@infradead.org> <20030308014911.GG2835@ca-server1.us.oracle.com> <20030308015805.GA23591@kroah.com> <20030308021505.GH2835@ca-server1.us.oracle.com> <20030308193137.GC26374@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 08 Mar 2003 22:40:06 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030308193137.GC26374@kroah.com>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-08 at 11:07, walt wrote:
-> When I do "swapoff -a" I still see the kernel oops that began with -pre4-ac7
-> and has propagated to every 'ac' kernel since then.
+On Sat, Mar 08, 2003 at 11:31:37AM -0800, Greg KH wrote:
+> Yes, a ramfs partition is the original target.
 
-Yes. There is a nasty bug in the original 2.4 code (and maybe 2.5).
-There is a fix in the -ac tree but the fix has a different bug it seems.
+	Using dd(1) to copy the partition to permanent storage between
+boots?  You do have to solve the permanence problem.  I was thinking
+more along the lines of /dev staying in /, and the userspace system
+updating it at boot.
 
-> Plain 2.4.21-pre5 does NOT show this problem, so it seems to be a patch that
-> was specifically introduced in -pre4-ac7 and I don't know enough to narrow
-> it any further than that.  I'm not an accomplished kernel debugger so I
-> can't offer much more info than that, but I'd like to help if you can give
-> me some hints what kind of information you might need to find the problem.
+Joel
 
-The patch is staying in -ac until I find out why you hit it. I've had no
-other reports so far, but it just be the way your system is calling it.
 
-Can you send me an strace swapoff -a ?
+-- 
 
+"I don't know anything about music. In my line you don't have
+ to."
+        - Elvis Presley
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

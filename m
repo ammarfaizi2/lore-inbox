@@ -1,94 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTECWWX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 18:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTECWWX
+	id S263458AbTECWjt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 18:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263459AbTECWjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 18:22:23 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:3029 "EHLO
-	antoli.gallimedina.net") by vger.kernel.org with ESMTP
-	id S263452AbTECWWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 18:22:22 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: linux-kernel@vger.kernel.org
-Subject: BUG: 2.4.21-rc-ac3 [drm:i830_wait_ring] *ERROR*
-Date: Sun, 4 May 2003 00:34:46 +0200
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Sat, 3 May 2003 18:39:49 -0400
+Received: from [128.173.39.159] ([128.173.39.159]:20610 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263458AbTECWjs (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 18:39:48 -0400
+Message-Id: <200305032252.h43Mq7X9006633@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: thunder7@xs4all.nl
+Cc: Gabe Foobar <foobar.gabe@freemail.hu>, linux-kernel@vger.kernel.org
+Subject: Re: will be able to load new kernel without restarting? 
+In-Reply-To: Your message of "Sat, 03 May 2003 22:56:56 +0200."
+             <20030503205656.GA19352@middle.of.nowhere> 
+From: Valdis.Kletnieks@vt.edu
+References: <freemail.20030403212422.18231@fm9.freemail.hu>
+            <20030503205656.GA19352@middle.of.nowhere>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-889982082P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305040034.46878.gallir@uib.es>
+Date: Sat, 03 May 2003 18:52:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
-	I've got the following error from the i830 drm modules. I attach the 
-relevant lines, including when X/drm was started. The X server (4.3) was 
-killed after the kernel gave the errors. 
+--==_Exmh_-889982082P
+Content-Type: text/plain; charset=us-ascii
 
-It happened when I changed from X to a console via Ctrl-Alt-F8. I checked 
-the sources:
+On Sat, 03 May 2003 22:56:56 +0200, Jurriaan said:
 
-if(time_before(end, jiffies))
-                    ^^^^^^^
-	DRM_ERROR("space: %d wanted %d\n", ring->space, n);
-	DRM_ERROR("lockup\n");
+> > Just a simple question. When I will be able to load new
+> > kernel without restarting the system? Working anybody on
+> > this problem?
 
-Just in case, I had running my own program 
-(http://mnm.uib.es/~gallir/cpudyn/) to change the frequency of the cpu 
-dinamically according to the load. 
+> Check the archives for 'kexec'. Some success messages were posted even
+> today.
+> 
 
-I tried to repeat it with _and_ without that daemon running (i.e. at 
-constantfrequency) without success yet.
+As I understand it, that's still restarting, just skipping the usual detour
+through the BIOS and lilo/grub/whatever.
+
+What he wants is the sort of on-the-fly upgrading that bellheads have grown to
+know and love, and which is NOT likely to be implemented for the entire Linux
+kernel anytime soon.  Large sections can do it now with the "module" stuff, so
+you can rmmod the old one and insmod the new one.. but I don't see any easy way
+to implement rmmmod/insmod semantics for things like kernel/schedule.c (how
+would you get your next timeslice?).  There's also issues with changing the
+API for something - it's hard to drop a 2.5.71 kernel/signals.c into a 2.5.70
+kernel if the API is different.  Googling around will probably cough up
+lots of references to how the telcos do software upgrades - it basically
+involves LOTS of up-front design work to make sure all the details are
+addressed in the basic design of the system.
+
+Bottom line - you can do it now for things that can be built as modules,
+*if* it's something you can effectively rmmod and insmod.  If it's not a module,
+or if it's the driver for something you can't rmmod (a disk or network driver,
+etc), you can't do it on-the-fly.
 
 
-Regards,
+--==_Exmh_-889982082P
+Content-Type: application/pgp-signature
 
-PS: the laptop is a Dell X200, AGP is integrated in the kernel,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
------------------
-memory : d63256e0
-memory : d6325720
-memory : d6325760
-memory : d63257a0
-[drm] AGP 0.99 on Intel i810 @ 0xe8000000 128MB
-[drm] Initialized i830 1.3.2 20021108 on minor 0
-mtrr: base(0xe8000000) is not aligned on a size(0x180000) boundary
-memory : d6325820
-memory : d6325860
-memory : d63258a0
-memory : d63258e0
-memory : d6325920
-PCI: Found IRQ 10 for device 00:02.0
-PCI: Sharing IRQ 10 with 00:1d.0
-PCI: Sharing IRQ 10 with 02:03.0
-[drm:i830_wait_ring] *ERROR* space: 131048 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 131040 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 131032 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 131024 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 131016 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 131008 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 131000 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 130992 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 130984 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 130976 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 130968 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
-[drm:i830_wait_ring] *ERROR* space: 130960 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
+iD8DBQE+tEgWcC3lWbTT17ARAipeAKDXI7/xjQaVzg9HQW7+pQpJRHkH8wCg0mAF
+p+dGwFcpwR1X8ayWfGQ738I=
+=CHbq
+-----END PGP SIGNATURE-----
 
--- 
-  ricardo galli       GPG id C8114D34
+--==_Exmh_-889982082P--

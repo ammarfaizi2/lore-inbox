@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbRERVhT>; Fri, 18 May 2001 17:37:19 -0400
+	id <S261565AbRERV3S>; Fri, 18 May 2001 17:29:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261572AbRERVg7>; Fri, 18 May 2001 17:36:59 -0400
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:5765 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S261561AbRERVgx>;
-	Fri, 18 May 2001 17:36:53 -0400
-Message-ID: <3B0595E4.F662165E@mirai.cx>
-Date: Fri, 18 May 2001 14:36:36 -0700
-From: J Sloan <jjs@mirai.cx>
-Organization: Mirai Consulting
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Rival <frival@zk3.dec.com>
-CC: "David S. Miller" <davem@redhat.com>,
-        Ronald Bultje <rbultje@ronald.bitfreak.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Linux scalability?
-In-Reply-To: <Pine.LNX.4.33.0105180914560.29042-100000@iq.rulez.org>
-			<990173560.6346.0.camel@adslgw>
-			<990174686.12881.18.camel@tux.bitfreak.net>
-			<3B0577E0.A4CAF354@mirai.cx> <15109.31311.679701.484140@pizda.ninka.net> <3B057C33.7874AF71@zk3.dec.com>
+	id <S261561AbRERV3J>; Fri, 18 May 2001 17:29:09 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:49925 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S261563AbRERV27>; Fri, 18 May 2001 17:28:59 -0400
+Date: Fri, 18 May 2001 23:25:32 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: kees <kees@schoen.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Delivery reports about your email [FAILED(1)] (fwd)
+Message-ID: <20010518232531.G18853@arthur.ubicom.tudelft.nl>
+In-Reply-To: <Pine.LNX.4.21.0105181858280.12703-120000@schoen3.schoen.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0105181858280.12703-120000@schoen3.schoen.nl>; from kees@schoen.nl on Fri, May 18, 2001 at 06:59:03PM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Rival wrote:
+On Fri, May 18, 2001 at 06:59:03PM +0200, kees wrote:
+> Why?
 
-> "David S. Miller" wrote:
->
-> > J Sloan writes:
-> >  > Microsoft finally managed to get a better result using
-> >  > an all-out, "bet the farm", "benchmark buster" setup
-> >  > with a special web cache in front of iis.
-> >
-> > I haven't heard anyone talk about the fact that their 8-cpu numbers
-> > got disqualified and aren't even mentioned on the SPEC site on the
-> > main tables anymore.
-> >
->
-> Really?  I just checked and it's still there from what I see.  We're talking
-> about the Dell 8450/700 w/ IIS & SWC 3.0 result, right?  I'm hoping that
-> they're deemed NC, but I don't see it yet...
->
+Because your mail server (ams8uucp0.ams.ops.eu.uu.net) is in ORBS, i.e.
+it is an open mail relay, probably used before to relay spam. Read
+http://www.orbs.org/ for instructions on how to get removed from ORBS.
 
-IIRC they did have some results disqualified, but
-them these latest results have been submitted
-since then - perhaps they will be disqualified as
-well, once the facts come to light...
 
-cu
+Erik
 
-jjs
+> ---------- Forwarded message ----------
+> Date: Fri, 18 May 2001 14:50:30 +0000
+> From: The Post Office <postmaster@uucp.nl.uu.net>
+> To: kees@schoen.nl
+> Subject: Delivery reports about your email [FAILED(1)]
+> 
+> This is a collection of reports about email delivery
+> process concerning a message you originated.
+> 
+> Some explanations/translations for these reports
+> can be found at:
+>       http://www.zmailer.org/reports.html
+> 
+> FAILED:
+>   Original Recipient:
+>     rfc822;alan@lxorguk.ukuu.org.uk
+>   Control data:
+>     smtp lxorguk.ukuu.org.uk alan@lxorguk.ukuu.org.uk 65534
+>   Diagnostic texts:
+> ...\
+>     <<- MAIL From:<kees@schoen.nl> SIZE=10123
+>     ->> 250 <kees@schoen.nl> is syntactically correct
+>     <<- RCPT To:<alan@lxorguk.ukuu.org.uk>
+>     ->> 550-Open relay - see http://www.orbs.org/verify.php3?address=212.153.111.69
+>     ->> 550 mail from 212.153.111.69 rejected: administrative prohibition (host is blacklisted)
 
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

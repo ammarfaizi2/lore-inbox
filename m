@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbUDEXRg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 19:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUDEXRg
+	id S263335AbUDEXR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 19:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbUDEXR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 19:17:36 -0400
-Received: from linux-bt.org ([217.160.111.169]:30387 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S263281AbUDEXRe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 19:17:34 -0400
-Subject: Re: regression: oops with usb bcm203x bluetooth dongle 2.6.5
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1081201957.3590.49.camel@localhost>
-References: <1081196482.3591.5.camel@localhost>
-	 <1081199370.2843.20.camel@pegasus>  <1081200442.3591.38.camel@localhost>
-	 <1081201227.2843.27.camel@pegasus>  <1081201957.3590.49.camel@localhost>
+	Mon, 5 Apr 2004 19:17:58 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:17317 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S263370AbUDEXRz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 19:17:55 -0400
+Subject: Re: [PATCH] Drop exported symbols list if !modules
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+In-Reply-To: <20040405230723.GK6248@waste.org>
+References: <20040405205539.GG6248@waste.org>
+	 <1081205099.15272.7.camel@bach>  <20040405230723.GK6248@waste.org>
 Content-Type: text/plain
-Message-Id: <1081207065.17215.6.camel@pegasus>
+Message-Id: <1081207046.15272.44.camel@bach>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 06 Apr 2004 01:17:45 +0200
+Date: Tue, 06 Apr 2004 09:17:26 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Soeren,
+On Tue, 2004-04-06 at 09:07, Matt Mackall wrote:
+> On Tue, Apr 06, 2004 at 08:45:01AM +1000, Rusty Russell wrote:
+> > On Tue, 2004-04-06 at 06:55, Matt Mackall wrote:
+> > > Drop ksyms if we've built without module support
+> > > 
+> > > From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+> > > Subject: Re: 2.6.1-rc1-tiny2
+> > 
+> > Other than saving a little compile time, does this actually do anything?
+> > 
+> > I'm not against it, I just don't think I see the point.
+> 
+> Well it obviously saves memory and image size too;
 
-> That is why I removed all the bluefw stuff in /etc/hotplug before
-> testing bluetooth again... but it still oopsed.
+Please measure it.  It's not obvious to me at all.
 
-maybe you wanna try 2.6.5-mh1 from http://www.bluez.org/patches.html
-
-Regards
-
-Marcel
-
+Thanks,
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

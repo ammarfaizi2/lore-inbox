@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265304AbTLMXb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 18:31:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265305AbTLMXb6
+	id S265305AbTLMXfm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 18:35:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265306AbTLMXfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 18:31:58 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:23969
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S265304AbTLMXb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 18:31:57 -0500
-Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
-From: Ian Kumlien <pomac@vapor.com>
-To: ross@datscreative.com.au
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200312140916.26005.ross@datscreative.com.au>
-References: <200312140407.28580.ross@datscreative.com.au>
-	 <1071354516.2634.3.camel@big.pomac.com>
-	 <200312140916.26005.ross@datscreative.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-n2kdyssMrMKquQ7wfGjk"
-Message-Id: <1071358316.1681.3.camel@big.pomac.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 14 Dec 2003 00:31:56 +0100
+	Sat, 13 Dec 2003 18:35:42 -0500
+Received: from elpis.telenet-ops.be ([195.130.132.40]:7392 "EHLO
+	elpis.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S265305AbTLMXfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 18:35:40 -0500
+From: Bart De Schuymer <bdschuym@pandora.be>
+To: Steve Hill <steve@navaho.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <ebtables-devel@lists.sourceforge.net>,
+       <netfilter-devel@lists.netfilter.org>
+Subject: Re: memory leak related to bridging, conntrack and frags in 2.6.0
+Date: Sun, 14 Dec 2003 00:35:38 +0100
+User-Agent: KMail/1.5
+References: <Pine.LNX.4.44.0312121948321.8670-200000@sorbus2.navaho>
+In-Reply-To: <Pine.LNX.4.44.0312121948321.8670-200000@sorbus2.navaho>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312140035.38759.bdschuym@pandora.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 12 December 2003 20:55, Steve Hill wrote:
+> Sorry for the cross-post - I thought this would be of interest to all the
+> lists and also wasn't sure where the best people to help hang out.
 
---=-n2kdyssMrMKquQ7wfGjk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The right mailing list for this is netdev@oss.sgi.com.
 
-Hi again,=20
+> With both conntrack and bridging turned on in the 2.6.0test11 kernel,
+> sending fragmented packets over the bridge reveals a memory leak
+> (specifically, forwarding packets from any interface to a bridge).  The
+> memory that is leaking seems to be being allocated on line 299 on
+> net/bridge/br_netfilter.c:
+>
+>         if ((nf_bridge = nf_bridge_alloc(skb)) == NULL)
+>                 return NF_DROP;
 
-Unfortunately that kernel deadlocked as well... Both times while
-downloading, is there some patches that i have missed for 2.6?
+Thanks for the good diagnose.
 
-Please send em all if you have been successful in running it past the
-'crash deadline'.
+> Only the first fragment gets freed later on.
+>
+> The patch attached fixes the problem by freeing nf_bridge when the
+> packets are defragmented, however I am sure this is not the right place
+> to do this.  Where would the skb's for the fragments usually get freed?
 
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+I believe they are freed in skbuff.c::skb_release_data().
 
---=-n2kdyssMrMKquQ7wfGjk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I think the place where you've put the fix doesn't cover all cases. If 
+ip_frag_destroy() is called, there will still be a memory leak. So I think 
+the right place for this is in skb_release_data. But consulting with the 
+netdev list seems appropriate :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+You can change
++		if (fp->nf_bridge) {
++			nf_bridge_put(fp->nf_bridge);
++			fp->nf_bridge = NULL;
++		};
+into
++		nf_bridge_put(fp->nf_bridge);
 
-iD8DBQA/26Fs7F3Euyc51N8RAljKAKCM/+1GzIQawBkID20EcuyVg4iXswCgkFef
-adq2i1/ePvulB2Kru6B8GII=
-=peoD
------END PGP SIGNATURE-----
-
---=-n2kdyssMrMKquQ7wfGjk--
+cheers,
+Bart
 

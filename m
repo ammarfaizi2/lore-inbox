@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbTIKTD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 15:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTIKTD1
+	id S261468AbTIKTLT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 15:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbTIKTLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 15:03:27 -0400
-Received: from mail-4.tiscali.it ([195.130.225.150]:44517 "EHLO
-	mail-4.tiscali.it") by vger.kernel.org with ESMTP id S261465AbTIKTDZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 15:03:25 -0400
-From: Lorenzo Allegrucci <l.allegrucci@tiscali.it>
-Organization: -ENOENT
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [OOPS] 2.6.0-test5 with CONFIG_PREEMPT
-Date: Thu, 11 Sep 2003 21:07:39 +0000
-User-Agent: KMail/1.5.1
-Cc: Andrew Morton <akpm@osdl.org>, Robert Love <rml@tech9.net>
+	Thu, 11 Sep 2003 15:11:19 -0400
+Received: from outbound04.telus.net ([199.185.220.223]:34959 "EHLO
+	priv-edtnes16-hme0.telusplanet.net") by vger.kernel.org with ESMTP
+	id S261468AbTIKTLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 15:11:18 -0400
+Message-ID: <001401c37898$78d47ee0$5d74ad8e@hyperwolf>
+From: "Eric Bickle" <ebickle@healthspace.ca>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Problem: IDE data corruption with VIA chipsets on2.4.20-19.8+others
+Date: Thu, 11 Sep 2003 12:11:15 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309112107.39062.l.allegrucci@tiscali.it>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This time captured by "console=lp0" :)
-
-------------[ cut here ]------------
-kernel BUG at kernel/exit.c:731!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c011e1ce>]    Not tainted
-EFLAGS: 00010296
-EIP is at do_exit+0x20e/0x400
-eax: 00000000   ebx: dffeeaa0   ecx: dc865940   edx: dcb5e000
-esi: 00000000   edi: dd7026d0   ebp: dcb5fed0   esp: dcb5feb4
-ds: 007b   es: 007b   ss: 0068
-Process bomb.sh (pid: 11259, threadinfo=dcb5e000 task=dd7026d0)
-Stack: dd7026d0 dcb44580 dcb5ff24 dd702c84 dcb5e000 00000009 00000009 dcb5fee4
-       c011e46a 00000009 dcb5e000 dd7026d0 dcb5ff0c c0127124 00000009 dd702c84
-       dcb5ff24 dcb5e000 dd702c84 dcb5ffc4 dd702c84 dcb5e000 dcb5ffb0 c0109156
-Call Trace:
- [<c011e46a>] do_group_exit+0x3a/0xb0
- [<c0127124>] get_signal_to_deliver+0x244/0x350
- [<c0109156>] do_signal0+0x66/0xe0
- [<c010920b>] do_notify_resume+0x3b/0x40
- [<c01093ea>] work_notifysig+0x13/0x15
-
-Code: 0f 0b 02 4c 4f 32 c0 eb fe 8b 77 10 85 f6 75 ea 89 3c 24
- <6>note: bomb.sh[11259] exited with preempt_count 1
+> Other than to tell you Linux is simply reporting back what the drive
+> itself reported - which is a physical failure to recover a sector of
+> data no.
+>
+> A test that rewrites such a sector will generally clear the error, its
+> one of the problems of some diagnostic tools. A pure read test should
+> fine the error again unless its something like overheat causing the
+> problem. SMART data will tell you drive temperatures
 
 
-It's not that easy to trigger, but it's 100% reproducible.
+Thanks for the info, I'll try to dig up some better diagnostic tools. I
+definately appreciate the quick response!
+
+Thanks again,
+-Eric Bickle
 

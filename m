@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313862AbSDIMCe>; Tue, 9 Apr 2002 08:02:34 -0400
+	id <S313137AbSDIMFC>; Tue, 9 Apr 2002 08:05:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313863AbSDIMCd>; Tue, 9 Apr 2002 08:02:33 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:59819 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S313862AbSDIMCb>; Tue, 9 Apr 2002 08:02:31 -0400
-Date: Tue, 9 Apr 2002 13:47:53 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Rob Radez <rob@osinvestor.com>
-Cc: Corey Minyard <minyard@acm.org>, <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Further WatchDog Updates
-In-Reply-To: <Pine.LNX.4.33.0204090645240.17511-100000@pita.lan>
-Message-ID: <Pine.LNX.4.44.0204091344420.32054-100000@netfinity.realnet.co.sz>
+	id <S313139AbSDIMFB>; Tue, 9 Apr 2002 08:05:01 -0400
+Received: from [62.245.135.174] ([62.245.135.174]:32678 "EHLO mail.teraport.de")
+	by vger.kernel.org with ESMTP id <S313137AbSDIMFA>;
+	Tue, 9 Apr 2002 08:05:00 -0400
+Message-ID: <3CB2D8E6.F0513802@TeraPort.de>
+Date: Tue, 09 Apr 2002 14:04:54 +0200
+From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Reply-To: m.knoblauch@TeraPort.de
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5-ac3 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@suse.cz>
+CC: m.knoblauch@TeraPort.de,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [swsusp fixes] Re: Linux 2.4.19pre5-ac3
+In-Reply-To: <3CB1B89D.13DDF456@TeraPort.de> <20020408215908.GI31172@atrey.karlin.mff.cuni.cz> <3CB29AE3.E3447952@TeraPort.de> <20020409105440.GB14695@atrey.karlin.mff.cuni.cz>
+X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 04/09/2002 02:04:53 PM,
+	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 04/09/2002 02:04:59 PM,
+	Serialize complete at 04/09/2002 02:04:59 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--/* This returns the status of the WDO signal, inactive high.
-- * returns WDO_ENABLED or WDO_DISABLED
-- */
--static inline int sc1200wdt_status(void)
-+static int sc1200wdt_start(void);
- {
--	unsigned char ret;
-+	sc1200wdt_read_data(WDCF, &reg);
-+	/* assert WDO when any of the following interrupts are triggered 
-too */
-+	reg |= (KBC_IRQ | MSE_IRQ | UART1_IRQ | UART2_IRQ);
-+	sc1200wdt_write_data(WDCF, reg);
-+	/* set the timeout and get the ball rolling */
-+	sc1200wdt_write_data(WDTO, timeout);
-+}
- 
--	sc1200wdt_read_data(WDST, &ret);
--	return (ret & 0x01);		/* bits 1 - 7 are undefined */
-+
-+static int sc1200wdt_stop(void)
-+{
-+	sc1200wdt_write_data(WDTO, 0);
- }
+Pavel Machek wrote:
+> 
+> >
+> >  My question was: can I have a system without active swap and still use
+> > swsusp? Creating a swap/suspend partition of appropriate size is not a
+> > problem. I just do not want to "swapon" it.
+> 
+> You need to swapon it. If you do not want to keep it swapped on,
+> there's no problem in
+> 
+> swapon /dev/swap
+> echo 4 > /proc/acpi/sleep
+> sleep 10
+> swapoff /dev/swap
+> 
 
-Did you forget return values? Or perhaps just redeclare those...
-Also i don't quite understand the new status reporting you're doing, mind 
-just explaining it to me a bit? The previous code would tell you wether 
-the watchdog is enabled/disabled so you can tell wether the timeout period 
-has passed.
+ thanks. That is what I wanted to know. That basically means that I will
+have to boot with a active swap device in order to get the resume
+functionality - correct? And then I would do a "swapoff" late in the
+boot process (maybe before starting the graphical crap :-).
 
-Regards,
-	Zwane
-
+Martin
 -- 
-http://function.linuxpower.ca
-		
-
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

@@ -1,46 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbTD2MPn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 08:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTD2MPn
+	id S261845AbTD2MWS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 08:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbTD2MWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 08:15:43 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:29456 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S261824AbTD2MPl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 08:15:41 -0400
-Subject: Re: Broadcom BCM4306/BCM2050  support
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: Martin List-Petersen <martin@list-petersen.dk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051618337.3eae6c218bd3c@roadrunner.hulpsystems.net>
-References: <1051596982.3eae18b640303@roadrunner.hulpsystems.net>
-	 <1051614381.21135.5.camel@rth.ninka.net> <3EAE644A.2000101@gmx.net>
-	 <1051618337.3eae6c218bd3c@roadrunner.hulpsystems.net>
-Content-Type: text/plain
-Organization: K4 Labs
-Message-Id: <1051619268.21965.20.camel@gregs>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 29 Apr 2003 13:27:49 +0100
+	Tue, 29 Apr 2003 08:22:18 -0400
+Received: from moutng.kundenserver.de ([212.227.126.185]:42728 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261845AbTD2MWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 08:22:16 -0400
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= <linux@borntraeger.net>
+To: acme@conectiva.com.br
+Subject: [BUG 2.5.67 (and probably earlier)] /proc/dev/net doesnt show all net devices
+Date: Tue, 29 Apr 2003 14:34:18 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304291434.18272.linux@borntraeger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-29 at 13:12, Martin List-Petersen wrote:
-> Citat Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>:
-> 
-> > > So don't blame the vendors on this one, several of them would love
-> > > to publish drivers public for their cards, but simply cannot with
-> > > upsetting federal regulators.
+Summary: /proc/net/devices doesnt show all devices using cat. With dd all are 
+available.
 
-Well, there are guys that are able to change this frequency without open
-documentation - so it is just not good argument. 
-I will rather say that this is misdesign - allowing to do more than is
-allowed....
- 
+I tested a kernels prior to 
+http://linus.bkbits.net:8080/linux-2.5/cset@1.797.156.3
+and it doesnt seem to have this problem.
 
--- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 Labs
+If I do a 
+& cat /proc/net/dev
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    
+packets errs drop fifo colls carrier compressed
+    lo:     784      10    0    0    0     0          0         0      784      
+dummy0:       0       0    0    0    0     0          0         0        0       
+ tunl0:       0       0    0    0    0     0          0         0        0       
+  gre0:       0       0    0    0    0     0          0         0        0       
+  sit0:       0       0    0    0    0     0          0         0        0       
+  eth0: 1078024   19131    0    0    0     0          0         0  5696472   
+  eth1:536253967 10078459    0    0    0     0          0         0 3372254868 
 
+I get net devices till eth1, but eth2 and hsi0 are available nevertheless.
+but if I do a 
+
+& dd if=/proc/net/dev bs=4096
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    
+packets errs drop fifo colls carrier compressed
+    lo:    1036      13    0    0    0     0          0         0     1036      
+dummy0:       0       0    0    0    0     0          0         0        0       
+ tunl0:       0       0    0    0    0     0          0         0        0       
+  gre0:       0       0    0    0    0     0          0         0        0       
+  sit0:       0       0    0    0    0     0          0         0        0       
+  eth0: 1182386   18424    0    0    0     0          0         0 11838659   
+  eth1:30499791987 20594094    0    0    0     0          0         0 
+  eth2:184353121774 125264473    0    0    0     0          0         0 
+  hsi0:123569282529 3827611    0    0    0     0          0         0 
+0+1 records in
+0+1 records out
+
+All net devices are shown.
+
+cheers
+
+Christian

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135910AbRD0Eb1>; Fri, 27 Apr 2001 00:31:27 -0400
+	id <S135973AbRD0Eta>; Fri, 27 Apr 2001 00:49:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135971AbRD0EbR>; Fri, 27 Apr 2001 00:31:17 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:58339 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S135910AbRD0EbI>; Fri, 27 Apr 2001 00:31:08 -0400
-Date: Thu, 26 Apr 2001 22:31:04 -0600
-Message-Id: <200104270431.f3R4V4630593@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jonathan Lundell <jlundell@pobox.com>
+	id <S135974AbRD0EtU>; Fri, 27 Apr 2001 00:49:20 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:3768 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S135973AbRD0EtH>; Fri, 27 Apr 2001 00:49:07 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 26 Apr 2001 21:49:05 -0700
+Message-Id: <200104270449.VAA05279@adam.yggdrasil.com>
+To: kaos@ocs.com.au
+Subject: Suggestion for module .init.{text,data} sections
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] adding PCI bus information to SCSI layer
-In-Reply-To: <p05100313b70bb73ce962@[207.213.214.37]>
-In-Reply-To: <CDF99E351003D311A8B0009027457F140810E286@ausxmrr501.us.dell.com>
-	<200104242159.f3OLxoB07000@vindaloo.ras.ucalgary.ca>
-	<p05100313b70bb73ce962@[207.213.214.37]>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Lundell writes:
-> At 3:59 PM -0600 4/24/01, Richard Gooch wrote:
-> >The plan I have (which I hope to get started on soon, now that I'm
-> >back from travels), is to change /dev/scsi/host# from a directory into
-> >a symbolic link to a directory called: /dev/bus/pci0/slot1/function0.
-> >Thus, to access a partition via location, one would use the path:
-> >/dev/bus/pci0/slot1/function0/bus0/target1/lun2/part3.
-> 
-> A minor PCI terminology point: PCI buses are subdivided into
-> devices, not (necessarily) slots. So, for example, a multiple-device
-> PCI card (say, two SCSI controllers) might have a PCI bridge
-> creating a new bus, and two devices (not slots) on that bus. (It
-> could alternatively be implemented as a single device with two
-> functions, given a dual-interface chip, but not necessarily.)
->
-> So a better name would be
-> /dev/bus/pci0/dev1/fcn0/bus0/tgt1/lun2/part3 (taking the liberty of
-> abbreviating some of the other names).
+	A while ago, on linux-kernel, we had a discussion about
+adding support for __initdata and __init in modules.  Somebody
+(whose name escapes me) had implemented it by essentially adding
+a vmrealloc() facility in the kernel.  I think I've thought of a
+simpler way, that would require almost no kernel changes.
 
-Sure. I haven't made a decision on the names yet. I was just sketching
-out the idea.
+	Have insmod split the module into two parts and load them
+as two modules.  First, create the regular part of the module as usual
+(without .data.init and .text.init), except with no initialization
+routine set.  Second, create a module from the .data.init and the
+.text.init sections (if any), with it's initialization routine set
+to the module's init_module routine, even if that routine resides
+in the first module.  Third, there will be cross references between
+these two modules, so will generally be necessary to resolve the
+relocations before loading either module.  Fourth, load the first
+module.  This will always succeed, since there is no initialization
+routine to fail.  Fifth, load the second module, the one made of .data.init
+and .text.init.  It will run the actual module_init function.  If the
+module initialization routine fails, both modules are unloaded and
+the usual failure behavior happens.  If the module initialization
+succeeds, the ".init" module (the second module) is unloaded.
 
-> How, if at all, would RAID devices, using more than one physical
-> device, or SCSI bus, or PCI card, fit into this naming scheme?
+	Potentially, this could save some memory footprint in
+highly modularized systems and cleanup linux/include/init.h.
+I guess I would imagine this as a potential 2.5 feature, or
+perhaps as a default-off option intended soley for stress testing
+in 2.4.
 
-Same as it does now. There's the underlying devices, and then the meta
-devices, which are under /dev/md.
+	I started looking through the modutils sources, but I was
+a little disappointed to discover that it is ELF-specific rather
+than written in bfd, as I am pretty unfamiliar with ELF innards but
+a little more conversant in bfd.  Maybe I'll take a whack at it yet,
+but I figure I should at least pass the idea along and see if I'm
+overlooking anything obvious.
 
-BTW: please fix your mailer to do linewrap at 72 characters. Your
-lines are hundreds of characters long, and that's hard to read.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

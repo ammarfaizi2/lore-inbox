@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135396AbRDRV53>; Wed, 18 Apr 2001 17:57:29 -0400
+	id <S135395AbRDRWCU>; Wed, 18 Apr 2001 18:02:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135395AbRDRV5W>; Wed, 18 Apr 2001 17:57:22 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:42510 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S135394AbRDRV5K>; Wed, 18 Apr 2001 17:57:10 -0400
-Date: Wed, 18 Apr 2001 23:56:56 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] proc_mknod() should check the mode parameter
-Message-ID: <20010418235656.Q6985@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010418222826.N6985@arthur.ubicom.tudelft.nl> <Pine.GSO.4.21.0104181749060.15153-100000@weyl.math.psu.edu>
+	id <S135397AbRDRWCJ>; Wed, 18 Apr 2001 18:02:09 -0400
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:6665 "EHLO
+	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+	id <S135395AbRDRWB6>; Wed, 18 Apr 2001 18:01:58 -0400
+Date: Wed, 18 Apr 2001 18:02:57 -0400
+From: Michael Meissner <meissner@spectacle-pond.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: i386 cleanups
+Message-ID: <20010418180257.A17877@munchkin.spectacle-pond.org>
+In-Reply-To: <20010417232614.A4377@bug.ucw.cz> <Pine.LNX.4.31.0104171443060.1029-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0104181749060.15153-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Apr 18, 2001 at 05:51:08PM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+In-Reply-To: <Pine.LNX.4.31.0104171443060.1029-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Apr 17, 2001 at 02:46:09PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 18, 2001 at 05:51:08PM -0400, Alexander Viro wrote:
-> On Wed, 18 Apr 2001, Erik Mouw wrote:
-> > While documenting the procfs interface (more of that later), I came
-> > across proc_mknod() which is supposed to be used to create devices in
-> > the procfs. IMHO it should therefore check if the mode parameter
-> > contains S_IFBLK or S_IFCHR.
+On Tue, Apr 17, 2001 at 02:46:09PM -0700, Linus Torvalds wrote:
 > 
-> Why? All callers of proc_mknod() are in the kernel and they should
-> know better. I could understand
-> 	if (....)
-> 		BUG();
-> but silently doing nothing is really odd.
+> 
+> On Tue, 17 Apr 2001, Pavel Machek wrote:
+> >
+> > These are tiny cleanups you might like. sizes are "logically"
+> > long.
+> 
+> No. Sizes are not "logical". They are whatever you decide they are, ie
+> it's purely a complier convention.
 
-OK, what about this one:
+Not purely a compiler convention, but an ABI requirement.  In particular, Linux
+GCC adheres to the ABI specified in the System V UNIX Intel386 (tm) Processor
+Supplement, and on page 6-66, in figure 6-70, the specification for stddef.h
+says that:
 
-Index: fs/proc/generic.c
-===================================================================
-RCS file: /home/erik/cvsroot/elinux/fs/proc/generic.c,v
-retrieving revision 1.1.1.16
-diff -u -r1.1.1.16 generic.c
---- fs/proc/generic.c	2001/04/08 23:34:42	1.1.1.16
-+++ fs/proc/generic.c	2001/04/18 21:55:14
-@@ -445,6 +445,9 @@
- 	const char *fn = name;
- 	int len;
- 
-+	if (! (S_ISCHR(mode) || S_ISBLK(mode)))
-+		BUG();
-+
- 	if (!parent && xlate_proc_name(name, &parent, &fn) != 0)
- 		goto out;
- 	len = strlen(fn);
+	typedef int ptrdiff_t;
+	typedef unsigned int size_t;
+	typedef long wchar_t;
 
+> At least earlier, size_t was defined as "unsigned int" in user mode, and
+> doing anything else would make gcc complain about clashes with its
+> compiled-in __builtin_size_t that it uses for the builtin prototypes (ie
+> if you had a declaration for "void *memcpy(void *dest, const void *src,
+> size_t n);" and your size_t didn't match the gcc builtin_size_t, you'd get
+> a "redefined with different arguments" warning or something).
 
-Erik
+While, I grant that this is one area the ABI could have been improved upon
+(alignment of floating point, and reservation of EBX as GOT pointers are other
+sore spots), it is the ABI of record.  Yes, we could certainly choose a
+different ABI for Linux, but it is probably too late for that in the case of
+the x86.
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Michael Meissner, Red Hat, Inc.  (GCC group)
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482

@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbTICJim (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 05:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbTICJim
+	id S261732AbTICJtp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 05:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTICJtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 05:38:42 -0400
-Received: from tench.street-vision.com ([212.18.235.100]:44684 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id S261772AbTICJik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 05:38:40 -0400
-Subject: Re: devfs to be obsloted by udev?
-From: Justin Cormack <justin@street-vision.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Ed Sweetman <ed.sweetman@wmich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200309022219.02549.bzolnier@elka.pw.edu.pl>
-References: <3F54A4AC.1020709@wmich.edu> 
-	<200309022219.02549.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 03 Sep 2003 10:38:48 +0100
-Message-Id: <1062581929.30060.197.camel@lotte.street-vision.com>
+	Wed, 3 Sep 2003 05:49:45 -0400
+Received: from mail3.bluewin.ch ([195.186.1.75]:18909 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id S261732AbTICJtn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 05:49:43 -0400
+Date: Wed, 3 Sep 2003 11:49:19 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Damian Kolkowski <deimos@deimos.one.pl>,
+       Danny ter Haar <dth@ncc1701.cistron.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx doesn't work
+Message-ID: <20030903094919.GB28594@k3.hellgate.ch>
+Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
+	Damian Kolkowski <deimos@deimos.one.pl>,
+	Danny ter Haar <dth@ncc1701.cistron.net>,
+	linux-kernel@vger.kernel.org
+References: <bj447c$el6$1@news.cistron.nl> <20030903074902.GA1786@deimos.one.pl> <16213.46254.376174.466098@gargle.gargle.HOWL>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16213.46254.376174.466098@gargle.gargle.HOWL>
+X-Operating-System: Linux 2.6.0-test4 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-02 at 21:19, Bartlomiej Zolnierkiewicz wrote:
-> 
-> initramfs
+On Wed, 03 Sep 2003 11:30:22 +0200, Mikael Pettersson wrote:
+> I saw your previous report. It was basically information-free and impossible
+> to base any problem analysis on. If you want your bug reports to have a
+> chance of being acted upon, follow the documented bug reporting procedure.
 
-which seems to have been postponed to 2.7.
+Most users are more than happy to provide additional information when asked
+for it. In my personal experience, the documented bug reporting procdure is
+a time consuming way of producing lots of information, most of which is
+irrelevant to the case in question, and which is usually lacking the
+information _I_ am looking for. For me, it tends to be less work to ask the
+user for the specific details than to sift through a lengthy standard bug
+report looking for it. YMMV, of course.
 
-
-> On Tuesday 02 of September 2003 16:09, Ed Sweetman wrote:
-> > It appears that devfs is to be replaced by the use of udev in the not so
-> > distant future.  I'm not sure how it's supposed to replace a static /dev
-> > situaton seeing as how it is a userspace daemon.  Is it not supposed to
-> > replace /dev even when it's completed?  I dont see the real benefit in
-> > having two directories that basically give the same info.  Right now we
-> > have something like that with proc and sysfs although not everything in
-> > proc makes sense to be in sysfs and both are virtual fs's where as /dev
-> > is a static fs on the disk that takes up space and inodes and includes
-> > way too many files that a system may not use.  If udev is to take over
-> > the job of devfs, how will modules and drivers work that require device
-> > files to be present in order to work since undoubtedly the udev daemon
-> > will have to wait until the kernel is done booting before being run.
-> >
-> > I'm just not following how it is going to replace devfs and thus why
-> > devfs is being abandoned as mentioned in akpm's patchset. Or as it
-> > seems, already has been abandoned.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Roger

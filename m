@@ -1,87 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266804AbUFYRJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266806AbUFYRR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266804AbUFYRJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 13:09:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266795AbUFYRJJ
+	id S266806AbUFYRR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 13:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266807AbUFYRR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 13:09:09 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:39878 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S266806AbUFYRII (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 13:08:08 -0400
-Message-Id: <200406251707.i5PH7KOw009004@eeyore.valparaiso.cl>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Amit Gud <gud@eth.net>,
-       alan <alan@clueserver.org>,
-       "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Elastic Quota File System (EQFS) 
-In-Reply-To: Message from Pavel Machek <pavel@ucw.cz> 
-   of "Fri, 25 Jun 2004 18:25:37 +0200." <20040625162537.GA6201@elf.ucw.cz> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Fri, 25 Jun 2004 13:07:20 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Fri, 25 Jun 2004 13:17:29 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:21005 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266806AbUFYRR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 13:17:28 -0400
+Message-ID: <40DC62BD.3010607@techsource.com>
+Date: Fri, 25 Jun 2004 13:37:01 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: alan <alan@clueserver.org>, "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
+       linux-kernel@vger.kernel.org, Amit Gud <gud@eth.net>
+Subject: Re: Elastic Quota File System (EQFS)
+References: <20040624220318.GE20649@elf.ucw.cz> <Pine.LNX.4.44.0406241544010.19187-100000@www.fnordora.org> <20040625001545.GI20649@elf.ucw.cz>
+In-Reply-To: <20040625001545.GI20649@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> said:
-> Hi!
-> 
-> > Case closed, anyway. It belongs in the kernel only if there is no
-> > reasonable way to do it in userspace.
-> 
-> But... there's no reasonable way to do this in userspace.
 
-Let's see...
+I have a much simpler idea that both implements the EQFS and doesn't 
+touch the kernel.
 
-> Two pieces of kernel support are needed:
-> 
-> 1) some way to indicate "this file is elastic" (okay perhaps xattrs
-> can do this already)
+Each user is given a quota which applies to their home directory.  (This 
+quota is not elastic and if everyone met their quota, everything would 
+fit.)  In addition, there is another directory or file system (could be 
+on the same disk or even the same partition) to which their quota 
+doesn't apply AT ALL.  Let's call this "scratch" space.
 
-Or just a list of elastic files in ~/.elastic. Even better, could mark them
-as "Just delete", "compress"; could go as far as giving (fallback?) globs
-to select files for each treatment ("If space gets tight, delete *~ files,
-and compress *.tex that haven't been read in a week"). Sounds like a fun
-Perl project...
+Periodically, a daemon checks the disk usage, and whenever the disk 
+usage approaches, say, 90%, its starts deleting the oldest files from 
+the scratch space until its gets below the watermark.
 
-> and either
-> 
-> 2a) file selection/deletion in kernel
+So anything in "/scratch/$USER/" is free to be deleted by the daemon.
 
-A daemon or cron job running as root can do that just fine. Or you can set
-it up for your own files.
+BTW, they did something similar to this when I was in college (I 
+graduated in 1996), although they deleted from /scratch manually.
 
-> or
-
-> 2b) assume that disk does not fill up faster than 1GB/sec, allways
-> keep 1GB free, make "deleting" daemon poll each second [ugly,
-> unreliable]
-
-Buy a larger disk. Make sure sum of all hard quotas is less than filesystem
-size. Need that anyway; so it reduces to a one-user problem with per-user
-solutions. 
-
-> or
-
-> 2c) just before returning -ENOSPC, synchronously tell userspace to
-> free space, and retry the operation.
-
-Ugly.
-
-> BTW 2c) would be also usefull for undelete. Unfortunately 2c looks
-> very complex, too; it might be easier to do 2a than 2c.
-
-As said, all this buys very little for a lot of hairy code in the kernel,
-which will be rarely used (and whose bugs will show up when it is badly
-needed to work right). Besides, I strongly oppose automatic file
-disposal. I love the Unix way exactly because I decide what to do (no "I
-know better than you what to do", "you dumb user aren't supposed to do
-that, so you have no right to know", no "undelete deleted files, but only
-sometimes; it just might still be around, but if space got tight it isn't"
-(this is even worse...))
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

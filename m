@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271687AbRIGKl3>; Fri, 7 Sep 2001 06:41:29 -0400
+	id <S271694AbRIGK7r>; Fri, 7 Sep 2001 06:59:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271690AbRIGKlT>; Fri, 7 Sep 2001 06:41:19 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:27572 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S271687AbRIGKlG>;
-	Fri, 7 Sep 2001 06:41:06 -0400
-Date: Fri, 07 Sep 2001 11:35:28 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Helge Hafting <helgehaf@idb.hist.no>,
-        Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: page pre-swapping + moving it on cache-list
-Message-ID: <1432630138.999862528@[169.254.198.40]>
-In-Reply-To: <3B989E46.51C1E768@idb.hist.no>
-In-Reply-To: <3B989E46.51C1E768@idb.hist.no>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S271693AbRIGK7i>; Fri, 7 Sep 2001 06:59:38 -0400
+Received: from nbd.it.uc3m.es ([163.117.139.192]:8708 "EHLO nbd.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S271692AbRIGK73>;
+	Fri, 7 Sep 2001 06:59:29 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200109071059.MAA23146@nbd.it.uc3m.es>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <m2y9nrn7p0.fsf@sympatico.ca> "from Bill Pringlemeir at Sep 6, 2001
+ 08:52:27 pm"
+To: Bill Pringlemeir <bpringle@sympatico.ca>
+Date: Fri, 7 Sep 2001 12:58:25 +0200 (CEST)
+CC: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge,
+"A month of sundays ago Bill Pringlemeir wrote:"
+> Otherwise, I think we have independently came up with the same thing
+> and the `error' throwing can of course be changed to whatever.
 
-> somehow I don't think garbage collection runs will be that fun
-> in a trashing situation.
+If you are interested, the last version I had is the following. The
+compile_time_assert is linus' idea. We had an illegal assembler
+statement there originally, containing the line number and the
+error statement. One or the other will do until gcc gets the
+__builtin_ct_assert() function.
 
-Quite possibly
+#define compile_time_assert(x) \
+                do { switch (0) { case 0: case (x) != 0: ; } } while (0)
 
-> Don't these algorithms look all over
-> your stack & heap for pointers? That will surely cause lots
-> of io as all the apps memory is paged in so the gc algorithm
-> may look at it.
+#define __MIN(x,y) ({\
+   typeof(x) _x = x; \
+   typeof(y) _y = y; \
+   _x < _y ? _x : _y ; \
+ })
+#define MIN(x,y) ({\
+   const typeof(x) _x = ~(typeof(x))0; \
+   const typeof(y) _y = ~(typeof(y))0; \
+   compile_time_assert(sizeof(_x) == sizeof(_y));\
+   compile_time_assert( (_x > (typeof(x))0 && _y > (typeof(y))0) \
+                    ||  (_x < (typeof(x))0 && _y < (typeof(y))0)); \
+   __MIN(x,y); \
+ })
 
-No - it would look through things like the free area
-table, the buddy bitmaps, the page table & lists etc., all
-of which are, of course, in kernel memory. So while
-it may do unfortunate things to the cache, it doesn't
-need to touch application memory in order to determine
-which pages to twiddle with. Of course twiddling the
-pages themselves requires access to them, but if they
-are out on disk already they consume (or, if on
-InactiveClean, could consume) no physical memory
-so are the least of our problems w.r.t. memory
-defragmentation.
-
---
-Alex Bligh
+Peter

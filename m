@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130108AbQKNSFp>; Tue, 14 Nov 2000 13:05:45 -0500
+	id <S130476AbQKNSKR>; Tue, 14 Nov 2000 13:10:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130467AbQKNSFg>; Tue, 14 Nov 2000 13:05:36 -0500
-Received: from grad.physics.sunysb.edu ([129.49.56.86]:56333 "EHLO
-	grad.physics.sunysb.edu") by vger.kernel.org with ESMTP
-	id <S130108AbQKNSFV>; Tue, 14 Nov 2000 13:05:21 -0500
-Date: Tue, 14 Nov 2000 12:35:11 -0500 (EST)
-From: Rui Sousa <rsousa@grad.physics.sunysb.edu>
-To: "Willis L. Sarka" <wlsarka@the-republic.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Hard lockup using emu10k1-based sound card
-In-Reply-To: <Pine.LNX.4.30.0011131751160.21258-100000@matrix.the-republic.org>
-Message-ID: <Pine.LNX.4.21.0011141222120.18636-100000@grad.physics.sunysb.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130440AbQKNSKH>; Tue, 14 Nov 2000 13:10:07 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53768 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S129793AbQKNSJz>; Tue, 14 Nov 2000 13:09:55 -0500
+Date: Tue, 14 Nov 2000 18:39:53 +0100
+From: Jan Kara <jack@suse.cz>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Used space in bytes
+Message-ID: <20001114183953.F8707@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <C61D06525A1@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <C61D06525A1@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Thu, Nov 09, 2000 at 07:31:48PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2000, Willis L. Sarka wrote:
+  Hello.
 
-> I get a hard lockup when trying to play a mp3 with XMMS;
-> Sound Blaster Live card.  The first second loops, and I lose all
-> connectivity to the machine; I can't ping it, can't to a an Alt-Sysq,
-> nothing.
-
-Is this when you try to play something for the first time or
-it just happens sometimes?
-
-> Details:
+> On  9 Nov 00 at 19:18, Jan Kara wrote:
+> > used (I tried to contact Ulrich Drepper <drepper@redhat.com> who should
+> > be right person to ask about such things (at least I was said so) but go
+> > no answer...). Does anybody have any better solution?
+> >   I know about two others - really ugly ones:
+> >    1) fs specific ioctl()
+> >    2) compute needed number of bytes from st_size and st_blocks, which is
+> >       currently possible but won't be in future
 > 
-> running RedHat 7.0
-> using kernel 2.4.0-test11pre4
-> emu10k1 compiled as a module
-> system is a Dell Dimension 4100 (815e based, 512mb ram, 3com 3c905c cardA)
-> 
-> I'll try to compile in soundcore and emu10k1 into the kernel, foregoing
-> any modules and see if that helps.  I will also revert back to
-> 2.4.0-test10 as well just to test.
+> If I may, please do not add it into stat/stat64 structure. On Netware, 
+> computing really used space can take eons because of it has to read 
+> allocation tables to memory to find size. It is usually about 500% 
+> slower than retrieving all other file informations.
+  And how do you fill in st_blocks field?
 
-Yes, it would be good to know when the problems started.
-
->  If anyone needs further information,
-> let me know.
-
-What is the output of:
-
-/sbin/lspci -v
-
-Rui Sousa
+							Honza
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,60 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVCIN0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVCIN2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbVCIN0X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 08:26:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbVCIN0W
+	id S262358AbVCIN2t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 08:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbVCIN2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 08:26:22 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:25014 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262363AbVCINZ2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 08:25:28 -0500
-Subject: I/O and Memory accounting...
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Jay Lan <jlan@engr.sgi.com>
-Date: Wed, 09 Mar 2005 14:25:23 +0100
-Message-Id: <1110374723.10590.116.camel@frecb000711.frec.bull.fr>
+	Wed, 9 Mar 2005 08:28:49 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13759 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262358AbVCIN2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 08:28:37 -0500
+Date: Wed, 9 Mar 2005 14:28:38 +0100
+From: Jan Kara <jack@suse.cz>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
+Message-ID: <20050309132838.GJ6145@atrey.karlin.mff.cuni.cz>
+References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk> <20050304160451.4c33919c.akpm@osdl.org> <1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk> <20050307123118.3a946bc8.akpm@osdl.org> <1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk> <1110286417.1941.40.camel@sisko.sctweedie.blueyonder.co.uk> <20050308151258.GD23403@atrey.karlin.mff.cuni.cz> <1110373818.1932.31.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/03/2005 14:34:30,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/03/2005 14:34:37,
-	Serialize complete at 09/03/2005 14:34:37
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110373818.1932.31.camel@sisko.sctweedie.blueyonder.co.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> On Tue, 2005-03-08 at 15:12, Jan Kara wrote:
+> 
+> >   Isn't also the following scenario dangerous?
+> > 
+> >   __journal_unfile_buffer(jh);
+> >   journal_remove_journal_head(bh);
+> 
+> It depends.  I think the biggest problem here is that there's really no
+> written rule protecting this stuff universally.  But in testing, we just
+> don't see this triggering.
+> 
+> Why not?  We actually have a raft of other locks protecting us in
+> various places.  As long as there's some overlap in the locks, we're
+> OK.  But because it's not written down, not everybody relies on the same
+> set of locks; it's only because journal_unmap_buffer() was dropping the
+> jh without enough locks that we saw a problem there.
+> 
+> So the scenario:
+> 
+> 	__journal_unfile_buffer(jh);
+> 	journal_remove_journal_head(bh);
+> 
+> *might* be dangerous, if called carelessly; but in practice it works out
+> OK.  Remember, that journal_remove_journal_head() call still takes the
+> bh_journal_head lock and still checks b_transaction with that held.
+  Hmm. I see for example a place at jbd/commit.c, line 287 (which you
+did not change in your patch) which does this and doesn't seem to be
+protected against journal_unmap_buffer() (but maybe I miss something).
+Not that I'd find that race probable but in theory...
 
-  In the ChangeLog-2.6.11 file I read that the enhanced I/O accounting
-data patch and the enhanced memory accounting data collection patch were
-added. It's cool but I don't see how this stuff is used because
-information is never dump in a file or send to an accounting application
-(or I miss something). 
- 
-  Maybe we should update the ac_io in the "struct acct"? Thus, values
-will be dump in the accounting file. Maybe it could be something like:
+> I think it's time I went and worked out *why* it works out OK, though,
+> so that we can write it down and make sure it stays working!  And we may
+> well be able to simplify the locking when we do this; collapsing the two
+> bh state locks, for example, may help improve the robustness as well as
+> improving performance through removing some redundant locking
+> operations.
+> 
+> Fortunately, there are really only three classes of operation that can
+> remove a jh.  There are the normal VFS/VM operations, like writepage,
+> try_to_free_buffer, etc; these are all called with the page lock.  There
+> are metadata updates, which take a liberal dose of buffer, bh_state and
+> journal locks.  
+> 
+> Finally there are the commit/checkpoint functions, which run
+> asynchronously to the rest of the journaling and which don't relate to
+> the current transaction, but to previous ones.  This is the danger area,
+> I think.  But as long as at least the bh_state lock is held, we can
+> protect these operations against the data/metadata update operations.
+  I agree that only the metadata/data updates can race with checkpoint/commit
+because other combinations are already serialized by 'higher-level'
+locks. But I think we agree that the simplier (and 'local') the locking rules
+are the less probable the bugs are..
 
---- acct.c.orig	2005-03-09 14:17:07.000000000 +0100
-+++ acct.c	2005-03-09 14:18:20.000000000 +0100
-@@ -477,8 +477,8 @@ static void do_acct_process(long exitcod
- 	}
- 	vsize = vsize / 1024;
- 	ac.ac_mem = encode_comp_t(vsize);
--	ac.ac_io = encode_comp_t(0 /* current->io_usage */);	/* %% */
--	ac.ac_rw = encode_comp_t(ac.ac_io / 1024);
-+	ac.ac_io = encode_comp_t(current->rchar + current->wchar);
-+	ac.ac_rw = encode_comp_t(0);
- 	ac.ac_minflt = encode_comp_t(current->signal->min_flt +
- 				     current->group_leader->min_flt);
- 	ac.ac_majflt = encode_comp_t(current->signal->maj_flt +
-
-
-For memory and read/write syscall we may add new fields. 
-
-Best regards,
-Guillaume
-
+									Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

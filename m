@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264611AbTF0Sgh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 14:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264651AbTF0Sgh
+	id S264655AbTF0ShF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 14:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264651AbTF0ShF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 14:36:37 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:64172 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264611AbTF0Sgg
+	Fri, 27 Jun 2003 14:37:05 -0400
+Received: from dhcp93-dsl-usw3.w-link.net ([206.129.84.93]:57277 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id S264619AbTF0ShB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 14:36:36 -0400
-Subject: Gcov-kernel patch updates for 2.5.73 and 2.4.21
-From: Paul Larson <plars@linuxtestproject.org>
-To: ltp-coverage@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Content-Type: text/plain
+	Fri, 27 Jun 2003 14:37:01 -0400
+Message-ID: <3EFC9203.3090508@candelatech.com>
+Date: Fri, 27 Jun 2003 11:50:43 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+References: <20030626.223002.21926109.davem@redhat.com>	<18330000.1056692768@[10.10.2.4]> <20030626.224739.88478624.davem@redhat.com>
+In-Reply-To: <20030626.224739.88478624.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 27 Jun 2003 13:50:43 -0500
-Message-Id: <1056739844.8311.2951.camel@plars>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Kernel GCOV patch has been updated for 2.4.21 and 2.5.73.  The
-patches can be downloaded from:
-https://sourceforge.net/project/showfiles.php?group_id=3382
+David S. Miller wrote:
+>    From: "Martin J. Bligh" <mbligh@aracnet.com>
+>    Date: Thu, 26 Jun 2003 22:46:10 -0700
+>    
+>    If people choose to file bugs in bugzilla as well, they'll still be
+>    processed by someone.
+> 
+> Just so that someone can post them to the lists?
+> That sounds like a completely silly way to operate.
+> 
+> I'd rather they get posted to the lists _ONLY_.
 
-Major changes in this release:
-* ppc64 support
-* untested support for x86-64
-* a few bugfixes/cleanups
+I'm sure bugz could be set up to send a report to netdev everytime
+a bug was entered.  And, we would also have a good record of bugs
+that people could search.  It would also keep bugs from falling through
+the cracks:  If 'everyone' is responsible, that can often mean that
+no one takes responsibility.
 
-For more information about this patch, please see:
-http://ltp.sourceforge.net/coverage/gcov-kernel.php
+Ben
 
-Thanks,
-Paul Larson
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

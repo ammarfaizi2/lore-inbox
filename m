@@ -1,36 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314096AbSGUMYo>; Sun, 21 Jul 2002 08:24:44 -0400
+	id <S314446AbSGUM1B>; Sun, 21 Jul 2002 08:27:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314149AbSGUMYo>; Sun, 21 Jul 2002 08:24:44 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:30197 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314096AbSGUMYo>; Sun, 21 Jul 2002 08:24:44 -0400
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p731y9xva8m.fsf@oldwotan.suse.de>
-References: <OF918E6F71.637B1CBC-ON85256BFB.004CDDD0@pok.ibm.com.suse.lists.linux.kernel
-	 >
-	<1027199147.16819.39.camel@irongate.swansea.linux.org.uk.suse.lists.linux.ke
-	 rnel>  <p731y9xva8m.fsf@oldwotan.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Jul 2002 14:40:11 +0100
-Message-Id: <1027258811.17234.90.camel@irongate.swansea.linux.org.uk>
+	id <S314451AbSGUM1B>; Sun, 21 Jul 2002 08:27:01 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:48061 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314446AbSGUM1A>; Sun, 21 Jul 2002 08:27:00 -0400
+Date: Sun, 21 Jul 2002 14:29:32 +0200
+From: axel@hh59.org
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.27: Software Suspend failure / JFS errors
+Message-ID: <20020721122932.GA23552@neon.hh59.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+Organization: hh59.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-21 at 07:57, Andi Kleen wrote:
-> One disadvantage of the LVM2 concept is that it relies a lot on compatible
-> user space and there is unlikely to be a stable API. While I'm normally
-> all for putting things in user space where it makes sense I think the
-> mounting of your root file system is a bit of exception. 
+Hi,
 
-LVM2 relies on people doing things right so we shouldnt use it ? 
+I invoked software suspend with kernel 2.5.27 and get the following messages
+from kernel:
 
-Strange
+Stopping tasks: ========================
+ stopping tasks failed (3 tasks remaining)
+Suspend failed: Not all processes stopped!
+Restarting tasks...<6> Strange, jfsIO not stopped
+ Strange, jfsCommit not stopped
+ Strange, jfsSync not stopped
+ done
 
+Afterwards, I have full cpu utilization of the JFS kernel threads:
+
+CPU states:   1.0% user,  99.0% system,   0.0% nice,   0.0% idle
+Mem:    126284K total,    97112K used,    29172K free,        0K buffers
+Swap:   289160K total,        0K used,   289160K free,    53224K cached
+
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+    7 root      25   0     0    0     0 RW   36.6  0.0   3:56 jfsIO
+    8 root      25   0     0    0     0 RW   30.6  0.0   3:56 jfsCommit
+    9 root      25   0     0    0     0 RW   29.6  0.0   3:56 jfsSync
+  361 root      15   0   972  972   768 R     0.9  0.7   0:00 top
+  235 axel      15   0  3064 3064  1928 R     0.0  2.4   0:00 sawfish
+  244 axel      15   0  5004 5004  3724 R     0.0  3.9   0:00 panel
+  248 axel      15   0  4508 4508  3324 R     0.0  3.5   0:03 gkrellm
+
+And constant activity of VM:
+
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
+id
+ 0  0  3      0  29284      0  53224   0   0    61     6 1051   106   2  89
+10
+ 0  0  2      0  29284      0  53224   0   0     0     0 1006    94   0 100
+0
+ 0  0  2      0  29284      0  53224   0   0     0     0 1006    75   1  99
+0
+ 0  0  2      0  29284      0  53224   0   0     0     0 1006    79   1  99
+0
+ 0  0  2      0  29284      0  53224   0   0     0     0 1006    88   1  99
+0
+
+I used to have problems with JFS anyway when unpacking big tar archives. The
+the system gives an oops and locks up a short while after. The process it is
+stuck in is JFSCommit.
+I tried latest 2.4 and 2.5, always had the same problems. Strangely JFS
+causes no problems at all when I uses the kernel my partitions were
+formatted with. That is slackware kernel 2.4.18, jfs 1.0.18. Any kernel
+later with jfs versions higher causes these JFSCommit freezes.
+
+I will send an oops report of JFS later.
+
+Regards,
+Axel Siebenwirth

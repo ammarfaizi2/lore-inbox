@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272093AbRH2V7P>; Wed, 29 Aug 2001 17:59:15 -0400
+	id <S272102AbRH2Vzp>; Wed, 29 Aug 2001 17:55:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272095AbRH2V7F>; Wed, 29 Aug 2001 17:59:05 -0400
-Received: from smtp-ham-2.netsurf.de ([194.195.64.98]:9663 "EHLO
-	smtp-ham-2.netsurf.de") by vger.kernel.org with ESMTP
-	id <S272093AbRH2V6r>; Wed, 29 Aug 2001 17:58:47 -0400
-Date: Wed, 29 Aug 2001 23:20:28 +0200
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] yenta resource allocation fix
-Message-ID: <20010829232028.A2411@storm.local>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010829013318.A16910@storm.local> <Pine.LNX.4.33.0108290645140.8173-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108290645140.8173-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.20i
-From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+	id <S272098AbRH2Vzg>; Wed, 29 Aug 2001 17:55:36 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:56846 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S272101AbRH2VzZ>; Wed, 29 Aug 2001 17:55:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Gergely Madarasz <gorgo@thunderchild.debian.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: vm problems
+Date: Thu, 30 Aug 2001 00:02:27 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20010829131419.Z6202@thunderchild.ikk.sztaki.hu> <20010829134757.A6202@thunderchild.ikk.sztaki.hu>
+In-Reply-To: <20010829134757.A6202@thunderchild.ikk.sztaki.hu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010829215542Z16262-32383+2341@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 29, 2001 at 06:48:26AM -0700, Linus Torvalds wrote:
+On August 29, 2001 01:47 pm, Gergely Madarasz wrote:
+> On Wed, Aug 29, 2001 at 01:14:19PM +0200, Gergely Madarasz wrote:
+> > Hello,
+> > 
+> > I get hundreds of this error message:
+> > 
+> > __alloc_pages: 0-order allocation failed.
+> > 
+> > The machine is an IBM x250 with 4G ram, the kernel is vanilla 2.4.9 and
+> > 2.4.9-ac3, no swap, running bonnie++. When the memory fills up with cache,
+> > I start receiving the error message. 
 > 
-> On Wed, 29 Aug 2001, Andreas Bombe wrote:
-> >
-> > I have no idea why the 0xfff was in place.  Or, on second thought, this
-> > might be to allocate memory space behind official end as slack?  This
-> > would defy the end > start check then, anyway.  Linus?
-> 
-> I've looked more at the issue.
-> 
-> 0xfff is definitely right for memory windows and is generally right for
-> PCI-PCI bridges too - they cannot have IO or memory windows that are
-> anything but 4kB aligned.
-> 
-> But it turns out that the Yenta specification actually expanded on the
-> PCI-PCI bridge window specs for IO space - a Yenta bridge is supposed to
-> be able to handle IO windows at 4-byte granularity, not the 4kB a regular
-> PCI bridge does.
+> actually I thought I was running 2.4.9-ac3, but no, and I see the message
+> is commented out in 2.4.9-ac3. Does this mean that it doesn't mean
+> anything serious? Some of my processes were stuck in uninterruptible
+> sleep, I couldn't even shutdown correctly, so there are some problems.
 
-Even then the old code would have been incorrect.  Further down the
-yenta_allocate_res() function, allocate_resource() is called with
-align = 1024 and size = 256 for IO port windows.  It also promptly got
-0x1000-0x10ff and 0x1400-0x14ff allocated.
+Please try it again with this patch so we can see what kind of allocation is failing:
 
-> Does this alternate patch work for you?
-
-Ignoring the unrelated vmscan.c patch, yes, it works as it should,
-thanks (I never hit the memory window case anyway, since that is
-allocated fine before yenta.c gets to it).
-
-About the other thing with missed card insertion events there is nothing
-new.  I tried a few things but nothing helped.  There is the suspicious
-thing that CB_SOCKET_STATE has CB_CBCARD always set, whether there is a
-card or not, but I don't know enough of the code to see where it
-matters.
-
--- 
-Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
+--- 2.4.9.clean/mm/page_alloc.c	Thu Aug 16 12:43:02 2001
++++ 2.4.9/mm/page_alloc.c	Mon Aug 20 22:05:40 2001
+@@ -502,7 +502,8 @@
+ 	}
+ 
+ 	/* No luck.. */
+-	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n", order);
++	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed (gfp=0x%x/%i).\n",
++		order, gfp_mask, !!(current->flags & PF_MEMALLOC));
+ 	return NULL;
+ }
+ 

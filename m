@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315485AbSGYRYZ>; Thu, 25 Jul 2002 13:24:25 -0400
+	id <S316089AbSGYRe3>; Thu, 25 Jul 2002 13:34:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315491AbSGYRYZ>; Thu, 25 Jul 2002 13:24:25 -0400
-Received: from smtp.9tel.net ([213.203.124.147]:52201 "HELO smtp4.9tel.net")
-	by vger.kernel.org with SMTP id <S315485AbSGYRYZ>;
-	Thu, 25 Jul 2002 13:24:25 -0400
-Date: Thu, 25 Jul 2002 19:26:10 +0200 (CEST)
-From: Samuel Thibault <samuel.thibault@fnac.net>
-Reply-To: Samuel Thibault <samuel.thibault@fnac.net>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: vojtech@suse.cz, martin@dalecki.de, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, andre@linux-ide.org
-Subject: Re: [PATCH] drivers/ide/qd65xx: no cli/sti (2.4.19-pre3 & 2.5.28)
-In-Reply-To: <Pine.LNX.4.44.0207251744130.19117-100000@linux-box.realnet.co.sz>
-Message-ID: <Pine.LNX.4.10.10207251915420.1532-100000@bureau.famille.thibault.fr>
+	id <S315870AbSGYReC>; Thu, 25 Jul 2002 13:34:02 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:55796 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S315946AbSGYRdo>; Thu, 25 Jul 2002 13:33:44 -0400
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+To: <joe@fib011235813.fsnet.co.uk>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF9ECAF9FC.61CBF3AC-ON85256BFF.00540683@pok.ibm.com>
+From: "Ben Rafanello" <benr@us.ibm.com>
+Date: Thu, 25 Jul 2002 12:36:45 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 SPR# MIAS5B3GZN |June
+ 28, 2002) at 07/25/2002 01:36:54 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tues, Jul 23, 2002 at 3:10 am, Joe Thornber wrote:
+>On Mon, Jul 22, 2002 at 01:31:11PM -0500, Ben Rafanello wrote:
+>> I believe you are referring to Device Mapper, which could, in theory,
+>> handle the AIX metadata layout.  However, AFAIK, there are no tools
+>> currently available or under development for Device Mapper to make
+>> this happen.  Currently, EVMS is the only way to read/write to AIX
+>> volumes under Linux.
+>
+>This is absolutely correct, LVM2 does not currently support AIX
+>metadata.  However the LVM2 tools were designed to support multiple
+>metadata formats, and it really would be very little work to write the
+>code to do this (after all this is just a little bit of userland code,
+>rather than kernel code in EVMS).  ATM Sistina are not willing to pay
+>for this work, so it will have to come from some other part of the
+>community.
 
-On Thu, 25 Jul 2002, Zwane Mwaikambo wrote:
+After a quick look through the device mapper code, it appears that
+device mapper knows nothing of the metadata format of the
+volumes/partitions/etc. that it is mapping.  This will work well for
+cases where the metadata for the volume/volume group does not have to be
+updated at runtime.  However, it appears that device mapper needs a
+kernel module to handle those cases where the volume metadata must
+be updated during runtime (cases such as RAID 5, Mirroring -
+particularly the fancier forms with features like smart resync
+and hot spot mirroring, bad block relocation, etc.).  Thus, to
+support AIX (or any other enterprise level volume manager since
+they all tend to have similar features) would require more than
+"just a little bit of userland code", it would require a significant
+amount of kernel code as well.
 
-> On Thu, 25 Jul 2002, Samuel Thibault wrote:
-> 
-> >  static void qd_write_reg (byte content, byte reg)
-> >  {
-> >  	unsigned long flags;
-> >  
-> > -	save_flags(flags);	/* all CPUs */
-> > -	cli();			/* all CPUs */
-> > +	spin_lock_irqsave(&qd_iolock,flags);
-> >  	outb(content,reg);
-> 
-> Do we need a lock/cli for that one outb?
-> 
-> > +	spin_unlock_irqrestore(&qd_iolock,flags);
+>There is a little tool called dmsetup:
+>
+>http://people.sistina.com/~thornber/dmsetup_8.html
+>
+>that is essentially a very simple volume manager.  But it does give
+>you full access to all the facilities of device-mapper.  eg, I just
 
-Well, I put it since many ide chipset drivers put it, but we may indeed
-get rid of it, provided the board isn't upset when parallel selectprocing
-/ tuning on ide0 and ide1. I won't be able to test before September.
+Thanks for the link!  I'll give it a try.
 
-Oh, btw, I only use one spinlock for timing computing, while there could
-be one per QD channel, which would speed up tunig :o)
 
--- 
-Samuel Thibault <samuel.thibault@fnac.net>
-Hi ! I'm a .signature virus ! Copy me into your ~/.signature, please !
+Ben Rafanello
+EVMS Team Lead
+IBM Linux Technology Center
+(512) 838-4762
+benr@us.ibm.com
+
 

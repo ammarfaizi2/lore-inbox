@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271346AbTGQIYB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 04:24:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271360AbTGQIYB
+	id S271360AbTGQI3o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 04:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271362AbTGQI3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 04:24:01 -0400
-Received: from mta4.srv.hcvlny.cv.net ([167.206.5.10]:50830 "EHLO
-	mta4.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S271346AbTGQIX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 04:23:59 -0400
-Date: Thu, 17 Jul 2003 04:38:45 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: [PATCH] Documentation Fix - Bug 939
-To: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       thomas@dynajoo.ath.cx
-Message-id: <200307170438.53062.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_eqe4UPslvPyAg3yjolnlcQ)"
-User-Agent: KMail/1.5.2
+	Thu, 17 Jul 2003 04:29:44 -0400
+Received: from kogut.o2.pl ([212.126.20.61]:35520 "EHLO kogut.o2.pl")
+	by vger.kernel.org with ESMTP id S271360AbTGQI3m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 04:29:42 -0400
+Date: Thu, 17 Jul 2003 10:06:40 +0200
+From: Rafal Bujnowski <bujnor@go2.pl>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: "Paul Rolland" <rol@as2917.net>
+Subject: Re: [BUG] kernel BUG at kernel/timer.c 2.6.0-test1
+Message-Id: <20030717100640.0dd57630.bujnor@go2.pl>
+In-Reply-To: <006e01c34b60$760ccd80$3f00a8c0@witbe>
+References: <20030715102339.1ff31f77.bujnor@go2.pl>
+	<006e01c34b60$760ccd80$3f00a8c0@witbe>
+Organization: bujnor.lan
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Debian GNU/Linux 3.0
+X-Registered-Linux-User: 203781
+X-Website: http://www.bujnor.iq.pl/
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A "Paul Rolland" <rol@as2917.net> na to:
 
---Boundary_(ID_eqe4UPslvPyAg3yjolnlcQ)
-Content-type: Text/Plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
+> Hello,
+> 
+> Are you using ide-scsi ? I though (from I got from the list some
+> time ago) that it was not working with 2.5.x kernels, and that 
+> we had to use ide-cd instead...
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello,
 
-Simple documentation fix in arch/h8300/README
+Yes, I use ide-scsi. Ide-cd doesn't work for me. Even I tried to unset
+"preemptible kernel" in config as was mentioned on lkml. But... still
+nothing. 
 
-http://bugme.osdl.org/show_bug.cgi?id=939
+So I have to use 2.4.20 instead of 2.6.x. 
 
-Josef "Jeff" Sipek, aka Jeff.
 
-- -- 
-Research, n.:
-  Consider Columbus:
-    He didn't know where he was going.
-    When he got there he didn't know where he was.
-    When he got back he didn't know where he had been.
-    And he did it all on someone else's money.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Rafal
 
-iD8DBQE/FmCYwFP0+seVj/4RAr5/AKC3XVDlWJDH9XSxMu+E0blL3OmhbwCgsIUr
-zXJH/hW92O5YwUIv6TDan1g=
-=nDV0
------END PGP SIGNATURE-----
 
---Boundary_(ID_eqe4UPslvPyAg3yjolnlcQ)
-Content-type: text/x-diff; charset=us-ascii; name=patch-2.6.0-test1_bug939
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=patch-2.6.0-test1_bug939
 
---- linux-2.6.0-test1-vanilla/arch/h8300/README	2003-07-13 23:36:33.000000000 -0400
-+++ linux-2.6.0-test1-eva/arch/h8300/README	2003-07-17 02:03:21.000000000 -0400
-@@ -16,7 +16,7 @@
- 
- 3.H8MAX 
-   Under development
--  see http://www.strawbelly-linux.com (Japanese Only)
-+  see http://www.strawberry-linux.com (Japanese Only)
- 
- * Toolchain Version
- gcc-3.1 or higher and patch
+-- 
 
---Boundary_(ID_eqe4UPslvPyAg3yjolnlcQ)--
+[              Rafal Bujnowski ][ e-mail: bujnor<at>go2.pl            ]
+[     http://www.bujnor.iq.pl/ ][ e-mail: bujnor<at>poczta.onet.pl    ]
+[   ICQ: 85602025  GG: 4174829 ][ Jabber: bujnor<at>jabberpl.org      ]

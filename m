@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282781AbRLBG03>; Sun, 2 Dec 2001 01:26:29 -0500
+	id <S282792AbRLBGeU>; Sun, 2 Dec 2001 01:34:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282783AbRLBG0T>; Sun, 2 Dec 2001 01:26:19 -0500
-Received: from adsl-63-193-243-214.dsl.snfc21.pacbell.net ([63.193.243.214]:36224
-	"EHLO dmz.ruault.com") by vger.kernel.org with ESMTP
-	id <S282781AbRLBG0N>; Sun, 2 Dec 2001 01:26:13 -0500
-Message-ID: <3C09C9CF.B6044296@ruault.com>
-Date: Sat, 01 Dec 2001 22:27:27 -0800
-From: Charles-Edouard Ruault <ce@ruault.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S282786AbRLBGeL>; Sun, 2 Dec 2001 01:34:11 -0500
+Received: from four.malevolentminds.com ([216.177.76.238]:10245 "EHLO
+	four.malevolentminds.com") by vger.kernel.org with ESMTP
+	id <S282783AbRLBGeG>; Sun, 2 Dec 2001 01:34:06 -0500
+Date: Sun, 2 Dec 2001 06:34:17 +0000 (GMT)
+From: Khyron <khyron@khyron.com>
+To: LKML - Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Coding style - a non-issue
+Message-ID: <Pine.BSF.4.33.0112020626460.94365-100000@four.malevolentminds.com>
 MIME-Version: 1.0
-To: Tom Vier <tmv5@home.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: File system Corruption with 2.4.16
-In-Reply-To: <3C0954D5.6AA3532B@ruault.com> <3C09580F.5F323195@pobox.com> <3C095B0B.7EA478C1@ruault.com> <003601c17ac2$7a8dec10$f5976dcf@nwfs> <3C096DB3.204CE41C@pobox.com> <001e01c17acb$a44b69c0$f5976dcf@nwfs> <20011202023145.A1628@emeraude.kwisatz.net> <3C09B3FA.61777E84@ruault.com> <20011202010059.A9744@zero>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yes i've checked the reiserfs partitions, no problem there ....
-Tom Vier wrote:
+In response to:
 
-> On Sat, Dec 01, 2001 at 08:54:18PM -0800, Charles-Edouard Ruault wrote:
-> > The symlink problem you're reporting is exactly what i've been experiencing among
-> > other things ...
-> > on both systems i had multiple ext2 partitions and one reseirfs partition.
->
-> are you seeing corruption on the reiserfs? have you run reiserfsck?
->
-> --
-> Tom Vier <tmv5@home.com>
-> DSA Key id 0x27371A2C
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> "it works/does not work for me" is not testing. Testing
+> is _actively_ trying to break things, _very_ preferably
+> by another person that wrote the code and to do it
+> in documentable and reproducible way. I don't see many
+> people doing it.
+
+from "Stanislav Meduna <stano@meduna.org>", Alan Cox said:
+
+"If you want a high quality, tested supported kernel which
+has been through extensive QA then use kernel for a
+reputable vendor, or do the QA work yourself or with other
+people. We have kernel janitors, so why not kernel QA
+projects ?
+
+"However you'll need a lot of time, a lot of hardware and
+a lot of attention to procedure"
+
+But in his earlier e-mail, Stanislav Meduna said:
+
+"Evolution does not have the option to vote with its feet.
+The people do. While Linux is not much more stable than it
+was and goes through a painful stabilization cycle on every
+major release, Windows does go up with the general stability with
+every release. W2k were better than NT, XP are better than W2k.
+Windows (I mean the NT-branch) did never eat my filesystems.
+Bad combination of USB and devfs was able to do this in half
+an hour, and this was *VENDOR KERNEL* that did hopefully get
+more testing than that what is released to the general public.
+I surely cannot recommend using 2.4 to our customers."
+
+which seems to negate the point Alan was attempting to make.
+
+Just thought I'd set the record straight.
+
+NOTE: Emphasis mine.
+
+
+"Everyone's got a story to tell, and everyone's got some pain.
+ And so do you. Do you think you are invisble?
+ And everyone's got a story to sell, and everyone is strange.
+ And so are you. Did you think you were invincible?"
+ 	- "Invisible", Majik Alex
 

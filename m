@@ -1,83 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263102AbTJENBM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 09:01:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbTJENBM
+	id S263107AbTJENMz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 09:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263108AbTJENMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 09:01:12 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:27652 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S263102AbTJENBJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 09:01:09 -0400
-Date: Sun, 5 Oct 2003 15:00:44 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: iproute2 not compiling anymore
-Message-ID: <20031005130044.GA8861@pcw.home.local>
-References: <Pine.LNX.4.44.0310050940160.27815-100000@logos.cnet>
-Mime-Version: 1.0
+	Sun, 5 Oct 2003 09:12:55 -0400
+Received: from ozlabs.org ([203.10.76.45]:16070 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263106AbTJENMw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 09:12:52 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310050940160.27815-100000@logos.cnet>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16256.6322.388402.857084@cargo.ozlabs.ibm.com>
+Date: Sun, 5 Oct 2003 23:12:18 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net
+Subject: oops when removing sbp2 module
+X-Mailer: VM 7.17 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, all,
+I'm getting an oops inside the sysfs stuff when I try to remove the
+sbp2 (firewire disk) module.  I am running Linus' current BK tree as
+of yesterday, i.e. 2.6.0-test6 (plus).  I'm not sure whether the
+problem is in sysfs, kobject, scsi or ieee1394 stuff, which is why I'm
+posting this to 3 lists.
 
-On Sun, Oct 05, 2003 at 09:42:30AM -0300, Marcelo Tosatti wrote:
-> In previous messages you said iproute used to compile on "olders" 2.4.x 
-> kernel but doesnt compile anymore on recent 2.4. Is that information 
-> correct ? 
-> 
-> Can you tell me in more detail what is failing?
+I have a 40GB disk in a firewire enclosure.  To use it, I insert the
+ohci1394 and sbp2 modules, and the disk appears as a SCSI disk.
+If I then remove the sbp2 module I get an oops from a null pointer
+dereference in sysfs_hash_and_remove.  At that point dir->d_inode is
+NULL.  It turns out that sysfs_remove_dir has already been called for
+the directory and that is why dir->d_inode is NULL.
 
-Just tested, and I confirm this too :
+In fact what is happening is that class_device_unregister gets called
+twice for the same classdev.  This is because scsi_remove_device gets
+called twice for the same device.  The first time, the call chain
+looks like this:
 
-gcc -D_GNU_SOURCE -O2 -Wstrict-prototypes -Wall -g -I../include-glibc -I/usr/include/db3 -include ../include-glibc/glibc-bugs.h -I/
-sr/src/linux/include -I../include -DRESOLVE_HOSTNAMES   -c -o ip.o ip.c
-In file included from ../include-glibc/netinet/in.h:7,
-                 from ip.c:23:
-/usr/src/linux/include/linux/in.h:141: field `gr_group' has incomplete type
-/usr/src/linux/include/linux/in.h:147: field `gsr_group' has incomplete type
-/usr/src/linux/include/linux/in.h:148: field `gsr_source' has incomplete type
-/usr/src/linux/include/linux/in.h:154: field `gf_group' has incomplete type
-/usr/src/linux/include/linux/in.h:157: field `gf_slist' has incomplete type
-make[1]: *** [ip.o] Error 1
-make[1]: Leaving directory `/data/src/net/ip-routing/iproute2-2.4.7-020116/ip'
-make: *** [all] Error 2
+scsi_remove_device
+sbp2_remove_device
+sbp2_remove
+device_release_driver
+driver_detach
+bus_remove_driver
+driver_unregister
+hpsb_unregister_protocol
+sbp2_module_exit
 
-These fields are of type 'struct sockaddr_storage' :
+and the second time it looks like this:
 
-struct group_source_req
-{
-        __u32                   gsr_interface;  /* interface index */
-        struct sockaddr_storage gsr_group;      /* group address */
-        struct sockaddr_storage gsr_source;     /* source address */
-};
+scsi_remove_device
+scsi_forget_host
+scsi_remove_host
+sbp2_remove_host
+hpsb_unregister_highlevel
+sbp2_module_exit
 
-But sockaddr_storage is defined in socket.h within such a #if :
+So, is this a reference counting problem on the classdev, a problem
+where the scsi layer doesn't remove the scsi device from its internal
+lists properly in scsi_remove_device, or a problem in the sbp2 code?
+Anyone got a fix?
 
-#if defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2)
-
-So it is clear that compiling with such headers on a recent libc outside the
-kernel may fail. I don't know what changed exactly, the #if or
-sockaddr_storage declaration.
-
-BTW, wouldn't it be interesting to have some sort of way to bypass these
-checks when we know that we want to compile against kernel headers ? I
-encountered the case for arptables a few weeks ago. I find it very dirty to
-add -D__KERNEL__ to user-space makefiles, and I don't find it logical to rebuild
-a libc with pre-release kernel headers either.
-
-So perhaps something like this would be useful for a limited set of userspace
-programs :
-  #if defined(__KERNEL__) || defined(REALLY_USE_KHDR) || !defined(__GLIBC__)...
-
-Then, the affected programs could simply add a '#define REALLY_USE_KHDR' line
-before including particular headers.
-
-Any ideas ?
-Willy
-
+Thanks,
+Paul.

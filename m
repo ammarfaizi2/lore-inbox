@@ -1,24 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbUDHT0f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 15:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbUDHT0f
+	id S262347AbUDHT35 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 15:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUDHT35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 15:26:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7321 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262335AbUDHT0c (ORCPT
+	Thu, 8 Apr 2004 15:29:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:29081 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262347AbUDHT3x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:26:32 -0400
-Date: Thu, 8 Apr 2004 12:25:43 -0700
+	Thu, 8 Apr 2004 15:29:53 -0400
+Date: Thu, 8 Apr 2004 12:29:36 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: ak@suse.de, mbligh@aracnet.com, colpatch@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: NUMA API for Linux
-Message-Id: <20040408122543.670e1ad3.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0404081641450.7277-100000@localhost.localdomain>
-References: <20040407165639.2198b215.akpm@osdl.org>
-	<Pine.LNX.4.44.0404081641450.7277-100000@localhost.localdomain>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] order>0 page freeing bug
+Message-Id: <20040408122936.49a008d5.akpm@osdl.org>
+In-Reply-To: <5213.1081441917@redhat.com>
+References: <5213.1081441917@redhat.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,29 +24,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
+David Howells <dhowells@redhat.com> wrote:
 >
-> On Wed, 7 Apr 2004, Andrew Morton wrote:
-> > 
-> > Your patch takes the CONFIG_NUMA vma from 64 bytes to 68.  It would be nice
-> > to pull those 4 bytes back somehow.
+> Here's a patch to fix a bug that occurs when an order>0 page allocation is
+>  freed.
 > 
-> How significant is this vma size issue?
-
-For some workloads/machines it will simply cause an
-approximately-proportional reduction in the size of the workload which we
-can handle.
-
-ie: there are some (oracle) workloads where the kernel craps out due to
-lowmem vma exhaustion.  If they're now using remap_file_pages() for this then
-it may not be a problem any more.  Ingo would know better than I.
-
-> anon_vma objrmap will add 20 bytes to each vma (on 32-bit arches):
-> 8 for prio_tree, 12 for anon_vma linkage in vma,
-> sometimes another 12 for the anon_vma head itself.
+>  The bug can be demonstrated by this example:
 > 
-> anonmm objrmap adds just the 8 bytes for prio_tree,
-> remaining overhead 28 bytes per mm.
+>   (1) if __alloc_page() returns an order 1 allocation, you get back two pages,
+>       both with count == 1
 > 
-> Seems hard on Andi to begrudge him 4.
+>   (2) __free_pages() only decrements the counter on the first page
+> 
+>   (3) __free_pages_ok() calls free_pages_check() on both pages
+> 
+>   (4) free_pages_check() complains that the second page is a bad_page because
+>       its count is not 0 at that point.
+
+That doesn't sound right - if this was the case, each and every order>0
+page freeing would be generating warnings, would it not?
 

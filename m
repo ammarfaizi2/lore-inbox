@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269515AbTCDSrQ>; Tue, 4 Mar 2003 13:47:16 -0500
+	id <S269509AbTCDS61>; Tue, 4 Mar 2003 13:58:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269516AbTCDSrQ>; Tue, 4 Mar 2003 13:47:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4365 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269515AbTCDSrP>; Tue, 4 Mar 2003 13:47:15 -0500
-Date: Tue, 4 Mar 2003 10:54:21 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: raarts@office.netland.nl, <david.knierim@tekelec.com>,
-       <alexander@netintact.se>, Donald Becker <becker@scyld.com>,
-       Greg KH <greg@kroah.com>, jamal <hadi@cyberus.ca>,
-       Jeff Garzik <jgarzik@pobox.com>, <kuznet@ms2.inr.ac.ru>,
-       <linux-kernel@vger.kernel.org>,
-       Robert Olsson <Robert.Olsson@data.slu.se>
-Subject: Re: PCI init issues
-In-Reply-To: <20030304212648.A6455@jurassic.park.msu.ru>
-Message-ID: <Pine.LNX.4.44.0303041046370.1426-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269516AbTCDS61>; Tue, 4 Mar 2003 13:58:27 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:50950 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S269509AbTCDS60>;
+	Tue, 4 Mar 2003 13:58:26 -0500
+Date: Tue, 4 Mar 2003 20:08:54 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: J@ravnborg.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add checkstack Makefile target
+Message-ID: <20030304190854.GA1917@mars.ravnborg.org>
+Mail-Followup-To: J@ravnborg.org, linux-kernel@vger.kernel.org
+References: <20030303211647.GA25205@wohnheim.fh-wedel.de> <20030304070304.GP4579@actcom.co.il> <20030304072443.GA5503@wohnheim.fh-wedel.de> <20030304102121.GC6583@wohnheim.fh-wedel.de> <20030304105739.GD6583@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030304105739.GD6583@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 04, 2003 at 11:57:39AM +0100, J??rn Engel wrote:
 
-On Tue, 4 Mar 2003, Ivan Kokshaysky wrote:
->
-> Indeed, looks like only pin 0 (INT_A of that card) is connected. :-(
+A few comments to the Makefile changes..
 
-Well, I'd say it looks like the MP table _claims_ that only pin0 is 
-connected. Remember: the claim was that this machine worked on WinXP.
+> diff -Naur linux-2.5.63/arch/i386/Makefile linux-2.5.63-checkstack/arch/i386/Makefile
+> --- linux-2.5.63/arch/i386/Makefile	Mon Feb 24 20:05:15 2003
+> +++ linux-2.5.63-checkstack/arch/i386/Makefile	Tue Mar  4 11:51:11 2003
+> @@ -124,3 +124,12 @@
+>    echo  '		   install to $$(INSTALL_PATH) and run lilo'
+>  endef
+>  
+> +CLEAN_FILES +=	$(TOPDIR)/scripts/checkstack_i386.pl
+Do not use TOPDIR.
+> +CLEAN_FILES +=	scripts/checkstack_i386.pl
+Is preferred.
 
-So there are at least two potential reasons for that:
+> +
+> +$(TOPDIR)/scripts/checkstack_i386.pl: $(TOPDIR)/scripts/checkstack.pl
+> +	(cd $(TOPDIR)/scripts/ && ln -s checkstack.pl checkstack_i386.pl)
+There is no need to use the symlink trick.
+Just pass the architecture as first mandatory parameter.
+Something like
+checkstack: vmlinux FORCE
+	$(OBJDUMP) -d vmlinux | scripts/checkstack.pl $(ARCH)
 
- - The MP table is simply wrong, and WinXP gets the routing information 
-   from somewhere else (ie most likely ACPI)
+Note that I skipped grep. Perl is good at regular expressions, and
+the perl scripts already know the architecture so you can do the job there.
+Since the above is now architecture independent, better locate it in
+the top level Makefile.
 
- - The MP table is right, and only pin0 is connected, and WinXP only uses 
-   pin0 (ie it puts the card in some state where all irqs are shared 
-   across all of the four tulip chips).
-
-Maybe somebody can come up with other schenarios.
-
-It would be interesting to hear what "Device Manager" (or whatever it is
-called) unde WinXP claims the interrupts are on this machine... Are they
-all on irq 48 on XP too? Or has XP gotten magic knowledge somewhere
-(ACPI?) and they are on different irq's?
-
-		Linus
-
+	Sam

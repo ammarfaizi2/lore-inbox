@@ -1,78 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267769AbTADBT3>; Fri, 3 Jan 2003 20:19:29 -0500
+	id <S267768AbTADBTP>; Fri, 3 Jan 2003 20:19:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267771AbTADBT3>; Fri, 3 Jan 2003 20:19:29 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:7105 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S267769AbTADBT0>; Fri, 3 Jan 2003 20:19:26 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: Andrew Walrond <andrew@walrond.org>, Larry McVoy <lm@bitmover.com>,
-       Samuel Flory <sflory@rackable.com>,
-       David Schwartz <davids@webmaster.com>, Marco Monteiro <masm@acm.org>,
-       linux-kernel@vger.kernel.org
-Date: Fri, 3 Jan 2003 17:15:23 -0800 (PST)
+	id <S267769AbTADBTP>; Fri, 3 Jan 2003 20:19:15 -0500
+Received: from viefep14-int.chello.at ([213.46.255.13]:26384 "EHLO
+	viefep14-int.chello.at") by vger.kernel.org with ESMTP
+	id <S267768AbTADBTN>; Fri, 3 Jan 2003 20:19:13 -0500
+Message-ID: <0b0c01c2b390$7eb7ea40$6400a8c0@twister>
+From: "NEURONET" <sz@neuronet.hu>
+To: <billyrose@billyrose.net>, <linux-kernel@vger.kernel.org>
+References: <E18UcYv-000230-00@host.ehost4u.biz>
 Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <20030104013011.GC4472@mark.mielke.cc>
-Message-ID: <Pine.LNX.4.44.0301031712100.23270-100000@dlang.diginsite.com>
+Date: Sat, 4 Jan 2003 02:27:49 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-Mimeole: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if the server is just a comm relay this is true, but if the server
-implements real game logic then it's much less of a problem (show me the
-copycat everquest servers for example)
+From: "Billy Rose" <billyrose@billyrose.net>
+> if i were a big monopolistic company that has recently (openly) began 
+> to worry about the threat of linux taking some of my market share, i 
+> would create an explosive topic on the kernel mailing list and begin 
+> dividing up the developers using political agenda such as this. little 
+> by little, the cracks in the foundation would start giving way to 
+> larger debates. finally, simple ideology would create a divide that 
+> causes the developers to choose "sides" and then fragmentation would 
+> occur. the ultimate outcome: the unix syndrome. perhaps this is not 
+> such a case, but it may as well be from what i have read. sometimes 
+> not giving your opinion is worth more than winning a debate. think 
+> about it.
 
-as for validating license keys, if you want that to happen you have to
-make the validation code public (which is possible if you use the right
-algorithm)
+Interesting. OTOH, you ain't need nothing but plain 
+evolution to see it happen: people thinking publicly 
+on a mailing list like this one is just enough (and 
+no "help" from a wicked monopolistic company is to 
+be assumed ;) ).
 
-David Lang
+I believe it's a property of a topic itself, whether 
+it's something for a long discussion, or something 
+superfluous. A topic we kill each other for is 
+interesting on its own right: it is both irrelevant 
+and is only a matter of coincidence when and who 
+happens to be the firestarter. 
 
+If an important issue that has the potential to divide 
+us or has some other profound effect on our world here, 
+one can be sure it WILL just pop up, and we WILL discuss 
+it sooner or later, simply because such a topic needs 
+to be resolved somehow...
 
- On Fri, 3 Jan 2003, Mark Mielke wrote:
+It's just the nature of these intellectual things: 
+different minds -- like winds -- shape the surface of 
+our common landscape here, over long or short, calm 
+or stormy, one-time or recurring debates.
 
-> Date: Fri, 3 Jan 2003 20:30:11 -0500
-> From: Mark Mielke <mark@mark.mielke.cc>
-> To: Andrew Walrond <andrew@walrond.org>
-> Cc: Larry McVoy <lm@bitmover.com>, Samuel Flory <sflory@rackable.com>,
->      David Schwartz <davids@webmaster.com>, Marco Monteiro <masm@acm.org>,
->      linux-kernel@vger.kernel.org
-> Subject: Re: Why is Nvidia given GPL'd code to use in closed source
->     drivers?
->
-> On Fri, Jan 03, 2003 at 10:55:13PM +0000, Andrew Walrond wrote:
-> > Of course I and probably many others are moving to a new model for our
-> > games. I'm probably being more radical than most; Open Source client
-> > software. Useless of course without a connection to my server side code :)
-> > It's the first game I've produced that is pirate proof.
->
-> If the game is good enough, it isn't pirate proof. I believe that Blizzard
-> and other such companies have pursued this course in the past. The result?
-> The hackers watch the communication between the client and the server and
-> write their own servers. They even go so far as to pretend as if the practice
-> is legal by putting disclaimers on the "public servers" that state that
-> "you may only connect to this service if you have purchased a valid license
-> for this game." Of course, they don't verify license keys...
->
-> mark
->
-> --
-> mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-> .  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-> |\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   |
-> |  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
->
->   One ring to rule them all, one ring to find them, one ring to bring them all
->                        and in the darkness bind them...
->
->                            http://mark.mielke.cc/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Sab
+

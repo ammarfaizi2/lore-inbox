@@ -1,78 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264604AbUAGTdw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 14:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbUAGTdS
+	id S266271AbUAGT3N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 14:29:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUAGT1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 14:33:18 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12676 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266278AbUAGTcG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 14:32:06 -0500
-Date: Wed, 7 Jan 2004 11:31:55 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg KH <greg@kroah.com>
-cc: Andrey Borzenkov <arvidjaar@mail.ru>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-In-Reply-To: <20040107185656.GB31827@kroah.com>
-Message-ID: <Pine.LNX.4.58.0401071123490.12602@home.osdl.org>
-References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com>
- <Pine.LNX.4.58.0401071036560.12602@home.osdl.org> <20040107185656.GB31827@kroah.com>
+	Wed, 7 Jan 2004 14:27:48 -0500
+Received: from paja.kn.vutbr.cz ([147.229.191.135]:40717 "EHLO
+	paja.kn.vutbr.cz") by vger.kernel.org with ESMTP id S266211AbUAGT0k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 14:26:40 -0500
+Message-ID: <3FFC5D5E.8040303@stud.feec.vutbr.cz>
+Date: Wed, 07 Jan 2004 20:26:22 +0100
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: torvalds@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6 fix for mremap is incorrect?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
+
+When you fixed the mremap vulnerability, you said:
+> I'd actually personally prefer a stronger test than the one in 2.4.24, and
+> my personal preference would be for just disallowing the degenerate cases
+> entirely. I don't see a "mremap away" as being a valid thing to do, since
+> if that is what you want, why not just do a "munmap()"?
+
+I think that your fix doesn't prevent these degenerate cases from 
+happening. To disallow them, the following patch should be applied:
 
 
-On Wed, 7 Jan 2004, Greg KH wrote:
+--- linux-2.6.1-rc2/mm/mremap.c	2004-01-07 17:20:03.000000000 +0100
++++ linux/mm/mremap.c	2004-01-07 19:30:39.000000000 +0100
+@@ -316,7 +316,7 @@
+  	new_len = PAGE_ALIGN(new_len);
 
-> > But udev should probably also create all the sub-nodes if it doesn't 
-> > already.
-> 
-> It doesn't, as I thought we could rely on the kernel partition support.
+  	/* Don't allow the degenerate cases */
+-	if (!(old_len | new_len))
++	if (!old_len || !new_len)
+  		goto out;
 
-Indeed, we _can_ rely on the kernel partition support, but the subnodes 
-are needed to get at those partitions.
+  	/* new_addr is only valid if MREMAP_FIXED is specified */
 
-Obviously, a "repartitioning hotplug event" can create the subnodes, but 
-that will fail exactly because it wouldn't allow the user to just access 
-the nodes.
 
-> Hm, that would work, but what about a user program that just polls on
-> the device, as the rest of this thread discusses?
+Here is a testing program which shows the difference:
 
-I hate those "background CPU users". Have you looked at "ps" output after 
-something like kscd has run, and does a CD check every second? It's 
-_expensive_. It goes all the way down to the hardware, sends a request 
-to the device.
+/*  mremap test by Michal Schmidt
+  *  based on proof-of-concept exploit code for do_mremap()
+  *   by Christophe Devine and Julien Tinnes
+  *  GPL v2 */
 
-Doing it every five minutes wouldn't be an issue, but doing it every five 
-minutes would be absolutely _horrible_ from a user perspective standpoint. 
-If you insert a smartmedia card in your cardreader, you expect to be able 
-to access it pretty much immediately when you start typing. So a second or 
-two of delay is fine, but even just five or ten seconds are already bad.
+#include <stdio.h>
+#include <asm/unistd.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <errno.h>
 
-So the choice is:
- - probe every removable device once a second
- - pre-populate the device nodes, and when the user presses the icon that 
-   says "mount", it will just do so. Immediately. No delay at all.
+#define MREMAP_MAYMOVE  1
+#define MREMAP_FIXED    2
 
->				  As removable devices
-> are not the "norm" it would seem a bit of overkill to create 16
-> partitions for every block device, if they need them or not.
+#define __NR_real_mremap __NR_mremap
 
-It might be acceptable to create even just the first one, since things
-like cameras etc only ever generate a single partition. But the
-inconsistency would drive me mad. I'd just do all of them.
+static inline _syscall5( void *, real_mremap, void *, old_address,
+                          size_t, old_size, size_t, new_size,
+                          unsigned long, flags, void *, new_address );
 
-NOTE! We do have an alternative: if we were to just make block device 
-nodes support "readdir" and "lookup", you could just do
+void list_maps(void)
+{
+     char str[50];
+     fflush(stdout);
+     sprintf(str,"cat /proc/%u/maps",getpid());
+     system(str);
+}
 
-	open("/dev/sda/1" ...)
+int main( void )
+{
+     void *base;
+     void *remapped;
 
-and it magically works right. I've wanted to do this for a long time, but 
-every time I suggest allowing it, people scream.
+     printf("start\n");
+     list_maps();
+     base = mmap( NULL, 8192, PROT_READ | PROT_WRITE,
+                  MAP_PRIVATE | MAP_ANONYMOUS, 0, 0 );
+     printf("mmap at: %p\n",base);
+     list_maps();
 
-			Linus
+     remapped=real_mremap( base, 8192, 0, MREMAP_MAYMOVE | MREMAP_FIXED,
+                  (void *) 0xC0000000 );
+     printf("mremap to: %p\n",remapped);
+     list_maps();
+
+     return( 0 );
+}
+/* -----------EOF------------ */
+
+Under 2.6.1-rc2 I get this output:
+
+start
+08048000-08049000 r-xp 00000000 03:05 355347     /home/michich/c/mremap
+08049000-0804a000 rw-p 00000000 03:05 355347     /home/michich/c/mremap
+40000000-40014000 r-xp 00000000 03:05 22062      /lib/ld-2.3.2.so
+40014000-40015000 rw-p 00013000 03:05 22062      /lib/ld-2.3.2.so
+40015000-40016000 rw-p 00000000 00:00 0
+40026000-40152000 r-xp 00000000 03:05 22068      /lib/libc.so.6
+40152000-40157000 rw-p 0012b000 03:05 22068      /lib/libc.so.6
+40157000-40179000 rw-p 00000000 00:00 0
+bfffe000-c0000000 rwxp fffff000 00:00 0
+ffffe000-fffff000 ---p 00000000 00:00 0
+mmap at: 0x40179000
+08048000-08049000 r-xp 00000000 03:05 355347     /home/michich/c/mremap
+08049000-0804a000 rw-p 00000000 03:05 355347     /home/michich/c/mremap
+40000000-40014000 r-xp 00000000 03:05 22062      /lib/ld-2.3.2.so
+40014000-40015000 rw-p 00013000 03:05 22062      /lib/ld-2.3.2.so
+40015000-40016000 rw-p 00000000 00:00 0
+40026000-40152000 r-xp 00000000 03:05 22068      /lib/libc.so.6
+40152000-40157000 rw-p 0012b000 03:05 22068      /lib/libc.so.6
+40157000-4017b000 rw-p 00000000 00:00 0
+bfffe000-c0000000 rwxp fffff000 00:00 0
+ffffe000-fffff000 ---p 00000000 00:00 0
+mremap to: 0xffffffff
+08048000-08049000 r-xp 00000000 03:05 355347     /home/michich/c/mremap
+08049000-0804a000 rw-p 00000000 03:05 355347     /home/michich/c/mremap
+40000000-40014000 r-xp 00000000 03:05 22062      /lib/ld-2.3.2.so
+40014000-40015000 rw-p 00013000 03:05 22062      /lib/ld-2.3.2.so
+40015000-40016000 rw-p 00000000 00:00 0
+40026000-40152000 r-xp 00000000 03:05 22068      /lib/libc.so.6
+40152000-40157000 rw-p 0012b000 03:05 22068      /lib/libc.so.6
+40157000-40179000 rw-p 00000000 00:00 0
+bfffe000-c0000000 rwxp fffff000 00:00 0
+ffffe000-fffff000 ---p 00000000 00:00 0
+
+.... so the mremap failed (it returned -1) but it has already unmapped 
+the area - it did the "mremap away" thing you wanted to prevent.
+
+With my patch, mremap will also return -1, but doesn't change the memory 
+map - I believe that's better behaviour.
+
+Michal Schmidt

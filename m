@@ -1,51 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264536AbTGGWKv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 18:10:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTGGWKv
+	id S264539AbTGGW3b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 18:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbTGGW3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 18:10:51 -0400
-Received: from www.wireboard.com ([216.151.155.101]:20372 "EHLO
-	varsoon.wireboard.com") by vger.kernel.org with ESMTP
-	id S264536AbTGGWKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 18:10:50 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: "Paul Albrecht" <palbrecht@qwest.net>, niv@us.ibm.com,
-       linux-kernel@vger.kernel.org, "netdev" <netdev@oss.sgi.com>
-Subject: Re: question about linux tcp request queue handling
-References: <3F08858E.8000907@us.ibm.com.suse.lists.linux.kernel>
-	<001a01c3441c$6fe111a0$6801a8c0@oemcomputer.suse.lists.linux.kernel>
-	<3F08B7E2.7040208@us.ibm.com.suse.lists.linux.kernel>
-	<000d01c3444f$e6439600$6801a8c0@oemcomputer.suse.lists.linux.kernel>
-	<3F090A4F.10004@us.ibm.com.suse.lists.linux.kernel>
-	<001401c344df$ccbc63c0$6801a8c0@oemcomputer.suse.lists.linux.kernel>
-	<p73fzliqa91.fsf@oldwotan.suse.de>
-From: Doug McNaught <doug@mcnaught.org>
-Date: 07 Jul 2003 18:25:17 -0400
-In-Reply-To: Andi Kleen's message of "07 Jul 2003 23:48:10 +0200"
-Message-ID: <m3brw6rn3m.fsf@varsoon.wireboard.com>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Jul 2003 18:29:31 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:56743 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S264539AbTGGW33
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 18:29:29 -0400
+Date: Mon, 7 Jul 2003 23:44:01 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Elmer <elmer@linking.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-ac4 Adaptec 1210SA lost interrupt , Seagate 120G
+Message-ID: <20030707224401.GA17070@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Elmer <elmer@linking.ee>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0307080017060.2847-100000@server.linking.sise>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307080017060.2847-100000@server.linking.sise>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
 
-> "Paul Albrecht" <palbrecht@qwest.net> writes:
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Jul 08, 2003 at 12:42:32AM +0300, Elmer wrote:
+> Tried them on every imaginable way:
 > 
-> > This statement is inconsistent with the description of this scenario in
-> > Steven's TCP/IP Illustrated.  Specifically, continuing the handshake in the
-> > TCP layer, i.e., sending a syn/ack and moving to the syn_recd state, is
-> > incorrect if the limit of the server's socket backlog would be exceeded.
-> > How do you account for this discrepancy between linux and other
-> > berkeley-derived implementations?
+> 1. 2.4.21 + my own siimage slight patch, 2.4.21 + simage from ac4, 
+> 	pure 2.4.21-ac4
+> 2. apic, noapic, localapic
+> 3. uni,smp motherboards, 4 of them
+> 4. modules, compiled in, 
+> 5. all of options from cards bios
 > 
-> The 4.4BSD-Lite code described in Stevens is long outdated. All modern
-> BSDs (and probably most other Unixes too) do it in a similar way to what 
-> Nivedita described. The keywords are "syn flood attack" and "DoS". 
+> /proc/interrupts reports 0 interrupts for ide2,3 , whatever I do.
+> 
+> after bootup, after attacking ide-disk driver, there are lost interrupts.
+> it recognises disk as correct type, but no communication except:
+> 
+> 1. under XP it works (but there was no linux at that mb) 
+> 2. hdparm lets change few flags under linux, but no -X succeeds
+> 3. after waiting for minute those timeouts and booting up, then 
+> /proc/ide/ide2/hde/*  reports sensible correct information
+> 
+> I have the card for few more days, anything to try ?
 
-And furthermore, IIRC, the current Linux networking code is not
-Berkeley-derived, though an earlier version was.
+   I've tried this card with all of the hdparm options that I could
+think of. I got no success either. However, Andre Hedrick claims[1] to
+have got the SiI3112 and 3114 working in his tree (a couple of weeks
+ago).  He's testing it[2] before release.
 
--Doug
+   Hugo.
+
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=105622034606015&w=2
+
+[2] I believe that one of the tests is whether he's got paid for the
+work by the people who contracted him to do it, which is where I
+suspect the real delay is.
+
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+                --- If it ain't broke,  hit it again. ---                
+
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/CfexssJ7whwzWGARAoIFAKCmYyD9+J+LQM5IMyhtKecJkcBu6wCdEtvr
+J+J5LsA6V+qMa8zL8M6gGbI=
+=OcQK
+-----END PGP SIGNATURE-----
+
+--sdtB3X0nJg68CQEu--

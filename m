@@ -1,278 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266610AbUHBQaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUHBQb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266610AbUHBQaU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 12:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266609AbUHBQaU
+	id S266611AbUHBQb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 12:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266609AbUHBQb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 12:30:20 -0400
-Received: from smtp.sys.beep.pl ([195.245.198.13]:61450 "EHLO smtp.sys.beep.pl")
-	by vger.kernel.org with ESMTP id S266615AbUHBQ3d convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 12:29:33 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: Corey Minyard <minyard@acm.org>
-Subject: Re: IPMI watchdog question
-Date: Mon, 2 Aug 2004 18:29:18 +0200
-User-Agent: KMail/1.6.2
-Cc: Holger Kiehl <Holger.Kiehl@dwd.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0407280901330.31636@praktifix.dwd.de> <Pine.LNX.4.58.0408021119320.31915@praktifix.dwd.de> <410E5F46.2030005@acm.org>
-In-Reply-To: <410E5F46.2030005@acm.org>
-MIME-Version: 1.0
+	Mon, 2 Aug 2004 12:31:58 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:61846 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S266611AbUHBQba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 12:31:30 -0400
+Date: Mon, 2 Aug 2004 18:31:13 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: secure computing for 2.6.7
+Message-ID: <20040802163113.GR6295@dualathlon.random>
+References: <20040801155128.GG6295@dualathlon.random> <200408020317.i723HJbp007491@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200408021829.18228.arekm@pld-linux.org>
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Points assigned by spam scoring system to this email. Note that message
-	is treated as spam ONLY if X-Spam-Flag header is set to YES.
-	If you have any report questions, see report postmaster@beep.pl for details.
-	Content analysis details:   (0.0 points, 25.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-X-Authenticated-Id: arekm 
+In-Reply-To: <200408020317.i723HJbp007491@localhost.localdomain>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 of August 2004 17:35, Corey Minyard wrote:
-> The IPMI watchdog has never supported writing "V" to disable it.  It's a
-> mixed bag with the other watchdogs, some do and some don't, but I can
-> certainly add that function.  Or even better, I'd be happy to take a
-> patch :).
+On Sun, Aug 01, 2004 at 11:17:19PM -0400, Horst von Brand wrote:
+> Andrea Arcangeli <andrea@suse.de> said:
+> 
+> [...]
+> 
+> > note this isn't a build number (the features in 2.6.10 don't matter at
+> > all, the only thing it matters is that all security bugs up to 3503 are
+> > included).
+> 
+> Pray tell, how do you know if a random "compiler warning fix" isn't a plug
+> for an exploitable hole, and if a "security fix" really does fix a real
+> security problem that can be abused?
+> 
+> Truth is, you can never know. So, this degenerates into sequential patch
+> numbering, which is completely hopeless.
 
-Like this one (untested beside compilation) below?
+nothing is perfect. keeping track of a few sporadic kernel builds with
+unsafe compiler with `uname -r` is quite easy compared to keeping track
+of every security `uname -r` out there. It's about the common case
+working well (common case is like fnclex), corner cases will have to be
+handled with a db anyways, but it'll be much simpler to single out a few
+spoardic `uname -r` than to keep track of everything in the common cases
+too.
 
-btw. other watchdog drivers use:
+For example if a new bug triggers only on a certain buggy future cpu, I
+don't want to shutdown the whole thing but I'll have a db that will
+single out only such specific cpu if the security_sequence is lower than
+N.
 
-	if(test_and_set_bit(0, &wdt_is_open))
-                return -EBUSY;
-
-while ipmi does just:
-	ipmi_wdog_open = 0;
-
-should it also use bit operations or setting =0 is just fine?
-
-Patch:
-
-- support disabling watchdog by writting ,,V'' to device.
-- unify printk()
-
-Signed-off-by: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-
---- linux.org/drivers/char/ipmi/ipmi_watchdog.c.org	2004-08-02 18:03:52.400100664 +0200
-+++ linux/drivers/char/ipmi/ipmi_watchdog.c	2004-08-02 18:22:34.980442512 +0200
-@@ -51,6 +51,8 @@
- #include <asm/apic.h>
- #endif
- 
-+#define	PFX "IPMI Watchdog: "
-+
- #define IPMI_WATCHDOG_VERSION "v32"
- 
- /*
-@@ -160,6 +162,7 @@
- static DECLARE_WAIT_QUEUE_HEAD(read_q);
- static struct fasync_struct *fasync_q = NULL;
- static char pretimeout_since_last_heartbeat = 0;
-+static char expect_close;
- 
- /* If true, the driver will start running as soon as it is configured
-    and ready. */
-@@ -287,7 +290,7 @@
- 				      recv_msg,
- 				      1);
- 	if (rv) {
--		printk(KERN_WARNING "IPMI Watchdog, set timeout error: %d\n",
-+		printk(KERN_WARNING PFX "set timeout error: %d\n",
- 		       rv);
- 	}
- 
-@@ -464,7 +467,7 @@
- 				      1);
- 	if (rv) {
- 		up(&heartbeat_lock);
--		printk(KERN_WARNING "IPMI Watchdog, heartbeat failure: %d\n",
-+		printk(KERN_WARNING PFX "heartbeat failure: %d\n",
- 		       rv);
- 		return rv;
- 	}
-@@ -603,6 +606,21 @@
- 		return -ESPIPE;
- 
- 	if (len) {
-+	    	if (!nowayout) {
-+		    	size_t i;
-+
-+			/* In case it was set long ago */
-+			expect_close = 0;
-+			
-+    			for (i = 0; i != len; i++) {
-+				char c;
-+
-+				if (get_user(c, buf + i))
-+					return -EFAULT;
-+				if (c == 'V')
-+					expect_close = 42;
-+			}
-+		}
- 		rv = ipmi_heartbeat();
- 		if (rv)
- 			return rv;
-@@ -712,14 +730,18 @@
- {
- 	if (iminor(ino)==WATCHDOG_MINOR)
- 	{
--		if (!nowayout) {
-+		if (expect_close == 42) {
- 			ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
- 			ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB);
-+			ipmi_wdog_open = 0;
-+		} else {
-+			printk(KERN_CRIT PFX "Unexpected close, not stopping watchdog!\n");
-+			ipmi_heartbeat();
- 		}
--	        ipmi_wdog_open = 0;
- 	}
- 
- 	ipmi_fasync (-1, filep, 0);
-+	expect_close = 0;
- 
- 	return 0;
- }
-@@ -747,7 +769,7 @@
- 				  void                 *handler_data)
- {
- 	if (msg->msg.data[0] != 0) {
--		printk(KERN_ERR "IPMI Watchdog response: Error %x on cmd %x\n",
-+		printk(KERN_ERR PFX "response: Error %x on cmd %x\n",
- 		       msg->msg.data[0],
- 		       msg->msg.cmd);
- 	}
-@@ -792,7 +814,7 @@
- 
- 	rv = ipmi_create_user(ipmi_intf, &ipmi_hndlrs, NULL, &watchdog_user);
- 	if (rv < 0) {
--		printk("IPMI watchdog: Unable to register with ipmi\n");
-+		printk(KERN_CRIT PFX "Unable to register with ipmi\n");
- 		goto out;
- 	}
- 
-@@ -804,7 +826,7 @@
- 	if (rv < 0) {
- 		ipmi_destroy_user(watchdog_user);
- 		watchdog_user = NULL;
--		printk("IPMI watchdog: Unable to register misc device\n");
-+		printk(KERN_CRIT PFX "Unable to register misc device\n");
- 	}
- 
-  out:
-@@ -815,7 +837,7 @@
- 		start_now = 0; /* Disable this function after first startup. */
- 		ipmi_watchdog_state = action_val;
- 		ipmi_set_timeout(IPMI_SET_TIMEOUT_FORCE_HB);
--		printk("Starting IPMI Watchdog now!\n");
-+		printk(KERN_INFO PFX "Starting now!\n");
- 	}
- }
- 
-@@ -826,7 +848,7 @@
- 	/* If no one else handled the NMI, we assume it was the IPMI
-            watchdog. */
- 	if ((!handled) && (preop_val == WDOG_PREOP_PANIC))
--		panic("IPMI watchdog pre-timeout");
-+		panic(PFX "pre-timeout");
- 
- 	/* On some machines, the heartbeat will give
- 	   an error and not work unless we re-enable
-@@ -932,7 +954,7 @@
- {
- 	int rv;
- 
--	printk(KERN_INFO "IPMI watchdog driver version "
-+	printk(KERN_INFO PFX "driver version "
- 	       IPMI_WATCHDOG_VERSION "\n");
- 
- 	if (strcmp(action, "reset") == 0) {
-@@ -945,7 +967,7 @@
- 		action_val = WDOG_TIMEOUT_POWER_DOWN;
- 	} else {
- 		action_val = WDOG_TIMEOUT_RESET;
--		printk("ipmi_watchdog: Unknown action '%s', defaulting to"
-+		printk(KERN_INFO PFX "Unknown action '%s', defaulting to"
- 		       " reset\n", action);
- 	}
- 
-@@ -961,7 +983,7 @@
- 		preaction_val = WDOG_PRETIMEOUT_MSG_INT;
- 	} else {
- 		preaction_val = WDOG_PRETIMEOUT_NONE;
--		printk("ipmi_watchdog: Unknown preaction '%s', defaulting to"
-+		printk(KERN_INFO PFX "Unknown preaction '%s', defaulting to"
- 		       " none\n", preaction);
- 	}
- 
-@@ -973,23 +995,21 @@
- 		preop_val = WDOG_PREOP_GIVE_DATA;
- 	} else {
- 		preop_val = WDOG_PREOP_NONE;
--		printk("ipmi_watchdog: Unknown preop '%s', defaulting to"
-+		printk(KERN_INFO PFX "Unknown preop '%s', defaulting to"
- 		       " none\n", preop);
- 	}
- 
- #ifdef HAVE_NMI_HANDLER
- 	if (preaction_val == WDOG_PRETIMEOUT_NMI) {
- 		if (preop_val == WDOG_PREOP_GIVE_DATA) {
--			printk(KERN_WARNING
--			       "ipmi_watchdog: Pretimeout op is to give data"
-+			printk(KERN_WARNING PFX "Pretimeout op is to give data"
- 			       " but NMI pretimeout is enabled, setting"
- 			       " pretimeout op to none\n");
- 			preop_val = WDOG_PREOP_NONE;
- 		}
- #ifdef CONFIG_X86_LOCAL_APIC
- 		if (nmi_watchdog == NMI_IO_APIC) {
--			printk(KERN_WARNING
--			       "ipmi_watchdog: nmi_watchdog is set to IO APIC"
-+			printk(KERN_WARNING PFX "nmi_watchdog is set to IO APIC"
- 			       " mode (value is %d), that is incompatible"
- 			       " with using NMI in the IPMI watchdog."
- 			       " Disabling IPMI nmi pretimeout.\n",
-@@ -999,8 +1019,7 @@
- #endif
- 		rv = request_nmi(&ipmi_nmi_handler);
- 		if (rv) {
--			printk(KERN_WARNING
--			       "ipmi_watchdog: Can't register nmi handler\n");
-+			printk(KERN_WARNING PFX "Can't register nmi handler\n");
- 			return rv;
- 		}
- #ifdef CONFIG_X86_LOCAL_APIC
-@@ -1015,8 +1034,7 @@
- 		if (preaction_val == WDOG_PRETIMEOUT_NMI)
- 			release_nmi(&ipmi_nmi_handler);
- #endif
--		printk(KERN_WARNING
--		       "ipmi_watchdog: can't register smi watcher\n");
-+		printk(KERN_WARNING PFX "can't register smi watcher\n");
- 		return rv;
- 	}
- 
-@@ -1061,8 +1079,7 @@
- 	/* Disconnect from IPMI. */
- 	rv = ipmi_destroy_user(watchdog_user);
- 	if (rv) {
--		printk(KERN_WARNING
--		       "IPMI Watchdog, error unlinking from IPMI: %d\n",
-+		printk(KERN_WARNING PFX "error unlinking from IPMI: %d\n",
- 		       rv);
- 	}
- 	watchdog_user = NULL;
-
-> -Corey
-
--- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+But anyways I start to think I should probably rename it to
+seccomp_security_sequence, so that it's not going to degenerate in the
+sequential patch numbering and it'll really work well for the common
+case since there's a seccomp relevant bug less than once every 2 years
+or less (and half the time they're hardware related and not a software
+issues).

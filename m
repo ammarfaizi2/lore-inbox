@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265653AbRF1MbL>; Thu, 28 Jun 2001 08:31:11 -0400
+	id <S265655AbRF1MgB>; Thu, 28 Jun 2001 08:36:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265655AbRF1MbB>; Thu, 28 Jun 2001 08:31:01 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47115 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265653AbRF1Maw>; Thu, 28 Jun 2001 08:30:52 -0400
+	id <S265657AbRF1Mfw>; Thu, 28 Jun 2001 08:35:52 -0400
+Received: from AMontpellier-201-1-2-148.abo.wanadoo.fr ([193.253.215.148]:17939
+	"EHLO awak") by vger.kernel.org with ESMTP id <S265655AbRF1Mfj>;
+	Thu, 28 Jun 2001 08:35:39 -0400
 Subject: Re: VM Requirement Document - v0.0
-To: mike_phillips@urscorp.com
-Date: Thu, 28 Jun 2001 13:30:44 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF95A43E53.39291B42-ON84256A79.003D421D@urscorp.com> from "mike_phillips@urscorp.com" at Jun 28, 2001 09:20:09 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Tobias Ringstrom <tori@unhappy.mine.nu>
+Cc: Helge Hafting <helge.hafting@idb.hist.no>,
+        Martin Knoblauch <Martin.Knoblauch@TeraPort.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0106281346280.1258-100000@boris.prodako.se>
+In-Reply-To: <Pine.LNX.4.33.0106281346280.1258-100000@boris.prodako.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15FawW-0006qI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 28 Jun 2001 14:31:17 +0200
+Message-Id: <993731477.9213.4.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This would be extremely useful. My laptop has 256mb of ram, but every day 
-> it runs the updatedb for locate. This fills the memory with the file 
-> cache. Interactivity is then terrible, and swap is unnecessarily used. On 
-> the laptop all this hard drive thrashing is bad news for battery life 
+On 28 Jun 2001 14:02:09 +0200, Tobias Ringstrom wrote:
 
-That isnt really down to labelling pages, what you are talking qbout is what
-you get for free when page aging works right (eg 2.0.39) but don't get in
-2.2 - and don't yet (although its coming) quite get right in 2.4.6pre.
+> This would be very useful, I think.  Would it be very hard to classify
+> pages like this (text/data/cache/...)?
 
+How would you classify a page of perl code ?
+
+Xav
 

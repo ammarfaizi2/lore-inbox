@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265823AbUEUL0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265831AbUEULey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265823AbUEUL0U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 07:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265829AbUEUL0T
+	id S265831AbUEULey (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 07:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbUEULey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 07:26:19 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:15625 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265823AbUEULZm
+	Fri, 21 May 2004 07:34:54 -0400
+Received: from 216-54-166-5.gen.twtelecom.net ([216.54.166.5]:64479 "EHLO
+	texas.encore.com") by vger.kernel.org with ESMTP id S265831AbUEULew
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 07:25:42 -0400
-Date: Fri, 21 May 2004 21:25:18 +1000
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: swsusp vs. pmdisk [was Re: swsusp: fix swsusp with intel-agp]
-Message-ID: <20040521112518.GA1014@gondor.apana.org.au>
-References: <20040521100734.GA31550@elf.ucw.cz> <E1BR7pl-0000Br-00@gondolin.me.apana.org.au> <20040521111612.GA976@elf.ucw.cz> <20040521112306.GC976@elf.ucw.cz>
-Mime-Version: 1.0
+	Fri, 21 May 2004 07:34:52 -0400
+Message-ID: <40ADE959.822F1C23@compro.net>
+Date: Fri, 21 May 2004 07:34:49 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-ert i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: mlockall and mmap of IO devices don't mix
+References: <20031003214411.GA25802@rudolph.ccur.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040521112306.GC976@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 21, 2004 at 01:23:06PM +0200, Pavel Machek wrote:
+Joe Korty wrote:
 > 
-> What about killing pmdisk code, instead?
+> 2.6.0-test6: the use of mlockall(2) in a process that has mmap(2)ed
+> the registers of an IO device will hang that process uninterruptibly.
+> The task runs in an infinite loop in get_user_pages(), invoking
+> follow_page() forever.
 > 
-> Its old, its not maintained any more, and it is unneccessary duplicity
-> of swsusp code.
+> Using binary search I discovered that the problem was introduced
+> in 2.5.14, specifically in ChangeSetKey
 > 
-> Patrick, in middle of april you claimed you'll have something "by the
-> end of month". Can you either start looking after your code or give up
-> and let me remove it?
+>     zippel@linux-m68k.org|ChangeSet|20020503210330|37095
+> 
 
-Well if Patrick doesn't have the time to do it, I'd like to maintain
-pmdisk.  It might be a bit out-of-date, by with a bit of work, it
-can easily catch up again since the underlying structure is quite nice.
+I know this is an old thread but can anyone tell me if this problem is
+resolved in the current 2.6.6 kernel? 
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Thanks
+Mark

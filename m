@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbULQThc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbULQThd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbULQThc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 14:37:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbULQTgK
+	id S262133AbULQThd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 14:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbULQTgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 14:36:10 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:47263
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262129AbULQTfe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 14:35:34 -0500
-Date: Fri, 17 Dec 2004 11:30:06 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Tomas Carnecky <tom@dbservice.com>
-Cc: jmorris@redhat.com, kaber@trash.net, bryan@coverity.com,
-       netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
+	Fri, 17 Dec 2004 14:36:04 -0500
+Received: from neopsis.com ([213.239.204.14]:50819 "EHLO
+	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
+	id S262133AbULQTed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 14:34:33 -0500
+Message-ID: <41C335FA.2050009@dbservice.com>
+Date: Fri, 17 Dec 2004 20:39:38 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-os@analogic.com, Bill Davidsen <davidsen@tmr.com>,
+       James Morris <jmorris@redhat.com>, Patrick McHardy <kaber@trash.net>,
+       Bryan Fulton <bryan@coverity.com>, netdev@oss.sgi.com,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
 Subject: Re: [Coverity] Untrusted user data in kernel
-Message-Id: <20041217113006.3cbae2ba.davem@davemloft.net>
-In-Reply-To: <41C334DF.107@dbservice.com>
-References: <Xine.LNX.4.44.0412170144410.12579-100000@thoron.boston.redhat.com>
-	<41C2DCBC.1080302@dbservice.com>
-	<20041217111634.740d4d46.davem@davemloft.net>
-	<41C334DF.107@dbservice.com>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <41C26DD1.7070006@trash.net> <Pine.LNX.4.61.0412171108340.4216@chaos.analogic.com> <41C330F7.4000806@dbservice.com> <200412172030.04831.oliver@neukum.org>
+In-Reply-To: <200412172030.04831.oliver@neukum.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Please contact the ISP for more information
+X-Neopsis-MailScanner: Found to be clean
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Dec 2004 20:34:55 +0100
-Tomas Carnecky <tom@dbservice.com> wrote:
+Oliver Neukum wrote:
+>>But the difference between you example (cp /dev/zero /dev/mem) and 
+>>passing unchecked data to the kernel is... you _can_ check the data and 
+> 
+> 
+> This is the difference:
+> static int open_port(struct inode * inode, struct file * filp)
+> {
+> 	return capable(CAP_SYS_RAWIO) ? 0 : -EPERM;
+> }
+> (from mem.c)
+> 
 
->  > It is already checked in do_ip6t_set_ctl(). Otherwise anyone could
->  > replace iptables rules :)
-> For me it seems that only CAP_NET_ADMIN is checked and not the data.
+OK, but my point was, whenever you can check the 'contents' of the data 
+passed to the kernel, do it. You can't check if the data someone writes 
+to /dev/mem is valid or not, but you can check for out-of-range/etc. 
+data in ioctl & friends.
 
-If that's the case then I agree with you Tomas.
+tom
+

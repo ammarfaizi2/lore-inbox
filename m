@@ -1,124 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264796AbTLCPP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 10:15:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbTLCPPZ
+	id S264593AbTLCPXa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 10:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264599AbTLCPXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 10:15:25 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:36240 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S264796AbTLCPPI (ORCPT
+	Wed, 3 Dec 2003 10:23:30 -0500
+Received: from news.cistron.nl ([62.216.30.38]:10988 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S264593AbTLCPXO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 10:15:08 -0500
-Date: Wed, 3 Dec 2003 16:15:05 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-t11 /proc/<xserver pid>/status question (VmLck > 4TB)
-Message-Id: <20031203161505.475f1bad.martin.zwickel@technotrend.de>
-Organization: TechnoTrend AG
-X-Mailer: Sylpheed version 0.9.7claws9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.0-test4 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
+	Wed, 3 Dec 2003 10:23:14 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: irq 19: nobody cared! with siimage and hdparm -X66 -d1
+Date: Wed, 3 Dec 2003 15:23:13 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bqkv51$4nf$1@news.cistron.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Wed__3_Dec_2003_16_15_05_+0100_fix1rE5z1e7lC+9L"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1070464993 4847 62.216.29.200 (3 Dec 2003 15:23:13 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__3_Dec_2003_16_15_05_+0100_fix1rE5z1e7lC+9L
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+I got "irq 19: nobody cared!" when using the siimage driver on
+2.6.0-test11 and executing hdparm -X66 -d1.
 
-Hi there,
+I have the following disks in this machine:
 
-I have a small question:
+1x maxtor PATA on Intel ICH5 (ide0)
+2x maxtor SATA on Intel ICH5 (ide1)
+2x maxtor SATA on siimage    (ide2, ide3)
 
-If I look into the "/proc/<xserver pid>/status" file, there is a VmLck with a
-4TeraByte number.
+This is the relevant part of the bootlog:
 
-Is that normal?
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH5-SATA: IDE controller at PCI slot 0000:00:1f.2
+ICH5-SATA: chipset revision 2
+ICH5-SATA: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:DMA
+hda: Maxtor 6Y080L0, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: Maxtor 6Y080M0, ATA DISK drive
+hdd: Maxtor 6Y080M0, ATA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 15
+SiI3112 Serial ATA: IDE controller at PCI slot 0000:03:03.0
+SiI3112 Serial ATA: chipset revision 2
+SiI3112 Serial ATA: 100% native mode on irq 19
+    ide2: MMIO-DMA at 0xf8807e00-0xf8807e07, BIOS settings: hde:pio, hdf:pio
+    ide3: MMIO-DMA at 0xf8807e08-0xf8807e0f, BIOS settings: hdg:pio, hdh:pio
+hde: Maxtor 6Y080M0, ATA DISK drive
+ide2 at 0xf8807e80-0xf8807e87,0xf8807e8a on irq 19
+hdg: Maxtor 6Y080M0, ATA DISK drive
+ide3 at 0xf8807ec0-0xf8807ec7,0xf8807eca on irq 19
+hda: max request size: 128KiB
+hda: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
+ hda: hda1 hda2 hda3 < hda5 hda6 hda7 >
+hdc: max request size: 128KiB
+hdc: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63, UDMA(33)
+ hdc: hdc1 hdc2
+hdd: max request size: 128KiB
+hdd: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63, UDMA(33)
+ hdd: hdd1
+hde: max request size: 64KiB
+hde: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63
+ hde: hde1
+hdg: max request size: 64KiB
+hdg: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63
+ hdg: hdg1
 
-# cat /proc/7850/status 
-Name:   X
-State:  S (sleeping)
-SleepAVG:       101%
-Tgid:   7850
-Pid:    7850
-PPid:   7848
-TracerPid:      0
-Uid:    0       0       0       0
-Gid:    0       0       0       0
-FDSize: 256
-Groups: 0 
-VmSize:   377396 kB
-VmLck:  4294967292 kB
-VmRSS:     65724 kB
-VmData:   101456 kB
-VmStk:       320 kB
-VmExe:      1604 kB
-VmLib:      6844 kB
-Threads:        1
-SigPnd: 0000000000000000
-ShdPnd: 0000000000000000
-SigBlk: 0000000000000000
-SigIgn: 8000000000301000
-SigCgt: 00000000518066cb
-CapInh: 0000000000000000
-CapPrm: 00000000fffffeff
-CapEff: 00000000fffffeff
+The drives on the siimage controller show a bit less performance
+than the drives on the Intel controller:
 
+# hdparm -t /dev/hdc
+ Timing buffered disk reads:  64 MB in  1.27 seconds = 50.52 MB/sec
+# hdparm -t /dev/hde
+ Timing buffered disk reads:  64 MB in  1.42 seconds = 45.11 MB/sec
 
-Most other processes have 0kb.
+Because the hde and hdg drives didn't show that DMA was
+enabled, I enabled it with hdparm:
 
-cat /proc/*/status  | grep VmLck
+quantum:/etc/init.d# hdparm -X66 -d1 /dev/hdg
+ 
+And that resulted in this kernel message:
 
-...
-VmLck:         0 kB
-VmLck:         0 kB
-VmLck:      2060 kB
-VmLck:         0 kB
-VmLck:         0 kB
-VmLck:         4 kB
-VmLck:         0 kB
-...
+blk: queue f7dfac00, /dev/hdg:
+ setting using_dma to 1 (on)
+I/O limit 4095Mb (mask 0xffffffff)
+ setting xfermode to 66 (UltraDMA mode2)
+ using_dma    =  1 (on)
 
-Regards,
-Martin
+irq 19: nobody cared!
+Call Trace:
+ [<c010aaba>] __report_bad_irq+0x32/0x90
+ [<c010ab90>] note_interrupt+0x50/0x78
+ [<c010ad90>] do_IRQ+0xc0/0x124
+ [<c0105000>] _stext+0x0/0x48
+ [<c0109644>] common_interrupt+0x18/0x20
+ [<c0105000>] _stext+0x0/0x48
+ [<c0106de9>] default_idle+0x29/0x34
+ [<c0106e6c>] cpu_idle+0x30/0x40
+ [<c0105045>] _stext+0x45/0x48
+ [<c031c771>] start_kernel+0x14d/0x154
+                                       
+handlers:
+[<c01ee814>] (ide_intr+0x0/0x158)
+[<c01ee814>] (ide_intr+0x0/0x158)
+Disabling IRQ #19
 
+For now, I have rebooted and don't use -X66 -d1. It looks like
+DMA is enabled anyway:
 
-ps.:
+# hdparm -I /dev/hdg
+ATA device, with non-removable media
+        Model Number:       Maxtor 6Y080M0
+        Serial Number:      Y3J7GL5E
+        Firmware Revision:  YAR51BW0
+Standards:
+        Supported: 7 6 5 4
+        Likely used: 7
+Capabilities:
+        LBA, IORDY(can be disabled)
+        Queue depth: 1
+        Standby timer values: spec'd by Standard, no device specific minimum
+        R/W multiple sector transfer: Max = 16  Current = 0
+        Advanced power management level: unknown setting (0x0000)
+        Recommended acoustic management value: 192, current value: 254
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 udma6
+             Cycle time: min=120ns recommended=120ns
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=120ns  IORDY flow control=120ns
 
-I'm using the nvidia driver.
-# cat /proc/driver/nvidia/version 
-NVRM version: NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4496  Wed Jul 16
-19:03:09 PDT 2003 GCC version:  gcc version 3.2.3 20030422 (Gentoo Linux 1.4
-3.2.3-r2, propolice)
+It even shows "udma5" while the disks on the ICH5 controller show:
 
-# cat /proc/version 
-Linux version 2.6.0-test11 (root@phoebee) (gcc version 3.2.3 20030422 (Gentoo
-Linux 1.4 3.2.3-r2, propolice)) #6 Thu Nov 27 13:02:23 CET 2003
+# hdparm -I /dev/hdc
+ATA device, with non-removable media
+        Model Number:       Maxtor 6Y080M0
+        Serial Number:      Y3J7GKAE
+        Firmware Revision:  YAR51BW0
+Standards:
+        Supported: 7 6 5 4
+        Likely used: 7
+Capabilities:
+        LBA, IORDY(can be disabled)
+        Queue depth: 1
+        Standby timer values: spec'd by Standard, no device specific minimum
+        R/W multiple sector transfer: Max = 16  Current = 0
+        Advanced power management level: unknown setting (0x0000)
+        Recommended acoustic management value: 192, current value: 254
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5 udma6
+             Cycle time: min=120ns recommended=120ns
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=120ns  IORDY flow control=120ns
 
--- 
-MyExcuse:
-SCSI's too wide.
+Hmm, udma2, no multiple sector support. I'm beginning to think all
+this is nonsense for SATA controllers/disks, since udma2 could
+never get 50 MB/sec. Right ?
 
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
+Mike.
 
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature=_Wed__3_Dec_2003_16_15_05_+0100_fix1rE5z1e7lC+9L
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/zf35mjLYGS7fcG0RAjQGAJ4lf57tVaIe66ymY7QgiqYMTImS7wCgoZWJ
-I6Jr/+hEh5grMMeY83O8piI=
-=xxKC
------END PGP SIGNATURE-----
-
---Signature=_Wed__3_Dec_2003_16_15_05_+0100_fix1rE5z1e7lC+9L--

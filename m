@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318765AbSHLRbc>; Mon, 12 Aug 2002 13:31:32 -0400
+	id <S318774AbSHLRfL>; Mon, 12 Aug 2002 13:35:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318766AbSHLRag>; Mon, 12 Aug 2002 13:30:36 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:64782 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318765AbSHLRa1>;
-	Mon, 12 Aug 2002 13:30:27 -0400
-Date: Mon, 12 Aug 2002 10:30:30 -0700
-From: Greg KH <greg@kroah.com>
-To: Julien BLACHE <jb@jblache.org>
-Cc: Brad Hards <bhards@bigpond.net.au>, Adrian Bunk <bunk@fs.tum.de>,
-       linux-kernel@vger.kernel.org, rlievin@free.fr
-Subject: Re: [2.5 patch] tiglusb.c must include version.h
-Message-ID: <20020812173030.GA15652@kroah.com>
-References: <Pine.NEB.4.44.0208111416110.3636-100000@mimas.fachschaften.tu-muenchen.de> <200208121012.59099.bhards@bigpond.net.au> <87znvsmqfx.fsf@frigate.technologeek.org>
+	id <S318773AbSHLRfG>; Mon, 12 Aug 2002 13:35:06 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:61131 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S318772AbSHLRec>; Mon, 12 Aug 2002 13:34:32 -0400
+Subject: [PATCH] 2.5.31 add one help text to drivers/atm/Config.help
+From: Steven Cole <elenstev@mesatop.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 12 Aug 2002 11:35:28 -0600
+Message-Id: <1029173728.2051.41.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87znvsmqfx.fsf@frigate.technologeek.org>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 15 Jul 2002 16:28:30 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 12, 2002 at 10:28:18AM +0200, Julien BLACHE wrote:
-> Brad Hards <bhards@bigpond.net.au> wrote:
-> 
-> Hi,
-> 
-> >> line 44 is:
-> >>   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-> >>
-> >>
-> >> The fix is simple:
-> > <snip>
-> >> +#include <linux/version.h>
-> >
-> > Wouldn't it be cleaner to just remove this case? It is in 2.5, after all.
+This adds a help text to drivers/atm/Config.help for
+CONFIG_ATM_LANAI. 
 
-I agree.
+This has been in the -dj tree since about 2.5.7.
+The text was obtained from ESR's v2.97 Configure.help. 
 
-> But if this should become a hassle for anybody, I'll remove this case
-> ASAP.
+Steven
 
-Don't worry about it, I just made the change in my tree, and will send
-the change to Linus later today.
 
-thanks,
+--- linux-2.5.31/drivers/atm/Config.help.orig	Mon Aug 12 11:06:38 2002
++++ linux-2.5.31/drivers/atm/Config.help	Mon Aug 12 11:08:49 2002
+@@ -2,6 +2,12 @@
+   ATM over TCP driver. Useful mainly for development and for
+   experiments. If unsure, say N.
+ 
++CONFIG_ATM_LANAI
++  Supports ATM cards based on the Efficient Networks "Lanai"
++  chipset such as the Speedstream 3010 and the ENI-25p.  The
++  Speedstream 3060 is currently not supported since we don't
++  have the code to drive the on-board Alcatel DSL chipset (yet).
++
+ CONFIG_ATM_ENI
+   Driver for the Efficient Networks ENI155p series and SMC ATM
+   Power155 155 Mbps ATM adapters. Both, the versions with 512KB and
 
-greg k-h
+
+
+

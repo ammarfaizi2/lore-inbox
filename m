@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264228AbUD0Ry2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264243AbUD0R4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264228AbUD0Ry2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 13:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbUD0Ry2
+	id S264243AbUD0R4c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 13:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264247AbUD0R4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 13:54:28 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:43401 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264228AbUD0RyX
+	Tue, 27 Apr 2004 13:56:32 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:13674 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S264243AbUD0R4B
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 13:54:23 -0400
-Subject: Re: [PATCH 11/11] nfs-acl
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1083087180.19655.263.camel@winden.suse.de>
-References: <1082975215.3295.81.camel@winden.suse.de>
-	 <1083013819.15282.56.camel@lade.trondhjem.org>
-	 <1083087180.19655.263.camel@winden.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1083088460.2616.65.camel@lade.trondhjem.org>
+	Tue, 27 Apr 2004 13:56:01 -0400
+Date: Tue, 27 Apr 2004 19:57:54 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Marco Cavallini <arm.linux@koansoftware.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problem with CONFIG_USB_SL811HS
+Message-ID: <20040427175754.GA2968@mars.ravnborg.org>
+Mail-Followup-To: Marco Cavallini <arm.linux@koansoftware.com>,
+	Sam Ravnborg <sam@ravnborg.org>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org
+References: <005c01c42b82$60d82f60$0200a8c0@arrakis> <20040426185612.GB28530@kroah.com> <003501c42c24$06e87940$0200a8c0@arrakis> <20040427171737.GB2465@mars.ravnborg.org> <000701c42c7e$20214810$0200a8c0@arrakis>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 27 Apr 2004 13:54:20 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000701c42c7e$20214810$0200a8c0@arrakis>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-27 at 13:33, Andreas Gruenbacher wrote:
+On Tue, Apr 27, 2004 at 07:36:06PM +0200, Marco Cavallini wrote:
+> In Linux-2.4.26 the problem is in 
+> drivers/usb/host/Makefile
 
-> We can share the same socket, but the code gets slightly messier. How
-> about sharing the whole struct rpc_xprt (incremental patch)?
+I assumed you were using the 2.6 kernel, so I did not
+even look at 2.4.
 
-How about doing it as I suggested, using rpc_clone_client() instead?
+Sorry for the noise.
 
-You'll need to add
-
-void rpc_change_program(struct rpc_client *clnt, struct rpc_program *program, int vers)
-{
-	struct rpc_version *version;
-
-	BUG_ON(vers >= program->nrvers || !(version = program->version[vers]));
-	version = &program->version[vers];
-	clnt->cl_procinfo = version->procs;
-	clnt->cl_maxproc = version->nrprocs;
-	clnt->cl_protname = program->name;
-	clnt->cl_prog = program->number;
-	clnt->cl_vers = version->number;
-	clnt->cl_stats = program->stats
-}
-
-...but that will allow you to do the whole process of creating the ACL
-RPC client in 2 lines:
-
-	struct rpc_client *aclclnt = rpc_clone_client(server->client);
-	rpc_change_program(aclclnt, &nfsacl_program, 1);
-
-
-...and hey presto, you have something that shares both the
-authentication cache and the socket with the NFS client.
-
-Cheers,
-  Trond
+	Sam

@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316530AbSHBRLZ>; Fri, 2 Aug 2002 13:11:25 -0400
+	id <S316512AbSHBRKR>; Fri, 2 Aug 2002 13:10:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316545AbSHBRLZ>; Fri, 2 Aug 2002 13:11:25 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:37523 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S316530AbSHBRKe>; Fri, 2 Aug 2002 13:10:34 -0400
-Date: Fri, 2 Aug 2002 18:13:01 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, Roman Zippel <zippel@linux-m68k.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       David Howells <dhowells@redhat.com>, alan@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: manipulating sigmask from filesystems and drivers
-Message-ID: <20020802181300.B29814@kushida.apsleyroad.org>
-References: <20020802120040.A25119@redhat.com> <Pine.LNX.4.44.0208020920120.18265-100000@home.transmeta.com>
+	id <S316530AbSHBRKR>; Fri, 2 Aug 2002 13:10:17 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23047 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316512AbSHBRKP>; Fri, 2 Aug 2002 13:10:15 -0400
+Date: Fri, 2 Aug 2002 18:13:43 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.30: [SERIAL] build fails at 8250.c
+Message-ID: <20020802181343.A15483@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.33.0208011425410.1612-100000@penguin.transmeta.com> <20020802012517.GA196@prester.freenet.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208020920120.18265-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Aug 02, 2002 at 09:27:41AM -0700
+In-Reply-To: <20020802012517.GA196@prester.freenet.de>; from axel@hh59.org on Fri, Aug 02, 2002 at 03:25:17AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Sending somebody a SIGKILL (or any signal that kills the process) is
-> different (in my opinion) from a signal that interrupts a system call in
-> order to run a signal handler.
+On Fri, Aug 02, 2002 at 03:25:17AM +0200, Axel Siebenwirth wrote:
+> building 2.5.30 fails at serial driver 8250 in file 8250.c compiled as
+> module.
 
-So it's ok to have truncated log entries (or more realistically,
-truncated simple database entries) if the logging program is killed?
+Oddly, other people appear to be able to build it fine.  Could you start
+from a brand new 2.5.30 source and try again with the same configuration
+please?
 
--- Jamie
+Thanks.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

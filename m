@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265101AbRFZTrW>; Tue, 26 Jun 2001 15:47:22 -0400
+	id <S264670AbRFZTpB>; Tue, 26 Jun 2001 15:45:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265102AbRFZTrN>; Tue, 26 Jun 2001 15:47:13 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:43783 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S265101AbRFZTrB>; Tue, 26 Jun 2001 15:47:01 -0400
-Message-ID: <3B38E686.D2252E31@didntduck.org>
-Date: Tue, 26 Jun 2001 15:46:14 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: iscollect@millrose.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: AIC7xxx kernel driver; ATTN Mr. Justin T. Gibbs
-In-Reply-To: <3B38C4D2.EB2A8944@mycompany.com>
+	id <S265101AbRFZTov>; Tue, 26 Jun 2001 15:44:51 -0400
+Received: from goblin.sharat.co.il ([62.90.60.186]:48648 "EHLO
+	goblin.sharat.co.il") by vger.kernel.org with ESMTP
+	id <S264670AbRFZTog>; Tue, 26 Jun 2001 15:44:36 -0400
+Date: Tue, 26 Jun 2001 22:44:09 +0300
+From: Ilya Konstantinov <lkml@future.galanet.net>
+To: linux-kernel@vger.kernel.org
+Subject: Finding out the name behind a /dev/dsp device
+Message-ID: <20010626224409.A24182@goblin.sharat.co.il>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mihai Gata wrote:
-> 
-> Trying to use an AIC7890 SCSI controller with kernel 2.4.5 I have
-> the problem reported into the attached log files.  Same problems with
-> kernel 2.4.3.  Kernels below 2.4 doesn't even see it.  In MS Windows 95
-> it works without any problems.  I used 3 variations of SCSI controllers
-> built upon AIC7890, so I don't think all 3 are bad.  One was made for
-> Compaq and two for Dell.  The AIC7890 is around since a while so that's
-> the problem with Linux in corp. computing.  It's great but cannot use
-> it.
+Dear LKML,
 
-Make certain that the SCSI bus is properly terminated.  Most of the SCSI
-errors reported here are a result of bad termination.
+(Please CC your replies to me, since I'm not subscribed)
 
---
+How can I find out the module name which handles a /dev/dsp* device
+and/or the full name of the Sound Card I'd be addressing by it?
 
-				Brian Gerst
+For /dev/mixer* devices, there's a SOUND_MIXER_INFO ioctl to retrieve
+the Mixer chip name, but I couldn't find a similar call for /dev/dsp
+devices. Parsing /etc/modules.conf doesn't seem correct, since a single
+module can support multiple installed cards of the same type (thus
+creating /dev/dsp entries for multiple cards), and since drivers can be
+compiled statically.
+
+This functionality is essential when building an application which
+prompts the user to select a Sound Output Device from a list of
+installed sound cards (avoiding exposing the user to a plain list of
+dsp devices). Using the mixer chip's name isn't exactly friendly, and
+still doesn't let you know which dsp device belongs to which mixer.

@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbUKHV4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbUKHVz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbUKHV4E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 16:56:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbUKHVzt
+	id S261255AbUKHVz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 16:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbUKHVz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 16:55:49 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:36618 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261261AbUKHVzG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 16:55:06 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Geert Uytterhoeven" <geert@linux-m68k.org>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
-Date: Mon, 8 Nov 2004 13:54:58 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCEDGPKAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 8 Nov 2004 16:55:29 -0500
+Received: from gate.crashing.org ([63.228.1.57]:3208 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261255AbUKHVxd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 16:53:33 -0500
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: adaplas@pol.net
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <200411081706.55261.adaplas@hotpop.com>
+References: <200411080521.iA85LbG6025914@hera.kernel.org>
+	 <1099893447.10262.154.camel@gaston> <200411081706.55261.adaplas@hotpop.com>
+Content-Type: text/plain
+Date: Tue, 09 Nov 2004 08:52:01 +1100
+Message-Id: <1099950722.10262.166.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <418FE618.2010800@rnl.ist.utl.pt>
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Mon, 08 Nov 2004 13:31:29 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Mon, 08 Nov 2004 13:31:33 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-11-08 at 17:06 +0800, Antonino A. Daplas wrote:
 
-> I am not trying to defend sveasoft. Personally, I dislike their method,
-> but I'm gathering information to try and understand who's right, who's
-> wrong and if sveasoft is indeed violating the GPL.
+> 
+> How about this patch?  This is almost the original macro in riva_hw.h,
+> with the __force annotation.
 
-	To me, it's this simple. The GPL says you can impose no further
-restrictions (beyond those in the GPL itself) on the exercise of the rights
-contained in the GPL. Sveasoft does.
+I don't like it neither. It lacks barriers. the rivafb driver
+notoriously lacks barriers, except in a few places where it was so bad
+that it actually broke all the time, where we added some. This
+originates from the X "nv" driver written by Mark Vojkovich who didn't
+want to hear about barriers for perfs reasons I think.
 
-	If Sveasoft is not violating the GPL, then the GPL can trivially be evaded
-by anyone using a refinement of their technique. You simply make a person
-agree not to ever request the source code or distribute the binary code in
-exchange for agreeing to sell them the software in the first place.
-
-	DS
+Ben.
 
 

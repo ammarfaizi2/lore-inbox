@@ -1,110 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262198AbSJaOhK>; Thu, 31 Oct 2002 09:37:10 -0500
+	id <S262446AbSJaOoN>; Thu, 31 Oct 2002 09:44:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262314AbSJaOhK>; Thu, 31 Oct 2002 09:37:10 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:55303 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262198AbSJaOhH>; Thu, 31 Oct 2002 09:37:07 -0500
-Date: Thu, 31 Oct 2002 15:43:26 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Matthew Wilcox <willy@debian.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Where's the documentation for Kconfig?
-In-Reply-To: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0210311452531.13258-100000@serv>
-References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262457AbSJaOoN>; Thu, 31 Oct 2002 09:44:13 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:56996 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262446AbSJaOoL>;
+	Thu, 31 Oct 2002 09:44:11 -0500
+Date: Thu, 31 Oct 2002 20:22:37 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       lkcd-devel@lists.sourceforge.net, lkcd-general@lists.sourceforge.net
+Subject: Re: What's left over 
+Message-ID: <20021031202237.A3679@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20021031020836.E576E2C09F@lists.samba.org> <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>; from torvalds@transmeta.com on Thu, Oct 31, 2002 at 02:39:23AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Oct 31, 2002 at 02:39:23AM +0000, Linus Torvalds wrote:
+> 
+> On Thu, 31 Oct 2002, Rusty Russell wrote:
+> > 
+> > 	Here is the list of features which have are being actively
+> > pushed, not NAK'ed, and are not in 2.5.45.  There are 13 of them, as
+> > appropriate for Halloween.
+> 
+> I'm unlikely to be able to merge everything by tomorrow, so I will 
+> consider tomorrow a submission deadline to me, rather than a merge 
+> deadline. That said, I merged everything I'm sure I want to merge today, 
+> and the rest I simply haven't had time to look at very much.
+> 
+> 
+> > Crash Dumping (LKCD)
+> 
+> This is definitely a vendor-driven thing. I don't believe it has any 
+> relevance unless vendors actively support it.
+> 
 
-On Thu, 31 Oct 2002, Matthew Wilcox wrote:
+Linus,
 
-> I'm just looking over the new arch/parisc/Kconfig trying to make sure that
-> it got translated correctly, but I can't find any documentation.
+I wish you could have made it to the OLS RAS BOF and seen this for
+yourself - the vendor support, the need and the drive towards a 
+unified and flexible dumping framework. 
 
-http://www.xs4all.nl/~zippel/lc/
+The problem with dump has not been lack of vendor interest. There
+wouldn't have been multiple dump type implementations floating around 
+if there wasn't a need  --  LKCD, Mission Critical dump, Ingo's
+network dump, kmsgdump, Rusty's oops dumper to cite some. The difficulty
+has been technical and hence the diversity of approaches that different
+projects came up with to tackle the problem (arising from slightly
+different priorities and environments in each case). The second has
+been related to preferences in the kind of user level analysis tools.
 
->  Some of
-> the Kconfig files refer to "the Configure script" -- what Configure
-> script?  Some of them refer to Documentation/kbuild/config-language.txt
-> -- which describes the old one.  Most don't tell you where to find
-> the description.
+And the LKCD project has been evolving to address these very 
+problems to bring the best of these worlds together and also allow
+flexibility on the choice of analysis tools !
 
-The comments are still the same as before and need to be corrected 
-manually.
+Mission critical Linux project code base for example is now being 
+maintained as part of the LKCD project. Either lcrash or mission 
+critical linux crash can be used for analysing LKCD dumps. 
 
-> What's the difference between `help' and `---help---'?
+And on the kernel side of things:
 
-None. Actually you can insert lots of '---' as separators almost anywhere 
-you want. The converter used ---help--- for large help texts to separate 
-them a bit better from the other options.
+(a) The dump driver interface in LKCD has been specifically 
+    designed to enable different kinds of dumping mechanisms and 
+    targets to be supported -- generic block, network dump , 
+    polled-IDE (Rusty style) etc, even alternate dump targets failover 
+    and multiple dump devices in the future if required. We are also 
+    experimenting with a memory dump driver to save dump to memory 
+    and dump after a memory preserving soft-boot, reusing the mission 
+    critical mcore technique.
+(b) Selective dumping, for different levels of dump data - one
+    option that was added recently would dump all kernel pages
+    and is likely to be commonly used (gzip compressed dump). Its
+    pretty easy to extend to more selectivity or different levels
+    and the dump also occurs in passes from more critical data to 
+    less critical.
+    (The page in use flag was added to help with this)
+(c) The core pieces which touch the kernel as such just add basic 
+    infrastructure that is needed in the kernel for any dumping 
+    facility. Includes:
+	- Enabling IPI to collect CPU state on all processors in the
+	  system right when dump is triggered (may not be a normal
+	  situation, so NMIs where supported are the best option)
+	- Ability to quiesce (silence) the system before dumping 
+	  (and if in non-disruptive mode, then restore it back)
+	- Calls into dump from kernel paths (panic, oops, sysrq
+	  etc). 
+	- Exports of symbols to help with physical memory 
+	  traversal and verification
 
-> What's the new idiom for define_bool?
+As Matt has said there is an active development community behind 
+LKCD and lot of the drive for that has come from companies who use it 
+and are really hoping hard that it becomes part of the mainline.
 
-Here a small howto for CML1 users.
+BTW, the code has also been scrutinised and reviewed over
+lkml as well and undergone iterations of releases following 
+that. Anything else there that you think needs to be fixed please
+do let us know.
 
-cml1:
-bool/tristate/int/... /prompt/ /symbol/ /word/
-
-kconfig:
-config /symbol/
-	bool /prompt/
-	default /word/
-
-(bool/tristate have now defaults as well.)
-
-cml1:
-define_bool /symbol/ /word/
-
-kconfig:
-config /symbol/
-	bool
-	default /word/
-
-cml1:
-dep_bool /prompt/ /symbol/ /dep/ ...
-
-kconfig:
-config /symbol/
-	bool /prompt/
-	depends on /dep/=y && ...
-
-cml1:
-dep_mbool /prompt/ /symbol/ /dep/ ...
-dep_int...
-
-kconfig:
-config /symbol/
-	bool /prompt/
-	depends on /dep/ && ...
-
-cml1:
-choice /prompt/ /word/ /word/
-
-kconfig:
-choice
-	prompt /prompt/
-	default /symbol/
-
-config
-	....
-
-endchoice
-
-Especially the choice statement became much more powerful. Multiple 
-defaults are possible, every choice value can have further dependencies 
-and it can be tristate.
-
-Dependencies are very close to the old behaviour with only some small 
-differences, e.g. '-a'/'-o' are simply '&&'/'||', "CONFIG_FOO"="y" becomes 
-FOO=y and only FOO has the same meaning as in dep_tristate.  Important 
-here is that the undefined state is gone and kconfig will soon start 
-emit warnings for undefined symbols used in expressions.
-
-bye, Roman
+Regards
+Suparna
 

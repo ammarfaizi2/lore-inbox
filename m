@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264041AbTEWMoI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 08:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264053AbTEWMoH
+	id S264052AbTEWMoe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 08:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264053AbTEWMod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 08:44:07 -0400
-Received: from pat.uio.no ([129.240.130.16]:18117 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264041AbTEWMnz (ORCPT
+	Fri, 23 May 2003 08:44:33 -0400
+Received: from pat.uio.no ([129.240.130.16]:25541 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264052AbTEWMoE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 08:43:55 -0400
+	Fri, 23 May 2003 08:44:04 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16078.6093.339198.108592@charged.uio.no>
-Date: Fri, 23 May 2003 14:45:01 +0200
+Message-ID: <16078.6164.953953.259773@charged.uio.no>
+Date: Fri, 23 May 2003 14:46:12 +0200
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Linux FSdevel <linux-fsdevel@vger.kernel.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        NFS maillist <nfs@lists.sourceforge.net>
-Subject: [PATCH 1/4] Optimize NFS open() calls by means of 'intents'...
+Subject: [PATCH 4/4] Optimize NFS open() calls by means of 'intents'...
 X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
 Reply-To: trond.myklebust@fys.uio.no
 From: Trond Myklebust <trond.myklebust@fys.uio.no>
@@ -28,151 +28,216 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Minor cleanup of open() code. Put the original open flags, mode, etc. into
-an 'opendata' structure that can be passed as an intent to lookup.
+Do close-to-open data revalidation inside the i_op->lookup() and
+d_op->d_revalidate() routines by using intents to discover whether or
+not this is an open().
+
+Implement open(O_EXCL) by means of the i_op->create() intents.
+
+Cheers,
+ Trond
 
 
-
-diff -u --recursive --new-file linux-2.5.69/fs/namei.c linux-2.5.69-01-open1/fs/namei.c
---- linux-2.5.69/fs/namei.c	2003-05-05 07:49:54.000000000 +0200
-+++ linux-2.5.69-01-open1/fs/namei.c	2003-05-22 15:30:50.000000000 +0200
-@@ -18,6 +18,7 @@
- #include <linux/slab.h>
- #include <linux/fs.h>
- #include <linux/namei.h>
-+#include <linux/open.h>
- #include <linux/quotaops.h>
+diff -u --recursive --new-file linux-2.5.69-03-creat/fs/nfs/dir.c linux-2.5.69-04-cto_excl/fs/nfs/dir.c
+--- linux-2.5.69-03-creat/fs/nfs/dir.c	2003-05-23 00:13:37.000000000 +0200
++++ linux-2.5.69-04-cto_excl/fs/nfs/dir.c	2003-05-23 01:17:20.000000000 +0200
+@@ -31,6 +31,7 @@
  #include <linux/pagemap.h>
- #include <linux/dnotify.h>
-@@ -1204,19 +1205,18 @@
-  * for symlinks (where the permissions are checked later).
-  * SMP-safe
-  */
--int open_namei(const char * pathname, int flag, int mode, struct nameidata *nd)
-+int open_namei(const char * pathname, struct opendata *opendata, struct nameidata *nd)
- {
--	int acc_mode, error = 0;
-+	int flag = opendata->flag;
-+	int error = 0;
- 	struct dentry *dentry;
- 	struct dentry *dir;
- 	int count = 0;
- 
--	acc_mode = ACC_MODE(flag);
--
- 	/* Allow the LSM permission hook to distinguish append 
- 	   access from general write access. */
- 	if (flag & O_APPEND)
--		acc_mode |= MAY_APPEND;
-+		opendata->acc_mode |= MAY_APPEND;
- 
- 	/*
- 	 * The simplest case - just a plain lookup.
-@@ -1258,6 +1258,7 @@
- 
- 	/* Negative dentry, just create the file */
- 	if (!dentry->d_inode) {
-+		int mode = opendata->mode;
- 		if (!IS_POSIXACL(dir->d_inode))
- 			mode &= ~current->fs->umask;
- 		error = vfs_create(dir->d_inode, dentry, mode);
-@@ -1267,7 +1268,7 @@
- 		if (error)
- 			goto exit;
- 		/* Don't check for write permission, don't truncate */
--		acc_mode = 0;
-+		opendata->acc_mode = 0;
- 		flag &= ~O_TRUNC;
- 		goto ok;
- 	}
-@@ -1299,7 +1300,7 @@
- 	if (dentry->d_inode && S_ISDIR(dentry->d_inode->i_mode))
- 		goto exit;
- ok:
--	error = may_open(nd, acc_mode, flag);
-+	error = may_open(nd, opendata->acc_mode, flag);
- 	if (error)
- 		goto exit;
- 	return 0;
-diff -u --recursive --new-file linux-2.5.69/fs/open.c linux-2.5.69-01-open1/fs/open.c
---- linux-2.5.69/fs/open.c	2003-05-21 02:23:23.000000000 +0200
-+++ linux-2.5.69-01-open1/fs/open.c	2003-05-22 14:25:57.000000000 +0200
-@@ -15,6 +15,7 @@
- #include <linux/slab.h>
- #include <linux/tty.h>
+ #include <linux/smp_lock.h>
  #include <linux/namei.h>
 +#include <linux/open.h>
- #include <linux/backing-dev.h>
- #include <linux/security.h>
- #include <linux/mount.h>
-@@ -602,6 +603,8 @@
- 	return error;
- }
  
-+#define ACC_MODE(x) ("\000\004\002\006"[(x)&O_ACCMODE])
-+
- /*
-  * Note that while the flag value (low two bits) for sys_open means:
-  *	00 - read-only
-@@ -620,14 +623,19 @@
+ #define NFS_PARANOIA 1
+ /* #define NFS_DEBUG_VERBOSE 1 */
+@@ -78,16 +79,11 @@
+ static int
+ nfs_opendir(struct inode *inode, struct file *filp)
  {
- 	int namei_flags, error;
- 	struct nameidata nd;
-+	struct opendata opendata = {
-+		.flag = flags,
-+		.mode = mode,
-+	};
+-	struct nfs_server *server = NFS_SERVER(inode);
+-	int res = 0;
++	int res;
  
- 	namei_flags = flags;
- 	if ((namei_flags+1) & O_ACCMODE)
- 		namei_flags++;
- 	if (namei_flags & O_TRUNC)
- 		namei_flags |= 2;
-+	opendata.acc_mode = ACC_MODE(namei_flags);
- 
--	error = open_namei(filename, namei_flags, mode, &nd);
-+	error = open_namei(filename, &opendata, &nd);
- 	if (!error)
- 		return dentry_open(nd.dentry, nd.mnt, flags);
- 
-diff -u --recursive --new-file linux-2.5.69/include/linux/fs.h linux-2.5.69-01-open1/include/linux/fs.h
---- linux-2.5.69/include/linux/fs.h	2003-05-17 23:09:32.000000000 +0200
-+++ linux-2.5.69-01-open1/include/linux/fs.h	2003-05-22 14:25:57.000000000 +0200
-@@ -23,6 +23,7 @@
- 
- struct iovec;
- struct nameidata;
-+struct opendata;
- struct pipe_inode_info;
- struct poll_table_struct;
- struct statfs;
-@@ -1135,7 +1136,7 @@
+ 	lock_kernel();
+-	/* Do cto revalidation */
+-	if (!(server->flags & NFS_MOUNT_NOCTO))
+-		res = __nfs_revalidate_inode(server, inode);
+ 	/* Call generic open code in order to cache credentials */
+-	if (!res)
+-		res = nfs_open(inode, filp);
++	res = nfs_open(inode, filp);
+ 	unlock_kernel();
+ 	return res;
  }
- extern int do_pipe(int *);
+@@ -466,11 +462,17 @@
+  * and may need to be looked up again.
+  */
+ static inline
+-int nfs_check_verifier(struct inode *dir, struct dentry *dentry)
++int nfs_check_verifier(struct inode *dir, struct dentry *dentry, struct vfsintent *intent)
+ {
++	struct nfs_server *server = NFS_SERVER(dir);
+ 	if (IS_ROOT(dentry))
+ 		return 1;
+-	if (nfs_revalidate_inode(NFS_SERVER(dir), dir))
++	/* If we're doing an open(), then observe the 'cto' flag */
++	if (intent && intent->type == OPEN_INTENT
++			&& !(server->flags & NFS_MOUNT_NOCTO)) {
++		if (__nfs_revalidate_inode(server, dir))
++			return 0;
++	} else if (nfs_revalidate_inode(server, dir))
+ 		return 0;
+ 	return time_after(dentry->d_time, NFS_MTIME_UPDATE(dir));
+ }
+@@ -485,9 +487,15 @@
+ }
  
--extern int open_namei(const char *, int, int, struct nameidata *);
-+extern int open_namei(const char *, struct opendata *, struct nameidata *);
- extern int may_open(struct nameidata *, int, int);
+ static inline
+-int nfs_lookup_verify_inode(struct inode *inode)
++int nfs_lookup_verify_inode(struct inode *inode, struct vfsintent *intent)
+ {
+-	return nfs_revalidate_inode(NFS_SERVER(inode), inode);
++	struct nfs_server *server = NFS_SERVER(inode);
++
++	/* If we're doing an open(), then observe the 'cto' flag */
++	if (intent && intent->type == OPEN_INTENT
++			&& !(server->flags & NFS_MOUNT_NOCTO))
++		return __nfs_revalidate_inode(server, inode);
++	return nfs_revalidate_inode(server, inode);
+ }
  
- extern int kernel_read(struct file *, unsigned long, char *, unsigned long);
-diff -u --recursive --new-file linux-2.5.69/include/linux/open.h linux-2.5.69-01-open1/include/linux/open.h
---- linux-2.5.69/include/linux/open.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.5.69-01-open1/include/linux/open.h	2003-05-22 14:25:57.000000000 +0200
-@@ -0,0 +1,17 @@
-+#ifndef _LINUX_OPEN_H
-+#define _LINUX_OPEN_H
-+
-+struct opendata {
-+	int flag;
-+	int mode;
-+	int acc_mode;
-+
-+#if 0
-+	/* Private data to be added to the filp->private_data field */
-+	void *private;
-+	/* Callback for destroying private data in case of an error */
-+	void (*destroy)(struct opendata *, void *);
-+#endif
-+};
-+
-+#endif
+ /*
+@@ -497,9 +505,11 @@
+  * If parent mtime has changed, we revalidate, else we wait for a
+  * period corresponding to the parent's attribute cache timeout value.
+  */
+-static inline int nfs_neg_need_reval(struct inode *dir, struct dentry *dentry)
++static inline
++int nfs_neg_need_reval(struct inode *dir, struct dentry *dentry,
++		struct vfsintent *intent)
+ {
+-	if (!nfs_check_verifier(dir, dentry))
++	if (!nfs_check_verifier(dir, dentry, intent))
+ 		return 1;
+ 	return time_after(jiffies, dentry->d_time + NFS_ATTRTIMEO(dir));
+ }
+@@ -530,7 +540,7 @@
+ 	inode = dentry->d_inode;
+ 
+ 	if (!inode) {
+-		if (nfs_neg_need_reval(dir, dentry))
++		if (nfs_neg_need_reval(dir, dentry, intent))
+ 			goto out_bad;
+ 		goto out_valid;
+ 	}
+@@ -542,8 +552,8 @@
+ 	}
+ 
+ 	/* Force a full look up iff the parent directory has changed */
+-	if (nfs_check_verifier(dir, dentry)) {
+-		if (nfs_lookup_verify_inode(inode))
++	if (nfs_check_verifier(dir, dentry, intent)) {
++		if (nfs_lookup_verify_inode(inode, intent))
+ 			goto out_bad;
+ 		goto out_valid;
+ 	}
+@@ -552,7 +562,7 @@
+ 	if (!error) {
+ 		if (memcmp(NFS_FH(inode), &fhandle, sizeof(struct nfs_fh))!= 0)
+ 			goto out_bad;
+-		if (nfs_lookup_verify_inode(inode))
++		if (nfs_lookup_verify_inode(inode, intent))
+ 			goto out_bad;
+ 		goto out_valid_renew;
+ 	}
+@@ -632,6 +642,7 @@
+ 
+ static struct dentry *nfs_lookup(struct inode *dir, struct dentry * dentry, struct vfsintent *intent)
+ {
++	struct nfs_server *server = NFS_SERVER(dir);
+ 	struct inode *inode = NULL;
+ 	int error;
+ 	struct nfs_fh fhandle;
+@@ -641,23 +652,29 @@
+ 		dentry->d_parent->d_name.name, dentry->d_name.name);
+ 
+ 	error = -ENAMETOOLONG;
+-	if (dentry->d_name.len > NFS_SERVER(dir)->namelen)
++	if (dentry->d_name.len > server->namelen)
+ 		goto out;
+ 
+ 	error = -ENOMEM;
+ 	dentry->d_op = &nfs_dentry_operations;
+ 
+ 	lock_kernel();
+-	error = nfs_cached_lookup(dir, dentry, &fhandle, &fattr);
+-	if (!error) {
+-		error = -EACCES;
+-		inode = nfs_fhget(dentry, &fhandle, &fattr);
+-		if (inode) {
+-			d_add(dentry, inode);
+-			nfs_renew_times(dentry);
+-			error = 0;
++	/* If we're not doing an open(), or we are 'nocto', then
++	 * we may use the readdirplus cache
++	 */
++	if (!intent || intent->type != OPEN_INTENT ||
++			(server->flags & NFS_MOUNT_NOCTO)) {
++		error = nfs_cached_lookup(dir, dentry, &fhandle, &fattr);
++		if (!error) {
++			error = -EACCES;
++			inode = nfs_fhget(dentry, &fhandle, &fattr);
++			if (inode) {
++				d_add(dentry, inode);
++				nfs_renew_times(dentry);
++				error = 0;
++			}
++			goto out_unlock;
+ 		}
+-		goto out_unlock;
+ 	}
+ 
+ 	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, &fhandle, &fattr);
+@@ -793,6 +810,7 @@
+ 	struct iattr attr;
+ 	struct nfs_fattr fattr;
+ 	struct nfs_fh fhandle;
++	int flags = 0;
+ 	int error;
+ 
+ 	dfprintk(VFS, "NFS: create(%s/%ld, %s\n", dir->i_sb->s_id, 
+@@ -801,16 +819,15 @@
+ 	attr.ia_mode = mode;
+ 	attr.ia_valid = ATTR_MODE;
+ 
+-	/*
+-	 * The 0 argument passed into the create function should one day
+-	 * contain the O_EXCL flag if requested. This allows NFSv3 to
+-	 * select the appropriate create strategy. Currently open_namei
+-	 * does not pass the create flags.
+-	 */
++	if (intent && intent->type == OPEN_INTENT) {
++		struct opendata *opendata;
++		opendata = container_of(intent, struct opendata, intent);
++		flags = opendata->flag;
++	}
+ 	lock_kernel();
+ 	nfs_zap_caches(dir);
+ 	error = NFS_PROTO(dir)->create(dir, &dentry->d_name,
+-					 &attr, 0, &fhandle, &fattr);
++					 &attr, flags, &fhandle, &fattr);
+ 	if (!error)
+ 		error = nfs_instantiate(dentry, &fhandle, &fattr);
+ 	else
+diff -u --recursive --new-file linux-2.5.69-03-creat/fs/nfs/file.c linux-2.5.69-04-cto_excl/fs/nfs/file.c
+--- linux-2.5.69-03-creat/fs/nfs/file.c	2003-05-07 12:34:41.000000000 +0200
++++ linux-2.5.69-04-cto_excl/fs/nfs/file.c	2003-05-23 00:50:27.000000000 +0200
+@@ -82,9 +82,6 @@
+ 	/* Do NFSv4 open() call */
+ 	if ((open = server->rpc_ops->file_open) != NULL)
+ 		res = open(inode, filp);
+-	/* Do cto revalidation */
+-	else if (!(server->flags & NFS_MOUNT_NOCTO))
+-		res = __nfs_revalidate_inode(server, inode);
+ 	/* Call generic open code in order to cache credentials */
+ 	if (!res)
+ 		res = nfs_open(inode, filp);

@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265031AbSJWOtv>; Wed, 23 Oct 2002 10:49:51 -0400
+	id <S265030AbSJWOs7>; Wed, 23 Oct 2002 10:48:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265032AbSJWOtu>; Wed, 23 Oct 2002 10:49:50 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:17542 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265031AbSJWOtp>; Wed, 23 Oct 2002 10:49:45 -0400
-Date: Wed, 23 Oct 2002 10:57:58 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: One for the Security Guru's
-In-Reply-To: <20021023130251.GF25422@rdlg.net>
-Message-ID: <Pine.LNX.3.95.1021023105535.13301A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265031AbSJWOs7>; Wed, 23 Oct 2002 10:48:59 -0400
+Received: from 80-195-6-171.cable.ubr04.ed.blueyonder.co.uk ([80.195.6.171]:2692
+	"EHLO sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S265030AbSJWOs6>; Wed, 23 Oct 2002 10:48:58 -0400
+Date: Wed, 23 Oct 2002 15:54:57 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Stephen Smalley <sds@tislabs.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+       Russell Coker <russell@coker.com.au>, linux-kernel@vger.kernel.org,
+       linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+Message-ID: <20021023155457.L2732@redhat.com>
+References: <20021023125907.G2732@redhat.com> <Pine.GSO.4.33.0210230942210.7042-100000@raven>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.33.0210230942210.7042-100000@raven>; from sds@tislabs.com on Wed, Oct 23, 2002 at 10:27:27AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002, Robert L. Harris wrote:
+Hi,
 
->   The consultants aparantly told the company admins that kernel modules
-> were a massive security hole and extremely easy targets for root kits.
-> As a result every machine has a 100% monolithic kernel, some of them
-> ranging to 1.9Meg in filesize.  This of course provides some other
-> sticky points such as how to do a kernel boot image.
+On Wed, Oct 23, 2002 at 10:27:27AM -0400, Stephen Smalley wrote:
+> On Wed, 23 Oct 2002, Stephen C. Tweedie wrote:
+> > setfsuid() creates credentials which are _only_ applied to file
+> > operations.  The namespace happens to be the same one that applies to
+> > processes, but there's nothing that requires that to be the case
 
+> Would we need a separate call for setting the SIDs to use for each
+> "namespace", i.e. fs (for open, mkdir, mknod, and symlink calls), IPC
+> (for semget, msgget, and shmget calls), process (for execve calls), and
+> socket (for socket, connect, listen, sendmsg, and sendto calls, requiring
+> two SIDs for send*)?
 
-It's the typical so-called Security Consultant's lies.  After all,
-if they knew what they were doing you wouldn't need them. They
-create phony scenarios and then "solve" them. For instance, they
-will load a module using a "root kit". Look, your system needs to
-have been broken into in order to load a module. It's already been
-broken into, the module is just a Security Consultant lie.
+The BSD socket API already has a clean and extensible way of dealing
+with multiple namespaces, so there's plenty of precedent about how to
+do this without requiring multiple syscalls.
 
-To load a module, you need to be root. If you are root and you
-shouldn't be, the system has been broken into. It's just that
-simple. It's not possible for `insmod` or `depmod` to load a
-module, sitting in a rogue user's directory, that suddenly gives
-that rogue user some privileges that he or she didn't already have.
+> While your approach would work for calls that take input SID parameters,
+> what about the various calls that return SIDs either directly or via
+> output SID parameters, e.g. extended forms of *stat, msgrcv, recvmsg,
+> getpeername/accept plus new calls like (sem|shm|msg)sid and getsecsid?
 
-We had some Security Consultant idiot from some well-known
-auditing agency declare that all Linux machines were vulnerable
-to outside attacks and "continuing use of such software
-could result in a investor lawsuit..."
+Good question --- what is the reason you need these, and are other
+security modules likely to need similar functionality?  If so, there's
+an argument for new syscalls which take a credentials/sid area as a
+return argument.
 
-Of course the attack against Linux was "true". If you put a
-Linux machine (or Sun or whatever), on the outside of a firewall
-it may be attacked, therefore vulnerable to attack. And, if
-investors learned that you were so stupid as to put it outside
-a firewall, you might get sued by the investors. It's all perfectly
-true. It's a trick by liars that lie by telling irrefutable
-truths. 
-
-In a similar scenerio, a Windows machine might not even be attacked.
-There is nothing to be gained, even as the operating system is 
-compromised. It would likely crash before any proprietary information
-could be obtained. One of the advantages of Windows is that it's
-so awful that only GWBASIC users are interested in it, then only
-to change the location of a GOTO ;^.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
-
+--Stephen

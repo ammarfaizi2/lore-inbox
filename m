@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264105AbTKTXpR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 18:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbTKTXpR
+	id S263880AbTKTXoI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 18:44:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264176AbTKTXoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 18:45:17 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:45731 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S264163AbTKTXpL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 18:45:11 -0500
-Date: Thu, 20 Nov 2003 15:45:10 -0800
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Thu, 20 Nov 2003 18:44:07 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:5646 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263880AbTKTXoB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 18:44:01 -0500
+Date: Thu, 20 Nov 2003 18:32:40 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Pontus Fuchs <pof@users.sourceforge.net>
 Subject: Re: Announce: ndiswrapper
-Message-ID: <20031120234510.GA17685@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <Pine.LNX.3.96.1031120180225.11021C-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1031120180225.11021C-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <20031120225952.GO22764@holomorphy.com>
+Message-ID: <Pine.LNX.3.96.1031120182402.11021F-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 06:04:51PM -0500, Bill Davidsen wrote:
-> On Wed, 19 Nov 2003, Jean Tourrilhes wrote:
-> 
-> > 	Even better :
-> > 		1) go to the Wireless LAN Howto
-> > 		2) find a card are supported under Linux that suit your needs
-> > 		3) buy this card
-> > 	I don't see the point of giving our money to vendors that
-> > don't care about us when there are vendors making a real effort toward
-> > us.
-> 
-> You left out the step of "remove or disable the existing hardware in the
-> system." Not everyone has a choice unlimited by budget and politics.
+On Thu, 20 Nov 2003, William Lee Irwin III wrote:
 
-	Why did you buy a bogus card in the first place ? That's
-wasting money.
+> On Thu, 20 Nov 2003, William Lee Irwin III wrote:
+> >> We may have to get Linus in on that.
+> 
+> On Thu, Nov 20, 2003 at 05:47:08PM -0500, Bill Davidsen wrote:
+> > Linux is a trademark. And if you don't defend it you lose it (like asprin
+> > and kleenex). So if he doesn't like the "Linux driver" from nvidia he can
+> > tell them to stop using the term. I'm not sure that's a good thing,
+> > however, they are more likely to drop support than open source IMHO.
+> 
+> Are we really going to cower when faced like an ultimatum like that?
 
-	Jean
+What you me "we" here? Linus owns the trademark, he makes the decisions. I
+can give him the name of a lawyer who did patent and trademark for GE for
+decades, but I can't give him any advice. This is not a gut feel decision,
+and "cower" sure sounds gut feel to me. That's probably not the optimal
+consideration in this case. Failing to defend can mean losing a challenge
+as well as doing nothing, the only advice I have on that is "consult a
+good lawyer."
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,144 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264409AbUFLLnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264727AbUFLLsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264409AbUFLLnf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 07:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbUFLLnf
+	id S264727AbUFLLsO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 07:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264729AbUFLLsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 07:43:35 -0400
-Received: from mail0.epfl.ch ([128.178.50.57]:44557 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id S264409AbUFLLna convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 07:43:30 -0400
-Date: Sat, 12 Jun 2004 13:43:27 +0200
-From: Gregoire Favre <Gregoire.Favre@freesurf.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Memory stick usb and 2.6.7-rc3 (works with 2.6.7-rc2)
-Message-ID: <20040612114327.GA5539@magma.epfl.ch>
+	Sat, 12 Jun 2004 07:48:14 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50099 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264727AbUFLLsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 07:48:09 -0400
+Date: Sat, 12 Jun 2004 13:48:08 +0200
+From: Jan Kara <jack@suse.cz>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: Eugene Crosser <crosser@rol.ru>, akpm@osdl.org
+Subject: Quota and page lock
+Message-ID: <20040612114808.GD22251@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.5.6i
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have already written to this list about my problem introduced with the
-2.6.7-rc3 kernel.
+  Hello!
 
-When I plug my memory stick, I got this :
+  Thanks to Eugene Crosser I've spotted one more lock which comes into play
+when using quotas and that is the lock on each page. The quota code is called
+inside a transaction and needs to write the changed data to the quota file (at
+least in the journalled quota case) and writing of the data needs PageLock.
+OTOH standard ordering is that the PageLock is acquired first and then the
+transaction is started (and this actually happens even if we are journalling
+data because after we commit a transaction we mark the jbddirty buffers dirty,
+pdflush comes and wants to write them...). So we have a lock inversion on
+PageLock and journal_lock. Bad.
+  In the unjournalled quota case I could imagine it will be possible to do an
+assertion that quota calls which need to do IO (DQUOT_INIT, DQUOT_DROP,
+DQUOT_TRANSFER) will be called outside a transaction and so the locking problem
+would not arise (it would be a real pain to synchronize the things inside the
+quota code when some routines will be called inside the transaction and some of
+them outside but probably there is some way). But in the case of journalled
+quota the IO must be started inside a transaction - it is a question of data
+integrity... So how to solve this? I have two ideas:
+  1) Always acquire the PageLock inside a transaction - uh oh... need to change
+     all the filesystems doing journalling and the generic code for writing.
+     I'm afraid this would cause more problems than we currently have...
+  2) Avoid acquiring PageLock at all - we could just start threating the quota
+     data as a filesystem metadata (which IMO makes a sence) and do not access
+     them by foo_file_read/write but via bread and such. Probably a filesystem
+     would have to provide some interface similar to ext3_bread for reading
+     and to ext3_journal_dirty_metadata for writing... Using this approach
+     there will arise an issue with consistency when userspace accesses the
+     quota files. But we can invalidate the pages of the quota files during
+     the quotaoff and quota sync so that userspace will get consistent
+     data afterwards and we can invalidate_bdev and sync quota files
+     during quotaon so that we see the updates userspace did before. Writing to
+     files when quota is turned on is not allowed and who does it deserves
+     to loose the data...
 
-Jun 12 13:26:25 greg kernel: usb 1-2: new high speed USB device using address 3
-Jun 12 13:26:25 greg kernel: scsi3 : SCSI emulation for USB Mass Storage devices
-Jun 12 13:26:25 greg kernel:   Vendor: USB       Model: Flash Drive       Rev: 1.12
-Jun 12 13:26:25 greg kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Jun 12 13:26:25 greg kernel: SCSI device sdg: 1015805 512-byte hdwr sectors (520 MB)
-Jun 12 13:26:25 greg kernel: sdg: assuming Write Enabled
-Jun 12 13:26:25 greg kernel: sdg: assuming drive cache: write through
-Jun 12 13:26:25 greg kernel:  sdg: unknown partition table
-Jun 12 13:26:25 greg kernel: Attached scsi removable disk sdg at scsi3, channel 0, id 0, lun 0
-Jun 12 13:26:25 greg kernel: Attached scsi generic sg9 at scsi3, channel 0, id 0, lun 0,  type 0
-Jun 12 13:26:26 greg scsi.agent[3639]: disk at /devices/pci0000:00/0000:00:1d.7/usb1/1-2/1-2:1.0/host3/3:0:0:0
+  I like 2) more - do you think that it is plausible to implement quota IO this
+way? Any comments and suggestions welcome :)
 
-My other USB mass storage device (a 8-1 cards reader) works just fine with
-this 2.6.7-rc3 kernel.
-
-The partition as shown in fdisk on this kernel is :
-
-Disk /dev/sdg: 520 MB, 520092160 bytes
-16 heads, 62 sectors/track, 1023 cylinders
-Units = cylinders of 992 * 512 = 507904 bytes
-
-   Device Boot      Start         End      Blocks   Id  System
-/dev/sdg1   ?      784412     1935127   570754815+  72  Unknown
-Partition 1 has different physical/logical beginnings (non-Linux?):
-     phys=(357, 116, 40) logical=(784411, 3, 11)
-Partition 1 has different physical/logical endings:
-     phys=(357, 32, 45) logical=(1935126, 8, 51)
-Partition 1 does not end on cylinder boundary.
-/dev/sdg2   ?      170050     2121692   968014120   65  Novell Netware 386
-Partition 2 has different physical/logical beginnings (non-Linux?):
-     phys=(288, 115, 43) logical=(170049, 14, 47)
-Partition 2 has different physical/logical endings:
-     phys=(367, 114, 50) logical=(2121691, 4, 42)
-Partition 2 does not end on cylinder boundary.
-/dev/sdg3   ?     1884962     3836603   968014096   79  Unknown
-Partition 3 has different physical/logical beginnings (non-Linux?):
-     phys=(366, 32, 33) logical=(1884961, 2, 30)
-Partition 3 has different physical/logical endings:
-     phys=(357, 32, 43) logical=(3836602, 7, 39)
-Partition 3 does not end on cylinder boundary.
-/dev/sdg4   ?           1     3666559  1818613248    d  Unknown
-Partition 4 has different physical/logical beginnings (non-Linux?):
-     phys=(372, 97, 50) logical=(0, 0, 1)
-Partition 4 has different physical/logical endings:
-     phys=(0, 10, 0) logical=(3666558, 15, 30)
-Partition 4 does not end on cylinder boundary.
-
-Partition table entries are not in disk order
-
-If I reboot with 2.6.7-rc2 (and remove the Memory Stick, otherwise I don't
-have my device in same order, I haven't found out how to solve this issue)
-I got the following in putting the Memory Stick in :
-
-Jun 12 13:40:01 greg kernel: usb 1-2: new high speed USB device using address 3
-Jun 12 13:40:01 greg kernel: scsi3 : SCSI emulation for USB Mass Storage devices
-Jun 12 13:40:01 greg kernel:   Vendor: USB       Model: Flash Drive       Rev: 1.12
-Jun 12 13:40:01 greg kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Jun 12 13:40:01 greg kernel: SCSI device sdg: 1015805 512-byte hdwr sectors (520 MB)
-Jun 12 13:40:01 greg kernel: sdg: assuming Write Enabled
-Jun 12 13:40:01 greg kernel: sdg: assuming drive cache: write through
-Jun 12 13:40:01 greg kernel:  sdg: sdg1 sdg2 sdg3 sdg4
-Jun 12 13:40:01 greg kernel: Attached scsi removable disk sdg at scsi3, channel 0, id 0, lun 0
-Jun 12 13:40:01 greg kernel: Attached scsi generic sg9 at scsi3, channel 0, id 0, lun 0,  type 0
-Jun 12 13:40:02 greg scsi.agent[4073]: disk at /devices/pci0000:00/0000:00:1d.7/usb1/1-2/1-2:1.0/host3/3:0:0:0
-
-NOTICE the partition is recognized...
-
-And fdisk tells me :
-
-Disk /dev/sdg: 520 MB, 520092160 bytes
-16 heads, 62 sectors/track, 1023 cylinders
-Units = cylinders of 992 * 512 = 507904 bytes
-
-   Device Boot      Start         End      Blocks   Id  System
-/dev/sdg1   ?      784412     1935127   570754815+  72  Unknown
-Partition 1 has different physical/logical beginnings (non-Linux?):
-     phys=(357, 116, 40) logical=(784411, 3, 11)
-Partition 1 has different physical/logical endings:
-     phys=(357, 32, 45) logical=(1935126, 8, 51)
-Partition 1 does not end on cylinder boundary.
-/dev/sdg2   ?      170050     2121692   968014120   65  Novell Netware 386
-Partition 2 has different physical/logical beginnings (non-Linux?):
-     phys=(288, 115, 43) logical=(170049, 14, 47)
-Partition 2 has different physical/logical endings:
-     phys=(367, 114, 50) logical=(2121691, 4, 42)
-Partition 2 does not end on cylinder boundary.
-/dev/sdg3   ?     1884962     3836603   968014096   79  Unknown
-Partition 3 has different physical/logical beginnings (non-Linux?):
-     phys=(366, 32, 33) logical=(1884961, 2, 30)
-Partition 3 has different physical/logical endings:
-     phys=(357, 32, 43) logical=(3836602, 7, 39)
-Partition 3 does not end on cylinder boundary.
-/dev/sdg4   ?           1     3666559  1818613248    d  Unknown
-Partition 4 has different physical/logical beginnings (non-Linux?):
-     phys=(372, 97, 50) logical=(0, 0, 1)
-Partition 4 has different physical/logical endings:
-     phys=(0, 10, 0) logical=(3666558, 15, 30)
-Partition 4 does not end on cylinder boundary.
-
-Partition table entries are not in disk order
-
-And I can mount it and use it perfectly ;-)
-
-Any idea what's wrong with 2.6.7-rc3 ?
-
-Thank you very much and have a great day !!!
-
-PLEASE: CC to me as I only read this list though NNTP :-)
-
+									Honza
 -- 
-	Grégoire Favre
-__________________________________________________________________________
-http://algebra.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264123AbTKGWC0 (ORCPT <rfc822;willy@w.ods.org>);
+	id S264119AbTKGWC0 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 7 Nov 2003 17:02:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264370AbTKGWAt
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264294AbTKGWAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:00:49 -0500
-Received: from ida.rowland.org ([192.131.102.52]:5124 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S264430AbTKGPsn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 10:48:43 -0500
-Date: Fri, 7 Nov 2003 10:48:43 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Jens Axboe <axboe@suse.de>
-cc: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 1412] Copy from USB1 CF/SM reader stalls, no actual content
- is read (only directory structure)
-In-Reply-To: <20031107082439.GB504@suse.de>
-Message-ID: <Pine.LNX.4.44L0.0311071039470.786-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 7 Nov 2003 17:00:00 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:49169 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263988AbTKGJjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 04:39:02 -0500
+Date: Fri, 7 Nov 2003 09:39:00 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: arjanv@redhat.com, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Linux-SCSI <linux-scsi@vger.kernel.org>
+Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
+Message-ID: <20031107093900.C1992@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Vasquez <andrew.vasquez@qlogic.com>, arjanv@redhat.com,
+	Linux-Kernel <linux-kernel@vger.kernel.org>,
+	Linux-SCSI <linux-scsi@vger.kernel.org>
+References: <B179AE41C1147041AA1121F44614F0B0598CEA@AVEXCH02.qlogic.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <B179AE41C1147041AA1121F44614F0B0598CEA@AVEXCH02.qlogic.org>; from andrew.vasquez@qlogic.com on Thu, Nov 06, 2003 at 11:33:28AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Nov 2003, Jens Axboe wrote:
+On Thu, Nov 06, 2003 at 11:33:28AM -0800, Andrew Vasquez wrote:
+> I'm not entirely clear on what you are alluding to here, are you
+> referring to SCSI_IOCTL_SEND_COMMAND?  There's significantly more
+> functionality embedded within the IOCTLs than simply sending passthrus
+> to devices.  Also, all of QLogic's drivers (linux, solaris, windows)
+> implement to this 'external ioctl' spec, making changes to Linux alone
+> would difficult.
 
-> I've lost the original mail in the thread, but I'm quite sure it listed
-> sg[0].page as being valid. Maybe the driver cleared it somewhere too
-> early? page_address() will not have returned NULL for a valid page.
-> Unless it's a highmem page, in that case you have to map it and unmap
-> after use. For drivers like this that aren't performance critical and
-> are by no means highmem ready, it's easier just to set your dma mask low
-> enough that you wont be handed such pages.
-
-I think you may have put your finger on the problem.  Our difficulty is
-that we have no control over where these sg pages are allocated; that
-depends on the capabilities of the USB host controller that our device
-happens to be plugged into.  Probably all the spots in the usb-storage
-driver that directly access those sg pages will have to be rewritten to
-take into account that they may not be located in mapped memory.
-
-So I will need to learn the proper way of doing that.  Is it as simple as 
-calling page_address(), and if the result is 0 then calling kmap() 
-followed by kunmap()?
-
-Alan Stern
+I thought you had a hba lib to abstract the difference away?  Once again
+the proper solution would be to just exclude all the ioctl mess for a
+kernel build, if your HSV IHV and other three letter acronym partners
+need the broken API they can patch it in again.
 

@@ -1,40 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbTDPFbZ (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 01:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264232AbTDPFbY 
+	id S264228AbTDPF3h (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 01:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264230AbTDPF3h 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 01:31:24 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:3004 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S264231AbTDPFbX (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 01:31:23 -0400
-Date: Wed, 16 Apr 2003 00:43:06 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: davidm@hpl.hp.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: size of CRCs in module versions
-In-Reply-To: <200304160025.h3G0P52i009908@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.44.0304160037130.4255-100000@chaos.physics.uiowa.edu>
+	Wed, 16 Apr 2003 01:29:37 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:41879 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S264228AbTDPF3g 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 01:29:36 -0400
+Date: Wed, 16 Apr 2003 08:41:01 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+To: jamal <hadi@cyberus.ca>
+cc: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCH] qdisc oops fix
+In-Reply-To: <20030415084706.O1131@shell.cyberus.ca>
+Message-ID: <Pine.LNX.4.53.0304160838001.25861@hosting.rdsbv.ro>
+References: <20030415084706.O1131@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Apr 2003, David Mosberger wrote:
+> -       sch = kmalloc(size, GFP_KERNEL);
+> +       sch = kmalloc(size, GFP_ATOMIC);
+>
+> mysteriously fixes the problem? Could the problem be elsewhere?
+> Can you repost what the issue was? I am not on lk and i just saw the
+> posting on a web page.
 
-> What's the point of using "unsigned long" for storing module version
-> CRCs?  As far as I can see, the CRCs are 32 bits in size, so using u32
-> would be more appropriate (and would avoid wasting space on 64-bit
-> platforms).
+With many rules (~5000 classes and ~3500 qdiscs and ~50000 filters)
+the kernel oopses in slab.c:1128.
+It happens on high rates (~15mbit).
+On low rates, doesn't.
 
-You're right that 32 bits would be enough to hold the CRC. However, we do 
-not yet know the checksum at compile time, so the trick I came up with is 
-to use the linker to fill in the crcs afterwards, using assignment to 
-absolute values. So while the crcs appear to be numbers to the C code, 
-they are handled like addresses from the linker side, and things would 
-most likely go badly wrong if the sizes aren't equal, though I have to 
-admit I didn't try.
-
---Kai
+Seems that an interrupt come and broke the memory allocation.
 
 
+>>EIP; c0127ab4 <kmem_cache_grow+44/1d8>   <=====
+
+>>EAX; ffffffff <END_OF_CODE+3fd31247/????>
+>>EBX; c12c52c0 <END_OF_CODE+ff6508/????>
+>>EDI; c12c52c0 <END_OF_CODE+ff6508/????>
+>>ESP; ceab1c60 <END_OF_CODE+e7e2ea8/????>
+
+Trace; c0127e0f <kmalloc+eb/110>
+Trace; c01d3cac <qdisc_create_dflt+20/bc>
+Trace; d081ecc7 <END_OF_CODE+1054ff0f/????>
+Trace; c01d5265 <tc_ctl_tclass+1cd/214>
+Trace; d0820600 <END_OF_CODE+10551848/????>
+Trace; c01d27e4 <rtnetlink_rcv+298/3bc>
+Trace; c01d0605 <__neigh_event_send+89/1b4>
+Trace; c01d7cd4 <netlink_data_ready+1c/60>
+Trace; c01d7730 <netlink_unicast+230/278>
+Trace; c01d7b73 <netlink_sendmsg+1fb/20c>
+Trace; c01c79d5 <sock_sendmsg+69/88>
+Trace; c01c8b48 <sys_sendmsg+18c/1e8>
+Trace; c0120010 <map_user_kiobuf+8/f8>
+
+
+>
+> cheers,
+> jamal
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRAIRce>; Tue, 9 Jan 2001 12:32:34 -0500
+	id <S129534AbRAIRdo>; Tue, 9 Jan 2001 12:33:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129534AbRAIRcY>; Tue, 9 Jan 2001 12:32:24 -0500
-Received: from law2-f66.hotmail.com ([216.32.181.66]:1547 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S129511AbRAIRcR>;
-	Tue, 9 Jan 2001 12:32:17 -0500
-X-Originating-IP: [208.5.125.50]
-From: "Kambo Lohan" <kambo77@hotmail.com>
-To: linux-kernel@vger.kernel.org, eepro100@scyld.com
-Subject: Re: [eepro100] ...
-Date: Tue, 09 Jan 2001 12:32:11 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <LAW2-F66OTNECfI6JA900000707@hotmail.com>
-X-OriginalArrivalTime: 09 Jan 2001 17:32:11.0585 (UTC) FILETIME=[19472310:01C07A62]
+	id <S129324AbRAIRde>; Tue, 9 Jan 2001 12:33:34 -0500
+Received: from kanga.kvack.org ([216.129.200.3]:55562 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id <S129534AbRAIRdS>;
+	Tue, 9 Jan 2001 12:33:18 -0500
+Date: Tue, 9 Jan 2001 12:30:39 -0500 (EST)
+From: "Benjamin C.R. LaHaise" <blah@kvack.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Stephen C. Tweedie" <sct@redhat.com>, Christoph Hellwig <hch@caldera.de>,
+        "David S. Miller" <davem@redhat.com>, riel@conectiva.com.br,
+        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <Pine.LNX.4.30.0101091720030.4491-100000@e2>
+Message-ID: <Pine.LNX.3.96.1010109114407.5051E-100000@kanga.kvack.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->You could try the Intel driver (e100.c), which is downloadable from their 
->website. It apparently has some silicon bug workarounds that Donald's 
->driver hasn't.
+On Tue, 9 Jan 2001, Ingo Molnar wrote:
 
-We've been back and forth with that driver, yeah.  It has its own set of 
-problems, sometimes it doesnt even autonegotiate properly, falls to 10 half 
-duplex, etc.  It also seems to have gotten quite large code wise (code wise) 
-in the latest version (1.3.x.something) :)    We dont need any of their 
-ans/teaming/proc stuff, but it is stable on this particular problem.
+> this is why i ment that *right now* kiobufs are not suited for networking,
+> at least the way we do it. Maybe if kiobufs had the same kind of internal
+> structure as sk_frag (ie. array of (page,offset,size) triples, not array
+> of pages), that would work out better.
 
-Their driver doesnt even compile out of the box on 2.2.18 btw (intel e100.c 
-1.3.2, latest I could find), _badudelay.  I had to change one call to 
-mdelay, and comment out their dma_addr_t type because of the conflicting 
-declaration.  Doesnt give me much confidence :(
+That I can agree with, and it would make my life easier since I really
+only care about the completion of an entire io, not the individual
+fragments of it.
 
->Also please note that such a subject line is not a good motivation to help 
->you for free.
->-Andi
+> Please take a look at next release of TUX. Probably the last missing piece
+> was that i added O_NONBLOCK to generic_file_read() && sendfile(), so not
+> fully cached requests can be offloaded to IO threads.
+> 
+> Otherwise the current lowlevel filesystem infrastructure is not suited for
+> implementing "process-less async IO "- and kiovecs wont be able to help
+> that either. Unless we implement async, IRQ-driven bmap(), we'll always
+> need some sort of process context to set up IO.
 
-Sorry.  It wasnt my subject though, I was replying to someone else and just 
-put the 'Re:' in.  But I will be more careful...
+I've already got fully async read and write working via a helper thread
+for doing the bmaps when the page is not uptodate in the page cache.  The
+primatives for async locking of pages and waiting on events such that
+converting ext2 to performing full async bmap should be trivial.  Note
+that O_NONBLOCK is not good enough because you can't implement an
+asynchronous O_SYNC write with it.
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
+		-ben
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

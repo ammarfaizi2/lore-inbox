@@ -1,96 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268526AbUHQXvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266769AbUHQXj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268526AbUHQXvX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 19:51:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUHQXvX
+	id S266769AbUHQXj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 19:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268523AbUHQXj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 19:51:23 -0400
-Received: from fmr10.intel.com ([192.55.52.30]:44982 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S268526AbUHQXtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 19:49:19 -0400
-Subject: Re: 2.6.8-rc4-mm1 doesn't boot
-From: Len Brown <len.brown@intel.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040817231119.GB1387@fs.tum.de>
-References: <566B962EB122634D86E6EE29E83DD808182C2B33@hdsmsx403.hd.intel.com>
-	 <200408121550.15892.bjorn.helgaas@hp.com>
-	 <1092350580.7765.190.camel@dhcppc4>
-	 <200408131515.56322.bjorn.helgaas@hp.com>
-	 <20040813235515.GB28687@fs.tum.de> <1092450142.5028.232.camel@dhcppc4>
-	 <20040817231119.GB1387@fs.tum.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092786485.25902.28.camel@dhcppc4>
+	Tue, 17 Aug 2004 19:39:58 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:392 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266769AbUHQXj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 19:39:56 -0400
+Date: Wed, 18 Aug 2004 00:37:32 +0100
+From: Dave Jones <davej@redhat.com>
+To: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Oops modprobing i830 with 2.6.8.1
+Message-ID: <20040817233732.GA8264@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>,
+	linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+References: <20040817220816.GA14343@hardeman.nu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 17 Aug 2004 19:48:06 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040817220816.GA14343@hardeman.nu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 19:11, Adrian Bunk wrote:
-> On Fri, Aug 13, 2004 at 10:22:22PM -0400, Len Brown wrote:
-> >...
-> > Also, it would be helpful to see the lines with LNKD
-> > in the dmesg for floppy enabled and floppy disabled cases --
-> > a 2.6.7 vintage kernel should work fine:
-> > 
-> > ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 *6 7 10 11 12 14 15)
-> >         ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 6
-> 
-> I've used 2.6.8.1, and in both cases I got the following (in the
-> enabled 
-> case, no floppy was actually present):
-> 
-> ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 *6 7 10 11 12 14 15)
-> ...
-> ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 6
-> ACPI: PCI interrupt 0000:00:04.0[A] -> GSI 6 (level, low) -> IRQ 6
+On Wed, Aug 18, 2004 at 12:08:18AM +0200, David Härdeman wrote:
+ > [drm:i830_probe] *ERROR* Cannot initialize the agpgart module.
 
-That's interesting, IRQ6 is being given to PCI, even when the floppy
-controller is enabled.
+You don't have agpgart (and an agp chipset subdriver) loaded, yet
+drm 'needs' it.
+ 
+ > inter_module_unregister: no entry for 'drm'------------[ cut here 
+ > kernel BUG at kernel/intermodule.c:104!
 
-> 
-> > If you can also run acpidmp in both those scenarios
-> > (any kernel version, ACPI enabled or disabled should do)
-> > and send me the two output files, that would be great.
-> > 
-> > thanks,
-> > -Len
-> > 
-> > ps. you can get acpidmp in /usr/sbin/ or from pmtools here
-> > http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
-> 
-> It didn't compile for me:
-> 
-> <--  snip  -->
-> 
-> ...
-> gcc -Wall -fno-strength-reduce -fomit-frame-pointer -D__KERNEL__ 
-> -DMODULE -I/usr/src/linux/include -Wall -Wno-unused -Wno-multichar  
-> -c 
-> -o pmtest.o pmtest.c
-> In file included from /usr/include/asm/system.h:5,
->                  from /usr/include/asm/processor.h:18,
->                  from /usr/include/asm/thread_info.h:13,
->                  from /usr/include/linux/thread_info.h:21,
->                  from /usr/include/linux/spinlock.h:19,
->                  from /usr/include/linux/capability.h:45,
->                  from /usr/include/linux/sched.h:7,
->                  from /usr/include/linux/module.h:10,
->                  from pmtest.c:21:
-> /usr/include/linux/kernel.h:72: error: parse error before "size_t"
-> ...
+The inter_module_* stuff has been totally broken for some time.
+At one point Rusty proposed killing it off completely.
+Too bad it didn't happen.
 
-you don't care about pmtest, just acpidmp.
+ > invalid operand: 0000 [#1]
+ > PREEMPT 
+ > Modules linked in: i830 snd_pcm_oss snd_mixer_oss snd_intel8x0 
+ > snd_ac97_codec snd_pcm snd_timer snd_page_alloc snd_mpu401_uart 
+ > snd_rawmidi snd rtc hw_random thermal processor fan button battery ac 
+ > uhci_hcd ehci_hcd usbcore nvram
+ > CPU:    0
+ > EIP:    0060:[<c01277e6>]    Not tainted
+ > EFLAGS: 00010282   (2.6.8.1) 
+ > EIP is at inter_module_unregister+0x9b/0xe4
+ > eax: 0000002e   ebx: d07bb7ef   ecx: c02cea90   edx: 00000282 
+ > esi: 00000000   edi: 00000000   ebp: c02d00a0   esp: ce08bf14
+ > ds: 007b   es: 007b   ss: 0068
+ > Process modprobe (pid: 1362, threadinfo=ce08a000 task=cec44840)
+ > Stack: c029e5a0 d07bb7ef ffffffff 00000000 00000000 00000000 d07b5ed1 
+ > d07bb7ef d07bb7ef d07bf020 d07bf020 cf60c800 d07bf69c d07b238a 
+ >       d07bb5e1 d07be720 d07bf020 00000000 00000000 00000010 cf60cc00 
+ >       ce08a000 d07bee00 c02d0260 Call Trace:
+ > [<d07b5ed1>] i830_stub_register+0xb9/0x1c8 [i830]
+ > [<d07b238a>] i830_probe+0xe0/0x27f [i830]
+ > [<c01b949a>] pci_find_device+0x2f/0x33
+ > [<d0709047>] drm_init+0x47/0x66 [i830]
+ > [<c012dbd1>] sys_init_module+0x117/0x22f 
+ > [<c0105f47>] syscall_call+0x7/0xb
 
-cd acpidmp
-make
+Though the DRM stuff really should handle failure a little
+more gracefully.
 
-thanks,
--Len
-
+		Dave
 

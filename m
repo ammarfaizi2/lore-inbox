@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265843AbTBCA1U>; Sun, 2 Feb 2003 19:27:20 -0500
+	id <S265196AbTBCBDe>; Sun, 2 Feb 2003 20:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265854AbTBCA1U>; Sun, 2 Feb 2003 19:27:20 -0500
-Received: from B5b18.pppool.de ([213.7.91.24]:44432 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S265843AbTBCA1T>; Sun, 2 Feb 2003 19:27:19 -0500
-Subject: Re: Compactflash cards dying?
-From: Daniel Egger <degger@fhm.edu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030202223009.GA344@elf.ucw.cz>
-References: <20030202223009.GA344@elf.ucw.cz>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-nd+AD57FJhjfeIxG6Gwy"
-Organization: 
-Message-Id: <1044232591.545.8.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 03 Feb 2003 01:36:32 +0100
+	id <S265201AbTBCBDe>; Sun, 2 Feb 2003 20:03:34 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:6552 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S265196AbTBCBDd>; Sun, 2 Feb 2003 20:03:33 -0500
+Date: Mon, 3 Feb 2003 02:13:01 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.0, 2.2, 2.4, 2.5: fsync buffer race
+In-Reply-To: <20030202160007.554be43d.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.44.0302030210460.26710-100000@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2 Feb 2003, Andrew Morton wrote:
 
---=-nd+AD57FJhjfeIxG6Gwy
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz> wrote:
+> >
+> > Hi
+> >
+> > there's a race condition in filesystem
+> >
+> > let's have a two inodes that are placed in the same buffer.
+> >
+> > call fsync on inode 1
+> > it goes down to ext2_update_inode [update == 1]
+> > it calls ll_rw_block at the end
+> > ll_rw_block starts to write buffer
+> > ext2_update_inode waits on buffer
+> >
+> > while the buffer is writing, another process calls fsync on inode 2
+> > it goes again to ext2_update_inode
+> > it calls ll_rw_block
+> > ll_rw_block sees buffer locked and exits immediatelly
+> > ext2_update_inode waits for buffer
+> > the first write finished, ext2_update_inode exits and changes made by
+> > second proces to inode 2 ARE NOT WRITTEN TO DISK.
+> >
+>
+> hmm, yes.  This is a general weakness in the ll_rw_block() interface.  It is
+> not suitable for data-integrity writeouts, as you've pointed out.
+>
+> A suitable fix would be do create a new
+>
+> void wait_and_rw_block(...)
+> {
+> 	wait_on_buffer(bh);
+> 	ll_rw_block(...);
+> }
 
-Am Son, 2003-02-02 um 23.30 schrieb Pavel Machek:
+It would fail if other CPU submits IO with ll_rw_block after
+wait_on_buffer but before ll_rw_block. ll_rw_block really needs to be
+rewritten.
 
-> First time I repartitioned it; now I only did mke2fs, and data
-> corruption can be seen by something as simple as
+Mikulas
 
-> cat /mnt/cf/mp3/* > /mnt/cf/delme; md5sum /mnt/cf/delme.
-
-> Anyone seen something similar? Are there some known-good
-> compactflash-es?
-
-CF has limited write cycles. A few hundred if you're lucky.
-And depending on the type of flash it's quite likely that every
-changed byte will result in a whole block being written back.
-
-I'm running dotzends of CF cards and due to some care not a single
-one has developped bad blocks as of yet.
-
---=20
-Servus,
-       Daniel
-
---=-nd+AD57FJhjfeIxG6Gwy
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+PbmPchlzsq9KoIYRAtigAKDkYnDnCE5O8Gp4jOT0xLUli3daxwCg0ns3
-cXWyisZpuJtwSoI+X8O3L5s=
-=3xiW
------END PGP SIGNATURE-----
-
---=-nd+AD57FJhjfeIxG6Gwy--
+> and go use that in all the appropriate places.
+>
+> I shall make that change for 2.5, thanks.
+>
 

@@ -1,55 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136583AbREEBLA>; Fri, 4 May 2001 21:11:00 -0400
+	id <S135905AbREEBHa>; Fri, 4 May 2001 21:07:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136584AbREEBKu>; Fri, 4 May 2001 21:10:50 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:6162 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136583AbREEBKh>; Fri, 4 May 2001 21:10:37 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Compressed iso9660 filesystem
-Date: 4 May 2001 18:10:19 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9cvjtr$jku$1@cesium.transmeta.com>
+	id <S136583AbREEBHU>; Fri, 4 May 2001 21:07:20 -0400
+Received: from colorfullife.com ([216.156.138.34]:59662 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S135905AbREEBHL>;
+	Fri, 4 May 2001 21:07:11 -0400
+Message-ID: <3AF35246.420B2E1A@colorfullife.com>
+Date: Sat, 05 May 2001 03:07:18 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: whitney@math.berkeley.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to debug a 2.4.4 tulip problem?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, I think I now feel comfortable enough that I think I can unleash
-this on the world...
+> 
+> What information should I gather when the card is wedged to aid in 
+> debugging? Is 'lspci -xxx' enough? Any suggestions would be welcome. 
+>
+tulip-diag from www.scyld.com.
 
-I have made an extension to iso9660/RockRidge to allow for transparent
-uncompression of block-compressed files.  Because the files are
-block-compressed, random access is fast; it uses a 32K blocksize which
-gets pretty good compression ratios (I got 2:1 overall compression on
-my SuperRescue CD; that includes a fair number of incompressible
-files.)
-
-The patches are available as:
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/filemap-2.4.4-1.diff.gz
-ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/zisofs-2.4.5-pre1-5.diff.gz
-
-(Both are needed.)
-
-Additionally, the user-space utilities (a program to compress and
-uncompress file trees, and a patch to mkisofs to generate the new
-RockRidge records for compressed files) are available at:
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/zisofs/
-
-If you test this out, please let me know; I'd like to know if anyone
-actually cares about this... also, I would like to gauge if I have
-messed up stability anywhere.
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Do you know if transmit or receive is slow? tcpdump on both ends of the
+ping might help.

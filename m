@@ -1,91 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263487AbUJ2UAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUJ2UAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263487AbUJ2UAy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 16:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbUJ2T6r
+	id S261875AbUJ2UAx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 16:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbUJ2T7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:58:47 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:20341 "EHLO
-	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S263508AbUJ2Tz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 15:55:56 -0400
-Message-Id: <200410291955.i9TJtfaj014056@falcon10.austin.ibm.com>
-X-Mailer: exmh version 2.7.1.1 10/09/2004 with nmh-1.1
-In-reply-to: <20041029014930.21ed5b9a.akpm@osdl.org> 
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: Re: 2.6.10-rc1-mm2 
-Date: Fri, 29 Oct 2004 14:55:41 -0500
-From: Doug Maxey <dwm@austin.ibm.com>
+	Fri, 29 Oct 2004 15:59:23 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:59056 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S261875AbUJ2TzL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 15:55:11 -0400
+X-Ironport-AV: i="3.86,110,1096866000"; 
+   d="scan'208"; a="99833181:sNHT32356940"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP kernel
+Date: Fri, 29 Oct 2004 14:55:10 -0500
+Message-ID: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC4@ausx2kmps304.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP kernel
+Thread-Index: AcS98TGneZx/IxNIT1OIKOiGJl9rHw==
+From: <Tim_T_Murphy@Dell.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 29 Oct 2004 19:55:10.0649 (UTC) FILETIME=[32932A90:01C4BDF1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am new to the list, hope this is ok..
+I've read about several problems others are having with the new 2.6 serial driver in the list, and tried to see if their solutions solved my issue also, but unfortunately none that I have tried yet have helped.
 
-Andrew, 
+We're migrating our applications for the Dell Remote Access Controller (DRAC) to run on a 2.6 kernel from a 2.4 kernel. Communication between the apps and the DRAC happen over a ppp link which is established via a service startup script; the script uses setserial to prepare an unused tty (based on the assigned hardware information, obtained via lspci), and the script then calls pppd to finish/establish the link.
 
-having some troubles on ppc64.  It looks like the changes in
-the scripts/Makefile.{clean,build} are expecting include/asm to
-exist in the source tree.  I don't see any related file except the
-include/asm-$ARCH/Kbuild
+Everything works fine with the UP kernel -- Although, there is a message in syslog regarding a spinlock (issued at approximately the same point in time where the SMP kernel hangs):
+---
+Oct 29 13:34:47 racjag-1 kernel: CSLIP: code copyright 1989 Regents of the University of California
+Oct 29 13:34:47 racjag-1 kernel: PPP generic driver version 2.4.2
+Oct 29 13:34:47 racjag-1 udev[3875]: creating device node '/dev/ppp'
+Oct 29 13:34:47 racjag-1 pppd[3884]: pppd 2.4.2 started by root, uid 0
+Oct 29 13:34:47 racjag-1 racser: pppd startup succeeded
+Oct 29 13:34:48 racjag-1 chat[3886]: send (CLIENT^M)
+Oct 29 13:34:48 racjag-1 chat[3886]: expect (CLIENTSERVER)
+Oct 29 13:34:48 racjag-1 kernel: drivers/serial/serial_core.c:102: spin_lock(drivers/serial/serial_core.c:023f2548) already locked by drivers/serial/8250.c/1015
+Oct 29 13:34:48 racjag-1 kernel: drivers/serial/8250.c:1017: spin_unlock(drivers/serial/serial_core.c:023f2548) not locked
+Oct 29 13:34:48 racjag-1 chat[3886]: CLIENTSERVER
+Oct 29 13:34:48 racjag-1 chat[3886]:  -- got it 
+Oct 29 13:34:48 racjag-1 chat[3886]: send ()
+Oct 29 13:34:48 racjag-1 pppd[3884]: Serial connection established.
+Oct 29 13:34:48 racjag-1 pppd[3884]: Using interface ppp0
+Oct 29 13:34:48 racjag-1 pppd[3884]: Connect: ppp0 <--> /dev/ttyS2
+Oct 29 13:34:49 racjag-1 pppd[3884]: local  IP address 192.168.234.235
+Oct 29 13:34:49 racjag-1 pppd[3884]: remote IP address 192.168.234.236
+---
 
+With the SMP kernel, it hangs very soon after starting pppd.
+I enabled DEBUG in the serial driver and captured the syslog when the problem happens, but this is not detailed enough for me to finger the exact problem:
+---
+Oct 28 14:04:52 racjag-1 kernel: CSLIP: code copyright 1989 Regents of the University of California
+Oct 28 14:04:52 racjag-1 kernel: PPP generic driver version 2.4.2
+Oct 28 14:04:52 racjag-1 udev[3621]: creating device node '/dev/ppp'
+Oct 28 14:05:19 racjag-1 kernel: uart_open(2) called
+Oct 28 14:05:19 racjag-1 kernel: Trying to free nonexistent resource <00000000-00000007>
+Oct 28 14:05:19 racjag-1 kernel: uart_close(2) called
+Oct 28 14:05:19 racjag-1 kernel: uart_flush_buffer(2) called
+Oct 28 14:05:19 racjag-1 kernel: uart_open(2) called
+Oct 28 14:05:19 racjag-1 kernel: uart_close(2) called
+Oct 28 14:05:19 racjag-1 kernel: uart_flush_buffer(2) called
+Oct 28 14:05:19 racjag-1 pppd[3681]: pppd 2.4.1 started by root, uid 0
+Oct 28 14:05:19 racjag-1 kernel: uart_open(2) called
+Oct 28 14:05:19 racjag-1 racser: pppd startup succeeded
+Oct 28 14:05:20 racjag-1 kernel: uart_open(2) called
+Oct 28 14:05:20 racjag-1 kernel: uart_close(2) called
+Oct 28 14:05:20 racjag-1 chat[3683]: send (CLIENT^M)
+---
+The system hangs right there; must press and hold power to get the system to shut down.
 
-Below is output from a hacked up attempt to add $(srctree) check to
-fix scripts/Makefile.build.  It invokes an added $(warning) at the top
-of the file:
-
-
-
-=============================
-cmd=={make -j4 O=/build/dwm/build/lk-2.6.10-rc1-mm2.edit/ppc64 zImage}
-  Using /build/dwm/linux/lk-2.6.10-rc1-mm2.edit as source for kernel
-  CHK     include/linux/version.h
-  GEN    /build/dwm/build/lk-2.6.10-rc1-mm2.edit/ppc64/Makefile
-/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/Makefile.build:13: kbuild: obj=scripts/basic/Kbuild srctree=/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/basic/Kbuild, make=scripts/basic/Makefile!
-  GEN    /build/dwm/build/lk-2.6.10-rc1-mm2.edit/ppc64/Makefile
-/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/Makefile.build:13: kbuild: obj=scripts/kconfig/Kbuild srctree=/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/kconfig/Kbuild, make=scripts/kconfig/Makefile!
-scripts/kconfig/conf -s arch/ppc64/Kconfig
- #
- # using defaults found in .config
- #
-  SPLIT   include/linux/autoconf.h -> include/config/*
-/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/Makefile.build:13: kbuild: obj=scripts/basic/Kbuild srctree=/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/basic/Kbuild, make=scripts/basic/Makefile!
-/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/Makefile.build:13: kbuild: obj=/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/include/asm/Kbuild srctree=/build/dwm/linux/lk-2.6.10-rc1-mm2.edit//build/dwm/linux/lk-2.6.10-rc1-mm2.edit/include/asm/Kbuild, make=/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/include/asm/Makefile!
-/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/Makefile.build:14: /build/dwm/linux/lk-2.6.10-rc1-mm2.edit/include/asm/Makefile: No such file or directory
-/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/Makefile.build:13: kbuild: obj=scripts/Kbuild srctree=/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/Kbuild, make=scripts/Makefile!
-make[2]: *** No rule to make target `/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/include/asm/Makefile'.  Stop.
-make[1]: *** [prepare0] Error 2
-make[1]: *** Waiting for unfinished jobs....
-/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/Makefile.build:13: kbuild: obj=scripts/genksyms/Kbuild srctree=/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/genksyms/Kbuild, make=scripts/genksyms/Makefile!
-/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/Makefile.build:13: kbuild: obj=scripts/mod/Kbuild srctree=/build/dwm/linux/lk-2.6.10-rc1-mm2.edit/scripts/mod/Kbuild, make=scripts/mod/Makefile!
-make: *** [zImage] Error 2
-
-=============================
-
-diff from vanilla scripts/Makefile.{build,clean}
-
-=============================
-diff -Nwupa libata-dev-2.6/scripts/Makefile.build lk-2.6.10-rc1-mm2.edit/scripts/Makefile.build
---- libata-dev-2.6/scripts/Makefile.build       2004-10-27 15:38:46.972904640 -0500
-+++ lk-2.6.10-rc1-mm2.edit/scripts/Makefile.build       2004-10-29 12:50:35.766986000 -0500
-@@ -10,7 +10,7 @@ __build:
- # Read .config if it exist, otherwise ignore
- -include .config
- 
--include $(obj)/Makefile
-+include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
- 
- include scripts/Makefile.lib
- 
-diff -Nwupa libata-dev-2.6/scripts/Makefile.clean lk-2.6.10-rc1-mm2.edit/scripts/Makefile.clean
---- libata-dev-2.6/scripts/Makefile.clean       2004-10-27 15:38:46.972904640 -0500
-+++ lk-2.6.10-rc1-mm2.edit/scripts/Makefile.clean       2004-10-29 12:50:35.766986000 -0500
-@@ -7,7 +7,7 @@ src := $(obj)
- .PHONY: __clean
- __clean:
- 
--include $(obj)/Makefile
-+include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
- 
- # Figure out what we need to build from the various variables
-
+Any suggestions to narrow down the cause?  Please cc my email as I do not subscribe to this list.
+Thanks,
+Tim
 

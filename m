@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131138AbQJ1QLE>; Sat, 28 Oct 2000 12:11:04 -0400
+	id <S129201AbQJ1QSS>; Sat, 28 Oct 2000 12:18:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131142AbQJ1QK6>; Sat, 28 Oct 2000 12:10:58 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:30400 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131139AbQJ1QKo>; Sat, 28 Oct 2000 12:10:44 -0400
-Message-ID: <39FAFA68.A8250BA@uow.edu.au>
-Date: Sun, 29 Oct 2000 03:10:16 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S129327AbQJ1QSI>; Sat, 28 Oct 2000 12:18:08 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25360 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129201AbQJ1QR6>; Sat, 28 Oct 2000 12:17:58 -0400
+Subject: Re: question on SMP and read()/write()
+To: Oliver.Neukum@lrz.uni-muenchen.de (Oliver Neukum)
+Date: Sat, 28 Oct 2000 17:19:18 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <00102816313507.00773@ghanima> from "Oliver Neukum" at Oct 28, 2000 04:31:35 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Brian Gerst <bgerst@didntduck.org>
-CC: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PROPOSED PATCH] ATM refcount + firestream
-In-Reply-To: <Pine.LNX.4.21.0010270945510.13233-200000@panoramix.bitwizard.nl> <39F96BE1.B9C97C20@uow.edu.au> <20001028141518.A2272@parcelfarce.linux.theplanet.co.uk> <39FAD698.2FF9C8C8@didntduck.org> <20001028145312.B2272@parcelfarce.linux.theplanet.co.uk> <39FADAC9.DC1255D1@didntduck.org> <20001028160537.C2272@parcelfarce.linux.theplanet.co.uk> <39FAF5BE.C79801A2@didntduck.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13pYhV-0005Po-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst wrote:
-> 
-> With or without your patch, the network ioctls are unsafe, since they
-> don't currently do refcounting at all.  Adding it in the layer above the
-> driver is the easier and cleaner solution.
+> I've noticed that sys_read() and sys_write() don't grab the big kernel lock.
+> As file descriptors may be shared, must device drivers provide SMP safe
+> read() and write() methods ?
 
-As long as the drivers use unregister_netdevice() then that's
-fairly easy to fix within the netdevice layer.  Just do a 
-dev_hold()/dev_put() within dev_ifsioc().
+Yes. This is true in 2.2 as well although the inode lock provides some protection
+on writes.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

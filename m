@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263210AbTI3GgA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 02:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTI3GdR
+	id S263152AbTI3HEO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 03:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbTI3HEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 02:33:17 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:10427 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S263174AbTI3Gcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 02:32:54 -0400
-From: David Woodhouse <dwmw2@infradead.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>, acme@conectiva.com.br, netdev@oss.sgi.com,
-       pekkas@netcore.fi, lksctp-developers@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030929220916.19c9c90d.davem@redhat.com>
-References: <20030928225941.GW15338@fs.tum.de>
-	 <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de>
-	 <20030929220916.19c9c90d.davem@redhat.com>
-Message-Id: <1064903562.6154.160.camel@imladris.demon.co.uk>
+	Tue, 30 Sep 2003 03:04:14 -0400
+Received: from c-67-161-31-116.client.comcast.net ([67.161.31.116]:35337 "EHLO
+	64m.dyndns.org") by vger.kernel.org with ESMTP id S263152AbTI3HEJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 03:04:09 -0400
+Date: Tue, 30 Sep 2003 00:05:56 -0700
+From: Christopher Li <lkml@chrisli.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fat sparse fixes
+Message-ID: <20030930070556.GA2182@64m.dyndns.org>
+References: <UTC200309282329.h8SNT5I29917.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0309290946070.23520-100000@home.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Tue, 30 Sep 2003 07:32:42 +0100
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309290946070.23520-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-29 at 22:09 -0700, David S. Miller wrote:
-> For things inside the kernel, what ipv6 is doing is completely legal.
-> Changing your config setting in any way in the main kernel tree can
-> change just about anything else in the kernel, including the layout
-> of structures.
+On Mon, Sep 29, 2003 at 09:50:54AM -0700, Linus Torvalds wrote:
+> 
+> On Mon, 29 Sep 2003 Andries.Brouwer@cwi.nl wrote:
+> >
+> > --- a/fs/fat/dir.c	Mon Sep 29 01:05:41 2003
+> > +++ b/fs/fat/dir.c	Mon Sep 29 01:11:39 2003
+> > @@ -630,7 +630,7 @@
+> >  		    put_user(slen, &d1->d_reclen))
+> >  			goto efault;
+> >  	} else {
+> > -		if (put_user(0, d2->d_name)			||
+> > +		if (put_user(0, d2->d_name+0)			||
+> >  		    put_user(0, &d2->d_reclen)			||
+> >  		    copy_to_user(d1->d_name, name, len)		||
+> >  		    put_user(0, d1->d_name+len)			||
+> 
+> The above seems to just work around a sparse bug. Please don't - I'd 
+> rather have regular code and try to fix the sparse problem.
+> 
+> Hmm.. I wonder why sparse doesn't get the address space right on arrays. 
+> It should see that "d2" is a user pointer , so d2->d_name is one too.
 
-With boolean options that's fair enough. But changing any config option
-from 'n' to 'm' should not change anything in the main kernel. To do so
-is confusing and should be considered broken, as Adrian says.
+. The problem is in "*d2->d_name", the address space get
+lost at evaluate_dereference of "*". It is a monster macro right
+there. The simple version is:
 
--- 
-dwmw2
+struct dentry {
+        char d_name[256];
+};
+
+int foo (void) {
+        struct dentry __attribute__((noderef, address_space(1))) *d2;
+        __typeof__(*d2->d_name) *__pu_addr = d2->d_name;
+                   ^^^^^^^^^^^
+}
 
 
+ 
+> It gets it right if you add the "+0", or if you add a "&" in front. So 
+> it looks like the sparse array->pointer degeneration misses something.
+
+Besids address sapce, it seems that the source and target base type
+is pointer of char_ctype instead of pointer of void_ctype. I get lost
+there.
+
+Regards.
+
+Chris

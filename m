@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293230AbSCJUhZ>; Sun, 10 Mar 2002 15:37:25 -0500
+	id <S293226AbSCJUhg>; Sun, 10 Mar 2002 15:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293229AbSCJUhG>; Sun, 10 Mar 2002 15:37:06 -0500
-Received: from [217.79.102.244] ([217.79.102.244]:27637 "EHLO
-	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
-	id <S293226AbSCJUhA>; Sun, 10 Mar 2002 15:37:00 -0500
-Subject: Re: Sun GEM card looses TX on x86 32bit PCI
-From: Beezly <beezly@beezly.org.uk>
+	id <S293229AbSCJUhZ>; Sun, 10 Mar 2002 15:37:25 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:28168 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S293226AbSCJUhI>; Sun, 10 Mar 2002 15:37:08 -0500
+Date: Sun, 10 Mar 2002 21:37:06 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
 To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-+sjUgR6Wd7Mcc8TehFR9"
-X-Mailer: Evolution/1.0.2 
-Date: 10 Mar 2002 20:36:59 +0000
-Message-Id: <1015792619.1801.4.camel@monkey>
+Cc: Danek Duvall <duvall@emufarm.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: root-owned /proc/pid files for threaded apps?
+Message-ID: <20020310213706.A673@devcon.net>
+Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+	linux-kernel@vger.kernel.org, Danek Duvall <duvall@emufarm.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20020307060110.GA303@lorien.emufarm.org> <E16iyBW-0002HP-00@the-village.bc.nu> <20020308100632.GA192@lorien.emufarm.org> <20020308195939.A6295@devcon.net> <20020308203157.GA457@lorien.emufarm.org> <20020308222942.A7163@devcon.net> <20020308214148.GA750@lorien.emufarm.org> <20020308233001.B7163@devcon.net> <20020309030937.GA244@lorien.emufarm.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020309030937.GA244@lorien.emufarm.org>; from duvall@emufarm.org on Fri, Mar 08, 2002 at 07:09:37PM -0800
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 08, 2002 at 07:09:37PM -0800, Danek Duvall wrote:
 
---=-+sjUgR6Wd7Mcc8TehFR9
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Ok, after trying all four combinations (call to wmb() moved or not, and
+> set_user(0, 1) vs set_user(0, 0)), it turns out all four exhibit
+> skipping, so that's unrelated (in fact, it seems to happen not on net
+> access, but on redraw -- mozilla's dialogs make xmms skip, too).
 
-Hi David,
+OK, so it's clearly unrelated.
 
-Unfortunately not. I've just applied these changes and recompiled, but
-I'm suffering exactly the same problem.
+> I'll leave it for someone else to decide what arguments to set_user()
+> exec_usermodehelper() should pass.
 
-This is what I have this time when the card has stopped receiving;
+Clearing dumpable at this point is obviously wrong as it always has
+side-effects on the process that was leading into the module request.
 
-monkey:/home/andy# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:03:BA:04:5B:D7 =3D20
-          inet addr:10.0.0.12  Bcast:10.0.0.255  Mask:255.255.255.0
-          inet6 addr: fe80::203:baff:fe04:5bd7/10 Scope:Link
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:48508 errors:0 dropped:1 overruns:1 frame:68
-          TX packets:49362 errors:0 dropped:0 overruns:0 carrier:1
-          collisions:2 txqueuelen:100=3D20
-          RX bytes:61058494 (58.2 MiB)  TX bytes:61988220 (59.1 MiB)
-          Interrupt:5 Base address:0x8400=3D20
+It's also unnecessary, as it /only/ has effect on the /old/ mm_struct,
+before doing the execve() of the usermode helper. As request_module
+and friends don't introduce sensitive data into the address space of
+the calling process, leaving dumpable alone is just fine.
 
-Cheers,
+So, IMO, set_user(0, 0) should be the way to go.
 
-Beezly
-
-On Sun, 2002-03-10 at 08:19, David S. Miller wrote:
->=3D20
-> Let me know if this makes things any better:
->=3D20
-
---=-+sjUgR6Wd7Mcc8TehFR9
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8i8PrXu4ZFsMQjPgRAhGeAJwJlIUw79SlYAgzFoV2UWB83NXLYwCguQ23
-3BHc0XllA2t9kL4fftOGi10=
-=XYqW
------END PGP SIGNATURE-----
-
---=-+sjUgR6Wd7Mcc8TehFR9--
+Andreas
+-- 
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

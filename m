@@ -1,41 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133006AbRDYXjN>; Wed, 25 Apr 2001 19:39:13 -0400
+	id <S133014AbRDYXtg>; Wed, 25 Apr 2001 19:49:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133013AbRDYXjD>; Wed, 25 Apr 2001 19:39:03 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:64774 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S133006AbRDYXip>; Wed, 25 Apr 2001 19:38:45 -0400
-Date: Wed, 25 Apr 2001 17:32:10 -0600
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: Re: filp_open() in 2.2.19 causes memory corruption
-Message-ID: <20010425173210.A13124@vger.timpanogas.org>
-In-Reply-To: <20010423163757.D1131@vger.timpanogas.org> <20010423163248.B1131@vger.timpanogas.org> <001d01c0cc33$7e62daa0$5517fea9@local> <3942.988063428@redhat.com> <20010423163248.B1131@vger.timpanogas.org> <4750.988065680@redhat.com> <20010423163757.D1131@vger.timpanogas.org> <4855.988065927@redhat.com> <20010423163954.A1237@vger.timpanogas.org> <4897.988066047@redhat.com>
+	id <S133018AbRDYXt0>; Wed, 25 Apr 2001 19:49:26 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:5511 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S133014AbRDYXtQ>; Wed, 25 Apr 2001 19:49:16 -0400
+Date: Thu, 26 Apr 2001 01:49:13 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "Moore, Robert" <robert.moore@intel.com>
+Subject: Re: down_timeout
+Message-ID: <20010426014913.B9089@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDDD2@orsmsx35.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <4897.988066047@redhat.com>; from dwmw2@infradead.org on Mon, Apr 23, 2001 at 11:47:27PM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDDD2@orsmsx35.jf.intel.com>; from andrew.grover@intel.com on Wed, Apr 25, 2001 at 04:21:22PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 11:47:27PM +0100, David Woodhouse wrote:
-
-David/LKML,
-
-I've gotten to the bottom of this problem, and you are correct that klog 
-is trashing the messages file for the oops.  As for the oops, it was related
-to the use of ll_rw_blk() instead of submit_bh() in 2.4.3 which was causing 
-memory corruption in Linus' buffer cache code.   In NetWare, we used to 
-create a signature field for I/O and other structures that were submitted
-by modules other than the media manager.  
-
-This would be useful for the buffer cache to put in a signature field so 
-if he ever gets back a buffer head that is not his, the buffer cache 
-could drop it with a noisy message rather than have memory corruption 
-and other side effects that take days to track down.
-
-Jeff
-
+On Wed, Apr 25, 2001 at 04:21:22PM -0700, Grover, Andrew wrote:
+> It seems like we need to implement down_timeout (and
+> down_timeout_interruptible) to fully flesh out the semaphore implementation.
+> It is difficult and inefficient to emulate this using wrapper functions, as
+> far as I can see.
 > 
+> Seems like this is a fairly standard interface to have for OS semaphores. We
+> have a prototype implementation, and could contribute this, if desired.
+> 
+> Thoughts?
+
+Sure you can't implement this via waitqueues? semaphores use them
+internally anyway.
+
+I use this for interrupt or polling based waiting:
+
+
+/* IO polling waits */
+/* Timeout after this amount of jiffies */
+#define IO_POLL_TIMEOUT (HZ) 	
+/* Split timeout while polling into chunks of that many jiffies */
+#define IO_POLL_SPLIT 	2
+
+/* generic interrupt based wait with timeouts! */
+#define __wait_event_timeout_int(wq, condition, timeout, ret) \
+	do { \
+		struct wait_queue __wait; \
+		signed long __expire=timeout; \
+		__wait.task=current; \
+		add_wait_queue(wq, &__wait); \
+		for (;;) { \
+			current->state=TASK_UNINTERRUPTIBLE; \
+			mb(); \
+			if (condition) break; \
+			__expire=schedule_timeout(__expire); \
+			if (__expire == 0) {  \
+				ret=-ETIMEDOUT; \
+				break; \
+			} \
+		} \
+		current->state = TASK_RUNNING; \
+		remove_wait_queue(wq, &__wait); \
+	} while (0)
+
+/* polling wait, if we shouldn't use interrupts for this */
+#define __wait_event_timeout_poll(wq, condition, timeout, ret) \
+	do { \
+		unsigned int __tries=0; \
+		unsigned int __maxtry=timeout / IO_POLL_SPLIT; \
+		do { \
+			schedule_timeout(IO_POLL_SPLIT); \
+			if (condition) \
+				break; \
+		} while (++__tries < __maxtry); \
+		if (__tries == __maxtry && !condition) \
+			ret=-ETIMEDOUT; \
+	} while (0)
+	
+#ifdef INTS_ARE_CHEAP
+#define __wait_event_timeout(wq, condition, timeout, ret) \
+	__wait_event_timeout_int(wq, condition, timeout, ret)
+#else /* INTS_ARE_CHEAP */
+#define __wait_event_timeout(wq, condition, timeout, ret) \
+	__wait_event_timeout_poll(wq, condition, timeout, ret)
+#endif /* INTS_ARE_CHEAP */
+
+#define wait_event_timeout(wq, condition, timeout, ret)	\
+	do { \
+		if (condition) \
+			break; \
+		__wait_event_timeout(wq, condition, timeout, ret); \
+	} while (0)
+
+
+What about that?
+
+Use it just as you use wait_event() but check for -ETIMEDOUT as
+value in ret.
+
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

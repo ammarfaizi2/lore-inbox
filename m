@@ -1,79 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261510AbTC3SZD>; Sun, 30 Mar 2003 13:25:03 -0500
+	id <S261513AbTC3StL>; Sun, 30 Mar 2003 13:49:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261511AbTC3SZD>; Sun, 30 Mar 2003 13:25:03 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:1803 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S261510AbTC3SZC>; Sun, 30 Mar 2003 13:25:02 -0500
-Date: Mon, 31 Mar 2003 03:35:24 +0900 (JST)
-Message-Id: <20030331.033524.114862210.yoshfuji@linux-ipv6.org>
-To: pioppo@ferrara.linux.it
-Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Don't assign a same IPv6 address on a same
- interface (is Re: IPv6 duplicate address bugfix)
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20030330163656.GA18645@ferrara.linux.it>
-References: <20030330.220829.129728506.yoshfuji@linux-ipv6.org>
-	<20030330.235809.70243437.yoshfuji@linux-ipv6.org>
-	<20030330163656.GA18645@ferrara.linux.it>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261514AbTC3StL>; Sun, 30 Mar 2003 13:49:11 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:33152 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261513AbTC3StK>; Sun, 30 Mar 2003 13:49:10 -0500
+Date: Sun, 30 Mar 2003 11:00:28 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 521] New: cdrecord fails to see drive caps consistently when using ide-cd
+Message-ID: <1830000.1049050828@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030330163656.GA18645@ferrara.linux.it> (at Sun, 30 Mar 2003 18:36:56 +0200), Simone Piunno <pioppo@ferrara.linux.it> says:
+http://bugme.osdl.org/show_bug.cgi?id=521
 
-> Because everywhere else in the file {read,write}_lock_bh() is used 
-> instead of {read,write}_lock(), so I'm assuming that _bh is required 
-> but I really don't know why.
-
-maybe.
-
->  - locking inside ipv6_add_addr() is simpler and more linear but
->    semantically wrong because you're unable to tell the user why his 
->    "ip addr add" failed.  E.g. you answer ENOBUFS instead of EEXIST.
-
-We don't want to create duplicate address in any case.
-ipv6_add_addr() IS right place.
-And, we can return error code by using IS_ERR() etc.
-I'll fix this.
+           Summary: cdrecord fails to see drive caps consistently when using
+                    ide-cd
+    Kernel Version: 2.4.66-mm1
+            Status: NEW
+          Severity: normal
+             Owner: alan@lxorguk.ukuu.org.uk
+         Submitter: jeremy@goop.org
 
 
->  - your ipv6_chk_same_addr() does a useless check for (dev != NULL)
-> 
->    > +static
->    > +int ipv6_chk_same_addr(const struct in6_addr *addr, struct net_device *dev)
->    > +{
->    > +	struct inet6_ifaddr * ifp;
->    > +	u8 hash = ipv6_addr_hash(addr);
->    > +
->    > +	read_lock_bh(&addrconf_hash_lock);
->    > +	for(ifp = inet6_addr_lst[hash]; ifp; ifp=ifp->lst_next) {
->    > +		if (ipv6_addr_cmp(&ifp->addr, addr) == 0) {
->    > +			if (dev != NULL && ifp->idev->dev == dev)
->    >  				break;
->    >  		}
-> 
->    your never "break" if dev == NULL, so you could return 0 before
->    even acquiring the lock.
+Distribution: Redhat-8.0 + some Rawhide additions
+Hardware Environment: 1.8GHz P4, 1Gbyte ram, Plextor PX-W4824A CD-R
+Software Environment: cdrecord 2.0 (Redhat Rawhide)
+Problem Description:
 
-It is not a problem because dev is always non-NULL.
-However, it should be dev == NULL || ifp->idev->dev == dev.
-Thanks.
-(I don't understand what you mean by "you could return 0
-before even acquiring the lock.")
+When using "cdrecord dev=/dev/hdc -checkdrive" cdrecord fails to consistently
+read the drive capabilities properly.  When it works, it should display:
+Device type    : Removable CD-ROM
+Version        : 2
+Response Format: 2
+Capabilities   :
+Vendor_info    : 'PLEXTOR '
+Identifikation : 'CD-R   PX-W4824A'
+Revision       : '1.04'
+Device seems to be: Generic mmc CD-RW.
+Using generic SCSI-3/mmc CD-R driver (mmc_cdr).
+Driver flags   : MMC-3 SWABAUDIO BURNFREE VARIREC
+Supported modes: TAO PACKET SAO SAO/R96P SAO/R96R RAW/R16 RAW/R96P RAW/R96R
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+When it fails, it displays:
+Device type    : Removable CD-ROM
+Version        : 0
+Response Format: 1
+Vendor_info    : 'PLEXTOR '
+Identifikation : 'CD-R   PX-W4824A'
+Revision       : '1.04'
+Device seems to be: Generic mmc CD-RW.
+Using generic SCSI-3/mmc CD-R driver (mmc_cdr).
+Driver flags   : MMC-3 SWABAUDIO BURNFREE VARIREC
+Supported modes:
+
+Notice that "version" and "response format" have changed.
+
+Steps to reproduce:
+cdrecord dev=/dev/hdc -checkdrive
+
+

@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312581AbSCYV1q>; Mon, 25 Mar 2002 16:27:46 -0500
+	id <S312512AbSCYVcQ>; Mon, 25 Mar 2002 16:32:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312627AbSCYV1h>; Mon, 25 Mar 2002 16:27:37 -0500
-Received: from mail8.cadvision.com ([207.228.64.93]:25875 "EHLO
-	mail8.cadvision.com") by vger.kernel.org with ESMTP
-	id <S312581AbSCYV11>; Mon, 25 Mar 2002 16:27:27 -0500
-Message-ID: <002c01c1d444$a5d2ba00$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
-From: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>
-To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200203252158.57667.Dieter.Nuetzel@hamburg.de>
-Subject: Re: SSSCA Hits the Senate
-Date: Mon, 25 Mar 2002 14:33:04 -0700
+	id <S312577AbSCYVcH>; Mon, 25 Mar 2002 16:32:07 -0500
+Received: from p50846B26.dip.t-dialin.net ([80.132.107.38]:51680 "EHLO
+	sol.fo.et.local") by vger.kernel.org with ESMTP id <S312512AbSCYVbr> convert rfc822-to-8bit;
+	Mon, 25 Mar 2002 16:31:47 -0500
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>,
+        christophe =?iso-8859-1?q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 3c59x and resume
+In-Reply-To: <20020323161647.GA11471@ufies.org> <3C9CCBEB.D39465A6@zip.com.au>
+	<1016914030.949.20.camel@phantasy> <m3r8m851ad.fsf@venus.fo.et.local>
+	<1017057192.22083.4.camel@bip>
+From: Joachim Breuer <jmbreuer@gmx.net>
+Date: Mon, 25 Mar 2002 22:31:28 +0100
+Message-ID: <m38z8gmj0v.fsf@venus.fo.et.local>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley,
+ i386-redhat-linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shhh, we should send them a copy of "The Snail Book", showing a shiny trail
-of prior art...
---
-Herman Oosthuysen
-Herman@WirelessNetworksInc.com
-Suite 300, #3016, 5th Ave NE,
-Calgary, Alberta, T2A 6K4, Canada
-Phone: (403) 569-5687, Fax: (403) 235-3965
------ Original Message -----
-From: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Sent: Monday, March 25, 2002 1:58 PM
-Subject: Re: SSSCA Hits the Senate
+Xavier Bestel <xavier.bestel@free.fr> writes:
+
+> le lun 25-03-2002 à 12:34, Joachim Breuer a écrit :
+>> Being able to redetect a pulled card put in a different slot as a
+>> "known" one giving it the same eth<i> (and associated WOL etc. config)
+>> as before would of course be nice, but I can't see how this can be
+>> cleanly done over reboots.
+>
+> Some may say that being able to give the same eth<i> to the same bus
+> position, even after swapping the card for a new one, is more important
+> - think of production machines which can't afford being off-service for
+> too long. You just shutdown, swap the cards, poweron and you go. No
+> reconfig, that's how it should run.
+
+Reading it again I wasn't all too clear in that last posting - I meant
+it to show two alternatives (eth<i> stays with bus vs. eth<i> stays
+with card). Each with its own advantages and disadvantages; I don't
+have a fixed preference, but a slight leaning towards fixed
+bus-position based numbers (spanning different drivers, if at all
+possible). That would allow Xavier's scenario even with a different
+type of replacement card.
+
+(Yes of course you'd have to reconfig to swap a PCI card for an ISA
+one but let's not go there, OK?)
 
 
-> There is more on ReiserFS List about system-level encryption.
->
-> Look here: [reiserfs-list] system-level encryption patented
-> http://marc.theaimsgroup.com/?l=reiserfs&m=101690869021155&w=2
->
-> --
-> Dieter Nützel
-> Graduate Student, Computer Science
->
-> University of Hamburg
-> Department of Computer Science
-> @home: Dieter.Nuetzel@hamburg.de
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+So long,
+   Joe
 
+-- 
+"I use emacs, which might be thought of as a thermonuclear
+ word processor."
+-- Neal Stephenson, "In the beginning... was the command line"

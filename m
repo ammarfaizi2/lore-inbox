@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266699AbUFYKlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266702AbUFYKn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266699AbUFYKlI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 06:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266702AbUFYKlH
+	id S266702AbUFYKn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 06:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266707AbUFYKn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 06:41:07 -0400
-Received: from mailbox.univie.ac.at ([131.130.1.18]:38040 "EHLO
-	login.univie.ac.at") by vger.kernel.org with ESMTP id S266699AbUFYKlC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 06:41:02 -0400
-Date: Fri, 25 Jun 2004 12:40:50 +0200 (MSZ)
-From: "Klaus A. Kreil" <klaus.kreil@univie.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: kernel compile error on SuSE 9.1
-Message-ID: <Pine.A41.4.56.0406251237060.33444@login.univie.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DCC-ZID-Univie-Metrics: imap 4247; Body=1 Fuz1=1 Fuz2=1
+	Fri, 25 Jun 2004 06:43:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26011 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266702AbUFYKny (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 06:43:54 -0400
+Date: Fri, 25 Jun 2004 12:43:17 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Norbert Preining <preining@logic.at>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.7-mm2, mmaps rework, buggy apps, setarch
+Message-ID: <20040625104317.GB20954@devserv.devel.redhat.com>
+References: <20040625082243.GA11515@gamma.logic.tuwien.ac.at> <20040625013508.70e6d689.akpm@osdl.org> <20040625103326.GA21814@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
+Content-Disposition: inline
+In-Reply-To: <20040625103326.GA21814@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I hope that's the right address to send this error information to:
 
-I am currently trying to compile an new kernel on SuSE 9.1. I have used
-make menuconfig to set kernel options and started the compile process with
-make.
+--3lcZGd9BuhuYXNfi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-It is for kernel 2.6.5-7.75-smp - i.e. for a kernel for a dual XEON system
-and it includes the latest updates from SuSE.
 
-The compile process throws up a few warning messages (like type mismatches
-etc. - nothing to worrysome from my point of view) and all the object
-modules appear to be there. Only at the end it comes up with error
-messages as follows indicating that the linker has a problem. This clearly
-means, no kernel image is created:
 
-======
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-CHK include/linux/compile.h
-UPD include/linux/compile.h
-CC init/version.o
-LD init/built-in.o
-GEN .version
-CHK include/linux/compile.h
-UPD include/linux/compile.h
-CC init/version.o
-LD init/built-in.o
-LD .tmp_vmlinux1
-drivers/built-in.o(.text+0x30a46): In function `cleanup_module':
-: multiple definition of `cleanup_module'
-kernel/built-in.o(.text+0x1a046): first defined here
-ld: Warning: size of symbol `cleanup_module' changed from 1 in
-kernel/built-in.o to 51 in drivers/built-in.o
-drivers/built-in.o(.text+0x30bf7): In function `init_module':
-: multiple definition of `init_module'
-kernel/built-in.o(.text+0x19d40): first defined here
-ld: Warning: size of symbol `init_module' changed from 3 in
-kernel/built-in.o to 220 in drivers/built-in.o
-make: *** [.tmp_vmlinux1] Error 1
-======
+On Fri, Jun 25, 2004 at 12:33:26PM +0200, Norbert Preining wrote:
+> On Fre, 25 Jun 2004, Andrew Morton wrote:
+> > > But what to do with a commerical app where I
+> > > cannot check a stack trace or whatever?
+> > 
+> > Use strace -f, look at the last screenful of output.  That usually works.
+> 
+> open("/media4/scan/cam-2002.03/001-100/raw/scan0100.tif", O_RDONLY) = 6
+> lseek(6, 0, SEEK_END)                   = 43426634
+> lseek(6, 0, SEEK_CUR)                   = 43426634
+> lseek(6, 0, SEEK_SET)                   = 0
+> mmap2(NULL, 43426634, PROT_READ|PROT_WRITE, MAP_PRIVATE, 6, 0) = -1 ENOMEM (Cann
+> ot allocate memory)
 
-This is actually the output of an additional make bzImage after the full
-kernel compile with make. The relevant part of the original output with
-make was the same, but only longer because everything had to be compiled.
+interesting.
 
-Any help greatly appreciated. If you need any further information please
-do not hesitate to contact me again.
+Could you start the binary in gdb, and then when the segfault happens, take
+a snapshot of /proc/<pid>/maps of this binary ?
 
-If this is the wrong way of submitting this information, please do me a
-favour and point me towards the right channel to route this through.
+--3lcZGd9BuhuYXNfi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Many thanks and best regards,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Klaus
+iD8DBQFA3AHExULwo51rQBIRAtEiAJ9vg6VdhF7m7gIKL2uqcZynKRBj1QCffiHl
+tCd6z9gWpeOcPRdcCwagFZU=
+=JrJ0
+-----END PGP SIGNATURE-----
+
+--3lcZGd9BuhuYXNfi--

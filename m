@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261387AbREQJ55>; Thu, 17 May 2001 05:57:57 -0400
+	id <S261389AbREQKB1>; Thu, 17 May 2001 06:01:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261389AbREQJ5r>; Thu, 17 May 2001 05:57:47 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:63214 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261387AbREQJ5b>; Thu, 17 May 2001 05:57:31 -0400
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200105170957.LAA19756@sunrise.pg.gda.pl>
-Subject: Re: make xconfig with tcl/tk 8.3 - the patches
-To: simon.geard@ntlworld.com (Simon Geard)
-Date: Thu, 17 May 2001 11:57:18 +0200 (MET DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01051710052900.01236@Granville> from "Simon Geard" at May 17, 2001 10:05:29 AM
-Reply-To: ankry@green.mif.pg.gda.pl
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S261391AbREQKBR>; Thu, 17 May 2001 06:01:17 -0400
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:59911 "EHLO
+	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+	id <S261389AbREQKBG>; Thu, 17 May 2001 06:01:06 -0400
+Date: Thu, 17 May 2001 05:42:20 -0400
+From: Michael Meissner <meissner@spectacle-pond.org>
+To: Willem Konynenberg <wfk@xos.nl>
+Cc: linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
+Subject: Re: LANANA: To Pending Device Number Registrants
+Message-ID: <20010517054220.B17562@munchkin.spectacle-pond.org>
+In-Reply-To: <UTC200105170018.CAA30316.aeb@vlet.cwi.nl> <200105170246.EAA12820@rabbit.xos.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200105170246.EAA12820@rabbit.xos.nl>; from wfk@xos.nl on Thu, May 17, 2001 at 04:46:33AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Simon Geard wrote:"
-> 
-> Re my previous message on this subject, the patch files are attached.
-> 
-> They can also be found at my web site:
-> 
-> http://homepage.ntlworld.com/whiteowl/kernel
+On Thu, May 17, 2001 at 04:46:33AM +0200, Willem Konynenberg wrote:
+> I think here we might learn from the comments that people made
+> about how AIX and OSF/1/Tru64 have been doing this.
 
-Unfortunately your patches break with older tk:
+However, I suspect that generally AIX and OSF/1 Tru64 systems come with system
+managers.  Many Linux system do not (well presumably anybody who reads this
+mailing list has enough of a clue....).  Also, I bet the number of USB and
+Firewire devices used on the above two systems is probably vanishingly small.
 
-Error in startup script: couldn't compile regular expression pattern: nested
-*?+
-    while executing
-"regexp {([0-9A-Za-z_]+)="(.*?)"} $line foo var value"
-    (procedure "read_config" line 18)
-    invoked from within
-"read_config $defaults"
-    (file "scripts/kconfig.tk" line 21611)
-make: *** [xconfig] Error 1
-
-I've checked tk-8.0 and 8.0.3.
-
-Some other comments:
-- please generate patches as universal diff (-uNr options for diff are
-  preferred)
-- please follow indentation rules used in a file you modify.
-  {header,tail}.tk are tab-indented, not spaces.
-
-Regards
-    Andrzej
-
+-- 
+Michael Meissner, Red Hat, Inc.  (GCC group)
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482

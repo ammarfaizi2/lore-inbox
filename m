@@ -1,75 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263839AbUC3TQG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 14:16:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263874AbUC3TP7
+	id S263865AbUC3TTU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 14:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263855AbUC3TTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 14:15:59 -0500
-Received: from smtp2.fuse.net ([216.68.8.172]:8640 "EHLO smtp2.fuse.net")
-	by vger.kernel.org with ESMTP id S263860AbUC3TPG (ORCPT
+	Tue, 30 Mar 2004 14:19:20 -0500
+Received: from ns.suse.de ([195.135.220.2]:7303 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263889AbUC3TSG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 14:15:06 -0500
-From: "Ivica Ico Bukvic" <ico@fuse.net>
-To: "'Russell King'" <rmk+lkml@arm.linux.org.uk>
-Cc: "'A list for linux audio users'" 
-	<linux-audio-user@music.columbia.edu>,
-       <alsa-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-       <linux-pcmcia@lists.infradead.org>
-Subject: RE: [linux-audio-user] snd-hdsp+cardbus=distortion -- the sagacontinues (cardbus driver=culprit?) UPDATE: 99.9% sure it is the cardbus driver yenta_socket
-Date: Tue, 30 Mar 2004 14:15:10 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 30 Mar 2004 14:18:06 -0500
+Subject: Re: [PATCH] barrier patch set
+From: Chris Mason <mason@suse.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1080662685.1978.25.camel@sisko.scot.redhat.com>
+References: <20040319153554.GC2933@suse.de>
+	 <200403201723.11906.bzolnier@elka.pw.edu.pl>
+	 <1079800362.11062.280.camel@watt.suse.com>
+	 <200403201805.26211.bzolnier@elka.pw.edu.pl>
+	 <1080662685.1978.25.camel@sisko.scot.redhat.com>
+Content-Type: text/plain
+Message-Id: <1080674384.3548.36.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 30 Mar 2004 14:19:45 -0500
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <20040330090053.A3956@flint.arm.linux.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcQWLSJrWd4H2l+vT7KET0lXWqUIVgAXb5tQ
-Message-Id: <20040330191504.WSHZ17964.smtp2.fuse.net@64BitBadass>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Russell King [mailto:rmk@arm.linux.org.uk] On Behalf Of Russell King
-> Sent: Tuesday, March 30, 2004 3:01 AM
-> To: Ivica Ico Bukvic
-> Cc: 'A list for linux audio users'; alsa-devel@lists.sourceforge.net;
-> linux-kernel@vger.kernel.org; linux-pcmcia@lists.infradead.org
-> Subject: Re: [linux-audio-user] snd-hdsp+cardbus=distortion -- the
-> sagacontinues (cardbus driver=culprit?) UPDATE: 99.9% sure it is the
-> cardbus driver yenta_socket
+On Tue, 2004-03-30 at 11:04, Stephen C. Tweedie wrote:
+
+[ barriers vs ordered writes ]
+
+> The distinction becomes important if flushing and barriers have
+> significantly different performance characteristics.  In the SCSI tagged
+> command case, we can insert an ORDERED queue tag into the pipeline
+> without having to wait for anything.  But if we implement the barrier
+> and the flush by the same mechanism, then the fs ends up waiting; we get
 > 
-> On Tue, Mar 30, 2004 at 12:52:11AM -0500, Ivica Ico Bukvic wrote:
-> > 6) Pester alsa-dev, lau, and kernel/pcmcia people to death begging for
-> help
-> > :-)
-> >
-> > IN-PROGRESS :-)
+> 	write log blocks
+> 	wait for IO queue to empty
+> 	write commit block
+> 	wait for IO queue to empty
 > 
-> What needs to happen is that the card driver author needs to investigate
-> what is going on, and, if it seems related to the core PCMCIA core or
-> the socket driver, we need to get involved.
+> instead of
 > 
-> IOW, linux-pcmcia people don't debug card drivers.
+> 	write log blocks
+> 	write commit block with ORDERED tag set
 > 
+> so the commits are miles slower.
+> 
+I think we're mixing a few concepts together.  submit_bh(WRITE_BARRIER,
+bh) gives us an ordered write in whatever form the lower layers can
+provide.  It also ensures that if you happen to call wait_on_buffer()
+for the barrier buffer, the wait won't return until the data is on
+media.
 
-To add to what Tim mentioned, I think that the driver is fine as it does
-work on select notebooks and desktops (the card can be plugged into either
-PCI card or PCMCIA cardbus). Yet, in these select instances it does not work
-even though neither the cardbus driver nor the actual card driver do not
-report any particular problems. Hence the only logical explanation is that
-there is something wrong with the pcmcia controller driver.
+The construct allows for the second type of commit you describe above,
+where wait_on_buffer is not called on the log blocks until after the
+commit block has been sent down the pipe.  The reiserfs barrier patch
+does this now.
 
-This card does tax the throughput of the cardbus like no other card I can
-think of, hence the problem may be more widespread, but exhibits itself just
-in this case where the cardbus is being pushed to its limits. Yet, the
-hardware is not the issue when the same notebook/soundcard combo works
-flawlessly in WinXP.
+The fact that IDE implements the barriers via a flush and that no other
+layer has barriers right now is secondary ;)  I do want to revive some
+kind of ordering for scsi as well, but since IDE is a safety issue right
+now I wanted to concentrate there first.
 
-Hope this helps!
+> Jens' patch happens to implement barriers via flushes on IDE, but at the
+> block layer blkdev_issue_flush() and set_buffer_ordered() are quite
+> distinct APIs.
 
-Ico
+Yes, they are completely different.  blkdev_issue_flush is the kernel
+recognizing that wait_on_buffer (or page or whatever) isn't always
+enough to make sure writes are really done.  It has no ordering
+semantics at all, it just means "really write what you've already told
+me is written, unless you promise via battery backed cache that it will
+get to disk eventually"
 
+(roughly)
 
+-chris
 
 

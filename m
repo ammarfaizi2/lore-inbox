@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263793AbTKKVJl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 16:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbTKKVJl
+	id S263798AbTKKVL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 16:11:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTKKVL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 16:09:41 -0500
-Received: from mail.kroah.org ([65.200.24.183]:10954 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263793AbTKKVJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 16:09:36 -0500
-Date: Tue, 11 Nov 2003 13:08:50 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-tes9-bk15 visor causes kernel NULL pointer dereference
-Message-ID: <20031111210849.GA5691@kroah.com>
-References: <20031111154558.GE27685@charite.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031111154558.GE27685@charite.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 11 Nov 2003 16:11:29 -0500
+Received: from mx2.ews.uiuc.edu ([130.126.161.238]:48540 "EHLO
+	mx2.ews.uiuc.edu") by vger.kernel.org with ESMTP id S263798AbTKKVL1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 16:11:27 -0500
+Message-ID: <013a01c3a898$5e476b20$e6f7ae80@ad.uiuc.edu>
+From: "Wanghong Yuan" <wyuan1@ews.uiuc.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: question on wireless profiling, thanks
+Date: Tue, 11 Nov 2003 15:11:26 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 11, 2003 at 04:45:58PM +0100, Ralf Hildebrandt wrote:
-> Yes, my kernel is tainted because of the nvdia module.
+Hi,
 
-Can you try it without the nvidia module?
+I am a PhD student and need to profile the activity of the IEEE 802.11
+wireless network card in Linux. The basic idea is to monitor when the
+pcmcia wireless card is sending, receiving, or idle. I am using
+Redhat 8.0 with kernel 2.4.18.
 
-Also, can you enable debugging in the visor driver by loading it with:
-	modprobe visor debug=1
+Would you give me some suggestions on if there is such profiling tool?
+Otherwise, I think I need to modify the wireless driver. Is there any link
+on
+how to modify the wireless driver?
 
-and try it again and send me the kernel debug log?
+Thanks and appreciate your help.
 
-thanks,
+wanghong
 
-greg k-h

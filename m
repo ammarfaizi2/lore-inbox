@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSEQEWm>; Fri, 17 May 2002 00:22:42 -0400
+	id <S315416AbSEQEfm>; Fri, 17 May 2002 00:35:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315416AbSEQEWm>; Fri, 17 May 2002 00:22:42 -0400
-Received: from [202.135.142.196] ([202.135.142.196]:47884 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315415AbSEQEWl>; Fri, 17 May 2002 00:22:41 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Ghozlane Toumi <ghoz@sympatico.ca>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [PATCH] Fix BUG macro 
-In-Reply-To: Your message of "Thu, 16 May 2002 19:41:58 MST."
-             <3CE46DF6.62EF67E0@zip.com.au> 
-Date: Fri, 17 May 2002 14:25:34 +1000
-Message-Id: <E178ZJ8-0001TJ-00@wagner.rustcorp.com.au>
+	id <S315417AbSEQEfl>; Fri, 17 May 2002 00:35:41 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:7657 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S315416AbSEQEfk>;
+	Fri, 17 May 2002 00:35:40 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: [RFC][PATCH] cpqarray-1: Convert to modern module_init mechanism 
+In-Reply-To: Your message of "Thu, 16 May 2002 20:51:46 -0400."
+             <20020517005146.GA32719@www.kroptech.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 17 May 2002 14:35:27 +1000
+Message-ID: <8562.1021610127@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3CE46DF6.62EF67E0@zip.com.au> you write:
-> I'd share Hugh's concern on this one.  Adding the name of the
-> containing function to every BUG() expansion will increase
-> the size of .rodata.
+On Thu, 16 May 2002 20:51:46 -0400, 
+Adam Kropelin <akropel1@rochester.rr.com> wrote:
+>Below is a patch (against 2.5.15-dj1) to convert cpqarray over to the modern
+>module_init mechanism. This eliminates the need to call cpqarray_init() from
+>genhd.c and starts the process of simplifying the cpqarray init sequence.
 
-Andrew: you used to be such a bright young man. 8)
+The module related changes look OK, cannot speak for the rest of the
+code changes.
 
-> Do you have before-and-after /usr/bin/size output?
-
-I even put the kernel in /usr/src/, not my home directory, to help you
-out here.
-
-before: 
-	   text    data     bss     dec     hex filename
-	1192605  355848  353780 1902233  1d0699 vmlinux
-
-after: 
-	   text    data     bss     dec     hex filename
-	1168396  355848  353780 1878024  1ca808 vmlinux
-
-Understand?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

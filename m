@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319351AbSHVOZg>; Thu, 22 Aug 2002 10:25:36 -0400
+	id <S319354AbSHVOdH>; Thu, 22 Aug 2002 10:33:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319353AbSHVOZg>; Thu, 22 Aug 2002 10:25:36 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:9981 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S319351AbSHVOZf>; Thu, 22 Aug 2002 10:25:35 -0400
-Date: Thu, 22 Aug 2002 15:30:13 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Nir Soffer <nirs@exanet.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, James Bourne <jbourne@mtroyal.ab.ca>,
-       "Reed, Timothy A" <timothy.a.reed@lmco.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Hyperthreading
-In-Reply-To: <4913AB320D31DC4798D6FEF5F557351F6B9994@hawk.exanet-il.co.il>
-Message-ID: <Pine.LNX.4.44.0208221506300.1253-100000@localhost.localdomain>
+	id <S319355AbSHVOdG>; Thu, 22 Aug 2002 10:33:06 -0400
+Received: from hermes.hrz.uni-giessen.de ([134.176.2.15]:52220 "EHLO
+	hermes.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
+	id <S319354AbSHVOdG> convert rfc822-to-8bit; Thu, 22 Aug 2002 10:33:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: Hyperthreading
+Date: Thu, 22 Aug 2002 16:36:54 +0200
+User-Agent: KMail/1.4.3
+References: <Pine.LNX.4.44.0208221455490.1253-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0208221455490.1253-100000@localhost.localdomain>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208221636.54108.marc.dietrich@physik.uni-giessen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Aug 2002, Nir Soffer wrote:
-> 
-> Grepping for MPENTIUM4 in the tree only shows up that it causes the
-> kernel to be compiled with -march=i686, much like M686 and  MPENTIUMIII.
-> Are there more subtle ways it affects the kernel that I missed? (in the
-> 2.4.x tree)
+Am Donnerstag, 22. August 2002 :06 schrieben Sie:
+> On Thu, 22 Aug 2002, Marc Dietrich wrote:
+> > On Wed, 21 Aug 2002, Hugh Dickins wrote:
+> > > You do need CONFIG_SMP and a processor capable of HyperThreading,
+> > > i.e. Pentium 4 XEON; but CONFIG_MPENTIUM4 is not necessary for HT,
+> > > just appropriate to that processor in other ways.
+> >
+> > I used KNOPPIX on a 2 way Dell WS 530 (Xeon 2.0 GHz). This distribution
+> > has CONFIG_M386 set (as most others also?) and HT was not enabled. I
+> > compiled the kernel myself (same config as KNOPPIX but with
+> > CONFIG_MPENTIUM4) and HT gets enabled. So is _does_ matter for which
+> > processor the kernel is optimized.
+>
+> I'm surprised - perhaps the Knoppix distribution did not have SMP enabled
+> itself, but installed a config with CONFIG_SMP?  Or you built more recent
+> kernel sources (2.4.19 defaults to HT on) than the Knoppix distribution
+> (vanilla 2.4.18 defaults to HT off)?
 
-arch/i386/config.in is where the processor characteristics CONFIG_X86_...
-are derived from processor type.  There's only one difference between
-the CONFIG_MPENTIUMIII configs and the CONFIG_MPENTIUM4 configs (in
-2.4.18 or 2.4.19 or 2.4.20-pre4): CONFIG_X86_L1_CACHE_SHIFT 5 or 7.
+I don't think so. Original kernel gives me 2 penguins and cpuinfo shows 2 
+cpu's. Kernel is 2.4.19 with xfs patches and there is no "noht" option. I 
+attached a dmesg file of this one. Btw, setting the processor also sets some 
+other options (CMPXCHG, TCS, PGE, ...).
 
-Alan, that reminds me: 2.4.20-ac sets CONFIG_X86_L1_CACHE_SHIFT 7
-when CONFIG_MPENTIUMIII: looks wrong, but perhaps there's a reason?
+> It would be awkward for me to try CONFIG_M386 on our P4 Xeon, but I did
+> just try building a CONFIG_M586 CONFIG_SMP kernel for it, which behaved
+> as I expected: /proc/cpuinfo showed 4 cpus, but only 2 cpus when booted
+> with "noht".
 
-Hugh
+Give it a try. A dual Xeon won't take to much time to compile a new kernel ;)
+
+Greetings
+
+Marc
+
+-- 
+Marc Dietrich
 

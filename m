@@ -1,89 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262955AbVCJSbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVCJSPq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbVCJSbT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 13:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbVCJSYI
+	id S262753AbVCJSPq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 13:15:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVCJSLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 13:24:08 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:8839 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262852AbVCJSTb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 13:19:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=jiVQaPZIafjBzB87xYLVe1pqyQImSPqbQBh/z6vPif5zXqPGmoODr/3oppsVLAwYLoBgfISqqTg/uNGiluV/IZPWqomHSevxbG2ch5qLmbVYbyGAUvLabnNAa5XUWlVe2/KdrKxJ+Dotm0zMM4l+wFn3PQ9XPUkDiGQPqElvkVI=
-Message-ID: <29495f1d050310101973f416c2@mail.gmail.com>
-Date: Thu, 10 Mar 2005 10:19:29 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH] Add TPM hardware enablement driver
-Cc: linux-kernel@vger.kernel.org, kjhall@us.ibm.com
-In-Reply-To: <29495f1d05031009357408420e@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Mar 2005 13:11:13 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:56208 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262761AbVCJSAa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 13:00:30 -0500
+Subject: Re: [PATCH] make st seekable again
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1050310114027.11549B-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1050310114027.11549B-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <20050310004115.GA32583@kroah.com> <1110415321526@kroah.com>
-	 <29495f1d05031009357408420e@mail.gmail.com>
+Message-Id: <1110477516.28860.298.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 10 Mar 2005 17:58:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Mar 2005 09:35:36 -0800, Nish Aravamudan
-<nish.aravamudan@gmail.com> wrote:
-> On Wed, 9 Mar 2005 16:42:01 -0800, Greg KH <greg@kroah.com> wrote:
-> > ChangeSet 1.2035, 2005/03/09 10:12:19-08:00, kjhall@us.ibm.com
-> >
-> > [PATCH] Add TPM hardware enablement driver
-> 
-> <snip>
-> 
-> > +void tpm_time_expired(unsigned long ptr)
-> > +{
-> > +       int *exp = (int *) ptr;
-> > +       *exp = 1;
-> > +}
-> > +
-> > +EXPORT_SYMBOL_GPL(tpm_time_expired);
-> 
-> <snip>
-> 
-> > +       down(&chip->timer_manipulation_mutex);
-> > +       chip->time_expired = 0;
-> > +       init_timer(&chip->device_timer);
-> > +       chip->device_timer.function = tpm_time_expired;
-> > +       chip->device_timer.expires = jiffies + 2 * 60 * HZ;
-> > +       chip->device_timer.data = (unsigned long) &chip->time_expired;
-> > +       add_timer(&chip->device_timer);
-> > +       up(&chip->timer_manipulation_mutex);
-> > +
-> > +       do {
-> > +               u8 status = inb(chip->vendor->base + 1);
-> > +               if ((status & chip->vendor->req_complete_mask) ==
-> > +                   chip->vendor->req_complete_val) {
-> > +                       down(&chip->timer_manipulation_mutex);
-> > +                       del_singleshot_timer_sync(&chip->device_timer);
-> > +                       up(&chip->timer_manipulation_mutex);
-> > +                       goto out_recv;
-> > +               }
-> > +               set_current_state(TASK_UNINTERRUPTIBLE);
-> > +               schedule_timeout(TPM_TIMEOUT);
-> > +               rmb();
-> > +       } while (!chip->time_expired);
-> 
-> <snip>
-> 
-> It seems like this use of schedule_timeout() and the others are a bit
-> excessive. In this case, a timer is set to go off in 2 hours or so,
-> with tpm_time_expired() as the callback. tpm_time_expired(), it seems
-> just takes data and sets it to 1, which in this case is
-> chip->time_expired (and is similar in the other cases). We then loop
-> while (!chip->time_expired), which to me means until
-> chip->device_timer goes off, checking if the request is complete every
-> 5 milliseconds. The chip->device_timer doesn't really do anything,
-> does it? It just guarantees a maximum time (of 2 hours). Couldn't the
+On Iau, 2005-03-10 at 16:56, Bill Davidsen wrote:
+>  - leave it the way it is
+>  - fix the hole and break tar
+>  - wait for FSF to fix tar, then fix the hole
+>  - try to fix it without breaking tar, which may not be really possible
+>    and could leave part of the problem and still break tar somehow
+>  - fix it, and leave the admin a way to build a kernel with the hole other
+>    than just reverting the fix
 
-Sorry for the slight exaggeration :) Not 2 hours, but 2 minutes :)
-still, a long time.
+If we "fix" it the FSF will probably take years.  If your vendor can't
+produce a fixed tar when asked and the issue comes up, get a better
+vendor ;)
 
--Nish
+Alan
+

@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268311AbUHKW5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268304AbUHKW6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268311AbUHKW5n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 18:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268299AbUHKWy3
+	id S268304AbUHKW6F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 18:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268292AbUHKW6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:54:29 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:48264 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S268304AbUHKWwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:52:16 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: walt <wa1ter@myrealbox.com>
-Date: Thu, 12 Aug 2004 08:52:08 +1000
-MIME-Version: 1.0
+	Wed, 11 Aug 2004 18:58:04 -0400
+Received: from fed1rmmtao05.cox.net ([68.230.241.34]:60048 "EHLO
+	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
+	id S268317AbUHKW5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:57:37 -0400
+Date: Wed, 11 Aug 2004 15:57:29 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Subject: [PATCH] Remove CONFIG_SERIAL_8250_MANY_PORTS from Ebony / Ocotea
+Message-ID: <20040811225729.GG390@smtp.west.cox.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16666.41752.197153.706539@cse.unsw.edu.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.8-rc4] New nfsd-related kernel panic
-In-Reply-To: message from walt on Wednesday August 11
-References: <411AAF69.9080803@myrealbox.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday August 11, wa1ter@myrealbox.com wrote:
-> 
-> Anyone else seeing this?
+CONFIG_SERIAL_8250_MANY_PORTS should not be set for these boards, as
+they only have 2 serial ports.
 
-Yes.  I've just sent the following patch to Linus/Andrew.
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
-NeilBrown
+--- 1.6/arch/ppc/configs/ocotea_defconfig	2004-08-09 16:41:37 -07:00
++++ edited/arch/ppc/configs/ocotea_defconfig	2004-08-11 15:55:55 -07:00
+@@ -398,7 +398,7 @@
+ CONFIG_SERIAL_8250_CONSOLE=y
+ CONFIG_SERIAL_8250_NR_UARTS=4
+ CONFIG_SERIAL_8250_EXTENDED=y
+-CONFIG_SERIAL_8250_MANY_PORTS=y
++# CONFIG_SERIAL_8250_MANY_PORTS is not set
+ CONFIG_SERIAL_8250_SHARE_IRQ=y
+ # CONFIG_SERIAL_8250_DETECT_IRQ is not set
+ # CONFIG_SERIAL_8250_MULTIPORT is not set
+--- 1.8/arch/ppc/configs/ebony_defconfig	2004-08-09 16:41:36 -07:00
++++ edited/arch/ppc/configs/ebony_defconfig	2004-08-11 15:55:58 -07:00
+@@ -384,7 +384,7 @@
+ CONFIG_SERIAL_8250_CONSOLE=y
+ CONFIG_SERIAL_8250_NR_UARTS=4
+ CONFIG_SERIAL_8250_EXTENDED=y
+-CONFIG_SERIAL_8250_MANY_PORTS=y
++# CONFIG_SERIAL_8250_MANY_PORTS is not set
+ CONFIG_SERIAL_8250_SHARE_IRQ=y
+ # CONFIG_SERIAL_8250_DETECT_IRQ is not set
+ # CONFIG_SERIAL_8250_MULTIPORT is not set
 
-diff ./fs/nfsd/nfs3xdr.c~current~ ./fs/nfsd/nfs3xdr.c
---- ./fs/nfsd/nfs3xdr.c~current~	2004-08-12 08:32:26.000000000 +1000
-+++ ./fs/nfsd/nfs3xdr.c	2004-08-12 08:37:33.000000000 +1000
-@@ -347,8 +347,8 @@ nfs3svc_decode_readargs(struct svc_rqst 
- 		svc_take_page(rqstp);
- 		args->vec[v].iov_base = page_address(rqstp->rq_respages[pn]);
- 		args->vec[v].iov_len = len < PAGE_SIZE? len : PAGE_SIZE;
-+		len -= args->vec[v].iov_len;
- 		v++;
--		len -= PAGE_SIZE;
- 	}
- 	args->vlen = v;
- 	return xdr_argsize_check(rqstp, p);
-
-diff ./fs/nfsd/nfsxdr.c~current~ ./fs/nfsd/nfsxdr.c
---- ./fs/nfsd/nfsxdr.c~current~	2004-08-12 08:32:26.000000000 +1000
-+++ ./fs/nfsd/nfsxdr.c	2004-08-12 08:38:49.000000000 +1000
-@@ -255,8 +255,8 @@ nfssvc_decode_readargs(struct svc_rqst *
- 		svc_take_page(rqstp);
- 		args->vec[v].iov_base = page_address(rqstp->rq_respages[pn]);
- 		args->vec[v].iov_len = len < PAGE_SIZE?len:PAGE_SIZE;
-+		len -= args->vec[v].iov_len;
- 		v++;
--		len -= PAGE_SIZE;
- 	}
- 	args->vlen = v;
- 	return xdr_argsize_check(rqstp, p);
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265141AbUGZKo0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265152AbUGZKrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265141AbUGZKo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 06:44:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbUGZKo0
+	id S265152AbUGZKrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 06:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbUGZKrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 06:44:26 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:3520 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S265141AbUGZKoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 06:44:24 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: Autotune swappiness01
-Date: Mon, 26 Jul 2004 12:54:01 +0200
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <200407261234.29565.rjwysocki@sisk.pl> <4104DD27.6050907@kolivas.org>
-In-Reply-To: <4104DD27.6050907@kolivas.org>
+	Mon, 26 Jul 2004 06:47:25 -0400
+Received: from dig-image.evro.net ([80.72.64.50]:61190 "EHLO
+	batman.fmi.uni-sofia.bg") by vger.kernel.org with ESMTP
+	id S265152AbUGZKrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 06:47:23 -0400
+Message-ID: <4104E27E.2030006@fmi.uni-sofia.bg>
+Date: Mon, 26 Jul 2004 13:52:46 +0300
+From: Ognyan Kulev <ogi@fmi.uni-sofia.bg>
+Organization: Faculty of Mathematics and Informatics, University of Sofia
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: linux-kernel@vger.kernel.org
+Subject: [IDE] OPTi 621, chipset revision 18, hangs with enabled DMA
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407261254.01186.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 of July 2004 12:29, Con Kolivas wrote:
-> R. J. Wysocki wrote:
-> > On Monday 26 of July 2004 11:31, Con Kolivas wrote:
-> >>R. J. Wysocki wrote:
-> >>>On Monday 26 of July 2004 03:09, Con Kolivas wrote:
-> >>>>Con Kolivas writes:
-> >>>>>Andrew Morton writes:
-> >>>>>>Seriously, we've seen placebo effects before...
-> >>>>>
-> >>>>>I am in full agreement there... It's easy to see that applications do
-> >>>>>not swap out overnight; but i'm having difficulty trying to find a way
-> >>>>>to demonstrate the other part. I guess timing the "linking the kernel
-> >>>>>with full debug" on a low memory box is measurable.
-> >>>>
-> >>>>I should have said - finding a swappiness that ensures not swapping out
-> >>>>applications with updatedb, then using that same swappiness value to do
-> >>>>the linking test.
-> >>>
-> >>>Please excuse me, but is that viable at all?  IMHO, it's just like
-> >>> trying to tune a radio including volume with only one knob.  I don't
-> >>> say it won't work, but the probability that it will is rather small, it
-> >>> seems ...
-> >>
-> >>Well that's what we want. I cant remember other desktop operating
-> >>systems setting a root only control between night and day, or between
-> >>copying ISOs and running applications or...
-> >
-> > I agree, but isn't it related to the fact that other desktop OSes usually
-> > don't run anything like updatedb nightly?
-> >
-> > Perhaps we need a bit more sophisticated swap algorithm than other OSes
-> > do. For example, couldn't we add an additional parameter to control the
-> > swapping "behavior", apart from the swappiness?  Something like adding
-> > the second knob in my radio example?  Just thinking,
->
-> I think one knob is one knob too many already.
+Hi,
 
-Can you please tell me why do you think so?
+On my laptop (Compaq Armada 4120), I've used for a long time a Linux 
+2.4.20 kernel just because newer kernels hang on partition checks.  The 
+error was something like the following and it always appeared at 
+partition check (this is taken from Internet, but it was similar in my 
+case):
 
-rjw
+Jan 8 22:14:15 darkstar kernel: hda: dma_timer_expiry: dma status == 0x21
+Jan 8 22:14:25 darkstar kernel: hda: error waiting for DMA
+Jan 8 22:14:25 darkstar kernel: hda: dma timeout retry: status=0x58 { 
+DriveReady SeekComplete DataRequest }
 
--- 
-Rafael J. Wysocki
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+After adding "ide=nodma", everything works fine.  I see that code in 2.6 
+hasn't changed since 2.4 (except because of the API changes in 2.6, of 
+course).
+
+So I would like by default DMA to be disabled for OPTi 621 or there to 
+be some other resolution.  Probably removing the following lines will do 
+the work, but I haven't tested it:
+
+         if (!noautodma)
+                 hwif->autodma = 1;
+
+(Some lines above, there is "hwif->autodma=0;".)
+
+BTW In Linux 2.4.19 source, "grep dma drivers/ide/opti621.c" gives nothing.
+
+Regards,
+ogi

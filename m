@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261783AbTC1AWu>; Thu, 27 Mar 2003 19:22:50 -0500
+	id <S261764AbTC1Ad0>; Thu, 27 Mar 2003 19:33:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261829AbTC1AWu>; Thu, 27 Mar 2003 19:22:50 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:59076 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S261783AbTC1AWt>; Thu, 27 Mar 2003 19:22:49 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Date: Fri, 28 Mar 2003 11:33:30 +1100
-MIME-Version: 1.0
+	id <S261765AbTC1Ad0>; Thu, 27 Mar 2003 19:33:26 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:58377 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261764AbTC1AdZ>;
+	Thu, 27 Mar 2003 19:33:25 -0500
+Date: Thu, 27 Mar 2003 16:43:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, martin.zwickel@technotrend.de
+Subject: Re: 2.4.21pre6: usb ports/mouse not detected
+Message-ID: <20030328004334.GF3416@kroah.com>
+References: <1048800413.2120.2.camel@fortknox>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16003.39002.755417.556589@notabene.cse.unsw.edu.au>
-Subject: ANNOUNCE : nfs-utils 1.0.3
-X-Mailer: VM 7.13 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <1048800413.2120.2.camel@fortknox>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 27, 2003 at 10:26:53PM +0100, Soeren Sonnenburg wrote:
+> > I had the same problem few hours ago.
+> > Loading usb-ohci/ehci-hcd as a module fixed it for me ...
+> > But it's just a "It Works for Me(tm)" ...
+> 
+> I experienced exactly the same problems... and also compiling as modules
+> fixed it ...
 
-This is announcement for the release of 
-   nfs-utils 1.0.3
+Yes, the usb host controller drivers do not get built in 2.4.21-pre6 if
+selected to be compiled into the kernel.  This was my fault, and a patch
+has been sent to Marcelo to fix this.
 
-It is available from sourceforge:
-   http://nfs.sourgeforge.net
-or kernel.org
-   http://www.{countrycode}.kernel.org/pub/linux/utils/nfs/
+Sorry,
 
-This release is primarily for people using or planning to use
-nfsd on  2.5 series kernels.
-
-Other user's may upgrade if they like.  There are a few small fixes 
-which might be of interest.  See the Change Log.
-
-The system call interface for exporting filesystems via NFS is defined
-using types like "__kernel_dev_t" which should only be used internally 
-to the kernel.  Using these in a user-space interface was a poor decission.
-
-There are patches available for 2.5 which change __kernel_dev_t, at least
-for i386, to be 32 bit instead of 16 bit.  This is an incompatable change
-and nfs-utils does not work correctly on kernels with these patches.
-
-This version of nfs-utils uses an alternate interface which is available
-in 2.5 to export file systems.  This interface is not sensitive to changes
-in kernel internal type definitions, and so will work independantly of these
-patches.
-
-If the new interface is not available (as it is not in 2.4), this version of
-nfs-utils will fall back to the old style interface.  Thus this version should
-work on all platforms and all kernel releases.
-
-It may be that when these patches are finally included into the mainline, 
-we will able to keep the old systemcall interface working.  However as this is
-not certain, using 1.0.3 (or later) is probably the best choice.
-
-NeilBrown
+greg k-h

@@ -1,71 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261612AbSJJPPa>; Thu, 10 Oct 2002 11:15:30 -0400
+	id <S261614AbSJJPYH>; Thu, 10 Oct 2002 11:24:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261614AbSJJPPa>; Thu, 10 Oct 2002 11:15:30 -0400
-Received: from web40603.mail.yahoo.com ([66.218.78.140]:60761 "HELO
-	web40603.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261612AbSJJPP3>; Thu, 10 Oct 2002 11:15:29 -0400
-Message-ID: <20021010152105.91927.qmail@web40603.mail.yahoo.com>
-Date: Thu, 10 Oct 2002 17:21:05 +0200 (CEST)
-From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
-Subject: Re: Device Driver
-To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <180577A42806D61189D30008C7E632E8793AB7@boca213a.boca.ssc.siemens.com>
+	id <S261615AbSJJPYH>; Thu, 10 Oct 2002 11:24:07 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:18529 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261614AbSJJPYG>;
+	Thu, 10 Oct 2002 11:24:06 -0400
+From: <Hell.Surfers@cwctv.net>
+To: babydr@baby-dragons.com, linux-kernel@vger.kernel.org
+Date: Thu, 10 Oct 2002 16:29:19 +0100
+Subject: RE:OT: DVD-* owners be warned .  Please see inside .
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1034263759794"
+Message-ID: <022ca3927150aa2DTVMAIL8@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- "Bloch, Jack" <Jack.Bloch@icn.siemens.com> a écrit : > I
-have written a device driver for a cPCI device. Thsi device
-> driver loads
-> and runs successfully when my application starts (I call
-> /sbin/insmod).
-> However,  when I add the following line to /etc/modules.conf
-> 
-> alias ifp0 Icdrva0s             /* my device is called ifp0
-> and the driver
-> Icdrva0s.o is stored in
-> /lib/modules/2.4.18-3/kernel/drivers/net */
-> 
-> I get depmod errors. When I run depmod -e, I see that it is
-> complaining
-> about all kinds of regular symbols (ioremap,
-> pci_register_driver to name but
-> a few). What am I doing wrong? Please CC me directly on any
-> responses.
-> 
 
-Hi
+--1034263759794
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-What System.map do you use for depmod ?
-If you do a man depmod you can see that it has an algorithm
-for finding the System.map. But maybe the case that 
-depmod thins that your System.map is in another directory.
+oh no! now people will have to use decss and vob, what a hardship. [8)]
 
-I think it's better to specify manually the system map
-from your kernel tree (i.e. /usr/src/linux/System.map)
+Cheers, Dean.
 
-Bye
-Calin
-> 
-> Thanks in advance,
-> 
-> Jack Bloch 
-> Siemens ICN
-> phone                (561) 923-6550
-> e-mail                jack.bloch@icn.siemens.com
-> 
+On 	Thu, 10 Oct 2002 09:57:38 -0400 (EDT) 	"Mr. James W. Laferriere" <babydr@baby-dragons.com> wrote:
+
+--1034263759794
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Thu, 10 Oct 2002 14:56:57 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S261569AbSJJNvy>; Thu, 10 Oct 2002 09:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S261584AbSJJNvy>; Thu, 10 Oct 2002 09:51:54 -0400
+Received: from ns1.baby-dragons.com ([199.33.245.254]:1474 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S261569AbSJJNvy>; Thu, 10 Oct 2002 09:51:54 -0400
+Received: from localhost (babydr@localhost)
+	by filesrv1.baby-dragons.com (8.11.4/8.11.4) with ESMTP id g9ADvcD06716
+	for <linux-kernel@vger.kernel.org>; Thu, 10 Oct 2002 09:57:38 -0400
+Date: Thu, 10 Oct 2002 09:57:38 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: OT: DVD-* owners be warned .  Please see inside .
+Message-ID: <Pine.LNX.4.44.0210100949270.6366-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
 
-=====
---
-A mouse is a device used to point at 
-the xterm you want to type in.
-Kim Alm on a.s.r.
+	Hello All ,
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com
+	Here we go .  Two differant hardware types to prevent users from
+	making private backups of items that they have purchased .  I hope
+	that somewhere in the community there is a methodology to
+	circumvent this stupidity .
+
+	Below is a snippet from the URL below this :
+
+	Why are there two formats? The key reason for the introduction of
+	DVD-R for General media is that it contains content protection
+	measures that make it physically impossible to make a bit-for-bit
+	copies of CSS encrypted entertainment titles.
+
+http://www.pioneerelectronics.com/Pioneer/Files/DVDRMedia-GeneralvsAuthoring.pdf
+
+		Hth ,  JimL
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1034263759794--
+
+

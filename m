@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317082AbSEXDYm>; Thu, 23 May 2002 23:24:42 -0400
+	id <S314078AbSEXDrm>; Thu, 23 May 2002 23:47:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317081AbSEXDYk>; Thu, 23 May 2002 23:24:40 -0400
-Received: from holomorphy.com ([66.224.33.161]:9627 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317079AbSEXDYj>;
-	Thu, 23 May 2002 23:24:39 -0400
-Date: Thu, 23 May 2002 20:24:30 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] loop.c forgot a kmap
-Message-ID: <20020524032430.GC2035@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Benjamin LaHaise <bcrl@redhat.com>, linux-fsdevel@vger.kernel.org,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020523232024.A2917@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S314083AbSEXDrl>; Thu, 23 May 2002 23:47:41 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22025 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314078AbSEXDrk>; Thu, 23 May 2002 23:47:40 -0400
+Date: Thu, 23 May 2002 20:46:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Nathan Scott <nathans@sgi.com>
+cc: Jan Kara <jack@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Quota patches
+In-Reply-To: <20020524123510.A180298@wobbly.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.44.0205232043070.954-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 23, 2002 at 11:20:25PM -0400, Benjamin LaHaise wrote:
-> The patch below fixes a bug in loop.c that causes highmem systems 
-> to fail spectacularly when a page happens to be allocated in highmem 
-> by replacing the use of page_address with a kmap/kunmap sequence.  
-
-Looks good; IMHO it should be applied.
 
 
-Cheers,
-Bill
+On Fri, 24 May 2002, Nathan Scott wrote:
+>
+> Moving to newer interfaces implies use of the new ondisk format
+> for the quota files (exclusively)
+
+Sure. But I'd assume that just running quotacheck should initialize that,
+so..
+
+		Linus
+

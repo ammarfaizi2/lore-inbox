@@ -1,71 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265955AbTGMMYk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 08:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbTGMMYk
+	id S270234AbTGMLtw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 07:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270235AbTGMLtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 08:24:40 -0400
-Received: from holomorphy.com ([66.224.33.161]:455 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265955AbTGMMYi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 08:24:38 -0400
-Date: Sun, 13 Jul 2003 05:40:46 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH, RFC] remove task_cache entirely
-Message-ID: <20030713124046.GE15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Manfred Spraul <manfred@colorfullife.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <3F114935.2000409@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 13 Jul 2003 07:49:52 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:62469 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S270234AbTGMLtv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 07:49:51 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.74-mm1 yenta socket map card memory failure
+Date: Sun, 13 Jul 2003 19:56:00 +0800
+User-Agent: KMail/1.5.2
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <3F114935.2000409@colorfullife.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307131229.34985.mflt1@micrologica.com.hk>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 13, 2003 at 01:57:41PM +0200, Manfred Spraul wrote:
-> kernel/fork.c contains a disabled cache for task stuctures. task 
-> structures are placed into the task cache only if "tsk==current", and 
-> "tsk==current" is impossible. There is even a WARN_ON against that in 
-> __put_task_struct().
-> What should we do with it? I would remove it entirely - it's dead code. 
-> Any objections?
-> One problem is that order-1 allocations are not cached per-cpu - what 
-> about using kmem_cache_alloc for the stack?
+Got messages below. No such messages in logs of past 4 weeks and not seen before.
 
-I've been slab allocating the stack on i386 for some time, and it has
-gone without incident in pgcl, -wli, -mjb (?), and so on. kmalloc() is
-fine; there isn't any particularly compelling reason for a dedicated
-slab as there's no preconstruction to do, though it can be arranged.
+Regards
+Michael
 
-Basically, it works, there's no obvious reason not to, and (even better)
-it's not totally invisible to the VM and even makes overhead reportable.
-
-akpm, this is a two line change with almost no effect apart from
-theoretically improved SMP efficiency and more accurate reporting.
-Shall we?
-
--- wli
+Jul 13 10:16:17 mhfl2 kernel: Linux Kernel Card Services 3.1.22
+Jul 13 10:16:17 mhfl2 kernel:   options:  [pci] [cardbus] [pm]
+Jul 13 10:16:17 mhfl2 startup: i82365
+Jul 13 10:16:17 mhfl2 kernel: Intel PCIC probe: not found.
+Jul 13 10:16:17 mhfl2 kernel: PCI: Enabling device 0000:00:12.0 (0000 -> 0002)
+Jul 13 10:16:17 mhfl2 kernel: Yenta IRQ list 0000, PCI irq5
+Jul 13 10:16:17 mhfl2 kernel: Socket status: 30000011
+Jul 13 10:16:17 mhfl2 startup: using yenta_socket instead of i82365
+Jul 13 10:16:17 mhfl2 startup: ds
 
 
-diff -prauN mm1-2.5.75-1/include/asm-i386/thread_info.h mm1-2.5.75-stack-1/include/asm-i386/thread_info.h
---- mm1-2.5.75-1/include/asm-i386/thread_info.h	2003-07-10 13:05:26.000000000 -0700
-+++ mm1-2.5.75-stack-1/include/asm-i386/thread_info.h	2003-07-13 05:35:08.000000000 -0700
-@@ -87,8 +87,8 @@ static inline struct thread_info *curren
- 
- /* thread information allocation */
- #define THREAD_SIZE (2*PAGE_SIZE)
--#define alloc_thread_info(tsk) ((struct thread_info *) __get_free_pages(GFP_KERNEL,1))
--#define free_thread_info(ti) free_pages((unsigned long) (ti), 1)
-+#define alloc_thread_info(task) ((struct thread_info *)kmalloc(THREAD_SIZE, GFP_KERNEL))
-+#define free_thread_info(info)	kfree(info)
- #define get_thread_info(ti) get_task_struct((ti)->task)
- #define put_thread_info(ti) put_task_struct((ti)->task)
- 
+----------------------\/
+Jul 13 10:16:18 mhfl2 kernel: cs: warning: no high memory space available!
+Jul 13 10:16:18 mhfl2 kernel: cs: unable to map card memory!
+Jul 13 10:16:18 mhfl2 last message repeated 3 times
+
+
+
+Jul 13 10:16:19 mhfl2 startup: cardmgr[1171]: watching 1 sockets
+Jul 13 10:16:19 mhfl2 cardmgr[1171]: watching 1 sockets
+Jul 13 10:16:19 mhfl2 kernel: cs: IO port probe 0x0c00-0x0cff: clean.
+Jul 13 10:16:19 mhfl2 kernel: cs: IO port probe 0x0800-0x08ff: clean.
+Jul 13 10:16:19 mhfl2 kernel: cs: IO port probe 0x0100-0x04ff: excluding 0x1e0-0x1e7 0x3c0-0x3df 0x408-0x40f 0x480-0x48f 0x4d0-0x4d7
+Jul 13 10:16:19 mhfl2 kernel: cs: IO port probe 0x0a00-0x0aff: clean.
+Jul 13 10:16:19 mhfl2 cardmgr[1172]: starting, version is 3.2.4
+Jul 13 10:16:19 mhfl2 startup: done.
+Jul 13 10:16:20 mhfl2 rc: Starting startup:  succeeded
+
+
+-- 
+Powered by linux-2.5.75-mm1. Compiled with gcc-2.95-3 - mature and rock solid
+
+My current linux related activities:
+- 2.5 yenta_socket testing
+- Test development and testing of swsusp for 2.4/2.5 and ACPI S3 of 2.5 kernel 
+- Everyday usage of 2.5 kernel
+
+More info on 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
+More info on swsusp: http://sourceforge.net/projects/swsusp/
+

@@ -1,44 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263467AbUEWTnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263529AbUEWTrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbUEWTnG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 15:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263484AbUEWTnF
+	id S263529AbUEWTrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 15:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUEWTrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 15:43:05 -0400
-Received: from web90007.mail.scd.yahoo.com ([66.218.94.65]:53690 "HELO
-	web90007.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S263467AbUEWTnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 15:43:03 -0400
-Message-ID: <20040523194302.81454.qmail@web90007.mail.scd.yahoo.com>
-Date: Sun, 23 May 2004 12:43:02 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: 4g/4g for 2.6.6
-To: linux-kernel@vger.kernel.org
+	Sun, 23 May 2004 15:47:25 -0400
+Received: from ns2.undead.cc ([216.126.84.18]:4992 "HELO mail.undead.cc")
+	by vger.kernel.org with SMTP id S263529AbUEWTrX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 15:47:23 -0400
+Message-ID: <40B0FFC9.1060601@undead.cc>
+Date: Sun, 23 May 2004 15:47:21 -0400
+From: John Zielinski <grim@undead.cc>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] sysfs null dentry pointer checking
+Content-Type: multipart/mixed;
+ boundary="------------030106010402050201080305"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is a multi-part message in MIME format.
+--------------030106010402050201080305
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Please cc me as I am not on this mailling list.
+I've just discovered that some of the sysfs directory functions do not 
+check if the dentry pointer is valid.  Some of the subsystems in the 
+kernel don't check the return value of  subsystem_register since not 
+being able to create a directory in sysfs is not fatal and shouldn't 
+prevent booting the machine.  Any kobject that tries to create a 
+directory under that subsystem would cause a null pointer dereference.
 
-I have been researching the 4g patches for kernels. 
-Seems there was a rift between people over this.  Is
-there any plan to resume publishing 4g patches for
-developing kernels?
+Here's a patch where the dentry pointers should be checked.  The sysfs 
+directory structure wouldn't get updated if there were any directory 
+creation errors in a parent but the internal kset/kobject hierarchy 
+would still function properly.
 
-I am currently trying to get 4g to work with 2.6.6-mm5
-but of course running into issues,so any help on this
-would be great!
-
-Thank you for your time.
-Phy
+John
 
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Domains – Claim yours for only $14.70/year
-http://smallbusiness.promotions.yahoo.com/offer 
+
+--------------030106010402050201080305
+Content-Type: text/plain;
+ name="sysfs_dir_null_check"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sysfs_dir_null_check"
+
+diff -urNX dontdiff linux-2.6.6/fs/sysfs/dir.c linux/fs/sysfs/dir.c
+--- linux-2.6.6/fs/sysfs/dir.c	2004-05-09 22:32:28.000000000 -0400
++++ linux/fs/sysfs/dir.c	2004-05-23 15:15:08.000000000 -0400
+@@ -26,6 +26,9 @@
+ {
+ 	int error;
+ 
++	if (!p)
++		return -EFAULT;
++
+ 	down(&p->d_inode->i_sem);
+ 	*d = sysfs_get_dentry(p,n);
+ 	if (!IS_ERR(*d)) {
+@@ -95,7 +98,8 @@
+ 
+ void sysfs_remove_subdir(struct dentry * d)
+ {
+-	remove_dir(d);
++	if (d)
++		remove_dir(d);
+ }
+ 
+ 
+@@ -164,6 +168,11 @@
+ 	if (!kobj->parent)
+ 		return;
+ 
++	if (!kobj->dentry) {
++		kobject_set_name(kobj,new_name);
++		return;
++	}
++
+ 	parent = kobj->parent->dentry;
+ 
+ 	down(&parent->d_inode->i_sem);
+
+--------------030106010402050201080305--
+

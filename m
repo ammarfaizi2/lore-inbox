@@ -1,26 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbUCUUyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 15:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbUCUUyN
+	id S261263AbUCUU5g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 15:57:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUCUU5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 15:54:13 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:31172 "EHLO
+	Sun, 21 Mar 2004 15:57:36 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:47044 "EHLO
 	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261296AbUCUUvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 15:51:36 -0500
-Date: Sun, 21 Mar 2004 15:51:40 -0500 (EST)
+	id S261263AbUCUUzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 15:55:37 -0500
+Date: Sun, 21 Mar 2004 15:55:41 -0500 (EST)
 From: Zwane Mwaikambo <zwane@linuxpower.ca>
 To: Eric Valette <eric.valette@free.fr>
 Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.5-rc2-mm1 does not boot. 2.6.5-rc1-mm2 + small fix from
  axboe was fine
 In-Reply-To: <405DFA02.8090504@free.fr>
-Message-ID: <Pine.LNX.4.58.0403211550430.28727@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.58.0403211555110.28727@montezuma.fsmlabs.com>
 References: <405DFA02.8090504@free.fr>
 MIME-Version: 1.0
 Content-Type: MULTIPART/Mixed; BOUNDARY=------------060508090907090403050907
-Content-ID: <Pine.LNX.4.58.0403211550431.28727@montezuma.fsmlabs.com>
+Content-ID: <Pine.LNX.4.58.0403211555111.28727@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -30,7 +30,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 --------------060508090907090403050907
 Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.58.0403211550432.28727@montezuma.fsmlabs.com>
+Content-ID: <Pine.LNX.4.58.0403211555112.28727@montezuma.fsmlabs.com>
 
 On Sun, 21 Mar 2004, Eric Valette wrote:
 
@@ -47,12 +47,46 @@ On Sun, 21 Mar 2004, Eric Valette wrote:
 > Keyboard still gets interrupt (CAPS lock led), but nothing happens. Like
 > if there was a deadlock. No kdbg...
 
-initramfs-search-for-init.patch
+How about the following patch?
 
-That patch may be freeing initmem before you get to prepare_namespace()
+Index: linux-2.6.5-rc2-mm1/init/main.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.5-rc2-mm1/init/main.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 main.c
+--- linux-2.6.5-rc2-mm1/init/main.c	21 Mar 2004 17:02:18 -0000	1.1.1.1
++++ linux-2.6.5-rc2-mm1/init/main.c	21 Mar 2004 20:54:19 -0000
+@@ -586,8 +586,8 @@ static int free_initmem_on_exec_helper(v
+ 	char c;
+
+ 	sys_close(fd[1]);
+-	sys_read(fd[0], &c, 1);
+-	free_initmem();
++	if (sys_read(fd[0], &c, 1) > 0)
++		free_initmem();
+ 	return 0;
+ }
+
+@@ -596,7 +596,7 @@ static void free_initmem_on_exec(void)
+ 	int fd[2];
+
+ 	do_pipe(fd);
+-       kernel_thread(free_initmem_on_exec_helper, &fd, SIGCHLD);
++	kernel_thread(free_initmem_on_exec_helper, &fd, SIGCHLD);
+
+ 	sys_dup2(fd[1], 255);   /* to get it out of the way */
+ 	sys_close(fd[0]);
+@@ -643,6 +643,7 @@ static int init(void * unused)
+ 	run_init_process("/init");
+
+ 	prepare_namespace();
++	free_initmem();
+
+ 	if (sys_open("/dev/console", O_RDWR, 0) < 0)
+ 		printk("Warning: unable to open an initial console.\n");
 --------------060508090907090403050907
 Content-Type: TEXT/PLAIN; NAME=".config"
-Content-ID: <Pine.LNX.4.58.0403211550433.28727@montezuma.fsmlabs.com>
+Content-ID: <Pine.LNX.4.58.0403211555113.28727@montezuma.fsmlabs.com>
 Content-Description: 
 Content-Disposition: INLINE; FILENAME=".config"
 

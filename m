@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270688AbTG0HHL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 03:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270687AbTG0HHL
+	id S270687AbTG0HVm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 03:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270689AbTG0HVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 03:07:11 -0400
-Received: from web14207.mail.yahoo.com ([216.136.173.71]:8714 "HELO
-	web14207.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270688AbTG0HHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 03:07:08 -0400
-Message-ID: <20030727072221.12288.qmail@web14207.mail.yahoo.com>
-Date: Sun, 27 Jul 2003 00:22:21 -0700 (PDT)
-From: Manjunathan Padua Yellappan <manjunathan_py@yahoo.com>
-Subject: [kernel 2.6.0-test1: Fails to load anymodules 
-To: linux-kernel@vger.kernel.org
-Cc: manjunathan_py@yahoo.com
+	Sun, 27 Jul 2003 03:21:42 -0400
+Received: from maile.telia.com ([194.22.190.16]:29652 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id S270687AbTG0HVl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 03:21:41 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: David Benfell <benfell@greybeard95a.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SOLVED: touchpad doesn't work under 2.6.0-test1-ac2
+References: <bXg8.4Wg.1@gated-at.bofh.it>
+	<S270097AbTGXUNM/20030724201313Z+7864@vger.kernel.org>
+	<20030724212416.GA18141@vana.vc.cvut.cz>
+	<20030725070806.GB15819@parts-unknown.org>
+	<20030727040531.GA14776@parts-unknown.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 27 Jul 2003 09:36:38 +0200
+In-Reply-To: <20030727040531.GA14776@parts-unknown.org>
+Message-ID: <m2wue4e7zt.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hi Folks,
-   Thanks for all, for assisting me in solving the
- kernel booting problem.
- 
-  Now I am encountering another problem, after
- successful compilation/installation/booting of kernel
- 2.6.0-test1 , the modules are not loading at all ,
- even after installing the latest version of
- "module-init-tools-0.9.13-pre" .
- 
- Below given the error message that is display during
- booting time, when kernel checks for the hardware !
- 
- "XT3 FS on hda9, internal journal
- Adding 538136k swap on /dev/hda10.  Priority:-1
- extents:1
- kudzu: numerical sysctl 1 23 is obsolete.
- warning: process `update' used the obsolete bdflush
- system call
- Fix your initscripts?
- warning: process `update' used the obsolete bdflush
- system call
- Fix your initscripts?
- kudzu: numerical sysctl 1 23 is obsolete.
- module_upgrade: numerical sysctl 1 23 is obsolete.
- module_upgrade: numerical sysctl 1 49 is obsolete.
- module_upgrade: numerical sysctl 1 49 is obsolete.
- kudzu: numerical sysctl 1 23 is obsolete.
- updfstab: numerical sysctl 1 23 is obsolete.
- updfstab: numerical sysctl 1 49 is obsolete.
- updfstab: numerical sysctl 1 49 is obsolete.
- kudzu: numerical sysctl 1 23 is obsolete."
- 
- Because of this, my sound card, D-link FM radio and
- other periperal don't work.
- 
- Further when I execut the new lsmod command. Module
- list is displayed empty.
- 
- I appreciate any asistance on this !
- 
- Thanks,
- Manjunathan PY
- 
+David Benfell <benfell@greybeard95a.com> writes:
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+> On Fri, 25 Jul 2003 00:08:06 -0700, David Benfell wrote:
+> > Hello all,
+> > 
+> > First someone pointed me at the driver available through
+> > 
+> > http://w1.894.telia.com/~u89404340/touchpad/index.html
+> > 
+> This driver does not work on the HP ZT1180.
+> 
+> What does work is enabling CONFIG_INPUT_EVDEV in the kernel
+> configuration.  The trick then is to NOT combine this with the
+> Synaptics driver mentioned above.
+
+I want the driver to work on as many computers as possible. Can you
+please send me the XFree86 log file you get when you try to use the
+XFree driver and CONFIG_INPUT_EVDEV at the same time.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

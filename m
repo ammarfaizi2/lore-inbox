@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131448AbRCQMny>; Sat, 17 Mar 2001 07:43:54 -0500
+	id <S131640AbRCQN4l>; Sat, 17 Mar 2001 08:56:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131619AbRCQMno>; Sat, 17 Mar 2001 07:43:44 -0500
-Received: from smtp02.wxs.nl ([195.121.6.54]:61911 "EHLO smtp02.wxs.nl")
-	by vger.kernel.org with ESMTP id <S131448AbRCQMnf>;
-	Sat, 17 Mar 2001 07:43:35 -0500
-Message-ID: <3AB35BE8.2E0EC8FA@planet.nl>
-Date: Sat, 17 Mar 2001 13:43:20 +0100
-From: Erik van Asselt <e.van.asselt@planet.nl>
-X-Mailer: Mozilla 4.7 [nl] (Win98; U)
-X-Accept-Language: nl
+	id <S131638AbRCQN4c>; Sat, 17 Mar 2001 08:56:32 -0500
+Received: from netsonic.fi ([194.29.192.20]:45327 "EHLO nalle.netsonic.fi")
+	by vger.kernel.org with ESMTP id <S131630AbRCQN4R>;
+	Sat, 17 Mar 2001 08:56:17 -0500
+Date: Sat, 17 Mar 2001 15:55:20 +0200 (EET)
+From: Sampsa Ranta <sampsa@netsonic.fi>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: <Werner.Almesberger@epfl.ch>, <linux-net@vger.kernel.org>,
+        <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: Performance is weird (fwd) -> results
+In-Reply-To: <3AB2300E.33268BBC@colorfullife.com>
+Message-ID: <Pine.LNX.4.33.0103171547450.15277-100000@nalle.netsonic.fi>
 MIME-Version: 1.0
-To: Douglas Gilbert <dgilbert@interlog.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: problems compiling scsi_ioctl on kernels later 2.4.1
-In-Reply-To: <3AB2F378.10D22DA5@interlog.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did link the usr/include/scsi to usr/srs/linux/include/scsi
-isn't that the right way for compiling the new kernel?
+On Fri, 16 Mar 2001, Manfred Spraul wrote:
 
-Erik
+> Sampsa Ranta wrote:
+> >
+> > After either of your patches, the result was the same, sorry.
+> >
+> Is apm or acpi running?
 
-Douglas Gilbert schreef:
+No, I tried both SMP and non-SMP version of kernel, the machine is however
+single processor Athlon 900. CONFIG_ACPI is not set, CONFIG_APM is not
+set. The 2.4.3pre4 still performs 66M/s without "the load" and 124M/s+
+with  load. However there is much different between 2.4.2 and 2.4.3pre
+about 33M/s to 66M/s.
 
-> Erik,
-> It looks like you are missing (or have a corrupted)
-> include/scsi/scsi_ioctl.h header file. It contains
-> the definition of the struct Scsi_Ioctl_Command .
->
-> Doug Gilbert
+ - Sampsa Ranta
+   sampsa@netsonic.fi
 

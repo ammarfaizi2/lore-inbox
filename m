@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270483AbTHQSiu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 14:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbTHQSiu
+	id S270749AbTHQSg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 14:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270766AbTHQSg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 14:38:50 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:58537
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S270483AbTHQSis
+	Sun, 17 Aug 2003 14:36:29 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:8979 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S270749AbTHQSg2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 14:38:48 -0400
-Date: Sun, 17 Aug 2003 14:38:48 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [bk patches] add ethtool_ops to net drivers
-Message-ID: <20030817183848.GA18728@gtf.org>
-Mime-Version: 1.0
+	Sun, 17 Aug 2003 14:36:28 -0400
+To: Raistlin <raistlin83@libero.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vfat lost file problem
+References: <1061139456.808.5.camel@debian>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 18 Aug 2003 03:36:13 +0900
+In-Reply-To: <1061139456.808.5.camel@debian>
+Message-ID: <87zni8xhb6.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Raistlin <raistlin83@libero.it> writes:
 
-In order to maintain backwards compatibility and minimize impact,
-netdev_ops mentioned at KS was scaled back to ethtool_ops.  This allows
-driver-at-a-time replacement often-duplicated ioctl handling code with a
-Linux-style foo_ops set of function pointers.
+> Kernel Version:
+> Linux debian 2.4.21 #6 SMP Wed Aug 6 11:55:01 CEST 2003 i686 GNU/Linux
+> mv command Version:
+> mv (coreutils) 5.0.90
+> 
+> 
+> I've discovered that if you try to change the name of a file in a vfat
+> partition only changing upper or lower case the file immediatly
+> disappears.
 
-Also, I've been waiting on this patch to begin attacking the stack
-usage problems that often occur in ethtool ioctl handlers.  Since gcc
-sums instead of unions disjoint stack scopes (gcc bug #9997), huge
-functions that handle a bunch of ioctls wind up eating way more stack
-space than the programmer (rightfully) intended.  ethtool_ops not
-only makes a driver smaller, but it also neatly eliminates the stack
-usage problem.
+Looks like 5.0.90 does it. If src and dst are same inode, just unlink
+src. Probably it assume hard link.
 
-I much prefer this scaled back approach, which doesn't break anything,
-and DaveM is ok with it as well.  Please apply.
-
-
-BitKeeper repo:
-
-	bk pull http://gkernel.bkbits.net/ethtool-2.6
-
-Patch is also available from
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-test3-bk5-ethtool1.patch.bz2
-
-This will update the following files:
-
- drivers/net/tg3.c         |  664 +++++++++++++++++++--------------------------
- include/linux/ethtool.h   |   99 ++++++
- include/linux/netdevice.h |    9 
- net/core/Makefile         |    4 
- net/core/dev.c            |   16 -
- net/core/ethtool.c        |  672 ++++++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 1076 insertions(+), 388 deletions(-)
-
-through these ChangeSets:
-
-<jgarzik@redhat.com> (03/08/07 1.1119.10.3)
-   [netdrvr] add SET_ETHTOOL_OPS back-compat hook
-
-<jgarzik@redhat.com> (03/08/07 1.1119.10.2)
-   [netdrvr tg3] convert to using ethtool_ops
-
-<jgarzik@redhat.com> (03/08/07 1.1119.10.1)
-   [netdrvr] add ethtool_ops to struct net_device, and associated infrastructure
-   
-   Contributed by Matthew Wilcox.
-
+Could you please report this to coreutils maintainer?
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

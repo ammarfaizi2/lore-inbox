@@ -1,68 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbTDXIpU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 04:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbTDXIpU
+	id S261903AbTDXItE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 04:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbTDXItD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 04:45:20 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:23278 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261840AbTDXIpS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 04:45:18 -0400
-Subject: Re: Flame Linus to a crisp!
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-W9Q5gDp2smQ8jLad2a9q"
-Organization: 
-Message-Id: <1051174641.1385.4.camel@laptop.fenrus.com>
+	Thu, 24 Apr 2003 04:49:03 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27829 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261903AbTDXItB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 04:49:01 -0400
+Date: Thu, 24 Apr 2003 09:00:51 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Nuno Silva <nuno.silva@vgertech.com>
+Cc: Bernhard Kaindl <bernhard.kaindl@gmx.de>,
+       Yusuf Wilajati Purna <purna@sm.sony.co.jp>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, rmk@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org, arjanv@redhat.com,
+       Bernhard Kaindl <bk@suse.de>
+Subject: Re: [PATCH][2.4+ptrace] fix side effects of the kmod/ptrace secfix
+Message-ID: <20030424090051.D24363@devserv.devel.redhat.com>
+References: <3E9E3FA9.6060509@sm.sony.co.jp> <Pine.LNX.4.53.0304190532520.1887@hase.a11.local> <3EA4CD3F.9040902@sm.sony.co.jp> <Pine.LNX.4.53.0304222236040.2341@hase.a11.local> <3EA778E7.5040903@vgertech.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 24 Apr 2003 10:57:21 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3EA778E7.5040903@vgertech.com>; from nuno.silva@vgertech.com on Thu, Apr 24, 2003 at 06:40:55AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 24, 2003 at 06:40:55AM +0100, Nuno Silva wrote:
+> Good morning! :)
+> 
+> I'd like to ear an "official" word on this subject, please. :)
+> Is this patch still secure?
 
---=-W9Q5gDp2smQ8jLad2a9q
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2003-04-24 at 05:59, Linus Torvalds wrote:
-
->=20
-> The GPL requires you to give out sources to the kernel, but it doesn't
-> limit what you can _do_ with the kernel. On the whole, this is just
-> another example of why rms calls me "just an engineer" and thinks I have
-> no ideals.
-
-The "hot" issue is partially this part of the GPL:
-
-For an executable work, complete source code means all the source code
-for all modules it contains, plus any associated interface definition
-files, plus the scripts used to control compilation and installation of
-the executable.
-
-where it seems to say that if you need a script to be able to usefully
-install a self compiled kernel, that script is part of "the sourcecode".
-Now this of course can't and doesn't mean that people would need to give
-up their private keys to the public; said "script" of course can also
-install a second key or disable the keychecking.=20
-
-Or maybe I'm just totally interpreting this wrong.
-=20
-
---=-W9Q5gDp2smQ8jLad2a9q
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+p6bxbpJDcQVaBT0RAnfqAJ9RQJYO8/qYFhFPJkbwc6zDG8fXywCgxJW6
-lM9BrbrRZmUUsldxgDEgHdo=
-=u31V
------END PGP SIGNATURE-----
-
---=-W9Q5gDp2smQ8jLad2a9q--
+The check is loosend too much.

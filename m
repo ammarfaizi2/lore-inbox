@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268654AbRGZUrU>; Thu, 26 Jul 2001 16:47:20 -0400
+	id <S268653AbRGZU4L>; Thu, 26 Jul 2001 16:56:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268653AbRGZUrK>; Thu, 26 Jul 2001 16:47:10 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:50097 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S267787AbRGZUrD>; Thu, 26 Jul 2001 16:47:03 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-Date: Fri, 27 Jul 2001 06:46:52 +1000 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15200.33212.620647.474271@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: nfs weirdness
-In-Reply-To: message from Roeland Th. Jansen on Thursday July 26
-In-Reply-To: <20010723154217.F19492@grobbebol.xs4all.nl>
-	<15197.21462.625678.700365@notabene.cse.unsw.edu.au>
-	<20010726193741.J19492@grobbebol.xs4all.nl>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	id <S268686AbRGZU4B>; Thu, 26 Jul 2001 16:56:01 -0400
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:52439 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S268653AbRGZUzl>; Thu, 26 Jul 2001 16:55:41 -0400
+Message-Id: <5.1.0.14.2.20010726214022.00b14920@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 26 Jul 2001 21:55:46 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: ext3-2.4-0.9.4
+Cc: Richard A Nelson <cowboy@vnet.ibm.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0107261233000.1062-100000@penguin.transmeta.
+ com>
+In-Reply-To: <Pine.LNX.4.33.0107261429190.19887-100000@badlands.lexington.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thursday July 26, roel@grobbebol.xs4all.nl wrote:
-> On Tue, Jul 24, 2001 at 08:54:14PM +1000, Neil Brown wrote:
-> > If you ask to export "/windows" and nothing is mounted on "/windows",
-> > then you are asking to export part of the root filesystem starting at
-> > "/windows".  If you subsequently mount something on /windows, then you
-> > haven't asked for that to be exported so it won't be, and mountd will
-> > get confused.
-> > You should always mount filesystems before trying to export them.
-> 
-> 
-> well, I tested it for trouble shooting. if I mount the /windows vfat and
-> export with knfsd it fails. if I do not moiut the vfat, it does. ergo,
-> the config files are okay, knfsd refuses. 
-> 
-> 
-> somebody else pointed out in private mail that knfsd isn't supposed to
-> be able to export vfat filesystems and unfsd could. if he is correct, I
-> will have to onstall the other utils again and install unfsd
-> instead.
+At 20:37 26/07/2001, Linus Torvalds wrote:
+>On Thu, 26 Jul 2001, Richard A Nelson wrote:
+> > In looking at the synchronous directory options, I'm unsure as to
+> > the 'real' status wrt fsync() on a directory:
+> >       1) Does fsync() of a directory work on most/all current FS?
+>
+>Modulo bugs, yes.
+>
+>Now, there's another issue, of course: if you have an important mail-spool
+>on some of the less tested filesystems, I would consider you crazy
+>regardless of fsync() working ;). I don't think anybody has ever verified
+>that fsync() (or much anything else wrt writing) does the right thing on
+>NTFS, for example.
 
-Yep, current kernels do not support exporting of FAT based filesystems.
-There is a patch at:
+NTFS doesn't even have an fsync() operation defined so calling fsync() 
+system call won't do anything at all. A quick look at 
+fs/buffer.c::sys_fsync() shows it will return -EINVAL straight away.
 
-http://www.cse.unsw.edu.au/~neilb/patches/linux/2.4.7/patch-E-fatnfs
+But considering the fsync, even if present may well trash the file or the 
+whole partition's data, it's just as well it doesn't happen...
 
-that should fix this.  I have done minimal testing, but I am waiting
-for someone who actually needs to use this functionality to try it out
-and confirm that it works for real-life situations before I recommend
-it to Linus.
+Anton
 
-NeilBrown
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136031AbRDVKqo>; Sun, 22 Apr 2001 06:46:44 -0400
+	id <S136034AbRDVKsz>; Sun, 22 Apr 2001 06:48:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136030AbRDVKqf>; Sun, 22 Apr 2001 06:46:35 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:8504 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S136026AbRDVKqQ>; Sun, 22 Apr 2001 06:46:16 -0400
-Message-ID: <3AE2A7B9.10401@kalifornia.com>
-Date: Sun, 22 Apr 2001 02:43:21 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.8.1+) Gecko/20010420
+	id <S136030AbRDVKs0>; Sun, 22 Apr 2001 06:48:26 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:21517 "EHLO
+	c0mailgw11.prontomail.com") by vger.kernel.org with ESMTP
+	id <S136032AbRDVKsH>; Sun, 22 Apr 2001 06:48:07 -0400
+Message-ID: <3AE2B6CC.1D1F8A10@mvista.com>
+Date: Sun, 22 Apr 2001 03:47:40 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: CML2 <linux-kernel@vger.kernel.org>
-Subject: Re: Request for comment -- a better attribution system
-In-Reply-To: <200104220147.f3M1l2v126874@saturn.cs.uml.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Marcus Ramos <marcus@ansp.br>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: What is the precision of usleep ?
+In-Reply-To: <3AE07A5A.C5BBE59C@ansp.br>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan wrote:
+Marcus Ramos wrote:
+> 
+> Hello,
+> 
+> I am using usleep in an application under RH7 kernel 2.4.2. However,
+> when I bring its argument down to 20 miliseconds (20.000 microseconds)
+> or less, this seems to be ignored by the function (or the machine's hw
+> timer), which behaves as if 20 ms where its lowest acceptable value. How
+> can I measure the precision of usleep in my box ? I am currently using
+> an Dell GX110 PIII 866 MHz.
+> 
+> Thanks in advance.
+> Marcus.
 
->>>>	Find . -name "*Some-Name*" -type f -print | xargs grep 'Some-Info'
->>>>	Hate answering with just one line of credible info , But .
->>>>
->>>The above would grep every file. It takes 1 minute and 9.5 seconds.
->>>So the distributed maintainer information does not scale well at all.
->>>
->>No it doesn't.  It allows you to search for files of a specific naming
->>pattern and greps those.  So if you needed to know the maintainers of all
->>the config.in files, you say:
->>
->>find . -name "*onfig.in" -type f -print | xargs grep 'P: '
->>
->
->That was an easy problem, and try it to see all the bad matches!
->This would be more normal:
->
->find . -type f | xargs egrep -i8 '^[^A-Z]*[A-Z]: .*(net|ip|tcp|eth|ppp)'
->
->That is not a nice and easy command for most people, and if it
->isn't exactly right you just wasted over a minute.
->
+Well, first, your issue is resolution, not precision.  Current
+resolution on most all timers is 1/HZ.  So this should get a min.
+nanosleep of 10 ms.
 
-Eric *has* offered to write tools to simplify this.  I would guess that 
-it would be something like:
+So, could someone explain this line from sys_nanosleep() (
+kernel/timer.c):
 
-kgrep [-t description] [-p person] [-m mailto] [-l mailing-list] [-w 
-webpage] [-c config symbol] [-d date] [-s status]
+	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
 
--b
+It seems to me this should just be:
 
--- 
-Three things are certain:
-Death, taxes, and lost data
-Guess which has occurred.
-- - - - - - - - - - - - - - - - - - - -
-Patched Micro$oft servers are secure today . . . but tomorrow is another story!
+	expire = timespec_to_jiffies(&t)
 
+timespec_to_jiffies(&t) seems to do all the needed resolution round up
+and such.  Since || is logical, this seems to always add 1, except if
+the requested value is 0.  The net result is you always get 1 extra
+jiffie (unless you ask for zero, in which case you get a timer that will
+expire next tick (thru the wonders of add_timer).
 
-
+George

@@ -1,31 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130420AbQLIAlP>; Fri, 8 Dec 2000 19:41:15 -0500
+	id <S131200AbQLIAmz>; Fri, 8 Dec 2000 19:42:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131200AbQLIAlH>; Fri, 8 Dec 2000 19:41:07 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2308 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130420AbQLIAku>; Fri, 8 Dec 2000 19:40:50 -0500
-Subject: Re: question about tulip patch to set CSR0 for pci 2.0 bus
-To: becker@scyld.com (Donald Becker)
-Date: Sat, 9 Dec 2000 00:12:07 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10012081558000.797-100000@vaio.greennet> from "Donald Becker" at Dec 08, 2000 04:09:47 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132500AbQLIAmp>; Fri, 8 Dec 2000 19:42:45 -0500
+Received: from k2.llnl.gov ([134.9.1.1]:19196 "EHLO k2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S131200AbQLIAmb>;
+	Fri, 8 Dec 2000 19:42:31 -0500
+From: Reto Baettig <baettig@k2.llnl.gov>
+Message-Id: <200012090010.QAA28833@k2.llnl.gov>
+Subject: Re: io_request_lock question (2.2)
+To: mjacob@feral.com
+Date: Fri, 8 Dec 2000 16:10:38 -0800 (PST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), baettig@scs.ch,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.BSF.4.21.0012081603110.72881-100000@beppo.feral.com> from "Matthew Jacob" at Dec 08, 2000 04:03:58 PM
+Reply-To: Reto Baettig <baettig@scs.ch>
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E144XcX-0004gd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Just in case you didn't catch it: this is not a PCI v2.0 vs. v2.1 issue.
-> The older Tulips work great with PCI v2.0 and v2.1.  The bug is with longer
-> bursts and a specific i486 chipset/motherboard.
+> 
+> 
+> 
+> On Fri, 8 Dec 2000, Alan Cox wrote:
+> 
+> > > Yes, and I believe that this is what's broken about the SCSI midlayer. The the
+> > > io_request_lock cannot be completely released in a SCSI HBA because the flags
+> > 
+> > You can drop it with spin_unlock_irq and that is fine. I do that with no
+> > problems in the I2O scsi driver for example
+> 
+> I am (like, I think I *finally* got locking sorta right in my QLogic driver),
+> but doesn't this still leave ints blocked for this CPU at least?
+> 
+> -matt
+> 
+> 
+> 
 
-Which chipset. I can then add it to the PCI quirks and we can do it nicely
-in 2.4 so that drivers can test the pci quirk list
+I am actually concerned about the following case:
+
+The add_request ON CPU_1 function calls 
+        spin_lock_irqsave(&io_request_lock,flags); 
+
+Our I/O Function unlocks the spinlock and goes to sleep.
+
+Finally, the add_request function, NOW ON CPU_2 calls
+        spin_unlock_irqrestore(&io_request_lock,flags);
+and restores the flags of CPU_1 on CPU_2.    
+
+What am I missing? Are the flags which we restore valid for all the CPU's the same?
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

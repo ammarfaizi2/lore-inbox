@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279934AbRKSQUV>; Mon, 19 Nov 2001 11:20:21 -0500
+	id <S277012AbRKSQZB>; Mon, 19 Nov 2001 11:25:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279963AbRKSQUM>; Mon, 19 Nov 2001 11:20:12 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:27909 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S279934AbRKSQT7>; Mon, 19 Nov 2001 11:19:59 -0500
-Message-Id: <200111191619.fAJGJBu8018551@pincoya.inf.utfsm.cl>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: x bit for dirs: misfeature? 
-In-Reply-To: Message from vda <vda@port.imtp.ilyichevsk.odessa.ua> 
-   of "Mon, 19 Nov 2001 17:03:40 -0000." <01111917034005.00817@nemo> 
-Date: Mon, 19 Nov 2001 13:19:10 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S279963AbRKSQYw>; Mon, 19 Nov 2001 11:24:52 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:50955 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S277012AbRKSQYc>; Mon, 19 Nov 2001 11:24:32 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: James A Sutherland <jas88@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: x bit for dirs: misfeature?
+Date: Mon, 19 Nov 2001 18:24:11 +0000
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01111916225301.00817@nemo> <01111916583804.00817@nemo> <E165qq7-0003QD-00@mauve.csi.cam.ac.uk>
+In-Reply-To: <E165qq7-0003QD-00@mauve.csi.cam.ac.uk>
+MIME-Version: 1.0
+Message-Id: <0111191824110B.00817@nemo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vda <vda@port.imtp.ilyichevsk.odessa.ua> said:
+On Monday 19 November 2001 16:00, you wrote:
+> On Monday 19 November 2001 4:58 pm, vda wrote:
+> > On Monday 19 November 2001 14:36, James A Sutherland wrote:
+> > > $ mkdir test
+> > > $ echo content > test/file
+> > > $ chmod a-r test
+> > > $ ls test
+> > > ls: test: permission denied
+> > > $ cat test/file
+> > > content
+> > > $ chmod a=r test
+> > > $ ls test
+> > > ls: test/file: Permission denied
+> >
+> > Hmm... I do actually tested this and last command succeeds
+> > (shows dir contents). You probably meant cat test/file, not ls...
+>
+> Nope, ls.
+>
+> [james@dax p2i]$ ls test
+> ls: test/file: Permission denied
+> [james@dax p2i]$ ls -l test
+> ls: test/file: Permission denied
+> total 0
 
-[...]
+Looks like we have different ls :-). Mine lists 'r only' dir with no problem.
 
-> Do you have even a single dir on your boxes with r!=x?
+> Anyway, as Al Viro has pointed out, R!=X. It's been like that for a very
+> long time, it's deliberate, not a misfeature, and it's staying like that
+> for the foreseeable future.
 
-Directories /dev, /lib, /bin, /etc under FTP home are --x. I'd do the same
-with cgi-bin et al for WWW...
+Yes, I see... All I can do is to add workarounds (ok,ok, 'support')
+to chmod and friends:
 
-Some FTP sites (f.ex. ftp.sendmail.org) have limited distribution
-prereleases under an unreadable directory (--x).
+chmod -R a+R dir  - sets r for files and rx for dirs
 
--wx is used for anonymous uploading under FTP
-
-It certainly has its uses. If you wanted to _really_ lock down a box, you'd
-start by doing the same --x game for some critical directories.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+--
+vda

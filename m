@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129068AbQJ1Uih>; Sat, 28 Oct 2000 16:38:37 -0400
+	id <S131348AbQJ1WHw>; Sat, 28 Oct 2000 18:07:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131333AbQJ1Ui1>; Sat, 28 Oct 2000 16:38:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:6152 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129068AbQJ1UiX>;
-	Sat, 28 Oct 2000 16:38:23 -0400
-Date: Sat, 28 Oct 2000 13:40:56 -0700
-From: Jens Axboe <axboe@suse.de>
-To: Hisaaki Shibata <shibata@luky.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patch: atapi dvd-ram support
-Message-ID: <20001028134056.J3919@suse.de>
-In-Reply-To: <20001024162112.A520@suse.de> <20001028141056T.shibata@luky.org> <20001028000448.D3919@suse.de> <20001028232703S.shibata@luky.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S131353AbQJ1WHn>; Sat, 28 Oct 2000 18:07:43 -0400
+Received: from brutus.conectiva.com.br ([200.250.58.146]:15607 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131348AbQJ1WHc>; Sat, 28 Oct 2000 18:07:32 -0400
+Date: Sat, 28 Oct 2000 20:07:13 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Mauelshagen@sistina.com
+cc: mhe@sistina.com, linux-kernel@vger.kernel.org
+Subject: Re: LVM snapshotting broken?
+In-Reply-To: <20001028200244.A19767@srv.t-online.de>
+Message-ID: <Pine.LNX.4.21.0010282005530.4224-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28 2000, Hisaaki Shibata wrote:
-> > > But I could not mkudf nor mkext2fs to my ATAPI 9.4GB new DVD-RAM drive.
-> > 
-> > What do you mean? What happened? strace of mke2fs of mkudf would
-> > be nice to have.
+On Sat, 28 Oct 2000, Heinz J. Mauelshagen wrote:
+
+> > OK, good. I guess that means that the lvmutils (even the
+> > patched version in the RPM) are heavily broken ...
 > 
-> My system said it is not permited because it is read only.
+> As i mentioned before: i wasn't able to reproduce your problem on any of
+> my systems. It work just fine with 0.8final and in 0.9 as weel.
+> 
+> Did anybody else beside Rik face a problem with snapshots _not_
+> referring to the original logical volume they where created for?
 
-[snip]
+There's a missing item in the _data structure declaration_
+in the header file that prevents userspace from passing
+the right LV argument to the kernel, resulting in the kernel
+always making a snapshot of LV #0.
 
-Ok, does /proc/sys/dev/cdrom/info list DVD-RAM as a capability?
+You may have written LVM, but that doesn't excuse you from
+checking your facts ;)
 
-> And  /proc/ide/hdc/media says "cdrom". Is it OK?
+regards,
 
-Yes, that is fine.
+Rik
+--
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+http://www.conectiva.com/		http://www.surriel.com/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

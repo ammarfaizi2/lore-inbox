@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266052AbUAFAxk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266055AbUAFAxk
+	id S266051AbUAFBG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 20:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266053AbUAFBG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 19:53:40 -0500
-Received: from CPE-24-163-213-29.mn.rr.com ([24.163.213.29]:42427 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S266052AbUAFAxe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 19:53:34 -0500
-Subject: Re: udev and devfs - The final word
-From: Shawn <core@enodev.com>
-To: Greg KH <greg@kroah.com>
-Cc: Mark Mielke <mark@mark.mielke.cc>, Linus Torvalds <torvalds@osdl.org>,
-       Andries Brouwer <aebr@win.tue.nl>, Daniel Jacobowitz <dan@debian.org>,
+	Mon, 5 Jan 2004 20:06:58 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:15621 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S266051AbUAFBGz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 20:06:55 -0500
+Date: Tue, 6 Jan 2004 02:06:48 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Daniel Jacobowitz <dan@debian.org>,
        Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040106004343.GB1043@kroah.com>
-References: <Pine.LNX.4.58.0401041847370.2162@home.osdl.org>
-	 <20040105030737.GA29964@nevyn.them.org>
-	 <Pine.LNX.4.58.0401041918260.2162@home.osdl.org>
-	 <20040105132756.A975@pclin040.win.tue.nl>
-	 <Pine.LNX.4.58.0401050749490.21265@home.osdl.org>
-	 <20040105205228.A1092@pclin040.win.tue.nl>
-	 <Pine.LNX.4.58.0401051224480.2153@home.osdl.org>
-	 <1073341077.21797.17.camel@localhost>
-	 <20040105222559.GA3513@mark.mielke.cc>
-	 <1073343916.21797.21.camel@www.enodev.com>
-	 <20040106004343.GB1043@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1073350411.21797.30.camel@www.enodev.com>
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040106020648.A1153@pclin040.win.tue.nl>
+References: <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <20040106001326.A1128@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051522390.5737@home.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 05 Jan 2004 18:53:31 -0600
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0401051522390.5737@home.osdl.org>; from torvalds@osdl.org on Mon, Jan 05, 2004 at 03:32:03PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm embarrassed to say I did not read that.
+On Mon, Jan 05, 2004 at 03:32:03PM -0800, Linus Torvalds wrote:
 
-I'm starting to wonder what some folks are complaining about. WRT
-practicality and useability, udev about covers it once alsa and vmware
-;) get sysfs-ified.
-
-My own foray into udev was a little lacking owing to these little
-issues.
-
-On Mon, 2004-01-05 at 18:43, Greg KH wrote:
-> In summary, udev doesn't care squat about the major/minor that the
-> kernel has used for a device.  It merely uses those numbers and creates
-> a /dev entry with them, assigned to a name that it comes up with.
+> > Something reproducible is better.
 > 
-> Does that help out?  The udev OLS paper might also help explain some of
-> this.
+> And I've told you why reproducibility is a BAD THING
+> 
+> Basically, if you cannot 100% guarantee reproducibility,
+> then the _appearance_ of reproducibility is literally a mistake.
+
+OK. We now understand perfectly each others point of view.
+It was a pleasure to provoke this discussion - can hardly
+wait for 2.7 :-)
+
+Andries
 

@@ -1,302 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbULUC0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbULUClE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbULUC0P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 21:26:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbULUC0P
+	id S261235AbULUClE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 21:41:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbULUClE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 21:26:15 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:22931 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261208AbULUCZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 21:25:51 -0500
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: LKML <linux-kernel@vger.kernel.org>
-Date: Tue, 21 Dec 2004 13:25:48 +1100
-Subject: [PATCH] 2.6.10-rc3 allow stallion serial driver to be built-in + module clean up
-Message-ID: <20041221022548.GC25474@cse.unsw.EDU.AU>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="h31gzZEtNLTqOjlF"
+	Mon, 20 Dec 2004 21:41:04 -0500
+Received: from out009pub.verizon.net ([206.46.170.131]:10653 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S261235AbULUCkv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 21:40:51 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9 and the GPL Buyout
+Date: Mon, 20 Dec 2004 21:40:48 -0500
+User-Agent: KMail/1.7
+Cc: "Jeff V. Merkey" <jmerkey@mail.gadugi.org>, Jesper Juhl <juhl-lkml@dif.dk>,
+       jmerkey@gadugi.org
+References: <20041220212723.GA8634@mail.gadugi.org> <Pine.LNX.4.61.0412210002590.3581@dragon.hygekrogen.localhost> <20041220225733.GA9771@mail.gadugi.org>
+In-Reply-To: <20041220225733.GA9771@mail.gadugi.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+Message-Id: <200412202140.49006.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.45.252] at Mon, 20 Dec 2004 20:40:49 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 20 December 2004 17:57, Jeff V. Merkey wrote:
+>> > I was not able to because the Cherokee Nation had not fully
+>> > completed the planning stages and I did not have authority form
+>> > our leaders to discuss this until it reached this stage.
+>>
+>> Then you should, perhaps, just have waited to post your original
+>> mail until you had such auth.
+>>
+>> --
+>> Jesper
+>
+>It's always odd that your viewpoint is always 20/20 when looking
+>out of a rear view mirror of a 4x4 vehicle all the while
+>the windshield is mired in mud from the road and the windshield
+>wipers are full blast.
+>
+>Anyway, old saying in Cherokee,
+>
+>   Ne-go-di-s-ge-sdi = "that's just the way it is."
+>
+>Jeff
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+At severe risk of starting a flame war all over again, here goes.
 
-:The patches attached allow the stallion multi-port serial card
-to be compiled as a module or built-in. I have also updated the
-driver to use the newer modules interface.
+In other words, that $50 million offer was also just so much
+vaporware.  Thats not a question, its a statement, because you
+personally sure as h--- don't have $50 million to back it up and I
+have serious doubts the council would have backed you.  $50 million is
+a decent sum of money, even if they do have their own casino that may
+be quite profitable.
 
-This driver is still NOT smp safe using cli() and save|restore_flags().
-There is a bit more work to update these to spin-locks due to numerous
-printk's spread throughout the code.
+Really now, are *you* doing the Cherokee Nation any good at all? 
 
-Tested on: x86 and ia64, as module and built-in. Run only on x86.
+Or are you just another promoter trying to take advantage of a
+re-organization as they bring their government into the 21st century
+and learn to cope with the effects of having their own casino and
+(in your opinion) money to burn from it.  Maybe they see the
+advantages of getting technical, in fact I'm sure they do, and can
+probably do that far better for them without your kind of help.
 
-Darren
+I have visited the web site, as I'm sure some of the other
+commentators here have also done, and viewed what I saw while keeping
+in mind some of the many fine Cherokee people I've had the
+pleasure of knowing in my 70 years.  Make no mistake, some of them
+have been my mental superiors, and they will catch you up at some
+point, if not this one.  Wilma would have run you off long ago, if she
+were still President.
 
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------
+That said, I personally applaud them for the future direction they
+seem to have chosen, but will not pass judgement on this new license
+until the legal beagles have had a chance to disect the proposed
+license when its finally published, and the chances of its being held
+as valid in the courts of the rest of the world.  Believe me, I've
+seen fine Cherokees screwed in the courts of this (great?) nation
+several times, just because they were of Original American 
+bloodlines.   Now I'd like them to be treated as equals for a change.
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="stl-built-in-final-UP.patch"
+The feds say they are sovereign, but lets see if the acts match the
+words.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/12/08 13:37:06+11:00 dsw@vanilla.gelato 
-#   Allow stallion console driver to be built-in, and register irqs correctly with dev_id != NULL
-# 
-#   Signed-off Darren Williams <dswATgelato.unsw.edu.au>
-# drivers/char/stallion.c
-#   2004/12/08 13:36:57+11:00 dsw@vanilla.gelato +12 -15
-#   Pass non NULL dev_id to request_irq to allow correct irq registration. We use the board pointer as the dev_id
-#   to allow unique identification across shared interupts.
-#   
-#   Remove remaining #ifdef MODULES to allow for built-in support.
-#
-# Signed-off Darren Williams <dswATgelato.unsw.edu.au>
-#  
-diff -Nru a/drivers/char/stallion.c b/drivers/char/stallion.c
---- a/drivers/char/stallion.c	2004-12-08 13:44:57 +11:00
-+++ b/drivers/char/stallion.c	2004-12-08 13:44:57 +11:00
-@@ -240,7 +240,6 @@
- 
- /*****************************************************************************/
- 
--#ifdef MODULE
- /*
-  *	Define some string labels for arguments passed from the module
-  *	load line. These allow for easy board definitions, and easy
-@@ -316,7 +315,6 @@
- MODULE_PARM(board3, "1-4s");
- MODULE_PARM_DESC(board3, "Board 3 config -> name[,ioaddr[,ioaddr2][,irq]]");
- 
--#endif
- 
- /*****************************************************************************/
- 
-@@ -472,12 +470,10 @@
-  *	Declare all those functions in this driver!
-  */
- 
--#ifdef MODULE
- static void	stl_argbrds(void);
- static int	stl_parsebrd(stlconf_t *confp, char **argp);
- 
- static unsigned long stl_atol(char *str);
--#endif
- 
- int		stl_init(void);
- static int	stl_open(struct tty_struct *tty, struct file *filp);
-@@ -504,7 +500,7 @@
- 
- static int	stl_brdinit(stlbrd_t *brdp);
- static int	stl_initports(stlbrd_t *brdp, stlpanel_t *panelp);
--static int	stl_mapirq(int irq, char *name);
-+static int	stl_mapirq(stlbrd_t *brdp, char *name);
- static int	stl_getserial(stlport_t *portp, struct serial_struct __user *sp);
- static int	stl_setserial(stlport_t *portp, struct serial_struct __user *sp);
- static int	stl_getbrdstats(combrd_t __user *bp);
-@@ -735,7 +731,6 @@
- 
- static struct class_simple *stallion_class;
- 
--#ifdef MODULE
- 
- /*
-  *	Loadable module initialization stuff.
-@@ -959,7 +954,6 @@
- 	return(1);
- }
- 
--#endif
- 
- /*****************************************************************************/
- 
-@@ -2179,26 +2173,27 @@
-  *	interrupt across multiple boards.
-  */
- 
--static int __init stl_mapirq(int irq, char *name)
-+static int __init stl_mapirq(stlbrd_t *brdp, char *name)
- {
- 	int	rc, i;
- 
- #ifdef DEBUG
--	printk("stl_mapirq(irq=%d,name=%s)\n", irq, name);
-+	printk("stl_mapirq(irq=%d,name=%s)\n", brdp->irq, name);
- #endif
- 
- 	rc = 0;
- 	for (i = 0; (i < stl_numintrs); i++) {
--		if (stl_gotintrs[i] == irq)
-+		if (stl_gotintrs[i] == brdp->irq)
- 			break;
- 	}
- 	if (i >= stl_numintrs) {
--		if (request_irq(irq, stl_intr, SA_SHIRQ, name, NULL) != 0) {
-+		/* pass the unique board pointer for shared interrupt dev_id */
-+		if ( request_irq(brdp->irq, stl_intr, SA_SHIRQ, name, brdp) != 0) {
- 			printk("STALLION: failed to register interrupt "
--				"routine for %s irq=%d\n", name, irq);
-+				"routine for %s irq=%d\n", name, brdp->irq);
- 			rc = -ENODEV;
- 		} else {
--			stl_gotintrs[stl_numintrs++] = irq;
-+			stl_gotintrs[stl_numintrs++] = brdp->irq;
- 		}
- 	}
- 	return(rc);
-@@ -2389,7 +2384,7 @@
- 	brdp->nrpanels = 1;
- 	brdp->state |= BRD_FOUND;
- 	brdp->hwid = status;
--	rc = stl_mapirq(brdp->irq, name);
-+	rc = stl_mapirq(brdp, name);
- 	return(rc);
- }
- 
-@@ -2594,7 +2589,7 @@
- 		outb((brdp->ioctrlval | ECH_BRDDISABLE), brdp->ioctrl);
- 
- 	brdp->state |= BRD_FOUND;
--	i = stl_mapirq(brdp->irq, name);
-+	i = stl_mapirq(brdp, name);
- 	return(i);
- }
- 
-@@ -2807,9 +2802,7 @@
-  */
- 	for (i = 0; (i < stl_nrbrds); i++) {
- 		confp = &stl_brdconf[i];
--#ifdef MODULE
- 		stl_parsebrd(confp, stl_brdsp[i]);
--#endif
- 		if ((brdp = stl_allocbrd()) == (stlbrd_t *) NULL)
- 			return(-ENOMEM);
- 		brdp->brdnr = i;
-@@ -2825,9 +2818,7 @@
-  *	Find any dynamically supported boards. That is via module load
-  *	line options or auto-detected on the PCI bus.
-  */
--#ifdef MODULE
- 	stl_argbrds();
--#endif
- #ifdef CONFIG_PCI
- 	stl_findpcibrds();
- #endif
+The only other such setup within our borders is the Navajo Nation,
+much larger in totall real estate, but they have not managed nearly
+so well. Their main claim to fame is all the coal burning power plants
+in the 4 corners area that feed LA with lots of electricity, but
+renders large parts of the San Juan River basin uninhabitable with
+its pollution because it is not federally emissions regulated. The
+air gets pretty damned thick when mother nature puts a lid on it
+preventing the dissipation of what was then, in 1979, of some 23
+Gigawatts worth of coal burnt per hour, with another 40 some under
+construction then.  NDI whats happened since.
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="stl-built-in-final-module-clean-up.patch"
+Until then Jeff, the GPL is a damned fine license.  And I would like
+to see it kept.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/12/21 09:26:35+11:00 dsw@vanilla.gelato 
-#   Update module setup to use latest module interface and remove ia64 compiler warnings.
-#   Tested on i386 and ia64,  built-in and as a module, run only on i386.
-#   
-#   Signed-off Darren Williams (dswATgelato.unsw.edu.au)
-# 
-# drivers/char/stallion.c
-#   2004/12/21 09:26:26+11:00 dsw@vanilla.gelato +12 -13
-#   - Replace deprecated MODULE_PARM->module_param_array
-#   - Let module interface determine the number of args
-#   - Remove printk compiler warnings for ia64
-# 
-diff -Nru a/drivers/char/stallion.c b/drivers/char/stallion.c
---- a/drivers/char/stallion.c	2004-12-21 09:33:05 +11:00
-+++ b/drivers/char/stallion.c	2004-12-21 09:33:05 +11:00
-@@ -246,6 +246,7 @@
-  *	modification of the io, memory and irq resoucres.
-  */
- 
-+static int	stl_nargs = 0;
- static char	*board0[4];
- static char	*board1[4];
- static char	*board2[4];
-@@ -306,13 +307,13 @@
- MODULE_DESCRIPTION("Stallion Multiport Serial Driver");
- MODULE_LICENSE("GPL");
- 
--MODULE_PARM(board0, "1-4s");
-+module_param_array(board0, charp, &stl_nargs, 0);
- MODULE_PARM_DESC(board0, "Board 0 config -> name[,ioaddr[,ioaddr2][,irq]]");
--MODULE_PARM(board1, "1-4s");
-+module_param_array(board1, charp, &stl_nargs, 0);
- MODULE_PARM_DESC(board1, "Board 1 config -> name[,ioaddr[,ioaddr2][,irq]]");
--MODULE_PARM(board2, "1-4s");
-+module_param_array(board2, charp, &stl_nargs, 0);
- MODULE_PARM_DESC(board2, "Board 2 config -> name[,ioaddr[,ioaddr2][,irq]]");
--MODULE_PARM(board3, "1-4s");
-+module_param_array(board3, charp, &stl_nargs, 0);
- MODULE_PARM_DESC(board3, "Board 3 config -> name[,ioaddr[,ioaddr2][,irq]]");
- 
- 
-@@ -846,15 +847,13 @@
- {
- 	stlconf_t	conf;
- 	stlbrd_t	*brdp;
--	int		nrargs, i;
-+	int		i;
- 
- #ifdef DEBUG
- 	printk("stl_argbrds()\n");
- #endif
- 
--	nrargs = sizeof(stl_brdsp) / sizeof(char **);
--
--	for (i = stl_nrbrds; (i < nrargs); i++) {
-+	for (i = stl_nrbrds; (i < stl_nargs); i++) {
- 		memset(&conf, 0, sizeof(conf));
- 		if (stl_parsebrd(&conf, stl_brdsp[i]) == 0)
- 			continue;
-@@ -978,8 +977,8 @@
- 
- 	brdp = (stlbrd_t *) stl_memalloc(sizeof(stlbrd_t));
- 	if (brdp == (stlbrd_t *) NULL) {
--		printk("STALLION: failed to allocate memory (size=%d)\n",
--			sizeof(stlbrd_t));
-+		printk("STALLION: failed to allocate memory (size=%lu)\n",
-+			(unsigned long)sizeof(stlbrd_t));
- 		return((stlbrd_t *) NULL);
- 	}
- 
-@@ -2224,7 +2223,7 @@
- 		portp = (stlport_t *) stl_memalloc(sizeof(stlport_t));
- 		if (portp == (stlport_t *) NULL) {
- 			printk("STALLION: failed to allocate memory "
--				"(size=%d)\n", sizeof(stlport_t));
-+				"(size=%lu)\n", (unsigned long)sizeof(stlport_t));
- 			break;
- 		}
- 		memset(portp, 0, sizeof(stlport_t));
-@@ -2361,7 +2360,7 @@
- 	panelp = (stlpanel_t *) stl_memalloc(sizeof(stlpanel_t));
- 	if (panelp == (stlpanel_t *) NULL) {
- 		printk(KERN_WARNING "STALLION: failed to allocate memory "
--			"(size=%d)\n", sizeof(stlpanel_t));
-+			"(size=%lu)\n", (unsigned long)sizeof(stlpanel_t));
- 		return(-ENOMEM);
- 	}
- 	memset(panelp, 0, sizeof(stlpanel_t));
-@@ -2530,7 +2529,7 @@
- 		panelp = (stlpanel_t *) stl_memalloc(sizeof(stlpanel_t));
- 		if (panelp == (stlpanel_t *) NULL) {
- 			printk("STALLION: failed to allocate memory "
--				"(size=%d)\n", sizeof(stlpanel_t));
-+				"(size=%lu)\n", (unsigned long)sizeof(stlpanel_t));
- 			break;
- 		}
- 		memset(panelp, 0, sizeof(stlpanel_t));
+-- 
+No Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
 
---h31gzZEtNLTqOjlF--

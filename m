@@ -1,34 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311749AbSDXLZK>; Wed, 24 Apr 2002 07:25:10 -0400
+	id <S311829AbSDXLbC>; Wed, 24 Apr 2002 07:31:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311752AbSDXLZJ>; Wed, 24 Apr 2002 07:25:09 -0400
-Received: from ns.suse.de ([213.95.15.193]:41226 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S311749AbSDXLZG>;
-	Wed, 24 Apr 2002 07:25:06 -0400
-Date: Wed, 24 Apr 2002 13:25:05 +0200
-From: Dave Jones <davej@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.4.19-pre6aa1 (i586) ?
-Message-ID: <20020424132505.M29841@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020423092731.GA6327@smart.cobolt.net> <20020423150709.A4982@dualathlon.random> <20020424085458.GC9292@smart.cobolt.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S311834AbSDXLbB>; Wed, 24 Apr 2002 07:31:01 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:1664 "HELO gherkin.frus.com")
+	by vger.kernel.org with SMTP id <S311829AbSDXLbA>;
+	Wed, 24 Apr 2002 07:31:00 -0400
+Message-Id: <m170Kz0-0005kiC@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy)
+Subject: Re: 2.5.9 -- Build error -- scsidrv.o: In function `ahc_linux_halt':
+ undefined reference to `ahc_tailq'
+In-Reply-To: <3CC5D19D.5000006@sgi.com> "from Stephen Lord at Apr 23, 2002 04:26:53
+ pm"
+To: Stephen Lord <lord@sgi.com>
+Date: Wed, 24 Apr 2002 06:30:46 -0500 (CDT)
+CC: Miles Lane <miles@megapathdsl.net>, LKML <linux-kernel@vger.kernel.org>,
+        torvalds@transmeta.com
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 24, 2002 at 10:54:58AM +0200, Dennis Schoen wrote:
+Stephen Lord wrote:
+> Miles Lane wrote:
+> 
+> >drivers/scsi/scsidrv.o: In function `ahc_linux_halt':
+> >drivers/scsi/scsidrv.o(.text+0x78cd): undefined reference to `ahc_tailq'
+> >drivers/scsi/scsidrv.o(.text+0x78e2): undefined reference to
+> >`ahc_shutdown'
+> >drivers/scsi/scsidrv.o: In function `ahc_linux_detect':
+> >drivers/scsi/scsidrv.o(.text+0x7fb7): undefined reference to `ahc_tailq'
+> >drivers/scsi/scsidrv.o: In function `ahc_linux_register_host':
+> >drivers/scsi/scsidrv.o(.text+0x80c6): undefined reference to
+> >`ahc_set_unit'
+> >drivers/scsi/scsidrv.o(.text+0x8109): undefined reference to
+> >`ahc_set_name'
+> >
+> >and so on.
 
- > opel:~# ./ewbe
- > HWCR=               2
- > Current EWBE mode is strong ordering
+The problem appears to be a couple of simple typos made by whoever
+submitted the patch for linux/scsi/aic7xxx/Makefile.  Here's a quick
+"counter"patch that fixed things for me...
 
-Bah, told you it was a long shot. Oh well..
+--- linux/drivers/scsi/aic7xxx/Makefile.orig	Tue Apr 23 08:43:08 2002
++++ linux/drivers/scsi/aic7xxx/Makefile	Tue Apr 23 12:31:06 2002
+@@ -8,7 +8,7 @@
+ obj-$(CONFIG_SCSI_AIC7XXX)	+= aic7xxx_mod.o
+ 
+ # Core files
+-aix7xxx_mod-objs	+= aic7xxx.o aic7xxx_93cx6.o aic7770.o
++aic7xxx_mod-objs	+= aic7xxx.o aic7xxx_93cx6.o aic7770.o
+ 
+ # Platform Specific Files
+ aic7xxx_mod-objs	+= aic7xxx_linux.o aic7xxx_proc.o aic7770_linux.o
+@@ -33,4 +33,4 @@
+ aicasm/aicasm: aicasm/*.[chyl]
+ 	$(MAKE) -C aicasm
+ 
+-aix7xxx_mod.o: aic7xxx_seq.h aic7xxx_reg.h
++aic7xxx_mod.o: aic7xxx_seq.h aic7xxx_reg.h
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

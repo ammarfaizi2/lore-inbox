@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVATRdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVATQdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262264AbVATRdv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 12:33:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVATRcn
+	id S262197AbVATQdr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 11:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVATQTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 12:32:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:53391 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262220AbVATRax (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 12:30:53 -0500
-Date: Thu, 20 Jan 2005 09:30:45 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Chris Wedgwood <cw@f00f.org>, Paul Mackerras <paulus@samba.org>,
-       linux-kernel@vger.kernel.org, Peter Chubb <peterc@gelato.unsw.edu.au>,
-       Tony Luck <tony.luck@intel.com>,
-       Darren Williams <dsw@gelato.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Ia64 Linux <linux-ia64@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jesse Barnes <jbarnes@sgi.com>
-Subject: Re: [PATCH RFC] 'spinlock/rwlock fixes' V3 [1/1]
-In-Reply-To: <20050120162309.GB14002@elte.hu>
-Message-ID: <Pine.LNX.4.58.0501200926510.8178@ppc970.osdl.org>
-References: <20050116230922.7274f9a2.akpm@osdl.org> <20050117143301.GA10341@elte.hu>
- <20050118014752.GA14709@cse.unsw.EDU.AU> <16877.42598.336096.561224@wombat.chubb.wattle.id.au>
- <20050119080403.GB29037@elte.hu> <16878.9678.73202.771962@wombat.chubb.wattle.id.au>
- <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com>
- <20050120023445.GA3475@taniwha.stupidest.org> <Pine.LNX.4.58.0501200812300.8178@ppc970.osdl.org>
- <20050120162309.GB14002@elte.hu>
+	Thu, 20 Jan 2005 11:19:53 -0500
+Received: from bluebox.CS.Princeton.EDU ([128.112.136.38]:34949 "EHLO
+	bluebox.CS.Princeton.EDU") by vger.kernel.org with ESMTP
+	id S262217AbVATQPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 11:15:12 -0500
+From: "Marc E. Fiuczynski" <mef@CS.Princeton.EDU>
+To: "Peter Williams" <pwil3058@bigpond.net.au>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Cc: "Con Kolivas" <kernel@kolivas.org>, "Chris Han" <xiphux@gmail.com>
+Subject: RE: [ANNOUNCE][RFC] plugsched-2.0 patches ...
+Date: Thu, 20 Jan 2005 11:14:48 -0500
+Message-ID: <NIBBJLJFDHPDIBEEKKLPGELGDHAA.mef@cs.princeton.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Importance: Normal
+In-Reply-To: <41EF080D.7020101@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Peter, thank you for maintaining Con's plugsched code in light of Linus' and
+Ingo's prior objections to this idea.  On the one hand, I partially agree
+with Linus&Ingo's prior views that when there is only one scheduler that the
+rest of the world + dog will focus on making it better. On the other hand,
+having a clean framework that lets developers in a clean way plug in new
+schedulers is quite useful.
 
+Linus & Ingo, it would be good to have an indepth discussion on this topic.
+I'd argue that the Linux kernel NEEDS a clean pluggable scheduling
+framework.
 
-On Thu, 20 Jan 2005, Ingo Molnar wrote:
-> 
-> right. Replace patch #4 with:
->  
->  /**
->   * read_can_lock - would read_trylock() succeed?
->   * @lock: the rwlock in question.
->   */
-> -#define read_can_lock(x) (atomic_read((atomic_t *)&(x)->lock) > 0)
-> +static inline int read_can_lock(rwlock_t *rw)
-> +{
-> +	return rw->lock > 0;
-> +}
+Let me make a case for this NEED by example.  Ingo's scheduler belongs to
+the egalitarian regime of schedulers that do a poor job of isolating
+workloads from each other in multiprogrammed environments such as those
+found on Enterprise servers and in my case on PlanetLab (www.planet-lab.org)
+nodes.  This has been rectified by HP-UX, Solaris, and AIX through the use
+of fair share schedulers that use O(1) schedulers within a share.  Currently
+PlanetLab uses a CKRM modified version of Ingo's scheduler.  Similarly, the
+linux-vserver project also modifies Ingo's scheduler to construct an
+entitlement based scheduling regime. These are not just variants of O(1)
+schedulers in the sense of Con's staircase O(1). Nor is it clear what the
+best type of scheduler is for these environments (i.e., HP-UX, Solaris and
+AIX don't have it fully solved yet either). The ability to dynamically swap
+out schedulers on a production system like PlanetLab would help in
+determining what type of scheduler is the most appropriate.  This is because
+it is non-trivial, if not impossible, to recreate the multiprogrammed
+workloads that we see in a lab.
 
-No, it does need the cast to signed, otherwise it will return true for the 
-case where somebody holds the write-lock _and_ there's a pending reader 
-waiting too (the write-lock will make it zero, the pending reader will 
-wrap around and make it negative, but since "lock" is "unsigned", it will 
-look like a large value to "read_can_lock".
+For these reasons, it would be useful for plugsched (or something like it)
+to make its way into the mainline kernel as a framework to plug in different
+schedulers.  Alternatively, it would be useful to consider in what way
+Ingo's scheduler needs to support plugins such as the CKRM and Vserver types
+of changes.
 
-I also think I'd prefer to do the things as macros, and do the type-safety 
-by just renaming the "lock" field like Chris did. We had an issue with gcc 
-being very slow recently, and that was due to some inline functions in 
-header files: gcc does a lot of work on an inline function regardless of
-whether it is used or not, and the spinlock header file is included pretty 
-much _everywhere_...
+Best regards,
+Marc
 
-Clearly inline functions are "nicer", but they do come with a cost.
-
-		Linus

@@ -1,77 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272838AbRIGUbv>; Fri, 7 Sep 2001 16:31:51 -0400
+	id <S272835AbRIGUYA>; Fri, 7 Sep 2001 16:24:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272837AbRIGUbl>; Fri, 7 Sep 2001 16:31:41 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:44210 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S272838AbRIGUbZ>; Fri, 7 Sep 2001 16:31:25 -0400
-Message-ID: <3B992EC4.ED1F82CB@web.de>
-Date: Fri, 07 Sep 2001 22:32:04 +0200
-From: Olaf Zaplinski <olaf.zaplinski@web.de>
-X-Mailer: Mozilla 4.78 [en] (Win98; U)
-X-Accept-Language: de,en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: AIC + RAID1 error? (was: Re: aic7xxx errors)
-In-Reply-To: <200109050621.f856LAK00824@ambassador.mathewson.int> <3B95DB22.866EDCA3@mediascape.de>
+	id <S272836AbRIGUXu>; Fri, 7 Sep 2001 16:23:50 -0400
+Received: from i1231.vwr.wanadoo.nl ([194.134.212.212]:40576 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S272835AbRIGUXa>; Fri, 7 Sep 2001 16:23:30 -0400
+Date: Fri, 7 Sep 2001 22:24:07 +0200
+From: Remi Turk <remi@abcweb.nl>
+To: emu10k1-devel@opensource.creative.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.10-pre4 + CVS == oops
+Message-ID: <20010907222407.A1008@localhost.localdomain>
+Mail-Followup-To: emu10k1-devel@opensource.creative.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Zaplinski wrote:
-> 
-> Joseph Mathewson wrote:
-> >
-> > I've just woken up this morning to find my internet gateway machine only
-> > responding to pings, and on giving it a keyboard & monitor, a load of
-> >
-> > scsi0:0:1:0: Attempting to queue an ABORT message
-> > scsi0:0:1:0: Cmd aborted from QINFIFO
-> > aic7xxx_abort returns 8194
-> >
-> > errors.
-> [...]
-> 
-> /me too. I had this while booting 2.4.9 with a fresh installed SCSI card
-> (AHA2940) + harddisk. What worked for me was to compile the kernel with the
-> old Adaptec driver, so it's a driver issue.
+Hi,
+Using 2.4.10-pre4 and either the CVS-driver or the in-kernel one,
+I'm getting an oops on loading the module.
 
-Okay, I had it again today:
 
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
-message
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Cmd aborted from QINFIFO
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
-message
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Command not found
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
-message
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Cmd aborted from QINFIFO
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
-message
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Command not found
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
-message
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Cmd aborted from QINFIFO
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
-message
-Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Command not found
+Creative EMU10K1 PCI Audio Driver, version 0.15, 18:57:43 Sep  4 2001 
+PCI: Found IRQ 11 for device 00:11.0 
+emu10k1: EMU10K1 rev 4 model 0x20 found, IO at 0xdc00-0xdc1f, IRQ 11 
+ac97_codec: AC97  codec, id: 0x5452:0x4103 (TriTech TR28023) 
 
-Kernel was 2.4.9ac9 with (new) AIC driver 6.2.1, compiled with "Maximum
-Number of TCQ Commands per Device" set to 64. I was lucky since it's a RAID1
-system (mirror disk is hda). Distro is SuSE 7.2 Professional, machine
-K6-2/300 with 128 MB EDO RAM, FS is reiser 3.6.25. Average load is low, it's
-a small smtp/imap/www system.
 
-So I compiled the same kernel with the old AIC driver, and it works fine.
+The oops: (from the CVS-version)
 
-I should mention that it is a rather old PCI AHA-2940 Fast SCSI card with an
-also older harddisk IBM 0662S12 (that's the whole SCSI chain).
-My other machine (AIC-something U2W with Tandberg SLR (U2W) and SCSI CDR
-(SE) attached, no HDDs) works fine with the new driver. I just guess when
-saying that it seems to me that the driver developers were focused on
-up-to-date cards but not the older ones.
+ksymoops 2.3.5 on i686 2.4.10-pre4.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.10-pre4/ (default)
+     -m /boot/System.map-2.4.10-pre4 (specified)
 
-Olaf
+Sep  7 17:10:51 localhost kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000004 
+Sep  7 17:10:51 localhost kernel: c0113fe6 
+Sep  7 17:10:51 localhost kernel: *pde = 00000000 
+Sep  7 17:10:51 localhost kernel: Oops: 0002 
+Sep  7 17:10:51 localhost kernel: CPU:    0 
+Sep  7 17:10:51 localhost kernel: EIP:    0010:[<c0113fe6>] 
+Using defaults from ksymoops -t elf32-i386 -a i386
+Sep  7 17:10:51 localhost kernel: EFLAGS: 00010082 
+Sep  7 17:10:51 localhost kernel: eax: e22bc640   ebx: 00000282   ecx: e2e85f34   edx: 00000000 
+Sep  7 17:10:51 localhost kernel: esi: e22bc000   edi: 00001000   ebp: e2e85f40   esp: e2e85f2c 
+Sep  7 17:10:51 localhost kernel: ds: 0018   es: 0018   ss: 0018 
+Sep  7 17:10:51 localhost kernel: Process ogg123 (pid: 1831, stackpage=e2e85000) 
+Sep  7 17:10:51 localhost kernel: Stack: 00000000 e2e84000 00001000 e8954394 00000206 00000000 e895444c e44791c0  
+Sep  7 17:10:51 localhost kernel:        ffffffea 00000000 00001000 00000001 e2e85f68 e2e84000 e0a23600 000009d8  
+Sep  7 17:10:51 localhost kernel:        c013306f e44791c0 0804cac0 00001000 e44791e0 080d6fff e7becf40 080d7000  
+Sep  7 17:10:51 localhost kernel: Call Trace: [<e8954394>] [<e895444c>] [<c013306f>] [<c0124053>] [<c0106edf>]  
+Sep  7 17:10:51 localhost kernel: Code: 89 4a 04 89 55 f4 89 45 f8 89 08 e8 1a f9 ff ff fa 8b 55 f8  
+
+>>EIP; c0113fe6 <interruptible_sleep_on+26/50>   <=====
+Trace; e8954394 <[emu10k1]emu10k1_audio_write+174/250>
+Trace; e895444c <[emu10k1]emu10k1_audio_write+22c/250>
+Trace; c013306f <sys_write+af/d0>
+Trace; c0124053 <sys_brk+e3/f0>
+Trace; c0106edf <system_call+33/38>
+Code;  c0113fe6 <interruptible_sleep_on+26/50>
+00000000 <_EIP>:
+Code;  c0113fe6 <interruptible_sleep_on+26/50>   <=====
+   0:   89 4a 04                  mov    %ecx,0x4(%edx)   <=====
+Code;  c0113fe9 <interruptible_sleep_on+29/50>
+   3:   89 55 f4                  mov    %edx,0xfffffff4(%ebp)
+Code;  c0113fec <interruptible_sleep_on+2c/50>
+   6:   89 45 f8                  mov    %eax,0xfffffff8(%ebp)
+Code;  c0113fef <interruptible_sleep_on+2f/50>
+   9:   89 08                     mov    %ecx,(%eax)
+Code;  c0113ff1 <interruptible_sleep_on+31/50>
+   b:   e8 1a f9 ff ff            call   fffff92a <_EIP+0xfffff92a> c0113910 <schedule+0/3f0>
+Code;  c0113ff6 <interruptible_sleep_on+36/50>
+  10:   fa                        cli    
+Code;  c0113ff7 <interruptible_sleep_on+37/50>
+  11:   8b 55 f8                  mov    0xfffffff8(%ebp),%edx
+
+
+ver_linux output:
+
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+Linux localhost.localdomain 2.4.9 #3 Tue Sep 4 18:53:23 CEST 2001 i686 unknown
+ 
+Gnu C                  egcs-2.91.66
+Gnu make               3.79.1
+binutils               2.10.0.18
+util-linux             2.10s
+mount                  2.10p
+modutils               2.4.5
+e2fsprogs              1.19
+reiserfsprogs          3.x.0
+Linux C Library        2.1.3
+Dynamic linker (ldd)   2.1.3
+Procps                 2.0.6
+Net-tools              1.53
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         ppp_deflate bsd_comp ppp_async ppp_generic slhc emu10k1 ac97_codec soundcore
+
+
+More info on request.
+
+Happy hacking
+
+	Remi
+
+-- 
+Linux 2.4.9 #3 Tue Sep 4 18:53:23 CEST 2001

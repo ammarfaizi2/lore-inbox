@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129886AbQKPQJX>; Thu, 16 Nov 2000 11:09:23 -0500
+	id <S130304AbQKPQSZ>; Thu, 16 Nov 2000 11:18:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130304AbQKPQJN>; Thu, 16 Nov 2000 11:09:13 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:50189 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129886AbQKPQJG>; Thu, 16 Nov 2000 11:09:06 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S131006AbQKPQSP>; Thu, 16 Nov 2000 11:18:15 -0500
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:21262 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S130304AbQKPQSG>; Thu, 16 Nov 2000 11:18:06 -0500
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200011161547.QAA23000@green.mif.pg.gda.pl>
+Subject: Re: PCI configuration changes
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Thu, 16 Nov 2000 16:47:46 +0100 (CET)
+Cc: peter@cadcamlab.org (Peter Samuelson),
+        linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <3A13FD32.2E0C6721@mandrakesoft.com> from "Jeff Garzik" at Nov 16, 2000 10:28:50 AM
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14867.65395.355697.262146@wire.cadcamlab.org>
-Date: Thu, 16 Nov 2000 09:38:27 -0600 (CST)
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PCI configuration changes
-In-Reply-To: <200011151005.LAA20027@green.mif.pg.gda.pl>
-	<20001116092539.A2453@wire.cadcamlab.org>
-	<3A13FDB1.4B4740E1@mandrakesoft.com>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Peter Samuelson wrote:
+> > [Andrzej Krzysztofowicz]
+> > > Note, that as CONFIG_MCA is defined only for i386 the dependencies on
+> > > $CONFIG_MCA are no-op for other architectures (in
+> > > Configure/Menuconfig).  Either CONFIG_MCA should be defined for all
+> > > architectures or there should be if ... fi around these lines.
+> > 
+> > Looks good to me.  Anything to remove clutter from config menus....
+> 
+> Patch looks ok to me, applied.
 
-[Jeff Garzik <jgarzik@mandrakesoft.com>]
-> Oh yeah, another MCA cleanup to consider -- like EISA, there exists a
-> 'MCA_bus' variable which is 0 or 1, depending on the absence or presence
-> of MCA bus on the current system.
+I think the following i386 chunk should be added to the patch:
 
-OK, workin' on it..
 
-Peter
+--- arch/i386/config.in.old	Tue Nov 14 23:18:12 2000
++++ arch/i386/config.in	Tue Nov 14 23:19:10 2000
+@@ -198,6 +198,8 @@
+ 
+ if [ "$CONFIG_VISWS" != "y" ]; then
+    bool 'MCA support' CONFIG_MCA
++else
++   define_bool CONFIG_MCA n
+ fi
+ 
+ bool 'Support for hot-pluggable devices' CONFIG_HOTPLUG
+
+
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

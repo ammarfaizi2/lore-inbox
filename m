@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312982AbSDTR05>; Sat, 20 Apr 2002 13:26:57 -0400
+	id <S312972AbSDTR1z>; Sat, 20 Apr 2002 13:27:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314664AbSDTR04>; Sat, 20 Apr 2002 13:26:56 -0400
-Received: from w226.z064000207.nyc-ny.dsl.cnc.net ([64.0.207.226]:47660 "EHLO
-	carey-server.stronghold.to") by vger.kernel.org with ESMTP
-	id <S312982AbSDTR0z>; Sat, 20 Apr 2002 13:26:55 -0400
-Message-Id: <4.3.2.7.2.20020420132907.03c59cd0@mail.strongholdtech.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sat, 20 Apr 2002 13:32:11 -0400
-To: r.ems@gmx.net, Andre Hedrick <andre@linux-ide.org>,
-        linux-kernel@vger.kernel.org
-From: "Nicolae P. Costescu" <nick@strongholdtech.com>
-Subject: Re: AMD Athlon + VIA Crashing On Disk I/O
-In-Reply-To: <3CC1A228.2B9C72F6@gmx.net>
+	id <S314664AbSDTR1y>; Sat, 20 Apr 2002 13:27:54 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:59742 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S312972AbSDTR1x>; Sat, 20 Apr 2002 13:27:53 -0400
+Date: Sat, 20 Apr 2002 19:27:29 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Brian Gerst <bgerst@didntduck.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        ak@suse.de, linux-kernel@vger.kernel.org, jh@suse.cz
+Subject: Re: [PATCH] Re: SSE related security hole
+Message-ID: <20020420192729.I1291@dualathlon.random>
+In-Reply-To: <20020420070713.H1291@dualathlon.random> <Pine.LNX.4.33.0204200919080.11450-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We gave up using kt266A chipset motherboards with anything faster than ATA100.
-I can reproduce disk corruption within 30 seconds on any of the KT266A 
-motheroards we've tried that have a highpoint 370/372/372a either onboard 
-or on the RocketRaid133 controller.
-Did not get the corruption when using ATA100 or slower (e.g. promise 
-fastrak 100 tx2).
-Simple program that writes 1.2 gig to a file and reads them back (checking 
-the value) will find corruption every time on these boards, and I tried 5 
-motherboards (2 asus, 3 abit).
-We switched to Intel I845 chipset and to AMD MPX chipset and haven't seen 
-the problem.
-I thought this problem was linked with the VIA chipset PCI latency issue as 
-people were having the problem with high speed framegrabbers as well.
-****************************************************
-Nicolae P. Costescu, Ph.D.  / Senior Developer
-Stronghold Technologies
-46040 Center Oak Plaza, Suite 160 / Sterling, Va 20166
-Tel: 571-434-1472 / Fax: 571-434-1478
+On Sat, Apr 20, 2002 at 09:27:11AM -0700, Linus Torvalds wrote:
+> If Intel makes the SSE3 registers twice as wide (or creates new ones), the 
+> xorps trick simply will not work.
 
+Then the thing is different, I expected SSE3 not to mess the xmm layout.
+If you just know SSE3 would break with the xorps the fxrestor way is
+better. Anyways the problems I have about the implementation remains
+(memset and duplicate efforts with ptrace in creating the empty fpu
+state).
+
+If they tell you the xmm registers won't change with SSE3 instead I
+still prefer the xorps, that's 3bytes x 8 registers = 24 bytes of
+icachce, compared to throwing away 512bytes/32 = 16 dcache cachelines so
+it should be significantly faster.
+
+Andrea

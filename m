@@ -1,56 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRDPLWm>; Mon, 16 Apr 2001 07:22:42 -0400
+	id <S131244AbRDPLaC>; Mon, 16 Apr 2001 07:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130820AbRDPLWW>; Mon, 16 Apr 2001 07:22:22 -0400
-Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:64785 "HELO
-	xena.sind-doof.de") by vger.kernel.org with SMTP id <S130768AbRDPLWT>;
-	Mon, 16 Apr 2001 07:22:19 -0400
-Date: Mon, 16 Apr 2001 13:21:10 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: David Findlay <david_j_findlay@yahoo.com.au>
-Cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: IP Acounting Idea for 2.5
-Message-ID: <20010416132109.C29398@kallisto.sind-doof.de>
-Mail-Followup-To: David Findlay <david_j_findlay@yahoo.com.au>,
-	"Mike A. Harris" <mharris@opensourceadvocate.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0104152039130.1616-100000@asdf.capslock.lan> <01041708461209.00352@workshop>
+	id <S131191AbRDPL3n>; Mon, 16 Apr 2001 07:29:43 -0400
+Received: from cdsl18.ptld.uswest.net ([209.180.170.18]:21616 "HELO
+	galen.magenet.net") by vger.kernel.org with SMTP id <S130820AbRDPL3e>;
+	Mon, 16 Apr 2001 07:29:34 -0400
+Date: Mon, 16 Apr 2001 04:29:48 -0700
+From: Joseph Carter <knghtbrd@debian.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb-uhci.c problems in latest kernels?
+Message-ID: <20010416042947.B16720@debian.org>
+In-Reply-To: <20010414213546.A1590@devserv.devel.redhat.com> <20010415043836.C15118@debian.org> <20010415232909.A28478@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="s2ZSL+KKDSLx8OML"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01041708461209.00352@workshop>; from david_j_findlay@yahoo.com.au on Tue, Apr 17, 2001 at 08:46:12AM +1000
-X-Operating-System: Debian GNU/Linux (Linux 2.4.3-ac5-int1-nf20010413-dc1 i686)
-X-Disclaimer: Are you really taking me serious?
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010415232909.A28478@devserv.devel.redhat.com>; from zaitcev@redhat.com on Sun, Apr 15, 2001 at 11:29:09PM -0400
+X-Operating-System: Linux galen 2.4.3-ac4+lm+bttv
+X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, Apr 17, 2001 at 08:46:12AM +1000, David Findlay wrote:
-> 
-> I suppose, but it would be so much easier if the kernel did it automatically. 
-> Having a rule to go through for each IP address to be logged would be slower 
-> than implementing one rule that would log all of them. Doing this in the 
-> kernel would improve preformance.
+--s2ZSL+KKDSLx8OML
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You can use the iptables ULOG facility (see netfilter CVS for the
-patches). With this you can copy packets to userspace programs which
-can do any further processing, like the accounting stuff. You can even
-choose to only copy part of a packet (say only the IP header) to
-userspace, to reduce the amount of data your application has to
-handle.
+On Sun, Apr 15, 2001 at 11:29:09PM -0400, Pete Zaitcev wrote:
+> > I'm not sure of that.  Sometimes keys get "stuck" in the down position
+> > with my USB keyboard (mechanical switches, so the keys themselves are n=
+ot
+> > sticking) and usually when that happens I can find a line like the one
+> > quoted above in the logs. [...]
+>=20
+> The printout is a valuable diagnostic tool for hacking but
+> is useless for a user (actually dangerous, as it brings computers
+> down with /var overflow). The best option would be to have
+> it configurable with a module parameter.
 
-Simply copy the headers of all IP packets going through your router to
-userspace, and write a small application (possibly using libipulog
-which comes with the netfilter userspace code) which does the actual
-accounting. This has the additional benefit that further processing of
-the packet in kernel (i.e. outputting it on the destination interface)
-can continue while your application is processing the accounting data.
+That sounds like a good idea actually, under kernel hacking perhaps?  It
+seems to me that the messages do indicate some kind of non-fatal problem
+(that may not be true?) but I agree it is murderous to /var on a small
+system.  Given that I now consider a small system one with a /var of under
+300 megs, well..  =3D)
 
-Andreas
--- 
-You are in a maze of little twisting passages, all alike.
+--=20
+Joseph Carter <knghtbrd@debian.org>                Free software developer
 
+Techical solutions are not a matter of voting. Two legislations in the US
+states almost decided that the value of Pi be 3.14, exactly. Popular vote
+does not make for a correct solution.
+        -- Manoj Srivastava
+
+
+--s2ZSL+KKDSLx8OML
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
+
+iEYEARECAAYFAjra16sACgkQj/fXo9z52rNOpQCfXJ8jPYX9s8csZUmJZsWYO6pr
+xhEAn3O1f649iQ556IFr3CVlGksyqDWx
+=IqAy
+-----END PGP SIGNATURE-----
+
+--s2ZSL+KKDSLx8OML--

@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264857AbUHWGcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267443AbUHWGeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264857AbUHWGcb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 02:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267443AbUHWGcb
+	id S267443AbUHWGeP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 02:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267454AbUHWGeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 02:32:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8916 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264857AbUHWGc3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 02:32:29 -0400
-Subject: Re: [PATCH] e1000 - Use vmalloc for data structures not shared
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ganesh.venkatesan@intel.com
-In-Reply-To: <200408222225.i7MMPRNX019306@hera.kernel.org>
-References: <200408222225.i7MMPRNX019306@hera.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ham3SKUJ8ZBxxPJKhoig"
-Organization: Red Hat UK
-Message-Id: <1093242724.2792.3.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 23 Aug 2004 08:32:04 +0200
+	Mon, 23 Aug 2004 02:34:15 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40617 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267443AbUHWGeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 02:34:05 -0400
+To: Dave Jones <davej@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
+       Wakko Warner <wakko@animx.eu.org>,
+       "David N. Welton" <davidw@dedasys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Incompatibility List
+References: <87r7q0th2n.fsf@dedasys.com>
+	<20040821201632.GA7622@digitasaru.net>
+	<20040821202058.GA9218@animx.eu.org>
+	<1093120274.854.145.camel@krustophenia.net>
+	<1093173014.24344.35.camel@localhost.localdomain>
+	<20040822124200.GA7556@redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 23 Aug 2004 00:31:58 -0600
+In-Reply-To: <20040822124200.GA7556@redhat.com>
+Message-ID: <m1zn4m2wm9.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones <davej@redhat.com> writes:
 
---=-Ham3SKUJ8ZBxxPJKhoig
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Sun, Aug 22, 2004 at 12:10:15PM +0100, Alan Cox wrote:
+>  > On Sad, 2004-08-21 at 21:31, Lee Revell wrote:
+>  > > Nvidia.  AFAIK all nvidia Linux drivers are either binary-only or
+>  > > reverse-engineered.
+>  > 
+>  > The X 2D driver isnt too easy to read (although with the rivatv notes
+>  > its quite easy). That was written by Nvidia employees and provided by
+>  > Nvidia.
+> 
+> As was the nForce AGP GART driver. Some folks in NVidia are trying
+> to do the right thing wherever possible.
 
-On Thu, 2004-07-29 at 18:01, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1807.39.3, 2004/07/29 12:01:46-04:00, ganesh.venkatesan@intel=
-.com
->=20
-> 	[PATCH] e1000 - Use vmalloc for data structures not shared
+This will be an interesting space to watch I guess.
 
-eh why? You are aware that vmalloc'd datastructures are slower during
-use (due to TLB overhead) right ?
-These structures also don't look THAT big on first sight....
+Tyan is working on an LinuxBIOS to Nvidia's most recent
+Opteron chipset as well.    And Nvidia seems to be helping.
 
---=-Ham3SKUJ8ZBxxPJKhoig
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBKY9kxULwo51rQBIRAsxlAJsE2NnABHWAki6surdKuteyzhFAgQCeOisx
-jYvQ+u1QezKsKvsJwXfGuJE=
-=86Fg
------END PGP SIGNATURE-----
-
---=-Ham3SKUJ8ZBxxPJKhoig--
-
+Eric

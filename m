@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266023AbUANJi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 04:38:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbUANJfc
+	id S265295AbUANJlq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 04:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbUANJi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 04:35:32 -0500
-Received: from colin2.muc.de ([193.149.48.15]:44548 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S263636AbUANJfB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 04:35:01 -0500
-Date: 14 Jan 2004 10:35:56 +0100
-Date: Wed, 14 Jan 2004 10:35:56 +0100
-From: Andi Kleen <ak@colin2.muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, jh@suse.cz
+	Wed, 14 Jan 2004 04:38:59 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:57472 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265461AbUANJfP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 04:35:15 -0500
 Subject: Re: [PATCH] Add CONFIG for -mregparm=3
-Message-ID: <20040114093556.GB19652@colin2.muc.de>
-References: <20040114090603.GA1935@averell> <20040114012928.1e90af3b.akpm@osdl.org>
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Andi Kleen <ak@muc.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jh@suse.cz
+In-Reply-To: <20040114090603.GA1935@averell>
+References: <20040114090603.GA1935@averell>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qWrF5y3AEEEW+AMJuLX2"
+Organization: Red Hat, Inc.
+Message-Id: <1074072899.4981.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040114012928.1e90af3b.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 14 Jan 2004 10:34:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 14, 2004 at 01:29:28AM -0800, Andrew Morton wrote:
-> Andi Kleen <ak@muc.de> wrote:
-> >
-> >  I didn't make it the default because it will break all binary only
-> >  modules (although they can be fixed by adding a wrapper that 
-> >  calls them with "asmlinkage"). Actually it may be a good idea to 
-> >  make this default with 2.7.1 or somesuch.
-> 
-> yes, that is a hassle.  But for these sorts of gains, it's worth pursuing
-> it a bit further.
-> 
-> How _much_ of a hassle it will be I can not say - I'd be looking to vendors
 
-I think the popular modules like nvidia or ATI could be fixed 
-relatively easily.  They usually consist of a glue layer with source and a 
-binary blob that is only called from the glue layer. Basically all you 
-have to do is the mark the prototypes for the binary blob in the glue layer
-as "asmlinkage". In addition this can be done without any ifdefs
-because asmlinkage does the right thing on a non regparm kernel.
+--=-qWrF5y3AEEEW+AMJuLX2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Of course true binary only modules without glue layer would be more
-difficult, but for those the vendors just have to recompile. Conceivable
-it would be possible to write a glue layer even for them.
+On Wed, 2004-01-14 at 10:06, Andi Kleen wrote:
 
-> to advise before merging this into mainline.
+>=20
+> According to some gcc developers it should be safe to use in all
+> gccs that are still supports (2.95 and up)=20
 
-I'm not sure why vendors should care as long as it's only a CONFIG_*.
+it is not safe for the kernel until the cardbus CardServices patches get
+merged (is in -mm), for the same reason CardServices() is broken on
+amd64.
 
-The option is clearly more aimed at "kernel self compiler operators" for
-now.
 
--Andi
+
+--=-qWrF5y3AEEEW+AMJuLX2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBABQ1CxULwo51rQBIRArc4AJwK5QCrbSb6ExWc8BfV3WRXdYO9bgCgqQCr
+dEjRdqXEua/0s5HkgLLRpzY=
+=0hb4
+-----END PGP SIGNATURE-----
+
+--=-qWrF5y3AEEEW+AMJuLX2--

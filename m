@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVAJMmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVAJMq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262225AbVAJMmm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 07:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVAJMmm
+	id S262228AbVAJMq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 07:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVAJMq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 07:42:42 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:7121 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S262225AbVAJMmd (ORCPT
+	Mon, 10 Jan 2005 07:46:57 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:35157 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262228AbVAJMqy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 07:42:33 -0500
-Message-ID: <019201c4f711$67237c20$0f01a8c0@max>
-From: "Richard Purdie" <rpurdie@rpsys.net>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <007e01c4ef30$f23ba3c0$0f01a8c0@max> <1104674725.14712.50.camel@localhost.localdomain> <067d01c4f69b$cb9d8b80$0f01a8c0@max> <1105314226.12054.57.camel@localhost.localdomain>
-Subject: Re: Flaw in ide_unregister()
-Date: Mon, 10 Jan 2005 12:39:15 -0000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Mon, 10 Jan 2005 07:46:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=I9Y8jZZ/gLimGV07kr5h7tCVLEAlou0ggCbtrm+F7mJLsTPdql9DflK7LMg3WtaIF2DP4b520PNkYtDYirGOJ8GD/rezdtLf+3WTPR+Whp/Pf+/yO1/bJZjtw3KOV1r5C1njtIGKDNP890VsZTyQCzIbUk16YFuJhiVEtsw/CiU=
+Message-ID: <884a349a050110044654d75f7b@mail.gmail.com>
+Date: Mon, 10 Jan 2005 13:46:53 +0100
+From: Roseline Bonchamp <roseline.bonchamp@gmail.com>
+Reply-To: Roseline Bonchamp <roseline.bonchamp@gmail.com>
+To: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: USB problem with a mass storage device on 2.6.10
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox:
-> On Sul, 2005-01-09 at 22:37, Richard Purdie wrote:
->> I haven't investigated it yet but I suspect the usage count is held by
->> ide-disk as the CF card has a mounted filesystem. As previously mentioned
->> and for reference, this patch has the changes I had to make to get 
->> standard
->> 2.6.10 to work:
->
-> Correct. This is intentional - what the -ac code allows you to do
-> (although you probably need to move the final free up to a workqueue) is
-> to free the hardware resources. The ide resources will then free later
-> on the umount
+Hello,
 
-Ok. I can see what you're saying and I can visualise a patch for ide-cs.c 
-which will probably work using a workqueue as you suggest.
+I have a PQI 1GB Intelligent Stick, which does'nt work most of the
+time on 2.6.10 (sometime when I plug/unplug it does work, but most of
+the time it does'nt)
 
-I'd like to question whether the driver or the ide code should be taking 
-care of this freeing of resources though?
+When it does not work, I see this when I plug it:
 
-It all depends what a call to ide_unregister()  is supposed to mean. I'd 
-have thought it should mean *remove this inferface by doing whatever is 
-neccessary to do so*. If its busy and/or in use, wait until it isn't and 
-then remove it by queueing some work to do so at a later date.
+kernel: usb 1-3: new high speed USB device using ehci_hcd and address 6
+kernel: usb 3-1: new full speed USB device using uhci_hcd and address 4
+kernel: usb 3-1: new full speed USB device using uhci_hcd and address 5
 
-Offloading this responsibility onto each and every driver seems rather 
-rather unwise and will result in a lot of code duplication. Are there any 
-circumstances where we need ide_unregister to abort on busy? Even if there 
-are would a flag to indicate what it should do with a busy drive be better?
+When it does work, I only see the first one (high speed), and then USB
+mass storage stuff.
 
-Richard 
+On kernel 2.6.9 it does work, but seems to produce a kernel crash (log
+attached) (but I still can use it and mount it)
 
+I tried on a knoppix 3.6 (2.6.7, not vanilla) kernel, and it seems to work too.
+
+Even with 2.6.10 I have no problem with some other USB mass storage devices.
+
+I already did a post about this, but the subject of the mail was wrong
+(sorry), and it was not mailed to linux-usb:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0501.1/0371.html
+
+Regards,

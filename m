@@ -1,20 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262170AbRETTai>; Sun, 20 May 2001 15:30:38 -0400
+	id <S262175AbRETTds>; Sun, 20 May 2001 15:33:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262168AbRETTa2>; Sun, 20 May 2001 15:30:28 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:14561 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262166AbRETTaQ>;
-	Sun, 20 May 2001 15:30:16 -0400
-Date: Sun, 20 May 2001 15:30:15 -0400 (EDT)
+	id <S262168AbRETTdi>; Sun, 20 May 2001 15:33:38 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38373 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262167AbRETTdY>;
+	Sun, 20 May 2001 15:33:24 -0400
+Date: Sun, 20 May 2001 15:33:23 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: Edgar Toernig <froese@gmx.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: F_CTRLFD (was Re: Why side-effects on open(2) are evil.)
-In-Reply-To: <3B08149B.A28FDBD@gmx.de>
-Message-ID: <Pine.GSO.4.21.0105201524310.8940-100000@weyl.math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Clausen <clausen@gnu.org>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code 
+In-Reply-To: <Pine.LNX.4.21.0105201217320.7712-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0105201530580.8940-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,26 +24,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 20 May 2001, Edgar Toernig wrote:
+On Sun, 20 May 2001, Linus Torvalds wrote:
 
-> IMHO any similar powerful (and versatile) interface will see the same
-> problems.  Enforcing a read/write like interface (and rejecting drivers
-> that pass ptrs through this interface) may give you some knowledge about
-> the kernel/userspace communication.  But the data the flows around will
-> become the same mess that is present with the current ioctl.  Every driver
-> invents its own sets of commands, its own rules of argument parsing, ...
-> Maybe it's no longer strange binary data but readable ASCII strings but
-> that's all.  Look at how many different "styles" of /proc files there are.
+> > How about moratorium on new ioctls in the meanwhile? Whatever we do in
+> > fs/ioctl.c, it _will_ take time.
+> 
+> Ehh.. Telling people "don't do that" simply doesn't work. Not if they can
+> do it easily anyway. Things really don't get fixed unless people have a
+> certain pain-level to induce it to get fixed.
 
-Too many people who don't know C and manage to get their crap into the
-tree. Shame, but that is _not_ a technical problem.
+Umm... How about the following:  you hit delete on patches that introduce
+new ioctls, I help to provide required level of pain.  Deal?
 
-> IMHO what's needed is a definition for "sane" in this context.  Trying
-> to limit the kind of actions performed by ioctls is not "sane".  Then
-> people will always revert back to old ioctl.  "Sane" could be: network
-> transparent, architecture independant, usable with generic tools and non
-> C-like languages.
+BTW, -pre4 got new bunch of ioctls. On procfs, no less.
 
-/me points to UNIX-like OS that had done that. BTW, network-transparent means
-"no pointers"...
 

@@ -1,69 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262574AbTCRTMA>; Tue, 18 Mar 2003 14:12:00 -0500
+	id <S262489AbTCRTSu>; Tue, 18 Mar 2003 14:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262576AbTCRTMA>; Tue, 18 Mar 2003 14:12:00 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17157 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262574AbTCRTL7>; Tue, 18 Mar 2003 14:11:59 -0500
-Date: Tue, 18 Mar 2003 11:21:24 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Brian Gerst <bgerst@didntduck.org>
-cc: Kevin Pedretti <ktpedre@sandia.gov>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4
- due to wrmsr (performance)
-In-Reply-To: <3E7765DE.10609@didntduck.org>
-Message-ID: <Pine.LNX.4.44.0303181113590.13708-100000@home.transmeta.com>
+	id <S262495AbTCRTSu>; Tue, 18 Mar 2003 14:18:50 -0500
+Received: from [64.246.18.23] ([64.246.18.23]:59617 "EHLO ensim.2hosting.net")
+	by vger.kernel.org with ESMTP id <S262489AbTCRTSt>;
+	Tue, 18 Mar 2003 14:18:49 -0500
+From: "Steve Lee" <steve@tuxsoft.com>
+To: <root@chaos.analogic.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux-2.4.20 modem control
+Date: Tue, 18 Mar 2003 13:34:25 -0600
+Message-ID: <001a01c2ed85$66ac5b00$0201a8c0@pluto>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <Pine.LNX.4.53.0303181404270.27869@chaos>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please excuse my lack of understanding.  My dial-in box (using mgetty)
+is running on a dual Athlon 1900 MP system.  Previous system was a dual
+P3 450.  I've called into the Athlon system multiple times a day for
+almost a year now, the previous system, for several years.  What issue
+should I be seeing?  At times, I send some files home and when I get
+home I'll have to manually reset the modem (reset button), however,
+mgetty resets and is ready to answer again.  I have mgetty configured to
+skip the first call, then answer with the modem if another call happens
+within 45 seconds.
 
-On Tue, 18 Mar 2003, Brian Gerst wrote:
-> 
-> Here's a few more data points:
+Steve
 
-Ok, this shows the behaviour I was trying to explain:
 
-> vendor_id       : AuthenticAMD
-> cpu family      : 5
-> model           : 8
-> model name      : AMD-K6(tm) 3D processor
-> stepping        : 12
-> cpu MHz         : 451.037
-> empty overhead=105 cycles
-> load overhead=-2 cycles
-> I$ load overhead=30 cycles
-> I$ load overhead=90 cycles
-> I$ store overhead=95 cycles
+-----Original Message-----
+From: Richard B. Johnson [mailto:root@chaos.analogic.com] 
+Sent: Tuesday, March 18, 2003 1:17 PM
+To: Steve Lee
+Cc: Linux kernel
+Subject: RE: Linux-2.4.20 modem control
 
-ie loading from the same cacheline shows bad behaviour, most likely due to 
-cache line exclusion. Does anybody have an original Pentium to see if I 
-remember that one right?
+On Tue, 18 Mar 2003, Steve Lee wrote:
 
-> vendor_id       : AuthenticAMD
-> cpu family      : 6
-> model           : 6
-> model name      : AMD Athlon(tm) Processor
-> stepping        : 2
-> cpu MHz         : 1409.946
-> empty overhead=11 cycles
-> load overhead=5 cycles
-> I$ load overhead=5 cycles
-> I$ load overhead=5 cycles
-> I$ store overhead=826 cycles
-> 
-> The Athlon XP shows really bad behavior when you store to the text area.
+> Richard,
+> 	You might give mgetty a try.  I've been doing the same thing as
+> you with almost every version of Linux 2.4.x and some of 2.2.x.  I
+don't
+> know the differences between agetty and mgetty, but I would like
+mgetty
+> could handle your needs.
+>
+> Steve
 
-Wow. There aren't many things that AMD tends to show the P4-like "big
-latency in rare cases" behaviour.
+They are all basically the same with certain "enhancements"
+(work-arounds) for different things. You can run any of them
+and hook a RS-232C terminal to your 'COM' port and log-in.
 
-But quite honestly, I think they made the right call, and I _expect_ that
-of modern CPU's. The fact is, modern CPU's tend to need to pre-decode the
-instruction stream some way, and storing to it while running from it is
-just a really really bad idea. And since it's so easy to avoid it, you
-really just shouldn't do it.
+The problem is when you log out! With a terminal connected,
+you get the login prompt again. This is no good if you are
+connected to a modem. The modem will not be disconnected
+and you have to forcably disconnect at the remote end by
+disconnecting the phone line or lowering DTR with your remote
+terminal program. Then the modem will not be ready to
+answer another call. It will remain in a off-line condition
+forever.
 
-			Linus
+What needs to be done, is when the program (probably /bin/bash)
+logs off (calls exit()), and STDIN_FILENO, STDOUT_FILENO, and
+STDERR_FILENO get closed, the closure of that terminal must
+cause the modem to hang-up and then, when init starts another
+`getty` the modem will wait for another connection. The current
+work-around is to modify a `getty` to hangup the modem, then
+initialize I/O to wait for a new connection. This logic is
+"backwards" and should be done transparently in the terminal
+driver.
+
+This problem is a 'discovered check` which happens with higher
+speed machines. At one time, init was so slow in getting another
+getty on-line that the modem had a chance to hang up. This is
+no longer the case and is being worked on by one of the terminal
+driver contributors as I write this.
+
+It will eventually be fixed. I included the source-code of a
+work-around in some previous communications, just in case others
+have the same problem. Many will not because very few log-in
+using a modem anymore.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about
+it.
+
 

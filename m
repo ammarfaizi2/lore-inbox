@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265101AbRGJABj>; Mon, 9 Jul 2001 20:01:39 -0400
+	id <S265130AbRGJAYR>; Mon, 9 Jul 2001 20:24:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265128AbRGJABa>; Mon, 9 Jul 2001 20:01:30 -0400
-Received: from marine.sonic.net ([208.201.224.37]:39779 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S265101AbRGJABQ>;
-	Mon, 9 Jul 2001 20:01:16 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Mon, 9 Jul 2001 17:01:15 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Regarding the make module_install.
-Message-ID: <20010709170114.A5912@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
+	id <S265133AbRGJAX5>; Mon, 9 Jul 2001 20:23:57 -0400
+Received: from trout.hpc.CSIRO.AU ([138.194.72.10]:42222 "EHLO
+	trout.hpc.CSIRO.AU") by vger.kernel.org with ESMTP
+	id <S265130AbRGJAXy>; Mon, 9 Jul 2001 20:23:54 -0400
+Message-Id: <200107100023.KAA00261@trout.hpc.CSIRO.AU>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: trond.myklebust@fys.uio.no
+cc: linux-kernel@vger.kernel.org, jeroen@trout.hpc.CSIRO.AU,
+        smart@trout.hpc.CSIRO.AU
+Subject: handling NFSERR_JUKEBOX
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010709234259.42707.qmail@web14903.mail.yahoo.com>
-User-Agent: Mutt/1.3.18i
+Date: Tue, 10 Jul 2001 10:23:40 +1000
+From: Bob Smart <smart@hpc.CSIRO.AU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 09, 2001 at 04:42:59PM -0700, sendhil kumar wrote:
-> Can any one update me about, what make module and make
+The latest version of unicos has started to return NFSERR_JUKEBOX
+when it has to retrieve a file from tape. I found the following
+relevant discussion on the netbsd list:
+http://mail-index.netbsd.org/tech-kern/1999/03/16/0002.html
+To save you looking the key point is:
 
-make modules compiles and links the modules
+  >Not sure. Is there a way that the server can say, "I got your request,
+  >but I'm too busy now, try again in a little bit." ??
 
-> module_install do? What is the difference between the 
+  Isn't this what NFSERR_JUKEBOX is for?
 
-module_install places them in /lib/modules/`uname -a`/*
+  AFAIK, the protocol goes something like this:
 
-> insmod command and module_install?
+  Client sends a request.
+  Server starts loading tape/optical disk/whatever.
+  Client resends request.
+  Server notices that this is a repeat of an earlier request which is already
+  in the "slow queue", and replies NFSERR_JUKEBOX (= "be patient, I'll send
+  the response eventually").
+  Client shuts up and waits.
+  Server completes request and sends response to client.
 
-insmod first looks in /lib/modules/`uname -a`/* to load the module into
-kernel space.
+It seems that what the linux client is doing is returning error 528
+to the user program (cp is giving this error message). From 
+linux/errno.h:
 
-[certain details may be incorrect, but that the general idea.]
+#define EJUKEBOX  528     /* Request initiated, but will not complete 
+                             before timeout */
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+This is wrong because the nfs file system is hard mounted in my case
+- there is no timeout.
+
+While it would be nice to do a perfect solution, it looks like
+a quick fix is to just ignore NFSERR_JUKEBOX from the server.
+
+Bob Smart

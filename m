@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261786AbREUHX2>; Mon, 21 May 2001 03:23:28 -0400
+	id <S261741AbREUHR6>; Mon, 21 May 2001 03:17:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261821AbREUHXS>; Mon, 21 May 2001 03:23:18 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:10632 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S261786AbREUHXH>; Mon, 21 May 2001 03:23:07 -0400
-Message-ID: <3B08C15E.264AE074@uow.edu.au>
-Date: Mon, 21 May 2001 17:18:54 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-ac9 i686)
-X-Accept-Language: en
+	id <S261772AbREUHRs>; Mon, 21 May 2001 03:17:48 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:10765 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S261741AbREUHRn>;
+	Mon, 21 May 2001 03:17:43 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200105210716.f4L7Gte504365@saturn.cs.uml.edu>
+Subject: Re: LANANA: To Pending Device Number Registrants
+To: dwguest@win.tue.nl (Guest section DW)
+Date: Mon, 21 May 2001 03:16:55 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), Mauelshagen@sistina.com,
+        thomasko321k@gmx.at (Thomas Kotzian),
+        helgehaf@idb.hist.no (Helge Hafting), linux-kernel@vger.kernel.org
+In-Reply-To: <20010517113924.B9270@win.tue.nl> from "Guest section DW" at May 17, 2001 11:39:24 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Robert Vojta <vojta@ipex.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3c905C-TX [Fast Etherlink] problem ...
-In-Reply-To: <20010521090946.D769@ipex.cz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Vojta wrote:
-> 
-> Hi,
->   I have this card in intranet server and I'm very confused about very often
-> message in log like this:
-> 
-> eth0: Transmit error, Tx status register 82.
+Guest section DW writes:
+> On Thu, May 17, 2001 at 02:35:55AM -0400, Albert D. Cahalan wrote:
 
-This is a `transamit reclaim' error.  It is almost always
-caused by this host being in half-duplex mode, and another
-host on the network being in full-duplex mode.
+>> The PC partition table has such an ID. The LILO change log
+>> mentions it. I think it's 6 random bytes, with some restriction
+>> about being non-zero.
+>
+> You are confused. The partition table contains IDs, but these are
+> the numbers like 83 for a Linux partition. No disk-identifying numbers.
 
-It's a fairly common problem - I think I'll special-case
-the error message...
+Care to explain "duplicate MBR signature handling" in the GPT FAQ?
+While describing the new-style partitions, Microsoft mentions that
+Windows 2000 has a way to mark old-style ("MBR") partitions:
 
-Yu should check your network thoroughly, decide whether
-you're supposed to be running half- or full-duplex.  Review
-the vortex archives at http://www.scyld.com/mailman/listinfo/vortex
+: 58. What happens if a duplicate Disk or Partition GUID is detected? 
+: Windows Whistler will generate new GUIDs for any duplicate Disk GUID,
+: MSR Partition GUID, or MSR basic data GUID upon detection. This is
+: similar to the duplicate MBR signature handling in Windows 2000.
+: Duplicate GUIDs on a dynamic container or database partition
+: cause unpredictable results.
 
-If that yields no joy, please send a report as described
-in the final section of http://www.uow.edu.au/~andrewm/linux/vortex.txt
-to vortex@scyld.com and we'll work on it.
+Well, the way to test this would be with Windows 2000, two disks,
+and a Linux rescue disk that has "dd" on it. See what gets changed
+when the "duplicate MBR signature handling in Windows 2000" runs.
 
-Thanks.
-
--

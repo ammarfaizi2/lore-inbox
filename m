@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262769AbREVUOr>; Tue, 22 May 2001 16:14:47 -0400
+	id <S262773AbREVUQ1>; Tue, 22 May 2001 16:16:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262774AbREVUOh>; Tue, 22 May 2001 16:14:37 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:23909 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262769AbREVUOY>; Tue, 22 May 2001 16:14:24 -0400
-Date: Tue, 22 May 2001 22:14:18 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Kernel diff_small_2.4.5pre4_2.4.5pre5
-Message-ID: <20010522221418.J15155@athlon.random>
-In-Reply-To: <200105222004.f4MK4dR24584@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200105222004.f4MK4dR24584@athlon.random>; from andrea@athlon.random on Tue, May 22, 2001 at 10:04:39PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S262777AbREVUQR>; Tue, 22 May 2001 16:16:17 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:26351 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S262773AbREVUQG>; Tue, 22 May 2001 16:16:06 -0400
+Message-ID: <9319DDF797C4D211AC4700A0C96B7C9404AC1F7D@orsmsx42.jf.intel.com>
+From: "Raj, Ashok" <ashok.raj@intel.com>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: scheduling callbacks in user space triggered via kernel....
+Date: Tue, 22 May 2001 13:15:56 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 10:04:39PM +0200, Andrea Arcangeli wrote:
-> diff -urN 2.4.5pre4/arch/alpha/kernel/pci_iommu.c 2.4.5pre5/arch/alpha/kernel/pci_iommu.c
-> --- 2.4.5pre4/arch/alpha/kernel/pci_iommu.c	Sun Apr  1 01:17:07 2001
-> +++ 2.4.5pre5/arch/alpha/kernel/pci_iommu.c	Tue May 22 22:04:07 2001
-> @@ -402,8 +402,20 @@
->  	paddr &= ~PAGE_MASK;
->  	npages = calc_npages(paddr + size);
->  	dma_ofs = iommu_arena_alloc(arena, npages);
-> -	if (dma_ofs < 0)
-> -		return -1;
-> +	if (dma_ofs < 0) {
-> +		/* If we attempted a direct map above but failed, die.  */
-> +		if (leader->dma_address == 0)
-> +			return -1;
-> +
-> +		/* Otherwise, break up the remaining virtually contiguous
-> +		   hunks into individual direct maps.  */
-> +		for (sg = leader; sg < end; ++sg)
-> +			if (sg->dma_address == 2 || sg->dma_address == -2)
-> +				sg->dma_address = 0;
-> +
-> +		/* Retry.  */
-> +		return sg_fill(leader, end, out, arena, max_dma);
-> +	}
->  
->  	out->dma_address = arena->dma_base + dma_ofs*PAGE_SIZE + paddr;
->  	out->dma_length = size;
+Hello Gurus...
 
-this is just broken as I said a few hours ago on l-k. please replace ==
-2 with == 1 as described in earlier email. However it's not a
-showstopper because it will trigger only after running of pci mappings
-(and by that time things are going to break pretty soon anyways on the
-much bigger than 2G boxes, where the 2G direct window has low probablity
-to save you), the fact I found this patch in in I assume is your
-agreemnt that the pci mapping bugs are an issue also for 2.4, good.
+Is there a method to schedule user mode code from kernel agent?
 
-I couldn't hack all the day long today, I will finish the alpha updates
-before tomorrow though.
+basically think that when some work is to be scheduled in user mode, the app
+registers with the kernel mode agent with a function/parm to run, then when
+the callback is appropriate the kerenl agent triggers this callback to
+happen.
 
-Andrea
+I can think of either using a shared buffer to communicate between
+kernel/user space and use a dedicated thread to do this task.
+
+But i would keep a page pinned for each process, and this may be limiting...
+
+are there any examples of code in kernel that would do this?
+
+if someone would not beat me up. for quoting this...
+
+windows 2000 offers 2 such facilities. (APC or async procedure calls) where
+a thread can block and when ready will be woken via
+the kernel agent and can run a user supplied function.
+
+or a method to bind a function to a file handle, when there is Completed IO,
+the kernel would call the registered function with a parameter of the buffer
+submitted for IO.
+
+any ideas would be greatly appreciated.
+
+ashokr
+

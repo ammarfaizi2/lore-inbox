@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbULPRFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbULPRDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbULPRFD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 12:05:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbULPRFC
+	id S261890AbULPRDm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 12:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbULPRDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 12:05:02 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:7398 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261948AbULPREc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 12:04:32 -0500
-Subject: Re: 3TB disk hassles
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Michelle Konzack <linux4michelle@freenet.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0412161703290.30336@yvahk01.tjqt.qr>
-References: <20041216145229.29167.qmail@web26502.mail.ukl.yahoo.com>
-	 <200412161537.02804.m.watts@eris.qinetiq.com>
-	 <20041216155216.GA3854@freenet.de>
-	 <Pine.LNX.4.61.0412161703290.30336@yvahk01.tjqt.qr>
-Content-Type: text/plain
+	Thu, 16 Dec 2004 12:03:41 -0500
+Received: from fire.osdl.org ([65.172.181.4]:26251 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261847AbULPRBt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 12:01:49 -0500
+Message-ID: <41C1BA38.60304@osdl.org>
+Date: Thu, 16 Dec 2004 08:39:20 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+CC: linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, willy@debian.org
+Subject: Re: [PATCH] add legacy I/O port & memory APIs to /proc/bus/pci
+References: <200412160850.20223.jbarnes@engr.sgi.com>
+In-Reply-To: <200412160850.20223.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1103212832.21920.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 16 Dec 2004 16:00:36 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-12-16 at 16:03, Jan Engelhardt wrote:
-> >You can have 4 TByte on one 12-Channel Card,
-> >but in two Arrays of 6 HDD's   :-)
+Jesse Barnes wrote:
+> This patch documents the /proc/bus/pci interface and adds some optional 
+> architecture specific APIs for accessing legacy I/O port and memory space.  
+> This is necessary on platforms where legacy I/O port space doesn't 'soft 
+> fail' like it does on PCs, and is useful for systems that can route legacy 
+> space to different PCI busses.
 > 
-> Maybe some LVM trickery can aggregate ungrowable hardware raids together to a 
-> single block device.
+> I've incorporated all the feedback I've received so far, so I think it's ready 
+> to send on to Andrew for inclusion, if someone could give the proc-pci.txt 
+> documentation a last read (and/or comment on other stuff I may have missed).
 
-LVM does not mix with volumes > 2Tb in my experience. I don't know if
-anyone has fixed it yet but I'd advise caution.
+meta-comment:
+Would you (and not just you :) include a diffstat summary so we
+can see which files are being changed?  something like this:
 
-Remember you don't need a partition table. You can just leave the volume
-unpartitioned. You can also use other partition formats providing you
-don't need the BIOS boot gunk to boot off that volume. 
 
-Alan
+  Documentation/filesystems/proc-pci.txt |  126 
++++++++++++++++++++++++++++++++++
+  arch/ia64/pci/pci.c                    |  105 
++++++++++++++++++++++++++++
+  arch/ia64/sn/pci/pci_dma.c             |   74 +++++++++++++++++++
+  drivers/pci/proc.c                     |  100 +++++++++++++++++++++++---
+  include/asm-ia64/machvec.h             |   24 ++++++
+  include/asm-ia64/machvec_init.h        |    3
+  include/asm-ia64/machvec_sn2.h         |    6 +
+  include/asm-ia64/pci.h                 |    4 +
+  include/asm-ia64/sn/sn_sal.h           |   47 ++++++++++++
+  include/linux/pci.h                    |   12 ++-
+  10 files changed, 488 insertions(+), 13 deletions(-)
 
+-- 
+~Randy

@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282092AbRLGPME>; Fri, 7 Dec 2001 10:12:04 -0500
+	id <S281780AbRLGPIp>; Fri, 7 Dec 2001 10:08:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282492AbRLGPLr>; Fri, 7 Dec 2001 10:11:47 -0500
-Received: from unknown.Level3.net ([63.210.233.154]:26893 "EHLO
-	cinshrexc01.shermfin.com") by vger.kernel.org with ESMTP
-	id <S282092AbRLGPKw>; Fri, 7 Dec 2001 10:10:52 -0500
-Message-ID: <35F52ABC3317D511A55300D0B73EB8056FCCA9@cinshrexc01.shermfin.com>
-From: "Rechenberg, Andrew" <ARechenberg@shermanfinancialgroup.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Memory cache hit-miss patch
-Date: Fri, 7 Dec 2001 10:10:48 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S281795AbRLGPIh>; Fri, 7 Dec 2001 10:08:37 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:18444 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S281780AbRLGPHF>; Fri, 7 Dec 2001 10:07:05 -0500
+Date: Fri, 7 Dec 2001 16:07:02 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: ramdisk size bug in 2.4.17-pre2
+Message-ID: <20011207150702.GD26310@arthur.ubicom.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-I have been searching for a way to determine the memory cache hit ratio in
-Linux and I came across a hitmiss patch for the 2.2 series that displays
-some information in /proc/stat:
+It looks like the ramdisk driver in 2.4.17-pre2 doesn't honor the
+rd_size parameter:
 
-http://groups.google.com/groups?q=hitmiss+patch&hl=en&rnum=1&selm=1998072200
-4516.G574%40msu.edu
+  root@arthur:/tmp #uname -a
+  Linux arthur 2.4.17-pre2 #1 Sat Dec 1 00:47:24 CET 2001 i686 unknown
+  root@arthur:/tmp #cat /proc/sys/kernel/tainted 
+  0
+  root@arthur:/tmp #modinfo rd
+  filename:    /lib/modules/2.4.17-pre2/kernel/drivers/block/rd.o
+  description: <none>
+  author:      <none>
+  license:     "GPL"
+  parm:        rd_size int, description "Size of each RAM disk in kbytes."
+  parm:        rd_blocksize int, description "Blocksize of each RAM disk in bytes."
+  root@arthur:/tmp #modprobe rd rd_size=8192
+  RAMDISK driver initialized: 16 RAM disks of 8192K size 1024 blocksize
 
-My question is, how difficult would it be for this patch to be modified for
-the 2.4 kernel?  If it is not that difficult could some one point me in the
-right direction in the code to modify the patch to work with 2.4.
+So I would expect that each ramdisk is 8192kB. But:
 
-Thanks for your help,
-Andy.
+  root@arthur:/tmp #dd if=/dev/zero of=/dev/ram1 bs=1k count=16384
+  16384+0 records in
+  16384+0 records out
+
+IOW: writing 16MB to a 8MB ramdisk happily succeeds.
+
+The last time I tried this was with 2.4.10-ac10, which didn't have this
+bug.
 
 
-Andrew Rechenberg
-Network Team, Sherman Financial Group
-arechenberg@shermanfinancialgroup.com
+Erik
+[who will investigate further but is currently -ENOTIME]
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

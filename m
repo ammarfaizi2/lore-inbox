@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbUE1Eic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbUE1Ett@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbUE1Eic (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 00:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265794AbUE1Eic
+	id S262238AbUE1Ett (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 00:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265794AbUE1Ett
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 00:38:32 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:18118 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S262213AbUE1Eib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 00:38:31 -0400
-From: NeilBrown <neilb@cse.unsw.edu.au>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 28 May 2004 14:38:26 +1000
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH]  Avoid race when updating nr_unused count of unused dentries.
-References: <20040528143740.31687.patches@notabene>
-Message-Id: <E1BTZ8U-0008FT-RU@notabene.cse.unsw.edu.au>
+	Fri, 28 May 2004 00:49:49 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:23861 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262238AbUE1Etr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 00:49:47 -0400
+Date: Thu, 27 May 2004 21:45:08 -0700
+From: "Robin H. Johnson" <robbat2@orbis-terrarum.net>
+Subject: scsihosts kernel param broken?
+To: linux-kernel@vger.kernel.org
+Message-id: <20040528044508.GB28009@curie-int.orbis-terrarum.net>
+MIME-version: 1.0
+Content-type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary=rJwd6BRFiFCcLxzm
+Content-disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-d_count == 1 is no guarantee that dentry is on the dentry_unused list,
-even if it has just been incremented inside dcache_lock, as dput can
-decrement at any time.
+--rJwd6BRFiFCcLxzm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This test from Greg Banks is much safer, and is more transparently correct.
+Hi,
 
-From: Greg Banks <gnb@melbourne.sgi.com>
-Signed-off-by: Neil Brown <neilb@cse.unsw.edu.au>
+After tweaking my kernel today and moving my SCSI controller drivers
+into the kernel instead of using them as modules, I wanted to use the
+scsihosts kernel parameter as described in filesystems/devfs/README, to
+tweak the order of my 3ware (3w-xxxx) and Adaptec (aic79xx) [two
+controllers] drives.
 
- ----------- Diffstat output ------------
- ./fs/dcache.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+I'd like:
+scsihosts=3Daic79xx:3w-xxxx:aic79xx
+But the aic79xx code is running first, and leaving all my 3ware stuff to
+last.
 
-diff ./fs/dcache.c~current~ ./fs/dcache.c
---- ./fs/dcache.c~current~	2004-05-28 14:20:00.000000000 +1000
-+++ ./fs/dcache.c	2004-05-28 14:20:16.000000000 +1000
-@@ -259,7 +259,7 @@ int d_invalidate(struct dentry * dentry)
- static inline struct dentry * __dget_locked(struct dentry *dentry)
- {
- 	atomic_inc(&dentry->d_count);
--	if (atomic_read(&dentry->d_count) == 1) {
-+	if (!list_empty(&dentry->d_lru)) {
- 		dentry_stat.nr_unused--;
- 		list_del_init(&dentry->d_lru);
- 	}
-@@ -935,8 +935,9 @@ struct dentry *d_splice_alias(struct ino
-  * lookup is going on.
-  *
-  * dentry_unused list is not updated even if lookup finds the required dentry
-- * in there. It is updated in places such as prune_dcache, shrink_dcache_sb and
-- * select_parent. This laziness saves lookup from dcache_lock acquisition.
-+ * in there. It is updated in places such as prune_dcache, shrink_dcache_sb,
-+ * select_parent and __dget_locked. This laziness saves lookup from dcache_lock
-+ * acquisition.
-  *
-  * d_lookup() is protected against the concurrent renames in some unrelated
-  * directory using the seqlockt_t rename_lock.
+What's broken here?
+
+Please CC me with responses, as I usually just lurk via the mail
+archives.
+
+--=20
+Robin Hugh Johnson
+E-Mail     : robbat2@orbis-terrarum.net
+Home Page  : http://www.orbis-terrarum.net/?l=3Dpeople.robbat2
+ICQ#       : 30269588 or 41961639
+GnuPG FP   : 11AC BA4F 4778 E3F6 E4ED  F38E B27B 944E 3488 4E85
+
+--rJwd6BRFiFCcLxzm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Robbat2 @ Orbis-Terrarum Networks
+
+iD8DBQFAtsPUsnuUTjSIToURApl9AJ42kHsq3RGas1PWU8z0K9EbZX/ZDACfSm5F
+UzYelhhT8i/Vpkv3ubJx/TM=
+=y9XE
+-----END PGP SIGNATURE-----
+
+--rJwd6BRFiFCcLxzm--

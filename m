@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263928AbTDWBnH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 21:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263929AbTDWBnH
+	id S263929AbTDWBnh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 21:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbTDWBnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 21:43:07 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:28577 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263928AbTDWBnF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 21:43:05 -0400
-Message-ID: <1491.4.64.197.106.1051062911.squirrel@fire.osdl.org>
-In-Reply-To: <20030423012903.GI1249@Master.Bellsouth.net>
-References: <000501c3090c$71683c60$0200a8c0@satellite> 
-     <Pine.LNX.4.53.0304221649050.17809@chaos> 
-     <1051053106.710.4.camel@teapot.felipe-alfaro.com> 
-     <20030423012903.GI1249@Master.Bellsouth.net>
-Date: Tue, 22 Apr 2003 18:55:11 -0700 (PDT)
-Subject: Re: 2.5 kernel hangs system
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Murray J. Root" <murrayr@brain.org>
-Cc: "LKML" <linux-kernel@vger.kernel.org>
-User-Agent: SquirrelMail/1.4.0-1_kees1
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-Priority: 3
-Importance: Normal
+	Tue, 22 Apr 2003 21:43:37 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:38595 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263929AbTDWBnd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 21:43:33 -0400
+Subject: [PATCH] Small bug fix for aio
+From: Mingming Cao <cmm@us.ibm.com>
+To: bcrl@redhat.com, akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Content-Type: multipart/mixed; boundary="=-J1SWzDJljbfhsVT+MOwZ"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Apr 2003 18:54:51 -0700
+Message-Id: <1051062904.2808.37.camel@w-ming.beaverton.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Apr 23, 2003 at 01:11:46AM +0200, Felipe Alfaro Solana wrote:
->> On Tue, 2003-04-22 at 23:00, Richard B. Johnson wrote:
->> > First, I don't understand how as you say, "suggestions are
->> > desperately needed" on a developmental kernel. These things are
->> > not known to work on all configurations and some information like
->> > "It gives me hex codes..." is worthless. Please write down
->> > these "hex-codes" and, after booting a version the works, run them
->> > through ksymoops. If you don't know what that is:
->>
->> ksymoops? I thought 2.5 kernels didn't need ksymoops anymore and that
->> function names were automatically "guessed" in call stack traces.
->>
->
-> IFF you use "include symbols" when building you shouldn't need ksymoops.
-> IMO, if you're using 2.5.x you really should include the symbols - chances
-> are you'll need em.
 
-Maybe we are reading this differently, but it sounded to me like the
-original system hang never reached the kernel | system log and that
-some hex codes were the only clues.  In that case, pushing them thru
-ksymoops does still make some sense, doesn't it?
-How else would you determine where the hang occurred?
+--=-J1SWzDJljbfhsVT+MOwZ
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-~Randy
+Hi,
+
+Here is a trivial patch fixed a bug in ioctx_alloc(). If
+aio_setup_ring() failed, ioctx_alloc() should pass the return error from
+aio_setup_ring() back to sys_io_setup().
+
+Please apply. Thanks.
+
+--=-J1SWzDJljbfhsVT+MOwZ
+Content-Disposition: attachment; filename=aiofix.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=aiofix.patch; charset=UTF-8
+
+diff -urNp linux-2.5.68/fs/aio.c 2568/fs/aio.c
+--- linux-2.5.68/fs/aio.c	Sat Apr 19 19:49:25 2003
++++ 2568/fs/aio.c	Tue Apr 22 17:52:21 2003
+@@ -204,6 +204,7 @@ static struct kioctx *ioctx_alloc(unsign
+ {
+ 	struct mm_struct *mm;
+ 	struct kioctx *ctx;
++	int ret =3D 0;
+=20
+ 	/* Prevent overflows */
+ 	if ((nr_events > (0x10000000U / sizeof(struct io_event))) ||
+@@ -233,7 +234,8 @@ static struct kioctx *ioctx_alloc(unsign
+ 	INIT_LIST_HEAD(&ctx->run_list);
+ 	INIT_WORK(&ctx->wq, aio_kick_handler, ctx);
+=20
+-	if (aio_setup_ring(ctx) < 0)
++	ret =3D aio_setup_ring(ctx);
++	if (unlikely(ret < 0))
+ 		goto out_freectx;
+=20
+ 	/* limit the number of system wide aios */
+@@ -259,7 +261,7 @@ out_cleanup:
+=20
+ out_freectx:
+ 	kmem_cache_free(kioctx_cachep, ctx);
+-	ctx =3D ERR_PTR(-ENOMEM);
++	ctx =3D ERR_PTR(ret);
+=20
+ 	dprintk("aio: error allocating ioctx %p\n", ctx);
+ 	return ctx;
+
+--=-J1SWzDJljbfhsVT+MOwZ--
 

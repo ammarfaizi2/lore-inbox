@@ -1,54 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261369AbSJ1Q4H>; Mon, 28 Oct 2002 11:56:07 -0500
+	id <S261365AbSJ1QtG>; Mon, 28 Oct 2002 11:49:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261370AbSJ1Q4H>; Mon, 28 Oct 2002 11:56:07 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:61345 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261369AbSJ1Q4F>; Mon, 28 Oct 2002 11:56:05 -0500
-Date: Mon, 28 Oct 2002 08:57:21 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@ess.nec.de>
-cc: Michael Hohnbaum <hohnbaum@us.ibm.com>, mingo@redhat.com,
-       habanero@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: NUMA scheduler  (was: 2.5 merge candidate list 1.5)
-Message-ID: <524720000.1035824241@flay>
-In-Reply-To: <200210281734.41115.efocht@ess.nec.de>
-References: <200210280132.33624.efocht@ess.nec.de> <3128418467.1035736310@[10.10.2.3]> <200210281734.41115.efocht@ess.nec.de>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S261366AbSJ1QtG>; Mon, 28 Oct 2002 11:49:06 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:5137 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S261365AbSJ1QtE>;
+	Mon, 28 Oct 2002 11:49:04 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <15805.27643.403378.829985@laputa.namesys.com>
+Date: Mon, 28 Oct 2002 19:55:23 +0300
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: landley@trommello.org
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: 2.5 merge candidate list, final version.  (End of "crunch time" series.)
+In-Reply-To: <200210280534.16821.landley@trommello.org>
+References: <200210280534.16821.landley@trommello.org>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Windows: the joke that kills.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The pool data is needed to be able to loop over the CPUs of one node,
-> only. I'm convinced we'll need to do that sometime, no matter how simple
-> the core of the NUMA scheduler is.
+Rob Landley writes:
+ > Hi Linus.
+ > 
+ > This list is the result of a week of scouring linux-kernel and posting
+ > more or less daily versions soliciting feedback from everybody seriously
+ > trying to get a patch into 2.5.  This is the ninth and final posting of
+ > this list.
+ > 
+ > Previous versions, and the discussion they spawned, were here:
+ > 1.0) http://lists.insecure.org/lists/linux-kernel/2002/Oct/7006.html
+ > 1.1) http://lists.insecure.org/lists/linux-kernel/2002/Oct/7051.html
+ > 1.2) http://lists.insecure.org/lists/linux-kernel/2002/Oct/7363.html
+ > 1.3) http://lists.insecure.org/lists/linux-kernel/2002/Oct/7452.html
+ > 1.4) http://lists.insecure.org/lists/linux-kernel/2002/Oct/7827.html
+ > 1.5) http://lists.insecure.org/lists/linux-kernel/2002/Oct/8174.html
 
-Hmmm ... is using node_to_cpumask from the topology stuff, then looping
-over that bitmask insufficient?
- 
-> The pool_lock is protecting that data while it is built. This can happen
-> in future more often, if somebody starts hotplugging CPUs.
+[...]
 
-Heh .... when someone actually does that, we'll have a lot more problems
-than just this to solve. Would be nice to keep this stuff simple for now, if 
-possible.
+ > http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Hotcpu/hotcpu-cpudown.patch.gz
+ > 
+ > ----------------------------------------------------------------------------
+ > 
+ > 30) Reiser4.
+ > 
+ > I don't have a patch yet, but Hans Reiser is very insistent that this
+ > will be ready by halloween.  (VERY insistent.)  I'll let him speak for
+ > himself:
+ > http://lists.insecure.org/lists/linux-kernel/2002/Oct/8793.html
+ > 
+ > And again (promises, promises):
+ > http://lists.insecure.org/lists/linux-kernel/2002/Oct/9082.html
+ > 
+ > Still no patch at the time of this writing, though.  In theory it
+ > should show up here:
+ > http://namesys.com/download.html
 
-> Sorry, the comment came from a former version...
+Snapshot is available at http://www.namesys.com/snapshots/:
 
-No problem, I suspected that was all it was.
- 
->> just block). If you really still need to do this, RCU is now
->> in the kernel ;-) If not, can we just chuck all that stuff?
-> 
-> I'm preparing a core patch which doesn't need the pool_lock. I'll send it
-> out today.
+reiser4 proper:
+http://www.namesys.com/snapshots/reiser4-2002.10.24.tar.gz
 
-Cool! Thanks,
+necessary changes to the core kernel, plus some UML patches, plus some
+patches for debugging:
+http://www.namesys.com/snapshots/reiser4-core-2002.10.24.diff
 
-M.
+utils:
+http://www.namesys.com/snapshots/reiser4progs-2002.10.24.tar.gz
 
+I shall produce newer snapshot to-morrow.
+
+It does work, but code is not production quality yet. Do *NOT* put
+anything close to critical data on it.
+
+ > 
+ > Or perhaps here:
+ > ftp://ftp.lugoj.org/pub/reiserfs/devlinux.com/pub/namesys/reiserfs-for-2.5
+ > 
+ > In the meantime, all I can find on Reiser4 is some kind of hybrid
+ > marketing brochure/design document thing:
+ > http://www.reiserfs.org/v4/v4.html
+ > 
+ > Did I mention Hans was insistent?  The man can make puppy eyes through email.
+ > It's quite impressive.
+
+Works without email too. :-)
+
+ > -- 
+ > http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
+ > CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?
+
+Nikita.
+
+ > -

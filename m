@@ -1,88 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbULIOWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbULIOYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbULIOWD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 09:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbULIOWD
+	id S261472AbULIOYH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 09:24:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbULIOYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 09:22:03 -0500
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:59639 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S261418AbULIOVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 09:21:47 -0500
-From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
-To: Greg Banks <gnb@sgi.com>, John Levon <levon@movementarian.org>
-Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
-Date: Thu, 9 Dec 2004 23:22:27 +0900
-User-Agent: KMail/1.5.4
-Cc: Greg Banks <gnb@sgi.com>, Philippe Elie <phil.el@wanadoo.fr>,
-       linux-kernel@vger.kernel.org
-References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <20041209014622.GB48804@compsoc.man.ac.uk> <20041209015024.GG4239@sgi.com>
-In-Reply-To: <20041209015024.GG4239@sgi.com>
+	Thu, 9 Dec 2004 09:24:07 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:57588 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S261438AbULIOX3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 09:23:29 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-12
+Date: Thu, 9 Dec 2004 09:23:24 -0500
+User-Agent: KMail/1.7
+Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Lee Revell <rlrevell@joe-job.com>,
+       Mark Johnson <Mark_H_Johnson@raytheon.com>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>, emann@mrv.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+References: <20041124101626.GA31788@elte.hu> <20041209093211.GC14516@elte.hu> <20041209131317.GA31573@elte.hu>
+In-Reply-To: <20041209131317.GA31573@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200412092322.27096.amgta@yacht.ocn.ne.jp>
+Message-Id: <200412090923.25981.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.76.102] at Thu, 9 Dec 2004 08:23:27 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 December 2004 10:50, Greg Banks wrote:
-> On Thu, Dec 09, 2004 at 01:46:22AM +0000, John Levon wrote:
-> > On Thu, Dec 09, 2004 at 11:39:06AM +1100, Greg Banks wrote:
-> > > But for now I don't see any drama with leaving in the ->setup() and
-> > > ->shutdown() methods when rewriting the ops structure.  Ditto for
-> > > the ->create_files() methods.
-> >
-> > Wouldn't this mean that we try to set up the NMI stuff regardless of
-> > forcing the timer ? I can imagine a flaky system where somebody needs to
-> > avoid going near that stuff.
-> >
-> > timer_init() making sure to set all fields seems reasonable to me.  Or
-> > oprofile_init() could grab ->backtrace, memset the structure, then
-> > replace ->backtrace...
+On Thursday 09 December 2004 08:13, Ingo Molnar wrote:
+>* Ingo Molnar <mingo@elte.hu> wrote:
+>> SLAB draining was an oversight - it's mainly called when there is
+>> VM pressure (which is not a stricly necessary feature, so i
+>> disabled it), but i forgot about the module-unload case where it's
+>> a correctness feature. Your patch is a good starting point, i'll
+>> try to fix it on SMP too.
 >
-> Ok, how about this patch?
+>here's the full patch against a recent tree, or download the -32-12
+>patch from the usual place:
+>
+>    http://redhat.com/~mingo/realtime-preempt/
+>
+>Rui, Gene, does this fix the module unload crash you are seeing?
 
-Thanks, but..
+I'm still on -9 here Ingo, and I just rmmod'ed eeprom with no ill
+effects.  I'd built -10 last night but as kde was trying to build,
+didn't reboot.  I just got -12, so I'll do it and reboot to it next.
 
-This patch is broken on several architectures (sparc64, sh, parisc, s390).
-Even though i386 without CONFIG_X86_LOCAL_APIC and CONFIG_X86_IO_APIC.
+Or am I the wrong Gene?
 
-Since the timer interrupt is the only way of getting sampling for oprofile
-on such environments. if no module parameters specified (i.e. timer == 0),
-then oprofile_timer_init() is never called. and I have got this error:
+>
+> Ingo
+>
+>--- linux/mm/slab.c.orig
+>+++ linux/mm/slab.c
+>@@ -1509,22 +1509,26 @@ static void smp_call_function_all_cpus(v
+> static void drain_array_locked(kmem_cache_t* cachep,
+>     struct array_cache *ac, int force);
+>
+>-#ifndef CONFIG_PREEMPT_RT
+>-/*
+>- * Executes in an IRQ context:
+>- */
+>-static void do_drain(void *arg)
+>+static void do_drain_cpu(kmem_cache_t *cachep, int cpu)
+> {
+>-	kmem_cache_t *cachep = (kmem_cache_t*)arg;
+> 	struct array_cache *ac;
+>-	int cpu = smp_processor_id();
+>
+> 	check_irq_off();
+>-	ac = ac_data(cachep, cpu);
+>+
+> 	spin_lock(&cachep->spinlock);
+>+	ac = ac_data(cachep, cpu);
+> 	free_block(cachep, &ac_entry(ac)[0], ac->avail);
+>-	spin_unlock(&cachep->spinlock);
+> 	ac->avail = 0;
+>+	spin_unlock(&cachep->spinlock);
+>+}
+>+
+>+#ifndef CONFIG_PREEMPT_RT
+>+/*
+>+ * Executes in an IRQ context:
+>+ */
+>+static void do_drain(void *arg)
+>+{
+>+	do_drain_cpu((kmem_cache_t*)arg, smp_processor_id());
+> }
+> #endif
+>
+>@@ -1532,6 +1536,11 @@ static void drain_cpu_caches(kmem_cache_
+> {
+> #ifndef CONFIG_PREEMPT_RT
+> 	smp_call_function_all_cpus(do_drain, cachep);
+>+#else
+>+	int cpu;
+>+
+>+	for_each_online_cpu(cpu)
+>+		do_drain_cpu(cachep, cpu);
+> #endif
+> 	check_irq_on();
+> 	spin_lock_irq(&cachep->spinlock);
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-e81a97b0
-*pde = 0b690001
-Oops: 0000 [#1]
-PREEMPT DEBUG_PAGEALLOC
-Modules linked in: oprofile 3c59x microcode ntfs video
-CPU:    0
-EIP:    0060:[<e81a97b0>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.10-rc2-mm4) 
-EIP is at oprofilefs_str_to_user+0x10/0x2c [oprofile]
-eax: 00000000   ebx: 00000000   ecx: ffffffff   edx: 00000000
-esi: c7169f54   edi: 00000000   ebp: c7616f6c   esp: c7616f68
-ds: 007b   es: 007b   ss: 0068
-Process cat (pid: 3366, threadinfo=c7616000 task=c716da60)
-Stack: c7616fa8 c7616f90 c0171a80 00000000 0804d888 00001000 c7616fa8 c7169f54 
-       fffffff7 0804d888 c7616fbc c0171cfe c7169f54 0804d888 00001000 c7616fa8 
-       00000000 00000000 00000000 00000003 00001000 c7616000 c0103d41 00000003 
-Call Trace:
- [<c0104397>] show_stack+0x6f/0x88
- [<c01044c6>] show_registers+0xfe/0x160
- [<c01046f1>] die+0x13d/0x288
- [<c0112c74>] do_page_fault+0x324/0x6a1
- [<c0103f3b>] error_code+0x2b/0x30
- [<c0171a80>] vfs_read+0x88/0x104
- [<c0171cfe>] sys_read+0x3a/0x64
- [<c0103d41>] sysenter_past_esp+0x52/0x71
-Code: 53 58 89 43 54 89 43 4c 89 53 50 89 43 44 89 53 48 89 d8 8b 5d fc c9 c3 8d 76 00 55 89 e5 8b 55 08 57 31 c0 b9 ff ff ff ff 89 d7 <f2> ae f7 d1 49 51 52 ff 75 14 ff 75 10 ff 75 0c e8 97 70 ff d7 
-
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
 

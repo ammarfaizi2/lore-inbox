@@ -1,56 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbTL1RGE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 12:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTL1RGE
+	id S261735AbTL1RJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 12:09:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbTL1RJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 12:06:04 -0500
-Received: from as1-6-4.ld.bonet.se ([194.236.130.199]:14464 "HELO
-	mail.nicke.nu") by vger.kernel.org with SMTP id S261681AbTL1RGC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 12:06:02 -0500
-From: "Nicklas Bondesson" <nicke@nicke.nu>
-To: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Error mounting root fs on 72:01 using Promise FastTrak TX2000 (PDC20271)
-Date: Sun, 28 Dec 2003 18:06:01 +0100
+	Sun, 28 Dec 2003 12:09:29 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:25763 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S261735AbTL1RJ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 12:09:26 -0500
+Message-ID: <3FEF05B2.9184ABA0@sgi.com>
+Date: Sun, 28 Dec 2003 10:32:51 -0600
+From: Colin Ngam <cngam@sgi.com>
+Organization: SGI
+X-Mailer: Mozilla 4.79C-SGI [en] (X11; I; IRIX 6.5 IP32)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Christoph Hellwig <hch@infradead.org>
+CC: Pat Gefre <pfg@sgi.com>, akpm@osdl.org, davidm@napali.hpl.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Updating our sn code in 2.6
+References: <20031220122749.A5223@infradead.org> <Pine.SGI.3.96.1031222204757.20064A-100000@fsgi900.americas.sgi.com> <20031223090227.A5027@infradead.org> <3FE85533.E026DE86@sgi.com> <20031223165506.A8624@infradead.org> <3FEC8F0B.A8C30677@sgi.com> <20031228144415.B20391@infradead.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcPNZBIQ47lw1Dq7StCkj3oniOs81gAAHt+g
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <Pine.LNX.4.58L.0312281456090.15034@logos.cnet>
-Message-Id: <S261681AbTL1RGC/20031228170602Z+16985@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, if I remember it correctly I have tried that too. Should it make any
-difference? It seems like the problem is related to disk geometry failure
-(the kernel is not seeing the correct geometry values for the drives) since
-the patch I got worked fine.
+Christoph Hellwig wrote:
 
-/Nicke
+Hi Christoph,
 
------Original Message-----
-From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com] 
-Sent: den 28 december 2003 17:57
-To: Nicklas Bondesson
-Cc: linux-kernel@vger.kernel.org; Bartlomiej Zolnierkiewicz
-Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
-(PDC20271)
-
-
-
-On Sun, 28 Dec 2003, Nicklas Bondesson wrote:
-
-> I really hope so :) I think you should wrap it up and send it to the 
-> list marked as [PATCH].
+> On Fri, Dec 26, 2003 at 01:42:03PM -0600, Colin Ngam wrote:
+> > Hi Christoph,
+> >
+> > Yes I agree.  However, keep in mind that we are following the ia32/ia64
+> > way of getting platforms initialized, via ACPI etc.  What you see as
+> > drivers code in sn/io will probably not exist anymore.  All initialization
+> > and configuration will be done at the System BIOS level and information
+> > passed down to the Linux Kernel via ACPI.  This will take away much
+> > code in the kernel.
 >
-> Many thanks for the help again!
+> Well, I've heard this a few times now and life would definitly be simpler
 
-Nicklas,
+>
+> if you're going down that route.  OTOH we all know talk is cheap and code
+> speaks, and do you really expect SGI to invest money into doing that for
+> the now almost legacy SHUB/PIC based Altixens?  Well, even if SGI does this
 
-Have you tried to compile the kernel with CONFIG_PDC202XX_FORCE unset ?
+SHUB/PIC based Altixens are not Legacy in any form shape or manner.  I expect
+these IO Chipsets to drive Altix for the foreseable near future ..
+
+Please do not question my resolve to drive us towards this direction.  Things can
+always change, but I am heading this direction.
+
+>
+> some day it won't really hurt us to get the code in shape first even if
+> it's only use on MIPS IP27/IP35, wouldn't it?
+
+Please, you can do what you want with the maintainer for the MIPs
+architecture.  That is not a problem at all.  For ia64 Altix line, we want
+to follow what's being done on other ia64 platform.  Is this not the
+right approach?  You yourself had mentioned above that this is the
+way to go?
+
+>
+>
+> > We believe that all that will be left in sn/io directory maybe files dealing with
+> > DMA mappings(IOMMU).
+>
+> That's one of the candidates that really should be shared with IP27 and the
+> once someone does them the IP30 and IP35 ports.  Really, the basic dma mapping
+> code is the same for Bridge/Xbridge/PIC/TIOCP so we should have one driver.
+> And once all the IRIX I/O infrastructure depency is ripped out that part of
+> pcibr is rather self-contained.  I can send you my latest variant of the
+> dma mapping code if you want, but due tue all that stupid renaming of
+> structure and macro names it won't compile in your tree.  See why I _really_
+> _really_ dislike that silly renaming?  It breaks all those nice efforts
+> for code-sharing without any gain.
+
+This code sharing will not be possible when we do all of our initialization
+in System BIOS, just like every other ia64 platform.  Moreover, the ia64
+Altix line does not support Bridge/Xbridge chipsets and we do not want
+to be burdened by these legacy code as we move forward with the ia64
+product line.
+
+Thanks.
+
+colin
+
+>
+>
+> Even IRIX TOT uses the 'old' names, so what is the point of renaming them?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

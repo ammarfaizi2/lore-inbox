@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271822AbRIEOGH>; Wed, 5 Sep 2001 10:06:07 -0400
+	id <S272179AbRIEOH6>; Wed, 5 Sep 2001 10:07:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272079AbRIEOF7>; Wed, 5 Sep 2001 10:05:59 -0400
-Received: from AMontpellier-201-1-1-55.abo.wanadoo.fr ([193.252.31.55]:26125
-	"EHLO awak") by vger.kernel.org with ESMTP id <S271822AbRIEOFq>;
-	Wed, 5 Sep 2001 10:05:46 -0400
-Subject: Re: hang on disk discovery
+	id <S272181AbRIEOHr>; Wed, 5 Sep 2001 10:07:47 -0400
+Received: from AMontpellier-201-1-1-55.abo.wanadoo.fr ([193.252.31.55]:26893
+	"EHLO awak") by vger.kernel.org with ESMTP id <S272179AbRIEOHg>;
+	Wed, 5 Sep 2001 10:07:36 -0400
+Subject: Re: ACPI lock-up on kernel init when probing /dev/hde (Promise
+	20265R)
 From: Xavier Bestel <xavier.bestel@free.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15ecpI-0005wn-00@the-village.bc.nu>
-In-Reply-To: <E15ecpI-0005wn-00@the-village.bc.nu>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010905155242.A3926@emma1.emma.line.org>
+In-Reply-To: <20010905155242.A3926@emma1.emma.line.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/0.13.99+cvs.2001.08.30.16.57 (Preview Release)
-Date: 05 Sep 2001 16:01:30 +0200
-Message-Id: <999698491.14164.17.camel@nomade>
+Date: 05 Sep 2001 16:03:22 +0200
+Message-Id: <999698603.14164.20.camel@nomade>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On mer, 2001-09-05 at 15:34, Alan Cox wrote:
-> > I have an ABit VP6 (dual PIII, VIA chipset), ACPI in kernel, I just put
-> > --no-mem-option in grub to see if it changes anything but no.
-> > The only intersting thing in dmesg seems the "unexpected IO-APIC".
-> > How can I help ?
+On mer, 2001-09-05 at 15:52, Matthias Andree wrote:
+
+> With ACPI, that box dies after the
 > 
-> Ok firstly try disabling ACPI. If that doesnt help see if booting "noapic"
-> helps
+> hda: WDC AC420400D, ATA DISK drive
 
-OK, it works well after disabling ACPI, thanks.
-Anything quick I can do to help debug this ?
+... then just try pressing your power button when it hangs. sometimes it
+will reset, sometimes it will continue to boot.
 
-
+	Xav
 

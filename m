@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268370AbRG3Gza>; Mon, 30 Jul 2001 02:55:30 -0400
+	id <S268405AbRG3HLB>; Mon, 30 Jul 2001 03:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268377AbRG3GzU>; Mon, 30 Jul 2001 02:55:20 -0400
-Received: from biltenmail.bilten.metu.edu.tr ([144.122.246.3]:55819 "EHLO
-	biltenmail.bilten.metu.edu.tr") by vger.kernel.org with ESMTP
-	id <S268370AbRG3GzD>; Mon, 30 Jul 2001 02:55:03 -0400
-Message-ID: <3B65052A.25DFA8C2@bilten.metu.edu.tr>
-Date: Mon, 30 Jul 2001 09:56:42 +0300
-From: Muzaffer Ozakca <muzaffer.ozakca@bilten.metu.edu.tr>
-Organization: Tubitak - Bilten
-X-Mailer: Mozilla 4.76 [en] (Win95; U)
-X-Accept-Language: tr
+	id <S268398AbRG3HKu>; Mon, 30 Jul 2001 03:10:50 -0400
+Received: from cx48762-b.cv1.sdca.home.com ([24.251.153.196]:48913 "EHLO
+	train.sweet-haven.com") by vger.kernel.org with ESMTP
+	id <S268392AbRG3HKr>; Mon, 30 Jul 2001 03:10:47 -0400
+Date: Mon, 30 Jul 2001 00:10:43 -0700 (PDT)
+From: Lew Wolfgang <wolfgang@train.sweet-haven.com>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Test mail
+In-Reply-To: <3B64FE86.D94FF344@randomlogic.com>
+Message-ID: <Pine.LNX.4.33.0107300000480.5726-100000@train.sweet-haven.com>
 MIME-Version: 1.0
-To: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Questions reg. mm
-Content-Type: text/plain; charset=iso-8859-9
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello,
+Hi Paul,
 
-I'm trying to implement a checkpoint/restart mechanism in the kernel.
-But, there are some points that are not very clear, I'd like to ask.
-Mostly in MM.
+I forwarded the message to a Trend Micro based smtp Viruswall
+which reported it as the TROJ_MUSIC.B virus.  Trend reports
+it as being a non-destructive, low-risk virus that plays a
+tune (taps?) when activated.
 
-1) I will save and then later restore the contents of vmas'. Should I
-store the protections, etc. of every page contained by these vmas or
-setting protections just on vmas is adequate?
+Even a low-risk virus can be a pain to exorcise, I hope that
+no one here was infected.
 
-2) How to know when to use one of these functions for allocation:
-kmalloc(), get_free_page(), vmalloc(), mmap() -what else-?
+Regards,
+Lew Wolfgang
 
-3) Is this the right list to send out the questions of above kind?
-Because I will have more questions about the kernel..
+On Sun, 29 Jul 2001, Paul G. Allen wrote:
 
-Thanks.
+> Well The e-mail looks like it may be a variation on SirCam or Code Red
+> (I could be wrong). It appears to have its own mailer attached (from
+> what I saw in the header - I have not opened the attached .zip) and it
+> came from:
+>
+> cx852567-a.ocnsd1.sdca.home.com
+>
+> Oceanside, California, USA (about 30 miles North of me).
 
---
-muzaffer

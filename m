@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129628AbQJ3S5V>; Mon, 30 Oct 2000 13:57:21 -0500
+	id <S129044AbQJ3TFX>; Mon, 30 Oct 2000 14:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129632AbQJ3S5O>; Mon, 30 Oct 2000 13:57:14 -0500
-Received: from web10105.mail.yahoo.com ([216.136.130.55]:24585 "HELO
-	web10105.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129628AbQJ3S4p>; Mon, 30 Oct 2000 13:56:45 -0500
-Message-ID: <20001030185639.93318.qmail@web10105.mail.yahoo.com>
-Date: Mon, 30 Oct 2000 10:56:39 -0800 (PST)
-From: Al Peat <al_kernel@yahoo.com>
-Subject: hard_sector / hard_nr_sectors
-To: linux-kernel@vger.kernel.org
-Cc: al_kernel@yahoo.com
-MIME-Version: 1.0
+	id <S129053AbQJ3TFN>; Mon, 30 Oct 2000 14:05:13 -0500
+Received: from [199.239.160.155] ([199.239.160.155]:17171 "EHLO
+	tenchi.datarithm.net") by vger.kernel.org with ESMTP
+	id <S129044AbQJ3TFB>; Mon, 30 Oct 2000 14:05:01 -0500
+Date: Mon, 30 Oct 2000 11:06:59 -0800
+From: rread@datarithm.net
+To: Brett Smith <brett.smith@bktech.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: installing an ISR from user code
+Message-ID: <20001030110659.A26335@datarithm.net>
+In-Reply-To: <39FDAE74.2AED0C74@bktech.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <39FDAE74.2AED0C74@bktech.com>; from brett.smith@bktech.com on Mon, Oct 30, 2000 at 12:23:00PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I was wondering if someone could give me a quick
-overview of the differences between sector/nr_sectors
-and hard_sector/hard_nr_sectors in blk_dev.h's request
-structure, or point me to some
-documentation/discussion on this?
+I'm new at this myself, but how about creating a minor number for each
+ISR?  When the BH runs, it wakes up the processing waiting on the
+device for that ISR.  The user code opens as whatever devices it's
+interested in and waits for interrupts using select.
 
-    Thanks in advance,
-            Al
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Messenger - Talk while you surf!  It's FREE.
-http://im.yahoo.com/
+robert
+
+* Brett Smith (brett.smith@bktech.com) [001030 09:25]:
+> 
+> We have written a char driver for our proprietary h/w.  This driver
+> handles a
+> multitude of interrupts from the h/w in the following fashion:  The ISR
+> reads/saves the status register (indication of which int was hit) in
+> global, and the marks the BH to run.  The BH uses the global to call one
+> of 32 "ISRs" (an array of func ptrs).  I would like to be able to
+> install an "ISR" dynamically from user code (the module has already been
+> installed).  Is this possible?
+> 
+> If it is possible, how does the build/link work?
+> 
+> thanks,
+> brett.smith@bktech.com
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262420AbSJ1MgN>; Mon, 28 Oct 2002 07:36:13 -0500
+	id <S262434AbSJ1MiB>; Mon, 28 Oct 2002 07:38:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262434AbSJ1MgN>; Mon, 28 Oct 2002 07:36:13 -0500
-Received: from mail.cyberus.ca ([216.191.240.111]:16833 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S262420AbSJ1MgM>;
-	Mon, 28 Oct 2002 07:36:12 -0500
-Date: Mon, 28 Oct 2002 07:35:01 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-cc: Tim Hockin <thockin@hockin.org>, David Woodhouse <dwmw2@infradead.org>,
-       <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: rtnetlink interface state monitoring problems.
-In-Reply-To: <5.1.0.14.2.20021023124123.09b83e00@mail1.qualcomm.com>
-Message-ID: <Pine.GSO.4.30.0210280711490.9849-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262442AbSJ1Mh7>; Mon, 28 Oct 2002 07:37:59 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:2474 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262434AbSJ1Mh6>;
+	Mon, 28 Oct 2002 07:37:58 -0500
+Date: Mon, 28 Oct 2002 04:35:07 -0800 (PST)
+Message-Id: <20021028.043507.104714061.davem@redhat.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: [patch][cft] zero-copy dma cd writing and ripping
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021018155650.GJ15494@suse.de>
+References: <20021018155650.GJ15494@suse.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Wed, 23 Oct 2002, Maksim (Max) Krasnyanskiy wrote:
-
->
-> >netlink is a messaging system; so what i am thinking is creating
-> >a event notifier for other devices other than network devices.
-> >Something other non-network devices could use (eg bluetooth).
->
-> What kind of events are we taking about ?
->
-
-Currently,  for net events, notifier_call_chain() calls from the same
-routines which also send netlink announcements. I am thinking actually
-having notifier_call_chain make the netlink advertisements.
-There are not that many subsystems that use notifier block calls (seems
-the network subsytem is their best customer ;->)
-i think it is the best async notification scheme in the kernel. Too bad
-someone had to invent hotplug the way it is right now.
-As i said earlier, the advantage with netlink is that you could easily
-add a distributed event notification scheme since it is already in packet
-format.
-
-cheers,
-jamal
-
+This work reminds me that get_user_pages() (or it's callers)
+need to be doing some flush_dcache_page()

@@ -1,31 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272074AbRIJWfn>; Mon, 10 Sep 2001 18:35:43 -0400
+	id <S272061AbRIJW3n>; Mon, 10 Sep 2001 18:29:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272076AbRIJWfX>; Mon, 10 Sep 2001 18:35:23 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:2821 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S272074AbRIJWfR>;
-	Mon, 10 Sep 2001 18:35:17 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: David Mansfield <david@ultramaster.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 question about generated files 
-In-Reply-To: Your message of "Mon, 10 Sep 2001 11:23:36 -0400."
-             <Pine.LNX.4.33.0109101118120.24063-100000@mercury.ultramaster.com> 
-Mime-Version: 1.0
+	id <S272072AbRIJW3e>; Mon, 10 Sep 2001 18:29:34 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:27410 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S272061AbRIJW32>;
+	Mon, 10 Sep 2001 18:29:28 -0400
+Message-ID: <XFMail.20010911002924.ast@domdv.de>
+X-Mailer: XFMail 1.4.6-3 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 11 Sep 2001 08:34:39 +1000
-Message-ID: <25451.1000161279@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3B9D1078.54860A60@t-online.de>
+Date: Tue, 11 Sep 2001 00:29:24 +0200 (CEST)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: <SPATZ1@t-online.de (Frank Schneider)>
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Sep 2001 11:23:36 -0400 (EDT), 
-David Mansfield <david@ultramaster.com> wrote:
->I've read the release announcements about the new kbuild and it sounds
->like it will be possible to build from kernel sources that reside on a
->read-only filesystem?  Is that the case?
+> Something other made me wonder:
+> I ran the machine several times with the *new* aic7xxx-driver (TCQ=32)
+> and the "aic7xxx=verbose" commandline, and i noticed the following:
+> At every reboot (made by "reboot", RH7.1), the machine was not able to
+> stop the raid5 correctly...it un-mounted the mountpoint (/home) and then
+> it normaly wants to stop the raid...(you see the messages "mdrecoveryd
+> got waken up...") but that did not work and after some time (30sec) the
+> kernel Ooopsed. This was reproducable and only occured if booted with
+> the "aic7xxx=verbose" kernel-parameter.
+> The effect after reboot was, that the raid had to be resynced because
+> one partition (that which always falls out) was damaged or at least
+> seemed to.
+> (The filesystem was clean, that was already unmounted as the oops
+> occured.)
+> 
+> Perhaps someone can test if this is reproducable with his machine
+> too...i use kernel 2.4.3, raid is built-in, also the aic7xxx, there are
+> three raid-disks (LVD, aic7xxx-controller on Mobo) in a raid5 mounted as
+> /home.
+> 
+Same behaviour for RAID1 and the new aic7xxx driver for me at nearly every
+reboot. The old driver works just fine (2.4.9).
 
-Yes.  Run with separate source and object directories and nothing
-expect last access time stamp is updated in the source directory.
 
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

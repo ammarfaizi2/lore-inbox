@@ -1,142 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVCTXFA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVCTXG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVCTXFA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 18:05:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVCTXFA
+	id S261328AbVCTXG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 18:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVCTXGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 18:05:00 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.61]:11491 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261323AbVCTXEy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 18:04:54 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [new patch] Re: [PATCH] remove redundant NULL checks before kfree() in drivers/video/w100fb.c and add if()+comment back in drivers/video/console/bitblit.c
-Date: Mon, 21 Mar 2005 07:04:50 +0800
-User-Agent: KMail/1.5.4
-Cc: Antonino Daplas <adaplas@pol.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net, Alex Kern <alex.kern@gmx.de>,
-       "Ben. Herrenschmidt" <benh@kernel.crashing.org>,
-       Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-       Helge Deller <deller@gmx.de>, Philipp Rumpf <prumpf@tux.org>,
-       James Simmons <jsimmons@users.sf.net>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       "Eddie C. Dost" <ecd@skynet.be>, Nicolas Pitre <nico@cam.org>,
-       linux-arm-kernel@lists.arm.linux.org.uk, Andrew Morton <akpm@osdl.org>,
-       Richard Purdie <rpurdie@rpsys.net>
-References: <Pine.LNX.4.62.0503192339190.5507@dragon.hyggekrogen.localhost> <Pine.LNX.4.62.0503202325360.2508@dragon.hyggekrogen.localhost> <Pine.LNX.4.62.0503202332140.2508@dragon.hyggekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0503202332140.2508@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503210704.50357.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+	Sun, 20 Mar 2005 18:06:38 -0500
+Received: from ns3.dataphone.se ([212.37.0.170]:24787 "EHLO
+	mail-slave.dataphone.se") by vger.kernel.org with ESMTP
+	id S261328AbVCTXGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 18:06:12 -0500
+From: Magnus Damm <damm@opensource.se>
+To: linux-kernel@vger.kernel.org
+Cc: Magnus Damm <damm@opensource.se>
+Message-Id: <20050320223819.25305.90833.26641@clementine.local>
+In-Reply-To: <20050320223814.25305.52695.65404@clementine.local>
+References: <20050320223814.25305.52695.65404@clementine.local>
+Subject: [PATCH 1/5] autoparam: includes
+Date: Mon, 21 Mar 2005 00:06:11 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 March 2005 06:45, Jesper Juhl wrote:
-> On Sun, 20 Mar 2005, Jesper Juhl wrote:
-> > On Mon, 21 Mar 2005, Antonino A. Daplas wrote:
-> > > On Monday 21 March 2005 06:02, Jesper Juhl wrote:
-> > > > On Mon, 21 Mar 2005, Antonino A. Daplas wrote:
-> > > > > On Sunday 20 March 2005 06:59, Jesper Juhl wrote:
-> > > > > > Checking a pointer for NULL before calling kfree() on it is
-> > > > > > redundant, kfree() deals with NULL pointers just fine.
-> > > > > > This patch removes such checks from files in drivers/video/
-> > > > >
-> > > > > [snip]
-> > > > >
-> > > > > > ---
-> > > > > > linux-2.6.11-mm4-orig/drivers/video/console/bitblit.c	2005-03-16
-> > > > > > 15:45:26.000000000 +0100 +++
-> > > > > > linux-2.6.11-mm4/drivers/video/console/bitblit.c	2005-03-19
-> > > > > > 22:27:39.000000000 +0100 @@ -199,8 +199,7 @@ static void
-> > > > > > bit_putcs(struct vc_data *vc
-> > > > > >  		count -= cnt;
-> > > > > >  	}
-> > > > > >
-> > > > > > -	if (buf)
-> > > > > > -		kfree(buf);
-> > > > > > +	kfree(buf);
-> > > > > >  }
-> > > > >
-> > > > > This is performance critical, so I would like the check to remain.
-> > > > > A comment may be added in this section.
-> > > >
-> > > > Ok, I believe Andrew already merged the patch into -mm, if you really
-> > > > want that check back then I'll send him a patch to put it back and
-> > > > add a comment once he puts out the next -mm.
-> > > > But, at the risk of exposing my ignorance, I have to ask if it
-> > > > wouldn't actually perform better /without/ the if(buf) bit?  The
-> > > > reason I say that is that the generated code shrinks quite a bit when
-> > > > it's removed, and also kfree() itself does the same NULL check as the
-> > > > very first thing, so it comes down to the bennefit of shorter
-> > > > generated code, one less branch, against the overhead of a function
-> > > > call - and how often will 'buf' be NULL? if buff is != NULL the
-> > > > majority of the time, then it should be a gain to remove the if().
-> > >
-> > > You said it, buf is almost always NULL, except when the driver is in
-> > > monochrome mode.  So a kfree is rarely done.
-> >
-> > I see, then my change in this exact spot woul probably be a loss in the
-> > general case. Thank you for explaining.
-> >
-> > > Anyway, if the patch is already in the tree, let's leave it at that.  I
-> > > would surmise that the performance loss is negligible.
-> >
-> > Well, I just spotted two cases I missed in drivers/video/ , so when I
-> > send that patch I might as well include a hunk that puts this one check
-> > back including a comment as to why it should stay.
->
-> One case turned out not to be one when I took a closer look, so I actually
-> only missed one. Here's a patch to fix that last one and also put the
-> check in bitblit.c back.
-> (Andrew: this should apply on top of what you already merged)
->
->
-> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
->
-> --- linux-2.6.11-mm4/drivers/video/console/bitblit.c~	2005-03-20
-> 23:40:58.000000000 +0100 +++
-> linux-2.6.11-mm4/drivers/video/console/bitblit.c	2005-03-20
-> 23:40:58.000000000 +0100 @@ -199,7 +199,11 @@ static void bit_putcs(struct
-> vc_data *vc
->  		count -= cnt;
->  	}
->
-> -	kfree(buf);
-> +	/* buf is always NULL except when in monochrome mode, so in this case
-> +	   it's a gain to check buf against NULL even though kfree() handles
-> +	   NULL pointers just fine */
-> +	if (buf)
-> +		kfree(buf);
->  }
->
+The code of autoparam - modified include files. Stores parameter name, type 
+and description in a section called __param_strings.  
 
-As Joe Perch suggested, an if (unlikely(buf)) is better.
+Signed-off-by: Magnus Damm <damm@opensource.se>
 
-Tony
-
---- linux-2.6.11-mm4/drivers/video/console/bitblit.c~   2005-03-20 23:40:58.000000000 +0100
-+++ linux-2.6.11-mm4/drivers/video/console/bitblit.c    2005-03-20 23:40:58.000000000 +0100
-@@ -199,7 +199,11 @@ static void bit_putcs(struct vc_data *vc
-                count -= cnt;
-        }
+diff -urN linux-2.6.12-rc1/include/linux/init.h linux-2.6.12-rc1-autoparam/include/linux/init.h
+--- linux-2.6.12-rc1/include/linux/init.h	2005-03-20 18:09:16.000000000 +0100
++++ linux-2.6.12-rc1-autoparam/include/linux/init.h	2005-03-20 22:24:14.393451896 +0100
+@@ -125,7 +125,11 @@
+ 		__attribute_used__				\
+ 		__attribute__((__section__(".init.setup")))	\
+ 		__attribute__((aligned((sizeof(long)))))	\
+-		= { __setup_str_##unique_id, fn, early }
++		= { __setup_str_##unique_id, fn, early };	\
++		static const char __setup_doc_##unique_id[]	\
++		__attribute_used__				\
++		__attribute__((section("__param_strings")))	\
++		= str
  
--       kfree(buf);
-+       /* buf is always NULL except when in monochrome mode, so in this case
-+          it's a gain to check buf against NULL even though kfree() handles
-+          NULL pointers just fine */
-+       if (unlikely(buf))        
-+               kfree(buf);
- }
+ #define __setup_null_param(str, unique_id)			\
+ 	__setup_param(str, unique_id, NULL, 0)
+diff -urN linux-2.6.12-rc1/include/linux/module.h linux-2.6.12-rc1-autoparam/include/linux/module.h
+--- linux-2.6.12-rc1/include/linux/module.h	2005-03-20 18:20:18.000000000 +0100
++++ linux-2.6.12-rc1-autoparam/include/linux/module.h	2005-03-20 22:26:33.666279208 +0100
+@@ -128,10 +128,18 @@
+ /* What your module does. */
+ #define MODULE_DESCRIPTION(_description) MODULE_INFO(description, _description)
  
-
-
++#ifdef MODULE
+ /* One for each parameter, describing how to use it.  Some files do
+    multiple of these per line, so can't just use MODULE_INFO. */
+ #define MODULE_PARM_DESC(_parm, desc) \
+ 	__MODULE_INFO(parm, _parm, #_parm ":" desc)
++#else
++#define MODULE_PARM_DESC(_parm, desc)				\
++	static const char __param_doc_desc_##_parm[]		\
++	__attribute_used__					\
++	__attribute__((section("__param_strings")))		\
++	= __stringify(KBUILD_MODNAME) "." #_parm " () " desc
++#endif
+ 
+ #define MODULE_DEVICE_TABLE(type,name)		\
+   MODULE_GENERIC_TABLE(type##_device,name)
+diff -urN linux-2.6.12-rc1/include/linux/moduleparam.h linux-2.6.12-rc1-autoparam/include/linux/moduleparam.h
+--- linux-2.6.12-rc1/include/linux/moduleparam.h	2005-03-20 18:20:18.000000000 +0100
++++ linux-2.6.12-rc1-autoparam/include/linux/moduleparam.h	2005-03-20 22:29:09.438598216 +0100
+@@ -69,6 +69,12 @@
+     __attribute__ ((unused,__section__ ("__param"),aligned(sizeof(void *)))) \
+ 	= { __param_str_##name, perm, set, get, arg }
+ 
++#define module_param_doc(prefix, name, type)				\
++	static const char __param_doc_##name[]				\
++	__attribute_used__						\
++	__attribute__((section("__param_strings")))			\
++	= prefix #name " (" #type ")"
++
+ #define module_param_call(name, set, get, arg, perm)			      \
+ 	__module_param_call(MODULE_PARAM_PREFIX, name, set, get, arg, perm)
+ 
+@@ -78,7 +84,8 @@
+ #define module_param_named(name, value, type, perm)			   \
+ 	param_check_##type(name, &(value));				   \
+ 	module_param_call(name, param_set_##type, param_get_##type, &value, perm); \
+-	__MODULE_PARM_TYPE(name, #type)
++	__MODULE_PARM_TYPE(name, #type);				   \
++	module_param_doc(MODULE_PARAM_PREFIX, name, type)
+ 
+ #define module_param(name, type, perm)				\
+ 	module_param_named(name, name, type, perm)
+@@ -89,7 +96,8 @@
+ 		= { len, string };					\
+ 	module_param_call(name, param_set_copystring, param_get_string,	\
+ 		   &__param_string_##name, perm);			\
+-	__MODULE_PARM_TYPE(name, "string")
++	__MODULE_PARM_TYPE(name, "string");				\
++	module_param_doc(MODULE_PARAM_PREFIX, name, type)
+ 
+ /* Called on module insert or kernel boot */
+ extern int parse_args(const char *name,
+@@ -151,7 +159,8 @@
+ 	    sizeof(array[0]), array };					\
+ 	module_param_call(name, param_array_set, param_array_get, 	\
+ 			  &__param_arr_##name, perm);			\
+-	__MODULE_PARM_TYPE(name, "array of " #type)
++	__MODULE_PARM_TYPE(name, "array of " #type);			\
++	module_param_doc(MODULE_PARAM_PREFIX, name, type)
+ 
+ #define module_param_array(name, type, nump, perm)		\
+ 	module_param_array_named(name, name, type, nump, perm)

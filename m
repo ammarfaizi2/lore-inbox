@@ -1,41 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268166AbUHQIMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268159AbUHQINz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268166AbUHQIMF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 04:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268157AbUHQIKu
+	id S268159AbUHQINz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 04:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUHQINr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 04:10:50 -0400
-Received: from gate.crashing.org ([63.228.1.57]:7073 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268146AbUHQIKQ (ORCPT
+	Tue, 17 Aug 2004 04:13:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50344 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268159AbUHQIMR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 04:10:16 -0400
-Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
-	pte locks?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-ia64@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>
-In-Reply-To: <Pine.LNX.4.58.0408161025420.9812@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
-	 <1092609485.9538.27.camel@gaston>
-	 <Pine.LNX.4.58.0408161025420.9812@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1092729699.9539.131.camel@gaston>
+	Tue, 17 Aug 2004 04:12:17 -0400
+Date: Tue, 17 Aug 2004 10:11:07 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Jens Maurer <Jens.Maurer@gmx.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use x86 SSE instructions for clear_page, copy_page
+Message-ID: <20040817081107.GA12690@devserv.devel.redhat.com>
+References: <4121A211.8080902@gmx.net> <1092727670.2792.4.camel@laptop.fenrus.com> <20040817081009.GA806@pazke>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 17 Aug 2004 18:01:39 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+Content-Disposition: inline
+In-Reply-To: <20040817081009.GA806@pazke>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Is this the _PAGE_BUSY bit? The pte update routines on PPC64 seem to spin
-> on that bit when it is set waiting for the hash value update to complete.
-> Looks very specific to the PPC64 architecture.
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Yes, it is, I was thinking it's use could be extended tho
+On Tue, Aug 17, 2004 at 12:10:09PM +0400, Andrey Panin wrote:
+> On 230, 08 17, 2004 at 09:27:51AM +0200, Arjan van de Ven wrote:
+> > On Tue, 2004-08-17 at 08:13, Jens Maurer wrote:
+> > > The attached patch (against kernel 2.6.8.1) enables using SSE
+> > > instructions for copy_page and clear_page.
+> > > 
+> > > A user-space test on my Pentium III 850 MHz shows a 3x speedup for
+> > > clear_page (compared to the default "rep stosl"), and a 50% speedup
+> > > for copy_page (compared to the default "rep movsl").  For a Pentium-4,
+> > > the speedup is about 50% in both the clear_page and copy_page cases.
+> > 
+> > 
+> > we used to have code like this in 2.4 but it got removed: the non
+> > temperal store code is faster in a microbenchmark but has the
+> > fundamental problem that it evics the data from the cpu cache; the
+> > actual USE of the data thus is a LOT more expensive, result is that the
+> > overall system performance goes down ;(
+> 
+> Did SSE clear_page() suffered from this issue too ?
 
-Ben.
+yes especially clear_page; the kernel only calls clear_page when it's *just
+about* to use it, so it's actually the worst case example ;(
 
+(and clear_page gains the most because non-temperal stores avoid the write
+allocate so it like halves the memory bandwidth)
 
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBIb2axULwo51rQBIRAhgZAKCQYeUdZ3hW+0/qhk9WEeNLvVHFpwCdFPw+
+Qr6IhwQr+ct8BCQ0srrryGU=
+=zsyG
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--

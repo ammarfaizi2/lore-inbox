@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270827AbRH1Mki>; Tue, 28 Aug 2001 08:40:38 -0400
+	id <S270848AbRH1Mn3>; Tue, 28 Aug 2001 08:43:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270847AbRH1Mk2>; Tue, 28 Aug 2001 08:40:28 -0400
-Received: from fe090.worldonline.dk ([212.54.64.152]:37892 "HELO
-	fe090.worldonline.dk") by vger.kernel.org with SMTP
-	id <S270827AbRH1MkQ>; Tue, 28 Aug 2001 08:40:16 -0400
-Date: Tue, 28 Aug 2001 14:43:26 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Christoph Rohland <cr@sap.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] zero-bounce block highmem I/O, #13
-Message-ID: <20010828144326.R642@suse.de>
-In-Reply-To: <20010827123700.B1092@suse.de> <m3itf85vlr.fsf@linux.local> <20010828125520.L642@suse.de> <20010828134141.M642@suse.de> <m3ae0k5qic.fsf@linux.local>
-Mime-Version: 1.0
+	id <S270847AbRH1MnT>; Tue, 28 Aug 2001 08:43:19 -0400
+Received: from relay1.zonnet.nl ([62.58.50.37]:37841 "EHLO relay1.zonnet.nl")
+	by vger.kernel.org with ESMTP id <S270848AbRH1Mm6>;
+	Tue, 28 Aug 2001 08:42:58 -0400
+Message-ID: <3B8B91D1.A4D5C23F@linux-m68k.org>
+Date: Tue, 28 Aug 2001 14:42:57 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <Pine.GSO.4.21.0108242055410.19796-100000@weyl.math.psu.edu> <E15b9rU-0002vE-00@localhost> <9mf8ft$7pt$1@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3ae0k5qic.fsf@linux.local>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 28 2001, Christoph Rohland wrote:
-> Hi Jens,
-> 
-> On Tue, 28 Aug 2001, Jens Axboe wrote:
-> > Ok found the bug -- SCSI was accidentally using blk_seg_merge_ok
-> > when it just wanted to test if we were crossing a 4GB physical
-> > address boundary or not. Doh! Attached incremental patch should fix
-> > the SCSI performance issue. I'm testing right now...
-> 
-> Yup, performance is back to 2.4.9 level. But I do not see an
-> improvement.
-> 
-> I will now do a database import.
+Hi,
 
-Of course it depends on the type of work load how big an improvement you
-see. How much RAM is in the machine?
+Linus Torvalds wrote:
 
-It would be interesting to see profiles of stock + highmem kernels.
+> I know people don't understand about the difference between signed and
+> unsigned compares, and people may not even realize that just by doing
+> the patches David ended up fixing a few real bugs that were uncovered
+> simply by virtue of having to think about what kind of comparison it was
+> supposed to be.
 
--- 
-Jens Axboe
+What's wrong with "-Wsign-compare"? You just fixed only a minor amount
+of compares.
 
+An explicit type is maintenance problem and cause of other subtle bugs.
+When types are changing, the type in the macro is too easily missed and
+can cause these funny "but it works on ia32..." errors.
+
+What's wrong with this version?
+
+#define min(a, b) ({            \
+        typeof(a) _a = (a);     \
+        typeof(b) _b = (b);     \
+        _a < _b ? _a : _b;      \
+})      
+
+With "-Wsign-compare" the compiler will warn you about wrong usage and
+will otherwise automatically do the right thing.
+
+Explicit casts are not good, but such half hidden casts are worse. You
+are hiding the problem instead of really fixing it. Why won't you let
+the compiler help you?
+
+bye, Roman

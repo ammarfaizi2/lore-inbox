@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVC0PEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVC0PGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVC0PEp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 10:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVC0PEo
+	id S261759AbVC0PGz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 10:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVC0PGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 10:04:44 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:37313 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261691AbVC0PE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 10:04:27 -0500
-Subject: Re: [PATCH 6/7] - MPT FUSION - SPLITTING SCSI HOST DRIVERS
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jeremy Higdon <jeremy@sgi.com>
-Cc: "Moore, Eric Dean" <Eric.Moore@lsil.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050327091630.GA938785@sgi.com>
-References: <91888D455306F94EBD4D168954A9457C01B70565@nacos172.co.lsil.com>
-	 <1111809137.5541.7.camel@mulgrave>  <20050327091630.GA938785@sgi.com>
+	Sun, 27 Mar 2005 10:06:55 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:44187 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261759AbVC0PGp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 10:06:45 -0500
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Greg KH <greg@kroah.com>, Mark Fortescue <mark@mtfhpc.demon.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1111869274.32641.0.camel@mindpipe>
+References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
+	 <20050326182828.GA8540@kroah.com>  <1111869274.32641.0.camel@mindpipe>
 Content-Type: text/plain
-Date: Sun, 27 Mar 2005 09:04:17 -0600
-Message-Id: <1111935857.5567.17.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1111935867.8664.319.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 27 Mar 2005 16:04:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-03-27 at 01:16 -0800, Jeremy Higdon wrote:
-> James, actually this queue depth code predates your change_queue_depth
-> API.  I don't think it was ever converted to the new API.
+On Sad, 2005-03-26 at 20:34, Lee Revell wrote:
+> > What ever gave you the impression that it was legal to create a
+> > "Proprietry" kernel driver for Linux in the first place.
+> 
+> The fact that Nvidia and ATI get away with it?
 
-Erk, you're right.  My todo list says I'm only waiting on 3ware patches
-for all the conversions to be complete, but I think I missed auditing
-fusion because it's not in the scsi directory...OK I'll do it after we
-get the driver split sorted out.
+The choose to take a risk based upon a specific interpretation of the
+boundary of a derivative work. Since the boundary is untested in law its
+not certain who is right.
 
-James
-
+Alan
 

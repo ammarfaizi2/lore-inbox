@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264844AbTB0Ma7>; Thu, 27 Feb 2003 07:30:59 -0500
+	id <S264820AbTB0Mj7>; Thu, 27 Feb 2003 07:39:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264867AbTB0Ma7>; Thu, 27 Feb 2003 07:30:59 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:43279 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S264844AbTB0Ma6>; Thu, 27 Feb 2003 07:30:58 -0500
-Date: Thu, 27 Feb 2003 07:40:02 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, ajoshi@kernel.crashing.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre5
-Message-ID: <20030227124002.GA21100@phunnypharm.org>
-References: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva> <20030227083238.GS7685@fs.tum.de>
+	id <S264867AbTB0Mj7>; Thu, 27 Feb 2003 07:39:59 -0500
+Received: from isaac.asimov.net ([208.185.231.103]:56970 "HELO
+	isaac.asimov.net") by vger.kernel.org with SMTP id <S264820AbTB0Mj7>;
+	Thu, 27 Feb 2003 07:39:59 -0500
+Date: Thu, 27 Feb 2003 04:50:17 -0800
+From: Patrick Michael Kane <modus-linux-kernel@pr.es.to>
+To: linux-kernel@vger.kernel.org
+Subject: preventing route cache overflow
+Message-ID: <20030227045017.A11619@pr.es.to>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030227083238.GS7685@fs.tum.de>
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 27, 2003 at 09:32:39AM +0100, Adrian Bunk wrote:
-> On Thu, Feb 27, 2003 at 03:14:44AM -0300, Marcelo Tosatti wrote:
-> > 
-> > So here goes -pre5.
-> > 
-> > 
-> > Summary of changes from v2.4.21-pre4 to v2.4.21-pre5
-> > ============================================
-> > 
-> > <ajoshi@kernel.crashing.org>:
-> >   o rivafb 0.9.4 update
-> >...
-> 
-> WTF is this???
-> 
-> Besides the rivafb update it reverts parts of the IEEE 1394 patches that 
-> were included in -pre4.
+We recently had a server come under attack.  Some script monkeys
+started generating a bunch of pings and SYNs from a huge variety of
+spoofed addresses (mostly in 43.0.0.0/8 and 44.0.0.0/8, for those that
+are interested).
 
-Yes, please revert this, and then make sure _my_ patch gets into -pre6?
+There were so many forged packets that the destination cache began to
+overflow hundreds or thousands of times per second ("kernel: dst cache
+overflow").  This had a huge negative impact on server performance.
 
+Adjusting net/ipv4/route/(max_size|gc_interval) or flushing the route
+cache manually on a regular basis seemed to have little or no
+measurable impact on the problem.  While IDS and manual filtering at
+the firewall eventually resolved the problem, how do we protect
+ourselves against this sort of attack in the future?  Can the route
+cache be disabled?  The overflow path made less catastrophic?
+
+TIA,
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Patrick Michael Kane
+<modus-linux-kernel@pr.es.to>

@@ -1,37 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264264AbUA3UgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 15:36:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbUA3UgQ
+	id S264137AbUA3UfN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 15:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbUA3UfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 15:36:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37329 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264264AbUA3UgN (ORCPT
+	Fri, 30 Jan 2004 15:35:13 -0500
+Received: from av7-2-sn1.fre.skanova.net ([81.228.11.114]:22480 "EHLO
+	av7-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S264137AbUA3UfD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 15:36:13 -0500
-Date: Fri, 30 Jan 2004 12:37:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] missing export of cpu_2_node
-Message-Id: <20040130123738.344975d1.akpm@osdl.org>
-In-Reply-To: <20040130122036.A12659@beaverton.ibm.com>
-References: <20040130122036.A12659@beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jan 2004 15:35:03 -0500
+From: Roger Larsson <roger.larsson@norran.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip - DONE
+Date: Fri, 30 Jan 2004 21:53:53 +0100
+User-Agent: KMail/1.6.50
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401302153.54075.roger.larsson@norran.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mansfield <patmans@us.ibm.com> wrote:
->
-> While compiling on a NUMAQ with st as a module, cpu_2_node comes up as
-> undefined:
-> 
-> WARNING: /lib/modules/2.6.2-rc2/kernel/drivers/scsi/st.ko needs unknown symbol cpu_2_node
+Not so crazy - it is already done :-)
 
-I'm curious to know why st.o needs cpu_to_node().  I can't make it do it
-here.  Can you check the cpp output and enlighten me?
+http://www.opencores.org/projects/vga_lcd/
 
-Thanks.
+FEATURES
+
+CRT and LCD display support
+24bit Standard VGA interface
+Separate VSYNC/HSYNC and combined CSYNC synchronization signals
+Composite BLANK signal
+TripleDisplay support
+12bit Interface
+Compatible with DVI transmitters and 12bit VGA ADCs
+4 different output modes
+Can be used simultaneous with the 24bit interface
+User programmable video resolutions 
+User programmable video timing
+User programmable video control signals polarization levels
+32bpp, 24bpp and 16bpp color modes
+8bit gray-scale and 8bit pseudo-color modes
+Supports video- and/or color-lookup-table bankswitching during vertical 
+retrace
+32bit WISHBONE revB.3 compliant slave and master interfaces
+Operates from a wide range of input clock frequencies
+Static synchronous design
+Fully synthesizeable
+
+STATUS 
+
+VGA/LCD core v2.0 is ready and available in verilog from OpenCores CVS via 
+cvsweb or via cvsget. 
+Low level abstraction layer available in C from CVS. 
+Character simulation software is currently under development. 
+
+
+
+But to get a board that gives you anything more than a cheap old VGA board
+the XServer should be running on the board! (PowerPCs are good for embedding)
+But for some applications you might need to talk directly to the frame 
+buffer...
+
+/RogerL
+
+-- 
+Roger Larsson
+Skellefteå
+Sweden

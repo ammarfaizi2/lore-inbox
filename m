@@ -1,66 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbTDIAwf (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 20:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbTDIAwf (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 20:52:35 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:3024 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id S261896AbTDIAwa (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 20:52:30 -0400
-Date: Tue, 8 Apr 2003 18:02:51 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: 64-bit kdev_t - just for playing
-Message-ID: <20030409010250.GZ31739@ca-server1.us.oracle.com>
-References: <20030408195305.F19288@almesberger.net> <Pine.LNX.4.44.0304081607060.5766-100000@dlang.diginsite.com> <b6vnig$q86$1@cesium.transmeta.com> <Pine.LNX.4.44.0304090225440.12110-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304090225440.12110-100000@serv>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+	id S261895AbTDIAvn (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 20:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbTDIAvn (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 20:51:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35501 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261895AbTDIAvm (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 20:51:42 -0400
+Message-ID: <3E937144.9090105@pobox.com>
+Date: Tue, 08 Apr 2003 21:03:00 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, hch@infradead.org,
+       Kai Germaschewski <kai.germaschewski@gmx.de>, sfr@canb.auug.org.au,
+       "Nemosoft Unv." <nemosoft@smcc.demon.nl>, davem@redhat.com
+Subject: Re: SET_MODULE_OWNER?
+References: <20030409001247.E02A12C482@lists.samba.org>
+In-Reply-To: <20030409001247.E02A12C482@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 09, 2003 at 02:40:24AM +0200, Roman Zippel wrote:
-> > a) There are, genuinely, systems with more than 65,536 devices or
-> > anonymous mounts.  That rules out the current dev_t just by itself.
+Rusty Russell wrote:
+> In message <3E92515B.6030807@pobox.com> you write:
 > 
-> Absolutely nobody denies that we need a larger dev_t. It's really a poor 
-> argumentation that you have to come up with this.
+>>Rusty Russell wrote:
+>>
+>>>Unlike that, substituting dev->owner = THIS_MODULE; has no backwards
+>>>compatibility loss, and it removes a confusing and pointless macro
+>>>which *never* had a point.
+>>
+>>
+>>Substituting dev->owner=THIS_MODULE has _obvious_ backwards compat loss, 
+>>because 'owner' member did not exist in struct net_device.
+> 
+> 
+> Oh, so SET_MODULE_OWNER is a struct net_device only thing?  Certain
+> authors (myself included) obviously don't know that.
+> 
+> 
+>>If you had bothered to even do a trivial grep, you would have seen the 
+>>use to which SET_MODULE_OWNER is being put.  Christoph's try* changes 
+>>are annoying but work-around-able.  Removal of SET_MODULE_OWNER is not.
+> 
+> 
+> If *you* had bothered to do a grep, you would have seen non-netdevice
+> uses to which it is really being put, as it's managed to thoroughly
+> confuse coders.
+> 
+> APM, isdn, USB, hell, you even fooled the USAGI guys!
+> 
+> Seriously, adding an owner arg to init_etherdev and friends, or
+> creating a set of SET_NET_DEVICE_OWNER etc macros would have been
+> defensible for backwards compatibility.
 
-Roman,
-	There are a couple things being discussed here.  One is the size
-of dev_t.  The other is dynamic numbers.  It would seem that most folks
-agree with a larger dev_t and a more dynamic numbering system.  Let's
-assume we want both for now (folks who don't, please keep out for a
-second).  There are three courses of action that seem to be advocated.
-
-1) Ship 2.6 with 16bit dev_t, work on a larger dev_t and perfect dynamic
-   devices in 2.7.
-2) Ship 2.6 with a (32|64)bit dev_t, work on a perfect dynamic scheme in
-   2.7.
-3) Hold 2.6 until it can ship with (32|64)bit dev_t and perfect dynamic
-   devices.
-
-	Many folks, Peter and myself included, are claiming that choice
-(1) is absolutely untenable.  We need more device space today, not in 3
-years when 2.7 becomes 2.8.
-	If I understand you correctly (and here is why I mailed), you
-feel that choice (2) is the worst of the choices.  You feel that we
-should either choose course (1) or course (3).  I'm not sure which of
-those you prefer.
-	
-Joel
+> D: Jeff points out that SET_MODULE_OWNER is really only for struct
+> D: net_device, so move it from module.h to netdevice.h and fix up
+> D: areas which were confused about it (renaming would be nice, but
+> D: too invasive).
 
 
--- 
+Rusty, this is amazingly disingenuous.
 
-Life's Little Instruction Book #335
+Never did I say SET_MODULE_OWNER was only for struct net_device.
 
-	"Every so often, push your luck."
+I even pointed out specifically that it IS NOT tied to a specific structure:
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+> no, SET_MODULE_OWNER is quite intentionally independent of the struct. It only requires a consisnent naming in the source, between structures that may use the macro.
+> 
+> That's a feature. 
+
+Why don't you just let the maintainers apply the driver "cleanups" if 
+they wish, or do not wish, like DaveM did.  Only when that is 
+accomplished is it reasonable to consider moving SET_MODULE_OWNER -- and 
+only then if other people do not need it's obvious utility.
+
+I would personally rather the macro lived on as a part of the module 
+API.  Think of it as part of maintaining friendly hardware vendor 
+relations, perhaps?
+
+	Jeff
+
+
+

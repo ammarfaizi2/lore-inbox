@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129913AbRAFOzf>; Sat, 6 Jan 2001 09:55:35 -0500
+	id <S129752AbRAFP0Z>; Sat, 6 Jan 2001 10:26:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129983AbRAFOzZ>; Sat, 6 Jan 2001 09:55:25 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:30555 "EHLO
-	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129913AbRAFOzO>; Sat, 6 Jan 2001 09:55:14 -0500
-Date: Sat, 6 Jan 2001 17:02:17 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-cc: Kernel devel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
-In-Reply-To: <20010106124204.E1334@emma1.emma.line.org>
-Message-ID: <Pine.LNX.4.21.0101061658420.7042-100000@server.serve.me.nl>
+	id <S129983AbRAFP0O>; Sat, 6 Jan 2001 10:26:14 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5131 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129752AbRAFP0C>; Sat, 6 Jan 2001 10:26:02 -0500
+Subject: Re: Even slower NFS mounting with 2.4.0
+To: chris@chrullrich.de (Christian Ullrich)
+Date: Sat, 6 Jan 2001 15:27:58 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010106002531.A490@christian.chrullrich.de> from "Christian Ullrich" at Jan 06, 2001 12:25:31 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14EvGE-0001A8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I called the mount command five minutes before the final message above.
+> I tried NFS with and without NFSv3 code, with no change at all.
 
-> > Sven, how did you kill the clipping ??
-> > Or in generic, how do I kill the clipping ?
-> 
-> Go set the jumpers right. (anyhow, IBM drives are delivered unclipped,
-> not sure why Maxtors seem to be)
-
-It's not that simple.. The maxtor comes clipped,. but Linux can't kill the
-clip. So it sticks with 32 MB
-
-ibmsetmax.c does a software clip, but that bugs a bit. Sometimes even
-Linux doesn't see 61 GB, but only 32, sometimes the full capacity.
-(i'm talking without the hardware jumper).
-
-the machine I used to set the limit (target machine doesn't but without
-the hardware clip), seems to reset the software clip. Probably the BIOS
-who does that.
-
-It seems stable now, machine boots OK, and Linux sees 61GB. Let's hope it
-will stay that way.
-
-
-	Regards,
-
-		Igmar
-
-
-
+This is caused by 2.3/2.4 changes in the network code error reporting of
+unreachables with UDP I suspect. It looks like the NFS code hasn't yet caught
+up with the error notification stuff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

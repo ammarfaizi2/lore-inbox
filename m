@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278172AbRJLWLK>; Fri, 12 Oct 2001 18:11:10 -0400
+	id <S278171AbRJLWKk>; Fri, 12 Oct 2001 18:10:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278173AbRJLWLA>; Fri, 12 Oct 2001 18:11:00 -0400
-Received: from jalon.able.es ([212.97.163.2]:10882 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S278172AbRJLWKv>;
-	Fri, 12 Oct 2001 18:10:51 -0400
-Date: Sat, 13 Oct 2001 00:11:16 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: bug in mips/config.in
-Message-ID: <20011013001116.G1693@werewolf.able.es>
+	id <S278172AbRJLWKZ>; Fri, 12 Oct 2001 18:10:25 -0400
+Received: from peace.netnation.com ([204.174.223.2]:54802 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S278171AbRJLWKD>; Fri, 12 Oct 2001 18:10:03 -0400
+Date: Fri, 12 Oct 2001 15:10:33 -0700
+From: Simon Kirby <sim@netnation.com>
+To: Andi Kleen <andi@firstfloor.org>
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+Subject: Re: Really slow netstat and /proc/net/tcp in 2.4
+Message-ID: <20011012151033.B12311@netnation.com>
+In-Reply-To: <20011011114736.A13722@netnation.com> <200110111930.XAA28404@ms2.inr.ac.ru> <20011011125538.C10868@netnation.com> <k2sncok4z2.fsf@zero.aec.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.2.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <k2sncok4z2.fsf@zero.aec.at>; from andi@firstfloor.org on Fri, Oct 12, 2001 at 09:56:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, Oct 12, 2001 at 09:56:01PM +0200, Andi Kleen wrote:
 
-Due to a buggy bit I found in i2c, I did a
-werewolf:/usr/src/linux# grep -r "\"CONFIG" . | fgrep .in
-./arch/mips/config.in:      if [ "CONFIG_DECSTATION" = "y" ]; then
+> The hash table is likely to big anyways; eating cache and not helping that
+> much. If you're interested in some testing
+> I can send you patches to change it by hand and collect statistics for
+> average hash queue length. Then you can figure out a good size for your
+> workload with some work. Longer time I think the table sizing heuristics
+> are far too aggressive and need to be throttled back; but that needs more
+> data from real servers.
 
-'$' is missing there, isn't it ?
-Is there any similar buglet to check ?
+Wouldn't just counting the lines in /proc/net/tcp be sufficient to see
+how many buckets should be used in an ideal hash table distribution
+scenario?  (In which case the size of the hash table depends largely on a
+machine's work load...)
 
-By
+Most of our web servers seem to have 500-1000 entries in /proc/net/tcp.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.13-pre1-beo #1 SMP Fri Oct 12 11:32:03 CEST 2001 i686
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

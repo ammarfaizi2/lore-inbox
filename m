@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271884AbRHUWta>; Tue, 21 Aug 2001 18:49:30 -0400
+	id <S271885AbRHUWwA>; Tue, 21 Aug 2001 18:52:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271883AbRHUWtU>; Tue, 21 Aug 2001 18:49:20 -0400
-Received: from abasin.nj.nec.com ([138.15.150.16]:49418 "HELO
-	abasin.nj.nec.com") by vger.kernel.org with SMTP id <S271885AbRHUWtJ>;
-	Tue, 21 Aug 2001 18:49:09 -0400
-From: Sven Heinicke <sven@research.nj.nec.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271887AbRHUWvw>; Tue, 21 Aug 2001 18:51:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:41378 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271885AbRHUWvn>;
+	Tue, 21 Aug 2001 18:51:43 -0400
+Date: Tue, 21 Aug 2001 15:51:40 -0700 (PDT)
+Message-Id: <20010821.155140.39173428.davem@redhat.com>
+To: jfbeam@bluetopia.net
+Cc: riel@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: Qlogic/FC firmware
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.GSO.4.33.0108211828150.6389-100000@sweetums.bluetronic.net>
+In-Reply-To: <Pine.LNX.4.33L.0108211141030.5646-100000@imladris.rielhome.conectiva>
+	<Pine.GSO.4.33.0108211828150.6389-100000@sweetums.bluetronic.net>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15234.58734.200740.952923@abasin.nj.nec.com>
-Date: Tue, 21 Aug 2001 18:49:18 -0400 (EDT)
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P) 
-In-Reply-To: <200108211719.f7LHIvY95432@aslan.scsiguy.com>
-In-Reply-To: <15234.37073.974320.621770@abasin.nj.nec.com>
-	<200108211719.f7LHIvY95432@aslan.scsiguy.com>
-X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Ricky Beam <jfbeam@bluetopia.net>
+   Date: Tue, 21 Aug 2001 18:45:02 -0400 (EDT)
+   
+Re: GPL  It's a source file and it had a copyright at the top.
+Regardless of what the contents mean, the copyright the author
+put there has to be abided by.
 
-Justin,
+   (If Sun would get off their ass(es) and support firewire, I'd stop using linux
+    all together.  And before some smartass says they do, point to the ohci and
+    sbp-2 drivers on the Solaris 8 Sparc CD.)
 
-I've tried removing your check, for writing bonnie++ still reports
-slower write times then IDE drive on the other system.  Daniel Phillips
-was great at helping me notice a problem that was causing slow down
-but not related to the aic7xxx driver, thus I am now trying the
-7.4.8-ac8 kernel.
+I normally chastise Sun just to get my jollies off, but this
+is a too much of an untrue statement about them even for me
+to tolerate.
 
-I made your change whe will get try to get my user to test the system
-with and without your change.
+Solaris-8 supports fully the ieee1394 interfaces on Ultra-III
+machines just fine.  I don't know what the package name is, but
+the kernel drivers are there in the SME hw releases done for
+the Ultra-III.
 
-     Sven
-
-Justin T. Gibbs writes:
- > >Disk access is faster then before but still slower then the IDE
- > >drive.  Any ideas?
- > 
- > It could be the occasionall ordered tag that is sent to the drive to
- > prevent tag starvation.  If you search in drivers/scsi/aic7xxx/aic7xxx_linux.c
- > for "OTAG_THRESH" and make that if test always fail (add an "&& 0") you will
- > have effectively disabled this feature.  I should probably make it an option
- > that defaults to off.
- > 
- > --
- > Justin
+Later,
+David S. Miller
+davem@redhat.com

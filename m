@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317494AbSGJHOL>; Wed, 10 Jul 2002 03:14:11 -0400
+	id <S317499AbSGJH3b>; Wed, 10 Jul 2002 03:29:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317495AbSGJHOK>; Wed, 10 Jul 2002 03:14:10 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:50384 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S317494AbSGJHOJ>;
-	Wed, 10 Jul 2002 03:14:09 -0400
-Date: Thu, 11 Jul 2002 09:15:23 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: oleg@tv-sign.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched-2.5.24-D3, batch/idle priority scheduling,
- SCHED_BATCH
-In-Reply-To: <Pine.LNX.4.44.0207102143400.16734-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0207110913030.4489-100000@localhost.localdomain>
+	id <S317500AbSGJH3a>; Wed, 10 Jul 2002 03:29:30 -0400
+Received: from 205-158-62-93.outblaze.com ([205.158.62.93]:54449 "HELO
+	ws3-3.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S317499AbSGJH3a>; Wed, 10 Jul 2002 03:29:30 -0400
+Message-ID: <20020710073209.6078.qmail@email.com>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "dan carpenter" <error27@email.com>
+To: viro@math.psu.edu, acme@conectiva.com.br
+Cc: rml@mvista.com, haveblue@us.ibm.com, wli@holomorphy.com,
+       ricklind@us.ibm.com, greg@kroah.com,
+       kernel-janitor-discuss@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Date: Wed, 10 Jul 2002 02:32:09 -0500
+Subject: Re: BKL removal
+X-Originating-Ip: 166.90.46.48
+X-Originating-Server: ws3-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > > And users of __KERNEL_SYSCALLS__ and kernel_thread() should not
-> > > have policy == SCHED_BATCH.
+----- Original Message -----
+From: Alexander Viro 
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Subject: Re: BKL removal
+ 
+> On Tue, 9 Jul 2002, Arnaldo Carvalho de Melo wrote:
 > 
-> well, there's one security consequence here - module loading
-> (request_module()), which spawns a kernel thread must not run as
-> SCHED_BATCH. I think the right solution for that path is to set the
-> policy to SCHED_OTHER upon entry, and restore it to the previous one
-> afterwards - this way the helper thread has SCHED_OTHER priority.
+> > Try smatch:
+> > 
+> > http://smatch.sf.net
+> > 
+> > And see if you can write a smatch script to get a good broom for this trash 8)
+> 
 
-i've solved this problem by making kernel_thread() spawned threads drop
-back to SCHED_NORMAL:
+I certainly am flatterred :) 
 
-	http://redhat.com/~mingo/O(1)-scheduler/sched-2.5.25-A7
+But basically what Alexander Viro said is all true.  The other problem that he didn't mention was that I don't see how checkers can be built to handle loops.  In writing smatch I just ignore loops altogether.
 
-I believe this is the secure way of doing it - independently of
-SCHED_BATCH - a RT task should not spawn a RT kernel thread 'unwillingly'.
+For now I just take the quick and dirty approach.  Also smatch really isn't finished yet.  I worked on it for a half hour tonight and fixed the bugs with the lock_kernel check.  Tomorrow I'll maybe add support for while, for, switch and break statements.
 
-	Ingo
+regards,
+dan carpenter
+
+
+-- 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+
+Save up to $160 by signing up for NetZero Platinum Internet service.
+http://www.netzero.net/?refcd=N2P0602NEP8
 

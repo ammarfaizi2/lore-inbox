@@ -1,88 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266806AbRG1Pr1>; Sat, 28 Jul 2001 11:47:27 -0400
+	id <S266797AbRG1Poi>; Sat, 28 Jul 2001 11:44:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266808AbRG1PrR>; Sat, 28 Jul 2001 11:47:17 -0400
-Received: from pop.gmx.net ([194.221.183.20]:55786 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S266806AbRG1PrG>;
-	Sat, 28 Jul 2001 11:47:06 -0400
-Content-Type: Multipart/Mixed;
-  charset="iso-8859-1";
-  boundary="------------Boundary-00=_GVV6980SV1KKVK5SIZIX"
-From: Andreas Bauer <akbauer@gmx.de>
-To: t.sailer@alumni.ethz.ch
-Subject: Linux 2.4.7 -- drivers/sound/esssolo1.c glitch?!
-Date: Sat, 28 Jul 2001 17:18:51 +0200
-X-Mailer: KMail [version 1.2]
+	id <S266806AbRG1Po1>; Sat, 28 Jul 2001 11:44:27 -0400
+Received: from weta.f00f.org ([203.167.249.89]:7302 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S266797AbRG1PoS>;
+	Sat, 28 Jul 2001 11:44:18 -0400
+Date: Sun, 29 Jul 2001 03:44:52 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Rodrigo Ventura <yoda@isr.ist.utl.pt>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <01072817185200.01301@zaphod>
+Subject: Re: Problems with 2.4.7 and VIA IDE
+Message-ID: <20010729034452.A2685@weta.f00f.org>
+In-Reply-To: <lxvgkddrsh.fsf@pixie.isr.ist.utl.pt> <lxn15pdr5p.fsf@pixie.isr.ist.utl.pt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <lxn15pdr5p.fsf@pixie.isr.ist.utl.pt>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Sat, Jul 28, 2001 at 04:12:02PM +0100, Rodrigo Ventura wrote:
 
---------------Boundary-00=_GVV6980SV1KKVK5SIZIX
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+            This is sort of a continuation of my last msg. I tried a rpm
+    -Va on one xterm and a tar cf /dev/null / on another, and I got
+    another dma error:
+    
+    hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+    hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
 
-Hello Thomas, (and kernel list)
+bad IDE cable?
 
-when I tried to compile 2.4.7 today with support for my ESS Techn. ES 1988 
-Allegro-1 sound card, the linker came up with a few errors concerning 
-undefined function references in sounddrivers.o.
+            I also have errors from the ethernet devices, e.g.
+    
+    eth0: Transmit error, Tx status register 82.
+    Probably a duplex mismatch.  See Documentation/networking/vortex.txt
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+look   |
 
-Therefore I modified your file drivers/sound/esssolo1.c slightly in order to 
-resolve these reference problems. Please find my modifications as attachment 
-to this e-mail. It's only a few lines and I hope you as well as others 
-consider them a useful contribution anyway.
 
-I'd be grateful to hear some feedback on this.
 
-Thank you very much,
+  --cw
 
-- Andreas
---------------Boundary-00=_GVV6980SV1KKVK5SIZIX
-Content-Type: text/x-c;
-  charset="iso-8859-1";
-  name="esssolo_patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="esssolo_patch"
-
---- esssolo1.ORIGINAL	Sat Jul 28 16:16:47 2001
-+++ esssolo1.c	Sat Jul 28 16:20:24 2001
-@@ -82,6 +82,9 @@
-  *    22.05.2001   0.19  more cleanups, changed PM to PCI 2.4 style, got rid
-  *                       of global list of devices, using pci device data.
-  *                       Marcus Meissner <mm@caldera.de>
-+ *    28.07.2001   0.20  Added definitions for external functions
-+ *                       gameport_register_port, gameport_unregister_port
-+ *                       Andreas Bauer <baueran@in.tum.de>
-  */
- 
- /*****************************************************************************/
-@@ -106,7 +109,21 @@
- #include <linux/wrapper.h>
- #include <asm/uaccess.h>
- #include <asm/hardirq.h>
-+
-+#if defined(CONFIG_INPUT_ANALOG) || defined(CONFIG_INPUT_ANALOG_MODULE)
- #include <linux/gameport.h>
-+#else
-+struct gameport {
-+	int io;
-+	int size;
-+};
-+ 
-+extern inline void gameport_register_port(struct gameport *gameport) {
-+}
-+ 
-+extern inline void gameport_unregister_port(struct gameport *gameport) {
-+}
-+#endif
- 
- #include "dm.h"
- 
-
---------------Boundary-00=_GVV6980SV1KKVK5SIZIX--

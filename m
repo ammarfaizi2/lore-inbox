@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269837AbUIDIhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269839AbUIDIlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269837AbUIDIhu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 04:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269839AbUIDIhu
+	id S269839AbUIDIlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 04:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269841AbUIDIlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 04:37:50 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:14746 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S269837AbUIDIhs (ORCPT
+	Sat, 4 Sep 2004 04:41:25 -0400
+Received: from cantor.suse.de ([195.135.220.2]:25302 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269839AbUIDIlX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 04:37:48 -0400
-Date: Sat, 4 Sep 2004 09:37:47 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Keith Whitwell <keith@tungstengraphics.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Alex Deucher <alexdeucher@gmail.com>,
-       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: New proposed DRM interface design
-In-Reply-To: <41397C08.1020507@tungstengraphics.com>
-Message-ID: <Pine.LNX.4.58.0409040933270.25475@skynet>
-References: <Pine.LNX.4.58.0409040107190.18417@skynet> 
- <a728f9f904090317547ca21c15@mail.gmail.com>  <Pine.LNX.4.58.0409040158400.25475@skynet>
-  <9e4733910409032051717b28c0@mail.gmail.com>  <Pine.LNX.4.58.0409040548490.25475@skynet>
- <9e47339104090323047b75dbb2@mail.gmail.com> <41397086.3020509@tungstengraphics.com>
- <Pine.LNX.4.58.0409040852090.25475@skynet> <41397C08.1020507@tungstengraphics.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 4 Sep 2004 04:41:23 -0400
+Subject: Re: EXT3: problem with copy_from_user inside a transaction
+From: Chris Mason <mason@suse.com>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040903175728.C1834@castle.nmd.msu.ru>
+References: <20040903150521.B1834@castle.nmd.msu.ru>
+	 <20040903123541.GB8557@x30.random>
+	 <1094213179.16078.19.camel@watt.suse.com>
+	 <20040903175728.C1834@castle.nmd.msu.ru>
+Content-Type: text/plain
+Message-Id: <1094284064.6301.25.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 04 Sep 2004 03:47:44 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-09-03 at 09:57, Andrey Savochkin wrote:
 
->
-> Let me be clear that I am unwilling to support changes to the DRM that break
-> it's usability on other operating systems on principle.
+> > This would mean that all the work is done during the commit_write
+> > stage.  The trick is that we would have to handle -ENOSPC since we might
+> > not know we've run out of room until after the data has been copied from
+> > userland.
+> 
+> What is the problem -ENOSPC?
+> Do you think about the problem of the page existing before this write, it's
+> content overwritten, but the filesystem being unable to commit that write
+> because it needs more space?
 
-I'm in agreement on that, ...
->
-> Maybe it's time to consider a fork of the DRM to allow a major experimentation
-> of the form Jon envisages to proceed without worrying about boring constraints
-> like keeping BSD working, backwards compatibility, etc.  And the current DRM
-> architecture, which is pretty much stabilized, can continue to do those boring
-> tasks, and accumulate new drivers, until GNULonghorn is finished...
+Exactly.  In this case, we've effectively corrupted the page cache. 
+We've copied data in that isn't (and never will be) reflected on disk. 
+It isn't a horribly difficult case, we just need to overwrite the data
+with zeros, making sure to only overwrite the data corresponding to the
+-ENOSPC error.
 
-I think it might be an idea myself, but not at this stage, I think a month
-or two from now it might be a better time, if we get an agreeable
-re-design done, then I'd be willing to let a fork proceed from that point,
-so that at least the DRMs are all coming from the same point,
+-chris
 
-I think we should hold off on putting 2d stuff into the 3d drivers until
-the DRM is rearchitected into a nice clean stable system that is actually
-liked by kernel developers :-), I'm pushing the second set of macros
-removals to Linus over the next week, along with experimenting on a
-core/library tree...
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
 

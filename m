@@ -1,1419 +1,1409 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbULUSRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbULUSW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbULUSRS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 13:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbULUSRR
+	id S261829AbULUSW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 13:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbULUSW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 13:17:17 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:64652 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261826AbULUSPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 13:15:09 -0500
-Date: Tue, 21 Dec 2004 11:21:21 -0800
-From: long <tlnguyen@snoqualmie.dp.intel.com>
-Message-Id: <200412211921.iBLJLLwG007091@snoqualmie.dp.intel.com>
-To: greg@kroah.com
-Subject: Re:[PATCH]PCI Express Port Bus Driver
-Cc: linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
+	Tue, 21 Dec 2004 13:22:58 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:16044 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261829AbULUSTQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 13:19:16 -0500
+Date: Tue, 21 Dec 2004 12:19:12 -0600 (CST)
+From: Kylene Hall <kjhall@us.ibm.com>
+X-X-Sender: kjhall@jo.austin.ibm.com
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+cc: linux-kernel@vger.kernel.org, greg@kroah.com, sailer@watson.ibm.com,
+       leendert@watson.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com,
+       tpmdd-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/1] driver: Tpm hardware enablement --updated version
+In-Reply-To: <29495f1d041221085144b08901@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0412211209410.14092@jo.austin.ibm.com>
+References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com> 
+ <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com> 
+ <Pine.LNX.4.58.0412171642570.9229@jo.austin.ibm.com> 
+ <Pine.LNX.4.58.0412201146060.10943@jo.austin.ibm.com>
+ <29495f1d041221085144b08901@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+This patch is a device driver to enable new hardware.  The new hardware is
+the TPM chip as described by specifications at 
+<http://www.trustedcomputinggroup.org>.  The TPM chip will enable you to
+use hardware to securely store and protect your keys and personal data.
+To use the chip according to the specification, you will need the Trusted
+Software Stack (TSS) of which an implementation for Linux is available at:
+<http://sourceforge.net/projects/trousers>.
+ 
+> > > > Updates include: splitting out the vendor specific code into separated
+> > > > drivers from the base TPM functionality, fixed busy waiting loops,
+> > > > concerns about timer handling and rmmod, buffer name.
+> > 
+> > > Updates include a consolodated buffer mutex, numerous naming improvements,
+> > > better placement of pci_driver and file_operations structure
+> > > initializations, change to use of EXPORT_SYMBOL_GPL, improvement of
+> > > Kconfig help texts and creation of a tpm directory
+> > 
+> > Updates include moving the pci_ids table into the individual vendor
+> > specific .c files and including a tpm description file in the
+> > Documentation directory.
 
-Thanks for your inputs. To reflect your inputs, the update patch
-below includes the following changes:
+> All of these calls to schedule_timeout() are broken. You must set the
+> state appropriately before calling schedule_timeout() or it will
+> return immediately. For your reference here is the difference between
+> the two states with respects to calling schedule_timeout() directly:
+> 
+> TASK_INTERRUPTIBLE: sleep, waking up early on both signals and waitqueue events
+> TASK_UNINTERRUPTIBLE: sleep, waking up early on watiqueue events
+> 
+> Keep in mind that if TASK_INTERRUPTIBLE is used, you *must* be
+> prepared to handle signals (check return value, indicating an early
+> return, and signals_pending(current), indicating whether the cause of
+> early return is either a signal or waitqueue event).
+> 
+> Also, as a final consideration, because of the way the loadavg is
+> calculated, a TASK_UNINTERRUPTIBLE sleep will factor in as a 1 to the
+> load.
+> 
+> -Nish
 
-@@ -3,7 +3,7 @@
- #
- config PCIEPORTBUS
- 	bool "PCI Express support"
--	depends on PCI_GOMMCONFIG
-+	depends on PCI_GOMMCONFIG || PCI_GOANY
- 	default n
- 
-@@ -21,7 +21,7 @@ static int pcie_port_bus_suspend(struct 
- static int pcie_port_bus_resume(struct device *dev);
- 
- struct bus_type pcie_port_bus_type = {
--	.name 		= "PCIE port bus",
-+	.name 		= "pci_express",
- 	.match 		= pcie_port_bus_match,
- 	.suspend	= pcie_port_bus_suspend,
- 	.resume		= pcie_port_bus_resume, 
+Fixed in the patch below.
 
-Please send us any suggestions or comments.
+ 
+Thanks,
+Kylene
 
-Signed-off-by: T. Long Nguyen <tom.l.nguyen@intel.com>
-
---------------------------------------------------------------------
-diff -urpN linux-2.6.10-rc3/arch/i386/Kconfig patch-2.6.10-rc3-pbdhp/arch/i386/Kconfig
---- linux-2.6.10-rc3/arch/i386/Kconfig	2004-12-03 16:52:47.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/arch/i386/Kconfig	2004-12-10 14:06:05.000000000 -0500
-@@ -1117,6 +1117,8 @@ config PCI_MMCONFIG
- 	select ACPI_BOOT
- 	default y
+Signed-off-by: Leendert van Doorn <leendert@watson.ibm.com>
+Signed-off-by: Reiner Sailer <sailer@watson.ibm.com>
+Signed-off-by: Dave Safford <safford@watson.ibm.com>
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+---
+diff -uprN linux-2.6.9/Documentation/tpm.txt linux-2.6.9-tpm/Documentation/tpm.txt
+--- linux-2.6.9/Documentation/tpm.txt	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.9-tpm/Documentation/tpm.txt	2004-12-20 12:35:27.000000000 -0600
+@@ -0,0 +1,12 @@
++			TPM Support
++
++	The Trusted Platform Module (TPM) is a hardware device described by 
++specifications at <http://www.trustedcomputinggroup.org>.  Some of the 
++capabilities of the device include a random number generator as well as 
++protection of keys, digital certificates, passwords and data securely by the 
++hardware.  Besides the specification for this piece of hardware the Trusted 
++Computing Group (TCG) provides a specification for an library interface to the 
++hardware that is to be used by applications.  This interface is known as the 
++Trusted Software Stack (TSS).  The TSS specification is also available at the 
++TCG website and an implementation of the interface is available for Linux 
++at <http://sourceforge.net/projects/trousers>.
+diff -uprN linux-2.6.9/drivers/char/Kconfig linux-2.6.9-tpm/drivers/char/Kconfig
+--- linux-2.6.9/drivers/char/Kconfig	2004-10-18 16:53:07.000000000 -0500
++++ linux-2.6.9-tpm/drivers/char/Kconfig	2004-12-17 17:41:00.000000000 -0600
+@@ -989,5 +989,7 @@ config MMTIMER
+ 	  The mmtimer device allows direct userspace access to the
+ 	  Altix system timer.
  
-+source "drivers/pcieport/Kconfig"
++source "drivers/char/tpm/Kconfig"
 +
- source "drivers/pci/Kconfig"
+ endmenu
  
- config ISA
-diff -urpN linux-2.6.10-rc3/Documentation/PCIEBUS-HOWTO.txt patch-2.6.10-rc3-pbdhp/Documentation/PCIEBUS-HOWTO.txt
---- linux-2.6.10-rc3/Documentation/PCIEBUS-HOWTO.txt	1969-12-31 19:00:00.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/Documentation/PCIEBUS-HOWTO.txt	2004-12-10 14:06:05.000000000 -0500
-@@ -0,0 +1,217 @@
-+		The PCI Express Port Bus Driver Guide HOWTO
-+	Tom L Nguyen tom.l.nguyen@intel.com
-+			11/03/2004
-+
-+1. About this guide
-+
-+This guide describes the basics of the PCI Express Port Bus driver
-+and provides information on how to enable the service drivers to
-+register/unregister with the PCI Express Port Bus Driver.
-+
-+2. Copyright 2004 Intel Corporation
-+
-+3. What is the PCI Express Port Bus Driver
-+
-+A PCI Express Port is a logical PCI-PCI Bridge structure. There
-+are two types of PCI Express Port: the Root Port and the Switch
-+Port. The Root Port originates a PCI Express link from a PCI Express
-+Root Complex and the Switch Port connects PCI Express links to
-+internal logical PCI buses. The Switch Port, which has its secondary
-+bus representing the switch's internal routing logic, is called the
-+switch's Upstream Port. The switch's Downstream Port is bridging from
-+switch's internal routing bus to a bus representing the downstream
-+PCI Express link from the PCI Express Switch.
-+
-+A PCI Express Port can provide up to four distinct functions,
-+referred to in this document as services, depending on its port type.
-+PCI Express Port's services include native hotplug support (HP),
-+power management event support (PME), advanced error reporting
-+support (AER), and virtual channel support (VC). These services may
-+be handled by a single complex driver or be individually distributed
-+and handled by corresponding service drivers.
-+
-+4. Why use the PCI Express Port Bus Driver?
-+
-+In existing Linux kernels, the Linux Device Driver Model allows a
-+physical device to be handled by only a single driver. The PCI
-+Express Port is a PCI-PCI Bridge device with multiple distinct
-+services. To maintain a clean and simple solution each service
-+may have its own software service driver. In this case several
-+service drivers will compete for a single PCI-PCI Bridge device.
-+For example, if the PCI Express Root Port native hotplug service
-+driver is loaded first, it claims a PCI-PCI Bridge Root Port. The
-+kernel therefore does not load other service drivers for that Root
-+Port. In other words, it is impossible to have multiple service
-+drivers load and run on a PCI-PCI Bridge device simultaneously
-+using the current driver model.
-+
-+To enable multiple service drivers running simultaneously requires
-+having a PCI Express Port Bus driver, which manages all populated
-+PCI Express Ports and distributes all provided service requests
-+to the corresponding service drivers as required. Some key
-+advantages of using the PCI Express Port Bus driver are listed below:
-+
-+	- Allow multiple service drivers to run simultaneously on
-+	  a PCI-PCI Bridge Port device.
-+
-+	- Allow service drivers implemented in an independent
-+	  staged approach.
-+	
-+	- Allow one service driver to run on multiple PCI-PCI Bridge
-+	  Port devices. 
-+
-+	- Manage and distribute resources of a PCI-PCI Bridge Port
-+	  device to requested service drivers.
-+
-+5. Configuring the PCI Express Port Bus Driver vs. Service Drivers
-+
-+5.1 Including the PCI Express Port Bus Driver Support into the Kernel
-+
-+Including the PCI Express Port Bus driver depends on whether the PCI
-+Express support is included in the kernel config. The kernel will
-+automatically include the PCI Express Port Bus driver as a kernel
-+driver when the PCI Express support is enabled in the kernel.
-+
-+5.2 Enabling Service Driver Support
-+
-+PCI device drivers are implemented based on Linux Device Driver Model.
-+All service drivers are PCI device drivers. As discussed above, it is
-+impossible to load any service driver once the kernel has loaded the
-+PCI Express Port Bus Driver. To meet the PCI Express Port Bus Driver
-+Model requires some minimal changes on existing service drivers that
-+imposes no impact on the functionality of existing service drivers.
-+
-+A service driver is required to use the two APIs shown below to
-+register its service with the PCI Express Port Bus driver (see 
-+section 5.2.1 & 5.2.2). It is important that a service driver
-+initializes the pcie_port_service_driver data structure, included in
-+header file /include/linux/pcieport_if.h, before calling these APIs.
-+Failure to do so will result an identity mismatch, which prevents
-+the PCI Express Port Bus driver from loading a service driver.
-+
-+5.2.1 pcie_port_service_register
-+
-+int pcie_port_service_register(struct pcie_port_service_driver *new)
-+
-+This API replaces the Linux Driver Model's pci_module_init API. A
-+service driver should always calls pcie_port_service_register at
-+module init. Note that after service driver being loaded, calls
-+such as pci_enable_device(dev) and pci_set_master(dev) are no longer
-+necessary since these calls are executed by the PCI Port Bus driver.
-+
-+5.2.2 pcie_port_service_unregister
-+
-+void pcie_port_service_unregister(struct pcie_port_service_driver *new)
-+
-+pcie_port_service_unregister replaces the Linux Driver Model's
-+pci_unregister_driver. It's always called by service driver when a
-+module exits.
-+
-+5.2.3 Sample Code
-+
-+Below is sample service driver code to initialize the port service
-+driver data structure.
-+
-+static struct pcie_port_service_id service_id[] = { {
-+	.vendor = PCI_ANY_ID,
-+	.device = PCI_ANY_ID,
-+	.port_type = PCIE_RC_PORT,
-+	.service_type = PCIE_PORT_SERVICE_AER,
-+	}, { /* end: all zeroes */ }
-+};
-+
-+static struct pcie_port_service_driver root_aerdrv = {
-+	.name		= (char *)device_name,
-+	.id_table	= &service_id[0],
-+
-+	.probe		= aerdrv_load,
-+	.remove		= aerdrv_unload,
-+
-+	.suspend	= aerdrv_suspend,
-+	.resume		= aerdrv_resume,
-+};
-+
-+Below is a sample code for registering/unregistering a service
-+driver.
-+
-+static int __init aerdrv_service_init(void)
-+{
-+	int retval = 0;
-+	
-+	retval = pcie_port_service_register(&root_aerdrv);
-+	if (!retval) {
-+		/*
-+		 * FIX ME
-+		 */
-+	}
-+	return retval;
-+}
-+
-+static void __exit aerdrv_service_exit(void) 
-+{
-+	pcie_port_service_unregister(&root_aerdrv);
-+}
-+
-+module_init(aerdrv_service_init);
-+module_exit(aerdrv_service_exit);
-+
-+6. Possible Resource Conflicts
-+
-+Since all service drivers of a PCI-PCI Bridge Port device are
-+allowed to run simultaneously, below lists a few of possible resource
-+conflicts with proposed solutions.
-+
-+6.1 MSI Vector Resource
-+
-+The MSI capability structure enables a device software driver to call
-+pci_enable_msi to request MSI based interrupts. Once MSI interrupts
-+are enabled on a device, it stays in this mode until a device driver
-+calls pci_disable_msi to disable MSI interrupts and revert back to
-+INTx emulation mode. Since service drivers of the same PCI-PCI Bridge
-+port share the same physical device, if an individual service driver
-+calls pci_enable_msi/pci_disable_msi it may result unpredictable
-+behavior. For example, two service drivers run simultaneously on the
-+same physical Root Port. Both service drivers call pci_enable_msi to
-+request MSI based interrupts. A service driver may not know whether
-+any other service drivers have run on this Root Port. If either one
-+of them calls pci_disable_msi, it puts the other service driver
-+in a wrong interrupt mode. 
-+
-+To avoid this situation all service drivers are not permitted to
-+switch interrupt mode on its device. The PCI Express Port Bus driver
-+is responsible for determining the interrupt mode and this should be
-+transparent to service drivers. Service drivers need to know only
-+the vector IRQ assigned to the field irq of struct pcie_device, which
-+is passed in when the PCI Express Port Bus driver probes each service
-+driver. Service drivers should use (struct pcie_device*)dev->irq to
-+call request_irq/free_irq. In addition, the interrupt mode is stored
-+in the field interrupt_mode of struct pcie_device.
-+
-+6.2 MSI-X Vector Resources
-+
-+Similar to the MSI a device driver for an MSI-X capable device can
-+call pci_enable_msix to request MSI-X interrupts. All service drivers
-+are not permitted to switch interrupt mode on its device. The PCI
-+Express Port Bus driver is responsible for determining the interrupt
-+mode and this should be transparent to service drivers. Any attempt
-+by service driver to call pci_enable_msix/pci_disable_msix may
-+result unpredictable behavior. Service drivers should use
-+(struct pcie_device*)dev->irq and call request_irq/free_irq.
-+
-+6.3 PCI Memory/IO Mapped Regions
-+
-+Service drivers for PCI Express Power Management (PME), Advanced
-+Error Reporting (AER), Hot-Plug (HP) and Virtual Channel (VC) access
-+PCI configuration space on the PCI Express port. In all cases the
-+registers accessed are independent of each other. This patch assumes
-+that all service drivers will be well behaved and not overwrite
-+other service driver's configuration settings.
-+
-+6.4 PCI Config Registers
-+
-+Each service driver runs its PCI config operations on its own
-+capability structure except the PCI Express capability structure, in
-+which Root Control register and Device Control register are shared
-+between PME and AER. This patch assumes that all service drivers
-+will be well behaved and not overwrite other service driver's
-+configuration settings.
-diff -urpN linux-2.6.10-rc3/drivers/Makefile patch-2.6.10-rc3-pbdhp/drivers/Makefile
---- linux-2.6.10-rc3/drivers/Makefile	2004-12-03 16:55:13.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/Makefile	2004-12-10 14:06:05.000000000 -0500
-@@ -54,6 +54,7 @@ obj-$(CONFIG_W1)		+= w1/
- obj-$(CONFIG_PHONE)		+= telephony/
- obj-$(CONFIG_MD)		+= md/
- obj-$(CONFIG_BT)		+= bluetooth/
-+obj-$(CONFIG_PCIEPORTBUS)	+= pcieport/
- obj-$(CONFIG_ISDN)		+= isdn/
- obj-$(CONFIG_MCA)		+= mca/
- obj-$(CONFIG_EISA)		+= eisa/
-diff -urpN linux-2.6.10-rc3/drivers/pci/hotplug/Kconfig patch-2.6.10-rc3-pbdhp/drivers/pci/hotplug/Kconfig
---- linux-2.6.10-rc3/drivers/pci/hotplug/Kconfig	2004-12-03 16:55:13.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/pci/hotplug/Kconfig	2004-12-10 14:06:05.000000000 -0500
-@@ -134,27 +134,6 @@ config HOTPLUG_PCI_CPCI_GENERIC
+diff -uprN linux-2.6.9/drivers/char/Makefile linux-2.6.9-tpm/drivers/char/Makefile
+--- linux-2.6.9/drivers/char/Makefile	2004-10-18 16:55:28.000000000 -0500
++++ linux-2.6.9-tpm/drivers/char/Makefile	2004-12-17 17:41:06.000000000 -0600
+@@ -88,7 +88,7 @@ obj-$(CONFIG_PCMCIA) += pcmcia/
+ obj-$(CONFIG_IPMI_HANDLER) += ipmi/
  
- 	  When in doubt, say N.
- 
--config HOTPLUG_PCI_PCIE
--	tristate "PCI Express Hotplug driver"
--	depends on HOTPLUG_PCI
--	help
--	  Say Y here if you have a motherboard that supports PCI Express Native
--	  Hotplug
+ obj-$(CONFIG_HANGCHECK_TIMER) += hangcheck-timer.o
 -
--	  To compile this driver as a module, choose M here: the
--	  module will be called pciehp.
--
--	  When in doubt, say N.
--
--config HOTPLUG_PCI_PCIE_POLL_EVENT_MODE
--	bool "Use polling mechanism for hot-plug events (for testing purpose)"
--	depends on HOTPLUG_PCI_PCIE
--	help
--	  Say Y here if you want to use the polling mechanism for hot-plug 
--	  events for early platform testing.
--	   
--	  When in doubt, say N.
--
- config HOTPLUG_PCI_SHPC
- 	tristate "SHPC PCI Hotplug driver"
- 	depends on HOTPLUG_PCI
-diff -urpN linux-2.6.10-rc3/drivers/pci/hotplug/pciehp_core.c patch-2.6.10-rc3-pbdhp/drivers/pci/hotplug/pciehp_core.c
---- linux-2.6.10-rc3/drivers/pci/hotplug/pciehp_core.c	2004-12-03 16:55:12.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/pci/hotplug/pciehp_core.c	2004-12-10 14:06:05.000000000 -0500
-@@ -41,6 +41,7 @@
- #include <asm/uaccess.h>
- #include "pciehp.h"
- #include "pciehprm.h"
-+#include <linux/interrupt.h>
++obj-$(CONFIG_TCG_TPM) += tpm/
+ # Files generated that shall be removed upon make clean
+ clean-files := consolemap_deftbl.c defkeymap.c qtronixmap.c
  
- /* Global variables */
- int pciehp_debug;
-@@ -347,7 +348,7 @@ static int get_cur_bus_speed(struct hotp
- 	return 0;
- }
- 
--static int pcie_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
-+static int pciehp_probe(struct pcie_device *dev, const struct pcie_port_service_id *id)
- {
- 	int rc;
- 	struct controller *ctrl;
-@@ -355,7 +356,9 @@ static int pcie_probe(struct pci_dev *pd
- 	int first_device_num = 0 ;	/* first PCI device number supported by this PCIE */  
- 	int num_ctlr_slots;		/* number of slots supported by this HPC */
- 	u8 value;
--
-+	struct pci_dev *pdev;
-+	
-+	dbg("%s: Called by hp_drv\n", __FUNCTION__);
- 	ctrl = kmalloc(sizeof(*ctrl), GFP_KERNEL);
- 	if (!ctrl) {
- 		err("%s : out of memory\n", __FUNCTION__);
-@@ -364,8 +367,10 @@ static int pcie_probe(struct pci_dev *pd
- 	memset(ctrl, 0, sizeof(struct controller));
- 
- 	dbg("%s: DRV_thread pid = %d\n", __FUNCTION__, current->pid);
-+	
-+	pdev = dev->port;
- 
--	rc = pcie_init(ctrl, pdev,
-+	rc = pcie_init(ctrl, dev,
- 		(php_intr_callback_t) pciehp_handle_attention_button,
- 		(php_intr_callback_t) pciehp_handle_switch_change,
- 		(php_intr_callback_t) pciehp_handle_presence_change,
-@@ -563,32 +568,52 @@ static void __exit unload_pciehpd(void)
- 
- }
- 
-+int hpdriver_context = 0;
- 
--static struct pci_device_id pcied_pci_tbl[] = {
--	{
--	.class =        ((PCI_CLASS_BRIDGE_PCI << 8) | 0x00),
--	.class_mask =	~0,
--	.vendor =       PCI_ANY_ID,
--	.device =       PCI_ANY_ID,
--	.subvendor =    PCI_ANY_ID,
--	.subdevice =    PCI_ANY_ID,
--	},
--	
--	{ /* end: all zeroes */ }
--};
--
--MODULE_DEVICE_TABLE(pci, pcied_pci_tbl);
-+static void pciehp_remove (struct pcie_device *device)
-+{
-+	printk("%s ENTRY\n", __FUNCTION__);	
-+	printk("%s -> Call free_irq for irq = %d\n",  
-+		__FUNCTION__, device->irq);
-+	free_irq(device->irq, &hpdriver_context);
-+}
- 
-+#ifdef CONFIG_PM
-+static int pciehp_suspend (struct pcie_device *dev, u32 state)
-+{
-+	printk("%s ENTRY\n", __FUNCTION__);	
-+	return 0;
-+}
- 
-+static int pciehp_resume (struct pcie_device *dev)
-+{
-+	printk("%s ENTRY\n", __FUNCTION__);	
-+	return 0;
-+}
-+#endif
- 
--static struct pci_driver pcie_driver = {
--	.name		=	PCIE_MODULE_NAME,
--	.id_table	=	pcied_pci_tbl,
--	.probe		=	pcie_probe,
--	/* remove:	pcie_remove_one, */
-+static struct pcie_port_service_id port_pci_ids[] = { { 
-+	.vendor = PCI_ANY_ID, 
-+	.device = PCI_ANY_ID,
-+	.port_type = PCIE_RC_PORT, 
-+	.service_type = PCIE_PORT_SERVICE_HP,
-+	.driver_data =	0, 
-+	}, { /* end: all zeroes */ }
- };
-+static const char device_name[] = "hpdriver";
- 
--
-+static struct pcie_port_service_driver hpdriver_portdrv = {
-+	.name		= (char *)device_name,
-+	.id_table	= &port_pci_ids[0],
-+
-+	.probe		= pciehp_probe,
-+	.remove		= pciehp_remove,
-+
-+#ifdef	CONFIG_PM
-+	.suspend	= pciehp_suspend,
-+	.resume		= pciehp_resume,
-+#endif	/* PM */
-+};
- 
- static int __init pcied_init(void)
- {
-@@ -604,9 +629,11 @@ static int __init pcied_init(void)
- 
- 	retval = pciehprm_init(PCI);
- 	if (!retval) {
--		retval = pci_register_driver(&pcie_driver);
--		dbg("pci_register_driver = %d\n", retval);
--		info(DRIVER_DESC " version: " DRIVER_VERSION "\n");
-+ 		retval = pcie_port_service_register(&hpdriver_portdrv);
-+ 		dbg("pcie_port_service_register = %d\n", retval);
-+  		info(DRIVER_DESC " version: " DRIVER_VERSION "\n");
-+ 		if (retval)
-+ 		   dbg("%s: Failure to register service\n", __FUNCTION__);
- 	}
- 
- error_hpc_init:
-@@ -626,8 +653,8 @@ static void __exit pcied_cleanup(void)
- 
- 	pciehprm_cleanup();
- 
--	dbg("pci_unregister_driver\n");
--	pci_unregister_driver(&pcie_driver);
-+	dbg("pcie_port_service_unregister\n");
-+	pcie_port_service_unregister(&hpdriver_portdrv);
- 
- 	info(DRIVER_DESC " version: " DRIVER_VERSION " unloaded\n");
- }
-diff -urpN linux-2.6.10-rc3/drivers/pci/hotplug/pciehp.h patch-2.6.10-rc3-pbdhp/drivers/pci/hotplug/pciehp.h
---- linux-2.6.10-rc3/drivers/pci/hotplug/pciehp.h	2004-12-03 16:54:16.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/pci/hotplug/pciehp.h	2004-12-10 14:06:05.000000000 -0500
-@@ -34,6 +34,7 @@
- #include <linux/delay.h>
- #include <asm/semaphore.h>
- #include <asm/io.h>		
-+#include <linux/pcieport_if.h>
- #include "pci_hotplug.h"
- 
- #define MY_NAME	"pciehp"
-@@ -311,7 +312,7 @@ enum php_ctlr_type {
- 
- typedef u8(*php_intr_callback_t) (unsigned int change_id, void *instance_id);
- 
--int pcie_init(struct controller *ctrl, struct pci_dev *pdev,
-+int pcie_init(struct controller *ctrl, struct pcie_device *dev,
- 		php_intr_callback_t attention_button_callback,
- 		php_intr_callback_t switch_change_callback,
- 		php_intr_callback_t presence_change_callback,
-diff -urpN linux-2.6.10-rc3/drivers/pci/hotplug/pciehp_hpc.c patch-2.6.10-rc3-pbdhp/drivers/pci/hotplug/pciehp_hpc.c
---- linux-2.6.10-rc3/drivers/pci/hotplug/pciehp_hpc.c	2004-12-03 16:53:57.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/pci/hotplug/pciehp_hpc.c	2004-12-10 14:06:05.000000000 -0500
-@@ -1249,7 +1249,7 @@ static struct hpc_ops pciehp_hpc_ops = {
- };
- 
- int pcie_init(struct controller * ctrl,
--	struct pci_dev *pdev,
-+	struct pcie_device *dev,
- 	php_intr_callback_t attention_button_callback,
- 	php_intr_callback_t switch_change_callback,
- 	php_intr_callback_t presence_change_callback,
-@@ -1265,6 +1265,7 @@ int pcie_init(struct controller * ctrl,
- 	u32 slot_cap;
- 	int cap_base, saved_cap_base;
- 	u16 slot_status, slot_ctrl;
-+	struct pci_dev *pdev;
- 
- 	DBG_ENTER_ROUTINE
- 	
-@@ -1277,7 +1278,8 @@ int pcie_init(struct controller * ctrl,
- 	}
- 
- 	memset(php_ctlr, 0, sizeof(struct php_ctlr_state_s));
--
-+	
-+	pdev = dev->port;
- 	php_ctlr->pci_dev = pdev;	/* save pci_dev in context */
- 
- 	dbg("%s: pdev->vendor %x pdev->device %x\n", __FUNCTION__,
-@@ -1338,7 +1340,7 @@ int pcie_init(struct controller * ctrl,
- 	}
- 
- 	dbg("pdev = %p: b:d:f:irq=0x%x:%x:%x:%x\n", pdev, pdev->bus->number, 
--		PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn), pdev->irq);
-+		PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn), dev->irq);
- 	for ( rc = 0; rc < DEVICE_COUNT_RESOURCE; rc++)
- 		if (pci_resource_len(pdev, rc) > 0)
- 			dbg("pci resource[%d] start=0x%lx(len=0x%lx)\n", rc,
-@@ -1355,7 +1357,7 @@ int pcie_init(struct controller * ctrl,
- 	init_waitqueue_head(&ctrl->queue);
- 
- 	/* find the IRQ */
--	php_ctlr->irq = pdev->irq;
-+	php_ctlr->irq = dev->irq;
- 	dbg("HPC interrupt = %d\n", php_ctlr->irq);
- 
- 	/* Save interrupt callback info */
-@@ -1407,17 +1409,6 @@ int pcie_init(struct controller * ctrl,
- 		start_int_poll_timer( php_ctlr, 10 );   /* start with 10 second delay */
- 	} else {
- 		/* Installs the interrupt handler */
--		dbg("%s: pcie_mch_quirk = %x\n", __FUNCTION__, pcie_mch_quirk);
--		if (!pcie_mch_quirk) {
--			rc = pci_enable_msi(pdev);
--			if (rc) {
--				info("Can't get msi for the hotplug controller\n");
--				info("Use INTx for the hotplug controller\n");
--				dbg("%s: rc = %x\n", __FUNCTION__, rc);
--			} else 
--				php_ctlr->irq = pdev->irq;
--		}
--
- 		rc = request_irq(php_ctlr->irq, pcie_isr, SA_SHIRQ, MY_NAME, (void *) ctrl);
- 		dbg("%s: request_irq %d for hpc%d (returns %d)\n", __FUNCTION__, php_ctlr->irq, ctlr_seq_num, rc);
- 		if (rc) {
-diff -urpN linux-2.6.10-rc3/drivers/pcieport/Kconfig patch-2.6.10-rc3-pbdhp/drivers/pcieport/Kconfig
---- linux-2.6.10-rc3/drivers/pcieport/Kconfig	1969-12-31 19:00:00.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/pcieport/Kconfig	2004-12-20 13:26:20.726605536 -0500
-@@ -0,0 +1,38 @@
+diff -uprN linux-2.6.9/drivers/char/tpm/Kconfig linux-2.6.9-tpm/drivers/char/tpm/Kconfig
+--- linux-2.6.9/drivers/char/tpm/Kconfig	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.9-tpm/drivers/char/tpm/Kconfig	2004-12-17 17:40:51.000000000 -0600
+@@ -0,0 +1,39 @@
 +#
-+# PCI Express Port Bus Configuration
++# TPM device configuration
 +#
-+config PCIEPORTBUS
-+	bool "PCI Express support"
-+	depends on PCI_GOMMCONFIG || PCI_GOANY
-+	default n
 +
++menu "TPM devices"
++
++config TCG_TPM
++	tristate "TPM Hardware Support"
++	depends on EXPERIMENTAL
 +	---help---
-+	This automatically enables PCI Express Port Bus support. Users can
-+	choose Native Hot-Plug support, Advanced Error Reporting support,
-+	Power Management Event support and Virtual Channel support to run
-+	on PCI Express Ports (Root or Switch).
++	  If you have a TPM security chip in your system, which
++	  implements the Trusted Computing Group's specification,
++	  say Yes and it will be accessible from within Linux.  For
++	  more information see <http://www.trustedcomputinggroup.org>. 
++	  An implementation of the Trusted Software Stack (TSS), the 
++	  userspace enablement piece of the specification, can be 
++	  obtained at: <http://sourceforge.net/projects/trousers>.  To 
++	  compile this driver as a module, choose M here; the module 
++	  will be called tpm. If unsure, say N.
 +
-+#
-+# Include service Kconfig here
-+#
-+config HOTPLUG_PCI_PCIE
-+	tristate "PCI Express Hotplug driver"
-+	depends on HOTPLUG_PCI && PCIEPORTBUS
-+	help
-+	  Say Y here if you have a motherboard that supports PCI Express Native
-+	  Hotplug
++config TCG_NSC
++	tristate "National Semiconductor TPM Interface"
++	depends on TCG_TPM
++	---help---
++	  If you have a TPM security chip from National Semicondutor 
++	  say Yes and it will be accessible from within Linux.  To 
++	  compile this driver as a module, choose M here; the module 
++	  will be called tpm_nsc.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called pciehp.
++config TCG_ATMEL
++	tristate "Atmel TPM Interface"
++	depends on TCG_TPM
++	---help---
++	  If you have a TPM security chip from Atmel say Yes and it 
++	  will be accessible from within Linux.  To compile this driver 
++	  as a module, choose M here; the module will be called tpm_atmel.
 +
-+	  When in doubt, say N.
++endmenu
 +
-+config HOTPLUG_PCI_PCIE_POLL_EVENT_MODE
-+	bool "Use polling mechanism for hot-plug events (for testing purpose)"
-+	depends on HOTPLUG_PCI_PCIE
-+	help
-+	  Say Y here if you want to use the polling mechanism for hot-plug 
-+	  events for early platform testing.
-+	   
-+	  When in doubt, say N.
-+
-diff -urpN linux-2.6.10-rc3/drivers/pcieport/Makefile patch-2.6.10-rc3-pbdhp/drivers/pcieport/Makefile
---- linux-2.6.10-rc3/drivers/pcieport/Makefile	1969-12-31 19:00:00.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/pcieport/Makefile	2004-12-10 14:06:05.000000000 -0500
+diff -uprN linux-2.6.9/drivers/char/tpm/Makefile linux-2.6.9-tpm/drivers/char/tpm/Makefile
+--- linux-2.6.9/drivers/char/tpm/Makefile	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.9-tpm/drivers/char/tpm/Makefile	2004-12-17 17:40:46.000000000 -0600
 @@ -0,0 +1,7 @@
 +#
-+# Makefile for PCI-Express PORT Driver
++# Makefile for the kernel tpm device drivers.
 +#
++obj-$(CONFIG_TCG_TPM) += tpm.o
++obj-$(CONFIG_TCG_NSC) += tpm_nsc.o
++obj-$(CONFIG_TCG_ATMEL) += tpm_atmel.o
 +
-+pcieportdrv-y			:= portdrv_core.o portdrv_pci.o portdrv_bus.o
-+
-+obj-$(CONFIG_PCIEPORTBUS)	+= pcieportdrv.o
-diff -urpN linux-2.6.10-rc3/drivers/pcieport/portdrv_bus.c patch-2.6.10-rc3-pbdhp/drivers/pcieport/portdrv_bus.c
---- linux-2.6.10-rc3/drivers/pcieport/portdrv_bus.c	1969-12-31 19:00:00.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/pcieport/portdrv_bus.c	2004-12-20 13:28:05.035748136 -0500
-@@ -0,0 +1,88 @@
+diff -uprN linux-2.6.9/drivers/char/tpm/tpm_atmel.c linux-2.6.9-tpm/drivers/char/tpm/tpm_atmel.c
+--- linux-2.6.9/drivers/char/tpm/tpm_atmel.c	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.9-tpm/drivers/char/tpm/tpm_atmel.c	2004-12-21 12:32:34.000000000 -0600
+@@ -0,0 +1,216 @@
 +/*
-+ * File:	portdrv_bus.c
-+ * Purpose:	PCI Express Port Bus Driver's Bus Overloading Functions
++ * Copyright (C) 2004 IBM Corporation
 + *
-+ * Copyright (C) 2004 Intel
-+ * Copyright (C) Tom Long Nguyen (tom.l.nguyen@intel.com)
++ * Authors:
++ * Leendert van Doorn <leendert@watson.ibm.com>
++ * Reiner Sailer <sailer@watson.ibm.com>
++ * Dave Safford <safford@watson.ibm.com>
++ * Kylene Hall <kjhall@us.ibm.com>
++ *
++ * Maintained by: <tpmdd_devel@lists.sourceforge.net>
++ *
++ * Device driver for TCG/TCPA TPM (trusted platform module).
++ * Specifications at www.trustedcomputinggroup.org	 
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation, version 2 of the
++ * License.
++ * 
 + */
 +
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/pm.h>
++#include "tpm.h"
 +
-+#include <linux/pcieport_if.h>
++/* Atmel definitions */
++#define	TPM_ATML_BASE			0x400
 +
-+static int generic_probe (struct device *dev) {	return 0;}
-+static int generic_remove (struct device *dev) { return 0;}
-+static int pcie_port_bus_match(struct device *dev, struct device_driver *drv);
-+static int pcie_port_bus_suspend(struct device *dev, u32 state);
-+static int pcie_port_bus_resume(struct device *dev);
++/* write status bits */
++#define	ATML_STATUS_ABORT		0x01
++#define	ATML_STATUS_LASTBYTE		0x04
 +
-+struct bus_type pcie_port_bus_type = {
-+	.name 		= "pci_express",
-+	.match 		= pcie_port_bus_match,
-+	.suspend	= pcie_port_bus_suspend,
-+	.resume		= pcie_port_bus_resume, 
++/* read status bits */
++#define	ATML_STATUS_BUSY		0x01
++#define	ATML_STATUS_DATA_AVAIL		0x02
++#define	ATML_STATUS_REWRITE		0x04
++
++
++static int tpm_atml_recv(struct tpm_chip *chip, u8 * buf, size_t count)
++{
++	u8 status, *hdr = buf;
++	u32 size;
++	int i;
++	__be32 *native_size;
++
++	/* start reading header */
++	if (count < 6)
++		return -EIO;
++
++	for (i = 0; i < 6; i++) {
++		status = inb(chip->vendor->base + 1);
++		if ((status & ATML_STATUS_DATA_AVAIL) == 0) {
++			dev_err(&chip->pci_dev->dev,
++				"error reading header\n");
++			return -EIO;
++		}
++		*buf++ = inb(chip->vendor->base);
++	}
++
++	/* size of the data received */
++	native_size = (__force __be32 *) (hdr + 2);
++	size = be32_to_cpu(*native_size);
++
++	if (count < size) {
++		dev_err(&chip->pci_dev->dev,
++			"Recv size(%d) less than available space\n", size);
++		for (; i < size; i++) {	/* clear the waiting data anyway */
++			status = inb(chip->vendor->base + 1);
++			if ((status & ATML_STATUS_DATA_AVAIL) == 0) {
++				dev_err(&chip->pci_dev->dev,
++					"error reading data\n");
++				return -EIO;
++			}
++		}
++		return -EIO;
++	}
++
++	/* read all the data available */
++	for (; i < size; i++) {
++		status = inb(chip->vendor->base + 1);
++		if ((status & ATML_STATUS_DATA_AVAIL) == 0) {
++			dev_err(&chip->pci_dev->dev,
++				"error reading data\n");
++			return -EIO;
++		}
++		*buf++ = inb(chip->vendor->base);
++	}
++
++	/* make sure data available is gone */
++	status = inb(chip->vendor->base + 1);
++	if (status & ATML_STATUS_DATA_AVAIL) {
++		dev_err(&chip->pci_dev->dev, "data available is stuck\n");
++		return -EIO;
++	}
++
++	return size;
++}
++
++static int tpm_atml_send(struct tpm_chip *chip, u8 * buf, size_t count)
++{
++	int i;
++
++	dev_dbg(&chip->pci_dev->dev, "tpm_atml_send: ");
++	for (i = 0; i < count; i++) {
++		dev_dbg(&chip->pci_dev->dev, "0x%x(%d) ", buf[i], buf[i]);
++		outb(buf[i], chip->vendor->base);
++	}
++
++	return count;
++}
++
++static void tpm_atml_cancel(struct tpm_chip *chip)
++{
++	outb(ATML_STATUS_ABORT, chip->vendor->base + 1);
++}
++
++static struct file_operations atmel_ops = {
++	.owner = THIS_MODULE,
++	.llseek = no_llseek,
++	.open = tpm_open,
++	.read = tpm_read,
++	.write = tpm_write,
++	.release = tpm_release,
 +};
 +
-+struct device_driver pcieport_generic_driver = {
-+	.name =	"pcieport",
-+	.bus = &pcie_port_bus_type,
-+	.probe = generic_probe,
-+	.remove = generic_remove,
++static struct tpm_vendor_specific tpm_atmel = {
++	.recv = tpm_atml_recv,
++	.send = tpm_atml_send,
++	.cancel = tpm_atml_cancel,
++	.req_complete_mask = ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL,
++	.req_complete_val = ATML_STATUS_DATA_AVAIL,
++	.base = TPM_ATML_BASE,
++	.miscdev.fops = &atmel_ops,
 +};
 +
-+static int pcie_port_bus_match(struct device *dev, struct device_driver *drv)
++static int __devinit tpm_atml_init(struct pci_dev *pci_dev,
++				   const struct pci_device_id *pci_id)
 +{
-+	struct pcie_device *pciedev;
-+	struct pcie_port_service_driver *driver;
++	u8 version[4];
++	int rc = 0;
 +
-+	if (	drv->bus != &pcie_port_bus_type || 
-+		dev->bus != &pcie_port_bus_type	||
-+		drv == &pcieport_generic_driver) {
-+		return 0;
++	if (pci_enable_device(pci_dev))
++		return -EIO;
++
++	if (tpm_lpc_bus_init(pci_dev, TPM_ATML_BASE)) {
++		rc = -ENODEV;
++		goto out_err;
 +	}
-+	pciedev = to_pcie_device(dev);
-+	driver = to_service_driver(drv);
-+	if (   (driver->id_table->vendor != PCI_ANY_ID && 
-+		driver->id_table->vendor != pciedev->id.vendor) ||
-+	       (driver->id_table->device != PCI_ANY_ID &&
-+		driver->id_table->device != pciedev->id.device) ||	
-+		driver->id_table->port_type != pciedev->id.port_type ||
-+		driver->id_table->service_type != pciedev->id.service_type )
-+		return 0;
 +
-+	return 1;
-+}
++	/* verify that it is an Atmel part */
++	if (tpm_read_index(4) != 'A' || tpm_read_index(5) != 'T'
++	    || tpm_read_index(6) != 'M' || tpm_read_index(7) != 'L') {
++		rc = -ENODEV;
++		goto out_err;
++	}
 +
-+static int pcie_port_bus_suspend(struct device *dev, u32 state)
-+{
-+	struct pcie_device *pciedev;
-+	struct pcie_port_service_driver *driver;
++	/* query chip for its version number */
++	if ((version[0] = tpm_read_index(0x00)) != 0xFF) {
++		version[1] = tpm_read_index(0x01);
++		version[2] = tpm_read_index(0x02);
++		version[3] = tpm_read_index(0x03);
++	} else {
++		dev_info(&pci_dev->dev, "version query failed\n");
++		rc = -ENODEV;
++		goto out_err;
++	}
 +
-+	if (!dev || !dev->driver)
-+		return 0;
++	if ((rc = tpm_register_hardware(pci_dev, &tpm_atmel)) < 0)
++		goto out_err;
 +
-+	pciedev = to_pcie_device(dev);
-+ 	driver = to_service_driver(dev->driver);
-+	if (driver && driver->suspend)
-+		driver->suspend(pciedev, state);
++	dev_info(&pci_dev->dev,
++		 "Atmel TPM version %d.%d.%d.%d\n", version[0], version[1],
++		 version[2], version[3]);
++
 +	return 0;
++out_err:
++	pci_disable_device(pci_dev);
++	return rc;
 +}
 +
-+static int pcie_port_bus_resume(struct device *dev)
++static struct pci_device_id tpm_pci_tbl[] __devinitdata = {
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CA_12)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_0)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_12)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0)},
++	{PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8111_LPC)},
++	{0,}
++};
++
++MODULE_DEVICE_TABLE(pci, tpm_pci_tbl);
++
++static struct pci_driver atmel_pci_driver = {
++	.name = "tpm_atmel",
++	.id_table = tpm_pci_tbl,
++	.probe = tpm_atml_init,
++	.remove = __devexit_p(tpm_remove),
++	.suspend = tpm_pm_suspend,
++	.resume = tpm_pm_resume,
++};
++
++static int __init init_atmel(void)
 +{
-+	struct pcie_device *pciedev;
-+	struct pcie_port_service_driver *driver;
-+
-+	if (!dev || !dev->driver)
-+		return 0;
-+
-+	pciedev = to_pcie_device(dev);
-+ 	driver = to_service_driver(dev->driver);
-+	if (driver && driver->resume)
-+		driver->resume(pciedev);
-+	return 0;
++	return pci_register_driver(&atmel_pci_driver);
 +}
-diff -urpN linux-2.6.10-rc3/drivers/pcieport/portdrv_core.c patch-2.6.10-rc3-pbdhp/drivers/pcieport/portdrv_core.c
---- linux-2.6.10-rc3/drivers/pcieport/portdrv_core.c	1969-12-31 19:00:00.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/pcieport/portdrv_core.c	2004-12-10 15:32:48.000000000 -0500
-@@ -0,0 +1,453 @@
-+/*
-+ * File:	portdrv_core.c
-+ * Purpose:	PCI Express Port Bus Driver's Core Functions
-+ *
-+ * Copyright (C) 2004 Intel
-+ * Copyright (C) Tom Long Nguyen (tom.l.nguyen@intel.com)
-+ */
 +
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/pm.h>
-+#include <linux/pcieport_if.h>
-+
-+#include "portdrv.h"
-+
-+extern int pcie_mch_quirk;	/* MSI-quirk Indicator */
-+
-+extern struct device_driver pcieport_generic_driver;
-+
-+static int pcie_port_probe_service(struct device *dev)
++static void __exit cleanup_atmel(void)
 +{
-+	struct pcie_device *pciedev;
-+	struct pcie_port_service_driver *driver;
-+	int status = -ENODEV;
-+
-+	if (!dev || !dev->driver)
-+		return status;
-+
-+ 	driver = to_service_driver(dev->driver);
-+	if (!driver || !driver->probe)
-+		return status;
-+
-+	pciedev = to_pcie_device(dev);
-+	status = driver->probe(pciedev, driver->id_table);
-+	if (!status) {
-+		printk(KERN_DEBUG "Load service driver %s on pcie device %s\n",
-+			driver->name, dev->bus_id);
-+		get_device(dev);
-+	}
-+	return status;
++	pci_unregister_driver(&atmel_pci_driver);
 +}
 +
-+static int pcie_port_remove_service(struct device *dev)
-+{
-+	struct pcie_device *pciedev;
-+	struct pcie_port_service_driver *driver;
++module_init(init_atmel);
++module_exit(cleanup_atmel);
 +
-+	if (!dev || !dev->driver)
-+		return 0;
-+
-+	pciedev = to_pcie_device(dev);
-+ 	driver = to_service_driver(dev->driver);
-+	if (driver && driver->remove) { 
-+		printk(KERN_DEBUG "Unload service driver %s on pcie device %s\n",
-+			driver->name, dev->bus_id);
-+		driver->remove(pciedev);
-+		put_device(dev);
-+	}
-+	return 0;
-+}
-+
-+static void pcie_port_shutdown_service(struct device *dev) {}
-+
-+static int pcie_port_suspend_service(struct device *dev, u32 state, u32 level)
-+{
-+	struct pcie_device *pciedev;
-+	struct pcie_port_service_driver *driver;
-+
-+	if (!dev || !dev->driver)
-+		return 0;
-+
-+	pciedev = to_pcie_device(dev);
-+ 	driver = to_service_driver(dev->driver);
-+	if (driver && driver->suspend)
-+		driver->suspend(pciedev, state);
-+	return 0;
-+}
-+
-+static int pcie_port_resume_service(struct device *dev, u32 state)
-+{
-+	struct pcie_device *pciedev;
-+	struct pcie_port_service_driver *driver;
-+
-+	if (!dev || !dev->driver)
-+		return 0;
-+
-+	pciedev = to_pcie_device(dev);
-+ 	driver = to_service_driver(dev->driver);
-+
-+	if (driver && driver->resume)
-+		driver->resume(pciedev);
-+	return 0;
-+}
-+
-+/*
-+ * release_pcie_device
-+ *	
-+ *	Being invoked automatically when device is being removed 
-+ *	in response to device_unregister(dev) call.
-+ *	Release all resources being claimed.
-+ */
-+static void release_pcie_device(struct device *dev)
-+{
-+	kfree(to_pcie_device(dev));			
-+}
-+
-+static int is_msi_quirked(struct pci_dev *dev)
-+{
-+	int port_type, quirk = 0;
-+	u16 reg16;
-+
-+	pci_read_config_word(dev, 
-+		pci_find_capability(dev, PCI_CAP_ID_EXP) + 
-+		PCIE_CAPABILITIES_REG, &reg16);
-+	port_type = (reg16 >> 4) & PORT_TYPE_MASK;
-+	switch(port_type) {
-+	case PCIE_RC_PORT:
-+		if (pcie_mch_quirk == 1)
-+			quirk = 1;
-+		break;
-+	case PCIE_SW_UPSTREAM_PORT:
-+	case PCIE_SW_DOWNSTREAM_PORT:
-+	default:
-+		break;	
-+	}
-+	return quirk;
-+}
-+	
-+static int assign_interrupt_mode(struct pci_dev *dev, int *vectors, int mask)
-+{
-+	int i, pos, nvec, status = -EINVAL;
-+	int interrupt_mode = PCIE_PORT_INTx_MODE;
-+
-+	/* Set INTx as default */
-+	for (i = 0, nvec = 0; i < PCIE_PORT_DEVICE_MAXSERVICES; i++) {
-+		if (mask & (1 << i)) 
-+			nvec++;
-+		vectors[i] = dev->irq;
-+	}
-+	
-+	/* Check MSI quirk */
-+	if (is_msi_quirked(dev))
-+		return interrupt_mode;
-+
-+	/* Select MSI-X over MSI if supported */		
-+	pos = pci_find_capability(dev, PCI_CAP_ID_MSIX);
-+	if (pos) {
-+		struct msix_entry msix_entries[PCIE_PORT_DEVICE_MAXSERVICES] = 
-+			{{0, 0}, {0, 1}, {0, 2}, {0, 3}};
-+		printk("%s Found MSIX capability\n", __FUNCTION__);
-+		status = pci_enable_msix(dev, msix_entries, nvec);
-+		if (!status) {
-+			int j = 0;
-+
-+			interrupt_mode = PCIE_PORT_MSIX_MODE;
-+			for (i = 0; i < PCIE_PORT_DEVICE_MAXSERVICES; i++) {
-+				if (mask & (1 << i)) 
-+					vectors[i] = msix_entries[j++].vector;
-+			}
-+		}
-+	} 
-+	if (status) {
-+		pos = pci_find_capability(dev, PCI_CAP_ID_MSI);
-+		if (pos) {
-+			printk("%s Found MSI capability\n", __FUNCTION__);
-+			status = pci_enable_msi(dev);
-+			if (!status) {
-+				interrupt_mode = PCIE_PORT_MSI_MODE;
-+				for (i = 0;i < PCIE_PORT_DEVICE_MAXSERVICES;i++)
-+					vectors[i] = dev->irq;
-+			}
-+		}
-+	} 
-+	return interrupt_mode;
-+}
-+
-+static int get_port_device_capability(struct pci_dev *dev)
-+{
-+	int services = 0, pos;
-+	u16 reg16;
-+	u32 reg32;
-+
-+	pos = pci_find_capability(dev, PCI_CAP_ID_EXP);
-+	pci_read_config_word(dev, pos + PCIE_CAPABILITIES_REG, &reg16);
-+	/* Hot-Plug Capable */
-+	if (reg16 & PORT_TO_SLOT_MASK) {
-+		pci_read_config_dword(dev, 
-+			pos + PCIE_SLOT_CAPABILITIES_REG, &reg32);
-+		if (reg32 & SLOT_HP_CAPABLE_MASK)
-+			services |= PCIE_PORT_SERVICE_HP;
-+	} 
-+	/* PME Capable */
-+	pos = pci_find_capability(dev, PCI_CAP_ID_PME);
-+	if (pos) 
-+		services |= PCIE_PORT_SERVICE_PME;
-+	
-+	pos = PCI_CFG_SPACE_SIZE;
-+	while (pos) {
-+		pci_read_config_dword(dev, pos, &reg32);
-+		switch (reg32 & 0xffff) {
-+		case PCI_EXT_CAP_ID_ERR:
-+			services |= PCIE_PORT_SERVICE_AER;
-+			pos = reg32 >> 20;
-+			break;
-+		case PCI_EXT_CAP_ID_VC:
-+			services |= PCIE_PORT_SERVICE_VC;
-+			pos = reg32 >> 20;
-+			break;
-+		default:
-+			pos = 0;
-+			break;
-+		}
-+	}
-+
-+	return services;
-+}
-+
-+static void pcie_device_init(struct pcie_device *parent, 
-+			struct pcie_device *dev, 
-+			int port_type, int service_type)
-+{
-+	struct device *device;
-+
-+	if (parent) {
-+		dev->id.vendor = parent->port->vendor;
-+		dev->id.device = parent->port->device;
-+		dev->id.port_type = port_type;
-+		dev->id.service_type = (1 << service_type);
-+	}
-+
-+	/* Initialize generic device interface */
-+	device = &dev->device;
-+	memset(device, 0, sizeof(struct device));
-+	INIT_LIST_HEAD(&device->node);
-+	INIT_LIST_HEAD(&device->children);
-+	INIT_LIST_HEAD(&device->bus_list);
-+	device->bus = &pcie_port_bus_type;
-+	device->driver = NULL;
-+	device->driver_data = NULL; 
-+	device->release = release_pcie_device;	/* callback to free pcie dev */
-+	sprintf(&device->bus_id[0], "%s.%02x", parent->device.bus_id, 
-+			get_descriptor_id(port_type, service_type));
-+	device->parent = ((parent == NULL) ? NULL : &parent->device);
-+}
-+
-+static struct pcie_device* alloc_pcie_device(
-+	struct pcie_device *parent, struct pci_dev *bridge, 
-+	int port_type, int service_type, int irq, int irq_mode)
-+{
-+	struct pcie_device *device;
-+	static int NR_PORTS = 0;
-+
-+	device = kmalloc(sizeof(struct pcie_device), GFP_KERNEL);
-+	if (!device)
-+		return NULL;
-+
-+	memset(device, 0, sizeof(struct pcie_device));
-+	device->port = bridge;
-+	device->interrupt_mode = irq_mode;
-+	device->irq = irq;
-+	if (!parent) {
-+		pcie_device_init(NULL, device, port_type, service_type);
-+		NR_PORTS++;
-+		device->device.driver = &pcieport_generic_driver;
-+		sprintf(&device->device.bus_id[0], "port%d", NR_PORTS); 
-+	} else { 
-+		pcie_device_init(parent, device, port_type, service_type);
-+	}
-+	printk(KERN_DEBUG "Allocate Port Device[%s]\n", device->device.bus_id);
-+	return device;
-+}
-+
-+int pcie_port_device_probe(struct pci_dev *dev)
-+{
-+	int pos, type;
-+	u16 reg;
-+
-+	if (!(pos = pci_find_capability(dev, PCI_CAP_ID_EXP)))
-+		return -ENODEV;
-+
-+	pci_read_config_word(dev, pos + PCIE_CAPABILITIES_REG, &reg);
-+	type = (reg >> 4) & PORT_TYPE_MASK;
-+	if (	type == PCIE_RC_PORT || type == PCIE_SW_UPSTREAM_PORT ||
-+		type == PCIE_SW_DOWNSTREAM_PORT )  
-+		return 0;
-+ 
-+	return -ENODEV;
-+}
-+
-+int pcie_port_device_register(struct pci_dev *dev)
-+{
-+	struct pcie_device *parent;
-+	int status, type, capabilities, irq_mode, i;
-+	int vectors[PCIE_PORT_DEVICE_MAXSERVICES];
-+	u16 reg16;
-+
-+	/* Get port type */
-+	pci_read_config_word(dev, 
-+		pci_find_capability(dev, PCI_CAP_ID_EXP) + 
-+		PCIE_CAPABILITIES_REG, &reg16);
-+	type = (reg16 >> 4) & PORT_TYPE_MASK;
-+
-+	/* Now get port services */
-+	capabilities = get_port_device_capability(dev);
-+	irq_mode = assign_interrupt_mode(dev, vectors, capabilities);
-+
-+	/* Allocate parent */
-+	parent = alloc_pcie_device(NULL, dev, type, 0, dev->irq, irq_mode);
-+	if (!parent) 
-+		return -ENOMEM;
-+	
-+	status = device_register(&parent->device);
-+	if (status) {
-+		kfree(parent);
-+		return status;
-+	}
-+	get_device(&parent->device);
-+	pci_set_drvdata(dev, parent);	
-+
-+	/* Allocate child services if any */
-+	for (i = 0; i < PCIE_PORT_DEVICE_MAXSERVICES; i++) {
-+		struct pcie_device *child;
-+
-+		if (capabilities & (1 << i)) {
-+			child = alloc_pcie_device(
-+				parent,		/* parent */ 
-+				dev, 		/* Root/Upstream/Downstream */
-+				type,		/* port type */ 
-+				i,		/* service type */
-+				vectors[i],	/* irq */
-+				irq_mode	/* interrupt mode */);
-+			if (child) { 
-+				status = device_register(&child->device);
-+				if (status) {
-+					kfree(child);
-+					continue;
-+				}
-+				get_device(&child->device);
-+			}
-+		}
-+	}
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+int pcie_port_device_suspend(struct pcie_device *dev, u32 state)
-+{
-+	struct list_head 		*head;
-+	struct device 			*parent, *child;
-+	struct device_driver 		*driver;
-+	struct pcie_port_service_driver *service_driver;
-+
-+	parent = &dev->device;
-+	head = &parent->children;
-+	while (!list_empty(head)) {
-+		child = container_of(head->next, struct device, node);
-+		driver = child->driver;
-+		if (!driver)
-+			continue;
-+		service_driver = to_service_driver(driver);
-+		if (service_driver->suspend)  
-+			service_driver->suspend(to_pcie_device(child), state);
-+	}
-+	return 0; 
-+}
-+
-+int pcie_port_device_resume(struct pcie_device *dev) 
-+{ 
-+	struct list_head 		*head;
-+	struct device 			*parent, *child;
-+	struct device_driver 		*driver;
-+	struct pcie_port_service_driver *service_driver;
-+
-+	parent = &dev->device;
-+	head = &parent->children;
-+	while (!list_empty(head)) {
-+		child = container_of(head->next, struct device, node);
-+		driver = child->driver;
-+		if (!driver)
-+			continue;
-+		service_driver = to_service_driver(driver);
-+		if (service_driver->resume)  
-+			service_driver->resume(to_pcie_device(child));
-+	}
-+	return 0; 
-+
-+}
-+#endif
-+
-+void pcie_port_device_remove(struct pcie_device *dev)
-+{
-+	struct list_head 		*head;
-+	struct device 			*parent, *child;
-+	struct device_driver 		*driver;
-+	struct pcie_port_service_driver *service_driver;
-+
-+	parent = &dev->device;
-+	head = &parent->children;
-+	while (!list_empty(head)) {
-+		child = container_of(head->next, struct device, node);
-+		driver = child->driver;
-+		if (driver) { 
-+			service_driver = to_service_driver(driver);
-+			if (service_driver->remove)  
-+				service_driver->remove(to_pcie_device(child));
-+		}
-+		put_device(child);
-+		device_unregister(child);
-+	}
-+
-+	/* Switch to INTx by default if MSI enabled */
-+	if (dev->interrupt_mode == PCIE_PORT_MSIX_MODE)
-+		pci_disable_msix(dev->port);
-+	else if (dev->interrupt_mode == PCIE_PORT_MSI_MODE)
-+		pci_disable_msi(dev->port);
-+	put_device(parent);
-+	device_unregister(parent);
-+}
-+
-+void pcie_port_bus_register(void)
-+{
-+	bus_register(&pcie_port_bus_type);
-+	driver_register(&pcieport_generic_driver);
-+}
-+
-+void pcie_port_bus_unregister(void)
-+{
-+	driver_unregister(&pcieport_generic_driver);
-+	bus_unregister(&pcie_port_bus_type);
-+}
-+
-+int pcie_port_service_register(struct pcie_port_service_driver *new)
-+{
-+	new->driver.name = (char *)new->name;
-+	new->driver.bus = &pcie_port_bus_type;
-+	new->driver.probe = pcie_port_probe_service;
-+	new->driver.remove = pcie_port_remove_service;
-+	new->driver.shutdown = pcie_port_shutdown_service;
-+	new->driver.suspend = pcie_port_suspend_service;
-+	new->driver.resume = pcie_port_resume_service;
-+
-+	return driver_register(&new->driver);
-+} 
-+
-+void pcie_port_service_unregister(struct pcie_port_service_driver *new)
-+{
-+	driver_unregister(&new->driver);
-+}
-+
-+EXPORT_SYMBOL(pcie_port_service_register);
-+EXPORT_SYMBOL(pcie_port_service_unregister);
-diff -urpN linux-2.6.10-rc3/drivers/pcieport/portdrv.h patch-2.6.10-rc3-pbdhp/drivers/pcieport/portdrv.h
---- linux-2.6.10-rc3/drivers/pcieport/portdrv.h	1969-12-31 19:00:00.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/pcieport/portdrv.h	2004-12-10 15:17:31.000000000 -0500
-@@ -0,0 +1,42 @@
-+/*
-+ * File:	portdrv.h
-+ * Purpose:	PCI Express Port Bus Driver's Internal Data Structures
-+ *
-+ * Copyright (C) 2004 Intel
-+ * Copyright (C) Tom Long Nguyen (tom.l.nguyen@intel.com)
-+ */
-+
-+#ifndef _PORTDRV_H_
-+#define _PORTDRV_H_
-+
-+#if !defined(PCI_CAP_ID_PME)
-+#define PCI_CAP_ID_PME			1
-+#endif
-+
-+#if !defined(PCI_CAP_ID_EXP)
-+#define PCI_CAP_ID_EXP			0x10
-+#endif
-+
-+#define PORT_TYPE_MASK			0xf
-+#define PORT_TO_SLOT_MASK		0x100
-+#define SLOT_HP_CAPABLE_MASK		0x40
-+#define PCIE_CAPABILITIES_REG		0x2
-+#define PCIE_SLOT_CAPABILITIES_REG	0x14
-+#define PCIE_PORT_DEVICE_MAXSERVICES	4
-+#define PCI_CFG_SPACE_SIZE		256
-+
-+#define get_descriptor_id(type, service) (((type - 4) << 4) | service)
-+
-+extern struct bus_type pcie_port_bus_type;
-+extern struct device_driver pcieport_generic_driver;
-+extern int pcie_port_device_probe(struct pci_dev *dev);
-+extern int pcie_port_device_register(struct pci_dev *dev);
-+#ifdef CONFIG_PM
-+extern int pcie_port_device_suspend(struct pcie_device *dev, u32 state);
-+extern int pcie_port_device_resume(struct pcie_device *dev);
-+#endif
-+extern void pcie_port_device_remove(struct pcie_device *dev);
-+extern void pcie_port_bus_register(void);
-+extern void pcie_port_bus_unregister(void);
-+
-+#endif /* _PORTDRV_H_ */
-diff -urpN linux-2.6.10-rc3/drivers/pcieport/portdrv_pci.c patch-2.6.10-rc3-pbdhp/drivers/pcieport/portdrv_pci.c
---- linux-2.6.10-rc3/drivers/pcieport/portdrv_pci.c	1969-12-31 19:00:00.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/drivers/pcieport/portdrv_pci.c	2004-12-10 15:31:35.000000000 -0500
-@@ -0,0 +1,138 @@
-+/*
-+ * File:	portdrv_pci.c
-+ * Purpose:	PCI Express Port Bus Driver
-+ *
-+ * Copyright (C) 2004 Intel
-+ * Copyright (C) Tom Long Nguyen (tom.l.nguyen@intel.com)
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/pm.h>
-+#include <linux/init.h>
-+#include <linux/pcieport_if.h>
-+
-+#include "portdrv.h"
-+
-+/*
-+ * Version Information
-+ */
-+#define DRIVER_VERSION "v1.0"
-+#define DRIVER_AUTHOR "tom.l.nguyen@intel.com"
-+#define DRIVER_DESC "PCIE Port Bus Driver"
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_AUTHOR("Leendert van Doorn (leendert@watson.ibm.com)");
++MODULE_DESCRIPTION("TPM Driver");
++MODULE_VERSION("2.0");
 +MODULE_LICENSE("GPL");
-+
-+/* global data */
-+static const char device_name[] = "pcieport-driver";
-+
+diff -uprN linux-2.6.9/drivers/char/tpm/tpm.c linux-2.6.9-tpm/drivers/char/tpm/tpm.c
+--- linux-2.6.9/drivers/char/tpm/tpm.c	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.9-tpm/drivers/char/tpm/tpm.c	2004-12-21 13:17:28.220533736 -0600
+@@ -0,0 +1,512 @@
 +/*
-+ * pcie_portdrv_probe - Probe PCI-Express port devices
-+ * @dev: PCI-Express port device being probed
++ * Copyright (C) 2004 IBM Corporation
 + *
-+ * If detected invokes the pcie_port_device_register() method for 
-+ * this port device.
++ * Authors:
++ * Leendert van Doorn <leendert@watson.ibm.com>
++ * Reiner Sailer <sailer@watson.ibm.com>
++ * Dave Safford <safford@watson.ibm.com>
++ * Kylene Hall <kjhall@us.ibm.com>
++ *
++ * Maintained by: <tpmdd_devel@lists.sourceforge.net>
++ *
++ * Device driver for TCG/TCPA TPM (trusted platform module).
++ * Specifications at www.trustedcomputinggroup.org	 
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation, version 2 of the
++ * License.
++ * 
++ * Note, the TPM chip is not interrupt driven (only polling)
++ * and can have very long timeouts (minutes!). Hence the unusual
++ * calls to schedule_timeout.
 + *
 + */
-+static int __devinit pcie_portdrv_probe (struct pci_dev *dev, 
-+				const struct pci_device_id *id )
++
++#include <linux/sched.h>
++#include <linux/poll.h>
++#include <linux/spinlock.h>
++#include "tpm.h"
++
++#define	TPM_MINOR			224	/* officially assigned */
++
++#define	TPM_BUFSIZE			2048
++
++/* PCI configuration addresses */
++#define	PCI_GEN_PMCON_1			0xA0
++#define	PCI_GEN1_DEC			0xE4
++#define	PCI_LPC_EN			0xE6
++#define	PCI_GEN2_DEC			0xEC
++
++static LIST_HEAD(tpm_chip_list);
++static spinlock_t driver_lock = SPIN_LOCK_UNLOCKED;
++static int dev_mask[32];
++
++static void user_reader_timeout(unsigned long ptr)
 +{
-+	int			status;
++	struct tpm_chip *chip = (struct tpm_chip *) ptr;
 +
-+	status = pcie_port_device_probe(dev);
-+	if (status)
-+		return status;
++	down(&chip->buffer_mutex);
++	atomic_set(&chip->data_pending, 0);
++	memset(chip->data_buffer, 0, TPM_BUFSIZE);
++	up(&chip->buffer_mutex);
++}
 +
-+	if (pci_enable_device(dev) < 0) 
-+		return -ENODEV;
-+	
-+	pci_set_master(dev);
-+        if (!dev->irq) {
-+		printk(KERN_WARNING 
-+		"%s->Dev[%04x:%04x] has invalid IRQ. Check vendor BIOS\n", 
-+		__FUNCTION__, dev->device, dev->vendor);
++void tpm_time_expired(unsigned long ptr)
++{
++	int *exp = (int *) ptr;
++	*exp = 1;
++}
++
++EXPORT_SYMBOL_GPL(tpm_time_expired);
++
++/*
++ * Initialize the LPC bus and enable the TPM ports
++ */
++int tpm_lpc_bus_init(struct pci_dev *pci_dev, u16 base)
++{
++	u32 lpcenable, tmp;
++	int is_lpcm = 0;
++
++	switch (pci_dev->vendor) {
++	case PCI_VENDOR_ID_INTEL:
++		switch (pci_dev->device) {
++		case PCI_DEVICE_ID_INTEL_82801CA_12:
++		case PCI_DEVICE_ID_INTEL_82801DB_12:
++			is_lpcm = 1;
++			break;
++		}
++		/* init ICH (enable LPC) */
++		pci_read_config_dword(pci_dev, PCI_GEN1_DEC, &lpcenable);
++		lpcenable |= 0x20000000;
++		pci_write_config_dword(pci_dev, PCI_GEN1_DEC, lpcenable);
++
++		if (is_lpcm) {
++			pci_read_config_dword(pci_dev, PCI_GEN1_DEC,
++					      &lpcenable);
++			if ((lpcenable & 0x20000000) == 0) {
++				dev_err(&pci_dev->dev,
++					"cannot enable LPC\n");
++				return -ENODEV;
++			}
++		}
++
++		/* initialize TPM registers */
++		pci_read_config_dword(pci_dev, PCI_GEN2_DEC, &tmp);
++
++		if (!is_lpcm)
++			tmp = (tmp & 0xFFFF0000) | (base & 0xFFF0);
++		else
++			tmp =
++			    (tmp & 0xFFFF0000) | (base & 0xFFF0) |
++			    0x00000001;
++
++		pci_write_config_dword(pci_dev, PCI_GEN2_DEC, tmp);
++
++		if (is_lpcm) {
++			pci_read_config_dword(pci_dev, PCI_GEN_PMCON_1,
++					      &tmp);
++			tmp |= 0x00000004;	/* enable CLKRUN */
++			pci_write_config_dword(pci_dev, PCI_GEN_PMCON_1,
++					       tmp);
++		}
++		tpm_write_index(0x0D, 0x55);	/* unlock 4F */
++		tpm_write_index(0x0A, 0x00);	/* int disable */
++		tpm_write_index(0x08, base);	/* base addr lo */
++		tpm_write_index(0x09, (base & 0xFF00) >> 8);	/* base addr hi */
++		tpm_write_index(0x0D, 0xAA);	/* lock 4F */
++		break;
++	case PCI_VENDOR_ID_AMD:
++		/* nothing yet */
++		break;
 +	}
-+	if (pcie_port_device_register(dev)) 
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(tpm_lpc_bus_init);
++
++/*
++ * Internal kernel interface to transmit TPM commands
++ */
++static ssize_t tpm_transmit(struct tpm_chip *chip, const char *buf,
++			    size_t bufsiz)
++{
++	ssize_t len;
++	u32 count;
++	__be32 *native_size;
++
++	native_size = (__force __be32 *) (buf + 2);
++	count = be32_to_cpu(*native_size);
++
++	if (count == 0)
++		return -ENODATA;
++	if (count > bufsiz) {
++		dev_err(&chip->pci_dev->dev,
++			"invalid count value %x %x \n", count, bufsiz);
++		return -E2BIG;
++	}
++
++	if ((len = chip->vendor->send(chip, (u8 *) buf, count)) < 0) {
++		dev_err(&chip->pci_dev->dev,
++			"tpm_transmit: tpm_send: error %d\n", len);
++		return len;
++	}
++
++	down(&chip->timer_manipulation_mutex);
++	chip->time_expired = 0;
++	init_timer(&chip->device_timer);
++	chip->device_timer.function = tpm_time_expired;
++	chip->device_timer.expires = jiffies + 2 * 60 * HZ;
++	chip->device_timer.data = (unsigned long) &chip->time_expired;
++	add_timer(&chip->device_timer);
++	up(&chip->timer_manipulation_mutex);
++
++	do {
++		u8 status = inb(chip->vendor->base + 1);
++		if ((status & chip->vendor->req_complete_mask) ==
++		    chip->vendor->req_complete_val) {
++			down(&chip->timer_manipulation_mutex);
++			del_singleshot_timer_sync(&chip->device_timer);
++			up(&chip->timer_manipulation_mutex);
++			goto out_recv;
++		}
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(TPM_TIMEOUT);
++		rmb();
++	} while (!chip->time_expired);
++
++
++	chip->vendor->cancel(chip);
++	dev_err(&chip->pci_dev->dev, "Time expired\n");
++	return -EIO;
++
++out_recv:
++	len = chip->vendor->recv(chip, (u8 *) buf, bufsiz);
++	if (len < 0)
++		dev_err(&chip->pci_dev->dev,
++			"tpm_transmit: tpm_recv: error %d\n", len);
++	return len;
++}
++
++/*
++ * Device file system interface to the TPM
++ */
++int tpm_open(struct inode *inode, struct file *file)
++{
++	int rc = 0, minor = iminor(inode);
++	struct tpm_chip *chip = NULL, *pos;
++
++	spin_lock(&driver_lock);
++
++	list_for_each_entry(pos, &tpm_chip_list, list) {
++		if (pos->vendor->miscdev.minor == minor) {
++			chip = pos;
++			break;
++		}
++	}
++
++	if (chip == NULL) {
++		rc = -ENODEV;
++		goto err_out;
++	}
++
++	if (chip->num_opens) {
++		dev_dbg(&chip->pci_dev->dev,
++			"Another process owns this TPM\n");
++		rc = -EBUSY;
++		goto err_out;
++	}
++
++	chip->num_opens++;
++	pci_dev_get(chip->pci_dev);
++
++	spin_unlock(&driver_lock);
++
++	chip->data_buffer = kmalloc(TPM_BUFSIZE * sizeof(u8), GFP_KERNEL);
++	if (chip->data_buffer == NULL) {
++		chip->num_opens--;
++		pci_dev_put(chip->pci_dev);
++		return -ENOMEM;
++	}
++
++	atomic_set(&chip->data_pending, 0);
++
++	file->private_data = chip;
++	return 0;
++
++err_out:
++	spin_unlock(&driver_lock);
++	return rc;
++}
++
++EXPORT_SYMBOL_GPL(tpm_open);
++
++int tpm_release(struct inode *inode, struct file *file)
++{
++	struct tpm_chip *chip = file->private_data;
++
++	spin_lock(&driver_lock);
++	chip->num_opens--;
++	down(&chip->timer_manipulation_mutex);
++	if (timer_pending(&chip->user_read_timer))
++		del_singleshot_timer_sync(&chip->user_read_timer);
++	else if (timer_pending(&chip->device_timer))
++		del_singleshot_timer_sync(&chip->device_timer);
++	up(&chip->timer_manipulation_mutex);
++	kfree(chip->data_buffer);
++	atomic_set(&chip->data_pending, 0);
++
++	pci_dev_put(chip->pci_dev);
++	file->private_data = NULL;
++	spin_unlock(&driver_lock);
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(tpm_release);
++
++ssize_t tpm_write(struct file * file, const char __user * buf,
++		  size_t size, loff_t * off)
++{
++	struct tpm_chip *chip = file->private_data;
++	int in_size = size, out_size;
++
++	/* cannot perform a write until the read has cleared
++	   either via tpm_read or a user_read_timer timeout */
++	while (atomic_read(&chip->data_pending) != 0) {
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(TPM_TIMEOUT);
++	}
++
++	down(&chip->buffer_mutex);
++
++	if (in_size > TPM_BUFSIZE)
++		in_size = TPM_BUFSIZE;
++
++	if (copy_from_user
++	    (chip->data_buffer, (void __user *) buf, in_size)) {
++		up(&chip->buffer_mutex);
++		return -EFAULT;
++	}
++
++	/* atomic tpm command send and result receive */
++	out_size = tpm_transmit(chip, chip->data_buffer, TPM_BUFSIZE);
++
++	atomic_set(&chip->data_pending, out_size);
++	up(&chip->buffer_mutex);
++
++	/* Set a timeout by which the reader must come claim the result */
++	down(&chip->timer_manipulation_mutex);
++	init_timer(&chip->user_read_timer);
++	chip->user_read_timer.function = user_reader_timeout;
++	chip->user_read_timer.data = (unsigned long) chip;
++	chip->user_read_timer.expires = jiffies + (60 * HZ);
++	add_timer(&chip->user_read_timer);
++	up(&chip->timer_manipulation_mutex);
++
++	return in_size;
++}
++
++EXPORT_SYMBOL_GPL(tpm_write);
++
++ssize_t tpm_read(struct file * file, char __user * buf, size_t size,
++		 loff_t * off)
++{
++	struct tpm_chip *chip = file->private_data;
++	int ret_size = -ENODATA;
++
++	if (atomic_read(&chip->data_pending) != 0) {	/* Result available */
++		down(&chip->timer_manipulation_mutex);
++		del_singleshot_timer_sync(&chip->user_read_timer);
++		up(&chip->timer_manipulation_mutex);
++
++		down(&chip->buffer_mutex);
++
++		ret_size = atomic_read(&chip->data_pending);
++		atomic_set(&chip->data_pending, 0);
++
++		if (ret_size == 0)	/* timeout just occurred */
++			ret_size = -ETIME;
++		else if (ret_size > 0) {	/* relay data */
++			if (size < ret_size)
++				ret_size = size;
++
++			if (copy_to_user
++			    ((void __user *) buf, chip->data_buffer,
++			     ret_size)) {
++				ret_size = -EFAULT;
++			}
++		}
++		up(&chip->buffer_mutex);
++	}
++
++	return ret_size;
++}
++
++EXPORT_SYMBOL_GPL(tpm_read);
++
++void __devexit tpm_remove(struct pci_dev *pci_dev)
++{
++	struct tpm_chip *chip = pci_get_drvdata(pci_dev);
++
++	if (chip == NULL) {
++		dev_err(&pci_dev->dev, "No device data found\n");
++		return;
++	}
++
++	spin_lock(&driver_lock);
++
++	list_del(&chip->list);
++
++	pci_set_drvdata(pci_dev, NULL);
++	misc_deregister(&chip->vendor->miscdev);
++
++	spin_unlock(&driver_lock);
++
++	pci_disable_device(pci_dev);
++
++	dev_mask[chip->dev_num / 32] &= !(1 << (chip->dev_num % 32));
++
++	kfree(chip);
++
++	pci_dev_put(pci_dev);
++}
++
++EXPORT_SYMBOL_GPL(tpm_remove);
++
++static u8 savestate[] = {
++	0, 193,			/* TPM_TAG_RQU_COMMAND */
++	0, 0, 0, 10,		/* blob length (in bytes) */
++	0, 0, 0, 152		/* TPM_ORD_SaveState */
++};
++
++/*
++ * We are about to suspend. Save the TPM state
++ * so that it can be restored.
++ */
++int tpm_pm_suspend(struct pci_dev *pci_dev, u32 pm_state)
++{
++	struct tpm_chip *chip = pci_get_drvdata(pci_dev);
++	if (chip == NULL)
++		return -ENODEV;
++
++	tpm_transmit(chip, savestate, sizeof(savestate));
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(tpm_pm_suspend);
++
++/*
++ * Resume from a power safe. The BIOS already restored
++ * the TPM state.
++ */
++int tpm_pm_resume(struct pci_dev *pci_dev)
++{
++	struct tpm_chip *chip = pci_get_drvdata(pci_dev);
++	if (chip == NULL)
++		return -ENODEV;
++
++	spin_lock(&driver_lock);
++	tpm_lpc_bus_init(pci_dev, chip->vendor->base);
++	spin_unlock(&driver_lock);
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(tpm_pm_resume);
++
++/*
++ * Called from tpm_<specific>.c probe function only for devices 
++ * the driver has determined it should claim.  Prior to calling
++ * this function the specific probe function has called pci_enable_device
++ * upon errant exit from this function specific probe function should call
++ * pci_disable_device
++ */
++int tpm_register_hardware(struct pci_dev *pci_dev,
++			  struct tpm_vendor_specific *entry)
++{
++	char devname[7];
++	struct tpm_chip *chip;
++	int i, j;
++
++	/* Driver specific per-device data */
++	chip = kmalloc(sizeof(*chip), GFP_KERNEL);
++	if (chip == NULL)
 +		return -ENOMEM;
 +
-+	return 0;
-+}
++	memset(chip, 0, sizeof(struct tpm_chip));
 +
-+static void pcie_portdrv_remove (struct pci_dev *dev)
-+{
-+	struct pcie_device *pciedev;
++	init_MUTEX(&chip->buffer_mutex);
++	init_MUTEX(&chip->timer_manipulation_mutex);
++	INIT_LIST_HEAD(&chip->list);
 +
-+      	pciedev = (struct pcie_device *)pci_get_drvdata(dev);
-+	if (pciedev) {
-+		pcie_port_device_remove(pciedev);
-+		pci_set_drvdata(dev, NULL); 
++	chip->vendor = entry;
++
++	chip->dev_num = -1;
++
++	for (i = 0; i < 32; i++)
++		for (j = 0; j < 8; j++)
++			if ((dev_mask[i] & (1 << j)) == 0) {
++				chip->dev_num = i * 32 + j;
++				dev_mask[i] |= 1 << j;
++				goto dev_num_search_complete;
++			}
++
++dev_num_search_complete:
++	if (chip->dev_num < 0) {
++		dev_err(&pci_dev->dev,
++			"No available tpm device numbers\n");
++		kfree(chip);
++		return -ENODEV;
++	} else if (chip->dev_num == 0)
++		chip->vendor->miscdev.minor = TPM_MINOR;
++	else
++		chip->vendor->miscdev.minor = MISC_DYNAMIC_MINOR;
++
++	snprintf(devname, sizeof(devname), "%s%d", "tpm", chip->dev_num);
++	chip->vendor->miscdev.name = devname;
++
++	chip->vendor->miscdev.dev = &(pci_dev->dev);
++	chip->pci_dev = pci_dev_get(pci_dev);
++
++	spin_lock(&driver_lock);
++
++	if (misc_register(&chip->vendor->miscdev)) {
++		dev_err(&chip->pci_dev->dev,
++			"unable to misc_register %s, minor %d\n",
++			chip->vendor->miscdev.name,
++			chip->vendor->miscdev.minor);
++		pci_dev_put(pci_dev);
++		spin_unlock(&driver_lock);
++		kfree(chip);
++		dev_mask[i] &= !(1 << j);
++		return -ENODEV;
 +	}
-+}
 +
-+#ifdef CONFIG_PM
-+static int pcie_portdrv_suspend (struct pci_dev *dev, u32 state)
-+{
-+	struct pcie_device *pciedev;
-+	
-+      	pciedev = (struct pcie_device *)pci_get_drvdata(dev);
-+	if (pciedev) 
-+		pcie_port_device_suspend(pciedev, state);
++	pci_set_drvdata(pci_dev, chip);
++
++	list_add(&chip->list, &tpm_chip_list);
++
++	spin_unlock(&driver_lock);
 +	return 0;
 +}
 +
-+static int pcie_portdrv_resume (struct pci_dev *dev)
++EXPORT_SYMBOL_GPL(tpm_register_hardware);
++
++static int __init init_tpm(void)
 +{
-+	struct pcie_device *pciedev;
-+	
-+      	pciedev = (struct pcie_device *)pci_get_drvdata(dev);
-+	if (pciedev) 
-+		pcie_port_device_resume(pciedev);
 +	return 0;
 +}
-+#endif
 +
-+/*
-+ * LINUX Device Driver Model
-+ */
-+static const struct pci_device_id port_pci_ids[] = { {
-+	/* handle any PCI-Express port */
-+	PCI_DEVICE_CLASS(((PCI_CLASS_BRIDGE_PCI << 8) | 0x00), ~0),
-+	}, { /* end: all zeroes */ }
-+};
-+MODULE_DEVICE_TABLE(pci, port_pci_ids);
-+
-+static struct pci_driver pcie_portdrv = {
-+	.name		= (char *)device_name,
-+	.id_table	= &port_pci_ids[0],
-+
-+	.probe		= pcie_portdrv_probe,
-+	.remove		= pcie_portdrv_remove,
-+
-+#ifdef	CONFIG_PM
-+	.suspend	= pcie_portdrv_suspend,
-+	.resume		= pcie_portdrv_resume,
-+#endif	/* PM */
-+};
-+
-+static int __init pcie_portdrv_init(void)
++static void __exit cleanup_tpm(void)
 +{
-+	int retval = 0;
 +
-+	pcie_port_bus_register();
-+	retval = pci_module_init(&pcie_portdrv);
-+	if (retval)
-+		pcie_port_bus_unregister();
-+	return retval;
 +}
 +
-+static void __exit pcie_portdrv_exit(void) 
-+{
-+	pci_unregister_driver(&pcie_portdrv);
-+	pcie_port_bus_unregister();
-+}
++module_init(init_tpm);
++module_exit(cleanup_tpm);
 +
-+module_init(pcie_portdrv_init);
-+module_exit(pcie_portdrv_exit);
-diff -urpN linux-2.6.10-rc3/include/linux/pcieport_if.h patch-2.6.10-rc3-pbdhp/include/linux/pcieport_if.h
---- linux-2.6.10-rc3/include/linux/pcieport_if.h	1969-12-31 19:00:00.000000000 -0500
-+++ patch-2.6.10-rc3-pbdhp/include/linux/pcieport_if.h	2004-12-10 14:06:05.000000000 -0500
-@@ -0,0 +1,74 @@
++MODULE_AUTHOR("Leendert van Doorn (leendert@watson.ibm.com)");
++MODULE_DESCRIPTION("TPM Driver");
++MODULE_VERSION("2.0");
++MODULE_LICENSE("GPL");
+diff -uprN linux-2.6.9/drivers/char/tpm/tpm.h linux-2.6.9-tpm/drivers/char/tpm/tpm.h
+--- linux-2.6.9/drivers/char/tpm/tpm.h	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.9-tpm/drivers/char/tpm/tpm.h	2004-12-21 12:32:44.000000000 -0600
+@@ -0,0 +1,91 @@
 +/*
-+ * File:	pcieport_if.h
-+ * Purpose:	PCI Express Port Bus Driver's IF Data Structure
++ * Copyright (C) 2004 IBM Corporation
 + *
-+ * Copyright (C) 2004 Intel
-+ * Copyright (C) Tom Long Nguyen (tom.l.nguyen@intel.com)
++ * Authors:
++ * Leendert van Doorn <leendert@watson.ibm.com>
++ * Reiner Sailer <sailer@watson.ibm.com>
++ * Dave Safford <safford@watson.ibm.com>
++ * Kylene Hall <kjhall@us.ibm.com>
++ *
++ * Maintained by: <tpmdd_devel@lists.sourceforge.net>
++ *
++ * Device driver for TCG/TCPA TPM (trusted platform module).
++ * Specifications at www.trustedcomputinggroup.org	 
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation, version 2 of the
++ * License.
++ * 
++ */
++#include <linux/module.h>
++#include <linux/version.h>
++#include <linux/pci.h>
++#include <linux/delay.h>
++#include <linux/miscdevice.h>
++
++#define TPM_TIMEOUT msecs_to_jiffies(5)
++
++/* TPM addresses */
++#define	TPM_ADDR			0x4E
++#define	TPM_DATA			0x4F
++
++struct tpm_chip;
++
++struct tpm_vendor_specific {
++	u8 req_complete_mask;
++	u8 req_complete_val;
++	u16 base;		/* TPM base address */
++
++	int (*recv) (struct tpm_chip *, u8 *, size_t);
++	int (*send) (struct tpm_chip *, u8 *, size_t);
++	void (*cancel) (struct tpm_chip *);
++	struct miscdevice miscdev;
++};
++
++struct tpm_chip {
++	struct pci_dev *pci_dev;	/* PCI device stuff */
++
++	int dev_num;		/* /dev/tpm# */
++	int num_opens;		/* only one allowed */
++	int time_expired;
++
++	/* Data passed to and from the tpm via the read/write calls */
++	u8 *data_buffer;
++	atomic_t data_pending;
++	struct semaphore buffer_mutex;
++
++	struct timer_list user_read_timer;	/* user needs to claim result */
++	struct timer_list device_timer;	/* tpm is processing */
++	struct semaphore timer_manipulation_mutex;
++
++	struct tpm_vendor_specific *vendor;
++
++	struct list_head list;
++};
++
++static inline int tpm_read_index(int index)
++{
++	outb(index, TPM_ADDR);
++	return inb(TPM_DATA) & 0xFF;
++}
++
++static inline void tpm_write_index(int index, int value)
++{
++	outb(index, TPM_ADDR);
++	outb(value & 0xFF, TPM_DATA);
++}
++
++extern void tpm_time_expired(unsigned long);
++extern int tpm_lpc_bus_init(struct pci_dev *, u16);
++
++extern int tpm_register_hardware(struct pci_dev *,
++				 struct tpm_vendor_specific *);
++extern int tpm_open(struct inode *, struct file *);
++extern int tpm_release(struct inode *, struct file *);
++extern ssize_t tpm_write(struct file *, const char __user *, size_t,
++			 loff_t *);
++extern ssize_t tpm_read(struct file *, char __user *, size_t, loff_t *);
++extern void __devexit tpm_remove(struct pci_dev *);
++extern int tpm_pm_suspend(struct pci_dev *, u32);
++extern int tpm_pm_resume(struct pci_dev *);
+diff -uprN linux-2.6.9/drivers/char/tpm/tpm_nsc.c linux-2.6.9-tpm/drivers/char/tpm/tpm_nsc.c
+--- linux-2.6.9/drivers/char/tpm/tpm_nsc.c	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.9-tpm/drivers/char/tpm/tpm_nsc.c	2004-12-21 13:11:50.000000000 -0600
+@@ -0,0 +1,372 @@
++/*
++ * Copyright (C) 2004 IBM Corporation
++ *
++ * Authors:
++ * Leendert van Doorn <leendert@watson.ibm.com>
++ * Reiner Sailer <sailer@watson.ibm.com>
++ * Dave Safford <safford@watson.ibm.com>
++ * Kylene Hall <kjhall@us.ibm.com>
++ *
++ * Maintained by: <tpmdd_devel@lists.sourceforge.net>
++ *
++ * Device driver for TCG/TCPA TPM (trusted platform module).
++ * Specifications at www.trustedcomputinggroup.org	 
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation, version 2 of the
++ * License.
++ * 
 + */
 +
-+#ifndef _PCIEPORT_IF_H_
-+#define _PCIEPORT_IF_H_
++#include "tpm.h"
 +
-+/* Port Type */
-+#define PCIE_RC_PORT			4	/* Root port of RC */
-+#define PCIE_SW_UPSTREAM_PORT		5	/* Upstream port of Switch */
-+#define PCIE_SW_DOWNSTREAM_PORT		6	/* Downstream port of Switch */
-+#define PCIE_ANY_PORT			7
++/* National definitions */
++#define	TPM_NSC_BASE			0x360
++#define	TPM_NSC_IRQ			0x07
 +
-+/* Service Type */
-+#define PCIE_PORT_SERVICE_PME		1	/* Power Management Event */
-+#define PCIE_PORT_SERVICE_AER		2	/* Advanced Error Reporting */
-+#define PCIE_PORT_SERVICE_HP		4	/* Native Hotplug */
-+#define PCIE_PORT_SERVICE_VC		8	/* Virtual Channel */
++#define	NSC_LDN_INDEX			0x07
++#define	NSC_SID_INDEX			0x20
++#define	NSC_LDC_INDEX			0x30
++#define	NSC_DIO_INDEX			0x60
++#define	NSC_CIO_INDEX			0x62
++#define	NSC_IRQ_INDEX			0x70
++#define	NSC_ITS_INDEX			0x71
 +
-+/* Root/Upstream/Downstream Port's Interrupt Mode */
-+#define PCIE_PORT_INTx_MODE		0
-+#define PCIE_PORT_MSI_MODE		1
-+#define PCIE_PORT_MSIX_MODE		2
++#define	NSC_STATUS			0x01
++#define	NSC_COMMAND			0x01
++#define	NSC_DATA			0x00
 +
-+struct pcie_port_service_id {
-+	__u32 vendor, device;		/* Vendor and device ID or PCI_ANY_ID*/
-+	__u32 subvendor, subdevice;	/* Subsystem ID's or PCI_ANY_ID */
-+	__u32 class, class_mask;	/* (class,subclass,prog-if) triplet */
-+	__u32 port_type, service_type;	/* Port Entity */
-+	kernel_ulong_t driver_data;
-+};
++/* status bits */
++#define	NSC_STATUS_OBF			0x01	/* output buffer full */
++#define	NSC_STATUS_IBF			0x02	/* input buffer full */
++#define	NSC_STATUS_F0			0x04	/* F0 */
++#define	NSC_STATUS_A2			0x08	/* A2 */
++#define	NSC_STATUS_RDY			0x10	/* ready to receive command */
++#define	NSC_STATUS_IBR			0x20	/* ready to receive data */
 +
-+struct pcie_device {
-+	int 		irq;	    /* Service IRQ/MSI/MSI-X Vector */
-+	int 		interrupt_mode;	/* [0:INTx | 1:MSI | 2:MSI-X] */	
-+	struct pcie_port_service_id id;	/* Service ID */
-+	struct pci_dev	*port;	    /* Root/Upstream/Downstream Port */
-+	void		*priv_data; /* Service Private Data */
-+	struct device	device;     /* Generic Device Interface */
-+};
-+#define to_pcie_device(d) container_of(d, struct pcie_device, device)
++/* command bits */
++#define	NSC_COMMAND_NORMAL		0x01	/* normal mode */
++#define	NSC_COMMAND_EOC			0x03
++#define	NSC_COMMAND_CANCEL		0x22
 +
-+static inline void set_service_data(struct pcie_device *dev, void *data)
++/*
++ * Wait for a certain status to appear
++ */
++static int wait_for_stat(struct tpm_chip *chip, u8 mask, u8 val, u8 * data)
 +{
-+	dev->priv_data = data;
++	int expired = 0;
++	struct timer_list status_timer =
++	    TIMER_INITIALIZER(tpm_time_expired, jiffies + 10 * HZ,
++			      (unsigned long) &expired);
++
++	/* status immediately available check */
++	*data = inb(chip->vendor->base + NSC_STATUS);
++	if ((*data & mask) == val)
++		return 0;
++
++	/* wait for status */
++	add_timer(&status_timer);
++	do {
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(TPM_TIMEOUT);
++		*data = inb(chip->vendor->base + 1);
++		if ((*data & mask) == val) {
++			del_singleshot_timer_sync(&status_timer);
++			return 0;
++		}
++	}
++	while (!expired);
++
++	return -EBUSY;
 +}
 +
-+static inline void* get_service_data(struct pcie_device *dev)
++static int nsc_wait_for_ready(struct tpm_chip *chip)
 +{
-+	return dev->priv_data;
++	int status;
++	int expired = 0;
++	struct timer_list status_timer =
++	    TIMER_INITIALIZER(tpm_time_expired, jiffies + 100,
++			      (unsigned long) &expired);
++
++	/* status immediately available check */
++	status = inb(chip->vendor->base + NSC_STATUS);
++	if (status & NSC_STATUS_OBF)
++		status = inb(chip->vendor->base + NSC_DATA);
++	if (status & NSC_STATUS_RDY)
++		return 0;
++
++	/* wait for status */
++	add_timer(&status_timer);
++	do {
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(TPM_TIMEOUT);
++		status = inb(chip->vendor->base + NSC_STATUS);
++		if (status & NSC_STATUS_OBF)
++			status = inb(chip->vendor->base + NSC_DATA);
++		if (status & NSC_STATUS_RDY) {
++			del_singleshot_timer_sync(&status_timer);
++			return 0;
++		}
++	}
++	while (!expired);
++
++	dev_info(&chip->pci_dev->dev, "wait for ready failed\n");
++	return -EBUSY;
 +}
 +
-+struct pcie_port_service_driver {
-+	const char *name;
-+	int (*probe) (struct pcie_device *dev, 
-+		const struct pcie_port_service_id *id);
-+	void (*remove) (struct pcie_device *dev);
-+	int (*suspend) (struct pcie_device *dev, u32 state);
-+	int (*resume) (struct pcie_device *dev);
 +
-+	const struct pcie_port_service_id *id_table;
-+	struct device_driver driver;
++static int tpm_nsc_recv(struct tpm_chip *chip, u8 * buf, size_t count)
++{
++	u8 *buffer = buf;
++	u8 data, *p;
++	u32 size;
++	__be32 *native_size;
++
++	if (count < 6)
++		return -EIO;
++
++	if (wait_for_stat(chip, NSC_STATUS_F0, NSC_STATUS_F0, &data) < 0) {
++		dev_err(&chip->pci_dev->dev, "F0 timeout\n");
++		return -EIO;
++	}
++	if ((data =
++	     inb(chip->vendor->base + NSC_DATA)) != NSC_COMMAND_NORMAL) {
++		dev_err(&chip->pci_dev->dev, "not in normal mode (0x%x)\n",
++			data);
++		return -EIO;
++	}
++
++	/* read the whole packet */
++	for (p = buffer; p < &buffer[count]; p++) {
++		if (wait_for_stat
++		    (chip, NSC_STATUS_OBF, NSC_STATUS_OBF, &data) < 0) {
++			dev_err(&chip->pci_dev->dev,
++				"OBF timeout (while reading data)\n");
++			return -EIO;
++		}
++		if (data & NSC_STATUS_F0)
++			break;
++		*p = inb(chip->vendor->base + NSC_DATA);
++	}
++
++	if ((data & NSC_STATUS_F0) == 0) {
++		dev_err(&chip->pci_dev->dev, "F0 not set\n");
++		return -EIO;
++	}
++	if ((data = inb(chip->vendor->base + NSC_DATA)) != NSC_COMMAND_EOC) {
++		dev_err(&chip->pci_dev->dev,
++			"expected end of command(0x%x)\n", data);
++		return -EIO;
++	}
++
++	native_size = (__force __be32 *) (buf + 2);
++	size = be32_to_cpu(*native_size);
++
++	if (count < size)
++		return -EIO;
++
++	return size;
++}
++
++static int tpm_nsc_send(struct tpm_chip *chip, u8 * buf, size_t count)
++{
++	u8 data;
++	int i;
++
++	/*
++	 * If we hit the chip with back to back commands it locks up
++	 * and never set IBF. Hitting it with this "hammer" seems to
++	 * fix it. Not sure why this is needed, we followed the flow
++	 * chart in the manual to the letter.
++	 */
++	outb(NSC_COMMAND_CANCEL, chip->vendor->base + NSC_COMMAND);
++
++	if (nsc_wait_for_ready(chip) != 0)
++		return -EIO;
++
++	if (wait_for_stat(chip, NSC_STATUS_IBF, 0, &data) < 0) {
++		dev_err(&chip->pci_dev->dev, "IBF timeout\n");
++		return -EIO;
++	}
++
++	outb(NSC_COMMAND_NORMAL, chip->vendor->base + NSC_COMMAND);
++	if (wait_for_stat(chip, NSC_STATUS_IBR, NSC_STATUS_IBR, &data) < 0) {
++		dev_err(&chip->pci_dev->dev, "IBR timeout\n");
++		return -EIO;
++	}
++
++	for (i = 0; i < count; i++) {
++		if (wait_for_stat(chip, NSC_STATUS_IBF, 0, &data) < 0) {
++			dev_err(&chip->pci_dev->dev,
++				"IBF timeout (while writing data)\n");
++			return -EIO;
++		}
++		outb(buf[i], chip->vendor->base + NSC_DATA);
++	}
++
++	if (wait_for_stat(chip, NSC_STATUS_IBF, 0, &data) < 0) {
++		dev_err(&chip->pci_dev->dev, "IBF timeout\n");
++		return -EIO;
++	}
++	outb(NSC_COMMAND_EOC, chip->vendor->base + NSC_COMMAND);
++
++	return count;
++}
++
++static void tpm_nsc_cancel(struct tpm_chip *chip)
++{
++	outb(NSC_COMMAND_CANCEL, chip->vendor->base + NSC_COMMAND);
++}
++
++static struct file_operations nsc_ops = {
++	.owner = THIS_MODULE,
++	.llseek = no_llseek,
++	.open = tpm_open,
++	.read = tpm_read,
++	.write = tpm_write,
++	.release = tpm_release,
 +};
-+#define to_service_driver(d) \
-+	container_of(d, struct pcie_port_service_driver, driver)
 +
-+extern int pcie_port_service_register(struct pcie_port_service_driver *new);
-+extern void pcie_port_service_unregister(struct pcie_port_service_driver *new);
++static struct tpm_vendor_specific tpm_nsc = {
++	.recv = tpm_nsc_recv,
++	.send = tpm_nsc_send,
++	.cancel = tpm_nsc_cancel,
++	.req_complete_mask = NSC_STATUS_OBF,
++	.req_complete_val = NSC_STATUS_OBF,
++	.base = TPM_NSC_BASE,
++	.miscdev.fops = &nsc_ops,
++};
 +
-+#endif /* _PCIEPORT_IF_H_ */
++static int __devinit tpm_nsc_init(struct pci_dev *pci_dev,
++				  const struct pci_device_id *pci_id)
++{
++	int rc = 0;
++
++	if (pci_enable_device(pci_dev))
++		return -EIO;
++
++	if (tpm_lpc_bus_init(pci_dev, TPM_NSC_BASE)) {
++		rc = -ENODEV;
++		goto out_err;
++	}
++
++	/* verify that it is a National part (SID) */
++	if (tpm_read_index(NSC_SID_INDEX) != 0xEF) {
++		rc = -ENODEV;
++		goto out_err;
++	}
++
++	dev_dbg(&pci_dev->dev, "NSC TPM detected\n");
++	dev_dbg(&pci_dev->dev,
++		"NSC LDN 0x%x, SID 0x%x, SRID 0x%x\n",
++		tpm_read_index(0x07), tpm_read_index(0x20),
++		tpm_read_index(0x27));
++	dev_dbg(&pci_dev->dev,
++		"NSC SIOCF1 0x%x SIOCF5 0x%x SIOCF6 0x%x SIOCF8 0x%x\n",
++		tpm_read_index(0x21), tpm_read_index(0x25),
++		tpm_read_index(0x26), tpm_read_index(0x28));
++	dev_dbg(&pci_dev->dev, "NSC IO Base0 0x%x\n",
++		(tpm_read_index(0x60) << 8) | tpm_read_index(0x61));
++	dev_dbg(&pci_dev->dev, "NSC IO Base1 0x%x\n",
++		(tpm_read_index(0x62) << 8) | tpm_read_index(0x63));
++	dev_dbg(&pci_dev->dev, "NSC Interrupt number and wakeup 0x%x\n",
++		tpm_read_index(0x70));
++	dev_dbg(&pci_dev->dev, "NSC IRQ type select 0x%x\n",
++		tpm_read_index(0x71));
++	dev_dbg(&pci_dev->dev,
++		"NSC DMA channel select0 0x%x, select1 0x%x\n",
++		tpm_read_index(0x74), tpm_read_index(0x75));
++	dev_dbg(&pci_dev->dev,
++		"NSC Config "
++		"0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n",
++		tpm_read_index(0xF0), tpm_read_index(0xF1),
++		tpm_read_index(0xF2), tpm_read_index(0xF3),
++		tpm_read_index(0xF4), tpm_read_index(0xF5),
++		tpm_read_index(0xF6), tpm_read_index(0xF7),
++		tpm_read_index(0xF8), tpm_read_index(0xF9));
++
++	dev_info(&pci_dev->dev,
++		 "NSC PC21100 TPM revision %d\n",
++		 tpm_read_index(0x27) & 0x1F);
++
++	if (tpm_read_index(NSC_LDC_INDEX) == 0)
++		dev_info(&pci_dev->dev, ": NSC TPM not active\n");
++
++	/* select PM channel 1 */
++	tpm_write_index(NSC_LDN_INDEX, 0x12);
++	tpm_read_index(NSC_LDN_INDEX);
++
++	/* disable the DPM module */
++	tpm_write_index(NSC_LDC_INDEX, 0);
++	tpm_read_index(NSC_LDC_INDEX);
++
++	/* set the data register base addresses */
++	tpm_write_index(NSC_DIO_INDEX, TPM_NSC_BASE >> 8);
++	tpm_write_index(NSC_DIO_INDEX + 1, TPM_NSC_BASE);
++	tpm_read_index(NSC_DIO_INDEX);
++	tpm_read_index(NSC_DIO_INDEX + 1);
++
++	/* set the command register base addresses */
++	tpm_write_index(NSC_CIO_INDEX, (TPM_NSC_BASE + 1) >> 8);
++	tpm_write_index(NSC_CIO_INDEX + 1, (TPM_NSC_BASE + 1));
++	tpm_read_index(NSC_DIO_INDEX);
++	tpm_read_index(NSC_DIO_INDEX + 1);
++
++	/* set the interrupt number to be used for the host interface */
++	tpm_write_index(NSC_IRQ_INDEX, TPM_NSC_IRQ);
++	tpm_write_index(NSC_ITS_INDEX, 0x00);
++	tpm_read_index(NSC_IRQ_INDEX);
++
++	/* enable the DPM module */
++	tpm_write_index(NSC_LDC_INDEX, 0x01);
++	tpm_read_index(NSC_LDC_INDEX);
++
++	if ((rc = tpm_register_hardware(pci_dev, &tpm_nsc)) < 0)
++		goto out_err;
++
++	return 0;
++
++out_err:
++	pci_disable_device(pci_dev);
++	return rc;
++}
++
++static struct pci_device_id tpm_pci_tbl[] __devinitdata = {
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CA_12)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_0)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_12)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0)},
++	{PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8111_LPC)},
++	{0,}
++};
++
++MODULE_DEVICE_TABLE(pci, tpm_pci_tbl);
++
++static struct pci_driver nsc_pci_driver = {
++	.name = "tpm_nsc",
++	.id_table = tpm_pci_tbl,
++	.probe = tpm_nsc_init,
++	.remove = __devexit_p(tpm_remove),
++	.suspend = tpm_pm_suspend,
++	.resume = tpm_pm_resume,
++};
++
++static int __init init_nsc(void)
++{
++	return pci_register_driver(&nsc_pci_driver);
++}
++
++static void __exit cleanup_nsc(void)
++{
++	pci_unregister_driver(&nsc_pci_driver);
++}
++
++module_init(init_nsc);
++module_exit(cleanup_nsc);
++
++MODULE_AUTHOR("Leendert van Doorn (leendert@watson.ibm.com)");
++MODULE_DESCRIPTION("TPM Driver");
++MODULE_VERSION("2.0");
++MODULE_LICENSE("GPL");
+diff -uprN linux-2.6.9/include/linux/pci_ids.h linux-2.6.9-tpm/include/linux/pci_ids.h
+--- linux-2.6.9/include/linux/pci_ids.h	2004-12-06 16:53:35.000000000 -0600
++++ linux-2.6.9-tpm/include/linux/pci_ids.h	2004-12-06 14:27:05.000000000 -0600
+@@ -494,6 +494,7 @@
+ #define PCI_DEVICE_ID_AMD_OPUS_7449	0x7449
+ #	define PCI_DEVICE_ID_AMD_VIPER_7449	PCI_DEVICE_ID_AMD_OPUS_7449
+ #define PCI_DEVICE_ID_AMD_8111_LAN	0x7462
++#define PCI_DEVICE_ID_AMD_8111_LPC	0x7468
+ #define PCI_DEVICE_ID_AMD_8111_IDE	0x7469
+ #define PCI_DEVICE_ID_AMD_8111_AUDIO	0x746d
+ #define PCI_DEVICE_ID_AMD_8151_0	0x7454
+diff -uprN linux-2.6.9/MAINTAINERS linux-2.6.9-tpm/MAINTAINERS
+--- linux-2.6.9/MAINTAINERS	2004-10-18 16:54:37.000000000 -0500
++++ linux-2.6.9-tpm/MAINTAINERS	2004-12-07 12:39:10.000000000 -0600
+@@ -2144,6 +2144,12 @@ L:	tlinux-users@tce.toshiba-dme.co.jp
+ W:	http://www.buzzard.org.uk/toshiba/
+ S:	Maintained
+ 
++TPM DRIVER
++P:	Kylene Hall
++M:	tpmdd-devel@lists.sourceforge.net
++L:	tpmdd-devel@lists.sourceforge.net
++S:	Maintained
++
+ TRIDENT 4DWAVE/SIS 7018 PCI AUDIO CORE
+ P:	Muli Ben-Yehuda
+ M:	mulix@mulix.org

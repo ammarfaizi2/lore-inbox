@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbTJGOi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 10:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbTJGOi4
+	id S262416AbTJGOe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 10:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTJGOe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 10:38:56 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:30366 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262363AbTJGOiz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 10:38:55 -0400
-Date: Tue, 7 Oct 2003 11:41:54 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Rik van Riel <riel@redhat.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Jaroslav Kysela <perex@suse.cz>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, <andrea@suse.com>,
-       <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] memory counting fix
-In-Reply-To: <Pine.LNX.4.44.0310070850340.31052-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.44.0310071141270.23760-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Oct 2003 10:34:26 -0400
+Received: from h80ad269e.async.vt.edu ([128.173.38.158]:12160 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262416AbTJGOeT (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 10:34:19 -0400
+Message-Id: <200310071434.h97EY7vl027021@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can't X be elemenated? 
+In-Reply-To: Your message of "Tue, 07 Oct 2003 14:52:36 +0200."
+             <yw1x1xtpfbvv.fsf@users.sourceforge.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0309301209590.19804-100000@shell> <Pine.LNX.4.58.0309301316510.12484@dlang.diginsite.com> <20031007040449.GM205@openzaurus.ucw.cz> <3F82780C.8080408@pixelized.ch> <20031007121825.GA323@elf.ucw.cz>
+            <yw1x1xtpfbvv.fsf@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_962568890P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 07 Oct 2003 10:34:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_962568890P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 07 Oct 2003 14:52:36 +0200, mru@users.sourceforge.net (=3D?iso-88=
+59-1?q?M=3DE5ns_Rullg=3DE5rd?=3D)  said:
+
+> The other toolkits are either non-free, immensely ugly, or both.
+
+Keep in mind that in some cases, "non-free" is considered an advantage.  =
+A
+company that's trying to build a large expensive software package may cho=
+ose a
+toolkit precisely because it is *not* GPL'ed, so using it doesn't require=
+
+shipping your expensively produced source code....
+
+Remember why the LGPL exists....
 
 
-On Tue, 7 Oct 2003, Rik van Riel wrote:
+--==_Exmh_962568890P
+Content-Type: application/pgp-signature
 
-> On Tue, 7 Oct 2003, Marcelo Tosatti wrote:
-> 
-> > I dont see why reserved pages shouldnt be counted in the processes RSS.
-> 
-> Then you'll need to change about a dozen pieces of code
-> all over the place ;)
-> 
-> > What I'm missing here, Jaroslav?
-> 
-> The rest of the kernel doesn't count reserved pages as
-> part of the rss.  This patch seems to simply bring this
-> piece of code into line with the rest.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Fine, applied.
+iD8DBQE/gs7ecC3lWbTT17ARAnAfAKCZZuyzWQHH0AUGE3qkfAFW23mhvACg6Ddl
+3UZIonXyzFlfkMf+bOCQmyY=
+=cp/A
+-----END PGP SIGNATURE-----
 
-But to the more basic question: Is the non-accounting of reserved pages 
-desired? 
-
+--==_Exmh_962568890P--

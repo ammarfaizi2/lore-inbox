@@ -1,103 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269881AbUH0BIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269742AbUH0A7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269881AbUH0BIL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 21:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269863AbUH0BFd
+	id S269742AbUH0A7D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:59:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269834AbUH0A4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 21:05:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3976 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269809AbUH0BCa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 21:02:30 -0400
-Date: Fri, 27 Aug 2004 02:01:48 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christophe@saout.de, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+	Thu, 26 Aug 2004 20:56:36 -0400
+Received: from community21.interfree.it ([213.158.70.80]:42923 "EHLO
+	community21.interfree.it") by vger.kernel.org with ESMTP
+	id S269830AbUH0AC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 20:02:27 -0400
+Date: Fri, 27 Aug 2004 02:00:06 +0200
+From: Stelian Ionescu <carlomalone@interfree.it>
+To: Wichert Akkerman <wichert@wiggy.net>
+Cc: Andrew Morton <akpm@osdl.org>, jra@samba.org, torvalds@osdl.org,
        reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
        linux-kernel@vger.kernel.org, flx@namesys.com,
        reiserfs-list@namesys.com
-Subject: Re: [some sanity for a change] possible design issues for hybrids
-Message-ID: <20040827010147.GE21964@parcelfarce.linux.theplanet.co.uk>
-References: <20040826203228.GZ21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261344150.2304@ppc970.osdl.org> <20040826212853.GA21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261436480.2304@ppc970.osdl.org> <20040826223625.GB21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261538030.2304@ppc970.osdl.org> <20040826225308.GC21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261619230.2304@ppc970.osdl.org> <20040826234048.GD21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261652240.2304@ppc970.osdl.org>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040827000006.GA6970@universe.org>
+Reply-To: carlomalone@interfree.it
+Mail-Followup-To: Wichert Akkerman <wichert@wiggy.net>,
+	Andrew Morton <akpm@osdl.org>, jra@samba.org, torvalds@osdl.org,
+	reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, flx@namesys.com,
+	reiserfs-list@namesys.com
+References: <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net> <20040826024956.08b66b46.akpm@osdl.org> <839984491.20040826122025@tnonline.net> <m3llg2m9o0.fsf@zoo.weinigel.se> <1906433242.20040826133511@tnonline.net> <20040826113332.GL2612@wiggy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408261652240.2304@ppc970.osdl.org>
+In-Reply-To: <20040826113332.GL2612@wiggy.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 04:57:01PM -0700, Linus Torvalds wrote:
-> Right. We obviously need to mark the dentry somehow, and only do the 
-> "create vfsmount" special case in this special case. If we didn't do that, 
-> then it wouldn't be a special case, now would it?
-> 
-> So clearly lookup_mnt() needs to check the dentry in the failure case. The 
-> marking could be in any of three places
->  - mark the dentry itself by just using a dentry flag ("DCACHE_AUTOVFSMNT")
->    or by having a dentry operation for this.
->  - mark the inode itself (same logic as dentry)
->  - look up the first vfsmount (on the inode list), and look if that one is 
->    of the automatic type.
-> 
-> Clearly we should not _always_ create a vfsmount, that would just break 
-> the existign logic.
+On Thu, Aug 26, 2004 at 01:33:32PM +0200, Wichert Akkerman wrote:
+>Previously Spam wrote:
+>>   How  so?  The whole idea is that the underlaying OS that handles the
+>>   copying  should  also  know  to  copy  everything, otherwise you can
+>>   implement  everything  into  applications  and  just  skip the whole
+>>   filesystem part.
+>
+>UNIX doesn't have a copy systemcall, applications copy the data
+>manually.
+couldn't sendfile(2) be used for that ?
+perhaps a flag parameter could be added to sendfile(2) which specifies
+whether to copy _all_ metadata if both fd's correspond to files, something
+like either O_METADATA or O_NOMETADATA
 
-Hmm...  IOW, you are suggesting to use normal trigger for lookup_mnt() and
-then have extra check in lookup_mnt() failure exit.  That will probably
-work (and I'd prefer to mark dentry here).
+-- 
+Stelian Ionescu aka fe[nl]ix
 
-Freeing these guys will not be fun.  The final reference could be given
-up under very different locking conditions - it's certainly a blocking
-operation (it can trigger final umount, among other things), but having
-it trigger removal from mount tree(s) can get ugly.  We might be able to
-tweak that, but it will probably need require major surgery in several
-places.
-
-Right now we assume that vfsmount lock *and* per-namespace semaphore are
-held when detaching from the tree (attaching what could be the first at
-given dentry --- same + i_sem on its ->i_sem).  We also assume that vfsmount is
-detached before refcount reaches zero.  The thing is, that final refcount
-can be dropped while holding namespace semaphore.  It's not fatal (we'll
-need to hold onto these guys until dropping that semaphore or add an analog
-of mntput() for places under namespace sem), but it can get messy.
-
-Situation with unlink(): we need to (a) check that all vfsmounts over
-given point are "hybrid" ones (locking is not a problem at that point)
-and (b) after successful operation (unlink() and rename() alike, AFAICS)
-we want to go and kill everything under the victim dentry.  *That*
-can get very ugly, since fs could be mounted in a lot of places and/or
-in a lot of namespaces.
-
-Note that we also need to do in VFS what NFS tries to do in revalidation -
-if dentry is invalidated, everything under it should be detached and
-dropped.  So it's not something new - we do need something that would
-be called outside of any superblock/namespace/vfsmount locks (both
-unlink() and revalidation qualify) and would kill the vfsmounts that
-become unreachable.
-
-Locking rules for attaching might need adjustment (the logics with ->i_sem
-is that we want !d_mountpoint() stay true around call of ->unlink(),
-->rmdir() and ->rename(); so cloning or replacing doesn't need that
-protection.  Now it might become interesting - we'll need to be careful
-in pivot_root(2) and possibly some other places).
-
-I'll see what can be done (it'll definitely take careful looking at the
-code), but there is a chance of things getting very ugly.
-
-BTW, shared subtrees *are* compatible with that puppy - there's a lot
-of corner cases to look at, but AFAICS they are all doable.  Lifetime
-rules can get ugly in some of them, but that's on par with the situation
-without sharing.
-
-One thing that looks like a bad interface: we get forcible "use same
-dentry for file and directory" with that design.  That can lead to
-a big can of worms - without a large audit I wouldn't bet a dime on
-ability to get that right (and same applies to reiser4 code as-is,
-for the same reasons).  No idea how bad it will turn out to be - right
-now all I can say is that we might run into trouble and that we almost
-certainly will get extra "be careful not to do <list of things>" rules
-out of that.
+Quidquid latine dictum sit, altum viditur.

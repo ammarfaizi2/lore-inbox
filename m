@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289099AbSBDRAU>; Mon, 4 Feb 2002 12:00:20 -0500
+	id <S289108AbSBDRKm>; Mon, 4 Feb 2002 12:10:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289096AbSBDRAK>; Mon, 4 Feb 2002 12:00:10 -0500
-Received: from vracs001.vrac.iastate.edu ([129.186.232.215]:60430 "EHLO
-	vracs001.vrac.iastate.edu") by vger.kernel.org with ESMTP
-	id <S289074AbSBDRAF>; Mon, 4 Feb 2002 12:00:05 -0500
-Subject: Re: Linux 2.5.3-dj2
-From: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020204154800.A13519@suse.de>
-In-Reply-To: <20020204154800.A13519@suse.de>
-Content-Type: text/plain
+	id <S289114AbSBDRKc>; Mon, 4 Feb 2002 12:10:32 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24580 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289108AbSBDRKX>; Mon, 4 Feb 2002 12:10:23 -0500
+Subject: Re: How to check the kernel compile options ?
+To: david.balazic@uni-mb.si (David Balazic)
+Date: Mon, 4 Feb 2002 17:23:40 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <3C5EBE97.EFF9BC68@uni-mb.si> from "David Balazic" at Feb 04, 2002 06:02:15 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 04 Feb 2002 10:54:09 -0600
-Message-Id: <1012841649.8335.6.camel@regatta>
-Mime-Version: 1.0
+Message-Id: <E16XmqC-0007lb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.3dj-1 would make bzimage and then die on the modules.....
+> > > How can I figure out in 5 minutes, without a kernel hacker, if
+> > > my linux system has the correct settings ?
+> > 
+> > Use the vendor supplied kernels ?
+> 
+> Yes, I am using them.
+> Now back to my question, how do I found out if option X is set or not ?
 
-this is 2.5.3-dj2 and
-make bzImage dies and results in the following below........
-
-
-
-gcc -D__KERNEL__ -I/home/kernel/linux-2.5/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686   -DKBUILD_BASENAME=ptrace  -c -o ptrace.o ptrace.c
-In file included from ptrace.c:13:
-/home/kernel/linux-2.5/include/linux/highmem.h: In function `bh_kmap':
-/home/kernel/linux-2.5/include/linux/highmem.h:21: dereferencing pointer
-to incomplete type
-/home/kernel/linux-2.5/include/linux/highmem.h:21: warning: implicit
-declaration of function `bh_offset'
-/home/kernel/linux-2.5/include/linux/highmem.h: In function `bh_kunmap':
-/home/kernel/linux-2.5/include/linux/highmem.h:26: dereferencing pointer
-to incomplete type
-make[2]: *** [ptrace.o] Error 1
-make[2]: Leaving directory `/home/kernel/linux-2.5/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/home/kernel/linux-2.5/kernel'
-make: *** [_dir_kernel] Error 2
-
+Check the vendor supplied source package ?

@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132615AbRDCGZk>; Tue, 3 Apr 2001 02:25:40 -0400
+	id <S132619AbRDCGnV>; Tue, 3 Apr 2001 02:43:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132614AbRDCGZb>; Tue, 3 Apr 2001 02:25:31 -0400
-Received: from aeon.tvd.be ([195.162.196.20]:13162 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S132613AbRDCGZY>;
-	Tue, 3 Apr 2001 02:25:24 -0400
-Date: Tue, 3 Apr 2001 08:23:55 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: James Simmons <jsimmons@linux-fbdev.org>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
-In-Reply-To: <E14kD3w-0006qD-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.05.10104030822570.14623-100000@callisto.of.borg>
+	id <S132624AbRDCGnL>; Tue, 3 Apr 2001 02:43:11 -0400
+Received: from cr65188-a.crdva1.bc.wave.home.com ([24.153.54.85]:3847 "HELO
+	brewt.org") by vger.kernel.org with SMTP id <S132619AbRDCGm4>;
+	Tue, 3 Apr 2001 02:42:56 -0400
+Date: Mon, 2 Apr 2001 23:42:08 -0700 (PDT)
+From: xcp <xcp@brewt.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: what is pci=biosirq
+In-Reply-To: <3AC93F7B.9E46D40E@vc.cvut.cz>
+Message-ID: <Pine.LNX.4.30.0104022339450.20793-100000@stinky.brewt.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Apr 2001, Alan Cox wrote:
-> > Yes this is problem. See my response to Paul about this. The only reason
-> > I'm using MMX for the vesa framebuffer because it has no acceleration. MMX
-> > gives a big boost for genuine intel chips. Other types of MMX are fast but
-> > they don't seemed to be optimized for memory transfers like MMX on intel
-> > chips. I also have regular code that does all kinds of tricks to optimize
-> 
-> Then you are doing something badly wrong.
-> 
-> The MMX memcpy for CyrixIII and Athlon boxes is something like twice the
-> speed of rep movs. On most pentium II/III boxes the fast paths for rep movs
-> and for MMX are the same speed
 
-As long as you are copying in real memory. So the PCI bus or the host bridge
-implementation may be the actual limit.
 
-Gr{oetje,eeting}s,
+On Mon, 2 Apr 2001, Petr Vandrovec wrote:
 
-						Geert
+> It looks more like that Acer misimplemented PCI_IRQPIN register - if it
+> is legacy IDE interface using ports 1F0-1F7/170-177, with IRQs 14 & 15,
+> it should report zero as IRQ pin. What 'lspci -vx -s 0:f.0' says?
+> Last four bytes it prints should read 'YY 00 XX XX' - where YY is IRQ
+> number assigned by BIOS - either hardwired to zero in chip, or just left
+> alone by BIOS (00 or FF) and next 00 is IRQ pin number - 0 = none, 1 =
+> A,
+> 2 = B ... Intel IDE interfaces returns 00 00 here, VIA returns FF 00,
+> and
+> I have no hardware with an additional IDE around.
+>
+> 					Petr Vandrovec
+> 					vandrove@vc.cvut.cz
+>
+Here is the output of lspci -vx -s 0:f.0
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c1)
+(prog-if 8a [Master SecP PriP])
+	Flags: bus master, medium devsel, latency 32
+	I/O ports at b000 [size=16]
+00: b9 10 29 52 05 00 80 02 c1 8a 01 01 00 20 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 b0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 01 02 04
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I'm not sure what to make of it.  At this time I am unable to
+append="pci=biosirq" as I don't use lilo.  Is there a way to put this
+arguement directly into the kernel image?
 

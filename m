@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136613AbREANvf>; Tue, 1 May 2001 09:51:35 -0400
+	id <S136614AbREAOAF>; Tue, 1 May 2001 10:00:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136614AbREANvS>; Tue, 1 May 2001 09:51:18 -0400
-Received: from web5204.mail.yahoo.com ([216.115.106.85]:36112 "HELO
-	web5204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S136613AbREANuw>; Tue, 1 May 2001 09:50:52 -0400
-Message-ID: <20010501135051.29583.qmail@web5204.mail.yahoo.com>
-Date: Tue, 1 May 2001 06:50:51 -0700 (PDT)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: Re: New rtl8139 driver prevents ssh from exiting.
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3AEEBAD7.27203DCA@uow.edu.au>
+	id <S136616AbREAN74>; Tue, 1 May 2001 09:59:56 -0400
+Received: from smtp102.urscorp.com ([38.202.96.105]:6416 "EHLO
+	smtp102.urscorp.com") by vger.kernel.org with ESMTP
+	id <S136614AbREAN7l>; Tue, 1 May 2001 09:59:41 -0400
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: isa_read/write not available on ppc - solution suggestions ??
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+From: mike_phillips@urscorp.com
+Message-ID: <OFED368CB7.D5C74726-ON85256A3F.004547C6@urscorp.com>
+Date: Tue, 1 May 2001 09:52:30 -0400
+X-MIMETrack: Serialize by Router on SMTP102/URSCorp(Release 5.0.5 |September 22, 2000) at
+ 05/01/2001 09:55:26 AM,
+	Serialize complete at 05/01/2001 09:55:26 AM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+To get the pcmcia ibmtr driver (ibmtr/ibmtr_cs) working on ppc, all the 
+isa_read/write's have to be changed to regular read/write due to the lack 
+of the isa_read/write functions for ppc.
 
---- Andrew Morton <andrewm@uow.edu.au> wrote:
-> Rob Landley wrote:
-> > 
-> > The kernel thread the new rtl8139 driver spawns
-> > apparently wants to write to stdout, because it
-> counts
-> > as an unfinished process that prevents an ssh
-> session
-> > from exiting.
-> 
-> Does this help?
+So, the question is should I simply:
 
---- Andrew Morton <andrewm@uow.edu.au> wrote:
-> Rob Landley wrote:
-> > 
-> > The kernel thread the new rtl8139 driver spawns
-> > apparently wants to write to stdout, because it
-> counts
-> > as an unfinished process that prevents an ssh
-> session
-> > from exiting.
-> 
-> Does this help?
+a) change everything to read/write and friends (the way the driver used to 
+be before the isa_read/write function were introduced)
+b) Put ugly macros in the driver to use the different functions depending 
+upon architecture.
+c) Implement the isa_read/write functions for ppc ? 
+or d) something completely different I haven't thought of. 
 
-Assuming this applies cleanly against 2.2.19
-(production box; 2.4.3 wasn't ready and 2.4.4 wasn't
-available when the first prototypes had to go to
-test), I'll let you know in about an hour.
+Remember, this driver must support isa, pcmcia, mca, ix86 and now ppc. 
 
-Thanks,
+Personally I'd rather not have arch dependent macros in the driver, but I 
+know there is a good reason why the isa_read/write functions were 
+introduced in the first place. 
 
-Rob
+Suggestions ?
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/
+Mike
+Linux Token Ring Project
+http://www.linuxtr.net

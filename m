@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267435AbTBUNeb>; Fri, 21 Feb 2003 08:34:31 -0500
+	id <S267434AbTBUNuu>; Fri, 21 Feb 2003 08:50:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267437AbTBUNeb>; Fri, 21 Feb 2003 08:34:31 -0500
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:15301 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S267435AbTBUNe3>; Fri, 21 Feb 2003 08:34:29 -0500
-Message-ID: <3E562D31.10906@quark.didntduck.org>
-Date: Fri, 21 Feb 2003 08:44:17 -0500
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Trival patch to i386 enter_lazy_tlb()
-Content-Type: multipart/mixed;
- boundary="------------000309030006060005080203"
+	id <S267437AbTBUNuu>; Fri, 21 Feb 2003 08:50:50 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:1672
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267434AbTBUNut>; Fri, 21 Feb 2003 08:50:49 -0500
+Subject: Re: No Subject
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: News Admin <news@nimloth.ics.muni.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200302211343.h1LDhTM13523@nimloth.ics.muni.cz>
+References: <200302211343.h1LDhTM13523@nimloth.ics.muni.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045839704.5275.41.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 21 Feb 2003 15:01:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000309030006060005080203
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2003-02-21 at 13:43, News Admin wrote:
+> $ gcc -v
+> Reading specs from /usr/lib/gcc-lib/i386-linux/3.2.3/specs
+> Configured with: ../src/configure -v
+> --enable-languages=c,c++,java,f77,proto,pascal,objc,ada --prefix=/usr
+> --mandir=/usr/share/man --infodir=/usr/share/info
+> --with-gxx-include-dir=/usr/include/c++/3.2 --enable-shared
+> --with-system-zlib --enable-nls --without-included-gettext
+> --enable-__cxa_atexit --enable-clocale=gnu --enable-java-gc=boehm
+> --enable-objc-gc i386-linux
+> Thread model: posix
+> gcc version 3.2.3 20030210 (Debian prerelease)
 
-Moves the #ifdef into the function to improve readability.
-
---
-				Brian Gerst
-
---------------000309030006060005080203
-Content-Type: text/plain;
- name="lazytlb-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lazytlb-1"
-
-diff -urN linux-2.5.62-bk6/include/asm-i386/mmu_context.h linux/include/asm-i386/mmu_context.h
---- linux-2.5.62-bk6/include/asm-i386/mmu_context.h	2003-01-13 16:20:56.000000000 -0500
-+++ linux/include/asm-i386/mmu_context.h	2003-02-21 08:32:36.000000000 -0500
-@@ -13,18 +13,14 @@
- int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
- void destroy_context(struct mm_struct *mm);
- 
--#ifdef CONFIG_SMP
- 
- static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk, unsigned cpu)
- {
-+#ifdef CONFIG_SMP
- 	if (cpu_tlbstate[cpu].state == TLBSTATE_OK)
- 		cpu_tlbstate[cpu].state = TLBSTATE_LAZY;	
--}
--#else
--static inline void enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk, unsigned cpu)
--{
--}
- #endif
-+}
- 
- static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next, struct task_struct *tsk, unsigned cpu)
- {
-
---------------000309030006060005080203--
+How about using a released gcc compiler not a snapshot. gcc 3.2.1
+and 3.2.2 appear to work fine. According to the FSF there is no
+gcc 3.2.3 yet, so it isn't suprising a snapshot would have bugs
 

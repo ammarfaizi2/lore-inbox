@@ -1,174 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130304AbRAMJvI>; Sat, 13 Jan 2001 04:51:08 -0500
+	id <S132491AbRAMK3w>; Sat, 13 Jan 2001 05:29:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132491AbRAMJu7>; Sat, 13 Jan 2001 04:50:59 -0500
-Received: from [202.158.36.82] ([202.158.36.82]:56305 "EHLO
-	asmuni.trustix.co.id") by vger.kernel.org with ESMTP
-	id <S130304AbRAMJur>; Sat, 13 Jan 2001 04:50:47 -0500
-Date: Sat, 13 Jan 2001 16:50:25 +0700 (JAVT)
-From: <imel96@trustix.co.id>
-To: <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] plan9 partition support
-Message-ID: <Pine.LNX.4.30.0101131346570.32231-200000@asmuni.trustix.co.id>
+	id <S135812AbRAMK3m>; Sat, 13 Jan 2001 05:29:42 -0500
+Received: from smtp-rt-6.wanadoo.fr ([193.252.19.160]:64719 "EHLO
+	caroubier.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S132491AbRAMK3b>; Sat, 13 Jan 2001 05:29:31 -0500
+Message-ID: <3A602DAE.E213A79F@wanadoo.fr>
+Date: Sat, 13 Jan 2001 11:27:59 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Organization: Home PC
+X-Mailer: Mozilla 4.76 [fr] (X11; U; Linux 2.4.1-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811051-2042799760-978869960=:26662"
-Content-ID: <Pine.LNX.4.30.0101071943311.27014@asmuni.trustix.co.id>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1-pre2/3 and Pentium-III not stable
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Pentium-III 256Mo
+For testing, I try to compile glibc. The start is good.
+When the process PID reaches a value around 22000
+(variable), all goes wrong. Make gives error messages
+such as :
 
----1463811051-2042799760-978869960=:26662
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.30.0101071943312.27014@asmuni.trustix.co.id>
+make[2]: *** No rule to make target
+`../sysdeps/wordsize-32/bits/wordsi:e.h'
+make[2]: *** No rule to make target
+`/usr/lib/g#c-lib/i686-pc-linux-gnu/2.95.2/include/stddef.h'
+make[2]: *** No rule to make target
+`../include/sys/cde&s.h'
 
-
-
-
-	hi all,
-
-
-	this one patch i believe is harmless as it only
-	reads partition table, but who knows. the diff
-	is against 2.4.0.
-
-	the patch locates partitions inside the plan9
-	partition table.
-
-	as you may know, a plan9 partition table has three
-	type of partitions inside (9fat, fs, and swap).
-	9fat is fat16.
-
-	with msdos file system, linux will mount 9fat partition,
-	so you could use the 9fat and other fat16 partition inside
-	plan9 from linux and plan9.
-
-	i can't find anyone with plan9 to test, but it works for
-	me, so...
+The machine doesn't freeze, it is just completely unstable.
 
 
-		imel
+------------------------------------------------
+ Pierre Rousselet
+------------------------------------------------
 
----1463811051-2042799760-978869960=:26662
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="plan9part.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0101131640160.5985@asmuni.trustix.co.id>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="plan9part.diff"
 
-ZGlmZiAtdXIgbGludXh+L0RvY3VtZW50YXRpb24vQ29uZmlndXJlLmhlbHAg
-bGludXgvRG9jdW1lbnRhdGlvbi9Db25maWd1cmUuaGVscA0KLS0tIGxpbnV4
-fi9Eb2N1bWVudGF0aW9uL0NvbmZpZ3VyZS5oZWxwCUZyaSBKYW4gIDUgMTY6
-Mjc6NDMgMjAwMQ0KKysrIGxpbnV4L0RvY3VtZW50YXRpb24vQ29uZmlndXJl
-LmhlbHAJU2F0IEphbiAxMyAxNDo0NjoxMCAyMDAxDQpAQCAtMSw3ICsxLDcg
-QEANCiAjIE1haW50YWluZWQgYnkgQXhlbCBCb2xkdCAoYXhlbEB1bmktcGFk
-ZXJib3JuLmRlKQ0KICMNCiAjIFRoaXMgdmVyc2lvbiBvZiB0aGUgTGludXgg
-a2VybmVsIGNvbmZpZ3VyYXRpb24gaGVscCB0ZXh0cw0KLSMgY29ycmVzcG9u
-ZHMgdG8gdGhlIGtlcm5lbCB2ZXJzaW9ucyAyLjMueC4NCisjIGNvcnJlc3Bv
-bmRzIHRvIHRoZSBrZXJuZWwgdmVyc2lvbnMgMi40LnguDQogIw0KICMgVHJh
-bnNsYXRpb25zIG9mIHRoaXMgZmlsZSBhdmFpbGFibGUgb24gdGhlIFdXVzoN
-CiAjDQpAQCAtMTE0NjksNiArMTE0NjksMTcgQEANCiBDT05GSUdfTVNET1Nf
-UEFSVElUSU9ODQogICBTYXkgWSBoZXJlIGlmIHlvdSB3b3VsZCBsaWtlIHRv
-IHVzZSBoYXJkIGRpc2tzIHVuZGVyIExpbnV4IHdoaWNoDQogICB3ZXJlIHBh
-cnRpdGlvbmVkIG9uIGFuIHg4NiBQQyAobm90IG5lY2Vzc2FyaWx5IGJ5IERP
-UykuDQorDQorUGxhbjkgcGFydGl0aW9uIHRhYmxlIHN1cHBvcnQgKEVYUEVS
-SU1FTlRBTCkNCitDT05GSUdfUExBTjlfUEFSVElUSU9ODQorICBQbGFuOSB1
-c2VzIGl0cyBvd24gaGFyZCBkaXNrIHBhcnRpdGlvbiBzY2hlbWUgb24geW91
-ciBQQy4gSXQNCisgIHJlcXVpcmVzIG9ubHkgb25lIGVudHJ5IGluIHRoZSBw
-cmltYXJ5IHBhcnRpdGlvbiB0YWJsZSBvZiB5b3VyIGRpc2sNCisgIGFuZCBt
-YW5hZ2VzIGl0IHNpbWlsYXJseSB0byBET1MgZXh0ZW5kZWQgcGFydGl0aW9u
-cy4gU2F5aW5nIFkNCisgIGhlcmUgYWxsb3dzIHlvdSB0byByZWFkIHRoZSBl
-eGlzdGluZyBwYXJ0aXRpb25zLCBhbmQgbW91bnQgRkFUMTYNCisgIHBhcnRp
-dGlvbnMgZnJvbSB3aXRoaW4gTGludXgsIGlmIHlvdSBoYXZlIGFsc28gc2Fp
-ZCBZIHRvICJNU0RPUyBmcw0KKyAgc3VwcG9ydCIgb3IgIlZGQVQgKFdpbmRv
-d3MtOTUpIGZzIHN1cHBvcnQiLiBZb3UgY2FuIG1vdW50IHRoZSBmaXJzdA0K
-KyAgRkFUMTYgcGFydGl0aW9uICg5ZmF0KSBkaXJlY3RseSB3aXRob3V0IHRo
-aXMuIElmIHlvdSBkb24ndCBrbm93IHdoYXQNCisgIGFsbCB0aGlzIGlzIGFi
-b3V0LCBzYXkgTi4NCiANCiBCU0QgZGlza2xhYmVsIChGcmVlQlNEIHBhcnRp
-dGlvbiB0YWJsZXMpIHN1cHBvcnQNCiBDT05GSUdfQlNEX0RJU0tMQUJFTA0K
-ZGlmZiAtdXIgbGludXh+L2ZzL3BhcnRpdGlvbnMvQ29uZmlnLmluIGxpbnV4
-L2ZzL3BhcnRpdGlvbnMvQ29uZmlnLmluDQotLS0gbGludXh+L2ZzL3BhcnRp
-dGlvbnMvQ29uZmlnLmluCU1vbiBKdWwgMTAgMTI6MjE6NDEgMjAwMA0KKysr
-IGxpbnV4L2ZzL3BhcnRpdGlvbnMvQ29uZmlnLmluCVN1biBKYW4gIDcgMTg6
-Mzc6MjcgMjAwMQ0KQEAgLTIzLDYgKzIzLDcgQEANCiAgICAgICBib29sICcg
-ICAgQlNEIGRpc2tsYWJlbCAoRnJlZUJTRCBwYXJ0aXRpb24gdGFibGVzKSBz
-dXBwb3J0JyBDT05GSUdfQlNEX0RJU0tMQUJFTA0KICAgICAgIGJvb2wgJyAg
-ICBTb2xhcmlzICh4ODYpIHBhcnRpdGlvbiB0YWJsZSBzdXBwb3J0JyBDT05G
-SUdfU09MQVJJU19YODZfUEFSVElUSU9ODQogICAgICAgYm9vbCAnICAgIFVu
-aXh3YXJlIHNsaWNlcyBzdXBwb3J0JyBDT05GSUdfVU5JWFdBUkVfRElTS0xB
-QkVMDQorICAgICAgZGVwX2Jvb2wgJyAgICBQbGFuOSBwYXJ0aXRpb24gc3Vw
-cG9ydCAoRVhQRVJJTUVOVEFMKScgQ09ORklHX1BMQU45X1BBUlRJVElPTiAk
-Q09ORklHX0VYUEVSSU1FTlRBTA0KICAgIGZpDQogICAgYm9vbCAnICBTR0kg
-cGFydGl0aW9uIHN1cHBvcnQnIENPTkZJR19TR0lfUEFSVElUSU9ODQogICAg
-Ym9vbCAnICBVbHRyaXggcGFydGl0aW9uIHRhYmxlIHN1cHBvcnQnIENPTkZJ
-R19VTFRSSVhfUEFSVElUSU9ODQpkaWZmIC11ciBsaW51eH4vZnMvcGFydGl0
-aW9ucy9tc2Rvcy5jIGxpbnV4L2ZzL3BhcnRpdGlvbnMvbXNkb3MuYw0KLS0t
-IGxpbnV4fi9mcy9wYXJ0aXRpb25zL21zZG9zLmMJRnJpIE5vdiAxNyAxNzox
-ODo0NiAyMDAwDQorKysgbGludXgvZnMvcGFydGl0aW9ucy9tc2Rvcy5jCVN1
-biBKYW4gIDcgMTg6NDY6MzQgMjAwMQ0KQEAgLTE3LDYgKzE3LDggQEANCiAg
-KiAgQ2hlY2sgcGFydGl0aW9uIHRhYmxlIG9uIElERSBkaXNrcyBmb3IgY29t
-bW9uIENIUyB0cmFuc2xhdGlvbnMNCiAgKg0KICAqICBSZS1vcmdhbmlzZWQg
-RmViIDE5OTggUnVzc2VsbCBLaW5nDQorICoNCisgKiAgcGxhbjkgcGFydGl0
-aW9uIGhhY2sgMjAwMSBKYW4sIGltZWw5NkB0cnVzdGl4LmNvbQ0KICAqLw0K
-IA0KICNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4NCkBAIC0yMjgsNiArMjMw
-LDU1IEBADQogfQ0KICNlbmRpZg0KIA0KKyNpZmRlZiBDT05GSUdfUExBTjlf
-UEFSVElUSU9ODQorDQorc3RhdGljIHZvaWQgYWRkX3BsYW45X3BhcnRpdGlv
-bihzdHJ1Y3QgZ2VuZGlzayAqaGQsIHN0cnVjdCBwbGFuOV9wYXJ0aXRpb24N
-CisJKnBsYW45X3AsIGludCBtaW5vcikNCit7DQorCWFkZF9nZF9wYXJ0aXRp
-b24oaGQsIGN1cnJlbnRfbWlub3IsIHBsYW45X3AtPnBfb2Zmc2V0LCBwbGFu
-OV9wLT5wX3NpemUpOw0KKwljdXJyZW50X21pbm9yKys7DQorfQ0KKw0KKy8q
-IA0KKyAqIENyZWF0ZSBkZXZpY2VzIGZvciBwbGFuOSBwYXJ0aXRpb25zIGxp
-c3RlZCBpbiBhIGRpc2tsYWJlbCwgdW5kZXIgYQ0KKyAqIGRvcy1saWtlIHBh
-cnRpdGlvbi4gU2VlIGJzZCBjb2RlIGZvciBtb3JlIGluZm9ybWF0aW9uLg0K
-KyAqLw0KK3N0YXRpYyB2b2lkIHBsYW45X2Rpc2tsYWJlbF9wYXJ0aXRpb24o
-c3RydWN0IGdlbmRpc2sgKmhkLCBpbnQgbWlub3IsIGludCBzdF9zZWMpDQor
-ew0KKwlzdHJ1Y3QgYnVmZmVyX2hlYWQgKmJoOw0KKwlzdHJ1Y3QgcGxhbjlf
-cGFydGl0aW9uIHA7DQorCWNoYXIgKiBwdHI7DQorCWNoYXIgYnVmWzQwXTsN
-CisNCisJaWYgKCEoYmggPSBnZXRfcGFydGl0aW9uX3RhYmxlX2Jsb2NrKGhk
-LCBtaW5vciwgMCkpKQ0KKwkJcmV0dXJuOw0KKw0KKwlwcmludGsoIiAlczog
-PHBsYW45OiIsIGRpc2tfbmFtZShoZCwgbWlub3IsIGJ1ZikpOw0KKwlwdHIg
-PSBiaC0+Yl9kYXRhICsgMHgyMDA7DQorDQorCXdoaWxlICghc3RybmNtcChw
-dHIsICJwYXJ0IiwgNCkpIHsNCisNCisJCS8qIGxvY2F0ZSBvZmZzZXQgbnVt
-YmVyICh3aGljaCBpcyB0d28gc3BhY2VzIGF3YXkpICovDQorCQl3aGlsZSAo
-KnB0cisrICE9ICcgJyk7DQorCQl3aGlsZSAoKnB0cisrICE9ICcgJyk7DQor
-CQlwLnBfb2Zmc2V0ID0gc2ltcGxlX3N0cnRvdWwocHRyLCBOVUxMLCAxMCk7
-DQorDQorCQkvKiBmaW5kIGVuZCBzZWN0b3IgbnVtYmVyIChuZXh0IG51bWJl
-cikgKi8NCisJCXdoaWxlICgqcHRyKysgIT0gJyAnKTsNCisJCXAucF9zaXpl
-ID0gc2ltcGxlX3N0cnRvdWwocHRyLCBOVUxMLCAxMCkgLSBwLnBfb2Zmc2V0
-Ow0KKwkJcC5wX29mZnNldCArPSBzdF9zZWM7DQorDQorCQlhZGRfcGxhbjlf
-cGFydGl0aW9uKGhkLCAmcCwgbWlub3IpOw0KKw0KKwkJLyogZ28gb24gdG8g
-bmV4dCBwYXJ0aXRpb24gKi8NCisJCXdoaWxlICgqcHRyKysgIT0gJ1xuJyk7
-DQorCX0NCisJYmZvcmdldChiaCk7DQorCXByaW50aygiID5cbiIpOw0KK30N
-CisNCisjZW5kaWYNCisNCiAjaWZkZWYgQ09ORklHX0JTRF9ESVNLTEFCRUwN
-CiBzdGF0aWMgdm9pZA0KIGNoZWNrX2FuZF9hZGRfYnNkX3BhcnRpdGlvbihz
-dHJ1Y3QgZ2VuZGlzayAqaGQsDQpAQCAtNDk5LDYgKzU1MCwxMCBAQA0KIAkJ
-ICAgIFNZU19JTkQocCkgPT0gTkVUQlNEX1BBUlRJVElPTiB8fA0KIAkJICAg
-IFNZU19JTkQocCkgPT0gT1BFTkJTRF9QQVJUSVRJT04pDQogCQkJYnNkX2Rp
-c2tsYWJlbF9wYXJ0aXRpb24oaGQsIG1pbm9yLCBTWVNfSU5EKHApKTsNCisj
-ZW5kaWYNCisjaWZkZWYgQ09ORklHX1BMQU45X1BBUlRJVElPTg0KKwkJaWYg
-KFNZU19JTkQocCkgPT0gUExBTjlfUEFSVElUSU9OKQ0KKwkJCXBsYW45X2Rp
-c2tsYWJlbF9wYXJ0aXRpb24oaGQsIG1pbm9yLCBTVEFSVF9TRUNUKHApKTsN
-CiAjZW5kaWYNCiAjaWZkZWYgQ09ORklHX1VOSVhXQVJFX0RJU0tMQUJFTA0K
-IAkJaWYgKFNZU19JTkQocCkgPT0gVU5JWFdBUkVfUEFSVElUSU9OKQ0KZGlm
-ZiAtdXIgbGludXh+L2luY2x1ZGUvbGludXgvZ2VuaGQuaCBsaW51eC9pbmNs
-dWRlL2xpbnV4L2dlbmhkLmgNCi0tLSBsaW51eH4vaW5jbHVkZS9saW51eC9n
-ZW5oZC5oCUZyaSBOb3YgMTcgMTc6MjM6NTYgMjAwMA0KKysrIGxpbnV4L2lu
-Y2x1ZGUvbGludXgvZ2VuaGQuaAlTYXQgSmFuIDEzIDE0OjQ5OjE3IDIwMDEN
-CkBAIC0xMDMsNiArMTAzLDE3IEBADQogDQogI2VuZGlmIC8qIENPTkZJR19T
-T0xBUklTX1g4Nl9QQVJUSVRJT04gKi8NCiANCisjaWZkZWYgQ09ORklHX1BM
-QU45X1BBUlRJVElPTg0KKw0KKyNkZWZpbmUgUExBTjlfUEFSVElUSU9OCTB4
-MzkNCisNCitzdHJ1Y3QgcGxhbjlfcGFydGl0aW9uIHsJCS8qIHRoZSBwYXJ0
-aXRpb24gdGFibGUgKi8NCisJdW5zaWduZWQgbG9uZyBwX3NpemU7CQkvKiBu
-dW1iZXIgb2Ygc2VjdG9ycyBpbiBwYXJ0aXRpb24gKi8NCisJdW5zaWduZWQg
-bG9uZyBwX29mZnNldDsJCS8qIHN0YXJ0aW5nIHNlY3RvciAqLw0KK307DQor
-DQorI2VuZGlmDQorDQogI2lmZGVmIENPTkZJR19CU0RfRElTS0xBQkVMDQog
-LyoNCiAgKiBCU0QgZGlza2xhYmVsIHN1cHBvcnQgYnkgWW9zc2kgR290dGxp
-ZWIgPHlvZ29AbWF0aC50YXUuYWMuaWw+DQo=
----1463811051-2042799760-978869960=:26662--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287573AbSAIP2G>; Wed, 9 Jan 2002 10:28:06 -0500
+	id <S287612AbSAIPbg>; Wed, 9 Jan 2002 10:31:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287578AbSAIP15>; Wed, 9 Jan 2002 10:27:57 -0500
-Received: from stratus.swi.com.br ([200.203.204.140]:470 "EHLO
+	id <S287615AbSAIPb0>; Wed, 9 Jan 2002 10:31:26 -0500
+Received: from stratus.swi.com.br ([200.203.204.140]:36310 "EHLO
 	stratus.swi.com.br") by vger.kernel.org with ESMTP
-	id <S287573AbSAIP1n>; Wed, 9 Jan 2002 10:27:43 -0500
-Posted-Date: Wed, 9 Jan 2002 13:27:23 -0200
+	id <S287612AbSAIPbV>; Wed, 9 Jan 2002 10:31:21 -0500
+Posted-Date: Wed, 9 Jan 2002 13:31:08 -0200
 X-Local-Destination: linux-kernel@vger.kernel.org
 X-Local-Origin: aris@cathedrallabs.org
 X-Gateway: Speedway Internet Service http://www.swi.com.br
-Date: Wed, 9 Jan 2002 13:24:08 -0200
+Date: Wed, 9 Jan 2002 13:27:52 -0200
 To: Jacek Pop?awski <jpopl@interia.pl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro (82595) question
-Message-ID: <20020109152408.GF1954@cathedrallabs.org>
-In-Reply-To: <20020104211952.A3508@localhost.localdomain>
+Subject: Re: new eepro driver seems broken
+Message-ID: <20020109152752.GG1954@cathedrallabs.org>
+In-Reply-To: <20020109125532.A1118@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020104211952.A3508@localhost.localdomain>
+In-Reply-To: <20020109125532.A1118@localhost.localdomain>
 From: aris <aris@cathedrallabs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have two 82595FX Ethernet ISA cards. I can load eepro module with
-> autodetect=1, irq and io are detected correctly, then I can ifconfig eth0 up,
-> but card no works at all (I can ping it, but can't ping something else). I
-> tried that card in Win98 - works with "Intel 82595" driver. So I downloaded
-> "e10disk.exe" with DOS utils. With softset2.exe I changed irq to 10 and io to
-> 0x300. I booted Linux-2.2.19 and loaded eepro, detected again, and now it
-> works! But I need to put two cards in one system, so I must find another
-> working irq/io. My question is why it doesn't work with many irq/io settings?
-> I tried 5 times. Only irq=10, io=0x300 works correctly (on 3 different
-> computers). Of course I checked /proc/interrupts and /proc/ioports for
-> conflicts. Is it possible that driver is broken? I searched groups.google.com
-> and found few posts from people with similiar problem, maybe they couldn't find
-> correct softset2.exe and correct irq/io settings?
-2.2.19 and 2.2.20 drivers are broken. check for 0.13 version of driver
-(http://cathedrallabs.org/~aris/patches/)
+> I assume there is the same version of eepro driver in 2.2.21-pre2 and 2.4.17.
+> 
+> Version included in kernel 2.2.20 is broken, becouse sometime ethernet card
+> "dies" - I can't ping it from outside. However, when eepro card is in server,
+> and I ping workstation from there - card works again. So my current solution is
+> script which pings everything in localnet all the time.
+yes, it's broken
+
+> But new version works much worse for me. In 2.2.21-pre2 and 2.4.17 card never
+> dies - it always work, but there are many problems with connections. I thought
+> it's problem with MASQ, but it behaves exactly the same on 2.2 and 2.4. When I
+> send single file by scp - I have transfer bigger than 100KB/s. But when I watch
+> WWW or use p2p - transfer is very small or stops.
+the 0.13 version had this mention: become stable. performance is scheduled
+for next versions. you may try eepro.c from 2.2.13 kernel but as i could see
+it's less stable than 0.13 version.
+
+> Driver from 2.2.20 works bad, newer driver works bad, too, but in another way.
+> Where can I find older releases of eepro driver? How can I contact author
+> (email from eepro.c doesn't work) ? Is anyone still using EtherExpress ISA 10 ? 
+i think there's nobody else working on this driver right now. you may send
+questions to lkml with a copy to me.
 
 -- 
 aris

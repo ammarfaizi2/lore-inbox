@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130639AbQK3RS2>; Thu, 30 Nov 2000 12:18:28 -0500
+        id <S129982AbQK3RS2>; Thu, 30 Nov 2000 12:18:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129572AbQK3RSS>; Thu, 30 Nov 2000 12:18:18 -0500
-Received: from 13dyn240.delft.casema.net ([212.64.76.240]:12037 "EHLO
-        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-        id <S129982AbQK3RSJ>; Thu, 30 Nov 2000 12:18:09 -0500
-Message-Id: <200011301647.RAA03831@cave.bitwizard.nl>
-Subject: Re: [PATCH] New user space serial port driver
-In-Reply-To: <200011301500.eAUF0o905978@flint.arm.linux.org.uk> from Russell
- King at "Nov 30, 2000 03:00:50 pm"
-To: Russell King <rmk@arm.linux.org.uk>
-Date: Thu, 30 Nov 2000 17:47:24 +0100 (MET)
-CC: Rogier Wolff <R.E.Wolff@bitwizard.nl>,
-        Tigran Aivazian <tigran@veritas.com>,
-        Patrick van de Lageweg <patrick@bitwizard.nl>,
-        Rogier Wolff <wolff@bitwizard.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: R.E.Wolff@bitwizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id <S130639AbQK3RSS>; Thu, 30 Nov 2000 12:18:18 -0500
+Received: from mx8.port.ru ([194.67.23.80]:21469 "EHLO mx8.port.ru")
+        by vger.kernel.org with ESMTP id <S129572AbQK3RQc>;
+        Thu, 30 Nov 2000 12:16:32 -0500
+From: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re[2]: DMA for triton again...
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 143.167.4.62 via proxy [143.167.1.16]
+In-Reply-To: <3A267CDB.DEC0A214@windsormachine.com>
+Reply-To: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 8bit
+Message-Id: <E141WqR-000AxY-00@f3.mail.ru>
+Date: Thu, 30 Nov 2000 19:46:03 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> Rogier Wolff writes:
-> > > > +static struct termios    * ussp_termios[USSP_MAX_PORTS];
-> > > > +static struct termios    * ussp_termios_locked[USSP_MAX_PORTS];
-> > 
-> > this SHOULD mean that these are first initialized before use. 
-> > 
-> > If you think they can be used before first being initialized by the
-> > code, then that's a bug, and I'll look into it.
-> 
-> Ah, but they are initialised before use, by arch/*/kernel/head.S.
-> Therefore no bug exists.
+> I'll see how mangled my .config is.
+> Looks somewhat clean, a few modules i don't use.  I'll send it in a > seperate email.
 
-Documentation bug. Not code bug. 
+Thanks a lot, Mike! I can see couple of differences already, will try tonight... and will let you know tomorrow...
 
-			Roger. 
+Cheers
+Guennadi
 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

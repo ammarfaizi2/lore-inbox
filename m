@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVAFGoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVAFGyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbVAFGoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 01:44:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbVAFGnu
+	id S262193AbVAFGyW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 01:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbVAFGyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 01:43:50 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:40346 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262751AbVAFGnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 01:43:15 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9+ keyboard LED problem
-Date: Thu, 6 Jan 2005 01:43:13 -0500
-User-Agent: KMail/1.6.2
-Cc: "Ville Hallik" <ville@linux.ee>, Meelis Roos <mroos@linux.ee>
-References: <20050106001203.DAD7E14C47@ondatra.tartu-labor>
-In-Reply-To: <20050106001203.DAD7E14C47@ondatra.tartu-labor>
+	Thu, 6 Jan 2005 01:54:22 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:13573 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S262193AbVAFGyS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 01:54:18 -0500
+Message-ID: <41DCE08B.5010507@snapgear.com>
+Date: Thu, 06 Jan 2005 16:54:03 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.6.10-uc0 (MMU-less fixups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200501060143.13428.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 05 January 2005 07:12 pm, Ville Hallik wrote:
-> In article <d120d50005010510543532e0bf@mail.gmail.com> you wrote:
-> > On Wed, 5 Jan 2005 20:38:34 +0200 (EET), Meelis Roos <mroos@linux.ee> wrote:
-> >> > Seems to work fine here. The led is blinking rapidly but I can type just
-> >> > fine and touchpad works as well.
-> >> >
-> >> > What kind of box do you have? UP/SMP, Preempt?
-> >> 
-> >> UP, Celeron 900 on i815. Happens on 2 identical computers, one preempt,
-> >> one not preempt. PS/2 keyboard and mouse on one, only PS/2 keyboard on
-> >> the other (and USB mouse that is probably unimportant).
-> >>
-> 
-> > The big input update went in with 2.6.9-rc2-bk4.Could you try booting
-> > -bk3 and -bk4 to verify that those changes are to blame?
-> 
-> No, this bug appears with 2.6.9-rc2-bk3. I'm afraid that introduction of
-> atkbd_schedule_command() & related stuff into atkbd.c is to blame.
-> 
+Hi All,
 
-Actually it is ACK processing hardening that is very useful at setup stage
-but is getting in our way once keyboard is initialized and commands are
-intermixed with good data.
+An update of the uClinux (MMU-less) fixups against 2.6.10.
 
-Could you please try the patch below? It is just a quick hack, just to prove
-the idea. If it works for you I will prepare the proper fix later.
+I have completely reworked the startup code for the m68knommu
+architectures. What was dozens of files is now a few common
+varients for the obviously different sub-families (coldfire,
+68x328 and 68360).
 
--- 
-Dmitry
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.10-uc0.patch.gz
 
-===== drivers/input/serio/libps2.c 1.2 vs edited =====
---- 1.2/drivers/input/serio/libps2.c	2004-10-20 03:13:08 -05:00
-+++ edited/drivers/input/serio/libps2.c	2005-01-06 01:20:11 -05:00
-@@ -250,7 +250,7 @@
- 			}
- 			/* Fall through */
- 		default:
--			return 1;
-+			return 0;
- 	}
- 
- 	if (!ps2dev->nak && ps2dev->cmdcnt)
+
+Change log:
+
+. import of linux-2.6.10                       <gerg@snapgear.com>
+. rework head start code for m68knommu         <gerg@snapgear.com>
+. auto-detect SDRAM size on most platforms     <gerg@snapgear.com>
+. combine common 68x328 config code            <gerg@snapgear.com>
+. remove duplicate M5275EVB entry in Kconfig   <gerg@snapgear.com>
+. auto-generate m68knommu/entry.S offsets      <phdm@macqel.be>
+. remove duplication with KTHREAD_SIZE         <phdm@macqel.be>
+. fix stack alignment on trap return           <phdm@macqel.be>
+. reduce code size in FEC ethernet driver      <phdm@macqel.be>
+. export lib udelay symbold                    <gerg@snapgear.com>
+. cleanup atomic and bitops macros             <phdm@macqel.be>
+. remove unused io_hw_swap.h                   <domen@coderock.org>
+
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+

@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266036AbTGIRyY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 13:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbTGIRyY
+	id S268469AbTGIR5S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 13:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268486AbTGIR5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 13:54:24 -0400
-Received: from fed1mtao06.cox.net ([68.6.19.125]:38620 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S266036AbTGIRyX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 13:54:23 -0400
-Message-ID: <3F0C5A3D.9010800@hawton.org>
-Date: Wed, 09 Jul 2003 11:09:01 -0700
-From: Daniel <daniel@hawton.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ACPI status in 2.5.x/2.6.0
-References: <3F0BD5D1.2010801@hawton.org> <87k7ardfdg.fsf@lapper.ihatent.com>
-In-Reply-To: <87k7ardfdg.fsf@lapper.ihatent.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Jul 2003 13:57:18 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:57268 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S268469AbTGIR5O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 13:57:14 -0400
+Date: Wed, 9 Jul 2003 13:38:55 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: vojtech@ucw.cz, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Make synaptics support optional
+Message-ID: <20030709113855.GC223@elf.ucw.cz>
+References: <20030708104551.GA209@elf.ucw.cz> <20030709095544.GA852@vitelus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030709095544.GA852@vitelus.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Hoogerhuis wrote:
+Hi!
 
-> Daniel <daniel@hawton.org> writes:
+> On Tue, Jul 08, 2003 at 12:45:51PM +0200, Pavel Machek wrote:
+> > --- /usr/src/tmp/linux/drivers/input/mouse/synaptics.c	2003-06-24 12:27:47.000000000 +0200
+> > +++ /usr/src/linux/drivers/input/mouse/synaptics.c	2003-07-08 12:32:36.000000000 +0200
+> > @@ -213,6 +213,9 @@
+> >  {
+> >  	struct synaptics_data *priv;
+> >  
+> > +#ifndef CONFIG_MOUSE_SYNAPTICS
+> > +	return -1;
+> > +#endif;
+> >  	psmouse->private = priv = kmalloc(sizeof(struct synaptics_data), GFP_KERNEL);
+> >  	if (!priv)
+> >  		return -1;
+> > 
 > 
-> 
->>I have a Compaq Laptop (*shiver*) and present distro versions
->>featuring the 2.4.x kernel seem to panic or lock on bootup on my
->>laptop.  I was wondering if ACPI was better supported in the 2.5.x
->>kernel branch/2.6.0 pre-kernel.  Any advice would be greatly
->>appreciated.
->>
-> 
-> 
-> What model is the laptop?
-> 
+> Why not adjust the Makefiles?
 
-Compaq Presario 900
-
-I would install and try a different kernel, but I can't get any distros' 
-to boot to install, let alone install a different kernel. :(
-
-> 
->>-Daniel
-> 
-> 
-> mvh,
-> A
-
--Daniel
-
+It was that way once in history, but later it was changed to "always
+include". I wanted minimal change.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

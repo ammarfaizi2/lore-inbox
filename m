@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUJEX1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266324AbUJEXai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUJEX1D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 19:27:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUJEX1D
+	id S266324AbUJEXai (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 19:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUJEXaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 19:27:03 -0400
-Received: from secundus.edoceo.com ([216.162.208.165]:57474 "EHLO
-	secundus.edoceo.com") by vger.kernel.org with ESMTP id S266275AbUJEXVy
+	Tue, 5 Oct 2004 19:30:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16064 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266324AbUJEX1I convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 19:21:54 -0400
-From: "David Busby" <busby@edoceo.com>
-To: "'Robert Love'" <rml@novell.com>
-Cc: <linux-kernel@vger.kernel.org>, <ttb@tentacle.dhs.org>
-Subject: RE: /dev/misc/inotify 0.11 [adr]
-Date: Tue, 5 Oct 2004 16:21:49 -0700
-Message-ID: <82C88232E64C7340BF749593380762021166FB@seattleexchange.SMC.LOCAL>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <1097017893.4143.10.camel@betsy.boston.ximian.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 5 Oct 2004 19:27:08 -0400
+Date: Tue, 5 Oct 2004 16:30:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is
+ availlable
+Message-Id: <20041005163052.305f0d88.akpm@osdl.org>
+In-Reply-To: <20041005185214.GA3691@wohnheim.fh-wedel.de>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's my PERL, I've just run a test.  inotify_test.c works correctly and
-shows the proper filenames.  My PERL script is sometims dropping the
-first character, I've not been able to re-product the full junk ouput
-(it was all Java source code!?).  I'll keep hunting.  Is there a place I
-can subscribe to the inotify-announce list?
+Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+>
+> --- linux-2.6.8cow/init/main.c~console	2004-10-05 20:46:40.000000000 +0200
+> +++ linux-2.6.8cow/init/main.c	2004-10-05 20:46:08.000000000 +0200
+> @@ -695,8 +695,11 @@
+>  	system_state = SYSTEM_RUNNING;
+>  	numa_default_policy();
+>  
+> -	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
+> +	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0) {
+>  		printk("Warning: unable to open an initial console.\n");
+> +		if (open("/dev/null", O_RDWR, 0) == 0)
+> +			printk("         Falling back to /dev/null.\n");
+> +	}
+>  
+>  	(void) sys_dup(0);
+>  	(void) sys_dup(0);
 
-/djb
+/usr/src/25/init/main.c:183: undefined reference to `open'
 
-> -----Original Message-----
-> From: Robert Love [mailto:rml@novell.com] 
-> Sent: Tuesday, October 05, 2004 4:12 PM
-> To: David Busby
-> Cc: linux-kernel@vger.kernel.org; ttb@tentacle.dhs.org
-> Subject: RE: /dev/misc/inotify 0.11 [adr]
-> 
-> 
-> On Tue, 2004-10-05 at 16:10 -0700, David Busby wrote:
-> 
-> > Here's another issue, when reading from PERL sometimes the filename 
-> > part of the struct inotify_event is wayyyy off.  I'm 
-> reading 268 bytes 
-> > at a time, first 12 are the wd,mask and cookie (what is cookie 
-> > anyways?) then 256 for the file name. Isn't that correct?  
-> I'll try to 
-> > get the inotify_test.c program to reproduce.
-> 
-> The cookie is going to be used to connection two related 
-> events, such as MOVED_TO and MOVED_FROM.  Right now it is unused.
-> 
-> We've never seen this problem in inotify_test or Gamin or 
-> Beagle ... so I would suspect this is related to your 
-> specific Perl example, but please let me know if you find anything.
-> 
-> Best,
-> 
-> 	Robert Love
-> 
-> 
+I assume this worked for you because it's against 2.6.8 and we were still
+supporting kernel syscalls then.
 
+Please always test patches against current kernels.
+
+I'll fix it up.

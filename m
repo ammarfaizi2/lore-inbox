@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbTJNR7W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 13:59:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbTJNR7W
+	id S262686AbTJNRxI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 13:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbTJNRxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 13:59:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33726 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262611AbTJNR7V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 13:59:21 -0400
-Message-ID: <3F8C3965.6020005@pobox.com>
-Date: Tue, 14 Oct 2003 13:59:01 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Duncan Haldane <f.duncan.m.haldane@worldnet.att.net>
-CC: linux-parport@torque.net, linux-kernel@vger.kernel.org,
-       Tim Waugh <twaugh@redhat.com>
-Subject: Re: [PATCH] Fix broken superio DMA support in parport_pc.c
-References: <XFMail.20031011175859.f.duncan.m.haldane@worldnet.att.net>
-In-Reply-To: <XFMail.20031011175859.f.duncan.m.haldane@worldnet.att.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Oct 2003 13:53:08 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:30220 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S262686AbTJNRww (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 13:52:52 -0400
+Date: Tue, 14 Oct 2003 19:52:47 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
+Cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
+Subject: Re: make htmldocs
+Message-ID: <20031014175247.GB922@mars.ravnborg.org>
+Mail-Followup-To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>,
+	Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
+References: <20031013185539.B1832@beton.cybernet.src> <20031014094601.GB15075@bitwizard.nl> <20031014120946.A4969@beton.cybernet.src>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031014120946.A4969@beton.cybernet.src>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch looks good to me, but your patch did not apply.
+On Tue, Oct 14, 2003 at 12:09:46PM +0200, Karel Kulhavý wrote:
+> I have been using Linux Kernel for 7 years but can't anymore
+> because I am unable to read it's manual.
 
-Can you please download the latest 2.4 and 2.6 snapshots, and create 
-patches versus those kernels?
+The *.tmpl files and the sgml files are easy readable.
+The only thing docbook does is to add a bit more formatting, indexes etc.
+But nothing that prevents you from reading it if you need to do so.
+Please stop this kind of arguments if we shall not stop listening.
 
-ftp://ftp.kernel.org/pub/linux/kernel/v2.[46]/snapshots/
+When you have figured out how to install the required tools I would
+be glad to receive a write-up that I can include somewhere in the kernel
+to help others in the process.
 
-Also, please send patches, uncompressed, in separate emails.  i.e. one 
-for 2.4, and one for 2.6.
-
+	Sam

@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbUCHQ2q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 11:28:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbUCHQ2q
+	id S262613AbUCHQc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 11:32:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbUCHQc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 11:28:46 -0500
-Received: from quasar.dynaweb.hu ([195.70.37.87]:49823 "EHLO quasar.dynaweb.hu")
-	by vger.kernel.org with ESMTP id S262598AbUCHQ2p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 11:28:45 -0500
-Date: Mon, 8 Mar 2004 17:28:39 +0100
-From: Rumi Szabolcs <rumi_ml@rtfm.hu>
-To: Mike Fedyk <mfedyk@matchmail.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Marvell PATA-SATA bridge meets 2.4.x
-Message-Id: <20040308172839.17178753.rumi_ml@rtfm.hu>
-In-Reply-To: <404A9D14.5030107@matchmail.com>
-References: <20040305231642.708841dd.rumi_ml@rtfm.hu>
-	<404A9D14.5030107@matchmail.com>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; sparc-sun-solaris2.9)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 8 Mar 2004 11:32:29 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:19100 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262613AbUCHQc1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 11:32:27 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Tom Rini <trini@kernel.crashing.org>
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+Date: Mon, 8 Mar 2004 22:02:12 +0530
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       george@mvista.com, pavel@ucw.cz
+References: <200403081504.30840.amitkale@emsyssoft.com> <200403081650.18641.amitkale@emsyssoft.com> <20040308152214.GE15065@smtp.west.cox.net>
+In-Reply-To: <20040308152214.GE15065@smtp.west.cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403082202.12822.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 06 Mar 2004 19:55:00 -0800
-Mike Fedyk <mfedyk@matchmail.com> wrote:
+On Monday 08 Mar 2004 8:52 pm, Tom Rini wrote:
+> On Mon, Mar 08, 2004 at 04:50:18PM +0530, Amit S. Kale wrote:
+> > On Monday 08 Mar 2004 4:37 pm, Andrew Morton wrote:
+> > > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+>
+> [snip]
+>
+> > > >  If you consider it an absolutely must, we can do something so that
+> > > > the dirty part is kept away and info threads almost always works.
+> > >
+> > > Yes, I'd consider `info threads' support a must-have.  I'm rather
+> > > surprised that others do not?
+> >
+> > Present threads support code changes calling convention of do_IRQ. Most
+> > believe that to be an absolute no.
+>
+> I believe that George's version does something totally different, with
+> some macros at compile time (and binutils support, I _think_) to not
+> have to change do_IRQ.
 
-> Rumi Szabolcs wrote:
-> > As it can be seen below, a native SATA150 drive is connected
-> > to a SATA port implemented using that Marvell chip hooked up
-> > to the ICH4's parallel ATA133 port and this way the drive is
-> > only recognized (and used) as UDMA33:
-> > 
-> > hdc: 312581808 sectors (160042 MB) w/8192KiB Cache, CHS=19457/255/63, UDMA(33)
-> > 
-> > As far as I can remember someone (Jeff Garzik?) suspected the
-> > SATA cable not being recognized as a 80-conductor thus >=UDMA66
-> > capable cable. Then it was told that there is a fix underway that
-> > will be included in the 2.4.23 kernel. The above snippet shows
-> > that the 2.4.25 kernel still has this problem. Any comments?
-> 
-> You want to use a 2.6 kernel and talk to Bart, and Jeff about this...
+OOPS! Present code doesn't change calling convention of do_IRQ. I changed that 
+some time ago.
 
-Well, I don't really want a 2.6 kernel on that machine (yet) because
-in my opinion it is not stable enough for a production system.
+-Amit
 
-Would it be hard to fix that in 2.4?
-
-Regards,
-Szabolcs Rumi

@@ -1,62 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266488AbUBQTcg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 14:32:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266494AbUBQTcg
+	id S266532AbUBQTq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 14:46:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266546AbUBQTq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 14:32:36 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:35808 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266488AbUBQTcW (ORCPT
+	Tue, 17 Feb 2004 14:46:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10128 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266532AbUBQTqT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 14:32:22 -0500
-Date: Tue, 17 Feb 2004 11:31:30 -0800 (PST)
-From: Sridhar Samudrala <sri@us.ibm.com>
-X-X-Sender: sridhar@localhost.localdomain
-To: "David S. Miller" <davem@redhat.com>
-cc: matthias.andree@gmx.de, lksctp-developers@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com.br
-Subject: Re: [Lksctp-developers] Re: [PATCH] net/sctp/Config.in make oldconfig
- compatibility (bash)
-In-Reply-To: <20040217110541.6d71ef18.davem@redhat.com>
-Message-ID: <Pine.LNX.4.58.0402171115030.5136@localhost.localdomain>
-References: <20040217122347.GA15213@merlin.emma.line.org>
- <Pine.LNX.4.58.0402171035440.32361@localhost.localdomain>
- <20040217110541.6d71ef18.davem@redhat.com>
+	Tue, 17 Feb 2004 14:46:19 -0500
+Date: Tue, 17 Feb 2004 11:45:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: viro@parcelfarce.linux.theplanet.co.uk, Marc <pcg@goof.com>,
+       Marc Lehmann <pcg@schmorp.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
+ JFS default behavior)
+In-Reply-To: <20040217192917.GA24311@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0402171134180.2154@home.osdl.org>
+References: <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org>
+ <20040216200321.GB17015@schmorp.de> <Pine.LNX.4.58.0402161205120.30742@home.osdl.org>
+ <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
+ <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org>
+ <20040217163613.GA23499@mail.shareable.org> <20040217175209.GO8858@parcelfarce.linux.theplanet.co.uk>
+ <20040217192917.GA24311@mail.shareable.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Feb 2004, David S. Miller wrote:
 
-> On Tue, 17 Feb 2004 10:48:55 -0800 (PST)
-> Sridhar Samudrala <sri@us.ibm.com> wrote:
->
-> > I thought SCTP changes were backed out just because of these 'make oldconfig'
-> > errors from the 2.4 tree.
->
-> I believe Marcelo is just going to clone a tree right before he took in the
-> SCTP stuff, in order to do the 2.4.25 release.  Then for 2.4.26-pre1 he'll
-> take the SCTP changes back in and we can add the fix.
->
-> > Anyway, i have submitted the attached patch that should fix this to davem.
-> > 'make oldconfig' and 'make menuconfig' worked fine after applying this patch.
->
-> I believe this space fix here is necessary as well as your crypto changes
-> Sridhar.
 
-If you are referring to the space before the ] brackets in the if statements,
--  if [ "$CONFIG_CRYPTO_MD5" = "n" -a "$CONFIG_CRYPTO_SHA1" = "n"]; then
-+  if [ "$CONFIG_CRYPTO_MD5" = "n" -a "$CONFIG_CRYPTO_SHA1" = "n" ]; then
+On Tue, 17 Feb 2004, Jamie Lokier wrote:
+> 
+> Well, the security checks on ".." which worms get past aren't in the
+> kernel either.  This time _you_ made the strawman :)
 
-those lines are no longer there in the SCTP Config.in with the crypto changes
-patch.
+Note that this is something that the kernel _can_ fix easily.
 
-The other space introduced in Matthias patch is in the following lines.
--        choice 'SCTP: Cookie HMAC Algorithm' \
-+        choice '    SCTP: Cookie HMAC Algorithm' \
+In particular, we already have flags like LOOKUP_FOLLOW and
+LOOKUP_DIRECTORY that we use internally in the kernel to specify how to do
+certain operations. We export _part_ of that to user space with the
+O_DIRECTORY flag that says "allow open of directories".
 
-I am not sure if this is needed.
+And yes, we have security-related ones too (LOOKUP_NOALT disables the
+alternamte mount-point lookup).
 
-Thanks
-Sridhar
+And it would be _trivial_ to add a LOOKUP_NODOTDOT and allow user space to
+use it through a O_NODOTDOT thing. But the people who need it really need
+to do it and test it, and they need to be committed enough that they say
+"yes, we'd use this, even though it's not portable". Because I don't want
+to add features to the kernel that people don't use, and a lot of the
+users don't want to use Linux-only things..
+
+Same goes for O_NOFOLLOW or O_NOMOUNT, to tell the kernel that it
+shouldn't follow symbolic links or cross mount-points - another thing that
+some software might want to use in order to check that you can't "escape"  
+your subtree.
+
+So these things would be literally trivial to add, and the only issue is 
+whether people would really use them.
+
+> What happens is that one program or library checks an incoming path
+> for ".." components - that code knows nothing about UTF-8 of course.
+> 
+> Then it passes the string to another program which assumes the path
+> has been subject to appropriate security checks, munges it in UTF-8,
+> and eventually does a file operation with it.  The munging generates
+> ".." components from non-minimal UTF-8 forms - if it's not obeying the
+> Unicode rejection requirement (which wasn't in earlier versions), that is.
+
+But note how my point was that YOU SHOULD NEVER EVER MUNGE A PATHNAME!
+
+It is fundamentally _wrong_ to convert pathnames. You _cannot_ do it 
+correctly. 
+
+The rule should be:
+ - convert user-input to UTF-8 early (do _nothing_ to it before the 
+   conversion). Allow escape sequences here.
+ - never ever convert readdir/getcwd/etc system-specified paths AT ALL. 
+   They are already in "extended UTF-8" format (where the "extended" part 
+   is the 'broken UTF-8' thing. I can be like MS and call my breakage 
+   "extended" too ;)
+ - always _always_ work on the "extended UTF-8" format, and never EVER 
+   convert that to anything else (except when you need to actually print
+   it, but then you encode it properly with escape sequences, the way you 
+   have to _anyway_).
+
+If you follow the above simple rules, you can't get it wrong. And in those 
+rules, ".." is the BYTE SEQUENCE in the "extended UTF-8". Nothing more.
+
+		Linus

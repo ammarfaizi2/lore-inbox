@@ -1,94 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284612AbRLMSgu>; Thu, 13 Dec 2001 13:36:50 -0500
+	id <S284617AbRLMSkK>; Thu, 13 Dec 2001 13:40:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284664AbRLMSgl>; Thu, 13 Dec 2001 13:36:41 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:36872 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S284612AbRLMSgZ>; Thu, 13 Dec 2001 13:36:25 -0500
-Message-ID: <3C18F50D.2D3452F@lexus.com>
-Date: Thu, 13 Dec 2001 10:35:57 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8-1 i686)
-X-Accept-Language: en
+	id <S284569AbRLMSkB>; Thu, 13 Dec 2001 13:40:01 -0500
+Received: from mustard.heime.net ([194.234.65.222]:49375 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S284753AbRLMSjt>; Thu, 13 Dec 2001 13:39:49 -0500
+Date: Thu, 13 Dec 2001 19:39:25 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [BUG] RAID sub system
+In-Reply-To: <Pine.LNX.4.33.0112131320350.15231-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.30.0112131937310.27346-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: Paulo Schreiner <paulo@bewnet.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TUX 2
-In-Reply-To: <1008246475.874.11.camel@gandalf>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Odd, it's working fine here with kernels
-from 2.4.16 to 2.4.17-pre8 -
+> do did you actually try this with a bunch of parallel dd's?
 
-What compiler are you using?
+I just did now. Same result:
 
-Can you send your .config?
+# vmstat 2
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0 200  1   1676   3200   3012 786004   0 292 42034   298  791   745   4  29  67
+ 0 200  1   1676   3308   3136 785760   0   0 44304     0  748   758   3  15  82
+ 0 200  1   1676   3296   3232 785676   0   0 44236     0  756   710   2  23  75
+ 0 200  1   1676   3304   3356 785548   0   0 38662    70  778   791   3  19  78
+ 0 200  1   1676   3200   3456 785552   0   0 33536     0  693   594   3  13  84
+ 1 200  0   1676   3224   3528 785192   0   0 35330    24  794   712   3  16  81
+ 0 200  0   1676   3304   3736 784324   0   0 30524    74  725   793  12  14  74
+ 0 200  0   1676   3256   3796 783664   0   0 29984     0  718   826   4  10  86
+ 0 200  0   1676   3288   3868 783592   0   0 25540   152  763   812   3  17  80
+ 0 200  0   1676   3276   3908 783472   0   0 22820     0  693   731   0   7  92
+ 0 200  0   1676   3200   3964 783540   0   0 23312     6  759   827   4  11  85
+ 0 200  0   1676   3308   3984 783452   0   0 17506     0  687   697   0  11  89
+ 0 200  0   1676   3388   4012 783888   0   0 14512     0  671   638   1   5  93
+ 0 200  0   2188   3208   4048 784156   0 512 16104   548  707   833   2  10  88
+ 0 200  0   3468   3204   4048 784788   0  66  8220    66  628   662   0   3  96
+ 0 200  0   3468   3296   4060 784680   0   0  1036     6  687   714   1   6  93
+ 0 200  0   3468   3316   4060 784668   0   0  1018     0  613   631   1   2  97
+ 0 200  0   3468   3292   4060 784688   0   0  1034     0  617   638   0   3  97
+ 0 200  0   3468   3200   4068 784772   0   0  1066     6  694   727   2   4  94
 
-cu
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
 
-jjs
+Computers are like air conditioners.
+They stop working when you open Windows.
 
-Paulo Schreiner wrote:
-
-> Hello, folks, i just downloaded the 2.4.16 kernel and applied the latest
-> tux2 patch (tux2-full-2.4.16-final-D1.bz2), but the kernel does not
-> compile.
-> I get the following error:
->
-> ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
-> arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-> init/version.o \
->         --start-group \
->         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-> mm/mm.o fs/fs.o ipc/ipc.o \
->          drivers/parport/driver.o drivers/char/char.o
-> drivers/block/block.o drivers/misc/misc.o drivers/net/net.o
-> drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o
-> drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o
-> drivers/sound/sounddrivers.o drivers/pci/driver.o
-> drivers/pcmcia/pcmcia.o drivers/net/pcmcia/pcmcia_net.o
-> drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o \
->         net/network.o \
->         /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
-> /usr/src/linux/arch/i386/lib/lib.a \
->         --end-group \
->         -o vmlinux
-> net/network.o: In function `_tr_flush_block':
-> net/network.o(.text+0x45810): multiple definition of `_tr_flush_block'
-> drivers/net/net.o(.text+0x9dd0): first defined here
-> net/network.o: In function `_tr_stored_type_only':
-> net/network.o(.text+0x45510): multiple definition of
-> `_tr_stored_type_only'
-> drivers/net/net.o(.text+0x9ad0): first defined here
-> net/network.o: In function `_tr_stored_block':
-> net/network.o(.text+0x45460): multiple definition of `_tr_stored_block'
-> drivers/net/net.o(.text+0x9a20): first defined here
-> net/network.o(.data+0x49c0): multiple definition of `deflate_copyright'
-> drivers/net/net.o(.data+0xe80): first defined here
-> net/network.o: In function `_tr_init':
-> net/network.o(.text+0x443a0): multiple definition of `_tr_init'
-> drivers/net/net.o(.text+0x8960): first defined here
-> net/network.o: In function `_tr_tally':
-> net/network.o(.text+0x45a60): multiple definition of `_tr_tally'
-> drivers/net/net.o(.text+0xa020): first defined here
-> net/network.o: In function `_tr_align':
-> net/network.o(.text+0x45590): multiple definition of `_tr_align'
-> drivers/net/net.o(.text+0x9b50): first defined here
-> make: *** [vmlinux] Error 1
->
-> Any help will be GREATLY appreciated.
-> I am currently running slackware 8.0 with linux 2.4.15-pre2 with ext3
-> filesystems.
->
-> Paulo Schreiner
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

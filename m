@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280035AbRLLNpW>; Wed, 12 Dec 2001 08:45:22 -0500
+	id <S280126AbRLLNwe>; Wed, 12 Dec 2001 08:52:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280002AbRLLNpN>; Wed, 12 Dec 2001 08:45:13 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:17931 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S280056AbRLLNpB>;
-	Wed, 12 Dec 2001 08:45:01 -0500
-Date: Wed, 12 Dec 2001 15:44:50 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Petr Titera <P.Titera@century.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 4GB file size limit on SMBFS
-Message-ID: <20011212154450.H1020@mea-ext.zmailer.org>
-In-Reply-To: <3C175A07.6000505@century.cz>
-Mime-Version: 1.0
+	id <S280056AbRLLNwY>; Wed, 12 Dec 2001 08:52:24 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7437 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280126AbRLLNwJ>; Wed, 12 Dec 2001 08:52:09 -0500
+Subject: Re: Near CPUs ...
+To: davidel@xmailserver.org (Davide Libenzi)
+Date: Wed, 12 Dec 2001 14:01:43 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <Pine.LNX.4.40.0112111806100.1500-100000@blue1.dev.mcafeelabs.com> from "Davide Libenzi" at Dec 11, 2001 06:32:04 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C175A07.6000505@century.cz>; from P.Titera@century.cz on Wed, Dec 12, 2001 at 02:22:15PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16E9x9-00019X-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 12, 2001 at 02:22:15PM +0100, Petr Titera wrote:
-> Hello,
+> that lists metrics between CPUs, ie :
 > 
-> 	I tested patches from Urban Wildmark to give SMBFS LFS support and
-> found, that limit on file size has only moved from 2GB to 4GB.
-> Is this expected behaviour?
+> metric(I, J) = F(cpus_dmap[I][J])
+> 
+> and this is the easy part.
+> How to detect CPUs that are "near" ( on the same bus/mb ) on x86/ia64 hardware ?
+> Is the MP configuration data structured in a way that makes you understand
+> this mapping, ie :
 
-  It is a possible behaviour.
-  There are no public official documents about how M$ has extended the SMB
-  protocol in various systems.  Apparently there are discrepancies even
-  within M$ about how to do those extensions, thus newer M$ systems have
-  more and more tests and work-arounds to handle various extensions.
-
-> Petr Titera
-> P.Titera@century.cz
-
-/Matti Aarnio
+The MP 1.1/1.4 mappings have no information on memory or locality. The ACPI
+stuff seems to have the same limitations. The ACPI one does correctly
+describe hyperthreading pairs (two execution units per die) - but while they
+are "closer" they are also less efficient than two seperate cpus for most
+tasks.

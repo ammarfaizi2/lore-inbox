@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273894AbRJDMu1>; Thu, 4 Oct 2001 08:50:27 -0400
+	id <S273912AbRJDNCs>; Thu, 4 Oct 2001 09:02:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273896AbRJDMuS>; Thu, 4 Oct 2001 08:50:18 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:49422 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S273894AbRJDMuM>;
-	Thu, 4 Oct 2001 08:50:12 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH - gameport_{,un}register_port must be static when inline 
-In-Reply-To: Your message of "Thu, 04 Oct 2001 15:32:54 +1000."
-             <15291.62598.349815.333342@notabene.cse.unsw.edu.au> 
-Mime-Version: 1.0
+	id <S273983AbRJDNCj>; Thu, 4 Oct 2001 09:02:39 -0400
+Received: from robur.slu.se ([130.238.98.12]:7944 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S273912AbRJDNCW>;
+	Thu, 4 Oct 2001 09:02:22 -0400
+From: Robert Olsson <Robert.Olsson@data.slu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 04 Oct 2001 22:50:28 +1000
-Message-ID: <30948.1002199828@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15292.24193.308549.459631@robur.slu.se>
+Date: Thu, 4 Oct 2001 15:05:05 +0200
+To: <mingo@elte.hu>
+Cc: jamal <hadi@cyberus.ca>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        <linux-kernel@vger.kernel.org>,
+        Robert Olsson <Robert.Olsson@data.slu.se>, <bcrl@redhat.com>,
+        <netdev@oss.sgi.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.LNX.4.33.0110040831020.1727-100000@localhost.localdomain>
+In-Reply-To: <Pine.GSO.4.30.0110031828100.7244-100000@shell.cyberus.ca>
+	<Pine.LNX.4.33.0110040831020.1727-100000@localhost.localdomain>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Oct 2001 15:32:54 +1000 (EST), 
-Neil Brown <neilb@cse.unsw.edu.au> wrote:
-># CONFIG_INPUT_GAMEPORT is not set
->CONFIG_SOUND=y
->CONFIG_SOUND_ESSSOLO1=y
->CONFIG_SOUND_ES1370=y
 
-My apologies, the symptoms sounded like a bug I fixed in 2.4.5-ac but
-are actually different.  Your original patch was correct.
+Ingo Molnar writes:
+ > 
+ > i'm asking the following thing. dev->quota, as i read the patch now, can
+ > cause extra calls to ->poll() even though the RX ring of that particular
+ > device is empty and the driver has indicated it's done processing RX
+ > packets. (i'm now assuming that the extra-polling-for-a-jiffy line in the
+ > current patch is removed - that one is a showstopper to begin with.) Is
+ > this claim of mine correct?
 
+ Hello!
+
+ Well I'm the one to blame... :-) This comes from my experiments to delay 
+ to polling before going into RX-irq-enable mode. This is one of the areas
+ to be addressed further with NAPI. And this code was not in any of the 
+ files that I announced I think..?
+
+ Cheers.
+
+						--ro

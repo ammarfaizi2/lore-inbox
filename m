@@ -1,30 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291829AbSBAQVn>; Fri, 1 Feb 2002 11:21:43 -0500
+	id <S291840AbSBAQeE>; Fri, 1 Feb 2002 11:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291831AbSBAQVd>; Fri, 1 Feb 2002 11:21:33 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:63248 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S291830AbSBAQVQ>; Fri, 1 Feb 2002 11:21:16 -0500
-Message-ID: <3C5AC078.8010103@evision-ventures.com>
-Date: Fri, 01 Feb 2002 17:21:12 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020129
-X-Accept-Language: en-us, pl
+	id <S291836AbSBAQdz>; Fri, 1 Feb 2002 11:33:55 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:50420 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S291835AbSBAQdm>; Fri, 1 Feb 2002 11:33:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Keys <akeys@post.cis.smu.edu>
+To: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] kthread abstraction
+Date: Fri, 1 Feb 2002 10:32:59 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020201163818.A32551@caldera.de>
+In-Reply-To: <20020201163818.A32551@caldera.de>
 MIME-Version: 1.0
-To: Davidovac Zoran <zdavid@unicef.org.yu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VESA Anybody out there
-In-Reply-To: <Pine.LNX.4.33.0202011640070.2501-100000@unicef.org.yu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020201163337.DHBU26243.rwcrmhc51.attbi.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davidovac Zoran wrote:
+On February 01, 2002 09:38, Christoph Hellwig wrote:
+> Currently the startup of custom kernel threads contains lots
+> of duplicated code (and bugs!).
 
->kernel 2.2.X ati rage,ati radeon vga=ask works (as vesa)
->kernel 2.4.X 800x600 mode didn't tested vga=ask
+Very interesting and approachable patch.  Am I correct this replaces the API 
+for starting threads like bdflush and kswapd?  Is this just an API 
+cleanliness thing or is there a performance motivation?
+
+Just one question....
+
 >
-I really mean the "scan" command after VGA ask.
+> I'd like to propose the following interface to get rid of these
+> code waste:
+>
+>     int kthread_start(struct kthread *kth)
+>
+> 	Startup a new kernel thread as described by 'kth' (details
+> 	below).  Wait until it has finished initialization.
+>
+>
+>     void kthread_stop(struct kthread *kth)
 
+Do you think you could get by just passing struct task_struct here?  I 
+realize that would make it less pleasant for calling functions.  However, it 
+would also prevent you from changing something else in the kthread in a later 
+version and catching a caller by surprise.
+
+Otherwise, looks nice to my naive eyes :)
+
+-- 
+akk~

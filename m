@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbUAIRr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 12:47:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbUAIRr4
+	id S263303AbUAIRib (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 12:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbUAIRib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 12:47:56 -0500
-Received: from ms-smtp-02-smtplb.ohiordc.rr.com ([65.24.5.136]:62966 "EHLO
-	ms-smtp-02-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S262745AbUAIRrz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 12:47:55 -0500
-From: Rob Couto <rpc@cafe4111.org>
-Reply-To: rpc@cafe4111.org
-Organization: Cafe 41:11
-To: linux-kernel@vger.kernel.org
-Subject: Re: Make the init-process look like the StarWars Credits
-Date: Fri, 9 Jan 2004 12:41:45 -0500
-User-Agent: KMail/1.5.4
-References: <3FFEDD1D.7000003@ippensen.de> <200401091218.12671.rpc@cafe4111.org>
-In-Reply-To: <200401091218.12671.rpc@cafe4111.org>
+	Fri, 9 Jan 2004 12:38:31 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:12046 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S263303AbUAIRi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 12:38:26 -0500
+Date: Fri, 9 Jan 2004 18:35:34 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: lkml@nitwit.de
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6: The hardware reports a non fatal, correctable incident
+ occured on CPU 0.
+In-Reply-To: <200401091748.10859.lkml@nitwit.de>
+Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC0751591E@difpst1a.dif.dk>
+References: <200401091748.10859.lkml@nitwit.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401091241.45544.rpc@cafe4111.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->maybe one could even borrow the code
-> from the starwars XScreenSaver to do the pretty rendering, since it already
-> takes plaintext input.
 
-oops, uhm, i forgot the X in XScreenSaver. you'd have to bring your own 
-drawing routines, never mind that someone made X do it already...
+On Fri, 9 Jan 2004 lkml@nitwit.de wrote:
 
--- 
-Rob Couto
-rpc@cafe4111.org
-Rules for computing success:
-1) Attitude is no substitute for competence.
-2) Ease of use is no substitute for power.
-3) Safety matters; use a static-free hammer.
---
+> Hi!
+>
+> I did have some very scary issues today playing with 2.6. The system was
+> booted and ran several times today, the longtest uptime was approximately
+> about an hour.
+>
+> But then shortly after having booted 2.6 I got syslog messages:
+>
+> The hardware reports a non fatal, correctable incident occured on CPU 0.
+>
+> I shut down the machine. After this my Athlon XP 2200+ showed up as 1050MHz in
+> BIOS an indeed the bus frequency was set to 100 instead of 133 MHz (how can
+> an OS change the BIOS?!)
+
+It's nothing to do with the OS most likely. Some BIOS's modify the FSB
+speed and other settings as a way to provide a sort of "fail safe" boot
+mode if a problem was detected.
+
+The BIOS on my board will do that if the system fails to POST and I've
+also seen it happen sometimes after a crash.
+
+It's even documented in the motherboard manual that it will behave this
+way when running in JumperFree mode (this is an ASUS A7M266 board btw).
+The exact text from my motherboard manual is :
+
+"Notes for JumperFree Mode
+ System Hangup
+
+ If your system crashes or hangs due to improper frequency settings, power
+ OFF your system and restart. The system will start up in safe mode
+ running at a DRAM-to-CPU frequency ratio of 3:3 and a bus speed of
+ 100MHz. You will then be led to BIOS setup to adjust the configurations."
+
+
+-- Jesper Juhl
+

@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264847AbUEJQOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264853AbUEJQRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264847AbUEJQOi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 12:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264854AbUEJQOh
+	id S264853AbUEJQRY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 12:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264851AbUEJQRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 12:14:37 -0400
-Received: from ida.rowland.org ([192.131.102.52]:1796 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S264851AbUEJQNS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 12:13:18 -0400
-Date: Mon, 10 May 2004 12:13:17 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Marcel Holtmann <marcel@holtmann.org>
-cc: Sebastian Schmidt <yath@yath.eu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] hci-usb bugfix
-In-Reply-To: <1084135167.9269.118.camel@pegasus>
-Message-ID: <Pine.LNX.4.44L0.0405101211350.669-100000@ida.rowland.org>
+	Mon, 10 May 2004 12:17:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50575 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264848AbUEJQRV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 12:17:21 -0400
+Message-ID: <409FAB04.5070006@pobox.com>
+Date: Mon, 10 May 2004 12:17:08 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: sean <seandarcy@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: can't see drive on promise 20375 ATA card
+References: <c7hgrq$5bv$1@sea.gmane.org>
+In-Reply-To: <c7hgrq$5bv$1@sea.gmane.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 May 2004, Marcel Holtmann wrote:
-
-> Hi Sebastian,
+sean wrote:
+> libata version 1.02 loaded.
+> sata_promise version 0.92
+> ata1: SATA max UDMA/133 cmd 0xE1863200 ctl 0xE1863238 bmdma 0x0 irq 19
+> ata2: SATA max UDMA/133 cmd 0xE1863280 ctl 0xE18632B8 bmdma 0x0 irq 19
+> ata1: no device found (phy stat 00000000)
+> ata1: thread exiting
+> scsi0 : sata_promise
+> ata2: no device found (phy stat 00000000)
+> ata2: thread exiting
+> scsi1 : sata_promise
 > 
-> > this is a little patch against 2.6.6-rc3 which fixes the Oops when
-> > unplugging an USB Bluetooth device.
-> > 
-> > hci_usb_disconnect() got called recursively which caused
-> > sysfs_hash_and_remove() finally to dereference a NULL pointer.
-
-> thanks for finding the reason for this problem, because the only thing
-> that I knew, was that enabled SCO support caused this problem. I prefer
-> to let the USB guys fix it, because this bug should be present for all
-> drivers that claimed more than one interface.
 > 
-> Regards
+> So it can see the SATA ports.
 > 
-> Marcel
-
-It looks like the problem is that hci_usb_disconnect() is trying to do too 
-much.  When called for the SCO interface it should simply return.
-
-Does this patch improve the situation?
-
-Alan Stern
+> How do I get the kernel to see the ATA port on the card?
 
 
+The driver does not support the PATA ports.
 
-===== drivers/bluetooth/hci_usb.c 1.44 vs edited =====
---- 1.44/drivers/bluetooth/hci_usb.c	Thu Apr 29 13:33:56 2004
-+++ edited/drivers/bluetooth/hci_usb.c	Mon May 10 12:10:31 2004
-@@ -918,7 +918,7 @@
- 			BT_ERR("Can't set isoc interface settings");
- 			isoc_iface = NULL;
- 		}
--		usb_driver_claim_interface(&hci_usb_driver, isoc_iface, husb);
-+		usb_driver_claim_interface(&hci_usb_driver, isoc_iface, NULL);
- 		husb->isoc_iface  = isoc_iface;
- 		husb->isoc_in_ep  = isoc_in_ep[isoc_ifnum];
- 		husb->isoc_out_ep = isoc_out_ep[isoc_ifnum];
+	Jeff
+
+
 

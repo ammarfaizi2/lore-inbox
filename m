@@ -1,36 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281096AbRKEM3A>; Mon, 5 Nov 2001 07:29:00 -0500
+	id <S281108AbRKEMdk>; Mon, 5 Nov 2001 07:33:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281098AbRKEM2k>; Mon, 5 Nov 2001 07:28:40 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:6419 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S281096AbRKEM2d>; Mon, 5 Nov 2001 07:28:33 -0500
-Date: Mon, 5 Nov 2001 13:28:31 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] disk throughput
-Message-ID: <20011105132831.C5805@emma1.emma.line.org>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011104193232.A16679@mikef-linux.matchmail.com> <200111050554.fA55swt273156@saturn.cs.uml.edu> <3BE647F4.AD576FF2@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <3BE647F4.AD576FF2@zip.com.au>
-User-Agent: Mutt/1.3.22.1i
+	id <S281107AbRKEMda>; Mon, 5 Nov 2001 07:33:30 -0500
+Received: from mustard.heime.net ([194.234.65.222]:7825 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S281105AbRKEMdV>; Mon, 5 Nov 2001 07:33:21 -0500
+Date: Mon, 5 Nov 2001 13:33:18 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>, Tux mailing list <tux-list@redhat.com>
+Subject: Lots of questions about tux and kernel setup
+Message-ID: <Pine.LNX.4.30.0111051238320.18502-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Nov 2001, Andrew Morton wrote:
+Hi all.
 
-> OK.  I'm not really aware of a suitable benchmark for that.
-> postmark only works in a single directory.  mongo hardly
-> touches the disk at all, (with 3/4 of a gig of RAM, anyway).
+I've started a new project where the final goal is to overload
+vger.kernel.org with silly questions...
 
-You can always pass the kernel "mem=64M".
+Well... Seriously, I'm working on a project, setting up a web server,
+serving large, multi-gigabyte media files (aka streaming). Below, I've
+set up a list of questions of things I want to know to tune the system as
+good as possible. Thank you all for all help :-)
 
--- 
-Matthias Andree
+First of all - the plan now, is to use Tux as the web server, as I've got
+the impression - both by testing it, and of what's been said on the list,
+that it's one of the fastest solutions I can find - at least on Linux. I
+plan to serve some <= 250 concurrent connections, each given a maximum
+bandwidht (in tux) of 7 Mbps. The average bandwidth use will be somewhere
+between 4 and 5 Mbps, but it may peak at 7. The server I'll set up will
+only run Tux - no Apache. Tux will be setup not to log, and virutally all
+system daemons will be stopped. Some management agents (from Compaq or
+whoever we'll go for) may run, but that's it. I also plan to set it up
+without any swap partition.
 
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."         Benjamin Franklin
+Q: What would the memory requirements for such a system be? I've read Tux
+uses sendfile(), but I don't know how Tux or sendfile() caches. Does
+sendfile read the file into the cache buffer before sending it? I mean - I
+can't keep the files in memory, so how much would do?
+
+Q: If using the bandwidth control in Tux, how much CPU overhead may I
+expect per stream (sizes as mentioned above)?
+
+Q: Do anyone know what SCSI and NIC (1 or 10Gb-Ethernet) that have low or
+high CPU overhead? I have the impression that there are quite some
+variations between different drivers. Is this true?
+
+Q: Tux has some way of linking IRQs directly to a specific CPU/thread
+(don't really remember what this was...). What should/could be used of
+these, or other tuning factors to speed up the server?
+
+Q: Are there ways to strip down the kernel, as to get rid of everything I
+don't want or don't need? Could I gain speed on this, or is it just a
+waste?
+
+Q: What file system would be best suitable for this? Ext[23]? ReiserFS?
+Xfs? FAT? :-)
+
+Q: If using iptables to block any unwanted traffic - that is - anything
+that's not TCP/80, how much CPU overhead could this generate? Could use of
+tcpwrappers or similar systems work better? (I need ssh, snmp and a some
+management agents available on the net, but I don't want the end users to
+be able to access them).
+
+Well... That's all for now...
+
+Thanks for any help
+
+Regards
+
+roy
+
+---
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+
+
+

@@ -1,38 +1,45 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <153981-13684>; Thu, 7 Jan 1999 15:20:10 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:1459 "EHLO atrey.karlin.mff.cuni.cz" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <160317-13684>; Thu, 7 Jan 1999 05:46:06 -0500
-Message-ID: <19990107140917.23736@atrey.karlin.mff.cuni.cz>
-Date: Thu, 7 Jan 1999 14:09:17 +0100
-From: Pavel Machek <pavel@atrey.karlin.mff.cuni.cz>
-To: Kurt Garloff <K.Garloff@ping.de>
-Cc: "B. James Phillippe" <bryan@terran.org>, Linux kernel list <linux-kernel@vger.rutgers.edu>
+Received: by vger.rutgers.edu id <155522-2781>; Fri, 8 Jan 1999 02:56:27 -0500
+Received: from ps.cus.umist.ac.uk ([192.84.78.160]:9295 "EHLO ps.cus.umist.ac.uk" ident: "rhw") by vger.rutgers.edu with ESMTP id <161080-13684>; Thu, 7 Jan 1999 10:13:43 -0500
+Date: Thu, 7 Jan 1999 17:38:08 +0000 (GMT)
+From: Riley Williams <rhw@bigfoot.com>
+To: "B. James Phillippe" <bryan@terran.org>
+cc: Kurt Garloff <K.Garloff@ping.de>, Linux Kernel <linux-kernel@vger.rutgers.edu>
 Subject: Re: [PATCH] HZ change for ix86
-References: <19990105094830.A17862@kg1.ping.de> <Pine.LNX.4.04.9901052119090.19960-100000@earth.terran.org> <19990106102908.A27572@kg1.ping.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.84
-In-Reply-To: <19990106102908.A27572@kg1.ping.de>; from Kurt Garloff on Wed, Jan 06, 1999 at 10:29:08AM +0100
+In-Reply-To: <Pine.LNX.4.04.9901052119090.19960-100000@earth.terran.org>
+Message-ID: <Pine.LNX.3.96.990107173432.6687D-100000@ps.cus.umist.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi!
+Hi James.
 
-> > I don't know anything about it (and my box is an Alpha for which HZ is
-> > 1024), but, one ignorant proposal: would it perhaps be worthwhile to have
-> > the HZ value higher for faster (x86) systems based on the target picked in
-> > make config?  Say, your 400 for Pentium+ and 100 for 486 or lower..?
-> 
-> Yes, I think this would be a good idea.
-> No time to code it into the CONFIG files, right now, though ...
-> If Linus tells me: "Hey, do it, it will be integrated then!" I will have
-> time, of course. 
+ >> I created a patch which changes the values of HZ to 400 and fixed
+ >> all places I could spot which report the jiffies value to
+ >> userspace. I think I caught all of them. Note that 400 is a nice
+ >> value, because we have to divide the values by 4 then, which the
+ >> gcc optimizes to shift operations, which can be done in one or two
+ >> cycles each and even parallelized on modern CPUs. Integer
+ >> divisions are slow on the ix86 (~20 cycles) and the sys_times() 
+ >> needs four of them.
 
-You should _not_ need to increase HZ. But there've always been obscure
-"feature" in scheduler, and increased HZ work around it.
+ > I don't know anything about it (and my box is an Alpha for which HZ
+ > is 1024), but, one ignorant proposal: would it perhaps be
+ > worthwhile to have the HZ value higher for faster (x86) systems
+ > based on the target picked in make config?
 
-								Pavel
--- 
-The best software in life is free (not shareware)!		Pavel
-GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
+ > Say, your 400 for Pentium+ and 100 for 486 or lower..?
+
+If we were going to do this, I'd suggest 400 for Pentium+, 200 for 486
+and 100 for 386 class systems as being more reasonable, and still
+maintaining the shift-optimisation mentioned above...
+
+Best wishes from Riley.
+
+---
+ * ftp://ps.cus.umist.ac.uk/pub/rhw/Linux
+ * http://ps.cus.umist.ac.uk/~rhw/kernel.versions.html
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

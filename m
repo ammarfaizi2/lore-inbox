@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbUCOVT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 16:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbUCOVT4
+	id S262769AbUCOVTq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 16:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbUCOVTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 16:19:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58343 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262794AbUCOVTp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 15 Mar 2004 16:19:45 -0500
-Date: Mon, 15 Mar 2004 13:21:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: Remove pmdisk from kernel
-Message-Id: <20040315132146.24f935c2.akpm@osdl.org>
-In-Reply-To: <20040315205752.GG258@elf.ucw.cz>
-References: <20040315195440.GA1312@elf.ucw.cz>
-	<20040315125357.3330c8c4.akpm@osdl.org>
-	<20040315205752.GG258@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Received: from ns.virtualhost.dk ([195.184.98.160]:5100 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262769AbUCOVS0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 16:18:26 -0500
+Date: Mon, 15 Mar 2004 22:18:18 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Thomas Schlichter <thomas.schlichter@web.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm2
+Message-ID: <20040315211818.GF660@suse.de>
+References: <20040314172809.31bd72f7.akpm@osdl.org> <200403152157.02051.thomas.schlichter@web.de> <20040315131852.3fd9cd93.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040315131852.3fd9cd93.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> > It would be unfortunate if Pat had more development planned or even
-> > underway.  Have we checked?
+On Mon, Mar 15 2004, Andrew Morton wrote:
+> Thomas Schlichter <thomas.schlichter@web.de> wrote:
+> >
+> > ith 2.6.4-mm2 I get following badness on boot:
+> > 
+> > Badness in as_insert_request at drivers/block/as-iosched.c:1513
+> > Call Trace:
+> >  [<c022e326>] as_insert_request+0x166/0x190
+> >  [<c0225af8>] __elv_add_request+0x28/0x60
+> >  [<c0228b9b>] __make_request+0x47b/0x540
+> >  [<c0228d75>] generic_make_request+0x115/0x1d0
+> >  [<c011efd0>] autoremove_wake_function+0x0/0x40
+> >  [<c0228e80>] submit_bio+0x50/0xf0
+> >  [<c0162f58>] __bio_add_page+0x88/0x110
 > 
-> Last time I attempted pmdisk removal, he did not react. Lets try one
-> more time.
+> Someone got his bitmasks and bitshifts mixed up again ;)
 
-OK.  Best use his current email address..
+Fudge, thanks Andrew.
 
-> I believe that you don't want swsusp2 in 2.6. It has hooks all over
-> the place:
-> ...
-> 109 files changed, 3254 insertions(+), 624 deletions(-)
+-- 
+Jens Axboe
 
-Ahem.  Agreed.

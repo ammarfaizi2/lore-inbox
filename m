@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269520AbRGaXBP>; Tue, 31 Jul 2001 19:01:15 -0400
+	id <S269531AbRGaXI7>; Tue, 31 Jul 2001 19:08:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269529AbRGaXBF>; Tue, 31 Jul 2001 19:01:05 -0400
-Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:43519 "EHLO
-	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S269520AbRGaXA5>; Tue, 31 Jul 2001 19:00:57 -0400
-Date: Tue, 31 Jul 2001 18:47:08 -0400
-From: Alan Shutko <ats@acm.org>
-Subject: Re: OT: Virii on vger.kernel.org lists
-In-Reply-To: <996618679.24933.18.camel@tduffy-lnx.afara.com>
-To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-Cc: Riley Williams <rhw@MemAlpha.CX>, Craig Milo Rogers <rogers@ISI.EDU>,
-        Matti Aarnio <matti.aarnio@zmailer.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <87ofq07m37.fsf@wesley.springies.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.0.104
-In-Reply-To: <Pine.LNX.4.33.0107312312360.31582-100000@infradead.org>
- <996618679.24933.18.camel@tduffy-lnx.afara.com>
+	id <S269532AbRGaXIr>; Tue, 31 Jul 2001 19:08:47 -0400
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:30340 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S269531AbRGaXIb>; Tue, 31 Jul 2001 19:08:31 -0400
+Date: Tue, 31 Jul 2001 16:08:38 -0700 (PDT)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Test mail
+In-Reply-To: <Pine.LNX.4.33.0107300000480.5726-100000@train.sweet-haven.com>
+Message-ID: <Pine.LNX.4.33.0107311607421.8239-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu> writes:
+> On Sun, 29 Jul 2001, Paul G. Allen wrote:
+>
+> > Well The e-mail looks like it may be a variation on SirCam or Code Red
+> > (I could be wrong). It appears to have its own mailer attached (from
+> > what I saw in the header - I have not opened the attached .zip) and it
+> > came from:
+> >
+> > cx852567-a.ocnsd1.sdca.home.com
+> >
+> > Oceanside, California, USA (about 30 miles North of me).
 
-> On 31 Jul 2001 23:17:13 +0100, Riley Williams wrote:
-> 
->>  1. Some virii are text attachments. Your fix doesn't deal wioth them.
-> 
-> huh?  how do you write an ASCII text virus.  if you can do that, I will
-> give you a cookie.
+About the same distance from me, also. a cable modem user on the @home
+network....
 
-Easy... since most Windows mailers ignore the mime-type, just throw
-your normal virus in a text/plain type.
+ Kelsey Hudson                                           khudson@ctica.com
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
 
--- 
-Alan Shutko <ats@acm.org> - In a variety of flavors!
-If anything can go wrong, it will.

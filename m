@@ -1,96 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264262AbTLJXFW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 18:05:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbTLJXFV
+	id S264239AbTLJXMl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 18:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTLJXMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 18:05:21 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:49675
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S264262AbTLJXFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 18:05:09 -0500
-Date: Wed, 10 Dec 2003 14:59:10 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linus Torvalds <torvalds@osdl.org>, Maciej Zenczykowski <maze@cela.pl>,
-       David Schwartz <davids@webmaster.com>,
-       Jason Kingsland <Jason_Kingsland@hotmail.com>,
-       linux-kernel@vger.kernel.org
+	Wed, 10 Dec 2003 18:12:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30953 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264239AbTLJXMj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 18:12:39 -0500
+Date: Wed, 10 Dec 2003 15:11:24 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Hua Zhong <hzhong@cisco.com>, "'Arjan van de Ven'" <arjanv@redhat.com>,
+       Valdis.Kletnieks@vt.edu, "'Kendall Bennett'" <KendallB@scitechsoft.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.58.0312102212370.1125@earth>
-Message-ID: <Pine.LNX.4.10.10312101449260.3805-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10312101109380.3805-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.58.0312101452300.1273@home.osdl.org>
+References: <Pine.LNX.4.10.10312101109380.3805-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ingo,
 
-I suggest asking FSF how they play with GPL+another license.
-They will tell you GPL can not co-exist, period.
+On Wed, 10 Dec 2003, Andre Hedrick wrote:
+>
+> How can the additional words alter the mean of GPL itself?
 
-The reply is a double bounce back of ideas.
+They can't.
 
-Jason,
+But they _can_ alter your ability to sue. In particular, if you publicly
+state that you will not sue anybody over something, they can now use that
+statement to make future plans. If at a later date you decide to sue them
+anyway, they can point the judge at your earlier statement, and claim
+estoppel against you.
 
-What you are really saying is the Linux does not have a GPL license.
-It has a GPL-like or LKL.
+So note how the license itself didn't change - but your ability to
+_enforce_ the license has changed by virtue of you stating that you won't.
 
-Linux Kernel License.
+So while I publicaly say that I'm a lazy bastard, and the less I have to
+do with lawyers, the better - I won't actually say that I will never sue
+anybody. I'll say that it is "unlikely", or that people would have to
+irritate me mightily.
 
-Hmmm, new thought ...
+For most developers that literally doesn't much matter what they say. Even
+when _I_ say something, that doesn't really matter to what other
+developers do, and while it could potentially limit me from enforcing _my_
+copyrights, it doesn't stop others from enforcing theirs. So my random
+email ramblings should really be construed as my opinions rather than any
+legally relevant stuff.
 
-I will be kind to it because it is in a strange place :-)
+However, the few extra lines in the main COPYING file end up being
+somewhat binding to others, simply because they are _so_ public (they are,
+after all, in the _main_ COPYING file) and they have been there pretty
+much since the beginning, that they would basically end up being a very
+strong argument in any legal case where some random kernel developer would
+try to argue that it doesn't cover "their" code.
 
-Cheers,
+You don't have to agree to them, btw - you can remove them from the copy
+of Linux you distribute, since the GPL in no way requires you to keep
+them. They're not part of the copyright license per se, they are expressly
+marked as being my personal viewpoint.  I suspect that if you do, you'll
+find companies that would be slightly more nervous to work with you,
+though.
 
-Andre Hedrick
-LAD Storage Consulting Group
+But nobody has really ever argued against the clause, even originally. And
+in this particular discussion, I don't believe anybody is actually arguing
+against it now either. The legal meaning of it may be under discussion,
+but I don't think anybody is really even _trying_ to argue that it should
+be removed and that we should suddenly try to claim that any future user
+programs have to be GPL'd.
 
-On Wed, 10 Dec 2003, Ingo Molnar wrote:
+Quite the reverse - I think everybody involved would argue that that would
+just be crazy talk.
 
-> 
-> On Wed, 10 Dec 2003, Andre Hedrick wrote:
-> 
-> > I have and the lawyers tell me that it is one or the other and can not
-> > be both.  So explain to me how a GPL/BSD or BSD/GPL works again?
-> 
-> ugh. Are your lawyers saying that the tons of dual-licensed code is not a
-> valid license? Seems like your lawyers disagree with lots of other
-> lawyers.
-> 
-> > Also if one does an md5sum on the "COPYING" file from FSF and compares
-> > it from the one in the kernel source they differ.
-> 
-> here's the (trivial) diff. Draw your own conclusions.
-> 
-> --- libc/COPYING	2001-07-06 07:57:07.000000000 +0200
-> +++ v/COPYING	2003-11-23 13:21:58.000000000 +0100
-> @@ -1,3 +1,19 @@
-> +
-> +   NOTE! This copyright does *not* cover user programs that use kernel
-> + services by normal system calls - this is merely considered normal use
-> + of the kernel, and does *not* fall under the heading of "derived work".
-> + Also note that the GPL below is copyrighted by the Free Software
-> + Foundation, but the instance of code that it refers to (the Linux
-> + kernel) is copyrighted by me and others who actually wrote it.
-> +
-> + Also note that the only valid version of the GPL as far as the kernel
-> + is concerned is _this_ particular version of the license (ie v2, not
-> + v2.2 or v3.x or whatever), unless explicitly otherwise stated.
-> +
-> +			Linus Torvalds
-> +
-> +----------------------------------------
-> +
->  		    GNU GENERAL PUBLIC LICENSE
->  		       Version 2, June 1991
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+			Linus

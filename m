@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262300AbVDFTqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVDFTtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262300AbVDFTqC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 15:46:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbVDFTqC
+	id S262301AbVDFTtT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 15:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVDFTtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 15:46:02 -0400
-Received: from ida.rowland.org ([192.131.102.52]:10756 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262300AbVDFTp6 (ORCPT
+	Wed, 6 Apr 2005 15:49:19 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:39739 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262301AbVDFTtP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 15:45:58 -0400
-Date: Wed, 6 Apr 2005 15:45:57 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Patrick Mochel <mochel@digitalimplant.org>
-cc: David Brownell <david-b@pacbell.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: klists and struct device semaphores
-In-Reply-To: <Pine.LNX.4.50.0504060032260.17888-100000@monsoon.he.net>
-Message-ID: <Pine.LNX.4.44L0.0504061535140.1511-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Apr 2005 15:49:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Gw6PdyCt0fcFYujCjapidp0Wxpy7AMV8L1uj76YlOZzNbJq+ca0SYng9dxjyNp0Zfs3dw1nkPUJFVTCKPPiR/g93HTNebPiCTbnG2f1U+0WrrLMuJviZxYkvICFn1k6XyO4W2/BELEhBwmjcZsvZYbbTyP0FU0sl0ikMF38WN9g=
+Message-ID: <9e4733910504061249340d3ce@mail.gmail.com>
+Date: Wed, 6 Apr 2005 15:49:11 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: chaosite@gmail.com
+Subject: Re: Kernel SCM saga..
+Cc: Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42543770.3080706@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+	 <9e4733910504061207538485a6@mail.gmail.com>
+	 <42543770.3080706@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Apr 2005, Patrick Mochel wrote:
-
-> > Third, why does device_release_driver() call klist_del() instead of
-> > klist_remove() for dev->knode_driver?  Is that just a simple mistake?
-> > The klist_node doesn't seem to get unlinked anywhere.
+On Apr 6, 2005 3:24 PM, Matan Peled <chaosite@gmail.com> wrote:
+> Jon Smirl wrote:
+> > ODSL could then GPL the code and quiet the
+> > critics.
 > 
-> It can be called from driver_for_each_device() when the driver has been
-> unloaded. Since that increments the reference count for the node when it's
-> unregistering it, klist_remove() will deadlock. Instead klist_del() is
-> called, and when the next node is grabbed, that one will be let go and
-> removed from the list.
+> And also cause aaid GPL'ed code to be immediatly ported over to Windows. I don't
+> think BitMover could ever agree to that.
 
-The patch looks good.  But isn't there still a problem with
-device_release_driver()?  It doesn't wait for the klist_node to be removed
-from the klist before unlocking the device and moving on.  As a result, if
-another driver was waiting to bind to the device you would corrupt the
-list pointers, by calling klist_add_tail() for the new driver before
-klist_release() had run for the old driver.
+Windows Bitkeeper licenses are not that expensive, wouldn't you rather
+keep your source in a licensed supported version? Who is going to do
+this backport, then support it and track new releases? Why do people
+pay for RHEL when they can get it for free? They want support and a
+guarantee that their data won't be lost. Even with a GPL'd Linux
+Bitkeeper I'll bet half of the existing Linux paying customers will
+continue to use a paid version.
 
-I'll be interested to see how you manage to solve this.  The only way I 
-can think of is to avoid using driver_for_each_device() in 
-driver_detach().
+There is a large difference in the behavior of corporations with huge
+source bases and college students with no money. The corporations will
+pay to have someone responsible for ensuring that the product works.
 
-Alan Stern
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

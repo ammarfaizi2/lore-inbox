@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265431AbUBAR75 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 12:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265433AbUBAR75
+	id S265384AbUBASZw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 13:25:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265406AbUBASZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 12:59:57 -0500
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:1725 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S265431AbUBAR7z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 12:59:55 -0500
-Message-ID: <401D3E97.5080902@samwel.tk>
-Date: Sun, 01 Feb 2004 18:59:51 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: reiser@namesys.com
-Subject: Reiserfs flags question
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 1 Feb 2004 13:25:52 -0500
+Received: from smtp3.wanadoo.fr ([193.252.22.28]:44099 "EHLO
+	mwinf0303.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S265384AbUBASZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 13:25:50 -0500
+Subject: error message selecting "advanced linux sound architecture"
+From: "olivier.serrano" <olivier.serrano@wanadoo.Fr>
+Reply-To: olivier.serrano@wanadoo.Fr
+To: mec@shout.net
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: GNU Linux
+Message-Id: <1075663517.2069.11.camel@routeur>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk 
+Date: Sun, 01 Feb 2004 20:25:17 +0100
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Hello,
 
-I was looking at fs/reiserfs/inode.c, and I noticed that the functions 
-sd_attrs_to_i_attrs and i_attrs_to_sd_attrs are not exact inverses: 
-i_attrs_to_sd_attrs doesn't convert the S_APPEND flag to 
-REISERFS_APPEND_FL, but sd_attrs_to_i_attrs does convert 
-REISERFS_APPEND_FL to S_APPEND. I was wondering, is this intentional?
+when i select the menu "advanced linux sound architecture"
+for the linux kernel 2.4.22-10mdk
 
---Bart
+I get the following error message :
+
+
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
+                                                                                
+ Q> scripts/Menuconfig: line 832: MCmenu78: command not found
+
+
+Could you please help ?
+
+Thank you
+
+Olivier Serrano
+

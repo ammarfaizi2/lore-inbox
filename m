@@ -1,75 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261418AbSIXP4I>; Tue, 24 Sep 2002 11:56:08 -0400
+	id <S261377AbSIXPzV>; Tue, 24 Sep 2002 11:55:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261691AbSIXP4I>; Tue, 24 Sep 2002 11:56:08 -0400
-Received: from smtp03.web.de ([217.72.192.158]:50724 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S261418AbSIXP4H> convert rfc822-to-8bit;
-	Tue, 24 Sep 2002 11:56:07 -0400
-From: "Todor Todorov" <ttodorov@web.de>
-To: "'Feldman, Scott'" <scott.feldman@intel.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: AW: eepro100/e100 drivers fragment heavily
-Date: Tue, 24 Sep 2002 18:06:20 +0200
-Message-ID: <15CB59420A67D511878F0090279C2C9B01ACF1@SKRSERVERHB>
+	id <S261418AbSIXPzV>; Tue, 24 Sep 2002 11:55:21 -0400
+Received: from nameservices.net ([208.234.25.16]:17037 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S261377AbSIXPzU>;
+	Tue, 24 Sep 2002 11:55:20 -0400
+Message-ID: <3D908D2A.C169D01B@opersys.com>
+Date: Tue, 24 Sep 2002 12:04:58 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <288F9BF66CD9D5118DF400508B68C446047589DF@orsmsx113.jf.intel.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Fwd: Announce: rtai-24.1.10]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
 
-I can confirm that the nic is set to auto-sensing/auto-negotiation.
-There is no way for me to change the behaviour of the switch, it's
-always auto-negotiation. Also, I cannot say to what state a port on the
-switch is set at one time - if it is half- or full-duplex etc.
+For those on the LKML interested in RTAI:
 
-But it would seem that I have some sort of hardware problem, my guess
-would be the motherboard. Some problems with my cd/dvd drive occurred,
-besides this the I installed win xp on the same machine as dual boot to
-check it out and the network behaviour is exactly the same. Sorry, it
-seems to be false alarm.
-
-Cheers,
-Todor
-
------Ursprüngliche Nachricht-----
-Von: Feldman, Scott [mailto:scott.feldman@intel.com] 
-Gesendet: Montag, 23. September 2002 22:04
-An: 'Todor Todorov'; linux-kernel@vger.kernel.org
-Betreff: RE: eepro100/e100 drivers fragment heavily
-
-Todor Todorov wrote:
-
-> The computer is a 
-> Dell Inspiron 8000 laptop with an internal Actiontec 
-> modem/nic combo pci card based on the Intel Pro chip, running 
-> Debian. I observed this behaviour with the eepro100 drivers 
-> in 2.4.19, 2.4.20-pre6 and 2.4.20-pre7 and e100 drivers in 
-> 2.4.20-pre6 and -pre7. Pulling data from the network is fine 
-> and fast though, only sending is a problem. The only hint I 
-> have of what migh be causing the problem is something I read 
-> in the specs of my NWAY SOHO switch - it would allow 
-> full-duplex 100 MBit/sec only based on auto negotiation, if a 
-> nic is in forced mode (say 100 MBit full-duplex), the swith 
-> will allow only 100 MBit half-duplex. I tried other high 
-> quality switches too, but the result was the same. 
-
-Please confirm that the switch and nic are both set to auto-neg, or both
-the
-switch and the nic forced to the same settings (i.e. 100/half).  We need
-to
-make sure both ends of the wire match.
-
--scott
-
-
-
+Paolo Mantegazza wrote:
+> Hi,
+> 
+> at: www.aero.polimi.it/~rtai you'll find "rtai-24.1.10".
+> 
+> It is a huge one, worth a couple of releases before it. There are so
+> many new things that I'm not sure to recall them all. More or less and
+> without caring of any order of presentation what's new should be:
+> 
+> - NEWLXRT, i.e. LXRT without using RTAI proper tasks. It schedules just
+> LINUX tasks and kernel threads natively. Under NEWLXRT kernel space
+> threads works in hard mode always, user space Linux tasks can be
+> soft/hard as in LXRT. You can think of it as something that makes Linux
+> a hard real time kernel natively, albeit under the constraint of using
+> RTAI APIs. Anything that runs under RTAI can run under NEWLXRT
+> (kernel/user space). Back portable down to rtai-24.1.7 by just copying
+> the related directory.
+> 
+> - Full support for writing interrupt handlers in user space under
+> LXRT/NEWLXRT (UserSpaceInterrups-USI).
+> 
+> - Support for COMEDI kernel space APIs (kcomedilib) in user space under
+> LXRT/NEWLXRT, in soft/hard real time. (The Comedi Players)
+> 
+> - Support for LABVIEW under LXRT/NEWLXRT, in soft/hard real time. It is
+> now possible to program your hard real time applications, including
+> interrupt handlers, using the visual 'G' language. (Thomas Leibner)
+> 
+> - LXRT extensions can now use the FPU. (Giuseppe Renoldi)
+> 
+> - A new real time support for serial ports, user/kernel space (SPDRV).
+> (Giuseppe Renoldi)
+> 
+> - Support for making it easy for you to prepare a bootable floppy that
+> runs RTAI (uRTAI, read it microRTAI). (Lorenzo Dozio)
+> 
+> - RTW should work more reliably and has more DAQ boards supported,
+> including NI-MIO line. (Lorenzo Dozio)
+> 
+> - Revised and more detailed configuration for a better making. (Lorenzo
+> Dozio, with help and suggestions from the RTAI team)
+> 
+> It is also possible to apply a new patch (allsoft) that allows
+> configuring RTAI to manage all interrupts (hard/soft), in the soft way
+> (ALLSOFT) and avoid scheduling any RTAI proper tasks from Linux
+> (MINI_LXRT). The new configuration making will assist you in setting up
+> such features, if you use the "allsoft" patch.
+> 
+> It is distributed as a short living provisional work.
+> 
+> In fact ALLSOFT+MINI_LXRT is meant to pave the way to the ADEOS
+> transition by statically mimicking its multi-domain scheme in
+> replacement of the previous master(RTAI)-slave(Linux) approach. It is
+> intended to provide the bottom line in terms of performance that we
+> should be able to reach, hopefully improve, with ADEOS, so people can
+> immediately experiment the implications of the future transition to
+> ADEOS. Such a transition will be the core of rtai-24.1.11.
+> 
+> I'll not dwell on the meaning of having ALLSOFT+MINI_LXRT and NEWLXRT
+> (back portable), RTAI users should grasp it easily.
+> 
+> Paolo Mantegazza.

@@ -1,61 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbUCITvY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 14:51:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUCITvV
+	id S262110AbUCIT5C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 14:57:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbUCIT5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:51:21 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37371 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262110AbUCITuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:50:46 -0500
-Date: Tue, 9 Mar 2004 20:50:37 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Lee Howard <faxguy@howardsilvan.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: error compiling 2.6.3
-Message-ID: <20040309195037.GM14833@fs.tum.de>
-References: <20040309192252.GG11378@bilbo.x101.com>
+	Tue, 9 Mar 2004 14:57:01 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:59100 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262110AbUCIT4i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 14:56:38 -0500
+Date: Tue, 9 Mar 2004 20:57:52 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
+Message-ID: <20040309195752.GA16519@elte.hu>
+References: <20040308202433.GA12612@dualathlon.random> <1078781318.4678.9.camel@laptop.fenrus.com> <20040308230845.GD12612@dualathlon.random> <20040309074747.GA8021@elte.hu> <20040309152121.GD8193@dualathlon.random> <20040309153620.GA9012@elte.hu> <20040309163345.GK8193@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040309192252.GG11378@bilbo.x101.com>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <20040309163345.GK8193@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09, 2004 at 11:22:52AM -0800, Lee Howard wrote:
-> ....
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   CC      init/do_mounts.o
->   CC      init/do_mounts_rd.o
->   CC      init/do_mounts_initrd.o
->   LD      init/mounts.o
->   CC      init/initramfs.o
->   LD      init/built-in.o
->   HOSTCC  usr/gen_init_cpio
->   CPIO    usr/initramfs_data.cpio
->   GZIP    usr/initramfs_data.cpio.gz
->   AS      usr/initramfs_data.o
-> /tmp/ccFjeWhS.s: Assembler messages:
-> /tmp/ccFjeWhS.s:3: Error: Unknown pseudo-op:  `.incbin'
-> make[1]: *** [usr/initramfs_data.o] Error 1
-> make: *** [usr] Error 2
-> [root@bilbo linux-2.6.3]# 
 
-Please update your binutils.
+* Andrea Arcangeli <andrea@suse.de> wrote:
 
-Documentation/Changes lists version 2.12 as the minimum required 
-version.
+> > (OASB is not a full-disclosure benchmark so i have no way to check
+> > this.) All you have proven is that workloads with a limited number of
+> > per-inode vmas can perform well. Which completely ignores my point.
+> 
+> what is your point, that OASB is a worthless workload and the only
+> thing that matters is TPC-C? [...]
 
-cu
-Adrian
+not at all. I pointed out specific workloads that create tons of vmas,
+which would perform very bad if swapping. OASB is not one of those
+workloads. [I could also mention UML which currently creates a vma per
+virtualized page, which, with a low-end UML setup, generates tens of
+thousands of vmas as well.]
 
--- 
+(if the linear search is fixed then i have no objections, but for the
+current code to hit any mainline kernel we would first need to redefine
+'enterprise quality'. My main worry is that we are now at a dozen emails
+regarding this topic and you still dont seem to be aware of the severity
+of this quality of implementation problem.)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+sure, remap_file_pages() fixes such problems - while i'm happy if more
+people use remap_file_pages(), apps are not (and should not be) forced
+to use remap_file_pages() and i refuse to concede that the VM must
+inevitably get wedged with just a couple of thousand vmas created on a
+256 MB 500 MHz box ... I dont know how to put this point in a simpler
+way. This stuff must not be added (to mainline) until it can take the
+load.
 
+	Ingo

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318855AbSHLWeU>; Mon, 12 Aug 2002 18:34:20 -0400
+	id <S318856AbSHLWh7>; Mon, 12 Aug 2002 18:37:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318856AbSHLWeU>; Mon, 12 Aug 2002 18:34:20 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:6922 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id <S318855AbSHLWeT>;
-	Mon, 12 Aug 2002 18:34:19 -0400
-Date: Tue, 13 Aug 2002 00:38:03 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Fredrik Ohrn <ohrn@chl.chalmers.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sungem 0.97 driver doesn't work with "Sun GigabitEthernet/P 2.0" card.
-Message-ID: <20020812223803.GA13993@alpha.home.local>
-References: <Pine.LNX.4.44.0208122129030.17687-100000@feline.chl.chalmers.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208122129030.17687-100000@feline.chl.chalmers.se>
-User-Agent: Mutt/1.4i
+	id <S318857AbSHLWh7>; Mon, 12 Aug 2002 18:37:59 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:65235 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318856AbSHLWh7>; Mon, 12 Aug 2002 18:37:59 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Frank Fiene <ffiene@veka.com>
+Organization: VEKA AG
+To: Ian Molton <spyro@f2s.com>, linux-kernel@vger.kernel.org
+Subject: Re: Ipaq 39xx
+Date: Tue, 13 Aug 2002 00:41:33 +0200
+User-Agent: KMail/1.4.2
+References: <20020812225326.2ef976b8.spyro@f2s.com>
+In-Reply-To: <20020812225326.2ef976b8.spyro@f2s.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200208130041.33549.ffiene@veka.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 12, 2002 at 09:39:54PM +0200, Fredrik Ohrn wrote:
- 
-> OK, I also have an identical card sitting in a Sun Enterprise 450 box.
-> In case someone can tell me how to do it in Solaris 8 I can check how 
-> the card is configured there.
+On Montag, 12. August 2002 23:53, Ian Molton wrote:
+> Hi.
+>
+> I could be getting one of these as of tomorrow. (39xx ipaq)
+>
+> I need to know - will Linux be able to run on them, if not now, then
+> in the near future?
 
-the most verbose I've found is "prtconf -v". I remember a long time ago,
-someone showed me something which strangely looked like lspci with an
-hex dump, but I don't remember what, unfortunately.
+http://www.handhelds.org/projects/h3900.html
 
-I hope this helps a bit.
-Willy
+ff
+-- 
+SYNTAGS GmbH, Märkische Str. 237, D-44141 Dortmund, Germany
+Security, Cryptography, Networks, Software Development
+http://www.syntags.de mailto:Frank.Fiene@syntags.de
 

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318946AbSICWza>; Tue, 3 Sep 2002 18:55:30 -0400
+	id <S318969AbSICXCb>; Tue, 3 Sep 2002 19:02:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318969AbSICWza>; Tue, 3 Sep 2002 18:55:30 -0400
-Received: from AMontpellier-205-1-4-20.abo.wanadoo.fr ([217.128.205.20]:26796
-	"EHLO awak") by vger.kernel.org with ESMTP id <S318946AbSICWz3> convert rfc822-to-8bit;
-	Tue, 3 Sep 2002 18:55:29 -0400
-Subject: Re: (fwd) Re: [RFC] mount flag "direct"
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: ptb@it.uc3m.es
-Cc: Anton Altaparmakov <aia21@cantab.net>, david.lang@digitalinsight.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200209032242.g83MglG21464@oboe.it.uc3m.es>
-References: <200209032242.g83MglG21464@oboe.it.uc3m.es>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 04 Sep 2002 00:52:58 +0200
-Message-Id: <1031093579.1073.6.camel@bip>
-Mime-Version: 1.0
+	id <S318972AbSICXCa>; Tue, 3 Sep 2002 19:02:30 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:63163 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S318969AbSICXCa>; Tue, 3 Sep 2002 19:02:30 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Wed, 4 Sep 2002 09:06:47 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15733.16519.380396.276174@notabene.cse.unsw.edu.au>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, Pavel Machek <pavel@suse.cz>,
+       Peter Chubb <peter@chubb.wattle.id.au>, <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: Large block device patch, part 1 of 9
+In-Reply-To: message from Linus Torvalds on Tuesday September 3
+References: <15732.34929.657481.777572@notabene.cse.unsw.edu.au>
+	<Pine.LNX.4.44.0209030900410.1997-100000@home.transmeta.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mer 04/09/2002 à 00:42, Peter T. Breuer a écrit :
+On Tuesday September 3, torvalds@transmeta.com wrote:
+> 
+> On Tue, 3 Sep 2002, Neil Brown wrote:
+> > 
+> > Effectively, this is a type-safe cast.  You still get the warning, but
+> > it looks more like the C that we are used to.
+> 
+> I wonder if the right answer isn't to just make things like "__u64" be
+> "long long" even on 64-bit architectures (at least those on which it is 64
+> bit, of course. I _think_ that's true of all of them). And then just use 
+> "llu" for it all.
 
-> Let's maintain a single bit in the superblock that says whether  any
-> directory structure or whatever else we're worried about has been
-> altered (ecch, well, it has to be a timestamp, never mind ..). Before
-> every read we check this "bit" ondisk. If it's not set, we happily dive
-> for our data where we expect to find it. Otherwise we go through the
-> rigmarole you describe.
+The thing is that the patch in question wants to print a "sector_t",
+not a "__u64".
+sector_t can be u32 (on 32 bit machines that don't need big devices
+and don't want the performance hit) or can be u64 (elsewhere).  
 
-Won't work. You would need an atomic read-and-write operation for that
-(read previous timestamp and write a special timestamp meaning
-"currently writing this block"), and you don't have that.
+And isn't saying "long long is 64bits" just as bad as all the
+pre-alpha code that thought "long" was 32 bits, or the PDP code that
+knew that "int" was 16 bits?
 
-	Xav
-
-
+NeilBrown

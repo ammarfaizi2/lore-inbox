@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272390AbTGaFEY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 01:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272392AbTGaFEY
+	id S272393AbTGaFXs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 01:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272394AbTGaFXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 01:04:24 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:62378 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S272390AbTGaFEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 01:04:21 -0400
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bernardo Innocenti <bernie@develer.com>,
-       Willy Tarreau <willy@w.ods.org>, Christoph Hellwig <hch@lst.de>,
-       uClinux development list <uclinux-dev@uclinux.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.6 size increase
-References: <200307232046.46990.bernie@develer.com>
-	<200307240007.15377.bernie@develer.com>
-	<20030723222747.GF643@alpha.home.local>
-	<200307242227.16439.bernie@develer.com>
-	<20030729222921.GK16051@ip68-0-152-218.tc.ph.cox.net>
-	<1059518889.6838.19.camel@dhcp22.swansea.linux.org.uk>
-	<20030729230657.GL16051@ip68-0-152-218.tc.ph.cox.net>
-	<buoptjsepib.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<20030730153311.GA27214@ip68-0-152-218.tc.ph.cox.net>
-	<buoel07tqi5.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<20030731041743.GD27214@ip68-0-152-218.tc.ph.cox.net>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 31 Jul 2003 14:03:34 +0900
-In-Reply-To: <20030731041743.GD27214@ip68-0-152-218.tc.ph.cox.net>
-Message-ID: <buo1xw7thi1.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	Thu, 31 Jul 2003 01:23:48 -0400
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:5384 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id S272393AbTGaFXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 01:23:46 -0400
+Message-Id: <200307310513.h6V5DWj17663@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Tomas Szepe <szepe@pinerecords.com>
+Subject: Re: [ANNC] linld 0.96 is available
+Date: Thu, 31 Jul 2003 08:23:00 +0300
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <200307281028.h6SASBj12316@Port.imtp.ilyichevsk.odessa.ua> <200307281125.h6SBPpj24949@Port.imtp.ilyichevsk.odessa.ua> <20030728154336.GH32673@louise.pinerecords.com>
+In-Reply-To: <20030728154336.GH32673@louise.pinerecords.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini <trini@kernel.crashing.org> writes:
-> > The point was that in _some_ embedded systems, the space-savings is
-> > wanted, and so a useful thing for linux to support.
+On 28 July 2003 18:43, Tomas Szepe wrote:
+> > [vda@port.imtp.ilyichevsk.odessa.ua]
+> > 
+> > On 28 July 2003 13:37, Denis Vlasenko wrote:
+> > > linld 0.96 is available at
+> > > 
+> > > http://sort.imtp.ilyichevsk.odessa.ua/linux/linld/
+> > 
+> > Doh. http://port.imtp.ilyichevsk.odessa.ua/linux/linld/
 > 
-> As has been pointed out, there's things like the block layer that aren't
-> needed if you have just a subset of common embedded-device filesystems and
-> some network stuff seems to have creeped back in.  All I'm trying to say
-> is that before you go too far down the CONFIG_SYSFS route, investigate the
-> others first as there's a fair chance of saving even more.
+> Unreachable.
+> 
+> ...
+>  6. hbg-bb2-pos1-3-2.telia.net             0%   15   15    33   29   31     33
+>  7. ffm-bb2-pos0-2-0.telia.net             0%   15   15    43   38   41     45
+>  8. 213.248.65.58                          0%   15   15    40   38   40     42
+>  9. ixp1.de-fra.eu.ignite.net              0%   15   15    40   39   41     45
+> 10. t2a5-p8-0.de-fra.concert.net           0%   15   15    41   40   42     47
+> 11. t2c1-ge7-0.de-fra.concert.net          0%   15   15    40   39   41     47
+> 12. t2c2-p1-0.uk-lon2.concert.net          0%   15   15    54   53   56     65
+> 13. t2c2-p8-3.se-sto.concert.net           0%   15   15   101  100  103    107
+> 14. t2a4-ge6-0.se-sto.concert.net          0%   14   15    87   86   88     95
+> 15. 166-49-152-134.concert.net             0%   14   15    86   86   88     93
+> 16. bti-ssth1-rn01-ge6-0.btignite.se       0%   14   14    93   92   94    100
+> 17. tn-int-lan-e00.btignite.se             0%   14   14   243   87  101    243
+> 18. sw-311-demark.esico.net                0%   14   14   617  518  638    788
+> 19. sw-311-cpe.esico.net                   8%   13   14   669  531  656    793
+> 20. ???
 
-I'm not really trying to defend this particular config option, just
-saying that the attitude of `why bother trying to cut down, it's more
-featureful to include everything!' is not always valid.
-
-You may very well be right that other subsystems offer better
-gain/pain, and I'm all for attacking the low-hanging-fruit first.
-
-> To what end?  One of the things we (== PPC folks) at OLS was that, wow,
-> doing PM as some sort of one-off sucks, and if at all possible we want
-> to get device information (and pm dependancies) passed in so we can tell
-> sysfs and get any shared driver done right for free, among other
-> reasons.
-
-[What's PM?  Power Management?  What does that have to do with anything?]
-
--Miles
--- 
-Would you like fries with that?
+We fell off the net for two days. :(
+Try now.
+--
+vda

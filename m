@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbUCKWdY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 17:33:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUCKWdY
+	id S261792AbUCKWjI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 17:39:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUCKWjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 17:33:24 -0500
-Received: from fed1mtao03.cox.net ([68.6.19.242]:59873 "EHLO
-	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S261790AbUCKWdW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 17:33:22 -0500
-Date: Thu, 11 Mar 2004 15:33:21 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: George Anzinger <george@mvista.com>
-Cc: "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
-Message-ID: <20040311223321.GL5169@smtp.west.cox.net>
-References: <20040302213901.GF20227@smtp.west.cox.net> <200403031113.02822.amitkale@emsyssoft.com> <20040303151628.GQ20227@smtp.west.cox.net> <200403041011.39467.amitkale@emsyssoft.com> <20040304152729.GC26065@smtp.west.cox.net> <4047B67A.4050609@mvista.com> <20040304231737.GJ26065@smtp.west.cox.net> <4050DB34.8060704@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4050DB34.8060704@mvista.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 11 Mar 2004 17:39:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25562 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261792AbUCKWjF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 17:39:05 -0500
+Date: Thu, 11 Mar 2004 17:38:55 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Voicu Liviu <pacman@mscc.huji.ac.il>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RedHat advanced server 3
+In-Reply-To: <404F71A1.1040409@mscc.huji.ac.il>
+Message-ID: <Pine.LNX.4.44.0403111736270.29254-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11, 2004 at 01:33:40PM -0800, George Anzinger wrote:
+On Wed, 10 Mar 2004, Voicu Liviu wrote:
 
-> Tom Rini wrote:
-> 
-> >>I am afraid I don't quite understand what he was saying other than early 
-> >>init stuff.  On of the problems with trying early init stuff, by the way, 
-> >>is that a lot of things depend on having alloc up and that happens rather 
-> >>late in the game.
-> >
-> >
-> >I assume you aren't talking about kgdb stuff here (or what would be the
-> >point of going so early) but I believe he was talking about allowing for
-> >stuff that could be done early, to be done early.
-> 
-> One of the issues with the UART set up is registering the interrupt handler 
-> with the kernel.  It will fail if alloc is not up.  The -mm patch does two 
-> things with this.  a) It tries every getchar to register the interrupt 
-> handler, and b) it has a module init entry to register it.  This last will 
-> happen late in the bring up and is safe.  a) is there to get it ASAP if you 
-> are actually using kgdb during the bring up.
+> Any 1 know if I can install a standard kernel like 2.4.25 or 2.6x on 
+> RedHat Advanced Server ver 3?
 
-There's two ways to look at this.
-- All the more reason to acknowledge that the earliest you can safely
-  get into KGDB is point X, where X is where alloc works, mappings done
-  if needed, etc, etc, and IFF we change things slightly in kgdboe so
-  that it can call kgdb_schedule_breakpoint() if it needs to as an
-  initial break, and handle setting kgdb_serial to the serial driver in
-  kgdb_arch_init, or something, and remove all of the extra kludges to
-  get us a few lines / function calls earlier on.
-- More and more special cases.
+RHEL 3 works ok with a 2.6 kernel if you download arjan's
+2.6 utilities, from people.redhat.com.
 
-Roughly. :)
+> Right now it does run kernrel 2.4.9-e.38custom
+
+That kernel is AS2.1.  Due to lack of NPTL it doesn't work
+correctly with everything in RHEL3 userspace...
+
+Are you sure you're running RHEL3 and not AS2.1 ?
+
+(btw, note that changing your kernel doesn't make the
+ support people happy, and as a consequence probably
+ means they won't want to help you ... read the fine
+ print)
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262229AbRENDJi>; Sun, 13 May 2001 23:09:38 -0400
+	id <S262234AbRENDac>; Sun, 13 May 2001 23:30:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262232AbRENDJ2>; Sun, 13 May 2001 23:09:28 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:49157 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S262229AbRENDJR>;
-	Sun, 13 May 2001 23:09:17 -0400
-Date: Mon, 14 May 2001 00:09:08 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Getting FS access events
-In-Reply-To: <200105140239.f4E2dNd08399@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.21.0105140007400.4671-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262240AbRENDaW>; Sun, 13 May 2001 23:30:22 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:55728 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262234AbRENDaL>;
+	Sun, 13 May 2001 23:30:11 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15103.20768.588746.495042@pizda.ninka.net>
+Date: Sun, 13 May 2001 20:29:36 -0700 (PDT)
+To: kuznet@ms2.inr.ac.ru
+Cc: mike_phillips@urscorp.com, linux-kernel@vger.kernel.org
+Subject: Re: skb->truesize > sk->rcvbuf == Dropped packets
+In-Reply-To: <200105131834.WAA28023@ms2.inr.ac.ru>
+In-Reply-To: <15089.61095.23597.82875@pizda.ninka.net>
+	<200105131834.WAA28023@ms2.inr.ac.ru>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 May 2001, Richard Gooch wrote:
-> Larry McVoy writes:
 
-> > Ha.  For once you're both wrong but not where you are thinking.  One
-> > of the few places that I actually hacked Linux was for exactly this
-> > - it was in the 0.99 days I think.  I saved the list of I/O's in a
-> > file and filled the buffer cache with them at next boot.  It
-> > actually didn't help at all.
-> 
-> Maybe you did something wrong :-)
+kuznet@ms2.inr.ac.ru writes:
+ > >  > Any suggestions on heuristics for this ? 
+ > 
+ > Not to set rcvbuf to ridiculously low values. The best variant is not
+ > to touch SO_*BUF options at all.
 
-How about "the data loads got instrumented, but the metadata
-loads which caused over half of the disk seeks didn't" ?
+Hmmm... I don't see how not touching buffer values can solve his
+problem at all.  His MTU is really HUGE, and in this case 300 byte
+packet eats 10k or so space in receive buffer.
 
-(just a wild guess ... if it turns out to be true we may want
-to look into doing agressive readahead on inode blocks ;))
+I doubt our buffer size tuning algorithms can cope with this.
 
-regards,
+Really, copy threshold in driver just must be choosen carefully.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Later,
+David S. Miller
+davem@redhat.com

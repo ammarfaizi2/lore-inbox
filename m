@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318134AbSHWC2d>; Thu, 22 Aug 2002 22:28:33 -0400
+	id <S318138AbSHWDBy>; Thu, 22 Aug 2002 23:01:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318136AbSHWC2d>; Thu, 22 Aug 2002 22:28:33 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:36669 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S318134AbSHWC2c>;
-	Thu, 22 Aug 2002 22:28:32 -0400
-Message-ID: <3D659ECA.3010904@acm.org>
-Date: Thu, 22 Aug 2002 21:32:42 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S318139AbSHWDBy>; Thu, 22 Aug 2002 23:01:54 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:26545 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S318138AbSHWDBx>;
+	Thu, 22 Aug 2002 23:01:53 -0400
+Message-ID: <1030071960.3d65a698eb46a@kolivas.net>
+Date: Fri, 23 Aug 2002 13:06:00 +1000
+From: conman@kolivas.net
 To: linux-kernel@vger.kernel.org
-Subject: [patch] New version of IPMI driver
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Combined performance patches for 2.4.19
+References: <Pine.LNX.4.33.0208222117100.18588-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.33.0208222117100.18588-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've split up the driver, creating working 2.4.19 and 2.5.31 versions of 
-the driver (and even tested them!) and split the emulation code into a 
-separate patch.
+Quoting Mark Hahn <hahn@physics.mcmaster.ca>:
 
-I also noticed that 2.5.31 timer interrupts occur at 1ms instead of 
-10ms, so it should provide acceptable speed without high-res timers. 
- 2.4 without high-res timers or interrupts will still be very slow.
+> uh, great, but didn't the author of the preemptible patch
+> say he didn't even want it in 2.4?  I imagine Ingo must 
+> feel the same about O(1).
 
-I have not yet tested interrupts, because I don't have a card that 
-supports them (it's on its way).  However, that's pretty straightforward.
+I'm not trying to get this patch included in mainstream 2.4 
+I did it for myself and the others who want to play with it.
 
-The web page is http://home.attbi.com/~minyard
+> do you really think you need them?  afaik, AKPM's tests
+> show that the mainstream kernel is just fine wrt latency.
 
-Please, try it out and tell me what you think.  Again, I'm shooting for 
-getting this in the mainstream kernel.
+Nothing wrong with trying it out is there? 
 
--Corey
+Quote: "One ancecdote's worth a thousand benchmarks"
 
+Con Kolivas

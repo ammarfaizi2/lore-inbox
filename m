@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUJNOWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUJNOYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265051AbUJNOWt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 10:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUJNOWt
+	id S265161AbUJNOYi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 10:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUJNOYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 10:22:49 -0400
-Received: from ihemail1.lucent.com ([192.11.222.161]:63630 "EHLO
-	ihemail1.lucent.com") by vger.kernel.org with ESMTP id S265051AbUJNOWq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 10:22:46 -0400
+	Thu, 14 Oct 2004 10:24:38 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:19946 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S265161AbUJNOW5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 10:22:57 -0400
+Date: Thu, 14 Oct 2004 16:22:42 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: David Woodhouse <dwmw2@infradead.org>
+cc: David Howells <dhowells@redhat.com>,
+       "Rusty Russell (IBM)" <rusty@au1.ibm.com>, Greg KH <greg@kroah.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: signed kernel modules?
+In-Reply-To: <1097755890.318.700.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.61.0410141554330.877@scrub.home>
+References: <Pine.LNX.4.61.0410132346080.7182@scrub.home> 
+ <1097626296.4013.34.camel@localhost.localdomain>  <1096411448.3230.22.camel@localhost.localdomain>
+  <1092403984.29463.11.camel@bach> <20040810002741.GA7764@kroah.com> 
+ <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com> 
+ <30797.1092308768@redhat.com>  <20040812111853.GB25950@devserv.devel.redhat.com>
+  <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com> 
+ <27175.1095936746@redhat.com> <30591.1096451074@redhat.com> 
+ <10345.1097507482@redhat.com>  <1097507755.318.332.camel@hades.cambridge.redhat.com>
+  <1097534090.16153.7.camel@localhost.localdomain> 
+ <1097570159.5788.1089.camel@baythorne.infradead.org>  <27277.1097702318@redhat.com>
+ <16349.1097752349@redhat.com>  <Pine.LNX.4.61.0410141357380.877@scrub.home>
+ <1097755890.318.700.camel@hades.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16750.35738.230789.561852@gargle.gargle.HOWL>
-Date: Thu, 14 Oct 2004 10:22:18 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Ganesan R <rganesan@myrealbox.com>
-Cc: John Stoffel <stoffel@lucent.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, torsten.scherer@uni-bielefeld.de
-Subject: Re: Linux 2.6.x wrongly recognizes USB 2.0 DVD writer
-In-Reply-To: <416E7E39.4040102@myrealbox.com>
-References: <ckln33$c3e$1@sea.gmane.org>
-	<16750.30914.666243.108593@gargle.gargle.HOWL>
-	<416E7E39.4040102@myrealbox.com>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Ganesan> Thanks for the info. As I mentioned, the enclosure works
-Ganesan> flawlessly for me under 2.4.27. It's getting detected
-Ganesan> incorrectly only in 2.6.x.  Another user reported a similar
-Ganesan> problem but was able to get dvd burning working by removing
-Ganesan> the checks from the writing tool. So, it looks like detection
-Ganesan> has been messed up only in 2.6.x.
+On Thu, 14 Oct 2004, David Woodhouse wrote:
 
-I'm an idiot.  I mis-read your initial post thinking it was like my
-ByteCC which has the dual Firewire/USB ports and since I can't get
-EITHER interface type to work reliablely, I've given up on it for now.
+> How are they related? If you don't trust the _build_ system on which the
+> kernel and modules were compiled and signed, the whole game is lost
+> anyway.
 
-What's the output of 'lsusb'?  You want to see what the vendor/product
-ID is as a comparison.  I should check mine again under USB and see
-what happens under 2.6.8, though earlier it would just hang the entire
-system after copying a GB or two of data.  At least under FireWire
-when it hung, I could recover the system without having to reboot.
+Well, how do you want to win the whole game? Modules are just one part of 
+it, what about the rest? If I'd be that much concerned about modules, I 
+would disable module loading completely.
 
-Gah... time for more caffeine.
+> Insmod is running on the live system, and has nothing to do with the
+> build system.
+
+Only a minority of people do cross compile kernels, most people compile 
+kernel and modules on the same machine, so that there enough points left 
+to attack the system. Even if the kernel is compiled on a different 
+machine, how can you trust the kernel you're going to boot next time?
+I'm missing how this does fit into the big picture, throwing lots of 
+code onto modules doesn't make it more safe. In the meantime there are 
+simpler measures to get the system more secure.
+
+bye, Roman

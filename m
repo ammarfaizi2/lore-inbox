@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278592AbRKAJLh>; Thu, 1 Nov 2001 04:11:37 -0500
+	id <S278591AbRKAJHq>; Thu, 1 Nov 2001 04:07:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278593AbRKAJL1>; Thu, 1 Nov 2001 04:11:27 -0500
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:38930 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S278592AbRKAJLO>; Thu, 1 Nov 2001 04:11:14 -0500
-Date: Thu, 1 Nov 2001 10:11:13 +0100 (CET)
-From: Joris van Rantwijk <joris@deadlock.et.tudelft.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Bind to protocol with AF_PACKET doesn't work for outgoing packets 
-Message-ID: <Pine.LNX.4.21.0111010944050.16656-100000@deadlock.et.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278592AbRKAJHh>; Thu, 1 Nov 2001 04:07:37 -0500
+Received: from flaske.stud.ntnu.no ([129.241.56.72]:21940 "EHLO
+	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S278591AbRKAJH0>; Thu, 1 Nov 2001 04:07:26 -0500
+Date: Thu, 1 Nov 2001 10:06:37 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: Juergen Hasch <Hasch@t-online.de>
+Cc: linux-kernel@vger.kernel.org, J Sloan <jjs@pobox.com>
+Subject: Re: Intel EEPro 100 with kernel drivers
+Message-ID: <20011101100637.B20259@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011029021339.B23985@stud.ntnu.no> <15yzpC-26N6dEC@fwd04.sul.t-online.com> <20011101090348.E2102@stud.ntnu.no> <15zDX1-1svMLQC@fwd03.sul.t-online.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15zDX1-1svMLQC@fwd03.sul.t-online.com>; from Hasch@t-online.de on Thu, Nov 01, 2001 at 09:48:56AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Juergen Hasch:
+> But your Rx_TCO_Packets counter is  1, so this may be related
+> (I also got Rx overrun errors). It may be that your BMC receives the packet
+> and simply chooses to ignore it because it is no valid server management 
+> packet.
+> Could you make another test and take a look at the eth0.info ?
+> I could reproduce the problem when copying a large file over NFS, but not 
+> when transferring it via ftp. Try this a few times.
+> If you can reproduce you network card being stuck only when using NFS and 
+> having Rx_TCO_Packets > 0 after it is stuck, this is it.
+> Then you either need tu upgrade your BMC firmware or add another network card,
+> which doesn't eat NFS packets.
 
-I'm trying to see outgoing network packets through the AF_PACKET
-interface. This works as long as I bind the packet socket with
-sll_protocol==htons(ETH_P_ALL).  I would expect that I can filter
-on IP packets by binding to sll_protocol==htons(ETH_P_IP), but when
-I try it I suddenly see only the incoming packets and no outgoing at all.
+I'm testing now, however, running eepro100-diag gave me some interessting
+output:
 
-I suspect this is because dev_queue_xmit_nit() only walks the ptype_all
-chain (with the ETH_P_ALL taps) and doesn't process the ptype_base[]
-lists. net_rx_action() processes ptype_all as well as ptype_base, so
-it works fine for incoming packets.
+Sleep mode is enabled.  This is not recommended. Under high load the card
+may not respond to PCI requests, and thus cause a master abort.
 
-So... Shouldn't dev_queue_xmit_nit() also process ptype_base then ?
-Or is this just complete cluelessness on my part ?
-(I'm rather new to this so I don't know how it's supposed to work)
+How do I disable sleepmode? I've never even enabled it.
 
-I tried this with linux-2.4.12, but it seems relevant to 2.2.x
-and 2.0.x as well.
-
-Thanks,
-  Joris van Rantwijk
-joris@deadlock.et.tudelft.nl - http://deadlock.et.tudelft.nl/~joris/
-
+-- 
+Thomas

@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVCYGEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVCYGIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVCYGEY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 01:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVCYF5q
+	id S261426AbVCYGIg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 01:08:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVCYFyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 00:57:46 -0500
-Received: from digitalimplant.org ([64.62.235.95]:11219 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261413AbVCYFzD
+	Fri, 25 Mar 2005 00:54:54 -0500
+Received: from digitalimplant.org ([64.62.235.95]:3539 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261402AbVCYFym
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 00:55:03 -0500
-Date: Thu, 24 Mar 2005 21:54:54 -0800 (PST)
+	Fri, 25 Mar 2005 00:54:42 -0500
+Date: Thu, 24 Mar 2005 21:54:33 -0800 (PST)
 From: Patrick Mochel <mochel@digitalimplant.org>
 X-X-Sender: mochel@monsoon.he.net
 To: linux-kernel@vger.kernel.org
 cc: greg@kroah.com
-Subject: [10/12] More Driver Model Locking Changes
-Message-ID: <Pine.LNX.4.50.0503242152520.19795-100000@monsoon.he.net>
+Subject: [3/12] More Driver Model Locking Changes
+Message-ID: <Pine.LNX.4.50.0503242151000.19795-100000@monsoon.he.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-ChangeSet@1.2248, 2005-03-24 19:03:59-08:00, mochel@digitalimplant.org
-  [scsi] Use device_for_each_child() to unregister devices in scsi_remove_target().
+ChangeSet@1.2241, 2005-03-24 12:58:57-08:00, mochel@digitalimplant.org
+  [klist] add klist_node_attached() to determine if a node is on a list or not.
 
 
   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
 
-diff -Nru a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
---- a/drivers/scsi/scsi_sysfs.c	2005-03-24 20:32:54 -08:00
-+++ b/drivers/scsi/scsi_sysfs.c	2005-03-24 20:32:54 -08:00
-@@ -672,6 +672,13 @@
- 	scsi_target_reap(starget);
+diff -Nru a/include/linux/klist.h b/include/linux/klist.h
+--- a/include/linux/klist.h	2005-03-24 20:33:45 -08:00
++++ b/include/linux/klist.h	2005-03-24 20:33:45 -08:00
+@@ -37,6 +37,8 @@
+ extern void klist_del(struct klist_node * n);
+ extern void klist_remove(struct klist_node * n);
+
++extern int klist_node_attached(struct klist_node * n);
++
+
+ struct klist_iter {
+ 	struct klist		* i_klist;
+diff -Nru a/lib/klist.c b/lib/klist.c
+--- a/lib/klist.c	2005-03-24 20:33:45 -08:00
++++ b/lib/klist.c	2005-03-24 20:33:45 -08:00
+@@ -112,6 +112,7 @@
+ 	struct klist_node * n = container_of(kref, struct klist_node, n_ref);
+ 	list_del(&n->n_node);
+ 	complete(&n->n_removed);
++	n->n_klist = NULL;
  }
 
-+static int __remove_child (struct device * dev, void * data)
+ static int klist_dec_and_del(struct klist_node * n)
+@@ -154,6 +155,19 @@
+
+
+ /**
++ *	klist_node_attached - Say whether a node is bound to a list or not.
++ *	@n:	Node that we're testing.
++ */
++
++int klist_node_attached(struct klist_node * n)
 +{
-+	if (scsi_is_target_device(dev))
-+		__scsi_remove_target(to_scsi_target(dev));
-+	return 0;
++	return (n->n_klist != NULL);
 +}
 +
- /**
-  * scsi_remove_target - try to remove a target and all its devices
-  * @dev: generic starget or parent of generic stargets to be removed
-@@ -682,7 +689,7 @@
-  */
- void scsi_remove_target(struct device *dev)
- {
--	struct device *rdev, *idev, *next;
-+	struct device *rdev;
-
- 	if (scsi_is_target_device(dev)) {
- 		__scsi_remove_target(to_scsi_target(dev));
-@@ -690,10 +697,7 @@
- 	}
-
- 	rdev = get_device(dev);
--	list_for_each_entry_safe(idev, next, &dev->children, node) {
--		if (scsi_is_target_device(idev))
--			__scsi_remove_target(to_scsi_target(idev));
--	}
-+	device_for_each_child(dev, NULL, __remove_child);
- 	put_device(rdev);
++EXPORT_SYMBOL_GPL(klist_node_attached);
++
++
++/**
+  *	klist_iter_init_node - Initialize a klist_iter structure.
+  *	@k:	klist we're iterating.
+  *	@i:	klist_iter we're filling.
+@@ -246,3 +260,5 @@
  }
- EXPORT_SYMBOL(scsi_remove_target);
+
+ EXPORT_SYMBOL_GPL(klist_next);
++
++

@@ -1,66 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311025AbSHFQDw>; Tue, 6 Aug 2002 12:03:52 -0400
+	id <S312962AbSHFQ0e>; Tue, 6 Aug 2002 12:26:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312601AbSHFQDw>; Tue, 6 Aug 2002 12:03:52 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:53253 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S311025AbSHFQDv>;
-	Tue, 6 Aug 2002 12:03:51 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Andries Brouwer <aebr@win.tue.nl>
-Date: Tue, 6 Aug 2002 18:06:55 +0200
+	id <S313070AbSHFQ0e>; Tue, 6 Aug 2002 12:26:34 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:6071 "EHLO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with ESMTP
+	id <S312962AbSHFQ0d>; Tue, 6 Aug 2002 12:26:33 -0400
+Date: Tue, 6 Aug 2002 18:45:35 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Kasper Dupont <kasperd@daimi.au.dk>, "David S. Miller" <davem@redhat.com>,
+       <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [TRIVIAL] Warn users about machines with non-working WP bit
+In-Reply-To: <3D4FDEF3.8070207@colorfullife.com>
+Message-ID: <Pine.LNX.4.44.0208061830480.21312-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] 2.5.30 IDE 112
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>, martin@dalecki.de
-X-mailer: Pegasus Mail v3.50
-Message-ID: <1404D797AC6@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  6 Aug 02 at 16:10, Andries Brouwer wrote:
-> > BIOS refused to report proper size (120GB) when partition table
-> > was empty, or when it contained partitions created for xxx/16/63
-> > geometry. It reported size ~600MB, and actively refused to allow
-> > access above this limit...
-> 
-> Funny. Do you mean that your BIOS used SETMAX ?
+On Tue, 6 Aug 2002, Manfred Spraul wrote:
 
-No. It miscalculated something somewhere. Only BIOS INT13h interface
-was affected. But it is problem if it is your boot disk, and BIOS
-is willing to load only MBR and first few sectors from disk, while your
-LILO lives at ~60GB from disk start.
- 
-> Yes. I already advised this maintainer to add -C,-H,-S options to fdisk
-> (cfdisk and sfdisk already have them), and he did so immediately.
-> Visible one of these weeks in util-linux-2.11v.
+> But how many 80386 Linux systems that run the 2.4 kernel exist?
 
-Thanks. I'm still using fdisk...
- 
-> So, I have two questions:
-> 1. What precisely do you mean with "actively refused" ?
-> 2. Is there a Windows or Netware reason to prefer extended translation
-> above no translation?
+http://function.linuxpower.ca/dmesg-386-2.4.txt
 
-When that one BIOS (Award in 6BTM from Chaintech) found 120GB disk
-with partition table saying that it is partitioned as 16heads/63sectors,
-depending on LBA/LARGE/NORMAL setting it reported size 20MB/600MB/30GB
-(if you want exact numbers/geometries, I can obtain them on saturday),
-and code in the BIOS checked that OS does not try to access data above 
-limit BIOS (mis)calculated when using INT13 interface (so windows98 rescue 
-diskette was not able to create partition > 30GB, and PartitionMagic 
-refused to operate at all with partition error #110 (or 108 or 109)).
+8)
 
-I first thought that BIOS does not support disks over 30GB, but after
-I rebuilt partition table with xxx/255/63 geometry, disk was correctly 
-recognized and reported as 120GB by BIOS regardless of setting in the BIOS.
+-- 
+function.linuxpower.ca
 
-Some Netware drivers use geometry reported by the BIOS internally, and
-if BIOS reports 16heads/63sectors, code doing blocknr -> CHS -> LBA can
-overflow. But it is fixed for some years, so it should not be problem
-for existing systems, and new (NW5/NW6) systems should cope with this.
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+

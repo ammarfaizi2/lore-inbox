@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262998AbVAFTin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262990AbVAFTis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262998AbVAFTin (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 14:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262990AbVAFTgY
+	id S262990AbVAFTis (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 14:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbVAFTgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 14:36:24 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:1448 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262996AbVAFTfl (ORCPT
+	Thu, 6 Jan 2005 14:36:33 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:10408 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262995AbVAFTfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 14:35:41 -0500
-Date: Thu, 6 Jan 2005 20:32:14 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Bill Davidsen <davidsen@tmr.com>,
-       Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
-       wli@holomorphy.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050106193214.GK3096@stusta.de>
-References: <20050103134727.GA2980@stusta.de> <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com> <20050103183621.GA2885@thunk.org> <4d8e3fd30501060603247e955a@mail.gmail.com>
+	Thu, 6 Jan 2005 14:35:37 -0500
+Date: 6 Jan 2005 20:29:08 +0100
+Date: Thu, 6 Jan 2005 20:29:08 +0100
+From: Andi Kleen <ak@muc.de>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Ray Bryant <raybry@sgi.com>, Steve Longerbeam <stevel@mvista.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, andrew morton <akpm@osdl.org>
+Subject: Re: page migration patchset
+Message-ID: <20050106192908.GB47320@muc.de>
+References: <Pine.LNX.4.44.0501052008160.8705-100000@localhost.localdomain> <41DC7EAD.8010407@mvista.com> <20050106144307.GB59451@muc.de> <41DD608A.80003@sgi.com> <Pine.LNX.4.58.0501060947470.16240@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4d8e3fd30501060603247e955a@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0501060947470.16240@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 03:03:26PM +0100, Paolo Ciarrocchi wrote:
+> Sorry I did not have time to continue the huge stuff in face of other
+> things that came up in the fall. I ported the stuff to 2.6.10 yesterday
+> but it still needs some rework.
 > 
-> What's wrong in keeping the release management as is now plus
-> introducing a 2.6.X.Y series of kernels ?
-> 
-> In short:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109882220123966&w=2
+> Could you sent me the most up to date version of the SLES9 stuff including
+> any unintegrated changes? I can work though this next week I believe and
+> post a new huge pages patch.
 
-Currently (2.6.10), there would have been 11 such branches.
+It's a lot of split out patches. I put a tarball of all
+of them at ftp.suse.com:/pub/people/ak/huge/huge.tar.gz
+They probably depend on other patches in SLES9. The patches
+are not very cleanly split, since we just fixed problems
+one by one without refactoring later.
 
-If a security vulnerability was found today, this meant backporting and 
-applying the patch to 11 different kernel versions, the oldest one being 
-more than one year old.
+Also there is at least one mysterious bug in it that probably
+would need to be fixed first before merging :/ I hope this
+gets resolved soon however. Other than issue that they're well
+tested and work fine.
 
-With more 2.6 versions, there would be even more branches, and the 
-oldest ones becoming more and more different from the current codebase.
-
-You could at some point start dropping the oldest branches, but this 
-would mean a migration to a more recent branch for all users of this 
-branch.
-
-OTOH, if you migrated relatively late at 2.4.17 to the 2.4 branch, this 
-branch is still actively maintained today, more than 3 years later.
-
-> Best,
-> Paolo Ciarrocchi
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-Andi

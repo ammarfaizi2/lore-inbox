@@ -1,72 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267052AbUBMP1m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 10:27:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267053AbUBMP1m
+	id S267057AbUBMPfO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 10:35:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267058AbUBMPfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 10:27:42 -0500
-Received: from gw-nl3.philips.com ([161.85.127.49]:39559 "EHLO
-	gw-nl3.philips.com") by vger.kernel.org with ESMTP id S267052AbUBMP1k
+	Fri, 13 Feb 2004 10:35:14 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:44928 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267057AbUBMPfD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 10:27:40 -0500
-Message-ID: <402CED8C.4040203@basmevissen.nl>
-Date: Fri, 13 Feb 2004 16:30:20 +0100
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Fri, 13 Feb 2004 10:35:03 -0500
+Date: Fri, 13 Feb 2004 10:36:52 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Robert Woerle <robert@paceblade.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: serial.c - start looking from 0x220 iomem_base  ??
+In-Reply-To: <402CE89F.9060404@paceblade.com>
+Message-ID: <Pine.LNX.4.53.0402131025120.4338@chaos>
+References: <402CE89F.9060404@paceblade.com>
 MIME-Version: 1.0
-To: tevaugha@ball.com, tevaughan@comcast.net
-Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       debian-devel@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 kernel boot crashing
-References: <20040211154044.GA656@ball.com> <E1Aqxgm-0005G4-00@chiark.greenend.org.uk> <20040211213243.GA5133@ball.com>
-In-Reply-To: <20040211213243.GA5133@ball.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas E. Vaughan wrote:
-> On Wed, Feb 11, 2004 at 04:58:16PM +0000, Matthew Garrett
-> wrote:
-> 
->>Thomas E. Vaughan wrote:
->>
->>
->>>PnPBIOS: PnP BIOS version 1.0, entry 0xf000:0x6d5a, dseg 0xf000
->>>general protection fault: 0000 [#1]
->>
->>There have been problems with PnP BIOS support on various
->>motherboards.  Try rebuilding the kernel package without
->>PNPBIOS support (you probably don't need it - it's there
->>in order to manage resource allocation for legacy hardware
->>like serial ports, and in most cases the BIOS will happily
->>set those up on its own) and see if that works.
-> 
-> 
-> That did the trick.  The only config option that matters is
-> 
->    "Plug and Play BIOS support (EXPERIMENTAL)",
-> 
-> which must *not* be selected.  I noticed that the top-level
-> 
->    "Plug and Play support"
-> 
-> and also
-> 
->    "ISA Plug and Play support (EXPERIMENTAL)"
-> 
-> can be selected, and the kernel still boots OK.  But that
-> PnPBIOS support crashes the kernel hard.
-> 
+On Fri, 13 Feb 2004, Robert Woerle wrote:
 
-I can confirm that on an Asus P4P800 Deluxe motherboard too for at least 
-kernel 2.6.0 and 2.6.1.
+> Hi
+>
+> I am having here a device  (Tablet PC ) sample with a serial resistive
+> touchscreen  .
+> Under Windows it comes up as COM1 at IO-Base 0x220 -0x227 IRQ 4 .
+> Now it seems that in linux the serial driver doesnt look for so "low"
+> I/O-Base `s .
+>
+> By hacking around by hardcoding the 0x220 somehwere in serial.c i get it
+> to detect a standard 16550 , but
+> unfortunately it then assumes that all ttySX have this base .
+> This is because of my hardcoded hack and the driver not looking for all
+> the rest mem bases.
+>
+> So the quesion is :
+> Where do i tell serial.o  to start lower ( at 0x220 ) to look for
+> controllers .. .??
+>
+>
+>
+> Pls also CC me directly since i am only monitoring this list .
 
-Setting the command line option pnpbios=off is a good fix for people who 
-would like to run a pre-compiled kernel on those mainboards.
+There are 4 de facto standard serial ports:
 
-Regards,
+COM1	0x3F8	IRQ4
+COM2	0x2F8	IRQ3
+COM3	0x3E8	IRQ4
+COM4	0x2E8	IRQ3
 
-Bas.
+If you have a port at 0x220, it is above the game-port area,
+but not where the kernel should "look for" serial devices.
+Therefore, you don't tell the kernel to, as you state, start
+lower. Instead, you tell the kernel where they are by putting
+them in the pnp_devices[] table.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

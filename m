@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270519AbTHQTi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 15:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270648AbTHQTi7
+	id S270766AbTHQT4W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 15:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270816AbTHQT4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 15:38:59 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58827 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270519AbTHQTi6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 15:38:58 -0400
-Message-ID: <3F3FD9C3.6000601@pobox.com>
-Date: Sun, 17 Aug 2003 15:38:43 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Diehl <lists@mdiehl.de>
-CC: jt@hpl.hp.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5 IrDA] vlsi driver update
-References: <Pine.LNX.4.44.0308172017160.1469-100000@notebook.home.mdiehl.de>
-In-Reply-To: <Pine.LNX.4.44.0308172017160.1469-100000@notebook.home.mdiehl.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Aug 2003 15:56:22 -0400
+Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:46870 "HELO
+	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S270766AbTHQT4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 15:56:20 -0400
+Subject: Re: RAM and DUAL CPU problem
+From: Stephen Torri <storri@sbcglobal.net>
+To: "G. Ravinder" <Ravinder.Gella@scada.cmcltd.com>
+Cc: linux-kernel@vger.kernel.org, ravi@scada.cmcltd.com
+In-Reply-To: <Pine.LNX.4.33.0308171532400.31855-100000@scada.cmcltd.com>
+References: <Pine.LNX.4.33.0308171532400.31855-100000@scada.cmcltd.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2DJpbpv0IkhN4qYSk+DH"
+Message-Id: <1061150184.4716.6.camel@base>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 17 Aug 2003 14:56:24 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Diehl wrote:
-> On Sun, 17 Aug 2003, Jeff Garzik wrote:
-> 
-> 
->>Jean Tourrilhes wrote:
->>
->>>ir2603_vlsi-05.diff :
->>>~~~~~~~~~~~~~~~~~~~
->>>		<Patch from Martin Diehl>
->>
->>this patch needs splitting up
 
-> 1) apply single big patch, basically replacing the code
-> 2) back out the existing driver and put in a new one resulting in the same 
->    code as above
-> 3) do nothing, i.e. stay with vlsi_ir being worse and unsupported in 2.4 
->    forever
-> 
-> Please advise!
+--=-2DJpbpv0IkhN4qYSk+DH
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-4) split up the patch, pretty please with sugar on it.
+On Sun, 2003-08-17 at 05:05, G. Ravinder wrote:
+> Hi,
+>=20
+>  I am using "HP Prolient DL 380 Dual processor(2X2.4Ghz) with 6GB RAM wit=
+h
+> Readhat Linux 7.3 OS. But the problem is that the kernel is detecting onl=
+y
+> 4GB RAM and single CPU(Not two CPU's).The kernel version is
+> 2.4.18-3 on an i686". Can you please suggest how to
+> configure dual CPU and 6GB RAM on this server.
+>=20
+> Regards
+> G. Ravinder
+> ravi@scada.cmcltd.com
+> INDIA.
 
-	Jeff
+First off you are best at rebuilding the kernel yourself. The options
+you need are:
 
+Processor type and features:
 
+ --> High Memory Support --> 64 GB
+
+ --> Symmetric multi-processing support.
+
+If kernel building seems to be too risky for you then you need to
+install:
+
+rpm -ivh kernel-smp-2.4.18-3.i686.rpm=20
+
+This should give you the SMP support but I cannot say whether the entire
+memory is going to be recognized. I guess both will but try.
+
+Stephen
+--=20
+Stephen Torri
+GPG Key: http://www.cs.wustl.edu/~storri/storri.asc
+
+--=-2DJpbpv0IkhN4qYSk+DH
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/P93omXRzpT81NcgRAp9KAKC8HURfetFy+yfPAnXO76dAZBn4vgCgiD9W
+xRiCCLSdT88pcRVIx9Qh3fc=
+=u5AB
+-----END PGP SIGNATURE-----
+
+--=-2DJpbpv0IkhN4qYSk+DH--
 

@@ -1,66 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVBPPwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVBPPzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbVBPPwy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 10:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVBPPwy
+	id S262052AbVBPPzN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 10:55:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVBPPzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 10:52:54 -0500
-Received: from web50201.mail.yahoo.com ([206.190.38.42]:26755 "HELO
-	web50201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262048AbVBPPwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 10:52:51 -0500
-Message-ID: <20050216155251.16202.qmail@web50201.mail.yahoo.com>
-Date: Wed, 16 Feb 2005 07:52:51 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Thoughts on the "No Linux Security Modules framework" old claims 
-To: Valdis.Kletnieks@vt.edu,
-       Lorenzo =?ISO-8859-1?Q?=20=22Hern=E1ndez=22?=
-	 =?ISO-8859-1?Q?=20=22Garc=EDa-Hierro=22?= <lorenzo@gnu.org>
-Cc: rsbac@rsbac.org,
-       "linux-security-module@wirex.com" <linux-security-module@wirex.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200502160421.j1G4Ls7l004329@turing-police.cc.vt.edu>
+	Wed, 16 Feb 2005 10:55:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:4521 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262052AbVBPPy7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 10:54:59 -0500
+From: Jeff Moyer <jmoyer@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16915.27837.309170.73909@segfault.boston.redhat.com>
+Date: Wed, 16 Feb 2005 10:54:37 -0500
+To: raven@themaw.net
+Cc: Jan Blunck <j.blunck@tu-harburg.de>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] dcache d_drop() bug fix / __d_drop() use fix
+In-Reply-To: <Pine.LNX.4.61.0502162318240.8161@donald.themaw.net>
+References: <421355A4.6000305@tu-harburg.de>
+	<Pine.LNX.4.61.0502162318240.8161@donald.themaw.net>
+X-Mailer: VM 7.19 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+==> Regarding Re: [PATCH] dcache d_drop() bug fix / __d_drop() use fix; raven@themaw.net adds:
 
---- Valdis.Kletnieks@vt.edu wrote:
+raven> On Wed, 16 Feb 2005, Jan Blunck wrote:
+>> This is a re-submission of the patch I sent about a month ago.
+>> 
+>> While working on my code I realized that d_drop() might race against 
+>> __d_lookup(). __d_drop() (which is called by d_drop() after acquiring the 
+>> dcache_lock) is accessing dentry->d_flags to set the DCACHE_UNHASHED flag. 
+>> This shouldn't be done without holding dentry->d_lock, like stated in 
+>> dcache.h:
+>> 
+>> struct dentry {
+>> ...
+>> unsigned int d_flags;		/* protected by d_lock */
+>> ...
+>> };
+>> 
+>> Therefore d_drop() must acquire the dentry->d_lock. Likewise every use of 
+>> __d_drop() must acquire that lock.
+>> 
+>> This patch fixes d_drop() and every grep'able __d_drop() use. This patch is 
+>> against today's http://linux.bkbits.net/linux-2.5.
+>> 
 
+raven> For my part, in autofs4, I would prefer:
 
-> Many auditing policies require an audit event to be
-> generated if the operation
-> is rejected by *either* the DAC (as implemented by
-> the file permissions
-> and possibly ACLs) *or* the MAC (as implemented by
-> the LSM exit).  However,
-> in most (all?) cases, the DAC check is made *first*,
-> and the LSM exit isn't
-> even called if the DAC check fails.  As a result, if
-> you try to open() a file
-> and get -EPERM due to the file permissions, the LSM
-> exit isn't called and
-> you can't cut an audit record there.
+> --- linux-2.6.9/fs/autofs4/root.c.d_lock	2005-02-16 23:15:18.000000000 +0800
+> +++ linux-2.6.9/fs/autofs4/root.c	2005-02-16 23:15:35.000000000 +0800
+> @@ -621,7 +621,7 @@
+>   		spin_unlock(&dcache_lock);
+>   		return -ENOTEMPTY;
+>   	}
+> -	__d_drop(dentry);
+> +	d_drop(dentry);
+>   	spin_unlock(&dcache_lock);
 
-The advice given by the NSA during our B1
-evaluation was that is was that in the case
-above was that the MAC check should be done
-first (because it's more important) and
-because you want the audit record to report
-the MAC failure whenever possible. The
-team advised us that if we didn't do the MAC
-check first we would have a tough row to hoe
-explaining the design decision and an even
-tougher time explaining that the audit of
-MAC criteria had been met.
+>   	dput(ino->dentry);
 
+Ian, this would deadlock.  You already hold the dcache lock here, and
+d_drop takes it:
 
-=====
-Casey Schaufler
-casey@schaufler-ca.com
+static inline void d_drop(struct dentry *dentry)
+{
+        spin_lock(&dcache_lock);
+        __d_drop(dentry);
+        spin_unlock(&dcache_lock);
+}
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+The proposed patch was to take the dentry->d_lock.
+
+-Jeff

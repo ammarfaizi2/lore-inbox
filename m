@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129216AbRCBObz>; Fri, 2 Mar 2001 09:31:55 -0500
+	id <S129199AbRCBOli>; Fri, 2 Mar 2001 09:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129199AbRCBObg>; Fri, 2 Mar 2001 09:31:36 -0500
-Received: from jalon.able.es ([212.97.163.2]:61325 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129216AbRCBObb>;
-	Fri, 2 Mar 2001 09:31:31 -0500
-Date: Fri, 2 Mar 2001 15:31:17 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] style-curiosity
-Message-ID: <20010302153117.A2690@werewolf.able.es>
-In-Reply-To: <20010302120712.C4416@werewolf.able.es> <Pine.LNX.4.21.0103021223160.1338-100000@penguin.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.21.0103021223160.1338-100000@penguin.homenet>; from tigran@veritas.com on Fri, Mar 02, 2001 at 13:24:20 +0100
-X-Mailer: Balsa 1.1.1
+	id <S129212AbRCBOl2>; Fri, 2 Mar 2001 09:41:28 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:14611 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S129199AbRCBOlL>; Fri, 2 Mar 2001 09:41:11 -0500
+Message-ID: <3A9FADAB.F37E5449@eikon.tum.de>
+Date: Fri, 02 Mar 2001 15:26:51 +0100
+From: Mario Hermann <ario@eikon.tum.de>
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.2-ac8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: report bug: System reboots when accessing a loop-device over a 
+ second loop-device with 2.4.2-ac7
+In-Reply-To: <3A9E66BB.70FB0C75@eikon.tum.de> <20010301172145.T21518@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On 03.02 Tigran Aivazian wrote:
-> On Fri, 2 Mar 2001, J . A . Magallon wrote:
-> > for (c = misc_list.next; c != &misc_list; c = c->next)
-> > {
-> > 	if (c->minor == misc->minor) {
-> > 		up(&misc_sem);
-> > 		return -EBUSY;
-> > 	}	
-> > }
+Jens Axboe wrote:
 > 
-> the above is good but the below is better:
+> On Thu, Mar 01 2001, Mario Hermann wrote:
+> > I tried the following commands with 2.4.2-ac7:
+> >
+> > losetup /dev/loop0 test.dat
+> > losetup /dev/loop1 /dev/loop0
+> > mke2fs /dev/loop1
+> >
+> > My System reboots immediatly. I tried it with 2.4.2-ac4,ac5 too -> same
+> > effect.
+> >
+> > With 2.4.2 it hangs immediatly.
 > 
-> for (c = misc_list.next; c != &misc_list; c = c->next)
->        if (c->minor == misc->minor) {
->                up(&misc_sem);
->                return -EBUSY;
->        }
->
+> This should make it work again.
 
-I have suffered so many bugs coming from bad grouping that I always put
-the braces even if they are not needed.
+There is another small bug with the loop over loop problem. Now it works
+fine for
+files but not for Devices:
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+losetup /dev/loop0 /dev/sr1
+losetup /dev/loop1 /dev/loop0
+dd if=/dev/loop1 of=test.dat bs=2048 count=1024
 
-Linux werewolf 2.4.2-ac8 #2 SMP Fri Mar 2 12:12:45 CET 2001 i686
+Makes dd hang. (BTW: /dev/sr1 is a CD-ROM)
 
+Tried the same on /dev/hda1, /dev/sda1 with 2.4.2-ac7-your_patch and
+with 2.4.2-ac8.
+
+BTW: Did extensiv testing with and without the crypto patches. And all
+other tests worked fine! :-)
+
+--
+Mario Hermann

@@ -1,83 +1,196 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272915AbTHEWB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 18:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272916AbTHEWB1
+	id S272916AbTHEWOb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 18:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272920AbTHEWOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 18:01:27 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:25618 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S272915AbTHEWBZ
+	Tue, 5 Aug 2003 18:14:31 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:43508 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S272916AbTHEWOI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 18:01:25 -0400
-Date: Wed, 6 Aug 2003 00:08:31 +0200
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-ID: <20030805220831.GA893@hh.idb.hist.no>
-References: <20030804141548.5060b9db.skraw@ithnet.com> <03080409334500.03650@tabby> <20030804170506.11426617.skraw@ithnet.com> <03080416092800.04444@tabby> <20030805003210.2c7f75f6.skraw@ithnet.com> <3F2FA862.2070401@aitel.hist.no> <20030805150351.5b81adfe.skraw@ithnet.com>
+	Tue, 5 Aug 2003 18:14:08 -0400
+Subject: [patch] real-time enhanced page allocator and throttling
+From: Robert Love <rml@tech9.net>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: Valdis.Kletnieks@vt.edu, piggin@cyberone.com.au, kernel@kolivas.org,
+       linux-mm@kvack.org
+Content-Type: text/plain
+Message-Id: <1060121638.4494.111.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030805150351.5b81adfe.skraw@ithnet.com>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-5) 
+Date: 05 Aug 2003 15:13:59 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 03:03:51PM +0200, Stephan von Krawczynski wrote:
-> On Tue, 05 Aug 2003 14:51:46 +0200
-> Helge Hafting <helgehaf@aitel.hist.no> wrote:
-> 
-> > Even more fun is when you have a directory loop like this:
-> > 
-> > mkdir A
-> > cd A
-> > mkdir B
-> > cd B
-> > make hard link C back to A
-> > 
-> > cd ../..
-> > rmdir A
-> > 
-> > You now removed A from your home directory, but the
-> > directory itself did not disappear because it had
-> > another hard link from C in B.
-> 
-> How about a truly simple idea: 
-> 
-> rmdir A says "directory in use" and is rejected
-> 
-Then anybody can prevent you from removing your obsolete directories
-by creating links to them.  Existing hard link don't have
-such problems.
+On Mon, 2003-08-04 at 22:55, Andrew Morton wrote:
+
+> There is a very good argument for giving !SCHED_OTHER tasks
+> "special treatment" in the VM.
+
+Yes, there is.
+
+Attached patch is against 2.6.0-test2-mm4. It does two main things:
+
+	- Let real-time tasks dip further into the reserves than
+	  usual in __alloc_pages(). There are a lot of ways to
+	  special case this. This patch just cuts z->pages_low in
+	  half, before doing the incremental min thing, for
+	  real-time tasks. I do not do anything in the low memory
+	  slow path. We can be a _lot_ more aggressive if we want.
+	  Right now, we just give real-time tasks a little help.
+
+	- Never ever call balance_dirty_pages() on a real-time
+	  task. Where and how exactly we handle this is up for
+	  debate. We could, for example, special case real-time
+	  tasks inside balance_dirty_pages(). This would allow
+	  us to perform some of the work (say, waking up pdflush)
+	  but not other work (say, the active throttling). As it
+	  stands now, we do the per-processor accounting in
+	  balance_dirty_pages_ratelimited() but we never call
+	  balance_dirty_pages(). Lots of approaches work. What
+	  we want to do is never engage the real-time task in
+	  forced writeback.
+
+It compiles, it boots, and it does not crash. I have not tested whether
+it prevents any starvation in real-time applications that are being
+observed -- mostly because I am not sure if my approach is what you
+want. There are multiple ways to handle the real-time task path. I
+picked one. I do not know.
+
+	Robert Love
 
 
-> Which means you simply cannot remove the first directory entry before not all
-> other links to it are removed. This implies only two things: 
-> 1) you have to know who was first.
-
-This requires fs modifications.  I.e. a new fs 
-
-> 2) you have to be able to find out where the links are.
-This is trivial but io intensive -  by searching the entire directory 
-tree.  Doable in userspace, a nastry DOS opportunity if in the kernel.
-
-Another option is to store pointers to all directory entries
-in the inode, but that means much more complicated "mv", "rmdir"
-and "mkdir".  Remember, it shouldn't merely "work" but also scale
-well on io-intensive SMP machines.  Complicated operations tend
-to need more locking in case several processes (on different
-processors) try to modify the same directory simultaneously.
+ include/linux/sched.h |    4 +++-
+ kernel/sched.c        |    1 -
+ mm/page-writeback.c   |    6 +++++-
+ mm/page_alloc.c       |   29 ++++++++++++++++++++---------
+ 4 files changed, 28 insertions(+), 12 deletions(-)
 
 
-> 
-> Both sound solvable.
-> 
-Anything is possible, but in this case - why bother?
-Do you have a specific use in mind, or is it
-just a "cool" thing?  People have thought about directory
-links long before linux, tried it, and found other solutions
-for their tasks. 
+diff -urN linux-2.6.0-test2-mm4/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.6.0-test2-mm4/include/linux/sched.h	2003-08-05 14:53:47.000000000 -0700
++++ linux/include/linux/sched.h	2003-08-05 12:38:41.000000000 -0700
+@@ -282,7 +282,9 @@
+ #define MAX_RT_PRIO		MAX_USER_RT_PRIO
+ 
+ #define MAX_PRIO		(MAX_RT_PRIO + 40)
+- 
++
++#define rt_task(p)		((p)->prio < MAX_RT_PRIO)
++
+ /*
+  * Some day this will be a full-fledged user tracking system..
+  */
+diff -urN linux-2.6.0-test2-mm4/kernel/sched.c linux/kernel/sched.c
+--- linux-2.6.0-test2-mm4/kernel/sched.c	2003-08-05 14:53:47.000000000 -0700
++++ linux/kernel/sched.c	2003-08-05 12:38:29.000000000 -0700
+@@ -199,7 +199,6 @@
+ #define this_rq()		(cpu_rq(smp_processor_id())) /* not __get_cpu_var(runqueues)! */
+ #define task_rq(p)		cpu_rq(task_cpu(p))
+ #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
+-#define rt_task(p)		((p)->prio < MAX_RT_PRIO)
+ 
+ /*
+  * Default context-switch locking:
+diff -urN linux-2.6.0-test2-mm4/mm/page_alloc.c linux/mm/page_alloc.c
+--- linux-2.6.0-test2-mm4/mm/page_alloc.c	2003-08-05 14:48:38.000000000 -0700
++++ linux/mm/page_alloc.c	2003-08-05 14:40:56.000000000 -0700
+@@ -518,7 +518,8 @@
+  *
+  * Herein lies the mysterious "incremental min".  That's the
+  *
+- *	min += z->pages_low;
++ *	local_low = z->pages_low;
++ *	min += local_low;
+  *
+  * thing.  The intent here is to provide additional protection to low zones for
+  * allocation requests which _could_ use higher zones.  So a GFP_HIGHMEM
+@@ -536,10 +537,11 @@
+ 	unsigned long min;
+ 	struct zone **zones, *classzone;
+ 	struct page *page;
++	struct reclaim_state reclaim_state;
++	struct task_struct *p = current;
+ 	int i;
+ 	int cold;
+ 	int do_retry;
+-	struct reclaim_state reclaim_state;
+ 
+ 	if (wait)
+ 		might_sleep();
+@@ -557,8 +559,17 @@
+ 	min = 1UL << order;
+ 	for (i = 0; zones[i] != NULL; i++) {
+ 		struct zone *z = zones[i];
++		unsigned long local_low;
++
++		/*
++		 * This is the fabled 'incremental min'. We let real-time tasks
++		 * dip their real-time paws a little deeper into reserves.
++		 */
++		local_low = z->pages_low;
++		if (rt_task(p))
++			local_low >>= 1;
++		min += local_low;
+ 
+-		min += z->pages_low;
+ 		if (z->free_pages >= min ||
+ 				(!wait && z->free_pages >= z->pages_high)) {
+ 			page = buffered_rmqueue(z, order, cold);
+@@ -594,7 +605,7 @@
+ 	/* here we're in the low on memory slow path */
+ 
+ rebalance:
+-	if ((current->flags & (PF_MEMALLOC | PF_MEMDIE)) && !in_interrupt()) {
++	if ((p->flags & (PF_MEMALLOC | PF_MEMDIE)) && !in_interrupt()) {
+ 		/* go through the zonelist yet again, ignoring mins */
+ 		for (i = 0; zones[i] != NULL; i++) {
+ 			struct zone *z = zones[i];
+@@ -610,14 +621,14 @@
+ 	if (!wait)
+ 		goto nopage;
+ 
+-	current->flags |= PF_MEMALLOC;
++	p->flags |= PF_MEMALLOC;
+ 	reclaim_state.reclaimed_slab = 0;
+-	current->reclaim_state = &reclaim_state;
++	p->reclaim_state = &reclaim_state;
+ 
+ 	try_to_free_pages(classzone, gfp_mask, order);
+ 
+-	current->reclaim_state = NULL;
+-	current->flags &= ~PF_MEMALLOC;
++	p->reclaim_state = NULL;
++	p->flags &= ~PF_MEMALLOC;
+ 
+ 	/* go through the zonelist yet one more time */
+ 	min = 1UL << order;
+@@ -657,7 +668,7 @@
+ 	if (!(gfp_mask & __GFP_NOWARN)) {
+ 		printk("%s: page allocation failure."
+ 			" order:%d, mode:0x%x\n",
+-			current->comm, order, gfp_mask);
++			p->comm, order, gfp_mask);
+ 	}
+ 	return NULL;
+ got_pg:
+diff -urN linux-2.6.0-test2-mm4/mm/page-writeback.c linux/mm/page-writeback.c
+--- linux-2.6.0-test2-mm4/mm/page-writeback.c	2003-08-05 14:53:47.000000000 -0700
++++ linux/mm/page-writeback.c	2003-08-05 13:48:43.000000000 -0700
+@@ -227,7 +227,11 @@
+ 	if (dirty_exceeded)
+ 		ratelimit = 8;
+ 
+-	if (get_cpu_var(ratelimits)++ >= ratelimit) {
++	/*
++	 * Check the rate limiting. Also, we do not want to throttle real-time
++	 * tasks in balance_dirty_pages(). Period.
++	 */
++	if (get_cpu_var(ratelimits)++ >= ratelimit && !rt_task(current)) {
+ 		__get_cpu_var(ratelimits) = 0;
+ 		put_cpu_var(ratelimits);
+ 		return balance_dirty_pages(mapping);
 
-Helge Hafting
+
 

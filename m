@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267702AbUJCDhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267700AbUJCDlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267702AbUJCDhh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 23:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267705AbUJCDhh
+	id S267700AbUJCDlo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 23:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267703AbUJCDlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 23:37:37 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60569 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267702AbUJCDhf (ORCPT
+	Sat, 2 Oct 2004 23:41:44 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:42140 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267700AbUJCDlm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 23:37:35 -0400
-Date: Sat, 2 Oct 2004 20:35:21 -0700
+	Sat, 2 Oct 2004 23:41:42 -0400
+Date: Sat, 2 Oct 2004 20:39:50 -0700
 From: Paul Jackson <pj@sgi.com>
-To: dipankar@in.ibm.com
-Cc: akpm@osdl.org, nagar@watson.ibm.com, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, mbligh@aracnet.com, lse-tech@lists.sourceforge.net,
-       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
-       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
+       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       mbligh@aracnet.com, lse-tech@lists.sourceforge.net, hch@infradead.org,
+       steiner@sgi.com, jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com
 Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041002203521.4b43ed8c.pj@sgi.com>
-In-Reply-To: <20041002145521.GA8868@in.ibm.com>
+Message-Id: <20041002203950.1d463413.pj@sgi.com>
+In-Reply-To: <415F37F9.6060002@bigpond.net.au>
 References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
 	<20040805190500.3c8fb361.pj@sgi.com>
 	<247790000.1091762644@[10.10.2.4]>
@@ -29,6 +30,8 @@ References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
 	<20041001164118.45b75e17.akpm@osdl.org>
 	<20041001230644.39b551af.pj@sgi.com>
 	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
 Organization: SGI
 X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -37,22 +40,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar wrote:
-> For this to succeed, they need to be completely
-> isolated.
+Peter writes:
+> This is where I see the need for "CPU sets".  I.e. as a 
+> replacement/modification to the CPU affinity mechanism 
 
-Do you mean by completely isolated (1) running two separate system
-images on separate partitions connected at most by networks and storage,
-or do you mean (2) minimal numa interaction between two subsets of
-nodes, all running under the same system image?
+Note that despite the name, cpusets handles both CPU and
+Memory affinity.
 
-If (1), then the partitioning project is down the hall ;)  But I guess
-you knew that.  The issues on this thread involve managing resource
-interactions on a single system image.
+Which is probably why Hubertus is calling them cpumem sets.
 
-Just checking ... the words you used to describe the degree of
-separation were sufficiently strong that I became worried we were at
-risk for a miscommunication.
+And, indeed, why I have called them cpumemsets on alternate
+years myself.
+
+However the rest of your points, except where clearly specific
+to the scheduler, apply equally well, so this point is not
+critical at this point in the discussion.
 
 -- 
                           I won't rest till it's the best ...

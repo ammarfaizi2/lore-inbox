@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282967AbSBGGAC>; Thu, 7 Feb 2002 01:00:02 -0500
+	id <S279798AbSBGGLv>; Thu, 7 Feb 2002 01:11:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279798AbSBGF7w>; Thu, 7 Feb 2002 00:59:52 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22020 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282967AbSBGF7k>; Thu, 7 Feb 2002 00:59:40 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: autofs on 64-bit systems
-Date: 6 Feb 2002 21:59:20 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a3t53o$tl4$1@cesium.transmeta.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S282978AbSBGGLl>; Thu, 7 Feb 2002 01:11:41 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:55031 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S279798AbSBGGL0>; Thu, 7 Feb 2002 01:11:26 -0500
+Date: Thu, 7 Feb 2002 11:44:13 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Ingo's smptimers patch experiment
+Message-ID: <20020207114413.A10060@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020206211925.A8720@in.ibm.com> <200202061727.g16HRkG12893@ns.caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200202061727.g16HRkG12893@ns.caldera.de>; from hch@ns.caldera.de on Wed, Feb 06, 2002 at 06:27:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to change the API for autofs on 64-bit systems, *except*
-Alpha, MIPS64 and SPARC64.  As far as I count, this means IA-64,
-S/390x and x86-64.
+On Wed, Feb 06, 2002 at 06:27:46PM +0100, Christoph Hellwig wrote:
+> In article <20020206211925.A8720@in.ibm.com> you wrote:
+> > Hi Ingo,
+> >
+> > I ported your smptimers patch to 2.5.3 and experimented with 
+> > it a little bit. Basically I am curious about why we
+> > we need to call run_all_timers() (which runs timers for all
+> > CPUs) through the timer bh if locking fails in run_local_timers(). 
+> 
+> Some driver do ugly things with TIMER_BH, and Ingo's 2.4 patched
+> tried to stayed source compatible with 2.4 drivers.
+> 
+> For 2.5 I'd really like to see TIMER_BH (all BH's in fact) to gone.
 
-The problem is that current setup doesn't work well with the emulation
-layer; currently this is special-cased for MIPS64 and Sparc64, but the
-other 64-bit architectures didn't follow suit.
+I can see that net driver relies on being able to disable all timers 
+by doing in net/core/dev.c -
 
-How much pain or lack thereof will this cause?  In particular, IA-64
-seems to be one which just may want to pass on this, otherwise I'll
-expect to send this patch to Linus and Marcelo as well as make an
-autofs 3.1.8 with this patch in it:
+        tasklet_disable(bh_task_vec+TIMER_BH);
 
---- include/linux/auto_fs.h~	Mon Jan 14 13:33:50 2002
-+++ include/linux/auto_fs.h	Wed Feb  6 21:57:16 2002
-@@ -45,7 +45,7 @@
-  * If so, 32-bit user-space code should be backwards compatible.
-  */
- 
--#if defined(__sparc__) || defined(__mips__)
-+#ifndef __alpha__
- typedef unsigned int autofs_wqt_t;
- #else
- typedef unsigned long autofs_wqt_t;
+But this doesn't completely disable timers in Ingo's patch 
+since timers can also be fired through run_local_timers() if 
+locking succeeds, no TIMER_BH in that case.
+
+There are only a few places where TIMER_BH is used. I will see if
+I can make another smptimers patch that gets rid of them.
+
+Thanks
+Dipankar
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

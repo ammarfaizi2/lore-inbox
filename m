@@ -1,57 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262953AbVCJSbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262843AbVCJSlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbVCJSbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 13:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbVCJSYl
+	id S262843AbVCJSlY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 13:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbVCJSgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 13:24:41 -0500
-Received: from fed1rmmtao08.cox.net ([68.230.241.31]:65530 "EHLO
-	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S262845AbVCJSSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 13:18:30 -0500
-Date: Thu, 10 Mar 2005 11:18:09 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: bk commits and dates
-Message-ID: <20050310181809.GX3098@smtp.west.cox.net>
-References: <1110422519.32556.159.camel@gaston> <20050309194744.6aef66b7.davem@davemloft.net> <1110433821.32524.176.camel@gaston> <422FE571.7010101@pobox.com> <1110463905.4026.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110463905.4026.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 10 Mar 2005 13:36:06 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:7319 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262883AbVCJSb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 13:31:28 -0500
+Message-Id: <200503101831.j2AIV2g03286@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
+Subject: RE: Direct io on block device has performance regression on 2.6.x kernel
+Date: Thu, 10 Mar 2005 10:31:02 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcUlJwozZgLgZ8X2TqK24ZIi3BahXwAGOCaw
+In-Reply-To: <20050309200936.0b1bea9e.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 07:11:45AM -0700, David Woodhouse wrote:
-> On Thu, 2005-03-10 at 01:13 -0500, Jeff Garzik wrote:
-> > Speaking strictly in terms of implementation, David Woodhouse's 
-> > bk-commits mailer scripts could probably easily be tweaked to -not- set 
-> > an explicit Date header on the outgoing emails.
-> > 
-> > It then becomes a matter of deciding whether this is a good idea or not :)
-> 
-> The original changeset date is also in the body of the mail anyway so it
-> wouldn't be lost if we changed this. I have no real preference either
-> way. Bear in mind that the Date: header you got would then be the time
-> my script ran, not the time it was actually committed. That may differ
-> by days, in some cases (thankfully not often).
+Andrew Morton wrote on Wednesday, March 09, 2005 8:10 PM
+> > 2.6.9 kernel is 6% slower compare to distributor's 2.4 kernel (RHEL3).  Roughly
+> > 2% came from storage driver (I'm not allowed to say anything beyond that, there
+> > is a fix though).
+>
+> The codepaths are indeed longer in 2.6.
 
-I've just been using sort by arrival as an imperfect, but still mostly
-correct work-around (a few things have shown up after the email with the
-tag, but only a few).  I'd argue having the mails have the fuged date is
-useful when trying to re-create sub-sets of a given tree.
+Thank you for acknowledging this.
 
-Note that for the specific problem Ben has (looking at all ChangeSets
-from A to B), I've got a kinda slow script that fakes the bk-commits
-messages given two repositories, if this sounds of any interest to
-anyone.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+> > 2% came from DIO.
+>
+> hm, that's not a lot.
+> ....
+> 2% is pretty thin :(
+
+This is the exact reason that I did not want to put these numbers out
+in the first place. Because most people usually underestimate the
+magnitude of these percentage point.
+
+Now I have to give a speech on "performance optimization 101".  Take a
+look at this page: http://www.suse.de/~aj/SPEC/CINT/d-permanent/index.html
+This page tracks the development of gcc and measures the performance of
+gcc with SPECint2000.  Study the last chart, take out your calculator
+and calculate how much performance gain gcc made over the course of 3.5
+years of development.  Also please factor in the kind of man power that
+went into the compiler development.
+
+Until people understand the kind of scale to expect when evaluating a
+complex piece of software, then we can talk about database transaction
+processing benchmark.  This benchmark goes one step further.  It bench
+the entire software stack (kernel/library/application/compiler), it bench
+the entire hardware platform (cpu/memory/IO/chipset) and on the grand
+scale, it bench system integration: storage, network, interconnect, mid-
+tier app server, front end clients, etc etc.  Any specific function/
+component only represent a small portion of the entire system, essential
+but small. For example, the hottest function in the kernel is 7.5%, out
+of 20% kernel time. If we throw away that function entirely, there will
+be only 1.5% direct impact on total cpu cycles.
+
+So what's the point?  The point is when judging a number whether it is
+thin or thick, it has to be judged against the complexity of SUT.  It
+has to be judged against a relevant scale for that particular workload.
+And the scale has to be laid out correctly that represents the weight
+of each component.
+
+Losing 6% just from Linux kernel is a huge deal for this type of benchmark.
+People work for days to implement features which might give sub percentage
+gain.  Making Software run faster is not easy, but making software run slower
+apparently is a fairly easy task.
+
+
+
+> Fine-grained alignment is probably too hard, and it should fall back to
+> __blockdev_direct_IO().
+>
+> Does it do the right thing with a request which is non-page-aligned, but
+> 512-byte aligned?
+>
+> readv and writev?
+>
+
+That's why direct_io_worker() is slower.  It does everything and handles
+every possible usage scenarios out there.  I hope making the function fatter
+is not in the plan.
+
+- Ken
+
+

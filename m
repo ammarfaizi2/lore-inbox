@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVBOJ2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVBOJcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVBOJ2c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 04:28:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVBOJ2c
+	id S261660AbVBOJcv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 04:32:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVBOJcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 04:28:32 -0500
-Received: from gate.firmix.at ([80.109.18.208]:57818 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S261659AbVBOJ2a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 04:28:30 -0500
-Subject: Re: [OT] speeding boot process
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: lgb@lgb.hu, Kyle Moffett <mrmacman_g4@mac.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Patrick McFarland <pmcfarland@downeast.net>,
-       linux-kernel@vger.kernel.org, Tim Bird <tim.bird@am.sony.com>,
-       Prakash Punnoor <prakashp@arcor.de>,
-       linux-hotplug-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Roland Dreier <roland@topspin.com>
-In-Reply-To: <4d8e3fd305021500346503585b@mail.gmail.com>
-References: <20050211011609.GA27176@suse.de>
-	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>
-	 <1108422240.28902.11.camel@krustophenia.net> <524qge20e2.fsf@topspin.com>
-	 <1108424720.32293.8.camel@krustophenia.net> <42113F6B.1080602@am.sony.com>
-	 <1108430245.32293.16.camel@krustophenia.net>
-	 <4B923A81-7EF3-11D9-86CC-000393ACC76E@mac.com>
-	 <20050215073222.GB26950@vega.lgb.hu>
-	 <4d8e3fd305021500346503585b@mail.gmail.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Message-Id: <1108459672.438.3.camel@tara.firmix.at>
+	Tue, 15 Feb 2005 04:32:51 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:57939
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261660AbVBOJcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 04:32:46 -0500
+Date: Tue, 15 Feb 2005 10:32:44 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: seccomp for 2.6.11-rc4
+Message-ID: <20050215093244.GU13712@opteron.random>
+References: <20050121100606.GB8042@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Tue, 15 Feb 2005 10:27:52 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050121100606.GB8042@dualathlon.random>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-15 at 09:34 +0100, Paolo Ciarrocchi wrote:
-[...]
-> So... why is Gentoo the only distro the uses parallel execution of
-> init scripts ?
+Hello,
 
-Because no other distro bothered to implement it.
+This is the latest version against 2.6.11-rc4:
 
-Apart from that we as quite far off-topic for LKML since this has
-nothing to do with kernel.
-The only reason getting this on-topic is to try to get the best SWSUSP
-support in the kernel so one simply does not need this.
+	http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.11-rc4/seccomp
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+I'd need it merged into mainline at some point, unless anybody has
+strong arguments against it. All I can guarantee here, is that I'll back
+it out myself in the future, iff Cpushare will fail and nobody else
+started using it in the meantime for similar security purposes.
 
+Thanks.

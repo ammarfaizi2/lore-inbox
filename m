@@ -1,57 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRCPMrA>; Fri, 16 Mar 2001 07:47:00 -0500
+	id <S129259AbRCPNFl>; Fri, 16 Mar 2001 08:05:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129321AbRCPMqv>; Fri, 16 Mar 2001 07:46:51 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:59028 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129282AbRCPMqm>;
-	Fri, 16 Mar 2001 07:46:42 -0500
-Date: Fri, 16 Mar 2001 13:45:35 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200103161245.NAA00944.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, rhw@MemAlpha.CX
-Subject: Re: [PATCH] Improved version reporting
-Cc: kaboom@gatech.edu, linux-kernel@vger.kernel.org, seberino@spawar.navy.mil
+	id <S129268AbRCPNFb>; Fri, 16 Mar 2001 08:05:31 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:15047 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S129259AbRCPNFR>;
+	Fri, 16 Mar 2001 08:05:17 -0500
+Message-ID: <3AB20F42.1D37984C@mandrakesoft.com>
+Date: Fri, 16 Mar 2001 08:04:02 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: pmhahn@titan.lahn.de
+Cc: Manfred Spraul <manfred@colorfullife.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: [OOPS] 8139too
+In-Reply-To: <Pine.LNX.4.33.0103151022220.1497-100000@titan.lahn.de>
+Content-Type: multipart/mixed;
+ boundary="------------DF8484491B89A50436827FA2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Riley Williams <rhw@MemAlpha.CX>
+This is a multi-part message in MIME format.
+--------------DF8484491B89A50436827FA2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-    Neither am I - but, according to comments from RedHat a while back,
-    they repackage mount separately because they provide a NEWER version
-    of mount than is in the util-linux package. This will ALSO result in
-    `mount --version` giving the wrong answer...
+> i686 2.4.2 UP+kdb+lm_sensors+pcmcia
+> after APM laptop suspend to disk
+> 8139too is build-in, not pcmcia
+> I often get hangups after suspend-to-disk if I'm connected to a hub/switch.
+> This is the first oops I've actually seen and copied it by hand:
 
-There is no newer version.
-In ancient times I came with frequent releases of mount, at a time
-when util-linux was released very infrequently. These years mount
-is part of util-linux, and util-linux is released frequently.
+Philipp,
 
-    Unless one can guarantee that the util-linux and mount packages are
-    the SAME version, mount can't be guaranteed to report the version of
-    the util-linux package installed. RedHat provide a NEWER version of
-    mount to util-linux so that guarantee doesnae exist.
+Does the attached patch solve the problem?
 
-I do not think they do.
+Modifying the interrupt handler may not be necessary, but it's there
+just in case.  (that's the first chunk of the patch)
 
-     > You are mistaken, as is proved by the reports that contain a kbd
-     > line: a grep on linux-kernel for this Februari shows people with
-     > Kbd 0.96, 0.99 and 1.02.
+Regards,
 
-    {Shrug} Please explain why I was unable to get ver_linux to report a
+	Jeff
 
-When other people can and you cannot, why should I explain your failure?
-Let me just check. A version from 1993:
 
-  % ./loadkeys -h 2>&1 | head -1
-  loadkeys version 0.81
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full mooon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.
+--------------DF8484491B89A50436827FA2
+Content-Type: text/plain; charset=us-ascii;
+ name="8139too.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="8139too.patch"
 
-A version from 2001:
+Index: drivers/net/8139too.c
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_4/drivers/net/8139too.c,v
+retrieving revision 1.1.1.29.10.1
+diff -u -r1.1.1.29.10.1 8139too.c
+--- drivers/net/8139too.c	2001/03/13 05:12:53	1.1.1.29.10.1
++++ drivers/net/8139too.c	2001/03/16 13:01:08
+@@ -2028,10 +2028,12 @@
+ 			rtl8139_weird_interrupt (dev, tp, ioaddr,
+ 						 status, link_changed);
+ 
+-		if (status & (RxOK | RxUnderrun | RxOverflow | RxFIFOOver))	/* Rx interrupt */
++		if (netif_running (dev) &&
++		    status & (RxOK | RxUnderrun | RxOverflow | RxFIFOOver))	/* Rx interrupt */
+ 			rtl8139_rx_interrupt (dev, tp, ioaddr);
+ 
+-		if (status & (TxOK | TxErr)) {
++		if (netif_running (dev) &&
++		    status & (TxOK | TxErr)) {
+ 			spin_lock (&tp->lock);
+ 			rtl8139_tx_interrupt (dev, tp, ioaddr);
+ 			spin_unlock (&tp->lock);
+@@ -2262,6 +2264,9 @@
+ 	void *ioaddr = tp->mmio_addr;
+ 	unsigned long flags;
+ 
++	if (!netif_running (dev))
++		return;
++
+ 	netif_device_detach (dev);
+ 
+ 	spin_lock_irqsave (&tp->lock, flags);
+@@ -2282,6 +2287,8 @@
+ {
+ 	struct net_device *dev = pci_get_drvdata (pdev);
+ 
++	if (!netif_running (dev))
++		return;
+ 	netif_device_attach (dev);
+ 	rtl8139_hw_start (dev);
+ }
 
-  % ./loadkeys -h 2>&1 | head -1
-  loadkeys version 1.06
+--------------DF8484491B89A50436827FA2--
 
-Maybe nothing has changed here the past eight years. It just works.
-Perhaps you tried some modified version.
-
-Andries

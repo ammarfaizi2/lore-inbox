@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268892AbUI3IQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268836AbUI3IUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268892AbUI3IQS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 04:16:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268836AbUI3IQS
+	id S268836AbUI3IUp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 04:20:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268955AbUI3IUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 04:16:18 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:51391 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268892AbUI3IQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 04:16:05 -0400
-Message-ID: <415BC0BC.6040902@yahoo.com.au>
-Date: Thu, 30 Sep 2004 18:15:56 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: colpatch@us.ibm.com
-CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [RFC PATCH] sched_domains: Make SD_NODE_INIT per-arch
-References: <1096420339.15060.139.camel@arrakis>
-In-Reply-To: <1096420339.15060.139.camel@arrakis>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Sep 2004 04:20:45 -0400
+Received: from cantor.suse.de ([195.135.220.2]:9903 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268836AbUI3IUo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 04:20:44 -0400
+Date: Thu, 30 Sep 2004 10:20:42 +0200
+From: Olaf Hering <olh@suse.de>
+To: David Gibson <david@gibson.dropbear.id.au>,
+       Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@osdl.org>,
+       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PPC64] Improved VSID allocation algorithm
+Message-ID: <20040930082042.GA27980@suse.de>
+References: <20040913041119.GA5351@zax> <20040929194730.GA6292@suse.de> <20040930064037.GA3167@krispykreme.ozlabs.ibm.com> <20040930070151.GG21889@zax> <20040930080510.GH21889@zax>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040930080510.GH21889@zax>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson wrote:
-> IA64 already has their own version of SD_NODE_INIT, tuned for their
-> extremely large machines.  I think that all arches would benefit from
-> having their own, arch-specific SD_NODE_INIT initializer, rather than
-> the one-size-fits-all variant we've got now.
-> 
+ On Thu, Sep 30, David Gibson wrote:
+> changing VSID_MULTIPLIER in include/asm-ppc64/mmu.h to 200730139,
+> instead of the current value.  According to my hash simulator that
+> should fix the problem for you (and work out to larger amounts of RAM,
+> too).
 
-I suppose the patch is pretty good (IIRC Martin liked the idea).
-I guess it will at least increase the incidence of copy+paste,
-if not getting people to think harder ;)
+Yes, that number works, tested on rc2 + the vsid patch.
 
-Can I be lame and ask that you keep this around until closer
-to 2.6.10? I have a few possible scheduler performance
-improvments that I'd like to get tested in -mm after 2.6.9
-and this would make things a bit harder :P
+-- 
+USB is for mice, FireWire is for men!
 
-I don't think anyone is looking at getting any tweaks in before
-then...
+sUse lINUX ag, nÜRNBERG

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316897AbSF0RsE>; Thu, 27 Jun 2002 13:48:04 -0400
+	id <S316899AbSF0Rv7>; Thu, 27 Jun 2002 13:51:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316899AbSF0RsD>; Thu, 27 Jun 2002 13:48:03 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:2692 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S316897AbSF0RsC> convert rfc822-to-8bit;
-	Thu, 27 Jun 2002 13:48:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Subject: Re: Can't find watchdog timer (sc1200)
-Date: Thu, 27 Jun 2002 19:49:57 +0200
-User-Agent: KMail/1.4.1
+	id <S316900AbSF0Rv6>; Thu, 27 Jun 2002 13:51:58 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:24839 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316899AbSF0Rv5>;
+	Thu, 27 Jun 2002 13:51:57 -0400
+Date: Thu, 27 Jun 2002 10:53:56 -0700
+From: Greg KH <greg@kroah.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
 Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0206271844520.10717-100000@netfinity.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.44.0206271844520.10717-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206271949.57333.roy@karlsbakk.net>
+Subject: Re: USB doesn't work
+Message-ID: <20020627175356.GA10905@kroah.com>
+References: <200206271503.31851.roy@karlsbakk.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200206271503.31851.roy@karlsbakk.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Thu, 30 May 2002 16:49:32 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 June 2002 18:45, Zwane Mwaikambo wrote:
-> On Thu, 27 Jun 2002, Roy Sigurd Karlsbakk wrote:
-> > I can't make linux (2.4.19-rc1) detect the watchdog timer in the sc1200.
-> > Any ideas?
->
-> Its only in -ac, mainly because its untested and experimental. Check
-> 2.4.19-pre10-ac2
+On Thu, Jun 27, 2002 at 03:03:31PM +0200, Roy Sigurd Karlsbakk wrote:
+> usb-ohci.c: USB OHCI at membase 0xc4802000, IRQ 10
+> usb-ohci.c: usb-00:13.0, Compaq Computer Corporation ZFMicro Chipset USB
+> usb-ohci.c: USB HC TakeOver failed!
+> usb.c: USB bus -1 deregistered
 
-there is no code for sc1200 in the pre10-ac2 patch. it's all in the official, 
-and nothing has changed to -pr1
+Looks like your BIOS doesn't want to give up the USB controller.  Is
+there any USB settings in the BIOS that you can change?
 
-any other suggestions?
-
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+greg k-h

@@ -1,72 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268662AbUIQKRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268663AbUIQKWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268662AbUIQKRz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 06:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268663AbUIQKRz
+	id S268663AbUIQKWU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 06:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268665AbUIQKWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 06:17:55 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:42477 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S268662AbUIQKRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 06:17:51 -0400
-Date: Fri, 17 Sep 2004 19:19:42 +0900 (JST)
-Message-Id: <200409171019.i8HAJgYV002200@mailsv.bs1.fc.nec.co.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, kaigai@ak.jp.nec.com, paulmck@us.ibm.com,
-       dipankar@in.ibm.com
-Subject: [PATCH] list_replace_rcu() in include/linux/list.h
-From: kaigai@ak.jp.nec.com (Kaigai Kohei)
-X-Mailer: mnews [version 1.22PL1] 2000-02/15(Tue)
+	Fri, 17 Sep 2004 06:22:20 -0400
+Received: from main.gmane.org ([80.91.229.2]:55707 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268663AbUIQKWQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 06:22:16 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97       patch)
+Date: Fri, 17 Sep 2004 12:22:05 +0200
+Message-ID: <MPG.1bb4d933f584efee9896f0@news.gmane.org>
+References: <200409111850.i8BIowaq013662@harpo.it.uu.se> <20040912011128.031f804a@localhost> <Pine.LNX.4.60.0409131526050.29875@tomservo.workpc.tds.net> <20040914175949.6b59a032@sashak.lan> <MPG.1bb164a85e6c9d459896e9@news.gmane.org> <20040915035820.1cdccaa5@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: oblomov.dipmat.unict.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew.
+Sasha Khapyorsky wrote:
+> On Tue, 14 Sep 2004 23:04:41 +0200
+> Giuseppe Bilotta <bilotta78@hotpop.com> wrote:
+> 
+> > Sasha Khapyorsky wrote:
+> > > Such modems also exist (AC97 controller + MC97 codec + DAA), but
+> > > less popular (especially with laptops there modem are mostly used).
+> > 
+> > I have one such built in in my Dell Inspiron 8200, which is why 
+> > I'm following this thread with particular interest.
+> > 
+> > The strange thing is that under Windows the modem is configured 
+> > as a Conexant thingie ... or is the problem that I have both 
+> > and the Conexant thingie is the one connected to the actual 
+> > modem plug? Is there a way to know this (other than having a 
+> > look inside my laptop, that is)?
+> 
+> If it looks like this:
+> 
+> 00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem Controller
+> 
+> it is most likely on-board south bridge and MDC (or other riser)
+> modem. This may work with ALSA.
 
-* list_replace_rcu-2.6.9-rc2.patch
-This attached patch adds list_replace_rcu() to include/linux/list.h
-for atomic updating operations according to RCU-model.
+That's it:
 
-void list_replace_rcu(struct list_head *old, struct list_head *new)
-
-The 'old' element is detached from the linked list, and the 'new'
-element is inserted to the same point of the linked list concurrently.
-
-This patch is necessary for the performance improvement of SELinux.
-See, http://lkml.org/lkml/2004/8/16/54
-       (Subject: RCU issue with SELinux)
-     http://lkml.org/lkml/2004/8/30/63
-       (Subject: [PATCH]SELinux performance improvement by RCU)
-
-Please apply.
-
-Signed-off-by: KaiGai, Kohei <kaigai@ak.jp.nec.com>
---------
-Kai Gai <kaigai@ak.jp.nec.com>
+> 0000:00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem Controller (rev 02) 
 
 
---- linux-2.6.9-rc2/include/linux/list.h	2004-09-13 14:32:48.000000000 +0900
-+++ linux-2.6.9-rc2.rcu/include/linux/list.h	2004-09-16 14:53:39.000000000 +0900
-@@ -194,8 +194,23 @@
- 	__list_del(entry->prev, entry->next);
- 	entry->prev = LIST_POISON2;
- }
- 
-+/*
-+ * list_replace_rcu - replace old entry by new onw from list
-+ * @old : the element to be replaced from the list.
-+ * @new : the new element to insert to the list.
-+ * 
-+ * The old entry will be replaced to the new entry atomically.
-+ */
-+static inline void list_replace_rcu(struct list_head *old, struct list_head *new){
-+	new->next = old->next;
-+	new->prev = old->prev;
-+	smp_wmb();
-+	new->next->prev = new;
-+	new->prev->next = new;
-+}
-+
- /**
-  * list_del_init - deletes entry from list and reinitialize it.
-  * @entry: the element to delete from the list.
-  */
+Very verbose lspci output for both the soundcard and modem give 
+me:
+
+> 0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio Controller (rev 02)
+>       Subsystem: Cirrus Logic: Unknown device 5959
+>       Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>       Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>       Latency: 0
+>       Interrupt: pin B routed to IRQ 7
+>       Region 0: I/O ports at d800 [size=256]
+>       Region 1: I/O ports at dc80 [size=64]
+> 
+> 0000:00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem Controller (rev 02) (prog-if 00 [Generic])
+>       Subsystem: Conexant MD56ORD V.92 MDC Modem
+>       Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>       Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>       Interrupt: pin B routed to IRQ 7
+>       Region 0: I/O ports at d400 [size=256]
+>       Region 1: I/O ports at dc00 [size=128] 
+
+OTOH, ALSA in 2.6.5 doesn't like the modem controller:
+
+> PCI: Setting latency timer of device 0000:00:1f.5 to 64
+> MC'97 1 converters and GPIO not ready (0xff00)
+> intel8x0_measure_ac97_clock: measured 52287 usecs
+> intel8x0: clocking to 48000
+> PCI: Setting latency timer of device 0000:00:1f.6 to 64
+> MC'97 1 converters and GPIO not ready (0xff00)
+
+and 2.6.7 totally fails on both the audio and modem controller
+
+> unable to grab IRQ 7
+> Intel ICH: probe of 0000:00:1f.5 failed with error -16
+> unable to grab IRQ 7
+> Intel ICH Modem: probe of 0000:00:1f.6 failed with error -16 
+
+I will try one of the 2.6.9 rcs one of these days and see if I 
+can get things to work.
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
+

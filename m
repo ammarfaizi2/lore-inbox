@@ -1,86 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265843AbTAXXMm>; Fri, 24 Jan 2003 18:12:42 -0500
+	id <S265865AbTAXXaD>; Fri, 24 Jan 2003 18:30:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265863AbTAXXMm>; Fri, 24 Jan 2003 18:12:42 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:40102 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265843AbTAXXMb>; Fri, 24 Jan 2003 18:12:31 -0500
-Date: Fri, 24 Jan 2003 15:30:42 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: lse-tech@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: LSE Minutes for 24 Jan 2003
-Message-ID: <71820000.1043451042@w-hlinder>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S265872AbTAXXaD>; Fri, 24 Jan 2003 18:30:03 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:27373 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265865AbTAXXaC>;
+	Fri, 24 Jan 2003 18:30:02 -0500
+Date: Fri, 24 Jan 2003 15:29:40 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Corey Minyard <minyard@acm.org>, Mark Mielke <mark@mark.mielke.cc>,
+       Dan Kegel <dank@kegel.com>, Mark Hahn <hahn@physics.mcmaster.ca>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: debate on 700 threads vs asynchronous code
+In-Reply-To: <20030124232110.GN787@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.33L2.0301241528100.9816-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 25 Jan 2003, Matti Aarnio wrote:
 
-LSE Con Call 24 Jan 2003
+| On Fri, Jan 24, 2003 at 04:53:46PM -0600, Corey Minyard wrote:
+| ...
+| > I would disagree.  One thread per connection is easier to conceptually
+| > understand.  In my experience, an event-driven model (which is what you
+| > end up with if you use one or a few threads) is actually easier to
+| > correctly implement and it tends to make your code more modular and
+| > portable.
+|
+|   An old thing from early annals of computer science (I browsed Knuth's
+| "The Art" again..) is called   Coroutine.
+|
+| Gives you "one thread per connection" programming model, but without
+| actual multiple scheduling threads in the kernel side.
+|
+| Simplest coroutine implementations are truly simple.. Pagefull of C.
+| Knuth shows it with very few MIX (assembly) instructions.
+|
+| Throwing in non-blocking socket/filedescriptor access, and in event
+| of "EAGAIN", coroutine-yielding to some other coroutine, does complicate
+| things, naturally.
+|
+| Good coder finds balance in between various methods, possibly uses
+| both coroutine "userspace threads", and actual kernel threads.
+|
+| Doing coroutine library all in portable C (by means of setjmp()/longjmp())
+| is possible, but not very efficient.  A bit of assembly helps a lot.
+|
+| > -Corey
+|
+| /Matti Aarnio
+| -
 
-Michael Hohnbaum -  NUMA Update
+Davide Libenzi (epoll) likes and discusses coroutines on one of his
+web pages:  http://www.xmailserver.org/linux-patches/nio-improve.html
+(search for /coroutine/)
 
-Last call mbligh mentioned his mini numa schedular.
-By late friday night Erich Focht had generated the last
-piece of code needed (node rebalancing). He debugged it 
-and Linus picked it all up by Thursday! 
-Congrats to Martin, Erich, Michael, Andrew and everyone
-else for getting it in.
+-- 
+~Randy
 
-As an added bonus Ingo Molnar responded to the 
-patches being accepted.  He made some additional 
-changes which has been debugged and it should all
-work together well. 
-
-Andrew Theurer added code to help the numa scheduler
-dispatch hyperthreaded processes. It was more of a
-proof of concept than final solution for hyperthreading.
-Ingo then made additional changes to the O(1) sched. and 
-he took some fixes that Andrea Arcangeli made to the O(1)
-sceduler.
-
-Michael did some basic runs and it appears there are some
-nice performance boosts according to sched bench (on numaq).
-
-There are still some issues that hbaum is looking at related 
-to poor load balancing.
-
-Dave Hanson asked about lock contention on shared runqueues for 
-hyperthreading? Michael isnt using any hardware with hyperthreading
-now.  Andrew is the one looking at that now.
-
-If you are trying to support Hyperthreading then 
-Martin Bligh mentioned you should use ingo's patch 
-called D7 which provides one runqueue per pair of 
-hyperthreaded processors. You can use D7 without CONFIG_NUMA.
-
-Could someone please write a list of patches or hacks that might be 
-helpful for working with hyperthreading? (Andrew? Martin?) 
-
-Pat Gaughen was interested in talking to Erich about
-support for topology stuff. Hanna has figured out how to
-call out to international numbers so Erich, I will really
-be able to call you next time! 
-
-Hanna Linder- Move lse project of of sf?
-	
-	- leave lse-tech mailing list where it is. 
-	- sourceforge has no money to support any special requests
-	- Consider Tigris, Savanagh.nongnu, OSDL umbrella project for scalability.
-	- Discussed moving to osdl. Should talk to nathan and bryce.
-	- Hanna will walk across the street and talk to them in person.
-	- Hanna did talk to them and it is looking like a promising
-	  option. 
-	- Does anyone see any issue with moving lse to osdl?
-
-The plan for now is just a place to easily put patches.
-The osdl has other tools to enable automatic testing
-of patches which we hope to utilize in the future.
-
-	- Hanna will add offset from GMT for future announcements of lse calls.`

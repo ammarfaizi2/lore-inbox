@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261664AbSKLPcj>; Tue, 12 Nov 2002 10:32:39 -0500
+	id <S261605AbSKLPb7>; Tue, 12 Nov 2002 10:31:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261836AbSKLPcj>; Tue, 12 Nov 2002 10:32:39 -0500
-Received: from mail028.mail.bellsouth.net ([205.152.58.68]:11132 "EHLO
-	imf28bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S261664AbSKLPcI>; Tue, 12 Nov 2002 10:32:08 -0500
-Date: Tue, 12 Nov 2002 10:38:47 -0500 (EST)
-From: Burton Windle <bwindle@fint.org>
-X-X-Sender: bwindle@morpheus
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.47-bk1: error compiling skbuff.c
-Message-ID: <Pine.LNX.4.43.0211121036140.6269-100000@morpheus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261664AbSKLPb7>; Tue, 12 Nov 2002 10:31:59 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:37030 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261605AbSKLPb5>; Tue, 12 Nov 2002 10:31:57 -0500
+Subject: Re: ATI Radeon IGP 320M Linux support
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Cheney <ccheney@debian.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021112151622.GC16414@cheney.cx>
+References: <20021112151622.GC16414@cheney.cx>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Nov 2002 16:03:49 +0000
+Message-Id: <1037117029.8313.59.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I didn't see this in the archives yet... Linux 2.5.47-bk1, Debian Testing
+On Tue, 2002-11-12 at 15:16, Chris Cheney wrote:
+> 
+> I recently purchased a Compaq Presario 900Z laptop and discovered it
+> used a ATI Radeon IGP 320M chipset.
+> 
+> http://mirror.ati.com/technology/hardware/radeonigp/rigp320m.html
+> 
+> >From the pci output it looks like it uses ALi parts but at least with
+> kernel 2.4.18 it will not boot properly (Yes, Windows XP runs on it).
+> I tried to install Debian on it (2.4.18 kernel) and at first it hangs
+> with a machine check exception unless nomce is passed, then it will
+> give errors like this:
 
-  gcc -Wp,-MD,net/core/.skbuff.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
--DKBUILD_BASENAME=skbuff -DKBUILD_MODNAME=skbuff   -c -o net/core/skbuff.o
-net/core/skbuff.c
-In file included from include/net/xfrm.h:6,
-                 from net/core/skbuff.c:61:
-include/linux/crypto.h: In function `crypto_tfm_alg_modname':
-include/linux/crypto.h:202: dereferencing pointer to incomplete type
-include/linux/crypto.h:205: warning: control reaches end of non-void function
-make[2]: *** [net/core/skbuff.o] Error 1
-make[1]: *** [net/core] Error 2
-make: *** [net] Error 2
+Nobody has managed to make Linux run on this laptop that I know of. As a
+starting point you might want to build a kernel with no PCI IDE support,
+and no USB support and work from there.
 
+We have no documentation on the ATI IDE or other components in the
+system.
 
-CONFIG_SECURITY_CAPABILITIES=y
-# CONFIG_CRYPTO is not set
-
-
-
-Linux razor 2.5.46 #1 Fri Nov 8 17:34:37 EST 2002 i686 Pentium II
-(Klamath) GenuineIntel GNU/Linux
-
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.19
-e2fsprogs              1.30-WIP
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               4.5.2
-
-
---
-Burton Windle                           burton@fint.org
-Linux: the "grim reaper of innocent orphaned children."
-          from /usr/src/linux-2.4.18/init/main.c:461
-
+Alan
 

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267444AbTACIZA>; Fri, 3 Jan 2003 03:25:00 -0500
+	id <S267466AbTACIVX>; Fri, 3 Jan 2003 03:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267472AbTACIZA>; Fri, 3 Jan 2003 03:25:00 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:24284 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S267444AbTACIY7> convert rfc822-to-8bit; Fri, 3 Jan 2003 03:24:59 -0500
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [2.5.54] OOPS: unable to handle kernel paging request
-Date: Fri, 3 Jan 2003 14:03:16 +0530
-Message-ID: <94F20261551DC141B6B559DC49108672044910@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.5.54] OOPS: unable to handle kernel paging request
-Thread-Index: AcKy9PSSb6aCR6TcSy2EvR2R9nva+QADUNsw
-From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
-To: "Paul Rolland" <rol@as2917.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Jan 2003 08:33:17.0024 (UTC) FILETIME=[C373AE00:01C2B302]
+	id <S267468AbTACIVW>; Fri, 3 Jan 2003 03:21:22 -0500
+Received: from [217.13.199.129] ([217.13.199.129]:22914 "EHLO
+	server1.netdiscount.de") by vger.kernel.org with ESMTP
+	id <S267466AbTACIVV>; Fri, 3 Jan 2003 03:21:21 -0500
+Date: Fri, 3 Jan 2003 01:38:52 +0100
+From: Christian Leber <christian@leber.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: e1000 not detected in 2.5.53
+Message-ID: <20030103003852.GA17913@core.home>
+References: <3E145A31.9000305@walrond.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3E145A31.9000305@walrond.org>
+User-Agent: Mutt/1.4i
+X-Accept-Language: de en
+X-Location: Europe, Germany, Mannheim
+X-Operating-System: Debian GNU/Linux (sid)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Paul Rolland [mailto:rol@as2917.net] 
->Subject: Re: [2.5.54] OOPS: unable to handle kernel paging request
->
->
->Got the same yesterday evening when installing 2.5.54 for the 
->first time....
->
->My second PC which I used for Serial console was not at home, 
->so if a console output is needed, people will have to wait for 
->the weekend (which is not that far).
->
->Config was roughly including :
-> - Arch = P4, Unipro, APIC
-> - CPU Freq scaling
-> - ACPI (enum only)
-> - TCP (v4 + v6), Netfilter
-> - IDE, SCSI (AIC7xxx),
-> - Sound (Alsa, EMu10K1),
-> - Crypto
->
->This oops happens at the very early stage of the boot process. 
->By that time, only 10 to 15 lines are displayed on the screen 
->following the "Booting ...................." stuff.
->
->
-Check if the processor in your .config matches with the processor that you have.
-Eg. Problme might arise if .config file says CONFIG_MPENTIUMIII=y when your processor is P4.
+On Thu, Jan 02, 2003 at 03:26:41PM +0000, Andrew Walrond wrote:
+
+> Asus PR-DLS dual Xeon m/b with Intel 82544GC Gigabit controller onboard 
+> (And Intel 82551QM Fast Ethernet controller incidentally)
+
+Just a note:
+my Intel Gigabit Card is in a System with an AMD 750 Chipset (Viper)
+also not detected with 2.5.53 in another system (via kt133) it works.
+(even if it is slow)
+(as module, with acpi)
+Seems to be reproducable.
+
+
+Christian Leber

@@ -1,98 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275338AbTHGNWL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 09:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275339AbTHGNWL
+	id S275329AbTHGNQy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 09:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275332AbTHGNQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 09:22:11 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:61432 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S275338AbTHGNWG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 09:22:06 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 7 Aug 2003 15:22:00 +0200 (MEST)
-Message-Id: <UTC200308071322.h77DM0P11942.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: [PATCH] ide-disk.c rev 1.13 killed CONFIG_IDEDISK_STROKE
-Cc: alan@lxorguk.ukuu.org.uk, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+	Thu, 7 Aug 2003 09:16:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22286 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S275329AbTHGNQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 09:16:53 -0400
+Date: Thu, 7 Aug 2003 14:16:50 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Tim Small <tim@buttersideup.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Roskin <proski@gnu.org>,
+       linux-pcmcia@lists.infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TI yenta-alikes
+Message-ID: <20030807141650.C25908@flint.arm.linux.org.uk>
+Mail-Followup-To: Tim Small <tim@buttersideup.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Roskin <proski@gnu.org>,
+	linux-pcmcia@lists.infradead.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200308062025.08861.daniel.ritz@gmx.ch> <20030806194430.D16116@flint.arm.linux.org.uk> <Pine.LNX.4.56.0308061452310.3849@marabou.research.att.com> <20030806203217.F16116@flint.arm.linux.org.uk> <Pine.LNX.4.56.0308061554480.4178@marabou.research.att.com> <3F317FD7.6020209@buttersideup.com> <Pine.LNX.4.56.0308062301550.1995@marabou.research.att.com> <20030807100211.A17690@flint.arm.linux.org.uk> <1060258695.3123.36.camel@dhcp22.swansea.linux.org.uk> <3F324DDE.3040409@buttersideup.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F324DDE.3040409@buttersideup.com>; from tim@buttersideup.com on Thu, Aug 07, 2003 at 02:02:22PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+On Thu, Aug 07, 2003 at 02:02:22PM +0100, Tim Small wrote:
+> "device control register bits2,1:  R/W, Interrupt mode.
+> Bits 2 1 select the interrupt mode used by the PCI1031. Bits 2 1 are 
+> encoded as: 00 = No interrupts enabled (default) 01 = ISA 10 = 
+> Serialized IRQ type interrupt scheme 11 = Reserved"
 
-    >     >   > So, the clean way is to examine what the disk reported,
-    >     >   > never change it
-    >     >
-    >     >   Even if disk's info changes?  I don't think so.
-    >     >
-    >     > Yes. The disk geometry data that we use is drive->*
-    >     > What the disk reported to us is drive->id->*.
+When you look at some other TI device, you'll notice that these bits
+have a similar meaning, but, for instance 10 will be reserved (because
+the device doesn't support Serialised ISA IRQs) but supports 11 (serial
+PCI IRQs.)  00 means PCI IRQ mode only on some TI devices, and is a
+valid setting.
 
-    After issuing SET_MAX_ADDRESS or SET_MAX_ADDRESS_EXT hardware
-    drive->id is updated
+You can do what you're suggesting as long as you take account of the
+device itself.  However, once you've decided the device isn't setup,
+how can the kernel determine exactly what the _correct_ setup of the
+device is?  You can't say "well, its a PCI1031 device, therefore I'll
+select ISA interrupt mode" because you don't know if it has been
+wired up that way.
 
-Yes. So far no kernel has asked the disk for an update.
-And I don't think we have seen cases where that would have been
-necessary.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-(I mean, theoretically it would be possible that the disk reported
-at first that DMA was supported, while after SET_MAX_ADDRESS this
-no longer is supported, e.g. because of some strange problem that
-allows DMA only from/to the first 32GB. In practice we have never seen
-such things, I think.)
-
-    and we are using this information,
-    so disk reports to us geometry, nope?
-
-Still difficult to parse.
-
-Let me just say some things. Maybe I answer your question, maybe not,
-then ask again, as explicitly as possible.
-
-What geometry stuff do we need? Let me sketch roughly, omitting details.
-
-First, there is drive->{head,sect,cyl}.
-If the drive does not know LBA, then we use drive->{head,sect} for
-actual I/O. If the drive uses LBA we do not use drive->{head,sect,cyl}
-at all. It is a bug when drive->head is larger than 16, or drive->sect
-larger than 63.
-
-Secondly, there is drive->bios_{head,sect,cyl}.
-This is not what we use, but it is what we report when user space asks.
-It is for LILO and fdisk. It is a very difficult question what we have
-to answer here, but it is irrelevant for the kernel.
-
-Thirdly, there is the total disk size.
-The kernel stores this in drive->capacity{48}.
-    [Yes, that reminds me - having two values here is unnecessary.
-    One of my following patch fragments eliminates drive->capacity
-    so that only drive->capacity48 is left.]
-What is actually used as total size, and also reported by BLKGETSIZE,
-is the return value of current_capacity(), and it is equal to
-drive->capacity48 minus the part used by a disk manager.
-
-The kernel does not directly use id->lba_capacity anywhere, except
-in the initial setup, in order to compute drive->capacity*.
-(So, changing it does not do anything useful.)
-
-    > >From "man hdparm"
-    >
-    >        -i     Display the identification info that  was  obtained
-    >               from the drive at boot time, if available.
-    >        -I     Request  identification  info  directly  from   the
-    >               drive.
-
-    This is a show-stopper only for changing HDIO_GET_IDENTITY semantics,
-    not driver itself (we can have separate drive->boot_id for this).
-
-    I am starting to think that drive->id (reflecting actual identity) and
-    drive->boot_id (saved boot drive->id) is a long-term solution.
-
-Yes, in principle there is nothing wrong with that.
-
-[But I wrote my first operating system on a 4K computer.
-Spent hours reducing the size of a driver from 129 to 128 instructions.
-Am permanently damaged now, very strongly conditioned against wasting memory.]
-
-Andries

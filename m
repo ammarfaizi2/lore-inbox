@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272580AbRHaBbI>; Thu, 30 Aug 2001 21:31:08 -0400
+	id <S272582AbRHaBeI>; Thu, 30 Aug 2001 21:34:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272582AbRHaBa6>; Thu, 30 Aug 2001 21:30:58 -0400
-Received: from jupter.networx.com.br ([200.187.100.102]:49052 "EHLO
-	jupter.networx.com.br") by vger.kernel.org with ESMTP
-	id <S272580AbRHaBar>; Thu, 30 Aug 2001 21:30:47 -0400
-Message-Id: <200108310122.f7V1Mas12778@jupter.networx.com.br>
-Content-Type: text/plain; charset=US-ASCII
-From: Thiago Vinhas de Moraes <tvlists@networx.com.br>
-Organization: NetWorx - A SuaCompanhia.com
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        "Kevin P. Fleming" <kevin@labsysgrp.com>
-Subject: Re: 2.4.9-ac1/2/3 allows multiple mounts of NFS filesystem on same mountpoint
-Date: Thu, 30 Aug 2001 22:23:57 -0300
-X-Mailer: KMail [version 1.3.1]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <000901c13179$be7b9ae0$6caaa8c0@kevin> <shsd75d2whg.fsf@charged.uio.no>
-In-Reply-To: <shsd75d2whg.fsf@charged.uio.no>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S272583AbRHaBd6>; Thu, 30 Aug 2001 21:33:58 -0400
+Received: from f22.law7.hotmail.com ([216.33.237.22]:8965 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S272582AbRHaBdw>;
+	Thu, 30 Aug 2001 21:33:52 -0400
+X-Originating-IP: [211.117.39.54]
+From: "tobin park" <shinywind@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: IP Masquerade 
+Date: Fri, 31 Aug 2001 01:34:05 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F22t6MWrnSxeFI8IioC000041e1@hotmail.com>
+X-OriginalArrivalTime: 31 Aug 2001 01:34:05.0685 (UTC) FILETIME=[05AC6A50:01C131BD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qui, 30 de Ago de 2001 16:12, Trond Myklebust escreveu:
-> >>>>> " " == Kevin P Fleming <kevin@labsysgrp.com> writes:
->      > Accidentally <G> I mounted a filesystem from my server onto my
->      > workstation twice. Mount gave me no error....
->
-> That's right. The 2.4 VFS removed the global restriction on the number
-> of mounts on a single mountpoint. So?
->
-> If people expect this to be an error, then the correct thing is for
-> the VFS restriction to be reinstated. I see no reason why it should be
-> the responsibility of the filesystem to check for this sort of
-> thing. A mountpoint is after all the one place where the VFS is
-> actually *designed* to override the filesystem.
+Hello,
+I want to insert the masquerade source in ip modules for studying network.
+Let me know the simplest procedure(having no user interface)for masquerading 
+the ip address into the outer interface(nic). (192.168.1.0/24 
+->211.210.66.15/32)
 
-I think it should be reinstated. We must have in mind, that currently, the 
-most part of end-users are newbies, and if we want Linux to be a true Desktop 
-Enviroment, we must allow people that do not want to understand it, to run it.
+---------------------------------------------------------------------------------
+My procedure is
+1. Hooked the ip_out procedure inserted my #ifdef sentence.
+2. changed the socket buffer source address into the routing table source 
+address.
+3. updated the ip header checksum
+4.. echo "1">/proc/sys/net/ipv4/ip_forward
+----------------------------------------------------------------------------------
 
-Just IMHO.
+Let me know the correct procedure for masquerading.(Not depends on the 
+existed mas
+querading source)
 
-Regards,
-Thiago Vinhas
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+

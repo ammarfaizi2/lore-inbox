@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264146AbTFKF2N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 01:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTFKF2N
+	id S261843AbTFKFel (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 01:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTFKFel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 01:28:13 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:37530 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S264146AbTFKF2M (ORCPT
+	Wed, 11 Jun 2003 01:34:41 -0400
+Received: from dp.samba.org ([66.70.73.150]:46220 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261843AbTFKFek (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 01:28:12 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "jairam nair" <jairamnair@rediffmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem while Crosscompiling Ksymoops 
-In-reply-to: Your message of "10 Jun 2003 10:32:40 GMT."
-             <20030610103240.3422.qmail@webmail26.rediffmail.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 11 Jun 2003 15:41:29 +1000
-Message-ID: <12589.1055310089@kao2.melbourne.sgi.com>
+	Wed, 11 Jun 2003 01:34:40 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Milton Miller <miltonm@bga.com>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: 2.5.70-bk1[23]: load_module crashes when aborting module load 
+In-reply-to: Your message of "Tue, 10 Jun 2003 03:48:02 EST."
+             <200306100848.h5A8m2E1034824@sullivan.realtime.net> 
+Date: Wed, 11 Jun 2003 15:47:29 +1000
+Message-Id: <20030611054822.F1A872C051@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Jun 2003 10:32:40 -0000, 
-"jairam nair" <jairamnair@rediffmail.com> wrote:
->  Hi,
->    I am trying to cross compile ksymoops-2.4.9 for Strong ARM. 
->But i
->am getting a segmentation Fault. The error messages is as below.
->arm-linux-gcc io.o ksyms.o ksymoops.o map.o misc.o object.o 
->oops.o
->re.o symbol.o -Dlinux -Wall -Wno-conversion -Waggregate-return
->-Wstrict-prototypes -Wmissing-prototypes
->-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
->-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
->-DDEF_OBJECTS=\"/lib/modules/*r/\"
->-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
->-I/skiff/local/include -L/skiff/local/lib -arm-linux-ld,-Bstatic 
->-lbfd
->-liberty -arm-linux-ld,-Bdynamic -o ksymoops
->collect2: ld terminated with signal 11 [Segmentation fault], 
->core dumped
+In message <200306100848.h5A8m2E1034824@sullivan.realtime.net> you write:
+> Umm, isn't that the problem?  Once we get past the point where mod points
+> inside the module core (ie where we would goto cleanup), we can't 
+> reference mod->percpu after freeing mod->mod_core, since that frees mod
+> (and hence a the use-after-free bug).
 
-The command line for the final link is wrong.  It should contain
+Doh!  Good catch.
 
- -Wl,-Bstatic -lbfd -liberty -Wl,-Bdynamic -o ksymoops
+	The problem is that mod is moved to point from the sucked-in
+file (always freed last) to the module core, after which time the
+"free(mod->core), reference mod->percpu" sequence is bogus, eg. when
+the module_init function fails.
 
-You replaced '-Wl' with '-arm-linux-ld', ld did not understand that and
-got a segmentation fault trying to handle the unknown parameter.
-Correct your command line, and log a problem against binutils that it
-cannot cope with unexpected options.
+	This patch keeps the ptr in a local variable, which solves the
+problem simply.
 
->    Can anybody tell me what should be given for DEF_MAP, since in 
->the
->target machine there is no System.map file.
+Linus, please apply.
 
-Without a system map, you are not going to get much of a decode.  But
-if that is what you want, add 'DEFMAP=' to the make command line.
-
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.70-bk15/kernel/module.c working-2.5.70-bk15-percpufree/kernel/module.c
+--- linux-2.5.70-bk15/kernel/module.c	2003-06-11 12:15:34.000000000 +1000
++++ working-2.5.70-bk15-percpufree/kernel/module.c	2003-06-11 15:39:48.000000000 +1000
+@@ -1366,7 +1366,7 @@ static struct module *load_module(void _
+ 	long arglen;
+ 	struct module *mod;
+ 	long err = 0;
+-	void *ptr = NULL; /* Stops spurious gcc uninitialized warning */
++	void *percpu = NULL, *ptr = NULL; /* Stops spurious gcc warning */
+ 
+ 	DEBUGP("load_module: umod=%p, len=%lu, uargs=%p\n",
+ 	       umod, len, uargs);
+@@ -1496,13 +1496,14 @@ static struct module *load_module(void _
+ 
+ 	if (pcpuindex) {
+ 		/* We have a special allocation for this section. */
+-		mod->percpu = percpu_modalloc(sechdrs[pcpuindex].sh_size,
+-					      sechdrs[pcpuindex].sh_addralign);
+-		if (!mod->percpu) {
++		percpu = percpu_modalloc(sechdrs[pcpuindex].sh_size,
++					 sechdrs[pcpuindex].sh_addralign);
++		if (!percpu) {
+ 			err = -ENOMEM;
+ 			goto free_mod;
+ 		}
+ 		sechdrs[pcpuindex].sh_flags &= ~(unsigned long)SHF_ALLOC;
++		mod->percpu = percpu;
+ 	}
+ 
+ 	/* Determine total sizes, and put offsets in sh_entsize.  For now
+@@ -1643,8 +1644,8 @@ static struct module *load_module(void _
+  free_core:
+ 	module_free(mod, mod->module_core);
+  free_percpu:
+-	if (mod->percpu)
+-		percpu_modfree(mod->percpu);
++	if (percpu)
++		percpu_modfree(percpu);
+  free_mod:
+ 	kfree(args);
+  free_hdr:
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,84 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbTLNNOR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 08:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbTLNNOR
+	id S261262AbTLNNH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 08:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTLNNH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 08:14:17 -0500
-Received: from ppp-62-245-210-172.mnet-online.de ([62.245.210.172]:645 "EHLO
-	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
-	id S261569AbTLNNOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 08:14:15 -0500
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: IRQ disabled (SATA) on NForce2 and my theory
-From: Julien Oster <lkml-2315@mc.frodoid.org>
-Organization: FRODOID.ORG
-X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
-Date: Sun, 14 Dec 2003 14:14:17 +0100
-Message-ID: <frodoid.frodo.87wu8zzgly.fsf@usenet.frodoid.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+	Sun, 14 Dec 2003 08:07:57 -0500
+Received: from secure.comcen.com.au ([203.23.236.73]:28432 "EHLO
+	xavier.etalk.net.au") by vger.kernel.org with ESMTP id S261262AbTLNNHy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 08:07:54 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: Jamie Lokier <jamie@shareable.org>, forming@charter.net
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+Date: Sun, 14 Dec 2003 23:11:10 +1000
+User-Agent: KMail/1.5.1
+Cc: Ian Kumlien <pomac@vapor.com>, linux-kernel@vger.kernel.org
+References: <200312140407.28580.ross@datscreative.com.au> <20031214042714.GB21241@mail.shareable.org> <200312142124.45966.ross@datscreative.com.au>
+In-Reply-To: <200312142124.45966.ross@datscreative.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312142311.10650.ross@datscreative.com.au>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 14 December 2003 21:24, Ross Dickson wrote:
+<snip>
+> 
+> The v2 io-apic mods seems OK so far.
+> 
+> I am not yet sure the v2 apic patch is going to be stable enough for everyone.
+> I suspect it is the apic reads.
+> 
+> Ian had problems at 600ns so now has been trying 800ns. I have yet to hear how
+> his machine is.
+> 
+> I have also gone from 600ns to 800ns and had my first hard lockup
+> after about 6 hrs on 800ns delay timeout. 
+> 
+> I am using a heavily patched 2.4.23 kern so it could be a coincidence
+> but I am suspicious that it may not be that safe to be reading the apic
+> registers at all during the delay timeout as the v2 apic patch does.
+> 
+> I am now going to try increasing the wait loop delay from 100ns to 400ns
+> in case the apic does not like being hammered repetitively during the delay
+> time. - It could be that the bus between the cpu core and the local apic is
+> marginal on either timing (PLL) or current and if we hammer it we may
+> be asking for incorrect reads?
+> 
+> I am about to recompile with the following values that differ from my
+> original v2 posting. 
+> ( 800UL and the ndelay(400) )
 
-Hello!
+<snip>
+I had a lockup on a boot so I am trying a bit more conservative with
 
-I got an ASUS A7N8X Deluxe v2.0 and APIC and I/O APIC enabled, thanks
-to athcool. (I didn't apply any patches, I just disable CPU Disconnect
-with 'athcool off' as first thing on boot).
+1000UL and ndelay(400) 
 
-Now, however, since I am running with APIC, the following error occurs
-quite often:
+I don't think anyone should try any less than this but hey?
 
-[...]
-Dec  8 19:16:20 frodo kernel: hde: DMA disabled
-Dec  8 19:16:20 frodo kernel: ide2: reset phy, status=0x00000113, siimage_reset
-[...]
+This gives my system a safety margin of 16 apic counts.
+The v1 patch on my system typically gave a safety delay of 13 counts.
 
-Shortly after that, the kernel would report:
+The performance hit with the v2 is still less than with the v1.
+With v2 additional delay would only have been present on 2 out of 10
+instead of 10 out of 10 with v1.
 
-Dec  8 19:16:21 frodo kernel: Disabling IRQ #18
-Dec  8 19:16:22 frodo kernel: irq 18: nobody cared!
+..APIC TIMER ack delay, reload:16701, safe:16685
+..APIC TIMER ack delay, predelay count:16657
+..APIC TIMER ack delay, predelay count:16664
+..APIC TIMER ack delay, predelay count:16677
+..APIC TIMER ack delay, predelay count:16691
+..APIC TIMER ack delay, predelay count:16636
+..APIC TIMER ack delay, predelay count:16649
+..APIC TIMER ack delay, predelay count:16660
+..APIC TIMER ack delay, predelay count:16671
+..APIC TIMER ack delay, predelay count:16686
+..APIC TIMER ack delay, predelay count:16635
 
-This happens sometimes under very high load on my onboard SATA where
-both harddrivers (fast 10000rpm Raptors) are attached to a Linux
-Softraid RAID0. IRQ18 is attached to this.
+Although as previously mentioned on my system it takes 28 apic counts
+to write an io byte to the south bridge such as an ack in xtpic mode
+so v1 was not what you would call slow.
 
-The drive/controller won't recover afterwards, only a reboot helps.
+If 28 counts was a benchmark then I could still try v2 up to about 1750UL and
+still be quicker than the xtpic.
 
-Now, my theory about this: One patch to fix the NForce2 lockups was to
-insert a small delay in the acknowledgement of the timer
-interrupt. Apparently, the machine would lock up if the timer
-interrupt gets acknowledged too fast, meaning too soon.
+Ross.
 
-I now suspect that my IRQ18 problems are a result of exactly the same
-cause: IRQ18 getting acknowledged too soon on very high load, thus all
-further interrupts won't occur anymore and disk operations come to a
-halt.
-
-It was most noticeable for the timer interrupt, because the timer
-interrupt is basically always at "high load" and a lack of it would
-result in a hard lockup of the board. However, it now seems like the
-timer interrupt isn't the only interrupt suffering from this issue.
-
-So, I think inserting the small delay in the appropriate IRQ
-handler might fix this, too.
-
-But there's still the question, why the delay is actually needed for
-NForce2 boards. That would basically mean that you'll have to
-introduce the delay for *every* IRQ, to avoid a lockup of any device
-that will do high load at some time. I bet that, if I put my Firewire
-Card back in (or just use the onboard Firewire ports) and stream a
-video from my DV cam onto the harddisk, it would lock up as well after
-a very short time, since those who know DV also know that DV has a
-very high bandwidth, half an hour of film is like 40GB or the
-like. (However, I can't test this right now, because my DV cam is
-currently not accessible)
-
-So, we're still not "rock solid" with NForce2, I guess...
-Any idea?
-
-Regards,
-Julien

@@ -1,80 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262973AbTJJPzO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 11:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262979AbTJJPzO
+	id S262955AbTJJPrH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 11:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbTJJPrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 11:55:14 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:40978 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S262973AbTJJPzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 11:55:03 -0400
-Date: Fri, 10 Oct 2003 13:03:09 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "Noah J. Misch" <noah@caltech.edu>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH] Make net/ipx/ipx_proc.c compile w/o CONFIG_PROC_FS
-Message-ID: <20031010160309.GB11366@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"Noah J. Misch" <noah@caltech.edu>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-net@vger.kernel.org
-References: <Pine.GSO.4.58.0310092214280.25392@sue>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Oct 2003 11:47:07 -0400
+Received: from smtprelay01.ispgateway.de ([62.67.200.156]:20919 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S262848AbTJJPrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 11:47:03 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] kfree_skb() bug in 2.4.22
+Date: Fri, 10 Oct 2003 17:43:48 +0200
+User-Agent: KMail/1.5.4
+Cc: toby@cbcg.net, netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, coreteam@netfilter.org,
+       netfilter@lists.netfilter.org, akpm@zip.com.au, kuznet@ms2.inr.ac.ru,
+       pekkas@netcore.fi, jmorris@intercode.com.au, yoshfuji@linux-ipv6.org,
+       jgarzik@pobox.com
+References: <1065617075.1514.29.camel@localhost> <200310101453.44353.ioe-lkml@rameria.de> <20031010060050.057aab50.davem@redhat.com>
+In-Reply-To: <20031010060050.057aab50.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0310092214280.25392@sue>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200310101743.48483.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Oct 09, 2003 at 10:58:57PM -0700, Noah J. Misch escreveu:
-> Hello Arnaldo,
-> 
-> This is a trivial patch against ipx_proc.c that allows it to compile with
-> CONFIG_PROC_FS unset.  The patch simply makes ipx_proc.c include init.h
-> unconditionally, which ensures that __init and __exit are always defined.
-> 
-> This patch depends upon the patch "Make linux/init.h include linux/compiler.h",
-> which I have CC-ed to all recipients of this patch.  Should Linus decline that
-> patch, I can make the trivial changes necessary to make this patch work on its
-> own, if you wish.
-> 
-> Thanks,
-> Noah
+On Friday 10 October 2003 15:00, David S. Miller wrote:
+> Ingo Oeser <ioe-lkml@rameria.de> wrote:
+> > Would you mind __attribute_nonnull__ for these functions, if we
+> > enable GCC 3.3 support for this[1]?
+>
+> I would say yes, but why?  All this attribute does is optimize
+> away tests for NULL which surprise surprise we don't have any
+> of in kfree_skb().
 
-I don't have any problem with this patch, Dave, could you please apply it?
+And it wouldn't warn about passing NULL to these functions? That's bad...
+But maybe sparse/smatch are better for this...
 
-- Arnaldo
- 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1342  -> 1.1343
-#	  net/ipx/ipx_proc.c	1.9     -> 1.10
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/10/10	noah@caltech.edu	1.1343
-# This file needs the __init macro in all cases, so include init.h
-# regardless of CONFIG_PROC_FS.  This fixes a compilation error in
-# the absence of CONFIG_PROC_FS.
-# --------------------------------------------
-#
-diff -Nru a/net/ipx/ipx_proc.c b/net/ipx/ipx_proc.c
---- a/net/ipx/ipx_proc.c	Fri Oct 10 01:05:06 2003
-+++ b/net/ipx/ipx_proc.c	Fri Oct 10 01:05:06 2003
-@@ -5,8 +5,8 @@
-  */
 
- #include <linux/config.h>
--#ifdef CONFIG_PROC_FS
- #include <linux/init.h>
-+#ifdef CONFIG_PROC_FS
- #include <linux/proc_fs.h>
- #include <linux/spinlock.h>
- #include <linux/seq_file.h>

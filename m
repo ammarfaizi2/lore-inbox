@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274860AbTGaUDB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 16:03:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274863AbTGaUDB
+	id S269237AbTGaUIn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 16:08:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269242AbTGaUIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 16:03:01 -0400
-Received: from ausadmmsrr502.aus.amer.dell.com ([143.166.83.89]:17165 "HELO
-	AUSADMMSRR502.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id S274860AbTGaUDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 16:03:00 -0400
-X-Server-Uuid: 586817ae-3c88-41be-85af-53e6e1fe1fc5
-Message-ID: <1059681771.1375.73.camel@localhost.localdomain>
-From: Matt_Domsch@Dell.com
-To: wstearns@pobox.com
-cc: crh@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux, Dell Access Point, and the GPL.
-Date: Thu, 31 Jul 2003 15:02:50 -0500
+	Thu, 31 Jul 2003 16:08:42 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:49104 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S269237AbTGaUIl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 16:08:41 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Timothy Miller <miller@techsource.com>
+Date: Thu, 31 Jul 2003 22:08:26 +0200
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 1337AA7B3658436-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Turning off automatic screen clanking
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <8D353DD1F2D@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Had you considered getting in touch with the Dell tech team leader 
-> first before posting to Linux-kernel?  If you had been subscribed to 
-> Linux-kernel you would have known that Matt Domsch is a semi-regular 
-> contributor and quite willing to look into issues like this.
+On 31 Jul 03 at 15:55, Timothy Miller wrote:
+> So, if there's no point to having screen-blanking, why is it in there to 
+> begin with?  To protect OLD monitors from burnin?
 
-I'm not familiar with this product (indeed, it appears to have come
-through a different channel than our Product Group), but I'll try to
-find the appropriate group here to resolve this.
+For example. My 8 years old EIZO F764M must not be powered down/powersaved
+for more than few seconds, otherwise it takes about two days to get 
+convergence back right (monitor "fixes" itself, it is just unusable until
+it does so as there is about 0.5cm distance between red and green and
+green and blue components...).
+ 
+> Is screen-blanking there just to make people feel better who think they 
+> need screen-blanking?  As I understand, it doesn't do any 
+> power-management stuff anyhow.
 
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+setterm -powersave powerdown. I used it until monitor told me that it was
+bad idea.
+                                                    Petr Vandrovec
+                                                    
 

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293233AbSCAAqj>; Thu, 28 Feb 2002 19:46:39 -0500
+	id <S293509AbSCAAwW>; Thu, 28 Feb 2002 19:52:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293416AbSCAAk1>; Thu, 28 Feb 2002 19:40:27 -0500
-Received: from h24-80-72-10.vn.shawcable.net ([24.80.72.10]:62724 "EHLO
-	linisoft.localdomain") by vger.kernel.org with ESMTP
-	id <S310285AbSCAAfn>; Thu, 28 Feb 2002 19:35:43 -0500
-Message-ID: <3C7ECE99.E5B56663@linisoft.com>
-Date: Thu, 28 Feb 2002 16:43:05 -0800
-From: Reza Roboubi <reza@linisoft.com>
-Organization: Linisoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i586)
-X-Accept-Language: en
+	id <S310175AbSCAAue>; Thu, 28 Feb 2002 19:50:34 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39440 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292332AbSCAAso>; Thu, 28 Feb 2002 19:48:44 -0500
+Subject: Re: Linux 2.4.x, ThinkPad T23 and HW?!
+To: arnvid@karstad.org (Arnvid Karstad)
+Date: Fri, 1 Mar 2002 01:03:09 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20020228233954.7840.qmail@nextgeneration.speedroad.net> from "Arnvid Karstad" at Mar 01, 2002 12:39:54 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Masoud Sharbiani <masouds@oeone.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Async IO using threads
-In-Reply-To: <3C7CBB39.A6FC444@linisoft.com> <3C7D1964.2060903@oeone.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16gbS1-0001r9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Btw, I mentioned that I rewrote the test to do the "useful work" using
-fifos, and that gave 0.45% of the CPU back during the read() operation.
+> /proc/pci or lspci. I also noticed that the IBM Wireless adapter, which is 
+> actually a prism2 (?) card, are mysteriously detected as an device created 
+> by "Harris Semiconductor" and it won't even try to let me access the card. I 
 
-Just in case anyone wants that test, it is on the web site with the
-other test:
+Well guess what - it is
 
-http://www.linisoft.com/test/asyncf.c  //async using fifo
-http://www.linisoft.com/test/async.c  //async using __asm__(lock)
--- 
-Reza
+> think I've tried every driver in the Kernel 2.4.18 now. Altho the kernel 
+> does state that the card in question is supported, it does seem that either 
+> the pci/device-id has changed (or something) so the driver doesn't notice 
+> any cards??? 
+
+Or IBM did something weird.
+
+Everything in that box looks fine with 2.4.18

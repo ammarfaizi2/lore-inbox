@@ -1,23 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265298AbUBANn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 08:43:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265299AbUBANn4
+	id S265311AbUBANzp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 08:55:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265314AbUBANzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 08:43:56 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:14860 "EHLO
+	Sun, 1 Feb 2004 08:55:45 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:17932 "EHLO
 	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S265298AbUBANnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 08:43:46 -0500
-Date: Sun, 01 Feb 2004 22:44:31 +0900 (JST)
-Message-Id: <20040201.224431.17604798.yoshfuji@linux-ipv6.org>
+	id S265311AbUBANze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 08:55:34 -0500
+Date: Sun, 01 Feb 2004 22:56:19 +0900 (JST)
+Message-Id: <20040201.225619.67854403.yoshfuji@linux-ipv6.org>
 To: Philip.Blundell@pobox.com, tim@cyberelk.net, campbell@torque.net,
        andrea@e-mind.com
 Cc: linux-parport@torque.net, linux-kernel@vger.kernel.org,
        yoshfuji@linux-ipv6.org
-Subject: [PATCH] PARPORT: C99 Initializers
+Subject: Re: [PATCH] PARPORT: C99 Initializers
 From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
 	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20040201.224431.17604798.yoshfuji@linux-ipv6.org>
+References: <20040201.224431.17604798.yoshfuji@linux-ipv6.org>
 Organization: USAGI Project
 X-URL: http://www.yoshifuji.org/%7Ehideaki/
 X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
@@ -26,18 +28,23 @@ X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
  $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
 X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: Text/Plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+In article <20040201.224431.17604798.yoshfuji@linux-ipv6.org> (at Sun, 01 Feb 2004 22:44:31 +0900 (JST)), YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> says:
 
-D: convert drivers/parport/procfs.c to C99 initializers.
+> Hello.
+> 
+> D: convert drivers/parport/procfs.c to C99 initializers.
+
+Oops, it contains several typos... Sorry for the mess.  
+Please use this instead.
 
 ===== drivers/parport/procfs.c 1.2 vs edited =====
 --- 1.2/drivers/parport/procfs.c	Tue Feb  5 16:37:25 2002
-+++ edited/drivers/parport/procfs.c	Sun Feb  1 22:41:55 2004
++++ edited/drivers/parport/procfs.c	Sun Feb  1 22:54:02 2004
 @@ -232,12 +232,29 @@
  	return copy_to_user(result, buffer, len) ? -EFAULT : 0;
  }
@@ -61,15 +68,15 @@ D: convert drivers/parport/procfs.c to C99 initializers.
 +}
 +
 +#define PARPORT_DEV_DIR(child) {		\
-+	.ctl_name	=	CTL_DEV,	
-+	.procname	=	"dev",
-+	.mode		=	0555, 
-+	.child		=	child,
++	.ctl_name	=	CTL_DEV,	\
++	.procname	=	"dev",		\
++	.mode		=	0555, 		\
++	.child		=	child,		\
 +}
 +
-+#define PARPORT_DEVICES_ROOT_DIR  { \
-+	.ctl_name	=	DEV_PARPORT_DEVICES, \
-+	.procname	=	"devices", \
++#define PARPORT_DEVICES_ROOT_DIR  {			\
++	.ctl_name	=	DEV_PARPORT_DEVICES,	\
++	.procname	=	"devices",		\
 +}
  
  static const unsigned long parport_min_timeslice_value =
@@ -151,7 +158,7 @@ D: convert drivers/parport/procfs.c to C99 initializers.
 +			.mode		=	0444,
 +			.proc_handler	=	&do_autoprobe,
 +		},
-+		{i
++		{
 +			.ctl_name	=	DEV_PARPORT_AUTOPROBE + 1, 
 +			.procname	=	"autoprobe0",
 +			.mode		=	0444,
@@ -355,6 +362,7 @@ D: convert drivers/parport/procfs.c to C99 initializers.
  };
  
  
+
 
 -- 
 Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>

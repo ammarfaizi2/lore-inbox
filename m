@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136679AbREIRHc>; Wed, 9 May 2001 13:07:32 -0400
+	id <S136749AbREIRJN>; Wed, 9 May 2001 13:09:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136744AbREIRHW>; Wed, 9 May 2001 13:07:22 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:23630 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S136679AbREIRHM>; Wed, 9 May 2001 13:07:12 -0400
-Message-ID: <3AF9799E.FA8C0D61@redhat.com>
-Date: Wed, 09 May 2001 13:08:46 -0400
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
-X-Accept-Language: en
+	id <S136756AbREIRIy>; Wed, 9 May 2001 13:08:54 -0400
+Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.102.89.11]:27638 "HELO
+	scotch.homeip.net") by vger.kernel.org with SMTP id <S136744AbREIRIm>;
+	Wed, 9 May 2001 13:08:42 -0400
+Date: Wed, 9 May 2001 13:08:31 -0400 (EDT)
+From: God <atm@sdk.ca>
+To: Gregory Maxwell <greg@linuxpower.cx>
+cc: linux-kernel@vger.kernel.org, linux-net@vger.rutgers.edu
+Subject: Re: ECN: Volunteers needed
+In-Reply-To: <20010509102509.B13226@xi.linuxpower.cx>
+Message-ID: <Pine.LNX.4.21.0105091301070.23642-100000@scotch.homeip.net>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Benedict Bridgwater <bennyb@ntplx.net>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4-ac5 aic7xxx causes hang on my machine
-In-Reply-To: <E14xXJc-0002mc-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Wed, 9 May 2001, Gregory Maxwell wrote:
 
-> > setup all possible boot devices, only devices non-essential to the boot
-> > process (sound cards, modems, crap like that) get left unconfigured.  Not
-> 
-> It only has to do minimal setup on them. If the BIOS calls are polled then
-> assigning an IRQ is quite optional
+> 2) They certainly are.  Every once in a while they go through a period of
+>    silently dropping all email coming from hosts that don't have PTRs.
+>    This would be no worse.
 
-The only way a motherboard BIOS would know if the PCI BIOS used polling
-methods instead of interrupt methods is if it was a built in device.  For all
-non-built in devices, it can't assume it won't need an interrupt if the card
-uses interrupts at all.  I find it extremely unlikely that there exists a
-motherboard BIOS that *doesn't* at least assign the I/O space area and the IRQ
-for all bootable devices on the system, regardless of PnPOS settings.  Name
-one concrete example of a motherboard BIOS that doesn't and I'll recant.
+ACK .... Which do you mean? :
 
--- 
+-Hosts that don't have valid PTRs (which would be no PTR at all -- Not
+deliverable, but not because AOL said so)
 
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems
+-Hosts that don't have valid PTRs, but DO have at least one valid MX
+(Forward and reverse)
+
+-Same as above, but said hosts MX's forward and/or reverse don't match
+
+etc etc ....   I ask this simply because I DO know of users who have
+complained their E-Mail to/from an AOL customer, didn't get there.  I've
+always assumed .. well ... AOL user .. no comment :)
+
+
+

@@ -1,57 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129289AbQLSPkV>; Tue, 19 Dec 2000 10:40:21 -0500
+	id <S130202AbQLSPlV>; Tue, 19 Dec 2000 10:41:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130202AbQLSPkL>; Tue, 19 Dec 2000 10:40:11 -0500
-Received: from [204.17.222.1] ([204.17.222.1]:21768 "EHLO picard.csihq.com")
-	by vger.kernel.org with ESMTP id <S129289AbQLSPj5>;
-	Tue, 19 Dec 2000 10:39:57 -0500
-Message-ID: <03a001c069cd$8a593c50$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-Subject: 2.2.18aa2 weird problem
-Date: Tue, 19 Dec 2000 10:08:27 -0500
+	id <S130304AbQLSPlL>; Tue, 19 Dec 2000 10:41:11 -0500
+Received: from univ.uniyar.ac.ru ([193.233.51.120]:1444 "EHLO
+	univ.uniyar.ac.ru") by vger.kernel.org with ESMTP
+	id <S130202AbQLSPk7>; Tue, 19 Dec 2000 10:40:59 -0500
+Date: Tue, 19 Dec 2000 18:09:57 +0300 (MSK)
+From: "Igor Yu. Zhbanov" <bsg@uniyar.ac.ru>
+To: Alan.Cox@linux.org
+cc: linux-kernel@vger.kernel.org, urban@svenskatest.se,
+        chaffee@cs.berkeley.edu
+Subject: [PATCH] Bug in date converting functions DOS<=>UNIX in FAT and SMBFS drivers
+Message-ID: <Pine.GSO.3.96.SK.1001219180019.894A-100000@univ.uniyar.ac.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got three machines -- two are identical motherboards.  I've been using
-the same kernel binary on all three machines for over a year thru all the
-upgrades since 2.2.15 (16, 17, and now 18aa2).
+Few weeks ago I have sent the following letter:
 
-Now that I've compiled 2.2.18aa2 it only works on two of the machines.  Both
-of these use RAID1/IDE for boot drives.  The machine that doesn't work uses
-a boot floppy as the root drive is RAID5.
+> Hello!
+>
+> I have found a bug in drivers of file systems which use a DOS-like format
+> of date (16 bit: years since 1980 - 7 bits, month - 4 bits, day - 5 bits).
+>
+> There are two problems:
+> 1) It is unable to convert UNIX-like dates before 1980 to DOS-like date format.
+> 2) VFAT for example have three kinds of dates: creation date, modification date
+>    and access date. Sometimes one of these dates is set to zero (which indicates
+>    that this date is not set). Zero is not a valid date (e.g. months are
+>    numbered from one, not from zero) and can't be properly converted to
+>    UNIX-like format of date (it was converted to date before 1980).
+>
+> I have found FAT, NCPFS and SMBFS drivers subject to this problems. Patch for
+> fixing these bugs attached.
+>
+> Also I have a question about VFAT file system. VFAT have not access time fields
+> in directory entries but it has access date fields. Currently information about
+> the time of last access is not supported for VFAT file system in LINUX. Is this
+> correct? Maybe access time should be truncated to days.
+>
+> Thank you.
+>
+> P.S. Since I'm not currently subscribed to Linux Kernel Mailing List please CC:
+> all replies to bsg@uniyar.ac.ru if any.
+>
 
-When the "bad" machine boots a "df" that has been inserted in rc.inet2 shows
-the correct root drive having been mounted.  But, it seems as though the
-system cannot see most of the RAID5 mount.  Booting complains about
-/etc/mtab~ not being a directory, /lib/modules/2.2.18aa2 not existing (even
-though it IS there), and several other files missing.  Executable binaries
-seem to work though (i.e. all daemons try to start up).
+As I see now in 2.2.19pre2 NCPFS is fixed but VFAT and SMBFS doesn't. (This
+happened because the maintainer of NCPFS resent my patch to Alan Cox but only the
+part of patch related to NCPFS). So I resent you patch for VFAT and SMBFS.
 
-The end results is that I can't login to the console (typing doesn't even
-echo any characters).  So, I'm somewhat restricted on what I can debug.
-Remote telnet doesn't work either.  Can't reboot either, have to alt-sysrq-U
-and hit the reset key.
+diff -ur linux-2.2.17/fs/fat/misc.c linux/fs/fat/misc.c
+--- linux-2.2.17/fs/fat/misc.c	Thu May  4 04:16:46 2000
++++ linux/fs/fat/misc.c	Wed Nov 22 14:05:08 2000
+@@ -2,6 +2,8 @@
+  *  linux/fs/fat/misc.c
+  *
+  *  Written 1992,1993 by Werner Almesberger
++ *  22/11/2000 - Fixed fat_date_unix2dos for dates earlier than 01/01/1980
++ *		 and date_dos2unix for date==0 by Igor Zhbanov(bsg@uniyar.ac.ru)
+  */
+ 
+ #include <linux/fs.h>
+@@ -288,7 +290,9 @@
+ {
+ 	int month,year,secs;
+ 
+-	month = ((date >> 5) & 15)-1;
++	/* first subtract and mask after that... Otherwise, if
++	   date == 0, bad things happen */
++	month = ((date >> 5) - 1) & 15;
+ 	year = date >> 9;
+ 	secs = (time & 31)*2+60*((time >> 5) & 63)+(time >> 11)*3600+86400*
+ 	    ((date & 31)-1+day_n[month]+(year/4)+year*365-((year & 3) == 0 &&
+@@ -310,6 +314,8 @@
+ 	unix_date -= sys_tz.tz_minuteswest*60;
+ 	if (sys_tz.tz_dsttime) unix_date += 3600;
+ 
++	if (unix_date < 315532800)
++		unix_date = 315532800; /* Jan 1 GMT 00:00:00 1980. But what about another time zone? */
+ 	*time = (unix_date % 60)/2+(((unix_date/60) % 60) << 5)+
+ 	    (((unix_date/3600) % 24) << 11);
+ 	day = unix_date/86400-3652;
+diff -ur linux-2.2.17/fs/smbfs/ChangeLog linux/fs/smbfs/ChangeLog
+--- linux-2.2.17/fs/smbfs/ChangeLog	Mon Sep  4 21:39:27 2000
++++ linux/fs/smbfs/ChangeLog	Wed Nov 22 14:10:40 2000
+@@ -1,5 +1,10 @@
+ ChangeLog for smbfs.
+ 
++2000-11-22 Igor Zhbanov <bsg@uniyar.ac.ru>
++
++	* proc.c: fixed date_unix2dos for dates earlier than 01/01/1980
++	  and date_dos2unix for date==0
++
+ 2000-07-20 Urban Widmark <urban@svenskatest.se>
+ 
+ 	* proc.c: fix 2 places where bad server responses could cause an Oops.
+diff -ur linux-2.2.17/fs/smbfs/proc.c linux/fs/smbfs/proc.c
+--- linux-2.2.17/fs/smbfs/proc.c	Mon Sep  4 21:39:27 2000
++++ linux/fs/smbfs/proc.c	Wed Nov 22 14:13:32 2000
+@@ -169,7 +169,9 @@
+ 	int month, year;
+ 	time_t secs;
+ 
+-	month = ((date >> 5) & 15) - 1;
++	/* first subtract and mask after that... Otherwise, if
++	   date == 0, bad things happen */
++	month = ((date >> 5) - 1) & 15;
+ 	year = date >> 9;
+ 	secs = (time & 31) * 2 + 60 * ((time >> 5) & 63) + (time >> 11) * 3600 + 86400 *
+ 	    ((date & 31) - 1 + day_n[month] + (year / 4) + year * 365 - ((year & 3) == 0 &&
+@@ -188,6 +190,8 @@
+ 	int day, year, nl_day, month;
+ 
+ 	unix_date = utc2local(server, unix_date);
++	if (unix_date < 315532800)
++		unix_date = 315532800; /* Jan 1 GMT 00:00:00 1980. But what about another time zone? */
+ 	*time = (unix_date % 60) / 2 +
+ 		(((unix_date / 60) % 60) << 5) +
+ 		(((unix_date / 3600) % 24) << 11);
 
-Rebooting this machine to 2.2.17-RAID works just fine
 
-Might there be a problem with RAID5 as root?
-
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
+That's all.
+Thank you.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264083AbTEWPYb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 11:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbTEWPYb
+	id S264087AbTEWPup (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 11:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbTEWPuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 11:24:31 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:46852 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264083AbTEWPY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 11:24:29 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.21-rc3 - ipmi unresolved
-Date: Fri, 23 May 2003 15:41:43 +0200
-User-Agent: KMail/1.5.1
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva> <3ECE246D.E3B27BCB@eyal.emu.id.au>
-In-Reply-To: <3ECE246D.E3B27BCB@eyal.emu.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 23 May 2003 11:50:44 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:48120 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S264087AbTEWPun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 11:50:43 -0400
+Date: Fri, 23 May 2003 10:02:14 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: [RFC] probably invalid accounting in jbd
+Message-ID: <20030523100214.B16920@schatzie.adilger.int>
+Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
+	Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
+	ext2-devel@lists.sourceforge.net
+References: <87d6igmarf.fsf@gw.home.net> <1053376482.11943.15.camel@sisko.scot.redhat.com> <87he7qe979.fsf@gw.home.net> <1053377493.11943.32.camel@sisko.scot.redhat.com> <87addhd2mc.fsf@gw.home.net> <20030521093848.59ada625.akpm@digeo.com> <871xypx62o.fsf_-_@gw.home.net> <20030523012636.1d272586.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305231541.43803.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030523012636.1d272586.akpm@digeo.com>; from akpm@digeo.com on Fri, May 23, 2003 at 01:26:36AM -0700
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 May 2003 15:38, Eyal Lebedinsky wrote:
+On May 23, 2003  01:26 -0700, Andrew Morton wrote:
+> umm, one possible solution to that is to rework the t_outstanding_credits
+> logic so that we instead record:
+> 
+> 	number of buffers attached to the transaction +
+> 		sum of the initial size of all currently-running handles.
+> 
+> as each handle is closed off, we subtract its initial size from the above
+> metric.  Any buffers which that handle happened to add to the lists would
+> have already been accounted for, when they were added.
 
-Hi Eyal,
+One other benefit of doing it that way is that having the original handle
+size kept in the handle means that you can properly flag errors when a
+nested transaction is "started" on an existing handle and the new start
+wants more credits than were actually in the handle.
 
-> The exports in ksyms are still necessary, and missing:
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.21-rc3/kernel/drivers/char/ipmi/ipmi_msghandler.o
-> depmod:         panic_notifier_list
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.21-rc3/kernel/drivers/char/ipmi/ipmi_watchdog.o
-> depmod:         panic_notifier_list
-> depmod:         panic_timeout
-> The attached snippet was part of the earlier, larger patch.
-I've send this fix 3 times and I gave up after silent ignores ;)
-
-ciao, Marc
-
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

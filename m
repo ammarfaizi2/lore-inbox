@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUJAWaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266768AbUJAWfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266538AbUJAWaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 18:30:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266643AbUJAW1b
+	id S266768AbUJAWfK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 18:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUJAWe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 18:27:31 -0400
-Received: from mail.kroah.org ([69.55.234.183]:40898 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266352AbUJAWZw (ORCPT
+	Fri, 1 Oct 2004 18:34:57 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:38623 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S266768AbUJAWd0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 18:25:52 -0400
-Date: Fri, 1 Oct 2004 15:25:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>, dely.l.sy@intel.com
-Cc: sgala@apache.org, linux-kernel@vger.kernel.org
-Subject: Re: Fw: 2.6.8-rc2-mm4 does not link (PPC)
-Message-ID: <20041001222517.GB4464@kroah.com>
-References: <20041001010818.6a6e2fca.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Oct 2004 18:33:26 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: 2.6.9rc2-mm4 oops
+Date: Fri, 1 Oct 2004 16:33:10 -0600
+User-Agent: KMail/1.7
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       Len Brown <len.brown@intel.com>, acpi-devel@lists.sourceforge.net,
+       Bernhard Rosenkraenzer <bero@arklinux.org>
+References: <1096571653.11298.163.camel@cmn37.stanford.edu> <200410010904.52892.bjorn.helgaas@hp.com> <1096653158.7485.17.camel@cmn37.stanford.edu>
+In-Reply-To: <1096653158.7485.17.camel@cmn37.stanford.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041001010818.6a6e2fca.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200410011633.10171.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It looks like a trivial error: a structure used in PCI architecture
-> independent code (quirks.c) gets defined (only) in i386 architecture
-> (raw_pci_ops). I'm not an expert and cannot help to define this under
-> ppc arch:
+On Friday 01 October 2004 11:52 am, Fernando Pablo Lopez-Lezcano wrote:
+> On Fri, 2004-10-01 at 08:04, Bjorn Helgaas wrote:
+> >  Also, can you look up the bad address
+> > (e.g., f8881920) in /proc/kallsyms? 
 > 
-> drivers/built-in.o(.text+0x350a): In function `quirk_pcie_aspm_read':
-> : undefined reference to `raw_pci_ops'
-> drivers/built-in.o(.text+0x351e): In function `quirk_pcie_aspm_read':
-> : undefined reference to `raw_pci_ops'
-> drivers/built-in.o(.text+0x3566): In function `quirk_pcie_aspm_write':
-> : undefined reference to `raw_pci_ops'
-> drivers/built-in.o(.text+0x35a6): In function `quirk_pcie_aspm_write':
-> : undefined reference to `raw_pci_ops'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> I sent a typo for rc2-mm2. Just to report that it never booted after
-> the typo was corrected. hard freeze.
+> This is what I find:
+> f8880f80 ? __mod_vermagic5      [xor]
+> f8880fcd ? __module_depends     [xor]
+> f8881000 t acpi_button_init     [button]
+> f8881000 t init_module  [button]
+> f8884000 t xor_pII_mmx_2        [xor]
+> f8884130 t xor_pII_mmx_3        [xor]
 
-Dely, we need to move this quirk to i386 specific code.  Will we also
-have to do this for the x86-64 platform too?
+You are remembering that /proc/kallsyms isn't sorted, right?
 
-Care to send a patch to fix this?
+If you still can't match the address to anything interesting,
+can you see whether it's related to any of the other modules
+(i.e., see whether it happens even if you don't load any of
+the other ACPI drivers, or try leaving out any other drivers
+you can get along without)?  Maybe try loading an ACPI driver
+other than floppy, at the same point in the module load sequence,
+to see if the problem is specific to floppy, or if floppy is
+just an innocent bystander?
 
-thanks,
+I looked at all the callers of acpi_bus_register_driver(), and
+they all look fine (except the hpet one I found yesterday).  But
+maybe there's something I missed, or maybe the acpi_bus_drivers
+list got corrupted somehow.
 
-greg k-h
+If you don't load the floppy driver, is the system stable?

@@ -1,59 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263065AbRE1O0M>; Mon, 28 May 2001 10:26:12 -0400
+	id <S263070AbRE1Olx>; Mon, 28 May 2001 10:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263066AbRE1O0B>; Mon, 28 May 2001 10:26:01 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:48011 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S263065AbRE1OZz>; Mon, 28 May 2001 10:25:55 -0400
-Message-ID: <3B125E62.1DD4712E@uow.edu.au>
-Date: Tue, 29 May 2001 00:19:14 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
-X-Accept-Language: en
+	id <S263067AbRE1Oln>; Mon, 28 May 2001 10:41:43 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:42255 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S263070AbRE1OlY>; Mon, 28 May 2001 10:41:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Maximum size of automatic allocation? (was: [PATCH] fs/devfs/base.c)
+Date: Mon, 28 May 2001 16:43:06 +0200
+X-Mailer: KMail [version 1.2]
+Cc: <alan@lxorguk.ukuu.org.uk>, <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <GLEPIDKFGKPCBDLKDHEAAELGDDAA.aki.jain@stanford.edu> <200105271321.f4RDLoM00342@mobilix.ras.ucalgary.ca>
+In-Reply-To: <200105271321.f4RDLoM00342@mobilix.ras.ucalgary.ca>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Steve Kieu <haiquy@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.5-ac2 OOPs when run pppd ?
-In-Reply-To: <20010528084855.10604.qmail@web10402.mail.yahoo.com> from "=?iso-8859-1?q?Steve=20Kieu?=" at May 28, 2001 06:48:55 PM <E154NQp-000386-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01052816430616.06233@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Yeas it is stil the same as 2.4.5-ac1, but did not
-> > happen with 2.4.5; You can try running pppd in the
-> > console (tty1) without any argument.
-> 
-> Looks like an interaction with the newer console locking code. The BUG() is
-> caused when the ppp code tries to write to the console from inside an
-> interrupt handler [now not allowed]
+On Sunday 27 May 2001 15:21, Richard Gooch wrote:
+> Akash Jain writes:
+> > in fs/devfs/base.c,
+> > the struct devfsd_notify_struct is approx 1056 bytes, allocating it
+> > on a stack of 8k seems unreasonable.  here we simply move it to the
+> > heap, i don't think it is a _must_ be on stack type thing
+>
+> I absolutely don't want this patch applied. It's bogus. It is
+> entirely safe to alloc 1 kB on the stack in this code, since it has a
+> short and well-controlled code path from syscall entry to the
+> function. This is not some function that can be called from some
+> random place in the kernel and thus has a random call path.
+>
+> Using the stack is much faster than calling kmalloc() and it also
+> doesn't add to system memory pressure. That's why I did it this way
+> in the first place. Further, it's much safer to use the stack, since
+> the memory is freed automatically. Thus, there's less scope for
+> introducing errors.
+>
+> Please fix your checker to deal with this class of functions which
+> have a well-defined call path. I'd suggest looking at the total stack
+> allocations from syscall entry point all the way to the end function.
+> Ideally, you'd trace the call path to every function, but of course
+> that may be computationally infeasible. Hopefully it's feasible to do
+> this for any function which has a stack allocation which exceeds some
+> threshold.
 
-I wondered if there were more cases.
+I did the same thing in my directory indexing patch, but with a much 
+larger buffer: 2728 bytes.  I traced the path from the syscall and all 
+the paths out as well.  I did cause a stack overflow with this because 
+gcc took the union of two such allocations in different control blocks 
+instead of the intersection, much to my surprise.  This was cured by 
+using fancier code to eliminate one of the allocations.  Al since broke 
+this out into a separate function, making it more obviously safe, but 
+note: it has to be broken out further so that there are no complex 
+trees of calls descending from the stack storage pig.
 
-In the (as-yet-unsent) Linus patch I've added an
+This call appends a new block to a file then splits the contents of 
+some other block into the new block using some workspace on the stack. 
+The block has to be appended outside the function, otherwise the big 
+stack allocation gets carried arbitrarily far through the kernel (think 
+recursive allocation).  Similarly for mark_buffer_dirty and just to be 
+safe, brelse as well.  Mark_buffer_dirty didn't use to have a big hairy 
+call chain attached to it but it does now.   Even lowly brelse might 
+evolve this way without warning.  The only safe thing to do is avoid 
+all calls outside the subystem and comment the others.
 
-	if (in_interrupt()) {
-		shout_loudly();
-		return;
-	}
+My question: assuming the entire call chain is documented, exactly how 
+much of the 8K kernel stack is safe to use?
 
-in three places to catch this possibility.   I'll prepare
-a -ac diff.
-
-
-This is a fundamental problem.
-
-- The console is a tty device
-- tty devices are callable from interrupts
-- the console is very stateful and needs locking
-- the locking must be interrupt-safe (irqsave)
-- the console is very slow.
-
-net result: we block interrupts for ages.  It's
-an exceptional situation.  I hope Linus buys this
-line of reasoning :)
-
--
+--
+Daniel

@@ -1,88 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264958AbRGNWQ5>; Sat, 14 Jul 2001 18:16:57 -0400
+	id <S264998AbRGNWeW>; Sat, 14 Jul 2001 18:34:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264959AbRGNWQr>; Sat, 14 Jul 2001 18:16:47 -0400
-Received: from ns.snowman.net ([63.80.4.34]:3847 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S264958AbRGNWQk>;
-	Sat, 14 Jul 2001 18:16:40 -0400
-Date: Sat, 14 Jul 2001 18:16:07 -0400
-From: Stephen Frost <sfrost@snowman.net>
-To: Ion Badulescu <ionut@cs.columbia.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Starfire issues
-Message-ID: <20010714181607.O11136@ns>
-Mail-Followup-To: Ion Badulescu <ionut@cs.columbia.edu>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wNuK6YNcq0QdMr8v"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.2.16 (i686)
-X-Uptime: 6:12pm  up 331 days, 20:37, 12 users,  load average: 2.00, 2.00, 2.00
+	id <S264959AbRGNWeN>; Sat, 14 Jul 2001 18:34:13 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:19497 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S264963AbRGNWeB>; Sat, 14 Jul 2001 18:34:01 -0400
+Message-ID: <3B50C8BF.2080400@blue-labs.org>
+Date: Sat, 14 Jul 2001 18:33:35 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010713
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Keith Owens <kaos@ocs.com.au>, Matti Aarnio <matti.aarnio@zmailer.org>,
+        linux-kernel@vger.kernel.org, linux-admin@vger.kernel.org
+Subject: Re: ORBS blacklist is BROKEN (deliberately)...
+In-Reply-To: <E15LOMk-00018x-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Actually Alan, MAPS notified me a year ago that they were migrating to a 
+subscription service and wanted to setup an arrangement.  After talking 
+with them and seeing the networks I represent, they made the offer of a 
+free subscription.  I chose to use their standard lookups anyway even 
+though they offered to work with me for arrangements that benefitted me.
 
---wNuK6YNcq0QdMr8v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Not everyone is perfect, but there is more to this maps/orbs/* story and 
+it isn't all evil :)
 
-Hello,
+David
 
-	I've been having some trouble with a starfire I have in that it seems
-	to drop packets every once in a while for a little bit and then start
-	up again.  Also getting strange kernel messages:
+Alan Cox wrote:
 
-----
-eth2: Increasing Tx FIFO threshold to 320 bytes
-eth2: Something Wicked happened! 2049001.
-eth2: Increasing Tx FIFO threshold to 336 bytes
-eth2: Something Wicked happened! 2049001.
-eth2: Increasing Tx FIFO threshold to 352 bytes
-eth2: Something Wicked happened! 2048101.
-eth2: Increasing Tx FIFO threshold to 368 bytes
-eth2: Something Wicked happened! 2049001.
-eth2: Increasing Tx FIFO threshold to 384 bytes
-eth2: Something Wicked happened! 2049001.
-eth2: Increasing Tx FIFO threshold to 400 bytes
-eth2: Something Wicked happened! 2049001.
-eth2: Increasing Tx FIFO threshold to 416 bytes
-eth2: Something Wicked happened! 2049001.
-eth2: Increasing Tx FIFO threshold to 432 bytes
-eth2: Something Wicked happened! 2048101.
-eth2: Increasing Tx FIFO threshold to 448 bytes
-eth2: Something Wicked happened! 2049001.
-eth2: Increasing Tx FIFO threshold to 464 bytes
-eth2: Something Wicked happened! 2049001.
-eth2: Increasing Tx FIFO threshold to 480 bytes
-eth2: Something Wicked happened! 2049001.
-eth2: Increasing Tx FIFO threshold to 496 bytes
-eth2: Something Wicked happened! 2049001.
-----
+>>http://www.e-scrub.com/orbs/ is the key.  "Ronald F. Guilmette"
+>><rfg@monkeys.com> sent this message to spam lists.  Anybody still using
+>>ORBS for lookups can expect to get random mail bounces.
+>>
+>
+>Yeah he's decided to solve his load problem by committing an act of criminal
+>fraud, computer misuse and a few other violations
+>
+>>Because of the way Alan disabled the former ORBS list zones, my name
+>>server is now shouldering (at least) 1/11th of the total world-wide
+>>
+>
+>[I think he means the way the courts did..]
+>
+>And guess what, as soon as ORBS got beaten off the net MAPS starts talking
+>about charging for their service, just like they promised they never would
+>
+>Alan
+>
 
-	This happens on other interfaces, not just this one.  The kernel being
-	used is stock 2.4.6-ac2.  Would the patches you've posted to lkml help?
-	If so I can give them a shot...
 
-		Thanks!
-
-			Stephen
-
---wNuK6YNcq0QdMr8v
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7UMSnrzgMPqB3kigRAi15AKCSgqChSF20bYCbnq4ZCJK21WIoswCeO4Lm
-n/kLeUsBzYuOfhm8r8DhW8k=
-=6TES
------END PGP SIGNATURE-----
-
---wNuK6YNcq0QdMr8v--

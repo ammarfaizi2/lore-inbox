@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbULWJv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbULWKFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbULWJv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 04:51:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbULWJv1
+	id S261198AbULWKFK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 05:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbULWKFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 04:51:27 -0500
-Received: from pop.gmx.net ([213.165.64.20]:38296 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261194AbULWJvX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 04:51:23 -0500
-X-Authenticated: #4512188
-Message-ID: <41CA9515.4010106@gmx.de>
-Date: Thu, 23 Dec 2004 10:51:17 +0100
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: Kristian Eide <kreide@online.no>, linux-kernel@vger.kernel.org
-Subject: Re: raid5 crash
-References: <200412222304.36585.kreide@online.no> <16841.65119.240314.917998@cse.unsw.edu.au>
-In-Reply-To: <16841.65119.240314.917998@cse.unsw.edu.au>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig51CF4494C56325E4984ED2D4"
-X-Y-GMX-Trusted: 0
+	Thu, 23 Dec 2004 05:05:10 -0500
+Received: from smtp-vbr6.xs4all.nl ([194.109.24.26]:64268 "EHLO
+	smtp-vbr6.xs4all.nl") by vger.kernel.org with ESMTP id S261198AbULWKFF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 05:05:05 -0500
+Date: Thu, 23 Dec 2004 11:05:08 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: selvakumar nagendran <kernelselva@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: insmod error - Invalid module format
+Message-ID: <20041223100508.GA21657@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <20041223085451.40473.qmail@web60610.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041223085451.40473.qmail@web60610.mail.yahoo.com>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig51CF4494C56325E4984ED2D4
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Neil Brown schrieb:
-> On Wednesday December 22, kreide@online.no wrote:
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Date: Thu, Dec 23, 2004 at 12:54:51AM -0800
+> Hi,
+>    I tried out the simple hello world example module
+> present in lkmpg.txt (linux module programming guide)
+> on linux kernel 2.6.9. But I got an error while I
+> tried to load the created .o file using insmod as
+>  ' Invalid Module format'
+>  Can anyone help me regarding this?
 > 
->>I am running kernel 2.6.9-gentoo-r10 on an Athlon XP 2400+ computer with a SiI 
->>3114 SATA controller hosting 4 WD2500JD-00G drives. I have combined these 
->>drives into a raid5 array using software raid, but unfortunately the array is 
->>not stable. I have tried several filesystems (ext3, reiserfs, xfs), but after 
->>copying several gigabytes of data into the array (using scp) and then trying 
->>to read them back (using rsync to compare over the network) always results in 
->>data corruption. Here is the output from 'dmesg':
->>
->>kernel BUG at drivers/md/raid5.c:813!
+Normal modules for 2.6.x use .ko as extension, so an .o would be wrong.
 
-Have you a bios option called ext-p2p discard time? Try setting it 
-higher. I posted another thread about sii3112 at lkml about this issue...
+Did you check google? lkmpg.txt may be outdated.
 
-Prakash
-
---------------enig51CF4494C56325E4984ED2D4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBypUZxU2n/+9+t5gRAo0bAJwKbKPFteqkmoKA4naW8bUNtrxJXgCg6I92
-9+JkJ/e2zCHl67+EkN8aQhs=
-=t9Zr
------END PGP SIGNATURE-----
-
---------------enig51CF4494C56325E4984ED2D4--
+Good luck,
+Jurriaan
+-- 
+A woman whose voice and esp could combine to to scramble a man's
+thoughts was an impressive guard. Unless, of course, the burglar
+happens to be a deaf mute...
+	Simon R Green - Mistworld
+Debian (Unstable) GNU/Linux 2.6.10-rc3 2x6078 bogomips load 0.16

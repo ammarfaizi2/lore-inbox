@@ -1,78 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135868AbREIXlE>; Wed, 9 May 2001 19:41:04 -0400
+	id <S135874AbREIXly>; Wed, 9 May 2001 19:41:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135874AbREIXky>; Wed, 9 May 2001 19:40:54 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:17935 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S135868AbREIXko>; Wed, 9 May 2001 19:40:44 -0400
-Date: Wed, 9 May 2001 19:02:16 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Kurt Garloff <garloff@suse.de>, Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs MAP_SHARED corruption fix
-In-Reply-To: <15096.61962.130340.998058@charged.uio.no>
-Message-ID: <Pine.LNX.4.21.0105091859340.14172-100000@freak.distro.conectiva>
+	id <S135879AbREIXlp>; Wed, 9 May 2001 19:41:45 -0400
+Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:55007 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S135874AbREIXlh>; Wed, 9 May 2001 19:41:37 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
+Date: Thu, 10 May 2001 01:56:54 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <E14vwGE-0000IQ-00@the-village.bc.nu>
+In-Reply-To: <E14vwGE-0000IQ-00@the-village.bc.nu>
+Cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        "Justin T. Gibbs" <gibbs@scsiguy.com>,
+        "Linux Kernel List" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01051001565400.00893@SunWave1>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Samstag,  5. Mai 2001 09:13 schrieben Sie:
+> > My (very) old Athlon 550 (model 1, stepping 2) show it on my MSI MS-6167
+> > (AMD Irongate C4) with your 2.4.4-ac5, now :-(
+>
+> Manfred has a good explanation for that. Im hoping it also explains the
+> VIA problem too
+>
+> > I am open for any test fixes...
+>
+> Watch this space -> <- ;)
+>
+> Alan
 
-On Wed, 9 May 2001, Trond Myklebust wrote:
+Sorry for my noise!
+My problem was NOT fast_page_copy related.
+It was Justin's aic7xxx 6.1.12 release.
+His latest 6.1.13 (2.4.4-ac6) fixed it for me.
 
-> 
-> In addition to the two changes I proposed to Andrea's new patch, I
-> also realized we might want to do a fdatasync() when locking files. If
-> we don't, then locking won't be atomic on mmap()...
-> 
-> Here therefore is Andrea's patch with the changes I propose. Opinions?
-> 
-> Cheers,
->   Trond
-> 
-> diff -u --recursive --new-file linux-2.4.4-fixes/fs/nfs/file.c linux-2.4.4-mmap/fs/nfs/file.c
-> --- linux-2.4.4/fs/nfs/file.c	Fri Feb  9 20:29:44 2001
-> +++ linux-2.4.4-mmap/fs/nfs/file.c	Wed May  9 09:18:45 2001
-> @@ -39,6 +39,7 @@
->  static ssize_t nfs_file_write(struct file *, const char *, size_t, loff_t *);
->  static int  nfs_file_flush(struct file *);
->  static int  nfs_fsync(struct file *, struct dentry *dentry, int datasync);
-> +static void nfs_file_close_vma(struct vm_area_struct *);
->  
->  struct file_operations nfs_file_operations = {
->  	read:		nfs_file_read,
-> @@ -57,6 +58,11 @@
->  	setattr:	nfs_notify_change,
->  };
->  
-> +static struct vm_operations_struct nfs_file_vm_ops = {
-> +	nopage:		filemap_nopage,
-> +	close:		nfs_file_close_vma,
-> +};
-> +
->  /* Hack for future NFS swap support */
->  #ifndef IS_SWAPFILE
->  # define IS_SWAPFILE(inode)	(0)
-> @@ -104,6 +110,20 @@
->  	return result;
->  }
->  
-> +static void nfs_file_close_vma(struct vm_area_struct * vma)
-> +{
-> +	struct inode * inode;
-> +
-> +	inode = vma->vm_file->f_dentry->d_inode;
-> +
-> +	if (inode->i_state & I_DIRTY_PAGES) {
-> +		down(&inode->i_sem);
-> +		filemap_fdatasync(inode->i_mapping);
-> +		nfs_wb_all(inode);
-> +		up(&inode->i_sem);
-> +	}
-> +}
-> +
+My MSI MS-6167 (AMD Irongate C4) is running very well with APIC (it haven't 
+really have one) and ACPI (latest) enabled.
 
-Why don't you clean I_DIRTY_PAGES ? 
+Below are some MMX copy results.
+
+Thanks anyway.
+	Dieter
+
+BTW Where can I grep the bench with MB/sec output?
+
+SunWave1>./athlon
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+clear_page() tests
+clear_page function 'warm up run'        took 17396 cycles per page
+clear_page function '2.4 non MMX'        took 9582 cycles per page
+clear_page function '2.4 MMX fallback'   took 9031 cycles per page
+clear_page function '2.4 MMX version'    took 7905 cycles per page
+clear_page function 'faster_clear_page'  took 8237 cycles per page
+clear_page function 'even_faster_clear'  took 8151 cycles per page
+ 
+copy_page() tests
+copy_page function 'warm up run'         took 12565 cycles per page
+copy_page function '2.4 non MMX'         took 17273 cycles per page
+copy_page function '2.4 MMX fallback'    took 17481 cycles per page
+copy_page function '2.4 MMX version'     took 12507 cycles per page
+copy_page function 'faster_copy'         took 13641 cycles per page
+copy_page function 'even_faster'         took 12707 cycles per page
 

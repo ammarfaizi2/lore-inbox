@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274339AbRISXvT>; Wed, 19 Sep 2001 19:51:19 -0400
+	id <S274283AbRISXtl>; Wed, 19 Sep 2001 19:49:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274323AbRISXvQ>; Wed, 19 Sep 2001 19:51:16 -0400
-Received: from mx2.utanet.at ([195.70.253.46]:18863 "EHLO smtp1.utaiop.at")
-	by vger.kernel.org with ESMTP id <S274281AbRISXuD>;
-	Wed, 19 Sep 2001 19:50:03 -0400
-Message-ID: <3BA94B2E.99FABD43@grips.com>
-Date: Thu, 20 Sep 2001 03:49:34 +0200
-From: Gerold Jury <geroldj@grips.com>
-Organization: Grips
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre10-xfs i686)
-X-Accept-Language: de-AT, en
+	id <S274281AbRISXta>; Wed, 19 Sep 2001 19:49:30 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:40635 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S274277AbRISXtU>; Wed, 19 Sep 2001 19:49:20 -0400
+Date: Thu, 20 Sep 2001 00:51:06 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: pre12 VM doubts and patch
+In-Reply-To: <20010919232818.T720@athlon.random>
+Message-ID: <Pine.LNX.4.21.0109200022360.1221-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Feedback on preemptible kernel patch xfs
-In-Reply-To: <1000581501.32705.46.camel@phantasy> 
-		<3BA72A80.6020706@grips.com> <1000853560.19365.13.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert
+On Wed, 19 Sep 2001, Andrea Arcangeli wrote:
+> On Wed, Sep 19, 2001 at 08:42:39PM +0100, Hugh Dickins wrote:
+> > --- 2.4.10-pre12/mm/swap_state.c	Wed Sep 19 14:05:54 2001
+> > +++ linux/mm/swap_state.c	Mon Sep 17 06:30:26 2001
+> > @@ -23,6 +23,17 @@
+> >   */
+> >  static int swap_writepage(struct page *page)
+> >  {
+> > +	/* One for the page cache, one for this user, one for page->buffers */
+> > +	if (page_count(page) > 2 + !!page->buffers)
+> 
+> this is racy, you have to spin_lock(&pagecache_lock) before you can
+> expect the page_count() stays constant. then after you checked the page
+> has count == 1, you must atomically drop it from the pagecache so it's
+> not visible anymore to the swapin lookups.
 
-First the good news.
-Even my most ugly ideas where not able to crash your preemtible 2.4.10-pre10-xfs
+Locking on pagecache_lock is no way to stabilize page count, but this
+doesn't need it stabilized: it's just checking there's nothing but us
+which can be interested in the page.  Okay, we now know that
+read_swap_cache_async can get "interested" in surprising pages (when
+the swap entry it asks for has meanwhile been replaced), but I don't
+see how that endangers the logic here - it could briefly bump count
+too high to pass the "don't write" test, but that errs on the safe side.
 
-But, to be sure i repeated everything, neither latencytest-0.42 nor my own tests could
-find a difference with or without the preemptible patch.
-I do not know if i can expect a lower latency at this stage of development.
+If you think this racy, how come you still allow "exclusive_swap_page"
+use elsewhere?  Actually, I think these tests would be better replaced
+by use of "exclusive_swap_page", wouldn't they?  But perhaps I'll find
+I'm off-by-one when I try it tomorrow.
 
-A maximum of 15 msec latency with all the stress, i managed to put on the machine
-is not that bad anyway.
+> Another way to fix the race is to change lookup_swap_cache to do
+> find_lock_page instead of find_get_page, and then check the page is
+> still a swapcachepage after you got it locked (that was the old way,
+> somebody changed it and introduced the race, I like lookup_swap_cache to
+> use find_get_page so I dropped such check to fix it, it was a minor
+> optimization but yes probably worthwhile to reintroduce after addressing
+> this race in one of the two ways described).
 
-The CPU is a 1.1GHz Athlon. I forgot to mention this.
+Well, I certainly agree the system can survive without this optimization,
+and I wouldn't want to restore it if it were buggy.  I just don't see
+the scenario you're afraid of, and nobody had questioned it before.
 
-I will continue to test the preempt patches.
+> It is also buggy, if something it should be "page_count(page) != 1" (not
+> != 2).
 
-Do you want me to test anything special ?
+I don't think so: as the comment says, one for the page cache,
+one for the caller of writepage, one (perhaps) for page->buffers.
 
-Best Regards
-Gerold
+Hugh
+

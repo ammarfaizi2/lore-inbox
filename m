@@ -1,71 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131477AbRC0SY2>; Tue, 27 Mar 2001 13:24:28 -0500
+	id <S131474AbRC0SV6>; Tue, 27 Mar 2001 13:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131478AbRC0SYT>; Tue, 27 Mar 2001 13:24:19 -0500
-Received: from f48.law14.hotmail.com ([64.4.21.48]:12813 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S131477AbRC0SYD>;
-	Tue, 27 Mar 2001 13:24:03 -0500
-X-Originating-IP: [12.44.186.158]
-From: "Dinesh Nagpure" <fatbrrain@hotmail.com>
-To: moz@compsoc.man.ac.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hooking APIC timer doesnt work?
-Date: Tue, 27 Mar 2001 10:23:17 -0800
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F48fzDskqC5EtrUVYKk00000d10@hotmail.com>
-X-OriginalArrivalTime: 27 Mar 2001 18:23:17.0316 (UTC) FILETIME=[FE675040:01C0B6EA]
+	id <S131476AbRC0SVs>; Tue, 27 Mar 2001 13:21:48 -0500
+Received: from [195.227.87.20] ([195.227.87.20]:19208 "EHLO d12.x-mailer.de")
+	by vger.kernel.org with ESMTP id <S131474AbRC0SVg>;
+	Tue, 27 Mar 2001 13:21:36 -0500
+From: Tea Age <th@visuelle-maschinen.de>
+To: linux-kernel@vger.kernel.org
+Subject: module depencies during startup
+Date: Tue, 27 Mar 2001 20:09:13 +0200
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <01032720091303.05310@iris-linux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John,
+Hello, 
 
-First of all let me thank you for pointing to Vincent Oberle's APIC timer 
-module, I am trying to understand  how the timer is hooked in it. BTW 
-forgive my ignorance but what is oprofile? the reason I am trying to hook 
-perfctr is, well let me tell you what I am trying to do here, I want to 
-measure time spent between a cli and the corresponding sti, I am using the 
-performance monitoring event CYCLES_INT_MASKED and setting the perfctr MSR 
-to overflow on the first cycle after a cli, this overflow will generate 
-PCINT from the APIC which I am programming in delivery mode NMI, here I will 
-take my initial TSC reading, and also program the APIC timer initial count 
-register to to trigger on the next clock, but this timer interrupt will be 
-kept pending as long as the interrupts are disabled in the system, and will 
-get serviced after a sti occurs, here I take my second TSC reading,
-any comments?
+this is my very first mail into this list. If, please answer also to my mail 
+address <th@visuelle-maschinen.de>. I have the following question and could 
+not find any info about this matter in the web - maybe someone knows a link:
 
-Dinesh
+Porting the framebuffer driver i810fb to 2.4 I succeded loading it as a 
+module. Compiling it into the kernel seems to be ok - but no Tux.
 
-----Original Message Follows----
-From: John Levon <moz@compsoc.man.ac.uk>
-To: Dinesh Nagpure <fatbrrain@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hooking APIC timer doesnt work?
-Date: Tue, 27 Mar 2001 12:38:01 +0100 (BST)
+I found out, that agpgart, which is needed by i810fb, is initialized
+_after_ i810fb setup. Therefore i810fb failes to initialize.
+If I understand the kernel sources right, there is a function pointer list 
+from __initcall_start for initializing compiled-in drivers. Unfortionately I 
+could not discover how to control the sequence of this pointer list. The 
+__initcall technique seems to be new in 2.4.  The same driver initializes 
+correct on a 2.2.18 kernel.
 
-On Mon, 26 Mar 2001, Dinesh Nagpure wrote:
+In fact this seems to be a  general problem which, I guess, is already solved 
+- but how?
 
- > Hello all,
- > I am trying to use the LAPIC timer to generate interrupt for some kernel
- > profiling work I am doing...but the timer ISR isnt invoking atall....here 
-is
- > what I have done....
- >
+Any hints are welcome - thanks in advance!
 
-Have you seen Vincent Oberle's APIC timers module ? There is a link at 
-kernelnewbies.org
-
-Also, what are you doing with the perfctr interrupt ? Are you aware of 
-perfctr and oprofile ?
-
-john
-
---
-"Stop telling God what to do."
-	- Niels Bohr
-
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
-
+Thomas

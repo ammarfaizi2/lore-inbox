@@ -1,45 +1,220 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316840AbSFBRVL>; Sun, 2 Jun 2002 13:21:11 -0400
+	id <S317212AbSFBRcJ>; Sun, 2 Jun 2002 13:32:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317212AbSFBRVK>; Sun, 2 Jun 2002 13:21:10 -0400
-Received: from relay-1m.club-internet.fr ([194.158.104.40]:52208 "HELO
-	relay-1m.club-internet.fr") by vger.kernel.org with SMTP
-	id <S316840AbSFBRVJ>; Sun, 2 Jun 2002 13:21:09 -0400
-Message-ID: <3CFA5411.3030600@freesurf.fr>
-Date: Sun, 02 Jun 2002 19:21:21 +0200
-From: Kilobug <kilobug@freesurf.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020601
-X-Accept-Language: fr-fr, fr, en
-MIME-Version: 1.0
-To: lkm <linux-kernel@vger.kernel.org>
-Subject: Very big shm area
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317213AbSFBRcI>; Sun, 2 Jun 2002 13:32:08 -0400
+Received: from pop.gmx.net ([213.165.64.20]:24993 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317212AbSFBRcH>;
+	Sun, 2 Jun 2002 13:32:07 -0400
+Date: Sun, 2 Jun 2002 19:31:56 +0200
+From: Sebastian Droege <sebastian.droege@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: alsa-user@alsa-project.org
+Subject: [2.5.19] Yamaha DS-XG PCI 744 detected as 724
+Message-Id: <20020602193156.63a804c1.sebastian.droege@gmx.de>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.,l,fdTDE))4Ofg"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-	I wanted to know if it is possible to have a very big system V shared 
-memory segment (say about 1Gb) ?
+--=.,l,fdTDE))4Ofg
+Content-Type: multipart/mixed;
+ boundary="Multipart_Sun__2_Jun_2002_19:31:56_+0200_0823fdf8"
 
-	I've quickly looked into the source code of shm.c and shm.h in ipc/ and 
-I've read the following:
-/*
-  * SHMMAX, SHMMNI and SHMALL are upper limits are defaults which can
-  * be increased by sysctl
-  */
 
-But how far is it possible to increase them ? And which sysctl must be 
-done ?
+--Multipart_Sun__2_Jun_2002_19:31:56_+0200_0823fdf8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Thank you for answering,
+Hi,
+since version 2.5.19 my YMF744 gets detected as a YMF724
+the sound does work, but I think there's something weird going on
+2.5.18 and earlier work and disabling acpi and/or preempt doesn't solve it
+Maybe it's because the YMF shares it's interrupt with the usb controller, but that wasn't a problem in past
 
--- 
-** Gael Le Mignot "Kilobug", Ing3 EPITA - http://kilobug.free.fr **
-Home Mail   : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
-GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+cat /proc/interrupts 
+           CPU0       
+  0:      45139          XT-PIC  timer
+  1:       1147          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  8:          3          XT-PIC  rtc
+  9:          0          XT-PIC  acpi
+ 10:      71321          XT-PIC  usb-uhci-hcd, YMFPCI
+ 12:        559          XT-PIC  eth0
+ 14:       9414          XT-PIC  ide0
+ 15:         27          XT-PIC  ide1
+NMI:          0 
+ERR:          0
 
-"Software is like sex it's better when it's free.", Linus Torvalds
+>From sound/pci/ymfpci/ymfpci.c line 100:
+	switch (id->device) {                                                   
+        case 0x0004: str = "YMF724"; break;                                     
+        case 0x000d: str = "YMF724F"; break;                                    
+        case 0x000a: str = "YMF740"; break;                                     
+        case 0x000c: str = "YMF740C"; break;                                    
+        case 0x0010: str = "YMF744"; break;                                     
+        case 0x0012: str = "YMF754"; break;                                     
+        default: str = "???"; break;                                            
+        }
+
+this code hasn't changed, so I think id->device isn't set the right way (maybe it's the id->device from the usb controller?!)
+a few lines later there's a check if (id->device >= 0x0010) where the device (if it's a 744 or higher) gets initialised a bit different from the other chips
+
+Bye
+--Multipart_Sun__2_Jun_2002_19:31:56_+0200_0823fdf8
+Content-Type: application/octet-stream;
+ name="dmesg"
+Content-Disposition: attachment;
+ filename="dmesg"
+Content-Transfer-Encoding: base64
+
+TGludXggdmVyc2lvbiAyLjUuMTkgKHJvb3RAc2xvbW9zbmFpbCkgKGdjYyB2ZXJzaW9uIDMuMS4x
+IDIwMDIwNTMxIChEZWJpYW4gcHJlcmVsZWFzZSkpICMyIFNvbiBKdW4gMiAxMjo0NjoyMiBDRVNU
+IDIwMDIKVmlkZW8gbW9kZSB0byBiZSB1c2VkIGZvciByZXN0b3JlIGlzIGZmZmYKQklPUy1wcm92
+aWRlZCBwaHlzaWNhbCBSQU0gbWFwOgogQklPUy1lODIwOiAwMDAwMDAwMDAwMDAwMDAwIC0gMDAw
+MDAwMDAwMDBhMDAwMCAodXNhYmxlKQogQklPUy1lODIwOiAwMDAwMDAwMDAwMGYwMDAwIC0gMDAw
+MDAwMDAwMDEwMDAwMCAocmVzZXJ2ZWQpCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAxMDAwMDAgLSAw
+MDAwMDAwMDBmZmYwMDAwICh1c2FibGUpCiBCSU9TLWU4MjA6IDAwMDAwMDAwMGZmZjAwMDAgLSAw
+MDAwMDAwMDBmZmYzMDAwIChBQ1BJIE5WUykKIEJJT1MtZTgyMDogMDAwMDAwMDAwZmZmMzAwMCAt
+IDAwMDAwMDAwMTAwMDAwMDAgKEFDUEkgZGF0YSkKIEJJT1MtZTgyMDogMDAwMDAwMDBmZmZmMDAw
+MCAtIDAwMDAwMDAxMDAwMDAwMDAgKHJlc2VydmVkKQoyNTVNQiBMT1dNRU0gYXZhaWxhYmxlLgpB
+Q1BJOiBoYXZlIHdha2V1cCBhZGRyZXNzIDB4YzAwMDEwMDAKT24gbm9kZSAwIHRvdGFscGFnZXM6
+IDY1NTIwCnpvbmUoMCk6IDQwOTYgcGFnZXMuCnpvbmUoMSk6IDYxNDI0IHBhZ2VzLgp6b25lKDIp
+OiAwIHBhZ2VzLgpBQ1BJOiBSU0RQICh2MDAwIE1TSVNZUyAgICAgICAgICAgICAgICAgICAgICkg
+QCAweDAwMGY2OTAwCkFDUEk6IFJTRFQgKHYwMDEgTVNJU1lTIE1TLTYxNTFXIDEyMzM2LjExODI1
+KSBAIDB4MGZmZjMwMDAKQUNQSTogRkFEVCAodjAwMSBNU0lTWVMgTVMtNjE1MVcgMTIzMzYuMTE4
+MjUpIEAgMHgwZmZmMzA0MApLZXJuZWwgY29tbWFuZCBsaW5lOiBCT09UX0lNQUdFPTIuNS4xOSBy
+dyByb290PTMwMSBoZGM9c2NzaSBoZGQ9c2NzaQppZGVfc2V0dXA6IGhkYz1zY3NpIC0tIEJBRCBP
+UFRJT04KaWRlX3NldHVwOiBoZGQ9c2NzaSAtLSBCQUQgT1BUSU9OCkluaXRpYWxpemluZyBDUFUj
+MApEZXRlY3RlZCAzNTAuODAwIE1IeiBwcm9jZXNzb3IuCkNvbnNvbGU6IGNvbG91ciBWR0ErIDgw
+eDI1CkNhbGlicmF0aW5nIGRlbGF5IGxvb3AuLi4gNjk5LjU5IEJvZ29NSVBTCk1lbW9yeTogMjU2
+Njkyay8yNjIwODBrIGF2YWlsYWJsZSAoMTgzN2sga2VybmVsIGNvZGUsIDUwMDRrIHJlc2VydmVk
+LCAzOThrIGRhdGEsIDIyNGsgaW5pdCwgMGsgaGlnaG1lbSkKRGVudHJ5LWNhY2hlIGhhc2ggdGFi
+bGUgZW50cmllczogMzI3NjggKG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMpCklub2RlLWNhY2hlIGhh
+c2ggdGFibGUgZW50cmllczogMTYzODQgKG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpCk1vdW50LWNh
+Y2hlIGhhc2ggdGFibGUgZW50cmllczogNTEyIChvcmRlcjogMCwgNDA5NiBieXRlcykKQ1BVOiBC
+ZWZvcmUgdmVuZG9yIGluaXQsIGNhcHM6IDAxODNmOWZmIDAwMDAwMDAwIDAwMDAwMDAwLCB2ZW5k
+b3IgPSAwCkNQVTogTDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAxNksKQ1BVOiBMMiBjYWNo
+ZTogNTEySwpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAwMTgzZjlmZiAwMDAwMDAwMCAw
+MDAwMDAwMCAwMDAwMDAwMApJbnRlbCBtYWNoaW5lIGNoZWNrIGFyY2hpdGVjdHVyZSBzdXBwb3J0
+ZWQuCkludGVsIG1hY2hpbmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJsZWQgb24gQ1BVIzAuCkNQVTog
+ICAgIEFmdGVyIGdlbmVyaWMsIGNhcHM6IDAxODNmOWZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAw
+MDAwCkNQVTogICAgICAgICAgICAgQ29tbW9uIGNhcHM6IDAxODNmOWZmIDAwMDAwMDAwIDAwMDAw
+MDAwIDAwMDAwMDAwCkNQVTogSW50ZWwgUGVudGl1bSBJSSAoRGVzY2h1dGVzKSBzdGVwcGluZyAw
+MgpFbmFibGluZyBmYXN0IEZQVSBzYXZlIGFuZCByZXN0b3JlLi4uIGRvbmUuCkNoZWNraW5nICdo
+bHQnIGluc3RydWN0aW9uLi4uIE9LLgpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0aW5nIGJ5IFVOSUZJ
+WAptdHJyOiB2MS40MCAoMjAwMTAzMjcpIFJpY2hhcmQgR29vY2ggKHJnb29jaEBhdG5mLmNzaXJv
+LmF1KQptdHJyOiBkZXRlY3RlZCBtdHJyIHR5cGU6IEludGVsCkxpbnV4IE5FVDQuMCBmb3IgTGlu
+dXggMi40CkJhc2VkIHVwb24gU3dhbnNlYSBVbml2ZXJzaXR5IENvbXB1dGVyIFNvY2lldHkgTkVU
+My4wMzkKSW5pdGlhbGl6aW5nIFJUIG5ldGxpbmsgc29ja2V0ClBDSTogVXNpbmcgY29uZmlndXJh
+dGlvbiB0eXBlIDEKQUNQSTogU3Vic3lzdGVtIHJldmlzaW9uIDIwMDIwNTE3CkFDUEk6IEludGVy
+cHJldGVyIGVuYWJsZWQKQUNQSTogVXNpbmcgUElDIGZvciBpbnRlcnJ1cHQgcm91dGluZwpBQ1BJ
+OiBTeXN0ZW0gW0FDUEldIChzdXBwb3J0cyBTMCBTMSBTNCBTNSkKQUNQSTogUENJIFJvb3QgQnJp
+ZGdlIFtQQ0kwXSAoMDA6MDApClBDSTogUHJvYmluZyBQQ0kgaGFyZHdhcmUgKGJ1cyAwMCkKQUNQ
+STogUENJIEludGVycnVwdCBSb3V0aW5nIFRhYmxlIFtcX1NCXy5QQ0kwLl9QUlRdCkFDUEk6IFBD
+SSBJbnRlcnJ1cHQgTGluayBbTE5LQV0gKElSUXMgMyA0IDUgNiA3IDEwICoxMSAxMiAxNCAxNSkK
+QUNQSTogUENJIEludGVycnVwdCBMaW5rIFtMTktCXSAoSVJRcyAzIDQgNSA2IDcgMTAgMTEgKjEy
+IDE0IDE1KQpBQ1BJOiBQQ0kgSW50ZXJydXB0IExpbmsgW0xOS0NdIChJUlFzIDMgNCA1IDYgNyAx
+MCAxMSAxMiAxNCAxNSwgZGlzYWJsZWQpCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LRF0g
+KElSUXMgMyA0IDUgNiA3ICoxMCAxMSAxMiAxNCAxNSkKdXNiLmM6IHJlZ2lzdGVyZWQgbmV3IGRy
+aXZlciB1c2Jmcwp1c2IuYzogcmVnaXN0ZXJlZCBuZXcgZHJpdmVyIGh1YgpBQ1BJOiBQQ0kgSW50
+ZXJydXB0IExpbmsgW0xOS0NdIGVuYWJsZWQgYXQgSVJRIDUKUENJOiBVc2luZyBBQ1BJIGZvciBJ
+UlEgcm91dGluZwpQQ0k6IGlmIHlvdSBleHBlcmllbmNlIHByb2JsZW1zLCB0cnkgdXNpbmcgb3B0
+aW9uICdwY2k9bm9hY3BpJwpTdGFydGluZyBrc3dhcGQKQklPOiBwb29sIG9mIDI1NiBzZXR1cCwg
+MTRLYiAoNTYgYnl0ZXMvYmlvKQpiaW92ZWM6IGluaXQgcG9vbCAwLCAxIGVudHJpZXMsIDEyIGJ5
+dGVzCmJpb3ZlYzogaW5pdCBwb29sIDEsIDQgZW50cmllcywgNDggYnl0ZXMKYmlvdmVjOiBpbml0
+IHBvb2wgMiwgMTYgZW50cmllcywgMTkyIGJ5dGVzCmJpb3ZlYzogaW5pdCBwb29sIDMsIDY0IGVu
+dHJpZXMsIDc2OCBieXRlcwpiaW92ZWM6IGluaXQgcG9vbCA0LCAxMjggZW50cmllcywgMTUzNiBi
+eXRlcwpiaW92ZWM6IGluaXQgcG9vbCA1LCAyNTYgZW50cmllcywgMzA3MiBieXRlcwpkZXZmczog
+djEuMTcgKDIwMDIwNTE0KSBSaWNoYXJkIEdvb2NoIChyZ29vY2hAYXRuZi5jc2lyby5hdSkKZGV2
+ZnM6IGJvb3Rfb3B0aW9uczogMHgxCkluc3RhbGxpbmcga25mc2QgKGNvcHlyaWdodCAoQykgMTk5
+NiBva2lyQG1vbmFkLnN3Yi5kZSkuCkxpbWl0aW5nIGRpcmVjdCBQQ0kvUENJIHRyYW5zZmVycy4K
+QUNQSTogUG93ZXIgQnV0dG9uIChGRikgW1BXUkZdCkFDUEk6IFByb2Nlc3NvciBbQ1BVMF0gKHN1
+cHBvcnRzIEMxIEMyLCA4IHRocm90dGxpbmcgc3RhdGVzKQpEZXRlY3RlZCBQUy8yIE1vdXNlIFBv
+cnQuCnB0eTogMjU2IFVuaXg5OCBwdHlzIGNvbmZpZ3VyZWQKUmVhbCBUaW1lIENsb2NrIERyaXZl
+ciB2MS4xMQpMaW51eCBhZ3BnYXJ0IGludGVyZmFjZSB2MC45OSAoYykgSmVmZiBIYXJ0bWFubgph
+Z3BnYXJ0OiBNYXhpbXVtIG1haW4gbWVtb3J5IHRvIHVzZSBmb3IgYWdwIG1lbW9yeTogMjAzTQph
+Z3BnYXJ0OiBEZXRlY3RlZCBJbnRlbCA0NDBCWCBjaGlwc2V0CmFncGdhcnQ6IEFHUCBhcGVydHVy
+ZSBpcyA2NE0gQCAweGU4MDAwMDAwCltkcm1dIEFHUCAwLjk5IG9uIEludGVsIDQ0MEJYIEAgMHhl
+ODAwMDAwMCA2NE1CCltkcm1dIEluaXRpYWxpemVkIHJhZGVvbiAxLjMuMCAyMDAyMDUyMSBvbiBt
+aW5vciAwCmJsb2NrOiA1MTIgc2xvdHMgcGVyIHF1ZXVlLCBiYXRjaD0zMgo4MTM5dG9vIEZhc3Qg
+RXRoZXJuZXQgZHJpdmVyIDAuOS4yNApldGgwOiBSZWFsVGVrIFJUTDgxMzkgRmFzdCBFdGhlcm5l
+dCBhdCAweGQwODFkMDAwLCAwMDpjMToyNjowNTo0Mjo5MiwgSVJRIDEyCmV0aDA6ICBJZGVudGlm
+aWVkIDgxMzkgY2hpcCB0eXBlICdSVEwtODEzOUMnCkFUQS9BVEFQSSBkZXZpY2UgZHJpdmVyIHY3
+LjAuMApBVEE6IFBDSSBidXMgc3BlZWQgMzMuM01IegpBVEE6IEludGVsIENvcnAuIDgyMzcxQUIg
+UElJWDQgSURFLCBQQ0kgc2xvdCAwMDowNy4xCkFUQTogY2hpcHNldCByZXYuOiAxCkFUQTogbm9u
+LWxlZ2FjeSBtb2RlOiBJUlEgcHJvYmUgZGVsYXllZApQSUlYOiBJbnRlbCBDb3JwLiA4MjM3MUFC
+IFBJSVg0IElERSBVRE1BMzMgY29udHJvbGxlciBvbiBwY2kwMDowNy4xCiAgICBpZGUwOiBCTS1E
+TUEgYXQgMHhmMDAwLTB4ZjAwNywgQklPUyBzZXR0aW5nczogaGRhOkRNQSwgaGRiOkRNQQogICAg
+aWRlMTogQk0tRE1BIGF0IDB4ZjAwOC0weGYwMGYsIEJJT1Mgc2V0dGluZ3M6IGhkYzpETUEsIGhk
+ZDpETUEKaGRhOiBJQk0tRFRUQS0zNTEwMTAsIERJU0sgZHJpdmUKaGRiOiBXREMgV0Q4MDBCQi0w
+MEJTQTAsIERJU0sgZHJpdmUKaGRjOiBDRC1XNTEyRUIsIEFUQVBJIENEL0RWRC1ST00gZHJpdmUK
+aGRkOiBDRC01MzJFLUIsIEFUQVBJIENEL0RWRC1ST00gZHJpdmUKaWRlMCBhdCAweDFmMC0weDFm
+NywweDNmNiBvbiBpcnEgMTQKaWRlMSBhdCAweDE3MC0weDE3NywweDM3NiBvbiBpcnEgMTUKIGhk
+YTogMTk4MDcyMDAgc2VjdG9ycyB3LzQ2NktpQiBDYWNoZSwgQ0hTPTE5NjUwLzE2LzYzLCBVRE1B
+KDMzKQogL2Rldi9pZGUvaG9zdDAvYnVzMC90YXJnZXQwL2x1bjA6IFtQVEJMXSBbMTIzMi8yNTUv
+NjNdIHAxIHAyCiBoZGI6IDE1NjMwMTQ4OCBzZWN0b3JzIHcvMjA0OEtpQiBDYWNoZSwgQ0hTPTE1
+NTA2MS8xNi82MywgVURNQSgzMykKIC9kZXYvaWRlL2hvc3QwL2J1czAvdGFyZ2V0MS9sdW4wOiBw
+MSBwMgpoZGM6IEFUQVBJIDMyWCBDRC1ST00gQ0QtUi9SVyBkcml2ZSwgMjk3NmtCIENhY2hlLCBV
+RE1BKDMzKQpVbmlmb3JtIENELVJPTSBkcml2ZXIgUmV2aXNpb246IDMuMTIKaGRkOiBBVEFQSSAz
+MlggQ0QtUk9NIGRyaXZlLCAxMjhrQiBDYWNoZSwgRE1BCnVzYi11aGNpLWhjZC5jOiBIaWdoIGJh
+bmR3aWR0aCBtb2RlIGVuYWJsZWQuCmhjZC5jOiB1c2ItdWhjaS1oY2QgQCAwMDowNy4yLCBJbnRl
+bCBDb3JwLiA4MjM3MUFCIFBJSVg0IFVTQgpoY2QuYzogaXJxIDEwLCBpbyBiYXNlIDAwMDBlMDAw
+CmhjZC5jOiBuZXcgVVNCIGJ1cyByZWdpc3RlcmVkLCBhc3NpZ25lZCBidXMgbnVtYmVyIDEKdXNi
+LXVoY2ktaGNkLmM6IERldGVjdGVkIDIgcG9ydHMKaHViLmM6IFVTQiBodWIgZm91bmQgYXQgLwpo
+dWIuYzogMiBwb3J0cyBkZXRlY3RlZAp1c2IuYzogcmVnaXN0ZXJlZCBuZXcgZHJpdmVyIGhpZApo
+aWQtY29yZS5jOiB2MS4zMTpVU0IgSElEIGNvcmUgZHJpdmVyCm1pY2U6IFBTLzIgbW91c2UgZGV2
+aWNlIGNvbW1vbiBmb3IgYWxsIG1pY2UKQWR2YW5jZWQgTGludXggU291bmQgQXJjaGl0ZWN0dXJl
+IERyaXZlciBWZXJzaW9uIDAuOS4wcmMxIChUaHUgTWF5IDIzIDA5OjUzOjAwIDIwMDIgVVRDKS4K
+a21vZDogZmFpbGVkIHRvIGV4ZWMgL3NiaW4vbW9kcHJvYmUgLXMgLWsgc25kLWNhcmQtMCwgZXJy
+bm8gPSAyCkFMU0EgZGV2aWNlIGxpc3Q6CiAgIzA6IFlhbWFoYSBEUy1YRyBQQ0kgKFlNRjcyNCkg
+YXQgMHhkMDgyMzAwMCwgaXJxIDEwCk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9yIE5FVDQuMApJ
+UCBQcm90b2NvbHM6IElDTVAsIFVEUCwgVENQLCBJR01QCklQOiByb3V0aW5nIGNhY2hlIGhhc2gg
+dGFibGUgb2YgMjA0OCBidWNrZXRzLCAxNktieXRlcwpUQ1A6IEhhc2ggdGFibGVzIGNvbmZpZ3Vy
+ZWQgKGVzdGFibGlzaGVkIDE2Mzg0IGJpbmQgMzI3NjgpCk5FVDQ6IFVuaXggZG9tYWluIHNvY2tl
+dHMgMS4wL1NNUCBmb3IgTGludXggTkVUNC4wLgpmb3VuZCByZWlzZXJmcyBmb3JtYXQgIjMuNiIg
+d2l0aCBzdGFuZGFyZCBqb3VybmFsClJlaXNlcmZzIGpvdXJuYWwgcGFyYW1zOiBkZXZpY2UgMDM6
+MDEsIHNpemUgODE5Miwgam91cm5hbCBmaXJzdCBibG9jayAxOCwgbWF4IHRyYW5zIGxlbiAxMDI0
+LCBtYXggYmF0Y2ggOTAwLCBtYXggY29tbWl0IGFnZSAzMCwgbWF4IHRyYW5zIGFnZSAzMApyZWlz
+ZXJmczogY2hlY2tpbmcgdHJhbnNhY3Rpb24gbG9nIChpZGUwKDMsMSkpIGZvciAoaWRlMCgzLDEp
+KQpVc2luZyByNSBoYXNoIHRvIHNvcnQgbmFtZXMKVkZTOiBNb3VudGVkIHJvb3QgKHJlaXNlcmZz
+IGZpbGVzeXN0ZW0pLgpNb3VudGVkIGRldmZzIG9uIC9kZXYKRnJlZWluZyB1bnVzZWQga2VybmVs
+IG1lbW9yeTogMjI0ayBmcmVlZApodWIuYzogbmV3IFVTQiBkZXZpY2UgMDA6MDcuMi0xLCBhc3Np
+Z25lZCBhZGRyZXNzIDIKdXNiLXVoY2ktaGNkLmM6IEVOWElPIChDb250cm9sKSAgODAwMDAyMDAs
+IGZsYWdzIDAsIHVyYiBjZmRmMzY4MCwgYnVyYiBjZmRmMzYyMCwgcHJvYmFibHkgZGV2aWNlIGRy
+aXZlciBidWcuLi4KaW5wdXQsaGlkZGV2MDogVVNCIEhJRCB2MS4wMCBNb3VzZSBbTWljcm9zb2Z0
+IE1pY3Jvc29mdCBJbnRlbGxpTW91c2WuIEV4cGxvcmVyXSBvbiB1c2ItMDA6MDcuMi0xCkFkZGlu
+ZyBTd2FwOiAyNDA5NjRrIHN3YXAtc3BhY2UgKHByaW9yaXR5IC0xKQppbnNlcnRpbmcgZmxvcHB5
+IGRyaXZlciBmb3IgMi41LjE5CkZsb3BweSBkcml2ZShzKTogZmQwIGlzIDEuNDRNCkZEQyAwIGlz
+IGEgcG9zdC0xOTkxIDgyMDc3CmZvdW5kIHJlaXNlcmZzIGZvcm1hdCAiMy42IiB3aXRoIHN0YW5k
+YXJkIGpvdXJuYWwKUmVpc2VyZnMgam91cm5hbCBwYXJhbXM6IGRldmljZSAwMzo0MSwgc2l6ZSA4
+MTkyLCBqb3VybmFsIGZpcnN0IGJsb2NrIDE4LCBtYXggdHJhbnMgbGVuIDEwMjQsIG1heCBiYXRj
+aCA5MDAsIG1heCBjb21taXQgYWdlIDMwLCBtYXggdHJhbnMgYWdlIDMwCnJlaXNlcmZzOiBjaGVj
+a2luZyB0cmFuc2FjdGlvbiBsb2cgKGlkZTAoMyw2NSkpIGZvciAoaWRlMCgzLDY1KSkKVXNpbmcg
+cjUgaGFzaCB0byBzb3J0IG5hbWVzCmZvdW5kIHJlaXNlcmZzIGZvcm1hdCAiMy42IiB3aXRoIHN0
+YW5kYXJkIGpvdXJuYWwKUmVpc2VyZnMgam91cm5hbCBwYXJhbXM6IGRldmljZSAwMzo0Miwgc2l6
+ZSA4MTkyLCBqb3VybmFsIGZpcnN0IGJsb2NrIDE4LCBtYXggdHJhbnMgbGVuIDEwMjQsIG1heCBi
+YXRjaCA5MDAsIG1heCBjb21taXQgYWdlIDMwLCBtYXggdHJhbnMgYWdlIDMwCnJlaXNlcmZzOiBj
+aGVja2luZyB0cmFuc2FjdGlvbiBsb2cgKGlkZTAoMyw2NikpIGZvciAoaWRlMCgzLDY2KSkKVXNp
+bmcgcjUgaGFzaCB0byBzb3J0IG5hbWVzCmV0aDA6IFNldHRpbmcgMTAwbWJwcyBmdWxsLWR1cGxl
+eCBiYXNlZCBvbiBhdXRvLW5lZ290aWF0ZWQgcGFydG5lciBhYmlsaXR5IDQ1ZTEuCmJsazogcXVl
+dWUgYzAzOTE4MDAsIEkvTyBsaW1pdCA0MDk1TWIgKG1hc2sgMHhmZmZmZmZmZikKYmxrOiBxdWV1
+ZSBjMDM5MWExYywgSS9PIGxpbWl0IDQwOTVNYiAobWFzayAweGZmZmZmZmZmKQo=
+
+--Multipart_Sun__2_Jun_2002_19:31:56_+0200_0823fdf8--
+
+--=.,l,fdTDE))4Ofg
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE8+laPe9FFpVVDScsRAk0WAJ41o1xjayssZSB5AliU2S/NdvhrpACcCFla
+gA2H0AQ4WcYAD3DpYyRC548=
+=lACi
+-----END PGP SIGNATURE-----
+
+--=.,l,fdTDE))4Ofg--
 

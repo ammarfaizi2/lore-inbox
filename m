@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbTIPNYN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 09:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbTIPNYN
+	id S261864AbTIPNUd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 09:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbTIPNUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 09:24:13 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:43684 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261242AbTIPNYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 09:24:10 -0400
-Subject: Re: Linux 2.4.22-ac3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Erik Steffl <steffl@bigfoot.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F664FED.4040609@bigfoot.com>
-References: <200309152306.h8FN6lF04552@devserv.devel.redhat.com>
-	 <3F664FED.4040609@bigfoot.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063718562.10037.5.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Tue, 16 Sep 2003 14:22:44 +0100
+	Tue, 16 Sep 2003 09:20:33 -0400
+Received: from maverick.eskuel.net ([81.56.212.215]:19619 "EHLO
+	maverick.eskuel.net") by vger.kernel.org with ESMTP id S261864AbTIPNUb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 09:20:31 -0400
+Message-ID: <33183.213.193.3.110.1063718429.squirrel@webmail.eskuel.net>
+In-Reply-To: <20030916121229.GE585@elf.ucw.cz>
+References: <3F660BF7.6060106@eskuel.net> <20030916114822.GB602@elf.ucw.cz> 
+     <1063714222.1302.5.camel@teapot.felipe-alfaro.com> 
+     <20030916121229.GE585@elf.ucw.cz>
+Date: Tue, 16 Sep 2003 15:20:29 +0200 (CEST)
+Subject: Re: Nearly succes with suspend to disk in -test5-mm2
+From: "Mathieu LESNIAK" <maverick@eskuel.net>
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>,
+       "LKML " <linux-kernel@vger.kernel.org>, mochel@osdl.org
+User-Agent: SquirrelMail/1.4.0
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-09-16 at 00:49, Erik Steffl wrote:
->    does this apply to SATA disks?
+> Hi!
+>
+>> > cat you try with echo 4 > /proc/acpi/sleep?
+>>
+>> It does nothing for me... No messages in the kernel ring, no intention
+>> to perform a swsusp.
+>
+> That's strange; can you cat /proc/acpi/sleep?
+>
+> 								Pavel
 
-The only SATA devices we support in the core IDE layer are capable of
-doing LBA48 DMA anyway. 
+Hi
 
->    what's the status of support for 137GB+ SATA disks? it required 
-> libata5 patches from Jeff Garzik before (as of 2.4.21-ac4). I see some
+minimaverick:~# cat /proc/acpi/sleep
+S0 S3 S4 S5
 
-libata is really seperate and for the newer controllers. Its more aimed
-at the latest and upcoming hardware which replaces the SATA controller
-as we know it today (PATA controller hacked up a bit) with stuff that
-looks more like a SCSI controller, with multiple commands, on board
-brains etc. Things like the Promise 2037x are the beginnings of this.
-
+Mathieu

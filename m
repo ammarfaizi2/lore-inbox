@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262967AbUKRUKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262935AbUKRUHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262967AbUKRUKo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 15:10:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbUKRUIO
+	id S262935AbUKRUHw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 15:07:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbUKRUGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 15:08:14 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:64921 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S262964AbUKRUFS (ORCPT
+	Thu, 18 Nov 2004 15:06:17 -0500
+Received: from motgate7.mot.com ([129.188.136.7]:37351 "EHLO motgate7.mot.com")
+	by vger.kernel.org with ESMTP id S262935AbUKRTvQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 15:05:18 -0500
-To: torvalds@osdl.org
-CC: hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-In-reply-to: <Pine.LNX.4.58.0411181140110.2222@ppc970.osdl.org> (message from
-	Linus Torvalds on Thu, 18 Nov 2004 11:43:41 -0800 (PST))
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
- <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
- <E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org>
- <E1CUrS0-0004Hi-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411181108140.2222@ppc970.osdl.org>
- <E1CUs2R-0004Nr-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411181140110.2222@ppc970.osdl.org>
-Message-Id: <E1CUsWi-0004ST-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 18 Nov 2004 21:05:08 +0100
+	Thu, 18 Nov 2004 14:51:16 -0500
+In-Reply-To: <1100806489.14467.47.camel@jmcmullan>
+References: <069B6F33-341C-11D9-9652-000393DBC2E8@freescale.com> <9B0D9272-398A-11D9-96F6-000393C30512@freescale.com> <1100806489.14467.47.camel@jmcmullan>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <2B68D9FA-399B-11D9-96F6-000393C30512@freescale.com>
+Content-Transfer-Encoding: 7bit
+Cc: "<netdev@oss.sgi.com>" <netdev@oss.sgi.com>,
+       "<linux-kernel@vger.kernel.org>" <linux-kernel@vger.kernel.org>
+From: Andy Fleming <afleming@freescale.com>
+Subject: Re: [PATCH] MII bus API for PHY devices
+Date: Thu, 18 Nov 2004 13:50:59 -0600
+To: Jason McMullan <jason.mcmullan@timesys.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's actually even _normal_ behaviour for many of the core users of shared 
-> files. People who really do databases get quite upset if you don't let 
-> them mmap as much memory as they want, because for them, they really tune 
-> their cache sizes for the size of memory, and they think the OS (and 
-> anything else, for that matter) just gets in their way. They want 99% of 
-> memory to be used for the shared mapping, and the remaining 1% for their 
-> code.
 
-I'll try to write a FUSE deadlocker with the newly learnt info, and
-let you know the result.
+On Nov 18, 2004, at 13:34, Jason McMullan wrote:
+>> 3) How should we bind ethernet drivers to PHY drivers?
+>
+> A PHY 'platform_data' struct like:
+>
+> struct phy_device_data {
+> 	struct {
+> 		const char *name;
+> 		int id;
+> 	} ethernet_platform_device_parent;
+> 	int	phy_id;
+> }
 
-Thanks,
-Miklos
+So you would have each PHY know the controller to which it's attached?  
+I would have thought the other way around... Hm.  I will definitely 
+have to read up on my driver model stuff
+
+> 	
+>> Oh, and a 4th side-issue:
+>> Should each PHY have its own file?
+>
+> Actually, each PHY should have it's own device directory, like every
+> other device. Eventually, PHYs should have /dev/phy* entries, where
+> user-space can read/write PHY registers.
+
+I think you misunderstood.  Are you talking about sysfs?  I was talking 
+about actual source files.  i.e. should there be dm9161.c, m88e1101.c, 
+cis8201.c, etc.
+
+Also, do we need user-space to read/write PHY registers.  ethtool has 
+this capability, I believe, and the interfaces there are settled.
+
+Andy Fleming
+

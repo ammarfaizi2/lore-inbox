@@ -1,71 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265817AbUBJLFd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 06:05:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265818AbUBJLFd
+	id S265820AbUBJLQh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 06:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265821AbUBJLQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 06:05:33 -0500
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:42661 "HELO
-	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265817AbUBJLF3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 06:05:29 -0500
-From: tabris <tabris@tabris.net>
-To: linux-kernel@vger.kernel.org
-Subject: console/gpm mouse breakage 2.6.3-rc1-mm1
-Date: Tue, 10 Feb 2004 06:05:19 -0500
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Tue, 10 Feb 2004 06:16:37 -0500
+Received: from dsl-082-083-128-026.arcor-ip.net ([82.83.128.26]:50057 "EHLO
+	server1.intern.kubla.de") by vger.kernel.org with ESMTP
+	id S265820AbUBJLQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 06:16:35 -0500
+Date: Tue, 10 Feb 2004 12:16:33 +0100
+From: Dominik Kubla <dominik@kubla.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Dominik Kubla <dominik@kubla.de>, Nick Craig-Wood <ncw1@axis.demon.co.uk>,
+       Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: Does anyone still care about BSD ptys?
+Message-ID: <20040210111632.GA1229@intern.kubla.de>
+References: <c07c67$vrs$1@terminus.zytor.com> <20040209092915.GA11305@axis.demon.co.uk> <20040209124739.GC1738@mail.shareable.org> <20040209134005.GA15739@axis.demon.co.uk> <Pine.LNX.4.53.0402090853020.8894@chaos> <20040209175119.GC1795@intern.kubla.de> <Pine.LNX.4.53.0402091327020.9986@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402100605.25115.tabris@tabris.net>
+In-Reply-To: <Pine.LNX.4.53.0402091327020.9986@chaos>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Feb 09, 2004 at 01:27:24PM -0500, Richard B. Johnson wrote:
+> On Mon, 9 Feb 2004, Dominik Kubla wrote:
+> 
+> > On Mon, Feb 09, 2004 at 09:00:24AM -0500, Richard B. Johnson wrote:
+> > > > On Mon, Feb 09, 2004 at 07:17:27AM +0000, H. Peter Anvin wrote:
+> > > > > Does anyone still care about old-style BSD ptys, i.e. /dev/pty*?
+> > >
+> > > Only people who want to log-in from the network..... Of course
+> > > you could force a re-write of all the stuff like telnet, adding
+> > > another layer of bugs that'll take another N years to find and
+> > > remove.
+> >
+> > What are you talking about?  On my system (Debian Sid) there are no BSD
+> > pty's (i removed the device nodes) and everything works without even a
+> > recompile.
+> >
+> > Regards,
+> >   Dominik
+> 
+> 
+> Really? Then you don't have anybody trying to log-in
+> from the network using telnet, then do you?
 
-	just went to 2.6.3 this morning due to frustrations with my PDC20265 causing 
-lockups... hoping that 2.6 solves this problem...
+Really? How do you diagnose my system without even logging in?
 
-	and now i'm having trouble where gpm doesn't work right... cilcks don't 
-register as a click event. Yes, it works fine in X (using GPM in repeater 
-mode, -R raw. the old hack I used to allow X to use both mice, as well as 
-eliminating the gpm crashes every couple times I switched btwn X and console 
-mode.)
+[kubla@duron] telnet server1
+Trying 192.168.xxx.xxx...
+Connected to server1.intern.kubla.de.
+Escape character is '^]'.
+[SSL - attempting to switch on SSL]
+[SSL - handshake starting]
+[SSL - OK]
+Password: 
+Last login: Tue Feb 10 12:03:36 2004 from duron.intern.kubla.de on pts/0
+Linux server1 2.6.0-1-k7 #2 Sun Jan 11 17:06:46 EST 2004 i686 GNU/Linux
 
-instead I get characters echoed to my terminal
-left click: Q
-right click: W
-middle click: E (plus some control character... i haven't tried a capture and 
-hexdump yet)
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
 
-	also, my PS/2 mouse (MS IMPS/2) no longer works. from any /dev node I've 
-tried.
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+You have mail.
+[kubla@server1] tty
+/dev/pts/0
+[kubla@server1] ls -l /dev/pts/0
+crw-------    1 kubla    tty      136,   0 Feb 10 12:08 /dev/pts/0
 
-	I do most of my work in console mode, and having no console mouse for pastes 
-and such is a pain.
 
-	This is probably some old issue hashed and rehashed, but after reading the 
-LKML pretty much all the time for the last couple years, I don't remember 
-this problem being mentioned.
+> The BSD virtual terminals go in pairs, /dev/ptyp* /dev/ttyp*
+...
+> Here, rjohnson is logged in using telnet. The code is so common
+> that there is even some C runtime library support in later
+> C libraries, it's called forkpty(). `man forkpty`. It does a lot
+> of the dirty-work of using BSD virtual terminals.
 
-	as another problem, tho I believe this is also well known, sensors don't 
-work, as i2c-proc doesn't exist anymore and there are no /proc/ entries for 
-sensors.
+Try removing you BSD pty's and most likely you will see that telnetd
+happily uses System V pty's. If not then you should really update your
+telnetd.  Both netkit-telnetd and telnetd-ssl, which is derived from it,
+can use System V-ptys since at least 5 years, probably even longer.
+If both BSD and System V pty's are present on the system, the code will use
+BSD. (That's why i removed the BSD pty's in the first place!)
 
-- --
-tabris
-- -
-In 1869 the waffle iron was invented for people who had wrinkled waffles.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAKLry1U5ZaPMbKQcRAhg3AJ9QWqwWEaBVXBlbdOqrEg3Kd31OhwCdFFey
-pS/v2GtN2n/g5aQbjyOKN/4=
-=iz7k
------END PGP SIGNATURE-----
-
+Regards,
+  Dominik
+-- 
+"Conversion, fastidious Goddess, loves blood better than brick, and feasts
+most subtly on the human will."
+-- Virginia Woolf, "Mrs. Dalloway"

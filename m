@@ -1,116 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263379AbUDPQp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 12:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUDPQp5
+	id S263389AbUDPQqx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 12:46:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbUDPQqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 12:45:57 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:9487 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S263379AbUDPQpw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 12:45:52 -0400
-Date: Fri, 16 Apr 2004 18:54:20 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Axel Weiss <aweiss@informatik.hu-berlin.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: compiling external modules
-Message-ID: <20040416165420.GA2387@mars.ravnborg.org>
-Mail-Followup-To: Axel Weiss <aweiss@informatik.hu-berlin.de>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <200404161741.07824.aweiss@informatik.hu-berlin.de>
+	Fri, 16 Apr 2004 12:46:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62633 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263442AbUDPQqh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 12:46:37 -0400
+Date: Fri, 16 Apr 2004 09:40:38 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Timothy Miller <miller@techsource.com>
+Cc: benh@kernel.crashing.org, felix-kernel@fefe.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: radeonfb broken
+Message-Id: <20040416094038.5ae1bc52.rddunlap@osdl.org>
+In-Reply-To: <4080047E.9050804@techsource.com>
+References: <20040415202523.GA17316@codeblau.de>
+	<407EFB08.6050307@techsource.com>
+	<1082079792.2499.229.camel@gaston>
+	<4080047E.9050804@techsource.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404161741.07824.aweiss@informatik.hu-berlin.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 16, 2004 at 05:41:07PM +0200, Axel Weiss wrote:
-> On Thursday 15 April 2004 23:59, Sam Ravnborg wrote:
-> > The general feedback is that it looks like you have
-> > made it less simple than it ought to be.
-> >
-> > You should also consider that you end up with files
-> > that does not look like ordinary kbuild makefiles.
-> 
-> Hi, Sam,
-> 
-> seems you don't like my style putting things into variables ;)
-> 
-> Here's my latest work, I have tested this Makefile with vanilla-2.6.5, -2.6.6-rc1 and  suse-2.4.21-199 (SuSE 9.0).
-> 
-> Regards,
-> Axel
-> 
-> #/***************************************************************************
-> # *                                                                         *
-> # *   This program is free software; you can redistribute it and/or modify  *
-> # *   it under the terms of the GNU General Public License as published by  *
-> # *   the Free Software Foundation; either version 2 of the License, or     *
-> # *   (at your option) any later version.                                   *
-> # *                                                                         *
-> # ***************************************************************************/
-> #
-> #  Template Makefile for external module compilation
-> #
-> #  (C) 2004 by Axel Weiss (aweiss@informatik.hu-berlin.de)
-> #
-> 
-> KDIR          := /lib/modules/$(shell uname -r)/build
-> PWD           := $(shell pwd)
-> 
-> K_MAJOR := $(shell uname -r | sed -e "s/\..*//")
-> K_MINOR := $(shell uname -r | sed -e "s/$(K_MAJOR)\.//" -e "s/\..*//")
-> K_REV   := $(shell uname -r | sed -e "s/$(K_MAJOR)\.$(K_MINOR)\.//" -e "s/-.*//")
-> 
-> NEED_EXPORT := $(strip $(shell [[ "$(K_MAJOR)" = "2" \
->                                && "$(K_MINOR)" < "7" \
->                                && "$(K_REV)"   < "6" ]] && echo yes || echo no))
-> 
-> NEED_CLEAN  := $(strip $(shell [[ "$(K_MAJOR)" = "2" \
->                                && "$(K_MINOR)" < "7" \
->                                && "$(K_REV)"   < "6" ]] && echo yes))
+On Fri, 16 Apr 2004 12:06:22 -0400 Timothy Miller wrote:
 
-What about testing for the precense of Rules.make.
-If present we know it is 2.4, if not it's 2.6.
+| 
+| BTW, now that we're on the topic of Radeon, could someone tell me how to 
+| tell the kernel the default resolution to use when initializing the 
+| console?
+| 
+| When using a CRT, it defaults to 640x480.  When I use my Planar PQ191 
+| 19" 1280x1024 monitor, it defaults to 1024x768.  I want it to default to 
+| 1280x1024.  There's a tool, fbset or something like that, which I can 
+| use AFTER bootup, but trying to put that into init causes all sorts of 
+| conflicts.  I need to be able to tell the kernel, either at compile time 
+| or on the boot command line.
 
-Something like:
-KERNEL_26 := $(if $(wildcard $(TOPDIR)/Rules.make),0,1)
-Much simpler than all the above.
+See <Documentation/fb/modedb.txt> for a little help: <quote>
 
-Then your test would look like this:
+Valid mode specifiers (mode_option argument):
 
-ifeq ($(KERNEL_26),0)
+    <xres>x<yres>[-<bpp>][@<refresh>]
+    <name>[-<bpp>][@<refresh>]
 
-export-objs := <mod-export-list>
-
-include $(KDIR)/Rules.make
-
-<mod-name>.o: $(<mod-name>-objs)
-	$(Q)$(LD) $(LD_RFLAG) -r -o $@ $(<mod-name>-objs)
-endif
+with <xres>, <yres>, <bpp> and <refresh> decimal numbers and <name> a string.
+Things between square brackets are optional.
+</quote>
 
 
-And later:
+I haven't done this, but I've seen emails using syntax like so:
 
-> else  # ifneq ($(KERNELRELEASE),)
+(from /etc/lilo.conf:)
 
-ifeq ($(KERNEL_26),1)
+append="video=radeonfb:1024x768-32@100"
 
-all:
-	$(MAKE) -C $(KDIR) M=$(PWD)
-%:
-	$(MAKE) -C $(KDIR) M=$(PWD) $@
+or:
+append="video=radeonfb radeonfb.mode_option=1280x1024-32@60"
 
-else
- 
-clean:
- 	rm -f <mod-name>.ko *.o .*.cmd .*.o.flags <mod-name>.mod.c
+or:
+append="video=radeonfb:1024x768-32@100"
 
 
-Care to try mix something working out of these clues.
+Looking at the driver source code, I'd guess that the middle
+one above is closest to correct.
 
-Thanks,
-	Sam
+ISTM that Documentation/kernel-parameters.txt needs a paragraph
+about syntax for specifying parameters for built-in modules vs.
+loadable modules....
 
+
+| Moving off topic, my cries for help from the XFree86 people also seem to 
+| have gotten lost in the flow of hundreds of usenet messages.  Try as I 
+| might, I cannot seem to get XFree86 to talk to my monitor at anything 
+| other than 60Hz.  Even though LCD monitors have a persistent image, 
+| increasing the frame rate CAN reduce motion blur slightly.
+
+
+--
+~Randy
+"We have met the enemy and he is us."  -- Pogo (by Walt Kelly)
+(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature)

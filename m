@@ -1,138 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269060AbUI2VgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269048AbUI2Vlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269060AbUI2VgW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 17:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUI2VgW
+	id S269048AbUI2Vlv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 17:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUI2Vlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 17:36:22 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:37527 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S268995AbUI2VgJ (ORCPT
+	Wed, 29 Sep 2004 17:41:51 -0400
+Received: from [69.25.196.29] ([69.25.196.29]:62176 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S269048AbUI2Vlt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 17:36:09 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57033BCA90@exa-atlanta>
-From: "Mukker, Atul" <Atulm@lsil.com>
-To: "'James.Bottomley@SteelEye.com'" <James.Bottomley@SteelEye.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Cc: "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>
-Subject: RE: [PATCH]: megaraid 2.20.4: Fixes a data corruption bug
-Date: Wed, 29 Sep 2004 17:28:07 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Wed, 29 Sep 2004 17:41:49 -0400
+Date: Wed, 29 Sep 2004 17:40:51 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz
+Subject: Re: [PROPOSAL/PATCH 2] Fortuna PRNG in /dev/random
+Message-ID: <20040929214051.GA6769@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Jean-Luc Cooke <jlcooke@certainkey.com>, linux@horizon.com,
+	linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz
+References: <20040924005938.19732.qmail@science.horizon.com> <20040929171027.GJ16057@certainkey.com> <20040929193117.GB6862@thunk.org> <20040929202707.GO16057@certainkey.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040929202707.GO16057@certainkey.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James,
+On Wed, Sep 29, 2004 at 04:27:07PM -0400, Jean-Luc Cooke wrote:
+> 
+> When reading nbytes from /dev/{u}random, Legacy /dev/random would:
+>  - Mix nbytes of data from primary pool into secondary pool
+>  - Then generate nbytes from secondary pool
+> 
+> When reading nbytes from /dev/{u}random, Fortuna-patch /dev/random would:
+>  - Mix ??? of data from input pools into the AES key for output generation
+>  - Then generate nbytes from AES256-CTR
+> 
+> Perhaps I miss the subtlety of the difference in terms of security.  If
+> nbytes >= size of both pools - wouldn't Legacy also be vulnerable to the
+> same attack?
 
-Considering the criticality of this fix, we hope it make into the 2.6.9
-release candidate as soon as possible. Can you update us with your views on
-this.
+Sure, but the Fortuna is supposed to be "more secure" because it
+resists the state extension attack.  I don't think the state extension
+attack is at all realistic, for the reasons cited above.  But if your
+implementation doesn't resist the state extension attack, then why
+bloat the kernel with an alternate random algorithm that's no better
+as far as security is concerned?  (And is more heavy weight, and is
+more wasteful with its entropy, etc., etc.?)
 
-Thanks
--Atul Mukker
-LSI Logic
+						- Ted
 
-> -----Original Message-----
-> From: Bagalkote, Sreenivas
-> Sent: Tuesday, September 28, 2004 9:31 PM
-> To: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
-> Cc: bunk@fs.tum.de; Mukker, Atul; 'Andrew Morton';
-> James.Bottomley@SteelEye.com; Ju, Seokmann; Doelfel, Hardy
-> Subject: [PATCH]: megaraid 2.20.4: Fixes a data corruption bug
-> 
-> Hello All,
-> 
-> Change Log:
-> 
-> Fixes a data corruption issue. Because of a typo in the driver, IO packets
-> were wrongly shared by the IOCTL path. This caused the whole IO command
-> to be replaced by an incoming IOCTL command.
-> 
-> This patch (generated against 2.6.9-rc2) is inlined below.
-> 
-> Sreenivas
-> 
-> ---
-> diff -Naur linux-2.6.9-rc2-mrbug/Documentation/scsi/ChangeLog.megaraid
-> linux-2.6.9-rc2-fixed/Documentation/scsi/ChangeLog.megaraid
-> --- linux-2.6.9-rc2-mrbug/Documentation/scsi/ChangeLog.megaraid
-2004-09-
-> 28 17:31:10.000000000 -0400
-> +++ linux-2.6.9-rc2-fixed/Documentation/scsi/ChangeLog.megaraid
-2004-09-
-> 28 17:43:50.000000000 -0400
-> @@ -1,3 +1,11 @@
-> +Release Date	: Mon Sep 27 22:15:07 EDT 2004 - Atul Mukker
-> <atulm@lsil.com>
-> +Current Version	: 2.20.4.0 (scsi module), 2.20.2.0 (cmm module)
-> +Older Version	: 2.20.3.1 (scsi module), 2.20.2.0 (cmm module)
-> +
-> +i.	Fix data corruption. Because of a typo in the driver, the IO packets
-> +	were wrongly shared by the ioctl path. This causes a whole IO
-> command
-> +	to be replaced by an incoming ioctl command.
-> +
->  Release Date	: Tue Aug 24 09:43:35 EDT 2004 - Atul Mukker
-> <atulm@lsil.com>
->  Current Version	: 2.20.3.1 (scsi module), 2.20.2.0 (cmm module)
->  Older Version	: 2.20.3.0 (scsi module), 2.20.2.0 (cmm module)
-> diff -Naur linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.c
-> linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.c
-> --- linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.c
-2004-09-
-> 28 17:31:33.000000000 -0400
-> +++ linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.c
-2004-09-
-> 28 17:43:50.000000000 -0400
-> @@ -10,7 +10,7 @@
->   *	   2 of the License, or (at your option) any later version.
->   *
->   * FILE		: megaraid_mbox.c
-> - * Version	: v2.20.3.1 (August 24 2004)
-> + * Version	: v2.20.4 (September 27 2004)
->   *
->   * Authors:
->   * 	Atul Mukker		<Atul.Mukker@lsil.com>
-> @@ -197,7 +197,7 @@
->   * ### global data ###
->   */
->  static uint8_t megaraid_mbox_version[8] =
-> -	{ 0x02, 0x20, 0x02, 0x00, 7, 22, 20, 4 };
-> +	{ 0x02, 0x20, 0x04, 0x00, 9, 27, 20, 4 };
-> 
-> 
->  /*
-> @@ -3562,7 +3562,7 @@
->  	for (i = 0; i < MBOX_MAX_USER_CMDS; i++) {
-> 
->  		scb			= adapter->uscb_list + i;
-> -		ccb			= raid_dev->ccb_list + i;
-> +		ccb			= raid_dev->uccb_list + i;
-> 
->  		scb->ccb		= (caddr_t)ccb;
->  		ccb->mbox64		= raid_dev->umbox64 + i;
-> diff -Naur linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.h
-> linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.h
-> --- linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.h
-2004-09-
-> 28 17:31:33.000000000 -0400
-> +++ linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.h
-2004-09-
-> 28 17:43:50.000000000 -0400
-> @@ -21,8 +21,8 @@
->  #include "megaraid_ioctl.h"
-> 
-> 
-> -#define MEGARAID_VERSION	"2.20.3.1"
-> -#define MEGARAID_EXT_VERSION	"(Release Date: Tue Aug 24 09:43:35 EDT
-> 2004)"
-> +#define MEGARAID_VERSION	"2.20.4.0"
-> +#define MEGARAID_EXT_VERSION	"(Release Date: Mon Sep 27 22:15:07 EDT
-> 2004)"
-> 
-> 
->  /*
-> ---
+P.S.  I'll also note by the way, that in more recent versions of
+/dev/random, we use a separate pool for /dev/urandom and /dev/random.
+A further enhancement which I'm thinking might be a good one to add is
+to limit the rate at which we transfer randomness from the primary
+pool to the urandom pool.  So that it's not that I'm against making
+changes; it's just that I want the changes to make sense, and protect
+against realistic threats, not imaginary ones.
+

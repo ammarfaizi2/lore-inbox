@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264137AbUBIItI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 03:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbUBIItI
+	id S264434AbUBII7l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 03:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbUBII7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 03:49:08 -0500
-Received: from [152.101.81.89] ([152.101.81.89]:6405 "HELO southa.com")
-	by vger.kernel.org with SMTP id S264137AbUBIItG (ORCPT
+	Mon, 9 Feb 2004 03:59:41 -0500
+Received: from news.cistron.nl ([62.216.30.38]:32746 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S264434AbUBII7k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 03:49:06 -0500
-Message-ID: <015801c3eeea$aabd5a80$9c02a8c0@southa.com>
-From: "Kyle Wong" <kylewong@southa.com>
-To: "Bas Mevissen" <ml@basmevissen.nl>
-Cc: <linux-kernel@vger.kernel.org>
-References: <164601c3ec06$be8bd5a0$b8560a3d@kyle> <40227C20.80404@basmevissen.nl> <167301c3ec0d$4d8508c0$b8560a3d@kyle> <40227D9D.2070704@basmevissen.nl> <168301c3ec0e$24698be0$b8560a3d@kyle> <4023682E.3060809@basmevissen.nl> <001101c3ecf8$b0f50cc0$b8560a3d@kyle> <40274581.4030002@basmevissen.nl>
-Subject: Re: ICH5 with 2.6.1 very slow
-Date: Mon, 9 Feb 2004 16:56:45 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Mon, 9 Feb 2004 03:59:40 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: Does anyone still care about BSD ptys?
+Date: Mon, 9 Feb 2004 08:59:39 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c07i5r$ctq$1@news.cistron.nl>
+References: <c07c67$vrs$1@terminus.zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1076317179 13242 62.216.29.200 (9 Feb 2004 08:59:39 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No hardware raid, it's kernel built-in md driver.
+In article <c07c67$vrs$1@terminus.zytor.com>,
+H. Peter Anvin <hpa@zytor.com> wrote:
+>Does anyone still care about old-style BSD ptys, i.e. /dev/pty*?  I'm
+>thinking of restructuring the pty system slightly to make it more
+>dynamic and to make use of the new larger dev_t, and I'd like to get
+>rid of the BSD ptys as part of the same patch.
 
------ Original Message ----- 
-From: "Bas Mevissen" <ml@basmevissen.nl>
-To: "Kyle" <kyle@southa.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, February 09, 2004 4:32 PM
-Subject: Re: ICH5 with 2.6.1 very slow
+bootlogd(8) which is used by Debian and Suse is started as the
+first thing at boottime. It needs a pty, and tries to use /dev/pts
+if it's there but falls back to BSD style pty's if /dev/pts isn't
+mounted - which will be the case 99% of the time.
 
+Mike.
 
-> Kyle wrote:
-> 
-> > Today I tried 
-> 
-> (...)
-> 
-> This is quite strange. The only thing I can think of is that the 
-> hardware (?) raid1 is causing problems with 2.6.
-> 
-> Is there a possibility for you to test without it?
-> 
-> Currently, I don't have a decent PATA disk luyng around, so I cannot 
-> verify anything for you.
-> 
-> Regards,
-> 
-> Bas.
-> 
-> 
-> 

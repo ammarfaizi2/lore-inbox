@@ -1,29 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbUEQX5P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbUERAB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbUEQX5P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 19:57:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUEQX5P
+	id S262580AbUERAB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 20:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUERAB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 19:57:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48873 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262547AbUEQX5M (ORCPT
+	Mon, 17 May 2004 20:01:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59372 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262580AbUERAB5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 19:57:12 -0400
-Date: Mon, 17 May 2004 16:59:19 -0700
+	Mon, 17 May 2004 20:01:57 -0400
+Date: Mon, 17 May 2004 17:04:33 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: joern@wohnheim.fh-wedel.de, arjanv@redhat.com, benh@kernel.crashing.org,
-       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-Id: <20040517165919.04edcc77.akpm@osdl.org>
-In-Reply-To: <20040517233515.GR5414@waste.org>
-References: <20040513145640.GA3430@dreamland.darkstar.lan>
-	<1084488901.3021.116.camel@gaston>
-	<20040513182153.1feb488b.akpm@osdl.org>
-	<20040514094923.GB29106@devserv.devel.redhat.com>
-	<20040514114746.GB23863@wohnheim.fh-wedel.de>
-	<20040514151520.65b31f62.akpm@osdl.org>
-	<20040517233515.GR5414@waste.org>
+To: "Robert M. Stockmann" <stock@stokkie.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ramdisk driver in 2.6.6 has a severe bug
+Message-Id: <20040517170433.0311c2e9.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0405180132240.21480-100000@hubble.stokkie.net>
+References: <20040517161943.37d826a3.akpm@osdl.org>
+	<Pine.LNX.4.44.0405180132240.21480-100000@hubble.stokkie.net>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -31,10 +25,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> wrote:
+"Robert M. Stockmann" <stock@stokkie.net> wrote:
 >
-> I have a cleaned up version of this script in -tiny which is a bit
-> nicer for adding new arches to and produces simpler output:
+> Be aware of other problems when using the linux ramdisk driver,
+> loosing its contents. Especially the use of mkinitrd might result in 
+> unexpected problems. googling for "kernel 2.6.6 ramdisk problem" shows lots
+> of people with problems mounting their root filesystems and loading modules
+> from ramdisk. Klaus Knopper (knoppix) is not amused, neither am i :)
 
-OK, thanks.  Joern, could you please own this megaproject?  Send
-me any needed diffs against -mm3?
+Well in that case perhaps something else broke.  I've seen no such reports
+of recent regressions in the ramdisk driver.
+
+The two problems of which I am aware are:
+
+a) It loses its brains across umount.  Seems that it's very rare that
+   anyone actually cares about this, which is why it has not been fixed in
+   well over a year.
+
+b) It loses data under heavy I/O loads.  I _think_ this has been
+   observed only on ppc64 and might be a cache writeback/invalidate thing.
+
+If there are new post-2.6.5 problems then I'm all ears.

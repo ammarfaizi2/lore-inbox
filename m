@@ -1,98 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315893AbSFYUpa>; Tue, 25 Jun 2002 16:45:30 -0400
+	id <S315919AbSFYVNJ>; Tue, 25 Jun 2002 17:13:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315919AbSFYUp3>; Tue, 25 Jun 2002 16:45:29 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:64014 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S315893AbSFYUp3> convert rfc822-to-8bit; Tue, 25 Jun 2002 16:45:29 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S315921AbSFYVNI>; Tue, 25 Jun 2002 17:13:08 -0400
+Received: from noc.mainstreet.net ([207.5.0.45]:19730 "EHLO noc.mainstreet.net")
+	by vger.kernel.org with ESMTP id <S315919AbSFYVNH>;
+	Tue, 25 Jun 2002 17:13:07 -0400
+From: devnull@adc.idt.com
+Date: Tue, 25 Jun 2002 17:13:05 -0400 (EDT)
+X-X-Sender: <ram@bom.adc.idt.com>
+Reply-To: <devnull@adc.idt.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: ramfs/ramdisk.
+Message-ID: <Pine.GSO.4.31.0206251701200.3694-100000@bom.adc.idt.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: ide driver bug fix for the error message "hda: bad special flag0x03"
-Date: Tue, 25 Jun 2002 15:45:23 -0500
-Message-ID: <5A96E87E2BA0714ABBEA2C8F3F3F667C0AA681@cceexc19.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ide driver bug fix for the error message "hda: bad special flag0x03"
-Thread-Index: AcIch3adizQdDxUeQqeuDX+QFYwPwwAAGABQ
-From: "Shen, JT" <JT.Shen@hp.com>
-To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Cc: <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 25 Jun 2002 20:45:24.0340 (UTC) FILETIME=[3ADC2B40:01C21C89]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello All,
 
-This problem is commonly found in an embedded SCSI system where there is no IDE hard drive. In that case, the cdrom device will have the device node /dev/hda. If you issue the command:
+I am trying to understand the differences between ramfs and ramdisk, and
+also trying to use ramfs.
 
-  cat /proc/ide/hda/identify
+I am running 2.4.13-ac8.
 
-  or try to read the file /proc/ide/hda/identify
+I do a mount -t ramfs none /tmp/tmpfs
 
-the kernel will print out the following message to the system log:
+Then use dd to create a file, of size 500M.
+do a df, and %Use is 49%(machine has 2G) so i guess default size of
+"ramfs" fs will be half of that, 1G.
 
-       "hda: bad special flag 0x03"
+But when i delete the file. df doesnt show %Use to be 0%.
 
-The user may think something is wrong but in reality nothing is wrong. And we don't want to see this message comes out when nothing is wrong.
+du -sk doesnt either.
 
-JT
+Not sure what is going on.
 
------Original Message-----
-From: Marcelo Tosatti [mailto:marcelo@conectiva.com.br]
-Sent: Tuesday, June 25, 2002 2:34 PM
-To: Shen, JT
-Cc: andre@linux-ide.org; linux-kernel@vger.kernel.org
-Subject: Re: ide driver bug fix for the error message "hda: bad special
-flag0x03"
+Cant the utilization of the ramfs be changed.
+
+Also, from fs/ramfs/inode.c
+
+"* NOTE! This filesystem is probably most useful
+ * not as a real filesystem, but as an example of
+ * how virtual filesystems can be written.
+"
+
+1. Can i use ramfs for any practical purposes at all ?
 
 
+2. I was hoping to create a few ram disks, mount them as swaps on Sun
+   machines(so i dont have to buy their expensive memory) and run big
+   simulations. (agreed might not be screaming over NFS)
 
-Mind to explain the problem in detail/
 
-On Tue, 25 Jun 2002, Shen, JT wrote:
+Also, some articles talk about using ramfs when on a webserver. So it
+ramfs mostly for read-only stuff rather than read-write.
 
-> diff -Naur linux-2.4.19-10/drivers/ide/ide-probe.c linux-2.4.19-11/drivers/ide/ide-probe.c
-> --- linux-2.4.19-10/drivers/ide/ide-probe.c	Fri Jun 21 15:14:46 2002
-> +++ linux-2.4.19-11/drivers/ide/ide-probe.c	Mon Jun 24 15:19:15 2002
-> @@ -131,6 +131,7 @@
->  				type = ide_cdrom;	/* Early cdrom models used zero */
->  			case ide_cdrom:
->  				drive->removable = 1;
-> +				drive->special.all = 0;
->  #ifdef CONFIG_PPC
->  				/* kludge for Apple PowerBook internal zip */
->  				if (!strstr(id->model, "CD-ROM") && strstr(id->model, "ZIP")) {
->
->
->
->
->
->
->
->
-> Andre,
->
-> Above is the patch that will fix the bug that when a user issue the command:
->
->    
->
-> the message "hda: bad special flag 0x03" gets written to the system log.  This will happen because the .config file that RedHat uses to create the kernel image has the flag CONFIG_BLK_DEV_IDECD=m.  Thus in ide.c code, it won't call ide_cdrom_reinit(). So for CDROM the special flag is left as 0x03.
->
->
-> The solution is to set the special flags to 0 when it is discovered as cdrom in ide-probe.c.
->
-> Let me know if you have any question.
->
-> Thanks,
->
-> JT
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Thanks,
+
+Regards.
+
+/dev/null
+
+devnull@adc.idt.com
+
 

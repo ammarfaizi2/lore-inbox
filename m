@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272593AbRJHSRu>; Mon, 8 Oct 2001 14:17:50 -0400
+	id <S275963AbRJHSVA>; Mon, 8 Oct 2001 14:21:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276231AbRJHSRb>; Mon, 8 Oct 2001 14:17:31 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42247 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275963AbRJHSR1>; Mon, 8 Oct 2001 14:17:27 -0400
-Date: Mon, 8 Oct 2001 11:17:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S276231AbRJHSUu>; Mon, 8 Oct 2001 14:20:50 -0400
+Received: from mail213.mail.bellsouth.net ([205.152.58.153]:60138 "EHLO
+	imf13bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S275963AbRJHSUk>; Mon, 8 Oct 2001 14:20:40 -0400
+Subject: Re: linux-2.4.10-acX
+From: Louis Garcia <louisg00@bellsouth.net>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dave McCracken <dmccr@us.ibm.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Provide system call to get task id
-In-Reply-To: <E15qeaA-0001IU-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110081110130.8212-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15qeo4-0001MW-00@the-village.bc.nu>
+In-Reply-To: <E15qeo4-0001MW-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 08 Oct 2001 14:21:54 -0400
+Message-Id: <1002565315.8915.1.camel@tiger>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Has raw/block I/O changes from linus 2.4.10 been merged?
 
-On Mon, 8 Oct 2001, Alan Cox wrote:
->
-> Would it make more sense to add a getpid() and make the existing one
-> gettid() to keep compatibility at its sanest ?
+Louis
 
-I don't think compatibility is an issue: programs that are (a) threaded
-and (b) use the new thread group interface and (c) care about tid simply
-do not exist. For the simple reason that they cannot exist - getpid() was
-changed at the same time CLONE_THREAD was added.
+On Mon, 2001-10-08 at 14:07, Alan Cox wrote:
+> > Has Alan's tree been fully merged with Linus's?? Or are their bits in
+> > Linus's tree that is not in Alan's?
+> 
+> There are measurable differences between the two trees. Notably
+> 
+> -	Linus uses the Andrea VM in 2.4.10
+> 	-ac uses the Riel VM in 2.4.10-ac
+> 
+> The -ac tree also has the following major additions
+> 
+> -	Platform support for x86_64, usermode linux , etc
+> -	32bit uid safe quota
+> -	Ext3 file system
+> -	PnPBIOS support
+> -	Various PPro and Pentium workarounds
+> -	Simple boot flag
+> -	Faster x86 syscall path
+> -	PPPoATM
+> -	Elevator flow control
+> -	DRM 4.0 and 4.1 support not just 4.1 (ie XFree 4.0.x works)
+> -	CMS file system
+> -	Intermezzo file system
+> -	isofs compression
+> 
+> and drivers for
+> 
+> -	IB700
+> -	IBM Mwave 
+> -	Lots more MTD devices
+> -	SA1100 PCMCIA
+> -	Various USB toys
+> 
+> and then lots of bug fixes
+> 
+> Much of that will go on to Linus. Some he has refused (faster syscall path,
+> elevator flow control, ..). It takes time to feed stuff on and often I want
+> to test it in -ac first. Because so much changed in 2.4.10/11pre it's now
+> getting very hard to merge a lot of the fixes like the truncate standards
+> compliance stuff so they may not make Linus tree until 2.5
+> 
+> 
+> Alan
 
-So the only compatibility worry would be
 
- - people using non-thread-aware libraries together with a CLONE_THREAD
-   core thing - which is possible especially if they have thread wrappers.
-   But if those libraries care about "pid/tid" issues, there's no way that
-   can have well-defined behaviour anyway ;)
-
- - people who have been playing with CLONE_THREAD, and have apps that
-   depend on the "pid is the 'classical' pid, not the thread ID"
-   behaviour. In which case adding a new gettid() is the right thing to
-   do.
-
-Now, I actually seriously doubt either of those are real issues, and it
-probably doesn't matter what we do. But I'd ratehr have a system call
-called "getpid()" do what POSIX threads have traditionally done, namely
-give the ID of the process group ("tpid" in linux kernel-speak), and have
-"gettid()" give the thread ID ("pid" in linux kernel-speak).
-
-		Linus
 

@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266454AbUGBELl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266457AbUGBEQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266454AbUGBELl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 00:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266456AbUGBELl
+	id S266457AbUGBEQt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 00:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266441AbUGBEQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 00:11:41 -0400
-Received: from janus.foobazco.org ([198.144.194.226]:36736 "EHLO
-	mail.foobazco.org") by vger.kernel.org with ESMTP id S266454AbUGBELh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 00:11:37 -0400
-Date: Thu, 1 Jul 2004 21:11:36 -0700
-From: "Keith M. Wesolowski" <wesolows@foobazco.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org
-Subject: Re: A question about PROT_NONE on Sun4c 32-bit Sparc
-Message-ID: <20040702041136.GA21360@foobazco.org>
-References: <20040630030503.GA25149@mail.shareable.org> <20040702010349.GF8950@mail.shareable.org>
+	Fri, 2 Jul 2004 00:16:49 -0400
+Received: from ozlabs.org ([203.10.76.45]:58036 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266474AbUGBEQf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 00:16:35 -0400
+Date: Fri, 2 Jul 2004 14:12:15 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [BUG] hugetlb MAP_PRIVATE mapping vs /dev/zero
+Message-ID: <20040702041215.GG5937@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <40E43BDE.85C5D670@tv-sign.ru> <20040702012012.GC5937@zax> <20040702024422.GG21066@holomorphy.com> <20040702034937.GE5937@zax>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040702010349.GF8950@mail.shareable.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040702034937.GE5937@zax>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 02, 2004 at 02:03:49AM +0100, Jamie Lokier wrote:
+On Fri, Jul 02, 2004 at 01:49:37PM +1000, David Gibson wrote:
+> On Thu, Jul 01, 2004 at 07:44:22PM -0700, William Lee Irwin wrote:
+> > On Thu, Jul 01, 2004 at 08:29:18PM +0400, Oleg Nesterov wrote:
+> > >> We can fix hugetlbfs_file_mmap() or read_zero_pagealigned()
+> > >> or both.
+> > 
+> > On Fri, Jul 02, 2004 at 11:20:12AM +1000, David Gibson wrote:
+> > > Err... surely we need to fix both, yes?
+> > 
+> > No. /dev/zero is innocent. hugetlb is demanding VM_SHARED semantics
+> > without actually setting VM_SHARED. /dev/zero tripping over its
+> > nonstandard pagetable structure is not something to be dealt with
+> > in /dev/zero itself.
+> 
+> Duh, sorry, misread the sense of the VM_SHARED test in the zeromap
+> code.
 
-> I would like to know if the Sun4 and Sun4c ports have the same bug.
-> I'm guessing not, but it's not clear to me from the code.
+On second thoughts, though, I think logically it should be fixed in
+both places.  For now forcing VM_SHARED in the hugetlbfs code is
+sufficient, but if we ever allow (real) MAP_PRIVATE hugepage mappings
+(by implementing hugepage COW, for example), then the zeromap code
+will need fixing.
 
-No, this code is ok.
+Conceptually it's not so much the fact that the hugepage memory is
+shared which is tripping up zeromap as the fact that it isn't mapped
+in the normal way.
 
-> #define _SUN4C_PAGE_VALID        0x80000000
-> #define _SUN4C_PAGE_SILENT_READ  0x80000000   /* synonym */
-> ...
-> #define _SUN4C_PAGE_READ         0x00800000   /* implemented in software */
-> ...
-> #define SUN4C_PAGE_NONE		__pgprot(_SUN4C_PAGE_PRESENT)
-
-> SUN4C_PAGE_NONE corresponds to PROT_NONE mmap memory protection.
-> The question is whether PROT_NONE pages are readable by the _kernel_.
-> I.e. whether write() would successfully read from those pages.
-
-No, they are not.  The _SUN4C_PAGE_SILENT_READ is the bit that allows
-reading the page without trapping.  If it's not set, you trap, and
-do_sun4c_fault tests _SUN4C_PAGE_READ with no special case for
-user/kernel.  Since PROT_NONE doesn't include that bit, it's an oops.
-
-> (By the way, as the sun4 files don't contain a definition of
-> _SUN4_PAGE_FILE or pgoff_to_pte, but the sun4c one do, I guess the
-> sun4 sub-architecture doesn't build in 2.6 but sun4c does?)
-
-Correct, although I recently fixed this in my tree.  It now builds but
-nobody has tested it in ages and I believe it doesn't work.
+Of course, one could argue that the whole zeromap idea is just too
+damn clever for its own good...
 
 -- 
-Keith M Wesolowski
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

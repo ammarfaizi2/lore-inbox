@@ -1,39 +1,160 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130670AbQLQSzF>; Sun, 17 Dec 2000 13:55:05 -0500
+	id <S130751AbQLQSz1>; Sun, 17 Dec 2000 13:55:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130685AbQLQSy4>; Sun, 17 Dec 2000 13:54:56 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:17670 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S130668AbQLQSyh>; Sun, 17 Dec 2000 13:54:37 -0500
-Date: Sun, 17 Dec 2000 13:23:52 -0500 (EST)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-To: Lars Marowsky-Bree <lmb@suse.de>
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Monitoring filesystems / blockdevice for errors
-In-Reply-To: <20001217153453.O5323@marowsky-bree.de>
-Message-ID: <Pine.LNX.4.10.10012171314050.16143-100000@coffee.psychology.mcmaster.ca>
+	id <S130536AbQLQSzR>; Sun, 17 Dec 2000 13:55:17 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:25610 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130751AbQLQSzG>;
+	Sun, 17 Dec 2000 13:55:06 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] Semaphores used for daemon wakeup
+Date: Sun, 17 Dec 2000 13:06:10 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-=_AfAdrrWsofsBcnuVqHFfbsAQxWpQ"
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0012171922570J.00623@gimli>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> currently, there is no way for an external application to monitor whether a
-> filesystem or underlaying block device has hit an error condition - internal
-> inconsistency, read or write error, whatever.
-> 
-> Short of parsing syslog messages, which isn't particularly great.
 
-what's wrong with it?  reinventing /proc/kmsg and klogd would be tre gross.
+--Boundary-=_AfAdrrWsofsBcnuVqHFfbsAQxWpQ
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-> I don't have a real idea how this could be added, short of adding a field to
-> /proc/partitions (error count) or something similiar.
+This patch illustrates an alternative approach to waking and waiting on
+daemons using semaphores instead of direct operations on wait queues.
+The idea of using semaphores to regulate the cycling of a daemon was
+suggested to me by Arjan Vos.  The basic idea is simple: on each cycle
+a daemon down's a semaphore, and is reactivated when some other task
+up's the semaphore.
 
-for reporting errors, that might be OK, but it's not a particularly nice
-_notification_ mechanism...
+Sometimes an activating task wants to wait until the daemon completes
+whatever it's supposed to do - flushing memory in this case.  I
+generalized the above idea by adding another semaphore for wakers to
+sleep on, and a count variable to let the daemon know how many
+sleepers it needs to activate.  This patch updates bdflush and
+wakeup_bdflush to use that mechanism.
 
-regards, mark hahn.
+The implementation uses two semaphores and a counter:
 
+	DECLARE_MUTEX_LOCKED(bdflush_request);
+	DECLARE_MUTEX_LOCKED(bdflush_waiter);
+	atomic_t bdflush_waiters /*= 0*/;
+
+A task wanting to activate bdflush does:
+
+	up(&bdflush_request);
+
+A task wanting to activate bdflush and wait does:
+
+	atomic_inc(&bdflush_waiters);
+	up(&bdflush_request);
+	down(&bdflush_waiter);
+
+When bdflush has finished its work it does:
+
+	waiters = atomic_read(&bdflush_waiters);
+	atomic_sub(waiters, &bdflush_waiters);
+	while (waiters--)
+		up(&bdflush_waiter);
+	down(&bdflush_request);
+
+Since I wasn't sure whether the side effect in the existing code of
+setting the current task RUNNING was really wanted, I wrote this in
+explicitly in the places where the side effect was noted, with the
+obligatory comment.
+
+I've done some fairly heavy stress-testing and this new scheme (but
+not on non-x86 or SMP) and it does seem to work much the same as the
+existing one.  I doubt that there is a measureable difference in
+execution overhead, nor is there a difference in correctness as far as
+I can see.  But for me at least, it's considerably easier to verify
+that the semaphore approach is correct.
+
+OK, there it is.  Is this better, worse, or lateral?
+
+-- 
+Daniel
+
+--Boundary-=_AfAdrrWsofsBcnuVqHFfbsAQxWpQ
+Content-Type: text/x-c;
+  name="semwake.patch.2.4.0-test10"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="semwake.patch.2.4.0-test10"
+
+LS0tIC4uLzIuNC4wLXRlc3QxMC5jbGVhbi9mcy9idWZmZXIuYwlUaHUgT2N0IDEyIDIzOjE5OjMy
+IDIwMDAKKysrIC4vZnMvYnVmZmVyLmMJTW9uIERlYyAxOCAwMzowMzowMSAyMDAwCkBAIC03MDgs
+NyArNzA4LDggQEAKIHN0YXRpYyB2b2lkIHJlZmlsbF9mcmVlbGlzdChpbnQgc2l6ZSkKIHsKIAlp
+ZiAoIWdyb3dfYnVmZmVycyhzaXplKSkgewotCQl3YWtldXBfYmRmbHVzaCgxKTsgIC8qIFNldHMg
+dGFzay0+c3RhdGUgdG8gVEFTS19SVU5OSU5HICovCisJCXdha2V1cF9iZGZsdXNoKDEpOworCQlf
+X3NldF9jdXJyZW50X3N0YXRlKFRBU0tfUlVOTklORyk7IC8qIG5lZWRlZD8/ICovCiAJCWN1cnJl
+bnQtPnBvbGljeSB8PSBTQ0hFRF9ZSUVMRDsKIAkJc2NoZWR1bGUoKTsKIAl9CkBAIC0yNDY5LDMz
+ICsyNDcwLDI4IEBACiAgKiByZXNwb25zZSB0byBkaXJ0eSBidWZmZXJzLiAgT25jZSB0aGlzIHBy
+b2Nlc3MgaXMgYWN0aXZhdGVkLCB3ZSB3cml0ZSBiYWNrCiAgKiBhIGxpbWl0ZWQgbnVtYmVyIG9m
+IGJ1ZmZlcnMgdG8gdGhlIGRpc2tzIGFuZCB0aGVuIGdvIGJhY2sgdG8gc2xlZXAgYWdhaW4uCiAg
+Ki8KLXN0YXRpYyBERUNMQVJFX1dBSVRfUVVFVUVfSEVBRChiZGZsdXNoX2RvbmUpOworCisvKiBT
+ZW1hcGhvcmUgd2FrZXVwcywgRGFuaWVsIFBoaWxsaXBzLCBwaGlsbGlwc0Bpbm5vbWluYXRlLmRl
+LCAyMDAwLzEyICovCisKIHN0cnVjdCB0YXNrX3N0cnVjdCAqYmRmbHVzaF90c2sgPSAwOworREVD
+TEFSRV9NVVRFWF9MT0NLRUQoYmRmbHVzaF9yZXF1ZXN0KTsKK0RFQ0xBUkVfTVVURVhfTE9DS0VE
+KGJkZmx1c2hfd2FpdGVyKTsKK2F0b21pY190IGJkZmx1c2hfd2FpdGVycyAvKj0gMCovOwogCiB2
+b2lkIHdha2V1cF9iZGZsdXNoKGludCBibG9jaykKIHsKLQlERUNMQVJFX1dBSVRRVUVVRSh3YWl0
+LCBjdXJyZW50KTsKLQogCWlmIChjdXJyZW50ID09IGJkZmx1c2hfdHNrKQogCQlyZXR1cm47CiAK
+LQlpZiAoIWJsb2NrKSB7Ci0JCXdha2VfdXBfcHJvY2VzcyhiZGZsdXNoX3Rzayk7CisJaWYgKCFi
+bG9jaykKKwl7CisJCXVwKCZiZGZsdXNoX3JlcXVlc3QpOwogCQlyZXR1cm47CiAJfQogCi0JLyog
+a2ZsdXNoZCBjYW4gd2FrZXVwIHVzIGJlZm9yZSB3ZSBoYXZlIGEgY2hhbmNlIHRvCi0JICAgZ28g
+dG8gc2xlZXAgc28gd2UgbXVzdCBiZSBzbWFydCBpbiBoYW5kbGluZwotCSAgIHRoaXMgd2FrZXVw
+IGV2ZW50IGZyb20ga2ZsdXNoZCB0byBhdm9pZCBkZWFkbG9ja2luZyBpbiBTTVAKLQkgICAod2Ug
+YXJlIG5vdCBob2xkaW5nIGFueSBsb2NrIGFueW1vcmUgaW4gdGhlc2UgdHdvIHBhdGhzKS4gKi8K
+LQlfX3NldF9jdXJyZW50X3N0YXRlKFRBU0tfVU5JTlRFUlJVUFRJQkxFKTsKLQlhZGRfd2FpdF9x
+dWV1ZSgmYmRmbHVzaF9kb25lLCAmd2FpdCk7Ci0KLQl3YWtlX3VwX3Byb2Nlc3MoYmRmbHVzaF90
+c2spOwotCXNjaGVkdWxlKCk7Ci0KLQlyZW1vdmVfd2FpdF9xdWV1ZSgmYmRmbHVzaF9kb25lLCAm
+d2FpdCk7Ci0JX19zZXRfY3VycmVudF9zdGF0ZShUQVNLX1JVTk5JTkcpOworCWF0b21pY19pbmMo
+JmJkZmx1c2hfd2FpdGVycyk7CisJdXAoJmJkZmx1c2hfcmVxdWVzdCk7CisJZG93bigmYmRmbHVz
+aF93YWl0ZXIpOwogfQogCiAvKiBUaGlzIGlzIHRoZSBfb25seV8gZnVuY3Rpb24gdGhhdCBkZWFs
+cyB3aXRoIGZsdXNoaW5nIGFzeW5jIHdyaXRlcwpAQCAtMjY0MCw3ICsyNjM2LDcgQEAKIGludCBi
+ZGZsdXNoKHZvaWQgKnNlbSkKIHsKIAlzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzayA9IGN1cnJlbnQ7
+Ci0JaW50IGZsdXNoZWQ7CisJaW50IGZsdXNoZWQsIHdhaXRlcnM7CiAJLyoKIAkgKglXZSBoYXZl
+IGEgYmFyZS1ib25lcyB0YXNrX3N0cnVjdCwgYW5kIHJlYWxseSBzaG91bGQgZmlsbAogCSAqCWlu
+IGEgZmV3IG1vcmUgdGhpbmdzIHNvICJ0b3AiIGFuZCAvcHJvYy8yL3tleGUscm9vdCxjd2R9CkBA
+IC0yNjYwLDYgKzI2NTYsNyBAQAogCXNwaW5fdW5sb2NrX2lycSgmdHNrLT5zaWdtYXNrX2xvY2sp
+OwogCiAJdXAoKHN0cnVjdCBzZW1hcGhvcmUgKilzZW0pOworCXByaW50aygiVGVzdGluZyBzZW13
+YWtlIGJkZmx1c2ggc3luY2hyb25pemF0aW9uLlxuIik7CiAKIAlmb3IgKDs7KSB7CiAJCUNIRUNL
+X0VNRVJHRU5DWV9TWU5DCkBAIC0yNjY4LDI4ICsyNjY1LDE2IEBACiAJCWlmIChmcmVlX3Nob3J0
+YWdlKCkpCiAJCQlmbHVzaGVkICs9IHBhZ2VfbGF1bmRlcihHRlBfQlVGRkVSLCAwKTsKIAotCQkv
+KiBJZiB3YWtldXBfYmRmbHVzaCB3aWxsIHdha2V1cCB1cwotCQkgICBhZnRlciBvdXIgYmRmbHVz
+aF9kb25lIHdha2V1cCwgdGhlbgotCQkgICB3ZSBtdXN0IG1ha2Ugc3VyZSB0byBub3Qgc2xlZXAK
+LQkJICAgaW4gc2NoZWR1bGVfdGltZW91dCBvdGhlcndpc2UKLQkJICAgd2FrZXVwX2JkZmx1c2gg
+bWF5IHdhaXQgZm9yIG91cgotCQkgICBiZGZsdXNoX2RvbmUgd2FrZXVwIHRoYXQgd291bGQgbmV2
+ZXIgYXJyaXZlCi0JCSAgIChhcyB3ZSB3b3VsZCBiZSBzbGVlcGluZykgYW5kIHNvIGl0IHdvdWxk
+Ci0JCSAgIGRlYWRsb2NrIGluIFNNUC4gKi8KLQkJX19zZXRfY3VycmVudF9zdGF0ZShUQVNLX0lO
+VEVSUlVQVElCTEUpOwotCQl3YWtlX3VwX2FsbCgmYmRmbHVzaF9kb25lKTsKLQkJLyoKLQkJICog
+SWYgdGhlcmUgYXJlIHN0aWxsIGEgbG90IG9mIGRpcnR5IGJ1ZmZlcnMgYXJvdW5kLAotCQkgKiBz
+a2lwIHRoZSBzbGVlcCBhbmQgZmx1c2ggc29tZSBtb3JlLiBPdGhlcndpc2UsIHdlCi0JCSAqIGdv
+IHRvIHNsZWVwIHdhaXRpbmcgYSB3YWtldXAuCi0JCSAqLwotCQlpZiAoIWZsdXNoZWQgfHwgYmFs
+YW5jZV9kaXJ0eV9zdGF0ZShOT0RFVikgPCAwKSB7CisJCXdhaXRlcnMgPSBhdG9taWNfcmVhZCgm
+YmRmbHVzaF93YWl0ZXJzKTsKKwkJYXRvbWljX3N1Yih3YWl0ZXJzLCAmYmRmbHVzaF93YWl0ZXJz
+KTsKKwkJd2hpbGUgKHdhaXRlcnMtLSkKKwkJCXVwKCZiZGZsdXNoX3dhaXRlcik7CisKKwkJaWYg
+KCFmbHVzaGVkIHx8IGJhbGFuY2VfZGlydHlfc3RhdGUoTk9ERVYpIDwgMCkgCisJCXsKIAkJCXJ1
+bl90YXNrX3F1ZXVlKCZ0cV9kaXNrKTsKLQkJCXNjaGVkdWxlKCk7CisJCQlkb3duKCZiZGZsdXNo
+X3JlcXVlc3QpOwogCQl9Ci0JCS8qIFJlbWVtYmVyIHRvIG1hcmsgdXMgYXMgcnVubmluZyBvdGhl
+cndpc2UKLQkJICAgdGhlIG5leHQgc2NoZWR1bGUgd2lsbCBibG9jay4gKi8KLQkJX19zZXRfY3Vy
+cmVudF9zdGF0ZShUQVNLX1JVTk5JTkcpOwogCX0KIH0KIAotLS0gLi4vMi40LjAtdGVzdDEwLmNs
+ZWFuL21tL2hpZ2htZW0uYwlXZWQgT2N0IDE4IDIzOjI1OjQ2IDIwMDAKKysrIC4vbW0vaGlnaG1l
+bS5jCU1vbiBEZWMgMTggMDI6MjQ6NDUgMjAwMApAQCAtMzA5LDcgKzMwOSw4IEBACiByZXBlYXRf
+Ymg6CiAJYmggPSBrbWVtX2NhY2hlX2FsbG9jKGJoX2NhY2hlcCwgU0xBQl9CVUZGRVIpOwogCWlm
+ICghYmgpIHsKLQkJd2FrZXVwX2JkZmx1c2goMSk7ICAvKiBTZXRzIHRhc2stPnN0YXRlIHRvIFRB
+U0tfUlVOTklORyAqLworCQl3YWtldXBfYmRmbHVzaCgxKTsKKwkJX19zZXRfY3VycmVudF9zdGF0
+ZShUQVNLX1JVTk5JTkcpOyAvKiBuZWVkZWQ/PyAqLwogCQljdXJyZW50LT5wb2xpY3kgfD0gU0NI
+RURfWUlFTEQ7CiAJCXNjaGVkdWxlKCk7CiAJCWdvdG8gcmVwZWF0X2JoOwpAQCAtMzIzLDcgKzMy
+NCw4IEBACiByZXBlYXRfcGFnZToKIAlwYWdlID0gYWxsb2NfcGFnZShHRlBfQlVGRkVSKTsKIAlp
+ZiAoIXBhZ2UpIHsKLQkJd2FrZXVwX2JkZmx1c2goMSk7ICAvKiBTZXRzIHRhc2stPnN0YXRlIHRv
+IFRBU0tfUlVOTklORyAqLworCQl3YWtldXBfYmRmbHVzaCgxKTsKKwkJX19zZXRfY3VycmVudF9z
+dGF0ZShUQVNLX1JVTk5JTkcpOyAvKiBuZWVkZWQ/PyAqLwogCQljdXJyZW50LT5wb2xpY3kgfD0g
+U0NIRURfWUlFTEQ7CiAJCXNjaGVkdWxlKCk7CiAJCWdvdG8gcmVwZWF0X3BhZ2U7Cg==
+
+--Boundary-=_AfAdrrWsofsBcnuVqHFfbsAQxWpQ--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

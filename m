@@ -1,101 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283616AbRLEAuE>; Tue, 4 Dec 2001 19:50:04 -0500
+	id <S283639AbRLEAty>; Tue, 4 Dec 2001 19:49:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283621AbRLEAtz>; Tue, 4 Dec 2001 19:49:55 -0500
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:63751 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S283616AbRLEAtq>; Tue, 4 Dec 2001 19:49:46 -0500
-Date: Tue, 4 Dec 2001 16:49:41 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Endianness-aware mkcramfs
-Message-ID: <20011204164941.A29968@one-eyed-alien.net>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C0BD8FD.F9F94BE0@mvista.com> <3C0CB59B.EEA251AB@lightning.ch> <9uj5fb$1fm$1@cesium.transmeta.com> <20011205013630.C717@nightmaster.csn.tu-chemnitz.de> <3C0D6CB6.7000905@zytor.com>
+	id <S283621AbRLEAto>; Tue, 4 Dec 2001 19:49:44 -0500
+Received: from 238-VALL-X5.libre.retevision.es ([62.83.215.238]:40455 "EHLO
+	ragnar-hojland.com") by vger.kernel.org with ESMTP
+	id <S283616AbRLEAth>; Tue, 4 Dec 2001 19:49:37 -0500
+Date: Tue, 4 Dec 2001 00:02:21 +0100
+From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.16: kmalloc tidying
+Message-ID: <20011204000221.B1034@ragnar-hojland.com>
+In-Reply-To: <20011203193751.A10125@ragnar-hojland.com> <E16BBxS-0001Pn-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C0D6CB6.7000905@zytor.com>; from hpa@zytor.com on Tue, Dec 04, 2001 at 04:39:18PM -0800
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+In-Reply-To: <E16BBxS-0001Pn-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Dec 04, 2001 at 09:33:46AM +0000
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 04, 2001 at 09:33:46AM +0000, Alan Cox wrote:
+> > +++ linux-2.4.16/drivers/sbus/char/envctrl.c	Tue Nov 13 05:31:02 2001
+> > @@ -897,10 +897,6 @@ static void envctrl_init_i2c_child(struc
+> >  		}
+> > =20
+> >                  pchild->tables =3D kmalloc(tbls_size, GFP_KERNEL);
+> > -		if (!pchild->tables) {
+> > -			printk("envctrl: Failed to get table, not enough memory.\n");
+> 
+> Why are you removing the checks here ?
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hrmpf.. reversed patch, I was actually adding them.
 
-There is another argument for supporting both endiannesses....
+> >  	current->mm->rss =3D 0;
+> > -	setup_arg_pages(bprm); /* XXX: check error */
+> > +	retval =3D setup_arg_pages(bprm);
+> > +	if (retval)=20
+> > +		goto out_free_dentry;
+> 
+> At this point you need to do more drastic things - see the last -ac patch
+> for a possible solution
 
-Consider an embedded system which can be run in either endianness.  Sounds
-silly?  MIPS processors can run big or little endian, and many people
-routinely switch between them.
+That does sound entertaining.. :)
 
-Matt
-
-On Tue, Dec 04, 2001 at 04:39:18PM -0800, H. Peter Anvin wrote:
-> Ingo Oeser wrote:
->=20
-> >=20
-> > Yes, from a CS point of view.=20
-> >=20
-> > But practically cramfs is created once to contain some kind of
-> > ROM for embedded devices. So if we never modify these data again,
-> > why not creating it in the required byte order?=20
-> >=20
-> > Why wasting kernel cycles for le<->be conversion? Just because
-> > it's more general? For writable general purpose file systems it
-> > makes sense, but to none of romfs, cramfs etc.
-> >=20
->=20
->=20
-> Because otherwise you far too easily end up in a situation where every
-> system suddenly need to be able to support *BOTH* endianisms, at which
-> point you're really screwed; supporting dual endianism is significantly
-> more expensive than supporting the "wrong" endianism, and it affects all
-> systems.
->=20
-> Nip this one in the bud.
->=20
-> 	-hpa
->=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-M:  No, Windows doesn't have any nag screens.
-C:  Then what are those blue and white screens I get every day?
-					-- Mike and Cobb
-User Friendly, 1/4/1999
-
---vkogqOf2sHV7VnPd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8DW8lz64nssGU+ykRAuFAAKDYjdcFn0R/2fSyZfT36yIfN3dhzACeMPRZ
-pNWppLlrw8i2BtiO8O2QoPA=
-=oqd1
------END PGP SIGNATURE-----
-
---vkogqOf2sHV7VnPd--
+-- 
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."

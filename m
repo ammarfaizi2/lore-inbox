@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130466AbRC3DGt>; Thu, 29 Mar 2001 22:06:49 -0500
+	id <S130552AbRC3FBS>; Fri, 30 Mar 2001 00:01:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130470AbRC3DGk>; Thu, 29 Mar 2001 22:06:40 -0500
-Received: from asbestos.brocade.com ([63.121.140.244]:16847 "EHLO
-	mail.brocade.com") by vger.kernel.org with ESMTP id <S130466AbRC3DGb>;
-	Thu, 29 Mar 2001 22:06:31 -0500
-Message-ID: <3AC3F91B.4020804@muppetlabs.com>
-Date: Thu, 29 Mar 2001 19:10:19 -0800
-From: Amit D Chaudhary <amit@muppetlabs.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-8 i686; en-US; 0.8.1) Gecko/20010326
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S130532AbRC3FBJ>; Fri, 30 Mar 2001 00:01:09 -0500
+Received: from chambertin.convergence.de ([212.84.236.2]:8204 "EHLO
+	chambertin.convergence.de") by vger.kernel.org with ESMTP
+	id <S130531AbRC3FBA>; Fri, 30 Mar 2001 00:01:00 -0500
+Date: Fri, 30 Mar 2001 07:04:29 +0200
 To: linux-kernel@vger.kernel.org
-Subject: Re: Memory leak in the ramfs file system
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: bug in natsemi driver 1.07 for linux 2.4.2
+Message-ID: <20010330070429.A20125@teenix.convergence.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+From: Sebastian Klemke <packet@convergence.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >(none):/mnt/ramfs/root# df -h /mnt/ramfs/
- >Filesystem            Size  Used Avail Use% Mounted on
- >ramfs                    0     0     0   -  /mnt/ramfs
-I am not sure, how related this is, but we have / on ramfs and using rpm 
-to install(-iUvh) fails with the mesages, need 12K on /
+Hi!
+
+The driver for the natsemi NIC does not properly filter out requested
+multicast groups when in multicast mode.  Multicast groups I joined
+are simply dropped by the MAC address filter of the card, the kernel
+filters them correctly in allmulti or promiscuous mode. I've tested
+driver versions 1.05 which comes with linux 2.4.2, an older version
+that came with linux-2.4.0test12 and 1.07 which came with 2.4.2-ac20.
+
+I contacted Donald Becker and he told me to post it here.
 
 
-Amit
+Read U!
 
+packet

@@ -1,76 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263026AbUCLXZe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 18:25:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263034AbUCLXZe
+	id S262521AbUCLXbn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 18:31:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263042AbUCLX3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 18:25:34 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:8389 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263026AbUCLXZZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 18:25:25 -0500
-Message-ID: <4052465F.4010201@cyberone.com.au>
-Date: Sat, 13 Mar 2004 10:23:11 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Fri, 12 Mar 2004 18:29:10 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:64966 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263024AbUCLX0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 18:26:41 -0500
+Date: Fri, 12 Mar 2004 18:26:39 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: long <tlnguyen@snoqualmie.dp.intel.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       davidm@napali.hpl.hp.com, grep@kroah.com, jgarzik@pobox.com,
+       jun.nakajima@intel.com, tom.l.nguyen@intel.com, tony.luck@intel.com
+Subject: Re: RE[PATCH]2.6.4-rc3 MSI Support for IA64
+In-Reply-To: <200403130008.i2D08SMQ011709@snoqualmie.dp.intel.com>
+Message-ID: <Pine.LNX.4.58.0403121743310.29087@montezuma.fsmlabs.com>
+References: <200403130008.i2D08SMQ011709@snoqualmie.dp.intel.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: smurf@smurf.noris.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
-References: <404FACF4.3030601@cyberone.com.au>	<200403111825.22674@WOLK>	<40517E47.3010909@cyberone.com.au>	<20040312012703.69f2bb9b.akpm@osdl.org>	<pan.2004.03.12.11.08.02.700169@smurf.noris.de>	<4051B0C6.2070302@cyberone.com.au>	<4051C5F1.2050605@cyberone.com.au> <20040312111228.3425780b.akpm@osdl.org>
-In-Reply-To: <20040312111228.3425780b.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 Mar 2004, long wrote:
 
+> Thanks for all inputs received from the previous patch posted a few
+> weeks ago. Based on Zwane Mwaikambo's suggestion of using a
+> standard name like assign_irq_vector(), we made some changes to
+> the previous posted patch. Attached is an update version, based on
+> kernel 2.6.4-rc3.
 
-Andrew Morton wrote:
+Thanks for doing this, i have a few comments;
 
->Nick Piggin <piggin@cyberone.com.au> wrote:
+> diff -urN linux-2.6.4-rc3/arch/ia64/kernel/irq_ia64.c linux-2.6.4-rc3-msi/arch/ia64/kernel/irq_ia64.c
+> --- linux-2.6.4-rc3/arch/ia64/kernel/irq_ia64.c	2004-03-09 19:00:26.000000000 -0500
+> +++ linux-2.6.4-rc3-msi/arch/ia64/kernel/irq_ia64.c	2004-03-11 14:52:57.000000000 -0500
+> @@ -60,12 +60,18 @@
+>  int
+>  ia64_alloc_vector (void)
+>  {
+> +#ifdef CONFIG_PCI_USE_VECTOR
+> +	extern int assign_irq_vector(int irq);
+> +
+> +	return assign_irq_vector(AUTO_ASSIGN);
+> +#else
+>  	static int next_vector = IA64_FIRST_DEVICE_VECTOR;
 >
->>Just had a try of doing things like updatedb and dd if=/dev/zero of=./blah
->>It is pretty swappy I guess.
->>
->
->You'll need to bring the scanning priority back into the picture: don't
->move mapped pages down onto the inactive list at low scanning priorities. 
->And that eans retaining the remember-the-priority-from-last-time logic.
->
->Otherwise it's inevitable that even a `cat monster_file > /dev/null' will
->eventually swap out everything it can.
->
->
+>  	if (next_vector > IA64_LAST_DEVICE_VECTOR)
+>  		/* XXX could look for sharable vectors instead of panic'ing... */
+>  		panic("ia64_alloc_vector: out of interrupt vectors!");
+>  	return next_vector++;
+> +#endif
+>  }
 
-Hmm I dunno. At mapped_page_cost 8, I don't think it is swappy enough
-that your desktop users will be running into problems. I need to write
-4GB of file to push out 70MB of swap here (256MB RAM). And not much of
-that swap has come back in, by the way...
+This one is slightly confusing readability wise since ia64 already does
+the vector based interrupt numbering. Perhaps CONFIG_PCI_USE_VECTOR should
+really be CONFIG_MSI but that's up to you. I wonder if we could
+consolidate these vector allocators as assign_irq_vector(AUTO_ASSIGN) has
+the same semantics as ia64_alloc_vector() and the one for i386 is also
+almost the same as its MSI ilk.
 
->>By the way, I would be interested to know the rationale behind
->>mark_page_accessed as it is without this patch, also what is it doing in
->>rmap.c (I know hardly anything actually uses page_test_and_clear_young, but
->>still). It seems to me like it only serves to make VM behaviour harder to
->>understand, but I'm probably missing something. Andrew?
->>
->
->hm, that's left-over code which is pretty pointless now.
->
->
->	if (page_test_and_clear_young(page))
->		mark_page_accessed(page);
->
->	if (TestClearPageReferenced(page))
->		referenced++;
->
->The pages in here are never on the LRU, so all the mark_page_accessed()
->will do is to set PG_Referenced.  And we immediately clear it again.  So
->the mark_page_accessed() can be replaced with referenced++.
->
->
->
+> +static inline int vector_resources(void)
+> +{
+> + 	int res;
+> +#ifndef CONFIG_IA64
+> + 	int i, repeat;
+> + 	for (i = NR_REPEATS; i > 0; i--) {
+> + 		if ((FIRST_DEVICE_VECTOR + i * 8) > FIRST_SYSTEM_VECTOR)
+> + 			continue;
+> + 		break;
+> + 	}
+> + 	i++;
+> + 	repeat = (FIRST_SYSTEM_VECTOR - FIRST_DEVICE_VECTOR)/i;
+> + 	res = i * repeat - NR_RESERVED_VECTORS + 1;
+>  #else
+> -extern void restore_ioapic_irq_handler(int irq);
+> + 	res = LAST_DEVICE_VECTOR - FIRST_DEVICE_VECTOR - 1;
+>  #endif
+> +
+> + 	return res;
+> +}
 
-Yep, see the patch I'd attached before.
+Is this supposed to return number of vectors available for external
+devices? Also regarding vector allocation, assign_irq_vector() in
+drivers/pci/msi.c only can allocate 166 vectors before going -ENOSPC is
+this intentional?
 
+Thanks,
+	Zwane

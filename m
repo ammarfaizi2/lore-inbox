@@ -1,53 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265316AbUAJTSs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 14:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265319AbUAJTSs
+	id S265303AbUAJTPt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 14:15:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265316AbUAJTPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 14:18:48 -0500
-Received: from [202.28.93.1] ([202.28.93.1]:1034 "EHLO gear.kku.ac.th")
-	by vger.kernel.org with ESMTP id S265316AbUAJTSp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 14:18:45 -0500
-Date: Sun, 11 Jan 2004 02:18:25 +0700
-From: Kitt Tientanopajai <kitt@gear.kku.ac.th>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 reports wrong CPU/Bus frequency
-Message-Id: <20040111021825.797b25b3.kitt@gear.kku.ac.th>
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jan 2004 14:15:49 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:33166 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S265303AbUAJTPr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 14:15:47 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None that appears to be detectable by casual observers
+To: Martin Schlemmer <azarah@nosferatu.za.org>,
+       John Lash <jlash@speakeasy.net>
+Subject: Re: Q re /proc/bus/i2c
+Date: Sat, 10 Jan 2004 14:15:46 -0500
+User-Agent: KMail/1.5.1
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200401100117.42252.gene.heskett@verizon.net> <20040110095911.7b99d40c.jlash@speakeasy.net> <1073758800.9096.12.camel@nosferatu.lan>
+In-Reply-To: <1073758800.9096.12.camel@nosferatu.lan>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401101415.46745.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.61.108] at Sat, 10 Jan 2004 13:15:46 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Saturday 10 January 2004 13:20, Martin Schlemmer wrote:
+>On Sat, 2004-01-10 at 17:59, John Lash wrote:
+>> In a 2.6.x kernel, the sensors information is kept in sysfs. I
+>> haven't actually tried installing lmsensors on my 2.6 system, but
+>> if I look in: /sys/bus/i2c/devices/0-002d/
+>> I can see files for all of the sensors on my system.
+>>
+>> Check below in your last mail where it is complaining about
+>> "Algorithm: Unavailable from sysfs".
+>
+>Right, needs sysfs mounted.  You should (after creating /sys) add
+>the following to /etc/fstab:
+>
+>--
+>none	/sys	sysfs	defaults	0 0
+>--
 
-I have installed 2.6 kernel on my notebook and it seems that the kernel reports wrong CPU and bus frequency. My notebook is Acer TravelMate 361Evi, P-III Mobile CPU 1 GHz, and 133 MHz bus. The 2.6 kernel shows something like:
+>From my fstab, and its been there for several months now:
+---
+none    /sys    sysfs   defaults        0 0
+---
+Also, from my mtab:
+Well, I was gonna quote that too, but apparently my entry in 
+rc.sysinit doesn't record it in mtab.  I've got a message in the log 
+to the effect that its already mounted or is otherwise busy.  I'd put 
+that line in rc.sysinit a few (2-3) weeks ago, thinking it needed to 
+be done earlier than the fstab driven mount.  I'll remove it from 
+rc.sysinit and reboot for effects.
 
-Jan 10 19:01:01 peorth kernel: Detected 1113.758 MHz processor.
-...
-Jan 10 19:01:01 peorth kernel: Calibrating delay loop... 1544.19 BogoMIPS
-...
-Jan 10 19:01:01 calibrating APIC timer ...
-Jan 10 19:01:01 peorth kernel: ..... CPU clock speed is 1329.0639 MHz.
-Jan 10 19:01:01 peorth kernel: ..... host bus clock speed is 177.0285 MHz.
+Done.
 
-For 2.4.x, they are:
+I also moved the mount of /proc/bus/usb to fstab while I was at it, 
+and they are all recorded in mtab now:
+---
+none /proc/bus/usb usbfs rw 0 0
+none /sys sysfs rw 0 0
+---
+But the response from sensors is still as I posted before, "Algorithm: 
+Unavailable from sysfs"
 
-Jan  9 14:29:00 peorth kernel: Detected 999.905 MHz processor.
-...
-Jan  9 14:29:00 peorth kernel: Calibrating delay loop... 1992.29 BogoMIPS
-....
-Jan  9 14:29:01 peorth kernel: calibrating APIC timer ...
-Jan  9 14:29:01 peorth kernel: ..... CPU clock speed is 999.8676 MHz.
-Jan  9 14:29:01 peorth kernel: ..... host bus clock speed is 133.3155 MHz.
+tvtime still works, so thats promising.  Sounds like they (the Feed 
+Bag Information folks) got something/someone(s) trapped on a plane at 
+Dulles according to FOX News, who are of course makeing the usual 
+mountain out of whats probably a molehill.
 
-I've tested this on 2.6.0-test11/2.6.0/2.6.1/2.6.1-mm1/2.6.1-mm2, none of them report the freq/bogomips near to those reported by 2.4.x. 
+Next thing to check?
 
-And, I'm not sure this is a related issue but, on 2.6 I got about 490 fps of glxgears, while I got about 600 fps on 2.4. hdparm -tT reports about the same for 2.4 and 2.6.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-Any clue why 2.6 reports wrong freq ? Does this affect the performance/stability of the system, or else ? The system seems to run 2.6 without any other problems by the way.
-
-Thanks in advance,
-kitty

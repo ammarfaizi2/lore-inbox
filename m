@@ -1,31 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265636AbRGYVsO>; Wed, 25 Jul 2001 17:48:14 -0400
+	id <S266198AbRGYVjY>; Wed, 25 Jul 2001 17:39:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266582AbRGYVsE>; Wed, 25 Jul 2001 17:48:04 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:199 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S265636AbRGYVrv>; Wed, 25 Jul 2001 17:47:51 -0400
-Message-ID: <3B5F3E7B.6C7281AC@austin.ibm.com>
-Date: Wed, 25 Jul 2001 16:47:39 -0500
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: reiserfs-dev@namesys.com, andrea@suse.de, linux-kernel@vger.kernel.org,
-        mauelshagen@sistina.com, Holger Smolinski <HSmolinski@de.ibm.com>,
-        Horst Hummel <Horst.Hummel@de.ibm.com>
-Subject: Re: [Jfs-discussion] Design-Question: end_that_request_* and 
- bh->b_end_io hooks
-In-Reply-To: <200107252104.f6PL4Kn03703@shaggy.austin.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S266603AbRGYVjO>; Wed, 25 Jul 2001 17:39:14 -0400
+Received: from quechua.inka.de ([212.227.14.2]:17202 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S265636AbRGYVjE>;
+	Wed, 25 Jul 2001 17:39:04 -0400
+From: Bernd Eckenfels <W1012@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: route problem.. kernel/driver ?
+In-Reply-To: <Pine.GSO.4.33.0107251342100.14023-100000@noella.mindsec.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E15PWN6-0001IA-00@sites.inka.de>
+Date: Wed, 25 Jul 2001 23:39:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Oops!  I shouldn't have sent the patch to everyone on the cc list.  I
-wasn't paying attention.  I'm sorry everyone!
+In article <Pine.GSO.4.33.0107251342100.14023-100000@noella.mindsec.com> you wrote:
+> I'm at a loss.. Any thoughts?
 
-Dave Kleikamp
+Just dont use two default routes.
+
+Greetings
+Bernd

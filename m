@@ -1,65 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264646AbTARL11>; Sat, 18 Jan 2003 06:27:27 -0500
+	id <S264654AbTARLcG>; Sat, 18 Jan 2003 06:32:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264654AbTARL11>; Sat, 18 Jan 2003 06:27:27 -0500
-Received: from B55aa.pppool.de ([213.7.85.170]:44937 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S264646AbTARL10>; Sat, 18 Jan 2003 06:27:26 -0500
-Subject: Re: any brand recomendation for a linux laptop ?
-From: Daniel Egger <degger@fhm.edu>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b091tq$hnc$1@forge.intermeta.de>
-References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
-	 <1042733652.18213.35.camel@sonja>  <b091tq$hnc$1@forge.intermeta.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dn5fxb6UVTBUfkWx2IrG"
-Organization: 
-Message-Id: <1042889460.25582.17.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 18 Jan 2003 12:31:01 +0100
+	id <S264657AbTARLcF>; Sat, 18 Jan 2003 06:32:05 -0500
+Received: from tomts14-srv.bellnexxia.net ([209.226.175.35]:51148 "EHLO
+	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S264654AbTARLcE>; Sat, 18 Jan 2003 06:32:04 -0500
+Date: Sat, 18 Jan 2003 06:40:39 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: questions about config files, I2C and hardware sensors (2.5.59)
+In-Reply-To: <3E28B099.4E85C56D@linux-m68k.org>
+Message-ID: <Pine.LNX.4.44.0301180638080.25212-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 18 Jan 2003, Roman Zippel wrote:
 
---=-dn5fxb6UVTBUfkWx2IrG
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Hi,
+> 
+> "Robert P. J. Day" wrote:
+> 
+> >   so the issues:
+> > 
+> > 1) trivial: comment is wrong, there is no dependency on
+> >    EXPERIMENTAL
+> 
+> This has to be answered by the I2C maintainer.
+> 
+> > 2) since, in the sourcing Kconfig file, I2C_PROC *already* depends
+> >    on I2C, is there any practical value in having the dependency
+> >    "I2C && I2C_PROC".  wouldn't "depends on I2C_PROC" be sufficient?
+> 
+> Yes.
+> 
+> > 3) finally, given that the comment at the top is adamant that
+> >    all of these options depend on I2C and I2C_PROC, wouldn't it
+> >    be cleaner to just make the menu itself say:
+> > 
+> >    menu "I2C HW Sensors Mainboard Support"
+> >         depends on I2C && I2C_PROC              (or just I2C_PROC)
+> >         ...
+> > 
+> >    and let the internal options inherit this dependency?
+> 
+> Yes, the menu entry needs the dependencies as well.
+> 
+> bye, Roman
 
-Am Fre, 2003-01-17 um 14.54 schrieb Henning P. Schmiedehausen:
-
-> One button mouse. Unusable keyboard --> Trash Can. An Apple notebook is
-> nice for, well, DVD watching and web surfing. Not for real work.
-
-FUD. The keyboard is a matter of taste and I for one haven't seen a
-better one fitting my typing needs. One mouse button is not a problem
-on the road, because I rarely need a mouse at all and the others are
-emulated. When really needing a mouse a trackpad is not a solution=20
-anyway because it often doesn't come with a scrollwheel (which would
-disqualify most notebooks but a few Sony Vaios anyway), solution is
-an external mouse which I always have with me (and also had to have with
-any other notebook I had so far FWIW).
-
-You can see quite a few developers in the opensource scene with an Apple
-notebook and you would be surprised where some applications would be
-today if those notebooks where "not for real work".
-
---
-Servus,
-       Daniel
-
---=-dn5fxb6UVTBUfkWx2IrG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+KTr0chlzsq9KoIYRAkd7AJwNbwWO/B6jWiOoNNhAq0LA/OF4oQCfXApL
-M5i5yLNO/5dz8qpPnp0DKfw=
-=sZW4
------END PGP SIGNATURE-----
-
---=-dn5fxb6UVTBUfkWx2IrG--
+-------------------------------------------------------------------------
+diff -urN linux-2.5.59/drivers/i2c/busses/Kconfig linux-new/drivers/i2c/busses/Kconfig
+--- linux-2.5.59/drivers/i2c/busses/Kconfig	2003-01-17 07:13:08.000000000 -0500
++++ linux-new/drivers/i2c/busses/Kconfig	2003-01-17 07:14:58.000000000 -0500
+@@ -1,13 +1,13 @@
+ #
+ # Sensor device configuration
+-# All depend on EXPERIMENTAL, I2C and I2C_PROC.
++# All depend on I2C_PROC.
+ #
+ 
+ menu "I2C Hardware Sensors Mainboard support"
++	depends on I2C_PROC
+ 
+ config I2C_AMD756
+ 	tristate "  AMD 756/766"
+-	depends on I2C && I2C_PROC
+ 	help
+ 	  If you say yes to this option, support will be included for the AMD
+ 	  756/766/768 mainboard I2C interfaces.
+@@ -24,7 +24,6 @@
+ 
+ config I2C_AMD8111
+ 	tristate "  AMD 8111"
+-	depends on I2C && I2C_PROC
+ 	help
+ 	  If you say yes to this option, support will be included for the AMD
+ 	  8111 mainboard I2C interfaces.
+diff -urN linux-2.5.59/drivers/i2c/chips/Kconfig linux-new/drivers/i2c/chips/Kconfig
+--- linux-2.5.59/drivers/i2c/chips/Kconfig	2003-01-17 07:13:08.000000000 -0500
++++ linux-new/drivers/i2c/chips/Kconfig	2003-01-17 07:14:58.000000000 -0500
+@@ -1,13 +1,13 @@
+ #
+ # Sensor device configuration
+-# All depend on EXPERIMENTAL, I2C and I2C_PROC.
++# All depend on I2C_PROC.
+ #
+ 
+ menu "I2C Hardware Sensors Chip support"
++	depends on I2C_PROC
+ 
+ config SENSORS_ADM1021
+ 	tristate "  Analog Devices ADM1021 and compatibles"
+-	depends on I2C && I2C_PROC
+ 	help
+ 	  If you say yes here you get support for Analog Devices ADM1021 
+ 	  and ADM1023 sensor chips and clones: Maxim MAX1617 and MAX1617A,
+@@ -24,7 +24,6 @@
+ 
+ config SENSORS_LM75
+ 	tristate "  National Semiconductors LM75 and compatibles"
+-	depends on I2C && I2C_PROC
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM75
+ 	  sensor chips and clones: Dallas Semi DS75 and DS1775, TelCon
 

@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSH0JtN>; Tue, 27 Aug 2002 05:49:13 -0400
+	id <S315457AbSH0JyF>; Tue, 27 Aug 2002 05:54:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315457AbSH0JtN>; Tue, 27 Aug 2002 05:49:13 -0400
-Received: from hal.astr.lu.lv ([195.13.134.67]:29830 "EHLO hal.astr.lu.lv")
-	by vger.kernel.org with ESMTP id <S315454AbSH0JtM> convert rfc822-to-8bit;
-	Tue, 27 Aug 2002 05:49:12 -0400
-From: Andris Pavenis <pavenis@latnet.lv>
-To: linux-kernel@vger.kernel.org
-Subject: Linux-2.4.20-pre4-ac1: i810_audio broken
-Date: Tue, 27 Aug 2002 12:53:12 +0300
-User-Agent: KMail/1.4.6
-Cc: Doug Ledford <dledford@redhat.com>
+	id <S315458AbSH0JyF>; Tue, 27 Aug 2002 05:54:05 -0400
+Received: from [195.185.133.146] ([195.185.133.146]:9739 "HELO
+	gateway.hottinger.de") by vger.kernel.org with SMTP
+	id <S315457AbSH0JyE> convert rfc822-to-8bit; Tue, 27 Aug 2002 05:54:04 -0400
+Message-ID: <D3524C0FFDC6A54F9D7B6BBEECD341D5D56FDB@HBMNTX0.da.hbm.com>
+From: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: interrupt latency
+Date: Tue, 27 Aug 2002 11:58:12 +0200
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-  charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200208271253.12192.pavenis@latnet.lv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Found that i810_audio has been broken in kernel 2.4.20-pre4-ac1. It was Ok with 
-2.4.20-pre1-ac1 I used before.
+Hello,
 
-With 2.4.20-pre4-ac1 I'm only getting garbled sound and kernel messages (see below).
-Didn't have time yet to study mire detailed which change breaks driver.
+I am running and will in near future kernel 2.4.18 on an embedded system.
 
-In Alan's changelog I see:
+I have to speed up interrupt latency and need to understand how in what
+timing tasklets are called and arbitraded.
 
-2.4.20-pre2-ac5: Further i810_audio updates for 845 (Juergen Sawinski) 
-2.4.20-pre1-ac3: Tidy up error paths on i810_audio init (Alan) 
-2.4.20-pre1-ac2: First set of i810 audio updates (Doug Ledford) 
+I have to dig deep, but the kernel tree is quiet huge. As a non kernel
+programmer I ask you, if anyone could give me a hint, where to start reading
+from and which kernel source to pick first.
 
-Andris
+Any help highly appreaciated. 
+(BTW: I will not bother you personaly with further questions unless you give
+permission.)
 
------- at startup -----------------
-Intel 810 + AC97 Audio, version 0.22, 11:18:00 Aug 26 2002
-PCI: Found IRQ 5 for device 00:1f.5
-PCI: Sharing IRQ 5 with 00:1f.3
-PCI: Setting latency timer of device 00:1f.5 to 64
-i810: Intel ICH 82801AA found at IO 0xe100 and 0xe000, MEM 0x0000 and 0x0000, IRQ 5
-i810_audio: Audio Controller supports 2 channels.
-i810_audio: Defaulting to base 2 channel mode.
-i810_audio: resetting hw channel 0
-ac97_codec: AC97 Audio codec, id: 0x4144:0x5348 (Analog Devices AD1881A)
-i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's not present), to
------- error messages  ------------
-i810_audio: DMA overrun on write
-i810_audio: CIV 0, LVI 27, hwptr 253a, count -13626
-i810_audio: DMA overrun on write
-i810_audio: CIV 0, LVI 27, hwptr 2662, count -296
-i810_audio: DMA overrun on write
-i810_audio: CIV 0, LVI 27, hwptr 2662, count -296
-i810_audio: DMA overrun on write
-i810_audio: CIV 0, LVI 27, hwptr 266a, count -8
-i810_audio: DMA overrun on write
-i810_audio: CIV 1, LVI 31, hwptr 2924, count -10526
-i810_audio: DMA overrun on write
-i810_audio: CIV 1, LVI 31, hwptr 2924, count -10526
-i810_audio: DMA overrun on write
-i810_audio: CIV 0, LVI 3, hwptr 253a, count -5434
-i810_audio: DMA overrun on write
-i810_audio: CIV 0, LVI 3, hwptr 2562, count -40
-......
 
----------  error message from artsd (KDE-3.1 beta1) -------
-Sound server fatal error:
-AudioSubSystem::handleIO: write failed
-len = 3228, can_write = 4096, errno = 17 (File exists)
-This might be a sound hardware/driver specific problem (see aRts FAQ)
+What's behind it: We patched NMI and do some stuff we have to do very
+regularly in there. After NMI we have to quiet fast start a kernel or even a
+user space function with low latency. Also I measured 8 milliseconds after a
+hardware interrupt before the corresponding interrupt function is called. At
+RTI time it is even longer (around 12 microseconds). Need to find a way to
+exactly understand why, and maybe speed up a bit.
 
--------------------------------------------------------------------- 
-Kernel was compiled with gcc-3.1 (like earlier kernels where i810_audio worked
-Ok)
+Thank You.
+Siegfried.
+
+
+-------------
+HBM - Hottinger Baldwin Messtechnik GmbH
+Siegfried Wessler, Dipl.-Ing.
+Entwicklung Messverstärker T-V
+Im Tiefen See 45, D-64293 Darmstadt
+Fon: 06151/803-884, Fax: -524
+eMail: siegfried.wessler@hbm.com
+ 

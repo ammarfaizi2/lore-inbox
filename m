@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318266AbSIGP6Q>; Sat, 7 Sep 2002 11:58:16 -0400
+	id <S318270AbSIGQCR>; Sat, 7 Sep 2002 12:02:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318270AbSIGP6Q>; Sat, 7 Sep 2002 11:58:16 -0400
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:41201 "EHLO
-	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S318266AbSIGP6P>; Sat, 7 Sep 2002 11:58:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Eli <eli@pflash.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: IO errors: SanDisk ImageMate USB CF, SD, MMC reader
-Date: Sat, 7 Sep 2002 11:04:38 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10209070045030.11256-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10209070045030.11256-100000@master.linux-ide.org>
+	id <S318767AbSIGQCR>; Sat, 7 Sep 2002 12:02:17 -0400
+Received: from packet.digeo.com ([12.110.80.53]:38793 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S318270AbSIGQCR>;
+	Sat, 7 Sep 2002 12:02:17 -0400
+Message-ID: <3D7A2768.E5C85EB@digeo.com>
+Date: Sat, 07 Sep 2002 09:20:56 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ni2x-0001BU-00@snipe.mail.pas.earthlink.net>
+To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: LMbench2.0 results
+References: <20020907121854.10290.qmail@linuxmail.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Sep 2002 16:06:51.0368 (UTC) FILETIME=[93B88680:01C25688]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 07 September 2002 02:46 am, Andre Hedrick wrote:
-> Because SD is DRM and since the method to double pump a split read/write10
-> across the bus is not very simple nor public, there is legal problem.
-> I suspect I just got myself one for even mentioning the stuff above.
+Paolo Ciarrocchi wrote:
+> 
+> Hi all,
+> I've just ran lmbench2.0 on my laptop.
+> Here the results (again, 2.5.33 seems to be "slow", I don't know why...)
+> 
 
-But I am not using SD.  I'm using CF.  Why would the above affect CF, and 
-only the 128MB CF and not the 8MB CF?
+The fork/exec/mmap slowdown is the rmap overhead.  I have some stuff
+which partialy improves it.
 
-Thanks for responding,
-
-Eli
-retracile(a)earthlink.net
+The many-small-file-create slowdown is known but its cause is not.
+I need to get oprofile onto it.

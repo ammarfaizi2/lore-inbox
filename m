@@ -1,61 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261890AbSJNIZg>; Mon, 14 Oct 2002 04:25:36 -0400
+	id <S261874AbSJNI35>; Mon, 14 Oct 2002 04:29:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261933AbSJNIZg>; Mon, 14 Oct 2002 04:25:36 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:27277 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261890AbSJNIZf>;
-	Mon, 14 Oct 2002 04:25:35 -0400
-Date: Mon, 14 Oct 2002 10:30:32 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: James Simmons <jsimmons@infradead.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: fbdev changes.
-In-Reply-To: <20021013225159.GB5348@ppc.vc.cvut.cz>
-Message-ID: <Pine.GSO.4.21.0210141020550.9580-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261878AbSJNI35>; Mon, 14 Oct 2002 04:29:57 -0400
+Received: from rj.sgi.com ([192.82.208.96]:36068 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S261874AbSJNI34>;
+	Mon, 14 Oct 2002 04:29:56 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Announce: kdb v2.3 is available for kernel 2.5.42
+Date: Mon, 14 Oct 2002 18:33:43 +1000
+Message-ID: <27994.1034584423@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Oct 2002, Petr Vandrovec wrote:
-> On Sun, Oct 13, 2002 at 01:27:08PM -0700, James Simmons wrote:
-> > Second change!! We need a uiversal cursor api. I purposed some time ago a
-> > api but nothing happend.I like to resolve this final part to remove th
-> > last bit of console crude from the fbdev layer.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-  [...]
+Content-Type: text/plain; charset=us-ascii
 
-> And what is meaning of image when mask is 1? For b&w cursors
-> we need 0, 1, transparent and inverse.
+ftp://oss.sgi.com/projects/kdb/download/v2.3/
 
-Note that not all hardware supports inverse.
-And on some hardware the cursor palette is shared with the screen palette,
-that's why I had fb_fix_cursorinfo.crsr_color[12] in the original cursor API.
+  kdb-v2.3-2.5.42-common-1.bz2
+  kdb-v2.3-2.5.42-i386-1.bz2
 
-E.g. Amiga graphics don't have inverse. There are 8 sprites, each can have 3
-colors (+ transparency). The colors are shared with the screen palette (unless
-your screen has at most 16 colors):
-  - sprites 0 and 1: transparent, palette[17], palette[18], palette[19]
-  - sprites 2 and 3: transparent, palette[21], palette[22], palette[23]
-  - sprites 4 and 5: transparent, palette[25], palette[26], palette[27]
-  - sprites 6 and 7: transparent, palette[29], palette[30], palette[31]
-There's also a special mode to combine an even an odd sprite to form a 15-color
-(+ transparency) sprite.
+The usb keyboard patch has been merged from kdb v2.3-2.4.19-{common,i386}.
+It does not compile on 2.5.42, the APIs have changed.  If you can help
+with usb polling support for kdb, grep for CONFIG_KDB_USB.  Without
+community support, the usb support will be dropped.
 
-Yes, it can be difficult to find a _good_ API ;-)
+Changelog extracts.
 
-Gr{oetje,eeting}s,
+2.5.42-common-1
 
-						Geert
+2002-10-14 Keith Owens  <kaos@sgi.com>
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+	* Upgrade to 2.5.42.
+	* kdb v2.3-2.5.42-common-1.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+2.5.42-i386-1
+
+2002-10-14 Keith Owens  <kaos@sgi.com>
+
+	* Upgrade to 2.5.42.
+	* kdb v2.3-2.5.42-i386-1.
+
+
+No kdb patch for ia64 until there is a more recent ia64 kernel patch
+for 2.5.
+
+
+v2.3/README
+
+Starting with kdb v2.0 there is a common patch against each kernel which
+contains all the architecture independent code plus separate architecture
+dependent patches.  Apply the common patch for your kernel plus at least
+one architecture dependent patch, the architecture patches activate kdb.
+
+The naming convention for kdb patches is :-
+
+ vx.y	 The version of kdb.  x.y is updated as new features are added to kdb.
+ -v.p.s	 The kernel version that the patch applies to.  's' may include -pre,
+	 -rc or whatever numbering system the kernel keepers have thought up this
+	 week.
+ -common The common kdb code.  Everybody needs this.
+ -i386	 Architecture dependent code for i386.
+ -ia64	 Architecture dependent code for ia64, etc.
+ -n	 If there are multiple kdb patches against the same kernel version then
+	 the last number is incremented.
+
+To build kdb for your kernel, apply the common kdb patch which is less
+than or equal to the kernel v.p.s, taking the highest value of '-n'
+if there is more than one.  Apply the relevant arch dependent patch
+with the same value of 'vx.y-v.p.s-', taking the highest value of '-n'
+if there is more than one.
+
+For example, to use kdb for i386 on kernel 2.5.42, apply
+  kdb-v2.3-2.5.42-common-<n>		(use highest value of <n>)
+  kdb-v2.3-2.5.42-i386-<n>		(use highest value of <n>)
+in that order.
+
+Use patch -p1 for all patches.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE9qoFmi4UHNye0ZOoRAvf9AJ4j5uiE0xRbHZvjKSGwZh2PwrkZNgCeP0b5
+8ySDOp9lGpLVrjSOBCPIKMg=
+=9uh6
+-----END PGP SIGNATURE-----
 

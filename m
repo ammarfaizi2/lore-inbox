@@ -1,80 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277034AbRJQSkx>; Wed, 17 Oct 2001 14:40:53 -0400
+	id <S277046AbRJQSqd>; Wed, 17 Oct 2001 14:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277046AbRJQSkg>; Wed, 17 Oct 2001 14:40:36 -0400
-Received: from kaa.perlsupport.com ([205.245.149.25]:16905 "EHLO
-	kaa.perlsupport.com") by vger.kernel.org with ESMTP
-	id <S277047AbRJQSkV>; Wed, 17 Oct 2001 14:40:21 -0400
-Date: Wed, 17 Oct 2001 11:40:46 -0700
-From: Chip Salzenberg <chip@pobox.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.13pre3: loop uses wrong type for blk_size[]
-Message-ID: <20011017114046.A3880@perlsupport.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZPt4rx8FFjLCG7dd"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S276716AbRJQSqX>; Wed, 17 Oct 2001 14:46:23 -0400
+Received: from mons.uio.no ([129.240.130.14]:26824 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S277059AbRJQSqP>;
+	Wed, 17 Oct 2001 14:46:15 -0400
+To: kuznet@ms2.inr.ac.ru
+Cc: kalele@veritas.COM (Shirish Kalele), linux-kernel@vger.kernel.org
+Subject: Re: [NFS] NFSD over TCP: TCP broken?
+In-Reply-To: <200110171758.VAA22159@ms2.inr.ac.ru>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 17 Oct 2001 20:38:31 +0200
+In-Reply-To: kuznet@ms2.inr.ac.ru's message of "Wed, 17 Oct 2001 21:58:37 +0400 (MSK DST)"
+Message-ID: <shsk7xu5cyg.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == kuznet  <kuznet@ms2.inr.ac.ru> writes:
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+     > Hello!
+    >> where the interleaving gets in.
 
-In 2.4.13pre3, the loop device was changed to use an array of unsigned
-long for its entry in blk_size[].  This is broken, because blk_size[]
-is of type 'int * []'.  A patch is attached which fixes this problem
-while still retaining the presumably intended behavior of working
-properly with large devices.
--- 
-Chip Salzenberg               - a.k.a. -              <chip@pobox.com>
- "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech
+     > I do not think that you diagnosed the problem correctly.  nfsd
+     > used non blocking io and write to tcp is strictly atomic in
+     > this case.
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=pre3-loop-blksize-int-fix
+Some of the patches that attempted to fix the nfsd server code relied
+on making the TCP stuff blocking. I've seen several such patches
+floating around that ignore the fact that the socket lock is dropped
+when the IPV4 socket code sleeps.
 
+In any case, even with nonblocking TCP, one has to protect the socket
+until the entire message has been sent. Otherwise we risk seeing
+another thread racing for the socket while we're doing whatever needs
+to be done to clear the -EAGAIN.
 
-Index: linux/drivers/block/loop.c
---- linux/drivers/block/loop.c.old	Tue Oct 16 23:28:20 2001
-+++ linux/drivers/block/loop.c	Wed Oct 17 01:09:07 2001
-@@ -78,5 +78,5 @@
- static int max_loop = 8;
- static struct loop_device *loop_dev;
--static unsigned long *loop_sizes;
-+static int *loop_sizes;
- static int *loop_blksizes;
- static devfs_handle_t devfs_handle;      /*  For the directory */
-@@ -152,5 +152,5 @@
- #define MAX_DISK_SIZE 1024*1024*1024
- 
--static unsigned long compute_loop_size(struct loop_device *lo, struct dentry * lo_dentry, kdev_t lodev)
-+static int compute_loop_size(struct loop_device *lo, struct dentry * lo_dentry, kdev_t lodev)
- {
- 	if (S_ISREG(lo_dentry->d_inode->i_mode))
-@@ -877,5 +877,5 @@
- 			break;
- 		}
--		err = put_user(loop_sizes[lo->lo_number] << 1, (unsigned long *) arg);
-+		err = put_user((unsigned long)loop_sizes[lo->lo_number] << 1, (unsigned long *) arg);
- 		break;
- 	case BLKGETSIZE64:
-@@ -1019,5 +1019,5 @@
- 		return -ENOMEM;
- 
--	loop_sizes = kmalloc(max_loop * sizeof(unsigned long), GFP_KERNEL);
-+	loop_sizes = kmalloc(max_loop * sizeof(int), GFP_KERNEL);
- 	if (!loop_sizes)
- 		goto out_sizes;
-@@ -1039,5 +1039,5 @@
- 	}
- 
--	memset(loop_sizes, 0, max_loop * sizeof(unsigned long));
-+	memset(loop_sizes, 0, max_loop * sizeof(int));
- 	memset(loop_blksizes, 0, max_loop * sizeof(int));
- 	blk_size[MAJOR_NR] = loop_sizes;
-
---ZPt4rx8FFjLCG7dd--
+Cheers,
+  Trond

@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUFPRm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264304AbUFPRqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbUFPRm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 13:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbUFPRm7
+	id S264304AbUFPRqy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 13:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264279AbUFPRqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 13:42:59 -0400
-Received: from hostmaster.org ([212.186.110.32]:50560 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S264299AbUFPRm5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 13:42:57 -0400
-Subject: Re: Linux 2.6.7 - ACPI still broken
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1087407777.2959.12.camel@forum-beta.geizhals.at>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 16 Jun 2004 19:42:57 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jun 2004 13:46:54 -0400
+Received: from web51805.mail.yahoo.com ([206.190.38.236]:46752 "HELO
+	web51805.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264304AbUFPRqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 13:46:47 -0400
+Message-ID: <20040616174646.70010.qmail@web51805.mail.yahoo.com>
+Date: Wed, 16 Jun 2004 10:46:46 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Programtically tell diff between HT and real
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As posted on 2004-06-07 ACPI support seems to be broken for Intel
-D865PERL board since at least 2.6.7-rc2.
+Hello.
 
-When booting with the standard flags (nmi_watchdog=1 root=/dev/md0
-video=matroxfb:vesa:0x1bb) the kernel locks up with different error
-messages immediately after "ACPI: Subsystem revision 20040326". Adding
-"acpi=off" to the command line makes everything work again.
+Is there a way to tell the difference between normal
+processors and HT enabled processors?  That is, does
+the linux kernel know the difference and is there a
+way to to know the difference.
 
-You can find my dmesg output (with "acpi=off") and my .config here:
-http://www.hostmaster.org/~thomasz/linux-2.6.7-config
-http://www.hostmaster.org/~thomasz/linux-2.6.7-dmesg
-
-Tom
+Thank you for your time.
+Phy
 
 
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - Helps protect you from nasty viruses.
+http://promotions.yahoo.com/new_mail

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264386AbTEaRnN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 13:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbTEaRnN
+	id S261773AbTEaRty (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 13:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbTEaRty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 13:43:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8657 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264386AbTEaRnM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 13:43:12 -0400
-Date: Sat, 31 May 2003 18:56:32 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Larry McVoy <lm@bitmover.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chris Heath <chris@heathens.co.nz>, linux-kernel@vger.kernel.org
-Subject: Re: coding style (was Re: [PATCH][2.5] UTF-8 support in console)
-Message-ID: <20030531175632.GL9502@parcelfarce.linux.theplanet.co.uk>
-References: <20030531095521.5576.CHRIS@heathens.co.nz> <20030531152133.A32144@infradead.org> <20030531144323.GA22810@work.bitmover.com> <20030531150150.GA14829@suse.de> <20030531153940.GA1280@work.bitmover.com> <1054401248.2900.124.camel@spc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054401248.2900.124.camel@spc>
-User-Agent: Mutt/1.4.1i
+	Sat, 31 May 2003 13:49:54 -0400
+Received: from tag.witbe.net ([81.88.96.48]:10765 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S261773AbTEaRtx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 13:49:53 -0400
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Mikael Pettersson'" <mikpe@csd.uu.se>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.70] - APIC error on CPU0: 00(40)
+Date: Sat, 31 May 2003 20:03:13 +0200
+Message-ID: <00ae01c3279e$e7bb3e70$2101a8c0@witbe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <1054388239.27311.3.camel@dhcp22.swansea.linux.org.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 31, 2003 at 11:14:08AM -0600, Steven Cole wrote:
+Hello,
 
-> statement when needed.
+> On Sad, 2003-05-31 at 11:52, mikpe@csd.uu.se wrote:
+> > Received illegal vector errors. Your boot log reveals that you're 
+> > using ACPI and IO-APIC on a SiS chipset. Disable those and 
+> try again 
+> > -- I wouldn't bet on ACPI+IO-APIC working on SiS.
 > 
-> return -ETOSENDERADDRESSUNKNOWN;	/* this is OK */
-> return (value & ZORRO_MASK);		/* so is this */
+> 2.5.x has the needed code to handle SiS APIC. Does Linus 
+> 2.5.70 also have the fixes to not re-route the SMI pins ?
 
-Like hell it is.  Parenthesis are _not_ needed here - production is
-<statement> -> return <expression> ;
+Where should this code be located ?
 
-The only messy '('-related case in C grammar is sizeof as unary operation
-vs. sizeof ( <type> ) (lovely way to torture parsers and students on exam:
-sizeof (int)*p).  Everything else is pretty straightforward...
+I'm ready to check my source tree, and compare with 2.5.69,
+and try to make a patch ...
+
+Paul
+

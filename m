@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTJIU1f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 16:27:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbTJIU1e
+	id S262386AbTJIUVL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 16:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTJIUVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 16:27:34 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:25006 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262409AbTJIU1c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 16:27:32 -0400
-Date: Thu, 9 Oct 2003 17:25:52 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Dave Kleikamp <shaggy@austin.ibm.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.x performance tests Re: [PATCH] BUG() in exec_mmap()
-In-Reply-To: <Pine.LNX.4.44.0310091718080.3040-100000@logos.cnet>
-Message-ID: <Pine.LNX.4.44.0310091724060.3040-100000@logos.cnet>
+	Thu, 9 Oct 2003 16:21:11 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:27314 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262386AbTJIUVJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 16:21:09 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16261.49965.101563.951148@gargle.gargle.HOWL>
+Date: Thu, 9 Oct 2003 22:21:01 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Arun Sharma <arun.sharma@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: 2.6.0-test7 BLK_DEV_FD dependence on ISA breakage
+In-Reply-To: <3F85A670.10405@intel.com>
+References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>
+	<16261.25288.125075.508225@gargle.gargle.HOWL>
+	<20031009070505.00470202.akpm@osdl.org>
+	<3F85A670.10405@intel.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arun Sharma writes:
+ > Andrew Morton wrote:
+ > > Perhaps we should just back it out and watch more closely next time someone
+ > > tries to fix it?
+ > 
+ > I'm fine with backing out the Kconfig part of the patch. Perhaps this is one of those things where an explicit list of platforms which do support this feature is unavoidable ? 
 
-
-On Thu, 9 Oct 2003, Marcelo Tosatti wrote:
-
-> 
-> 
-> On Thu, 9 Oct 2003, Dave Kleikamp wrote:
-> 
-> > Marcelo,
-> > A recent change to exec_mmap() removed the initialization of old_mm,
-> > leaving an uninitialized use of it.  This patch would completely remove
-> > old_mm from the function.  Is this what was intended?
-> 
-> Yes. 
-> 
-> Blame me... patch applied, thank you!
-
-BTW, further performance testing of the removal of this optimization is 
-VERY welcome.
-
-I've done some tests and no big performance harm has showed up, but thats 
-just me.
-
-
+The Kconfig patch also broke floppy on x86-64. Since no x86-64 board
+to date has any ISA _slots_, x86-64 doesn't even give you the option
+of enabling CONFIG_ISA...

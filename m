@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291125AbSBGFeN>; Thu, 7 Feb 2002 00:34:13 -0500
+	id <S276424AbSBGFsa>; Thu, 7 Feb 2002 00:48:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291122AbSBGFdz>; Thu, 7 Feb 2002 00:33:55 -0500
-Received: from panoramix.vasoftware.com ([198.186.202.147]:15763 "EHLO
-	mail2.vasoftware.com") by vger.kernel.org with ESMTP
-	id <S291125AbSBGFdN>; Thu, 7 Feb 2002 00:33:13 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S279798AbSBGFsU>; Thu, 7 Feb 2002 00:48:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26898 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S276424AbSBGFsF>;
+	Thu, 7 Feb 2002 00:48:05 -0500
+Message-ID: <3C6214F0.A66C89CF@zip.com.au>
+Date: Wed, 06 Feb 2002 21:47:28 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@redhat.com>
+CC: Hugh Dickins <hugh@veritas.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __free_pages_ok oops
+In-Reply-To: <Pine.LNX.4.21.0202061844450.1856-100000@localhost.localdomain>,
+		<Pine.LNX.4.21.0202061844450.1856-100000@localhost.localdomain>; from hugh@veritas.com on Wed, Feb 06, 2002 at 07:06:01PM +0000 <20020207000930.A17125@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15458.4311.798427.298108@argo.ozlabs.ibm.com>
-Date: Thu, 7 Feb 2002 16:29:59 +1100 (EST)
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Documentation/network/ppp_generic.txt
-In-Reply-To: <20020206.204153.67884178.davem@redhat.com>
-In-Reply-To: <15457.63906.508722.290742@argo.ozlabs.ibm.com>
-	<20020206.204153.67884178.davem@redhat.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller writes:
+Benjamin LaHaise wrote:
+> 
+> On Wed, Feb 06, 2002 at 07:06:01PM +0000, Hugh Dickins wrote:
+> > Sorry, no solution, but maybe another oops in __free_pages_ok might help?
+> 
+> I haven't seen the original oops, but if this patch goes in, it
+> reintroduces the problem where network drivers / others release
+> pages from irq context causing a BUG().  See sendpage.
+> 
 
-> How critical is this and the other PPP patches for 2.4.x?  Could it
-> wait for 2.4.19-pre1?  I don't want to pressure Marcelo for 2.4.18
-> final unless absolutely necessary.
+Calling lru_cache_del from interrupt is a bug, so Hugh's patch
+is valid.
 
-Not critical at all.  I have forwarded Marcelo a patch which fixes one
-of the problems in ppp_generic.c by changing all_ppp_lock into a
-semaphore.  I agree that the rest of the fixes can wait for the
-2.4.19-pre series.  The problems tend to show up mainly on SMP boxes
-handling multiple PPP connections.  I posted the patch so that the
-people who were having problems could try it and let me know if it
-fixed their problems.
+Are you sure that the pages are being released from interrupt context?
 
-I would appreciate it though if you had time to look over the patch
-and see if you think I have missed any potential races.
-
-As for the documentation patch, it's not going to affect any code
-behaviour, so it can go in whenever you and Marcelo think is
-appropriate. :)
-
-Paul.
+-

@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279642AbRKATxq>; Thu, 1 Nov 2001 14:53:46 -0500
+	id <S279644AbRKAT6g>; Thu, 1 Nov 2001 14:58:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279644AbRKATxg>; Thu, 1 Nov 2001 14:53:36 -0500
-Received: from adsl-209-233-33-110.dsl.snfc21.pacbell.net ([209.233.33.110]:49912
-	"EHLO lorien.emufarm.org") by vger.kernel.org with ESMTP
-	id <S279642AbRKATxU>; Thu, 1 Nov 2001 14:53:20 -0500
-Date: Thu, 1 Nov 2001 11:53:19 -0800
-From: Danek Duvall <duvall@emufarm.org>
+	id <S279648AbRKAT60>; Thu, 1 Nov 2001 14:58:26 -0500
+Received: from wks-40.herta.ronnebyhus.se ([195.17.80.49]:54415 "EHLO
+	wks-40.herta.ronnebyhus.se") by vger.kernel.org with ESMTP
+	id <S279644AbRKAT6L>; Thu, 1 Nov 2001 14:58:11 -0500
+Date: Thu, 1 Nov 2001 20:58:05 +0100 (CET)
+From: =?iso-8859-1?Q?Per_Lid=E9n?= <per@fukt.bth.se>
+X-X-Sender: per@wks-40.herta.ronnebyhus.se
 To: linux-kernel@vger.kernel.org
-Subject: Re: Code from ~2.4.4 going into Solaris 9 Alpha?
-Message-ID: <20011101115319.B2818@lorien.emufarm.org>
-Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011101111508.A412@mikef-linux.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20011101111508.A412@mikef-linux.matchmail.com>; from mfedyk@matchmail.com on Thu, Nov 01, 2001 at 11:15:08AM -0800
+Subject: Re: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6
+ (unkillable processes)
+In-Reply-To: <3BE1A6BF.2010002@softhome.net>
+Message-ID: <Pine.LNX.4.40.0111012053370.3889-100000@wks-40.herta.ronnebyhus.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 01, 2001 at 11:15:08AM -0800, Mike Fedyk wrote:
+On Thu, 1 Nov 2001, Ricardo Martins wrote:
 
-> I just looked at http://perso.wanadoo.fr/levenez/unix/history.html, and
-> noticed a line from linux over to solaris 9 alpha.
-> 
-> Does anyone know what code they copied, and if they're now making solaris
-> GPL compatible?
+[...]
+> If the problem is with xterm, it sure kicks "Linux Stability" in the
+> face. Maybe (and I hope) the problem is in devfs.
 
-That might simply be the inclusion of various "freeware" packages --
-shells, gzip, apache, samba, and so forth, not necessarily kernel code.
-All of those packages come with full source as well, so they should be
-compliant with the GPL if that's how they happen to be licensed.
+xterm is not the problem, it's devfs' locking ema which results in a
+deadlock.
 
-Of course, the line should probably be connected to Solaris 8, since
-that's when most of these things started shipping with it.
+/Per
 
-Danek

@@ -1,70 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281423AbRKLL3j>; Mon, 12 Nov 2001 06:29:39 -0500
+	id <S281435AbRKLLka>; Mon, 12 Nov 2001 06:40:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281422AbRKLL3a>; Mon, 12 Nov 2001 06:29:30 -0500
-Received: from albatross-ext.wise.edt.ericsson.se ([194.237.142.116]:51679
-	"EHLO albatross-ext.wise.edt.ericsson.se") by vger.kernel.org
-	with ESMTP id <S281419AbRKLL3V>; Mon, 12 Nov 2001 06:29:21 -0500
-From: Miklos.Szeredi@eth.ericsson.se (Miklos Szeredi)
-Date: Mon, 12 Nov 2001 12:28:27 +0100 (MET)
-Message-Id: <200111121128.MAA15119@duna207.danubius>
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        avfs@fazekas.hu
-Subject: Introducing FUSE: Filesystem in USErspace
+	id <S281437AbRKLLkV>; Mon, 12 Nov 2001 06:40:21 -0500
+Received: from moses.parsec.at ([212.236.50.196]:3339 "EHLO moses.parsec.at")
+	by vger.kernel.org with ESMTP id <S281418AbRKLLkG>;
+	Mon, 12 Nov 2001 06:40:06 -0500
+Date: Mon, 12 Nov 2001 12:39:50 +0100 (CET)
+From: Andreas Gruenbacher <ag@bestbits.at>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Nathan Scott <nathans@sgi.com>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-xfs@oss.sgi.com
+Subject: Re: [RFC][PATCH] VFS interface for extended attributes
+In-Reply-To: <Pine.GSO.4.21.0111120132080.19192-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0111121152410.14344-100000@moses.parsec.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Had enough of life?  Nothing to do?  Write a filesystem!
+Hello Al,
 
-What is FUSE?
+On Mon, 12 Nov 2001, Alexander Viro wrote:
+> 
+> [Cc'd to Linus since API changes on that level definitely require his
+> approval]
+> 
+> On Mon, 12 Nov 2001, Nathan Scott wrote:
+> 
+> > +static long
+> > +extattr_inode(struct inode *i, int cmd, char *name, void *value, size_t size)
+> 
+> Broken.
+> 	a) passing inode is an obvious mistake.  dentry or vfsmount/dentry.
 
-  FUSE (Filesystem in USErspace) provides a simple interface for
-  userspace programs to export a virtual filesystem to the Linux
-  kernel.  FUSE also aims to provide a secure method for non
-  privileged users to create and mount their own filesystem
-  implementations.
+There are curently two paths by which the extended attribute inode
+operations can be invoked: (a) from a system call, (b) from the
+permission() inode operation, when checking the access ACL of a file. We
+could trivially use a dentry in (a), but unfortunately we don't have a
+choice in (b), as permission() itself is not passed a dentry.
+   It's planned that all inode operations use dentries somewhen in 2.5.
+This would be the proper time to move to dentries in the EA code as well.
 
-There's NFS or CODA. Why FUSE?
+> 	b) for crying out loud, what's that with SGI and ioctl-like abortions?
+> 
+> Rule of the tumb: if your function got a "cmd" argument - it's broken.
+> ioctl(2).  fcntl(2).  prctl(2).  quotactl(2).  sysfs(2).  Missed'em'V IPC
+> syscalls.  Enough, already.
 
-  Yes both NFS and CODA make it possible to create userspace
-  filesystems.  But none of them were designed for this task.  The
-  design of FUSE differs from the above in the following:
+There is one difference between the interfaces you are complaining about
+above and the proposed EA interface for EA's: In those interfaces you have
+wildcard parameters that are used for who-knows-what, depending on a
+command-like parameter, including use as a value, use as a pointer to a
+value/struct, etc.
 
-    - Ability to provide a _very_ simple userspace library interface.
+In the EA interface we have clear semantics of what the parameters' types
+and sizes are, so many of the problems there are with ioctl() and friends
+don't occur here. You could as well call the `cmd' parameter a `flags'
+parameter here, then you're pretty close to the open() syscall.
 
-    - Thin layer in kernel. Minimal caching, predictable behavior.
+It would be possible to split the EA syscalls in a set for retrieving and
+aonther set for setting EA's, and perhaps still a third set for listing
+the EA's that are present. Those syscalls would only differ in their
+names. I would consider it much more useful to provide functions in a
+library for dealing with EA's in user space, which in turn would use the
+syscalls, though.
 
-    - Communication is not over a network, and is optimized for local
-      data transfer
 
-    - Secure environment even if userspace client is non-cooperative.
+Cheers,
+Andreas.
 
-All this is nice, but does it work?
-
-  I've tested fuse with a simple 'loopback' test program, and also
-  with AVFS (http://www.inf.bme.hu/~mszeredi/avfs/), for which FUSE
-  was designed for.  That doesn't mean that there are no bugs in it,
-  but it's a good sign...
-
-Is it available?
-
-  Yes it can be downloaded from
-
-    http://sourceforge.net/projects/avf
-
-How can it be installed?
-
-  FUSE currently works only on 2.4.X kernels.  Installation requires
-  the kernel source to be present.  The kernel does not need to be
-  patched or recompiled: the kernel part of FUSE is installed as a
-  module.  The FUSE module is SMP safe.
-
-  There is also a kernel patch (for kernels 2.4.12 and up) included in
-  the distribution, which makes mounting by non-privileged users
-  secure.
-
-Comments on design, implementation, and on my state of mind are
-welcome.
-
-Miklos

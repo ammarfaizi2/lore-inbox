@@ -1,89 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267617AbTBQWj5>; Mon, 17 Feb 2003 17:39:57 -0500
+	id <S267623AbTBQWuN>; Mon, 17 Feb 2003 17:50:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267618AbTBQWj5>; Mon, 17 Feb 2003 17:39:57 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:64386 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267617AbTBQWj4>;
-	Mon, 17 Feb 2003 17:39:56 -0500
-Subject: [PATCH] Fix warnings from CIFS on 2.5.61
-From: Stephen Hemminger <shemminger@osdl.org>
-To: sfrench@samba.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1045522192.12947.90.camel@dell_ss3.pdx.osdl.net>
+	id <S267629AbTBQWuN>; Mon, 17 Feb 2003 17:50:13 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:41160 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S267623AbTBQWuM>; Mon, 17 Feb 2003 17:50:12 -0500
+Date: Tue, 18 Feb 2003 00:00:06 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: William King <William.King@dadaboom.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug: 2.4.xx in serial.c
+Message-ID: <20030217230006.GA1797@wohnheim.fh-wedel.de>
+References: <JAEGLIPFMODKGALKJJGNOEJGCAAA.William.King@dadaboom.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 17 Feb 2003 14:49:52 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <JAEGLIPFMODKGALKJJGNOEJGCAAA.William.King@dadaboom.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch gets rid of the following warnings.
+On Mon, 17 February 2003 12:32:49 -0800, William King wrote:
+> 
+> I've traced what appears to be a bug in the serial driver (serial.c) in
+> regards to how the transmit fifo is handled on some uarts.
+> 
+> In the function transmit_chars() around line 6016:
+> 
+> count = info->xmit_fifo_size;
+> do {
+>         serial_out(info, UART_TX, info->xmit.buf[info->xmit.tail]);
+>         info->xmit.tail = (info->xmit.tail + 1) & (SERIAL_XMIT_SIZE-1);
+>         info->state->icount.tx++;
+>         if (info->xmit.head == info->xmit.tail)
+>                 break;
+> } while (--count > 0);
+> 
+> This loop fills the xmit fifo with up to the number of characters which the
+> fifo can hold. If we have more characters to send than the fifo can handle,
+> we will take an interrupt when the fifo empties and run this loop again.
+> 
+> The assumption is however that the fifo empty interrupt will occur when the
+> number of characters in the xmit fifo is 0. This is true on a 16550A uart,
+> but is not true on others (such as a ST16C654.) The ST16C654 uart has a 64
+> byte fifo, but the interrrupt will occur when the number of characters drops
+> below a programmable threshold. The minimum threshold is 8 on this uart
+> which causes an overflow of the xmit fifo.
+>
+> My thought for a patch is to add a field to struct async_struct to indicate
+> the maximum number of characters which still may be in the fifo when an
+> interrupt occurs. The only other thing I can think of is to poll the fifo
+> full bit which every character write, but this seems like a bad idea.
 
-fs/cifs/cifssmb.c: In function `CIFSSMBRead':
-fs/cifs/cifssmb.c:489: warning: duplicate `const'
-fs/cifs/cifssmb.c: In function `CIFSSMBUnixQuerySymLink':
-fs/cifs/cifssmb.c:1030: warning: duplicate `const'
-fs/cifs/cifssmb.c:1044: warning: duplicate `const'
-fs/cifs/cifssmb.c: In function `CIFSSMBQueryReparseLinkInfo':
-fs/cifs/cifssmb.c:1120: warning: duplicate `const'
+I'd go with the extra field:
 
-diff -Nru a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
---- a/fs/cifs/cifssmb.c	Mon Feb 17 14:16:15 2003
-+++ b/fs/cifs/cifssmb.c	Mon Feb 17 14:16:15 2003
-@@ -504,9 +504,10 @@
- 	pSMB->OffsetLow = cpu_to_le32(lseek & 0xFFFFFFFF);
- 	pSMB->OffsetHigh = cpu_to_le32(lseek >> 32);
- 	pSMB->Remaining = 0;
--	pSMB->MaxCount = cpu_to_le16(min(count,
--					 (tcon->ses->server->maxBuf -
--					  MAX_CIFS_HDR_SIZE) & 0xFFFFFF00));
-+	pSMB->MaxCount = cpu_to_le16(min_t(const int, 
-+					   count,
-+					   (tcon->ses->server->maxBuf -
-+					    MAX_CIFS_HDR_SIZE) & 0xFFFFFF00));
- 	pSMB->MaxCountHigh = 0;
- 	pSMB->ByteCount = 0;  /* no need to do le conversion since it is 0 */
- 
-@@ -1045,9 +1046,10 @@
- 								   Protocol +
- 								   pSMBr->
- 								   DataOffset),
--						      min(buflen,
--							  (int) pSMBr->
--							  DataCount) / 2);
-+						      min_t(const int,
-+							    buflen,
-+							    pSMBr->
-+							    DataCount) / 2);
- 				cifs_strfromUCS_le(symlinkinfo,
- 						   (wchar_t *) ((char *)
- 								&pSMBr->
-@@ -1059,9 +1061,9 @@
- 			} else {
- 				strncpy(symlinkinfo,
- 					(char *) &pSMBr->hdr.Protocol +
--					pSMBr->DataOffset, min(buflen, (int)
--							       pSMBr->
--							       DataCount));
-+					pSMBr->DataOffset, 
-+					min_t(const int,
-+						buflen,pSMBr->DataCount));
- 			}
- 			symlinkinfo[buflen] = 0;
- 	/* just in case so calling code does not go off the end of buffer */
-@@ -1137,7 +1139,8 @@
- 				} else { /* ASCII names */
- 					strncpy(symlinkinfo,reparse_buf->LinkNamesBuf + 
- 						reparse_buf->TargetNameOffset, 
--						min(buflen, (int)reparse_buf->TargetNameLen));
-+						min_t(const int,
-+						      buflen, reparse_buf->TargetNameLen));
- 				}
- 			} else {
- 				rc = -EIO;
++static int threshold = 0;
+ [...]
+-count = info->xmit_fifo_size;
++count = info->xmit_fifo_size - threshold;
+ [...]
++if (ST16C654) {
++	threshold = 8;
++	ST16C654_set_threshold(threshold);
++}
 
+IO operations are usually quite expensive, so polling should be a last
+resort only.
 
+Jörn
 
+-- 
+More computing sins are committed in the name of efficiency (without
+necessarily achieving it) than for any other single reason - including
+blind stupidity.
+-- W. A. Wulf 

@@ -1,39 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269452AbUICJOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269522AbUICJRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269452AbUICJOc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 05:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269432AbUICJNv
+	id S269522AbUICJRv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 05:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269432AbUICJRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 05:13:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54199 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269464AbUICJG1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 05:06:27 -0400
-Date: Fri, 3 Sep 2004 02:04:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.9-rc1-mm2 compilation fixes
-Message-Id: <20040903020435.0027958a.akpm@osdl.org>
-In-Reply-To: <200409030857.25295.bero@arklinux.org>
-References: <200409030857.25295.bero@arklinux.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 3 Sep 2004 05:17:32 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:30075 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269522AbUICJOx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 05:14:53 -0400
+Message-ID: <2f4958ff04090302141bc222e5@mail.gmail.com>
+Date: Fri, 3 Sep 2004 11:14:51 +0200
+From: =?UTF-8?Q?Grzegorz_Ja=C5=9Bkiewicz?= <gryzman@gmail.com>
+Reply-To: =?UTF-8?Q?Grzegorz_Ja=C5=9Bkiewicz?= <gryzman@gmail.com>
+To: Helge Hafting <helge.hafting@hist.no>
+Subject: Re: silent semantic changes with reiser4
+Cc: Greg KH <greg@kroah.com>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+In-Reply-To: <41383142.4080201@hist.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <200408290004.i7T04DEO003646@localhost.localdomain> <20040901224513.GM31934@mail.shareable.org> <20040903082256.GA17629@kroah.com> <2f4958ff04090301326e7302c1@mail.gmail.com> <41383142.4080201@hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
->
-> make modules_install doesn't work if the ALSA korg1212 sound module is built - 
-> "grep -h .ko" will find /korg1212.o (. is a regexp character...), and 
-> therefore try to install the nonexistant korg1212.ko.
-> It should be grep -h '\.ko'
+On Fri, 03 Sep 2004 10:54:26 +0200, Helge Hafting <helge.hafting@hist.no> wrote:
+> Grzegorz Jaśkiewicz wrote:
+> 
+> >
+> >devfs was very natural, and simple solution. But to have it right, it
+> >would have to be the only /dev filesystem.
+> >But no, we like choices, so we have chaos.
+> >Udev is just another thing adding to that chaos.
+> >
+> >Someone was numbering things that are good in BSD design, in that
+> >thread. One of those things was going for devfs. No cheap solutions.
+> >One fs for /dev. And it works great.
+> >
+> >Sorry for bit of trolling.
+> >
+> >
+> Devfs was a ver good idea.  The implementation of it
+> was a problem, and after some time nobody maintained it.
+> No surprise it had to go.  Now udev+tmpfs can do the same
+> job, and more.
 
-Yup.  This should be fixed in -mm3, thanks.
+udef is a one big mistake, having need for userspace tool to use FS is
+at least silly.
+I can understeand need for some things in kernel to have userspace
+daemon. But FS is out of question the least one.
 
-> kernel/wait.c fails to compile with gcc 3.4 due to discrepancies between the 
-> prototype and implementations of __wait_on_bit() and __wait_on_bit_lock()
+I am supprised noone wanted to maintain devfs. Maybe because people
+didn't want to go to devfs only. But still to have classic /dev. It's
+also silly, because person writing driver needs to choose between, or
+implement all. That's more than bad. Once I have loads of time, and no
+work in KDE, I can take over devfs happily :-)
 
-This also.
+-- 
+GJ

@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317107AbSGXMKO>; Wed, 24 Jul 2002 08:10:14 -0400
+	id <S317081AbSGXMGh>; Wed, 24 Jul 2002 08:06:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317110AbSGXMKO>; Wed, 24 Jul 2002 08:10:14 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:18957 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317107AbSGXMKN>; Wed, 24 Jul 2002 08:10:13 -0400
-Message-ID: <3D3E98A2.1090306@evision.ag>
-Date: Wed, 24 Jul 2002 14:08:02 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S317083AbSGXMGh>; Wed, 24 Jul 2002 08:06:37 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33159 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S317081AbSGXMGg>;
+	Wed, 24 Jul 2002 08:06:36 -0400
+Date: Wed, 24 Jul 2002 14:08:31 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] irqlock patch 2.5.27-H4
+In-Reply-To: <20020724125903.A5961@infradead.org>
+Message-ID: <Pine.LNX.4.44.0207241407290.18205-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: martin@dalecki.de,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: please DON'T run 2.5.27 with IDE!
-References: <Pine.SOL.4.30.0207241248380.17154-100000@mion.elka.pw.edu.pl> <3D3E90E4.3080108@evision.ag> <20020724115322.GC5159@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
 
+On Wed, 24 Jul 2002, Christoph Hellwig wrote:
+
+> >  - move the irqs-off check into preempt_schedule() and remove
+> >    CONFIG_DEBUG_IRQ_SCHEDULE.
 > 
-> Care to enlighten us on exactly which block drivers call
-> blk_start_queue() from request_fn?
+> the config.in entry is still present..
 
-Well, admittedly, my direct suspect (cpqarry.c) turned out after a 
-closer look to be "not guilty" :-). Still a bit of docu found be nice 
-there. And you can of course guess what the bounty is I'm hunting for:
-removal of IDE_BUSY ... so I did the mistake myself in first place 8-).
+indeed. Fix is in -H5:
 
+   http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-H5
 
+	Ingo
 

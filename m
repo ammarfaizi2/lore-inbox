@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268244AbTBNIZi>; Fri, 14 Feb 2003 03:25:38 -0500
+	id <S267454AbTBNIkI>; Fri, 14 Feb 2003 03:40:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268245AbTBNIZh>; Fri, 14 Feb 2003 03:25:37 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:9744 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S268244AbTBNIZg>; Fri, 14 Feb 2003 03:25:36 -0500
-Message-ID: <3E4CAA8E.DE022D1D@aitel.hist.no>
-Date: Fri, 14 Feb 2003 09:36:30 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.59 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Bruno Diniz de Paula <diniz@cs.rutgers.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to bypass buffer caches?
-References: <1045157351.21195.134.camel@urca.rutgers.edu>
-Content-Type: text/plain; charset=us-ascii
+	id <S268240AbTBNIkI>; Fri, 14 Feb 2003 03:40:08 -0500
+Received: from [196.41.29.142] ([196.41.29.142]:50956 "EHLO
+	andromeda.cpt.sahara.co.za") by vger.kernel.org with ESMTP
+	id <S267454AbTBNIkH>; Fri, 14 Feb 2003 03:40:07 -0500
+Subject: Re: Problems with 2.5.*'s SCSI headers and cdrtools
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030214063225.A19016@infradead.org>
+References: <1045201685.5971.78.camel@workshop.saharact.lan>
+	 <20030214055822.A18415@infradead.org>
+	 <1045202851.5971.83.camel@workshop.saharact.lan>
+	 <20030214062109.A18761@infradead.org>
+	 <1045204070.5971.92.camel@workshop.saharact.lan>
+	 <20030214063225.A19016@infradead.org>
+X-scanner: scanned by Sistech VirusWall 2.3/cpt
+Content-Type: text/plain
+Organization: 
+Message-Id: <1045212517.3285.96.camel@workshop.saharact.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1- 
+Date: 14 Feb 2003 10:48:38 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bruno Diniz de Paula wrote:
+On Fri, 2003-02-14 at 08:32, Christoph Hellwig wrote:
+
+> Either your distributions setup is broken and overwrites
+> /usr/include/scsi/scsi.h (check whether it has the FSF copyright,
+> they took the kernel header verbatim and just slapped their copyright
+> boilerplate over it..) or cdrtools is broken enough to explicitly
+> add the kernel source to it's include dirs.  Both would need fixing,
+> the first is easy, the second needs conviencing Joerg which might
+> become difficult :)
 > 
-> Hi,
-> 
-> I've sent some messages about using O_DIRECT to read files, but I
-> suppose that is not possible using 2.4 kernel and ext2. So I was
-> wondering which other alternatives I have to bypass the buffer cache of
-> the kernel.
 
-You don't say why you need this.  I recommend that you
-simply don't use a filesystem - use a partition like
-/dev/hda5 without a filesystem and read/write diskblocks
-to and from it.
+Thanks.  Ill look into this, and also check with Joerg why it have to
+use the current kernel headers if it is what its doing.  I just
+basically wanted the opinion of what should be the right way to handle
+it before I submit a bug report to the correct people.
 
-Without a filesystem you decide what data goes in what disk block,
-and of course no fs cache gets in the way.
-
-Transfering data between a range of blocks on a partition
-and a ordinary file is easy - use the dd command.
-
-file->partition
-dd if=yourfile of=/dev/hdaX bs=4096 seek=<number of first block you want
-to use> 
-
-partition->file
-dd if=/dev/hdaX of=yourfile bs=4096 skip=<number of first disk block you
-want copied> count=<total number of blocks>
+Are scsi stuff in 2.5 going to change drastically in the future ?
 
 
-Helge Hafting
+Regards,
+
+-- 
+Martin Schlemmer
+Gentoo Linux Developer, Desktop Team
+Cape Town, South Africa
+

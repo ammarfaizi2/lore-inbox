@@ -1,51 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284987AbSA2Wd0>; Tue, 29 Jan 2002 17:33:26 -0500
+	id <S285369AbSA2WhN>; Tue, 29 Jan 2002 17:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284970AbSA2WdD>; Tue, 29 Jan 2002 17:33:03 -0500
-Received: from ns.suse.de ([213.95.15.193]:14095 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S285424AbSA2Wbv>;
-	Tue, 29 Jan 2002 17:31:51 -0500
-Date: Tue, 29 Jan 2002 23:31:50 +0100
-From: Andi Kleen <ak@suse.de>
-To: adilger@turbolabs.com, linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020129233150.D12339@wotan.suse.de>
-In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain.suse.lists.linux.kernel> <E16VYD8-0003ta-00@the-village.bc.nu.suse.lists.linux.kernel> <p73aduwddni.fsf@oldwotan.suse.de> <20020129152426.Z763@lynx.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020129152426.Z763@lynx.adilger.int>
-User-Agent: Mutt/1.3.22.1i
+	id <S285482AbSA2Wg5>; Tue, 29 Jan 2002 17:36:57 -0500
+Received: from donna.siteprotect.com ([64.41.120.44]:61195 "EHLO
+	donna.siteprotect.com") by vger.kernel.org with ESMTP
+	id <S285226AbSA2Wgh>; Tue, 29 Jan 2002 17:36:37 -0500
+Date: Tue, 29 Jan 2002 17:36:37 -0500 (EST)
+From: Vince Weaver <vince@deater.net>
+X-X-Sender: <vince@hal.deaternet.vmw>
+To: <linux-kernel@vger.kernel.org>
+Subject: Oops on 2.4.17 possibly UMS-DOS related
+Message-ID: <Pine.LNX.4.31.0201291728480.15872-100000@hal.deaternet.vmw>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 03:24:26PM -0700, Andreas Dilger wrote:
-> On Jan 29, 2002  22:56 +0100, Andi Kleen wrote:
-> > Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> > > Lots of the stuff getting missed is tiny little fixes, obvious 3 or 4
-> > > liners. The big stuff is not the problem most times.
-> >
-> > "Most times". For example the EA patches have badly failed so far, just
-> > because Linus ignored all patches to add sys call numbers for a repeatedly
-> > discussed  and stable API and nobody else can add syscall numbers on i386. 
-> 
-> But at times, keeping things external to the kernel for a good while isn't
-> a bad thing either.  Basically, once code is part of the kernel, the API
-> is much harder to change than if it was always an optional patch.
-> 
-> For example, the EA patches have matured a lot in the time that they have
-> been external to the kernel (i.e. the move towards a common API with ext2
-> and XFS).  Even so, the ext2 shared EA on-disk representation leaves a
 
-The problem is that there are already 5-6 different incompatible system calls 
-with either different numbers or different semantics in significant 
-deployment in the wild. EA/ACLs is an important feature for
-samba servers so they are rather popular. While it's IMHO ok to do limited
-testing in private the critical threshold where incompatible system call
-ABIs are just a big problem for linux has long been surpassed. 
-One of the success linux/i386 had in the past was to maintain a very stable
-kernel ABI, but at least in the EA space this archivement is currently
-getting undermined badly. 
+X oopsed once on me after about a week of uptime, and now whenever I try
+to run "startx" I get the message
 
--Andi
+umsdos_lookup_x: tmp/..LINK256 negative after link
+
+followed by the below oops.
+
+System is slackware 8.0 with a hand-compiled stock 2.4.17 kernel,
+64MB RAM, Pentium II 300Mhz, Matrox Millenium II graphics card.
+Filesystem is a 4GB vfat drive with umsdos running on top.  It worked fine
+until this happened... rebooting doesn't help, nor does "umssync" and I
+can't figure out which file is causing the problem (assuming it really is
+a UMS DOS problem, the decoded oops seems a bit odd, but I have made sure
+the system map file is the proper one).
+
+
+ksymoops 2.4.3 on i686 2.4.17.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.17/ (default)
+     -m /usr/src/linux/System.map (default)
+
+No modules in ksyms, skipping objects
+Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod file?
+Unable to handle kernel NULL pointer dereference at virtual address 00000008
+c012d4d4
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012d4d4>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: c2e803a0   ebx: c2e803a0   ecx: 00000000   edx: c2e803a0
+esi: fffffff7   edi: c2e801a0   ebp: 00000000   esp: c3addf9c
+ds: 0018   es: 0018   ss: 0018
+Process X (pid: 420, stackpage=c3add000)
+Stack: c2e803a0 fffffff7 bffffb7b 0000000b c012cb38 c3adc000 00000001 bffffb7b
+       bfffe99c c0106b0b 00000000 bfffd990 0000000b 00000001 bffffb7b bfffe99c
+       00000004 0000002b 0000002b 00000004 40100f54 00000023 00000297 bfffd93c
+Call Trace: [<c012cb38>] [<c0106b0b>]
+Code: 8b 75 08 ff 4b 14 0f 94 c0 84 c0 0f 84 ac 00 00 00 53 e8 8d
+
+>>EIP; c012d4d4 <fput+c/d0>   <=====
+Trace; c012cb38 <sys_write+bc/c4>
+Trace; c0106b0a <system_call+32/38>
+Code;  c012d4d4 <fput+c/d0>
+0000000000000000 <_EIP>:
+Code;  c012d4d4 <fput+c/d0>   <=====
+   0:   8b 75 08                  mov    0x8(%ebp),%esi   <=====
+Code;  c012d4d6 <fput+e/d0>
+   3:   ff 4b 14                  decl   0x14(%ebx)
+Code;  c012d4da <fput+12/d0>
+   6:   0f 94 c0                  sete   %al
+Code;  c012d4dc <fput+14/d0>
+   9:   84 c0                     test   %al,%al
+Code;  c012d4de <fput+16/d0>
+   b:   0f 84 ac 00 00 00         je     bd <_EIP+0xbd> c012d590 <fput+c8/d0>
+Code;  c012d4e4 <fput+1c/d0>
+  11:   53                        push   %ebx
+Code;  c012d4e6 <fput+1e/d0>
+  12:   e8 8d 00 00 00            call   a4 <_EIP+0xa4> c012d578 <fput+b0/d0>
+
+ <1>Unable to handle kernel paging request at virtual address aaebd499
+aaebd499
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<aaebd499>]    Not tainted
+EFLAGS: 00010282
+eax: c2e803d0   ebx: c2e803a0   ecx: c3adc264   edx: c2e803a0
+esi: 00000000   edi: c06ae260   ebp: 00000001   esp: c3adde5c
+ds: 0018   es: 0018   ss: 0018
+Process X (pid: 420, stackpage=c3add000)
+Stack: c2e803d7 c012c665 c2e803a0 00000005 00000000 c0115908 c2e803a0 c06ae260
+       c1188d00 c3adc000 0000000b 00000008 c06ae380 c0115e8f c06ae260 00000000
+       c1188d1c c0cfe840 c010704b 0000000b 00000000 c01109a7 c0248f9e c3addf68
+Call Trace: [<c012c665>] [<c0115908>] [<c0115e8f>] [<c010704b>] [<c01109a7>]
+   [<c0110658>] [<c011f62a>] [<c01107b8>] [<c0110658>] [<c0134765>] [<c01358b4>]
+   [<c0106bfc>] [<c012d4d4>] [<c012cb38>] [<c0106b0b>]
+Code:  Bad EIP value.
+
+>>EIP; aaebd498 Before first symbol   <=====
+Trace; c012c664 <filp_close+34/64>
+Trace; c0115908 <put_files_struct+54/bc>
+Trace; c0115e8e <do_exit+a6/1cc>
+Trace; c010704a <die+4e/50>
+Trace; c01109a6 <do_page_fault+34e/498>
+Trace; c0110658 <do_page_fault+0/498>
+Trace; c011f62a <handle_mm_fault+52/b4>
+Trace; c01107b8 <do_page_fault+160/498>
+Trace; c0110658 <do_page_fault+0/498>
+Trace; c0134764 <path_release+c/2c>
+Trace; c01358b4 <open_namei+430/524>
+Trace; c0106bfc <error_code+34/3c>
+Trace; c012d4d4 <fput+c/d0>
+Trace; c012cb38 <sys_write+bc/c4>
+Trace; c0106b0a <system_call+32/38>
+
+
+

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310929AbSCHQGS>; Fri, 8 Mar 2002 11:06:18 -0500
+	id <S310932AbSCHQTA>; Fri, 8 Mar 2002 11:19:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310928AbSCHQGI>; Fri, 8 Mar 2002 11:06:08 -0500
-Received: from ns1.fast.net.uk ([212.42.162.2]:48913 "EHLO t2.fast.net.uk")
-	by vger.kernel.org with ESMTP id <S310929AbSCHQGE>;
-	Fri, 8 Mar 2002 11:06:04 -0500
-Message-ID: <3C88E152.5070201@htec.demon.co.uk>
-Date: Fri, 08 Mar 2002 16:05:38 +0000
-From: Christopher Quinn <cq@htec.demon.co.uk>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en-us
+	id <S310928AbSCHQSv>; Fri, 8 Mar 2002 11:18:51 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:56326 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310932AbSCHQSj>; Fri, 8 Mar 2002 11:18:39 -0500
+Message-ID: <3C88E412.5080904@evision-ventures.com>
+Date: Fri, 08 Mar 2002 17:17:22 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Mark Hahn <hahn@physics.mcmaster.ca>
+To: Luigi Genoni <kernel@Expansa.sns.it>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Interprocess shared memory .... but file backed?
-In-Reply-To: <Pine.LNX.4.33.0203081049360.15002-100000@coffee.psychology.mcmaster.ca>
+Subject: Re: 2.5.6 IDE oops with i810 chipset
+In-Reply-To: <Pine.LNX.4.44.0203081652560.28525-100000@Expansa.sns.it>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
-
->>>well MAP_PRIVATE is "dont share" so not with that 8)
->>>Use MAP_SHARED and you'll get what you want
->>>
->>Certainly true! But MAP_SHARED gives uncontrolled flush of 
->>dirty data - so that's out for me. I only want 'privacy' to 
->>extend to the right to make changes permanent at my own 
->>discretion.
->>
+Luigi Genoni wrote:
+> Due to a lack of time i tried just 2.5.5, which worked very well.
+> I get the oops while initializing the IDE controller, just after
 > 
-> right, and that's not what Unix provides.  in particular, mmap
-> is a means for apps to be polite, not for them to strongarm
-> the kernel.  in particular, if you mmap a file, much of the point
-> is that the kernel chooses how much of the state is in ram or 
-> on disk.  you can, of course, msync, or even munmap.
+> hdc: LTN485, ATAPI CD/DVD-ROM drive
 > 
-> 
+> and before the expected:
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
 > 
 
-Seems a bit restrictive to me. After all Unix is not an 
-ossified standard! :)
-Assuming clone() actually page table shares the vm covered 
-by a mmap(MAP_PRIVATE) in the way I want, it isn't much to 
-ask to be more *restrictive* on sharing?
+OK thank you very much this helps. I will actually have to fake the
+detection on my system to think it's the same as yours...
+One thing for sure: it's not dircetly inside the
+PCI host initialization, so I wonder why this problem
+doesn't occur to more people.
+...
 
-So far, it's looking as if my ideal is unattainable with the 
-current kernel.
-Anyone disagree?
-
-
--- 
-rgrds,
-Chris Quinn
 

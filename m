@@ -1,86 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbTELPC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 11:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTELPC2
+	id S262217AbTELPYA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 11:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTELPYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 11:02:28 -0400
-Received: from sophia.inria.fr ([138.96.64.20]:28354 "EHLO sophia.inria.fr")
-	by vger.kernel.org with ESMTP id S262193AbTELPCW (ORCPT
+	Mon, 12 May 2003 11:24:00 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:55762 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262217AbTELPXZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 11:02:22 -0400
-Subject: am-utils or kernel bug ?
-From: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
-To: amd-dev@cs.columbia.edu
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: INRIA
-Message-Id: <1052752493.24411.50.camel@atlas.inria.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 May 2003 17:14:54 +0200
+	Mon, 12 May 2003 11:23:25 -0400
+Message-ID: <3EBFBEF5.6050600@us.ibm.com>
+Date: Mon, 12 May 2003 08:34:13 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.5.69-mjb1
+References: <9380000.1052624649@[10.10.2.4]> <20030512132939.GF19053@holomorphy.com> <21850000.1052743254@[10.10.2.4]> <20030512150309.GG19053@holomorphy.com> <23510000.1052744845@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, 
+Martin J. Bligh wrote:
+> OK, so maybe I'm still asleep, but I don't see why the hardcoded
+> magic constant (grrr) is 4096 in mainline, when the stacksize is 8K.
+> Presumably the 1019*4 makes up the rest of it? Maybe the real question 
+> is what the hell was whoever wrote that in the first place smoking ? ;-)
+> Why on earth would you skip halfway through the stack with one stupid 
+> magic constant, and then the rest of the way with another? 
 
-i am running Redhat 9.0 ( kernel 2.4.20 )
-and am-utils (am-utils-6.0.9-2)  (because i need the browsing feature
-that automount doen't support).
+You can go ask the author:
 
-Unfortunatelly, amd sometimes hangs at boot time during its
-initialization (/etc/rc.d/init.d/amd ).
-I can reproduce this bug with /etc/rc.d/init.d/amd start / stop 
-sequences, sometimes the start hangs sometimes it works.
-This bug occurs on ALL RedHat 9.0 boxes we have (7 PC with totally
-different hardware).
+http://linus.bkbits.net:8080/linux-2.5/diffs/include/asm-i386/processor.h@1.12?nav=index.html|src/|src/include|src/include/asm-i386|hist/include/asm-i386/processor.h
 
-When hanging i can observe the following processes :
-
-root      2444  1911  0 17:14 pts/0    00:00:00 /bin/bash
-/etc/rc.d/init.d/amd start
-root      2453  2444  0 17:14 pts/0    00:00:00 initlog -q -c
-/usr/sbin/amd -F /etc/amd.conf
-root      2454  2453  0 17:14 pts/0    00:00:00 /usr/sbin/amd -F
-/etc/amd.conf
-root      2455  2454  0 17:14 ?        00:00:00 /usr/sbin/amd -F
-/etc/amd.conf
-
-with the following traces :
-
-[root@redhat-serv root]# strace -p 2453
-wait4(2454, 0xbfffd9cc, WNOHANG, NULL)  = 0
-nanosleep({0, 500000}, NULL)            = 0
-poll([{fd=3, events=POLLIN|POLLPRI}, {fd=5, events=POLLIN|POLLPRI}], 2,
-500) = 0
-wait4(2454, 0xbfffd9cc, WNOHANG, NULL)  = 0
-nanosleep({0, 500000}, NULL)            = 0
-poll([{fd=3, events=POLLIN|POLLPRI}, {fd=5, events=POLLIN|POLLPRI}], 2,
-500) = 0
-wait4(2454, 0xbfffd9cc, WNOHANG, NULL)  = 0
-nanosleep({0, 500000}, NULL)            = 0
-poll([{fd=3, events=POLLIN|POLLPRI}, {fd=5, events=POLLIN|POLLPRI}], 2,
-500) = 0
-wait4(2454, 0xbfffd9cc, WNOHANG, NULL)  = 0
-nanosleep({0, 500000}, NULL)            = 0
-poll( <unfinished ...>
-
-
-[root@redhat-serv root]# strace -p 2454
-futex(0x4212e1c8, FUTEX_WAIT, -2, NULL <unfinished ...>
-
-
-[root@redhat-serv root]# strace -p 2455
-select(1024, [4 5 6 7], NULL, NULL, {932, 980000} <unfinished ...>
-
-
-The SAME configuration worked perfectly with RH 8.0, am-utils-6.0.7-9,
-kernel 2.4.18
-
-Any suggestions ?
 
 -- 
-Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
-INRIA
+Dave Hansen
+haveblue@us.ibm.com
 

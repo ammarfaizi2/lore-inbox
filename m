@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136284AbRECJPP>; Thu, 3 May 2001 05:15:15 -0400
+	id <S136282AbRECJS0>; Thu, 3 May 2001 05:18:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136290AbRECJPG>; Thu, 3 May 2001 05:15:06 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:3788 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S136284AbRECJOt>;
-	Thu, 3 May 2001 05:14:49 -0400
-Date: Thu, 3 May 2001 05:14:45 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: "Eric S. Raymond" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Why recovering from broken configs is too hard
-In-Reply-To: <20010503104511.C754@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.GSO.4.21.0105030452310.15957-100000@weyl.math.psu.edu>
+	id <S136290AbRECJSR>; Thu, 3 May 2001 05:18:17 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42501 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136282AbRECJSI>; Thu, 3 May 2001 05:18:08 -0400
+Subject: Re: memory and current macro
+To: peterius@durandal.simons-rock.edu
+Date: Thu, 3 May 2001 10:21:39 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <p04320402b7166eda68f2@[64.210.111.70]> from "peterius@mail.simons-rock.edu" at May 02, 2001 10:20:33 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14vFIr-0005EC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> problems.  First, the current macro.  I wanted to get the uid of the 
+> calling process but "current->uid" does NOT work it returns some 
+> other number.  Same with "current->pid" and many others.  I figured 
+> these numbers weren't random and decided to print out a particular 
+> processes's descriptor and check out what was going on.  I found that 
+> "&(current->uid)" is 0x1d lower than the address that holds the user 
+> id.  In addition, adding 0x1d to that address added it twice???  So 
+> to get the uid I ended up adding half...or "&(current->uid) + 0x0f". 
+> Does anyone know why this is?  I have an i686 processor, IBM thinkpad 
 
-
-On Thu, 3 May 2001, Ingo Oeser wrote:
-
-> But we only give this solution a certain amount of "tries" and
-> give up (or tell the user, that we have a hard time here and aks
-> for continue or abort and fixing by hand), if we either tried to
-> often or a certain amount of time has passed (30secs maximum
-> until next prompt).
-
-Actually, I suspect that problem is much easier than Eric had described it.
-
-Assertion: you can split the set of variables into disjoint union of
-small subsets X, Y_1,...,Y_m such that each constraint is concerned
-only with variables from X and at most one of Y_i.
-
-IOW, there is a small "core" and for fixed values of core variables
-constraints fall into groups, each dealing with its own _small_
-set of variables.
-
-If that assertion is true the complexity is nowhere near 3^N.
-
-Eric, you probably have the most accurate information about the
-existing constraints. Care to verify the assertion above? I'm
-serious - the set of constraints is very far from generic and
-if nothing else, such preprocessing (splitting variables into
-core and peripherial groups) can make life easier in other
-parts of the thing.
+You are compiling with headers that dont match the kernel you are running
+or with options not matching. You should be using module versioning if possible
+btw on both the kernel and the module that would catch most such slips
 

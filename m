@@ -1,60 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbTAICHv>; Wed, 8 Jan 2003 21:07:51 -0500
+	id <S261364AbTAICIE>; Wed, 8 Jan 2003 21:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbTAICHu>; Wed, 8 Jan 2003 21:07:50 -0500
-Received: from mail5.intermedia.net ([206.40.48.155]:55057 "EHLO
-	mail5.intermedia.net") by vger.kernel.org with ESMTP
-	id <S261356AbTAICHr>; Wed, 8 Jan 2003 21:07:47 -0500
-Subject: Re: 2.4.19 ICMP redirects erroneously ignored
-From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
-To: timg@tpi.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200301081852.05547.rtg@tim.rtg.net>
-References: <200301081852.05547.rtg@tim.rtg.net>
-Content-Type: text/plain
+	id <S261370AbTAICIE>; Wed, 8 Jan 2003 21:08:04 -0500
+Received: from rrcs-midsouth-24-172-39-28.biz.rr.com ([24.172.39.28]:26894
+	"EHLO maunzelectronics.com") by vger.kernel.org with ESMTP
+	id <S261364AbTAICH7>; Wed, 8 Jan 2003 21:07:59 -0500
+Message-ID: <3E1CDB81.77B6CA99@justirc.net>
+Date: Wed, 08 Jan 2003 21:16:33 -0500
+From: Mark Rutherford <mark@justirc.net>
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Billy Rose <passive_induction@sbcglobal.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: free software [OT]
+References: <5.2.0.9.0.20030108181618.00b28100@pop.sbcglobal.yahoo.com>
+	 <5.2.0.9.0.20030108181618.00b28100@pop.sbcglobal.yahoo.com> <5.2.0.9.0.20030108200715.020a23c0@pop.sbcglobal.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 08 Jan 2003 18:16:54 +0100
-Message-Id: <1042046214.17783.7.camel@ranjeet-linux-1>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-01-09 at 02:52, Tim Gardner wrote:
-> I'm getting pounded by ICMP redirects from my Nortel router. The
-> setup is a SuSE 8.1 (2.4.19) standard client with fixed IP and netmask.
-> The client is configured with a default route. However, there are
-> several routers on the subnet that the default router knows about.
-> Hence, the reason that the Nortel router emits ICMP redirects
-> which my client steadfastly ignores.
-> 
-> I've RTFM, read the kernel source, and checked the relevant settings 
-> (/proc/sys/net/ipv4/conf/all/*). I find in /proc/net/rt_cache that there are 
-> 2 entries, one of which is marked RTCF_REDIRECTED.
-> 
-> Why isn't this redirected route being used? 
 
-AFAIK, because that would mean that you are allowing another machine to
-manipulate your routing tables by simply using ICMP. How do you know
-that you can trust the other machine, in this case, the nortel router ?
-The problem is not of (missing) functionality, its about trusting the
-integrity of the source of the ICMP redirect.
 
-> 
-> This seems like a problem that ought to be common to anyone that
-> has multiple routers on the same subnet. What am I missing?
-> 
-> rtg
+Billy Rose wrote:
+
+> At 02:00 AM 1/9/2003 +0000, Paulo Andre' wrote:
+> >On Thu, 2003-01-09 at 01:52, Billy Rose wrote:
+> > > after growing tired of trying to sift through the emails for tidbits of
+> > > useful code, i have come to the conclusion that this thread should be
+> > > geared towards something more constructive, otherwise i fear people will
+> > > begin to find `open source' and `free software' distasteful.
+> >
+> ><snip>
+> >
+> >You're not RMS in disguise are you? I'm sorry but after all that Nvidia
+> >noise I can believe in nearly anything.
+> >
+> >--
+> >         Paulo Andre'
+>
+> `this thread' as stated above is in regards to the nvidia noise. no im not
+> mr stallman, i happen to think linus is brilliant, as well as everyone else
+> on this list.
+>
+> br
+
+<sarcasm>
+what if I thought he was god? :D
+then I wouldnt think he is brilliant :D
+</sarcasm>
+
+all in good fun :-)
+
+>
+>
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Ranjeet Shetye
-Senior Software Engineer
-Zultys Technologies
-Ranjeet dot Shetye2 at Zultys dot com
-http://www.zultys.com/
+
+--
+Regards,
+Mark Rutherford
+mark@justirc.net
+
+
+File: Mark Rutherford.ASC
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: PGPfreeware 7.0.3 for non-commercial use <http://www.pgp.com>
+
+mQGiBDqwRnsRBADTpKKSKAcphYdcVTvBpEFFNK1eL4dQ/pBwK4NimeoAA9ISD04L
+Mv/CqH5g9D1wzXEhRBhbFZnmfoTPFEWH4Gjr4KIPdsXkTEfoJ2j55qksHWMkE10A
+K8gZlI3Ovuf8BbIabfXmjf+XtId3F4+7+og4mc7EAkatYbbl/5pR0Niy3wCg/+I/
+LUQPYGloF829jXaOW7C+tG8D/RZt8lAL/Z1NfGsQYZlE1X+Gcqf0J6HaMosnVuah
+1zAbgUHCIvNq+TOC+0KydEvbs7tAq6m+Q4zQZaqEsMwufTCWxzh+v3thRBLIuT5E
+jsTi4djkrdG3TTeAszymO/YEXQMg4Tq2hMiyeWlyTmH4C6enMu0zJMIu4OEef7+W
+KpYhBACYnukDVI8Vnw1J5KaiCZYvERhj4cr3BTk7oeYxIRH1x5S6NXK0+uVcpusa
+a8ZU4zcxvHh0k3iR8HIZcNh30eXbMF/J5pW9gorJuPwCC5Q7b+gUVaeec+1X+Wmt
+2k8RAq9RtriUdrmVN5QcPBLFd4hOHQcWDcuyhmiFp68LFvxLSLQrTWFyayBSdXRo
+ZXJmb3JkIDxNYXJrMjAwMEBiZWxsYXRsYW50aWMubmV0PokAWAQQEQIAGAUCOrBG
+ewgLAwkIBwIBCgIZAQUbAwAAAAAKCRAudCWX7QO6ULcaAJwIsYHeAp6FC5OVWSOo
+qc8O87kvBgCgz1cLgVXYcSlDWEeE32PFYb6akuy5Ag0EOrBGexAIAPZCV7cIfwgX
+cqK61qlC8wXo+VMROU+28W65Szgg2gGnVqMU6Y9AVfPQB8bLQ6mUrfdMZIZJ+AyD
+vWXpF9Sh01D49Vlf3HZSTz09jdvOmeFXklnN/biudE/F/Ha8g8VHMGHOfMlm/xX5
+u/2RXscBqtNbno2gpXI61Brwv0YAWCvl9Ij9WE5J280gtJ3kkQc2azNsOA1FHQ98
+iLMcfFstjvbzySPAQ/ClWxiNjrtVjLhdONM0/XwXV0OjHRhs3jMhLLUq/zzhsSlA
+GBGNfISnCnLWhsQDGcgHKXrKlQzZlp+r0ApQmwJG0wg9ZqRdQZ+cfL2JSyIZJrqr
+ol7DVekyCzsAAgIIAO5Bt3XOgo2GPNOCuLv6A6mRxPxwwVsYEMmVAIp/c5nluBMi
+Tu4iQU5f3U9UqZMcFKyLr1Vh0bpO6RB6L/5tXWSRY2Yly9Ofg/e0Npgebkdd8GXE
++IuEDI4lr1kbO70hlxFUPKSOQRjSmmVKNhUAiXEFQ7OtB9k5GECsHrD6qxR6r/ny
+XMBK2g2UUSh17Gx/pqH+XwXJ67DEQmF8hcnyiN9E3WQ5w3bIbKwFCaHF+tJbVnUd
+XxszxQYrsb6Feo0FVdCD+VVPQGesv34CrnKuED/mF/WoI8a3eYCMiY03IQgW514X
+JX+Jnmk9RFbTg75NdXIKDqKpB3wq39n3JmWRZG+JAEwEGBECAAwFAjqwRnsFGwwA
+AAAACgkQLnQll+0DulAfjgCfbVxiUtJbpXPn6gVJlnlIzur1yvgAnjh/9bdLsSrd
+cUaN07NL7N9NjgG1
+=hpbN
+-----END PGP PUBLIC KEY BLOCK-----
+
 

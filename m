@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285449AbRLGLEW>; Fri, 7 Dec 2001 06:04:22 -0500
+	id <S282833AbRLGLDc>; Fri, 7 Dec 2001 06:03:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285451AbRLGLEN>; Fri, 7 Dec 2001 06:04:13 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:44548 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S285449AbRLGLDz>; Fri, 7 Dec 2001 06:03:55 -0500
-Date: Fri, 7 Dec 2001 11:01:58 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Tom Rini <trini@kernel.crashing.org>, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [kbuild-devel] (no subject)
-Message-ID: <20011207110158.B1500@flint.arm.linux.org.uk>
-In-Reply-To: <20011207043059.GI30935@cpe-24-221-152-185.az.sprintbbd.net> <24800.1007699773@kao2.melbourne.sgi.com>
+	id <S285449AbRLGLDW>; Fri, 7 Dec 2001 06:03:22 -0500
+Received: from [212.3.242.3] ([212.3.242.3]:29203 "HELO mail.i4gate.net")
+	by vger.kernel.org with SMTP id <S282833AbRLGLDM>;
+	Fri, 7 Dec 2001 06:03:12 -0500
+Message-Id: <5.1.0.14.2.20011207115458.02fd2968@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 07 Dec 2001 11:56:10 +0100
+To: spyro@armlinux.org
+From: DevilKin <devilkin@gmx.net>
+Subject: Re: Bug?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011207103311.386e54fe.spyro@armlinux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <24800.1007699773@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Fri, Dec 07, 2001 at 03:36:13PM +1100
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07, 2001 at 03:36:13PM +1100, Keith Owens wrote:
-> We will not get all architectures converted in 48 hours or even 72.
-> kbuild 2.5 has been available for months and only i386, ia64, sparc32
-> (I did all those) and sparc64 (Ben Collins) have been converted.  Alpha
-> is in progress.  Unconverted architectures stay on 2.5.2-pre1 until
-> they do the conversion, but there is no need to hold up everybody else.
+At 10:33 7/12/2001 +0000, you wrote:
+>Hi.
+>
+>Havent had time to investigate, but I have seen a locup on the ASUS A7M
+>mobo, with a via-rhine (100Mb/se, fdx) ethernet card.
+>
+>With the ethernet card in one PCI slot, the USB (95% of the time) will
+>freeze the system solid when usb-uhci.o is loaded.
+>
+>Since moving the card to another slot, it seems to works fine.
+>
+>if anyone suggests 'things to look for' I will have a look (but it isnt my
+>box, so it may take time).
+>
+>For reference, I have a (similar) box with the same CPU and mobo, but
+>different cards, and have never seen this (or any similar) lockup.
+>
+>the mobo in the machine in question has been replaced, and the replacement
+>shows the same problem.
 
-It's a shame that you were too busy to discuss the bugs I found in
-kbuild 2.5 6 months ago when I tried it on ARM, despite me following
-it up since.
+I suppose that the USB hub on the mainboard and the PCI slot share IRQ's... 
+and I've noticed that USB ain't too happy about sharing IRQ's.
 
-My sympathies are with Tom here, and I think there should be longer than
-24 hours for this.
+Check the manual of the motherboard about this... or do an lspci -v and 
+report the irq numbers.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+DK
 

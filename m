@@ -1,100 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUHZCCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266725AbUHZCDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266717AbUHZCCf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 22:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266725AbUHZCCc
+	id S266725AbUHZCDT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 22:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266730AbUHZCDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 22:02:32 -0400
-Received: from waste.org ([209.173.204.2]:6289 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S266717AbUHZCC2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 22:02:28 -0400
-Date: Wed, 25 Aug 2004 21:02:17 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] allow netpoll_poll to be called recursively
-Message-ID: <20040826020216.GS31237@waste.org>
-References: <16673.13536.765055.152488@segfault.boston.redhat.com>
+	Wed, 25 Aug 2004 22:03:06 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:52628 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266725AbUHZCC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 22:02:56 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Nicholas Miell <nmiell@gmail.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
+       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+In-Reply-To: <20040826015320.GA25756@mail.shareable.org>
+References: <20040825152805.45a1ce64.akpm@osdl.org>
+	 <112698263.20040826005146@tnonline.net>
+	 <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
+	 <1453698131.20040826011935@tnonline.net>
+	 <20040825163225.4441cfdd.akpm@osdl.org>
+	 <20040825233739.GP10907@legion.cup.hp.com>
+	 <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy>
+	 <20040826010355.GB24731@mail.shareable.org>
+	 <1093483607.2748.42.camel@entropy>
+	 <20040826015320.GA25756@mail.shareable.org>
+Content-Type: text/plain
+Message-Id: <1093485763.2748.47.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16673.13536.765055.152488@segfault.boston.redhat.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.njm.1) 
+Date: Wed, 25 Aug 2004 19:02:43 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 06:27:44PM -0400, Jeff Moyer wrote:
-> Hi, Matt,
+On Wed, 2004-08-25 at 18:53, Jamie Lokier wrote:
+> Nicholas Miell wrote:
+> > > Additionally, all of those things you describe should be deleted if
+> > > the file is modified -- to indicate that they're no longer valid and
+> > > should be regenerated if needed.
+> > > 
+> > > Whereas there are some other kinds of metadata which should not be
+> > > deleted if the file is modified.
+> > > 
+> > > -- Jamie
+> > 
+> > Presumably the app which uses the metadata will be smart enough to
+> > compare the st_mtime of the MDS/stream/attribute/whatever (can we choose
+> > a name for these things now?) to the st_mtime of the file and do the
+> > right thing.
 > 
-> This should fix the recursive netpoll_poll deadlock that can happen with
-> the newly introduced netpoll_poll_lock.
+> [This is straying off the topic of files-as-directories].
+> 
+> st_mtime tests are weak.  They break sometimes, and are not suitable
+> for strong data models such as transparently caching generated data
+> from a file's contents.
+> 
+> They're especially breakable if you change a file and then read it
+> within a second.  Sometimes, more than a second.
+> 
+> As has been raised before, nanosecond timestamps (a) don't solve this
+> unless they're stored in the filesystem; (b) even then they will fail
+> one day, on a sufficiently fast box; (c) don't work when there are
+> changes to wall clock time.
+> 
+> They're fine where you don't care if the generated data is wrong sometimes.
+> 
+> If you want the _equivalent_ behaviour to opening and parsing the
+> file, but fast, then they're no good.
+> 
+> Modification serial numbers would work, though.
+> 
+> -- Jamie
 
-I rewrote this to get my head around it:
+Remember that the Solaris attribute model is just another filesystem
+tree rooted in a hidden directory associated with a regular file. If you
+can come up with semantics that work in general for all files, that's
+fine.
 
-Index: linux/net/core/netpoll.c
-===================================================================
---- linux.orig/net/core/netpoll.c	2004-08-25 12:29:10.783502466 -0500
-+++ linux/net/core/netpoll.c	2004-08-25 20:55:05.468729251 -0500
-@@ -72,6 +72,7 @@
- 	 * timeouts.  Thus, we set our budget to a more reasonable value.
- 	 */
- 	int budget = 16;
-+	static int poll_owner = -1;
- 	unsigned long flags;
- 
- 	if(!np->dev || !netif_running(np->dev) || !np->dev->poll_controller)
-@@ -81,18 +82,33 @@
- 	np->dev->poll_controller(np->dev);
- 
- 	/* If scheduling is stopped, tickle NAPI bits */
--	spin_lock_irqsave(&netpoll_poll_lock, flags);
- 	if (np->dev->poll &&
- 	    test_bit(__LINK_STATE_RX_SCHED, &np->dev->state)) {
--		np->dev->netpoll_rx |= NETPOLL_RX_DROP;
--		atomic_inc(&trapped);
- 
--		np->dev->poll(np->dev, &budget);
-+		/* attempt to grab the lock to manipulate the _rx bits */
-+		local_irq_save(flags);
- 
--		atomic_dec(&trapped);
--		np->dev->netpoll_rx &= ~NETPOLL_RX_DROP;
-+		if (smp_processor_id() != poll_owner) {
-+			/* we're not the lock owner, wait for the lock */
-+			spin_lock(&netpoll_poll_lock);
-+			poll_owner = smp_processor_id();
-+
-+			np->dev->netpoll_rx |= NETPOLL_RX_DROP;
-+			atomic_inc(&trapped);
-+
-+			np->dev->poll(np->dev, &budget);
-+
-+			atomic_dec(&trapped);
-+			np->dev->netpoll_rx &= ~NETPOLL_RX_DROP;
-+			poll_owner = -1;
-+			spin_unlock_irqrestore(&netpoll_poll_lock, flags);
-+		}
-+		else {
-+			/* we're already holding the lock */
-+			np->dev->poll(np->dev, &budget);
-+			local_irq_restore(flags);
-+		}
- 	}
--	spin_unlock_irqrestore(&netpoll_poll_lock, flags);
- 
- 	zap_completion_queue();
- }
+inodes that delete themselves when other inodes are changed creep me
+out.
 
-I think the above matches your intent, let me know if I missed
-something. Note your original version would do an unlock in the
-recursive invocation even if it didn't do a lock.
-
-But I still don't like this. dev->poll() is liable to attempt to
-recursively take its own driver lock again internally and we still
-deadlock. Have we already seen recursion here? If we do, I think we
-need to fix that in drivers. Meanwhile we should just bail here and
-maybe set a "something bad happened" flag.
-
--- 
-Mathematics is the supreme nostalgia of our time.

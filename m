@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbTGDUh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 16:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266168AbTGDUh7
+	id S266165AbTGDUhe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 16:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbTGDUhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 16:37:59 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:3462 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S266166AbTGDUh4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 16:37:56 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 4 Jul 2003 22:52:21 +0200 (MEST)
-Message-Id: <UTC200307042052.h64KqLA16451.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, mdharm-kernel@one-eyed-alien.net,
-       torvalds@osdl.org
-Subject: Re: scsi mode sense broken again
+	Fri, 4 Jul 2003 16:37:34 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:35266 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S266165AbTGDUhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 16:37:33 -0400
+Date: Fri, 4 Jul 2003 22:51:26 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org, linuxppc64-dev@lists.linuxppc.org
+Subject: [PATCH 2.5.73] Fix sa_mask and SA_NODEFER semantics for i386
+Message-ID: <20030704205126.GA8196@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I just did some re-testing, and my self-powered Zip250 and Zip750 work.
-> The 750 takes a few seconds to initialize, but nothing really bad.
-> What Zip do you have that doesn't work?
+Hi Linus!
 
-2.5.72 or patched 2.5.74:
+This patch should be less to argue about.
 
-<4>imm: Version 2.05 (for Linux 2.4.0)
-<4>imm: Found device at ID 6, Attempting to use EPP 32 bit
-<4>imm: Found device at ID 6, Attempting to use SPP
-<4>imm: Communication established at 0x378 with ID 6 using SPP
-<6>scsi1 : Iomega VPI2 (imm) interface
-<5>  Vendor: IOMEGA    Model: ZIP 100           Rev: P.05
-<5>  Type:   Direct-Access                      ANSI SCSI revision: 02
-<5>SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
-<5>sda: Write Protect is off
-<5>sda: cache data unavailable
-<6> sda: sda4
-<5>Attached scsi removable disk sda at scsi1, channel 0, id 6, lun 0
+A trivial case where code and documentation don't match.  This is from
+man 3 sigaction:
 
-An unpatched 2.5.74 says
+     sa_mask gives a mask of signals which should be blocked  during execu-
+     tion  of  the  signal handler.  In addition, the signal which triggered
+     the handler will be blocked, unless the SA_NODEFER or  SA_NOMASK  flags
+     are used.
 
-<4>IMM: returned SCSI status b8
-<4>sda: test WP failed, assume Write Enabled
-<3>sda: asking for cache data failed
-<5>sda : READ CAPACITY failed.
-<4>sda: test WP failed, assume Write Enabled
-<3>Buffer I/O error on device sda, logical block 0
-<6> sda: unable to read partition table
+In other words:
+- Always block the signals from sa_mask.
+- Also block the current signal, if SA_NODEFER is not set.
 
-and no I/O is possible.
+But without this patch, linux ignores sa_mask, when SA_NODEFER is set,
+so either the documentation or our implementation is wrong.  Since the
+bsd manpage matches the linux one, I guess the code is wrong.
 
-Andries
+Jörn
 
+-- 
+Everything should be made as simple as possible, but not simpler.
+-- Albert Einstein
+
+--- linux-2.5.73/arch/i386/kernel/signal.c~sigmask_i386	2003-07-04 18:59:48.000000000 +0200
++++ linux-2.5.73/arch/i386/kernel/signal.c	2003-07-04 22:39:59.000000000 +0200
+@@ -551,13 +551,12 @@
+ 	if (ka->sa.sa_flags & SA_ONESHOT)
+ 		ka->sa.sa_handler = SIG_DFL;
+ 
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sighand->siglock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	spin_lock_irq(&current->sighand->siglock);
++	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++	if (!(ka->sa.sa_flags & SA_NODEFER))
+ 		sigaddset(&current->blocked,sig);
+-		recalc_sigpending();
+-		spin_unlock_irq(&current->sighand->siglock);
+-	}
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
+ }
+ 
+ /*

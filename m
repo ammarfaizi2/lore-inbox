@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbQKBVRg>; Thu, 2 Nov 2000 16:17:36 -0500
+	id <S129216AbQKBVWg>; Thu, 2 Nov 2000 16:22:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129312AbQKBVR1>; Thu, 2 Nov 2000 16:17:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19020 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129026AbQKBVRA>; Thu, 2 Nov 2000 16:17:00 -0500
-Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
-To: Tim@Rikers.org (Tim Riker)
-Date: Thu, 2 Nov 2000 21:17:44 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3A01D6D1.44BD66FE@Rikers.org> from "Tim Riker" at Nov 02, 2000 02:04:17 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129378AbQKBVW1>; Thu, 2 Nov 2000 16:22:27 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:61430 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S129216AbQKBVWP>;
+	Thu, 2 Nov 2000 16:22:15 -0500
+Date: Thu, 2 Nov 2000 13:22:06 -0800
+From: Greg KH <greg@wirex.com>
+To: Sasi Peter <sape@iq.rulez.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18pre19
+Message-ID: <20001102132206.B2424@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>, Sasi Peter <sape@iq.rulez.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10011020931280.8444-100000@iq.rulez.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13rRk1-0001ut-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10011020931280.8444-100000@iq.rulez.org>; from sape@iq.rulez.org on Thu, Nov 02, 2000 at 11:26:18AM +0100
+X-Operating-System: Linux 2.4.0-test10 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How can I insure that the largest possible amount of my efforts benefit
-> the community at large? Hopefully this will make it easier to move to
-> C99 or any other future compiler porting project.
+On Thu, Nov 02, 2000 at 11:26:18AM +0100, Sasi Peter wrote:
+> Hi!
+> 
+> Seems like something in USB went wrong from pre15, I get something like
+> what is in the attachment.
+> 
+> I have tried using HID + mouse, HID BP, disabling event interface,
+> disabling hot-plug support, disabling  preliminary USB fs, disabling
+> bandwidth allocation, the effect are still the same even is leaving there
+> only the basic stuff:
 
-The asm I dont know - its a hard problem. Things like C99 initializers for 2.5
-seem quite a reasonable change. There are also things like partial structure
-packing with __attribute((packed)) that can be hard to port
+Could you send the result of /proc/interrupts and 'lspci -v'?
+Also, have you tried the alternate UHCI controller driver?
+Or tried USB as modules, instead of compiled in?
 
+thanks,
+
+greg k-h
+
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

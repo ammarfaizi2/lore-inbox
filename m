@@ -1,94 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbSJYTK2>; Fri, 25 Oct 2002 15:10:28 -0400
+	id <S261560AbSJYTPN>; Fri, 25 Oct 2002 15:15:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261563AbSJYTK2>; Fri, 25 Oct 2002 15:10:28 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:65236 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261561AbSJYTKZ>;
-	Fri, 25 Oct 2002 15:10:25 -0400
-Subject: Re: [Lse-tech] Re: [PATCH]updated ipc lock patch
-From: Paul Larson <plars@linuxtestproject.org>
-To: cmm@us.ibm.com
-Cc: Andrew Morton <akpm@digeo.com>, Hugh Dickins <hugh@veritas.com>,
-       manfred@colorfullife.com, lkml <linux-kernel@vger.kernel.org>,
-       dipankar@in.ibm.com, lse-tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <3DB992B7.E8919930@us.ibm.com>
-References: <Pine.LNX.4.44.0210211946470.17128-100000@localhost.localdomain>
-	<3DB86B05.447E7410@us.ibm.com> <3DB87458.F5C7DABA@digeo.com> 
-	<3DB880E8.747C7EEC@us.ibm.com> <1035555715.3447.150.camel@plars> 
-	<3DB97C90.2DF810E6@us.ibm.com> <1035570043.5646.191.camel@plars> 
-	<3DB992B7.E8919930@us.ibm.com>
+	id <S261569AbSJYTPN>; Fri, 25 Oct 2002 15:15:13 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:65286
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261560AbSJYTPM>; Fri, 25 Oct 2002 15:15:12 -0400
+Subject: Re: [PATCH] How to get number of physical CPU in linux from user
+	space?
+From: Robert Love <rml@tech9.net>
+To: Dave Jones <davej@codemonkey.org.uk>, akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       chrisl@vmware.com, "Martin J. Bligh" <mbligh@aracnet.com>
+In-Reply-To: <20021025191356.GA11189@suse.de>
+References: <F2DBA543B89AD51184B600508B68D4000EA170E9@fmsmsx103.fm.intel.com>
+	<1035572950.1501.3429.camel@phantasy>  <20021025191356.GA11189@suse.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 25 Oct 2002 14:06:59 -0500
-Message-Id: <1035572820.5646.211.camel@plars>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 15:21:28 -0400
+Message-Id: <1035573689.730.3473.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 13:51, mingming cao wrote:
-> Paul Larson wrote:
-> > 
-> > On Fri, 2002-10-25 at 12:17, mingming cao wrote:
-> > >
-> > > shmctl01    3  FAIL  :  # of attaches is incorrect - 0
-> > I guess you are running it with -i2?
-> No, I did not use -i2.
-Maybe I just read it wrong.
+On Fri, 2002-10-25 at 15:13, Dave Jones wrote:
 
-> What I did is just run ./shmctl01
-> 
-> >  I just tried shmctl01 -i2 on a
-> > 2.5.44 kernel and did not get this error.
-> Sorry, Paul.  Could you try 2.5.44-mm4?  I saw the error on clean
-> 2.5.44-mm4(without my patch). And I remember I saw this on 2.5.42-mm2
-> also. 
-> 
-> Here is what I saw:
-I still have my results from testing 2.5.44-mm4, here's a cut and paste
-from shmctl01:
+> Should this be wrapped in a if (cpu_has_ht(c)) { }  ?
+> Seems silly to be displaying HT information on non-HT CPUs.
 
-<<<test_start>>>
-tag=shmctl01 stime=1035486589
-cmdline="shmctl01"
-contacts=""
-analysis=exit
-initiation_status="ok"
-<<<test_output>>>
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
-pass #2
-shmctl01    3  PASS  :  new mode and change time are correct
-shmctl01    4  PASS  :  shared memory appears to be removed
-<<<execution_status>>>
-duration=1 termination_type=exited termination_id=0 corefile=no
-cutime=0 cstime=1
-<<<test_end>>>
+I am neutral, but is fine with me. It is just "cpu_has_ht", btw.
 
-I havn't seen this test fail before but I'll be happy to do more testing
-with your patch to see if I can reproduce it.  You may also want to
-consider updating LTP to the newest version.  I'm fairly certain that
-shmctl01 hasn't been changed since the version you have, but just to be
-consistent you may want to do that.
+Take two...
 
-Thanks,
-Paul Larson
+This displays the physical processor id and number of siblings of each
+processor in /proc/cpuinfo.
+
+	Robert Love
+
+ .proc.c.swp |binary
+ proc.c      |    7 +++++++
+ 2 files changed, 7 insertions(+)
+
+diff -urN linux-2.5.44/arch/i386/kernel/cpu/proc.c linux/arch/i386/kernel/cpu/proc.c
+--- linux-2.5.44/arch/i386/kernel/cpu/proc.c	2002-10-19 00:02:29.000000000 -0400
++++ linux/arch/i386/kernel/cpu/proc.c	2002-10-25 15:18:03.000000000 -0400
+@@ -17,6 +17,7 @@
+ 	 * applications want to get the raw CPUID data, they should access
+ 	 * /dev/cpu/<cpu_nr>/cpuid instead.
+ 	 */
++	extern int phys_proc_id[NR_CPUS];
+ 	static char *x86_cap_flags[] = {
+ 		/* Intel-defined */
+ 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
+@@ -74,6 +75,12 @@
+ 	/* Cache size */
+ 	if (c->x86_cache_size >= 0)
+ 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
++#ifdef CONFIG_SMP
++	if (cpu_has_ht) {
++		seq_printf(m, "physical processor ID\t: %d\n", phys_proc_id[n]);
++		seq_printf(m, "number of siblings\t: %d\n", smp_num_siblings);
++	}
++#endif
+ 	
+ 	/* We use exception 16 if we have hardware math and we've either seen it or the CPU claims it is internal */
+ 	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
 

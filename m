@@ -1,119 +1,272 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264897AbUGGEji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUGGEqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264897AbUGGEji (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 00:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264896AbUGGEji
+	id S264903AbUGGEqA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 00:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbUGGEqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 00:39:38 -0400
-Received: from o-254-174.hosts.cablelink.de ([217.69.254.174]:18699 "EHLO
-	little.homeunix.net") by vger.kernel.org with ESMTP id S264897AbUGGEjY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 00:39:24 -0400
-From: Matthias Wolle <Matthias.Wolle@gmx.de>
-Reply-To: Matthias Wolle <Matthias.Wolle@gmx.de>
-Organization: privat
-Subject: kernel oops 2.4.25-grsec slab.c/kswapd
-Date: Wed, 7 Jul 2004 06:39:21 +0200
-User-Agent: KMail/1.6.2
+	Wed, 7 Jul 2004 00:46:00 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:17581 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S264903AbUGGEpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 00:45:50 -0400
+X-Ironport-AV: i="3.81R,152,1083560400"; 
+   d="scan'208"; a="42490602:sNHT25284796"
+Date: Tue, 6 Jul 2004 23:45:50 -0500 (CDT)
+From: Matt Domsch <Matt_Domsch@dell.com>
+X-X-Sender: mdomsch@humbolt.us.dell.com
+To: Frediano Ziglio <freddyz77@tin.it>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Subject: Re: Fw: EDD enhanchement patch
+In-Reply-To: <20040706171234.4b0462e1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0407062248040.19141-100000@humbolt.us.dell.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407070639.22679.Matthias.Wolle@gmx.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
+> Date: Tue, 06 Jul 2004 18:53:28 +0200
+> From: Frediano Ziglio <freddyz77@tin.it>
+> 
+> This patch add support for DTPE data in EDD and mbr_signature. This
+> patch do not solve fdisk problems but can help these programs to compute
+> correct head count.
 
-[please CC I'm not subscribed]
+Thanks Frediano.  I don't think this is quite ready to include yet,
+but I'm not philosophically opposed to it, so let's work it out.
 
-ksymoops 2.4.5 on i586 2.4.25-grsec.  Options used
-     -V (default)
-     -K (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.25-grsec/ (specified)
-     -m /boot/System.map-2.4.25-grsec (specified)
+First, I want to understand what information in the DPTE you need.  I
+assume byte offset 4, bit 6 (LBA enable), and bytes 10-11 bit 3 (CHS
+translation enabled) and bit 4 (LBA translation enabled), yes?  How
+are you expecting tools like fdisk to use this information?
 
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Jul  7 01:00:12 little kernel: kernel BUG at slab.c:1605!
-Jul  7 01:00:12 little kernel: invalid operand: 0000
-Jul  7 01:00:12 little kernel: CPU:    0
-Jul  7 01:00:12 little kernel: EIP:    0010:[kfree+123/176]    Not tainted
-Jul  7 01:00:12 little kernel: EFLAGS: 00010086
-Jul  7 01:00:12 little kernel: eax: 0000001d   ebx: 0000367c   ecx: 00000000   edx: c38c0000
-Jul  7 01:00:12 little kernel: esi: c013d6e4   edi: 00000286   ebp: 00000851   esp: c10c3f4c
-Jul  7 01:00:12 little kernel: ds: 0018   es: 0018   ss: 0018
-Jul  7 01:00:12 little kernel: Process kswapd (pid: 4, stackpage=c10c3000)
-Jul  7 01:00:12 little kernel: Stack: c031d128 c013d6e4 c093c4f8 c017d688 c09967c4 c01dfde7 c013d6e4 0000003c 
-Jul  7 01:00:12 little kernel:        000001d0 00000011 c0102b18 c01e00b5 000014aa c01c6dd5 00000006 000001d0 
-Jul  7 01:00:12 little kernel:        00000000 00000000 c0102b18 00000001 c10c2000 00000000 c01c6f47 c0102a40 
-Jul  7 01:00:12 little kernel: Call Trace:    [prune_dcache+295/320] [shrink_dcache_memory+37/64] [try_to_free_pages_zone+101/176] [kswapd_balance_pgdat+87/160] [kswapd_balance+22/48]
-Jul  7 01:00:12 little kernel: Code: 0f 0b 45 06 f9 d0 31 c0 58 5a 8b 15 10 b8 12 c0 eb d0 8d 76 
-Using defaults from ksymoops -t elf32-i386 -a i386
+Second, your timing is unfortunate, as the patch won't apply given the
+mbr_signature capture routines I submitted and were committed to BK in
+the past week.  It'll have to be reworked against BK-current.
+
+Now, for the patch:
+
+diff -U10 -r linux-2.6.7.orig/arch/i386/boot/edd.S linux-2.6.7/arch/i386/boot/edd.S
++++ linux-2.6.7/arch/i386/boot/edd.S	2004-07-06 17:07:02.000000000 +0200
+ #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
+-# Read the first sector of device 80h and store the 4-byte signature
+-	movl	$0xFFFFFFFF, %eax
+-	movl	%eax, (DISK80_SIG_BUFFER)	# assume failure
+-	movb	$READ_SECTORS, %ah
+-	movb	$1, %al				# read 1 sector
+-	movb	$0x80, %dl			# from device 80
+-	movb	$0, %dh				# at head 0
+-	movw	$1, %cx				# cylinder 0, sector 0
+-	pushw	%es
+-	pushw	%ds
+-	popw	%es
+-	movw	$EDDBUF, %bx
+-	pushw   %dx             # work around buggy BIOSes
+-	stc                     # work around buggy BIOSes
+-	int     $0x13
+-	sti                     # work around buggy BIOSes
+-	popw    %dx
+-	jc	disk_sig_done
+-	movl	(EDDBUF+MBR_SIG_OFFSET), %eax
+-	movl	%eax, (DISK80_SIG_BUFFER)	# store success
+-disk_sig_done:
+-	popw	%es
+
+You whack obtaining the mbr_signature for the disk here, it'll come
+back later...  OK.
+
+-	movb	%dl, %ds:-8(%si)		# store device number
+-	movb	%ah, %ds:-7(%si)		# store version
+-	movw	%cx, %ds:-6(%si)		# store extensions
++	movb	%dl, %ds:-12(%si)		# store device number
++	movb	%ah, %ds:-11(%si)		# store version
++	movw	%cx, %ds:-10(%si)		# store extensions
+
+Just at different offsets now, OK.
+
+-	movw	$EDDPARMSIZE, %ds:(%si)		# put size
++	movw	$EDDPARMSIZE-16, %ds:(%si)		# put size
+
+OK, though I dislike the magic value 16 there, would prefer a #define.
 
 
->>ebx; 0000367c Before first symbol
->>edx; c38c0000 <END_OF_CODE+3579920/????>
->>esi; c013d6e4 <pts_termios+364/400>
->>ebp; 00000851 Before first symbol
->>esp; c10c3f4c <END_OF_CODE+d7d86c/????>
++	# copy EDD 2.0 informations
++	pushw	%ds
++	pushw	%es
++	pushw	%ds
++	popw	%es
++	pushw	%si
++	leaw	EDD2_OFFSET(%si), %di
++	ldsw	%ds:0x1a(%si), %si
++	movw	$8, %cx
++	rep
++	movsw
++	popw	%si
++	popw	%es
++	popw	%ds
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   0f 0b                     ud2a   
-Code;  00000002 Before first symbol
-   2:   45                        inc    %ebp
-Code;  00000003 Before first symbol
-   3:   06                        push   %es
-Code;  00000004 Before first symbol
-   4:   f9                        stc    
-Code;  00000005 Before first symbol
-   5:   d0                        (bad)  
-Code;  00000006 Before first symbol
-   6:   31 c0                     xor    %eax,%eax
-Code;  00000008 Before first symbol
-   8:   58                        pop    %eax
-Code;  00000009 Before first symbol
-   9:   5a                        pop    %edx
-Code;  0000000a Before first symbol
-   a:   8b 15 10 b8 12 c0         mov    0xc012b810,%edx
-Code;  00000010 Before first symbol
-  10:   eb d0                     jmp    ffffffe2 <_EIP+0xffffffe2> ffffffe2 <END_OF_CODE+3fcb9902/????>
-Code;  00000012 Before first symbol
-  12:   8d 76 00                  lea    0x0(%esi),%esi
+This looks like it's copying 16 bytes, the whole DPTE, right?
 
-Hardware:
-00:00.0 Host bridge: Intel Corp. 430HX - 82439HX TXC [Triton II] (rev 01)
-00:07.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
-00:07.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
-00:09.0 Ethernet controller: Surecom Technology NE-34 (rev 01)
-00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
-00:0c.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2064W [Millennium] (rev 01)
+-	movw    %ax, %ds:-4(%si)
+-	movw    %ax, %ds:-2(%si)
++	movw    %ax, %ds:-8(%si)
++	movw    %ax, %ds:-6(%si)
 
-Intel Pentium with F0 0F bug - workaround enabled.
-CPU: Intel Pentium 75 - 200 stepping 0c
-RAM: 64MB
-CPU: 166MHz
+OK.
 
-Distribution: Debian woody (3.0)
-Compiler: gcc 3.3.3 
-grsecurity: Version 1.9.14
+-	movb	%al, %ds:-1(%si)                # Record max sect
+-	movb    %dh, %ds:-2(%si)                # Record max head number
++	movb	%al, %ds:-5(%si)                # Record max sect
++	movb    %dh, %ds:-6(%si)                # Record max head number
 
-Additional informatio:
-Server runs with kernel 2.4.25-grsec  3 months without any problems.
-kernel bug did not killed the machine only kswapd:
-kswapd <defunct> 
+OK.
 
-reproducibility: not tested
+-	movw    %ax, %ds:-4(%si)
++	movw    %ax, %ds:-8(%si)
 
-greets 
-Matthias
+OK.
+ 
+-	movw	%si, %ax			# increment si
+-	addw	$EDDPARMSIZE+EDDEXTSIZE, %ax
+-	movw	%ax, %si
++
++# Read the first sector of device and store the 4-byte signature
++	movl	$0xFFFFFFFF, %eax
++	movl	%eax, %ds:-4(%si)		# assume failure
++	movb	$READ_SECTORS, %ah
++	movb	$1, %al				# read 1 sector
++	movb	$0, %dh				# at head 0
++	movw	$1, %cx				# cylinder 0, sector 0
++	pushw	%es
++	pushw	%ss
++	popw	%es
++	subw	$0x200, %sp
++	movw	%sp, %bx
+
+Ahh, using the stack rather than empty_zero_page to read the sector
+into.  That's clever.  How large is the stack though?
+
++	pushw	%bx
++	pushw   %dx             # work around buggy BIOSes
++	stc                     # work around buggy BIOSes
++	int     $0x13
++	sti                     # work around buggy BIOSes
++	popw    %dx
++	popw	%bx
++	jc	disk_sig_done
++	movl	MBR_SIG_OFFSET(%bx), %eax
++	movl	%eax, %ds:-4(%si)		# store success
++disk_sig_done:
++	addw	$0x200, %sp
++	popw	%es
++
++
++	addw	$EDDPARMSIZE+EDDEXTSIZE, %si	# increment si
+
+
+The only problem I have with the above is that you're limited by the
+space in empty_zero_page set aside for the edd info structures, which
+is presently 6, though with your additions, I think should drop to 5.  My
+latest in BK keeps mbr_signatures for the first 16 devices.
+
+diff -U10 -r linux-2.6.7.orig/Documentation/i386/zero-page.txt linux-2.6.7/Documentation/i386/zero-page.txt
+--- linux-2.6.7.orig/Documentation/i386/zero-page.txt	2004-06-01 11:49:45.000000000 +0200
++++ linux-2.6.7/Documentation/i386/zero-page.txt	2004-06-05 12:57:44.000000000 +0200
+@@ -65,14 +65,13 @@
+ 0x211	char		loadflags:
+ 			bit0 = 1: kernel is loaded high (bzImage)
+ 			bit7 = 1: Heap and pointer (see below) set by boot
+ 				  loader.
+ 0x212	unsigned short	(setup.S)
+ 0x214	unsigned long	KERNEL_START, where the loader started the kernel
+ 0x218	unsigned long	INITRD_START, address of loaded ramdisk image
+ 0x21c	unsigned long	INITRD_SIZE, size in bytes of ramdisk image
+ 0x220	4 bytes		(setup.S)
+ 0x224	unsigned short	setup.S heap end pointer
+-0x2cc	4 bytes		DISK80_SIG_BUFFER (setup.S)
++0x2cc	4 bytes		unused (old DISK80_SIG_BUFFER, setup.S)
+
+I think we can just remove the note if it's not used anymore.
+
+ 0x2d0 - 0x600		E820MAP
+-0x600 - 0x7ff		EDDBUF (setup.S) for disk signature read sector
+-0x600 - 0x7eb		EDDBUF (setup.S) for edd data
++0x600 - 0x863		EDDBUF (setup.S) for edd data
+
+I believe the empty_zero_page ends at 0x7ff.  If I'm right, then we
+need to reduce the number of devices probed by one such that we don't
+overflow this space.
+
+ static ssize_t
+ edd_show_raw_data(struct edd_device *edev, char *buf)
+ {
+ 	struct edd_info *info;
+-	ssize_t len = sizeof (info->params);
++	ssize_t len = sizeof (info->params) - 16;
+
+Again, the magic 16.  Let's fix up the structure such that its members
+are rightly sized, and use those lengths.
+
+-	if (len > (sizeof(info->params)))
+-		len = sizeof(info->params);
++	if (len > (sizeof(info->params)-16))
++		len = sizeof(info->params)-16;
+
+ditto
+ 
++static ssize_t
++edd_show_dpte(struct edd_device *edev, char *buf)
++{
++	struct edd_info *info;
++	if (!edev)
++		return -EINVAL;
++	info = edd_dev_get_info(edev);
++	if (!info || !buf)
++		return -EINVAL;
++
++	memcpy(buf, &info->params.port_base, 16);
++	return 16;
++}
+
+Ok, this'll get gregkh's attention.  I was lazy with
+edd_show_raw_data() returning raw data like this, and *not* using the
+sysfs binary blob interface.  Rather than add another nonconformant
+use, let's fix both of these to use this, and name it "raw_dpte"
+instead.
+
++	
++	/* EDD 2.0 infos */
++	u16 port_base;
++	u16 port_command;
++	u8 drive_flags;
++	u8 proprietary_informations;
++	u8 irq;
++	u8 multi_sector_count;
++	u8 dma_control;
++	u8 programmed_io;
++	u16 drive_options;
++	u16 reserved5;
++	u8 extension_level;
++	u8 edd2_checksum;
+ } __attribute__ ((packed));
+
+The DPTE data needs to be in its own struct, not in edd_device_params
+(which is only fn48 data), then tacked into the end of struct edd_info.
+
+I'm out this week on vacation, and the next few weeks are busy with
+OLS coming.  If you care to rework this against current BK, leaving
+the mbr_signature list in its new place so we can keep 16 rather than
+5 (I think those will be more useful than EDD in the near future given how
+poor nearly all the BIOS implementations of EDD are still), then we
+can review on the list again.
+
+Thanks,
+Matt
 
 -- 
-public-key
-http://little.homeunix.net/publickey/publickey.txt
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 

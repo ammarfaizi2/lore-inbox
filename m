@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265462AbUHFIMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265315AbUHFIOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265462AbUHFIMh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 04:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUHFIMf
+	id S265315AbUHFIOr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 04:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUHFIOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 04:12:35 -0400
-Received: from holomorphy.com ([207.189.100.168]:58057 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265462AbUHFILW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 04:11:22 -0400
-Date: Fri, 6 Aug 2004 01:11:16 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: alpha signal race fixes
-Message-ID: <20040806081116.GX17188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040805031918.08790a82.akpm@osdl.org> <20040806075219.GW17188@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040806075219.GW17188@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 6 Aug 2004 04:14:46 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:49862 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S265315AbUHFIOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 04:14:37 -0400
+Date: Fri, 6 Aug 2004 10:14:03 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408060814.i768E3Pw005213@burner.fokus.fraunhofer.de>
+To: dwmw2@infradead.org, schilling@fokus.fraunhofer.de
+Cc: axboe@suse.de, kernel@wildsau.enemy.org, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 12:52:19AM -0700, William Lee Irwin III wrote:
-> It appears alpha needs an update here also. The rampant variable
-> renaming made my eyes bleed, so I omitted that from here. Anyhow, the
-> test app works after I apply this, so I must have done something right.
 
-And one more alpha fix for the profiling consolidation:
+>From: David Woodhouse <dwmw2@infradead.org>
 
+>On Thu, 2004-08-05 at 14:45 +0200, Joerg Schilling wrote:
+>> ....I am not repsonsible for your mail box....
 
-Index: mm1-2.6.8-rc3/arch/alpha/kernel/irq.c
-===================================================================
---- mm1-2.6.8-rc3.orig/arch/alpha/kernel/irq.c	2004-08-05 07:09:23.000000000 -0700
-+++ mm1-2.6.8-rc3/arch/alpha/kernel/irq.c	2004-08-05 23:41:24.000000000 -0700
-@@ -329,9 +329,6 @@
- void
- init_irq_proc (void)
- {
--#ifdef CONFIG_SMP
--	struct proc_dir_entry *entry;
--#endif
- 	int i;
- 
- 	/* create /proc/irq */
+>Actually, you are partly responsible for the mess in my mail box. Please
+>fix your mail client to correctly insert References: and/or In-Reply-To:
+>headers such that your replies are not each starting a new thread of
+>their own.
+
+Before you are making the wrong conclsuions, I encourage you to read RFC-2822
+and to find somebody who is able to explain you the difference between the
+words "must" and "should" when used in standards....
+
+Sorry for the typo in the last mail, it must of course not be "shall" but 
+"should" ;-) Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

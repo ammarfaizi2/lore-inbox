@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132110AbQKZDGK>; Sat, 25 Nov 2000 22:06:10 -0500
+        id <S131959AbQKZD0u>; Sat, 25 Nov 2000 22:26:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132114AbQKZDGB>; Sat, 25 Nov 2000 22:06:01 -0500
-Received: from www.hr.vc-graz.ac.at ([193.171.240.3]:47626 "EHLO
-        www.hr.vc-graz.ac.at") by vger.kernel.org with ESMTP
-        id <S132110AbQKZDFu>; Sat, 25 Nov 2000 22:05:50 -0500
-Message-ID: <3A207714.DA2B03E@fl.priv.at>
-Date: Sun, 26 Nov 2000 03:36:04 +0100
-From: Friedrich Lobenstock <fl@fl.priv.at>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre21 i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: andre@linux-ide.org
-CC: linux-kernel@vger.kernel.org, ahedrick@atipa.com, andre@suse.com
-Subject: [PATCH] promise controller and QUANTUM FIREBALLlct10 30
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+        id <S132114AbQKZD0a>; Sat, 25 Nov 2000 22:26:30 -0500
+Received: from barry.mail.mindspring.net ([207.69.200.25]:37636 "EHLO
+        barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+        id <S131959AbQKZD0Z>; Sat, 25 Nov 2000 22:26:25 -0500
+From: ttsig@mindspring.com
+Date: Sat, 25 Nov 2000 21:55:37 -0500
+To: linux-kernel@vger.kernel.org
+Subject: test11-ac4, APM & Dell 5000e
+Message-ID: <Springmail.105.975207337.0.66247700@www.springmail.com>
+X-Originating-IP: 165.247.172.192
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andre!
+Hi all,
 
-I had to apply this patch to be able to get my system starting up
-because the PDC driver would look the system without it.
+Thanks for the workaround on the Dell 5000e APM problems.
 
-If I remember correctly the system would hang after the last line shown.
-hda: QUANTUM FIREBALLlct10 10, ATA DISK drive
-hdc: QUANTUM FIREBALLlct10 10, ATA DISK drive
-hde: QUANTUM FIREBALLlct10 30, ATA DISK drive           (on PDC 20262 !)
-hdg: QUANTUM FIREBALLlct10 30, ATA DISK drive            (on PDC 20262 !)
-[..]
-hda: 20044080 sectors (10263 MB) w/418KiB Cache, CHS=19885/16/63, UDMA(33)
-hdc: 20044080 sectors (10263 MB) w/418KiB Cache, CHS=19885/16/63, UDMA(33)
-hde: 58633344 sectors (30020 MB) w/418KiB Cache, CHS=58168/16/63, UDMA(66)
-hdg: 58633344 sectors (30020 MB) w/418KiB Cache, CHS=58168/16/63, UDMA(66)
+However, there does seem to be a small typo in the patch.  The
+comments state that the A04 BIOS dates 08/24/2000 is known defective,
+but the code itself is looking for 08/04/2000.
 
+With this small fix it actually "Works for Me" (well, minus the power
+status stuff of course) but at least I get real working suspend/resume.
 
---- linux/drivers/ide/pdc202xx.c~       Fri Jul 28 21:08:30 2000
-+++ linux/drivers/ide/pdc202xx.c        Sat Nov 25 20:18:51 2000
-@@ -222,6 +222,7 @@
+Later,
+Tom
 
- const char *pdc_quirk_drives[] = {
-        "QUANTUM FIREBALLlct08 08",
-+       "QUANTUM FIREBALLlct10 30",
-        "QUANTUM FIREBALLP KA6.4",
-        "QUANTUM FIREBALLP LM20.4",
-        "QUANTUM FIREBALLP LM20.5",
-
-PS: Please CC me because I'm not on linux-kernel.
- 
-MfG / Regards
-Friedrich Lobenstock
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265377AbUF2CeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265373AbUF2CpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265377AbUF2CeT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 22:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUF2CeT
+	id S265373AbUF2CpP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 22:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265370AbUF2CpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 22:34:19 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:38167 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S265377AbUF2CeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 22:34:15 -0400
-Message-Id: <5.1.0.14.2.20040629122704.04958ec8@171.71.163.14>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 29 Jun 2004 12:34:01 +1000
-To: "David S. Miller" <davem@redhat.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: TCP-RST Vulnerability - Doubt
-Cc: saiprathap <saiprathap@cc.usu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040625150532.1a6d6e60.davem@redhat.com>
-References: <40DC9B00@webster.usu.edu>
- <40DC9B00@webster.usu.edu>
+	Mon, 28 Jun 2004 22:45:15 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:49600 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S265383AbUF2CpJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 22:45:09 -0400
+Subject: Re: __setup()'s not processed in bk-current
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ricky Beam <jfbeam@bluetronic.net>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@muc.de>, rth@twiddle.net
+In-Reply-To: <20040628165707.328cce15.akpm@osdl.org>
+References: <Pine.GSO.4.33.0406281523340.25702-100000@sweetums.bluetronic.net>
+	 <20040628165707.328cce15.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1088477020.10622.82.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 29 Jun 2004 12:43:41 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:05 AM 27/06/2004, David S. Miller wrote:
-> > Could you kindly share your views regarding what Linux has done to its 
-> stack
-> > to overcome this vulnerability as it will be of great help to my research.
->
->We have done nothing, and there are no plans to implement any workaround
->for this problem.
+On Tue, 2004-06-29 at 09:57, Andrew Morton wrote:
+> We're now putting 24-byte structures into .init.setup via __setup.  But
+> x86_64's compiler is emitting a `.align 16' in there, so they end up on
+> 32-byte boundaries and do_early_param()'s pointer arithmetic goes wrong.
+> 
+> Fix that up by forcing the compiler to align these structures to sizeof(long).
 
-the vulnerabilities are real for any application/protocol which makes use 
-of long-duration TCP sessions.
+Um, that's really odd, and at least deserves a comment.
 
-the most common place that people have found the vulnerability to be of use 
-is in killing BGP sessions.
-protocols which make use of long-held TCP sessions such as NFSv3, irc, 
-nntp, telnet, ssh, X11 et al are just as vulnerable.
+There are a number of places where we assume that we can iterate through
+all entries in a section as an array, rth would know if we've just been
+lucky...
 
+Thanks,
+Rusty.
 
-cheers,
-
-lincoln.
+> diff -puN include/linux/init.h~x86_64-setup-section-alignment-fix include/linux/init.h
+> --- 25/include/linux/init.h~x86_64-setup-section-alignment-fix	2004-06-28 16:47:41.000000000 -0700
+> +++ 25-akpm/include/linux/init.h	2004-06-28 16:47:41.000000000 -0700
+> @@ -119,6 +119,7 @@ struct obs_kernel_param {
+>  	static struct obs_kernel_param __setup_##unique_id	\
+>  		 __attribute_used__				\
+>  		 __attribute__((__section__(".init.setup")))	\
+> +		__attribute__((aligned((sizeof(long)))))	\
+>  		= { __setup_str_##unique_id, fn, early }
+>  
+>  #define __setup_null_param(str, unique_id)			\
+> 
+> _
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

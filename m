@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbTJHPgS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 11:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTJHPgS
+	id S261613AbTJHPrl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 11:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbTJHPrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 11:36:18 -0400
-Received: from mail.convergence.de ([212.84.236.4]:65511 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S261681AbTJHPgR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 11:36:17 -0400
-Message-ID: <3F842EEE.5070001@convergence.de>
-Date: Wed, 08 Oct 2003 17:36:14 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5b) Gecko/20030903 Thunderbird/0.2
-X-Accept-Language: de-de, de-at, de, en-us, en
+	Wed, 8 Oct 2003 11:47:41 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:2726 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id S261613AbTJHPrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 11:47:39 -0400
+Date: Wed, 8 Oct 2003 16:47:36 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Rik van Riel <riel@redhat.com>
+cc: "David S. Miller" <davem@redhat.com>, <marcelo.tosatti@cyclades.com>,
+       <Matt_Domsch@Dell.com>, <linux-kernel@vger.kernel.org>,
+       <benh@kernel.crashing.org>
+Subject: Re: [PATCH] page->flags corruption fix
+In-Reply-To: <Pine.LNX.4.44.0310081106380.5568-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.44.0310081632080.3127-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Marcel Holtmann <marcel@holtmann.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/14] firmware update for av7110 dvb driver
-References: <10656197272107@convergence.de> <1065624307.5470.242.camel@pegasus>
-In-Reply-To: <1065624307.5470.242.camel@pegasus>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Marcel,
+On Wed, 8 Oct 2003, Rik van Riel wrote:
+> 
+> Though I suspect it's gotten worse since 2.4.14 or so, where
+> we moved the final lru_cache_del() into __free_pages_ok() and
+> the fact that anonymous pages are on the lru lists.
 
->>... send to Linus only. (You don't want a 150kB bzip2 compressed firmware blob, don't you? In case you do, drop me a line.)
+I agree both of those make it all more fragile;
+but I still don't quite see where it's broken.
 
-> the request_firmware() framework is part of Linux 2.4 and 2.6 and so for
-> most drivers the firmware file can be loaded from userspace through proc
-> or sysfs. Please take a look at it.
+The existing shortcuts are normally dealing with either a freed
+page or a just allocated, not yet published, page.  And you're
+right that the anon->swap case is an exception, less obvious.
 
-Yes, we know. When I looked at it the last time, there were some 
-problems that kept us from actually finishing the work.
+> It's quite possible that one CPU adds the page to the swap
+> cache, while another CPU moves the page around on the inactive
+> list. At that point both CPUs could be fiddling around with
+> the page->flags simultaneously.
 
-(If you did not use a hotplug agent, then the system was frozen, because 
-the firmware foo did not use it's own workqueue)
+Don't both of those TryLockPage (in one case holding page_table_lock,
+in the other case holding pagemap_lru_lock, to hold the page while
+doing so)?
 
-I gave some feedback, but I don't know if the fixes made it into the 
-kernel yet.
+> In fact, this has been observed in heavy stress testing by
+> Matt Domsch and Robert Hentosh...
 
-I have once patched our drivers to use request_firmware() and I have 
-these patches still lying around, so I'll try and see if they work when 
-I have some spare time.
+Perhaps Matt could add description of what they observed, in support
+of the patch.  I'm not yet convinced that it's necessarily the fix.
 
-> Regards
-> Marcel
-
-CU
-Michael.
+Hugh
 

@@ -1,101 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbUBVMBh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 07:01:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUBVMBh
+	id S261231AbUBVMQY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 07:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbUBVMQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 07:01:37 -0500
-Received: from m013-078.nv.iinet.net.au ([203.217.13.78]:30995 "EHLO
-	mail.adixein.com") by vger.kernel.org with ESMTP id S261226AbUBVMBe
+	Sun, 22 Feb 2004 07:16:24 -0500
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:53916 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S261231AbUBVMQW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 07:01:34 -0500
-From: "Elliot Mackenzie" <macka@adixein.com>
-To: "'Randy.Dunlap'" <rddunlap@osdl.org>
-Cc: "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: RE: PROBLEM: Panic booting from USB disk in ioremap.c (line 81)
-Date: Sun, 22 Feb 2004 22:02:22 +1000
-Keywords: macka@adixein.com
-Message-ID: <001201c3f93b$bbd94170$4301a8c0@waverunner>
+	Sun, 22 Feb 2004 07:16:22 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Tridge <tridge@samba.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(), O_CLEAN
+References: <16435.60448.70856.791580@samba.org>
+	<Pine.LNX.4.58.0402181457470.18038@home.osdl.org>
+	<16435.61622.732939.135127@samba.org>
+	<Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
+	<20040219081027.GB4113@mail.shareable.org>
+	<Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
+	<20040219163838.GC2308@mail.shareable.org>
+	<Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+	<20040219182948.GA3414@mail.shareable.org>
+	<Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+	<20040220120417.GA4010@elte.hu>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 20 Feb 2004 21:38:51 +0100
+In-Reply-To: <20040220120417.GA4010@elte.hu>
+Message-ID: <m3vfm1trj8.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-In-Reply-To: <20040220213157.7da96979.rddunlap@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy:
+Ingo Molnar <mingo@elte.hu> writes:
 
-This issue just got a lot weirder but I have some more information.  
+> * Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> i believe Samba's problems can be solved in an even simpler way, by 
+> using only a single bit associated with the directory dentry, and by not 
+> putting any case-insensitivity code into the kernel. (not even as a 
+> separate module.)
+> 
+> One 'user-space cache is valid/clean' bit should be enough - where all
+> non-Samba accesses clear the 'valid bit', and Samba sets the bit
+> manually.
+> 
+> What Samba needs is a way to tell between two points in time whether the
+> directory contents have changed in any way - nothing more. Only one new
+> syscall is used to maintain the Samba dcache:
+> 
+> 	long sys_mark_dir_clean(dirfd);
+> 
+> the syscall returns whether the directory was valid/clean already.
 
-This is the weird part:
-I applied the patch you suggested, and the system stopped panicking at
-that point.  Instead, it just hung for about 10 minutes, eventually
-kicking off again and finishing bootup.  To be sure, I then removed the
-code and recompiled (clean), and now the original code started doing
-that too (without your patch).  To my knowledge I changed nothing (not
-even in BIOS), but I rebuilt the kernel again from the raw 2.6.3 source
-to be sure - same result.
+Isn't this rather bad, it's only possible to have one process that
+does this magic clean bit thing.  Other applications such as Wine or a
+DOS emulator might want to get the same speedups.  
 
-The interesting part (more information):
-If we bypass the bootflag.c code (simply by putting "return 0;" as the
-first line), the system will boot normally.  On shutdown we seem to be
-getting a system jumping to maintenance mode, but I am not sure if its
-related.  It appears you are right in assuming that the problem is
-related to the bios sbf rather than the usb.  Doug pointed out to me
-that looking through the stack trace, sbf_init is giving an rsdt_length
-of something in the order of 1GB, and somehow the checks are not picking
-it up.
+Instead of a bit, why don't just use the generation number idea that
+have been tossed around?  Let each directory have a generation number
+which can be read with a function:
 
-Since it is now relevant, the BIOS is flashed to the most recent stable
-BIOS for the ASUS P4SGX-MX motherboard (1005).
+    long sys_get_generation(dirfd);
 
-This is the tricky part:
-When we bypass the bootflag code, and boot the "working" kernel, I am
-able to capture a serial transcript.  However, I have been unsuccessful
-in establishing a serial console for the broken 2.6.3 kernel to date.
-It's possible I have done something strange while building one of the
-kernels, but I am just trying to verify that now.  Are there
-alternatives?
+Then the name lookup would work with multiple processes and with some
+code like this:
 
-Currently the text on screen comes up way to quickly for me to capture,
-and since I don't have a working serial console for the broken kernel
-yet, I am not able to capture a transcript.  Previously I could just
-type to you what I saw, but the kernel is now booting to the same point,
-hanging 10 minutes then continuing.
+repeat:
+        new_generation = sys_get_generation(dirfd);
+        if (new_generation == old_generation) {
+		... pure user-space fast path, use Samba dcache ...
+		return;
+	}
+        old_generation = generation;
+	... fill Samba dcache ...
+	readdir() loop
 
-Kind regards,
-Elliot.
+	goto repeat;
 
------Original Message-----
-From: Randy.Dunlap [mailto:rddunlap@osdl.org] 
-Sent: Saturday, 21 February 2004 3:32 PM
-To: macka@adixein.com
-Cc: lkml
-Subject: RE: PROBLEM: Panic booting from USB disk in ioremap.c (line 81)
+Add a new create syscall with the same idea as your one bit syscall,
+which checks that the generation number matches.  If the generation
+number doesn't match the create call fails.
 
+    int create_synchronized(name, mode, generation);
 
-As enumerated below:
-| Calling initcall 0xc03f7e19 pcibios_init
-| Calling initcall 0xc03f819c netdev_init
-| Calling initcall 0xc03f1e7c chr_dev_init
-| Calling initcall 0xc03e7084 i8259_init_sysfs
-| Calling initcall 0xc03e7101 init_timer_sysfs
-| Calling initcall 0xc03e90e2 sbf_init
+  /Christer
 
+-- 
+"Just how much can I get away with and still go to heaven?"
 
-I still don't see how USB enters into it, but please try the patch
-below to see if I'm on the right track or not.
-It looks like sbf_init() is finding an invalid ACPI RSDT length field.
-This patch will telll us if that's the case or not.
-
---
-~Randy
-
-
-
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

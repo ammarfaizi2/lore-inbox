@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266689AbUBMDDs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 22:03:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266693AbUBMDDs
+	id S266682AbUBMC6U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 21:58:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266689AbUBMC6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 22:03:48 -0500
-Received: from mail.shareable.org ([81.29.64.88]:24450 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266689AbUBMDDr
+	Thu, 12 Feb 2004 21:58:20 -0500
+Received: from mail.shareable.org ([81.29.64.88]:23426 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266682AbUBMC6T
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 22:03:47 -0500
-Date: Fri, 13 Feb 2004 03:03:46 +0000
+	Thu, 12 Feb 2004 21:58:19 -0500
+Date: Fri, 13 Feb 2004 02:58:14 +0000
 From: Jamie Lokier <jamie@shareable.org>
-To: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-Cc: linux-kernel@vger.kernel.org
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: John Bradford <john@grabjohn.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Message-ID: <20040213030346.GF25499@mail.shareable.org>
-References: <1076604650.31270.20.camel@ulysse.olympe.o2t>
+Message-ID: <20040213025814.GE25499@mail.shareable.org>
+References: <20040209115852.GB877@schottelius.org> <200402122039.19143.robin.rosenberg.lists@dewire.com> <200402122113.i1CLDqoB000179@81-2-122-30.bradfords.org.uk> <200402122329.11182.robin.rosenberg.lists@dewire.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1076604650.31270.20.camel@ulysse.olympe.o2t>
+In-Reply-To: <200402122329.11182.robin.rosenberg.lists@dewire.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Mailhot wrote:
-> But that's not a reason not to fix the core problem - I don't want to
-> spent hours fixing filenames next time someone comes up with a new
-> encoding. Please put valid encoding info somewhere or declare filenames
-> are utf-8 od utf-16 only - changing user locale should not corrupt old
-> data.
+Robin Rosenberg wrote:
+> Most shell scripts break if I even have a space in a filename.  This
+> shouldn't be any worse than that. The space issue is really serious
+> (but I don't think that can be fixed other than teaching people to
+> program properly, and possibly improving bash's knowledge of the
+> difference between a space and argument separator).
 
-If you attach encoding to names for a whole filesystem, you will get
-really unpleasant bugs including security holes because some names
-won't be writable, so the fs will either return error codes when those
-names are used, or silently alter the names.
+Space works fine for me.  Completion, wildcard expansion, variable
+substition etc. all fine.  Bash doesn't need changing - your scripts do.
 
 -- Jamie
-

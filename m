@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314395AbSFYRzU>; Tue, 25 Jun 2002 13:55:20 -0400
+	id <S315762AbSFYSSW>; Tue, 25 Jun 2002 14:18:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314396AbSFYRzT>; Tue, 25 Jun 2002 13:55:19 -0400
-Received: from pieck.student.uva.nl ([146.50.96.22]:38558 "EHLO
-	pieck.student.uva.nl") by vger.kernel.org with ESMTP
-	id <S314395AbSFYRzS>; Tue, 25 Jun 2002 13:55:18 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rudmer van Dijk <rvandijk@science.uva.nl>
-Reply-To: rvandijk@science.uva.nl
-Organization: UvA
-To: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.24-dj2
-Date: Tue, 25 Jun 2002 19:58:43 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <20020625163824.GA20888@suse.de>
-In-Reply-To: <20020625163824.GA20888@suse.de>
+	id <S315167AbSFYSSV>; Tue, 25 Jun 2002 14:18:21 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:6300 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S314514AbSFYSSV>;
+	Tue, 25 Jun 2002 14:18:21 -0400
+Date: Tue, 25 Jun 2002 11:13:15 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: Douglas Gilbert <dougg@torque.net>
+cc: Linux kernel list <linux-kernel@vger.kernel.org>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] /proc/scsi/map
+In-Reply-To: <3D14D301.F2C8DBBE@torque.net>
+Message-ID: <Pine.LNX.4.33.0206250949300.8496-100000@geena.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020625175518Z314395-22020+10471@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 June 2002 18:38, Dave Jones wrote:
-> Just some small bits for now (other than 40kb of bits from 2.4),
-> more stuff pending will probably wait until after I get back from
-> KS/OLS/UKUUG conferences.
 
-This is working great!
-No more trouble with X (writing this mail with KMail in 2.5.24-dj2)
+> So the "target id" we put in driverfs could have one of
+> these suggested formats:
+>    <number>              - 0 to 1 for ATA
+>    <number>              - 0 to 15 for SCSI parallel interface
+>    <number>              - 24 bit number for fibre channel
+>    <EUI 64+discovery_id> - ieee1394
+>    <???>                 - usb (mass storage + scanner)
+>    <WWUI> ":" <num>      - iSCSI   [something better than ":"?]
 
-using these options:
-CONFIG_PREEMPT=y
-CONFIG_AGP=y
-CONFIG_AGP_SIS=y
-CONFIG_DRM=y
-CONFIG_DRM_MGA=y
+In the physical device tree, what's wrong with setting the name to 
+something simple, like 'iscsi0', etc. All you're looking for is 
+a locally unique ID. 
 
-turned preemt on a long time ago and never noticed anymore since I use make 
-oldconfig, so if there was any trouble with preempt in 23-dj it is fixed now
+You need a globally unique ID to do persitant attribute setting and 
+restoration, including naming. When /sinb/hotplug gets a call to name the 
+device, it can look up the GUID to determine what to name the device.
 
-also the '__iounmap: bad address d0802030' message is gone thanks to Andi.
+	-pat
 
-so it looks solid (at least for the 10 min it is running (seti@home) now)
-
-	Rudmer

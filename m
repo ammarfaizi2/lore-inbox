@@ -1,162 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130805AbQKJNKl>; Fri, 10 Nov 2000 08:10:41 -0500
+	id <S129313AbQKJNnW>; Fri, 10 Nov 2000 08:43:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130693AbQKJNKc>; Fri, 10 Nov 2000 08:10:32 -0500
-Received: from boss.staszic.waw.pl ([195.205.163.66]:3859 "EHLO
-	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
-	id <S130805AbQKJNKX>; Fri, 10 Nov 2000 08:10:23 -0500
-Date: Fri, 10 Nov 2000 14:10:22 +0100 (CET)
-From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+	id <S129464AbQKJNnM>; Fri, 10 Nov 2000 08:43:12 -0500
+Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:29964 "EHLO
+	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S129313AbQKJNnI>;
+	Fri, 10 Nov 2000 08:43:08 -0500
+Date: Fri, 10 Nov 2000 14:42:55 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200011101342.OAA25093@db0bm.ampr.org>
 To: linux-kernel@vger.kernel.org
-cc: torvalds@transmeta.com, jgarzik@mandrakesoft.com, rkroll@exploits.org
-Subject: [PATCH] media/radio hit 2
-Message-ID: <Pine.LNX.4.21.0011101407210.3342-101000@tricky>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-853808379-973861822=:3342"
+Subject: 2.2.18pre20, VM messages
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---8323328-853808379-973861822=:3342
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Hi !
 
-
-should be less controversial...
-[Russell forgive me insinuating these drivers unmantained...]
-
+VM: do_try_to_free_pages failed for tail..  
+                                    ^^^^^ ... or something else
+				    
+Randomly, I got this message on the console. When this appends, I'm flooded
+with this message and cannot do anything with the console.
+---
 Regards
---
-Bartlomiej Zolnierkiewicz
-<bkz@linux-ide.org>
-
---8323328-853808379-973861822=:3342
-Content-Type: APPLICATION/x-gzip; name="240t11p1-radio-2.diff.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0011101410220.3342@tricky>
-Content-Description: 
-Content-Disposition: attachment; filename="240t11p1-radio-2.diff.gz"
-
-H4sICGXyCzoAA2d6ZWQuOTczODYxNDc3AO1de3PaRtf/G3+KrTtNoAgsxMWA
-4zSOjRue2saDcS7tm2FkIWyNQeKVBLH7TL77e/YiaSXtgoTTvJk0mRaBtJez
-Z8/ld87uyhNrOkWV5YWLZpa9fKhoDdWv1Ra1vYlrrUzX25ubE0vfc/WJ5dDP
-im7NvZl+UzVolSwldyqVyhYdFEZLEw0MH6E6UtVubb9b7yBNVdWdcrmcvffC
-6G6JLpwVQlBb69Zb3YZKm3n1ClW0faXWRGV82UevXu0g9CtC+HNvB+1UfrZs
-Y7acmOgF7W7uTJYzs3r3srD3KzonPzxUKBSgdKqsZVs+LomL9uH7RPd1WVFn
-4bg+a9a4M437sWveWo6tINf836Xp+ey3sPbEnOmPrPKS/Eh1o3tz6CSgxln6
-Nwr5HC+ERZe6YZieFxDkLB6R7+xNXWeOlp7pigexsiamMzFXrNa96drmDJHJ
-QJ7vLg3fE1c0HHtq3bJqx4OL0/7v4+HRSX8wHo6GR8d/jC8HwxESkOmZc31x
-57jBhJw5xj2aOi7y70zU3xsg0l9ZOonpR2zOBA+CGUo/CtjPPwn5nbwZcTbd
-EMfA9MOQSckWeSbslOHpxJxatokY74CLvfej3sWooD6oGsg0+tma2lBGymko
-wZqQzkWlRnSnXt9X6ioq1+sdRWsR7dmBqdZ9y0CW7aPxGPMTub6rg0Tj78WV
-Y01KO+i/O5WCNS1azuFhpVaCH/hGYeFCrfviH73hxbg3HKLdD84SzZeejzzT
-R7pN5lSfTFzgIPpk+XcIGlAffvvtt/+xd0sHO2XaJjo8BApL0ElZ0Calpose
-87UNsuSa/tK1UaXXv3h7dIZvfd6pkIGgIq+0QIKCtFIJkXGVyfOf4npMiiRn
-SAmI2y1h4tEa4rEwIvXhlwekz1xTnzwCv7FqAq0KEJ6g9/X11QdKLsxPgU0H
-Ucwq9LA6fMZuLWGGDoBoOjlEHAm9nm+6YxBMyzCLz/jqCnp7ejYefbjsUSEp
-0eks05nYpoHY3LnmzNQ9cx3PxDMDsgT/C1iucTzG8gIciTG5f3E6QLtH/fMr
-cB1oiEkc4dJ75OvQXJn6DBm6O0HU8VSZcEAzYH+uQJKWi9D6zMAcWfYtdiXA
-U1TACjA+vx713hef4WclwusyOBtceb70Tdp0BS1c6Mn2PWQ7lveIbhzHXy48
-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
-AA==
---8323328-853808379-973861822=:3342--
+		jean-luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

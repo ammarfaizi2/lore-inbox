@@ -1,99 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266494AbUG0RxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266499AbUG0RyO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266494AbUG0RxU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 13:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266496AbUG0RxT
+	id S266499AbUG0RyO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 13:54:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266496AbUG0RxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 13:53:19 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:9623 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266494AbUG0RxJ (ORCPT
+	Tue, 27 Jul 2004 13:53:24 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:3206 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S266495AbUG0RxS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 13:53:09 -0400
-Date: Tue, 27 Jul 2004 19:53:01 +0200 (MEST)
-Message-Id: <200407271753.i6RHr13I013000@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org
-Subject: [PATCH][2.6.8-rc1-mm1] decode local APIC errors
-Cc: linux-kernel@vger.kernel.org
+	Tue, 27 Jul 2004 13:53:18 -0400
+Date: Tue, 27 Jul 2004 19:54:39 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Andrew Morton <akpm@osdl.org>, aebr@win.tue.nl, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
+Message-ID: <20040727175439.GA1358@ucw.cz>
+References: <87llhjlxjk.fsf@devron.myhome.or.jp> <20040716164435.GA8078@ucw.cz> <20040716201523.GC5518@pclin040.win.tue.nl> <871xjbkv8g.fsf@devron.myhome.or.jp> <20040726154327.107409fc.akpm@osdl.org> <20040727134654.GB17362@ucw.cz> <878yd5be4z.fsf@devron.myhome.or.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <878yd5be4z.fsf@devron.myhome.or.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got tired of having to manually decode local APIC
-error codes in problem reports sent to LKML, so I
-rewrote arch/i386/kernel/apic:smp_error_interrupt()
-to do the decoding for us. Instead of:
+On Wed, Jul 28, 2004 at 01:37:00AM +0900, OGAWA Hirofumi wrote:
 
-APIC error on CPU0: 04(00)
-
-this patch makes the kernel print:
-
-APIC error on CPU0: Send Accept Error (0x00)
-
-The code handles multiple set error flags, and will
-also report if any unknown or reserved bits are set.
-
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
-
-diff -ruN linux-2.6.8-rc1-mm1/arch/i386/kernel/apic.c linux-2.6.8-rc1-mm1.apic-esr-decode/arch/i386/kernel/apic.c
---- linux-2.6.8-rc1-mm1/arch/i386/kernel/apic.c	2004-07-27 12:55:04.000000000 +0200
-+++ linux-2.6.8-rc1-mm1.apic-esr-decode/arch/i386/kernel/apic.c	2004-07-27 15:44:43.000000000 +0200
-@@ -1137,6 +1137,35 @@
-  * This interrupt should never happen with our APIC/SMP architecture
-  */
+> Vojtech Pavlik <vojtech@suse.cz> writes:
+> 
+> > > This all seems a bit inconclusive.  Do we proceed with the original patch
+> > > or not?  If not, how do we fix the overflow which Hirofumi has identified?
+> > 
+> > I think we should check the value in the ioctl, regardless of what's
+> > NR_KEYS defined to.
+> 
+> However, it breaks the current binary instead. (at least
+> console-tools, kbdutils).
  
-+static void print_esr_value(unsigned long esr_value)
-+{
-+	static const char *esr_strings[] = {
-+		[0] "Send Checksum Error",
-+		[1] "Receive Checksum Error",
-+		[2] "Send Accept Error",
-+		[3] "Receive Accept Error",
-+		[4] NULL,
-+		[5] "Send Illegal Vector",
-+		[6] "Received Illegal Vector",
-+		[7] "Illegal Register Address",
-+	};
-+	unsigned int i;
-+	char *sep;
-+
-+	if (!esr_value) {
-+		printk("0x00");
-+		return;
-+	}
-+	for(sep = "", i = 0; i < ARRAY_SIZE(esr_strings); ++i)
-+		if ((esr_value & (1<<i)) && esr_strings[i]) {
-+			esr_value &= ~(1<<i);
-+			printk("%s%s", sep, esr_strings[i]);
-+			sep = " + ";
-+		}
-+	if (esr_value)
-+		printk("%s0x%02lx", sep, esr_value);
-+}
-+
- asmlinkage void smp_error_interrupt(void)
- {
- 	unsigned long v, v1;
-@@ -1149,18 +1178,11 @@
- 	ack_APIC_irq();
- 	atomic_inc(&irq_err_count);
- 
--	/* Here is what the APIC error bits mean:
--	   0: Send CS error
--	   1: Receive CS error
--	   2: Send accept error
--	   3: Receive accept error
--	   4: Reserved
--	   5: Send illegal vector
--	   6: Received illegal vector
--	   7: Illegal register address
--	*/
--	printk (KERN_INFO "APIC error on CPU%d: %02lx(%02lx)\n",
--	        smp_processor_id(), v , v1);
-+	printk(KERN_INFO "APIC error on CPU%d: ", smp_processor_id());
-+	print_esr_value(v);
-+	printk(" (");
-+	print_esr_value(v1);
-+	printk(")\n");
- 	irq_exit();
- }
- 
+We can do both, then, if that helps.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

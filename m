@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266552AbUAOLok (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 06:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266558AbUAOLoj
+	id S266641AbUAOLwW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 06:52:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266759AbUAOLwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 06:44:39 -0500
-Received: from [160.218.214.150] ([160.218.214.150]:4224 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266552AbUAOLoe (ORCPT
+	Thu, 15 Jan 2004 06:52:22 -0500
+Received: from edu.joroinen.fi ([194.89.68.130]:61321 "EHLO edu.joroinen.fi")
+	by vger.kernel.org with ESMTP id S266641AbUAOLtZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 06:44:34 -0500
-Date: Thu, 15 Jan 2004 12:43:46 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Ethan Weinstein <lists@stinkfoot.org>, linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.6.1 and irq balancing
-Message-ID: <20040115114346.GB9265@elf.ucw.cz>
-References: <40008745.4070109@stinkfoot.org> <1073814681.4431.5.camel@laptop.fenrus.com> <20040111165012.GA24746@tsunami.ccur.com>
+	Thu, 15 Jan 2004 06:49:25 -0500
+Date: Thu, 15 Jan 2004 13:49:22 +0200
+From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+To: Cheng Huang <cheng@cs.wustl.edu>
+Cc: linux-kernel@vger.kernel.org, cheng@cse.wustl.edu
+Subject: Re: Hang with Promise Ultra100 TX2 (kernel 2.4.18)
+Message-ID: <20040115114922.GI1254@edu.joroinen.fi>
+References: <Pine.GSO.4.58.0401150308350.1943@siesta.cs.wustl.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040111165012.GA24746@tsunami.ccur.com>
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.GSO.4.58.0401150308350.1943@siesta.cs.wustl.edu>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Greetings all,
-> > > 
-> > > I upgraded my server to 2.6.1, and I'm finding I'm saddled with only 
-> > > interrupting on CPU0 again. 2.6.0 does this as well. This is the 
-> > > Supermicro X5DPL-iGM-O (E7501 chipset), 2 Xeons@2.4ghz HT enabled. 
-> > > /proc/cpuinfo is normal as per HT, displaying 4 cpus.
-> > 
-> > you should run the userspace irq balance daemon:
-> > http://people.redhat.com/arjanv/irqbalance/
+On Thu, Jan 15, 2004 at 03:17:12AM -0600, Cheng Huang wrote:
+> I have to use kernel 2.4.18 because I need to install KURT (realtime
+> linux) with it. However, my system hangs on boot with the following
+> message:
 > 
-> I have long wondered what is so evil about most interrupts going to
-> CPU 0 that we felt we had to have a pair of irqdaemons in 2.6.  From my
-> (admittedly imperfect) experience, the APIC will route an interrupt to
-> CPU 1 if CPU 0 is busy with another interrupt, to CPU 2 if 0 and 1 are
-> so occupied, and so on.  I see no harm in this other than the strangely
-> lopsided /proc/interrupt displays, which I can live with.
+> PDC20268: not 100% native mode: will probe irqs later
+> PDC20268: ROM enabled at 0xff900000
+>     ide2: BM-DMA at 0xfcc0-0xfcc7, BIOS settings: hde:pio, hdf:pio
+>     ide3: BM-DMA at 0xfcc8-0xfccf, BIOS settings: hdg:pio, hdh:pio
+> 
+> I have tried tricks I could find in through google, like setting boot
+> parameters "hde=4866,255,63 hde=noprobe hdg=24321,255,163 hdg=noprobe".
+> But it didn't work.
+> 
+> Could anybody provide some clue about how to fix this problem? Thanks
+> very much.
+> 
 
-Well, imagine 8 CPU machine with high interrupt load. Poor process
-that gets scheduled on CPU#0 does little progress, but is shown as
-eating one whole CPU.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I think there has been a lot of bug fixes in the latest 2.4 kernels for
+promise cards.
+
+I'm running promise ultra133-tx2 successfully with 2.4.22 kernel.
+
+Merge the promise driver from later 2.4.x kernels to 2.4.18 and recompile? 
+
+-- Pasi Kärkkäinen
+       
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.

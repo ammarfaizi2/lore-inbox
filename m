@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281896AbRKZQPQ>; Mon, 26 Nov 2001 11:15:16 -0500
+	id <S281899AbRKZQQG>; Mon, 26 Nov 2001 11:16:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281899AbRKZQPG>; Mon, 26 Nov 2001 11:15:06 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:60683 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S281896AbRKZQO6>; Mon, 26 Nov 2001 11:14:58 -0500
-Date: Mon, 26 Nov 2001 11:14:54 -0500
-Message-Id: <200111261614.fAQGEsP01603@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15aa1
-X-Newsgroups: linux.kernel
-In-Reply-To: <1006629351.1470.8.camel@praetorian>
-In-Reply-To: <20011124085028.C1419@athlon.random>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
-Reply-To: davidsen@tmr.com (bill davidsen)
+	id <S281901AbRKZQP5>; Mon, 26 Nov 2001 11:15:57 -0500
+Received: from ns.suse.de ([213.95.15.193]:19978 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281899AbRKZQPn>;
+	Mon, 26 Nov 2001 11:15:43 -0500
+To: berthiaume_wayne@emc.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multicast Broadcast
+In-Reply-To: <93F527C91A6ED411AFE10050040665D00241AB08@corpusmx1.us.dg.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 26 Nov 2001 17:15:42 +0100
+In-Reply-To: berthiaume_wayne@emc.com's message of "26 Nov 2001 16:51:37 +0100"
+Message-ID: <p73y9kth5jl.fsf@amdsim2.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1006629351.1470.8.camel@praetorian> aafes@psu.edu asked:
-| -=-=-=-=-=-
-| 
-| On Sat, 2001-11-24 at 02:50, Andrea Arcangeli wrote:
-| > Only in 2.4.15aa1: 00_iput-unmount-corruption-fix-1
-| > 
-| > 	Fix iput umount corruption.
-| 
-| Is this the problem that Al put out a patch for yesterday? And is his
-| patch been tested and working?
-| 
-| > Only in 2.4.15aa1: 00_read_super-stale-inode-1
-| > 
-| > 	If read_super fails avoid lefting stale inodes queued into
-| > 	the superblock.
-| 
-| What is this? How dangerous is it?
+berthiaume_wayne@emc.com writes:
 
-Good question. As I read the patch, the problem occurs during umount,
-when dirty inodes are not (properly) written to the disk. Would a sync()
-help or eliminate this problem, assuming that all files were closed?
-Hopefully someone knows, I don't want to tell you it only happens at
-umount, but that's my impression.
+> 	One potential work-around is a patch to
+> net/ipv4/igmp.c:ip_mc_join_group.
+> For example:
+> 
+> #ifdef DUAL_MCAST_BIND
+>    if(!imr->imr_ifindex) {
+>       imr->ifindex=2;  /* eth0 */
+>       err=ip_mc_join_group(sk, imr);
+>       if (!err) {
+>         imr->ifindex=3; /* eth1 */
+>         err=ip_mc_join_group(sk, imr);
+>       }
+>       return err;
+>    }
+> #else
+>    if(!imr->imr_ifindex)
+>      in_dev = ip_mc_find_dev(imr);
+> #endif
+> 
+> 	I'm hoping that there is another way.
 
-In any case, since 2.4.16 is out (so much for "2.4.15 released without
-embarrassment") to fix the problem, I would go with that unless you have
-a reason to use whichever patch pleases you.
+It depends on what you want to do, but this "fix" is the same
+equivalent to executing IP_ADD_MEMBERSHIP twice with 2 and 3 in the
+imr_ifindex field (except that the later doesn't break any programs) 
 
--- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+-Andi

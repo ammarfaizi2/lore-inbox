@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281418AbRKVS5p>; Thu, 22 Nov 2001 13:57:45 -0500
+	id <S281473AbRKVS7O>; Thu, 22 Nov 2001 13:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281355AbRKVS5f>; Thu, 22 Nov 2001 13:57:35 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37898 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281326AbRKVS5T>; Thu, 22 Nov 2001 13:57:19 -0500
-Date: Thu, 22 Nov 2001 10:52:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.15-pre9
-In-Reply-To: <20011122134700.A4966@bee.lk>
-Message-ID: <Pine.LNX.4.33.0111221046170.1479-100000@penguin.transmeta.com>
+	id <S281456AbRKVS65>; Thu, 22 Nov 2001 13:58:57 -0500
+Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:59114 "EHLO
+	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S281355AbRKVS6k>; Thu, 22 Nov 2001 13:58:40 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: James A Sutherland <jas88@cam.ac.uk>
+To: =?iso-8859-15?q?Fran=E7ois=20Cami?= <stilgar2k@wanadoo.fr>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Swap vs No Swap.
+Date: Thu, 22 Nov 2001 18:58:31 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: war <war@starband.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0111221456020.1491-100000@duckman.distro.conectiva> <3BFD4A42.8090002@wanadoo.fr>
+In-Reply-To: <3BFD4A42.8090002@wanadoo.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <E166z3N-00020W-00@mauve.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 22 Nov 2001, Anuradha Ratnaweera wrote:
->
-> On Wed, Nov 21, 2001 at 10:44:30PM -0800, Linus Torvalds wrote:
+On Thursday 22 November 2001 6:56 pm, François Cami wrote:
+> Rik van Riel wrote:
+> > On Thu, 22 Nov 2001, James A Sutherland wrote:
+> >>Obviously, there are cases where removing swap breaks the system
+> >>entirely, but even in other cases, adding swap should *never* degrade
+> >>performance. (In theory, anyway; in practice, it still needs
+> >>tuning...)
 > >
-> > I think I'm ready to hand this over to Marcelo.
+> > Not quite true.  The VM cannot look into the future, so if
+> > you have swap it could have just swapped out the application
+> > on the desktop you're about to switch to ;)
 >
-> Aren't you going to include Tim Schmielau's patch to handle uptime larger than
-> 497 days?  It is a cool feature we always liked to have.
+> I tend to agree. Especially since in some cases (i.e. after
+> a long compilation (read : lots of code)), the VM has the most
+> excellent idea to swap out all the GUI (X+apps) and everyone
+> here knows how long it can be to restore the GUI in that case.
 
-Quite frankly, right now I'm in "handle only bugs that can crash the
-system mode". Anything that takes 497 days to see is fairly low on my
-priority list. My highest priority, in fact, is to get 2.4.15 out without
-any embarrassment.
+Use-once should avoid *most* of that, though not all; all your .c files 
+should be read in once each by gcc, and never touched again. Of course the 
+headers need to be cached, and the .o files will be accessed multiple times 
+too.
 
-Because it's not as if time stops when Marcelo takes over. I've suggested
-to him that he wait for a while just to see what the real problem spots
-are, but he'll have a full-time job integrating patches.
+> Obviously the problem is very much lessened, in my case, when
+> i put the swap partition on the *other* drive than the root fs.
+> Both are ATA100 (40GB 60GXPs), and the system is more responsive
+> with swap on hdc while / in on hda, than both on hda.
 
-Note that I'll probably do the same thing: when I release 2.4.15, I'll at
-the same time release a 2.5.0 that is identical except for version number
-(that makes synchronization easier later on). And I'll probably _not_
-start accepting all the big waiting patches immediately, I'd rather wait
-for at least a week or two to see that there aren't any other issues.
+Hmm... if you've experimented with this, how does this setup compare to a 
+striped RAID of hda+hdc used for root and swap? (i.e. is the speedup down to 
+splitting accesses between two spindles?)
 
-It's much easier doing some of the IO patches in particular knowing that
-the base you start out from is stable.
 
-		Linus
-
+James.

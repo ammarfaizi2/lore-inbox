@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbUKSNz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbUKSN5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbUKSNz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 08:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbUKSNz1
+	id S261415AbUKSN5D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 08:57:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUKSN5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 08:55:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:423 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261401AbUKSNzW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 08:55:22 -0500
-Date: Fri, 19 Nov 2004 08:54:52 -0500
-From: Alan Cox <alan@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>,
-       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, alan@redhat.com
-Subject: Re: linux-2.4.28 released
-Message-ID: <20041119135452.GA10422@devserv.devel.redhat.com>
-References: <BF571719A4041A478005EF3F08EA6DF05EB481@pcsmail03.pcs.pc.ome.toshiba.co.jp> <20041118111235.GA26216@logos.cnet> <20041119134832.GA9552@havoc.gtf.org>
+	Fri, 19 Nov 2004 08:57:03 -0500
+Received: from hentges.net ([81.169.178.128]:36028 "EHLO
+	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
+	id S261415AbUKSN4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 08:56:20 -0500
+Subject: Re: pci-resume patch from 2.6.7-rc2 breakes S3 resume on some
+	machines
+From: Matthias Hentges <mailinglisten@hentges.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041119115507.GB1030@elf.ucw.cz>
+References: <1100811950.3470.23.camel@mhcln03>
+	 <20041119115507.GB1030@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Fri, 19 Nov 2004 14:56:17 +0100
+Message-Id: <1100872578.3692.7.camel@mhcln03>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041119134832.GA9552@havoc.gtf.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 08:48:32AM -0500, Jeff Garzik wrote:
-> PATA and SATA (DMA doesn't work for PATA, in split-driver configuration),
-> and there is no split-driver to worry about.
+Am Freitag, den 19.11.2004, 12:55 +0100 schrieb Pavel Machek:
+> Hi!
 > 
-> I think there may need to be some code to prevent the IDE driver from
-> claiming the legacy ISA ports.
+> > I'm in the process of debugging S3 on my notebook and found out that I
+> > can resume from S3 with every kernel up to (and including) 2.6.7-rc1
+> > ( patch-2.6.6-bk8-bk9.bz2 ).
+> 
+> You can resume and your video works after resume in 2.6.7? Great!
 
-Its called "request_resource". If you want the resource claim it. IDE will
-be a good citizen.
+Heh, well no. Video is as dead as it can get :\ No known trick revives
+it after a resume . But at least the machine doesn't freeze after S3.
 
-Alan
+
+> Okay, patch is way too ugly.
+
+Of course it is :) It's more a proof-óf-concept that pci-resume is
+indeed causing the problem. I have no idea how to debug this any
+further. In the meantime this patch works for me.
+
+>  You probably should provide resume method
+> for your radeon that just does nothing. That should confirm your
+> theory, fix the crash, and you'll avoid touching common code with it.
+
+Sorry, that's beyond my abilities. That's why I'm posting here. I'm not
+even sure that it's the radeon which is acting up here.
+-- 
+Matthias Hentges 
+Cologne / Germany
+
+[www.hentges.net] -> PGP welcome, HTML tolerated
+ICQ: 97 26 97 4   -> No files, no URL's
+
+My OS: Debian SID. Geek by Nature, Linux by Choice
 

@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271958AbRIDMLd>; Tue, 4 Sep 2001 08:11:33 -0400
+	id <S271955AbRIDMJn>; Tue, 4 Sep 2001 08:09:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271959AbRIDMLX>; Tue, 4 Sep 2001 08:11:23 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:1108 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S271958AbRIDMLP>; Tue, 4 Sep 2001 08:11:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Patrick Dreker <patrick@dreker.de>
-Organization: Chaos Inc.
-To: Tim Waugh <twaugh@redhat.com>
-Subject: Re: lpr to HP laserjet stalls
-Date: Tue, 4 Sep 2001 14:07:07 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Michael Ben-Gershon <mybg@netvision.net.il>, linux-kernel@vger.kernel.org
-In-Reply-To: <3B93E289.7F121DE9@netvision.net.il> <E15e4WO-0007uH-00@wintermute> <20010904095042.N20060@redhat.com>
-In-Reply-To: <20010904095042.N20060@redhat.com>
+	id <S271958AbRIDMJe>; Tue, 4 Sep 2001 08:09:34 -0400
+Received: from cnxt10002.conexant.com ([198.62.10.2]:41413 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S271955AbRIDMJX>; Tue, 4 Sep 2001 08:09:23 -0400
+Date: Tue, 4 Sep 2001 14:09:06 +0200 (CEST)
+From: <rui.p.m.sousa@clix.pt>
+X-X-Sender: <rsousa@localhost.localdomain>
+To: Thiago Vinhas de Moraes <tvlists@networx.com.br>
+cc: <linux-kernel@vger.kernel.org>, <seawolf-list@redhat.com>
+Subject: Re: Sound Blaster Live - OSS or Not?
+In-Reply-To: <200109032210.f83MA8j15720@jupter.networx.com.br>
+Message-ID: <Pine.LNX.4.33.0109041402100.2538-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15eEz3-0000GU-00@wintermute>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag 04 September 2001 10:50 schrieb Tim Waugh:
-> On Tue, Sep 04, 2001 at 02:56:56AM +0200, Patrick Dreker wrote:
-> > All of this vanished, when I replaced all occurrences of /dev/lp0 in my
-> > printer configuration by /dev/par0. I has been working flawlessly since
-> > then.
->
-> crw-rw----    1 root     lp         6,   0 Aug 30 21:30 /dev/lp0
-> crw-------    1 root     root       6,   0 Aug 30 21:30 /dev/par0
->
-> Are you sure you didn't also upgrade the kernel? ;-)
-I must have been through approx. 20-30 Kernel Versions since that time 
-(including some -test, -pre and -ac versions), so I would not rule out that 
-possibility. Especially since I have not been able to reproduce this in the 
-last few hours, and I must say, that I have really tried to ;-)
+On Mon, 3 Sep 2001, Thiago Vinhas de Moraes wrote:
 
-> Tim.
-> */
+>
+> Hi!
+>
+> I have a Sound Blaster Live! PCI that works pretty fine for me.
+>
+> I tried to run loki's Quake 3 Arena for Linux, and after several tries, I
+> started to read the README file,
 
--- 
-Patrick Dreker
----------------------------------------------------------------------
-> Is there anything else I can contribute?
-The latitude and longtitude of the bios writers current position, and
-a ballistic missile.        
-                         Alan Cox on linux-kernel@vger.kernel.org
+Some persons are reporting problems with Q3 (which mmap's /dev/dsp)
+and the latest emu10k1 driver. Others (like me) don't see any problems.
+Under investigation.
+
+What Q3 version are you using?
+Can you send me a strace of the Q3 startup?
+
+> and it said that Sound Blaster Live does not
+> work as OSS.
+
+The driver definetely follows the OSS specification. If a problem was
+found at Loki then it would be nice to have a detailed bug report...
+
+
+Rui Sousa
+
+> I found a reference to www.opensound.com, where they sell OSS
+> drivers for Sound Blaster Live for $35.00 !! That's too much money for a
+> sound driver! I've downloaded a trial, and it really worked to play Quake.
+>
+> My question is: If the 2.4.9 kernel has support for Sound Blaster Live, why I
+> have to pay for a damn non-GPL driver? Why it does not work to play games on
+> linux?
+>
+>
+> Regards,
+> Thiago
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

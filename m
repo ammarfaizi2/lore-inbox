@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316616AbSFDTVp>; Tue, 4 Jun 2002 15:21:45 -0400
+	id <S316617AbSFDTVv>; Tue, 4 Jun 2002 15:21:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316617AbSFDTVo>; Tue, 4 Jun 2002 15:21:44 -0400
-Received: from h64-251-67-69.bigpipeinc.com ([64.251.67.69]:38154 "HELO
-	kelownamail.packeteer.com") by vger.kernel.org with SMTP
-	id <S316616AbSFDTVo>; Tue, 4 Jun 2002 15:21:44 -0400
-From: "Stephane Charette" <scharette@packeteer.com>
-To: "Brett Dikeman" <brett@cloud9.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Tue, 04 Jun 2002 12:21:44 -0700
-Reply-To: "Stephane Charette" <scharette@packeteer.com>
-X-Mailer: PMMail 2000 Standard (2.10.2010) For Windows 2000 (5.0.2195;2)
-In-Reply-To: <a05111705b922b09b689a@[10.1.0.123]>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S316623AbSFDTVv>; Tue, 4 Jun 2002 15:21:51 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:61433 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316617AbSFDTVt>; Tue, 4 Jun 2002 15:21:49 -0400
+Subject: Re: Question regarding do_munmap
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nick Popoff <lkml@tre.bloodletting.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <153.25.1023215073895@tre.bloodletting.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Subject: Re: 2.4.18 assertion failure in journal_commit_transaction
-Message-Id: <20020604192144Z316616-22651+75074@vger.kernel.org>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 04 Jun 2002 21:27:45 +0100
+Message-Id: <1023222465.23874.186.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->kernel that came with the distro(versioned 2.4.18-3; -4 is out, but I 
->reviewed the changelogs and it didn't look like they did anything 
->that would affect this problem, but I really couldn't tell.)  ext3 
->for all filesystems, hardware raid 0+1 via the Compaq controller.
+On Tue, 2002-06-04 at 19:24, Nick Popoff wrote:
+> (Generic 2.4.18 include/linux/mm.h) 
+> extern int do_munmap(struct mm_struct *, unsigned long, size_t); 
+>  
+> (RH 7.3/AC patched 2.4.18-3 include/linux/mm.h) 
+> extern int do_munmap(struct mm_struct *, unsigned long, size_t, int 
+> acct); 
+>  
+> My question is what is the recommended way for module developers to 
+> handle changes to this API so that end users don't have to edit 
+> makefiles to build for their particular kernel?  Is there a way to 
 
-Didn't RH 2.4.18-4 fix an ext3 bug on SMP?
+All the -ac trees I ship have -ac in the EXTRAVERSION string. Red Hat
+don't propogate that however. I hope to submit the changes to Marcelo
+that include the munmap changes for the base tree fairly soon, which
+will be ok as its a straight version test. 
 
-http://rhn.redhat.com/errata/RHBA-2002-085.html
+I hadn't anticipated people using do_munmap in drivers beyond a couple
+of fun bits in the intel 3D acceleration
 
-Is this related to what you saw?
-
-Stephane Charette
-
+Alan
 

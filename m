@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264643AbSLBQST>; Mon, 2 Dec 2002 11:18:19 -0500
+	id <S264646AbSLBQyW>; Mon, 2 Dec 2002 11:54:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264639AbSLBQST>; Mon, 2 Dec 2002 11:18:19 -0500
-Received: from itaqui.terra.com.br ([200.176.3.19]:65168 "EHLO
-	itaqui.terra.com.br") by vger.kernel.org with ESMTP
-	id <S264643AbSLBQSR> convert rfc822-to-8bit; Mon, 2 Dec 2002 11:18:17 -0500
-Date: Mon,  2 Dec 2002 14:25:44 -0200
-Message-Id: <H6I2YW$293289E6C31F693B4F51121D01793170@terra.com.br>
-Subject: =?iso-8859-1?Q?Re:Linux_2.4.18_8139too.c_driver_fix_for_mii-tool?=
+	id <S264647AbSLBQyW>; Mon, 2 Dec 2002 11:54:22 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:38848 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S264646AbSLBQyV>;
+	Mon, 2 Dec 2002 11:54:21 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-From: "=?iso-8859-1?Q?Felipe_W_Damasio?=" <felipewd@terra.com.br>
-To: "=?iso-8859-1?Q?dash?=" <dash@xdr.com>
-Cc: "=?iso-8859-1?Q?linux-kernel?=" <linux-kernel@vger.kernel.org>
-X-XaM3-API-Version: 3.2 R28 (B53)
-X-type: 0
-X-SenderIP: 200.163.191.105
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15851.37371.861619.967258@harpo.it.uu.se>
+Date: Mon, 2 Dec 2002 18:01:47 +0100
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Start of compat32.h (again)
+In-Reply-To: <20021202043645.Q27455@devserv.devel.redhat.com>
+References: <Pine.LNX.4.44.0212011047440.12964-100000@home.transmeta.com.suse.lists.linux.kernel>
+	<1038804400.4411.4.camel@rth.ninka.net.suse.lists.linux.kernel>
+	<p737kesu9bt.fsf@oldwotan.suse.de>
+	<20021202.002815.58826951.davem@redhat.com>
+	<20021202090756.GA26034@wotan.suse.de>
+	<20021202043645.Q27455@devserv.devel.redhat.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------- Cabeçalho inicial  -----------
+Jakub Jelinek writes:
+ > The fastest model on x86-64 would IMHO be a 32-bit model using all
+ > registers, rip relative addressing and register passing conventions
+ > (ie. a 3rd ABI).
 
-De: linux-kernel-owner@vger.kernel.org
-Para: linux-kernel@vger.kernel.org
-Cópia: 
-Data: Mon, 02 Dec 2002 08:11:52 -0800
-Assunto: Linux 2.4.18 8139too.c driver fix for mii-tool
+When not doing Linux hacks I work on compilers and runtime systems,
+and I agree that a model with x86_64 native mode enabled (and thus
+the extra registers and addressing modes) but still in a 32-bit
+address space looks like a very interesting option for those
+applications that don't need tons of address space.
 
-> The fix is to change the masking done in the top of netdev_ioctl:
-> 	if (cmd != SIOCETHTOOL) {
-> 		/* With SIOCETHTOOL, this would corrupt the pointer.  */
-> 		data->phy_id &= 0x3f; // was 0x1f (DA) 20021202
-> 		data->reg_num &= 0x1f;
-> 	}
-
-  In 2.4.20, the non-ethtool ioctls on 8139too (and 8139cp, for that
-matter) are handled by mii.c::generic_mii_ioctl, which already have
-this fix (in a more generic way):
-
-mii_data->phy_id &= mii_if->phy_id_mask;
-mii_data->reg_num &= mii_if->reg_num_mask; 
-
-  You can check 
-
-http://www.kernel.org/diff/diffview.cgi?css=%2Fdiff%2Fdiff.css;file=%2Fpub%2Flinux%2Fkernel%2Fv2.4%2Fpatch-2.4.20.gz;z=1765
-
-  For more details.
-
-  Kind Regards,
-
-Felipe
-
+/Mikael

@@ -1,38 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267702AbUIOWbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267650AbUIOWaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267702AbUIOWbc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 18:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267690AbUIOWa0
+	id S267650AbUIOWaO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 18:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267664AbUIOW2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 18:30:26 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:59248 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S267685AbUIOWaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 18:30:04 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Being more anal about iospace accesses..
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org>
-	<Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org>
-	<Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Wed, 15 Sep 2004 15:29:59 -0700
-In-Reply-To: <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org> (Linus
- Torvalds's message of "Wed, 15 Sep 2004 09:30:42 -0700 (PDT)")
-Message-ID: <52zn3rupw8.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
+	Wed, 15 Sep 2004 18:28:23 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60875 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267650AbUIOW0t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 18:26:49 -0400
+Date: Wed, 15 Sep 2004 15:14:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.9-rc1-mm5 cyrix.c] Fix one missed pci_find_device
+Message-ID: <20040915221444.GC26591@kroah.com>
+References: <19590000.1095205279@w-hlinder.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 Sep 2004 22:30:00.0058 (UTC) FILETIME=[89517DA0:01C49B73]
+Content-Disposition: inline
+In-Reply-To: <19590000.1095205279@w-hlinder.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, while we're on the subject of new sparse checks, could you give
-a quick recap of the semantics of the new __leXX types (and what
-__bitwise means to sparse)?  I don't think I've ever seen this stuff
-described on LKML.
+On Tue, Sep 14, 2004 at 04:41:19PM -0700, Hanna Linder wrote:
+> 
+> Just noticed this in my update to the latest mm kernel... 
 
-Thanks,
-  Roland
+Applied, thanks.
+
+Next time please add a "Signed-off-by:" line.
+
+greg k-h

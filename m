@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282752AbRK0Cob>; Mon, 26 Nov 2001 21:44:31 -0500
+	id <S282756AbRK0Cxl>; Mon, 26 Nov 2001 21:53:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282751AbRK0CoV>; Mon, 26 Nov 2001 21:44:21 -0500
-Received: from mail213.mail.bellsouth.net ([205.152.58.153]:39561 "EHLO
-	imf13bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S282750AbRK0CoK>; Mon, 26 Nov 2001 21:44:10 -0500
-Message-ID: <3C02FDF4.22927E4A@mandrakesoft.com>
-Date: Mon, 26 Nov 2001 21:44:04 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre7 i686)
-X-Accept-Language: en
+	id <S282760AbRK0Cxc>; Mon, 26 Nov 2001 21:53:32 -0500
+Received: from femail11.sdc1.sfba.home.com ([24.0.95.107]:42960 "EHLO
+	femail11.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S282757AbRK0CxU>; Mon, 26 Nov 2001 21:53:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+Organization: Boundaries Unlimited
+Subject: Re: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1]
+Date: Mon, 26 Nov 2001 18:52:12 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <E168Szh-0006un-00@the-village.bc.nu> <0111261642580L.02001@localhost.localdomain>
+In-Reply-To: <0111261642580L.02001@localhost.localdomain>
 MIME-Version: 1.0
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, editors@newsforge.com,
-        lwn@lwn.net
-Subject: Re: Linux 2.4.16
-In-Reply-To: <Pine.LNX.4.21.0111261003070.13400-100000@freak.distro.conectiva> <20011127083530.A13584@bee.lk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <0111261851570S.02001@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anuradha Ratnaweera wrote:
-> 
-> On Mon, Nov 26, 2001 at 10:30:08AM -0200, Marcelo Tosatti wrote:
-> >
-> > final:
-> > - Fix 8139too oops                            (Philipp Matthias Hahn)
-> 
-> Won't that be a good idea to keep the -final the same as the last -pre?
+On Monday 26 November 2001 16:42, Rob Landley wrote:
 
-No.  There is absolutely no reason not to fix this oops.
+> I also can't think of a distribution that doesn't have at least a yearly
+> major release cycle.
 
-	Jeff
+Okay, Debian.
 
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+Rob

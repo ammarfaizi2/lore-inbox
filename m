@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313299AbSEIPBN>; Thu, 9 May 2002 11:01:13 -0400
+	id <S313421AbSEIPIc>; Thu, 9 May 2002 11:08:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313293AbSEIPBM>; Thu, 9 May 2002 11:01:12 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:5588 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S313299AbSEIPBK>;
-	Thu, 9 May 2002 11:01:10 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	id <S313492AbSEIPIb>; Thu, 9 May 2002 11:08:31 -0400
+Received: from WARSL402PIP7.highway.telekom.at ([195.3.96.94]:16476 "HELO
+	email02.aon.at") by vger.kernel.org with SMTP id <S313421AbSEIPIa>;
+	Thu, 9 May 2002 11:08:30 -0400
+Date: Thu, 9 May 2002 17:09:35 +0200
+From: byonic@gmx.net
+X-Mailer: The Bat! (v1.48f) Personal
+Reply-To: byonic@gmx.net
+X-Priority: 3 (Normal)
+Message-ID: <69165797043.20020509170935@gmx.net>
+To: linux-kernel@vger.kernel.org
+CC: byonic@gmx.net
+Subject: Problem with kdb kernel debugger patch against 2.2.19
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15578.36627.478751.622066@napali.hpl.hp.com>
-Date: Thu, 9 May 2002 08:00:35 -0700
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, engebret@vnet.ibm.com,
-        justincarlson@cmu.edu, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, anton@samba.org, ak@suse.de
-Subject: Re: Memory Barrier Definitions
-In-Reply-To: <20020509173646.5c1b5baa.rusty@rustcorp.com.au>
-X-Mailer: VM 7.03 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 9 May 2002 17:36:46 +1000, Rusty Russell <rusty@rustcorp.com.au> said:
+Hello linux-kernel@vger.kernel.org,
 
-  Rusty> On Wed, 8 May 2002 10:07:08 -0700 David Mosberger
-  Rusty> <davidm@napali.hpl.hp.com> wrote:
+  I patched my 2.2.19 kernel with the SGI kdb patch to have the
+  ability of kernel debugging and especially debugging of the kernel
+  modules I write.
+  I had to install libbfd and the kernel seems just to compile perfectly.
+  Lateron I get the following error :
 
-  >> The ia64 memory ordering model is quite orthogonal to the one
-  >> that Linux uses (which is based on the Alpha instructions): Linux
-  >> distinguishes between read and write memory barriers.  ia64 uses
-  >> an acquire/release model instead.  An acquire orders all *later*
-  >> memory accesses and a release orders all *earlier* accesses
-  >> (regardless of whether they are reads or writes).  Another
-  >> difference is that the acquire/release semantics is attached to
-  >> load/store instructions, respectively.  This means that in an
-  >> ideal world, ia64 would rarely need to use the memory barrier
-  >> instruction.
+  /usr/src/linux # make bzImage
 
-  Rusty> Hmmm... could you explain more?  You're saying that every
-  Rusty> load is an "acquire" and every store a "release"?  Or that
-  Rusty> they can be flagged that way, but aren't always?
+  [...]
+  
+make[2]: Entering directory `/usr/src/kernel-source-2.2.19/lib'
+make[2]: Nothing to be done for `all_targets'.
+make[2]: Leaving directory `/usr/src/kernel-source-2.2.19/lib'
+make[1]: Leaving directory `/usr/src/kernel-source-2.2.19/lib'
+make -C  arch/i386/kernel
+make[1]: Entering directory `/usr/src/kernel-source-2.2.19/arch/i386/kernel'
+cc -D__KERNEL__ -I/usr/src/linux/include -D__ASSEMBLY__  -traditional -c entry.S -o entry.o
+/tmp/ccVx3zpC.s: Assembler messages:
+/tmp/ccVx3zpC.s:774: Warning: using `%edx' instead of `%dx' due to `l' suffix
+/tmp/ccVx3zpC.s:774: Warning: using `%edx' instead of `%dx' due to `l' suffix
+/tmp/ccVx3zpC.s:805: Warning: using `%edx' instead of `%dx' due to `l' suffix
+/tmp/ccVx3zpC.s:805: Warning: using `%edx' instead of `%dx' due to `l' suffix
+/tmp/ccVx3zpC.s:824: Warning: using `%edx' instead of `%dx' due to `l' suffix
+/tmp/ccVx3zpC.s:824: Warning: using `%edx' instead of `%dx' due to `l' suffix
+/tmp/ccVx3zpC.s:920: Warning: using `%ecx' instead of `%cx' due to `l' suffix
+/tmp/ccVx3zpC.s:929: Warning: using `%edx' instead of `%dx' due to `l' suffix
+/tmp/ccVx3zpC.s:930: Warning: using `%edx' instead of `%dx' due to `l' suffix
+/tmp/ccVx3zpC.s:943: Warning: using `%edx' instead of `%dx' due to `l' suffix
+/tmp/ccVx3zpC.s:943: Warning: using `%edx' instead of `%dx' due to `l' suffix
+/tmp/ccVx3zpC.s:1024: Fatal error: Symbol machine_check already defined.
+make[1]: *** [entry.o] Error 1
+make[1]: Leaving directory `/usr/src/kernel-source-2.2.19/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
 
-The latter: loads can have "acquire" semantics and stores can have
-"release" semantics.  For example, at the assembly level, ld8.acq
-would be an 8-byte load with acquire semantics, st8.rel an 8-byte
-store with release semantics.  At the C level, acquire/release
-semantics is used for all accesses to "volatile" variables.
+   What does
+   "/tmp/ccVx3zpC.s:1024: Fatal error: Symbol machine_check already
+   defined." mean, how can I solve it to get my kernel with kdb ?
 
-One way to think of all this is that using .acq/.rel for *all* memory
-accesses will give you a memory model that exactly matches that of a
-Pentium III.
+   Note: I'm still using 2.2.19 because of module development to test
+   kernel modules for 2.2.x.
 
-  Rusty> Does this means that an "acquire" means "all accesses after
-  Rusty> this insn (in the code stream) must occur after this insn (in
-  Rusty> time)"?
+   Thanks in advance, Markus
 
-Yes.
+-- 
+Best regards,
+ byonic                          mailto:byonic@gmx.net
 
-  Rusty> Does that only apply to the address that instruction
-  Rusty> touched, or all?
 
-No, the address doesn't matter (data dependencies are always honored).
-
-	--david

@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVBKMWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVBKMhL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbVBKMWK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 07:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVBKMWK
+	id S262128AbVBKMhL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 07:37:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVBKMhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 07:22:10 -0500
-Received: from B3114.karlshof.wh.tu-darmstadt.de ([130.83.219.14]:35486 "HELO
-	B3114.karlshof.wh.tu-darmstadt.de") by vger.kernel.org with SMTP
-	id S262126AbVBKMWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 07:22:07 -0500
-Subject: Re: DVB at76c651.c driver seems to be dead code
-From: Andreas Oberritter <obi@linuxtv.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Mws <mws@twisted-brains.org>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050211094934.GO2958@stusta.de>
-References: <20050210235605.GN2958@stusta.de>
-	 <200502110211.29055.mws@twisted-brains.org>
-	 <20050211094934.GO2958@stusta.de>
-Content-Type: text/plain
-Date: Fri, 11 Feb 2005 13:23:24 +0100
-Message-Id: <1108124605.3535.17.camel@localhost.localdomain>
+	Fri, 11 Feb 2005 07:37:10 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:42455 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262128AbVBKMhD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 07:37:03 -0500
+Subject: Re: [RFC][PATCH 2.6.11-rc3-mm2] Relay Fork Module
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>, Greg KH <greg@kroah.com>,
+       Jay Lan <jlan@engr.sgi.com>
+In-Reply-To: <20050211005446.081aa075.akpm@osdl.org>
+References: <1107786245.9582.27.camel@frecb000711.frec.bull.fr>
+	 <20050207154623.33333cda.akpm@osdl.org>
+	 <1108109504.30559.43.camel@frecb000711.frec.bull.fr>
+	 <20050211005446.081aa075.akpm@osdl.org>
+Date: Fri, 11 Feb 2005 13:32:44 +0100
+Message-Id: <1108125164.30559.51.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Evolution 2.0.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 11/02/2005 13:41:25,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 11/02/2005 13:45:44,
+	Serialize complete at 11/02/2005 13:45:44
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-11 at 10:49 +0100, Adrian Bunk wrote:
-> If I understand it correctly, there are several drivers that only make 
-> sense if they are used together. at76c651.c alone makes zero sense?
-> This means it would be highly appreciated to have all parts inside the 
-> kernel at some time in the future.
+On Fri, 2005-02-11 at 00:54 -0800, Andrew Morton wrote:
+> >   I tested this patch on a 2.6.11-rc3-mm2 kernel and there is a little
+> > overhead when I compile a Linux kernel:
+> > 
+> >    #time sh -c 'make O=/home/guill/build/k2610 bzImage && 
+> >    make O=/home/guill/build/k2610 modules'
+> > 
+> >    with a vanilla kernel: real    8m10.797s
+> > 	                  user    7m29.652s
+> > 			  sys     0m49.275s
+> >    
+> >    with the forkuevent patch : real    8m16.189s
+> >                     	       user    7m28.841s
+> > 		    	       sys     0m49.155s
+> 
+> Was that when some process was monitoring the netlink socket?
 
-It makes sense if
-- the dbox2 core code gets merged into mainline, which is our goal, but
-  can take a huge amount of time.
-- someone rips off the frontend module of a dbox2 and puts it on his
-  PCI DVB card because this Atmel chip rocks so much :-)
-  It will require only very few changes to the PCI driver...
-- or a company decides to use this chip on their brand new DVB-C device
-  and john doe decides to write a Linux driver for it. He will then
-  notice that there is already a driver for the frontend module and can
-  therefore save a lot of work.
+  The test was done without monitoring. I ran another one with
+monitoring and the result is:
 
-> Something different:
-> The atmel at76c651 frontend driver is specific to the MPC823 
-> architecture?
+	real    8m12.747s
+	user    7m30.761s
+        sys     0.51.414s
 
-no.
+  As I only tested each case only once, I'm going to run the same test
+five times to have a more accurate results.
+
+  Thank you very much for your comments, I'm carefully looking all of
+them. I will send comments next week.
 
 Regards,
-Andreas
+Guillaume
 

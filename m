@@ -1,85 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263620AbVBCSVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263666AbVBCSF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbVBCSVB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 13:21:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263652AbVBCR5i
+	id S263666AbVBCSF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 13:05:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbVBCR6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 12:57:38 -0500
-Received: from mail.kroah.org ([69.55.234.183]:58279 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262634AbVBCRk6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 12:40:58 -0500
-Date: Thu, 3 Feb 2005 09:20:56 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB fixes for 2.6.11-rc3
-Message-ID: <20050203172056.GA23680@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Thu, 3 Feb 2005 12:58:15 -0500
+Received: from bl5-237-131.dsl.telepac.pt ([82.154.237.131]:65453 "EHLO
+	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
+	id S263571AbVBCRkV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 12:40:21 -0500
+Message-ID: <42026207.4090007@vgertech.com>
+Date: Thu, 03 Feb 2005 17:40:23 +0000
+From: Nuno Silva <nuno.silva@vgertech.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ian Godin <Ian.Godin@lowrydigital.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Drive performance bottleneck
+References: <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com>
+In-Reply-To: <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ian Godin wrote:
+> 
+>   I am trying to get very fast disk drive performance and I am seeing 
+> some interesting bottlenecks.  We are trying to get 800 MB/sec or more 
+> (yes, that is megabytes per second).  We are currently using PCI-Express 
+> with a 16 drive raid card (SATA drives).  We have achieved that speed, 
+> but only through the SG (SCSI generic) driver.  This is running the 
+> stock 2.6.10 kernel.  And the device is not mounted as a file system.  I 
+> also set the read ahead size on the device to 16KB (which speeds things 
+> up a lot):
 
-Here are a few usb bugfixes 2.6.11-rc3.  All of these patches have been
-in the past few -mm releases.
+I was trying to reproduce but got distracted by this:
+(use page down, if you just want to see the odd result)
 
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/2.6.11-rc3/usb
+puma:/tmp/dd# sg_map
+/dev/sg0  /dev/sda
+/dev/sg1  /dev/sdb
+/dev/sg2  /dev/scd0
+/dev/sg3  /dev/sdc
+puma:/tmp/dd# time sg_dd if=/dev/sg1 of=/tmp/dd/sg1 bs=64k count=1000
+Reducing read to 64 blocks per loop
+1000+0 records in
+1000+0 records out
 
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
+real    0m0.187s
+user    0m0.001s
+sys     0m0.141s
+puma:/tmp/dd# time dd if=/dev/sdb of=/tmp/dd/sdb bs=64k count=1000
+1000+0 records in
+1000+0 records out
+65536000 bytes transferred in 1.203468 seconds (54455956 bytes/sec)
 
-thanks,
+real    0m1.219s
+user    0m0.001s
+sys     0m0.138s
+puma:/tmp/dd# ls -l
+total 128000
+-rw-r--r--  1 root root 65536000 Feb  3 17:16 sdb
+-rw-r--r--  1 root root 65536000 Feb  3 17:16 sg1
+puma:/tmp/dd# md5sum *
+ec31224970ddd3fb74501c8e68327e7b  sdb
+60d4689227d60e6122f1ffe0ec1b2ad7  sg1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-greg k-h
+See? dd from sdb is not the same as sg1! Is this supposed to happen?
 
- Documentation/usb/silverlink.txt    |   78 ------------------------------------
- Documentation/kernel-parameters.txt |    3 -
- MAINTAINERS                         |    7 ---
- drivers/usb/class/cdc-acm.c         |   19 ++++++--
- drivers/usb/core/devio.c            |   15 ++++++
- drivers/usb/core/hcd.c              |    2 
- drivers/usb/input/hid-core.c        |    9 ++--
- drivers/usb/net/usbnet.c            |    4 +
- drivers/usb/serial/Kconfig          |    2 
- drivers/usb/serial/ftdi_sio.c       |    2 
- drivers/usb/serial/garmin_gps.c     |    2 
- drivers/usb/storage/unusual_devs.h  |   10 ++++
- 12 files changed, 50 insertions(+), 103 deletions(-)
------
+About the 900MB/sec:
+This same sg1 (= sdb, which is a single hitachi sata hdd) performes like 
+this:
 
+puma:/tmp/dd# time sg_dd if=/dev/sg1 of=/dev/null bs=64k count=1000000 
+time=1
+Reducing read to 64 blocks per loop
+time to transfer data was 69.784784 secs, 939.12 MB/sec
+1000000+0 records in
+1000000+0 records out
 
-<hkneissel:gmx.de>:
-  o USB: garmin_gps tweak
+real    1m9.787s
+user    0m0.063s
+sys     0m58.115s
 
-<krautz:gmail.com>:
-  o TIGLUSB Cleanups 3/3
-  o TIGLUSB Cleanups 2/3
-  o TIGLUSB Cleanups 1/3
+I can assure you that this drive can't do more than 60MB/sec sustained.
 
-Alan Stern:
-  o USB: unusual_devs.h update
-  o USB: Fix EHCI boot oops on AMD
+My only conclusion is that sg (or sg_dd) is broken? ;)
 
-David Brownell:
-  o USB: another usbnet ax8817x device (goodway docking station)
-
-David Woodhouse:
-  o USB: fix libusb endian issues
-
-Nico Huber:
-  o USB: Logitech Cordeless Desktop Keyboard fails to report class descriptor
-
-Oliver Neukum:
-  o USB: fix for open/disconnect race in acm
-
-Randy Dunlap:
-  o USB: hid-core: possible buffer overflow in hid-core.c
-
-Rogier Wolff:
-  o Re: Bug when using custom baud rates
-
+Peace,
+Nuno Silva

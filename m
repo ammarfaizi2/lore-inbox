@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311618AbSDNFrw>; Sun, 14 Apr 2002 01:47:52 -0400
+	id <S311647AbSDNGP5>; Sun, 14 Apr 2002 02:15:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311641AbSDNFrv>; Sun, 14 Apr 2002 01:47:51 -0400
-Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:2372 "HELO
-	top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S311618AbSDNFrv>; Sun, 14 Apr 2002 01:47:51 -0400
-From: brian@worldcontrol.com
-Date: Sat, 13 Apr 2002 22:41:41 -0700
+	id <S311670AbSDNGP4>; Sun, 14 Apr 2002 02:15:56 -0400
+Received: from h24-83-104-254.sbm.shawcable.net ([24.83.104.254]:55462 "EHLO
+	whiskey.enposte.net") by vger.kernel.org with ESMTP
+	id <S311647AbSDNGPz>; Sun, 14 Apr 2002 02:15:55 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Is 2.4.19-pre5-ac3 destroying my laptop?
-Message-ID: <20020414054141.GA1867@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-No-Archive: yes
-X-Noarchive: yes
+Path: not-for-mail
+From: sl@whiskey.enposte.net (Stuart Lynne)
+Newsgroups: list.linux-kernel
+Subject: Re: ux as a minicomputer ?
+Date: Sun, 14 Apr 2002 06:16:00 +0000 (UTC)
+Organization: enposte
+Distribution: local
+Message-ID: <a9b6r0$thc$1@whiskey.enposte.net>
+In-Reply-To: <1018751811.22396@whiskey.enposte.net>
+Reply-To: sl@enposte.net
+NNTP-Posting-Host: whiskey.enposte.net
+X-Trace: whiskey.enposte.net 1018764960 30252 192.168.40.16 (14 Apr 2002 06:16:00 GMT)
+X-Complaints-To: usenet@whiskey.enposte.net
+NNTP-Posting-Date: Sun, 14 Apr 2002 06:16:00 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: sl@whiskey.enposte.net (Stuart Lynne)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some of us with Sony FXA laptops have noticed our computers becoming
-rather hot.
+In article <1018751811.22396@whiskey.enposte.net>,
+jw schultz <jw@pegasys.ws> wrote:
+>On Sat, Apr 13, 2002 at 12:29:23PM -0700, H. Peter Anvin wrote:
+>
+>Most medium to large workplaces are vast cubicle farms.  Put
+>one box at the intersection of 4 cubes...bingo 2meter VGA
+>cables reach fine and you get 1/4th the maintenance, 1/4 the
+>network drops, etc.  This would even be advantagious for two desks
+>side-by-side or back-to-back.  
 
-I'm running linux 2.4.19-pre5-ac3 and I've tried both ACPI w/acpid and
-APM w/lvcool, and there are occasions where the laptop becomes so hot
-that I turn it off.
+I don't think you are reducing complexity very much if at all,
+mostly just shuffling it around some.
 
-If I power back on, the BIOS immediately turns the fan on.
+You may have a quarter as many configurations to manage but will
+each configuration be less than four times as hard to maintain?
 
-When running with ACPI I'm using acpid-20010510.tar.gz.
+Maybe, mabye not. I just don't think it's a clear win.
 
-Any pointers that would help diagnose this problem before I or
-others fry CPUs would be appreciated.
+Also don't forget some of the other reasons for not doing it:
+single point of failure, harder to maintain, lack of flexibility
+etc.
 
--- 
-Brian Litzinger <brian@worldcontrol.com>

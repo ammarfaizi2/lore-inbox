@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbTGANDP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 09:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbTGANDP
+	id S262361AbTGANDm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 09:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTGANDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 09:03:15 -0400
-Received: from mail.hometree.net ([212.34.181.120]:35244 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S262358AbTGANDM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 09:03:12 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Dell vs. GPL
-Date: Tue, 1 Jul 2003 13:17:34 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bds1le$i0d$3@tangens.hometree.net>
-References: <Pine.LNX.4.10.10306301346540.5840-100000@master.linux-ide.org> <1057038825.7180.8.camel@lenin.trudheim.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1057065454 18445 212.34.181.4 (1 Jul 2003 13:17:34 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 1 Jul 2003 13:17:34 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Tue, 1 Jul 2003 09:03:42 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:40975 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262361AbTGANDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 09:03:40 -0400
+Subject: Re: [PATCH] patch-O1int-0306302317 for 2.5.73 interactivity
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307012204.47605.kernel@kolivas.org>
+References: <200307010029.19423.kernel@kolivas.org>
+	 <200307011931.24586.kernel@kolivas.org>
+	 <1057060831.603.6.camel@teapot.felipe-alfaro.com>
+	 <200307012204.47605.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1057065479.1171.3.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 01 Jul 2003 15:17:59 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Karlsson <anders@trudheim.com> writes:
+On Tue, 2003-07-01 at 14:04, Con Kolivas wrote:
 
->to ensure your silence, the legal system of US should protect you from
->that.
+> >When I say "X feels jerky", I mean that I can notice the scheduler is
+> >not giving the X server enough CPU cycles (I mean, a continuous,
+> >smaller, but more frequent CPU timeslice) to perform window movement and
+> >redrawing fast enough to get ~25fps. Also, I don't think it's related to
+> >the video card. The combo patch I did with Mike's + Ingo's enhacements
+> >works beautifully for me.
+> 
+> Actually just the bastardised Ingo patch will do that on it's own. However 
+> that's never going to be incorporated.
 
-No. If there are, say, five companies in the market that might hire you
-for top $$$ and in the course of one of these contracts, you break
-an NDA for all the good reasons and even get away with it, the others will
-never ever again touch you with a polestick. So this is economic retaliation
-without even having to go to court. You can't force them to hire you.
+So, I guess we won't have the option to choose between different CPU
+schedulers (desktop or server, for example), like we have in -mm kernels
+with IO schedulers (deadline or anticipatory).
 
-Keeping your mouth shut even if you know something that is not legal?
-Not nice, but normal. Immoral? Yes. But understandably if you have
-mouth to feed and mortgages to pay.
+Seriously talking, I prefer to have the best performance in my server
+boxes, but for my laptop, I prefer shorter timeslices, lower peformance
+and better turnaround times and a wiser CPU scheduler. Just my two
+cents.
 
-	Regards
-		Henning
+It's sad to say but I feel the vanilla 2.5 CPU scheduler doesn't match
+my end-user preferences :-(
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
-
---- Quote of the week: "It is pointless to tell people anything when
-you know that they won't process the message." --- Jonathan Revusky

@@ -1,57 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264053AbTDWO0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 10:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264059AbTDWO0Q
+	id S264044AbTDWObJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 10:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTDWObJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 10:26:16 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:7059 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264053AbTDWO0N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 10:26:13 -0400
-Date: Wed, 23 Apr 2003 07:36:59 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Andrew Kirilenko <icedank@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Data storing
-Message-Id: <20030423073659.7851c2a1.rddunlap@osdl.org>
-In-Reply-To: <200304231528.08720.icedank@gmx.net>
-References: <200304231459.37955.icedank@gmx.net>
-	<Pine.LNX.4.53.0304230817340.22823@chaos>
-	<200304231528.08720.icedank@gmx.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 23 Apr 2003 10:31:09 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:47564 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264044AbTDWObH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 10:31:07 -0400
+Date: Wed, 23 Apr 2003 07:43:10 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 619] New: [perf][sdet]sched_best_cpu does not pick best cpu 
+Message-ID: <14600000.1051108990@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Apr 2003 15:28:08 +0300 Andrew Kirilenko <icedank@gmx.net> wrote:
+http://bugme.osdl.org/show_bug.cgi?id=619
 
-| > > I need to make some checks (search for particular BIOS version) in the
-| > > very start of the kernel. I need to store this data (zero page is pretty
-| > > good for this, I think) and access it from arch/i386/boot/setup.S,
-| > > arch/i386/boot/compressed/misc.c and in some other places. Can somebody
-| > > suggest me good place to put check procedure and how to pass data?
-| >
-| > I use 0x000001f0 (absolute) for relocating virtual disk code
-| > for booting embedded systems. After Linux is up, the code remains
-| > untouched. This might be a good location because the BIOS doesn't
-| > use it during POST/boot and Linux (currently) leaves it alone.
-| > Of course, this doesn't mean that somebody will not destroy this
-| > area in the future (probably to spite you and me!!!).
-| 
-| Yes, I know about this area, as I wrote (Documentation/i386/zero-page.txt). 
-| And I even know how to pass parameter from zero-page into kernel space 
-| (setup.c). But I need to use this parm, I fetched, in both setup.S and misc.c 
-| (see below). And I don't have any ideas about execute order of setup.S, 
-| misc.c and setup.c.
+           Summary: [perf][sdet]sched_best_cpu does not pick best cpu
+    Kernel Version: 2.6.65
+            Status: NEW
+          Severity: normal
+             Owner: rml@tech9.net
+         Submitter: habanero@us.ibm.com
 
-Hi,
-Some of this early boot info can be found in my (somewhat old)
-"Linux 2.4.x Initialization for IA-32", located at
-  http://www.xenotime.net/linux/linit/lin240_init_x86.html
 
---
-~Randy
+Hardware Environment:
+pSeries NUMA 
+
+Software Environment:
+Linux 2.5
+
+
+Steps to Reproduce:
+1.Boot Linux 2.5 kernel with NUMA support
+2.Run any workload with fork+exec
+
+
+Actual Results:
+sched_best_cpu does not pick best cpu
+
+Expected Results:
+sched_best_cpu does pick best cpu
+
+
+This occurs when you have NUMA nodes with no cpus, like on p670: node0 has 8
+cpus, node1 has 0 cpus, node2 has 8 cpus.  sched_best_cpu() uses
+node_nr_running, which is initialized with "0" for each node.  Since there
+are no cpus in node1, no tasks are mograted there, and node_nr_running[1]
+does not go above 0.  So, with at least one task running, node1 is always
+picked as the least loaded node to place a newly exec'd task.
+
+Eventually the parent's task_cpu will be picked, making sched_best_cpu 
+ineffective.
+
+Also, ideally this code needs some attention in node load.  node load is
+currently computed by summing up all the running tasks in a node.  This
+does not compensate for nodes that have different cpu counts, which may be
+a likely situation with cpu hot plug, dynamic partitions, etc.  This stuff
+is probably a bit in the future and not highest priority, be we should
+probably think about  it.
+
+
+Anyway, to fix the basic problem, add a new function, node_online, which
+functions simialr to cpu_online, and add  a statement "if
+(!node_online(node) continue;" anywhere we do for(node=0; node<maxnumnodes;
+node++)
+
+Node_online for pSereis is easy, use numa_node_exists[] array.
+I guess we need a asm-generic one, too.
+
+I have a rough version of this running right now, I'll send a patch asap.
+
+

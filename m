@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275126AbRKHSbz>; Thu, 8 Nov 2001 13:31:55 -0500
+	id <S277564AbRKHSgz>; Thu, 8 Nov 2001 13:36:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277431AbRKHSbp>; Thu, 8 Nov 2001 13:31:45 -0500
-Received: from natpost.webmailer.de ([192.67.198.65]:25599 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S275126AbRKHSbk>; Thu, 8 Nov 2001 13:31:40 -0500
-Date: Thu, 8 Nov 2001 19:35:11 +0100
-From: Peter Seiderer <Peter.Seiderer@ciselant.de>
-To: Tobias Diedrich <ranma@gmx.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is the difference between 'login: root' and 'su -' ?
-Message-ID: <20011108193511.A632@zodiak.ecademix.com>
-In-Reply-To: <20011107184710.A1410@zodiak.ecademix.com> <20011108163821.A26539@router.ranmachan.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011108163821.A26539@router.ranmachan.dyndns.org>; from ranma@gmx.at on Thu, Nov 08, 2001 at 04:38:22PM +0100
+	id <S277533AbRKHSgp>; Thu, 8 Nov 2001 13:36:45 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:54027 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S277431AbRKHSgg>;
+	Thu, 8 Nov 2001 13:36:36 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200111081832.VAA24875@ms2.inr.ac.ru>
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+To: adilger@turbolabs.com (Andreas Dilger)
+Date: Thu, 8 Nov 2001 21:32:32 +0300 (MSK)
+Cc: davem@redhat.com, tim@physik3.uni-rostock.de, jgarzik@mandrakesoft.com,
+        andrewm@uow.edu.au, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, netdev@oss.sgi.com, ak@muc.de
+In-Reply-To: <20011108111024.X5922@lynx.no> from "Andreas Dilger" at Nov 8, 1 11:10:24 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08, 2001 at 04:38:22PM +0100, Tobias Diedrich wrote:
-> Peter Seiderer wrote:
-> > Hello,
-> > tried today to mkfs.ext2 a partition of my disk and detected there is
-> > a little difference between 'login: root' and 'su -'.
-> [...]
-> > 	--- SIGXFSZ (File size limit exceeded) ---
-> > 	+++ killed by SIGXFSZ +++
-> 
-> I ran into the same Problem in SuSE 7.0 .
-> Turned out it was pam_limits.so , try if it works if you comment out the
-> line with pam_limits.so in it in /etc/pam.d/su .
-> You probably have to recompile the pam libraries.
-> 
-> -- 
-> Tobias								PGP: 0x9AC7E0BC
+Hello!
 
-There is no pam_limits line in my /etc/pam.d/su only in /etc/pam.d/login.
-But commenting it out did not help.
-Peter
+> is more likely that nobody knows about them, because nobody uses them, 
+> because nobody knows about them, etc.
 
+Yes, it is thing which usually happens with good macros. :-)
+
+
+> If people don't want to see them, that is fine with me - they will stop.
+
+I talk only about neighbour.c. It is pretty hairy to bring it to
+brain cache fastly enough. And I am afraid (remember) that in the past
+I did some silly tricks, sort of using the fact that large positive
+now - mark means that mark is in future. Mostly likely killed together
+with another hacks, but I am not sure.
+
+Another places are trivial as rule and can be edited any time.
+
+Alexey

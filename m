@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288657AbSAQND0>; Thu, 17 Jan 2002 08:03:26 -0500
+	id <S288660AbSAQNKl>; Thu, 17 Jan 2002 08:10:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288660AbSAQNDM>; Thu, 17 Jan 2002 08:03:12 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:22694 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S288657AbSAQNDD>;
-	Thu, 17 Jan 2002 08:03:03 -0500
-Date: Thu, 17 Jan 2002 04:42:30 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Jeremy Freeman <jfreeman@sporg.com>
-cc: linux-kernel@vger.kernel.org
-Subject: XP PCI Contamination, GURR (Re: Care?)
-In-Reply-To: <000501c1877f$87248b40$10105318@jeremy.bc.ca>
-Message-ID: <Pine.LNX.4.10.10201170438020.30663-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S288667AbSAQNKc>; Thu, 17 Jan 2002 08:10:32 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55820 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S288660AbSAQNKU>; Thu, 17 Jan 2002 08:10:20 -0500
+Date: Thu, 17 Jan 2002 08:09:59 -0500
+Message-Id: <200201171309.IAA01163@gatekeeper.tmr.com>
+To: romano@dea.icai.upco.es
+Subject: Re: Power off NOT working, kernel 2.4.16
+In-Reply-To: <20020117102302.A19119@pern.dea.icai.upco.es>
+In-Reply-To: <3C45F45C.5000005@mbnet.fi> <20020117134753.4330b0b5.sfr@canb.auug.org.au> <3C468109.3090401@mbnet.fi>
+Organization: TMR Associates, Schenectady NY
+Cc: linux-kernel@vger.kernel.org
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20020117102302.A19119@pern.dea.icai.upco.es> you write:
+| On Thu, Jan 17, 2002 at 09:45:13AM +0200, Joonas Koivunen wrote:
+| > 
+| > Yes, it's there, and I have also tried poweroff, no effect, last text 
+| > line I see is 'Power down.' and the system is succefully halted, not 
+| > switched off.
+| 
+| I have the same problem on my home box (Athlon with AMD mo-bo). RedHat
+| compiled kernel _do_ poweroff (although with a flashing oops just before
+| power goes off), but none of vanillas kernel can do it --- I tried with and
+| without ACPI, with APM real-mode call, whatever. 
 
-It appears the folks up in redmond have succeeded in having the BIOS
-people default disable PCI resources.  Since XP will reject, or assume a
-device is in use should the BAR's be allocated, the various archs may need
-to have a broader setup table or a more generic ruleset.
+  I've had that problem with my BP6 for so long I stopped complaining.
+Time to start again, I guess.
 
-Any thoughts on how best to address good hardare, which the BIOS does not
-setup per redmond-rules.
+                                 WHINE
 
+  There, now I feel better ;-) Really annoying, though, to have to boot
+NT just to turn the machine off.
 
-On Mon, 17 Dec 2001, Jeremy Freeman wrote:
-
-> Not sure if you care about this or not.. Probably seen it from someone else
-> already.. Dual Athlon 1800+ MPs on a Tyain Thunder K7 BIOS 2.09.
-> 
-> 2.4.16 kernel.
-> 
-> <snip>
-> AMD7411: IDE controller on PCI bus 00 dev 39
-> PCI: Device 00:07.1 not available because of resource collisions
-> AMD7411: chipset revision 1
-> AMD7411: not 100% native mode: will probe irqs later
-> AMD7411: IO baseregs (BIOS) are reported as MEM, report to
-> <andre@linux-ide.org>.
-> AMD7411: simplex device:  DMA disabled
-> ide1: AMD7411 Bus-Master DMA disabled (BIOS)
-> hda: ATAPI 52X CDROM, ATAPI CD/DVD-ROM drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hda: ATAPI 48X CD-ROM drive, 128kB Cache
-> <snip>
-> 
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

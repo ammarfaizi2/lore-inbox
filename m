@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266138AbRGDTGL>; Wed, 4 Jul 2001 15:06:11 -0400
+	id <S266141AbRGDTMC>; Wed, 4 Jul 2001 15:12:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266139AbRGDTGB>; Wed, 4 Jul 2001 15:06:01 -0400
-Received: from 64.5.206.104 ([64.5.206.104]:28940 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S266138AbRGDTFv>; Wed, 4 Jul 2001 15:05:51 -0400
-Date: Wed, 4 Jul 2001 15:05:47 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <joe.mathewson@btinternet.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Suitable Athlon Motherboard for Linux
-In-Reply-To: <200107041849.f64InoE12398@ambassador.mathewson.int>
-Message-ID: <Pine.LNX.4.33.0107041458550.8976-100000@terbidium.openservices.net>
+	id <S266142AbRGDTLv>; Wed, 4 Jul 2001 15:11:51 -0400
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:9089 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S266141AbRGDTLn>;
+	Wed, 4 Jul 2001 15:11:43 -0400
+Message-ID: <3B436A62.8394C783@mirai.cx>
+Date: Wed, 04 Jul 2001 12:11:30 -0700
+From: J Sloan <jjs@mirai.cx>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+To: Ronald Bultje <rbultje@ronald.bitfreak.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: >128 MB RAM stability problems (again)
+In-Reply-To: <994279551.1116.0.camel@tux>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jul 2001, Joseph Mathewson wrote:
+Ronald Bultje wrote:
 
-> Having heard the various horror stories about the VIA PCI data corruption
-> bugs, and watching one Via based machine destroy itself with a Mandrake 8.0
->  2.4.3, I was just wondering if anyone had a suggestion for an Athlon
-> motherboard that works reliably under Linux (I don't think all the issues
-> have been cleared up in the kernel yet?).  There must be quite a few Linux
-> Athlon users out there - what boards are you using and with what success?
->
-> I can't see much alternative to Via chipsets in the Ahtlon market, other
-> than all-in-one-graphics-sound-network jobbies that, from previous
-> experience (namely the i810), are also best avoided.
->
-> Joe.
+> I'm kind of astounded now, WHY can't linux-2.4.x run on ANY machine in
+> my house with more than 128 MB RAM?!? Can someone please point out to me
+> that he's actually running kernel-2.4.x on a machine with more than 128
+> MB RAM and that he's NOT having severe stability problems?
 
-I have a D-700 on an Asus A7V (VIA 82C686A) with BIOS revision 1007 running
-Red Hat 7.1 with kernel 2.4.3-12. Stability seems to be fairly good, with
-occasional lockups in XFree86. If you need more details, feel free to ask.
+I don't have the answer for your situation, but in
+answer to one of your questions I can happily
+enumerate the following boxes I installed, all of
+which are running 2.4.x kernels on Red Hat 7.1
+with excellent stability and performance:
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+"Name Brand" boxes:
+(3) Dell 2450s, Dual P3-1000, 512 MB RAM
+(2) HP Netservers, P3-700, 512 MB RAM
+Compaq 6500, Quad PPro 200, 1 GB RAM
+
+Self built clone boxes:
+AMD K6/2 450, 256 MB RAM, low end ASUS mb
+P3-933, 512 MB RAM, Intel i810 motherboard
+P3-866, 512 MB RAM, Aopen motherboard
+and more -
+
+These boxes either have an uptime dating from
+the initial 7.1 install (60+ days), or from the last
+kernel update -
+
+cu
+
+jjs
+
+
+
 

@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282175AbRK1Xjn>; Wed, 28 Nov 2001 18:39:43 -0500
+	id <S282201AbRK1Xmx>; Wed, 28 Nov 2001 18:42:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282197AbRK1Xje>; Wed, 28 Nov 2001 18:39:34 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2322 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282192AbRK1XjT>; Wed, 28 Nov 2001 18:39:19 -0500
-Subject: Re: sym53c875: reading /proc causes SCSI parity error
-To: davem@redhat.com (David S. Miller)
-Date: Wed, 28 Nov 2001 23:47:45 +0000 (GMT)
-Cc: groudier@free.fr, matthias@winterdrache.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20011128.131503.22504634.davem@redhat.com> from "David S. Miller" at Nov 28, 2001 01:15:03 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S282181AbRK1Xmq>; Wed, 28 Nov 2001 18:42:46 -0500
+Received: from proxyserver.epcnet.de ([62.132.156.25]:41991 "HELO
+	viruswall.epcnet.de") by vger.kernel.org with SMTP
+	id <S282197AbRK1Xli>; Wed, 28 Nov 2001 18:41:38 -0500
+Date: Thu, 29 Nov 2001 00:40:27
+From: jd@epcnet.de
+To: linux-kernel@vger.kernel.org
+Subject: statfs and reiserfs
+Cc: linux-fsdevel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E169EQb-0006WK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <24719656.avixxmail@nexx.epcnet.de>
+In-Reply-To: <:inreplyto>
+X-Mailer: avixxmail v1.2.0.0
+X-MAIL-FROM: <jd@epcnet.de>
+Content-Type: :content; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why not just put some bitmap pointer into the pci device
-> struct.  If it is non-NULL, it specifies PCI config space
-> areas which have side-effects.
+Hi,
 
-Why not avoid poking around in dangerous device spaces. We don't have a
-bitmap to protect /dev/mem either. The problem is similar too, we have many
-devices with config space beyond the guaranteed bytes that do fatal
-things that are not driven directly by Linux - eg some bridges have acpi
-stuff overlapping there.
+after a call of statfs() on my kernel-2.4.8, reiserfs returns for the fields f_files and f_ffree in the struct statfs values of -1.
 
-A non root user can only touch the safe bytes
+Other filesystems return 0 for unsupported fields in the struct statfs, e.g. smbfs.
+
+Some manpages say "Fields that are undefined for a particular file system are set to -1" (e.g. NetBSD1.4.3A from May24,1995), other say "Fields that are undefined for a particular file system are set to 0" (latest man pages from LDP)
+
+Now. What's right? who's wrong? who's right?
+
+Greetings 
+
+    Jochen Dolze
+

@@ -1,109 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271928AbRIVSk3>; Sat, 22 Sep 2001 14:40:29 -0400
+	id <S271931AbRIVStk>; Sat, 22 Sep 2001 14:49:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271931AbRIVSkT>; Sat, 22 Sep 2001 14:40:19 -0400
-Received: from ljbc.wa.edu.au ([203.59.143.14]:21498 "HELO gamma.ljbc")
-	by vger.kernel.org with SMTP id <S271928AbRIVSkH>;
-	Sat, 22 Sep 2001 14:40:07 -0400
-Date: Sun, 23 Sep 2001 02:38:36 +0800 (WST)
-From: Beau Kuiper <kuib-kl@ljbc.wa.edu.au>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Significant performace improvements on reiserfs systems,
- kupdated bugfixes
-In-Reply-To: <20010921152627.C13862@emma1.emma.line.org>
-Message-ID: <Pine.LNX.4.30.0109230226210.25332-100000@gamma.student.ljbc>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271935AbRIVStb>; Sat, 22 Sep 2001 14:49:31 -0400
+Received: from ohiper1-80.apex.net ([209.250.47.95]:3081 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S271931AbRIVSt2>; Sat, 22 Sep 2001 14:49:28 -0400
+Date: Sat, 22 Sep 2001 13:48:58 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: wolfgang buesser <wolfgang_buesser@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ftape 4.0x and Kernel 2.4.x
+Message-ID: <20010922134858.A3500@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	wolfgang buesser <wolfgang_buesser@yahoo.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010922181004.54680.qmail@web13307.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010922181004.54680.qmail@web13307.mail.yahoo.com>; from wolfgang_buesser@yahoo.com on Sat, Sep 22, 2001 at 11:10:04AM -0700
+X-Uptime: 1:43pm  up 2 days, 21:49,  2 users,  load average: 2.38, 1.77, 1.59
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 22, 2001 at 11:10:04AM -0700, wolfgang buesser wrote:
+> What is the status of the integration of ftape 4.0x
+> into kernel 2.4.x?
+> 
+> I am using a Conner 3200 MB Travan 3 Streamer which
+> does not work properly with ftape 3.04.
+> I tried to compile ftape4.04a into kernel 2.4.9
+> using gcc 2.96 and libc-2.2.2 but get tons of errors
+> (the patch by stephen walter does not work either).
+> 
+> Any advise ?
 
+This looks to be caused, at least in part, by the new in-kernel min/max
+macros, which ftape wasn't intended to use.
 
-On Fri, 21 Sep 2001, Matthias Andree wrote:
-
-> On Thu, 20 Sep 2001, Beau Kuiper wrote:
->
-> > Patch 3
-> >
-> > This patch was generated as I was exploring the buffer cache, wondering
-> > why reiserfs was so slow on 2.4. I found that kupdated may write buffers
-> > that are not actually old back to disk. Eg
-> >
-> > Imagine that there are 20 dirty buffers. 16 of them are more that 30
-> > seconds old (and should be written back), but the other 4 are younger than
-> > 30 seconds. The current code would force all 20 out to disk, interrupting
-> > programs still using the young 4 until the disk write was complete.
-> >
-> > I know that it isn't a major problem, but I found it and I have written
-> > the patch for it :-)
->
-> Be careful! MTAs rely on this behaviour on fsync(). The official
-> consensus on ReiserFS and ext3 on current Linux 2.4.x kernels (x >= 9)
-> is that "any synchronous operation flushes all pending operations", and
-> if that is changed, you MUST make sure that the changed ReiserFS/ext3fs
-> still make all the guarantees that softupdated BSD file systems make,
-> lest you want people to run their mail queues off "sync" disks.
-
-This code change does not affect the functionality of fsync(), only
-kupdated. kupdated is responsible for flushing buffers that have been
-sitting around too long to disk.
-
->
-> Note also, if these blocks belong to newly-opened files, you definitely
-> want kupdated to flush these to disk on its next run so that the files
-> are still there after a crash.
-
-They still are (they would be flushed out by the sync_inodes call in
-sync_old_buffers. But why are the file records for any new file more
-important than changes to old files? (This is what an application can
-determince, the kernel should just do what the app says, and treat
-everything else fairly)
-
->
-> I'm not exactly sure what your patch 3 does and how the buffers work,
-> but I'm absolutely sure we want the "fsync on an open file also syncs
-> all pending rename/link/open operations the corresponding file has
-> undergone."
-
-That still works.
-
->
-> Softupdates FFS (BSD) does that, and ReiserFS/ext3fs also do that by
-> just flushing all pending operations on a synchronous one, and it's not
-> slow.
->
-
-But this isn't about sync operations, it is about kupdated (a kernel
-thread)
-
-> This may cause additional writes, but the reliability issues must be
-> taken into account here. We don't gain anything if files get lost over a
-> crash just because you want to save 4 writes.
->
-
-We never gain everything in a crash. We have to set limits to the amount
-of damage we can accept, and try to keep within that limit. However,
-performace is another critical limit. The four writes could consume
-a lot of time, and be invalidated by changes the application could
-make (and written out AGAIN)
-
-For example, given a fast hard drive, with 2 writes on one side of the
-driver and the other 2 on the other side, the application could be stalled
-for
-
-	15ms for first seek and write
-	8ms for second seek and write
-	15ms to seek and write the 3rd buffer
-	8ms for the fourth write.
-
-Umm, 46 ms. Do this often (if you are extremely unlucky) and you could
-chew through a lot of time where it would have been more sane just to sit
-back and let the application finish with the file.
-
-Beau Kuiper
-kuib-kl@ljbc.wa.edu.au
-
-
-
+I'm not sure what the development status is of ftape.  Perhaps a
+newer/CVS version is availible that is more in-sync with the current
+kernel tree?
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
+Freedom is slavery. Ignorance is strength. War is peace.
+			-- George Orwell

@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268156AbTAKWWN>; Sat, 11 Jan 2003 17:22:13 -0500
+	id <S268170AbTAKW15>; Sat, 11 Jan 2003 17:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268159AbTAKWWN>; Sat, 11 Jan 2003 17:22:13 -0500
-Received: from dp.samba.org ([66.70.73.150]:32391 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S268156AbTAKWWM>;
-	Sat, 11 Jan 2003 17:22:12 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Richard Henderson <rth@twiddle.net>, Miles Bader <miles@gnu.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make `obsolete params' work correctly if MODULE_SYMBOL_PREFIX is non-empty 
-In-reply-to: Your message of "Fri, 10 Jan 2003 21:36:02 -0800."
-             <Pine.LNX.4.44.0301102134150.9532-100000@home.transmeta.com> 
-Date: Sun, 12 Jan 2003 00:42:55 +1100
-Message-Id: <20030111223100.6C9CD2C055@lists.samba.org>
+	id <S268167AbTAKW15>; Sat, 11 Jan 2003 17:27:57 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:33701 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S268172AbTAKW14>;
+	Sat, 11 Jan 2003 17:27:56 -0500
+Date: Sat, 11 Jan 2003 23:36:33 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Rob Wilkens <robw@optonline.net>
+Cc: Kurt Garloff <kurt@garloff.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Message-ID: <20030111233633.A17042@ucw.cz>
+References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <1042250324.1278.18.camel@RobsPC.RobertWilkens.com> <20030111020738.GC9373@work.bitmover.com> <1042251202.1259.28.camel@RobsPC.RobertWilkens.com> <20030111021741.GF9373@work.bitmover.com> <1042252717.1259.51.camel@RobsPC.RobertWilkens.com> <20030111214437.GD9153@nbkurt.casa-etp.nl> <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>; from robw@optonline.net on Sat, Jan 11, 2003 at 04:53:33PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0301102134150.9532-100000@home.transmeta.com> you wri
-te:
+On Sat, Jan 11, 2003 at 04:53:33PM -0500, Rob Wilkens wrote:
+> On Sat, 2003-01-11 at 16:44, Kurt Garloff wrote:
+> > You're new to Linux, aren't you?
+> > Or terribly presumptous.
 > 
-> On Sat, 11 Jan 2003, Rusty Russell wrote:
-> > 
-> > Just in case someone names a variable over 2000 chars, and uses it as
-> > an old-style module parameter?
+> A little of both, but not too much of either.
 > 
-> No. Just because variable-sized arrays aren't C, and generate crappy code.
+> I'd say "New to linux" but I've been using it on and off since 1995 or
+> earlier.
 > 
-> >  	for (i = 0; i < num; i++) {
-> > +		char sym_name[strlen(obsparm[i].name)
-> > +			     + sizeof(MODULE_SYMBOL_PREFIX)];
-> 
-> It's still there.
+> I'd say terribly presumptuous, but I don't think it is presumptuous to
+> say that if there are many patches (bug fixes, mostly) coming in that
+> the code that was originally there was of questionable quality.
 
-OK, *please* explain to me in little words so I can understand.
+Very interesting idea. But not correct.
 
-Variable-sized arrays are C, as of C99.  They've been a GNU extension
-forever.
+The reason is code rot(*). You have never to stop maintaining and patching
+and fixing the code to keep it working. A perfectly good and clean code,
+if you don't touch it, becomes crusty and smelly over time(**). This is why
+the number of patches daily entering the kernel is actually a sign of good
+overall code quality. ;)
 
-While gcc 2.95.4 generates fairly horrible code, gcc 3.0 does better
-(the two compilers I have on my laptop).
+(*)
+	http://www.tuxedo.org/~esr/jargon/html/entry/software-rot.html
+	http://www.tuxedo.org/~esr/jargon/html/entry/bit-rot.html
 
-Both generate correct code.
+(**)
+	One of the reasons for this is that the hardware changes over
+	time. Another is that the requirements of what it is expected to
+	do change over time. And yet another is that due to the above
+	changes the rest of the code gets updated and the parts that
+	were not touched do not interoperate properly any more.
 
-Speed is certainly of absolutely no importance here.
+Huh. And now I'll be getting all the e-mails following in this thread.
 
-Changing it to do a kmalloc every time around the loop is complex,
-inefficient, unneccessary, and introduces another failure path.
-
-In summary, I can't see any reason why the clearest, simplest code
-should be avoided.
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Vojtech Pavlik
+SuSE Labs

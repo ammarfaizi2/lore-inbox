@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262966AbUCRVPv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 16:15:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbUCRVPv
+	id S262978AbUCRVQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 16:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbUCRVQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 16:15:51 -0500
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:58630 "EHLO
-	rtr.ca") by vger.kernel.org with ESMTP id S262968AbUCRVM2 (ORCPT
+	Thu, 18 Mar 2004 16:16:52 -0500
+Received: from ns.suse.de ([195.135.220.2]:19082 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262973AbUCRVQr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 16:12:28 -0500
-Message-ID: <405A1098.8080409@pobox.com>
-Date: Thu, 18 Mar 2004 16:11:52 -0500
-From: Mark Lord <mlord@pobox.com>
-Organization: Real-Time Remedies Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Sergey Vlasov <vsu@altlinux.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: vmalloc fix buggy again?
-References: <20040318180744.GE16242@master.mivlgu.local>
-In-Reply-To: <20040318180744.GE16242@master.mivlgu.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 18 Mar 2004 16:16:47 -0500
+Subject: Re: True  fsync() in Linux (on IDE)
+From: Chris Mason <mason@suse.com>
+To: Peter Zaitsev <peter@mysql.com>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1079644190.2450.405.camel@abyss.local>
+References: <1079572101.2748.711.camel@abyss.local>
+	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
+	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
+	 <1079641026.2447.327.camel@abyss.local>
+	 <1079642001.11057.7.camel@watt.suse.com>
+	 <1079642801.2447.369.camel@abyss.local>
+	 <1079643740.11057.16.camel@watt.suse.com>
+	 <1079644190.2450.405.camel@abyss.local>
+Content-Type: text/plain
+Message-Id: <1079644743.11055.26.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 18 Mar 2004 16:19:03 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yup.
+On Thu, 2004-03-18 at 16:09, Peter Zaitsev wrote:
+> On Thu, 2004-03-18 at 13:02, Chris Mason wrote:
+> 
+> > > In the former case cache is surely not flushed. 
+> > > 
+> > Hmmm, is it reiser?  For both 2.4 reiserfs and ext3, the flush happens
+> > when you commit.  ext3 always commits on fsync and reiser only commits
+> > when you've changed metadata.
+> 
+> Oh. Yes. This is Reiser, I did not think it is FS issue.
+> I'll know to stay away from ReiserFS now.
 
-Thanks, Sergey.  I'm suffering severe brain-impairment on this one.
-Please pass this on to Marcelo.
+For reiserfs data=ordered should be enough to trigger the needed
+commits.  If not, data=journal.  Note that neither fs does barriers for
+O_SYNC, so we're just not perfect in 2.4.
 
-Cheers
--- 
-Mark Lord
-Real-Time Remedies Inc.
-mlord@pobox.com
-
-Sergey Vlasov wrote:
-> Hello!
-> 
-> 
->># ChangeSet
->>#   2004/03/14 13:16:58-03:00 mlord...
->>#   [PATCH] Yet another vmalloc() fixup
->># 
->>diff -Nru a/mm/vmalloc.c b/mm/vmalloc.c
->>--- a/mm/vmalloc.c	Thu Mar 18 09:44:53 2004
->>+++ b/mm/vmalloc.c	Thu Mar 18 09:44:53 2004
->>@@ -184,7 +184,7 @@
->> 	spin_unlock(&init_mm.page_table_lock);
->> 	flush_cache_all();
->> 	if (address > start)
->>-		vmfree_area_pages((address - start), address - start);
->>+		vmfree_area_pages(address, address - start);
->> 	return -ENOMEM;
->> }
->> 
-> 
-> 
-> Looks like this should be
-> 
-> 		vmfree_area_pages(start, address - start);
-> 
+-chris
 
 

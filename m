@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272788AbRIGRYX>; Fri, 7 Sep 2001 13:24:23 -0400
+	id <S272784AbRIGRZd>; Fri, 7 Sep 2001 13:25:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272785AbRIGRYF>; Fri, 7 Sep 2001 13:24:05 -0400
-Received: from math.uci.edu ([128.200.174.70]:21662 "EHLO math.uci.edu")
-	by vger.kernel.org with ESMTP id <S272784AbRIGRYB>;
-	Fri, 7 Sep 2001 13:24:01 -0400
-From: Eric Olson <ejolson@math.uci.edu>
-Message-Id: <200109071723.KAA03673@math.uci.edu>
-Subject: Some experiences with the Athlon optimisation problem
-To: heinz@auto.tuwien.ac.at
-Date: Fri, 7 Sep 2001 10:23:59 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org
-Reply-To: ejolson@math.uci.edu
-MIME-Version: 1.0
+	id <S272791AbRIGRZY>; Fri, 7 Sep 2001 13:25:24 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:42479
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S272784AbRIGRZL>; Fri, 7 Sep 2001 13:25:11 -0400
+Date: Fri, 7 Sep 2001 10:25:25 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Athlon doesn't like Athlon optimisation?
+Message-ID: <20010907102525.T29607@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <PAEKIKPEKOCEFPAENNPCOELICBAA.blackfoot@yifan.net> <200109070839.f878dIw00545@sunrise.pg.gda.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200109070839.f878dIw00545@sunrise.pg.gda.pl>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, it should be "Core" Temperature not "Case" Temperature below.
-The AMD Athlon Processor Model 4 Data Sheet summary on page 71 also
-made this typo and I blindly copied it.  --Eric
+On Fri, Sep 07, 2001 at 10:39:18AM +0200, Andrzej Krzysztofowicz wrote:
+> "Jim Blomo wrote:"
+> > Hi, I am having a similar problem with my new board/chip. I am using
+> > 2.4.10-pre4, and when I compile with the Athlon/Thunderbird setting, the
+> > kernel does absolutely nothing after being uncompressed by LILO. The
+> > computer locks up and I must do a hard reboot to get going again. I have had
+> > no errors (for about 1.5 days) when using the same kernel compiled as 386
+> > and Pentium pro without any other changes. When I used make bzdisk and tried
+> > to boot from that, it repeated the following message over and over until I
+> > did a soft reset:
+> > 
+> > 1007
+> > AX:020C
+> > BX:0000
+> > CX:0007
+> > DX:0000
+> 
+> This has nothing to do with Athlon optimization. This is probably a broken
+> floppy disk.
+> 
+> This seem to be from the bootsector code from arch/i386/bootsect.S, it is
+> exactly the same for all x86 processors and called before any other code.
 
->Dear Heinz Deinhart,
->
->>The old Athlon reads: 
->>        A1133AMS3C 
->>        AVIA 0115TPAW 
->>        95262550081 
->>
->>The new (non working) one: 
->>        A1200AMS3C 
->>        AXIA 0121RPDW 
->>        95987660990 
->
->The first line can be decoded using AMDs documentation at
->
->    http://www.amd.com/products/cpg/athlon/techdocs/index.html
->
->In particular
->
->       A 1133 A M S 3 C
->       |   |  | | | | |
->       |   |  | | | |  \___ FSB (B=200, C=266)
->       |   |  | | |  \_____ Size of L2 Cache (3=256K)
->       |   |  | |  \_______ Case Temperature (S=95C, T=90C)
->       |   |  |  \_________ Operating Voltage (M=1.75V, P=1.7V)
->       |   |   \___________ Package Type (A=PGA)
->       |    \______________ Speed in MHz
->        \__________________ A for Athlon
->
->Anyone know what the second line means?  It is quite mysterious 
->that the word VIA appears on the chip that works with VIA KT133A 
->and not on the other :-)
->
->Have you tried Robert Redelmeier's new program burnMMX2 which has 
->the 3DNow streaming cache bypass load/store instructions that seem 
->to be causing all the trouble?
->
->Does it run indefinitely or terminate with the 1133MHz processor 
->configuration?  What about for the 1200MHz processor with kernel 
->optimization turned off?
->
->--Eric
->
-
+That still doesn't discount the report because booting was also tried from
+the hard disk.

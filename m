@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275321AbRIZQsi>; Wed, 26 Sep 2001 12:48:38 -0400
+	id <S275324AbRIZQvS>; Wed, 26 Sep 2001 12:51:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275320AbRIZQs2>; Wed, 26 Sep 2001 12:48:28 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:2009 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S275322AbRIZQsM>;
-	Wed, 26 Sep 2001 12:48:12 -0400
-Subject: Re: Ethernet Error Correction
-To: clock@atrey.karlin.mff.cuni.cz (Karel Kulhavy)
-Date: Wed, 26 Sep 2001 17:51:55 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010925223437.A21831@atrey.karlin.mff.cuni.cz> from "Karel Kulhavy" at Sep 25, 2001 10:34:37 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S275323AbRIZQvI>; Wed, 26 Sep 2001 12:51:08 -0400
+Received: from zok.sgi.com ([204.94.215.101]:7862 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S275319AbRIZQvD>;
+	Wed, 26 Sep 2001 12:51:03 -0400
+Message-ID: <00ad01c146ab$9d4b6340$6501a8c0@pchawkes>
+From: "John Hawkes" <hawkes@sgi.com>
+To: "Andrew Morton" <akpm@zip.com.au>, <dipankar@in.ibm.com>
+Cc: <davem@redhat.com>, <marcelo@connectiva.com.br>, <riel@connectiva.com.br>,
+        "Andrea Arcangeli" <andrea@suse.de>, <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>, <hawkes@engr.sgi.com>
+In-Reply-To: <20010926103424.A8893@in.ibm.com> <3BB16834.4393EEA3@zip.com.au>
+Subject: Re: Locking comment on shrink_caches()
+Date: Wed, 26 Sep 2001 09:52:12 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15mHud-0000w4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> there is a fog of course. But dropping a single bit in 1500 bytes makes a lot
-> of mess.  There is also unsused src and dest address (12 bytes) which is
-> obvious and superfluous.  What about kicking the address off and putting some
-> error correction codes (like Hamming) into it and putting the cards into
-> promisc mode?  It would make the link work on bigger distance and on thicker
-> mist.  We could even dynamically change the ECC/data ratio for example with
-> Reed Solomon Codes. Ethernet modulation is strong gainst sync dropouts so the
-> bits usually remain their place, just some of them happen to flip. We could
-> also kick the "lenght" field because end of packet is recognized by a pulse
-> longer than 200ns, not neither by ECC nor by the length (am I right?).
+From: "Andrew Morton" <akpm@zip.com.au>
+> > John Hawkes from SGI had published some AIM7 numbers that showed
+> > pagecache_lock to be a bottleneck above 4 processors. At 32
+processors,
+> > half the CPU cycles were spent on waiting for pagecache_lock. The
+> > thread is at -
+> >
+> > http://marc.theaimsgroup.com/?l=lse-tech&m=98459051027582&w=2
+> >
+>
+> That's NUMA hardware.   The per-hashqueue locking change made
+> a big improvement on that hardware.  But when it was used on
+> Intel hardware it made no measurable difference at all.
 
-You could do this by picking the right cards turning off CRC filtering and
-doing a lot of work in software yes
+More specifically, that was on SGI Origin2000 32p mips64 ccNUMA
+hardware.  The pagecache_lock bottleneck is substantially less on SGI
+Itanium ccNUMA hardware running those AIM7 workloads.  I'm seeing
+moderately significant contention on the Big Kernel Lock, mostly from
+sys_lseek() and ext2_get_block().
+
+John Hawkes
+hawkes@sgi.com
+
+

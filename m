@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271244AbTHCVep (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 17:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271245AbTHCVep
+	id S271310AbTHCVo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 17:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271307AbTHCVo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 17:34:45 -0400
-Received: from [209.195.52.120] ([209.195.52.120]:46761 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S271244AbTHCVen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 17:34:43 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org, devik@cdi.cz
-Date: Sun, 3 Aug 2003 14:33:01 -0700 (PDT)
-Subject: Re: [PATCH] Allow /dev/{,k}mem to be disabled to prevent kernel from
- being modified easily
-In-Reply-To: <20030803140031.7665546c.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0308031425100.24695-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 3 Aug 2003 17:44:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19433 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271302AbTHCVo1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 17:44:27 -0400
+Date: Sun, 3 Aug 2003 14:39:58 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: herbert@gondor.apana.org.au, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: net/ipv4/ipcomp.c in 2.6.0-test2
+Message-Id: <20030803143958.190272e1.davem@redhat.com>
+In-Reply-To: <Pine.GSO.4.21.0308031315370.799-100000@vervain.sonytel.be>
+References: <E19j8Ln-0002rE-00@gondolin.me.apana.org.au>
+	<Pine.GSO.4.21.0308031315370.799-100000@vervain.sonytel.be>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Aug 2003, Andrew Morton wrote:
+On Sun, 3 Aug 2003 13:17:03 +0200 (MEST)
+Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 
-> bert hubert <ahu@ds9a.nl> wrote:
-> >
-> > as one of the 'tastemasters', what are your thoughts on doing this
-> > dynamically? The sigsegv option might be a dynamic option?
->
-> who, me?  umm...
->
-> I can see that a patch like this would have a place in a general
-> security-hardened kernel: one which closes off all the means by which root
-> can alter the running kernel.
->
-> But that's a specialised thing which interested parties can maintain as a
-> standalone patch, and bringing just one part of it into the main kernel
-> seems rather arbitrary.
+> On Sun, 3 Aug 2003, Herbert Xu wrote:
+> > Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> > > Looks like CONFIG_INET_IPCOMP=y needs CONFIG_CRYPTO_HMAC=y
+> > 
+> > Does it help if you remove the inclusion of net/esp.h from ipcomp.c?
+> 
+> Yes it does.
 
-why not bring the other parts in as options as well?
-
-I can understand not bringing in all the external security modules that
-want to regulate access to everything else (full capabilities, etc) but
-locking down the kernel itself to prevent it from being modified seems
-like something that would have a place on most servers, possibly also on
-desktops that aren't dynamicly adding hardware (probably not that useful
-for many laptop users for this reason)
-
-we already have the option to not support modules (as Alan Cox points out
-every time that subject comes up it can be bypassed by people who have
-access to /dev/*mem) so it would seem that adding the option to bar access
-to /dev/*mem as well would make exisitng config options mean what they
-appear to mean.
-
-David Lang
-
+Applied, thanks guys.

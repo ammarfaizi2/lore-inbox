@@ -1,69 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbTDVOUg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 10:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbTDVOUg
+	id S263172AbTDVO0u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 10:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbTDVO0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 10:20:36 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:28040 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263163AbTDVOUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 10:20:34 -0400
-Date: Tue, 22 Apr 2003 10:31:49 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
-       <mbligh@aracnet.com>, <mingo@elte.hu>, <hugh@veritas.com>,
-       <dmccr@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+	Tue, 22 Apr 2003 10:26:50 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:62701 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263172AbTDVO0t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 10:26:49 -0400
+Date: Tue, 22 Apr 2003 07:38:37 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Andrea Arcangeli <andrea@suse.de>
+cc: Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@digeo.com>,
+       mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
 Subject: Re: objrmap and vmtruncate
-In-Reply-To: <20030422115421.GC8931@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0304221017200.10400-100000@devserv.devel.redhat.com>
+Message-ID: <171790000.1051022316@[10.10.2.4]>
+In-Reply-To: <20030422132013.GF8931@holomorphy.com>
+References: <20030405143138.27003289.akpm@digeo.com>
+ <Pine.LNX.4.44.0304220618190.24063-100000@devserv.devel.redhat.com>
+ <20030422123719.GH23320@dualathlon.random>
+ <20030422132013.GF8931@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Well, AFAICT the question wrt. sys_remap_file_pages() is not speed, but
+> space. Speeding up mmap() is of course worthy of merging given the
+> usual mergeability criteria.
+> 
+> On this point I must make a concession: k-d trees as formulated by
+> Bentley et al have space consumption issues that may well render them
+> inappropriate for kernel usage. I still believe it's worth an empirical
+> investigation once descriptions of on-line algorithms for their
+> maintenance are recovered, as well as other 2D+ spatial algorithms, esp.
+> those with better space behavior.
+> 
+> Specifically, k-d trees require internal nodes to partition spaces that
+> are not related to leaf nodes (i.e. data points), and not all
+> rebalancing policies are guaranteed to recover space.
 
-On Tue, 22 Apr 2003, William Lee Irwin III wrote:
+We can still do the simple sorted list of lists thing (I have preliminary
+non-functional code). But I don't see that it's really worth the overhead
+in the common case to fix a corner case that has already been fixed in a
+different way.
 
-> Are the reserved bits in PAE kernel-usable at all or do they raise
-> exceptions when set? This may be cpu revision -dependent, but if things
-> are usable in some majority of models it could be ihteresting.
+/*
+ * s = address_space, r = address_range, v = vma
+ *
+ * s - r - r - r - r - r
+ *     |   |   |   |   |
+ *     v   v   v   v   v
+ *     |   |           |
+ *     v   v           v
+ *         |
+ *         v
+ */
 
-if the present bit is clear then the remaining 63 bits are documented by
-Intel as being software-available, so this all works just fine.
+struct address_range {
+       unsigned long           start;
+       unsigned long           end;
+       struct list_head        ranges;
+       struct list_head        vmas;
+};
 
-> Getting the things out of lowmem sounds very interesting, although I
-> vaguely continue to wonder about the total RAM overhead. ISTR an old 2.4
-> benchmark run on PAE x86 where 90+% of physical RAM was consumed by
-> pagetables _after_ pte_highmem (where before the kernel dropped dead).
+where the list of address_ranges is sorted by start address. This is
+intended to make use of the real-world case that many things (like shared
+libs) map the same exact address ranges over and over again (ie something
+like 3 ranges, but hundreds or thousands of mappings).
 
-just create a sparse enough memory layout (one page mapped every 2MB) and
-pagetable overhead will dominate. Is it a problem in practice? I doubt it,
-and you get what you asked for, and you can always offset it with RAM.
-
-> But anyway, companion pages are doable. The real metric is what the code
-> looks like and how it performs and what workloads it supports.
-
-> I would not say 0.4% of RAM. I would say 0.4% of aggregate virtualspace.
-> So someone needs to factor virtual:physical ratio for the important
-> workloads into that analysis.
-
-yes.
-
-> Well, the already-existing pagetable overhead is not insignificant. It's
-> somewhere around 3MB on lightly-loaded 768MB x86-32 UP, which is very
-> close to beginning to swap.
-
-3MB might sound alot. Companion pagetables will make that 9MB on non-PAE.
-(current pte chains should make that roughly 6MB on average) 9MB is 1.1%
-of all RAM. 4K granular mem_map[] is 1.5% cost, and even there it's not
-mainly the RAM overhead that hurts us, but the lowmem overhead.
-
-(btw., the size of companion pagetables is likely reduced via pgcl as well
-- they need to track the VM units of pages, not the MMU units of pages.)
-
-	Ingo
-
+M.

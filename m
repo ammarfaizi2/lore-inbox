@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129618AbRCCRfv>; Sat, 3 Mar 2001 12:35:51 -0500
+	id <S129619AbRCCRkw>; Sat, 3 Mar 2001 12:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129619AbRCCRfm>; Sat, 3 Mar 2001 12:35:42 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6667 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129618AbRCCRfe>; Sat, 3 Mar 2001 12:35:34 -0500
-Subject: Re: i2o & Promise SuperTrak100
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Sat, 3 Mar 2001 17:37:34 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), david2@maincube.net (David Priban),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0103031710220.6520-100000@imladris.demon.co.uk> from "David Woodhouse" at Mar 03, 2001 05:14:01 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129623AbRCCRkm>; Sat, 3 Mar 2001 12:40:42 -0500
+Received: from [139.102.15.118] ([139.102.15.118]:168 "EHLO
+	mailgate.indstate.edu") by vger.kernel.org with ESMTP
+	id <S129619AbRCCRkd>; Sat, 3 Mar 2001 12:40:33 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Rich Baum <richbaum@acm.org>
+To: davidge@jazzfree.com, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: simple question about patches
+Date: Sat, 3 Mar 2001 12:41:26 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.21.0103031812550.1447-100000@roku.redroom.com>
+In-Reply-To: <Pine.LNX.4.21.0103031812550.1447-100000@roku.redroom.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14ZFyK-0003p7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01030312412600.02510@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 28 Feb 2001, Alan Cox wrote:
-> 
-> > Umm that sounds like it might be timing. That could be a pain
-> Timing-related problems in code using sleep_on(). Film at 11. :)
+On Saturday 03 March 2001 12:18 pm, davidge@jazzfree.com wrote:
+> Hi, i've got a newbie question about patches:
+> Are the pre* patches ( and i guess also the ac* ones) applied against the
+> last release of the kernel or against the previous patch? I mean, when
+> 2.4.3pre2 will come out, i need to get also the pre1 patch?
+>
+> thanks
+>
+>
+> David Gómez
+>
+> "The question of whether computers can think is just like the question of
+>  whether submarines can swim." -- Edsger W. Dijkstra
+>
+>
 
-No
-
+They're applied against the last release.  To remove the old patch run the 
+same command you used to patch the kernel only add a -R after the patch 
+command.

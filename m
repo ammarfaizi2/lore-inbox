@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314274AbSEHNwR>; Wed, 8 May 2002 09:52:17 -0400
+	id <S314275AbSEHNyM>; Wed, 8 May 2002 09:54:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314275AbSEHNwQ>; Wed, 8 May 2002 09:52:16 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:51981 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S314274AbSEHNwQ>; Wed, 8 May 2002 09:52:16 -0400
-Message-Id: <200205081341.g48DfqX23864@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-Date: Wed, 8 May 2002 16:46:12 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <3CD7B8FE.1020505@evision-ventures.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S314292AbSEHNyL>; Wed, 8 May 2002 09:54:11 -0400
+Received: from [198.144.45.122] ([198.144.45.122]:1920 "EHLO
+	xyzzy.stargate.net") by vger.kernel.org with ESMTP
+	id <S314275AbSEHNyK>; Wed, 8 May 2002 09:54:10 -0400
+Subject: Re: Memory Barrier Definitions
+From: Justin Carlson <justinca@ri.cmu.edu>
+To: Dave Engebretsen <engebret@vnet.ibm.com>
+Cc: justincarlson@cmu.edu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3CD89247.8ECB01A4@vnet.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.4 
+Date: 08 May 2002 09:54:24 -0400
+Message-Id: <1020866064.1667.3.camel@xyzzy.stargate.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 May 2002 09:22, Martin Dalecki wrote:
-> Mon May  6 13:29:44 CEST 2002 ide-clean-56
+On Tue, 2002-05-07 at 22:49, Dave Engebretsen wrote:
 
-+	printk("%s: reset timed-out, status=0x%02x\n", ch->name, stat);
+> PPC also guarantees every ordering when using the 'sync' instruction, so
+> that will give correctness at the price of a 1000 cycles or so.  You
+> refer to different rules for cached vs uncached on other implementations
+> -- that is the essence of our problem.  Are there different barrier
+> instructions in MIPS which provide different levels of performance for
+> different ordering enforcements?
+> 
+> Dave.
 
-"timed out" (no dash)
---
-vda
+No, there aren't.  The implementation details can affect which
+primitives need to explicitly sync, though.  
+
+For instance, the BRCM1250 makes some guarantees about visibility of
+uncached writes that aren't strictly required by the architecture spec. 
+
+-Justin
+

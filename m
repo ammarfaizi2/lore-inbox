@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267183AbRGKCiA>; Tue, 10 Jul 2001 22:38:00 -0400
+	id <S267193AbRGKD0W>; Tue, 10 Jul 2001 23:26:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267189AbRGKChv>; Tue, 10 Jul 2001 22:37:51 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:21267 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S267183AbRGKChg>; Tue, 10 Jul 2001 22:37:36 -0400
-Date: Tue, 10 Jul 2001 22:05:36 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <Pine.LNX.4.33.0107091130580.448-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0107102201360.2021-100000@freak.distro.conectiva>
+	id <S267195AbRGKD0M>; Tue, 10 Jul 2001 23:26:12 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:25104 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267193AbRGKD0E>; Tue, 10 Jul 2001 23:26:04 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: new IPC mechanism ideas
+Date: 10 Jul 2001 20:25:40 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9iggvk$ndh$1@cesium.transmeta.com>
+In-Reply-To: <20010711014918.76554.qmail@web14404.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 9 Jul 2001, Mike Galbraith wrote:
-
-> On 9 Jul 2001, Christoph Rohland wrote:
+Followup to:  <20010711014918.76554.qmail@web14404.mail.yahoo.com>
+By author:    Rajeev Bector <rajeev_bector@yahoo.com>
+In newsgroup: linux.dev.kernel
 > 
-> > Hi Mike,
-> >
-> > On Mon, 9 Jul 2001, Mike Galbraith wrote:
-> > > --- mm/shmem.c.org	Mon Jul  9 09:03:27 2001
-> > > +++ mm/shmem.c	Mon Jul  9 09:03:46 2001
-> > > @@ -264,8 +264,8 @@
-> > >  	info->swapped++;
-> > >
-> > >  	spin_unlock(&info->lock);
-> > > -out:
-> > >  	set_page_dirty(page);
-> > > +out:
-> > >  	UnlockPage(page);
-> > >  	return error;
-> > >  }
-> > >
-> > > So, did I fix it or just bust it in a convenient manner ;-)
-> >
-> > ... now you drop random pages. This of course helps reducing memory
-> > pressure ;-)
+> We are planning to develop a new IPC mechanism based on shared
+> memory. The memory is allocated by a device driver in the kernel and
+> mapped to various processes read only. Processes talk to the driver
+> to write to the memory but they can directly read the memory (so its
+> a 1-copy IPC mechanism).
 > 
-> (shoot.  I figured that was too easy to be right)
+> We also want to make this IPC mechanism persistent across
+> application restarts. So that if an application crashes, when it
+> comes back up, it can remap to its old queues and get its messages.
 > 
-> > But still this may be a hint. You are not running out of swap, aren't
-> > you?
+> Does anyone have experiences building such a mechanism ? Any
+> pointers to reading material would be really appreciated ?
 > 
-> I'm running oom whether I have swap enabled or not.  The inactive
-> dirty list starts growing forever, until it's full of (aparantly)
-> dirty pages and I'm utterly oom.
 
-We can make sure if this (inactive full of dirty pages) is really the case
-with the tracing code.
+Why not just use mmap() on a file?  That way you can even make it
+zero-copy.  Otherwise, mmap() readonly in all but one process ("the
+driver").
 
-The shmem fix in 2.4.7-pre5 is the solution for your problem ?
- 
-If not, I'll port the tracing code to the pre5 and hopefully we can
-actually figure out what is going on here. 
+Nothing needed in the kernel that isn't already there...
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

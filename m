@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbVCOUWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVCOURs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbVCOUWO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 15:22:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVCOUVu
+	id S261567AbVCOURs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 15:17:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVCOURI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 15:21:50 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:27849 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261669AbVCOUTm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 15:19:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=c2Ypjbms4HtFuuD+y1VZiJg4fT1iEjOiYprSgPeYbiZAQUNrZik2UxMX/kma3PPbPvX8laSUPaEcKcnlGYsziOjq25DBKpJfhd/QcUWHlaK0OH4GgVjGr5zdbtvtvSRIGs+H9iMk1r3rIJ7UaWGF18o5wiU9a1+VNuHYjqCW0DA=
-Message-ID: <a71293c2050315121938cd9dc1@mail.gmail.com>
-Date: Tue, 15 Mar 2005 15:19:40 -0500
-From: Stephen Evanchik <evanchsa@gmail.com>
-Reply-To: Stephen Evanchik <evanchsa@gmail.com>
-To: =?UTF-8?Q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
-Subject: Re: [PATCH 2.6.11] IBM TrackPoint support
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200503152049.26488.pluto@pld-linux.org>
+	Tue, 15 Mar 2005 15:17:08 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:20956 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261874AbVCOUPE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 15:15:04 -0500
+Date: Tue, 15 Mar 2005 21:15:03 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Greg KH <greg@kroah.com>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [RFC] Changes to the driver model class code.
+Message-ID: <20050315201503.GA3591@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Greg KH <greg@kroah.com>, dtor_core@ameritech.net,
+	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+	Kay Sievers <kay.sievers@vrfy.org>
+References: <20050315170834.GA25475@kroah.com> <d120d500050315094724938ffc@mail.gmail.com> <20050315193415.GA26299@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-References: <a71293c2050313210230161278@mail.gmail.com>
-	 <200503152049.26488.pluto@pld-linux.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050315193415.GA26299@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005 20:49:25 +0100, Paweł Sikora <pluto@pld-linux.org> wrote:
-> On Monday 14 of March 2005 06:02, Stephen Evanchik wrote:
-> > Here's the latest patch for TracKPoint devices. I have changed the
-> > sysfs filenames to be more descriptive for commonly used attributes. I
-> > also implemented the set_properties flag for initialization.
-> >
-> > It patches against 2.6.11 and 2.6.11.3 however I have not tested it
-> > with 2.6.11.3 .
-> >
-> > Any comments are appreciated.
+On Tue, Mar 15, 2005 at 11:34:15AM -0800, Greg KH wrote:
+> > And what about device_driver and device structure? Are they going to
+> > be changed over to be separately allocated linked objects?
 > 
->   CC [M]  drivers/input/mouse/psmouse-base.o
-> drivers/input/mouse/psmouse-base.c: In function 'psmouse_extensions':
-> drivers/input/mouse/psmouse-base.c:489: error: 'PSMOUSE_TRACKPOINT' undeclared
+> The driver stuff probably will be, and the device stuff possibly.
+> However, they are used by a very small ammount of core code (the bus
+> drivers), so changing that interface is not that important at this time.
+
+So this means every device will have yet another reference count, and you
+need to be aware of _each_ lifetime to write correct code. And the 
+_reference counting_ is the hard thing to get right, so we should make 
+_that_ easier. The existing class API was a step towards this direction, and
+with the changes you're suggesting here we'd do two jumps backwards.
+
+> > If not then its enouther reason to keep original class interface -
+> > uniformity of driver model interface.
 > 
-> ;-)
+> Ease-of-use trumps uniformity
 
-Thanks, I noticed this last night and have it fixed in the new patch
-yet to be submitted ;)
+Ease-of-use, maybe. However, it also means
+ease-of-getting-reference-counting-wrong. And reference counting trumps it
+all :)
 
-
-Stephen
+Thanks,
+	Dominik

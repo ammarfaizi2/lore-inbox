@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbUCVKJR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 05:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbUCVKJQ
+	id S261865AbUCVKQR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 05:16:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbUCVKQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 05:09:16 -0500
-Received: from upco.es ([130.206.70.227]:51156 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261867AbUCVKI3 (ORCPT
+	Mon, 22 Mar 2004 05:16:17 -0500
+Received: from gprs214-145.eurotel.cz ([160.218.214.145]:43904 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261865AbUCVKQQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 05:08:29 -0500
-Date: Mon, 22 Mar 2004 11:08:24 +0100
-From: Romano Giannetti <romano@dea.icai.upco.es>
-To: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-       Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, Patrick Mochel <mochel@osdl.org>
-Subject: AC adapter status wrong after resume (swsusp, pmdsik)
-Message-ID: <20040322100824.GA27330@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>,
-	linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-	Nigel Cunningham <ncunningham@users.sourceforge.net>,
-	Andrew Morton <akpm@osdl.org>, Patrick Mochel <mochel@osdl.org>
+	Mon, 22 Mar 2004 05:16:16 -0500
+Date: Mon, 22 Mar 2004 11:15:54 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Michael Frank <mhf@linuxmail.org>, pcg@goof.com,
+       Software Suspend - Mailing Lists 
+	<swsusp-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] (no subject)
+Message-ID: <20040322101554.GB273@elf.ucw.cz>
+References: <opr49atvpk4evsfm@smtp.pacific.net.th> <20040322094053.GO16890@patrick.wattle.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040322094053.GO16890@patrick.wattle.id.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   	I think I found a problem with ACPI and disk-suspend "swsusp" option
-        of 2.6.4 kernel. 
-        
-        In a few words: when resuming the "ac adapter status" would not
-        refresh: if I suspend the laptop with the AC adapter on, then on
-        resuming ACPI -v will report AC on even if I have plugged out the
-        charger. Plugging the charger in and out will resume normal
-        behaviour. I discovered it because cpufreqd would not lower the CPU
-        clock after the resume... 
-        
-        HTH, 
-             	Romano
-                
+Hi!
+
+> | >+ *   3.  The name of the author may not be used to endorse or promote products
+> | >+ *       derived from this software without specific prior written permission.
+> [...]
+> | >This looks like BSD with advertising clause. I do not think you are
+> | >allowed to link this with kernel. It does not follow kernel coding style.
+> [...]
+> | As said, BSD-only licensed code is _invalid_ to be linked with kernel code,
+> | therefor swsusp2 will have to drop LZF alltogether unless you relicense it.
+> 
+> The licence above looks like BSD /without/ advertising clause, which
+> is GPL compatible.  Note that the (GPL-incompatible) advertising
+
+Yes, I was wrong. It indeed looks like BSD _without_
+advertising.
+								Pavel
 -- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

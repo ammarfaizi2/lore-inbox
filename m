@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273902AbRKHPgk>; Thu, 8 Nov 2001 10:36:40 -0500
+	id <S273854AbRKHPga>; Thu, 8 Nov 2001 10:36:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273881AbRKHPgb>; Thu, 8 Nov 2001 10:36:31 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:31624 "EHLO
-	c0mailgw08.prontomail.com") by vger.kernel.org with ESMTP
-	id <S274194AbRKHPgS>; Thu, 8 Nov 2001 10:36:18 -0500
-X-Version: beer 7.5.2333.0
-From: "william fitzgerald" <william.fitzgerald3@beer.com>
-Message-Id: <073EAB4D8C9C4A14CBAAC7C9C97D8242@william.fitzgerald3.beer.com>
-Date: Fri, 9 Nov 2001 15:41:17 +2400
-X-Priority: Normal
-Content-Type: text/plain; charset=iso-8859-1
-To: linux-kernel@vger.kernel.org
-Subject: printk kernel logging for router
-CC: williamf@cs.may.ie
-X-Mailer: Web Based Pronto
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	id <S274248AbRKHPgU>; Thu, 8 Nov 2001 10:36:20 -0500
+Received: from posta2.elte.hu ([157.181.151.9]:5096 "HELO posta2.elte.hu")
+	by vger.kernel.org with SMTP id <S273854AbRKHPgH>;
+	Thu, 8 Nov 2001 10:36:07 -0500
+Date: Thu, 8 Nov 2001 17:33:58 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: "M. Edward Borasky" <znmeb@aracnet.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] scheduler cache affinity improvement for 2.4 kernels
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBEEPMEAAA.znmeb@aracnet.com>
+Message-ID: <Pine.LNX.4.33.0111081726310.14244-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
-linux newbie here.
 
-i need to know some information in regard to
-logging with printk statements.
+On Thu, 8 Nov 2001, M. Edward Borasky wrote:
 
-my plan is to monitor the performance of a linux
-router.i'm adding printk  statements to the
-kernel to every function that is called by
-forwarding packets and in that way find precisely
-where a packet or packets  get lost.
+> I can think of some circumstances where one would want the *opposite*
+> of this patch. Consider a "time-sharing" system running both
+> CPU-intensive "batch" tasks and "interactive" tasks. There is going to
+> be a tradeoff between efficiency / throughput of the batch tasks and
+> the response times of interactive ones. [...]
 
- this is still in progress.
+this mechanizm is already part of the scheduler and is not affected by my
+patch. Interactive tasks get their '->counter' value increased gradually
+via the recalculate code in the scheduler, which after some time gives
+them effective priority above that of CPU-intensive processes.
 
-when i finally get all my printk statements in, i
-want to be able to flood my router on my own mini
-network.(router running on a p133 using
-redhat7.1)
+To see this mechanizm working, just boot into the stock kernel or try a
+kernel with the patch applied, start a few CPU-intensive processes, eg.
+a couple of subshells doing an infinite loop:
 
-my understanding of printk is that each time it
-is encountered it is written to disk.so for a lot
-of packets there will be alot of writes,
-therefore slowing the system and producing false
-results.
+	while N=1; do N=1; done &
+	while N=1; do N=1; done &
+	while N=1; do N=1; done &
+	while N=1; do N=1; done &
 
-so how to i buffer or record  the printk
-statements and print them to disk  after my
-packets have gone through the router?
+and see how the interactive shell is still responding instantaneously in
+such a mixed workload, despite having the same static priority as the
+subshells.
 
- do i edit the printk.c file and change the 
-line:
+	Ingo
 
-                          static char buf[1024];
-
-and increase the size of the array?
-or do i edit the klogd.c program and change
-something in there?
-
- many thanks in advance and all comments no
-matter how trivial  are welcome in  order for me
-to learn more.
-
-regards william.
-
-Beer Mail, brought to you by your friends at beer.com.

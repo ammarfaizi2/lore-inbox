@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271283AbTHCVtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 17:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271313AbTHCVtQ
+	id S271298AbTHCWIL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 18:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271308AbTHCWIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 17:49:16 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:40168 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S271283AbTHCVsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 17:48:05 -0400
-From: Miles Lane <miles.lane@comcast.net>
-To: Gergely Nagy <algernon@bonehunter.rulez.org>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: [TRIVIAL] compile fix for arch/ppc/kernel/setup.c
-Date: Sun, 3 Aug 2003 14:47:55 -0700
-User-Agent: KMail/1.5.9
-References: <20030803204138.GB18494@gandalph.mad.hu>
-In-Reply-To: <20030803204138.GB18494@gandalph.mad.hu>
+	Sun, 3 Aug 2003 18:08:11 -0400
+Received: from [66.155.158.133] ([66.155.158.133]:51072 "EHLO ns")
+	by vger.kernel.org with ESMTP id S271298AbTHCWII convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 18:08:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: joe briggs <jbriggs@briggsmedia.com>
+Organization: BMS
+To: John Bradford <john@grabjohn.com>, bbeutner@comcast.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: issues with any ac sources, and 2.6
+Date: Sun, 3 Aug 2003 19:06:45 -0400
+User-Agent: KMail/1.4.3
+References: <200308032056.h73KuEem000277@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200308032056.h73KuEem000277@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200308031447.55659.miles.lane@comcast.net>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308031906.46052.jbriggs@briggsmedia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun August 3 2003 1:41 pm, Gergely Nagy wrote:
-> Hi!
->
-> I'm posting both to linuxppc-dev and lkml, since the latter is listed in
-> MAINTAINERS. I've been trying to get my PowerMac 4400 boot with linux
-> 2.6.0-test2(-bk3), but the compile failed quite early in
-> arch/ppc/kernel/setup.c. After adding an #include <linux/cpu.h>, it
-> compiled. Patch is included below.
->
-> --- arch/ppc/kernel/setup.c.old	2003-08-03 22:35:51.000000000 +0200
-> +++ arch/ppc/kernel/setup.c	2003-08-03 22:35:41.000000000 +0200
-> @@ -2,6 +2,7 @@
->   * Common prep/pmac/chrp boot and setup code.
->   */
->
-> +#include <linux/config.h>
->  #include <linux/cpu.h>
->  #include <linux/module.h>
->  #include <linux/string.h>
->
->
-> --
+I got one of those in my office running 2.4.21-ac.  It runs well. Do you want 
+to try my kernel?  Those boards are real sensitive to ESD and constantly 
+loose their BIOS values if you swap a board out or pull a cable. I had one 
+that refused to boot on me today and I just pulled and reseated the PCI cards 
+and it came back to life.
 
-Hmm.  This doesn't look like the correct patch.  This one shows linux/config.h 
-being added, not linux/cpu.h.  How about this one, instead?
+On Sunday 03 August 2003 04:56 pm, John Bradford wrote:
+> > i run a tyan tiger s2462 board with dual athlons, with the gentoo
+> > flavor on it, recently i tried to run the ac sourcess kernel on this
+> > machine, however upon boot the machine would just freeze up in the
+> > middle of kernel boot, either dying while attaching ide's to devices
+> > or while detecting the ide chipset, the odd part to this is that
+> > using generic linux sources the machine boots just fine the other
+> > issue seems to be that using the 2.6-beta versions it panic.
+> > it does so by telling me that i have corrupt cpu context and then
+> > panics, there are no hints or warning as to what it could be any
+> > help would be greatly appreciated
+>
+> For the AC kernels, try backing out just the IDE patches, and see if
+> that allows you to boot.
+>
+> For 2.6, does the machine finish booting, and then panic, or does it
+> panic during the boot?  Did you try any of the 2.5 kernels, or did you
+> start with 2.6?  If it panics during boot, does it always panic at the
+> same place, and if so where?  Posting the boot time output of dmesg,
+> and lspci -vvv would be helpful here.
+>
+> John.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---- arch/ppc/kernel/setup.c~    2003-08-03 10:46:40.000000000 -0700
-+++ arch/ppc/kernel/setup.c     2003-08-03 10:48:04.000000000 -0700
-@@ -15,6 +15,7 @@
- #include <linux/bootmem.h>
- #include <linux/seq_file.h>
- #include <linux/root_dev.h>
-+#include <linux/cpu.h>
-
- #include <asm/residual.h>
- #include <asm/io.h>
+-- 
+Joe Briggs
+Briggs Media Systems
+105 Burnsen Ave.
+Manchester NH 01304 USA
+TEL 603-232-3115 FAX 603-625-5809 MOBILE 603-493-2386
+www.briggsmedia.com

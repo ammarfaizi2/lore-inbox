@@ -1,89 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUJYQt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262078AbUJYQya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUJYQt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 12:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbUJYQq6
+	id S262078AbUJYQya (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 12:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbUJYQta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 12:46:58 -0400
-Received: from mail3.utc.com ([192.249.46.192]:21231 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S262074AbUJYQpq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 12:45:46 -0400
-Message-ID: <417D2D8F.8080904@cybsft.com>
-Date: Mon, 25 Oct 2004 11:45:03 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Florian Schmidt <mista.tapas@gmx.net>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-References: <20041022133551.GA6954@elte.hu>	<20041022155048.GA16240@elte.hu>	<20041022175633.GA1864@elte.hu>	<20041025104023.GA1960@elte.hu>	<417CDE90.6040201@cybsft.com>	<20041025111046.GA3630@elte.hu>	<20041025121210.GA6555@elte.hu>	<20041025152458.3e62120a@mango.fruits.de>	<20041025132605.GA9516@elte.hu>	<20041025160330.394e9071@mango.fruits.de>	<20041025141008.GA13512@elte.hu> <20041025170612.6284923a@mango.fruits.de>
-In-Reply-To: <20041025170612.6284923a@mango.fruits.de>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Oct 2004 12:49:30 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:45000 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S262092AbUJYQrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 12:47:08 -0400
+Date: Mon, 25 Oct 2004 18:47:32 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Larry McVoy <lm@work.bitmover.com>, Joe Perches <joe@perches.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
+Subject: Re: BK kernel workflow
+Message-ID: <20041025164732.GE14325@dualathlon.random>
+References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org> <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041025162022.GA27979@work.bitmover.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Schmidt wrote:
-> On Mon, 25 Oct 2004 16:10:08 +0200
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> 
->>>Btw: i still experience some "pauses". They are different now though.
->>>It seems i can trigger them by reloading a page in mozilla (not
->>>always). This BUG definetly looks related. Dunno, when exactly it
->>>happened (related to what i did at that moment), but it's the only one
->>>in dmesg output on this bootup. Each of the pauses is accompanied by a
->>>high cpu usage of ksoftirqd. I cannot retrigger the BUG though.
->>
->>please try -V0.2 - maybe the delayed-put fix is somehow related. (but
->>only maybe...)
->>
-> 
-> 
-> doesn't seem so. V0.2 doesn't fix this for me. This time i got a BUG storm
-> again in syslog (it kinda seems related to starting playback in xmms plus
-> loading pages in mozilla. will boot again to verify):
-> 
+On Mon, Oct 25, 2004 at 09:20:22AM -0700, Larry McVoy wrote:
+> The implication that Andrew doesn't use BK is incorrect, we see him in
+> the logs all the time. [..]
 
-Well I have now gotten a couple of these now too (with V0.2). They all 
-seem to be generated by firefox or thunderbird and the traces are all 
-identical except for the offending process.
-
-
-Oct 25 11:22:11 swdev14 kernel:
-Oct 25 11:22:20 swdev14 kernel: thunderbird-bin/3946: BUG in futex_wait 
-at kernel/futex.c:542
-Oct 25 11:22:20 swdev14 kernel:  [<c0136389>] futex_wait+0x192/0x19c (12)
-Oct 25 11:22:20 swdev14 kernel:  [<c0135646>] 
-sub_preempt_count+0x75/0xd8 (72)
-Oct 25 11:22:20 swdev14 kernel:  [<c02aa9f2>] _spin_unlock+0x1a/0x34 (4)
-Oct 25 11:22:20 swdev14 kernel:  [<c02aa9f2>] _spin_unlock+0x1a/0x34 (84)
-Oct 25 11:22:20 swdev14 kernel:  [<c01120ac>] mcount+0x14/0x18 (4)
-Oct 25 11:22:20 swdev14 kernel:  [<c02aa9f2>] _spin_unlock+0x1a/0x34 (20)
-Oct 25 11:22:20 swdev14 kernel:  [<c0118e15>] 
-default_wake_function+0x0/0x1c (60)
-Oct 25 11:22:20 swdev14 kernel:  [<c0118e15>] 
-default_wake_function+0x0/0x1c (32)
-Oct 25 11:22:20 swdev14 kernel:  [<c0136777>] sys_futex+0xf0/0xfc (12)
-Oct 25 11:22:20 swdev14 kernel:  [<c01120ac>] mcount+0x14/0x18 (8)
-Oct 25 11:22:20 swdev14 kernel:  [<c0136637>] do_futex+0x47/0x97 (20)
-Oct 25 11:22:20 swdev14 kernel:  [<c0136777>] sys_futex+0xf0/0xfc (40)
-Oct 25 11:22:20 swdev14 kernel:  [<c010623d>] 
-sysenter_past_esp+0x52/0x71 (68)
-Oct 25 11:22:20 swdev14 kernel: preempt count: 00000001
-Oct 25 11:22:20 swdev14 kernel: . 1-level deep critical section nesting:
-Oct 25 11:22:20 swdev14 kernel: .. entry 1: print_traces+0x1d/0x59 
-[<c0135a28>] / (dump_stack+0x23/0x27 [<c01070db>])
-Oct 25 11:22:20 swdev14 kernel:
-
+I assume this is great news for bitmover: one more tainted open source
+developer that will not be allowed by law to ever compete with your
+business, right? Anyways this is offtopic for l-k, but you can still
+celebrate elsewhere.

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287919AbSA0KAO>; Sun, 27 Jan 2002 05:00:14 -0500
+	id <S287908AbSA0J4r>; Sun, 27 Jan 2002 04:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287924AbSA0KAE>; Sun, 27 Jan 2002 05:00:04 -0500
-Received: from zamok.crans.org ([138.231.136.6]:22207 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id <S287919AbSA0J7p>;
-	Sun, 27 Jan 2002 04:59:45 -0500
-To: "Nix N. Nix" <nix@go-nix.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA KT266 and SBLive! (emu10k1)
-In-Reply-To: <1012086718.11336.91.camel@tux>
-X-PGP-KeyID: 0xF22A794E
-X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
-From: Vincent Bernat <bernat@free.fr>
-In-Reply-To: <1012086718.11336.91.camel@tux> ("Nix N. Nix"'s message of "26
- Jan 2002 18:11:53 -0500")
-Organization: Kabale Inc
-Date: Sun, 27 Jan 2002 10:59:42 +0100
-Message-ID: <m3lmek2jxt.fsf@neo.loria>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
- i686-pc-linux)
+	id <S287919AbSA0J4f>; Sun, 27 Jan 2002 04:56:35 -0500
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:18948 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S287908AbSA0J4X>; Sun, 27 Jan 2002 04:56:23 -0500
+Message-ID: <3C53CEC5.1060008@yahoo.com>
+Date: Sun, 27 Jan 2002 03:56:21 -0600
+From: Chris <volthead@yahoo.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: tulip hangs on 2.4.17
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OoO En cette nuit nuageuse du dimanche 27 janvier 2002, vers 00:11,
-"Nix N. Nix" <nix@go-nix.ca> disait:
+I have recently run into a problem with the tulip driver on my laptop.
 
-> 00:0e.0 Multimedia audio controller: Creative Labs SB Live! EMU10000
-> (rev 05)
-> 	Subsystem: Creative Labs CT4850 SBLive! Value
-> 	Flags: bus master, medium devsel, latency 32, IRQ 5
-> 	I/O ports at b000 [size=32]
-> 	Capabilities: <available only to root>
+It loads fine at first, and I can get connected to a network, etc.  When 
+I reboot the machine, it hangs when it tries to load the tulip module. 
+This only happens with a warm reboot, not a cold boot.  It is quite 
+repeatable.  If I power off completely, there is no problem.  If I 
+comment the tulip driver out of my startup scripts, there is no problem. 
+  If I reboot, it hangs.
 
-You may try /sbin/setpci -v -s 00:0e.0 0D.B=40
+This does not happen with the 2.4.5 kernel, only the 2.4.17.  These are 
+the only  2 I have tried.
 
-Check http://www.networking.tzo.com/net/software/readme/faqvl019.htm
-and http://www.uwsg.iu.edu/hypermail/linux/kernel/0112.3/0922.html
+I have found that if I bring down my ethernet interface and unload the 
+tulip module before the warm reboot, the system will not lock when it 
+comes back up, so I have added the neccessary commands to my shutdown 
+scripts.  However, it seems to me like a kernel bug that should probably 
+be fixed.
 
-The first one is a patch for Windows to correct the problem, it is
-called "VIA latency patch" since it used to only modify latency. It is
-closed source so it is difficult to see if the correction towards the
-sound card is about latency (so my command line is useless).
+My specific hardware/software config is:
 
-The second one is a post from the author of the corresponding VIA
-latency patch under Linux, you may want to try it (and to tweak it if
-you don't have a KT266A).
+HP Pavillion XH555 laptop with:
+1 Ghz Athlon 4
+512 MB RAM
+ESS sound/modem  (sound using Maestro3 driver)
+Accton ethernet   (using tulip driver)
 
-However, the problem seems not IRQ related, so you may want to try
-another slots for your sound card.
--- 
-Say what you mean, simply and directly.
-            - The Elements of Programming Style (Kernighan & Plaugher)
+Software:
+Slackware 8.0, kernel 2.4.17
+using ACPI, tulip, maestro3, ext3, framebuffer, etc.
+
+If there's any more info that would help, please let me know.
+
+-Chris
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

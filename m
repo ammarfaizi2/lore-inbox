@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269277AbUHZSef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269297AbUHZSee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269277AbUHZSef (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 14:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269197AbUHZSd4
+	id S269297AbUHZSee (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 14:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269279AbUHZSeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 14:33:56 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:22734 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S269320AbUHZS0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 14:26:53 -0400
-From: margitsw@t-online.de (Margit Schubert-While)
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver Core patches for 2.6.9-rc1
-Date: Thu, 26 Aug 2004 20:15:35 +0200
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_HjiLBU+F52+rs70"
-Message-Id: <200408262015.35552.margitsw@t-online.de>
-X-ID: rAYvxuZCresljpFR-qUvxtprAVOU8jixhgpAwsWyvL0qkNKLcHreg+
-X-TOI-MSGID: f541d7df-d6e5-4baf-8eb4-28bf1cb14174
+	Thu, 26 Aug 2004 14:34:12 -0400
+Received: from mail.shareable.org ([81.29.64.88]:51142 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S269328AbUHZSXs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 14:23:48 -0400
+Date: Thu, 26 Aug 2004 19:20:42 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826182042.GU5733@mail.shareable.org>
+References: <20040826194010.548e4a4c.diegocg@teleline.es> <Pine.LNX.4.44.0408261358370.27909-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0408261358370.27909-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rik van Riel wrote:
+> > /bin could be separated (like linus said) but cat /bin/.compound could
+> > do it. This is the /etc/passwd Hans' example, I think:
+> 
+> Arghhhh.  I wrote it down to ridicule the idea and now people
+> are taking it seriously ;(
+> 
+> It should be obvious enough that anything depending on the
+> kernel parsing file contents will lead to problems.
 
---Boundary-00=_HjiLBU+F52+rs70
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This is one case where the kernel _isn't_ parsing file contents,
+but I agree it's ridiculous :)
 
-Jean scribeth :
-> Except lm85, but this should be fixed
-
-Indeed, patch attached.
-
-Margit
-
-
-
---Boundary-00=_HjiLBU+F52+rs70
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="lm85class.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="lm85class.patch"
-
-diff -Naur linux-2.6.9rc1/drivers/i2c/chips/lm85.c linux-2.6.9-rc1msw/drivers/i2c/chips/lm85.c
---- linux-2.6.9rc1/drivers/i2c/chips/lm85.c	2004-08-26 19:42:54.000000000 +0200
-+++ linux-2.6.9-rc1msw/drivers/i2c/chips/lm85.c	2004-08-26 19:45:23.000000000 +0200
-@@ -707,6 +707,8 @@
- 
- int lm85_attach_adapter(struct i2c_adapter *adapter)
- {
-+	if (!(adapter->class & I2C_CLASS_HWMON))
-+		return 0;
- 	return i2c_detect(adapter, &addr_data, lm85_detect);
- }
- 
-
---Boundary-00=_HjiLBU+F52+rs70--
-
+-- Jamie

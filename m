@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316586AbSHBQBp>; Fri, 2 Aug 2002 12:01:45 -0400
+	id <S316408AbSHBP7S>; Fri, 2 Aug 2002 11:59:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315440AbSHBQB0>; Fri, 2 Aug 2002 12:01:26 -0400
-Received: from ns.suse.de ([213.95.15.193]:24581 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316585AbSHBQAo>;
-	Fri, 2 Aug 2002 12:00:44 -0400
-Date: Fri, 2 Aug 2002 18:04:14 +0200
+	id <S316548AbSHBP7A>; Fri, 2 Aug 2002 11:59:00 -0400
+Received: from ns.suse.de ([213.95.15.193]:52484 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316465AbSHBP6D>;
+	Fri, 2 Aug 2002 11:58:03 -0400
+Date: Fri, 2 Aug 2002 18:01:32 +0200
 From: Dave Jones <davej@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: davidm@hpl.hp.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
-Subject: Re: adjust prefetch in free_one_pgd()
-Message-ID: <20020802180414.Q25761@suse.de>
+To: gerg <gerg@snapgear.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: linux-2.5.30uc0 MMU-less patches
+Message-ID: <20020802180132.P25761@suse.de>
 Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linus Torvalds <torvalds@transmeta.com>, davidm@hpl.hp.com,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	davidm@napali.hpl.hp.com
-References: <20020802175608.O25761@suse.de> <Pine.LNX.4.44.0208020859060.18265-100000@home.transmeta.com>
+	gerg <gerg@snapgear.com>, linux-kernel@vger.kernel.org
+References: <3D4A27FE.8030801@snapgear.com> <20020802141652.E25761@suse.de> <3D4AA573.3000705@snapgear.com> <20020802173449.N25761@suse.de> <3D4AAB32.8050608@snapgear.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0208020859060.18265-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Aug 02, 2002 at 08:59:35AM -0700
+In-Reply-To: <3D4AAB32.8050608@snapgear.com>; from gerg@snapgear.com on Sat, Aug 03, 2002 at 01:54:26AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 02, 2002 at 08:59:35AM -0700, Linus Torvalds wrote:
+On Sat, Aug 03, 2002 at 01:54:26AM +1000, gerg wrote:
 
- > >  > Personally, I would just say that we should disable prefetch on such
- > >  > clearly broken hardware, but since it's Alans favourite machine (some
- > >  > early AMD Athlon if I remember correctly), I think Alan will disagree ;)
- > > I think I now understand why you silently dropped the 'disable broken hw
- > > prefetch on early stepping P4' patch I sent you. 8-)
- > 
- > No, I don't think either I (nor Alan) has any early stepping P4's.
- > Me dropping patches is just normal ;)
+ > > I didn't check the code in detail, but
+ > > is there really that little that can be shared between
+ > > the regular mm/ ?
+ > No, there is actually a lot in common. Probably something
+ > like 70%. This is really a question of organization.
 
-Hmm, it was in the patch including Patricks cpu/ reorganisation,
-so it seems you applied it, and then hacked it out 8-)
+That's what I guessed on just a cursory glance at the patch.
 
-*shines spotlight on Linus*
+ > I would much prefer to see the non-mmu support in with mm.
+ > But it would mean a few #ifdef's in there to allow for
+ > the differences.
 
-Oh well, I'll retransmit sometime. I've been really lax about pushing
-stuff to you of late anyway, so a big push when I come back from
-my vacation would be a good thing.
+Versus massive code duplication, I think the ifdef's would
+be a better approach, especially if you can hide them away
+in headers.
 
         Dave
 

@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbSIYRpU>; Wed, 25 Sep 2002 13:45:20 -0400
+	id <S262028AbSIYRhS>; Wed, 25 Sep 2002 13:37:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262039AbSIYRpU>; Wed, 25 Sep 2002 13:45:20 -0400
-Received: from henreid.umail.ucsb.edu ([128.111.151.215]:4362 "EHLO
-	henreid.umail.ucsb.edu") by vger.kernel.org with ESMTP
-	id <S262038AbSIYRpT>; Wed, 25 Sep 2002 13:45:19 -0400
-Message-ID: <1032976231.3d91f767c71a4@webaccess.umail.ucsb.edu>
-Date: Wed, 25 Sep 2002 10:50:31 -0700
-From: Lingli Zhang <lingli_z@umail.ucsb.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: mmap() failed on Linux 2.4.18-10smp with 4GB RAM
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1.1-cvs
+	id <S262034AbSIYRhS>; Wed, 25 Sep 2002 13:37:18 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34856 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262028AbSIYRhS>; Wed, 25 Sep 2002 13:37:18 -0400
+Date: Wed, 25 Sep 2002 13:42:15 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: cmpxchg in 2.5.38
+Message-ID: <20020925134215.A17831@devserv.devel.redhat.com>
+References: <20020925120725.A23559@namesys.com> <Pine.LNX.4.44.0209251024580.4690-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209251024580.4690-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Sep 25, 2002 at 10:26:34AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+OK, I'll work around the cmpxchg locally.
 
-Thanks a lot to those who replied to me. Big help!
+But for the record, I am concerned with the API inflation
+instigated by the single source. The scheduler-specific
+bitmaps were bad enough, even though Bill Irvin showed
+a better way to do it at the time. Now, the same gentleman
+invents one more API. I may be getting senile, though.
 
-Now my question is how do I know where linux puts kernel in the memory?
-What address is safe to mmap a big chunk?Is there a way to force it to be a
-specific address? 
-
-Best Regards!
-
-Lingli
-
--- 
-Lingli Zhang
-lingli_z@umail.ucsb.edu
+-- Pete

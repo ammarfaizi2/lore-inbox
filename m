@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135314AbREHUcV>; Tue, 8 May 2001 16:32:21 -0400
+	id <S135293AbREHUZv>; Tue, 8 May 2001 16:25:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135318AbREHUcL>; Tue, 8 May 2001 16:32:11 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:23812 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S135314AbREHUb7>; Tue, 8 May 2001 16:31:59 -0400
-Date: Tue, 8 May 2001 15:53:26 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() bug
-In-Reply-To: <Pine.LNX.4.21.0105080019420.15378-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0105081553180.9717-100000@freak.distro.conectiva>
+	id <S135314AbREHUZl>; Tue, 8 May 2001 16:25:41 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:55986 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135293AbREHUZ3>;
+	Tue, 8 May 2001 16:25:29 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15096.22053.524498.144383@pizda.ninka.net>
+Date: Tue, 8 May 2001 13:25:09 -0700 (PDT)
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Mark Hemment <markhe@veritas.com>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] allocation looping + kswapd CPU cycles 
+In-Reply-To: <Pine.LNX.4.21.0105081419070.7774-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0105081225520.31900-100000@alloc>
+	<Pine.LNX.4.21.0105081419070.7774-100000@freak.distro.conectiva>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Marcelo Tosatti writes:
+ > On Tue, 8 May 2001, Mark Hemment wrote:
+ > >   Does anyone know why the 2.4.3pre6 change was made?
+ > 
+ > Because wakeup_bdflush(0) can wakeup bdflush _even_ if it does not have
+ > any job to do (ie less than 30% dirty buffers in the default config).  
 
-On Tue, 8 May 2001, Linus Torvalds wrote:
+Actually, the change was made because it is illogical to try only
+once on multi-order pages.  Especially because we depend upon order
+1 pages so much (every task struct allocated).  We depend upon them
+even more so on sparc64 (certain kinds of page tables need to be
+allocated as 1 order pages).
 
-> 
-> On Mon, 7 May 2001, David S. Miller wrote:
-> > 
-> > The only downside would be that the formerly "quick case" in the loop
-> > of dealing with referenced pages would now need to go inside the page
-> > lock.  It's probably a non-issue...
-> 
-> It might easily be an issue. That function will touch pretty much every
-> single page that we ever want to free, and it might be worthwhile to know
-> what the pressure is.
-> 
-> However, the point is probably moot. I found a problem with my approach:
-> using writepage() to try to get rid of swap cache pages early on (ie not
-> doing the "if it is accessed, put it back on the list" thing early)
-> doesn't work all that well: it doesn't handle the case of _clean_
-> swap-cache pages at all. And those can be quite common, although usually
-> not in the simple benchmarks which just dirty as quickly as they can.
-> 
-> [ The way to get a clean swap-cache page is to dirty it early in the
->   process lifetime, and then use the page read-only later on over
->   time. Maybe it's not common enough to worry about. ]
+The old code failed _far_ too easily, it was unacceptable.
 
-What about swapin readahead ? 
+Why put some strange limit in there?  Whatever number you pick
+is arbitrary, and I can probably piece together an allocation
+state where the choosen limit is too small.
 
+So instead, you could test for the condition that prevents any
+possible forward progress, no?
+
+Later,
+David S. Miller
+davem@redhat.com

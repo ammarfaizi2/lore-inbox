@@ -1,226 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265280AbSJRRhW>; Fri, 18 Oct 2002 13:37:22 -0400
+	id <S265288AbSJRRy3>; Fri, 18 Oct 2002 13:54:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbSJRRgg>; Fri, 18 Oct 2002 13:36:36 -0400
-Received: from 12-234-34-139.client.attbi.com ([12.234.34.139]:45047 "EHLO
-	heavens.murgatroid.com") by vger.kernel.org with ESMTP
-	id <S265225AbSJRRfg>; Fri, 18 Oct 2002 13:35:36 -0400
-From: "Christopher Hoover" <ch@murgatroid.com>
-To: "'Vojtech Pavlik'" <vojtech@suse.cz>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.5.43: Fix for Logitech Wheel Mouse
-Date: Fri, 18 Oct 2002 10:41:25 -0700
-Organization: Murgatroid.Com
-Message-ID: <004401c276cd$95d3bc90$8100000a@bergamot>
+	id <S265334AbSJRRy3>; Fri, 18 Oct 2002 13:54:29 -0400
+Received: from viefep12-int.chello.at ([213.46.255.25]:37904 "EHLO
+	viefep12-int.chello.at") by vger.kernel.org with ESMTP
+	id <S265288AbSJRRyQ>; Fri, 18 Oct 2002 13:54:16 -0400
+From: Simon Roscic <simon.roscic@chello.at>
+To: GrandMasterLee <masterlee@digitalroadkill.net>
+Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
+Date: Fri, 18 Oct 2002 17:11:05 +0200
+User-Agent: KMail/1.4.7
+References: <200210152120.13666.simon.roscic@chello.at> <200210171947.04255.simon.roscic@chello.at> <1034923374.10332.23.camel@localhost>
+In-Reply-To: <1034923374.10332.23.camel@localhost>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <20021018110625.A26788@ucw.cz>
-Importance: Normal
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200210181711.05221.simon.roscic@chello.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, it unfortunately is not a proper fix. I'll have to analyze the
-> problem some more.
+On Friday 18 October 2002 08:42, GrandMasterLee <masterlee@digitalroadkill.net> wrote:
+> One question about your config, are you using, on ANY machines,
+> QLA2300's or PCI-X, and 5.38.x or 6.xx qlogic drivers? If so, then
+> you've experienced no lockups with those machines too?
 
-Would you say more?  I looked at XFree86 sources and it seemed that the
-ImPS/2 protocol best matched what my mouse was sending.
+no, the 3 machines i use, are basically the same (ibm xseries 342), 
+and have the same qlogic cards (qla2200), all 3 machines use the
+same kernel (2.4.17+xfs+ext3-0.9.17+e100+e1000+qla2x00-5.36.3).
 
-What about a module param/setup arg to force the mouse protocol?
+a few details, possibly something help's you:
+
+---------------- lspci ----------------
+00:00.0 Host bridge: ServerWorks CNB20HE (rev 23)
+00:00.1 Host bridge: ServerWorks CNB20HE (rev 01)
+00:00.2 Host bridge: ServerWorks: Unknown device 0006 (rev 01)
+00:00.3 Host bridge: ServerWorks: Unknown device 0006 (rev 01)
+00:06.0 VGA compatible controller: S3 Inc. Savage 4 (rev 06)
+00:0f.0 ISA bridge: ServerWorks OSB4 (rev 51)
+00:0f.1 IDE interface: ServerWorks: Unknown device 0211
+00:0f.2 USB Controller: ServerWorks: Unknown device 0220 (rev 04)
+01:02.0 RAID bus controller: IBM Netfinity ServeRAID controller
+01:03.0 Ethernet controller: Intel Corporation 82543GC Gigabit Ethernet Controller (rev 02)
+01:07.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 0c)
+02:05.0 SCSI storage controller: QLogic Corp. QLA2200 (rev 05)
+---------------------------------------
+
+--------- dmesg (qla stuff)--------
+qla2x00: Found  VID=1077 DID=2200 SSVID=1077 SSDID=2
+scsi1: Found a QLA2200  @ bus 2, device 0x5, irq 24, iobase 0x2100
+scsi(1): Configure NVRAM parameters...
+scsi(1): Verifying loaded RISC code...
+scsi(1): Verifying chip...
+scsi(1): Waiting for LIP to complete...
+scsi(1): LIP reset occurred
+scsi(1): LIP occurred.
+scsi(1): LOOP UP detected
+scsi1: Topology - (Loop), Host Loop address  0x7d
+scsi-qla0-adapter-port=210000e08b064002\;
+scsi-qla0-tgt-0-di-0-node=200600a0b80c3d8c\;
+scsi-qla0-tgt-0-di-0-port=200600a0b80c3d8d\;
+scsi-qla0-tgt-0-di-0-control=00\;
+scsi-qla0-tgt-0-di-0-preferred=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\;
+scsi1 : QLogic QLA2200 PCI to Fibre Channel Host Adapter: bus 2 device 5 irq 24
+        Firmware version:  2.01.37, Driver version 5.36.3
+  Vendor: IBM       Model: 3552              Rev: 0401
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+  Vendor: IBM       Model: 3552              Rev: 0401
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+  Vendor: IBM       Model: 3552              Rev: 0401
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+  Vendor: IBM       Model: 3552              Rev: 0401
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi(1:0:0:0): Enabled tagged queuing, queue depth 16.
+scsi(1:0:0:1): Enabled tagged queuing, queue depth 16.
+scsi(1:0:0:2): Enabled tagged queuing, queue depth 16.
+scsi(1:0:0:3): Enabled tagged queuing, queue depth 16.
+Attached scsi disk sdb at scsi1, channel 0, id 0, lun 0
+Attached scsi disk sdc at scsi1, channel 0, id 0, lun 1
+Attached scsi disk sdd at scsi1, channel 0, id 0, lun 2
+Attached scsi disk sde at scsi1, channel 0, id 0, lun 3
+SCSI device sdb: 125829120 512-byte hdwr sectors (64425 MB)
+ sdb: sdb1
+SCSI device sdc: 125829120 512-byte hdwr sectors (64425 MB)
+ sdc: sdc1
+SCSI device sdd: 125829120 512-byte hdwr sectors (64425 MB)
+ sdd: sdd1
+SCSI device sde: 48599040 512-byte hdwr sectors (24883 MB)
+ sde: sde1
+---------------------------------------
+
+alle 3 machines have the same filesystem concept:
+
+internal storage -> ext3  (linux and programs)
+storage on fastt500 -> xfs  (data only)
+
+except the mount options, because the fileserver also need's
+quotas, he has: 
+
+rw,noatime,quota,usrquota,grpquota,logbufs=8,logbsize=32768
 
 
-> Can you send me the output of /proc/bus/input/devices on your system
-> (without your fix, preferably)?
+i consider the primary lotus domino server to be the machine wich
+has to handle the highest load of the 3, because he currently has
+to handle almost everything that has to do with lotus notes in your
+company, it's friday afternoon here, so the load isn't realy high,
+but it's possibly nice for you to know how much load the machine
+has to handle:
 
-With*out* the patch:
+---------------------------------------
+  4:59pm  up 16 days, 23:17,  3 users,  load average: 0.43, 0.18, 0.11
+445 processes: 441 sleeping, 4 running, 0 zombie, 0 stopped
+CPU0 states:  6.13% user,  1.57% system,  0.0% nice, 91.57% idle
+CPU1 states: 26.19% user,  5.27% system,  0.0% nice, 68.17% idle
+Mem:  2061272K av, 2049636K used,   11636K free,       0K shrd,    1604K buff
+Swap: 1056124K av,  262532K used,  793592K free                 1856420K cached
+---------------------------------------
+(/local/notesdata is on the fastt500)
+adam:/ # lsof |grep /local/notesdata/ |wc -l
+  33076
+---------------------------------------
+adam:/ # lsof |wc -l
+   84604
+---------------------------------------
 
-I: Bus=0011 Vendor=0002 Product=0002 Version=0035
-N: Name="PS2++ Logitech Mouse"
-P: Phys=isa0060/serio1/input0
-H: Handlers=mouse0 event0 
-B: EV=7 
-B: KEY=70000 0 0 0 0 0 0 0 0 
-B: REL=3 
-
-I: Bus=0011 Vendor=0001 Product=0002 Version=ab02
-N: Name="AT Set 2 keyboard"
-P: Phys=isa0060/serio0/input0
-H: Handlers=kbd event1 
-B: EV=120003 
-B: KEY=4 2000000 8061f9 fbc9d621 efdfffdf ffefffff ffffffff fffffffe 
-B: LED=7 
-
-
-With the patch:
-
-I: Bus=0011 Vendor=0002 Product=0005 Version=0035
-N: Name="ImPS/2 Logitech Wheel Mouse"
-P: Phys=isa0060/serio1/input0
-H: Handlers=mouse0 event0 
-B: EV=7 
-B: KEY=70000 0 0 0 0 0 0 0 0 
-B: REL=103 
-
-I: Bus=0011 Vendor=0001 Product=0002 Version=ab02
-N: Name="AT Set 2 keyboard"
-P: Phys=isa0060/serio0/input0
-H: Handlers=kbd event1 
-B: EV=120003 
-B: KEY=4 2000000 8061f9 fbc9d621 efdfffdf ffefffff ffffffff fffffffe 
-B: LED=7 
-
-
-
-
------Original Message-----
-From: Vojtech Pavlik [mailto:vojtech@suse.cz] 
-Sent: Friday, October 18, 2002 2:06 AM
-To: Christopher Hoover
-Cc: linux-kernel@vger.kernel.org; vojtech@suse.cz
-Subject: Re: [PATCH] 2.5.43: Fix for Logitech Wheel Mouse
-
-
-On Thu, Oct 17, 2002 at 11:20:14PM -0700, Christopher Hoover wrote:
-> The wheel on my Logitech mouse doesn't work under the input layer.
-> The mouse was originally recognized as:
-> 
->   input: PS2++ Logitech Mouse on isa0060/serio1
-> 
-> In this mode, the driver also emits (just once?):
-> 
->   psmouse.c: Received PS2++ packet #0, but don't know how to handle.
-> 
-> 
-> The following patch simply swaps the order of detection of Logitech PS
-> 2++ and Intellimouse protocols.  Now my mouse is recognized as:
-> 
->   input: ImPS/2 Logitech Wheel Mouse on isa0060/serio1
-> 
-> And the wheel works properly in this mode.
-
-Can you send me the output of /proc/bus/input/devices on your system
-(without your fix, preferably)?
-
-I'd like to know whether the driver thinks the mouse has a wheel or not.
-
-> -ch
-> ch@murgatroid.com
-> ch@hpl.hp.com
-> 
-> 
-> PATCH FOLLOWS
-> --- linux-2.5.43/drivers/input/mouse/psmouse.c.orig	Tue Oct 15
-20:27:22 2002
-> +++ linux-2.5.43/drivers/input/mouse/psmouse.c	Thu Oct 17
-22:45:05 2002
-> @@ -378,40 +378,6 @@
->  				}
->  
->  /*
-> - * Do Logitech PS2++ / PS2T++ magic init.
-> - */
-> -
-> -			if (psmouse->model == 97) { /* TouchPad 3 */
-> -
-> -				set_bit(REL_WHEEL, psmouse->dev.relbit);
-> -				set_bit(REL_HWHEEL,
-psmouse->dev.relbit);
-> -
-> -				param[0] = 0x11; param[1] = 0x04;
-param[2] = 0x68; /* Unprotect RAM */
-> -				psmouse_command(psmouse, param, 0x30d1);
-> -				param[0] = 0x11; param[1] = 0x05;
-param[2] = 0x0b; /* Enable features */
-> -				psmouse_command(psmouse, param, 0x30d1);
-> -				param[0] = 0x11; param[1] = 0x09;
-param[2] = 0xc3; /* Enable PS2++ */
-> -				psmouse_command(psmouse, param, 0x30d1);
-> -
-> -				param[0] = 0;
-> -				if (!psmouse_command(psmouse, param,
-0x13d1) &&
-> -					param[0] == 0x06 && param[1] ==
-0x00 && param[2] == 0x14)
-> -					return PSMOUSE_PS2TPP;
-> -
-> -			} else {
-> -				param[0] = param[1] = param[2] = 0;
-> -
-> -				psmouse_ps2pp_cmd(psmouse, param, 0x39);
-/* Magic knock */
-> -				psmouse_ps2pp_cmd(psmouse, param, 0xDB);
-> -
-> -				if ((param[0] & 0x78) == 0x48 &&
-(param[1] & 0xf3) == 0xc2 &&
-> -					(param[2] & 3) == ((param[1] >>
-2) & 3))
-> -						return PSMOUSE_PS2PP;
-> -			}
-> -		}
-> -	}
-> -
-> -/*
->   * Try IntelliMouse magic init.
->   */
->  
-> @@ -450,6 +416,40 @@
->  
->  		psmouse->name = "Wheel Mouse";
->  		return PSMOUSE_IMPS;
-> +	}
-> +
-> +/*
-> + * Do Logitech PS2++ / PS2T++ magic init.
-> + */
-> +
-> +			if (psmouse->model == 97) { /* TouchPad 3 */
-> +
-> +				set_bit(REL_WHEEL, psmouse->dev.relbit);
-> +				set_bit(REL_HWHEEL,
-psmouse->dev.relbit);
-> +
-> +				param[0] = 0x11; param[1] = 0x04;
-param[2] = 0x68; /* Unprotect RAM */
-> +				psmouse_command(psmouse, param, 0x30d1);
-> +				param[0] = 0x11; param[1] = 0x05;
-param[2] = 0x0b; /* Enable features */
-> +				psmouse_command(psmouse, param, 0x30d1);
-> +				param[0] = 0x11; param[1] = 0x09;
-param[2] = 0xc3; /* Enable PS2++ */
-> +				psmouse_command(psmouse, param, 0x30d1);
-> +
-> +				param[0] = 0;
-> +				if (!psmouse_command(psmouse, param,
-0x13d1) &&
-> +					param[0] == 0x06 && param[1] ==
-0x00 && param[2] == 0x14)
-> +					return PSMOUSE_PS2TPP;
-> +
-> +			} else {
-> +				param[0] = param[1] = param[2] = 0;
-> +
-> +				psmouse_ps2pp_cmd(psmouse, param, 0x39);
-/* Magic knock */
-> +				psmouse_ps2pp_cmd(psmouse, param, 0xDB);
-> +
-> +				if ((param[0] & 0x78) == 0x48 &&
-(param[1] & 0xf3) == 0xc2 &&
-> +					(param[2] & 3) == ((param[1] >>
-2) & 3))
-> +						return PSMOUSE_PS2PP;
-> +			}
-> +		}
->  	}
->  
->  /*
-
--- 
-Vojtech Pavlik
-SuSE Labs
+simon.
+(please CC me, i'm not subscribed to lkml)
 

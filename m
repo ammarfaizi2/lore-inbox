@@ -1,94 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbUCCT3w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 14:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbUCCT3w
+	id S262555AbUCCT3a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 14:29:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbUCCT3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 14:29:52 -0500
-Received: from butters.phys.uwm.edu ([129.89.57.31]:39867 "EHLO
-	butters.phys.uwm.edu") by vger.kernel.org with ESMTP
-	id S262557AbUCCT3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 14:29:43 -0500
-Date: Wed, 3 Mar 2004 13:29:42 -0600 (CST)
-From: Paul Armor <parmor@gravity.phys.uwm.edu>
-X-X-Sender: parmor@butters.phys.uwm.edu
-To: linux-kernel@vger.kernel.org
-Message-ID: <Pine.LNX.4.44.0403031301380.2787-100000@butters.phys.uwm.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Mar 2004 14:29:30 -0500
+Received: from NS1.idleaire.net ([65.220.16.2]:29401 "EHLO iasrv1.idleaire.net")
+	by vger.kernel.org with ESMTP id S262555AbUCCT3V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 14:29:21 -0500
+Subject: Re: poll() in 2.6 and beyond
+From: Dave Dillow <dave@thedillows.org>
+To: root@chaos.analogic.com
+Cc: Bill Davidsen <davidsen@tmr.com>, Roland Dreier <roland@topspin.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0403031313270.12900@chaos>
+References: <1vmPm-4lU-11@gated-at.bofh.it> <1vonq-6dr-37@gated-at.bofh.it>
+	 <1voGY-6vC-41@gated-at.bofh.it> <1vpjt-7dl-17@gated-at.bofh.it>
+	 <1vpCV-7wY-41@gated-at.bofh.it> <1vpWa-7Py-19@gated-at.bofh.it>
+	 <4045106D.8060902@tmr.com>  <Pine.LNX.4.53.0403021817050.9351@chaos>
+	 <1078286221.4302.23.camel@ori.thedillows.org>
+	 <Pine.LNX.4.53.0403031313270.12900@chaos>
+Content-Type: text/plain
+Message-Id: <1078342159.1123.18.camel@dillow.idleaire.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 03 Mar 2004 14:29:19 -0500
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Mar 2004 19:29:19.0513 (UTC) FILETIME=[D2E29890:01C40155]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Can anyone offer opinions as to what may be going wrong here.  I've put 
-info for the config in question at the bottom, and I'll have a snippet of 
-the kernel errors I've seen placed before the config.  In short, I'm in 
-the process of trying to recover from a crash, and to backup data I'm 
-dd-ing large sections of data between partitions.  After about 20 hours 
-of dd-ing, I got this error this morning.  (note I'd been seeing similar 
-error msgs right before the crash, but I've since updated the F/W on the 
-the Promise boxes and not seen these errors in some time)
+On Wed, 2004-03-03 at 13:23, Richard B. Johnson wrote:
+> The very great problems that exist with poll on linux-2.6.0
+> are being quashed by those who just like to argue.
 
-<snip>
-Mar  3 09:42:04 storage2 kernel: scsi0:0:2:0: Attempting to queue an ABORT 
-message
-Mar  3 09:42:04 storage2 kernel: CDB: 0x2a 0x0 0x7c 0x34 0x9b 0x46 0x0 0x3 
-0x30 0x0
-Mar  3 09:42:04 storage2 kernel: scsi0: At time of recovery, card was not 
-paused
-Mar  3 09:42:04 storage2 kernel: >>>>>>>>>>>>>>>>>> Dump Card State Begins 
-<<<<<<<<<<<<<<<<<
-Mar  3 09:42:04 storage2 kernel: scsi0: Dumping Card State while idle, at 
-SEQADDR 0x8
-Mar  3 09:42:04 storage2 kernel: Card was paused
-Mar  3 09:42:04 storage2 kernel: ACCUM = 0x0, SINDEX = 0x4a, DINDEX = 
-0xe4, ARG_2 = 0x0
-Mar  3 09:42:04 storage2 kernel: HCNT = 0x0 SCBPTR = 0x5
-Mar  3 09:42:04 storage2 kernel: SCSIPHASE[0x0] SCSISIGI[0x0] ERROR[0x0] 
-SCSIBUSL[0x0] 
-Mar  3 09:42:04 storage2 kernel: LASTPHASE[0x1] SCSISEQ[0x12] SBLKCTL[0x6] 
-SCSIRATE[0x0] 
-Mar  3 09:42:04 storage2 kernel: SEQCTL[0x10] SEQ_FLAGS[0xc0] SSTAT0[0x0] 
-SSTAT1[0x8] 
-Mar  3 09:42:04 storage2 kernel: SSTAT2[0x0] SSTAT3[0x0] SIMODE0[0x8] 
-SIMODE1[0xa4] 
-Mar  3 09:42:04 storage2 kernel: SXFRCTL0[0x80] DFCNTRL[0x0] 
-DFSTATUS[0x89] 
-Mar  3 09:42:04 storage2 kernel: STACK: 0x0 0x163 0x109 0x3
-Mar  3 09:42:06 storage2 kernel: SCB count = 254
-Mar  3 09:42:06 storage2 kernel: Kernel NEXTQSCB = 99
-Mar  3 09:42:06 storage2 kernel: Card NEXTQSCB = 99
-Mar  3 09:42:06 storage2 kernel: QINFIFO entries: 
-Mar  3 09:42:06 storage2 kernel: Waiting Queue entries: 
-Mar  3 09:42:06 storage2 kernel: Disconnected Queue entries: 27:109 2:27 
-11:198 26:120 8:190 21:129 31:203 0:248 24:0 10:33 7:24 3:52 
-Mar  3 09:42:06 storage2 kernel: QOUTFIFO entries: 
-Mar  3 09:42:06 storage2 kernel: Sequencer Free SCB List: 5 28 22 9 29 30 
-1 17 23 6 14 16 12 15 20 25 4 13 19 18 
-</snip> 
+No, the argument has always been that your understanding of poll()'s
+internals is not entirely correct. We have simply asked you to post code
+that shows poll()'s problems, which you have finally provided. Sort of.
 
+>  Therefore,
+> I wrote some code that emulates the environment in which I
+> discovered the poll failure. Experts can decide whatever they
+> want about the inner workings of poll(). I supposed that if
+> `ps` showed that a task was sleeping in poll() then it must
+> be sleeping in poll(). 
 
+This we all agree on -- poll() sleeps. Duh. No argument there.
+poll_wait() doesn't and never has, which was your original assertion.
 
+But on to the code!
 
-Configuration:
+> So, even it that's wrong, here is
+> irrefutable proof that there is a problem with polling events
+> getting lost on 2.6.0.
 
-motherboard - 		Asus A7M266
+Ahem, no, not so much. What you have here is proof that your user
+program is not getting control again withing 0.488ms of the interrupt
+happening. That does not mean poll() is loosing events.
 
-kernel - 		linux-2.4.24
+You are definately seeing some significant latency -- 50 lost increments
+is ~25ms.
 
-controller - 		Adaptec AIC7xxx driver version: 6.2.36
-	 		Adaptec 29160 Ultra160 SCSI adapter
-			aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+What else is running when you perform this test? Can you repeat with a
+more recent kernel? Can you repeat in single user mode, with it being
+the only process present? With as few extra modules loaded as possible?
 
-ext. RAID arrays -	4 x Promise UltraTrak SX8000
-			F/W version 1.1.0.30 (2/4/2003)
-
-Each box has three partitions
-
-We're running software raid 0 striping across the 4 boxes such that 
-    md0=sd[abcd]1, md1=sd[abcd]2, md2=sd[abcd]3.
-
-
-Thanks!
-Paul
+I still think your problem is not poll() -- if there were problems
+there, bug reports would be coming out of the woodwork.
+-- 
+Dave Dillow <dave@thedillows.org>
 

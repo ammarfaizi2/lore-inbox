@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271822AbTGRPGr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 11:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271799AbTGRPDw
+	id S271798AbTGRPbp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 11:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269299AbTGRPax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 11:03:52 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:8064 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267576AbTGRO3G (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 10:29:06 -0400
-Message-Id: <200307181443.h6IEhnq3002916@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Danek Duvall <duvall@emufarm.org>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O6.1int 
-In-Reply-To: Your message of "Fri, 18 Jul 2003 00:07:49 PDT."
-             <20030718070749.GA12466@lorien.emufarm.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <200307171635.25730.kernel@kolivas.org> <20030717080436.GA16509@lorien.emufarm.org>
-            <20030718070749.GA12466@lorien.emufarm.org>
+	Fri, 18 Jul 2003 11:30:53 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:15249
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S271873AbTGRP2a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 11:28:30 -0400
+Date: Fri, 18 Jul 2003 11:43:22 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: Catalin BOIE <util@deuroconsult.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: libata driver update posted
+Message-ID: <20030718154322.GB27152@gtf.org>
+References: <3F1711C8.6040207@pobox.com> <Pine.LNX.4.53.0307180924020.19703@hosting.rdsbv.ro> <3F17F28C.9050105@pobox.com> <1058542771.13515.1599.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1933694032P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Jul 2003 10:43:49 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1058542771.13515.1599.camel@workshop.saharacpt.lan>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1933694032P
-Content-Type: text/plain; charset=us-ascii
+On Fri, Jul 18, 2003 at 05:39:32PM +0200, Martin Schlemmer wrote:
+> On Fri, 2003-07-18 at 15:13, Jeff Garzik wrote:
+> > Catalin BOIE wrote:
+> > >>Next update will add several host drivers, now that the libata API is
+> > >>settling down.
+> > > 
+> > > 
+> > > Sii3112A is/will be supported?
+> > 
+> > 
+> > Yes, will be.
+> > 
+> > Silicon Image and Promise support are most likely next.
+> > 
+> 
+> How is performance compared to the default driver for the ICH5 SATA ?
 
-On Fri, 18 Jul 2003 00:07:49 PDT, Danek Duvall said:
+I haven't done any comparisons because the "default driver" just flat
+out doesn't work for me.
 
-> I did discover under O6.1int that I could make xmms block indefinitely
-> when opening a window, with fvwm's wire frame manual placement, which I
-> hadn't ever noticed before, but I'm not sure if that's because it
-> actually wasn't there before, or I just placed the windows more quickly.
+However, if performance is lower, then I consider that a bug.
 
-This could be a result of fvwm grabbing the X server while the wireframe stuff
-is going on, and xmms being blocked trying to update the image on screen
-(think "scrolling song title" ;)
+	Jeff
 
 
---==_Exmh_-1933694032P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/GAekcC3lWbTT17ARAiecAKDGK79DU8uB31KPOGGZ3IlLKKk8dwCgvbNe
-ksJ7rslDM59C/Tt2ccNjxsw=
-=4EM0
------END PGP SIGNATURE-----
-
---==_Exmh_-1933694032P--

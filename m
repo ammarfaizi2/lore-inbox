@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262037AbUKARbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272207AbUKARhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbUKARbS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 12:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S280980AbUKARbR
+	id S272207AbUKARhO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 12:37:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271896AbUKARhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 12:31:17 -0500
-Received: from gprs214-124.eurotel.cz ([160.218.214.124]:52609 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S271911AbUKAR2X (ORCPT
+	Mon, 1 Nov 2004 12:37:14 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:20195 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265766AbUKARgX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 12:28:23 -0500
-Date: Mon, 1 Nov 2004 18:28:09 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: Map extra keys on compaq evo
-Message-ID: <20041101172809.GB23341@elf.ucw.cz>
-References: <20041031213859.GA6742@elf.ucw.cz> <200410312016.08468.dtor_core@ameritech.net> <20041101080306.GA1002@elf.ucw.cz> <20041101093830.GA1145@ucw.cz> <20041101133214.GE32347@atrey.karlin.mff.cuni.cz> <20041101140717.GA1180@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Nov 2004 12:36:23 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] document mmiowb and readX_relaxed a bit more in deviceiobook.tmpl
+Date: Mon, 1 Nov 2004 09:36:10 -0800
+User-Agent: KMail/1.7
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200410291747.24035.jbarnes@engr.sgi.com> <1099103756.29689.194.camel@gaston>
+In-Reply-To: <1099103756.29689.194.camel@gaston>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041101140717.GA1180@ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200411010936.10127.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Friday, October 29, 2004 7:35 pm, Benjamin Herrenschmidt wrote:
+> On Fri, 2004-10-29 at 17:47 -0700, Jesse Barnes wrote:
+> > This is a small patch to deviceiobook.tmpl to describe the new mmiowb
+> > routine a bit more completely.  I've also updated it to provide pointers
+> > to drivers that do write flushing, use mmiowb, and use the readX_relaxed
+> > routines.
+>
+> It's all good, but your semantics and description are very tailored to
+> your specific arch problem vs. unlock.
+>
+> What about my suggestion of defining a broader semantic of mmiowb() as
+> beeing a barrier ordering MMIOs vs. the rest of the world ? The later
+> includes stores to memory _and_ spinlock/unlock.
 
-> > With accurate list "hotkeys" could run with no configuration, but I am
-> > afraid maintaining accurate list of keys for each keyboard is way too
-> > much work.
-> 
-> The lists need to be kept _somewhere_, so why not have a userspace
-> database with a program that loads the description into the kernel at
-> boot, possibly using DMI as a hint to what keyboard is connected?
+Yeah, that's ok with me, just be sure to update the documentation when you add 
+the PPC stuff.  Seems like a worthwhile optimization.
 
-Doing dmi blacklist from userspace is going to be pretty
-painfull... Kernel already has all the infrastructure.
-
-My preference is forget about providing list of keys (it never worked
-anyway), and just fixup few notebooks we know...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+thanks,
+Jesse

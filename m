@@ -1,320 +1,220 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267937AbRHASpo>; Wed, 1 Aug 2001 14:45:44 -0400
+	id <S267972AbRHASvp>; Wed, 1 Aug 2001 14:51:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267962AbRHASpf>; Wed, 1 Aug 2001 14:45:35 -0400
-Received: from web13605.mail.yahoo.com ([216.136.175.116]:24595 "HELO
-	web13605.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267940AbRHASpa>; Wed, 1 Aug 2001 14:45:30 -0400
-Message-ID: <20010801184538.25407.qmail@web13605.mail.yahoo.com>
-Date: Wed, 1 Aug 2001 11:45:38 -0700 (PDT)
-From: Ivan Kalvatchev <iive@yahoo.com>
-Subject: tmpfs trash the system
-To: linux-kernel@vger.kernel.org
+	id <S267950AbRHASv0>; Wed, 1 Aug 2001 14:51:26 -0400
+Received: from presto.harvard.edu ([131.142.9.143]:63382 "HELO
+	presto.harvard.edu") by vger.kernel.org with SMTP
+	id <S267940AbRHASvO>; Wed, 1 Aug 2001 14:51:14 -0400
+Message-ID: <3B684FAA.DB50B3FA@cfa.harvard.edu>
+Date: Wed, 01 Aug 2001 14:51:22 -0400
+From: Scott Ransom <ransom@cfa.harvard.edu>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Adam Radford <aradford@3ware.com>
+CC: linux-kernel@vger.kernel.org, Scott Ransom <ransom@cfa.harvard.edu>
+Subject: Re: 3ware Escalade problems
+In-Reply-To: <53B208BD9A7FD311881A009027B6BBFB9EADC7@siamese>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1.  It is possible for every user that have write
-access to tmpfs mounted filesystem to lock the system.
-2.  Why tmpfs have status of stable? 
-This filesystem have limit checking and the output of
-df shows that all free ram+swap is usable for this
-filesystem. The problem comes then some process tries
-to get all free space. 
-The problem raise when free memory drops under
-freepages.low, then kswapd starts swapping
-aggressively. Then the system gets trashed (and maybe
-free memory gets under freepages.low. look at SysRq
-Meminfo at the bottom). 
-I didn't dig in the source but i think that
-immediately after one page is swapped out (discarded)
-it is filled with data and at some point no more pages
-are freed or just freed pages are reallocated. At this
-point all non kernel processed are stopped and
-computer is working on swap.
-In this state i can switch virtual consoles, the hard
-is working, and i can type on the screen. The programs
-lock when i try to do something with them (maybe when
-they allocate memory or when they need swapped
-pages?). 
-This could be "virtual memory" bug ( no free memory),
-but it could be surrounded just by decreasing tmpfs
-free space to (freemem - freepages.high).
-The same horrible think happens to ramfs, but this
-could be expected. Ramfs don't have size check so that
-hack cannot be used for it.  In this case ramfs must
-be marked as dangerous. 
-I had very interesting conversation with some person
-in the chat, that could not reproduce the bug, and he
-told me to decrease memory that tmpfs could allocate.
-But this just make problem harder to reproduce. The
-same situation will raise if some process allocates
-enough memory. Oh, and him kernel was patched with
-some patche2.4.5-ac22.
-3. filesystem. virtual memory, swap, kernel
-4. Kernel-2.4.7, 2.4.6, 2.4.5, 2.4.4 ... (all with
-tmpfs, without one with only shmfs)
-5. 
-6.
-mkdir /mnt/tmp
-mount tmpfs /mnt/tmp -o tmpfs 
-dd if=/dev/zero if=/mnt/tmp/test
+Hi Adam,
 
-or just use /dev/shm as described  in Configure.help
-7. Slackware8 and Slackware7.1
-The logs bellow are made in stable state. I cannot
-save logs when trashed:( 
-I need at least second computer.(maybe later)
-The last log if written on paper then on PC.
+The drives I am using are Maxtor 81.9G drives (model 98196H8).
 
-7.1  
---------------------------------------------------------------------
-If some fields are empty or look unusual you may have
-an old version.
-Compare to the current minimal requirements in
-Documentation/Changes.
- 
-Linux darkstar 2.4.7 #2 Tue Jul 24 19:53:07 EEST 2001
-i586 unknown
- 
-Gnu C                  2.95.3
-Gnu make               3.79.1
-binutils               2.11.90.0.19
-util-linux             2.11f
-mount                  2.11b
-modutils               2.4.6
-e2fsprogs              1.22
-reiserfsprogs          3.x.0j
-pcmcia-cs              3.1.26
-PPP                    2.4.1
-Linux C Library        2.2.3
-Dynamic linker (ldd)   2.2.3
-Procps                 2.0.7
-Net-tools              1.60
-Kbd                    1.06
-Sh-utils               2.0
-Modules Loaded         nls_iso8859-1
-------------------------------------------------------------------
-7.2
-------------------------------------------------------------------
-processor	: 0
-vendor_id	: AuthenticAMD
-cpu family	: 5
-model		: 6
-model name	: AMD-K6tm w/ multimedia extensions
-stepping	: 2
-cpu MHz		: 200.459
-cache size	: 64 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr mce cx8 mmx
-bogomips	: 399.76
-------------------------------------------------------------------
-7.3
-------------------------------------------------------------------
-nls_iso8859-1           2880   2 (autoclean)
-------------------------------------------------------------------
-7.4
+I refuse to believe that 3 different disks could fail during the span of
+3 days without _something_ causing it -- especially since things have
+been working great since February or so.  And if I hadn't heard at least
+one of the drives scream in agony, I wouldn't have believed that any of
+them were really failing...  Is it possible that a bad drive could
+affect other drives in some way?
 
-00000000-0009ffff : System RAM
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-09ffffff : System RAM
-  00100000-001de671 : Kernel code
-  001de672-0023509f : Kernel data
-e0000000-e3ffffff : S3 Inc. ViRGE/DX or /GX
-e4000000-e4ffffff : 3Dfx Interactive, Inc. Voodoo 2
-ffff0000-ffffffff : reserved
-------------------------------------------------------------------
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0100-0101 : OPL3-SA3
-01f0-01f7 : ide0
-0213-0213 : isapnp read
-02f8-02ff : serial(auto)
-0300-0301 : mpu401
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial(auto)
-0a79-0a79 : isapnp write
-0cf8-0cff : PCI conf1
-0e80-0e83 : WSS config
-0e84-0e87 : MS Sound System
-4000-403f : Intel Corporation 82371AB PIIX4 ACPI
-5000-501f : Intel Corporation 82371AB PIIX4 ACPI
-6400-641f : Intel Corporation 82371AB PIIX4 USB
-f000-f00f : Intel Corporation 82371AB PIIX4 IDE
-  f000-f007 : ide0
-  f008-f00f : ide1
-//-----------------------------------------------------------------
-7.5
------------------------------------------------------------------
-00:00.0 Host bridge: Intel Corporation 430TX - 82439TX
-MTXC (rev 01)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV-
-VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
-DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 32
+Here is the first failure:
 
-00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4
-ISA (rev 01)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV-
-VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr-
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
+Jul 27 23:24:53 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xc7, flags = 0x1b, unit = 0x3.
+Jul 27 23:24:53 munin last message repeated 6 times
+Jul 27 23:25:08 munin kernel: 3w-xxxx: tw_poll_status(): Flag 0x40000
+not found.
+Jul 27 23:25:08 munin kernel: 3w-xxxx: tw_aen_drain_queue(): No
+attention interrupt for card 1
+Jul 27 23:25:08 munin kernel: 3w-xxxx: tw_reset_sequence(): No attention
+interrupt for card 1.
+Jul 27 23:25:24 munin kernel: 3w-xxxx: tw_poll_status(): Flag 0x40000
+not found.
+Jul 27 23:25:24 munin kernel: 3w-xxxx: tw_aen_drain_queue(): No
+attention interrupt for card 1
+Jul 27 23:25:24 munin kernel: 3w-xxxx: tw_reset_sequence(): No attention
+interrupt for card 1.
+Jul 27 23:25:37 munin kernel: 3w-xxxx: tw_scsi_eh_reset(): Reset
+succeeded for card 1.
+Jul 27 23:25:47 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xcf, flags = 0x0, unit = 0x3.
+Jul 27 23:25:47 munin kernel: scsi: device set offline - not ready or
+command retry failed after host reset: host 1 channel 0 id 3 lun 0
+Jul 27 23:25:47 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xcf, flags = 0x0, unit = 0x3.
+Jul 27 23:25:47 munin kernel: scsi: device set offline - not ready or
+command retry failed after host reset: host 1 channel 0 id 3 lun 0
+Jul 27 23:25:47 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xcf, flags = 0x0, unit = 0x3.
+Jul 27 23:25:47 munin kernel: scsi: device set offline - not ready or
+command retry failed after host reset: host 1 channel 0 id 3 lun 0
+Jul 27 23:25:47 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xcf, flags = 0x0, unit = 0x3.
+Jul 27 23:25:47 munin kernel: scsi: device set offline - not ready or
+command retry failed after host reset: host 1 channel 0 id 3 lun 0
+Jul 27 23:25:47 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xcf, flags = 0x0, unit = 0x3.
+Jul 27 23:25:47 munin kernel: scsi: device set offline - not ready or
+command retry failed after host reset: host 1 channel 0 id 3 lun 0
+Jul 27 23:25:47 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xcf, flags = 0x0, unit = 0x3.
+Jul 27 23:25:47 munin kernel: scsi: device set offline - not ready or
+command retry failed after host reset: host 1 channel 0 id 3 lun 0
+Jul 27 23:25:47 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xcf, flags = 0x0, unit = 0x3.
+Jul 27 23:25:47 munin kernel: scsi: device set offline - not ready or
+command retry failed after host reset: host 1 channel 0 id 3 lun 0
 
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4
-IDE (rev 01) (prog-if 80 [Master])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV-
-VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr-
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32
-	Region 4: I/O ports at f000 [size=16]
+followed by a bunch of garbage looking like the following (don't know if
+this came from the RAID code or the 3ware code or something else...
 
-00:07.2 USB Controller: Intel Corporation 82371AB
-PIIX4 USB (rev 01) (prog-if 00 [UHCI])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV-
-VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr-
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32
-	Interrupt: pin D routed to IRQ 11
-	Region 4: I/O ports at 6400 [size=32]
+Jul 27 23:25:47 munin kernel:  : D:0 D:0 :0 D: D:0 D:0 D:0 D: D:0 D:0
+D:0 T:1:00> .01c967 65WD C 0sdIS,3DID5)SK6,  K>: :0  0,<40:,S[d0)K<00
+v   N:  N: N: N: N  N  N  N  DN:0  DN:   N: N:****: el<4> drrrc>
+Jul 27 23:25:47 munin kernel: **MP****da1>ck0ea
+Jul 27 23:25:47 munin kernel:      L5 S853 0: 1:6 2:1 3:  DISK<N:6> :6
+:6> 6:  DI: 7:: 8: ::411:  DISK<N:0:412:4>
+Jul 27 23:25:47 munin kernel: <13:414:415:4>
+Jul 27 23:25:47 munin kernel:      16:417:4>
+Jul 27 23:25:47 munin kernel:   1:4>
+Jul 27 23:25:47 munin kernel: <20:421:42:423:42:4>25:26:4IS>
+Jul 27 23:25:47 munin kernel: 7 :a
+Jul 27 23:25:47 munin kernel: 6
+Jul 27 23:25:47 munin kernel: <d
 
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI
-(rev 01)
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV-
-VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr-
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin ? routed to IRQ 9
+Then a different disk "failure" a couple days later...
 
-00:0b.0 Multimedia video controller: 3Dfx Interactive,
-Inc. Voodoo 2 (rev 02)
-	Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV-
-VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast
->TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Region 0: Memory at e4000000 (32-bit, prefetchable)
-[size=16M]
+Jul 31 19:21:16 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xc7, flags = 0x51, unit = 0x4.
+Jul 31 19:21:19 munin kernel: 3w-xxxx: tw_scsi_eh_reset(): Reset
+succeeded for card 1.
+Jul 31 19:21:33 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xc7, flags = 0x51, unit = 0x4.
+Jul 31 19:21:33 munin kernel: scsi: device set offline - not ready or
+command retry failed after host reset: host 1 channel 0 id 4 lun 0
+Jul 31 19:21:33 munin kernel: SCSI disk error : host 1 channel 0 id 4
+lun 0 return code = 80000
+Jul 31 19:21:33 munin kernel:  I/O error: dev 08:41, sector 2362112
 
-00:0c.0 VGA compatible controller: S3 Inc. ViRGE/DX or
-/GX (rev 01) (prog-if 00 [VGA])
-	Subsystem: S3 Inc. ViRGE/DX
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV-
-VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (1000ns min, 63750ns max)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at e0000000 (32-bit,
-non-prefetchable) [size=64M]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
------------------------------------------------------------------------------
-7.6
-//
-//
-7.7 
-/proc/meminfo
------------------------------------------------------------------------------
-        total:    used:    free:  shared: buffers: 
-cached:
-Mem:  163082240 54480896 108601344        0  3723264
-40349696
-Swap: 139821056        0 139821056
-MemTotal:       159260 kB
-MemFree:        106056 kB
-MemShared:           0 kB
-Buffers:          3636 kB
-Cached:          39404 kB
-SwapCached:          0 kB
-Active:           3572 kB
-Inact_dirty:     39468 kB
-Inact_clean:         0 kB
-Inact_target:        0 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       159260 kB
-LowFree:        106056 kB
-SwapTotal:      136544 kB
-SwapFree:       136544 kB
------------------------------------------------------------------------------
+And finally a third "failure" today... 
 
-/proc/swaps
------------------------------------------------------------------------------
-Filename			Type		Size	Used	Priority
-/dev/hda4                       partition	136544	0	-1
------------------------------------------------------------------------------
-
-mount
------------------------------------------------------------------------------
-/dev/hda3 on / type ext2 (rw)
-/dev/hda1 on /mnt/hard type vfat (rw)
-/dev/hda5 on /mnt/d type vfat (rw)
-none on /dev/pts type devpts (rw,gid=5,mode=620)
-none on /proc type proc (rw)
-tmpfs on /dev/shm type tmpfs (rw)
------------------------------------------------------------------------------
-df
-------------------------------------------------------------------
-Filesystem           1k-blocks      Used Available
-Use% Mounted on
-/dev/hda3              1991824   1834820     54188 
-98% /
-/dev/hda1              2096160   1920352    175808 
-92% /mnt/hard
-/dev/hda5              3952252   3856036     96216 
-98% /mnt/d
-tmpfs                   242424         0    242424  
-0% /dev/shm
-
-------I wrote this on paper then back on PC. At this
-point nothing wok-----
-SysRq: Show Memory
-Mem_info:
-Free pages:        1524kB (    0 kB HighMem)
-( Active: 37842, inactive_dirty: 29, inactive_clean:
-0, free: 381 (383 766 1149) )
-1*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB
-0*512kB 0*1024kB 0*2048kB = 508kB
-0*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB
-1*512kB 0*1024kB 0*2048kB = 1016kB)
-= 0kB)
-Swap cache: add 34136, delete 34136, find 0/0
-Free swap:            0kB
-40960 pages of RAM
-0 pages of HIGHMEM
-1147 reserved pages
-430 pages shared
-0 pages swap cached
-0 pages in page table cache
-Buffer memory:       60kB
------------------------------------------
-I pressed few times Alt-SysRq-M, and i noted that
-Active has changed with +-1
+Aug  1 12:54:29 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xc7, flags = 0x51, unit = 0x1.
+Aug  1 12:54:32 munin kernel: 3w-xxxx: tw_scsi_eh_reset(): Reset
+succeeded for card 1.
+Aug  1 12:54:45 munin kernel: 3w-xxxx: tw_interrupt(): Bad response,
+status = 0xc7, flags = 0x51, unit = 0x1.
+Aug  1 12:54:45 munin kernel: scsi: device set offline - not ready or
+command retry failed after host reset: host 1 channel 0 id 1 lun 0
+Aug  1 12:54:45 munin kernel: SCSI disk error : host 1 channel 0 id 1
+lun 0 return code = 80000
+Aug  1 12:54:45 munin kernel:  I/O error: dev 08:11, sector 158441712
 
 
+Scott
 
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/
+
+> Adam Radford wrote:
+> 
+> Scott,
+> 
+> Several of the 'problems' users are seeing are due to bad IBM 75 Gig
+> drives
+> that had contamination during the manufacturing process.  Lots of them
+> have
+> been recalled but some are still in use.  Unfortunately, these drives
+> give lots
+> of ECC errors.
+> 
+> The status=c7, flags=51, unit=0x1  means that the drive on unit 1
+> (which is
+> port 1 since you are using software raid) is showing ECC errors during
+> reads.
+> 
+> You didn't mention what kind of drives you have, but in either case,
+> you need
+> to replace that drive, IBM or not.
+> 
+> --
+> Adam Radford
+> Software Engineer
+> 3ware, Inc.
+> 
+> -----Original Message-----
+> From: Scott Ransom [mailto:ransom@cfa.harvard.edu]
+> Sent: Wednesday, August 01, 2001 11:15 AM
+> To: linux-kernel@vger.kernel.org; Scott Ransom
+> Subject: 3ware Escalade problems
+> 
+> Hello,
+> 
+> After months of running a fileserver with an 8 port 3ware escalade
+> card
+> (kernels 2.4.[3457] using reiserfs and software RAID5) I started
+> getting
+> problems this weekend.
+> 
+> Over the last three days, when I try to access the drives, after a
+> couple minutes I get a drive failure (I even heard a "yelp" from the
+> drive during one of them...).  But the "failure" has happened to 3 of
+> the 8 drives over 3 days -- so unless there is a hardware problem that
+> 
+> is killing my drives I find it hard to believe that 3 drives really
+> and
+> truly failed....
+> 
+> Here is a sample from my syslog of a failure:
+> 
+> 3w-xxxx: tw_interrupt(): Bad response, status = 0xc7, flags = 0x51,
+> unit
+> = 0x1.
+> 3w-xxxx: tw_scsi_eh_reset(): Reset succeeded for card 1.
+> 3w-xxxx: tw_interrupt(): Bad response, status = 0xc7, flags = 0x51,
+> unit
+> = 0x1.
+> scsi: device set offline - not ready or command retry failed after
+> host
+> reset: host 1 channel 0 id 1 lun 0
+> SCSI disk error : host 1 channel 0 id 1 lun 0 return code = 80000
+> I/O error: dev 08:11, sector 158441712
+> 
+> I've noticed several "issues" with the 3ware cards in the archives.
+> Has
+> anyone seen something like this?
+> 
+> Scott
+> 
+> PS:  I'm currently running 2.4.7 with the lm-sensors/i2c patches.
+> 
+> --
+> Scott M. Ransom                   Address:  Harvard-Smithsonian CfA
+> Phone:  (617) 496-7908                      60 Garden St.  MS 10
+> email:  ransom@cfa.harvard.edu              Cambridge, MA  02138
+> GPG Fingerprint: 06A9 9553 78BE 16DB 407B  FFCA 9BFA B6FF FFD3 2989
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Scott M. Ransom                   Address:  Harvard-Smithsonian CfA
+Phone:  (617) 496-7908                      60 Garden St.  MS 10 
+email:  ransom@cfa.harvard.edu              Cambridge, MA  02138
+GPG Fingerprint: 06A9 9553 78BE 16DB 407B  FFCA 9BFA B6FF FFD3 2989

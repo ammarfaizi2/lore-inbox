@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265932AbUBJPpa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 10:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265935AbUBJPpa
+	id S265898AbUBJPvY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 10:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265945AbUBJPvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 10:45:30 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:60803 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S265932AbUBJPp2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 10:45:28 -0500
-Date: Tue, 10 Feb 2004 10:44:49 -0500
-From: Eric Buddington <ebuddington@verizon.net>
-To: linux-kernel@vger.kernel.org
-Subject: Reiserfs crash while deleting specific file in 2.6.2
-Message-ID: <20040210154449.GA1419@pool-151-203-182-190.wma.east.verizon.net>
-Reply-To: ebuddington@wesleyan.edu
+	Tue, 10 Feb 2004 10:51:24 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52101 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265898AbUBJPvW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 10:51:22 -0500
+Date: Tue, 10 Feb 2004 07:44:50 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: dick.streefland@altium.nl (Dick Streefland)
+Cc: spam@altium.nl, linux-kernel@vger.kernel.org
+Subject: Re: IA32 (2.6.2 - 2004-02-05.22.30) - 3 New warnings (gcc 3.2.2)
+Message-Id: <20040210074450.3adcefdc.rddunlap@osdl.org>
+In-Reply-To: <2e79.4028dd7d.6ae8c@altium.nl>
+References: <20040206182208.GI21151@parcelfarce.linux.theplanet.co.uk>
+	<200402061122.i16BMZ10009537@cherrypit.pdx.osdl.net>
+	<20040206113305.GF21151@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.58.0402060850380.30672@home.osdl.org>
+	<20040206182208.GI21151@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.58.0402061041190.30672@home.osdl.org>
+	<2e79.4028dd7d.6ae8c@altium.nl>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organization: ECS Labs
-X-Eric-Conspiracy: there is no conspiracy
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.203.182.190] at Tue, 10 Feb 2004 09:45:25 -0600
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.6.2, not tainted.
+On Tue, 10 Feb 2004 13:32:45 -0000 spam@altium.nl (Dick Streefland) wrote:
 
-My reiser root fs filled up while compiling, so I started deleting
-extra files to make space. One directory in particular gives me a BUG
-when I try to rm -rf it (I don't know if it's the same file each time;
-the dir in question has no subdirs).
+| Linus Torvalds <torvalds@osdl.org> wrote:
+| | On Fri, 6 Feb 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+| | > 
+| | > Umm...  How about
+| | > 
+| | > static inline void BUG() __attribute__((noreturn));
+| | > 
+| | > static inline void BUG(void)
+| | > {
+| | > 	__asm__ ....
+| | > }
+| | 
+| | Did you try that? Last time I tried, gcc would complain every time it saw 
+| | the thing about "noreturn function does return".
+| 
+| So, make sure it won't return ;-)
+| 
+| static inline void BUG(void)
+| {
+|         __asm__ ("1: jmp 1b");
+|         BUG();
+| }
 
-Running 'dmesg' afterwards to check messages hangs. So do other
-commands I tried. I can still type at existing shells until I hit
-enter, so I had to reboot.
+doesn't that sorta miss the BUG output?
 
-When I repeated this at the console, I saw the following (which I had
-to scribble on paper, so I just grabbed what I guessed was most
-useful):
-
------------
-Kernel BUG at fs/reiserfs/prints.c:339
-invalid operand: 0000 [#1]
-call trace:
-	reiserfs_do_truncate+0x34a/0x5f0
-	reiserfs_delete_object
-	reiserfs_delete_inode
-	reiserfs_delete_inode
-	generic_delete_inode
--------------
-
-This is repeatable (2 for 2, anyway), and I will get more info if requested.
-
--Eric
+--
+~Randy
+kernel-janitors project:  http://janitor.kernelnewbies.org/

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310787AbSCRNZu>; Mon, 18 Mar 2002 08:25:50 -0500
+	id <S310806AbSCRNal>; Mon, 18 Mar 2002 08:30:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310806AbSCRNZk>; Mon, 18 Mar 2002 08:25:40 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:48900 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S310787AbSCRNZc>;
-	Mon, 18 Mar 2002 08:25:32 -0500
-Date: Mon, 18 Mar 2002 10:24:58 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Anders Peter Fugmann <afu@fugmann.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: 2.4 Scheduler 
-In-Reply-To: <3C95CC7D.8070101@fugmann.dhs.org>
-Message-ID: <Pine.LNX.4.44L.0203181023580.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S310816AbSCRNac>; Mon, 18 Mar 2002 08:30:32 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:8210 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S310806AbSCRNaR>;
+	Mon, 18 Mar 2002 08:30:17 -0500
+Message-ID: <3C95EB96.9020803@evision-ventures.com>
+Date: Mon, 18 Mar 2002 14:28:54 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roberto Nibali <ratz@drugphish.ch>
+CC: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Question about the ide related ioctl's BLK* in 2.5.7-pre1 kernel
+In-Reply-To: <3C9007F5.1000003@drugphish.ch> <3C900A11.55BA4B32@zip.com.au> <3C905894.90407@drugphish.ch> <3C905B9D.A1E3ACF6@zip.com.au> <3C9091D6.6030301@evision-ventures.com> <3C910262.6010107@drugphish.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Mar 2002, Anders Peter Fugmann wrote:
+Roberto Nibali wrote:
+>>>> AFAICS you only
+>>>> addressed the i386 arch with that patch, do you want the specific arch
+>>>> maintainers to clean up their part when your patch is finished?
+>>>>
+>>>
+>>> ?  There's nothing arch-specific in any of this...
+>>
+>>  
+>> And there is nothing IDE related either. The code removed
+>> at the time wasn't used!
+> 
+> 
+> I see. So the trick is to fix hdparm and tell it not to use ioctl(fd, 
+> BLKRAGET, arg). But I don't think that the BIO changes introduce a means 
+> for readahead control/export from/to user space? Or would this be 
+> something like bio_ioctl(kdev_t, unsigned int, unsigned long), which is 
+> actually not used anywhere, or the request queue approach used by Andrew 
+> Morton?
+> 
+> The reason I was confused about the arch was that sparc64, ppc64, 
+> mips64, s390x and x86_64 still provide a ioctl handler for those ioctl's 
+> hooking up the the w_long (interestig naming concept btw) function.
+> 
+> Am I completely off the track here, mixing things up?
 
-> I have some specific questions concering the implementation of the
-> scheduler in 2.4.18, which I hope you would please answer for me.
->
-> Question #1:
-> Has anyone documented the functionality of the current scheduler?
+No I think you are entierly on track.
 
-Yes.
-
-There is text about the scheduler in O'Reilly's
-"understanding the linux kernel" as well as in
-my "kernel tour" lecture.
-
-You can get the latter from http://surriel.com/lectures/
-
-regards,
-
-Rik
--- 
-<insert bitkeeper endorsement here>
-
-http://www.surriel.com/		http://distro.conectiva.com/
+BTW> It's quite propably right now, that I will just reintroduce them
+myself and give them the semantics of the multi-write hardware settings,
+just to fix the multi write PIO problem :-).
 

@@ -1,90 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282945AbRLXWjG>; Mon, 24 Dec 2001 17:39:06 -0500
+	id <S283244AbRLXWuQ>; Mon, 24 Dec 2001 17:50:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283244AbRLXWi4>; Mon, 24 Dec 2001 17:38:56 -0500
-Received: from confused.landsberger.com ([216.160.68.107]:52740 "EHLO
-	mephistopheles.landsberger.com") by vger.kernel.org with ESMTP
-	id <S282945AbRLXWir>; Mon, 24 Dec 2001 17:38:47 -0500
-Subject: Re: IDE CDROM locks the system hard on media error
-From: Brian Landsberger <brian@landsberger.com>
-To: Stanislav Meduna <stano@meduna.org>
+	id <S283268AbRLXWuH>; Mon, 24 Dec 2001 17:50:07 -0500
+Received: from mailc.telia.com ([194.22.190.4]:39643 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S283244AbRLXWt6>;
+	Mon, 24 Dec 2001 17:49:58 -0500
+To: rct@gherkin.frus.com (Bob_Tracy)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200112242128.fBOLSPa08269@meduna.org>
-In-Reply-To: <200112242128.fBOLSPa08269@meduna.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 24 Dec 2001 14:37:56 -0800
-Message-Id: <1009233476.1733.7.camel@fux0r.landsberger.com>
-Mime-Version: 1.0
+Subject: Re: "sr: unaligned transfer" in 2.5.2-pre1
+In-Reply-To: <m16IMMg-0005khC@gherkin.frus.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 24 Dec 2001 23:48:55 +0100
+In-Reply-To: <m16IMMg-0005khC@gherkin.frus.com>
+Message-ID: <m2wuzcdyjs.fsf@ppro.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you have multiple CD/DVD-R/ROM/R's? This happened today to me when I
-was installing Myth II and Quake III at the same time. 
+rct@gherkin.frus.com (Bob_Tracy) writes:
 
-First CDROM according to "cat /proc/ide/hdc/model" is pretty generic:
-ATAPI 48X CDROM
-
-Second CD-RW according to "cat /proc/ide/hdd/model" is a: LITE-ON
-LTR-16102B
-
-Some stuff ala syslog:
-
-Dec 24 13:26:33 fux0r kernel: cdrom: open failed.
-Dec 24 13:26:45 fux0r kernel: cdrom: open failed.
-Dec 24 13:29:22 fux0r su(pam_unix)[27872]: session closed for user root
-Dec 24 13:31:25 fux0r kernel: scsi : aborting command due to timeout :
-pid 34319, scsi1, channel 0, id 0, lun 0 Read (10) 00 00 00 00 42 00 00
-01 00 
-Dec 24 13:31:25 fux0r kernel: hdc: timeout waiting for DMA
-Dec 24 13:31:25 fux0r kernel: ide_dmaproc: chipset supported
-ide_dma_timeout func only: 14
-Dec 24 13:31:25 fux0r kernel: scsi : aborting command due to timeout :
-pid 34321, scsi1, channel 0, id 1, lun 0 Read (10) 00 00 00 c2 e7 00 00
-01 00 
-Dec 24 13:31:26 fux0r kernel: hdc: status timeout: status=0xd0 { Busy }
-Dec 24 13:31:26 fux0r kernel: hdc: drive not ready for command
-Dec 24 13:31:30 fux0r kernel: hdc: ATAPI reset complete
-Dec 24 13:31:31 fux0r kernel: hdc: irq timeout: status=0xc0 { Busy }
-Dec 24 13:31:31 fux0r kernel: hdc: ATAPI reset complete
-
-the next thing we see is syslogd restarting (after rebooting)
-
-Thanks,
-Brian
-
-
-
-
-On Mon, 2001-12-24 at 13:28, Stanislav Meduna wrote:
-> Hello,
+> > So, what changes are needed to make CD support work?
 > 
-> > > I am using vanilla 2.4.17, hdc=ide-scsi, my drive is Mitsumi CR-4804TE,
-> > > motherboard is Abit BP6 SMP, Intel PIIX4 IDE controller.
-> > 
-> > Does turning off or restricting the DMA mode using either
-> > one of these help?
-> >     hdparm -d0 -c1 /dev/hdc 
-> 
-> This seems to help - I tried the most problematic CD several times,
-> got the error messages, but it did not froze.
-> 
-> Thanks - I didn't even know that it defaults to DMA on CD-ROMs...
-> 
-> >     hdparm -d 1 -X 34 /dev/hdc
-> 
-> This drive cannot do more than mdma1 (at least according to hdparm -i).
-> 
-> Regards
-> -- 
->                                        Stano
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Evidently non-trivial...  I tried a quick hack at putting the
+> sr_scatter_pad() code back into sr.c, but without success: null
+> pointer dereference when I tried to mount an ISO9660 CD.  I think
+> I'll enjoy the holiday week and wait for Jens to produce the proper
+> fix :-).
 
+Sorry for bothering the list with this, but your mail server is
+rejecting my emails to you, claiming they are SPAM.
 
+   ----- The following addresses had permanent fatal errors -----
+<rct@gherkin.frus.com>
+    (reason: 555 rct@gherkin.frus.com rejects SPAM from petero2@telia.com)
+
+   ----- Transcript of session follows -----
+... while talking to news.wlk.com.:
+>>> RCPT To:<rct@gherkin.frus.com>
+<<< 555 rct@gherkin.frus.com rejects SPAM from petero2@telia.com
+554 5.0.0 Service unavailable
+
+    [ Part 2: "Delivery Status" ]
+
+Reporting-MTA: dns; mailb.telia.com
+Received-From-MTA: DNS; d1o89.telia.com
+Arrival-Date: Mon, 24 Dec 2001 23:28:55 +0100 (CET)
+
+Final-Recipient: RFC822; rct@gherkin.frus.com
+Action: failed
+Status: 5.0.0
+Remote-MTA: DNS; news.wlk.com
+Diagnostic-Code: SMTP; 555 rct@gherkin.frus.com rejects SPAM from
+petero2@telia.com
+Last-Attempt-Date: Mon, 24 Dec 2001 23:29:38 +0100 (CET)
+
+-- 
+Peter Österlund             petero2@telia.com
+Sköndalsvägen 35            http://w1.894.telia.com/~u89404340
+S-128 66 Sköndal            +46 8 942647
+Sweden

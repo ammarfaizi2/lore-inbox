@@ -1,63 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbTEMVgw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbTEMVgv
+	id S261338AbTEMVgA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbTEMVgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:36:51 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:62850 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261917AbTEMVge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:36:34 -0400
-Subject: Re: status of Centrino wireless support
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Anders Karlsson <anders@trudheim.com>
-Cc: Andrew Baumann <andrewb@cse.unsw.edu.au>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052387087.3172.15.camel@tor.trudheim.com>
-References: <200305081530.08818.andrewb@cse.unsw.edu.au>
-	 <1052387087.3172.15.camel@tor.trudheim.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Open Source Development Lab, Inc.
-Message-Id: <1052862196.1674.259.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 13 May 2003 14:43:17 -0700
+	Tue, 13 May 2003 17:36:00 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:28172 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261338AbTEMVff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 17:35:35 -0400
+Date: Tue, 13 May 2003 22:48:18 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Framebuffer console fix
+Message-ID: <Pine.LNX.4.44.0305132246450.12672-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I am also working on getting something to address this issue.
 
-Tim
+This patch fixes a oops that happens when we map a framebuffer device to 
+a non-existant console. Please apply.
 
-On Thu, 2003-05-08 at 02:44, Anders Karlsson wrote:
-> Morning,
-> 
-> On Thu, 2003-05-08 at 06:30, Andrew Baumann wrote:
-> > does anyone know anything more than "Intel have a driver internally, depending 
-> > who you ask, and might release it at at unspecified time, if they feel like 
-> > it" about the Centrino wireless adapter (Intel PRO/Wireless 2100 LAN MiniPCI 
-> > Adapter).
-> 
-> That is about the sum of it. I sent e-mails to Scott McLaughlin at Intel
-> and he said he forwarded my queries and comments to some internal team
-> looking into what they were doing.
-> 
-> From what I can gather, there is little happening from Intel to make the
-> drivers available.
-> 
-> > I've heard several interesting rumours along those lines, but nothing more. 
-> > Just wondering if anyone knows about or is working on support for this 
-> > device.
-> 
-> Not heard anything, will let you/LKML know if I hear anything.
-> 
-> /Anders
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1081  -> 1.1082 
+#	drivers/video/console/fbcon.c	1.101   -> 1.102  
+#	drivers/video/console/fbcon.h	1.30    -> 1.31   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/05/12	jsimmons@maxwell.earthlink.net	1.1082
+# [FBCON] set_con2fb_map wasn't testing to see the VC we where mapping to actually exist. Now it does. 
+# 
+#         I add code to fbcon_cursor to reset the hotspot if it was changed by userland. 
+# --------------------------------------------
+#
+diff -Nru a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
+--- a/drivers/video/console/fbcon.c	Mon May 12 16:38:57 2003
++++ b/drivers/video/console/fbcon.c	Mon May 12 16:38:57 2003
+@@ -294,13 +294,16 @@
+  *	Maps a virtual console @unit to a frame buffer device
+  *	@newidx.
+  */
+-void set_con2fb_map(int unit, int newidx)
++int set_con2fb_map(int unit, int newidx)
+ {
+ 	struct vc_data *vc = vc_cons[unit].d;
+ 
++	if (!vc)
++		return -ENODEV;
+ 	con2fb_map[unit] = newidx;
+ 	fbcon_is_default = (vc->vc_sw == &fb_con) ? 1 : 0;
+ 	take_over_console(&fb_con, unit, unit, fbcon_is_default);
++	return 0;
+ }
+ 
+ /*
+@@ -990,6 +993,11 @@
+ 			cursor.image.height = vc->vc_font.height;
+ 			cursor.image.width = vc->vc_font.width;
+ 			cursor.set |= FB_CUR_SETSIZE;
++		}
++
++		if (info->cursor.hot.x || info->cursor.hot.y) {
++			cursor.hot.x = cursor.hot.y = 0;
++			cursor.set |= FB_CUR_SETHOT;
+ 		}
+ 
+ 		if ((cursor.set & FB_CUR_SETSIZE) || ((vc->vc_cursor_type & 0x0f) != p->cursor_shape)) {
+diff -Nru a/drivers/video/console/fbcon.h b/drivers/video/console/fbcon.h
+--- a/drivers/video/console/fbcon.h	Mon May 12 16:38:57 2003
++++ b/drivers/video/console/fbcon.h	Mon May 12 16:38:57 2003
+@@ -38,7 +38,7 @@
+ 
+ /* drivers/video/console/fbcon.c */
+ extern char con2fb_map[MAX_NR_CONSOLES];
+-extern void set_con2fb_map(int unit, int newidx);
++extern int set_con2fb_map(int unit, int newidx);
+ 
+     /*
+      *  Attribute Decoding
 

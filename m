@@ -1,84 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVDAJRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262663AbVDAJR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVDAJRT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 04:17:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbVDAJRT
+	id S262663AbVDAJR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 04:17:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbVDAJR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 04:17:19 -0500
-Received: from mail1.upco.es ([130.206.70.227]:61873 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261605AbVDAJRM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 04:17:12 -0500
-Date: Fri, 1 Apr 2005 11:17:08 +0200
-From: Romano Giannetti <romanol@upco.es>
-To: Maximilian Engelhardt <maxi@daemonizer.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
-Subject: Re: Call for help: list of machines with working S3
-Message-ID: <20050401091708.GA31787@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: romano@dea.icai.upco.es,
-	Maximilian Engelhardt <maxi@daemonizer.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Pavel Machek <pavel@suse.cz>
-References: <3xVNA-Qn-43@gated-at.bofh.it> <1111089912.9802.26.camel@mobile> <20050318145028.GA22887@pern.dea.icai.upco.es> <1112298873.10156.18.camel@mobile>
+	Fri, 1 Apr 2005 04:17:56 -0500
+Received: from lug-owl.de ([195.71.106.12]:29369 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S262663AbVDAJRv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 04:17:51 -0500
+Date: Fri, 1 Apr 2005 11:17:51 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove all kernel bugs
+Message-ID: <20050401091750.GS21175@lug-owl.de>
+Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050401090744.GD15453@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1112298873.10156.18.camel@mobile>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20050401090744.GD15453@waste.org>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 31, 2005 at 09:54:33PM +0200, Maximilian Engelhardt wrote:
-> On Fri, 2005-03-18 at 15:50 +0100, Romano Giannetti wrote:
-> > 
-> > It happens exactly the same on my laptop, sony vaio whose configuration is 
-> > 
-> > http://www.dea.icai.upco.es/romano/linux/vaio-conf/laptop-config.html
+On Fri, 2005-04-01 01:07:44 -0800, Matt Mackall <mpm@selenic.com>
+wrote in message <20050401090744.GD15453@waste.org>:
+> I've been sitting on this patch for a while, figured it's high time I
+> shared it with the world. This patch eliminates all kernel bugs, trims
+> about 35k off the typical kernel, and makes the system slightly
+> faster. The patch is against the latest bk snapshot, please apply.
 > 
-> I was able to get some logs using CONFIG_LP_CONSOLE (the first time I
-> ever saw "Back to C!"):
-> 
-> Back to C!
-> PM: Finishing up.
-> ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 10 (level,low) -> IRQ 10
-> MCE: The hardware reports a non fatal, correctable incident occurred on
-> CPU 0.
-> Bank 1: e200000000000001
-> hda: task_out_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_out_intr: error=0x04 { DriveStatusError }
-> ide: failed opcode was: unknown
-> 
-> keeps on always repeating last three messages until I reboot
-> 
-> Full log:
-> http://home.daemonizer.de/resume.png
-> 
-> kernel version is 2.6.11
-> config: http://home.daemonizer.de/config-2.6.11-S3test
-> dmesg from booting: http://home.daemonizer.de/dmesg-2.6.11-S3test
-> lspci: http://home.daemonizer.de/lspci
-> Gentoo Base System version 1.6.10
-> 
-> Hardware:
-> Acer Travelmate 661lci (centrino)
-> Intel(R) Pentium(R) M processor 1400MHz
+> Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-I tried with serial console. The only thing I get is: 
+Well, the patch looks fine, but you forgot to also do the VAX-specific
+part. Withoug the BUGs, maybe the VAX kernel would be even faster?
 
-Stopping tasks:
-================================================================================|
-
-and nothing more. Well, this was done with the double console, so that I
-will try again as soon as I have a bit of time with just the serial console
-on. 
-
-But the "external" behaviour for me is like your: it stops, then at restart
-the HDD led stays on and nothing happen. 
-
-
-Romano 
+:-), JBG
 
 -- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             _ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  _ _ O
+ fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!   O O O
+ret = do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA));

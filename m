@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbUCAKpc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 05:45:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbUCAKpc
+	id S261203AbUCAKzc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 05:55:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUCAKzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 05:45:32 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:55969 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S261197AbUCAKpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 05:45:25 -0500
-Date: Mon, 01 Mar 2004 18:45:04 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: Dropping CONFIG_PM_DISK?
+	Mon, 1 Mar 2004 05:55:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55425 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261203AbUCAKz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 05:55:26 -0500
+Date: Mon, 1 Mar 2004 02:56:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Zhu, Yi" <yi.zhu@intel.com>
 Cc: linux-kernel@vger.kernel.org
-References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz> <yw1x4qt93i6y.fsf@kth.se> <20040229181053.GD286@elf.ucw.cz> <yw1xznb120zn.fsf@kth.se> <20040301094023.GF352@elf.ucw.cz> <yw1xhdx8ani6.fsf@kth.se>
-Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <opr36itevo4evsfm@smtp.pacific.net.th>
-In-Reply-To: <yw1xhdx8ani6.fsf@kth.se>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+Subject: Re: [start_kernel] Suggest to move parse_args() before trap_init()
+Message-Id: <20040301025637.338f41cf.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0403011721220.2367-100000@mazda.sh.intel.com>
+References: <Pine.LNX.4.44.0403011721220.2367-100000@mazda.sh.intel.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 Mar 2004 11:08:01 +0100, Måns Rullgård <mru@kth.se> wrote:
+"Zhu, Yi" <yi.zhu@intel.com> wrote:
+>
+> I'm not sure it is _correct_ to move parse_args() before trap_init() in
+>  start_kernel(). Is there any potencial dependencies? I did this on my P4 UP
+>  box, it boots OK.
+> 
+>  My issue is if the parse_args() runs after trap_init(), the kernel
+>  parameter "lapic" and "nolapic" takes no effect. Because lapic_enable()
+>  is called after init_apic_mappings().
+> 
+> 
+>  --- init/main.c.orig    2004-03-01 16:54:23.000000000 +0800
+>  +++ init/main.c 2004-03-01 16:54:45.000000000 +0800
+>  @@ -416,11 +416,11 @@
+> 
+>          build_all_zonelists();
+>          page_alloc_init();
+>  -       trap_init();
+>          printk("Kernel command line: %s\n", saved_command_line);
+>          parse_args("Booting kernel", command_line, __start___param,
+>                     __stop___param - __start___param,
+>                     &unknown_bootoption);
+>  +       trap_init();
+>          sort_main_extable();
+>          rcu_init();
+>          init_IRQ();
 
-> Pavel Machek <pavel@ucw.cz> writes:
->
->>> > Try current swsusp with minimal drivers, init=/bin/bash.
->>>
->>> Well, if I do that it works.  Or at least some old version did, I
->>> assume the later ones would too.  However, that sort of removes the
->>> whole point.  Taking down the system enough to be able to unload
->>> almost everything is as close as rebooting you'll get.
->>
->> Well, now do a search for "which module/application causes failure".
->
-> I know, it just takes an awful time.
->
->>> BTW, is there some easier way to track the development than using the
->>> patches from the web page?  Unpatching after a couple of BK merges
->>> isn't the easiest thing.  Is there a BK tree somewhere I can pull
->>> from?
->>
->> Are you using swsusp2?
->
-> Well, trying to.  Isn't it supposed to be the latest and greatest?
->
->> That's _not_ what I'm talking about. swsusp is in mainline.
->
-> It would still be the same module(s) that caused it to fail, right?
->
+I think the only problem with this is if we get a fault during
+parse_args(), the kernel flies off into outer space.  So you lose some
+debuggability when using an early console.
 
-Further to my post yesterday, here is a short article which may be of interest.
+But 2.4 does trap_init() after parse_args() and nobody has complained, as
+did 2.6 until recently.  So the change is probably OK.
 
-http://lwn.net/Articles/68747/
-
-So, to make it work better lets get PM usable :)
-
-swsusp2 mailing list: swsusp-devel@lists.sourceforge.net
-
-Regards
-Michael

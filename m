@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266454AbUGKHEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266508AbUGKHEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266454AbUGKHEq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 03:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266508AbUGKHEq
+	id S266508AbUGKHEx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 03:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUGKHEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 03:04:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50622 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266454AbUGKHEp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 03:04:45 -0400
-Date: Sun, 11 Jul 2004 00:03:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Byron Stanoszek <gandalf@winds.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.6.7 random oops in free_block()
-Message-Id: <20040711000334.41d2397d.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.60.0407101726430.12382@winds.org>
-References: <Pine.LNX.4.60.0407101726430.12382@winds.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jul 2004 03:04:53 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:7143 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266508AbUGKHEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 03:04:51 -0400
+Date: Sun, 11 Jul 2004 03:07:42 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
+In-Reply-To: <40F008B0.8020702@kolivas.org>
+Message-ID: <Pine.LNX.4.58.0407110305420.29060@montezuma.fsmlabs.com>
+References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org>
+ <20040710124814.GA27345@elte.hu> <40F0075C.2070607@kolivas.org>
+ <20040710151455.GA29140@devserv.devel.redhat.com> <40F008B0.8020702@kolivas.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Byron Stanoszek <gandalf@winds.org> wrote:
+On Sun, 11 Jul 2004, Con Kolivas wrote:
+
+> Arjan van de Ven wrote:
+> > On Sun, Jul 11, 2004 at 01:12:28AM +1000, Con Kolivas wrote:
+> >
+> >>I've conducted some of the old fashioned Benno's latency test on this
+> >
+> >
+> > is that the test which skews with irq's disabled ? (eg uses normal
+> > interrupts and not nmi's for it's initial time inrq)
 >
-> Unable to handle kernel paging request at virtual address 01000004
->  c01382d8
->  *pde = 00000000
->  Oops: 0002 [#1]
->  CPU:    1
->  EIP:    0060:[<c01382d8>]    Not tainted
->  Using defaults from ksymoops -t elf32-i386 -a i386
->  EFLAGS: 00010012   (2.6.7)
->  eax: 01000000   ebx: c78ff000   ecx: c78ff040   edx: cda51040
+> It probably is; in which case all these results would be useless, no?
+>
+> http://www.gardena.net/benno/linux/latencytest-0.42.tar.gz
 
-A single bit set in %eax: probably a hardware fault.
-
-Try running memtest86 for 24 hours.  That might detect it.
+I think Arjan is referring to rtl_latencytest.c

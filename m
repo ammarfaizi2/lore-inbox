@@ -1,71 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVA2SKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVA2SN5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbVA2SKV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 13:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVA2SKV
+	id S261311AbVA2SN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 13:13:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVA2SN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 13:10:21 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:43162 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261529AbVA2SKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 13:10:14 -0500
-Message-ID: <41FBD1AE.2080608@comcast.net>
-Date: Sat, 29 Jan 2005 13:10:54 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Jakub Jelinek <jakub@redhat.com>, Rik van Riel <riel@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: Patch 4/6  randomize the stack pointer
-References: <1106848051.5624.110.camel@laptopd505.fenrus.org> <41F92D2B.4090302@comcast.net> <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org> <41F95F79.6080904@comcast.net> <1106862801.5624.145.camel@laptopd505.fenrus.org> <41F96C7D.9000506@comcast.net> <Pine.LNX.4.61.0501282147090.19494@chimarrao.boston.redhat.com> <41FB2DD2.1070405@comcast.net> <20050129173704.GM11199@devserv.devel.redhat.com> <41FBCC91.8010602@comcast.net> <20050129175549.GA2846@infradead.org>
-In-Reply-To: <20050129175549.GA2846@infradead.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 29 Jan 2005 13:13:57 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:56326 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S261311AbVA2SNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 13:13:39 -0500
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to
+	crypto_tfm
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Michal Ludvig <michal@logix.cz>
+In-Reply-To: <Xine.LNX.4.44.0501251042020.26690-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0501251042020.26690-100000@thoron.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1oAK91gjsdyDHgnMyPOf"
+Date: Sat, 29 Jan 2005 19:13:36 +0100
+Message-Id: <1107022416.25076.21.camel@ghanima>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+--=-1oAK91gjsdyDHgnMyPOf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, 2005-01-25 at 10:52 -0500, James Morris wrote:
+> On Mon, 24 Jan 2005, Andrew Morton wrote:
+>=20
+> > These patches clash badly with Michael Ludvig's work:
+> >=20
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc=
+2/2.6.11-rc2-mm1/broken-out/cryptoapi-prepare-for-processing-multiple-buffe=
+rs-at.patch
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc=
+2/2.6.11-rc2-mm1/broken-out/cryptoapi-update-padlock-to-process-multiple-bl=
+ocks-at.patch
+> >=20
+> > so someone's going to have to rework things.  Ordinarily Michael would =
+go
+> > first due to test coverage.
+> >=20
+> > James, your call please.  Also, please advise on the suitability of
+> > Michael's patches for a 2.6.11 merge.
+>
+> Perhaps temporarily drop the multible block changes above until we get th=
+e
+> generic scatterwalk code in and a cleaned up design to handle cipher mode
+> offload.
 
-Christoph Hellwig wrote:
-> On Sat, Jan 29, 2005 at 12:49:05PM -0500, John Richard Moser wrote:
-> 
->>>The ideas in IBM's ProPolice changes are good and worth
->>>implementing, but the current implementation is bad.
->>>
->>
->>Lies.  I've read the paper on the current implementation, it's
->>definitely good.  It only operates on C/C++ code though, but that's the
->>scope of it.
-> 
-> 
-> Yeah, I guess your extensive compiler internals experience and knowledge
-> of gcc internals weights a lot more than the opinion of the gcc team..
-> 
+Andrew, do you agree with James on dropping this patches temporarily?
+I'm running into a mess with patches for patches, and I'd be easier for
+me to have my scatterwalk code in -mm to build on.
 
-I read "implementation" as "the way it's implemented," not as "the
-quality of the code."
+James, anything new on ipsec testing? Is there something else missing
+for a "GO" from your side for scatterwalk generic?
 
-Did I miss the target?  *Aims in the other direction then?*
+I'm almost finished with my port of Michaels multiblock extensions, but
+I run into a few single problems.
 
-> 
+First, I'd set the bytes, a multiblock call can digest, to 4096, page
+size. Why? Because, the scatterwalk code, even James original
+implementation, will trigger heavy memcpy because the needscratch check
+will always return true for page boundary crossing sections.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+ATM max_nbytes isn't set to 4096, but to ((size_t)-1), the maximum value
+of size_t. This is algorithm specific and set in padlock implementation.
+(My port will drop these changes). But setting it to 4096 causes another
+problem: the last fragment of a run might be shorter than 4096, but the
+scatterwalk code (James and mine) wasn't designed to
+change the stepsize/blocksize dynamically. Therefore, Michaels addition
+to crypt(..) will wrongly process the whole last 4096 block, trashing
+all data remaining data. That's not likely to break things, but the
+behavior is certainly wrong.
+
+So a lot of slippery details here. My advise is, drop Michaels patches
+for now, merge scatterwalker and add an ability to change the stepsize
+dynamically in the run. Then I will finish my port and post it.
+
+If we can agree on this "agenda", I'll shift my focus to scatterwalker
+testing.
+
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+
+--=-1oAK91gjsdyDHgnMyPOf
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFB+9GthDd4aOud5P8RAm/FAJwNvbrxPP8fcJmMM//vcYL10nMXTACggi57
-jOKfS4FU1sdPL7AjKRgMmBg=
-=igR0
+iD8DBQBB+9JPW7sr9DEJLk4RAgZxAKCIJ4b5D22DGq2iTkxH/NFl7c3WRACdFta2
+37Qgk66Uu2UOzHeQ4c3km20=
+=aFEs
 -----END PGP SIGNATURE-----
+
+--=-1oAK91gjsdyDHgnMyPOf--

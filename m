@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbULFAmC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbULFAn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbULFAmC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 19:42:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbULFAmB
+	id S261443AbULFAn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 19:43:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbULFAnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 19:42:01 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21259 "HELO
+	Sun, 5 Dec 2004 19:43:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25611 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261437AbULFAlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 19:41:32 -0500
-Date: Mon, 6 Dec 2004 01:41:27 +0100
+	id S261447AbULFAln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 19:41:43 -0500
+Date: Mon, 6 Dec 2004 01:41:39 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: linux-kernel@vger.kernel.org
-Cc: pazke@donpac.ru, linux-visws-devel@lists.sf.net,
-       James.Bottomley@HansenPartnership.com
-Subject: [2.6 patch] i386: reboot.c cleanups
-Message-ID: <20041206004127.GH2953@stusta.de>
+Cc: ak@suse.de, discuss@x86-64.org, matthew@wil.cx, grundler@parisc-linux.org,
+       parisc-linux@parisc-linux.org
+Subject: [2.6 patch] i386/x86_64/parisc process.c: make hlt_counter static
+Message-ID: <20041206004139.GL2953@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,20 +23,14 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The partch below includes the following changes:
-- arch/i386/kernel/reboot.c: make reboot_thru_bios static
-- arch/i386/mach-visws/reboot.c: remove the unused reboot_thru_bios and
-                                 reboot_smp
-- arch/i386/mach-voyager/voyager_basic.c: remove the unused reboot_thru_bios
-- arch/i386/mach-voyager/voyager_smp.c: remove the unused reboot_smp
+The patch below makes a needlessly global variable static.
 
 
 diffstat output:
- arch/i386/kernel/reboot.c              |    2 +-
- arch/i386/mach-visws/reboot.c          |    3 ---
- arch/i386/mach-voyager/voyager_basic.c |    2 --
- arch/i386/mach-voyager/voyager_smp.c   |    2 --
- 4 files changed, 1 insertion(+), 8 deletions(-)
+ arch/i386/kernel/process.c   |    2 +-
+ arch/parisc/kernel/process.c |    2 +-
+ arch/x86_64/kernel/process.c |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>

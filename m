@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289085AbSA1BqH>; Sun, 27 Jan 2002 20:46:07 -0500
+	id <S289089AbSA1Brh>; Sun, 27 Jan 2002 20:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289089AbSA1Bp6>; Sun, 27 Jan 2002 20:45:58 -0500
-Received: from p0025.as-l042.contactel.cz ([194.108.237.25]:42112 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S289085AbSA1Bpt>;
-	Sun, 27 Jan 2002 20:45:49 -0500
-Date: Mon, 28 Jan 2002 02:44:29 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: "W. Michael Petullo" <mike@flyn.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP Pentium III, GA-6VXDC7 MoBo. -- 2.4.18-pre7 SMP not working
-Message-ID: <20020128014429.GF3684@ppc.vc.cvut.cz>
-In-Reply-To: <20020127172150.A1407@dragon.flyn.org>
+	id <S289090AbSA1Br3>; Sun, 27 Jan 2002 20:47:29 -0500
+Received: from msg.vizzavi.pt ([212.18.167.162]:25640 "EHLO msg.vizzavi.pt")
+	by vger.kernel.org with ESMTP id <S289089AbSA1BrK>;
+	Sun, 27 Jan 2002 20:47:10 -0500
+Date: Mon, 28 Jan 2002 01:54:31 +0000
+From: "Paulo Andre'" <l16083@alunos.uevora.pt>
+To: johnpol@2ka.mipt.ru
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: Can't compile Symbios 53c416 SCSI support
+Message-ID: <20020128015431.A27512@bleach>
+In-Reply-To: <20020127201213.A7091@bleach> <20020128043833.659e7102.johnpol@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020127172150.A1407@dragon.flyn.org>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020128043833.659e7102.johnpol@2ka.mipt.ru>; from johnpol@2ka.mipt.ru on Mon, Jan 28, 2002 at 01:38:33 +0000
+X-Mailer: Balsa 1.3.0
+X-OriginalArrivalTime: 28 Jan 2002 01:47:04.0257 (UTC) FILETIME=[AFB39310:01C1A79D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 27, 2002 at 05:21:50PM +0100, W. Michael Petullo wrote:
-> I have a home-built dual Pentium III computer which does not seem to
-> want to run recent SMP kernels.  The computer is built on a Gigabyte
-> GA-6VXDC7 motherboard, which is in turn based on a VIA Apollo Pro chip-set.
-> It is an exclusively SCSI system -- I do not compile any IDE drivers
-> into my kernel.
+On 2002.01.28 01:38 Evgeniy Polyakov wrote:
+> It seems that io_request_lock will be completely removed in 2.5 tree,
+> so
+> there is no io_request_lock in linux/blk.h. This global lock now
+> exsist
+> only in scsi layer, and it will be replaced by Scsi_Host->host_lock
+> soon.
+> So i hope this patch will help a bit in this direction.
+> 
+> 2 Paulo Andre: DON'T use this patch before Jens Axboe will agree with
+> it,
+> because i even haven't scsi here, so this patch was written only with
+> common sence. I hope this will help you.
 
-Can you open arch/i386/kernel/smpboot.c in your favorite text
-editor, locate wakeup_secondary_via_INIT (it has this name
-in 2.5.3-pre5), and in this function locate
+I see your point. I was also thinking about something along those 
+lines. Anyway, what patch are you talking about? Perhaps you forgot to 
+paste/attach it to your email?
 
-apic_write_around(APIC_ICR, APIC_DM_STARTUP | (start_eip >> 12));
-/* Give the other CPU some time to accept the IPI */
-udelay(300);
+And perhaps Jens could also give me a word about this?
 
-and try increasing 300 to some bigger value (and make sure that
-you are using pristine sources, there must be no printk() between
-apic_write_around and udelay()). When I was getting Linux SMP 
-to work on GA-6VXD7 (it still boots, even with 2.5.3-pre5), I had to
-ensure that no bus accesses (and especially PCI write) happen 
-until secondary CPU is alive. By trial and error I found 
-that 150us is needed on my motherboard, so I put 300us here.
-Maybe 300us is not enough for you, so try increasing this value.
+Cheers Evgeniy and thanks again,
 
-On 6VXD7 if you are not silent after you send startup IPI, 
-secondary CPU will not execute even first two instructions,
-and first CPU will die about 50ms after it sends this
-startup IPI.
-					Best regards,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
-
+// Paulo Andre'

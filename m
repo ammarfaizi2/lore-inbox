@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270689AbUJUOnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270730AbUJUOr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270689AbUJUOnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 10:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270679AbUJUOnM
+	id S270730AbUJUOr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 10:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270743AbUJUOrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 10:43:12 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:64264 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S270736AbUJUOlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 10:41:31 -0400
-Message-ID: <4177CD5A.8010309@techsource.com>
-Date: Thu, 21 Oct 2004 10:53:14 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Kasper Sandberg <lkml@metanurb.dk>
-CC: LKML Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com> <1098311393.15517.4.camel@localhost>
-In-Reply-To: <1098311393.15517.4.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Oct 2004 10:47:53 -0400
+Received: from hell.sks3.muni.cz ([147.251.210.30]:20611 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S270735AbUJUOpH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:45:07 -0400
+Date: Thu, 21 Oct 2004 16:45:05 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: AACRaid
+Message-ID: <20041021144505.GB1580@mail.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+I have ASR 2200S card with 6011 build of firmware.
 
-Kasper Sandberg wrote:
-> well.. while i like this idea, i doubt it is ever going to work, since
-> 3d would probably be a requirement, and with stuff like nvidia around, i
-> doubt most people would want to pay the money it would require, since
-> ati and nvidia can smash out millions of cards, while it would probably
-> be at best, a couple of thousands of these opensource cards that could
-> be sold, i, for one would like to pay, however i dont think mainstream
-> will... and as of for 2d only, well :| i kindof needs 3d :(
-> but certainly a good idea, and maybe in future, if linux grows more
-> used, it will actually be possible to do something real kicking ass ;)
-> 
->
+Using 2.6.6 and 2.6.9 kernel it sometimes respond with:
+aacraid:ID(0:02:0) Abort Time-out. Resetting bus.
+aacraid:SCSI bus reset issued on channel 0
+aacraid:Drive 0:0:0 online on container 0:
+aacraid:Drive 0:1:0 online on container 0:
+aacraid:Drive 0:2:0 online on container 0:
+aacraid:Drive 0:3:0 online on container 0:
 
-Perhaps typical end users are not our target market.  Instead, maybe we 
-should be targeting companies that sell workstations and servers who 
-want something which maximized stability, regardless of the cost and 
-performance.
+(The last I saw this it was during 2x dd if=/dev/sda of=/dev/null bs=1M
+count=1024)
 
-If you're selling a $5000 workstation, you might be willing to pay $300 
-for a graphics card that saves you thousands in customer support calls 
-that don't have to happen.
+We had firmware 5xxx and we hoped that 6011 will fix this issue.
 
+On the web of adaptec there is firmware version 7xxx. Is this version compatible
+with linux driver? (as there is written that for windows you need upgraded
+driver)
+
+-- 
+Luká¹ Hejtmánek

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbUJ0Jr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbUJ0Ju7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbUJ0Jr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 05:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbUJ0Jr3
+	id S262361AbUJ0Ju7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 05:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbUJ0Js2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 05:47:29 -0400
-Received: from fep01.ttnet.net.tr ([212.156.4.129]:43510 "EHLO
-	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S262358AbUJ0JoV
+	Wed, 27 Oct 2004 05:48:28 -0400
+Received: from fep03fe.ttnet.net.tr ([212.156.4.134]:40908 "EHLO
+	fep03.ttnet.net.tr") by vger.kernel.org with ESMTP id S262369AbUJ0JrM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 05:44:21 -0400
+	Wed, 27 Oct 2004 05:47:12 -0400
 X-Mailer: Openwave WebEngine, version 2.8.11 (webedge20-101-194-20030622)
 From: <sezeroz@ttnet.net.tr>
 To: <linux-kernel@vger.kernel.org>
 CC: <marcelo.tosatti@cyclades.com>
-Subject: 2.4.28-rc1, more lost patches [1/10]
-Date: Wed, 27 Oct 2004 12:42:42 +0300
+Subject: 2.4.28-rc1, more lost patches [8/10]
+Date: Wed, 27 Oct 2004 12:45:25 +0300
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=____1098870162559_s9Enxa3)Gd"
-Message-Id: <20041027094242.KAZP6935.fep01.ttnet.net.tr@localhost>
+	boundary="----=____1098870325334_Xg0s7H4EQ2"
+Message-Id: <20041027094525.KBVI6935.fep01.ttnet.net.tr@localhost>
 X-ESAFE-STATUS: Mail clean
 X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,65 +26,52 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=____1098870162559_s9Enxa3)Gd
+------=____1098870325334_Xg0s7H4EQ2
 Content-Type: text/plain;
 	charset=ISO-8859-9
 Content-Transfer-Encoding: 7bit
 
 
-[7/10] ide-scsi v0.94 from -ac/redhat. (By ???)
+[8/10] Wilfried Weissmann: hptraid v0.03. from -ac/redhat.
 
 
-------=____1098870162559_s9Enxa3)Gd
+------=____1098870325334_Xg0s7H4EQ2
 Content-Transfer-Encoding: base64
 Content-Type: application/octet-stream;
-	name="ide-scsi_v0.94.patch"
+	name="hptraid-v0.03.patch"
 Content-Disposition: inline;
-	filename="ide-scsi_v0.94.patch"
+	filename="hptraid-v0.03.patch"
 
-CmZyb20gaW4gLWFjL3JlZGhhdC4KCmRpZmYgLXVyTiAyOHJjMS9kcml2ZXJzL3Njc2kvaWRlLXNj
-c2kuYyAyOHJjMV9hYWMvZHJpdmVycy9zY3NpL2lkZS1zY3NpLmMKLS0tIDI4cmMxL2RyaXZlcnMv
-c2NzaS9pZGUtc2NzaS5jCTIwMDMtMTEtMjggMjA6MjY6MjAuMDAwMDAwMDAwICswMjAwCisrKyAy
-OHJjMV9hYWMvZHJpdmVycy9zY3NpL2lkZS1zY3NpLmMJMjAwNC0xMC0yNCAwMDo1ODoxMS4wMDAw
-MDAwMDAgKzAzMDAKQEAgLTEsNSArMSw1IEBACiAvKgotICogbGludXgvZHJpdmVycy9zY3NpL2lk
-ZS1zY3NpLmMJVmVyc2lvbiAwLjkzICAgIEp1bmUgMTAsIDIwMDIKKyAqIGxpbnV4L2RyaXZlcnMv
-c2NzaS9pZGUtc2NzaS5jCVZlcnNpb24gMC45NCAgICBTZXB0IDA5LCAyMDAzCiAgKgogICogQ29w
-eXJpZ2h0IChDKSAxOTk2IC0gMTk5OSBHYWRpIE94bWFuIDxnYWRpb0BuZXR2aXNpb24ubmV0Lmls
-PgogICogQ29weXJpZ2h0IChDKSAyMDAxIC0gMjAwMiBBbmRyZSBIZWRyaWNrIDxhbmRyZUBsaW51
-eC1pZGUub3JnPgpAQCAtMzUsOSArMzUsMTIgQEAKICAqIFZlciAwLjkyICBNYXIgMjEgMDIgICBJ
-bmNsdWRlIERldkZzIHN1cHBvcnQKICAqICAgICAgICAgICAgICAgICAgICAgICAgQm9yc2Vua293
-IEFuZHJlaiA8QW5kcmVqLkJvcnNlbmtvd0Btb3cuc2llbWVucy5ydT4KICAqIFZlciAwLjkzICBK
-dW4gMTAgMDIgICBGaXggIm9mZiBieSBvbmUiIGVycm9yIGluIHRyYW5zZm9ybXMKKyAqIFZlciAw
-Ljk0ICBTZXAgMDkgMDMgICBBZGRlZCB0cmFuc2Zvcm0gZm9yIHJlYWRpbmcgQVRBUEkgdGFwZSBk
-cml2ZSBibG9jaworICogICAgICAgICAgICAgICAgICAgICAgICBsaW1pdHMgKEFUQVBJIHRhcGVz
-IHJlcG9ydCBibG9jayBsaW1pdHMgaW4gbW9kZQorICogICAgICAgICAgICAgICAgICAgICAgICBw
-YWdlIDB4MkEsIG5vdCBieSAicmVhZCBibG9jayBsaW1pdHMiIGNvbW1hbmQpCiAgKi8KIAotI2Rl
-ZmluZSBJREVTQ1NJX1ZFUlNJT04gIjAuOTMiCisjZGVmaW5lIElERVNDU0lfVkVSU0lPTiAiMC45
-NCIKIAogI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgogI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5o
-PgpAQCAtMjM0LDYgKzIzNywyNSBAQAogCQkJcGMtPmJ1ZmZlcl9zaXplICs9IDQ7CiAJCX0KIAl9
-CisJaWYgKGRyaXZlLT5tZWRpYSA9PSBpZGVfdGFwZSkgeworCQlpZiAoc2NbMF0gPT0gUkVBRF9C
-TE9DS19MSU1JVFMpIHsJLyogSURFIHRhcGVzIGhhdmUgYmxrIGxtdHMgaW4gbW9kZSBwYWdlIDB4
-MmEgKi8KKwkJCWlmICghc2NzaV9idWYpCisJCQkJcmV0dXJuOworCQkJLyogYnVmZmVyIHNpemUg
-c2hvdWxkIGJlIDYgZm9yIFJFQURfQkxPQ0tfTElNSVRTICAgICovCisJCQkvKiB3ZSBuZWVkIDEy
-IGJ5dGVzICg0IGZvciBoZWFkZXIgKyA4IGZvciBtb2RlIHBhZ2UgKi8KKwkJCWlmICgoYXRhcGlf
-YnVmID0ga21hbGxvYygxMiwgR0ZQX0FUT01JQykpID09IE5VTEwpCisJCQkJcmV0dXJuOworCQkJ
-bWVtc2V0KGF0YXBpX2J1ZiwgMCwgMTIpOworCQkJbWVtc2V0IChjLCAwLCAxMik7CisJCQljWzBd
-ID0gTU9ERV9TRU5TRTsKKwkJCWNbMV0gPSA4OyAgCS8qIG5vIGJsb2NrIGRlc2NyaXB0b3JzICAg
-ICAqLworCQkJY1syXSA9IDB4MkE7CS8qIG1vZGUgcGFnZSAweDJBICAgICAgICAgICAqLworCQkJ
-Y1s0XSA9IDEyOwkvKiBidWZmZXIgbGVuZ3RoIDEyIGRlY2ltYWwgKi8KKwkJCXBjLT5idWZmZXIg
-PSBhdGFwaV9idWY7CisJCQlwYy0+cmVxdWVzdF90cmFuc2ZlciA9IDEyOworCQkJcGMtPmJ1ZmZl
-cl9zaXplID0gMTI7CisJCX0KKwl9CiB9CiAKIHN0YXRpYyBpbmxpbmUgdm9pZCBpZGVzY3NpX3Ry
-YW5zZm9ybV9wYzIgKGlkZV9kcml2ZV90ICpkcml2ZSwgaWRlc2NzaV9wY190ICpwYykKQEAgLTI2
-Miw3ICsyODQsMTkgQEAKIAkJCS8qIHJlc3BvbnNlIGRhdGEgZm9ybWF0ICovCiAJCQlzY3NpX2J1
-ZlszXSA9IChzY3NpX2J1ZlszXSAmIDB4ZjApIHwgMjsKIAkJfQorCX0JCisJaWYgKGRyaXZlLT5t
-ZWRpYSA9PSBpZGVfdGFwZSkgeworCQlpZiAoc2NbMF0gPT0gUkVBRF9CTE9DS19MSU1JVFMpIHsK
-KwkJCW1lbXNldChzY3NpX2J1ZiwgMCwgcGMtPnNjc2lfY21kLT5yZXF1ZXN0X2J1ZmZsZW4pOwor
-CQkJLyogZ3JhbnVsYXJpdHkgb2YgOSAoYWx3YXlzIDkgZm9yIGlkZSB0YXBlcykgKi8KKwkJCXNj
-c2lfYnVmWzBdID0gOTsKKwkJCS8qIGJsb2NrIGxlbmd0aCBvZiAxMDI0IGJ5dGVzIHN1cHBvcnRl
-ZD8gKi8KKwkJCXNjc2lfYnVmWzJdID0gKGF0YXBpX2J1ZlsxMV0gJiAweDA0KSA/IDQgOiAyOwor
-CQkJLyogYmxvY2sgbGVuZ3RoIG9mIDUxMiBieXRlcyBzdXBwb3J0ZWQ/ICAqLworCQkJc2NzaV9i
-dWZbNF0gPSAoYXRhcGlfYnVmWzExXSAmIDB4MDIpID8gMiA6IDQ7CisJCX0KIAl9CisKIAlpZiAo
-YXRhcGlfYnVmICYmIGF0YXBpX2J1ZiAhPSBzY3NpX2J1ZikKIAkJa2ZyZWUoYXRhcGlfYnVmKTsK
-IH0KCg==
+CldpbGZyaWVkIFdlaXNzbWFubgpodHRwOi8vbWFyYy50aGVhaW1zZ3JvdXAuY29tLz9sPWxpbnV4
+LWtlcm5lbCZtPTEwNjI4NzgyNzYyODM3OCZ3PTIKaW4gLWFjL3JlZGhhdAoKZGlmZiAtdXJOIDI4
+cmMxL2RyaXZlcnMvaWRlL3JhaWQvaHB0cmFpZC5jIDI4cmMxX2FhYy9kcml2ZXJzL2lkZS9yYWlk
+L2hwdHJhaWQuYwotLS0gMjhyYzEvZHJpdmVycy9pZGUvcmFpZC9ocHRyYWlkLmMJMjAwNC0wMi0x
+OCAxNTozNjozMS4wMDAwMDAwMDAgKzAyMDAKKysrIDI4cmMxX2FhYy9kcml2ZXJzL2lkZS9yYWlk
+L2hwdHJhaWQuYwkyMDA0LTEwLTI0IDAwOjU4OjEwLjAwMDAwMDAwMCArMDMwMApAQCAtMTgsNyAr
+MTgsMTEgQEAKICAgIEJhc2VkIG9uIHdvcmsgZG9uZSBieSBT+HJlbiBTY2htaWR0IGZvciBGcmVl
+QlNECiAKICAgIENoYW5nZWxvZzoKLSAgIDE1LjA2LjIwMDMgd3dlaXNzbWFubkBnbXguYXQKKyAg
+IDE5LjA4LjIwMDMgdjAuMDMgd3dlaXNzbWFubkBnbXguYXQKKyAgIAkqIHJlZ2lzdGVyIHRoZSBy
+YWlkIHZvbHVtZSBvbmx5IGlmIGFsbCBkaXNrcyBhcmUgYXZhaWxhYmxlCisJKiBwcmludCBhIHdh
+cm5pbmcgdGhhdCByYWlkLSgwKykxIGZhaWxvdmVyIGlzIG5vdCBzdXBwb3J0ZWQKKworICAgMTUu
+MDYuMjAwMyB2MC4wMiB3d2Vpc3NtYW5uQGdteC5hdAogICAgCSogY29ycmVjdCB2YWx1ZXMgb2Yg
+cmFpZC0xIHN1cGVyYm9jawogCSogcmUtYWRkIGNoZWNrIGZvciBhdmFpbGFiaWxpdHkgb2YgYWxs
+IGRpc2tzCiAJKiBmaXggb2Zmc2V0IGJ1ZyBpbiByYWlkLTEgKGludHJvZHVjZWQgaW4gcmFpZCAw
+KzEgaW1wbGVtZW50YXRpb24pCkBAIC04MTQsMTAgKzgxOCw2IEBACiAJCQlicmVhazsKIAl9CiAK
+LQkvKiBJbml0aWFsaXplIHRoZSBnZW5kaXNrIHN0cnVjdHVyZSAqLwotCQotCWF0YXJhaWRfcmVn
+aXN0ZXJfZGlzayhkZXZpY2UscmFpZFtkZXZpY2VdLnNlY3RvcnMpOwotCiAJLyogVmVyaWZ5IHRo
+YXQgd2UgaGF2ZSBhbGwgZGlza3MgKi8KIAogCWNvdW50PWNvdW50X2Rpc2tzKHJhaWQrZGV2aWNl
+KTsKQEAgLTg0NCw3ICs4NDQsMTcgQEAKIAkJCQkJcmV0dXJuIC1FTk9ERVY7CiAJCQkJfQogCQkJ
+fQorCQkJcHJpbnRrKEtFUk5fV0FSTklORyAiYXRhcmFpZCVpOiByYWlkLTArMSBkaXNrIGZhaWxv
+dmVyIGlzIG5vdCBpbXBsZW1lbnRlZCFcbiIsCisJCQkJCWRldmljZSk7CiAJCX0KKwkJZWxzZSBp
+ZiAodHlwZSA9PSBIUFRfVF9SQUlEXzEpIHsKKwkJCXByaW50ayhLRVJOX1dBUk5JTkcgImF0YXJh
+aWQlaTogcmFpZC0xIGRpc2sgZmFpbG92ZXIgaXMgbm90IGltcGxlbWVudGVkIVxuIiwKKwkJCQkJ
+ZGV2aWNlKTsKKwkJfQkKKwkJLyogSW5pdGlhbGl6ZSB0aGUgZ2VuZGlzayBzdHJ1Y3R1cmUgKi8K
+KwkKKwkJYXRhcmFpZF9yZWdpc3Rlcl9kaXNrKGRldmljZSxyYWlkW2RldmljZV0uc2VjdG9ycyk7
+CisKIAkJcmV0dXJuIDA7CiAJfQogCQpAQCAtODU2LDcgKzg2Niw3IEBACiAgCWludCByZXR2YWw9
+LUVOT0RFVjsKIAlpbnQgZGV2aWNlLGksY291bnQ9MDsKICAgCQotCXByaW50ayhLRVJOX0lORk8g
+IkhpZ2hwb2ludCBIUFQzNzAgU29mdHdhcmVyYWlkIGRyaXZlciBmb3IgbGludXggdmVyc2lvbiAw
+LjAyXG4iKTsKKwlwcmludGsoS0VSTl9JTkZPICJIaWdocG9pbnQgSFBUMzcwIFNvZnR3YXJlcmFp
+ZCBkcml2ZXIgZm9yIGxpbnV4IHZlcnNpb24gMC4wM1xuIik7CiAKIAlmb3IoaT0wOyBvcGxpc3Rb
+aV0ub3A7IGkrKykgewogCQlkbwo=
 
-------=____1098870162559_s9Enxa3)Gd--
+------=____1098870325334_Xg0s7H4EQ2--

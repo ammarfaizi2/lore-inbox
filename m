@@ -1,46 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVALPXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVALPax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVALPXK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 10:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVALPXJ
+	id S261216AbVALPax (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 10:30:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVALPax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 10:23:09 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:57292 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261220AbVALPUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 10:20:11 -0500
-Message-ID: <41E53F27.9000502@nortelnetworks.com>
-Date: Wed, 12 Jan 2005 09:15:51 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: selvakumar nagendran <kernelselva@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Removing a module even if use count is not zero
-References: <20050112085345.88349.qmail@web60607.mail.yahoo.com>
-In-Reply-To: <20050112085345.88349.qmail@web60607.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 10:30:53 -0500
+Received: from cgk88.neoplus.adsl.tpnet.pl ([83.30.238.88]:35970 "EHLO
+	wenus.kolkowski.no-ip.org") by vger.kernel.org with ESMTP
+	id S261216AbVALPZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 10:25:44 -0500
+Date: Wed, 12 Jan 2005 16:25:42 +0100
+From: Damian Kolkowski <damian@kolkowski.no-ip.org>
+To: linux-kernel@vger.kernel.org
+Subject: [TEMPERATURE] - AMD Sempron, no CPU temperature (throttling control = no).
+Message-ID: <20050112152542.GENTOO-LINUX-ROX.A9707@kolkowski.no-ip.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-GPG-Key: 0xB2C5DE03 (http://kolkowski.no-ip.org/damian.asc x-hkp://wwwkeys.eu.pgp.net)
+X-Girl: 1 will be enough!
+X-Age: 24 (1980.09.27 - libra)
+X-IM: JID:deimos@chrome.pl ICQ:59367544 GG:88988
+X-Operating-System: Gentoo Linux, kernel 2.6.10-gentoo-r4, up 24 min
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-selvakumar nagendran wrote:
-> hello linux-experts,
->     I inserted my module into the running kernel that
-> intercepts read system call. I am using kernel 2.4.28.
-> Now, I am unable to remove it since each and every
-> time, the module is used by some process. How can I
-> remove the module even if the usecount is not zero?
->     Can anyone help me regarding this?
+Hello,
 
-As already said, you need to reboot.
+I have a new MSI FSR Delta (VIA_KT880) and AMD Sempron 2600+, and now after
+loading _processor_ module I do not have CPU temperature in /proc/,
+and _thermal_ module is not working.
 
-To fix this in the future, export a /proc entry that when written to 
-causes your module to properly clean everything up and prevent anyone 
-from getting new accesses.  This then allows you to remove the module 
-cleanly.  Note that it may not be possible to cleanly deregister, 
-depending on what your module is doing.
+Question:
+1. Is this an ACPI fault that my CPU is not compatible in kernel?
 
-Chris
+Result from /proc/:
+./proc/acpi/processor/CPU1. # v   
+razem 0
+dr-xr-xr-x  2 root root 0 sty 11 21:54 .
+dr-xr-xr-x  3 root root 0 sty 11 21:54 ..
+-r--r--r--  1 root root 0 sty 11 21:54 info
+-rw-r--r--  1 root root 0 sty 11 21:54 limit
+-r--r--r--  1 root root 0 sty 11 21:54 power
+-rw-r--r--  1 root root 0 sty 11 21:54 throttling
+./proc/acpi/processor/CPU1. # cat *
+processor id:            0
+acpi id:                 1
+bus mastering control:   no
+power management:        no
+throttling control:      no
+limit interface:         no
+<not supported>
+active state:            C1
+default state:           C1
+max_cstate:              C3
+bus master activity:     00000000
+states:
+   *C1:                  promotion[--] demotion[--] latency[000] usage[00000000]
+    C2:                  <not supported>
+    C3:                  <not supported>
+<not supported>
+./proc/acpi/processor/CPU1. # uname -a
+Linux uran 2.6.10-gentoo-r3 #2 Sat Jan 8 20:12:30 CET 2005 i686 AMD Sempron(tm) 2600+ AuthenticAMD GNU/Linux
+./proc/acpi/processor/CPU1. # lspci
+0000:00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0269
+0000:00:00.1 Host bridge: VIA Technologies, Inc.: Unknown device 1269
+0000:00:00.2 Host bridge: VIA Technologies, Inc.: Unknown device 2269
+0000:00:00.3 Host bridge: VIA Technologies, Inc.: Unknown device 3269
+0000:00:00.4 Host bridge: VIA Technologies, Inc.: Unknown device 4269
+0000:00:00.7 Host bridge: VIA Technologies, Inc.: Unknown device 7269
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
+0000:00:0b.0 Ethernet controller: VIA Technologies, Inc. VT6120/VT6121/VT6122 Gigabit Ethernet Adapter (rev 11)
+0000:00:0f.0 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [KT600/K8T800 South]
+0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV250 If [Radeon 9000] (rev 01)
+0000:01:00.1 Display controller: ATI Technologies Inc Radeon RV250 [Radeon 9000] (Secondary) (rev 01)
+./proc/acpi/processor/CPU1. # 
+
+Now I have "throttling control" with issue "no", so ACPI is an author of that
+mistake?
+
+Take care.
+
+P.S. I am using setpci to cool my CPU. Like this:
+
+.~. $ cat /etc/conf.d/local.start | grep -v ^# | grep setpci
+setpci -H1 -s 0:0.0 82=$(printf %x $((0x$(setpci -H1 -s 0:0.0 82) | 0x80)))
+setpci -H1 -s 0:0.0 85=$(printf %x $((0x$(setpci -H1 -s 0:0.0 85) | 0x02)))
+.~. $ 
+
+-- 
+### Damian Ko³kowski (dEiMoS) ## http://kolkowski.no-ip.org/ ###
+# echo teb.cv-ba.vxfjbxybx.anvznq | rot13 | rev | sed s/\\./@/ #

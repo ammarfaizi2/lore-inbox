@@ -1,69 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263202AbUKTXMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263175AbUKTXLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263202AbUKTXMT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 18:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbUKTXMD
+	id S263175AbUKTXLc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 18:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbUKTXLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 18:12:03 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:11915 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S263202AbUKTXJY (ORCPT
+	Sat, 20 Nov 2004 18:11:31 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:5771 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S263175AbUKTXJG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 18:09:24 -0500
+	Sat, 20 Nov 2004 18:09:06 -0500
 To: akpm@osdl.org, torvalds@osdl.org
 CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/13] Filesystem in Userspace
-Message-Id: <E1CVeM1-0007Ot-00@dorka.pomaz.szeredi.hu>
+Subject: [PATCH 1/13] Filesystem in Userspace
+Message-Id: <E1CVeLj-0007Oe-00@dorka.pomaz.szeredi.hu>
 From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sun, 21 Nov 2004 00:09:17 +0100
+Date: Sun, 21 Nov 2004 00:08:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds FUSE filesystem to MAINTAINERS, fs/Kconfig and
-fs/Makefile.
+This patch adds an empty /sys/fs, which filesystems can use.
 
 Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
---- linux-2.6.10-rc2/fs/Kconfig	2004-11-20 21:14:44.000000000 +0100
-+++ linux-2.6.10-rc2-fuse/fs/Kconfig	2004-11-20 12:50:30.000000000 +0100
-@@ -492,6 +492,19 @@ config AUTOFS4_FS
- 	  local network, you probably do not need an automounter, and can say
- 	  N here.
+diff -ru linux-2.6.10-rc2.orig/fs/filesystems.c linux-2.6.10-rc2/fs/filesystems.c
+--- linux-2.6.10-rc2.orig/fs/filesystems.c	2004-11-17 17:33:26.000000000 +0100
++++ linux-2.6.10-rc2/fs/filesystems.c	2004-11-18 14:34:07.000000000 +0100
+@@ -29,6 +29,7 @@
  
-+config FUSE
-+	tristate "Filesystem in Userspace support"
-+	help
-+	  With FUSE it is possible to implement a fully functional filesystem
-+	  in a userspace program.  
-+
-+	  There's also companion library: libfuse.  This library along with
-+	  utilities is available from the FUSE homepage:
-+	  <http://fuse.sourceforge.net/>
-+
-+	  If you want to develop a userspace FS, or if you want to use
-+	  a filesystem based on FUSE, answer Y or M.
-+
- menu "CD-ROM/DVD Filesystems"
+ static struct file_system_type *file_systems;
+ static rwlock_t file_systems_lock = RW_LOCK_UNLOCKED;
++static decl_subsys(fs, NULL, NULL);
  
- config ISO9660_FS
---- linux-2.6.10-rc2/fs/Makefile	2004-11-20 21:14:51.000000000 +0100
-+++ linux-2.6.10-rc2-fuse/fs/Makefile	2004-11-20 13:41:14.000000000 +0100
-@@ -94,3 +94,4 @@ obj-$(CONFIG_AFS_FS)		+= afs/
- obj-$(CONFIG_BEFS_FS)		+= befs/
- obj-$(CONFIG_HOSTFS)		+= hostfs/
- obj-$(CONFIG_HPPFS)		+= hppfs/
-+obj-$(CONFIG_FUSE)		+= fuse/
---- linux-2.6.10-rc2/MAINTAINERS	2004-11-20 21:14:30.000000000 +0100
-+++ linux-2.6.10-rc2-fuse/MAINTAINERS	2004-11-17 10:15:45.000000000 +0100
-@@ -861,6 +861,13 @@ L:	linux-tape@vger.kernel.org
- W:	http://sourceforge.net/projects/ftape
- S:	Orphan
+ /* WARNING: This can be used only if we _already_ own a reference */
+ void get_filesystem(struct file_system_type *fs)
+@@ -234,3 +235,17 @@
+ }
  
-+FUSE: FILESYSTEM IN USERSPACE
-+P:	Miklos Szeredi
-+M:	miklos@szeredi.hu
-+L:	fuse-devel@lists.sourceforge.net
-+W:	http://fuse.sourceforge.net/
-+S:	Maintained
+ EXPORT_SYMBOL(get_fs_type);
 +
- FUTURE DOMAIN TMC-16x0 SCSI DRIVER (16-bit)
- P:	Rik Faith
- M:	faith@cs.unc.edu
++int fs_subsys_register(struct subsystem *sub)
++{
++	kset_set_kset_s(sub, fs_subsys);
++	return subsystem_register(sub);
++}
++
++EXPORT_SYMBOL(fs_subsys_register);
++
++int __init fs_subsys_init(void)
++{
++	/* register fs_subsys */
++	return subsystem_register(&fs_subsys);
++}
+diff -ru linux-2.6.10-rc2.orig/fs/namespace.c linux-2.6.10-rc2/fs/namespace.c
+--- linux-2.6.10-rc2.orig/fs/namespace.c	2004-11-17 17:33:28.000000000 +0100
++++ linux-2.6.10-rc2/fs/namespace.c	2004-11-18 14:39:21.000000000 +0100
+@@ -26,6 +26,7 @@
+ #include <asm/unistd.h>
+ 
+ extern int __init init_rootfs(void);
++extern int __init fs_subsys_init(void);
+ 
+ #ifdef CONFIG_SYSFS
+ extern int __init sysfs_init(void);
+@@ -1436,6 +1437,7 @@
+ 		i--;
+ 	} while (i);
+ 	sysfs_init();
++	fs_subsys_init();
+ 	init_rootfs();
+ 	init_mount_tree();
+ }
+diff -ru linux-2.6.10-rc2.orig/include/linux/fs.h linux-2.6.10-rc2/include/linux/fs.h
+--- linux-2.6.10-rc2.orig/include/linux/fs.h	2004-11-17 17:33:46.000000000 +0100
++++ linux-2.6.10-rc2/include/linux/fs.h	2004-11-18 14:19:19.000000000 +0100
+@@ -1185,6 +1185,9 @@
+ 
+ extern int vfs_statfs(struct super_block *, struct kstatfs *);
+ 
++/* Register filesystem specific subsystem under /sys/fs */
++extern int fs_subsys_register(struct subsystem *sub);
++
+ /* Return value for VFS lock functions - tells locks.c to lock conventionally
+  * REALLY kosha for root NFS and nfs_lock
+  */ 

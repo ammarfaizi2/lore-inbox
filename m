@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310249AbSCKRKl>; Mon, 11 Mar 2002 12:10:41 -0500
+	id <S310256AbSCKRKE>; Mon, 11 Mar 2002 12:10:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310279AbSCKRKc>; Mon, 11 Mar 2002 12:10:32 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:2179 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S310249AbSCKRKU>; Mon, 11 Mar 2002 12:10:20 -0500
-Date: Mon, 11 Mar 2002 12:12:36 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IDE on linux-2.4.18
-In-Reply-To: <E16kTI9-00016T-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.95.1020311120825.2860A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310261AbSCKRJw>; Mon, 11 Mar 2002 12:09:52 -0500
+Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:21774 "HELO
+	discworld.dyndns.org") by vger.kernel.org with SMTP
+	id <S310256AbSCKRJr>; Mon, 11 Mar 2002 12:09:47 -0500
+Date: Mon, 11 Mar 2002 11:10:19 -0600
+From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19
+Message-ID: <20020311111019.F25601@twoflower.internal.do>
+In-Reply-To: <E16kT8L-00014f-00@the-village.bc.nu> <3C8CE34B.4030800@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C8CE34B.4030800@evision-ventures.com>; from dalecki@evision-ventures.com on Mon, Mar 11, 2002 at 06:03:07PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Alan Cox wrote:
-
-> > hda: 20044080 sectors (10263 MB) w/418KiB Cache, CHS=1024/255/63, UDMA(33)
-> > Partition check:
-> >  hda: hda1 hda2 < hda5 hda6 >
-> > hd: unable to get major 3 for hard disk
+Martin Dalecki <dalecki@evision-ventures.com> wrote:
 > 
-> ^^^^^^^^^^^^^^^^^^
-> 
-> Case dismissed ;)
+> For your information: I have read the standard papers and comments
+> to them. But the application notes from IBM and actual code
+> from different operating systems gives a much better formal
+> description of what is needed anyway. Or are you going to claim
+> that narrative languaue is more precise then actual C code?
 
-I haven't a clue what you are saying. Every IDE option that is allowed
-is enabled in .config. The IDE drive(s) are found, but you imply, no
-state, that I did something wrong. You state that I haven't enabled
-something? I enabled everything that 'make config` allowed me to
-enable. Now what is it?
+It appears that you're confusing an implementation of a specification with the
+specification itself.  The specification wins out, and therefore you can't
+just copy the behvaiour of another implementation.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-	Bill Gates? Who?
-
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

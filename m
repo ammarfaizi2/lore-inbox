@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266777AbSLJVSH>; Tue, 10 Dec 2002 16:18:07 -0500
+	id <S266755AbSLJVRe>; Tue, 10 Dec 2002 16:17:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266792AbSLJVSH>; Tue, 10 Dec 2002 16:18:07 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:64153 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266777AbSLJVSG>;
-	Tue, 10 Dec 2002 16:18:06 -0500
-Date: Tue, 10 Dec 2002 13:22:07 -0800 (PST)
-Message-Id: <20021210.132207.23687680.davem@redhat.com>
-To: raul@pleyades.net
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [BK-2.4] [PATCH] Small do_mmap_pgoff correction
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021210205906.GA82@DervishD>
-References: <20021210204530.GA63@DervishD>
-	<20021210.124740.86261163.davem@redhat.com>
-	<20021210205906.GA82@DervishD>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266772AbSLJVRe>; Tue, 10 Dec 2002 16:17:34 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:24468 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S266755AbSLJVRd>; Tue, 10 Dec 2002 16:17:33 -0500
+Date: Tue, 10 Dec 2002 14:18:11 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: <linux-kernel@vger.kernel.org>, <allan.d@bigpond.com>
+Subject: Re: Linux 2.5.51
+In-Reply-To: <9EC19CF6B8E@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.33.0212101416410.2617-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: DervishD <raul@pleyades.net>
-   Date: Tue, 10 Dec 2002 21:59:06 +0100
-   
-       Because PAGE_ALIGN won't return 0?
 
-What if TASK_SIZE is ~0?  Both your checks will pass
-for the case of (SIZE_MAX-PAGE_SIZE + 1) to ~0 cases.
+> Hi James,
+>   I'm glad to see that fbdev changes finally arrived, so I can look at them
+> without using your patches ;-) If you have some changes to matroxfb besides
+> ones which are in the tree, please send me them... because of I really
+> need matroxfb running on my machine, I'll make it top priority, just below
+> my "real" work.
+
+I have no additional patches for the matroxfb driver. I do have the
+hardware but never got around to porting the driver.
+
 

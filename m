@@ -1,115 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbTJ2OaS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 09:30:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbTJ2OaS
+	id S261471AbTJ2OcX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 09:32:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTJ2OcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 09:30:18 -0500
-Received: from quechua.inka.de ([193.197.184.2]:37587 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261347AbTJ2OaK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 09:30:10 -0500
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
-Date: Wed, 29 Oct 2003 15:30:30 +0100
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
-Message-Id: <pan.2003.10.29.14.30.29.628488@dungeon.inka.de>
-References: <3F9D82F0.4000307@mvista.com> <20031027210054.GR24286@marowsky-bree.de> <3F9D8AAA.7010308@mvista.com> <20031028110034.GG30725@marowsky-bree.de> <1067364727.4612.359.camel@persist.az.mvista.com> <20031028224416.GA8671@kroah.com>
+	Wed, 29 Oct 2003 09:32:23 -0500
+Received: from multiserv.relex.ru ([213.24.247.63]:27858 "EHLO
+	mail.techsupp.relex.ru") by vger.kernel.org with ESMTP
+	id S261471AbTJ2OcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 09:32:22 -0500
+From: Yaroslav Rastrigin <yarick@relex.ru>
+Organization: RELEX Inc.
 To: linux-kernel@vger.kernel.org
+Subject: Re: ACPI && vortex still broken in latest 2.4 and 2.6.0-test9
+Date: Wed, 29 Oct 2003 18:32:22 +0300
+User-Agent: KMail/1.5.4
+References: <20031029134848.GA949@hello-penguin.com> <20031029140317.GF10693@merlin.emma.line.org>
+In-Reply-To: <20031029140317.GF10693@merlin.emma.line.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310291832.22650.yarick@relex.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Oct 2003 22:52:33 +0000, Greg KH wrote:
-> For SDE:
-> $ find . -type f | egrep '[.c|.h]$' | xargs wc -l | tail -1
->   57328 total
-...
+Hi !
+On Wednesday 29 October 2003 17:03, Matthias Andree wrote:
+> > Affected are at least
+> > IBM Thinkpad T21  http://lkml.org/lkml/2003/6/15/111
+> > IBM Thinkpad A21p (3c556B Laptop Hurricane)
+>
+> Might the problems you observe be related to the IBM BIOS?
+Yes. With IBM's DSDT, to be more specific. I've filed a bug in the bugzilla, 
+and tried to track it down, under careful guidance of Yu Luming, but general 
+lack of time stops me from actively pursuing this target. 
+Similar threads are appearing on this list regularly, and symptoms are very 
+close to this bug, so I'm sure this will be fixed eventually (someone's 
+comment about card not powering up (not entering D0) seems to be very close 
+to the truth).
 
-> For udev:
-> $ find . -type f | egrep '[.c|.h]$' | xargs wc -l | tail -1
->   17632 total
-
-Here is a config file and a 41 lines shell script, that
-will populate /udev with all devices found via /sys.
-A version to add or remove only one file should be about
-the same size.
-
----cat /etc/makedev.conf---
-ttyS0 root dialout 0660
-zero root root 0666
-null root root 0666
-
----cat makedev---
-#!/bin/sh
-
-set -e
-
-DEV=/udev
-CONFIG=/etc/makedev.conf
-
-cd $DEV
-
-find /sys/class -name dev |while read A;
-do
-	B=`dirname $A`
-	B=`basename $B`
-	MM=`cat $A|tr ":" " "`
-	mknod --mode=0600 $B c $MM
-	if grep -q "$B " $CONFIG
-	then
-		USER=`grep "$B " $CONFIG|cut -d" " -f2`
-		GROUP=`grep "$B " $CONFIG|cut -d" " -f3`
-		MODE=`grep "$B " $CONFIG|cut -d" " -f4`
-		chown $USER.$GROUP $B
-		chmod $MODE $B
-	fi
-done
-
-find /sys/block -name dev |while read A;
-do
-	B=`dirname $A`
-	B=`basename $B`
-	MM=`cat $A|tr ":" " "`
-	mknod --mode=0600 $B b $MM
-	if grep -q "$B " $CONFIG
-	then
-		USER=`grep "$B " $CONFIG|cut -d" " -f2`
-		GROUP=`grep "$B " $CONFIG|cut -d" " -f3`
-		MODE=`grep "$B " $CONFIG|cut -d" " -f4`
-		chown $USER.$GROUP $B
-		chmod $MODE $B
-	fi
-done
----cut---
-
-So udev is 99% overhead?
-
-sure, it's fast and small, and has lots of features that I don't need.
-
-> 	SDE:	57328 lines
-> 	udev:	 9090 lines
- shell script:     41 lines
-
-> that udev is suffering from "lack of maintainability and bloat" if you
-> really want :)
-
-bloat. lots of bloat. what is that tdb database for?
-filesystems are persistent. if you want to save space,
-create a tar file :-) 
-
-> p.s. yes, I know lines of code is a horrible metric, and doesn't really
-> mean squat.  I just want to point out the huge size difference between
-> the current state of udev and SDE, with pretty much identical
-> functionality from what I can tell.
-
-I agree. lines of codes is a horrible metric, and comparing a shell
-script that uses many external commands to a c application with
-everything build is makes absolutely no sense. but I wonder why
-the off the shelf machine needs a c applications, if all those
-external commands are installed anyway.
-
-Regards, Andreas
+-- 
+With all the best, yarick at relex dot ru.
 

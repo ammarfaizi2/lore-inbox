@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269261AbUJKVR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269245AbUJKVZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269261AbUJKVR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 17:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269260AbUJKVRz
+	id S269245AbUJKVZI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 17:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269257AbUJKVZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 17:17:55 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:50053 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S269277AbUJKVRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 17:17:49 -0400
-Subject: Re: Totally broken PCI PM calls
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: David Brownell <david-b@pacbell.net>
-Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200410110936.37268.david-b@pacbell.net>
-References: <1097455528.25489.9.camel@gaston>
-	 <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
-	 <16746.299.189583.506818@cargo.ozlabs.ibm.com>
-	 <200410110936.37268.david-b@pacbell.net>
-Content-Type: text/plain
-Message-Id: <1097529469.4523.3.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 12 Oct 2004 07:17:50 +1000
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Oct 2004 17:25:08 -0400
+Received: from smtp4.netcabo.pt ([212.113.174.31]:30865 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S269245AbUJKVZB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 17:25:01 -0400
+Message-ID: <32863.192.168.1.5.1097529721.squirrel@192.168.1.5>
+In-Reply-To: <20041011142953.GA32607@elte.hu>
+References: <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>
+    <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu>
+    <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu>
+    <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu>
+    <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu>
+    <20041011142953.GA32607@elte.hu>
+Date: Mon, 11 Oct 2004 22:22:01 +0100 (WEST)
+Subject: Re: [patch] CONFIG_PREEMPT_REALTIME, 'Fully Preemptible Kernel',
+      VP-2.6.9-rc4-mm1-T4
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       "K.R. Foley" <kr@cybsft.com>, "Florian Schmidt" <mista.tapas@gmx.net>,
+       mark_h_johnson@raytheon.com,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Daniel Walker" <dwalker@mvista.com>, "Andrew Morton" <akpm@osdl.org>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 11 Oct 2004 21:24:59.0846 (UTC) FILETIME=[C359DE60:01C4AFD8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David.
+> Ingo Molnar
+>
+> i've released the -T4 VP patch:
+>
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T4
+>
 
-On Tue, 2004-10-12 at 02:36, David Brownell wrote:
-> I've made that point too.  STD is logically a few steps:  quiesce system,
-> write image to swap, change power state.  The ACPI spec talks about
-> that as keeping the system in a G1/S4 powered state, but "swusp"
-> doesn't use that ... it does a full power-off.   And of course, full power-off
-> means that the BIOS probably mucks with the USB hardware, so it's
-> not a real resume any more.
+Very rough indeed. First and only attempt on my SMP/HT box stumbled very
+early at make time (CONFIG_PREEMPT_REALTIME=y):
+...
+arch/i386/kernel/i386_ksyms.c:166: error: `rtc_lock' undeclared here (not
+in a function)
+arch/i386/kernel/i386_ksyms.c:166: error: initializer element is not constant
+arch/i386/kernel/i386_ksyms.c:166: error: (near initialization for
+`__ksymtab_rtc_lock.value')
+arch/i386/kernel/i386_ksyms.c:177: error: `atomic_dec_and_lock' undeclared
+here(not in a function)
+arch/i386/kernel/i386_ksyms.c:177: error: initializer element is not constant
+arch/i386/kernel/i386_ksyms.c:177: error: (near initialization for
+`__ksymtab_atomic_dec_and_lock.value')
+arch/i386/kernel/i386_ksyms.c:166: error: __ksymtab_rtc_lock causes a
+section type conflict
+arch/i386/kernel/i386_ksyms.c:177: error: __ksymtab_atomic_dec_and_lock
+causes a section type conflict
+make[1]: *** [arch/i386/kernel/i386_ksyms.o] Error 1
+make: *** [arch/i386/kernel] Error 2
 
-That's not necessarily true. Swsusp and suspend2 both include support
-for enter ACPI S4 state. For suspend2 it's optional (to allow for broken
-bioses). Not sure about whether it is with swsusp.
-
-Regards,
-
-Nigel
+Bye.
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 

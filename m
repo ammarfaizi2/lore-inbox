@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292312AbSBBP5g>; Sat, 2 Feb 2002 10:57:36 -0500
+	id <S292311AbSBBQHm>; Sat, 2 Feb 2002 11:07:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292311AbSBBP50>; Sat, 2 Feb 2002 10:57:26 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:56073 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S292316AbSBBP5O>;
-	Sat, 2 Feb 2002 10:57:14 -0500
-Date: Sat, 2 Feb 2002 13:56:47 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Rob Landley <landley@trommello.org>
-Cc: Larry McVoy <lm@bitmover.com>,
-        Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        Keith Owens <kaos@ocs.com.au>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper change granularity (was Re: A modest proposal -- We
- need a patch penguin)
-In-Reply-To: <20020202001058.UXDU10685.femail14.sdc1.sfba.home.com@there>
-Message-ID: <Pine.LNX.4.33L.0202021355490.17850-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S292313AbSBBQHc>; Sat, 2 Feb 2002 11:07:32 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:49669 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S292311AbSBBQHS>; Sat, 2 Feb 2002 11:07:18 -0500
+Message-ID: <3C5C0EAE.6266F70A@linux-m68k.org>
+Date: Sat, 02 Feb 2002 17:07:10 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Howells <dhowells@redhat.com>
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] syscall latency improvement #1 (253p6)
+In-Reply-To: <9849.1012317950@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Feb 2002, Rob Landley wrote:
-> On Friday 01 February 2002 11:38 am, Larry McVoy wrote:
->
-> > You are presupposing that all the developers are checking in many bad
-> > changes and only one good change.  And that all the bad changes are
-> > obscuring the good ones.  That a correct statement of your beliefs?
-> >
-> > If so, what you are describing is called "hacking" in the negative
-> > sense of the word, and what my customers do is called "programming".
->
-> Designing while coding is not a bad thing.  It's often considerably more
-> efficient than spending a bunch of time up front coming up with an ivory
-> tower design that doesn't work in practice.  Very few battle plans survive
-> the first engagement with the enemy.  (It's nice to HAVE one.  But if you
-> can't adapt when you're in the thick of things, you're in trouble.)
+Hi,
 
-You're confusing designing with "coming up with the most
-inflexible idea possible".
+David Howells wrote:
 
-I believe this says more about your experience (or skills)
-with designing than about the practice of coming up with
-a design before you start implementing.
+> +/* this struct must occupy one 32-bit chunk so that is can be read in one go */
+> +struct task_work {
+> +       __s8    need_resched;
+> +       __u8    syscall_trace;  /* count of syscall interceptors */
+> +       __u8    sigpending;
+> +       __u8    notify_resume;  /* request for notification on
+> +                                  userspace execution resumption */
+> +} __attribute__((packed));
+> +
 
-regards,
+Did you test whether single stepping over a single syscall works? From
+reading the patch/source I can't see how it should, but I haven't tested
+it yet. The problem is that syscall tracing is only important at syscall
+entry. At syscall exit we have to check whether single stepping is
+active. These are two different operations, but I only see two tests
+against syscall_trace.
+BTW it doesn't work with 2.4, but there is no test for PT_DTRACE at all,
+so it's not really surprising.
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+Second, could we move above structure into e.g. <asm/processor.h>? This
+would allow architectures to reorder the bytes, as above is obviously
+optimized for little endian machines.
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+bye, Roman

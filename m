@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312459AbSDSNCM>; Fri, 19 Apr 2002 09:02:12 -0400
+	id <S312455AbSDSNAv>; Fri, 19 Apr 2002 09:00:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312460AbSDSNCL>; Fri, 19 Apr 2002 09:02:11 -0400
-Received: from 127.141.hh1.ip.foni.net ([212.7.141.127]:2564 "HELO
-	debian.heim.lan") by vger.kernel.org with SMTP id <S312459AbSDSNCK>;
-	Fri, 19 Apr 2002 09:02:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Schoenebeck <christian.schoenebeck@epost.de>
-To: Marcelo de Paula Bezerra <mosca@mosca.yi.org>
-Subject: Re: power off (again)
-Date: Fri, 19 Apr 2002 15:05:38 +0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020418201220.C6D6247B1@debian.heim.lan> <1019162789.3361.0.camel@cristal>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020419123743.DDB6847B5@debian.heim.lan>
+	id <S312457AbSDSNAv>; Fri, 19 Apr 2002 09:00:51 -0400
+Received: from ns.suse.de ([213.95.15.193]:51465 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312455AbSDSNAu>;
+	Fri, 19 Apr 2002 09:00:50 -0400
+Date: Fri, 19 Apr 2002 15:00:48 +0200
+From: Dave Jones <davej@suse.de>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.9 patch] Fix bluesmoke/mce compiler warnings.
+Message-ID: <20020419150048.E15517@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Anton Altaparmakov <aia21@cantab.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16yVSw-0001Iv-00@storm.christs.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >>> please cc me, I'm offlist <<<
+On Fri, Apr 19, 2002 at 11:18:05AM +0100, Anton Altaparmakov wrote:
+ > Please consider below patch for inclusion. It fixes compiler warnings
+ > from arch/i386/kernel/bluesmoke.c which appear due to smp_call_function
+ > expecting a function pointer taking an argument to a void * but
+ > mce_checkregs takes an int argument...
 
-Am Donnerstag, 18. April 2002 22:46 schrieb Marcelo de Paula Bezerra:
-> Did you enable acpi and apm? Only apm, or only acpi?
+Robert Love's patch to fix these up did it with less unnecessary casts,
+and seems to be ok in my testing.
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/linux-dj/linux-2.5/arch/i386/kernel/bluesmoke.c
 
-I tried: APM only, ACPI only and I'm not really sure, but I think I also 
-tried ACPI & APM, but AFAIK this automatically enables just one of them 
-anyway.
+(This contains some other bits too that I intend to push to Linus after
+ a pre1 appears)
 
->
-> On Thu, 2002-04-18 at 17:40, Christian Schoenebeck wrote:
-> >
-> > Hi!
-> >
-> > I'm still fighting the problem that power off doesn't work with one of
-> > our machines since moving from 2.2.19 to 2.4.7 kernel.
+    Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVCUPzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVCUP4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbVCUPzn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 10:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVCUPzn
+	id S261846AbVCUP4r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 10:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVCUP4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 10:55:43 -0500
-Received: from ns3.dataphone.se ([212.37.0.170]:11986 "EHLO
-	mail-slave.dataphone.se") by vger.kernel.org with ESMTP
-	id S261814AbVCUPzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 10:55:38 -0500
-From: Magnus Damm <damm@opensource.se>
-To: linux-kernel@vger.kernel.org
-Cc: Magnus Damm <damm@opensource.se>
-Message-Id: <20050321152735.19016.79587.32236@clementine.local>
-Subject: [PATCH] cifs: MODULE_PARM_DESC
-Date: Mon, 21 Mar 2005 16:55:37 +0100 (CET)
+	Mon, 21 Mar 2005 10:56:47 -0500
+Received: from mummy.ncsc.mil ([144.51.88.129]:33169 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261846AbVCUP4f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 10:56:35 -0500
+Subject: [PATCH][SELINUX] Allow mounting of filesystems with invalid root
+	inode context
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Darrel Goeddel <dgoeddel@trustedcs.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Mon, 21 Mar 2005 10:48:36 -0500
+Message-Id: <1111420116.13101.10.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix parameter description typo, use parameter name "cifs_min_small" instead of
-non-existing "cifs_small_rcv" for MODULE_PARM_DESC.
+This patch alters the SELinux handling of inodes with invalid security
+contexts so that a filesystem with a root inode that has an invalid
+security context can still be mounted for administrative recovery
+without disabling SELinux altogether.  Please apply.
 
-Error detected with section2text.rb, see autoparam patch. 
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by:  James Morris <jmorris@redhat.com>
 
-Signed-off-by: Magnus Damm <damm@opensource.se>
+ security/selinux/hooks.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
 
---- linux-2.6.12-rc1/fs/cifs/cifsfs.c	2005-03-20 18:20:17.000000000 +0100
-+++ linux-2.6.12-rc1-autoparam/fs/cifs/cifsfs.c	2005-03-21 15:57:28.000000000 +0100
-@@ -66,7 +66,7 @@
- MODULE_PARM_DESC(cifs_min_rcv,"Network buffers in pool. Default: 4 Range: 1 to 64");
- unsigned int cifs_min_small = 30;
- module_param(cifs_min_small, int, 0);
--MODULE_PARM_DESC(cifs_small_rcv,"Small network buffers in pool. Default: 30 Range: 2 to 256");
-+MODULE_PARM_DESC(cifs_min_small,"Small network buffers in pool. Default: 30 Range: 2 to 256");
- unsigned int cifs_max_pending = CIFS_MAX_REQ;
- module_param(cifs_max_pending, int, 0);
- MODULE_PARM_DESC(cifs_max_pending,"Simultaneous requests to server. Default: 50 Range: 2 to 256");
+Index: linux-2.6/security/selinux/hooks.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
+retrieving revision 1.157
+diff -u -p -r1.157 hooks.c
+--- linux-2.6/security/selinux/hooks.c	14 Mar 2005 19:56:52 -0000	1.157
++++ linux-2.6/security/selinux/hooks.c	18 Mar 2005 20:39:03 -0000
+@@ -828,7 +828,9 @@ static int inode_doinit_with_dentry(stru
+ 				       __FUNCTION__, context, -rc,
+ 				       inode->i_sb->s_id, inode->i_ino);
+ 				kfree(context);
+-				goto out;
++				/* Leave with the unlabeled SID */
++				rc = 0;
++				break;
+ 			}
+ 		}
+ 		kfree(context);
+
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
+

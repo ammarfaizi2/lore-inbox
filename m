@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261296AbSJLRQH>; Sat, 12 Oct 2002 13:16:07 -0400
+	id <S261306AbSJLRZ2>; Sat, 12 Oct 2002 13:25:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261298AbSJLRQH>; Sat, 12 Oct 2002 13:16:07 -0400
-Received: from gadolinium.btinternet.com ([194.73.73.111]:4859 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S261296AbSJLRQG>; Sat, 12 Oct 2002 13:16:06 -0400
-From: Nick Sanders <sandersn@btinternet.com>
-To: Alan Chandler <alan@chandlerfamily.org.uk>,
-       Michael.Abshoff@mathematik.uni-dortmund.de
-Subject: Re: How does ide-scsi get loaded?
-Date: Sat, 12 Oct 2002 18:22:17 +0100
-User-Agent: KMail/1.4.7
-Cc: linux-kernel@vger.kernel.org
-References: <5.1.0.14.0.20021012192828.0183aa08@mail.bur.st> <3DA8342C.40408@mathematik.uni-dortmund.de> <200210121555.19492.alan@chandlerfamily.org.uk>
-In-Reply-To: <200210121555.19492.alan@chandlerfamily.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S261307AbSJLRZ2>; Sat, 12 Oct 2002 13:25:28 -0400
+Received: from [212.104.37.2] ([212.104.37.2]:270 "EHLO
+	actnetweb.activenetwork.it") by vger.kernel.org with ESMTP
+	id <S261306AbSJLRZ0>; Sat, 12 Oct 2002 13:25:26 -0400
+Date: Sat, 12 Oct 2002 19:30:58 +0200
+From: Kronos <kronos@kronoz.cjb.net>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.42] sound/core/sound.o doesn't build
+Message-ID: <20021012173058.GA5854@dreamland.darkstar.net>
+Reply-To: kronos@kronoz.cjb.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200210121822.18018.sandersn@btinternet.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->  >
->   >append = "enableapic hdd=ide-scsi"
->
-> so isn't /etc/lilo.conf in /etc.
->
-> I keep saying - the string ide-scsi is not used anywhere in /etc
->
-> [and believe me, I have also looked manually at all these sorts of places]
+kronos@dreamland:/usr/src/linux-2.5$ make sound/core/sound.o
+make -f scripts/Makefile
+make -f sound/core/Makefile sound/core/sound.o
+  gcc -Wp,-MD,sound/core/.sound.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=athlon  -Iarch/i386/mach-generic -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=sound -DEXPORT_SYMTAB  -c -o sound/core/sound.o
+sound/core/sound.c
+sound/core/sound.c:458:27: warning: pasting "__ver_" and "(" does not
+give a valid preprocessing token
+sound/core/sound.c:458:27: warning: pasting ")" and "_R" does not give a
+valid preprocessing token
+sound/core/sound.c:458:27: warning: pasting "__kstrtab_" and "(" does
+not give a valid preprocessing token
+sound/core/sound.c:458: parse error before '(' token
+sound/core/sound.c:458:27: warning: pasting "__ksymtab_" and "(" does
+not give a valid preprocessing token
+sound/core/sound.c:458: parse error before '(' token
+sound/core/sound.c:458:27: warning: pasting "__kstrtab_" and "(" does
+not give a valid preprocessing token
+make[1]: *** [sound/core/sound.o] Error 1
+make: *** [sound/core/sound.o] Error 2
 
-try appending 'hdd=ide-cd' then ide-scsi won't be enabled for that device.
+kronos:/usr/src/linux-2.5$ grep SND .config | grep -v \#
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_VIA82XX=y
 
-Nick
 
+ciao,
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+Il coraggio non mi manca.
+E` la paura che mi frega...

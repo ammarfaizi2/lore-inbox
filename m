@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293132AbSCSABV>; Mon, 18 Mar 2002 19:01:21 -0500
+	id <S293314AbSCSAIc>; Mon, 18 Mar 2002 19:08:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293314AbSCSABM>; Mon, 18 Mar 2002 19:01:12 -0500
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:43466 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S293132AbSCSABG> convert rfc822-to-8bit; Mon, 18 Mar 2002 19:01:06 -0500
-Message-ID: <3C967FB2.1080706@drugphish.ch>
-Date: Tue, 19 Mar 2002 01:00:50 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020306
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Witek_Kr=EAcicki?= <adasi@kernel.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.7] compilation problem
-In-Reply-To: <006301c1ceca$87937c70$0201a8c0@WITEK>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S293326AbSCSAIW>; Mon, 18 Mar 2002 19:08:22 -0500
+Received: from jalon.able.es ([212.97.163.2]:45048 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S293314AbSCSAIR>;
+	Mon, 18 Mar 2002 19:08:17 -0500
+Date: Tue, 19 Mar 2002 01:08:09 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@suse.de>, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
+        rth@twiddle.net
+Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas
+Message-ID: <20020319000809.GA1647@werewolf.able.es>
+In-Reply-To: <E16n74r-00024V-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Witek Krêcicki wrote:
-> make[3]: Entering `/home/users/adasi/rpm/BUILD/linux-2.5.7/net/core'
-> egcs -D__KERNEL__ -I/home/users/adasi/rpm/BUILD/linux-2.5.7/include -Wall -W
-> strict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasi
-> ng -fno-common -pipe  -march=i686   -DKBUILD_BASENAME=dev  -c -o dev.o dev.c
-> dev.c: In function `netif_receive_skb':
-> dev.c:1465: void value not ignored as it ought to be
-> Part of .config:
-> <cite>
-> #
-> # Networking options
-> #
-> CONFIG_PACKET=m
+On 2002.03.19 Rusty Russell wrote:
+> 
+>> > 	static struct myinfo mystuff __per_cpu_data;
+>> > 
+>> > Now how do we set mystuff.x on this CPU?
+>> 
+>> set_this_cpu(mystuff.x, y) could be eventually supported properly, it just
+>> needs compiler work (and before that can use address calculation & reference)
+>
+>I think the effort would be better spent on teaching the compiler
+>about these special variables, and how to do efficient assignments on
+>them.
+>
 
-[removed unimportant part]
+Not sure if suitable, but Microsoft C has a __declspec(thread) builtin
+in the compiler. That beast would be fine also in gcc, something like
 
-> CONFIG_IP_PIMSM_V2=y
-> # CONFIG_ARPD is not set
-> # CONFIG_INET_ECN is not set
-> CONFIG_SYN_COOKIES=y
-
-You forgot to post the important rest: CONFIG_NET_DIVERT=y
-
-> How to fix it?
-
---- linux-2.5.7/net/core/dev.c	Mon Mar 18 23:17:40 2002
-+++ /usr/src/linux-2.5.7/net/core/dev.c	Tue Mar 19 00:53:10 2002
-@@ -1462,7 +1462,7 @@
-
-  #ifdef CONFIG_NET_DIVERT
-  	if (skb->dev->divert && skb->dev->divert->divert)
-- 
-	ret = handle_diverter(skb);
-+ 
-	handle_diverter(skb);
-  #endif /* CONFIG_NET_DIVERT */
-  	 
-	
-  #if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
+int	self __attribute__ ((thread));
 
 
-I don't know why this has been changed since it doesn't differ much from 
-the 2.4.x code in its invariant (CONFIG_NET_DIVERT) handling. Maybe 
-DaveM had a bad day ;)
 
-Cheers,
-Roberto Nibali, ratz
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Bluebird) for i586
+Linux werewolf 2.4.19-pre3-jam3 #1 SMP Fri Mar 15 01:16:08 CET 2002 i686

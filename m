@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315446AbSFCToz>; Mon, 3 Jun 2002 15:44:55 -0400
+	id <S315449AbSFCTto>; Mon, 3 Jun 2002 15:49:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315443AbSFCTox>; Mon, 3 Jun 2002 15:44:53 -0400
-Received: from horus.webmotion.com ([209.87.243.246]:32435 "EHLO
-	horus.webmotion.ca") by vger.kernel.org with ESMTP
-	id <S315449AbSFCTog>; Mon, 3 Jun 2002 15:44:36 -0400
-Message-ID: <3CFBC71F.70200@bonin.ca>
-Date: Mon, 03 Jun 2002 15:44:31 -0400
-From: Andre Bonin <kernel@bonin.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020516
-X-Accept-Language: en-us, fr-ca
+	id <S315454AbSFCTtn>; Mon, 3 Jun 2002 15:49:43 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42501 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315449AbSFCTtm>; Mon, 3 Jun 2002 15:49:42 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Atomic operations
+Date: 3 Jun 2002 12:49:36 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <adgh8g$1vm$1@cesium.transmeta.com>
+In-Reply-To: <EE83E551E08D1D43AD52D50B9F5110927E7A10@ntserver2> <3CFBB7DB.831BE453@didntduck.org>
 MIME-Version: 1.0
-To: Thunder from the hill <thunder@ngforever.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Support for keyboards with special scancodes
-In-Reply-To: <Pine.LNX.4.44.0206031331180.3833-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thunder from the hill wrote:
-> Hi,
+Followup to:  <3CFBB7DB.831BE453@didntduck.org>
+By author:    Brian Gerst <bgerst@didntduck.org>
+In newsgroup: linux.dev.kernel
 > 
-> On Mon, 3 Jun 2002, Andre Bonin wrote:
+> int atomic_xadd(int i, atomic_t *v)
+> {
+> 	int ret;
+> 	__asm__(LOCK "xaddl %1,%0"
+> 		: "=m" (v->counter), "=r" (ret)
+> 		: "0" (v->counter), "1" (i));
+> 	return ret;
+> }
 > 
->>[Blah...]
+> This one only works on 486+, but there are practically no real 386 SMP
+> systems.
 > 
-> 
-> Gosh, that sounds insane!
-> 
-> I'd rather add it as usual, dumb, boring, static keys.
 
-I don't think they are standard on every keyboard.  Unless we have a way 
-to have different keyboard drivers...
+<slaps forehead>
 
+Boy do I feel dumb now.
 
+The only nitpick is that it's probably better coded as:
 
-> 
-> Regards,
-> Thunder
-
-
-
+int atomic_xadd(int i, atomic_t *v)
+{
+	asm volatile(LOCK "xaddl %1,%0"
+		: "+m" (v->counter), "+r" (i));
+	return i;
+}
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

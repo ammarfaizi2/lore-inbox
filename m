@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311403AbSDDHvO>; Thu, 4 Apr 2002 02:51:14 -0500
+	id <S312458AbSDDHwe>; Thu, 4 Apr 2002 02:52:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312453AbSDDHvF>; Thu, 4 Apr 2002 02:51:05 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:49398 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S311403AbSDDHuu>;
-	Thu, 4 Apr 2002 02:50:50 -0500
-Date: Thu, 4 Apr 2002 09:50:09 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new fbdev api.
-In-Reply-To: <Pine.LNX.4.10.10204031224280.14670-100000@www.transvirtual.com>
-Message-ID: <Pine.GSO.4.21.0204040949550.28139-100000@vervain.sonytel.be>
+	id <S312453AbSDDHwZ>; Thu, 4 Apr 2002 02:52:25 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:34291 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S312458AbSDDHwL>; Thu, 4 Apr 2002 02:52:11 -0500
+Date: Thu, 4 Apr 2002 09:50:32 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Dave Jones <davej@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.7-dj3
+In-Reply-To: <20020404054923.A28437@suse.de>
+Message-ID: <Pine.NEB.4.44.0204040946500.7845-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002, James Simmons wrote:
-> This patch is the first in a series to move over to the new fbdev api. It
-> is against 2.5.7. The basic goal is remove the tones of redundent code in
-> the fbdev layer and make a much simpler api. The main way to accomplish
-> this is to reverse the flow of logic for the console system. The fbdev
-> system was later developed and we see alot of needless functionality added
-> to the fbdev layer. Instead the flow should be functionality in the
-> console system to the fbdev layer instead of the reverse. Also
-> accomplished is the seperation of the fbdev layer from the console layer.
-> This will have a very important impact on linux embedded devices. It has
-> been tested and has been in Dave Jones tree for some time. Geert with
-> your blessing I like to have it added to Linus tree.
+Hi Dave,
 
-Please go ahead!
+I got the following compile error:
 
-Gr{oetje,eeting}s,
+<--  snip  -->
 
-						Geert
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.5/linux-2.5.7/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6   -DKBUILD_BASENAME=pdc4030  -c -o pdc4030.o pdc4030.c
+pdc4030.c: In function `promise_multwrite':
+pdc4030.c:447: warning: passing arg 2 of `bio_kmap_irq' makes pointer from
+integer without a cast
+pdc4030.c: In function `promise_rw_disk':
+pdc4030.c:664: structure has no member named `channel'
+make[3]: *** [pdc4030.o] Error 1
+make[3]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.7/drivers/ide'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.7/drivers/ide'
+make[1]: *** [_subdir_ide] Error 2
+make[1]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.7/drivers'
+make: *** [_dir_drivers] Error 2
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+<--  snip  -->
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+The code that failed is the following part of -dj3 that s not in
+2.5.8-pre1:
+
+
+--- linux-2.5.7/drivers/ide/pdc4030.c	Mon Mar 18 20:37:08 2002
++++ linux-2.5/drivers/ide/pdc4030.c	Thu Apr  4 04:19:50 2002
+@@ -645,6 +656,13 @@
+
+ 	memset(&taskfile, 0, sizeof(struct hd_drive_task_hdr));
+
++	/* The four drives on the two logical (one physical) interfaces
++	   are distinguished by writing the drive number (0-3) to the
++	   Feature register.
++	   FIXME: Is promise_selectproc now redundant??
++	*/
++	taskfile.feature	= (HWIF(drive)->channel << 1) + drive->select.b.unit;
++
+ 	taskfile.sector_count	= rq->nr_sectors;
+ 	taskfile.sector_number	= block;
+ 	taskfile.low_cylinder	= (block>>=8);
+
+
+cu
+Adrian
+
 

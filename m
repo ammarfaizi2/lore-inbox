@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263311AbTKCUXa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 15:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTKCUXa
+	id S262774AbTKCUSI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 15:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbTKCUSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 15:23:30 -0500
-Received: from h80ad25b7.async.vt.edu ([128.173.37.183]:20884 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263311AbTKCUXU (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 15:23:20 -0500
-Message-Id: <200311032023.hA3KN3gv000750@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: root@chaos.analogic.com
-Cc: Brian Beattie <beattie@beattie-home.net>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Things that Longhorn seems to be doing right 
-In-Reply-To: Your message of "Mon, 03 Nov 2003 15:17:55 EST."
-             <Pine.LNX.4.53.0311031512170.2654@chaos> 
-From: Valdis.Kletnieks@vt.edu
-References: <1067778693.1315.76.camel@kokopelli> <200311021715.hA2HFXr5026778@turing-police.cc.vt.edu> <1067888137.869.26.camel@kokopelli>
-            <Pine.LNX.4.53.0311031512170.2654@chaos>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-674504270P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Nov 2003 15:23:02 -0500
+	Mon, 3 Nov 2003 15:18:08 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:5248 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262774AbTKCUSG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 15:18:06 -0500
+Date: Mon, 3 Nov 2003 15:17:55 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Brian Beattie <beattie@beattie-home.net>
+cc: Valdis.Kletnieks@vt.edu, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Things that Longhorn seems to be doing right
+In-Reply-To: <1067888137.869.26.camel@kokopelli>
+Message-ID: <Pine.LNX.4.53.0311031512170.2654@chaos>
+References: <1067778693.1315.76.camel@kokopelli> 
+ <200311021715.hA2HFXr5026778@turing-police.cc.vt.edu> <1067888137.869.26.camel@kokopelli>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-674504270P
-Content-Type: text/plain; charset=us-ascii
+On Mon, 3 Nov 2003, Brian Beattie wrote:
 
-On Mon, 03 Nov 2003 15:17:55 EST, "Richard B. Johnson" said:
+> On Sun, 2003-11-02 at 12:15, Valdis.Kletnieks@vt.edu wrote:
+> > On Sun, 02 Nov 2003 08:11:32 EST, Brian Beattie <beattie@beattie-home.net>  said:
+> >
+[SNIPPED...]
 
-> Yeah. Nobody should ever use a word that's spelled like paradigm!
-> How about "really good example..." (which is what it means).
+>
+> I don't know about anytime soon and it woudl be a real paradyne(sp?)
 
-No, a paradigm is "a way of looking at things" or "a world view".
-So this would include paradigms like "the world is flat" or "monolithic
-kernels are preferable" or "gcc is the only compiler for the kernel".
+Yeah. Nobody should ever use a word that's spelled like paradigm!
+How about "really good example..." (which is what it means).
 
---==_Exmh_-674504270P
-Content-Type: application/pgp-signature
+[SNIPPED...]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-iD8DBQE/prkmcC3lWbTT17ARAhyNAJ9vd6BYlGZF4h+Sz7gsKgO5b72IegCg9trq
-QHAcQG5IIvAdRG1GoD93eY8=
-=OVj1
------END PGP SIGNATURE-----
 
---==_Exmh_-674504270P--

@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269401AbUIIKWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269404AbUIIKXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269401AbUIIKWt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 06:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269404AbUIIKWt
+	id S269404AbUIIKXT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 06:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269409AbUIIKXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 06:22:49 -0400
-Received: from ozlabs.org ([203.10.76.45]:61623 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S269401AbUIIKWr (ORCPT
+	Thu, 9 Sep 2004 06:23:19 -0400
+Received: from ozlabs.org ([203.10.76.45]:63159 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S269404AbUIIKXO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 06:22:47 -0400
-Subject: Re: [patch 2/2] cpu hotplug notifier for updating sched domains
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Nathan Lynch <nathanl@austin.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <413E6C49.5080106@cyberone.com.au>
-References: <200409071849.i87Inw3f143238@austin.ibm.com>
-	 <413E55D8.8030608@cyberone.com.au> <1094608996.8015.5.camel@booger>
-	 <413E6C49.5080106@cyberone.com.au>
-Content-Type: text/plain
-Message-Id: <1094725124.25639.18.camel@bach>
+	Thu, 9 Sep 2004 06:23:14 -0400
+Date: Thu, 9 Sep 2004 20:18:47 +1000
+From: Anton Blanchard <anton@samba.org>
+To: hch@infradead.org, torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Current BK breakage
+Message-ID: <20040909101847.GA11358@krispykreme>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 09 Sep 2004 20:18:44 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-08 at 12:19, Nick Piggin wrote:
-> Nathan Lynch wrote:
-> >Well, we have to "lie" to arch_init_sched_domains a little bit when
-> >bringing a cpu online, by setting the soon-to-be-online cpu's bit in the
-> >argument mask.  So I think the first patch is still necessary.
 
-I'm still a little surprised that you don't change the domains while the
-machine is frozen (ie in take_cpu_down()).  This should avoid any races,
-since noone can be looking at the domains at this time.
+Hi,
 
-> Do you have a theoretical race here? Can we hotplug a CPU before the notifier
-> is registered? (I know we *can't* because it is still earlyish boot).
+Looks like a bug in the cleanup patch :)
 
-No, init has so many serial assumptions that this is the least of our
-worries.
+Anton
 
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
+===== buffer.c 1.256 vs edited =====
+--- 1.256/fs/buffer.c	Wed Sep  8 16:33:15 2004
++++ edited/buffer.c	Thu Sep  9 20:03:41 2004
+@@ -895,7 +895,7 @@
+ 		spin_lock(&buffer_mapping->private_lock);
+ 		list_move_tail(&bh->b_assoc_buffers,
+ 				&mapping->private_list);
+-		spin_lock(&buffer_mapping->private_lock);
++		spin_unlock(&buffer_mapping->private_lock);
+ }
+ 
+ }

@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129118AbQKGBSy>; Mon, 6 Nov 2000 20:18:54 -0500
+	id <S129114AbQKGB1V>; Mon, 6 Nov 2000 20:27:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129147AbQKGBSp>; Mon, 6 Nov 2000 20:18:45 -0500
-Received: from innerfire.net ([208.181.73.33]:47880 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S129118AbQKGBS1>;
-	Mon, 6 Nov 2000 20:18:27 -0500
-Date: Mon, 6 Nov 2000 17:20:21 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
+	id <S129408AbQKGB1L>; Mon, 6 Nov 2000 20:27:11 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:9991 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S129114AbQKGB07>;
+	Mon, 6 Nov 2000 20:26:59 -0500
+Message-Id: <200011062354.eA6NsT705093@sleipnir.valparaiso.cl>
 To: "James A. Sutherland" <jas88@cam.ac.uk>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <00110700444305.00940@dax.joh.cam.ac.uk>
-Message-ID: <Pine.LNX.4.10.10011061717560.31473-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
+In-Reply-To: Message from "James A. Sutherland" <jas88@cam.ac.uk> 
+   of "Mon, 06 Nov 2000 17:01:36 -0000." <00110617033201.01646@dax.joh.cam.ac.uk> 
+Date: Mon, 06 Nov 2000 20:54:29 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Then none of this is relevant to you, since you can't unload any modules! And
-> now you're the one doing the trolling... WTF do you think module code is
-> supposed to do when you don't use modules?!
-> 
+"James A. Sutherland" <jas88@cam.ac.uk> said:
+> On Mon, 06 Nov 2000, Horst von Brand wrote:
 
-Simple ... I'd rather the hardware was set to 0 on startup but I know what
-problems that presents to modules..
+[...]
 
-And no it wasn't the driver doing it afik. Sound card starts on max volume
-as soon as it's initialised.
+> > The problem (AFAIU) is that if the levels aren't set on startup, they are
+> > random in some cases.
 
-	Gerhard
+> So set them on startup. NOT when the driver is first loaded. Put it in
+> the rc.d scripts.
 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+There is a noticeable delay between to moment the module is insmod(8)ed,
+and the moment when its settings are set by the startup script. Not funny
+if it is going full blast ATM.
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

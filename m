@@ -1,53 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263751AbTLDX67 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 18:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263758AbTLDX67
+	id S263745AbTLDX6L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 18:58:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTLDX6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 18:58:59 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:54660
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S263751AbTLDX6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 18:58:54 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-Date: Thu, 4 Dec 2003 17:59:14 -0600
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200312041432.23907.rob@landley.net> <20031204214850.GG29119@mis-mike-wstn.matchmail.com>
-In-Reply-To: <20031204214850.GG29119@mis-mike-wstn.matchmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Dec 2003 18:58:11 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:57006
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263745AbTLDX6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 18:58:07 -0500
+Date: Fri, 5 Dec 2003 00:58:24 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Peter Bergmann <bergmann.peter@gmx.net>
+Cc: Jens Axboe <axboe@suse.de>, maze@cela.pl, linux-kernel@vger.kernel.org
+Subject: Re: oom killer in 2.4.23
+Message-ID: <20031204235824.GC22517@dualathlon.random>
+References: <20031204184248.GJ1086@suse.de> <956.1070570308@www27.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312041759.14385.rob@landley.net>
+In-Reply-To: <956.1070570308@www27.gmx.net>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 December 2003 15:48, Mike Fedyk wrote:
-> On Thu, Dec 04, 2003 at 02:32:23PM -0600, Rob Landley wrote:
-> > You can make a file with a hole by seeking past it and never writing to
-> > that bit, but is there any way to punch a hole in a file after the fact? 
-> > (I mean other with lseek and write.  Having a sparse file as the
-> > result....)
->
-> No, Linux doesn't have this feature.
->
-> > What are the downsides of holes?  (How big do they have to be to actually
-> > save space, is there a performance penalty to having a file with 1000 4k
-> > holes in it, etc...)
->
-> When you copy them, you need to use tools that know about sparse files and
-> how to deal with them.  Also, you will only save space on block aligned
-> contiguous zeros at least the length of one block.
+On Thu, Dec 04, 2003 at 09:38:28PM +0100, Peter Bergmann wrote:
+> > > effect is still unchanged. 
+> > > processes get killed by VM and not oom_kikll.c
+> > > 
+> > > any hints ??
+> > 
+> > You probably want to look at the change to
+> > vmscan.c:try_to_free_pages_zone().
+> > 
+> > -- 
+> > Jens Axboe
+> 
+> I did, but my vm knolege is rather limited.
+> I don't really know really know _where_ to place 
+> out_of_memory() in the new try_to_free_pages_zone()...
+> and what  other changes would be necessary in vmscan.c.
+> 
+> My try & error approach did not succeed.
+> 
+> I would be really glad if someone (aa may be :) could
+> provide the information where/how to place the call for a custom
+> (or the old) oom killer -  if it's really that simple ...
 
-I knew that bit.
+it's that simple to reenable it in 2.4.22 status, so if you're ok to
+deadlock. 2.4.23 can't deadlock, it can live lock if you're unlucky with
+timings yes (think if you add 32G of swap and your ram runs at 1k/sec
+instead of 1G/sec), but not deadlock and it won't random kill tasks even
+if it shouldn't to.  deadlock is a bug, killing task despite there's ram
+free is a bug, livelock is something you can avoid by dropping all swap.
+if you drop all swap with 2.4.22 it'll go nuts killing tasks (see the
+bugreports).
 
-I was thinking of making a toy that would run periodically against a 
-seldom-changed filesystem, find runs of zeroes of a certain minimum size, and 
-turn 'em into holes.  The fragmentation might not be worth it, though...
+Since doing it right wasn't possible in 2.4, I dropped it years ago, -aa
+users are w/o an oom killer for years and I never heard a single
+complain. somebody asked why yes, but they were happy afterwards. I
+don't think I asked Marcelo to merge it, I explained why I dropped it,
+people sent him bugreports about the oom killer going nuts, and he
+agreed my solution was the best short term w/o adding lots of effort to
+make the oom killer right. Note the oom killer goes nuts in 2.6 too,
+nobody did it right yet, that's why I don't think it's a 2.4 issue.
 
-Rob
+Marcelo asked me to to make it configurable at runtime so you could go
+in the deadlock prone stautus of 2.4.22 on demand, but I'm not going to
+add more features to 2.4 today unless they're blocker bugs (even if that
+would be simple to implement), actually it's not even my choice so don't
+ask me for that sorry.

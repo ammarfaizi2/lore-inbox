@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267465AbUBSCBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 21:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267467AbUBSCBJ
+	id S267442AbUBSBxF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 20:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267443AbUBSBxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 21:01:09 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46314 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267465AbUBSCAQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 21:00:16 -0500
-Date: Wed, 18 Feb 2004 17:52:40 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: harald.dunkel@t-online.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2: "-" or "_", thats the question
-Message-Id: <20040218175240.46fbd285.rddunlap@osdl.org>
-In-Reply-To: <20040218122523.A17548@animx.eu.org>
-References: <402A887D.7030408@t-online.de>
-	<402EDBA8.4070102@lovecn.org>
-	<402F42DE.5090308@t-online.de>
-	<20040217184132.541a5a76.rusty@rustcorp.com.au>
-	<20040217202839.A16590@animx.eu.org>
-	<40332666.60703@t-online.de>
-	<20040218122523.A17548@animx.eu.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Wed, 18 Feb 2004 20:53:05 -0500
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:14799 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S267442AbUBSBxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 20:53:00 -0500
+Date: Thu, 19 Feb 2004 02:52:07 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Miquel van Smoorenburg <miquels@cistron.nl>, Jens Axboe <axboe@suse.de>,
+       linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+       Joe Thornber <thornber@redhat.com>
+Subject: Re: IO scheduler, queue depth, nr_requests
+Message-ID: <20040219015207.GC30621@drinkel.cistron.nl>
+References: <20040216131609.GA21974@cistron.nl> <20040216133047.GA9330@suse.de> <20040217145716.GE30438@traveler.cistron.net> <20040218235243.GA30621@drinkel.cistron.nl> <4034104F.5040002@cyberone.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <4034104F.5040002@cyberone.com.au> (from piggin@cyberone.com.au on Thu, Feb 19, 2004 at 02:24:31 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Feb 2004 12:25:23 -0500 Wakko Warner <wakko@animx.eu.org> wrote:
+On Thu, 19 Feb 2004 02:24:31, Nick Piggin wrote:
+> Miquel van Smoorenburg wrote:
+>
+> >I found out what causes this. It's get_request_wait().
+> >
+> >When the request queue is full, and a new request needs to be created,
+> >__make_request() blocks in get_request_wait().
+> >
+> >Another process wakes up first (pdflush / process submitting I/O itself /
+> >xfsdatad / etc) and sends the next bio's to __make_request().
+> >In the mean time some free requests have become available, and the bios
+> >are merged into a new request. Those requests are submitted to the device.
+> >
+> >Then, get_request_wait() returns but the bio is not mergeable anymore -
+> >and that results in a backwards seek, severely limiting the I/O rate.
+> >
+> 
+> The "batching" logic there should allow a process to submit
+> a number of requests even above the nr_requests limit to
+> prevent this interleave and context switching.
+> 
+> Are you using tagged command queueing? What depth?
 
-| When I first noticed that [eou]hci_hcd was loaded I figured all modules were
-| using _ now.  When I was playing with alsa it never clicked in about the -
-| and _.  I see now that it's _ in /proc/modules.
-| 
-| [OT] why is the usb drivers named with -hcd at the end anyway?
+No, I'm not using tagged command queueing. The 3ware controller is not a
+real scsi controller, the driver just emulates one. It's a raid5 controller
+that drives SATA disks. It has an internal request queue ("can_queu")
+of 254 outstanding commands. Because that is way bigger than nr_requests
+this happens - if I set nr_requests to 512, the problem goes away. But
+that shouldn't happen ;)
 
-Because some USB drivers are for USB devices (no -hcd at end)
-and some of them are USB host controller drivers (HCDs), not for
-USB devices per se.  It's just a simple differeniation.
+I'm preparing a proof-of-concept patch now, if it works and I don't wedge
+the remote machine I'm testing this on I'll post it in a few minutes.
 
---
-~Randy
+Mike.
+> 
+> 
+> 

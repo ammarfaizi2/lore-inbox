@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbTLQAND (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 19:13:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTLQAND
+	id S263101AbTLQAJR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 19:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTLQAJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 19:13:03 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:56757 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262192AbTLQANA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 19:13:00 -0500
-Message-ID: <3FDF9F88.7000705@labs.fujitsu.com>
-Date: Wed, 17 Dec 2003 09:12:56 +0900
-From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
-Reply-To: tsuchiya@labs.fujitsu.com
-Organization: Fujitsu Labs
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Tue, 16 Dec 2003 19:09:17 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:37507 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263101AbTLQAJP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 19:09:15 -0500
+Date: Tue, 16 Dec 2003 19:12:23 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+cc: arjanv@redhat.com, Jeff Garzik <jgarzik@pobox.com>,
+       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, Martin Mares <mj@ucw.cz>
+Subject: Re: PCI Express support for 2.4 kernel
+In-Reply-To: <3FDF898D.2060902@intel.com>
+Message-ID: <Pine.LNX.4.53.0312161906340.23063@chaos>
+References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> 
+ <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>  <3FDDACA9.1050600@intel.com>
+ <1071494155.5223.3.camel@laptop.fenrus.com>  <3FDDBDFE.5020707@intel.com> 
+ <Pine.LNX.4.58.0312151154480.1631@home.osdl.org>  <3FDEDC77.9010203@intel.com>
+  <3FDF3C6C.9030609@pobox.com> <1071596889.5223.7.camel@laptop.fenrus.com>
+ <3FDF898D.2060902@intel.com>
 MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: Bryan Whitehead <driver@jpl.nasa.gov>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-References: <3FDD7DFD.7020306@labs.fujitsu.com> <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov> <3FDF95EB.2080903@labs.fujitsu.com> <20031216234024.GP4176@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20031216234024.GP4176@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Wed, 17 Dec 2003, Vladimir Kondratiev wrote:
 
->Umm...  You do realize that if you have a shared writable mapping, the
->buffer contents _can_ change during the IO?  Legitimately.  When dirty
+> Arjan van de Ven wrote:
+>
+> >>>+	/* dummy read to flush PCI write */
+> >>>+	readb(addr);
+> >>>
+> >>>
+> >>This is going to choke some hardware, I guarantee.
+> >>
+> >>You always want to make sure your flush is of the same size at the
+> >>write.  Reading a byte from an address that the hardware defines as
+> >>"32-bit writes only" can get ugly real quick ;-)
+> >>
+> >>
+> >
+> >also reading back addr might not be the best choice in case some
+> >registers have side effects on reading, it's probably better to read
+> >back an address that is known to be ok to read (like the vendor ID
+> >field)
+> >
+> >
+> >
+> Good idea!
 
 
-Thanks for telling me about it.
-But this case, the broken data can be in an inode block.
-And also the test script does not share any files. 
-It just create,write,read and remove independent files.
+You should not abitrarily flush all the writes with a read
+after each write. The PCI/Bus is a FIFO, stuff will get to
+the hardware in the order written. If you "flush" every write,
+you will seriously hurt the performance. I don't like that
+MACRO/Function, whatever it is with the switch shown previously.
+All that code just for a "@(*^&$(*^(" write will screw up
+performance. I've looked at the result of some the the MACRO
+expansions, in particular the get_user, put_user, and copy_to/from
+macros where there is a switch. It is not pre-processed out.
 
 
-Yoshihiro Tsuchiya:
->SCSI disk and IDE also.  The problem we observed in our driver was that 
-
-We haven't tried it with IDE disk. Sorry. 
-
-Thank you,
-Yoshi
----
-Yoshihiro Tsuchiya
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

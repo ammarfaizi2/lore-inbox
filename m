@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289162AbSAJEbs>; Wed, 9 Jan 2002 23:31:48 -0500
+	id <S289160AbSAJEcI>; Wed, 9 Jan 2002 23:32:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289161AbSAJEbi>; Wed, 9 Jan 2002 23:31:38 -0500
-Received: from 12-226-21-207.client.attbi.com ([12.226.21.207]:64244 "EHLO
-	spartan.jdc.home") by vger.kernel.org with ESMTP id <S289160AbSAJEb1>;
-	Wed, 9 Jan 2002 23:31:27 -0500
-Message-ID: <3C3D191E.7090804@noth.is.eleet.ca>
-Date: Wed, 09 Jan 2002 23:31:26 -0500
-From: Jim Crilly <noth@noth.is.eleet.ca>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.7) Gecko/20011221
+	id <S289161AbSAJEbs>; Wed, 9 Jan 2002 23:31:48 -0500
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:25985 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S289160AbSAJEbj>;
+	Wed, 9 Jan 2002 23:31:39 -0500
+Message-ID: <3C3D19AD.60306@acm.org>
+Date: Wed, 09 Jan 2002 22:33:49 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.7) Gecko/20011221
 X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Chris Ball <chris@void.printf.net>
-CC: Benjamin S Carrell <ben@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bigggg Maxtor drives (fwd)
-In-Reply-To: <20020110040308.A28692@void.printf.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Moving zlib so that others may use it
+In-Reply-To: <25006.1010627525@kao2.melbourne.sgi.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually it would seem this is just Andre's, not so subtle, way of 
-trying to prove that his ATA133/48-bit addressing patches need included 
-in 2.4.
+H. Peter Anvin wrote:
 
--Jim
+>>
+>> I'm working on a function that uses zlib in the kernel, and I know of 
+>> other places zlib is used (ppp_deflate, jffs2, mcore).  I would expect 
+>> more users to come along.
+>> 
+>
+>CAREFUL.  First of all, don't mix up the deflate and inflate
+>functions, second of all, make sure you get the memory management
+>right.  It's not trivial to do the latter, since the default zlib
+>memory management is unusable for at least some users in kernelspace.
 
-Chris Ball wrote:
+I'm not sure I follow you here.  Do you want to completely separate the
+inflate and deflate stuff (so if something only needs one, it only has
+to include one)?  I'm not sure of the value, and it would be kind of a
+pain for maintenance (since zlib is from an external source).
 
-> On Wed, Jan 09, 2002 at 08:14:32PM -0700, Benjamin S Carrell wrote:
-> 
->>I would think that you lose that space to formatting
->>
-> 
-> That would be irrelevant.  We're looking at the kernel's summation of
-> the geometry, not the filesystem's description of usable space.
-> 
-> 
->>(would it not get the size of the drive from the bios?)
->>
-> 
-> No, the kernel tends not to rely on the BIOS for geometry.  Which is
-> usually very wise.
-> 
-> 
->>but I stand open for correction.
->>
-> 
-> Same here.  It's always a good idea.  :-)
-> 
-> Is this perhaps Maxtor providing their own 'non-standard'[1] definition
-> of gigabyte, rather than a technical issue?
-> 
-> - Chris.
-> 
-> [1]: (viz. 'wrong')
-> 
+As far as memory management, all the versions I am talking about are
+almost exactly the same, so that shouldn't be a problem.
+
+-Corey
 
 

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261296AbSI3UQ6>; Mon, 30 Sep 2002 16:16:58 -0400
+	id <S261303AbSI3UVB>; Mon, 30 Sep 2002 16:21:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261301AbSI3UQ6>; Mon, 30 Sep 2002 16:16:58 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1295 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261296AbSI3UQ5>;
-	Mon, 30 Sep 2002 16:16:57 -0400
-Message-ID: <3D98B25E.2010408@pobox.com>
-Date: Mon, 30 Sep 2002 16:21:50 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kent Yoder <key@austin.ibm.com>
-CC: linux-kernel@vger.kernel.org, tsbogend@alpha.franken.de
-Subject: Re: [PATCH] pcnet32 cable status check
-References: <Pine.LNX.4.44.0209301421100.13906-100000@ennui.austin.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261307AbSI3UVB>; Mon, 30 Sep 2002 16:21:01 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:39694 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261303AbSI3UVB>; Mon, 30 Sep 2002 16:21:01 -0400
+Date: Mon, 30 Sep 2002 21:26:19 +0100
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Minimum modutils version
+Message-ID: <20020930202619.GA31858@compsoc.man.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *17w77U-00058Y-00*1MBWSBORCz.* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Comments:
 
-It looks good as a starting point :)
+Documentation/Changes claims modutils 2.4.2 is still acceptable. However
+it seems at least 2.4.10 is needed for EXPORT_SYMBOL_GPL. What should
+Changes be changed to ?
 
-I just added mii_check_media() to drivers/net/mii.c.  It's in the latest 
-2.5.x snapshot, 
-ftp://ftp.kernel.org/pub/linux/kernel/v2.5/snapshots/patch-2.5.39-bk2.bz2
+regards
+john
 
-and is in Marcelo's inbox as well.  For simple implementations (and I 
-think pcnet32 qualifies), the timer should not need to do anything 
-beyond calling mii_check_media().  One important feature of this is use 
-of the standard netif_carrier_{off,on} to indicate link to the system. 
-netif_carrier_xxx also means you don't need lp->link...
-
+-- 
+"When your name is Winner, that's it. You don't need a nickname."
+	- Loser Lane

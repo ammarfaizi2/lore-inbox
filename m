@@ -1,26 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313869AbSDPUZA>; Tue, 16 Apr 2002 16:25:00 -0400
+	id <S313882AbSDPUbB>; Tue, 16 Apr 2002 16:31:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313882AbSDPUY7>; Tue, 16 Apr 2002 16:24:59 -0400
-Received: from mail203.mail.bellsouth.net ([205.152.58.143]:22909 "EHLO
-	imf03bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S313869AbSDPUY6>; Tue, 16 Apr 2002 16:24:58 -0400
-Subject: low latency and kernel-2.4.19-pre7
-From: Louis Garcia <louisg00@bellsouth.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C4F7CC9.4A7A4CDC@zip.com.au>
-Content-Type: text/plain
+	id <S313887AbSDPUbA>; Tue, 16 Apr 2002 16:31:00 -0400
+Received: from [62.47.19.178] ([62.47.19.178]:40323 "HELO twinny.dyndns.org")
+	by vger.kernel.org with SMTP id <S313882AbSDPUbA>;
+	Tue, 16 Apr 2002 16:31:00 -0400
+Message-ID: <3CBC85FD.4A9BC7FB@winischhofer.net>
+Date: Tue, 16 Apr 2002 22:13:49 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, xpert@XFree86.org,
+        debian-user@debian.org, debian-x@debian.org
+Subject: SIS 315/550/650/640/740 - testers wanted
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-1) 
-Date: 16 Apr 2002 16:24:58 -0400
-Message-Id: <1018988699.4413.19.camel@tiger>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does low latency patches for recent stable kernels exist? If so where?
 
-Thanks, --Louis
+Hi,
 
+I am desperatly looking for people who are willing to help me testing
+(and eventually developing) the kernel framebuffer and X driver for
+these chipsets.
+
+If you're interested, please drop me a note.
+
+Thomas
+
+
+-- 
+Thomas Winischhofer
+Vienna/Austria
+mailto:thomas@winischhofer.net          *** http://www.winischhofer.net

@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132613AbRA0LDU>; Sat, 27 Jan 2001 06:03:20 -0500
+	id <S131049AbRA0LJl>; Sat, 27 Jan 2001 06:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131977AbRA0LDL>; Sat, 27 Jan 2001 06:03:11 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:23817 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S131436AbRA0LDG>; Sat, 27 Jan 2001 06:03:06 -0500
-From: Chris Rankin <rankinc@zip.com.au>
-Message-Id: <200101271102.f0RB2we19159@wellhouse.underworld>
-Subject: Re: [PATCH](s): Use spinlocks instead of STI/CLI in SoundBlaster
-To: pavel@suse.cz (Pavel Machek)
-Date: Sat, 27 Jan 2001 22:02:57 +1100 (EST)
-Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
-In-Reply-To: <20010127112629.B163@bug.ucw.cz> from "Pavel Machek" at Jan 27, 2001 11:26:29 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S131977AbRA0LJb>; Sat, 27 Jan 2001 06:09:31 -0500
+Received: from s4m053.dialup.RWTH-Aachen.DE ([137.226.8.53]:19716 "EHLO
+	orbiter.ath.cx") by vger.kernel.org with ESMTP id <S131049AbRA0LJW>;
+	Sat, 27 Jan 2001 06:09:22 -0500
+From: Peter Kaczuba <pepe@pool.informatik.rwth-aachen.de>
+Date: Sat, 27 Jan 2001 12:06:57 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0ac12
+Message-ID: <20010127120657.A975@orbiter.ath.cx>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > --- linux-2.4.0/drivers/sound/sb.h.orig	Fri Jan 26 13:57:40 2001
-> > +++ linux-2.4.0/drivers/sound/sb.h	Fri Jan 26 13:58:42 2001
-> > @@ -137,6 +137,8 @@
-> >  	   void (*midi_input_intr) (int dev, unsigned char data);
-> >  	   void *midi_irq_cookie;		/* IRQ cookie for the midi */
-> >  
-> > +	   spinlock_t lock;
-> > +
+On 2001-01-27 1:46:12 "Sergey Kubushin" <ksi@cyberbills.com> wrote:
+> Modules still don't load:
+>
+>=== Cut ===
+>ide-mod.o: Can't handle sections of type 32131
+>ide-probe-mod.o: Can't handle sections of type 256950710
+>ide-disk.o: Can't handle sections of type 688840897
+>ext2.o: Can't handle sections of type 69429248
+>=== Cut ===
+>
+>Section types are exactly the same in ac9,10,11,12.
+>
+>Is it supposed to be this way? Does anybody care? Or may be I'm the only
+>one who uses modules?
 
-I do; that declaration is just a typedef for the device struct. The
-spinlock is explicitly initialised in the sb_dsp_detect() function.
+You are not alone out there! :-)
+I have the same problems using a modular kernel, it is the same
+configuration as yours (kernel 2.4.0-ac12, modutils 2.4.2,
+binutils-2.10.1.0.4, gcc-2.95.2). 2.4.0-ac4 works, up from 2.4.0-ac8 do
+not (others not tested).
+I get these errors at boot time:
 
-Chris
+VFS: Mounted root (romfs filesystem) read only.
+kmod: runaway modprobe loop assumed and stopped
+kmod: runaway modprobe loop assumed and stopped
+insmod: /lib/modules/2.4.0-ac12/kernel/net/unix/unix.o: can't handle
+sections of type 255 /lib/modules/2.4.0-ac12/kernel/net/unix/unix.o
+kmod: runaway modprobe loop assumed and stopped
+insmod: /lib/modules/2.4.0-ac12/kernel/net/unix/unix.o: insmod net-pf-1
+failed
+
+Hope this helps.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

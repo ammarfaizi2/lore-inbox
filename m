@@ -1,67 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268026AbUHZKN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267979AbUHZKOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268026AbUHZKN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 06:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268580AbUHZKKg
+	id S267979AbUHZKOM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 06:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267945AbUHZKAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 06:10:36 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:43136
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268026AbUHZKI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 06:08:58 -0400
-To: akpm@osdl.org
-Subject: [PATCH] use page_to_nid
-Cc: apw@shadowen.org, linux-kernel@vger.kernel.org
-Message-Id: <E1C0HBX-0003A4-E8@localhost.localdomain>
-From: Andy Whitcroft <apw@shadowen.org>
-Date: Thu, 26 Aug 2004 11:08:47 +0100
+	Thu, 26 Aug 2004 06:00:53 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:22925 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S268032AbUHZJs7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 05:48:59 -0400
+Date: Thu, 26 Aug 2004 11:51:38 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <782176906.20040826115138@tnonline.net>
+To: Matt Mackall <mpm@selenic.com>
+CC: Nicholas Miell <nmiell@gmail.com>, Wichert Akkerman <wichert@wiggy.net>,
+       Jeremy Allison <jra@samba.org>, Andrew Morton <akpm@osdl.org>,
+       <torvalds@osdl.org>, <reiser@namesys.com>, <hch@lst.de>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <flx@namesys.com>, <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <20040826044425.GL5414@waste.org>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
+ <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net>
+ <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
+ <1453698131.20040826011935@tnonline.net>
+ <20040825163225.4441cfdd.akpm@osdl.org>
+ <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net>
+ <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are a couple of places where we seem to go round the houses
-to get the numa node id from a page.  We have a macro for this
-so it seems sensible to use that.
 
--apw
 
-=== 8< ===
-Both lookup_node and enqueue_huge_page use page_zone() to locate
-the zone, that to locate node pgdat_t and that to get the node_id.
-Its more efficient to use page_to_nid() which gets the nid from the
-page flags, especially if we are not using the zone for anything
-else it.  Change these to use page_to_nid().
+> On Wed, Aug 25, 2004 at 05:42:21PM -0700, Nicholas Miell wrote:
+>> On Wed, 2004-08-25 at 16:46, Wichert Akkerman wrote:
+>> > Previously Jeremy Allison wrote:
+>> > > Multiple-data-stream files are something we should offer, definately (IMHO).
+>> > > I don't care how we do it, but I know it's something we need as application
+>> > > developers.
+>> > 
+>> > Aside from samba, is there any other application that has a use for
+>> > them? 
+>> > 
+>> 
+>> Anything that currently stores a file's metadata in another file really
+>> wants this right now. Things like image thumbnails, document summaries,
+>> digital signatures, etc.
 
-Revision: $Rev: 494 $
+> That is _highly_ debatable. I would much rather have my cp and grep
+> and cat and tar and such continue to work than have to rewrite every
+> tool because we've thrown the file-is-a-stream-of-bytes concept out
+> the window. Never mind that I've got thumbnails, document summaries,
+> and digital signatures already.
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+  In  Windows,  the  extra file streams are not lost or removed if you
+  use  a  program that doesn't support them. They are only lost if you
+  move the file to a file system that doesn't support the streams.
 
-diffstat 100-use_page_to_nid
----
- hugetlb.c   |    2 +-
- mempolicy.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+  Even RAR support the NTFS file streams.
 
-diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/mm/hugetlb.c current/mm/hugetlb.c
---- reference/mm/hugetlb.c	2004-08-06 10:00:18.000000000 +0100
-+++ current/mm/hugetlb.c	2004-08-06 13:39:26.000000000 +0100
-@@ -21,7 +21,7 @@ static spinlock_t hugetlb_lock = SPIN_LO
- 
- static void enqueue_huge_page(struct page *page)
- {
--	int nid = page_zone(page)->zone_pgdat->node_id;
-+	int nid = page_to_nid(page);
- 	list_add(&page->lru, &hugepage_freelists[nid]);
- 	free_huge_pages++;
- 	free_huge_pages_node[nid]++;
-diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/mm/mempolicy.c current/mm/mempolicy.c
---- reference/mm/mempolicy.c	2004-08-06 10:00:18.000000000 +0100
-+++ current/mm/mempolicy.c	2004-08-06 13:33:36.000000000 +0100
-@@ -438,7 +438,7 @@ static int lookup_node(struct mm_struct 
- 
- 	err = get_user_pages(current, mm, addr & PAGE_MASK, 1, 0, 0, &p, NULL);
- 	if (err >= 0) {
--		err = page_zone(p)->zone_pgdat->node_id;
-+		err = page_to_nid(p);
- 		put_page(p);
- 	}
- 	return err;
+> While the number of annoying properties of files with forks is
+> practically endless, the biggest has got to be utter lack of
+> portability. How do you stick the thing in an attachment or on an ftp
+> site? Well you can't because it's NOT A FILE. 
+
+> A file is a stream of bytes.
+
+
+
+
+

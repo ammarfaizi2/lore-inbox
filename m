@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129936AbQKNMFs>; Tue, 14 Nov 2000 07:05:48 -0500
+	id <S130108AbQKNMF7>; Tue, 14 Nov 2000 07:05:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130168AbQKNMFi>; Tue, 14 Nov 2000 07:05:38 -0500
-Received: from mx1.port.ru ([194.67.23.32]:50189 "EHLO mx1.port.ru")
-	by vger.kernel.org with ESMTP id <S129936AbQKNMFX>;
-	Tue, 14 Nov 2000 07:05:23 -0500
-From: "Samium Gromoff" <_deepfire@mail.ru>
+	id <S130763AbQKNMFs>; Tue, 14 Nov 2000 07:05:48 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:25098 "EHLO
+	wisbech.cl.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130108AbQKNMFf>; Tue, 14 Nov 2000 07:05:35 -0500
+X-Mailer: exmh version 2.0.2+CL 2/24/98
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-test9/PPPD2.4.0-release
+cc: Ian.Grant@cl.cam.ac.uk, mingo@elte.hu
+Subject: RAID modules and CONFIG_AUTODETECT_RAID
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.30.70]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E13veMl-000Bjg-00@f6.mail.ru>
-Date: Tue, 14 Nov 2000 14:35:07 +0300
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 14 Nov 2000 11:35:33 +0000
+From: Ian Grant <Ian.Grant@cl.cam.ac.uk>
+Message-Id: <E13veNB-0000Se-00@wisbech.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        Maybe i`d better to post this problem to
-  linux-ppp ML, but i`ve reported already it to PPP
-maintainers about half year ago, thus i felt ok to post
-here. And so the problem:
-     I`m unable sometimes to get files thru HTTP, and
-the way its happening is very strange for me:
-     it looks like the packets with file are on place,
-     but kernel rejects `em, fact of what is reflected
-     in significant growth of errors of PPP inteface
-    showed by ifconfig. I checked what error count
-    increase is contemporary with flashing lights on
-    my Sportster 14400 Vi. But thats half of the
-problem, because this afaik is not a 100% error. It
-    wouldn`t have look that strange for me, if i had
-    that with different files. BUT for ex. i cant get
-"http://www.mail-archive.com/linux-kernel%40vger.kernel.org/msg12187.html", and that happens with about 20% of
-small files i retrieve thu web... =(. That problem
-afaik doesnt extend to large files (e.g >10k)
-        Usually receive stalls on 1 or 2 kbytes.
+In 2.2.x we were able to build a kernel with RAID modules and have it 
+autodetect RAID partitions at boot time - so we could use raid root partitions.
 
-      Having 2.4.0-test9/pppd 2.4.0-release.
-            Encountering that ONLY on 
-       2.4.0-testXX series, NOT in 2.2.XX (for ex.
-     2.2.17 goes well with that).
-     Again, 2.4.N with n<~7 were absolutely unworkable,
-    e.g. the procent of "rejected" small files lied
-     around 80%.
+In 2.40 the configuration option CONFIG_AUTODETECT_RAID is explicitly disabled 
+unless at least one RAID module is built into the kernel.  I presume there is 
+a good reason for this and that it's not just a mistake.
 
-Sorry for ugly english/stupidness, i`m foreign
-                                 non-kernelhacker.
+Are there any plans to re-enable this feature?  It would be nice to be able to 
+have a single kernel for all our machines without having to have RAID in the 
+kernel when it isn't needed.
+
+
+-- 
+Ian Grant, Computer Lab., New Museums Site, Pembroke Street, Cambridge
+Phone: +44 1223 334420          Personal e-mail: iang at pobox dot com 
 
 
 -

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270855AbRH1Mzb>; Tue, 28 Aug 2001 08:55:31 -0400
+	id <S270862AbRH1M6V>; Tue, 28 Aug 2001 08:58:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270862AbRH1MzV>; Tue, 28 Aug 2001 08:55:21 -0400
-Received: from thunderchild.ikk.sztaki.hu ([193.225.87.24]:49413 "HELO
-	thunderchild.ikk.sztaki.hu") by vger.kernel.org with SMTP
-	id <S270855AbRH1MzK>; Tue, 28 Aug 2001 08:55:10 -0400
-Date: Tue, 28 Aug 2001 14:55:26 +0200
-From: Gergely Madarasz <gorgo@thunderchild.debian.net>
-To: linux-kernel@vger.kernel.org
-Subject: aic7899 problems
-Message-ID: <20010828145526.I6202@thunderchild.ikk.sztaki.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S270919AbRH1M6C>; Tue, 28 Aug 2001 08:58:02 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:63417 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S270862AbRH1M5t>; Tue, 28 Aug 2001 08:57:49 -0400
+Date: Tue, 28 Aug 2001 13:59:31 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VM: Bad swap entry 0044cb00
+In-Reply-To: <Pine.NEB.4.33.0108280204430.13898-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.21.0108281341140.1135-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 28 Aug 2001, Adrian Bunk wrote:
+> 
+> I upgraded my kernel from 2.4.8ac10 to 2.4.9ac2 some hours ago and I found
+> the following message in my syslog file (I've never seen something like
+> this before):
+> 
+> Aug 27 22:40:46 r063144 kernel: VM: Bad swap entry 0044cb00
+> 
+> What does this mean (my machine seems to run fine)?
 
-the error message is like this:
+If you only get such a message occasionally, it probably indicates
+some race in the swapin code; probably not a new problem, but one now
+made more visible by Rik's vm_swap_full swap deletion (as Alan hinted).
+The race may well be benign.
 
-scsi0:0:3:0: Attempting to queue an ABORT message
-scsi0:0:3:0: Cmd aborted from QINFIFO
-aic7xxx_abort returns 8194
-scsi0:0:3:0: Attempting to queue an ABORT message
-scsi0:0:3:0: Cmd aborted from QINFIFO
-aic7xxx_abort returns 8194
-scsi0:0:3:0: Attempting to queue an ABORT message
-(scsi0:A:3:0): Queuing a recovery SCB
-scsi0:0:3:0: Device is disconnected, re-queuing SCB
-Recovery code sleeping
-Recovery code awake
-Timer Expired
-aic7xxx_abort returns 8195
+But I'm guessing: I ought to understand this, but I don't.
 
-lots of these messages. the same happens on scsi0:0:4:0, scsi0:0:5:0 and
-scsi0:0:9:0, then I get ext2 and I/O errors. I have 4 of these machines
-(ibm netfinity 5100), running for several weeks now as http proxies, and
-sometimes they crash (3 from 4 have crashed so far at least once, this is
-the first time I have logs from the beginning of the crash). The kernel is
-stock 2.4.7. On another machine (netfinity 7100, aic7896) I couldn't boot
-stock 2.4.9 because I got these messages right after the boot, the old aic
-driver worked though. I'm puzzled because the 5100's worked perfectly for
-almost a month. What should I try? 
+The message I would expect you to get occasionally is the equivalent
+message from swap_duplicate(), but that would be differently worded
+("Unused swap offset entry in swap_dup 0044cb00").  The one you see
+either comes from __swap_free() or from get_swaphandle_info():
+I wonder which?
 
--- 
-Madarasz Gergely   gorgo@thunderchild.debian.net   gorgo@linux.rulez.org
-    It's practically impossible to look at a penguin and feel angry.
-        Egy pingvinre gyakorlatilag lehetetlen haragosan nezni.
-                  HuLUG: http://mlf.linux.rulez.org/
+If you're still getting such messages, please let me know and
+I'll send a test patch to make the message more informative.
+
+Is this an SMP machine?
+
+Hugh
+

@@ -1,142 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVAMVtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVAMV7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVAMVtp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 16:49:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVAMVoP
+	id S261772AbVAMV7g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 16:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVAMV4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 16:44:15 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:60932 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261706AbVAMVlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:41:22 -0500
-Subject: Re: thoughts on kernel security issues
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, grendel@caudium.net,
-       Chris Wright <chrisw@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Greg KH <greg@kroah.com>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501131307430.2310@ppc970.osdl.org>
-References: <20050112094807.K24171@build.pdx.osdl.net>
-	 <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
-	 <20050112185133.GA10687@kroah.com>
-	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
-	 <20050112161227.GF32024@logos.cnet>
-	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
-	 <20050112174203.GA691@logos.cnet>
-	 <1105627541.4624.24.camel@localhost.localdomain>
-	 <20050113194246.GC24970@beowulf.thanes.org>
-	 <20050113115004.Z24171@build.pdx.osdl.net>
-	 <20050113202905.GD24970@beowulf.thanes.org>
-	 <1105645267.4644.112.camel@localhost.localdomain>
-	 <1105649837.6031.54.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.58.0501131307430.2310@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Thu, 13 Jan 2005 22:41:04 +0100
-Message-Id: <1105652464.6031.72.camel@laptopd505.fenrus.org>
+	Thu, 13 Jan 2005 16:56:20 -0500
+Received: from colin2.muc.de ([193.149.48.15]:30476 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261728AbVAMVxr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 16:53:47 -0500
+Date: 13 Jan 2005 22:53:46 +0100
+Date: Thu, 13 Jan 2005 22:53:46 +0100
+From: Andi Kleen <ak@muc.de>
+To: Ed L Cashin <ecashin@coraid.com>
+Cc: Jens Axboe <axboe@suse.de>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Re: [BUG] ATA over Ethernet __init calling __exit
+Message-ID: <20050113215346.GB1504@muc.de>
+References: <20050113000949.A7449@flint.arm.linux.org.uk> <20050113085035.GC2815@suse.de> <m1wtuh2kah.fsf@muc.de> <87is616oi2.fsf@coraid.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87is616oi2.fsf@coraid.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> But that doesn't mean that all the same things aren't true for vendor-sec 
-> that are true for MS. They are just bad to a (much, I hope) smaller 
-> degree.
-
-(for the record, I'm no great fan of vendor-sec, and haven't been on it
-for quite some time and am glad for that. I also try to avoid it for
-things I find myself for a lot of the reasons you stated earlier.
-However I do still think that it is nice if people who find security
-issues give the upstream author (or a select subset thereof) SOME time
-to come up with a fix, and audit for similar bugs elsewhere in the code.
-1 week should in nearly all cases be more than plenty for that though)
-
-
-> So instead, let's look at FACTS:
+On Thu, Jan 13, 2005 at 03:52:05PM -0500, Ed L Cashin wrote:
+> Andi Kleen <ak@muc.de> writes:
 > 
->  - fixing a security bug is almost always much easier than writing an 
->    exploit.  Arjan, your argument simply isn't true except for the worst 
->    possible fundamental design issues. You should know that. In the case 
->    of "uselib()", it was literally four lines of obvious code - all the 
->    rest was just to make sure that there weren't any other cases like that
->    lurking around.
+> ...
+> > In general I think it was a bad idea to merge this driver at all.
+> > The protocol is obviously broken by design - they use a 16 bit sequence
+> > number space which has been proven for many years (in ip fragmentation)
+> > to be far too small for modern network performance.
+> 
+> While that experience may apply well to IP, this is a non-IP protocol
+> for a single LAN.  For any given AoE device, there are only a few
+> outstanding packets at any given time.
+> 
+> For existing AoE devices that number of outstanding packets is only
+> three!  So, with only three packets on the wire at any time for a
+> given device, 16 bits is overkill.  In fact, the AoE protocol allows
+> the AoE device to specify how many outstanding packets it supports.
+> That number is only 16 bits wide.  
+> 
+> If it ever did become desirable, we could use a couple more bits for
 
-I've seen it both ways; some of the worst issues fix wise (remember the
-seek thing) took a while to fix, and especially to audit the rest of the
-code for teh same bug. Ok it's also the best proof against the v-s
-approach at the same time since the fix that came out of that wasn't a
-really nice/good/maintainable fix.
+It likely will if someone ever adds significant write cache to such
+devices.
 
-Also I'm thinking "hours" not "days" here. Getting a fix done and
-released will generally take a few hours, for example, you sleep a few
-hours a day already, so a fix just cannot make your bk tree "within 2
-hours" at any time of the day. Oh of course there is lkml, and patches
-go out that way as well; but that's not quite the same. Sometimes
-someone gives a "here this fixes it" patch that is worse than the
-original problem.
+> the sequence number by borrowing from the low bits of jiffies that we
+> use to estimate the RTT, but it doesn't seem likely to ever be
+> desirable.
 
+Can this be done now? 
 
->  - There are more white-hats around than black-hats, but they are often 
->    less "driven" and motivated. Now _that_, I would argue, is the real 
->    problem with early disclosure - motivation.  The people really 
->    motivated to find the bugs are the people who are also motivated to
->    mis-use them. However, vendor-sec and "the game" just makes it more 
->    worth-while for security firms to participate in it - it gives them the 
->    "good PR" thing. And how much can you trust the "gray hats"?
+> 
+> > Also the memory allocation without preallocation in the block write
+> > out path looks quite broken too and will most likely will lead to deadlocks
+> > under high load.
+> >
+> > (I wrote a detailed review when it was posted but apparently it 
+> > disappeared or I never got any answer at least) 
+> 
+> I think you're talking about your suggestion that the skb allocation
+> could lead to a deadlock.  If I'm correct, this issue is similar to
+> the one that led us to create a mempool for the buf structs we use.
 
-I've seen enough of this go wrong/abused to agree with you to a large
-extend. To the point where I have a natural initial distrust to people
-who come with an embargoed hole and want to make a really big splash
-about it (as opposed to mere developers finding something by accident
-that want to do the right thing). Both sides happen. The later ones we
-should have something for, that is both easy for such developers to
-report, and that gets the patch out at least close in time to the hole
-becoming widespread knowledge. 
+For the skbuffs? I don't think it's possible to preallocate them
+because the network stack (intentionally) misses hooks to give
+them back to you.
 
-> And this is why I believe vendor-sec is part of the problem. If you don't
-> see that, then you're blinding yourself to the downsides, and trying to
-> only look at the upsides.
+BTW iirc your submit patch did too much allocations anyways because
+in modern Linux skbs you can just stick a pointer to the page
+into the skb when the device announces NETIF_F_SG. 
 
-I think v-s has gone too far and is not really useful anymore. In the
-last four years I've been in a job where I both got to like the few days
-of advanced notice and got to hate the downsides. (fwiw I'm no longer in
-that position so by now I probably have a different perspective than
-Dave has;). I would absolutely agree with the statement that the
-downsides of the current v-s outweigh the advantages by far.
+> 
+> > IMHO this thing should have never been merged in this form. Can it 
+> > still be backed out?
+> 
+> The sequence number is a non-issue, and for the deadlock danger you
+> originally suggested that we add a warning against using aoe storage
+> for swap.  We could add such a warning to the driver's documentation
 
-That does not mean that I think that ANY system that makes it easy for
-people to report things such that the upstream developers get a
-reasonable advance notice and can come up with a fix before the hole
-goes public is flawed in design. It can be done right, and some of the
-things on this list (putting a time cap on the notice period for
-example) will go a long way to making a sensible system that serves the
-users of the software best. After all its a balance between remaining
-vulnerable a bit longer than perhaps strictly needed versus having a lot
-of active exploits out there without a fix. And yes you can't guarantee
-that the alter is the case while you think you do the former. That's the
-gamble you take and that is what a reasonable cap on the disclosure time
-will at least limit in extend.
+It's not only swap, the same problem occurs when any file on such
+a device is writeable mmaped.
 
-Also, to be fair, I suspect half the things that come into v-s and
-similar don't have a reporter who is interested in more than "I let them
-know and please let me forget about it now I want to move on with other
-things in life". Getting that case right is important.
-
-
+-Andi

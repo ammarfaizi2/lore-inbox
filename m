@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268252AbTCFSSr>; Thu, 6 Mar 2003 13:18:47 -0500
+	id <S268224AbTCFSSG>; Thu, 6 Mar 2003 13:18:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268266AbTCFSSq>; Thu, 6 Mar 2003 13:18:46 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:13495 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S268252AbTCFSSg>;
-	Thu, 6 Mar 2003 13:18:36 -0500
-Date: Thu, 6 Mar 2003 19:27:02 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: jvlists@ntlworld.com
-Cc: Linus Torvalds <torvalds@transmeta.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@digeo.com>, <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
+	id <S268256AbTCFSSG>; Thu, 6 Mar 2003 13:18:06 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9996 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268224AbTCFSSF>; Thu, 6 Mar 2003 13:18:05 -0500
+Date: Thu, 6 Mar 2003 10:26:06 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@digeo.com>,
+       <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <g3of4owfex.fsf@bart.isltd.insignia.com>
-Message-ID: <Pine.LNX.4.44.0303061925050.17038-100000@localhost.localdomain>
+In-Reply-To: <9420000.1046974427@flay>
+Message-ID: <Pine.LNX.4.44.0303061024050.7720-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 6 Mar 2003 jvlists@ntlworld.com wrote:
+On Thu, 6 Mar 2003, Martin J. Bligh wrote:
+> 
+> It would be nice if we had a "batch-job-able" simulation of this situation,
+> to do more accurate testing with ... can anyone think of an easy way to
+> do such a thing? "waggle a few windows around on X and see if it feels 
+> better to you or not" is kind of hard to do accurate testing with.
+> Of course, the simulation has to be accurate too, or it gets stupid ;-)
 
-> P.S. IMVHO the xine problem is completely different as has nothing to
-> with interactivity but with the fact that it is soft real-time. i.e. you
-> need to distingish xine from say a gimp filter or a 3D renderer with
-> incremental live updates of the scene it is creating.
+It should be possible to use the same approach that the other latency
+testers use (ie contest&co), by just generating some specific background
+load (say, different mixtures of X clients and plain compute-bound things 
+like kernel compiles).
 
-it is the same category of problems: xine and X are both applications,
-which, if lagged, are noticed by users. xine can be a perfectly fine CPU
-hog when playing back DVDs. It can also be a mostly interactive task
-playing back music mostly. For xine it's not just that audio skipping that
-gets noticed, it's also the video-playback jerkiness that can be noticed
-by users.
+Ie measure directly exactly what we're interested in: the latency of some
+general X request, under different loads.
 
-	Ingo
+		Linus
 

@@ -1,46 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282862AbRLGRtZ>; Fri, 7 Dec 2001 12:49:25 -0500
+	id <S282870AbRLGRzp>; Fri, 7 Dec 2001 12:55:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282867AbRLGRtG>; Fri, 7 Dec 2001 12:49:06 -0500
-Received: from zero.tech9.net ([209.61.188.187]:59141 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S282771AbRLGRsb>;
-	Fri, 7 Dec 2001 12:48:31 -0500
-Subject: Re: horrible disk thorughput on itanium
-From: Robert Love <rml@tech9.net>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200112071740.fB7HeVG16220@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <p73r8q86lpn.fsf@amdsim2.suse.de.suse.lists.linux.kernel>
-	<Pine.LNX.4.33.0112070710120.747-100000@mikeg.weiden.de.suse.lists.linux.ker
-	 nel> <9upmqm$7p4$1@penguin.transmeta.com.suse.lists.linux.kernel>
-	<p73n10v6spi.fsf@amdsim2.suse.de>
-	<200112071614.fB7GEQ514356@vindaloo.ras.ucalgary.ca>
-	<1007745537.828.15.camel@phantasy> 
-	<200112071740.fB7HeVG16220@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain
+	id <S282877AbRLGRzf>; Fri, 7 Dec 2001 12:55:35 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:36876 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S282870AbRLGRzU>; Fri, 7 Dec 2001 12:55:20 -0500
+Message-ID: <3C110287.8070205@redhat.com>
+Date: Fri, 07 Dec 2001 12:55:19 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011115
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nathan Bryant <nbryant@optonline.net>
+CC: Andris Pavenis <pavenis@lanet.lv>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i810_audio fix for version 0.11
+In-Reply-To: <3C10E85F.7040009@lanet.lv> <3C10F9E0.7010906@optonline.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 07 Dec 2001 12:48:28 -0500
-Message-Id: <1007747309.824.17.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-07 at 12:40, Richard Gooch wrote:
+Nathan Bryant wrote:
 
-> > The link to the mailing list post from bug-glibc says otherwise,
-> > that is the problem.  Using the unlocked version isn't implied by
-> > not setting __REENTRANT.
-> 
-> The bug is in glibc. An application shouldn't need to be changed to
-> work around that bug. putc() is a well-known interface, and people
-> shouldn't have to code around a change in that interface.
+> Andris Pavenis wrote:
+>
+>>  > With this patch, it seems to work fine. Without, it hangs on write.
+>>
+>> I met case when dmabuf->count==0 when __start_dac() is called. As result
+>> I still got system freezing even if PCM_ENABLE_INPUT or 
+>> PCM_ENABLE_OUTPUT were set accordingly (I used different patch, see 
+>> another patch I sent today).
+>>
+>> My latest revision of patch "survives" without problems already some 
+>> hours (normally I'm not listening radio through internet all time, 
+>> but this time I do ...)
+>>
+>> Andris
+>>
+>>
+>>
+>>
+>>
+>>
+>
+> i knew i shoula been a little less lazy with that one...
+>
+> haven't looked at your revision yet but we should just clean up and 
+> make update_lvi self-contained so that it always does *something* 
+> appropriate regardless of state. maybe that's what you did. ;-)
+>
+> (fyi, i'm not subscribed to linux-kernel, too much volume for the few 
+> specific interests i have, i don't see some of this stuff until, and 
+> if, i go digging thru archives)
+>
+Well, unfortunately, neither of the patches you guys sent do what I was 
+looking for ;-)  My goal with that code was to enable a specific certain 
+behaviour, and because of the deadlock I have to make a few changes 
+elsewhere for it to work properly.  The workaround patches are fine for 
+now, but later today I'll make a 0.12 that fixes it the way I'm looking 
+for.  (Hint: it's legal for a program to call SETTRIGGER to disable PCM 
+output, then call the write() routine to fill the buffer, then call 
+SETTRIGGER again to start output, otherwise known as pre buffering, and 
+I want to support that without forcing the DAC to be started on 
+update_lvi())
 
-Right.  That's why I referenced a post on bug-glibc and called the issue
-a problem.  I'm not defending the heaping mass known as glibc ... it
-should be fixed.
+The real answer is multipart:
 
-	Robert Love
+1) during i810_open go back to the old behaviour of setting 
+dmabuf->trigger to PCM_ENABLE_INPUT and/or OUTPUT based on file mode.
+
+2) make sure that i810_mmap clears dmabuf->trigger
+
+3) make sure that in both i810_write and i810_read, we force the trigger 
+setting when we can't output/input any data because count <= 0
+
+4) in update_lvi make the check something like:
+
+if (!dmabuf->enable && dmabuf->trigger) {
+    ....
+}
+
+That should solve the problem, I just haven't written it up yet.
+
+
 

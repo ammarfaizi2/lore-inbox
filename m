@@ -1,19 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318033AbSHHVqL>; Thu, 8 Aug 2002 17:46:11 -0400
+	id <S318058AbSHHVr0>; Thu, 8 Aug 2002 17:47:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318036AbSHHVqL>; Thu, 8 Aug 2002 17:46:11 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:7371 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318033AbSHHVqI>;
-	Thu, 8 Aug 2002 17:46:08 -0400
+	id <S318036AbSHHVqO>; Thu, 8 Aug 2002 17:46:14 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:12747 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318034AbSHHVqJ>;
+	Thu, 8 Aug 2002 17:46:09 -0400
 Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, andrea@suse.de, davej@suse.de,
-       lkml <linux-kernel@vger.kernel.org>, Paul Larson <plars@austin.ibm.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@zip.com.au>,
+       andrea@suse.de, davej@suse.de, lkml <linux-kernel@vger.kernel.org>,
+       Paul Larson <plars@austin.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>
 X-Mailer: Lotus Notes Release 5.0.10  March 22, 2002
-Message-ID: <OFC67607F7.46F76DF9-ON85256C0F.007764F2-85256C0F.0077F591@us.ibm.com>
+Message-ID: <OF607243C8.ACB54959-ON85256C0F.00771789-85256C0F.0077571A@us.ibm.com>
 From: Hubertus Franke <frankeh@us.ibm.com>
-Date: Thu, 8 Aug 2002 17:50:16 -0400
+Date: Thu, 8 Aug 2002 17:43:30 -0400
 X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Build V60_M14_08012002 Release
  Candidate|August 01, 2002) at 08/08/2002 17:48:41
 MIME-Version: 1.0
@@ -26,23 +28,13 @@ X-Mailing-List: linux-kernel@vger.kernel.org
                                                                                                                
 
 
-Agreed ....
-The mark-and-sweep is the correct method for 16-bits ! For 32-bits its not
-possible !
-Two level is over-engineered (as I told Paul).
+That is true. All was done under the 16-bit assumption
+My hunch is that the current algorithm might actually work quite well
+for a sparsely populated pid-space (32-bits).
+A bitmap-ed based solution is not possible at that point due to space
+requirements.
 
-If you want I can post the data that I collected comparing
-(a) stock kernel
-(b) my mark and sweep
-(c) my double mark and sweep (try looking forward and then scan task list)
-?
-
-Let me know if you are interested.
-That should clear up the issue quickly giving you some average allocation
-times etc.....
-as a function of random used pids.
-
-
+Should be easy to figure out.
 
 Hubertus Franke
 Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
@@ -54,56 +46,43 @@ email: frankeh@us.ibm.com
 
 
                                                                                                                                      
-                      Linus Torvalds                                                                                                 
-                      <torvalds@transme        To:       Andrew Morton <akpm@zip.com.au>                                             
-                      ta.com>                  cc:       Paul Larson <plars@austin.ibm.com>, lkml <linux-kernel@vger.kernel.org>,    
-                                                <davej@suse.de>, Hubertus Franke/Watson/IBM@IBMUS, <andrea@suse.de>                  
-                      08/08/2002 04:24         Subject:  Re: [PATCH] Linux-2.5 fix/improve get_pid()                                 
-                      PM                                                                                                             
+                      Rik van Riel                                                                                                   
+                      <riel@conectiva.         To:       Hubertus Franke/Watson/IBM@IBMUS                                            
+                      com.br>                  cc:       Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@zip.com.au>,         
+                                                <andrea@suse.de>, <davej@suse.de>, lkml <linux-kernel@vger.kernel.org>, Paul Larson  
+                      08/08/2002 04:15          <plars@austin.ibm.com>, Linus Torvalds <torvalds@transmeta.com>                      
+                      PM                       Subject:  Re: [PATCH] Linux-2.5 fix/improve get_pid()                                 
                                                                                                                                      
                                                                                                                                      
+                                                                                                                                     
 
 
 
+On Thu, 8 Aug 2002, Hubertus Franke wrote:
 
-On Wed, 7 Aug 2002, Andrew Morton wrote:
+> Which one sounds like the best one ?
 >
-> Has this been evaluated against Bill Irwin's constant-time
-> allocator?  Bill says it has slightly worse normal-case and
-> vastly improved worst-case performance over the stock allocator.
-> Not sure how it stacks up against this one.   Plus it's much nicer
-> looking code.
+> Assuming that for now we have to stick to 16-bit pid_t ....
 
-Guys, this discussion is getting ridiculous.
+That assumption is pretty central to the debate.
 
-Doing a bit allocator should be trivial, but it's hard to know when a bit
-is to be free'd. You can't just do it at "exit()" time, because even if
-pid X exits, that doesn't mean that X can be re-used: it may still be used
-as a pgid or a tid by some other process Y.
+I don't see the standard get_pid nor the bitmap based
+get_pid scale to something larger than a 16-bit pid_t.
 
-So if you really want to take this approach, you need to count the uses of
-"pid X", and free the bitmap entry only when that count goes to zero. I
-see no such logic in Bill Irwin's code, only a comment about last use
-(which doesn't explain how to notice that last use).
+If we're not sure yet whether we want to keep pid_t 16
+bits it might be worth putting in an algorithm that does
+scale to larger numbers, if only so the switch to a larger
+pid_t will be more straightforward.
 
-Without that per-pid-count thing clarified, I don't think the (otherwise
-fairly straightforward) approach of Bills really flies.
+kind regards,
 
-For that reason I think the mark-and-sweep thing is the right thing to do,
-but I think the two-level algorithm is just over-engineering and not worth
-it. And I do hate that getpid_mutex thing. Having a blocking lock for
-something as simple as pid allocation just smells horribly wrong to me.
+Rik
+--
+             http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
 
-Moving the pid allocation to later (so that it doesn't need to handle
-operations that block in between allocation and "we're done" and the pid
-allocation can be a spinlock) sounds like a fairly obvious thing to do.
-
-I don't see why we would need the "pid" until the very last moment, at
-which point we already have the tasklist lock, in fact.
-
-And I hate overengineering.
-
-                         Linus
+http://www.surriel.com/                    http://distro.conectiva.com/
 
 
 

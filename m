@@ -1,54 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268225AbUJJK2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268228AbUJJKdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268225AbUJJK2M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 06:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268228AbUJJK2M
+	id S268228AbUJJKdg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 06:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268230AbUJJKdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 06:28:12 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:8965 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S268225AbUJJK2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 06:28:08 -0400
-Date: Sun, 10 Oct 2004 12:28:02 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: "Yoshinori K. Okuji" <okuji@gnu.org>
-Cc: linux-kernel@vger.kernel.org, videolan@videolan.org
-Subject: Re: possible GPL violation by Free
-Message-ID: <20041010102802.GH19761@alpha.home.local>
-References: <200410091958.25251.okuji@gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410091958.25251.okuji@gnu.org>
-User-Agent: Mutt/1.4i
+	Sun, 10 Oct 2004 06:33:36 -0400
+Received: from [145.85.127.2] ([145.85.127.2]:59794 "EHLO mail.il.fontys.nl")
+	by vger.kernel.org with ESMTP id S268228AbUJJKd3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 06:33:29 -0400
+Message-ID: <54925.217.121.83.210.1097404400.squirrel@217.121.83.210>
+In-Reply-To: <20041010010450.6828d053.akpm@osdl.org>
+References: <20041009203502.32f9eefb.akpm@osdl.org>
+    <61320.217.121.83.210.1097395239.squirrel@217.121.83.210>
+    <20041010010450.6828d053.akpm@osdl.org>
+Date: Sun, 10 Oct 2004 12:33:20 +0200 (CEST)
+Subject: Re: Fw: [Patch] lockd: remove hardcoded maximum NLM cookie length
+From: "Ed Schouten" <ed@il.fontys.nl>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: multipart/mixed;boundary="----=_20041010123320_44929"
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+------=_20041010123320_44929
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-On Sat, Oct 09, 2004 at 07:58:25PM +0200, Yoshinori K. Okuji wrote:
-> I got information about a possible GPL violation in France. A network
-> service company called "Free" provides a kind of ADSL modem named
-> "Freebox". This "Freebox" is not only an ADSL modem but also has
-> functions of a router, an IP phone and a TV, using video streaming via
-> ATM. Although the "Freebox" does not contain any information about GPL,
-> a rumor says that this runs Linux as the kernel and VideoLAN for the
-> video streaming.
+On Sun, October 10, 2004 10:04 am, Andrew Morton said:
+> "Ed Schouten" <ed@il.fontys.nl> wrote:
+>>
+>> Am I allowed to send attachments?
+>
+> If you must.
 
-When they built the first freebox, I found an inside photo on the net.
-I don't remember which chip it was (several years ago), but it was clear
-from the maker that it only supported vxworks. And at this time, people
-were already saying it was running linux. There are so many rumors about
-many devices running linux that people should check (at least provide the
-result of an nmap -O). For most end-users, "linux" is the word for "a
-reliable embedded OS with IP support".
+So here it is :)
 
-However, I also found a photo of the new one on the net, which shows
-a big broadcom BCM6348. This one supports both linux and vxworks, but
-judging by the number of responses on google, there is a great chance
-that broadcom pushes linux on it since they also provide many other
-solutions involving linux.
+Yours,
+-- 
+ Ed Schouten <ed@il.fontys.nl>
+ Website: http://g-rave.nl/
+------=_20041010123320_44929
+Content-Type: application/octet-stream; name="patch-lockd-cookies.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch-lockd-cookies.diff"
 
-Regards,
-Willy
+ZGlmZiAtdSAtciAtLW5ldy1maWxlIGxpbnV4LTIuNi45LXJjMy9mcy9sb2NrZC9zdmNsb2NrLmMg
+bGludXgtMi42LjktcmMzLWVkMC9mcy9sb2NrZC9zdmNsb2NrLmMKLS0tIGxpbnV4LTIuNi45LXJj
+My9mcy9sb2NrZC9zdmNsb2NrLmMJMjAwNC0wOS0zMCAwNTowNDoyNC4wMDAwMDAwMDAgKzAyMDAK
+KysrIGxpbnV4LTIuNi45LXJjMy1lZDAvZnMvbG9ja2Qvc3ZjbG9jay5jCTIwMDQtMTAtMDkgMjE6
+MTY6MTguNDEyMjg0MDAwICswMjAwCkBAIC0xMTIsMTEgKzExMiwxMSBAQAogCQkJCShsb25nIGxv
+bmcpbG9jay0+ZmwuZmxfZW5kLCBsb2NrLT5mbC5mbF90eXBlKTsKIAlmb3IgKGhlYWQgPSAmbmxt
+X2Jsb2NrZWQ7IChibG9jayA9ICpoZWFkKSAhPSAwOyBoZWFkID0gJmJsb2NrLT5iX25leHQpIHsK
+IAkJZmwgPSAmYmxvY2stPmJfY2FsbC5hX2FyZ3MubG9jay5mbDsKLQkJZHByaW50aygibG9ja2Q6
+IGNoZWNrIGY9JXAgcGQ9JWQgJUxkLSVMZCB0eT0lZCBjb29raWU9JXhcbiIsCisJCWRwcmludGso
+ImxvY2tkOiBjaGVjayBmPSVwIHBkPSVkICVMZC0lTGQgdHk9JWQgY29va2llPSVzXG4iLAogCQkJ
+CWJsb2NrLT5iX2ZpbGUsIGZsLT5mbF9waWQsCiAJCQkJKGxvbmcgbG9uZylmbC0+Zmxfc3RhcnQs
+CiAJCQkJKGxvbmcgbG9uZylmbC0+ZmxfZW5kLCBmbC0+ZmxfdHlwZSwKLQkJCQkqKHVuc2lnbmVk
+IGludCopKGJsb2NrLT5iX2NhbGwuYV9hcmdzLmNvb2tpZS5kYXRhKSk7CisJCQkJbmxtZGJnX2Nv
+b2tpZTJhKCZibG9jay0+Yl9jYWxsLmFfYXJncy5jb29raWUpKTsKIAkJaWYgKGJsb2NrLT5iX2Zp
+bGUgPT0gZmlsZSAmJiBubG1fY29tcGFyZV9sb2NrcyhmbCwgJmxvY2stPmZsKSkgewogCQkJaWYg
+KHJlbW92ZSkgewogCQkJCSpoZWFkID0gYmxvY2stPmJfbmV4dDsKQEAgLTU4NCwxMyArNTg0LDEz
+IEBACiAJc3RydWN0IHNvY2thZGRyX2luCSpwZWVyX2FkZHIgPSBSUENfUEVFUkFERFIodGFzay0+
+dGtfY2xpZW50KTsKIAogCWRwcmludGsoImxvY2tkOiBHUkFOVF9NU0cgUlBDIGNhbGxiYWNrXG4i
+KTsKLQlkcHJpbnRrKCJjYWxsYmFjazogbG9va2luZyBmb3IgY29va2llICV4LCBob3N0ICglMDh4
+KVxuIiwgCi0JCSoodW5zaWduZWQgaW50ICopKGNhbGwtPmFfYXJncy5jb29raWUuZGF0YSksCi0J
+CW50b2hsKHBlZXJfYWRkci0+c2luX2FkZHIuc19hZGRyKSk7CisJZHByaW50aygiY2FsbGJhY2s6
+IGxvb2tpbmcgZm9yIGNvb2tpZSAlcywgaG9zdCAoJXUuJXUuJXUuJXUpXG4iLCAKKwkJbmxtZGJn
+X2Nvb2tpZTJhKCZjYWxsLT5hX2FyZ3MuY29va2llKSwKKwkJTklQUVVBRChwZWVyX2FkZHItPnNp
+bl9hZGRyLnNfYWRkcikpOwogCWlmICghKGJsb2NrID0gbmxtc3ZjX2ZpbmRfYmxvY2soJmNhbGwt
+PmFfYXJncy5jb29raWUsIHBlZXJfYWRkcikpKSB7Ci0JCWRwcmludGsoImxvY2tkOiBubyBibG9j
+ayBmb3IgY29va2llICV4LCBob3N0ICglMDh4KVxuIiwKLQkJCSoodTMyICopKGNhbGwtPmFfYXJn
+cy5jb29raWUuZGF0YSksCi0JCQludG9obChwZWVyX2FkZHItPnNpbl9hZGRyLnNfYWRkcikpOwor
+CQlkcHJpbnRrKCJsb2NrZDogbm8gYmxvY2sgZm9yIGNvb2tpZSAlcywgaG9zdCAoJXUuJXUuJXUu
+JXUpXG4iLAorCQkJbmxtZGJnX2Nvb2tpZTJhKCZjYWxsLT5hX2FyZ3MuY29va2llKSwKKwkJCU5J
+UFFVQUQocGVlcl9hZGRyLT5zaW5fYWRkci5zX2FkZHIpKTsKIAkJcmV0dXJuOwogCX0KIApkaWZm
+IC11IC1yIC0tbmV3LWZpbGUgbGludXgtMi42LjktcmMzL2ZzL2xvY2tkL3hkci5jIGxpbnV4LTIu
+Ni45LXJjMy1lZDAvZnMvbG9ja2QveGRyLmMKLS0tIGxpbnV4LTIuNi45LXJjMy9mcy9sb2NrZC94
+ZHIuYwkyMDA0LTA5LTMwIDA1OjAzOjUxLjAwMDAwMDAwMCArMDIwMAorKysgbGludXgtMi42Ljkt
+cmMzLWVkMC9mcy9sb2NrZC94ZHIuYwkyMDA0LTEwLTA5IDIxOjE0OjUyLjE2NTI4NDAwMCArMDIw
+MApAQCAtNTUsNyArNTUsNyBAQAogCQljLT5sZW49NDsKIAkJbWVtc2V0KGMtPmRhdGEsIDAsIDQp
+OwkvKiBob2NrZXlwdXggYnJhaW4gZGFtYWdlICovCiAJfQotCWVsc2UgaWYobGVuPD04KQorCWVs
+c2UgaWYobGVuPD1OTE1fTUFYQ09PS0lFTEVOKQogCXsKIAkJYy0+bGVuPWxlbjsKIAkJbWVtY3B5
+KGMtPmRhdGEsIHAsIGxlbik7CkBAIC02NCw3ICs2NCw3IEBACiAJZWxzZSAKIAl7CiAJCXByaW50
+ayhLRVJOX05PVElDRQotCQkJImxvY2tkOiBiYWQgY29va2llIHNpemUgJWQgKG9ubHkgY29va2ll
+cyB1bmRlciA4IGJ5dGVzIGFyZSBzdXBwb3J0ZWQuKVxuIiwgbGVuKTsKKwkJCSJsb2NrZDogYmFk
+IGNvb2tpZSBzaXplICVkIChvbmx5IGNvb2tpZXMgdW5kZXIgJWQgYnl0ZXMgYXJlIHN1cHBvcnRl
+ZC4pXG4iLCBsZW4sIE5MTV9NQVhDT09LSUVMRU4pOwogCQlyZXR1cm4gTlVMTDsKIAl9CiAJcmV0
+dXJuIHA7CkBAIC04Niw3ICs4Niw3IEBACiAKIAlpZiAoKGxlbiA9IG50b2hsKCpwKyspKSAhPSBO
+RlMyX0ZIU0laRSkgewogCQlwcmludGsoS0VSTl9OT1RJQ0UKLQkJCSJsb2NrZDogYmFkIGZoYW5k
+bGUgc2l6ZSAleCAoc2hvdWxkIGJlICVkKVxuIiwKKwkJCSJsb2NrZDogYmFkIGZoYW5kbGUgc2l6
+ZSAlZCAoc2hvdWxkIGJlICVkKVxuIiwKIAkJCWxlbiwgTkZTMl9GSFNJWkUpOwogCQlyZXR1cm4g
+TlVMTDsKIAl9CkBAIC01MTIsNyArNTEyLDcgQEAKICAqIEJ1ZmZlciByZXF1aXJlbWVudHMgZm9y
+IE5MTQogICovCiAjZGVmaW5lIE5MTV92b2lkX3N6CQkwCi0jZGVmaW5lIE5MTV9jb29raWVfc3oJ
+CTMJLyogMSBsZW4gLCAyIGRhdGEgKi8KKyNkZWZpbmUgTkxNX2Nvb2tpZV9zegkJMStRVUFETEVO
+KE5MTV9NQVhDT09LSUVMRU4pCiAjZGVmaW5lIE5MTV9jYWxsZXJfc3oJCTErUVVBRExFTihzaXpl
+b2Yoc3lzdGVtX3V0c25hbWUubm9kZW5hbWUpKQogI2RlZmluZSBOTE1fbmV0b2JqX3N6CQkxK1FV
+QURMRU4oWERSX01BWF9ORVRPQkopCiAvKiAjZGVmaW5lIE5MTV9vd25lcl9zegkJMStRVUFETEVO
+KE5MTV9NQVhPV05FUikgKi8KQEAgLTYwNCwzICs2MDQsMzIgQEAKIAkJLnN0YXRzCQk9ICZubG1f
+c3RhdHMsCiB9OwogCisjaWZkZWYgUlBDX0RFQlVHCitjb25zdCBjaGFyICpubG1kYmdfY29va2ll
+MmEoY29uc3Qgc3RydWN0IG5sbV9jb29raWUgKmNvb2tpZSkKK3sKKwkvKgorCSAqIFdlIGNhbiBn
+ZXQgYXdheSB3aXRoIGEgc3RhdGljIGJ1ZmZlciBiZWNhdXNlIHdlJ3JlIG9ubHkKKwkgKiBjYWxs
+ZWQgd2l0aCBCS0wgaGVsZC4KKwkgKi8KKwlzdGF0aWMgY2hhciBidWZbMipOTE1fTUFYQ09PS0lF
+TEVOKzFdOworCWludCBpOworCWludCBsZW4gPSBzaXplb2YoYnVmKTsKKwljaGFyICpwID0gYnVm
+OworCisJbGVuLS07CS8qIGFsbG93IGZvciB0cmFpbGluZyBcMCAqLworCWlmIChsZW4gPCAzKQor
+CQlyZXR1cm4gIj8/PyI7CisJZm9yIChpID0gMCA7IGkgPCBjb29raWUtPmxlbiA7IGkrKykgewor
+CQlpZiAobGVuIDwgMikgeworCQkJc3RyY3B5KHAtMywgIi4uLiIpOworCQkJYnJlYWs7CisJCX0K
+KwkJc3ByaW50ZihwLCAiJTAyeCIsIGNvb2tpZS0+ZGF0YVtpXSk7CisJCXAgKz0gMjsKKwkJbGVu
+IC09IDI7CisJfQorCSpwID0gJ1wwJzsKKworCXJldHVybiBidWY7Cit9CisjZW5kaWYKZGlmZiAt
+dSAtciAtLW5ldy1maWxlIGxpbnV4LTIuNi45LXJjMy9mcy9sb2NrZC94ZHI0LmMgbGludXgtMi42
+LjktcmMzLWVkMC9mcy9sb2NrZC94ZHI0LmMKLS0tIGxpbnV4LTIuNi45LXJjMy9mcy9sb2NrZC94
+ZHI0LmMJMjAwNC0wOS0zMCAwNTowMzo0NS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi45
+LXJjMy1lZDAvZnMvbG9ja2QveGRyNC5jCTIwMDQtMTAtMDkgMjE6MTQ6NTIuMTY5Mjg0MDAwICsw
+MjAwCkBAIC01Niw3ICs1Niw3IEBACiAJCWMtPmxlbj00OwogCQltZW1zZXQoYy0+ZGF0YSwgMCwg
+NCk7CS8qIGhvY2tleXB1eCBicmFpbiBkYW1hZ2UgKi8KIAl9Ci0JZWxzZSBpZihsZW48PTgpCisJ
+ZWxzZSBpZihsZW48PU5MTV9NQVhDT09LSUVMRU4pCiAJewogCQljLT5sZW49bGVuOwogCQltZW1j
+cHkoYy0+ZGF0YSwgcCwgbGVuKTsKQEAgLTY1LDcgKzY1LDcgQEAKIAllbHNlIAogCXsKIAkJcHJp
+bnRrKEtFUk5fTk9USUNFCi0JCQkibG9ja2Q6IGJhZCBjb29raWUgc2l6ZSAlZCAob25seSBjb29r
+aWVzIHVuZGVyIDggYnl0ZXMgYXJlIHN1cHBvcnRlZC4pXG4iLCBsZW4pOworCQkJImxvY2tkOiBi
+YWQgY29va2llIHNpemUgJWQgKG9ubHkgY29va2llcyB1bmRlciAlZCBieXRlcyBhcmUgc3VwcG9y
+dGVkLilcbiIsIGxlbiwgTkxNX01BWENPT0tJRUxFTik7CiAJCXJldHVybiBOVUxMOwogCX0KIAly
+ZXR1cm4gcDsKQEAgLTUxNSw3ICs1MTUsNyBAQAogICogQnVmZmVyIHJlcXVpcmVtZW50cyBmb3Ig
+TkxNCiAgKi8KICNkZWZpbmUgTkxNNF92b2lkX3N6CQkwCi0jZGVmaW5lIE5MTTRfY29va2llX3N6
+CQkzCS8qIDEgbGVuICwgMiBkYXRhICovCisjZGVmaW5lIE5MTTRfY29va2llX3N6CQkxK1hEUl9R
+VUFETEVOKE5MTV9NQVhDT09LSUVMRU4pCiAjZGVmaW5lIE5MTTRfY2FsbGVyX3N6CQkxK1hEUl9R
+VUFETEVOKE5MTV9NQVhTVFJMRU4pCiAjZGVmaW5lIE5MTTRfbmV0b2JqX3N6CQkxK1hEUl9RVUFE
+TEVOKFhEUl9NQVhfTkVUT0JKKQogLyogI2RlZmluZSBOTE00X293bmVyX3N6CQkxK1hEUl9RVUFE
+TEVOKE5MTTRfTUFYT1dORVIpICovCmRpZmYgLXUgLXIgLS1uZXctZmlsZSBsaW51eC0yLjYuOS1y
+YzMvaW5jbHVkZS9saW51eC9sb2NrZC9kZWJ1Zy5oIGxpbnV4LTIuNi45LXJjMy1lZDAvaW5jbHVk
+ZS9saW51eC9sb2NrZC9kZWJ1Zy5oCi0tLSBsaW51eC0yLjYuOS1yYzMvaW5jbHVkZS9saW51eC9s
+b2NrZC9kZWJ1Zy5oCTIwMDQtMDktMzAgMDU6MDU6MjUuMDAwMDAwMDAwICswMjAwCisrKyBsaW51
+eC0yLjYuOS1yYzMtZWQwL2luY2x1ZGUvbGludXgvbG9ja2QvZGVidWcuaAkyMDA0LTEwLTA5IDIx
+OjE0OjUyLjIzNzI4NDAwMCArMDIwMApAQCAtNDUsNCArNDUsMTMgQEAKICNkZWZpbmUgTkxNREJH
+X0FMTAkJMHg3ZmZmCiAKIAorLyoKKyAqIFN1cHBvcnQgZm9yIHByaW50aW5nIE5MTSBjb29raWVz
+IGluIGRwcmludGsoKQorICovCisjaWZkZWYgUlBDX0RFQlVHCitzdHJ1Y3QgbmxtX2Nvb2tpZTsK
+Ky8qIENhbGwgdGhpcyBmdW5jdGlvbiB3aXRoIHRoZSBCS0wgaGVsZCAoaXQgdXNlcyBhIHN0YXRp
+YyBidWZmZXIpICovCitleHRlcm4gY29uc3QgY2hhciAqbmxtZGJnX2Nvb2tpZTJhKGNvbnN0IHN0
+cnVjdCBubG1fY29va2llICopOworI2VuZGlmCisKICNlbmRpZiAvKiBMSU5VWF9MT0NLRF9ERUJV
+R19IICovCmRpZmYgLXUgLXIgLS1uZXctZmlsZSBsaW51eC0yLjYuOS1yYzMvaW5jbHVkZS9saW51
+eC9sb2NrZC94ZHIuaCBsaW51eC0yLjYuOS1yYzMtZWQwL2luY2x1ZGUvbGludXgvbG9ja2QveGRy
+LmgKLS0tIGxpbnV4LTIuNi45LXJjMy9pbmNsdWRlL2xpbnV4L2xvY2tkL3hkci5oCTIwMDQtMDkt
+MzAgMDU6MDM6NDQuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYuOS1yYzMtZWQwL2luY2x1
+ZGUvbGludXgvbG9ja2QveGRyLmgJMjAwNC0xMC0wOSAyMToyNjozMy40NzMyODQwMDAgKzAyMDAK
+QEAgLTEzLDYgKzEzLDcgQEAKICNpbmNsdWRlIDxsaW51eC9uZnMuaD4KICNpbmNsdWRlIDxsaW51
+eC9zdW5ycGMveGRyLmg+CiAKKyNkZWZpbmUgTkxNX01BWENPT0tJRUxFTiAgICAJMzIKICNkZWZp
+bmUgTkxNX01BWFNUUkxFTgkJMTAyNAogCiAjZGVmaW5lIFFVQURMRU4obGVuKQkJKCgobGVuKSAr
+IDMpID4+IDIpCkBAIC0zMywxMyArMzQsMTQgQEAKIH07CiAKIC8qCi0gKglOTE0gY29va2llcy4g
+VGVjaG5pY2FsbHkgdGhleSBjYW4gYmUgMUssIE5vYm9keSB1c2VzIG92ZXIgOCBieXRlcwotICoJ
+aG93ZXZlci4KKyAqCU5MTSBjb29raWVzLiBUZWNobmljYWxseSB0aGV5IGNhbiBiZSAxSywgYnV0
+IExpbnV4IG9ubHkgdXNlcyA4IGJ5dGVzLgorICoJRnJlZUJTRCB1c2VzIDE2LCBBcHBsZSBNYWMg
+T1MgWCAxMC4zIHVzZXMgMjAuIFRoZXJlZm9yZSB3ZSBzZXQgaXQgdG8KKyAqCTMyIGJ5dGVzLgog
+ICovCiAgCiBzdHJ1Y3QgbmxtX2Nvb2tpZQogewotCXVuc2lnbmVkIGNoYXIgZGF0YVs4XTsKKwl1
+bnNpZ25lZCBjaGFyIGRhdGFbTkxNX01BWENPT0tJRUxFTl07CiAJdW5zaWduZWQgaW50IGxlbjsK
+IH07CiAK
+------=_20041010123320_44929--
 

@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263737AbTDNVeN (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263739AbTDNVeN (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 17:34:13 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:18953
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S263737AbTDNVeM 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:34:12 -0400
-Subject: Re: [RFC] /sbin/hotplug multiplexor
-From: Robert Love <rml@tech9.net>
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <3E9B2720.7020803@cox.net>
-References: <20030414190032.GA4459@kroah.com>
-	 <200304142209.56506.oliver@neukum.org> <20030414203328.GA5191@kroah.com>
-	 <200304142311.01245.oliver@neukum.org>  <3E9B2720.7020803@cox.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050356754.3664.82.camel@localhost>
+	id S263957AbTDNVa3 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:30:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTDNVa3 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 17:30:29 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:50890 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263957AbTDNV3c (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:29:32 -0400
+Date: Mon, 14 Apr 2003 23:41:06 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: James Bourne <jbourne@hardrock.org>
+Cc: Martin Schlemmer <azarah@gentoo.org>,
+       Ken Brownfield <brownfld@irridia.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       KML <linux-kernel@vger.kernel.org>
+Subject: Re: Oops: ptrace fix buggy
+Message-ID: <20030414214106.GA22050@wohnheim.fh-wedel.de>
+References: <20030414185806.GA12740@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0304141515080.24383-100000@cafe.hardrock.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 14 Apr 2003 17:45:54 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0304141515080.24383-100000@cafe.hardrock.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-04-14 at 17:24, Kevin P. Fleming wrote:
+On Mon, 14 April 2003 15:19:27 -0600, James Bourne wrote:
+> On Mon, 14 Apr 2003, Jörn Engel wrote:
+> 
+> > So basically, neither the existing EXTRAVERSION nor my new FIXLEVEL
+> > are checked. Any code could potentially break with -ac1 to -ac2 or
+> > with .1 to .2.
+> > 
+> > Did anyone experience such problems with -ac already? There are far
+> > more changes in -ac than there are in your patch.
+> 
+> Which brings the point as to why use a new variable unless you are going to
+> actually modify LINUX_VERSION_CODE with it.  It actually makes more sense to
+> just use EXTRAVERSION for this then.
+> 
+> Now, using EXTRAVERSION = .2 wouldn't be unrealistic...
 
-> Personally, this is one reason why I'd much rather see a daemon-based model 
-> where each interested daemon can "subscribe" to the messages it is interested 
-> in. It's very possible (and likely, i.e. udev) that the steps involved for the 
-> daemon to respond to the hotplug event are so lightweight that creating a 
-> subprocess to handle them would be very wasteful.
+Good point. My two (weak) arguments for the new variable are:
 
-This screams for d-bus.
+- A fixes-only tree is imo different from any other patchset and
+should be marked as such. 2.4.20.2 sounds more official than
+2.4.20-jb2. Whether this should be underscored for the developers as
+well - not sure.
 
-I spent the weekend reading about it and I spoke with some of the d-bus
-hackers.
+- It makes things like 2.4.20.1-je1 easier. But then again, someone
+will come up with 2.4.21-pre7-ac1-je2-something_else5-even_more.
 
-It is really neat and certainly something we should look into.
+Sound a little too weak for the extra variable. Could have been a sign
+that I lost the patch.
 
-See http://www.freedesktop.org/software/dbus/
+Jörn
 
-	Robert Love
-
-
+-- 
+Anything that can go wrong, will.
+-- Finagle's Law

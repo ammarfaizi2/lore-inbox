@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbUALXIv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 18:08:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUALXIu
+	id S263330AbUALXTo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 18:19:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbUALXTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 18:08:50 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5079 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262603AbUALXIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 18:08:47 -0500
-Date: Tue, 13 Jan 2004 00:08:39 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [0/3] three i386 patches
-Message-ID: <20040112230839.GP9677@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 12 Jan 2004 18:19:44 -0500
+Received: from mail.gmx.de ([213.165.64.20]:37843 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263330AbUALXTh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 18:19:37 -0500
+X-Authenticated: #20450766
+Date: Tue, 13 Jan 2004 00:18:49 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Mike Fedyk <mfedyk@matchmail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+In-Reply-To: <20040108214240.GD467@openzaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0401130012100.12912-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Thu, 8 Jan 2004, Pavel Machek wrote:
 
-following this mail, I'll send the following three patches that have 
-accumulated in my better i386 CPU selection patch (but don't depend on 
-it):
+> I've seen slow machine (386sx with ne1000) that could not receive 7 full-sized packets
+> back-to-back. You are sending 22 full packets back-to-back.
+> I'd expect some of them to be (almost deterministicaly) lost,
+> and no progress ever made.
 
-[1/3] gcc 2.95 supports -march=k6 (no need for check_gcc)
-[2/3] added Pentium M and Pentium-4 M options
-[3/3] AMD Elan is a different subarch
+As you, probably, have already seen from further emails on this thread, we
+did find out that packets were indeed lost due to various performance
+reasons. And the best solution does seem to be switching to TCP-NFS, and
+making it the default choice for mount (where available) seems to be a
+very good idea.
 
-Please apply
-Adrian
+Thanks for replying anyway.
 
--- 
+> In same scenario, TCP detects "congestion" and works mostly okay.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Hm, as long as we are already on this - can you give me a hint / pointer
+how does TCP _detect_ a congestion? Does it adjust packet sizes, some
+other parameters? Just for the curiousity sake.
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+
 

@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbTEKOGc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 10:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbTEKOGc
+	id S261548AbTEKOPt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 10:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbTEKOPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 10:06:32 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:19984 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261373AbTEKOGa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 10:06:30 -0400
-Date: Sun, 11 May 2003 16:22:24 +0200
-To: Gregoire Favre <greg@ulima.unil.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lilo and 2.5.69?
-Message-ID: <20030511142224.GA16287@hh.idb.hist.no>
-References: <20030511130945.GA10607@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030511130945.GA10607@ulima.unil.ch>
-User-Agent: Mutt/1.5.3i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Sun, 11 May 2003 10:15:49 -0400
+Received: from pb148.mielec.sdi.tpnet.pl ([80.49.1.148]:23557 "EHLO
+	enigma.put.mielec.pl") by vger.kernel.org with ESMTP
+	id S261548AbTEKOPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 10:15:48 -0400
+Message-ID: <3EBE5E04.4020806@put.mielec.pl>
+Date: Sun, 11 May 2003 16:28:20 +0200
+From: Grzegorz Wilk <toulouse@put.mielec.pl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; PL; rv:1.3) Gecko/20030312
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SiS648 support for agpgart, kernel 2.4.21-rc2-ac1
+References: <Pine.SOL.4.30.0305111531430.4788-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0305111531430.4788-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 11, 2003 at 03:09:45PM +0200, Gregoire Favre wrote:
-> Hello,
-> 
-> Normally I have in my lili.conf:
-> 
-> append = "root=/dev/scsi/host0/bus0/target15/lun0/part2 video=matrox:1600x1200-16@75"
-> 
-> But I got:
-> 
-> Fatal: open /dev/ide/host0/bus0/target0/lun0/par: No such file or
-> directory
-> Exit 1
-> 
-> Same if I put:
-> root=/dev/scsi/host0/bus0/target15/lun0/part2
-> 
-> Or root=/dev/sdb2
-> 
-> Is there something special to do with this new kernel?
+Uzytkownik Bartlomiej Zolnierkiewicz napisal:
+> [...]
+> It is a bit misleading, read once again and look at "GENERAL FEATURES",
+> 2X and 4X supported and 8X *compatible*.
+> Look also at R9200(PRO) spec, it is a R9000(PRO) with AGP3.0 support.
 
-Looks like a bug that truncates long device names.
-Looks like your'e using devfs, using
-/dev/discs/discX/part2
-is a fine workaround - because it is short enough.
-Replace the X with whatever number your
-host0-target15 disk has.
+You're right. The information provided by ATI is confusing.
+It dosen't make much differece to me. By the time
+a game or application capable of taking any benefits from agp8x
+will be released R9k will be too poor to work with it anyway... ;)
 
-Helge Hafting
+Still I have enough of companies mixing my mind with
+such statements as ATI (I'm not really into hardware
+so together with my poor english results in such mistakes).
+
+> btw. R9100 is both faster/cheaper than R9000PRO.
+
+I bought my R9k at the end of 2002 when it's power/economy indicator
+used to be much higher than today is.
+
+

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268725AbTCCTHY>; Mon, 3 Mar 2003 14:07:24 -0500
+	id <S268716AbTCCTMW>; Mon, 3 Mar 2003 14:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268726AbTCCTHY>; Mon, 3 Mar 2003 14:07:24 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48389 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268725AbTCCTFg>; Mon, 3 Mar 2003 14:05:36 -0500
-Date: Mon, 3 Mar 2003 11:13:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Horrible L2 cache effects from kernel compile
-In-Reply-To: <20030303140356.G15363@redhat.com>
-Message-ID: <Pine.LNX.4.44.0303031108390.12011-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268727AbTCCTMW>; Mon, 3 Mar 2003 14:12:22 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:53634 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S268716AbTCCTMV>; Mon, 3 Mar 2003 14:12:21 -0500
+Date: Mon, 3 Mar 2003 20:22:45 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Walrond <andrew@walrond.org>,
+       linux-kernel@vger.kernel.org
+Subject: re: 2.5-bk menuconfig format problem
+Message-ID: <20030303192245.GH6946@louise.pinerecords.com>
+References: <3E637196.8030708@walrond.org> <20030303175844.A29121@infradead.org> <20030303184906.GF6946@louise.pinerecords.com> <20030303185337.A30585@infradead.org> <20030303191908.GA3609@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030303191908.GA3609@mars.ravnborg.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 3 Mar 2003, Benjamin LaHaise wrote:
+> [sam@ravnborg.org]
 > 
-> Part of it is that some of the dentry is simply just too bloated.  At 
-> 160 bytes, there must be something we can prune:
+> On Mon, Mar 03, 2003 at 06:53:37PM +0000, Christoph Hellwig wrote:
+> > Ah, okay :)  I newer use either menuconfig nor xconfig so I can't comment
+> > on it's placements.  If people who actually do use if feel that it's placed
+> > wrongly feel free to submit a patch to fix it.
+> 
+> The following patch moves it to the menu "Processor type & features"
+> Right before HIMEM.
 
-The thing is, the size of it doesn't really matter. The bad effects come 
-not from the size, but from the bad behaviour of the lookup algorithm, 
-which would be exactly the same even if the dentry was _half_ the size it 
-is now.
+Please don't do this.  While HIMEM could still be perceived as a processor
+(architecture) feature, SWAP certainly doesn't qualify.  We already have
+enough misplaced options.
 
-In other words, the size of the dentry only matters from a memory usage
-standpoint, and I don't think we have any cause to believe that dentries
-really hurt our global memory usage (we've _often_ had the bug that we
-don't shrink the dentry cache quickly enough, which is a different
-problem, though - keeping too many of them around. That should be largely
-fixed in current kernels).
-
-So I don't think there is any real reason to worry about the size of the
-dentry itself. Yes, you could make it smaller (you could remove the inline
-string from it, for example, and you could avoid allocating it at
-cacheline boundaries - both of which makes it a _lot_ smaller than just
-trying to save few bits), but both of those bigger decisions look like 
-they are worthwhile tradeoffs.
-
-		Linus
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

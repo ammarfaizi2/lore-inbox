@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264802AbTF3O6X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 10:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbTF3O6X
+	id S264893AbTF3PAL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 11:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbTF3PAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 10:58:23 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:44420 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S264802AbTF3O6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 10:58:22 -0400
-Message-Id: <5.1.0.14.2.20030630170916.00afd930@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 30 Jun 2003 17:13:05 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: 2.5.73 compile warnings
+	Mon, 30 Jun 2003 11:00:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13540 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264893AbTF3PAG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 11:00:06 -0400
+Date: Mon, 30 Jun 2003 16:14:26 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Linux FSdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       NFS maillist <nfs@lists.sourceforge.net>
+Subject: Re: [PATCH 1/4] Optimize NFS open() calls by means of 'intents'...
+Message-ID: <20030630151426.GG31618@parcelfarce.linux.theplanet.co.uk>
+References: <16128.19197.159225.698080@charged.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: bRrzu4ZSoej-O8kuXa12L11JzXKkhdmvsel7Zg15qlUqXNAj2PMAko@t-dialin.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16128.19197.159225.698080@charged.uio.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.73 + latest cset
-GCC 3.3
+On Mon, Jun 30, 2003 at 04:36:45PM +0200, Trond Myklebust wrote:
+> +++ linux-2.5.73-04-lookupintent/include/linux/namei.h	2003-06-30 08:48:43.000000000 +0200
+>  struct nameidata {
+>  	struct dentry	*dentry;
+>  	struct vfsmount *mnt;
+>  	struct qstr	last;
+>  	unsigned int	flags;
+>  	int		last_type;
+> +
+> +	/* Intent data */
+> +	union {
+> +		struct open_intent open;
+> +	} u;
+> +
+> +#if 0
+> +	/* FS private data */
+> +	void		*it_private;
+> +	void (*it_release)(struct nameidata *, void *);
+> +#endif
 
-kernel/suspend.c:294:2: warning: #warning This might be broken. We need to 
-somehow wait for data to reach the disk
+Can we call the union something descriptive (eg "intent") rather than "u"?
+"u" only makes sense when you're working around not having anonymous
+unions.
 
-drivers/char/vt_ioctl.c: In function `do_kdsk_ioctl':
-drivers/char/vt_ioctl.c:85: warning: comparison is always false due to 
-limited range of data type
-drivers/char/vt_ioctl.c:85: warning: comparison is always false due to 
-limited range of data type
-drivers/char/vt_ioctl.c: In function `do_kdgkb_ioctl':
-drivers/char/vt_ioctl.c:211: warning: comparison is always false due to 
-limited range of data type
-
-drivers/char/keyboard.c: In function `k_fn':
-drivers/char/keyboard.c:665: warning: comparison is always true due to 
-limited range of data type
-
-drivers/pnp/isapnp/core.c: In function `isapnp_next_rdp':
-drivers/pnp/isapnp/core.c:263: warning: `check_region' is deprecated 
-(declared at include/linux/ioport.h:116)
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

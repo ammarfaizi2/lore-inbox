@@ -1,56 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263496AbTEMWir (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 18:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263493AbTEMWiq
+	id S263607AbTEMWtW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 18:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbTEMWs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 18:38:46 -0400
-Received: from smtp.slac.stanford.edu ([134.79.18.80]:13021 "EHLO
-	smtp.slac.stanford.edu") by vger.kernel.org with ESMTP
-	id S263458AbTEMWil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 18:38:41 -0400
-Date: Tue, 13 May 2003 15:51:26 -0700 (PDT)
-From: Booker Bense <bbense@SLAC.Stanford.EDU>
-Subject: Re: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG support
-In-reply-to: <Pine.LNX.4.53.0305131615440.12539@scully.trafford.dementia.org>
-To: Derrick J Brashear <shadow@dementia.org>
-Cc: David Howells <dhowells@cambridge.redhat.com>,
-       Jan Harkes <jaharkes@cs.cmu.edu>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-Message-id: <Pine.LNX.4.55.0305131550310.7330@telemark.slac.stanford.edu>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <9828.1052852002@warthog.warthog>
- <Pine.LNX.4.53.0305131615440.12539@scully.trafford.dementia.org>
+	Tue, 13 May 2003 18:48:57 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:56767 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S263589AbTEMWr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 18:47:56 -0400
+Date: Tue, 13 May 2003 18:00:08 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: "Mika Penttil?" <mika.penttila@kolumbus.fi>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Race between vmtruncate and mapped areas?
+Message-ID: <220550000.1052866808@baldur.austin.ibm.com>
+In-Reply-To: <20030513224929.GX8978@holomorphy.com>
+References: <154080000.1052858685@baldur.austin.ibm.com>
+ <3EC15C6D.1040403@kolumbus.fi> <199610000.1052864784@baldur.austin.ibm.com>
+ <20030513224929.GX8978@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==========2024839384=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 May 2003, Derrick J Brashear wrote:
+--==========2024839384==========
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> On Tue, 13 May 2003, David Howells wrote:
->
-> > > >  (2) gettok(const char *fs, const char *key, size_t size, void *buffer)
-> > > >
-> > > >      Get a copy of an authentication token.
-> > >
-> > > Not sure what the use of this is for userspace. I can see how your
-> > > kernel module would use it.
-> >
-> > OpenAFS has it, but I'm not sure what uses it.
->
-> The simplest case: "List my tokens" (if you want any sort of detail about
-> them). A program "tokens" does just this, lists all tokens you have, then
-> enumerates with GetToken to get each and print some information about them
-> (are they expired, for instance).
->
-> There are also some debugging tools which can pull tokens back out and
-> decode them using the server key, and some old primitive authentication
-> passing stuff which is probably now all obsolete did also.
->
 
-- It may be obsolete, but there are a lot of people using AFS
-token passing in ssh.
+--On Tuesday, May 13, 2003 15:49:29 -0700 William Lee Irwin III
+<wli@holomorphy.com> wrote:
 
-_ Booker C. Bense
+> That doesn't sound like it's going to help, there isn't a unique
+> mmap_sem to be taken and so we just get caught between acquisitions
+> with the same problem.
+
+Actually it does fix it.  I added code in vmtruncate_list() to do a
+down_write(&vma->vm_mm->mmap_sem) around the zap_page_range(), and the
+problem went away.  It serializes against any outstanding page faults on a
+particular page table.  New faults will see that the page is no longer in
+the file and fail with SIGBUS.  Andrew's test case stopped failing.
+
+I've attached the patch so you can see what I did.
+
+Can anyone think of any gotchas to this solution?
+
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
+
+--==========2024839384==========
+Content-Type: text/plain; charset=us-ascii; name="vmtrunc-2.5.69-mm3-1.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="vmtrunc-2.5.69-mm3-1.diff";
+ size=982
+
+--- 2.5.69-mm3/mm/memory.c	2003-05-13 10:34:56.000000000 -0500
++++ 2.5.69-mm3-test/mm/memory.c	2003-05-13 17:39:45.000000000 -0500
+@@ -1085,21 +1085,21 @@ static void vmtruncate_list(struct list_
+ 		len = end - start;
+ 
+ 		/* mapping wholly truncated? */
+-		if (vma->vm_pgoff >= pgoff) {
+-			zap_page_range(vma, start, len);
+-			continue;
+-		}
++		if (vma->vm_pgoff < pgoff) {
+ 
+-		/* mapping wholly unaffected? */
+-		len = len >> PAGE_SHIFT;
+-		diff = pgoff - vma->vm_pgoff;
+-		if (diff >= len)
+-			continue;
+-
+-		/* Ok, partially affected.. */
+-		start += diff << PAGE_SHIFT;
+-		len = (len - diff) << PAGE_SHIFT;
++			/* mapping wholly unaffected? */
++			len = len >> PAGE_SHIFT;
++			diff = pgoff - vma->vm_pgoff;
++			if (diff >= len)
++				continue;
++
++			/* Ok, partially affected.. */
++			start += diff << PAGE_SHIFT;
++			len = (len - diff) << PAGE_SHIFT;
++		}
++		down_write(&vma->vm_mm->mmap_sem);
+ 		zap_page_range(vma, start, len);
++		up_write(&vma->vm_mm->mmap_sem);
+ 	}
+ }
+ 
+
+--==========2024839384==========--
+

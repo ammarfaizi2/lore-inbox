@@ -1,91 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265236AbSJaRC2>; Thu, 31 Oct 2002 12:02:28 -0500
+	id <S263143AbSJaQy2>; Thu, 31 Oct 2002 11:54:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265237AbSJaRC2>; Thu, 31 Oct 2002 12:02:28 -0500
-Received: from excalibur.cc.purdue.edu ([128.210.189.22]:31762 "EHLO
-	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
-	id <S265236AbSJaRCY>; Thu, 31 Oct 2002 12:02:24 -0500
-Date: Thu, 31 Oct 2002 12:10:20 -0500 (EST)
-From: Patrick Finnegan <pat@purdueriots.com>
-To: linux-kernel@vger.kernel.org, <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: What's left over.
-In-Reply-To: <Pine.LNX.4.44.0210310737170.2035-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0210311201260.9552-100000@ibm-ps850.purdueriots.com>
+	id <S263137AbSJaQy2>; Thu, 31 Oct 2002 11:54:28 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:19207 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S263143AbSJaQy0>; Thu, 31 Oct 2002 11:54:26 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15809.25023.211776.529580@laputa.namesys.com>
+Date: Thu, 31 Oct 2002 20:00:47 +0300
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <Torvalds@Transmeta.COM>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: [PATCH]: reiser4 [8/8] reiser4 code
+In-Reply-To: <Pine.GSO.4.21.0210311121520.16688-100000@weyl.math.psu.edu>
+References: <15809.22155.408140.213679@laputa.namesys.com>
+	<Pine.GSO.4.21.0210311121520.16688-100000@weyl.math.psu.edu>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Zippy-Says: My ELBOW is a remote FRENCH OUTPOST!!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Oct 2002, Linus Torvalds wrote:
+Alexander Viro writes:
+ > 
+ > 
+ > On Thu, 31 Oct 2002, Nikita Danilov wrote:
+ > 
+ > >  > And you want that to be reviewed until tonight?
+ > >  > 
+ > > 
+ > > No. But changes to the core are not very complicated. If Linus "reviews"
+ > > and accepts them life of reiser4 would be much simpler.
+ > 
+ > Changes to the core consist (AFAICS) of exporting a bunch of functions
+ > with no explanation of the way they are used - with some of them it's
+ > really straightforward (and can go in at any point), with some one
+ > would expect really detailed explanation and code review (your comments
+ > regarding fsync_super() export trigger all sorts of alarms for me).
 
->
-> On Wed, 30 Oct 2002, Matt D. Robinson wrote:
->
-> > Linus Torvalds wrote:
-> > > > Crash Dumping (LKCD)
-> > >
-> > > This is definitely a vendor-driven thing. I don't believe it has any
-> > > relevance unless vendors actively support it.
-> >
-> > There are people within IBM in Germany, India and England, as well as
-> > a number of companies (Intel, NEC, Hitachi, Fujitsu), as well as SGI
-> > that are PAID to support this.
+Let's start from fsync_super() then.
 
-To add to that list, here at Purdue University, we actively look at crash
-dumps on other architectures, such as IBM AIX, and are starting to do the
-same on Linux machines, after discovery of LKCD.
+Reiser4 has data journalling.
 
-> What I'm saying by "vendor driven" is that it has no relevance for the
-> standard kernel, and since it has no relevance to that, then I have no
-> incentives to merge it. The crash dump is only useful with people who
-> actively look at the dumps, and I don't know _anybody_ outside of the
-> specialized vendors you mention who actually do that.
+When ->writepage() is called on dirtied page, page joins transaction.
+During umount all out-standing transaction have to be committed.  But if
+file were mmapped, then, at the moment of the call to ->kill_super()
+pages can be dirtied without ->writepage() ever called on them.
 
-This has much relevance for the standard kernel, as much relevance as gdb
-has for people using applications.  While a majority of non-techno-geek
-end-users probably don't care about the patch, I'm certain that there are
-plenty of organizations out there like Purdue that WANT lkcd to become a
-standard part of the Linux kernel.   Until then, we're forced to do our
-own kernel patching every time we push out a new kernel.
+generic_shutdown_super() calls fsync_super(sb) (which will call
+->writepage() on each dirty page) and then invalidate_inodes().
 
-> I will merge it when there are real users who want it - usually as a
-> result of having gotten used to it through a vendor who supports it. (And
-> by "support" I do not mean "maintain the patches", but "actively uses it"
-> to work out the users problems or whatever).
+Reiser4 has commit out-standing transactions -between- these two points:
+after ->writepage() has been called on all dirty pages, but before
+inodes were destroyed. Thus, we cannot use
+kill_block_super()/generic_shutdown_super().
 
-We actively use it.
+ > 
+ > PS: Cc'ing a posting on a public list to a subscribers-only one is
+ > generally not a nice thing to do...  Cc: trimmed.
 
-> People have to realize that my kernel is not for random new features. The
-> stuff I consider important are things that people use on their own, or
-> stuff that is the base for other work. Quite often I want vendors to merge
-> patches _they_ care about long long before I will merge them (examples of
-> this are quite common, things like reiserfs and ext3 etc).
+Arghh... Sorry, it will be fixed... soon.
 
-LKCD isn't a 'random new feature'.  It's something that is present in
-nearly ever other "Unix" on the market. (Yes I know Unix != Linux).  It's
-a feature that should have been integrated by now IMHO.
+ > 
 
-> THAT is what I mean by vendor-driven. If vendors decide they really want
-> the patches, and I actually start seeing noises on linux-kernel or getting
-> requests for it being merged from _users_ rather than developers, then
-> that means that the vendor is on to something.
-
-Again, we're the end-user, not the vendor, and we're trying to drive to
-have it included.  I've talked with outher sys admins in my department
-here at Purdue, and have gotten a unanimous response that "It would be a
-good and useful feature to have."
-
-Pat
---
-Purdue Universtiy ITAP/RCS
-Information Technology at Purdue
-Research Computing and Storage
-http://www-rcd.cc.purdue.edu
-
-http://dilbert.com/comics/dilbert/archive/images/dilbert2040637020924.gif
-
-
-
-
+Nikita.

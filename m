@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272325AbTG1CB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 22:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272064AbTG1ABV
+	id S272141AbTG1Bul (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 21:50:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272139AbTG1ABf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:01:21 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:14071 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272940AbTG0XB4 (ORCPT
+	Sun, 27 Jul 2003 20:01:35 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:31477 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S272934AbTG0XBh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:01:56 -0400
-Date: Sun, 27 Jul 2003 20:21:11 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Manuel Estrada Sainz <ranty@debian.org>
-Cc: Marcel Holtmann <marcel@holtmann.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       greg@kroah.com, willy@debian.org, Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH] Re: Firmware loading problem
-Message-ID: <20030727192111.GT1485@parcelfarce.linux.theplanet.co.uk>
-References: <1058885139.2757.27.camel@pegasus> <20030722145546.GC23593@ranty.pantax.net> <1058888301.2755.8.camel@pegasus> <20030726090458.GA16634@ranty.pantax.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030726090458.GA16634@ranty.pantax.net>
-User-Agent: Mutt/1.4.1i
+	Sun, 27 Jul 2003 19:01:37 -0400
+Message-ID: <3F242B35.8050400@Synopsys.COM>
+Date: Sun, 27 Jul 2003 21:42:45 +0200
+From: Harald Dunkel <harri@synopsys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.0-test2
+References: <Pine.LNX.4.44.0307271003360.3401-100000@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0307271003360.3401-100000@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 26, 2003 at 11:04:58AM +0200, Manuel Estrada Sainz wrote:
-> 	- hopefully adapt drivers/pci/pci-sysfs.c to this changes
-> 		- Please double check, I didn't look very carefully on
-> 		  this.
+Hi folks,
 
-Definitely wrong.  I was going to undo this change since I realised how
-it doesn't work for you; but the change you made to the PCI code is wrong.
-It ends up copying everything to offset 0 from the buf address.  I wish
-Pat had cc'd me when making the change to the interface originally ;-(
+Linus Torvalds wrote:
+> Lots of small updates and fixes all over the map (diffstat shows a flat
+> profile, except for the DVB merge, the new wl3501 driver, and the new
+> sound drivers from Alan).
+> 
 
-I'll whip up a patch in a few minutes.
+Probably not that important, but would it be possible to make
+all files readable (chmod a+r) before creating the new kernel
+tar file? At least the files in the Documentation and the include
+directory?
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+
+Many thanx
+
+Harri
+

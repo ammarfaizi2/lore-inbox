@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267162AbTA0Lho>; Mon, 27 Jan 2003 06:37:44 -0500
+	id <S267176AbTA0Ll5>; Mon, 27 Jan 2003 06:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267175AbTA0Lho>; Mon, 27 Jan 2003 06:37:44 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:1041 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S267162AbTA0Lho>; Mon, 27 Jan 2003 06:37:44 -0500
-Message-ID: <3E351C51.FAF985BC@aitel.hist.no>
-Date: Mon, 27 Jan 2003 12:47:29 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.59 i686)
-X-Accept-Language: no, en, en
+	id <S267175AbTA0Ll5>; Mon, 27 Jan 2003 06:41:57 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:58376 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267176AbTA0Ll5>; Mon, 27 Jan 2003 06:41:57 -0500
+Date: Mon, 27 Jan 2003 06:48:26 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.5.59 Same problems as 55..58
+In-Reply-To: <200301261440.PAA08520@harpo.it.uu.se>
+Message-ID: <Pine.LNX.3.96.1030127064020.25678A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Patches have a license
-References: <20030127095840.25042.qmail@web13601.mail.yahoo.com> <20030127104705.GC25913@codemonkey.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> 
-> On Mon, Jan 27, 2003 at 01:58:40AM -0800, Balbir Singh wrote:
->  > I would request everyone to post their patches with
->  > a license, failing which it should be assumed that
->  > the license is GPL.
-> 
-> Surely the license of the diff matches the license of the
-> code it is patching ?
+On Sun, 26 Jan 2003, Mikael Pettersson wrote:
 
-Usually in practice, but not necessarily.  Try diff'ing
-two files with different licence, then go apply
-it at some file with a third licence. :-/
+> On Sat, 25 Jan 2003 18:26:29 -0500 (EST), Bill Davidsen wrote:
+> >WARNING: /lib/modules/2.5.59/kernel/drivers/net/8390.ko needs unknown symbol crc32_le
+> >WARNING: /lib/modules/2.5.59/kernel/drivers/net/8390.ko needs unknown symbol bitreverse
+> >  .
+> >  . And this problem I've noted since 2.5.55
+> 
+> If your module-init-tools are older than 0.9.8, then this message
+> is expected. depmod doesn't find GPL only symbols. Fixed in 0.9.8.
 
-Helge Hafting
+I was on 0.9.9pre infortunately, but thanks much for the suggestion. I've
+been keeping reasonably current, in hopes of solutions to other issues. I
+suspect that this is caused by having CRC32 built-in instead of as a
+module or vice-versa. I just ran out of time to test all possible
+combinations.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

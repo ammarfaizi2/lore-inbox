@@ -1,90 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267482AbTBPUdu>; Sun, 16 Feb 2003 15:33:50 -0500
+	id <S267362AbTBPUbV>; Sun, 16 Feb 2003 15:31:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267473AbTBPUdu>; Sun, 16 Feb 2003 15:33:50 -0500
-Received: from gate.perex.cz ([194.212.165.105]:46353 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S267482AbTBPUds>;
-	Sun, 16 Feb 2003 15:33:48 -0500
-Date: Sun, 16 Feb 2003 21:43:33 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ALSA update
-Message-ID: <Pine.LNX.4.44.0302162141320.1060-100000@pnote.perex-int.cz>
+	id <S267368AbTBPUbV>; Sun, 16 Feb 2003 15:31:21 -0500
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:61080 "EHLO
+	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S267362AbTBPUbU>; Sun, 16 Feb 2003 15:31:20 -0500
+Message-ID: <3E4FF76D.3070408@blue-labs.org>
+Date: Sun, 16 Feb 2003 15:41:17 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030209
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: WUSB11 v2.6 (atmel 503A RFMD)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please do a
+Has anyone gotten some semblance of a working driver for this critter 
+with a recent 2.5 kernel ?  I really don't want to run my router on 
+2.4..which is still painful to compile a working driver which is reliable.
 
-  bk pull http://linux-sound.bkbits.net/linux-sound
+It's a Linksys wireless USB nic.
 
-The GNU patch is available at:
+-d
 
-  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2003-02-16.patch.gz
+-- 
+I may have the information you need and I may choose only HTML.  It's up to you. Disclaimer: I am not responsible for any email that you send me nor am I bound to any obligation to deal with any received email in any given fashion.  If you send me spam or a virus, I may in whole or part send you 50,000 return copies of it. I may also publically announce any and all emails and post them to message boards, news sites, and even parody sites.  I may also mark them up, cut and paste, print, and staple them to telephone poles for the enjoyment of people without internet access.  This is not a confidential medium and your assumption that your email can or will be handled confidentially is akin to baring your backside, burying your head in the ground, and thinking nobody can see you butt nekkid and in plain view for miles away.  Don't be a cluebert, buy one from K-mart today.
 
-The pull command will update the following files:
+When it absolutely, positively, has to be destroyed overnight.
+                           AIR FORCE
 
- include/sound/ac97_codec.h       |   10 ++
- include/sound/pcm.h              |   14 ++
- include/sound/pcm_sgbuf.h        |   12 +-
- include/sound/version.h          |    2 
- sound/arm/sa11xx-uda1341.c       |    6 -
- sound/core/hwdep.c               |    2 
- sound/core/isadma.c              |    2 
- sound/core/oss/pcm_oss.c         |    5 -
- sound/core/pcm_lib.c             |  108 ++++++++++++++-------
- sound/core/pcm_memory.c          |  192 +++++++++++++++++++++++----------------
- sound/core/pcm_native.c          |   15 ++-
- sound/core/pcm_sgbuf.c           |  143 ++++++-----------------------
- sound/core/seq/seq_device.c      |    2 
- sound/core/seq/seq_midi_emul.c   |    4 
- sound/core/timer.c               |    3 
- sound/drivers/mtpav.c            |   19 +++
- sound/i2c/l3/uda1341.c           |   14 +-
- sound/isa/cs423x/cs4231_lib.c    |   26 +++--
- sound/isa/cs423x/cs4236.c        |    2 
- sound/isa/cs423x/cs4236_lib.c    |    2 
- sound/isa/gus/interwave.c        |    2 
- sound/isa/sb/emu8000_pcm.c       |    2 
- sound/pci/ac97/ac97_codec.c      |   82 ++++++++++++++++
- sound/pci/ali5451/ali5451.c      |    2 
- sound/pci/cs46xx/cs46xx_lib.c    |   14 +-
- sound/pci/emu10k1/emufx.c        |    2 
- sound/pci/emu10k1/emupcm.c       |    2 
- sound/pci/emu10k1/memory.c       |   14 ++
- sound/pci/intel8x0.c             |    4 
- sound/pci/maestro3.c             |    6 -
- sound/pci/nm256/nm256.c          |    2 
- sound/pci/rme9652/hdsp.c         |    2 
- sound/pci/trident/trident_main.c |    6 -
- sound/pci/via82xx.c              |   21 ++--
- sound/usb/usbaudio.c             |   62 +++++++++++-
- sound/usb/usbaudio.h             |    3 
- sound/usb/usbquirks.h            |   16 +++
- 37 files changed, 514 insertions(+), 311 deletions(-)
-
-through these ChangeSets:
-
-<perex@suse.cz> (03/02/16 1.1044)
-   ALSA update
-     - AC'97 - added quirks for tuning of hardware configuration
-     - PCM midlevel - improved ring buffer allocation
-     - sa11xx-uda1341 - small fixes
-     - ISA - fixed ring buffer pointer calculation
-     - OSS PCM - fixed deadlock (rate plugin)
-     - timer - fixed deadlock when user interface is used
-     - CS4232 - added detection of plain CS4236
-     - USB driver - added boot quirk for SoundBlaster Extigy
-
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
 

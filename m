@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVCAF3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVCAFeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVCAF3l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 00:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVCAF3l
+	id S261248AbVCAFeU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 00:34:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVCAFeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 00:29:41 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:17556 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261244AbVCAF3i (ORCPT
+	Tue, 1 Mar 2005 00:34:20 -0500
+Received: from wasp.net.au ([203.190.192.17]:37276 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S261244AbVCAFeN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 00:29:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=jtR9dj/6xgrUU0hRJBNvTaNmAo1VThFKHEn8WmPxAkHtmPs9SyANrOgNWFQMkLMGXz6jjQ58oa3Bgi4mW5jsZ2rocRTpNq8yE6B//oobN+bav3mLuEpa7F2/oC8IMU/Z1Iq2OA4I2T8KJsZ9rJCvLx/4dH4n4qUzux5orK0yy/E=
-Message-ID: <4223FDBC.8080504@gmail.com>
-Date: Tue, 01 Mar 2005 14:29:32 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
+	Tue, 1 Mar 2005 00:34:13 -0500
+Message-ID: <4223FEC9.8070306@wasp.net.au>
+Date: Tue, 01 Mar 2005 09:34:01 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050115)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>,
-       Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch ide-dev 8/9] make ide_task_ioctl() use REQ_DRIVE_TASKFILE
-References: <Pine.GSO.4.58.0502241547400.13534@mion.elka.pw.edu.pl> <200502271731.29448.bzolnier@elka.pw.edu.pl> <422337A1.4060806@gmail.com> <200502281714.55960.bzolnier@elka.pw.edu.pl> <20050301042116.GA9001@htj.dyndns.org>
-In-Reply-To: <20050301042116.GA9001@htj.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       RAID Linux <linux-raid@vger.kernel.org>
+Subject: Re: Raid-6 hang on write.
+References: <421DE9A9.4090902@wasp.net.au>	<421F4629.5080309@wasp.net.au> <16930.45319.682534.351648@cse.unsw.edu.au>
+In-Reply-To: <16930.45319.682534.351648@cse.unsw.edu.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Neil Brown wrote:
+> On Friday February 25, brad@wasp.net.au wrote:
+> 
+>>Turning on debugging in raid6main.c and md.c make it much harder to hit. So I'm assuming something 
+>>timing related.
+>>
+>>raid6d --> md_check_recovery --> generic_make_request --> make_request --> get_active_stripe
+> 
+> 
+> Yes, there is a real problem here.  I see if I can figure out the best
+> way to remedy it...
+> However I think you reported this problem against a non "-mm" kernel,
+> and the path from md_check_recovery to generic_make_requests only
+> exists in "-mm".
+> 
+> Could you please confirm if there is a problem with
+>     2.6.11-rc4-bk4->bk10
 
-  Oh, Bartlomiej, one more thing.
+There is (was). I have three kernels I was testing against. 2.6.11-rc4-bk4, 2.6.11-rc4-bk10 and 
+2.6.11-rc4-mm1. I moved onto 2.6.11-rc4-mm1 for my main debugging (inserting lots of printks and 
+generally doing stuff that was going to crash). I hope to reproduce the faults against the vanilla 
+2.6.11-rc4 kernels and I'm now testing with 2.6.11-rc5-bk2.
 
-  If it isn't too much trouble, can you please set up a bk repository 
-which contains the patches you've posted and whatever you're working on 
-but hasn't yet made into ide-dev tree?  So that we don't have to juggle 
-patches back and forth.  If you maintain your up-to-date working tree, 
-I'll make my patches against that tree and if it's convinient for you, I 
-can also set up an export tree you can pull from.
+As per the original bug report, 2.6.11-rc4-bk(4/10) locked in [<c0268574>] 
+get_active_stripe+0x224/0x260. Although unlike -mm1 I'm not sure of the sequence of events that 
+caused it and it's not anywhere as easy to hit. I am willing to investigate as time allows however.
 
-  Thanks.  :-)
+Testing 2.6.11-rc5-bk2 and it of course is flatly refusing to misbehave. I'll keep beating on it for 
+a couple of days and after writing 3TB with 2.6.11-rc5-bk2, I'll go back to the older kernels and 
+try and reproduce the failure there. It *did* lockup 4 times in a row in get_active_stripe on the 
+older non -mm kernels.
 
+Regards,
+Brad
 -- 
-tejun
-
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVBHUL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVBHUQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVBHUL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 15:11:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVBHUK2
+	id S261654AbVBHUQe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 15:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVBHUQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 15:10:28 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:9452 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261655AbVBHUKA (ORCPT
+	Tue, 8 Feb 2005 15:16:33 -0500
+Received: from mail.kroah.org ([69.55.234.183]:12521 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261658AbVBHUQS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 15:10:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=GEn5Li56ymWKkBk6+fhEl5eckVx4Ri5gBObe/50oGVpPwwNnYNJSjnwrE7Pl3Oe4bZDyGXPxZvQk+m7EUMGMY4aW5R3RL3Mr7NXiph0J2cnvx4CQafU21kxtwEbNWmOSNWZUjO0lNU2kXf57dHd6whYFhuri+TJxOV9EG1xDE/E=
-Message-ID: <8a8a2c8205020812094ea28421@mail.gmail.com>
-Date: Tue, 8 Feb 2005 12:09:57 -0800
-From: Alex Muradin <amuradin@gmail.com>
-Reply-To: Alex Muradin <amuradin@gmail.com>
-To: Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ARM undefined symbols. Again.
-In-Reply-To: <20050208194243.GA8505@mars.ravnborg.org>
+	Tue, 8 Feb 2005 15:16:18 -0500
+Date: Tue, 8 Feb 2005 12:08:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Brian King <brking@us.ibm.com>
+Cc: Matthew Wilcox <matthew@wil.cx>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andi Kleen <ak@muc.de>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
+Message-ID: <20050208200816.GA25292@kroah.com>
+References: <41F7C6A1.9070102@us.ibm.com> <1106777405.5235.78.camel@gaston> <1106841228.14787.23.camel@localhost.localdomain> <41FA4DC2.4010305@us.ibm.com> <20050201072746.GA21236@kroah.com> <41FF9C78.2040100@us.ibm.com> <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk> <41FFBDC9.2010206@us.ibm.com> <20050201174758.GE10088@parcelfarce.linux.theplanet.co.uk> <4200F2B2.3080306@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050124154326.A5541@flint.arm.linux.org.uk>
-	 <20050131161753.GA15674@mars.ravnborg.org>
-	 <20050207114359.A32277@flint.arm.linux.org.uk>
-	 <20050208194243.GA8505@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4200F2B2.3080306@us.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting your mail!
-
-Check out you code cause if I'm getting your mail, then you're sending
-it out to all your customers.
-
--Alex
-amuradin@gmail.com
-
-Gmail user
-
-
-On Tue, 8 Feb 2005 20:42:43 +0100, Sam Ravnborg <sam@ravnborg.org> wrote:
-> On Mon, Feb 07, 2005 at 11:43:59AM +0000, Russell King wrote:
+On Wed, Feb 02, 2005 at 09:33:06AM -0600, Brian King wrote:
+> Matthew Wilcox wrote:
+> >On Tue, Feb 01, 2005 at 11:35:05AM -0600, Brian King wrote:
 > >
-> > Maybe we need an architecture hook or something for post-processing
-> > vmlinux?
-> Makes sense.
-> For now arm can provide an arm specific cmd_vmlinux__ like um does.
+> >>>If we've done a write to config space while the adapter was blocked,
+> >>>shouldn't we replay those accesses at this point?
+> >>
+> >>I did not think that was necessary.
+> >
+> >
+> >We have to do *something*.  We can't just throw away writes.
+> >
+> >I see a few options:
+> >
+> > - Log all pending writes to config space and replay the log when the
+> >   device is unblocked.
+> > - Fail writes to config space while the device is blocked.
+> > - Write to the saved config space and then blat the saved config space
+> >   back to the device upon unblocking.
 > 
-> The ?= used in Makefile snippet below allows an ARCH to override the
-> definition of quiet_cmd_vmlinux__ and cmd_vmlinux__
-> 
-> quiet_cmd_vmlinux__ ?= LD      $@
->      cmd_vmlinux__ ?= $(LD) $(LDFLAGS) $(LDFLAGS_vmlinux) -o $@ \
->      -T $(vmlinux-lds) $(vmlinux-init)                          \
->      --start-group $(vmlinux-main) --end-group                  \
->      $(filter-out $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) FORCE ,$^)
-> 
->        Sam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Here is an updated patch which will now fail writes to config space 
+> while the device is blocked. I have also fixed up the caching to return 
+> the correct data and tested it on both little endian and big endian 
+> machines.
+
+Applied, thanks.
+
+greg k-h

@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135971AbREBVFB>; Wed, 2 May 2001 17:05:01 -0400
+	id <S135936AbREBVHx>; Wed, 2 May 2001 17:07:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135940AbREBVEw>; Wed, 2 May 2001 17:04:52 -0400
-Received: from office.mandrakesoft.com ([195.68.114.34]:46333 "HELO
-	giants.mandrakesoft.com") by vger.kernel.org with SMTP
-	id <S135908AbREBVEi>; Wed, 2 May 2001 17:04:38 -0400
-To: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: >2G Files
-In-Reply-To: <20010502145718.A24262@ganymede.isdn.uiuc.edu>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 02 May 2001 23:02:43 +0100
-In-Reply-To: <20010502145718.A24262@ganymede.isdn.uiuc.edu> (Bill Wendling's message of "Wed, 2 May 2001 14:57:18 -0500")
-Message-ID: <m3elu7quik.fsf@giants.mandrakesoft.com>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.100
+	id <S135958AbREBVGt>; Wed, 2 May 2001 17:06:49 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32018 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135908AbREBVFG>; Wed, 2 May 2001 17:05:06 -0400
+Subject: Re: Logging kernel oops
+To: joe.mathewson@btinternet.com
+Date: Wed, 2 May 2001 22:09:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200105021957.f42JvH511805@localhost.localdomain> from "Joseph Mathewson" at May 02, 2001 08:57:16 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14v3rs-0004Lw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Wendling <wendling@ganymede.isdn.uiuc.edu> writes:
+> What is the preferred what of getting debugging information from a kernel
+> oops?  Is my only way connecting a monitor and getting a pencil and paper? 
+> Is there any conceivable way I can get some useful debugging information
+> (on reset) without plugging in a keyboard/monitor?
 
-> Hi all,
-> 
-> Question: Does Linux support >2G files and, if so, how do I implement
-> this?
-
-check this page :
-
-http://www.suse.de/~aj/linux_lfs.html
-
-
-> 
-> Thanks.
+You can build and boot a kernel with serial console and run a serial cable to
+another box

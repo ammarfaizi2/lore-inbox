@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271900AbTHEU6p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 16:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271903AbTHEU6p
+	id S267520AbTHEUyj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 16:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270691AbTHEUyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 16:58:45 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:42669 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S271900AbTHEU6e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 16:58:34 -0400
-Date: Tue, 5 Aug 2003 22:57:35 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: <Andries.Brouwer@cwi.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix error return get/set_native_max functions
-In-Reply-To: <UTC200308052027.h75KRQI23589.aeb@smtp.cwi.nl>
-Message-ID: <Pine.SOL.4.30.0308052245380.4251-100000@mion.elka.pw.edu.pl>
+	Tue, 5 Aug 2003 16:54:39 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:49638 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S267520AbTHEUyi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 16:54:38 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: pci_alloc_consistent() and/or dma_free_coherent() bug?
+References: <m3r84010xt.fsf@defiant.pm.waw.pl>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 05 Aug 2003 22:54:15 +0200
+In-Reply-To: <m3r84010xt.fsf@defiant.pm.waw.pl>
+Message-ID: <m38yq725c8.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Actually it would probably be better to do something like that:
 
-On Tue, 5 Aug 2003 Andries.Brouwer@cwi.nl wrote:
+--- arch/i386/kernel/pci-dma.c.orig	2003-05-27 03:00:25.000000000 +0200
++++ arch/i386/kernel/pci-dma.c	2003-08-05 18:55:42.000000000 +0200
+@@ -20,7 +20,7 @@
+ 	/* ignore region specifiers */
+ 	gfp &= ~(__GFP_DMA | __GFP_HIGHMEM);
+ 
+-	if (dev == NULL || (*dev->dma_mask < 0xffffffff))
++	if (dev == NULL || ((*dev->consistent_dma_mask & *dev->dma_mask) < 0xffffffff))
+ 		gfp |= GFP_DMA;
+ 	ret = (void *)__get_free_pages(gfp, get_order(size));
+ 
 
-> By the way, is your tree visible somewhere?
-
-Not yet.
-
-> I have a giant patch with quite a lot of improvements and
-> minor bug fixes, all in the geometry / IDENTIFY area.
-
-Giant patch? :( Can you split it?
-
-Splitting on obvious & non-obvious parts will help greatly.
-Obvious parts can go into Linus' tree quickly.
-
-> Usually I diff against Linus' most recent version, but we
-> already had one by Erik and two by me, and stuff overlaps,
-> and I do not yet see any of this in Linus' tree.
-
-Because it takes a while to check them
-(especially if they are not splitted).
-
---
-Bartlomiej
-
+So we don't need to touch pci_set*dma_mask and we don't need to call them
+in specific order.
+-- 
+Krzysztof Halasa
+Network Administrator

@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264812AbRFXWSA>; Sun, 24 Jun 2001 18:18:00 -0400
+	id <S264835AbRFXWQu>; Sun, 24 Jun 2001 18:16:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264813AbRFXWRv>; Sun, 24 Jun 2001 18:17:51 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:36616 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S264812AbRFXWRf>; Sun, 24 Jun 2001 18:17:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rob Landley <landley@webofficenow.com>
-Subject: [OT] Re: Microsoft and Xenix.
-Date: Mon, 25 Jun 2001 00:20:40 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Alan Chandler <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <E15DZbq-0008D8-00@roo.home> <m1ofrebnkx.fsf@frodo.biederman.org> <01062406364601.01519@localhost.localdomain>
-In-Reply-To: <01062406364601.01519@localhost.localdomain>
+	id <S264836AbRFXWQk>; Sun, 24 Jun 2001 18:16:40 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23049 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264835AbRFXWQa>; Sun, 24 Jun 2001 18:16:30 -0400
+Subject: Re: Some experience of linux on a Laptop
+To: jchua@fedex.com (Jeff Chua)
+Date: Sun, 24 Jun 2001 23:15:50 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pzycrow@hotmail.com (John Nilsson),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0106250601370.204-100000@boston.corp.fedex.com> from "Jeff Chua" at Jun 25, 2001 06:11:10 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Message-Id: <0106250020400D.00430@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15EIAY-0000ab-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 June 2001 12:36, Rob Landley wrote:
-> On Saturday 23 June 2001 22:47, Eric W. Biederman wrote:
-> > GEM was a gui from Digital Research I believe.
-> > Geoworks/Geos was a seperate entity.
->
-> Ah, the DR-DOS answer to dosshell/windows.  Cool.  (I used Dr. Dos byt
-> never tried its gui.)
+> then to either a test linux or stable linux environment from the C drive.
+> I setup a Menu in config.sys under dos to select which linux to boot up.
+> If the test kernel doesn't work, I reboot the system to switch to the
+> stable one. At least better than carrying a floppy around.
 
-GEM had its moment of glory when Xerox used it for the gui of Ventura 
-Publisher.
-
---
-Daniel
+That is generally a good idea. Always keep at least one known working kernel
+around. Its something some distro docs don't IMHO make clear enough

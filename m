@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265490AbUHTFow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266306AbUHTF5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265490AbUHTFow (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 01:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266306AbUHTFow
+	id S266306AbUHTF5p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 01:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUHTF5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 01:44:52 -0400
-Received: from av9-2-sn4.m-sp.skanova.net ([81.228.10.107]:45985 "EHLO
-	av9-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S265490AbUHTFou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 01:44:50 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm1
-References: <20040816143710.1cd0bd2c.akpm@osdl.org>
-	<20040816224749.A15510@infradead.org> <m3r7q4huei.fsf@telia.com>
-	<20040819104534.B7641@infradead.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 20 Aug 2004 07:44:47 +0200
-In-Reply-To: <20040819104534.B7641@infradead.org>
-Message-ID: <m3n00qics0.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Aug 2004 01:57:45 -0400
+Received: from cantor.suse.de ([195.135.220.2]:41452 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266306AbUHTF5n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 01:57:43 -0400
+Date: Fri, 20 Aug 2004 07:57:41 +0200
+From: Olaf Hering <olh@suse.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Hollis Blanchard <hollisb@us.ibm.com>, Dave Boutcher <boutcher@us.ibm.com>,
+       linuxppc64-dev@lists.linuxppc.org,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: module.viomap support for ppc64
+Message-ID: <20040820055741.GA16519@suse.de>
+References: <20040812173751.GA30564@suse.de> <1092339278.19137.8.camel@localhost> <1092354195.25196.11.camel@bach> <20040813094040.GA1769@suse.de> <1092404570.29604.5.camel@bach> <20040819212824.GA13204@suse.de> <1092973671.28849.243.camel@bach>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1092973671.28849.243.camel@bach>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+ On Fri, Aug 20, Rusty Russell wrote:
 
-> On Thu, Aug 19, 2004 at 01:57:09AM +0200, Peter Osterlund wrote:
-> > That can actually be avoided by letting the packet driver itself keep
-> > track of how many unfinished bios there are in the CD request queue.
-> > This is straightforward to implement.  The only small complication is
-> > that incoming read requests need to be cloned so that the packet
-> > driver can use a private bi_end_io function.
-> 
-> Neat, this looks pretty good.  Other comments on the pkt driver (not related
-> to this patch):
-> 
-> in the blockdev ->open/->release->ioctl you can get your private data
-> from inode->i_bdev->bd_disk->private_data instead of doing the lookup.
+> Current implementation of aliases is to load one at random: multiple
+> alias resolution is undefined because noone knew what we should do (load
+> them all?  Load until one succeeds?).  But note that that the base
+> config file overrides anything extracted from the modules themselves, so
+> users/distributions can always specify an exact match.
 
-The release/ioctl functions should be no problems to convert, but how
-do I prevent pkt_open() and pkt_remove_dev() from racing against each
-other with your suggestion? Currently this is handled by the ctl_mutex
-and the fact that pkt_find_dev_from_minor() returns NULL if the packet
-device has gone away.
+How is the blacklist stuff supposed to work then? It must be possible
+to map an alias entry to a list of modules, and check if any of them is
+blacklisted. Then just 'for i in $DRIVERS ; do modprobe $i ; done'.
+
+> > Is there such functionality for the modules.alias file in
+> > module-init-tools? I played around with modprobe -n, but could not
+> > figure it out. Unfortunately, some hardware has more than one driver.
+> > bcm5700/tg3, eepro100/e100 and maybe more.
+> 
+> OK, I think the difference here is that I feel modprobe should resolve
+> it.  What's the right answer?  Do we need a new "unalias" config cmd
+> which does the blacklist, or is the current positive method better?  How
+> do you currently decide?
+
+modprobe or some other tool can certainly resolve it, but something has
+to make a decision based on a blacklist if a certain module can be
+loaded.
+Look at /etc/hotplug/pci.agent how it currently done, it parses the
+modules.pcimap, fills $DRIVERS and passes that variable to the generic
+modprobe function from hotplug.functions. It reads
+/etc/hotplug/blacklist to decide if any of the modules listed in DRIVERS
+must be skipped.
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

@@ -1,53 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130531AbRDCQOe>; Tue, 3 Apr 2001 12:14:34 -0400
+	id <S132220AbRDCQUy>; Tue, 3 Apr 2001 12:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130317AbRDCQOX>; Tue, 3 Apr 2001 12:14:23 -0400
-Received: from p18-max2.adl.ihug.com.au ([203.173.184.210]:3857 "EHLO
-	ocdi.sb101.org") by vger.kernel.org with ESMTP id <S130470AbRDCQOI>;
-	Tue, 3 Apr 2001 12:14:08 -0400
-Date: Wed, 4 Apr 2001 01:43:15 +0930 (CST)
-From: Trevor Nichols <ocdi@ocdi.org>
-X-X-Sender: <data@ocdi.sb101.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: uninteruptable sleep
-In-Reply-To: <E14kRuT-0008Bc-00@the-village.bc.nu>
-Message-ID: <Pine.BSF.4.33.0104040122330.63187-100000@ocdi.sb101.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132194AbRDCQUp>; Tue, 3 Apr 2001 12:20:45 -0400
+Received: from ns0.petreley.net ([64.170.109.178]:27552 "EHLO petreley.com")
+	by vger.kernel.org with ESMTP id <S130317AbRDCQUk>;
+	Tue, 3 Apr 2001 12:20:40 -0400
+Date: Tue, 3 Apr 2001 09:19:55 -0700
+From: Nicholas Petreley <nicholas@petreley.com>
+To: Harald Dunkel <harri@synopsys.COM>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS? How reliable is it? Is this the future?
+Message-ID: <20010403091955.A379@petreley.com>
+In-Reply-To: <3AC9BE5A.DE079EE1@Synopsys.COM>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <3AC9BE5A.DE079EE1@Synopsys.COM>; from harri@synopsys.COM on Tue, Apr 03, 2001 at 02:13:14PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Its a kernel bug if it gets stuck like this. You need to provide more info
-> though - what file system, what devices, how much memory. Also ps can give you
-> the wait address of a process stuck in 'D' state which is valuable for debug
+My Linux boxes are 99% Reiserfs (I work with 2 small ext2
+partitions - the rest are Reiserfs partitions).  Some things
+I have noticed:
 
-System specs:
-Pentium 200 MMX
-80MB RAM
+The good (2.2 kernels):
 
-2 IDE Drives:
-SAMSUNG SV0844D 8.4GB
-WDC AC21200H 1.2GB
+* No problems at all using Reiserfs 3.5.x on 2.2 kernels
+* Speed improvements using Reiserfs and squid
+* No NFS problems
+* Rollback of logs is extremely fast vs. fsck
 
-All partitions are ext2 filesytems.
+The bad (2.2 kernels)
 
-ps xl:
-  F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY        TIME  COMMAND
-040  1000  1230     1   9   0 24320    4 down_w D    ?          0:00  /home/data/mozilla/obj/dist/bin/mozi
+* Nothing I can think of
 
-[I'm not exactly sure how to get the wait address if it isn't shown above]
+The bad (2.4.x kernels):
 
-Other stuff:
+* Some corruption problems with various 2.4.x kernels, but
+people are reporting ext2 problems, too, so this is
+probably due at least in part to IDE/PCI chipset issues
+* Some corruption problems if an application 
+uses an nfs-mounted reiserfs partition during
+an unexpected shutdown of the nfs server
 
-Creative SB AWE64 PnP
-16MB Voodoo 3 2000 and a 2MB S3 Virge display
-RealTek RTL-8029 NIC
-Sony CRX100E Burner
+The good (2.4.x kernels)
 
-I'm running X in a dual-head configuration using the above 2 cards.
-That's all I can think of at this time.
+* Reisefsck --rebuild-tree works fine for me
+when I get corruption problems
 
-Thanks,
-Trevor Nichols.
+I haven't used Windows to do any work in years.  Just
+games.  
 
+-Nick
+
+* Harald Dunkel (harri@synopsys.COM) [010403 05:17]:
+> Hi folks,
+> 
+> If I get the DVD stuff working, then I won't need NT anymore, i.e.
+> I will have an empty disk.
+> 
+> What is your impression about ReiserFS? Does it work? Is it stable
+> enough for my daily work, or is it something to try out and watch
+> carefully? Do you use ReiserFS for your boot partition?
+> 
+> Or should I try ext3 instead?
+> 
+> 
+> Regards
+> 
+> Harri
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+**********************************************************
+Nicholas Petreley   Caldera Systems - LinuxWorld/InfoWorld
+nicholas@petreley.com - http://www.petreley.com - Eph 6:12
+**********************************************************
+.

@@ -1,66 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbUKEBzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbUKEB4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbUKEBzs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 20:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbUKEBzs
+	id S262551AbUKEB4h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 20:56:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbUKEB4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 20:55:48 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:59308 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261419AbUKEBzn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 20:55:43 -0500
-Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20041105005344.GG8229@dualathlon.random>
-References: <20041102220720.GV3571@dualathlon.random>
-	 <41880E0A.3000805@us.ibm.com> <4188118A.5050300@us.ibm.com>
-	 <20041103013511.GC3571@dualathlon.random> <418837D1.402@us.ibm.com>
-	 <20041103022606.GI3571@dualathlon.random> <418846E9.1060906@us.ibm.com>
-	 <20041103030558.GK3571@dualathlon.random>
-	 <1099612923.1022.10.camel@localhost> <1099615248.5819.0.camel@localhost>
-	 <20041105005344.GG8229@dualathlon.random>
-Content-Type: text/plain
-Message-Id: <1099619740.5819.65.camel@localhost>
+	Thu, 4 Nov 2004 20:56:37 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:1188 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262551AbUKEB4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 20:56:22 -0500
+Date: Thu, 4 Nov 2004 17:51:25 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: Nathan Lynch <nathanl@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, rusty@rustcorp.com.au,
+       mochel@digitalimplant.org, anton@samba.org
+Subject: Re: [RFC/PATCH 1/4] dynamic cpu registration - core changes
+Message-ID: <20041104175125.A9271@unix-os.sc.intel.com>
+References: <20041024094551.28808.28284.87316@biclops> <20041024094559.28808.12445.63352@biclops>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 04 Nov 2004 17:55:40 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041024094559.28808.12445.63352@biclops>; from nathanl@austin.ibm.com on Sun, Oct 24, 2004 at 05:42:17AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 16:53, Andrea Arcangeli wrote:
-> The only chance for kpte_page to be freed, is to be == 1 in that place.
-> If kpte_page is == 1, it will be freed via list_add and the master page
-> will be regenerated giving it a chance to get performance back. If it's
-> 0, it means we leaked memory as far as I can tell.
->
-> It's impossible a pte had a 0 page_count() and not to be in the freelist
-> already. There is no put_page at all in that whole path, there's only a
-> __put_page, so it's a memleak to get == 0 in there on any pte or pmd or
-> whatever else we cannot have put in the freelist already.
+On Sun, Oct 24, 2004 at 05:42:17AM -0400, Nathan Lynch wrote:
+> 
+> Register cpu system devices in the core code instead of leaving it to
+> the architecture.  At boot, allocate an array of num_possible_cpus()
+> cpu sysdevs, and register sysdevs for cpus which are marked present.
+> Also, leave to the node "driver" the creation of symlinks from node to
+> cpu devices.
+> 
+> Change register_cpu so that it no longer requires struct cpu* and
+> struct node * arguments, only a logical cpu number.  Break the weird
+> cpu->no_control semantics (for now).  Introduce unregister_cpu, which
+> removes the cpu entry from sysfs.
+> 
+> Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
+> 
+> 
+> -					  &cpu->sysdev.kobj,
+> -					  kobject_name(&cpu->sysdev.kobj));
+> +
+> +	/* XXX FIXME: cpu->no_control is always zero...
+> +	 * Maybe should introduce an arch-overridable "hotpluggable" map.
+> +	 */
 
-Ahhh.  I forgot about the allocator's reference on the page.  However,
-there still seems to be something fishy here.
 
-The page that's causing trouble's pfn is 0x0000000f.  It's also set as
-PageReserved().  We may have some imbalance with page counts when the
-page is PageReserved() that this is catching.  I can't find any
-asymmetric use of kernel_map_pages().  Both the slab and the allocator
-appear to be behaving themselves.  
+Iam getting obsessed with these __attribute__((weak)) these days...:-)
 
-I don't even see a case where that particular page has a get_page() done
-on it before the first __change_page_attr() call on it.  So, it probably
-still has its page_count()==0 from the original set in
-memmap_init_zone().
+simple solution seems like you can have a platform_prefilter() and post_filter() declared
+in the core with weak atteibute, and let the platform that cares about this provide an override
+function. So if you need to hang off additional files for platform this can be handy. so for
+ppc64, based on LPAR or not, you can add these no_control flag before the file is created?
 
-What happens when a pte page is bootmem-allocated?  I *think* that's the
-situation that I'm hitting.  In that case, we can either try to hunt
-down the real 'struct pages' after everything is brought up, or we can
-just skip the BUG_ON() if the page is reserved.  Any thoughts?
 
--- Dave
+>  	if (!error && !cpu->no_control)
+>  		register_cpu_control(cpu);
+>  	return error;
+>  }
+>  
+> +void unregister_cpu(int num)
+> +{
+> +	struct cpu *cpu = &cpu_devices[num];
+>  
+> +	sysdev_remove_file(&cpu->sysdev, &attr_online);
+> +	sysdev_unregister(&cpu->sysdev);
+> +}
+>  
+>  int __init cpu_dev_init(void)
+>  {
+> -	return sysdev_class_register(&cpu_sysdev_class);
+> +	unsigned int cpu;
+> +	int ret = -ENOMEM;
+> +	size_t size = sizeof(*cpu_devices) * num_possible_cpus();
+> +
+> +	cpu_devices = kmalloc(size, GFP_KERNEL);
+> +	if (!cpu_devices)
+> +		goto out;
+> +
+> +	sysdev_class_register(&cpu_sysdev_class);
+> +
+> +	for_each_present_cpu(cpu) {
+> +		ret = register_cpu(cpu);
+> +		if (ret)
+> +			goto out;
+> +	}
+> +out:
+> +	return ret;
+>  }
+> diff -puN include/linux/cpu.h~dynamic-cpu-registration include/linux/cpu.h
+> --- 2.6.10-rc1/include/linux/cpu.h~dynamic-cpu-registration	2004-10-24 00:09:39.000000000 -0500
+> +++ 2.6.10-rc1-nathanl/include/linux/cpu.h	2004-10-24 03:52:43.000000000 -0500
+> @@ -31,7 +31,8 @@ struct cpu {
+>  	struct sys_device sysdev;
+>  };
+>  
+> -extern int register_cpu(struct cpu *, int, struct node *);
+> +extern int register_cpu(int);
+> +extern void unregister_cpu(int);
+>  struct notifier_block;
+>  
+>  #ifdef CONFIG_SMP
+> 
+> _
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
+-- 
+Cheers,
+Ashok Raj
+- Linux OS & Technology Team

@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbUCUTgL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 14:36:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUCUTgL
+	id S261202AbUCUTgG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 14:36:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUCUTgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 14:36:11 -0500
-Received: from smtprelay01.ispgateway.de ([62.67.200.156]:29636 "EHLO
+	Sun, 21 Mar 2004 14:36:06 -0500
+Received: from smtprelay01.ispgateway.de ([62.67.200.156]:29380 "EHLO
 	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261204AbUCUTgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261202AbUCUTgD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 21 Mar 2004 14:36:03 -0500
 From: Ingo Oeser <ioe-lkml@rameria.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.4 Hang in utime() on swap file
-Date: Sun, 21 Mar 2004 10:52:33 +0100
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] Sysfs for framebuffer
+Date: Sun, 21 Mar 2004 09:02:33 +0100
 User-Agent: KMail/1.6
-References: <20040320181630.27185.qmail@web10401.mail.yahoo.com> <20040320135530.7f06a7b8.akpm@osdl.org>
-In-Reply-To: <20040320135530.7f06a7b8.akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>, Kronos <kronos@kronoz.cjb.net>,
+       linux-fbdev-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>
+References: <20040320174956.GA3177@dreamland.darkstar.lan> <20040320215219.GA20277@dreamland.darkstar.lan> <20040320215909.GA26277@kroah.com>
+In-Reply-To: <20040320215909.GA26277@kroah.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403211052.34611.ioe-lkml@rameria.de>
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200403210902.35913.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On Saturday 20 March 2004 22:55, Andrew Morton wrote:
-> ho hum.  We do this to prevent anyone from ftruncate()ing the swapfile
-> while it is in use.  That can destroy filesystems.  Let me think about it a
-> bit.
+On Saturday 20 March 2004 22:59, Greg KH wrote:
+> Well, /sys/class/video is already taken by the V4L core code, so if
+> "graphics" doesn't confuse people, it's ok with me.
 
-Maybe you can deny to open such files with proxy file ops and proxy
-block dev ops.
+I think it DOES confuse people. If they see that, they think the kernel
+has (got) a graphics subsystem (now). That is simply not true, since it
+is not even the lowest layer of the graphics subsystem in Linux, except
+on a few special cases. It is just an basic accelerated 2D framebuffer. 
+No more, no less.
 
-So you implement all file operations and just give back errors.
-This has no speed penalty for the hot path and implements correct error
-handling.
+When we have all devices in that class, that are needed to run fully
+accelerated 3D graphics, without any direct hardware access, then we
+could call it "graphics class" without any confusion.
 
-Only penalty is code bloat, but this is normal for additional error
-handling ;-)
-
-
-But maybe I'm totally wrong here and this is just another case of
-"doctor it hurts...".
+So PLEASE consider this confusion or people will start argueing with me
+whether Linux has an in kernel graphics subsystem (like KGI once) and
+not all people can be convinced by code, because not all are coders
+anymore ;-)
 
 
-Regards
+Thanks & regards
 
 Ingo Oeser
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAXWXhU56oYWuOrkARAtRAAKDjjyxyXbuH1LS+cJjGIduWYvEc7gCg4Cy2
-wfjw7RtJtABR0MtvL07UPGw=
-=rB7n
+iD8DBQFAXUwZU56oYWuOrkARAi2SAKCWOIOvQp5PtVbfZuudMoiXauX1OACg0Ji4
+s0R/gqsMRXLbsm5iU2c4MDg=
+=K/NA
 -----END PGP SIGNATURE-----
 

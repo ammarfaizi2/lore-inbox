@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262654AbSIPP6T>; Mon, 16 Sep 2002 11:58:19 -0400
+	id <S262644AbSIPP5Y>; Mon, 16 Sep 2002 11:57:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262658AbSIPP6S>; Mon, 16 Sep 2002 11:58:18 -0400
-Received: from ns.sysgo.de ([213.68.67.98]:21497 "EHLO dagobert.svc.sysgo.de")
-	by vger.kernel.org with ESMTP id <S262654AbSIPP6Q>;
-	Mon, 16 Sep 2002 11:58:16 -0400
-Date: Mon, 16 Sep 2002 17:59:41 +0200
-From: Soewono Effendi <SEffendi@sysgo.de>
-To: "Daniel Phillips" <phillips@arcor.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: kernel debuggers was [Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34]
-Message-Id: <20020916175941.38927715.SEffendi@sysgo.de>
-In-Reply-To: <E17qxbC-0000JO-00@starship>
-References: <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com>
-	<E17qejV-00008L-00@starship>
-	<20020916090616.GF12364@suse.de>
-	<E17qxbC-0000JO-00@starship>
-Organization: SYSGO Real-Time Solutions GmbH
-X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262645AbSIPP5Y>; Mon, 16 Sep 2002 11:57:24 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:43403 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262644AbSIPP5X>;
+	Mon, 16 Sep 2002 11:57:23 -0400
+Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.22
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF1DB2874A.3A92B29E-ON85256C36.00576261@pok.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Mon, 16 Sep 2002 11:02:14 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
+ 09/16/2002 12:02:16 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-just my .02 $
+Release 1.0.22 of JFS was made available today.
 
-what I mostly admire in linux and it's development till now, 
-is it's flexibility to adapt the dynamic complex changing requirements 
-from server to desktop even embedded system and real-time system.
->From high throughput to low latency, you just name it!
+Drop 60 on September 16, 2002 (jfs-2.4-1.0.22.tar.gz
+and jfsutils-1.0.22.tar.gz) includes fixes to the file
+system and utilities.
 
-And still though no one feels disadvantaged, 
-since features not needed are "removable".
+There are two patches available to support ACLs, the first is
+JFS extended attributes (jfs-2.4-1.0.22-xattr.patch)
+the second is JFS ACLs (jfs-2.4-1.0.22-acl.patch).
 
-I'm just wondering "if it's worth the effort" to provide 
-"removable customizable kernel debugging tools (entry/break points)", 
-which one can replaces with tools of his/her choice.
-I'm talking about some unified cleaver reasonable MACROS, 
-which one can easy insert/use them where needed.
+Utilities changes
 
-It's still wrong to force development tools to be persist in running system
-where they are not needed.
+- add jfs_tune utility (see jfs_tune man page for details)
+  jfs_tune allows users to:
+    attach a JFS external journal to a JFS file system
+    set/change volume label, UUID of JFS file system and external log
+    devices
+    view superblock information of JFS file system and external log
+    devices
+- add option '-J journal_device' to mkfs.jfs to create an external journal
+   only   and optionally set its volume label (see mkfs.jfs man page)
+- add option '-J device=' to mkfs.jfs to attach an existing JFS external
+   journal to the JFS file system that will be created
+   (see mkfs.jfs man page)
+- fix mkfs.jfs to store 16 character volume labels properly
+- code cleaup
+- add extend support to JFS FSIM for EVMS
+    see http://sourceforge.net/projects/evms/
 
-There are lots of "nice things" that can be implemented in kernel, 
-but are they essential?
-Tools should not become burdens!
 
-Best regards,
-S. Effendi
+File System changes
+
+- Use strtoul instead of strtoull
+- Add write_super_lockfs & unlock_fs used for snapshot
+- rework extent invalidation
+- cosmetic changes to reduce the diff to the bitkeeper tree
+- backport lmLogWait from 2.5
+- Remove unused jfs_extendfs.h
+- use buffer_heads to access the superblock
+- ifdef out unused functions related to partial blocks
+- sync the block device on umount or r/o remount
+- remove superfluous includes
+
+
+For more details about JFS, please see the patch instructions
+or changelog.jfs files.
+
+
+Steve
+JFS for Linux http://oss.software.ibm.com/jfs
+
+

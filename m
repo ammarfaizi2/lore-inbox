@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265326AbUAFDkX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 22:40:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265329AbUAFDkX
+	id S265316AbUAFDcr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 22:32:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbUAFDcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 22:40:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:22192 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265326AbUAFDkW (ORCPT
+	Mon, 5 Jan 2004 22:32:47 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:2197 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S265316AbUAFDcr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 22:40:22 -0500
-Date: Mon, 5 Jan 2004 19:40:11 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@muc.de>
-cc: David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-In-Reply-To: <m37k054uqu.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.58.0401051937510.2653@home.osdl.org>
-References: <1aJdi-7TH-25@gated-at.bofh.it> <m37k054uqu.fsf@averell.firstfloor.org>
+	Mon, 5 Jan 2004 22:32:47 -0500
+Date: Tue, 6 Jan 2004 11:26:44 +0800 (CST)
+From: "Zhu, Yi" <yi.zhu@intel.com>
+X-X-Sender: chuyee@mazda.sh.intel.com
+Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+cc: "Zhu, Yi" <yi.zhu@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Bugfix] Set more than 32K pid_max (reformatted)
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F840254C8C3@PDSMSX403.ccr.corp.intel.com>
+Message-ID: <Pine.LNX.4.44.0401061125400.26383-100000@mazda.sh.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 6 Jan 2004, Marcos D. Marado Torres wrote:
 
-
-On Tue, 6 Jan 2004, Andi Kleen wrote:
+> >         if (!offset || !atomic_read(&map->nr_free)) {
+> > +               if (!offser)
 > 
-> IMHO the only reliable way to get physical bus space for mappings
-> is to allocate some memory and map the mapping over that.
+> I suppose it should be "if (!offset)"...
 
-You literally can't do that: the RAM addresses are decoded by the 
-northbridge before they ever hit the PCI bus, so it's impossible to "map 
-over" RAM in general. 
+Yes, my mistake. Thanks!
 
-Normally, the way this works is that there are magic northbridge mapping
-registers that remap part of the memory, so that the memory that is
-physically in the upper 4GB of RAM shows up somewhere else (or just
-possibly disappears entirely - once you have more than 4GB of RAM, you
-might not care too much about a few tens of megs missing).
-
-			Linus

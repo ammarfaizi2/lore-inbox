@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVB0RVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVB0RVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVB0RVV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 12:21:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVB0RVV
+	id S261444AbVB0RVv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 12:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVB0RVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 12:21:21 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31198 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261443AbVB0RVP (ORCPT
+	Sun, 27 Feb 2005 12:21:51 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:27452 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S261444AbVB0RVq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 12:21:15 -0500
-Date: Sun, 27 Feb 2005 12:21:05 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: stone_wang@sohu.com
-cc: akpm@osdl.org, linux-mm@kvack.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Linux-2.6.11-rc5: kernel/sys.c setrlimit() RLIMIT_RSS
- cleanup
-In-Reply-To: <17855236.1109499454066.JavaMail.postfix@mx20.mail.sohu.com>
-Message-ID: <Pine.LNX.4.61.0502271220210.19979@chimarrao.boston.redhat.com>
-References: <17855236.1109499454066.JavaMail.postfix@mx20.mail.sohu.com>
+	Sun, 27 Feb 2005 12:21:46 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Build failure of drivers/usb/gadget/ether.c
+Date: Sun, 27 Feb 2005 20:21:54 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502272021.54173.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Feb 2005 stone_wang@sohu.com wrote:
+FYI, allyesconfig on sparc gives:
 
-> ulimit dont enforce RLIMIT_RSS now,while sys_setrlimit() pretend 
-> it(RLIMIT_RSS) is enforced.
-> 
-> This may cause confusion to users, and may lead to un-guaranteed 
-> dependence on "ulimit -m" to limit users/applications.
-> 
-> The patch fixed the problem. 
+  CC      drivers/usb/gadget/ether.o
+drivers/usb/gadget/ether.c: In function `eth_bind':
+drivers/usb/gadget/ether.c:2418: error: `control_intf' undeclared (first use in this function)
+drivers/usb/gadget/ether.c:2418: error: (Each undeclared identifier is reported only once
+drivers/usb/gadget/ether.c:2418: error: for each function it appears in.)
+make[3]: *** [drivers/usb/gadget/ether.o] Error 1
 
-Some kernels do enforce the RSS rlimit.  Your patch could break
-systems that have the RSS rlimit in their configuration files
-because they used to run a kernel that enforces the RSS rlimit.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+	Alexey

@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291711AbSBHShy>; Fri, 8 Feb 2002 13:37:54 -0500
+	id <S291707AbSBHSih>; Fri, 8 Feb 2002 13:38:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291707AbSBHShr>; Fri, 8 Feb 2002 13:37:47 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:20108 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S291711AbSBHShc>; Fri, 8 Feb 2002 13:37:32 -0500
-Subject: [Announcement] New Release of LTP testsuite available
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFAFA30268.F0CA3EA1-ON85256B5A.006611A0@raleigh.ibm.com>
-From: "Robert Williamson" <robbiew@us.ibm.com>
-Date: Fri, 8 Feb 2002 12:37:45 -0600
-X-MIMETrack: Serialize by Router on D04NMS96/04/M/IBM(Release 5.0.9 |November 16, 2001) at
- 02/08/2002 01:37:20 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S291716AbSBHSiY>; Fri, 8 Feb 2002 13:38:24 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:7779 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S291707AbSBHSiK>; Fri, 8 Feb 2002 13:38:10 -0500
+Date: Fri, 8 Feb 2002 13:38:06 -0500
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Tigran Aivazian <tigran@veritas.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] larger kernel stack (8k->16k) per task
+Message-ID: <20020208133806.B23001@devserv.devel.redhat.com>
+In-Reply-To: <3C640994.F3528E74@redhat.com> <Pine.LNX.3.95.1020208123843.1974A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.95.1020208123843.1974A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Fri, Feb 08, 2002 at 01:29:16PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Test project ltp-20020207 has been released.  For more
-information about the Linux Test Project,
-or to download the testsuite, see our website at http://ltp.sourceforge.net
-.  This release contains enhancements
-to support execution on the following additional architectures:
+On Fri, Feb 08, 2002 at 01:29:16PM -0500, Richard B. Johnson wrote:
+> I think it is entirely inefficient to call an external procedure
+> for temporary variable space when the actual math is done by the
+> compiler at compile time, and the code is a simple subtraction, then
+> later-on a simple addition to a single register!
 
-    IBM z-Series mainframe
-    PowerPC
-    Intel IA-64
+Depends. If you need a few bytes (and upto 1Kb I'd call a few bytes if
+you're careful), then stack usage is fine. If you need more, well, kmalloc
+is some 100 cycles...
 
-New test results, that include these new architectures, are published at
-http://ltp.sourceforge.net/results.html. Initial
-support for an IPv6 network environment were also added to the testsuite.
-Modifications were made to the
-Makefiles to allow non-root and cross-compiler compilation, and numerous
-bugfixes are implemented.
+> If the kernel does not provide sufficient stack-space for small
+> buffers and structures, it is a kernel problem,
 
-Change Log:
-------------
-o       added support for cross-compiling (Todd Inglett)
-o       added LKML's cache_leak testcase to ltp/scratch (Nate Straz)
-o       added IPv6 support (Robbie Williamson)
-o       added "gethost" to /tools (Robbie Williamson)
-o       fixed the race conditions in the float tests and removed
-          the sleeps (Robbie Williamson)
-o       enabled non-root make authority (Paul Larson)
-o       separated compilation into "make" and "make install" (Paul Larson)
-o       added ipc_stress test (Manoj Iyer)
-o       added pthreads_stress test (Manoj Iyer)
-o       made changes to support architecture independence (Manoj Iyer &
-Paul Larson)
-o       closed the following bugs:
-       504960, 505108, 504613, 504616, 491283, 506689, 508055, 506692,
-508074
-       491289, 506662, 511383, 511391, 511427, 511494, 504649, 514050
-       (Manoj Iyer, Paul Larson, and Robbie Williamson)
+notice the *small*
 
+The alternative is to double the amount of PER PROCESS overhead in terms of
+unswappable memory... Even 1 disk IO will hurt more than your kmalloc of 4Kb
+of "small buffers and structures" will in a year.
 
-- Robbie
-
-Robert V. Williamson
-Linux Test Project
-IBM Linux Technology Center
-Phone: (512) 838-9295   T/L: 638-9295
-http://ltp.sourceforge.net
 

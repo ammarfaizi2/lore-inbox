@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262930AbREaAZe>; Wed, 30 May 2001 20:25:34 -0400
+	id <S262922AbREaAWe>; Wed, 30 May 2001 20:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262934AbREaAZO>; Wed, 30 May 2001 20:25:14 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:56502 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S262930AbREaAZJ>; Wed, 30 May 2001 20:25:09 -0400
-Mime-Version: 1.0
-Message-Id: <p05100316b73b3f2e80e2@[10.128.7.49]>
-In-Reply-To: <9f41vq$our$1@cesium.transmeta.com>
-In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva>
- <9f41vq$our$1@cesium.transmeta.com>
-Date: Wed, 30 May 2001 17:24:37 -0700
-To: linux-kernel@vger.kernel.org
-From: Jonathan Lundell <jlundell@pobox.com>
+	id <S262923AbREaAWY>; Wed, 30 May 2001 20:22:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54796 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262922AbREaAWM>;
+	Wed, 30 May 2001 20:22:12 -0400
+Date: Thu, 31 May 2001 01:22:10 +0100
+From: Joel Becker <jlbec@evilplan.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: How to know HZ from userspace?
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Message-ID: <20010531012210.I16761@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva> <9f41vq$our$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9f41vq$our$1@cesium.transmeta.com>; from hpa@zytor.com on Wed, May 30, 2001 at 05:07:22PM -0700
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 5:07 PM -0700 2001-05-30, H. Peter Anvin wrote:
->  > If you now want to set those values from a userspace program / script in
->>  a portable manner, you need to be able to find out of HZ of the currently
->>  running kernel.
->>
->
->Yes, but that's because the interfaces are broken.  The decision has
->been that these values should be exported using the default HZ for the
->architecture, and that it is the kernel's responsibility to scale them
->when HZ != USER_HZ.  I don't know if any work has been done in this
->area.
+On Wed, May 30, 2001 at 05:07:22PM -0700, H. Peter Anvin wrote:
+> Followup to:  <20010530203725.H27719@corellia.laforge.distro.conectiva>
+> By author:    Harald Welte <laforge@gnumonks.org>
+> In newsgroup: linux.dev.kernel
+> > Is there any way to read out the compile-time HZ value of the kernel?
+> 
+> Yes, but that's because the interfaces are broken.  The decision has
+> been that these values should be exported using the default HZ for the
+> architecture, and that it is the kernel's responsibility to scale them
+> when HZ != USER_HZ.  I don't know if any work has been done in this
+> area.
 
-FWIW (perhaps not much in this context), the POSIX way is sysconf(_SC_CLK_TCK)
+	Pardon, but that still seems broken to me.  USER_HZ shouldn't
+matter to the architecture either.  I would think that if
+'echo 10 > /proc/foo/icmp_foo' sets a timeout of 10ms on alpha, it
+should also do so on x86, sparc, and mips.  Why should the userspace
+implementation *ever* have to know the 'architecture HZ', the 'real HZ'
+or anything of the kind?
 
-POSIX sysconf is pretty useful for this kind of thing (not just HZ, either).
+Joel
+
 -- 
-/Jonathan Lundell.
+
+"I'm drifting and drifting
+ Just like a ship out on the sea.
+ Cause I ain't got nobody, baby,
+ In this world to care for me."
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org

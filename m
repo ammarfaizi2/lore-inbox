@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316780AbSGQVtR>; Wed, 17 Jul 2002 17:49:17 -0400
+	id <S316822AbSGQWHl>; Wed, 17 Jul 2002 18:07:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316782AbSGQVtR>; Wed, 17 Jul 2002 17:49:17 -0400
-Received: from lns04a-5-214.w.club-internet.fr ([212.194.76.214]:16768 "EHLO
-	universe") by vger.kernel.org with ESMTP id <S316780AbSGQVtQ>;
-	Wed, 17 Jul 2002 17:49:16 -0400
-From: Philippe Gerum <rpm@xenomai.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316823AbSGQWHl>; Wed, 17 Jul 2002 18:07:41 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:8687 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316822AbSGQWHk>; Wed, 17 Jul 2002 18:07:40 -0400
+Subject: Re: [BK PATCH] agpgart changes for 2.5.26
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020717203601.GB10047@kroah.com>
+References: <20020717183615.GB9589@kroah.com>
+	<20020717213056.I18170@suse.de>  <20020717203601.GB10047@kroah.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15669.58314.307577.58284@universe.xenomai.org>
-Date: Wed, 17 Jul 2002 23:38:18 +0200
-To: linux-kernel@vger.kernel.org
-Cc: adeos-main@mail.freesoftware.fsf.org,
-       xenomai-main@mail.freesoftware.fsf.org
-Subject: [ANNOUNCE] Adeos M2
-X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 18 Jul 2002 00:21:03 +0100
+Message-Id: <1026948063.7804.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-07-17 at 21:36, Greg KH wrote:
+> On Wed, Jul 17, 2002 at 09:30:56PM +0200, Dave Jones wrote:
+> >  >  drivers/char/agp/via.c               |  151 +
+> > 
+> > Linus last comment mentioned via-agp.c, and the likes,
+> > which I did in my tree, but haven't put up a diff yet.
+> > I could dig those out for you, but you could probably
+> > 'mv' them faster than I can chunk up the diff into pieces.
+> 
+> But that would make:
+> 	drivers/char/agp/via-agp.c
+> which is redundant, as that file does not compile to a separate module,
+> but gets linked to the larger agpgart.o like before.
 
-On behalf of the Adeos project team, I'm glad to announce the
-availability of the new Adeos milestone release M2 based on 2.4.18
-(x86).  This release aims at stabilizing the code (internals and API),
-which now includes the SMP support.
+Its only redundant until they day AGP does become a set of loadable
+modules rather than one. 
 
-Aside of this, the initial port of Adeos to 2.5 (2.5.25/x86) has just
-been completed. It is available from our CVS area on Savannah.
-
-Finally, the RTOS available from the Xenomai project (*) has been
-ported over Adeos to serve as a proof-of-concept of one of the
-possible applications Karim had envisioned. In order to achieve a high
-degree of determinism, this real-time kernel (loaded as a module) runs
-aside of Linux as a separate Adeos domain living ahead of the Linux
-domain in the interrupt pipeline.
-
-M2 release: http://savannah.gnu.org/download/adeos/releases/adeos-m2.tar.gz
-On-line Adeos doc: http://www.freesoftware.fsf.org/adeos/doc/api/globals.html
-Adeos CVS: http://savannah.gnu.org/cvs/?group=adeos
-Xenomai: http://savannah.gnu.org/download/xenomai/snapshots/xenomai-1.1pre2.tar.gz
-
-(*) Xenomai is a development framework for real-time systems which
-includes a collection of emulators mimicking APIs of traditional RTOS
-such as VxWorks, pSOS+ and VRTXsa. These emulators run over a single
-"generic" RTOS core which have been ported over Adeos.
-
-Regards,
-
-Philippe.

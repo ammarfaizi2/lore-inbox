@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264984AbSKVQES>; Fri, 22 Nov 2002 11:04:18 -0500
+	id <S265019AbSKVQdw>; Fri, 22 Nov 2002 11:33:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265002AbSKVQES>; Fri, 22 Nov 2002 11:04:18 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:24592
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264984AbSKVQER>; Fri, 22 Nov 2002 11:04:17 -0500
-Subject: Re: calling schedule() from interupt context
-From: Robert Love <rml@tech9.net>
-To: dan carpenter <error27@email.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021122160409.28049.qmail@email.com>
-References: <20021122160409.28049.qmail@email.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037981475.1504.4316.camel@phantasy>
+	id <S265023AbSKVQdw>; Fri, 22 Nov 2002 11:33:52 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:26896 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S265019AbSKVQdv>; Fri, 22 Nov 2002 11:33:51 -0500
+Message-Id: <200211221640.gAMGetJ02979@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+       Sam Ravnborg <sam@ravnborg.org>, john stultz <johnstul@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] subarch cleanup 
+In-Reply-To: Message from "Martin J. Bligh" <mbligh@aracnet.com> 
+   of "Fri, 22 Nov 2002 07:42:19 PST." <1047956111.1037950936@[10.10.2.3]> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 22 Nov 2002 11:11:16 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 22 Nov 2002 10:40:55 -0600
+From: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-22 at 11:04, dan carpenter wrote:
+mbligh@aracnet.com said:
+> That's not true either. There are lots of header files under the
+> include tree that aren't externally useful.
 
-> ok.  I'm an idiot.
-> 
-> The script only checks things at compile time not at runtime.  So you are 
-> right, of course, that this couldn't happen in real life because of the
-> preemp_count.  
+It may be honoured more in the breach than the observance, but it's a custom 
+nonetheless.
 
-Still, neat scripts.
+> And every other header file is under the include path ... putting them
+> all mixed in with C files is just making a mess.
 
-Statically searching code has a lot of applications that run-time
-checking does not have.  For example, there _are_ a lot of things you do
-not want to call from interrupts: down(), kmalloc() without GFP_ATOMIC,
-etc. etc.
+No, look at e.g. SCSI.  We have a scsi.h file in drivers/scsi which defines 
+subsystem specific things that we only use within SCSI.  We have 
+include/scsi/scsi.h which defines things other subsystems can use.
 
-And could you get it to check for code paths that could possibly
-double-acquire the same lock?
+> Que? How is include/asm-i386 any more "kernel core" than arch/i386? 
 
-etc. etc... be creative.
+Because the files are spreading.  I think there's value to keeping something 
+tightly contained unless you're going to encourage others to use it.  
+Interfaces are dangerous things: If you release them into the wild 
+willy-nilly, they can come back and bite you (athough more often they just 
+bite other people).
 
-> Thanks for the explanation...  
+James
 
-No problem.
-
-	Robert Love
 

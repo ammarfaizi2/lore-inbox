@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbSKHSTl>; Fri, 8 Nov 2002 13:19:41 -0500
+	id <S261847AbSKHSa6>; Fri, 8 Nov 2002 13:30:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261563AbSKHSTk>; Fri, 8 Nov 2002 13:19:40 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:55035 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S261561AbSKHSTk> convert rfc822-to-8bit; Fri, 8 Nov 2002 13:19:40 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: Jens Axboe <axboe@suse.de>
-Subject: Whither the "system without /proc" crowd?
-Date: Fri, 8 Nov 2002 18:26:16 +0000
-User-Agent: KMail/1.4.3
+	id <S261934AbSKHSa6>; Fri, 8 Nov 2002 13:30:58 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:13833 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261847AbSKHSa5>;
+	Fri, 8 Nov 2002 13:30:57 -0500
+Date: Fri, 8 Nov 2002 19:36:44 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
 Cc: linux-kernel@vger.kernel.org
-References: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee> <20021108114318.GX32005@suse.de> <20021108135849.GZ32005@suse.de>
-In-Reply-To: <20021108135849.GZ32005@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211081826.16168.landley@trommello.org>
+Subject: kconfig: Generate prerequisites
+Message-ID: <20021108183644.GA2992@mars.ravnborg.org>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 November 2002 13:58, Jens Axboe wrote:
+Hi Roman.
 
-> Here's a patch that includes that feature, puts the tunables in sysfs
-> (so you obviously need that mounted). In
->
-> /sys/block/<disk>/iosched
+During the 2.5.3x versions of the kernel there were a check
+that checked all Config.in files, and if anyone were newer than
+.config then the user were requested to run make oldconfig.
 
-Stupid question time:
+Could we achieve something similar with kconfig?
+The most simple form would be that kconfig when run like "conf -p"
+would spit out all Kconfig files used by the current configuration.
 
-A great deal of text has been expended over the years by people desperately 
-trying to make sure you didn't need /proc mounted to have a usable system, 
-for some definition of usable.  Now with rootfs, initramfs, sysfs, and the 
-libfs inspired "make a filesystem rather than an ioctl" policy, the main 
-argument against requiring the use of /proc is that it has a lot more gunk in 
-it (left over from the days when it was the only ramfs type system to export 
-values in) than anyone is comfortable with.  (The argument against /dev/pty 
-largely seems to be inertia, now that the "number of ptys" issue as a config 
-tunable seems to have been cleared up).
+Example:
+conf -p arch/i386/Kconfig
+arch/i386/Kconfig \
+net/Kconfig \
+drivers/Kconfig
 
-There seems to be some sort of nebulous plan for eventually stripping down 
-/proc, perhaps making a "crapfs" that's a union mount on top of /proc 
-providing deprecated legacy support for a release or two.  But I haven't 
-heard it explicitly stated.
+The check could be made in kconfig as well which should speed up
+things. No need for make to stat the same file as Kconfig already
+have stat'ed. From a speed persepctive I like this version best.
 
-So my questions are:
+The reason why the check were removed in 2.5.4x was that it took several
+seconds on a fresh tree before make started doing something useful.
 
-1) will some subset of /proc, /sys, /dev/pty, etc become required at some 
-point in the future on everything but the most customized embedded systems?  
-Or is keeping the system usable without them still a goal?
+I do not expect kconfig to be as slow as a find over the full tree with
+cold caches.
 
-2) Is there a plan to rehabilitate /proc?
-
-(I ask because I don't know.  Maybe I missed some important posts...)
-
-Rob
-
--- 
-http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
-CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?
+	Sam

@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288890AbSAIGPM>; Wed, 9 Jan 2002 01:15:12 -0500
+	id <S288889AbSAIGXa>; Wed, 9 Jan 2002 01:23:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288873AbSAIGNb>; Wed, 9 Jan 2002 01:13:31 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:9487 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288866AbSAIGMu>;
-	Wed, 9 Jan 2002 01:12:50 -0500
-Date: Tue, 8 Jan 2002 22:10:37 -0800
-From: Greg KH <greg@kroah.com>
-To: felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Message-ID: <20020109061037.GB18024@kroah.com>
-In-Reply-To: <20020108192450.GA14734@kroah.com> <20020109042331.GB31644@codeblau.de> <20020109043446.GB17655@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020109043446.GB17655@kroah.com>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 12 Dec 2001 03:53:43 -0800
+	id <S288876AbSAIGXV>; Wed, 9 Jan 2002 01:23:21 -0500
+Received: from dsl-213-023-043-044.arcor-ip.net ([213.23.43.44]:4108 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288889AbSAIGXG>;
+	Wed, 9 Jan 2002 01:23:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Wed, 9 Jan 2002 07:26:46 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrea Arcangeli <andrea@suse.de>, Anton Blanchard <anton@samba.org>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
+In-Reply-To: <Pine.LNX.4.33.0201082351020.1185-100000@Expansa.sns.it>
+In-Reply-To: <Pine.LNX.4.33.0201082351020.1185-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16OCCE-0000CJ-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 08:34:47PM -0800, Greg KH wrote:
-> 
-> Here's what I want to have in my initramfs:
-> 	- /sbin/hotplug
-> 	- /sbin/modprobe
-> 	- modules.dep (needed for modprobe, but is a text file)
+On January 9, 2002 12:02 am, Luigi Genoni wrote:
+> On Tue, 8 Jan 2002, Daniel Phillips wrote:
+> > On January 8, 2002 04:29 pm, Andrea Arcangeli wrote:
+> > > but I just wanted to make clear that the
+> > > idea that is floating around that preemptive kernel is all goodness is
+> > > very far from reality, you get very low mean latency but at a price.
+> >
+> > A price lots of people are willing to pay
+>
+> Probably sometimes they are not making a good business.
 
-Forgot the modules themselves.  That would be helpful...
+Perhaps.  But they are happy customers and their music sounds better.
 
-greg k-h
+Note: the dominating cost of -preempt is not Robert's patch, but the fact 
+that you need to have CONFIG_SMP enabled, even for uniprocessor, turning all 
+those stub macros into real spinlocks.  For a dual processor you have to have 
+this anyway and it just isn't an issue.
+
+Personally, I don't intend to ever get another single-processor machine, 
+except maybe a laptop, and that's only if Transmeta doesn't come up with a 
+dual-processor laptop configuration.
+
+> > By the way, have you measured the cost of -preempt in practice?
+>
+> Yes, I did a lot of tests, and with current preempt patch definitelly
+> I was seeing a too big performance loss.
+
+Was this on uniprocessor machines, or your dual Athlons?  How did you measure 
+the performance?
+
+--
+Daniel

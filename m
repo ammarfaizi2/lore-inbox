@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316260AbSERCLX>; Fri, 17 May 2002 22:11:23 -0400
+	id <S316265AbSERCOH>; Fri, 17 May 2002 22:14:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316265AbSERCLW>; Fri, 17 May 2002 22:11:22 -0400
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:17580
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S316260AbSERCLV>; Fri, 17 May 2002 22:11:21 -0400
-Date: Fri, 17 May 2002 22:11:10 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3 
-In-Reply-To: <14700.1021685959@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.44.0205172157540.4117-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316544AbSERCOG>; Fri, 17 May 2002 22:14:06 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:34321 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316265AbSERCOF>;
+	Fri, 17 May 2002 22:14:05 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
+In-Reply-To: Your message of "Sat, 18 May 2002 03:14:10 +0200."
+             <20020518011410.GD29509@dualathlon.random> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 18 May 2002 12:13:51 +1000
+Message-ID: <14957.1021688031@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 May 2002, Keith Owens wrote:
+On Sat, 18 May 2002 03:14:10 +0200, 
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+>you're right if we need a make clean it's because the buildsystem is
+>broken. However one thing that happens all the time to me, is that I
+>change an header like mm.h or sched.h and ~everything needs to be
+>rebuilt then.
 
-> On Fri, 17 May 2002 11:42:26 -0400 (EDT), 
-> Nicolas Pitre <nico@cam.org> wrote:
-> >Keith gets ignored.  He receives suggestions for alternative ways which he 
-> >ignores too.  I therefore intend to ignore his work as well.
-> 
-> I ignore stupid comments, yours falls into that category.  I have good
-> reason for asking for Linus's OPINION before sending the patch.  Note I
-> am not asking Linus to take the patch right now, I am asking for some
-> guidance.  Unless you have something useful to contribute, I will
-> continue to ignore you.
+That is an orthogonal problem to kbuild 2.5.  The spaghetti that is the
+include tree needs to be cleaned up, other people are working on that.
 
-Well the above was a stupid comment made on purpose to cynically depict the
-current situation.  But this answer from you just shows that you don't
-necessarily ignore stupid comments...
+>Now the only regression I can
+>see is that kbuild was quite slower in compiling the kernel from scrach
+>(so I suspect that for me after editing mm.h it would take more time
+>with kbuild2.5 to reach the vmlinux generation than it took with the old
+>buildsystem after the make clean) Is that the case, or did you improved
+>the performance of kbuild recently?
 
-It just looks like you are failing to obtain guidance from Linus so _maybe_
-submiting multiple small patches that can be reviewed from within a mailer
-might be easier for someone who already stated his preferences for that
-matter.
+Since release 2.0 [1], kbuild 2.5 has been faster as well as more
+accurate than the old build system.  A couple of people have complained
+that some restricted operations are slower in kbuild 2.5 [2] but
+overall it is faster, more accurate and provides more facilities,
+especially for people building multiple kernels.
 
-No offense intended. Really.
-
-
-Nicolas
+[1] http://www.lib.uaa.alaska.edu/linux-kernel/archive/2002-Week-13/0771.html
+[2] http://marc.theaimsgroup.com/?l=linux-kernel&m=102064198628442&w=2
 

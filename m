@@ -1,94 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266203AbSKONXB>; Fri, 15 Nov 2002 08:23:01 -0500
+	id <S266186AbSKONQ4>; Fri, 15 Nov 2002 08:16:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266236AbSKONXB>; Fri, 15 Nov 2002 08:23:01 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:45060 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S266203AbSKONXA>;
-	Fri, 15 Nov 2002 08:23:00 -0500
-Date: Fri, 15 Nov 2002 16:29:08 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: PC-9800 patch for 2.5.47-ac4: not merged yet (15/15) SMP
-Message-ID: <20021115132908.GB552@pazke.ipt>
-Mail-Followup-To: Osamu Tomita <tomita@cinet.co.jp>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <3DD4E2D5.AEF13F1@cinet.co.jp> <3DD4F1D9.A4F58358@cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4bRzO86E/ozDv8r1"
-Content-Disposition: inline
-In-Reply-To: <3DD4F1D9.A4F58358@cinet.co.jp>
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.2.17 
+	id <S266203AbSKONQ4>; Fri, 15 Nov 2002 08:16:56 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:24017 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266186AbSKONQ4>; Fri, 15 Nov 2002 08:16:56 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200211151323.gAFDNlt01818@devserv.devel.redhat.com>
+Subject: Re: 2.4.20-rc1-ac3 compile warnings/errors (test)
+To: dlister@yossman.net (Brian Davids)
+Date: Fri, 15 Nov 2002 08:23:47 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel), alan@redhat.com (Alan Cox)
+In-Reply-To: <3DD4A149.4030707@yossman.net> from "Brian Davids" at Nov 15, 2002 02:24:57 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>   -nostdinc -iwithprefix include -DKBUILD_BASENAME=setup_pci 
+> -DEXPORT_SYMTAB -c setup-pci.c
+> setup-pci.c: In function `ide_setup_pci_device':
+> setup-pci.c:704: warning: unused variable `index_list'
+> setup-pci.c: In function `ide_setup_pci_devices':
+> setup-pci.c:711: warning: unused variable `index_list'
+> setup-pci.c:712: warning: unused variable `index_list2'
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I should clean that up
 
-On =D0=9F=D1=82=D0=BD, =D0=9D=D0=BE=D1=8F 15, 2002 at 10:08:41 +0900, Osamu=
- Tomita wrote:
-> This is for SMP support.
-=20
->  void __init find_smp_config (void)
->  {
-> +#ifndef CONFIG_PC9800
->  	unsigned int address;
-> +#endif
-> =20
->  	/*
->  	 * FIXME: Linux assumes you have 640K of base ram..
-> @@ -762,6 +793,7 @@
->  		smp_scan_config(639*0x400,0x400) ||
->  			smp_scan_config(0xF0000,0x10000))
->  		return;
-> +#ifndef CONFIG_PC9800	/* PC-9800 has no EBDA area? */
->  	/*
->  	 * If it is an SMP machine we should know now, unless the
->  	 * configuration is in an EISA/MCA bus machine with an
-> @@ -784,6 +816,7 @@
->  	smp_scan_config(address, 0x400);
->  	if (smp_found_config)
->  		printk(KERN_WARNING "WARNING: MP table in the EBDA can be UNSAFE, cont=
-act linux-smp@vger.kernel.org if you experience SMP problems!\n");
-> +#endif
->  }
+> -DEXPORT_SYMTAB -c pnpbios_core.c
+> {standard input}: Assembler messages:
+> {standard input}:16: Warning: indirect lcall without `*'
 
-Can you redo this fragment this way ?
+These are intended. We have a problem where
 
-#ifndef CONFIG_PC9800	/* PC-9800 has no EBDA area? */
-	{
-		unsigned int address =3D *(unsigned short *)phys_to_virt(0x40E);
-		address <<=3D 4;
-		smp_scan_config(address, 0x400);
-		if (smp_found_config)
-			printk(KERN_WARNING "WARNING: MP table in the EBDA can be UNSAFE, contac=
-t linux-smp@vger.kernel.org if you experience SMP problems!\n");
-	}
-#endif
+	very old binutils accepts lcall with * but misassembles it
+	newer binutils assembles both properly
+	latest binutils warns about the *
 
-IMHO this is better way (one #ifndef less)
+>   -nostdinc -iwithprefix include -DKBUILD_BASENAME=rmap  -c -o rmap.o rmap.c
+> In file included from rmap.c:31:
+> /usr/src/linux-2.4.20-rc1-ac3/include/asm/smplock.h:17:1: warning: 
+> "kernel_locked" redefined
 
---=20
-Andrey Panin            | Embedded systems software developer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---4bRzO86E/ozDv8r1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD4DBQE91PakBm4rlNOo3YgRAhYfAJUTxJBb7LzspoNt9nEuu8TSvrlIAJ4lPCB9
-LbsYguqDan/2GuxKQhtmVA==
-=BOsk
------END PGP SIGNATURE-----
-
---4bRzO86E/ozDv8r1--
+Weird indeed. are you trying to build SMP or non SMP ?

@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262903AbSJGGtS>; Mon, 7 Oct 2002 02:49:18 -0400
+	id <S262905AbSJGHXl>; Mon, 7 Oct 2002 03:23:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262904AbSJGGtS>; Mon, 7 Oct 2002 02:49:18 -0400
-Received: from angband.namesys.com ([212.16.7.85]:27008 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S262903AbSJGGtR>; Mon, 7 Oct 2002 02:49:17 -0400
-Date: Mon, 7 Oct 2002 10:54:55 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [STUPID TESTCASE] ext3 htree vs. reiserfs on 2.5.40-mm1
-Message-ID: <20021007105455.A4429@namesys.com>
-References: <20021001195914.GC6318@stingr.net> <20021001204330.GO3000@clusterfs.com> <20021004195315.A14062@namesys.com> <20021004170935.GX3000@clusterfs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20021004170935.GX3000@clusterfs.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S262904AbSJGHXk>; Mon, 7 Oct 2002 03:23:40 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:5280 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S262905AbSJGHXf>;
+	Mon, 7 Oct 2002 03:23:35 -0400
+Date: Mon, 7 Oct 2002 09:40:20 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] NUMA schedulers benchmark results
+In-Reply-To: <1338937420.1033950308@[10.10.2.3]>
+Message-ID: <Pine.LNX.4.44.0210070939580.3733-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Fri, Oct 04, 2002 at 11:09:35AM -0600, Andreas Dilger wrote:
-> > > As a result, if the size of the directory + inode table blocks is larger
-> > > than memory, and also larger than 1/4 of the journal, you are essentially
-> > > seek-bound because of random block dirtying.
-> > > You should see what the size of the directory is at its peak (probably
-> > > 16 bytes * 300k ~= 5MB, and add in the size of the directory blocks
-> > > (128 bytes * 300k ~= 38MB) and make the journal 4x as large as that,
-> > > so 192MB (mke2fs -j -J size=192) and re-run the test (I assume you have
-> > > at least 256MB+ of RAM on the test system).
-> > Hm. But all of that won't help if you need to read inodes from disk first,
-> > right? (until that inode allocation in chunks implemented, of course).
-> Ah, but see the follow-up reply - increasing the size of the journal as
-> advised improved the htree performance to 15% and 55% faster than
-> reiserfs for creates and deletes, respectively:
+On Mon, 7 Oct 2002, Martin J. Bligh wrote:
 
-Yes, but that was the case with warm caches, as I understand it.
-Usually you cannot count that all inodes of large file set are already present
-and should not be read.
+> Profile looks horrible (what the hell is fib_node_get_info?
+> net/ipv4/fib_semantics.c):
 
-> > > What is very interesting from the above results is that the CPU usage
-> > > is _much_ smaller for ext3+htree than for reiserfs.  It looks like
-> > This is only in case of deletion, probably somehow related to constant item
-> > shifting when some of the items are deleted.
-> Well, even for creates it is 19% less CPU.  The re-tested wall-clock
+most likely the wrong System.map?
 
-I afraid other parts of code might have contributed there.
-Like setting s_dirt way more often than needed.
+	Ingo
 
-Bye,
-    Oleg

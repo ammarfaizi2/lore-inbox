@@ -1,44 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269395AbRH0WKP>; Mon, 27 Aug 2001 18:10:15 -0400
+	id <S269387AbRH0WO0>; Mon, 27 Aug 2001 18:14:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269412AbRH0WKF>; Mon, 27 Aug 2001 18:10:05 -0400
-Received: from sweetums.bluetronic.net ([24.162.254.3]:62952 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S269395AbRH0WJt>; Mon, 27 Aug 2001 18:09:49 -0400
-Date: Mon, 27 Aug 2001 18:10:05 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
-To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Bug or feature?
-Message-ID: <Pine.GSO.4.33.0108271736500.23852-100000@sweetums.bluetronic.net>
+	id <S269412AbRH0WOQ>; Mon, 27 Aug 2001 18:14:16 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51978 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269387AbRH0WN7>; Mon, 27 Aug 2001 18:13:59 -0400
+Subject: Re: Bug or feature?
+To: jfbeam@bluetopia.net (Ricky Beam)
+Date: Mon, 27 Aug 2001 23:17:30 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mail List)
+In-Reply-To: <Pine.GSO.4.33.0108271736500.23852-100000@sweetums.bluetronic.net> from "Ricky Beam" at Aug 27, 2001 06:10:05 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15bUhG-0004sk-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my dangerous mode of "if it's presented to me, compile it", I've noticed
-alot of junk being presented as a buildable option under the wrong arch.
+>   dep_tristate '  Sun Microsystems userflash support' CONFIG_MTD_SUN_UFLASH $CONFIG_SPARC64
+> $CONFIG_SPARC64 is null and this doesn't appear to the shell function as an
+> arg.  Thus, it's presented as a selectable (tho' not compilable) option.
 
-For example, the Sparc64 and ARM MTD Map drivers are selectable from an
-x86 build.  Some might say this is a shell bug, but at any rate, dep_*
-don't function correctly (read: as one would expect) in the cases where
-the deps are not defined.
-
-For:
-  dep_tristate '  Sun Microsystems userflash support' CONFIG_MTD_SUN_UFLASH $CONFIG_SPARC64
-$CONFIG_SPARC64 is null and this doesn't appear to the shell function as an
-arg.  Thus, it's presented as a selectable (tho' not compilable) option.
-
-The same is visable for CONFIG_MTD_SA1100 and CONFIG_MTD_DC21285 (ARM).
-
-Options:
- 1) Don't select things that aren't in your machine/arch.
-    (Translation: "Live with it.")
- 2) Quote all the options.
-    (ewww.)
- 3) Fix the function(s).
-
---Ricky
-
-
+In -ac these should have been fixed for a while. I'm waiting for David
+Woodhouse to send me his official versions of these fixes

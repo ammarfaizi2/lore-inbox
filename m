@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274670AbRIUDVT>; Thu, 20 Sep 2001 23:21:19 -0400
+	id <S274746AbRIUDYT>; Thu, 20 Sep 2001 23:24:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274748AbRIUDVJ>; Thu, 20 Sep 2001 23:21:09 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22534 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S274670AbRIUDU7>; Thu, 20 Sep 2001 23:20:59 -0400
-Date: Thu, 20 Sep 2001 23:16:55 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <20010916204528.6fd48f5b.skraw@ithnet.com>
-Message-ID: <Pine.LNX.3.96.1010920231251.26679B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274750AbRIUDYJ>; Thu, 20 Sep 2001 23:24:09 -0400
+Received: from zok.sgi.com ([204.94.215.101]:21383 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S274746AbRIUDYA>;
+	Thu, 20 Sep 2001 23:24:00 -0400
+Message-Id: <200109210325.f8L3PKi20270@jen.americas.sgi.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Steve Lord <lord@sgi.com>, hch@ns.caldera.de,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Gonyou, Austin" <austin@coremetrics.com>,
+        narancs@narancs.tii.matav.hu, linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: XFS to main kernel source 
+In-Reply-To: Message from Andreas Dilger <adilger@turbolabs.com> 
+   of "Thu, 20 Sep 2001 21:12:21 MDT." <20010920211221.G14526@turbolinux.com> 
+Date: Thu, 20 Sep 2001 22:25:20 -0500
+From: Steve Lord <lord@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Sep 2001, Stephan von Krawczynski wrote:
+> On Sep 20, 2001  16:31 -0500, Steve Lord wrote:
+> > XFS quotas are transactional, when space is added to a file the quota is
+> > adjusted in the same transaction. It is fairly hard to do this without your
+> > own quota code.
+> 
+> Actually not.  The quotas in ext3 are transactional as well.  It's just
+> that the "ext3" journal layer allows nested transactions, so it is possible
+> to start a write transaction, call into the journal code which calls back
+> into the ext3 write code to start a nested transaction on the journal file
+> (i.e. it is in the same transaction as the initial write), and then the
+> initial write completes.
+
+OK, good point, but doing a major rewrite of XFS to use a different
+transaction mechanism is not really on the cards, plus we have on disk
+compatibility with the Irix version to consider.
+
+Steve
 
 
-> Thinking again about it, I guess I would prefer a FIFO-list of allocated pages.
-> This would allow to "know" the age simply by its position in the list. You
-> wouldn't need a timestamp then, and even better it works equally well for
-> systems with high vm load and low, because you do not deal with absolute time
-> comparisons, but relative.
-> That sounds pretty good for me. 
-
-The problem is that when many things effect the optimal ratio of text,
-data, buffer and free space a solution which doesn't measure all the
-important factors will produce sub-optimal results. Your proposal is
-simple and elegant, but I think it's too simple to produce good results.
-See my reply to Linus' comments.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

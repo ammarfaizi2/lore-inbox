@@ -1,53 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264857AbTAXTm6>; Fri, 24 Jan 2003 14:42:58 -0500
+	id <S264715AbTAXTlY>; Fri, 24 Jan 2003 14:41:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264885AbTAXTm6>; Fri, 24 Jan 2003 14:42:58 -0500
-Received: from vsmtp4.tin.it ([212.216.176.224]:58359 "EHLO smtp4.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S264857AbTAXTm4>;
-	Fri, 24 Jan 2003 14:42:56 -0500
-Message-ID: <3E3199FF.3090000@tin.it>
-Date: Fri, 24 Jan 2003 20:54:39 +0100
-From: AnonimoVeneziano <voloterreno@tin.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Spurious 8259A interrupt: IRQ7 ????
-References: <3E2C8EFF.6020707@tin.it>
-In-Reply-To: <3E2C8EFF.6020707@tin.it>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id <S264857AbTAXTlY>; Fri, 24 Jan 2003 14:41:24 -0500
+Received: from rth.ninka.net ([216.101.162.244]:32940 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S264715AbTAXTlX>;
+	Fri, 24 Jan 2003 14:41:23 -0500
+Subject: Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x, through Cisco PIX
+From: "David S. Miller" <davem@redhat.com>
+To: David C Niemi <lkernel2003@tuxers.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0301241237160.29548-100000@harappa.oldtrail.reston.va.us>
+References: <Pine.LNX.4.44.0301241237160.29548-100000@harappa.oldtrail.reston.va.us>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Jan 2003 12:29:24 -0800
+Message-Id: <1043440164.16483.14.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed also that the number indicated by the ERR field in 
-/proc/interrupts increase slowly with the time.
-But, at the end of all I haven't understood well what is this error, and 
-what the ERR field indicates. And why with IO-APIC it disappears? 
-(IO-APIC gives me very much problems with ACPI :-( )
+On Fri, 2003-01-24 at 10:43, David C Niemi wrote:
+> The system involved is a new Dell desktop with a P4/2.6 CPU and an
+> integrated Intel E1000 NIC, being used at 100Mb full duplex
+> (autonegotiated).
 
-Bye
-
-
-AnonimoVeneziano wrote:
-
-> What does it mean this message?
->
-> Of what problem is the signal?
-> There is a way to solve this? (Next kernel versions) or is an HW 
-> problem? (Motherboard MSI KT7 Ultra)
->
-> Thanks
->
-> Bye
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+What happens if you comment out the enabling of
+NETIF_F_TSO in drivers/net/e1000/e1000_main.c around
+line 428?  Does the problem persist?
 

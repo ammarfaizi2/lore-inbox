@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbUCPVpB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 16:45:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUCPVpA
+	id S261731AbUCPVwd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 16:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUCPVwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 16:45:00 -0500
-Received: from mail.tmr.com ([216.238.38.203]:39184 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261718AbUCPVo1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 16:44:27 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: lvm2 performance data with linux-2.6
-Date: 16 Mar 2004 21:42:48 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <c37sco$fko$1@gatekeeper.tmr.com>
-References: <200403081916.i28JGgE25794@mail.osdl.org> <4050E453.3010809@tmr.com> <20040311142515.A27177@osdlab.pdx.osdl.net>
-X-Trace: gatekeeper.tmr.com 1079473368 16024 192.168.12.62 (16 Mar 2004 21:42:48 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 16 Mar 2004 16:52:33 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:62676 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261731AbUCPVwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 16:52:31 -0500
+Subject: Re: [PATCH] s390 (8/10): zfcp fixes.
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20040316135155.GI2785@mschwid3.boeblingen.de.ibm.com>
+References: <20040316135155.GI2785@mschwid3.boeblingen.de.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 16 Mar 2004 16:52:23 -0500
+Message-Id: <1079473944.1804.21.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040311142515.A27177@osdlab.pdx.osdl.net>,
-Mark Wong  <markw@osdl.org> wrote:
-| On Thu, Mar 11, 2004 at 05:12:35PM -0500, Bill Davidsen wrote:
+On Tue, 2004-03-16 at 08:51, Martin Schwidefsky wrote:
+> +ZFCP_DEFINE_SCSI_ATTR(hba_id, "%s\n", zfcp_get_busid_by_unit(unit));
+> +ZFCP_DEFINE_SCSI_ATTR(wwpn, "0x%016llx\n", unit->port->wwpn);
+> +ZFCP_DEFINE_SCSI_ATTR(fcp_lun, "0x%016llx\n", unit->fcp_lun);
 
-| > Here's one thought: look at the i/o rates on individual drives using 
-| > each stripe size. You *might* see that one size does far fewer seeks 
-| > than others, which is a secondary thing to optimize after throughput IMHO.
-| > 
-| > If you don't have a tool for this I can send you the latest diorate 
-| > which does stuff like this, io rate perdrive or per partition, something 
-| > I occasionally find revealing.
-| 
-| Yeah, please do send me a copy.  I'd be interested to see what that might 
-| turn up.  I've just been using iostat -x so far.
+These attributes all properly belong in the fibrechannel transport
+class, could you look at moving them over, please.
 
-Okay, I posted the pointer a few days ago to LKML, did you get a chance
-to try it? And if so, did it tell you anything?
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+James
+
+

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266454AbUHBKWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266457AbUHBKYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266454AbUHBKWA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 06:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUHBKVY
+	id S266457AbUHBKYc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 06:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266449AbUHBKYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 06:21:24 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:2484 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266442AbUHBKST (ORCPT
+	Mon, 2 Aug 2004 06:24:32 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:6031 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266457AbUHBKTc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 06:18:19 -0400
-Date: Mon, 2 Aug 2004 15:46:06 +0530
+	Mon, 2 Aug 2004 06:19:32 -0400
+Date: Mon, 2 Aug 2004 15:48:06 +0530
 From: Ravikiran G Thirumalai <kiran@in.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
        dipankar@in.ibm.com, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [patchset] Lockfree fd lookup 2 of 5
-Message-ID: <20040802101604.GD4385@vitalstatistix.in.ibm.com>
+Subject: Re: [patchset] Lockfree fd lookup 0 of 5
+Message-ID: <20040802101804.GE4385@vitalstatistix.in.ibm.com>
 References: <20040802101053.GB4385@vitalstatistix.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,371 +25,350 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's the second patch.  This changes the current kref users to use
-the 'shrunk' kref objects and api.  GregKH has applied this to his tree too.
+The following patch adds kref_lf_xxx api and kref_lf_get_rcu to enable
+refcounting of objects part of a lockfree collection.
 
 Thanks,
 Kiran
 
 
 D:
-D: Signed-off-by: Ravikiran Thirumalai <kiran@in.ibm.com>
+D: kref-lf-2.6.7.patch:
+D: This patch depends on the kref shrinkage patches.  This provides
+D: infrastructure for lockfree refcounting and adds kref_lf_xxx api
+D: for lockfree refcounting.  This patch also changes kref_xxx to 
+D: static inlines since kref_xxx are mostly one-two liners
 D:
-D: kref-drivers-2.6.7.patch:
-D: This patch changes the current users of kref to use the 'shrunk' kref
-D: GregKH has applied this too to his tree,
-D:
-diff -ruN -X dontdiff2 linux-2.6.7/drivers/scsi/sd.c kref-2.6.7/drivers/scsi/sd.c
---- linux-2.6.7/drivers/scsi/sd.c	2004-06-16 10:49:44.000000000 +0530
-+++ kref-2.6.7/drivers/scsi/sd.c	2004-07-20 13:03:49.000000000 +0530
-@@ -186,7 +186,7 @@
- 	return sdkp;
+
+diff -ruN -X /home/kiran/dontdiff linux-2.6.7/include/linux/kref.h test-2.6.7/include/linux/kref.h
+--- linux-2.6.7/include/linux/kref.h	2004-08-01 22:37:46.000000000 +0530
++++ test-2.6.7/include/linux/kref.h	2004-08-01 22:50:06.000000000 +0530
+@@ -16,16 +16,264 @@
+ #define _KREF_H_
  
-  out_put:
--	kref_put(&sdkp->kref);
-+	kref_put(&sdkp->kref, scsi_disk_release);
-  out_sdkp:
- 	sdkp = NULL;
-  out:
-@@ -198,7 +198,7 @@
- {
- 	down(&sd_ref_sem);
- 	scsi_device_put(sdkp->device);
--	kref_put(&sdkp->kref);
-+	kref_put(&sdkp->kref, scsi_disk_release);
- 	up(&sd_ref_sem);
- }
+ #include <linux/types.h>
++#include <linux/kernel.h>
+ #include <asm/atomic.h>
  
-@@ -1360,7 +1360,7 @@
- 		goto out;
+-
+ struct kref {
+ 	atomic_t refcount;
+ };
  
- 	memset (sdkp, 0, sizeof(*sdkp));
--	kref_init(&sdkp->kref, scsi_disk_release);
-+	kref_init(&sdkp->kref);
- 
- 	/* Note: We can accomodate 64 partitions, but the genhd code
- 	 * assumes partitions allocate consecutive minors, which they don't.
-@@ -1462,7 +1462,7 @@
- 	del_gendisk(sdkp->disk);
- 	sd_shutdown(dev);
- 	down(&sd_ref_sem);
--	kref_put(&sdkp->kref);
-+	kref_put(&sdkp->kref, scsi_disk_release);
- 	up(&sd_ref_sem);
- 
- 	return 0;
-diff -ruN -X dontdiff2 linux-2.6.7/drivers/scsi/sr.c kref-2.6.7/drivers/scsi/sr.c
---- linux-2.6.7/drivers/scsi/sr.c	2004-06-16 10:50:27.000000000 +0530
-+++ kref-2.6.7/drivers/scsi/sr.c	2004-07-20 13:03:49.000000000 +0530
-@@ -144,7 +144,7 @@
- 	goto out;
- 
-  out_put:
--	kref_put(&cd->kref);
-+	kref_put(&cd->kref, sr_kref_release);
-  out_null:
- 	cd = NULL;
-  out:
-@@ -156,7 +156,7 @@
- {
- 	down(&sr_ref_sem);
- 	scsi_device_put(cd->device);
--	kref_put(&cd->kref);
-+	kref_put(&cd->kref, sr_kref_release);
- 	up(&sr_ref_sem);
- }
- 
-@@ -573,7 +573,7 @@
- 		goto fail;
- 	memset(cd, 0, sizeof(*cd));
- 
--	kref_init(&cd->kref, sr_kref_release);
-+	kref_init(&cd->kref);
- 
- 	disk = alloc_disk(1);
- 	if (!disk)
-@@ -952,7 +952,7 @@
- 	del_gendisk(cd->disk);
- 
- 	down(&sr_ref_sem);
--	kref_put(&cd->kref);
-+	kref_put(&cd->kref, sr_kref_release);
- 	up(&sr_ref_sem);
- 
- 	return 0;
-diff -ruN -X dontdiff2 linux-2.6.7/drivers/usb/core/config.c kref-2.6.7/drivers/usb/core/config.c
---- linux-2.6.7/drivers/usb/core/config.c	2004-06-16 10:48:52.000000000 +0530
-+++ kref-2.6.7/drivers/usb/core/config.c	2004-07-20 13:03:49.000000000 +0530
-@@ -356,7 +356,7 @@
- 		if (!intfc)
- 			return -ENOMEM;
- 		memset(intfc, 0, len);
--		kref_init(&intfc->ref, usb_release_interface_cache);
-+		kref_init(&intfc->ref);
- 	}
- 
- 	/* Skip over any Class Specific or Vendor Specific descriptors;
-@@ -422,7 +422,8 @@
- 
- 		for (i = 0; i < cf->desc.bNumInterfaces; i++) {
- 			if (cf->intf_cache[i])
--				kref_put(&cf->intf_cache[i]->ref);
-+				kref_put(&cf->intf_cache[i]->ref, 
-+					  usb_release_interface_cache);
- 		}
- 	}
- 	kfree(dev->config);
-diff -ruN -X dontdiff2 linux-2.6.7/drivers/usb/core/message.c kref-2.6.7/drivers/usb/core/message.c
---- linux-2.6.7/drivers/usb/core/message.c	2004-06-16 10:49:02.000000000 +0530
-+++ kref-2.6.7/drivers/usb/core/message.c	2004-07-20 15:07:24.000000000 +0530
-@@ -1077,11 +1077,12 @@
- 
- static void release_interface(struct device *dev)
- {
-+	extern void destroy_serial(struct kref *kref);
- 	struct usb_interface *intf = to_usb_interface(dev);
- 	struct usb_interface_cache *intfc =
- 			altsetting_to_usb_interface_cache(intf->altsetting);
- 
--	kref_put(&intfc->ref);
-+	kref_put(&intfc->ref, destroy_serial);
- 	kfree(intf);
- }
- 
-diff -ruN -X dontdiff2 linux-2.6.7/drivers/usb/core/urb.c kref-2.6.7/drivers/usb/core/urb.c
---- linux-2.6.7/drivers/usb/core/urb.c	2004-06-16 10:49:36.000000000 +0530
-+++ kref-2.6.7/drivers/usb/core/urb.c	2004-07-20 13:03:49.000000000 +0530
-@@ -39,7 +39,7 @@
- {
- 	if (urb) {
- 		memset(urb, 0, sizeof(*urb));
--		kref_init(&urb->kref, urb_destroy);
-+		kref_init(&urb->kref);
- 		spin_lock_init(&urb->lock);
- 	}
- }
-@@ -88,7 +88,7 @@
- void usb_free_urb(struct urb *urb)
- {
- 	if (urb)
--		kref_put(&urb->kref);
-+		kref_put(&urb->kref, urb_destroy);
- }
- 
- /**
-diff -ruN -X dontdiff2 linux-2.6.7/drivers/usb/host/ehci-mem.c kref-2.6.7/drivers/usb/host/ehci-mem.c
---- linux-2.6.7/drivers/usb/host/ehci-mem.c	2004-06-16 10:50:03.000000000 +0530
-+++ kref-2.6.7/drivers/usb/host/ehci-mem.c	2004-07-20 13:03:49.000000000 +0530
-@@ -114,7 +114,7 @@
- 		return qh;
- 
- 	memset (qh, 0, sizeof *qh);
--	kref_init(&qh->kref, qh_destroy);
-+	kref_init(&qh->kref);
- 	qh->ehci = ehci;
- 	qh->qh_dma = dma;
- 	// INIT_LIST_HEAD (&qh->qh_list);
-@@ -139,7 +139,7 @@
- 
- static inline void qh_put (struct ehci_qh *qh)
- {
--	kref_put(&qh->kref);
-+	kref_put(&qh->kref, qh_destroy);
- }
- 
- /*-------------------------------------------------------------------------*/
-diff -ruN -X dontdiff2 linux-2.6.7/drivers/usb/serial/usb-serial.c kref-2.6.7/drivers/usb/serial/usb-serial.c
---- linux-2.6.7/drivers/usb/serial/usb-serial.c	2004-06-16 10:49:17.000000000 +0530
-+++ kref-2.6.7/drivers/usb/serial/usb-serial.c	2004-07-20 15:07:52.000000000 +0530
-@@ -443,6 +443,69 @@
- 	return;
- }
- 
-+static void serial_shutdown (struct usb_serial *serial)
+-void kref_init(struct kref *kref);
+-struct kref *kref_get(struct kref *kref);
+-void kref_put(struct kref *kref, void (*release) (struct kref *kref));
++/**
++ * kref_init - initialize object.
++ * @kref: object in question.
++ */
++static inline void kref_init(struct kref *kref)
 +{
-+	dbg ("%s", __FUNCTION__);
-+
-+	serial->type->shutdown(serial);
++	atomic_set(&kref->refcount, 1);
 +}
 +
-+void destroy_serial(struct kref *kref)
++/**
++ * kref_get - increment refcount for object.
++ * @kref: object.
++ */
++static inline struct kref *kref_get(struct kref *kref)
 +{
-+	struct usb_serial *serial;
-+	struct usb_serial_port *port;
-+	int i;
++	WARN_ON(!atomic_read(&kref->refcount));
++	atomic_inc(&kref->refcount);
++	return kref;
++}
 +
-+	serial = to_usb_serial(kref);
-+
-+	dbg ("%s - %s", __FUNCTION__, serial->type->name);
-+	serial_shutdown (serial);
-+
-+	/* return the minor range that this device had */
-+	return_serial(serial);
-+
-+	for (i = 0; i < serial->num_ports; ++i)
-+		serial->port[i]->open_count = 0;
-+
-+	/* the ports are cleaned up and released in port_release() */
-+	for (i = 0; i < serial->num_ports; ++i)
-+		if (serial->port[i]->dev.parent != NULL) {
-+			device_unregister(&serial->port[i]->dev);
-+			serial->port[i] = NULL;
-+		}
-+
-+	/* If this is a "fake" port, we have to clean it up here, as it will
-+	 * not get cleaned up in port_release() as it was never registered with
-+	 * the driver core */
-+	if (serial->num_ports < serial->num_port_pointers) {
-+		for (i = serial->num_ports; i < serial->num_port_pointers; ++i) {
-+			port = serial->port[i];
-+			if (!port)
-+				continue;
-+			if (port->read_urb) {
-+				usb_unlink_urb(port->read_urb);
-+				usb_free_urb(port->read_urb);
-+			}
-+			if (port->write_urb) {
-+				usb_unlink_urb(port->write_urb);
-+				usb_free_urb(port->write_urb);
-+			}
-+			if (port->interrupt_in_urb) {
-+				usb_unlink_urb(port->interrupt_in_urb);
-+				usb_free_urb(port->interrupt_in_urb);
-+			}
-+			kfree(port->bulk_in_buffer);
-+			kfree(port->bulk_out_buffer);
-+			kfree(port->interrupt_in_buffer);
-+		}
++/**
++ * kref_put - decrement refcount for object.
++ * @kref: object.
++ * @release: pointer to the function that will clean up the object
++ *	     when the last reference to the object is released.
++ *	     This pointer is required.
++ *
++ * Decrement the refcount, and if 0, call release().
++ */
++static inline void
++kref_put(struct kref *kref, void (*release) (struct kref * kref))
++{
++	if (atomic_dec_and_test(&kref->refcount)) {
++		WARN_ON(release == NULL);
++		pr_debug("kref cleaning up\n");
++		release(kref);
 +	}
-+
-+	usb_put_dev(serial->dev);
-+
-+	/* free up any memory that we allocated */
-+	kfree (serial);
 +}
 +
- /*****************************************************************************
-  * Driver tty interface functions
-  *****************************************************************************/
-@@ -487,7 +550,7 @@
- 		if (retval) {
- 			port->open_count = 0;
- 			module_put(serial->type->owner);
--			kref_put(&serial->kref);
-+			kref_put(&serial->kref, destroy_serial);
- 		}
- 	}
- bailout:
-@@ -518,7 +581,7 @@
- 	}
++/**
++ * kref_read - Return the refcount value.
++ * @kref: object.
++ */
++static inline int kref_read(struct kref *kref)
++{
++	return atomic_read(&kref->refcount);
++}
++
++/**
++ * kref_put_last - decrement refcount for object.
++ * @kref: object.
++ *
++ * Decrement the refcount, and if 0 return true.
++ * Returns false otherwise.
++ * Use this only if you cannot use kref_put -- when the
++ * release function of kref_put needs more than just the
++ * refcounted object. Use of kref_put_last when kref_put
++ * can do will be frowned upon.
++ */
++static inline int kref_put_last(struct kref *kref)
++{
++	return atomic_dec_and_test(&kref->refcount);
++}
++
++/* 
++ * Refcounter framework for elements of lists/arrays protected by
++ * RCU.
++ *
++ * Refcounting on elements of  lists which are protected by traditional
++ * reader/writer spinlocks or semaphores are straight forward as in:
++ * 
++ * 1.					2.
++ * add()				search_and_reference()
++ * {					{
++ * 	alloc_object				read_lock(&list_lock);
++ *	...					search_for_element
++ *	kref_init(&el->rc)			kref_get(&el->rc);	
++ *	write_lock(&list_lock);			...
++ *	add_element				read_unlock(&list_lock);
++ *	...					...
++ *	write_unlock(&list_lock);	}
++ * }					
++ *
++ * 3.					4.
++ * release_referenced()			delete()
++ * {					{
++ *	...				write_lock(&list_lock);
++ *	if (kref_put_last(&el->rc))		...
++ *		start_cleanup_object	...
++ *		free_object		delete_element
++ *	...				write_unlock(&list_lock);
++ * }					...
++ *					if (kref_put_last(&el->rc))
++ *						start_cleanup_object
++ *						free_object
++ *					}
++ *
++ * If this list/array is made lock free using rcu as in changing the 
++ * write_lock in add() and delete() to spin_lock and changing read_lock
++ * in search_and_reference to rcu_read_lock(), the kref_get in 
++ * search_and_reference could potentially hold reference to an element which
++ * has already been deleted from the list/array.  kref_lf_get_rcu takes
++ * care of this scenario. search_and_reference should look as;
++ * 2. 
++ * search_and_reference()
++ * {
++ *	rcu_read_lock();
++ *	search_for_element
++ *	if (!kref_lf_get_rcu(&el->rc)) {
++ *		rcu_read_unlock();
++ *		return FAIL;
++ *	}
++ *	...
++ *	...
++ *	rcu_read_unlock();
++ * }
++ * 
++ * Of course, free_object after kref_put_last should be batched using call_rcu.
++ * Sometimes, reference to the element need to be obtained in the 
++ * update (write) stream.  In such cases, kref_lf_get_rcu might be an overkill
++ * since the spinlock serialising list updates are held. kref_lf_get
++ * is to be used in such cases.  
++ * Note: Except for kref_lf_get_rcu, kref_lf_xxx api are the same as 
++ * corresponding kref_xxx api for most arches.  However, for arches which 
++ * donot have cmpxchg kref_lf_xxx api use a hashed spinlock implementation to
++ * implement kref_lf_get_rcu, and acquire the same hashed spinlock for 
++ * kref_lf_get etc to preserve atomicity.
++ * Note: Use kref_lf_xxx api only if you need to use kref_lf_get_rcu on the
++ * refcounter atleast at one place.  Mixing kref_lf_xx and kref_xxx api
++ * might lead to races.
++ *
++ */
++
++#ifdef __HAVE_ARCH_CMPXCHG
++
++#define kref_lf_init kref_init
++#define kref_lf_get kref_get
++#define kref_lf_put kref_put
++#define kref_lf_put_last kref_put_last
++
++/* 
++ * cmpxchg is needed on UP too, if deletions to the list/array can happen
++ * in interrupt context.
++ */
++
++/**
++ * kref_lf_get_rcu - Take reference to an object of a lockfree collection
++ * by traversing a lockfree list/array.
++ * @kref: object.
++ *
++ * Try and increment the refcount by 1.  The increment might fail if
++ * the refcounted object has been through a 1 to 0 transition and 
++ * is no longer part of the lockfree list.
++ * Returns non-zero on successful increment and zero otherwise.
++ */
++static inline int kref_lf_get_rcu(struct kref *kref)
++{
++	int c, old;
++	c = atomic_read(&kref->refcount);
++	while (c && (old = cmpxchg(&kref->refcount.counter, c, c + 1)) != c)
++		c = old;
++	return c;
++}
++
++#else				/* !__HAVE_ARCH_CMPXCHG */
++
++#include <linux/spinlock.h>
++
++/* 
++ * We use an array of spinlocks for the krefs -- similar to ones in sparc
++ * 32 bit atomic_t implementations, and a hash function similar to that
++ * for our refcounting needs.
++ * Can't help multiprocessors which donot have cmpxchg :(
++ */
++
++#ifdef	CONFIG_SMP
++#define KREF_HASH_SIZE	4
++#define KREF_HASH(k) \
++	(&__kref_hash[(((unsigned long)k)>>8) & (KREF_HASH_SIZE-1)])
++#else
++#define	KREF_HASH_SIZE	1
++#define KREF_HASH(k) 	&__kref_hash[0]
++#endif				/* CONFIG_SMP */
++
++extern spinlock_t __kref_hash[KREF_HASH_SIZE];
++
++static inline void kref_lf_init(struct kref *kref)
++{
++	unsigned long flags;
++	spin_lock_irqsave(KREF_HASH(kref), flags);
++	kref->refcount.counter = 1;
++	spin_unlock_irqrestore(KREF_HASH(kref), flags);
++}
++
++static inline void kref_lf_get(struct kref *kref)
++{
++	unsigned long flags;
++	spin_lock_irqsave(KREF_HASH(kref), flags);
++	kref->refcount.counter += 1;
++	spin_unlock_irqrestore(KREF_HASH(kref), flags);
++}
++
++static inline void 
++kref_lf_put(struct kref *kref, void (*release) (struct kref * kref))
++{
++	unsigned long flags;
++	spin_lock_irqsave(KREF_HASH(kref), flags);
++	kref->refcount.counter--;
++	if (!kref->refcount.counter) {
++		spin_unlock_irqrestore(KREF_HASH(kref), flags);
++		WARN_ON(release == NULL);
++		pr_debug("kref cleaning up\n");
++		release(kref);
++	} else {
++		spin_unlock_irqrestore(KREF_HASH(kref), flags);
++	}
++}
++
++static inline int kref_lf_put_last(struct kref *kref)
++{
++	unsigned long flags;
++	spin_lock_irqsave(KREF_HASH(kref), flags);
++	kref->refcount.counter--;
++	if (!kref->refcount.counter) {
++		spin_unlock_irqrestore(KREF_HASH(kref), flags);
++		return 1;
++	} else {
++		spin_unlock_irqrestore(KREF_HASH(kref), flags);
++		return 0;
++	}
++}
++
++static inline int kref_lf_get_rcu(struct kref *kref)
++{
++	int ret;
++	unsigned long flags;
++	spin_lock_irqsave(KREF_HASH(kref), flags);
++	if (kref->refcount.counter)
++		ret = kref->refcount.counter++;
++	else
++		ret = 0;
++	spin_unlock_irqrestore(KREF_HASH(kref), flags);
++	return ret;
++}
++
++#endif				/* __HAVE_ARCH_CMPXCHG */
  
- 	module_put(port->serial->type->owner);
--	kref_put(&port->serial->kref);
-+	kref_put(&port->serial->kref, destroy_serial);
- }
++/* Spinlocks are not needed in this case, if atomic_read is used */
++static inline int kref_lf_read(struct kref *kref)
++{
++	return atomic_read(&kref->refcount);
++}
  
- static int serial_write (struct tty_struct * tty, int from_user, const unsigned char *buf, int count)
-@@ -676,13 +739,6 @@
- 	;
- }
+-#endif /* _KREF_H_ */
++#endif				/* _KREF_H_ */
+diff -ruN -X /home/kiran/dontdiff linux-2.6.7/lib/kref.c test-2.6.7/lib/kref.c
+--- linux-2.6.7/lib/kref.c	2004-08-01 22:37:46.000000000 +0530
++++ test-2.6.7/lib/kref.c	2004-08-01 21:41:19.000000000 +0530
+@@ -11,49 +11,12 @@
+  *
+  */
  
--static void serial_shutdown (struct usb_serial *serial)
--{
--	dbg ("%s", __FUNCTION__);
+-/* #define DEBUG */
 -
--	serial->type->shutdown(serial);
+ #include <linux/kref.h>
+ #include <linux/module.h>
+ 
+-/**
+- * kref_init - initialize object.
+- * @kref: object in question.
+- */
+-void kref_init(struct kref *kref)
+-{
+-	atomic_set(&kref->refcount,1);
 -}
 -
- static int serial_read_proc (char *page, char **start, off_t off, int count, int *eof, void *data)
- {
- 	struct usb_serial *serial;
-@@ -716,7 +772,7 @@
- 			begin += length;
- 			length = 0;
- 		}
--		kref_put(&serial->kref);
-+		kref_put(&serial->kref, destroy_serial);
- 	}
- 	*eof = 1;
- done:
-@@ -785,62 +841,6 @@
- 	wake_up_interruptible(&tty->write_wait);
- }
- 
--static void destroy_serial(struct kref *kref)
+-/**
+- * kref_get - increment refcount for object.
+- * @kref: object.
+- */
+-struct kref *kref_get(struct kref *kref)
 -{
--	struct usb_serial *serial;
--	struct usb_serial_port *port;
--	int i;
+-	WARN_ON(!atomic_read(&kref->refcount));
+-	atomic_inc(&kref->refcount);
+-	return kref;
+-}
 -
--	serial = to_usb_serial(kref);
--
--	dbg ("%s - %s", __FUNCTION__, serial->type->name);
--	serial_shutdown (serial);
--
--	/* return the minor range that this device had */
--	return_serial(serial);
--
--	for (i = 0; i < serial->num_ports; ++i)
--		serial->port[i]->open_count = 0;
--
--	/* the ports are cleaned up and released in port_release() */
--	for (i = 0; i < serial->num_ports; ++i)
--		if (serial->port[i]->dev.parent != NULL) {
--			device_unregister(&serial->port[i]->dev);
--			serial->port[i] = NULL;
--		}
--
--	/* If this is a "fake" port, we have to clean it up here, as it will
--	 * not get cleaned up in port_release() as it was never registered with
--	 * the driver core */
--	if (serial->num_ports < serial->num_port_pointers) {
--		for (i = serial->num_ports; i < serial->num_port_pointers; ++i) {
--			port = serial->port[i];
--			if (!port)
--				continue;
--			if (port->read_urb) {
--				usb_unlink_urb(port->read_urb);
--				usb_free_urb(port->read_urb);
--			}
--			if (port->write_urb) {
--				usb_unlink_urb(port->write_urb);
--				usb_free_urb(port->write_urb);
--			}
--			if (port->interrupt_in_urb) {
--				usb_unlink_urb(port->interrupt_in_urb);
--				usb_free_urb(port->interrupt_in_urb);
--			}
--			kfree(port->bulk_in_buffer);
--			kfree(port->bulk_out_buffer);
--			kfree(port->interrupt_in_buffer);
--		}
+-/**
+- * kref_put - decrement refcount for object.
+- * @kref: object.
+- * @release: pointer to the function that will clean up the object
+- *	     when the last reference to the object is released.
+- *	     This pointer is required.
+- *
+- * Decrement the refcount, and if 0, call release().
+- */
+-void kref_put(struct kref *kref, void (*release) (struct kref *kref))
+-{
+-	WARN_ON(release == NULL);
+-	if (atomic_dec_and_test(&kref->refcount)) {
+-		pr_debug("kref cleaning up\n");
+-		release(kref);
 -	}
--
--	usb_put_dev(serial->dev);
--
--	/* free up any memory that we allocated */
--	kfree (serial);
 -}
 -
- static void port_release(struct device *dev)
- {
- 	struct usb_serial_port *port = to_usb_serial_port(dev);
-@@ -881,7 +881,7 @@
- 	serial->interface = interface;
- 	serial->vendor = dev->descriptor.idVendor;
- 	serial->product = dev->descriptor.idProduct;
--	kref_init(&serial->kref, destroy_serial);
-+	kref_init(&serial->kref);
- 
- 	return serial;
- }
-@@ -1231,7 +1231,7 @@
- 	if (serial) {
- 		/* let the last holder of this object 
- 		 * cause it to be cleaned up */
--		kref_put(&serial->kref);
-+		kref_put(&serial->kref, destroy_serial);
- 	}
- 	dev_info(dev, "device disconnected\n");
- }
+-EXPORT_SYMBOL(kref_init);
+-EXPORT_SYMBOL(kref_get);
+-EXPORT_SYMBOL(kref_put);
++#ifndef __HAVE_ARCH_CMPXCHG
++spinlock_t __kref_hash[KREF_HASH_SIZE] = {
++        [0 ... (KREF_HASH_SIZE-1)] = SPIN_LOCK_UNLOCKED
++};
++EXPORT_SYMBOL(__kref_hash);
++#endif

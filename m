@@ -1,59 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUGLX2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUGLXff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUGLX2w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 19:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUGLX2w
+	id S264238AbUGLXff (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 19:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUGLXff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 19:28:52 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13491 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264246AbUGLX2o (ORCPT
+	Mon, 12 Jul 2004 19:35:35 -0400
+Received: from smtp07.auna.com ([62.81.186.17]:26061 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id S264238AbUGLXfa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 19:28:44 -0400
-Date: Mon, 12 Jul 2004 16:31:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
- Preemption Patch
-Message-Id: <20040712163141.31ef1ad6.akpm@osdl.org>
-In-Reply-To: <1089673014.10777.42.camel@mindpipe>
-References: <20040709182638.GA11310@elte.hu>
-	<20040710222510.0593f4a4.akpm@osdl.org>
-	<1089673014.10777.42.camel@mindpipe>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 12 Jul 2004 19:35:30 -0400
+Date: Tue, 13 Jul 2004 01:35:27 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.[46] Fix double reset in aic7xxx driver
+Message-ID: <20040712233527.GA5570@werewolf.able.es>
+References: <20040712192059.GA7660@tsunami.ccur.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Disposition: inline
+In-Reply-To: <20040712192059.GA7660@tsunami.ccur.com> (from joe.korty@ccur.com on Mon, Jul 12, 2004 at 21:20:59 +0200)
+X-Mailer: Balsa 2.0.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
->
-> On Sun, 2004-07-11 at 01:25, Andrew Morton wrote:
-> > What we need to do is to encourage audio testers to use ALSA drivers, to
-> > enable CONFIG_SND_DEBUG in the kernel build and to set
-> > /proc/asound/*/*/xrun_debug and to send us the traces which result from
-> > underruns.
-> > 
-> 
-> OK, here goes.  The following traces result from running JACK overnight
-> like so, on an otherwise idle system.  Hardware is a VIA EPIA 6000, with
-> a 600Mhz C3 processor.  Kernel is 2.6.7 + volunatary_preempt patch. 
-> voluntary_preempt and kernel_preemption are both on.
-> 
-> jackd -v --realtime -d alsa --outchannels 2 --rate 48000 --shorts
-> --playback --period 32  --nperiods 2
-> 
-> These settings require less than 666 microseconds scheduler latency. 
-> The average performance is quite good - 5-20 *microseconds*!
 
-OK, thanks.  The problem areas there are the timer-based route cache
-flushing and reiserfs.
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We can probably fix the route caceh thing by rescheduling the timer after
-having handled 1000 routes or whatever, although I do wonder if this is a
-thing we really need to bother about - what else was that machine up to?
 
-resierfs: yes, it's a problem.  I "fixed" it multiple times in 2.4, but the
-fixes ended up breaking the fs in subtle ways and I eventually gave up.
+On 2004.07.12, Joe Korty wrote:
+> Fix occasional PCI bus parity errors on the Dell PowerEdge 4600 during
+> boot.
+>=20
+> Symptoms: The LCD display would turn orange and display "PCI SYSTEM
+> E13F5", and the following message would appear in /var/log/dmesg:
+> "Uhhuh. NMI received. Dazed and confused, but trying to continue".
+>=20
+> By inserting a PCI card with a PDC20268 IDE controller and attaching to
+> that a Sony DRU-510A DVD RW burner with an unloaded tray, the failure
+> can be made to happen on every boot.
+>=20
+> Cause: The aic7xxx driver was resetting the onboard AIC7891 SCSI controll=
+er
+> while waiting for a previous reset to complete.  This second reset confus=
+es
+> the controller causing it to put bad data onto the PCI bus.
+>=20
+> This is a backport of a RedHat 2.4.21-15.ELsmp fix.  A letter discussing
+> this problem, or one very close to it, may be found at:
+>=20
+>    http://lists.us.dell.com/pipermail/linux-poweredge/2003-May/025010.html
+>=20
+> Against 2.6.7 and 2.4.26.
+>=20
+
+This fixes are included in current driver in Justin Gibbs' site.
+
+Will this driver ever be updated on mainline or is it a religious issue ?
+
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandrakelinux release 10.1 (Cooker) for i586
+Linux 2.6.7-jam12 (gcc 3.4.1 (Mandrakelinux (Cooker) 3.4.1-1mdk)) #1
+
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA8yA/RlIHNEGnKMMRArtSAJ9cEq+T1coxJQEw75vlZNSoDTrHPgCfcoXw
+XHA7sIQNWsy2ByaMnD17Mdo=
+=0ZJg
+-----END PGP SIGNATURE-----
+
+--XsQoSWH+UP9D9v3l--

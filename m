@@ -1,46 +1,112 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSFEPHQ>; Wed, 5 Jun 2002 11:07:16 -0400
+	id <S315455AbSFEPNy>; Wed, 5 Jun 2002 11:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315458AbSFEPHQ>; Wed, 5 Jun 2002 11:07:16 -0400
-Received: from [213.196.40.44] ([213.196.40.44]:27865 "EHLO blackstar.nl")
-	by vger.kernel.org with ESMTP id <S315454AbSFEPGG>;
-	Wed, 5 Jun 2002 11:06:06 -0400
-Date: Wed, 5 Jun 2002 15:39:08 +0200 (CEST)
-From: <bvermeul@devel.blackstar.nl>
-To: Dave Jones <davej@suse.de>
-cc: Greg KH <greg@kroah.com>, Adam Trilling <agt10@columbia.edu>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.19/20] KDE panel (kicker) not starting up
-In-Reply-To: <20020605120638.D5277@suse.de>
-Message-ID: <Pine.LNX.4.33.0206051537490.17164-100000@devel.blackstar.nl>
+	id <S315459AbSFEPNx>; Wed, 5 Jun 2002 11:13:53 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:61909 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S315455AbSFEPNw>; Wed, 5 Jun 2002 11:13:52 -0400
+Message-ID: <3CFE2AA7.2050007@antefacto.com>
+Date: Wed, 05 Jun 2002 16:13:43 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: andersen@codepoet.org
+CC: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+        sopwith@redhat.com, otaylor@redhat.com
+Subject: Re: Need help tracing regular write activity in 5 s interval
+In-Reply-To: <20020602135501.GA2548@merlin.emma.line.org> <3CFCA2B0.4060501@antefacto.com> <20020604120434.GA1386@codepoet.org> <3CFE1B78.9010406@antefacto.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jun 2002, Dave Jones wrote:
+Ah I see this is a FAQ:
 
-> On Tue, Jun 04, 2002 at 08:49:45PM -0700, Greg KH wrote:
->  > > Everythink works using 2.5.17. So I think this *is* a kernel question.
->  > > I've had the same problem with 2.5.19 (and couldn't get 2.5.18 working 
->  > > properly)
->  > 
->  > Just to add one more "me too" here, I've seen the same thing here.
->  > 2.5.18 worked just fine from what I remember.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101279800921627&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=99099294313922&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=98381407016589&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=97661027509987&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=96125325519621&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=95061999803667&w=2 *
+http://marc.theaimsgroup.com/?l=linux-kernel&m=94240877002500&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=94036109819436&w=2
+
+*here be dragons
+
+Padraig.
+
+Padraig Brady wrote:
+> I'm sure it will :-)
 > 
-> Wasn't this attributed to the /proc/meminfo format changing ?
-
-If it is, that doesn't explain why when using KDE as root everything works 
-perfectly. That (at least in my eyes) can't be explained by a change in 
-format in /proc/meminfo. I could be wrong of course.
-
-Bas Vermeulen
-
--- 
-"God, root, what is difference?" 
-	-- Pitr, User Friendly
-
-"God is more forgiving." 
-	-- Dave Aronson
+> However this it just masking the "problem", and I don't
+> think it's "buggy CDROM drives" as I've tried 3 different
+> machines with the following drives:
+> 
+> SAMSUNG DVD-ROM SD-612
+> TOSHIBA DVD-ROM SD-C2402
+> CREATIVE CD5233E
+> 
+> and they all show the same problem. I.E. logs filling with
+> "VFS: Disk change detected on device ide1(22,0)".
+> 
+> magicdev essentially does:
+> 
+> while (1) {
+>     cd = open ("/dev/cdrom", O_RDONLY|O_NONBLOCK);
+>     if (ioctl (cd, CDROM_DRIVE_STATUS, CDSL_CURRENT) == CDS_DISC_OK) {
+>         /* do stuff */
+>     }
+>     close(cd);
+>     sleep(2);
+> }
+> 
+> Note, it's the open() that causes the check_media_changed(),
+> so why does this always return true? Is there a way you
+> can turn it it off? echoing [01] to /proc/sys/dev/cdrom/check_media
+> made no difference.
+> 
+> Also related, why does the LED flash on every ATA command?
+> Is this controlled by the drive or ide controller?
+> Are you telling me that windows would flash the LED every so often
+> to automount CDs?
+> 
+> thanks,
+> Padraig.
+> 
+> Erik Andersen wrote:
+> 
+>> On Tue Jun 04, 2002 at 12:21:20PM +0100, Padraig Brady wrote:
+>>
+>>> As an aside, Nautilus (1.0.4) does stuff every 2 seconds
+>>> (checking is there a CD inserted) that causes the disk LED to flash.
+>>> The same action also causes the kernel (2.4.13) to fill up the ring
+>>> buffer with: "VFS: Disk change detected on device ide1(22,0)".
+>>
+>>
+>>
+>> This should fix the symptom...
+>>
+>> --- linux/fs/block_dev.c.orig    Tue Jun  4 06:03:44 2002
+>> +++ linux/fs/block_dev.c    Tue Jun  4 06:03:44 2002
+>> @@ -582,8 +582,11 @@
+>>      if (!bdops->check_media_change(dev))
+>>          return 0;
+>>  
+>> +    #if 0
+>> +    /* Polling buggy CD-ROM drives can fill the logs.  Make it 
+>> shutup. */
+>>      printk(KERN_DEBUG "VFS: Disk change detected on device %s\n",
+>>          bdevname(dev));
+>> +    #endif
+>>  
+>>      sb = get_super(dev);
+>>      if (sb && invalidate_inodes(sb))
+>>  -Erik
+>>
+>> -- 
+>> Erik B. Andersen             http://codepoet-consulting.com/
+>> --This message was written using 73% post-consumer electrons--
 

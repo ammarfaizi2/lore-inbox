@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130113AbRAWL31>; Tue, 23 Jan 2001 06:29:27 -0500
+	id <S129944AbRAWLe6>; Tue, 23 Jan 2001 06:34:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129944AbRAWL3R>; Tue, 23 Jan 2001 06:29:17 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:15882 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130113AbRAWL27>;
-	Tue, 23 Jan 2001 06:28:59 -0500
-Date: Tue, 23 Jan 2001 12:28:49 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: Keith Owens <kaos@ocs.com.au>, Karsten Keil <keil@isdn4linux.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: BUG in modutils or drivers/isdn/hisax/
-Message-ID: <20010123122849.A27379@gruyere.muc.suse.de>
-Mail-Followup-To: Karsten Keil <kkeil@suse.de>,
-	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-	Keith Owens <kaos@ocs.com.au>, Karsten Keil <keil@isdn4linux.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010123013155.E1173@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010123013155.E1173@nightmaster.csn.tu-chemnitz.de>; from ingo.oeser@informatik.tu-chemnitz.de on Tue, Jan 23, 2001 at 01:31:55AM +0100
-Organization: SuSE Muenchen GmbH
-X-Operating-System: Linux 2.2.10 i686
+	id <S130211AbRAWLes>; Tue, 23 Jan 2001 06:34:48 -0500
+Received: from zmamail04.zma.compaq.com ([161.114.64.104]:54281 "HELO
+	zmamail04.zma.compaq.com") by vger.kernel.org with SMTP
+	id <S129944AbRAWLe3>; Tue, 23 Jan 2001 06:34:29 -0500
+Message-ID: <E7D21F6C2128D41199B600508BCF8D54A9AD67@nosexc01.nwo.cpqcorp.net>
+From: "Wahlman, Petter" <Petter.Wahlman@compaq.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Marking sectors on IDE drives as bad
+Date: Tue, 23 Jan 2001 11:34:11 -0000
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, Jan 23, 2001 at 01:31:55AM +0100, Ingo Oeser wrote:
-> Hi Keith,
-> hi Karsten,
-> hi linux-kernel,
-> 
-> the current modutils (2.4.1) cannot read the
-> __module_pci_device_table of a kernel/drivers/isdn/hisax/hisax.o
-> module of linux 2.4.0 (vanilla).
-> 
-> What's wrong with it?
+I'm experiencing some fscking problems due to a defective IDE drive.
 
-Nothing. Only the HFC-PCI part in hisax has such a table yet, all other
-card drivers in hisax don't have one at the moment.
+exerpt from /var/log/messages:
+Jan 22 09:31:29 evil kernel: hda: read_intr: status=0x59 { DriveReady
+SeekComplete DataRequest Error }
+Jan 22 09:31:29 evil kernel: hda: read_intr: error=0x01 { AddrMarkNotFound
+}, LBAsect=10262250, sector=1311147
+Jan 22 09:31:29 evil kernel: ide0: reset: success
+Jan 22 09:31:29 evil kernel: hda: read_intr: status=0x59 { DriveReady
+SeekComplete DataRequest Error }
+Jan 22 09:31:29 evil kernel: hda: read_intr: error=0x40 { UncorrectableError
+}, LBAsect=10262250, sector=1311147
+Jan 22 09:31:29 evil kernel: end_request: I/O error, dev 03:05 (hda), sector
+1311147
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Is it possible to somehow mark the above sector as bad (in ll_rw_block.c or
+similar) to circumvent the problem?
+
+
+please CC to me, because i'm not on this list.
+
+
+thanks
+
+
+Petter Wahlman
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

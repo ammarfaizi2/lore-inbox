@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbUBVCim (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 21:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbUBVCim
+	id S261642AbUBVCgk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 21:36:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbUBVCgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 21:38:42 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:44210 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261646AbUBVCik
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 21:38:40 -0500
-Message-ID: <4038162C.7080301@cyberone.com.au>
-Date: Sun, 22 Feb 2004 13:38:36 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+	Sat, 21 Feb 2004 21:36:40 -0500
+Received: from uslink-66.173.43-133.uslink.net ([66.173.43.133]:51840 "EHLO
+	dingdong.cryptoapps.com") by vger.kernel.org with ESMTP
+	id S261642AbUBVCgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 21:36:38 -0500
+Date: Sat, 21 Feb 2004 18:36:38 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Large slab cache in 2.6.1
-References: <4037FCDA.4060501@matchmail.com> <4038014E.5070600@matchmail.com> <20040222012033.GC703@holomorphy.com> <40380DE2.4030702@matchmail.com> <20040222021710.GD703@holomorphy.com>
-In-Reply-To: <20040222021710.GD703@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040222023638.GA13840@dingdong.cryptoapps.com>
+References: <4037FCDA.4060501@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4037FCDA.4060501@matchmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 21, 2004 at 04:50:34PM -0800, Mike Fedyk wrote:
 
+> I have 1.5 GB of ram in this system that will be a Linux Terminal
+> Server (but using Debian & VNC).  There's 600MB+ anonymous memory,
+> 600MB+ slab cache, and 100MB page cache.  That's after turning off
+> swap (it was 400MB into swap at the time).
 
-William Lee Irwin III wrote:
+I have a similar annoying problem...  I have a machine which is almost
+always idle (single user work station type thing) with 1.5GB of RAM
+and I end up with 850M in slab!
 
->William Lee Irwin III wrote:
->
->>>Similar issue here; I ran out of filp's/whatever shortly after booting.
->>>
->
->On Sat, Feb 21, 2004 at 06:03:14PM -0800, Mike Fedyk wrote:
->
->>So Nick Piggin's VM patches won't help with this?
->>
->
->I think they're in -mm, and I'd call the vfs slab cache shrinking stuff
->a vfs issue anyway because there's no actual VM content to it, apart
->from the code in question being driven by the VM.
->
->
+For me the main problem seems to be driven by dentry_cache itself
+bloating up really big and those entries keep fs-specific memory
+pinned.
 
-Yes they're in -mm and in dire need of more testing.
+Forcing paging will push this down to acceptable levels but it's a
+really irritating solution --- I'm still trying to think of a better
+way to stop the dentries from using such a disproportionate amount of
+memory.
 
-The indented audience are people who's machines are swapping a lot,
-but ensuring they don't break more common cases isn't a bad idea.
+I'm played with -mm kernels and various patches out there...  nothing
+seems to put enough pressure on the slab unless I force paging.
+
+akpm, riel --- any (more) ideas here?
+
 

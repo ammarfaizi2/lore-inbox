@@ -1,45 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270493AbUJUKId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270455AbUJUKLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270493AbUJUKId (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 06:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270108AbUJUKG5
+	id S270455AbUJUKLr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270384AbUJUKJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 06:06:57 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:25184 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S270649AbUJUKFT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 06:05:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=kFpWEWqNrBvXqKmX99zV5vtYQJfavhwfvKZB7XOH1LedCNXPeUIc2A1h9GHz0XnG+RkXlANqzUgq17Z/cdMTeUL8Ir7e0GreZppop+7Hwis676jWa397jaiJgrLDQbFk30Jlf66qNdg2IISDCSK7G74EylDeC8mvWMETELpK5LY=
-Message-ID: <e7b30b24041021030535925d1d@mail.gmail.com>
-Date: Thu, 21 Oct 2004 18:05:19 +0800
-From: Mildred Frisco <mildred.frisco@gmail.com>
-Reply-To: Mildred Frisco <mildred.frisco@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: making a linux kernel with no root filesystem
-In-Reply-To: <e7b30b2404102102466dc71118@mail.gmail.com>
+	Thu, 21 Oct 2004 06:09:03 -0400
+Received: from wang.choosehosting.com ([212.42.1.230]:35976 "EHLO
+	wang.choosehosting.com") by vger.kernel.org with ESMTP
+	id S270538AbUJUKHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 06:07:19 -0400
+Date: Thu, 21 Oct 2004 11:06:37 +0100
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: belkin usb serial converter (mct_u232), break not working
+Message-ID: <20041021100637.GA7003@diamond>
+References: <200410201946.35514.thomas@stewarts.org.uk> <200410202308.02624.thomas@stewarts.org.uk> <1098311228.6006.3.camel@at2.pipehead.org> <200410210004.13214.thomas@stewarts.org.uk> <1098326278.6017.19.camel@at2.pipehead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <e7b30b2404102102466dc71118@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098326278.6017.19.camel@at2.pipehead.org>
+User-Agent: Mutt/1.5.6+20040722i
+From: Thomas Stewart <thomas@stewarts.org.uk>
+X-Scanner: Exiscan on wang.choosehosting.com at 2004-10-21 11:07:17
+X-Spam-Score: 0.0
+X-Spam-Bars: /
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I would like to ask help in compiling a minimal linux kernel.
-Basically, it would only contain the kernel andno filesystem (or
-probably devfs).  I would only have to boot the kernel from floppy.
-Then after the necessary kernel initializations, I would issue a
-prompt where I can either shutdown or reboot the system. That's the
-only functionality required.  As I've learned from the init program
-(and startup scripts), the init services and shutdown commands are
-called from /sbin. However, I do not require to mount the root fs
-anymore.  I also tried to search for the source code of the shutdown
-program but I can't find it.  Please help on the steps that I should
-do.
-Thanks in advance.
-Please CC my email add in the reply. Thanks
+On Wed, Oct 20, 2004 at 09:37:58PM -0500, Paul Fulghum wrote:
+> static int send_break(struct tty_struct *tty, int duration)
+> {
+> 	set_current_state(TASK_INTERRUPTIBLE);
+> 
+> 	tty->driver->break_ctl(tty, -1);
+> 	if (!signal_pending(current))
+> 		schedule_timeout(duration);
+> 	tty->driver->break_ctl(tty, 0);
+> 	if (signal_pending(current))
+> 		return -EINTR;
+> 	return 0;
+> }
+> 
+> The USB serial driver break_ctl() sends a URB which does
+> a sleep and wakeup changing the task state back to TASK_RUNNING.
+> Because of this, schedule_timeout() above gets short circuited
+> and the break condition is not maintained long enough.
+> 
+> The normal serial driver break_ctl() leaves the task state
+> as TASK_INTERRUPTIBLE so you get the proper delay.
+> 
+> Thomas: try the patch below and let me know the results.
 
-Mildred <mildred.frisco@gmail.com>
+I tryed again with your patch applyed, with both minicom and porttest
+
+porttest.c:
+#include <sys/fcntl.h>
+#include <sys/ioctl.h>
+main(int argc, char ** argv) {
+        int r, fd = open(argv[1], O_RDWR|O_NOCTTY);
+        r=ioctl(fd, TCSBRKP, 20);
+        printf("%d\n", r);
+        close(fd);
+}
+
+$ time ./porttest /dev/ttyS0
+0
+
+real    0m2.001s
+user    0m0.000s
+sys     0m0.001s
+$ time ./porttest /dev/ttyUSB0
+0
+
+real    0m2.003s
+user    0m0.000s
+sys     0m0.001s
+
+As you can see, this time there is the correct pause. However
+it still does not send the break.
+
+To add the mix, I dug about and found a differnt type of USB serial
+converter, a no-brand one that uses the pl2303 module. Both minicom
+and porttest with either stock 2.6.8.1 or 2.6.8.1 with your patch
+send the break fine with this different converter.
+
+This makes me think it is a problem with the mct_u232 driver?
+
+Regards
+-- 
+Tom
+
+PGP Fingerprint [DCCD 7DCB A74A 3E3B 60D5  DF4C FC1D 1ECA 68A7 0C48]
+PGP Publickey   [http://www.stewarts.org.uk/public-key.asc]
+PGP ID		[0x68A70C48]

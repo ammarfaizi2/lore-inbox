@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136255AbRASBAg>; Thu, 18 Jan 2001 20:00:36 -0500
+	id <S136133AbRASBAq>; Thu, 18 Jan 2001 20:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136503AbRASBA2>; Thu, 18 Jan 2001 20:00:28 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:18982 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S136255AbRASBAR>; Thu, 18 Jan 2001 20:00:17 -0500
-Date: Thu, 18 Jan 2001 20:00:16 -0500 (EST)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+	id <S136503AbRASBAh>; Thu, 18 Jan 2001 20:00:37 -0500
+Received: from phoenix.nanospace.com ([209.213.199.19]:52490 "HELO
+	phoenix.nanospace.com") by vger.kernel.org with SMTP
+	id <S136133AbRASBA0>; Thu, 18 Jan 2001 20:00:26 -0500
+Date: Thu, 18 Jan 2001 17:00:23 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: multi-queue scheduler update
-In-Reply-To: <20010119012616.D32087@athlon.random>
-Message-ID: <Pine.LNX.4.10.10101181956300.8128-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Documenting stat(2)
+Message-ID: <20010118170023.A3694@thune.yy.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3A66D93C.8090500@AnteFacto.com> <Pine.LNX.4.21.0101182150060.27730-100000@server.serve.me.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.6i
+In-Reply-To: <Pine.LNX.4.21.0101182150060.27730-100000@server.serve.me.nl>; from maillist@chello.nl on Thu, Jan 18, 2001 at 09:52:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >                            microseconds/yield
-> > # threads      2.2.16-22           2.4        2.4-multi-queue
-> > ------------   ---------         --------     ---------------
-> > 16               18.740            4.603         1.455
-> 
-> I remeber the O(1) scheduler from Davide Libenzi was beating the mainline O(N)
+On Thu, Jan 18, 2001 at 09:52:02PM +0100, Igmar Palsenberg wrote:
+> I use lstat to check if a config file is a symlink, and if it is, it
+> refuses to open it. 
 
-isn't the normal case (as in "The Right Case to optimize") 
-where there are close to zero runnable tasks?  what realistic/sane
-scenarios have very large numbers of spinning threads?  all server
-situations I can think of do not.  not volanomark -loopback, surely!
+Nice race condition.
 
+mrc
+-- 
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

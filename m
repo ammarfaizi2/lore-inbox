@@ -1,122 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292682AbSBZWav>; Tue, 26 Feb 2002 17:30:51 -0500
+	id <S293367AbSBZWck>; Tue, 26 Feb 2002 17:32:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292688AbSBZWal>; Tue, 26 Feb 2002 17:30:41 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:14730 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S292682AbSBZWac>; Tue, 26 Feb 2002 17:30:32 -0500
-Date: Tue, 26 Feb 2002 22:34:06 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5.5-dj2
-Message-ID: <20020226223406.A26905@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.22.1i
+	id <S292688AbSBZWca>; Tue, 26 Feb 2002 17:32:30 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:4101 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S293609AbSBZWcV>; Tue, 26 Feb 2002 17:32:21 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A76BD@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'alexis raynaud'" <araynaud@alphalink.fr>
+Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Problem to use a Oxford semiconductor Intelligent DUAL Channe
+	 l UA RT (OX16PCI952)
+Date: Tue, 26 Feb 2002 14:32:54 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right up to date with Marcelo & Linus, and clear inbound patch queue.
-Despite the growing size, resync with Linus is still in progress,
-and some of the bigger bits have now either shown up in pre1, or
-are queued to go his way real soon.
+Hi Alexis,
 
-Patch against 2.5.5 vanilla is available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+I had another thought about the "autoconfig failed" message ...
 
-By popular request, the curious can now find most of what
-was merged in each release at http://www.codemonkey.org.uk/patches/merged/
+On Tue, Feb 26, 2002 8:33 AM, alexis raynaud wrote:
+> when I insert the new module serial.o the kernel returns in the
+> /var/log/message
+> 	Feb 26 16:38:09 fw kernel: Serial driver version 5.05
+> (2000-09-14) with MANY_PORTS MULTIPORT SHARE_IRQ 	SERIAL_PCI
+> enabled
+> 	Feb 26 16:38:09 fw kernel: ttyS00 at 0x03f8 (irq = 4) is a
+> 16550A
+> 	Feb 26 16:38:09 fw kernel: ttyS01 at 0x02f8 (irq = 3) is a
+> 16550A
+> 	Feb 26 16:38:09 fw kernel: ttyS04 at port 0xfc78 (irq = 10) is a
+> 16C950/954
+> 	Feb 26 16:38:09 fw kernel: register_serial(): autoconfig failed
 
- -- Davej.
+Please set the SERIAL_DEBUG_AUTOCONF #define in serial.c at line 129. This
+will tell us if the UART is failing the loopback test at line 3658. 
 
-2.5.5-dj2
-o   Merge 2.5.6pre1
-o   Merge up to 2.4.19pre1
-o   Merge IDE changes from 2.5.5
-o   Drop S390 changes.
-    | These were incomplete & old, and would be better
-    | merged by the maintainers anyway.
-o   Fix decvte console graphic mode.			(Nick Pasich)
-o   Chop non x86-64 bits out of x86-64 mtrr.c		(Me)
-o   Eliminate annoying warning in serial.c		(Andrey Panin)
-o   Use named initialisers in various filesystems.	(Todor Todorov)
-o   More devexit fixes.					(Andrew Morton)
-o   Fix null pointer checks in sd.c			(Peter Wong)
-o   Further multi-desktop console work.			(James Simmons)
-o   Docbook compile fixes.				(Erlend Aasland)
-o   Additional Config.help texts.			(Dan Carpenter,
-							 Steven Cole)
-o   Convert neofb to new framebuffer api.		(James Simmons)
-o   Sanitise arguments to mempool_create()		(Balbir Singh)
-o   Fix binfmt_elf modular compile.			(Paul Gortmaker)
-o   Only fsync() blockdev on last close/umount.		(Miquel van Smoorenburg)
-o   Promise IDE driver update.				(Peter Denison)
-o   irq router recognition for Intel ICH chipsets.	(Wim Van Sebroeck)
-o   IPv6 initialisation workaround.			(Ben Clifford)
-    | Works, but may not be correct fix.
-o   Dump x86 MCE MISC register in right order.		(Me)
-o   NFSv3->NFSv2 READDIRPLUS fix.			(Trond Myklebust)
-o   More /proc/net signedness fixes.			(Arnaud Giersch)
-o   Fix JFFS2 duplicate slabcache name.			(Me)
-o   mtdblock bio work.					(Me)
-    | Quick hack to test JFFS2 changes, WorksForMe(tm).
-o   Various other small MTD/JFFS2 fixes.		(Me)
-o   sstfb support for interlace / doublescan modes.	(Urs Ganse)
-o   Use correct timings for PIIX secondary slave.	(Daniel Quinlan)
-o   Fix up some borken comments.			(John Kim)
+I do not know why the loopback test would fail on the 16PCI952, but that is
+one of only two paths through autoconfig() that leave the port type as
+PORT_UNKNOWN when control returns to the caller.  To get the "autoconfig
+fails" message at line 5354, which is in the dmesg output, the port type
+returned by autoconfig() must be PORT_UNKNOWN.
 
+If the loopback test passes, then it must take the "case 1:" branch at line
+3677 to stay PORT_UNKNOWN or miss all of the cases, as there is no default
+case in the switch. To miss the case values, serial_in() would have to
+return an int with a bit set in the range of bits 8 - 13, which is supposed
+to be impossible. 
 
-2.5.5-dj1
-o   Merge 2.5.5 final.
-    | Backout broken IDE changes.
-o   Implement proper locking in ALSA lseek methods.	(Robert Love)
-o   Document lseek locking.				(Robert Love)
-o   ALSA + YMFPCI compile fixes.			(Stelian Pop)
-o   Further console reentrancy work.			(James Simmons)
-o   NFS compile fix.					(Neil Brown)
-o   Fix up some strsep changes from last time.		(René Scharfe)
-o   tmpfs link-count on dir rename fixes.		(Christoph Rohland)
-o   USB vicam driver build fixes.			(Greg KH)
-o   Split up terminal emulation.			(James Simmons)
-o   Fix scsi_merge crash-on-boot problem.		(Jens Axboe)
+If the switch runs any case but 1, then the port type will not be returned
+as PORT_UNKNOWN. (I did not spot a path that later sets it back to
+PORT_UNKNOWN.)
 
+At least, the debug message will confirm or deny a failure of the loopback
+test as cause of the "autoconfig failed" message.
 
-2.5.4-dj3
-o   Merge up to 2.4.18rc2
-o   Change <linux/malloc.h> -> <linux/slab.h>	(Me)
-o   Fix borken locking in nfs ->lookup.		(Jarno Paananen)
-o   Fix ext2 freeing blocks not in datazone.	(Randy Hron, Chris Wright)
-o   Fix ext2/ext3 revision level checks.	(Andreas Dilger)
-o   Fix ramdisk compilation failure.		(Me, Rudmer van Dijk)
-o   More include dependancy tweaks.		(Me)
-o   BSS janitor work.				(Craig Christophel)
-o   Replace all strtok users with strsep.	(Matthew Hawkins, Jason Thomas)
-o   scsi_debug ->address & other fixes.		(Douglas Gilbert)
-o   Silence isapnp debug messages.		(Andrey Panin)
-o   Clear passcred in sock_alloc()		(OGAWA Hirofumi)
-    | Fixes slow sunrpc/portmap, and various
-    | gnome-terminal weirdness.
-o   Console reentrancy work.			(James Simmons)
-o   ALSA Config.in fixes.			(René Scharfe)
-o   Fix Oxford Semiconductor PCI id.		(Ed Vance)
-o   Power Management for es18xx.		(Zwane Mwaikambo)
-o   Remove duplicate PCI ids.			(Wim Van Sebroeck)
-o   Change Olympic driver to use spinlocks.	(Mike Phillips)
-o   Fix pcilynx locking.			(Manfred Spraul)
-o   Fix cris eeprom driver locking.		(Robert Love)
-o   PPP/BSD Compression vfree in interrupt fix.	(Paul Mackerras,
-						 Dominik Brodowski)
-o   cli->spinlocks for aha1542 driver.		(Douglas Gilbert)
-o   ALSA ISAPNP fixes.				(Andrey Panin)
-o   /proc/net/udp signedness fix.		(Arnaud Giersch)
-o   fcntl_[gs]etlk* cleanup.			(Chris Wright)
+Best regards,
+Ed Vance
 
-
--- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------

@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbTIYLDN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 07:03:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTIYLDN
+	id S261804AbTIYLTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 07:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTIYLTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 07:03:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:35308 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261875AbTIYLDM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 07:03:12 -0400
-Date: Thu, 25 Sep 2003 03:49:56 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: joe@perches.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] 2.6.0-test5-bk11 PKT_CAN_SHARE_SKB [1/3]
- include/linux/netdevice.h
-Message-Id: <20030925034956.01ebcb77.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0309241536340.9506-100000@home.osdl.org>
-References: <1064442780.15437.25.camel@localhost.localdomain>
-	<Pine.LNX.4.44.0309241536340.9506-100000@home.osdl.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Thu, 25 Sep 2003 07:19:16 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:38158 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261799AbTIYLTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 07:19:15 -0400
+Date: Thu, 25 Sep 2003 12:19:13 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fix non-modular ftape compile
+Message-ID: <20030925121913.A10483@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+References: <20030925102309.GI15696@fs.tum.de> <20030925113816.A9693@infradead.org> <20030925110325.GK15696@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030925110325.GK15696@fs.tum.de>; from bunk@fs.tum.de on Thu, Sep 25, 2003 at 01:03:25PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Sep 2003 15:36:45 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Thu, Sep 25, 2003 at 01:03:25PM +0200, Adrian Bunk wrote:
+> It increases the kernel size since in 2.6 __exit functions are discarded 
+> at runtime and not at link time.
 
-> David, will you pick these up?
+Oh.  That sounds silly.  Do you remember who changed it and why?
 
-Yes, I will.

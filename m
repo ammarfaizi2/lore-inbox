@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTE2WIE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 18:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbTE2WIE
+	id S262931AbTE2WK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 18:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTE2WK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 18:08:04 -0400
-Received: from ip68-3-49-116.ph.ph.cox.net ([68.3.49.116]:40833 "EHLO
-	raq.home.iceblink.org") by vger.kernel.org with ESMTP
-	id S262930AbTE2WID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 18:08:03 -0400
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 21rc6 serverworks IDE blows even more than is usual :)
-References: <20030529114001.GD7217@louise.pinerecords.com>
-Message-ID: <oprpygljynury4o7@lists.bilicki.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-From: Duncan Laurie <duncan@sun.com>
-MIME-Version: 1.0
-Date: Thu, 29 May 2003 15:25:57 -0700
-User-Agent: Opera7.11/Linux M2 build 406
+	Thu, 29 May 2003 18:10:27 -0400
+Received: from 12-203-29-198.client.attbi.com ([12.203.29.198]:17335 "EHLO
+	mystic.osdl.org") by vger.kernel.org with ESMTP id S262931AbTE2WK0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 18:10:26 -0400
+From: Nathan <smurf@osdl.org>
+Date: Thu, 29 May 2003 15:23:31 -0700
+To: Andi Kleen <ak@suse.de>
+Cc: Craig Thomas <craiger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Nightly regression runs against current bk tree
+Message-ID: <20030529222331.GN25252@osdl.org>
+References: <3ED66C83.8070608@austin.ibm.com.suse.lists.linux.kernel> <p73smqx791m.fsf@oldwotan.suse.de> <20030529.142515.08325314.davem@redhat.com> <20030529212929.GA11309@wotan.suse.de> <1054245025.1957.113.camel@bullpen.pdx.osdl.net> <20030529220354.GD11309@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030529220354.GD11309@wotan.suse.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 May 2003 13:40:01 +0200, Tomas Szepe <szepe@pinerecords.com> wrote:
->
-> I can't seem to get the onboard Serverworks CSB5 IDE controller (rev 93)
-> in a Compaq Proliant ML350 G3 to work (reliably/at all) no matter what
-> kernel I use:
->
+On Fri, May 30, 2003 at 12:03:54AM +0200, Andi Kleen wrote:
+> > OSDL has a linux stabilization web page where several tests are run
+> 
+> [...] Would you be willing to change your scripts to report
+> any new results to this new list?
 
-Hi Tomas,
+The linux stabilization web page uses results from the STP runs I
+mentioned (40+ per day).  The STP emails results summaries after test 
+runs so we could easily redirect the results to this new list.
 
-This problem *may* actually be in the hardware...  IIRC the CSB5 rev 93h is
-the A2.1 version of the chip which had big problems with DMA.  The workaround
-options included a messy rework of the PCB or forcing it into PIO mode, so we
-decided instead to just stick with the A2.0 revision. :)
-
-However all of my knowledge about this particular issue is based on >1yr old
-information, so if you want to send the output of "lspci -xxx" for pci devices
-00:0f.0 and 00:0f.1 I will check them over for any obvious settings the BIOS
-may have missed.
-
--duncan
-
+-Nathan Dabney

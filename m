@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbSLZEAT>; Wed, 25 Dec 2002 23:00:19 -0500
+	id <S262360AbSLZENI>; Wed, 25 Dec 2002 23:13:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262324AbSLZEAT>; Wed, 25 Dec 2002 23:00:19 -0500
-Received: from paiol.terra.com.br ([200.176.3.18]:15514 "EHLO
-	paiol.terra.com.br") by vger.kernel.org with ESMTP
-	id <S262258AbSLZEAS>; Wed, 25 Dec 2002 23:00:18 -0500
-Message-ID: <3E0A63F3.8020705@terra.com.br>
-Date: Thu, 26 Dec 2002 02:05:39 +0000
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Josh Brooks <user@mail.econolodgetulsa.com>
-Cc: Billy Rose <billyrose@billyrose.net>, bp@dynastytech.com,
-       linux-kernel@vger.kernel.org
+	id <S262373AbSLZENI>; Wed, 25 Dec 2002 23:13:08 -0500
+Received: from server.ehost4u.biz ([209.51.155.18]:21720 "EHLO
+	host.ehost4u.biz") by vger.kernel.org with ESMTP id <S262360AbSLZENH>;
+	Wed, 25 Dec 2002 23:13:07 -0500
+From: "Billy Rose" <billyrose@billyrose.net>
+To: user@mail.econolodgetulsa.com
+CC: bp@dynastytech.com, linux-kernel@vger.kernel.org, felipewd@terra.com.br
+Reply-To: billyrose@billyrose.net
 Subject: Re: CPU failures ... or something else ?
-References: <20021225200357.U6873-100000@mail.econolodgetulsa.com>
-In-Reply-To: <20021225200357.U6873-100000@mail.econolodgetulsa.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: NeoMail 1.25
+X-IPAddress: 65.132.64.212
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <E18RPWN-0001xf-00@host.ehost4u.biz>
+Date: Wed, 25 Dec 2002 23:21:23 -0500
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host.ehost4u.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32076 2072] / [32076 2072]
+X-AntiAbuse: Sender Address Domain - host.ehost4u.biz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh Brooks wrote:
 > Understood.  Thank you for that diagnosis.
-> 
-> usually it says proc #1 in the error, but the first time it said proc #0 -
-> is that interesting ?
+>
+>
+> usually it says proc #1 in the error, but the first time it said proc
+> #0 - is that interesting ?
 
-	It is.
+youre welcome :)
 
-	This would be a stronger evidence of bad RAM, since the instruction 
-fetch error occured "randomly" on both processors.
+if youre hanging on to that box, remove the memory from banks 3 and 4
+and it should be ok. if my memory serves me right, you cant have only 3
+banks of memory (hence removing bank 3 also), the motherboard is
+configured to handle 1, 2, or 4 populated banks. it you leave bank 3
+in while removing bank 4, it will beep at you when you power it on and
+do nothing. with a gig of ram, it should still be plenty useful.
 
-	Either that or both your processors are going bad :)
-
-	Please run memtest86 to be sure it's a bad RAM problem.
-
-	Kind Regards,
-
-Felipe
-
+billy
+=====
+"there's some milk in the fridge that's about to go bad...
+and there it goes..." -bobby

@@ -1,91 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261744AbSJJSZS>; Thu, 10 Oct 2002 14:25:18 -0400
+	id <S261911AbSJJSaD>; Thu, 10 Oct 2002 14:30:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261750AbSJJSZS>; Thu, 10 Oct 2002 14:25:18 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:59917 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261744AbSJJSZO>;
-	Thu, 10 Oct 2002 14:25:14 -0400
-Date: Thu, 10 Oct 2002 11:26:52 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: [BK PATCH] i386 timer changes for 2.5.41
-Message-ID: <20021010182652.GA25871@kroah.com>
+	id <S261939AbSJJS3H>; Thu, 10 Oct 2002 14:29:07 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:13065 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261936AbSJJS2x>; Thu, 10 Oct 2002 14:28:53 -0400
+Date: Thu, 10 Oct 2002 19:34:33 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: tytso@mit.edu
+Cc: linux-kernel@vger.kernel.org, ext2-devel@sourceforge.net
+Subject: Re: [Ext2-devel] [RFC] [PATCH 1/5] ACL support for ext2/3
+Message-ID: <20021010193433.A26873@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, tytso@mit.edu,
+	linux-kernel@vger.kernel.org, ext2-devel@sourceforge.net
+References: <E17zVaD-00069Y-00@snap.thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17zVaD-00069Y-00@snap.thunk.org>; from tytso@mit.edu on Thu, Oct 10, 2002 at 01:10:01AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+> +#include <linux/version.h>
 
-I've taken the i386 timer.c patches that John Stultz has been working on
-for a while, made some minor tweaks, added them to a bk tree, and tested
-them on all the boxes that I have access too.  Here's the resulting
-changesets:
+shouldn't be needed
 
-Please pull from bk://lsm.bkbits.net/timer-2.5
+> +#include <linux/kernel.h>
+> +#include <linux/slab.h>
+> +#include <asm/atomic.h>
+> +#include <linux/fs.h>
+> +#include <linux/posix_acl.h>
+> +#include <linux/module.h>
+> +
+> +#include <linux/smp_lock.h>
 
-These split up the time.c code to handle different interrupt time
-sources, moving the code into a new arck/i386/kernel/timers directory.
-This is going to get more important as new timer sources become
-available (like IBM's Summit chipset), and removes a lot of #ifdefs from
-the existing code.
+not needed
 
-The differences from John's last patches are:
-	- use bk to show the history of the time.c file moves
-	- added proper documentation for struct timer_opts
-	- init() in timer_opts now returns 0 for success
-	- timer array is now static, and NULL terminated to make
-	  adding new sources an easier patch.
+> +MODULE_AUTHOR("Andreas Gruenbacher <a.gruenbacher@computer.org>");
+> +MODULE_DESCRIPTION("Generic Posix Access Control List (ACL) Manipulation");
+> +MODULE_LICENSE("GPL");
 
-thanks,
+looks pretty pointless as this can't be a module.. :)
 
-greg k-h
+> +struct posix_acl *
+> +get_posix_acl(struct inode *inode, int type)
+> +{
+> +	struct posix_acl *acl;
+> +
+> +	if (!inode->i_op->get_posix_acl)
+> +		return ERR_PTR(-EOPNOTSUPP);
+> +	down(&inode->i_sem);
+> +	acl = inode->i_op->get_posix_acl(inode, type);
+> +	up(&inode->i_sem);
+> +
+> +	return acl;
+> +}
+> +
+> +/*
+> + * Set the POSIX ACL of an inode.
+> + */
+> +int
+> +set_posix_acl(struct inode *inode, int type, struct posix_acl *acl)
+> +{
+> +	int error;
+> +
+> +	if (!inode->i_op->set_posix_acl)
+> +		return -EOPNOTSUPP;
+> +	down(&inode->i_sem);
+> +	error = inode->i_op->set_posix_acl(inode, type, acl);
+> +	up(&inode->i_sem);
+> +
+> +	return error;
+> +}
+> diff -Nru a/include/linux/fs.h b/include/linux/fs.h
+> --- a/include/linux/fs.h	Wed Oct  9 23:53:33 2002
+> +++ b/include/linux/fs.h	Wed Oct  9 23:53:33 2002
+> @@ -770,6 +770,9 @@
+>  	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
+>  };
+>  
+> +/* posix_acl.h */
+> +struct posix_acl;
+> +
+>  struct inode_operations {
+>  	int (*create) (struct inode *,struct dentry *,int);
+>  	struct dentry * (*lookup) (struct inode *,struct dentry *);
+> @@ -791,6 +794,8 @@
+>  	ssize_t (*getxattr) (struct dentry *, const char *, void *, size_t);
+>  	ssize_t (*listxattr) (struct dentry *, char *, size_t);
+>  	int (*removexattr) (struct dentry *, const char *);
+> +	struct posix_acl *(*get_posix_acl) (struct inode *, int);
+> +	int (*set_posix_acl) (struct inode *, int, struct posix_acl *);
 
- arch/i386/Makefile                  |    2 
- arch/i386/kernel/time.c             |  374 -----------------------------------
- arch/i386/kernel/timers/Makefile    |   10 
- arch/i386/kernel/timers/timer.c     |   39 +++
- arch/i386/kernel/timers/timer_pit.c |  132 ++++++++++++
- arch/i386/kernel/timers/timer_tsc.c |  382 +++++++++++++++++++++++++++++++-----
- include/asm-i386/timer.h            |   22 ++
- 7 files changed, 538 insertions(+), 423 deletions(-)
------
+Either you make all setting/retrieving of ACLs go through this interface or
+just rip it.  We don't need more than one way to fiddle with ACLs.
 
-ChangeSet@1.751, 2002-10-10 01:10:45-07:00, johnstul@us.ibm.com
-  i386 timer core: intergrate the new timer code to use the two different timer files.
-
- arch/i386/Makefile                  |    2 
- arch/i386/kernel/time.c             |   23 ++----
- arch/i386/kernel/timers/Makefile    |   10 +++
- arch/i386/kernel/timers/timer.c     |    8 +-
- arch/i386/kernel/timers/timer_pit.c |   35 +++++++++-
- arch/i386/kernel/timers/timer_tsc.c |  120 ++++++++++++++++++++----------------
- include/asm-i386/timer.h            |    2 
- 7 files changed, 128 insertions(+), 72 deletions(-)
-------
-
-ChangeSet@1.750, 2002-10-10 00:08:03-07:00, johnstul@us.ibm.com
-  i386 timer core: move code out of time.c into timers/timer_pit.c and timers/timer_tsc.c
-
- arch/i386/kernel/time.c             |  351 ------------------------------------
- arch/i386/kernel/timers/timer_pit.c |   97 +++++++++
- arch/i386/kernel/timers/timer_tsc.c |  262 ++++++++++++++++++++++++++
- 3 files changed, 359 insertions(+), 351 deletions(-)
-------
-
-ChangeSet@1.749, 2002-10-09 23:57:56-07:00, johnstul@us.ibm.com
-  i386 timer core: introduce struct timer_ops
-  
-  provides the infrastructure needed via the timer_ops structure, 
-  as well as the select_timer() function for choosing the best 
-  available timer
-
- arch/i386/kernel/timers/timer.c |   31 +++++++++++++++++++++++++++++++
- include/asm-i386/timer.h        |   20 ++++++++++++++++++++
- 2 files changed, 51 insertions(+)
-------
+Also they should take dentries..
 

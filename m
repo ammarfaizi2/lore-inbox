@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264806AbUEPTcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264808AbUEPTjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264806AbUEPTcR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 15:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264805AbUEPTcR
+	id S264808AbUEPTjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 15:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264810AbUEPTjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 15:32:17 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20701 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264804AbUEPTcH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 15:32:07 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Marc Singer <elf@buici.com>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [RFC][DOC] writing IDE driver guidelines
-Date: Sun, 16 May 2004 21:34:30 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200405151923.50343.bzolnier@elka.pw.edu.pl> <40A69848.9020304@pobox.com> <20040516010008.GC23743@buici.com>
-In-Reply-To: <20040516010008.GC23743@buici.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 16 May 2004 15:39:25 -0400
+Received: from ms002msg.fastwebnet.it ([213.140.2.52]:17917 "EHLO
+	ms002msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S264808AbUEPTjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 15:39:23 -0400
+Date: Sun, 16 May 2004 21:39:24 +0200
+From: Mattia Dongili <dongili@supereva.it>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz, svetljo@gmx.de
+Subject: Re: [2.6.5] problems with synaptics/psmouse/atkbd
+Message-ID: <20040516193924.GB1976@inferi.kami.home>
+Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org, vojtech@suse.cz, svetljo@gmx.de
+References: <20040416102903.GA1790@inferi.kami.home> <200404160753.01175.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405162134.30564.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200404160753.01175.dtor_core@ameritech.net>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.5-2 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 of May 2004 03:00, Marc Singer wrote:
-> On Sat, May 15, 2004 at 06:23:04PM -0400, Jeff Garzik wrote:
-> > Bartlomiej Zolnierkiewicz wrote:
-> > >On Saturday 15 of May 2004 19:34, Jeff Garzik wrote:
-> > >>On Sat, May 15, 2004 at 07:23:50PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > >>>- host drivers should request/release IO resource
-> > >>> themelves and set hwif->mmio to 2
-> > >>
-> > >>Don't you mean, hwif->mmio==2 for MMIO hardware?
-> > >
-> > >It is was historically for MMIO, now it means that driver
-> > >handles IO resource itself (per comment in <linux/ide.h>).
-> >
-> > Maybe then create a constant HOST_IO_RESOURCES (value==2) to make that
-> > more obvious?
->
-> Please allow me to advocate for the naive.
->
-> While I do not in favor of lengthy commented discourses within the
-> code for all of the usual reasons, I do believe that interface
-> documentation is always welcome.  It encourages everyone to learn and
-> follow the rules.  It allows the subsystem maintainer to establish a
-> boundary so that accessing lower-level structures are left alone.
->
-> I'm not talking about a HOWTO as we know it.  Let's look at this mmio
-> flag.  How about writing this at a very minimum.
->
->   	int mmio; /* 0: iommio; <insert appropriate direction */
-> 		  /* 2: custom; driver must reserve & release system resources */
+On Fri, Apr 16, 2004 at 07:53:00AM -0500, Dmitry Torokhov wrote:
+> On Friday 16 April 2004 05:29 am, Mattia Dongili wrote:
+> > [please could you Cc me as I'm not subscribed to linux-kernel]
+> > 
+> > Hi,
+> > 
+> > I'm having problems (since 2.6.3 now trying with 2.6.5).
+> > Main symptom is that my synaptics touchpad isn't detected after a cold
+> > boot. After a warm boot it's detected correctly though.
+> 
+> Does it help if you load USB modules (*hci-hcd) first and then psmouse?
 
-I think this is good for ide.h
+Hi there, I found the answer to my thread from Svetoslav Slavtchev [1]
+(unfortunately he didn't cc-ed me) in the list archives.
 
-> Certainly, I'd rather see something along the lines of a full
-> description.
->
-> 	int mmio;
-> 	    /* This field controls whether or not the driver blah,
-> 	       blah.  If the driver needs to reserve system resources,
-> 	       e.g. ports of memory, set the value to 2 and blah, blah. */
+His patch solves my problem, any chance to see it included in the
+official kernel?
+BTW, if more infos on this issue are needed I can easily supply them,
+eg:
+this is a boot showing the problem:
+  Apr 21 15:12:59 inferi kernel: serio: i8042 AUX0 port at 0x60,0x64 irq 12
+  Apr 21 15:12:59 inferi kernel: serio: i8042 AUX1 port at 0x60,0x64 irq 12
+  Apr 21 15:12:59 inferi kernel: serio: i8042 AUX2 port at 0x60,0x64 irq 12
+  Apr 21 15:12:59 inferi kernel: serio: i8042 AUX3 port at 0x60,0x64 irq 12
 
-and this is good for documentation file.
+this doesn't:
+  Apr 21 15:15:13 inferi kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
 
-> It isn't much, but it goes a long way.
+thanks
 
-Thanks.
-
+[1]
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108213030732425&w=2
+-- 
+mattia
+:wq!

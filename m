@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131545AbRBAXpM>; Thu, 1 Feb 2001 18:45:12 -0500
+	id <S131937AbRBAXqm>; Thu, 1 Feb 2001 18:46:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132064AbRBAXpC>; Thu, 1 Feb 2001 18:45:02 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9746 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131545AbRBAXox>; Thu, 1 Feb 2001 18:44:53 -0500
-Subject: Re: Serial device with very large buffer
-To: abelits@phobos.illtel.denver.co.us (Alex Belits)
-Date: Thu, 1 Feb 2001 23:45:23 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <Pine.LNX.4.10.10101312301110.1478-100000@mercury> from "Alex Belits" at Feb 01, 2001 03:20:29 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131671AbRBAXqd>; Thu, 1 Feb 2001 18:46:33 -0500
+Received: from www.qz.se ([195.42.197.28]:20122 "EHLO qz.se")
+	by vger.kernel.org with ESMTP id <S131937AbRBAXqX>;
+	Thu, 1 Feb 2001 18:46:23 -0500
+Date: Fri, 2 Feb 2001 00:46:21 +0100 (CET)
+From: Magnus Erixzon <magnus@erixzon.se>
+To: dmeyer@dmeyer.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: What does "NAT: dropping untracked packet" mean?
+In-Reply-To: <20010201181952.A5803@jhereg.dmeyer.net>
+Message-ID: <Pine.LNX.4.21.0102020037490.15699-100000@fried.penguinbrain.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14OTPp-0005MY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   I also propose to increase the size of flip buffer to 640 bytes (so the
-> flipping won't occur every time in the middle of the full buffer), however
-> I understand that it's a rather drastic change for such a simple goal, and
-> not everyone will agree that it's worth the trouble:
 
-Going to a 1K flip buffer would make sense IMHO for high speed devices too
+This is explained in the netfilter FAQ.
+http://netfilter.kernelnotes.org/netfilter-faq-3.html#ss3.1
+
+ / Magnus
+
+
+On Thu, 1 Feb 2001 dmeyer@dmeyer.net wrote:
+
+> I'm getting the occasional
+> 
+> Feb  1 13:17:08 yendi kernel: NAT: 0 dropping untracked packet
+> c3ea4da0 1 146.188.249.73 -> 209.220.232.240
+> 
+> syslog message.  What exactly does it mean?  146.188.249.73 isn't my
+> machine at all, and 209.220.232.240 is my firewall.  I assume I'm
+> dropping someone's packets on the floor, but what can cause a packet
+> to get dropped like that?
+> 
+> -- 
+> Dave Meyer
+> dmeyer@dmeyer.net
+
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

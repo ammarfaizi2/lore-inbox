@@ -1,161 +1,262 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbULCT1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbULCT1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262466AbULCT1K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 14:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbULCT1K
+	id S262464AbULCT1q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 14:27:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbULCT1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 14:27:10 -0500
-Received: from pool-151-203-6-248.bos.east.verizon.net ([151.203.6.248]:6404
+	Fri, 3 Dec 2004 14:27:46 -0500
+Received: from pool-151-203-6-248.bos.east.verizon.net ([151.203.6.248]:6148
 	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S262466AbULCT0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262464AbULCT0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 3 Dec 2004 14:26:44 -0500
-Message-Id: <200412032142.iB3LgeZW004651@ccure.user-mode-linux.org>
+Message-Id: <200412032142.iB3LgTZW004646@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
 To: akpm@osdl.org
 cc: linux-kernel@vger.kernel.org, Blaisorblade <blaisorblade_spam@yahoo.it>,
        Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Subject: [PATCH] UML - make vsyscall page into process page tables
+Subject: [PATCH] UML - add elf vsyscall support
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 03 Dec 2004 16:42:40 -0500
+Date: Fri, 03 Dec 2004 16:42:29 -0500
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 >From Bodo Stroesser:
 
-To make the vsyscall-page available for copy_from_user() and
-ptrace(), we should use kernel's "gate-vma" mechanism.
-Therefore we need a valid page structure. To have this, one
-page (or more) is allocated at boot time, the contents of the
-vsyscall-page is copied into this page and the page's pte is
-inserted in swapper's pagetables.
-Now it will be copied into the pagetables of all processes.
+This is the first patch of a series of four.
+These patches allow the use of sysenter-systemcalls in UML
+if the host support sysenter.
+Some facts have to be noted:
+- the sysenter instruction does not save anything, not even the
+  return address. Thus the host-kernel builds a stackframe with an
+  fixed return address for the backjump to the vsyscall-page. All
+  kernels that support sysenter thus must have a vsyscall-page
+- The hosts vsyscall-page is visible in all memory-contexts on the
+  host, even in those of the processes running on UML. This cannot
+  be changed.
+So the best way to implement sysenter is to integrate the host's
+vsyscall-page into UML, if available.
 
-Note: this alone doesn't work, since FIXADDR_USER_START and
-      FIXADDR_USER_END are not yet defined correctly. Also
-      access_ok_skas() does not yet grant read accesses to
-      pages not in the normal user area.
+This patch creates a new source file containing an UML
+initialization function. The function scans the Elf-auxiliary vector
+that is prepared by the host for relevant information about:
+- vsyscall elf-header
+- vsyscall entry
+- machine type (called "platform", e.g. "i586" or "i686")
+- hardware capabilities
+These informations are inserted into the Elf-auxiliary-vector that is
+generated if an UML process calls "execXX()". If the information from
+the auxiliray-vector is not complete, UML uses the previos default
+values, with one exception: if the host has no vsyscall-page, UML now
+does no longer insert AT_SYSINFO or AT_SYSINFO_EHDR elements. (I think,
+that's better than writing dummies)
+
+Since the host's vsyscall-page is always visible to UML processes, this
+change is enough to let UML with an i686-compiled glibc use sysenter.
+
+what's missing:
+- is_syscall() in SKAS cannot access the code in the vsyscall-page via
+  copy_from_user(), thus singlesteppers still could break out. (Note:
+  that's not new, if someone jumps willingly to the sysenter-entry in
+  the vsyscall-page, he can do that without the patch, too).
+- a debugger cannot access the code in the vsyscall-page via
+  ptrace( PEEKTEXT, ...)
 
 Risks:
-Please check the first hunk! I don't know, whether this change is OK.
-Maybe fixrange_init() is wrong anyway with 3-level-pagetables?
-
-Here access_ok_skas() and FIXADDR_USER_XXXX are fixed.
-Now everything should work fine, while the processes are
-running. But if a process crashes, the vsyscall-page will
-not be dumped.
+could there by any feature of the host's processor, that is indicated in
+the hardware capabilities, but must not be used in UML?
 
 Signed-off-by: Bodo Stroesser <bodo.stroesser@fujitsu-siemens.com>
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: 2.6.9/arch/um/kernel/mem.c
+Index: 2.6.9/arch/um/kernel/main.c
 ===================================================================
---- 2.6.9.orig/arch/um/kernel/mem.c	2004-12-03 12:21:11.000000000 -0500
-+++ 2.6.9/arch/um/kernel/mem.c	2004-12-03 12:42:11.000000000 -0500
-@@ -174,6 +174,29 @@
- }
- #endif /* CONFIG_HIGHMEM */
+--- 2.6.9.orig/arch/um/kernel/main.c	2004-12-01 23:43:04.000000000 -0500
++++ 2.6.9/arch/um/kernel/main.c	2004-12-01 23:44:11.000000000 -0500
+@@ -81,6 +81,8 @@
  
-+static void __init fixaddr_user_init( void)
-+{
-+	long size = FIXADDR_USER_END - FIXADDR_USER_START;
-+	pgd_t *pgd;
-+	pmd_t *pmd;
-+	pte_t *pte;
-+	unsigned long paddr, vaddr = FIXADDR_USER_START;
+ extern int uml_exitcode;
+ 
++extern void scan_elf_aux( char **envp);
 +
-+	if (  ! size )
-+		return;
-+
-+	fixrange_init( FIXADDR_USER_START, FIXADDR_USER_END, swapper_pg_dir);
-+	paddr = (unsigned long)alloc_bootmem_low_pages( size);
-+	memcpy( (void *)paddr, (void *)FIXADDR_USER_START, size);
-+	paddr = __pa(paddr);
-+	for ( ; size > 0; size-=PAGE_SIZE, vaddr+=PAGE_SIZE, paddr+=PAGE_SIZE) {
-+		pgd = swapper_pg_dir + pgd_index(vaddr);
-+		pmd = pmd_offset(pgd, vaddr);
-+		pte = pte_offset_kernel(pmd, vaddr);
-+		pte_set_val( (*pte), paddr, PAGE_READONLY);
-+	}
-+}
-+
- void paging_init(void)
+ int main(int argc, char **argv, char **envp)
  {
- 	unsigned long zones_size[MAX_NR_ZONES], vaddr;
-@@ -194,6 +217,8 @@
- 	vaddr = __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
- 	fixrange_init(vaddr, FIXADDR_TOP, swapper_pg_dir);
+ 	char **new_argv;
+@@ -147,6 +149,8 @@
+ 	set_handler(SIGTERM, last_ditch_exit, SA_ONESHOT | SA_NODEFER, -1);
+ 	set_handler(SIGHUP, last_ditch_exit, SA_ONESHOT | SA_NODEFER, -1);
  
-+	fixaddr_user_init();
++	scan_elf_aux( envp);
 +
- #ifdef CONFIG_HIGHMEM
- 	init_highmem();
- #endif
-Index: 2.6.9/arch/um/kernel/skas/include/uaccess-skas.h
+ 	do_uml_initcalls();
+ 	ret = linux_main(argc, argv);
+ 
+Index: 2.6.9/arch/um/kernel/um_arch.c
 ===================================================================
---- 2.6.9.orig/arch/um/kernel/skas/include/uaccess-skas.h	2004-12-03 12:21:11.000000000 -0500
-+++ 2.6.9/arch/um/kernel/skas/include/uaccess-skas.h	2004-12-03 12:42:11.000000000 -0500
-@@ -7,11 +7,16 @@
- #define __SKAS_UACCESS_H
- 
- #include "asm/errno.h"
-+#include "asm/fixmap.h"
- 
- #define access_ok_skas(type, addr, size) \
- 	((segment_eq(get_fs(), KERNEL_DS)) || \
- 	 (((unsigned long) (addr) < TASK_SIZE) && \
--	  ((unsigned long) (addr) + (size) <= TASK_SIZE)))
-+	  ((unsigned long) (addr) + (size) <= TASK_SIZE)) || \
-+	 ((type == VERIFY_READ ) && \
-+	  (size <= (FIXADDR_USER_END - FIXADDR_USER_START)) && \
-+	  ((unsigned long) (addr) >= FIXADDR_USER_START) && \
-+	  ((unsigned long) (addr) + (size) <= FIXADDR_USER_END)))
- 
- static inline int verify_area_skas(int type, const void * addr,
- 				   unsigned long size)
-Index: 2.6.9/include/asm-um/fixmap.h
-===================================================================
---- 2.6.9.orig/include/asm-um/fixmap.h	2004-12-03 12:21:11.000000000 -0500
-+++ 2.6.9/include/asm-um/fixmap.h	2004-12-03 12:23:03.000000000 -0500
-@@ -3,6 +3,7 @@
- 
- #include <linux/config.h>
- #include <asm/kmap_types.h>
-+#include <asm/archparam.h>
- 
- /*
-  * Here we define all the compile-time 'special' virtual
-@@ -34,7 +35,6 @@
- 	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
- 	FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
- #endif
--	FIX_VSYSCALL,
- 	__end_of_fixed_addresses
+--- 2.6.9.orig/arch/um/kernel/um_arch.c	2004-12-01 23:43:04.000000000 -0500
++++ 2.6.9/arch/um/kernel/um_arch.c	2004-12-01 23:44:11.000000000 -0500
+@@ -44,11 +44,6 @@
+ 	.ipi_pipe		= { -1, -1 }
  };
  
-@@ -68,8 +68,8 @@
-  * This is the range that is readable by user mode, and things
-  * acting like user mode such as get_user_pages.
-  */
--#define FIXADDR_USER_START	(__fix_to_virt(FIX_VSYSCALL))
--#define FIXADDR_USER_END	(FIXADDR_USER_START + PAGE_SIZE)
-+#define FIXADDR_USER_START	VSYSCALL_BASE
-+#define FIXADDR_USER_END	VSYSCALL_END
- 
- extern void __this_fixmap_does_not_exist(void);
- 
-Index: 2.6.9/include/asm-um/pgtable.h
-===================================================================
---- 2.6.9.orig/include/asm-um/pgtable.h	2004-12-01 23:43:12.000000000 -0500
-+++ 2.6.9/include/asm-um/pgtable.h	2004-12-03 12:38:49.000000000 -0500
-@@ -355,6 +355,8 @@
- 
- extern pte_t mk_pte(struct page *page, pgprot_t pgprot);
- 
-+#define pte_set_val(p, phys, prot) pte_val(p) = (phys | pgprot_val(prot))
-+
- static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+-/* Placeholder to make UML link until the vsyscall stuff is actually
+- * implemented
+- */
+-void *__kernel_vsyscall;
+-
+ unsigned long thread_saved_pc(struct task_struct *task)
  {
- 	pte_val(pte) = (pte_val(pte) & _PAGE_CHG_MASK) | pgprot_val(newprot);
+ 	return(os_process_pc(CHOOSE_MODE_PROC(thread_pid_tt, thread_pid_skas,
+Index: 2.6.9/arch/um/os-Linux/Makefile
+===================================================================
+--- 2.6.9.orig/arch/um/os-Linux/Makefile	2004-12-01 23:43:12.000000000 -0500
++++ 2.6.9/arch/um/os-Linux/Makefile	2004-12-01 23:45:55.000000000 -0500
+@@ -3,9 +3,10 @@
+ # Licensed under the GPL
+ #
+ 
+-obj-y = file.o process.o time.o tty.o user_syms.o drivers/
++obj-y = elf_aux.o file.o process.o time.o tty.o user_syms.o drivers/
+ 
+-USER_OBJS := $(foreach file,file.o process.o time.o tty.o,$(obj)/$(file))
++USER_OBJS := elf_aux.o file.o process.o time.o tty.o
++USER_OBJS := $(foreach file,$(USER_OBJS),$(obj)/$(file))
+ 
+ $(USER_OBJS) : %.o: %.c
+ 	$(CC) $(CFLAGS_$(notdir $@)) $(USER_CFLAGS) -c -o $@ $<
+Index: 2.6.9/arch/um/os-Linux/elf_aux.c
+===================================================================
+--- 2.6.9.orig/arch/um/os-Linux/elf_aux.c	2003-09-15 09:40:47.000000000 -0400
++++ 2.6.9/arch/um/os-Linux/elf_aux.c	2004-12-01 23:44:11.000000000 -0500
+@@ -0,0 +1,66 @@
++/*
++ *  arch/um/kernel/elf_aux.c
++ *
++ *  Scan the Elf auxiliary vector provided by the host to extract
++ *  information about vsyscall-page, etc.
++ *
++ *  Copyright (C) 2004 Fujitsu Siemens Computers GmbH
++ *  Author: Bodo Stroesser (bodo.stroesser@fujitsu-siemens.com)
++ */
++#include <elf.h>
++#include <stddef.h>
++#include "init.h"
++
++#if ELF_CLASS == ELFCLASS32
++typedef Elf32_auxv_t elf_auxv_t;
++#else
++typedef Elf64_auxv_t elf_auxv_t;
++#endif
++
++char * elf_aux_platform;
++long elf_aux_hwcap;
++
++long vsyscall_ehdr;
++long vsyscall_end;
++
++long __kernel_vsyscall;
++
++
++__init void scan_elf_aux( char **envp)
++{
++	long page_size = 0;
++	elf_auxv_t * auxv;
++
++	while ( *envp++ != NULL) ;
++
++	for ( auxv = (elf_auxv_t *)envp; auxv->a_type != AT_NULL; auxv++) {
++		switch ( auxv->a_type ) {
++			case AT_SYSINFO:
++				__kernel_vsyscall = auxv->a_un.a_val;
++				break;
++			case AT_SYSINFO_EHDR:
++				vsyscall_ehdr = auxv->a_un.a_val;
++				break;
++			case AT_HWCAP:
++				elf_aux_hwcap = auxv->a_un.a_val;
++				break;
++			case AT_PLATFORM:
++				elf_aux_platform = auxv->a_un.a_ptr;
++				break;
++			case AT_PAGESZ:
++				page_size = auxv->a_un.a_val;
++				break;
++		}
++	}
++	if ( ! __kernel_vsyscall || ! vsyscall_ehdr ||
++	     ! elf_aux_hwcap || ! elf_aux_platform ||
++	     ! page_size || (vsyscall_ehdr % page_size) ) {
++		__kernel_vsyscall = 0;
++		vsyscall_ehdr = 0;
++		elf_aux_hwcap = 0;
++		elf_aux_platform = "i586";
++	}
++	else {
++		vsyscall_end = vsyscall_ehdr + page_size;
++	}
++}
+Index: 2.6.9/include/asm-um/archparam-i386.h
+===================================================================
+--- 2.6.9.orig/include/asm-um/archparam-i386.h	2004-12-01 23:43:04.000000000 -0500
++++ 2.6.9/include/asm-um/archparam-i386.h	2004-12-01 23:44:11.000000000 -0500
+@@ -10,7 +10,8 @@
+ 
+ #include "user.h"
+ 
+-#define ELF_PLATFORM "i586"
++extern char * elf_aux_platform;
++#define ELF_PLATFORM (elf_aux_platform)
+ 
+ #define ELF_ET_DYN_BASE (2 * TASK_SIZE / 3)
+ 
+@@ -56,15 +57,13 @@
+ 	pr_reg[16] = PT_REGS_SS(regs);		\
+ } while(0);
+ 
+-#if 0 /* Turn this back on when UML has VSYSCALL working */
+-#define VSYSCALL_BASE	(__fix_to_virt(FIX_VSYSCALL))
+-#else
+-#define VSYSCALL_BASE	0
+-#endif
+ 
+-#define VSYSCALL_EHDR	((const struct elfhdr *) VSYSCALL_BASE)
+-#define VSYSCALL_ENTRY	((unsigned long) &__kernel_vsyscall)
+-extern void *__kernel_vsyscall;
++extern long vsyscall_ehdr;
++extern long vsyscall_end;
++extern long __kernel_vsyscall;
++
++#define VSYSCALL_BASE vsyscall_ehdr
++#define VSYSCALL_END vsyscall_end
+ 
+ /*
+  * Architecture-neutral AT_ values in 0-17, leave some room
+@@ -75,8 +74,10 @@
+ 
+ #define ARCH_DLINFO						\
+ do {								\
+-		NEW_AUX_ENT(AT_SYSINFO,	VSYSCALL_ENTRY);	\
+-		NEW_AUX_ENT(AT_SYSINFO_EHDR, VSYSCALL_BASE);	\
++	if ( vsyscall_ehdr ) {					\
++		NEW_AUX_ENT(AT_SYSINFO,	__kernel_vsyscall);	\
++		NEW_AUX_ENT(AT_SYSINFO_EHDR, vsyscall_ehdr);	\
++	}							\
+ } while (0)
+ 
+ /*
+Index: 2.6.9/include/asm-um/elf.h
+===================================================================
+--- 2.6.9.orig/include/asm-um/elf.h	2004-12-01 23:43:04.000000000 -0500
++++ 2.6.9/include/asm-um/elf.h	2004-12-01 23:44:11.000000000 -0500
+@@ -3,7 +3,8 @@
+ 
+ #include "asm/archparam.h"
+ 
+-#define ELF_HWCAP (0)
++extern long elf_aux_hwcap;
++#define ELF_HWCAP (elf_aux_hwcap)
+ 
+ #define SET_PERSONALITY(ex, ibcs2) do ; while(0)
+ 
 

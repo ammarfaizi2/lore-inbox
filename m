@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262679AbVCWA5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbVCWBBC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbVCWA5i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 19:57:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVCWA5T
+	id S262674AbVCWBBC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 20:01:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbVCWA77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 19:57:19 -0500
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:29375 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S262679AbVCWAz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 19:55:59 -0500
-From: Grant Coady <grant_nospam@dodo.com.au>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: dmesg verbosity [was Re: AGP bogosities]
-Date: Wed, 23 Mar 2005 11:55:51 +1100
-Organization: scattered.homelinux.net
-Message-ID: <3ue141ho6ekruos112pgphbo6p1sruiml2@4ax.com>
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz> <20050314083717.GA19337@elf.ucw.cz> <200503140855.18446.jbarnes@engr.sgi.com> <20050314191230.3eb09c37.diegocg@gmail.com> <1110827273.14842.3.camel@mindpipe> <20050323013729.0f5cd319.diegocg@gmail.com>
-In-Reply-To: <20050323013729.0f5cd319.diegocg@gmail.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Tue, 22 Mar 2005 19:59:59 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:55479 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262685AbVCWA5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 19:57:18 -0500
+Date: Wed, 23 Mar 2005 00:56:11 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Luck, Tony" <tony.luck@intel.com>
+cc: "David S. Miller" <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: RE: [PATCH 1/5] freepgt: free_pgtables use vma list
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F03211851@scsmsx401.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.61.0503230052500.10858@goblin.wat.veritas.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F03211851@scsmsx401.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Mar 2005 01:37:29 +0100, Diego Calleja <diegocg@gmail.com> wrote:
+On Tue, 22 Mar 2005, Luck, Tony wrote:
+> 
+> But I'm still confused by all the math on addr/end at each
+> level.
 
->El Mon, 14 Mar 2005 14:07:53 -0500,
->Lee Revell <rlrevell@joe-job.com> escribió:
->
->> I'm really not trolling, but I suspect if we made the boot process less
->> verbose, people would start to wonder more about why Linux takes so much
->> longer than XP to boot.
->
->By the way, Microsoft seems to be claiming that boot time will be reduced to the half
->with Longhorn. While we already know how ms marketing team works, 50% looks
->like a lot. Is there a good place to discuss what could be done in the linuxland to
->improve things? It doesn't looks like a couple of optimizations will be enought...
+You think the rest of us are not ;-?
 
-Considering msft don't do full options hardware detection until 
-after GUI shell is up, next speed up could simply be start from 
-hibernate?  They already do a hardware signature, and if hardware 
-changed you may need a new license anyway :-)  Pay per cold boot?
+> Rounding up/down at each level should presumably be
+> based on the size of objects at the next level.  So the pgd
+> code should round using PUD_MASK, pud should use PMD_MASK etc.
+> Perhaps I missed some updates, but the version of the patch
+> that I have (and the simulator) is using PMD_MASK in the
+> pgd_free_range() function ... which is surely wrong.
 
+It's confusing but not wrong (in principle).  It's trying to decide
+immediately on entry whether it will be worth going down to the lower
+levels: if even the lowest level will have no work to do, no point in
+proceeding.
 
-Noisy startup?  2.6 has good solution in default kernel build, 
-display milestones during startup or super quiet loader option 
-passed from boot?  "dmesg -qq" thru "dmesg -vv" stir anyone?
-
-Grant.
-
+Hugh

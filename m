@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313765AbSEASBg>; Wed, 1 May 2002 14:01:36 -0400
+	id <S313767AbSEASDl>; Wed, 1 May 2002 14:03:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313767AbSEASBf>; Wed, 1 May 2002 14:01:35 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:13572 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313765AbSEASBe>; Wed, 1 May 2002 14:01:34 -0400
-Message-ID: <3CD01EC9.3030606@evision-ventures.com>
-Date: Wed, 01 May 2002 18:58:49 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Xavier Bestel <xavier.bestel@free.fr>
-CC: Erik Steffl <steffl@bigfoot.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide <-> via VT82C693A/694x problems?
-In-Reply-To: <Pine.LNX.4.10.10204301754310.2107-100000@master.linux-ide.org>	 <3CCF4BFD.6C7F67EB@bigfoot.com> <1020239797.10097.68.camel@nomade>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S313773AbSEASDk>; Wed, 1 May 2002 14:03:40 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:54150 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313767AbSEASDj>; Wed, 1 May 2002 14:03:39 -0400
+Message-Id: <200205011800.g41I0G002507@w-gaughen.des.beaverton.ibm.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Christoph Hellwig <hch@infradead.org>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] discontigmem support for ia32 NUMA box against 2.4.19pre7 
+In-Reply-To: Message from Christoph Hellwig <hch@infradead.org> 
+   of "Wed, 01 May 2002 10:23:28 BST." <20020501102328.B1238@infradead.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 01 May 2002 11:00:16 -0700
+From: Patricia Gaughen <gone@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Xavier Bestel napisa?:
-> Le mer 01/05/2002 à 03:59, Erik Steffl a écrit :
-> 
->>  the MB uses via chips so I included via82cxxx driver (as a module). is
->>that correct?
->>
->>  however, I just checked and via82cxxx is NOT loaded. What do I need to
->>do to make ide driver is using via82cxxx module?
->>
->>  I have ide driver compiled in (booting from ide hd), does via82cxxx
->>have to be compiled in?
 
-It has to be compiled in.
+  > On Tue, Apr 30, 2002 at 06:22:13PM -0700, William Lee Irwin III wrote:
+  > > > Umm, NUMA without SMP looks rather strange to me..
+  > > 
+  > > It's still fully possible, though I'm not clear on whether NUMA-Q
+  > > supports it.
+  > 
+  > It doesn't really make sense :)
+  > 
+  > Still I think it makes sense to have CONFIG_NUMAQ or whatever to depend
+  > on CONFIG_SMP
+
+The way it is currently defined in the patch is that CONFIG_IBMNUMAQ (which 
+turns on CONFIG_DISCONTIGMEM) depends on CONFIG_MULTIQUAD being set and that 
+depends on CONFIG_SMP being set.  So, I'm still planning on removing the 
+#ifdef SMP.  :-)
+
+-Pat
+
+
 

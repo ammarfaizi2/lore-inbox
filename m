@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268478AbTBNVV3>; Fri, 14 Feb 2003 16:21:29 -0500
+	id <S268276AbTBNVQ0>; Fri, 14 Feb 2003 16:16:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268473AbTBNVUz>; Fri, 14 Feb 2003 16:20:55 -0500
-Received: from 24-168-145-62.nj.rr.com ([24.168.145.62]:10029 "EHLO
+	id <S268210AbTBNVQB>; Fri, 14 Feb 2003 16:16:01 -0500
+Received: from 24-168-145-62.nj.rr.com ([24.168.145.62]:6444 "EHLO
 	mail.larvalstage.com") by vger.kernel.org with ESMTP
-	id <S268352AbTBNVTJ>; Fri, 14 Feb 2003 16:19:09 -0500
-Date: Fri, 14 Feb 2003 16:28:42 -0500 (EST)
+	id <S268046AbTBNVOe>; Fri, 14 Feb 2003 16:14:34 -0500
+Date: Fri, 14 Feb 2003 16:24:06 -0500 (EST)
 From: John Kim <john@larvalstage.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.60-bk4] fix compile breakage on drivers/scsi/wd7000.c
-Message-ID: <Pine.LNX.4.53.0302141627220.21601@quinn.larvalstage.com>
+Subject: [PATCH 2.5.60-bk4] fix compile breakage on drivers/scsi/fd_mcs.c
+Message-ID: <Pine.LNX.4.53.0302141622300.21601@quinn.larvalstage.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,49 +22,50 @@ This fixes compile breakage due to recent changes to scsi.h
 John Kim
 
 
---- linux-2.5.60-bk4/drivers/scsi/wd7000.c	2003-02-10 13:38:59.000000000 -0500
-+++ linux-2.5.60-bk4-new/drivers/scsi/wd7000.c	2003-02-14 15:50:01.000000000 -0500
-@@ -1122,13 +1122,13 @@
- 	register unchar *cdb = (unchar *) SCpnt->cmnd;
- 	register unchar idlun;
- 	register short cdblen;
--	Adapter *host = (Adapter *) SCpnt->host->hostdata;
-+	Adapter *host = (Adapter *) SCpnt->device->host->hostdata;
+--- linux-2.5.60-bk4/drivers/scsi/fd_mcs.c	2003-02-10 13:38:20.000000000 -0500
++++ linux-2.5.60-bk4-new/drivers/scsi/fd_mcs.c	2003-02-14 15:32:46.000000000 -0500
+@@ -732,7 +732,7 @@
+ 		outb(0x40 | FIFO_COUNT, Interrupt_Cntl_port);
  
- 	cdblen = SCpnt->cmd_len;
--	idlun = ((SCpnt->target << 5) & 0xe0) | (SCpnt->lun & 7);
-+	idlun = ((SCpnt->device->id << 5) & 0xe0) | (SCpnt->device->lun & 7);
- 	SCpnt->scsi_done = done;
- 	SCpnt->SCp.phase = 1;
--	scb = alloc_scbs(SCpnt->host, 1);
-+	scb = alloc_scbs(SCpnt->device->host, 1);
- 	scb->idlun = idlun;
- 	memcpy(scb->cdb, cdb, cdblen);
- 	scb->direc = 0x40;	/* Disable direction check */
-@@ -1141,7 +1141,7 @@
- 		struct scatterlist *sg = (struct scatterlist *) SCpnt->request_buffer;
- 		unsigned i;
+ 		outb(0x82, SCSI_Cntl_port);	/* Bus Enable + Select */
+-		outb(adapter_mask | (1 << current_SC->target), SCSI_Data_NoACK_port);
++		outb(adapter_mask | (1 << current_SC->device->id), SCSI_Data_NoACK_port);
  
--		if (SCpnt->host->sg_tablesize == SG_NONE) {
-+		if (SCpnt->device->host->sg_tablesize == SG_NONE) {
- 			panic("wd7000_queuecommand: scatter/gather not supported.\n");
- 		}
- 		dprintk("Using scatter/gather with %d elements.\n", SCpnt->use_sg);
-@@ -1646,7 +1646,7 @@
-  */
- static int wd7000_abort(Scsi_Cmnd * SCpnt)
+ 		/* Stop arbitration and enable parity */
+ 		outb(0x10 | PARITY_MASK, TMC_Cntl_port);
+@@ -744,7 +744,7 @@
+ 		status = inb(SCSI_Status_port);
+ 		if (!(status & 0x01)) {
+ 			/* Try again, for slow devices */
+-			if (fd_mcs_select(shpnt, current_SC->target)) {
++			if (fd_mcs_select(shpnt, current_SC->device->id)) {
+ #if EVERY_ACCESS
+ 				printk(" SFAIL ");
+ #endif
+@@ -1150,7 +1150,7 @@
+ 
+ static int fd_mcs_queue(Scsi_Cmnd * SCpnt, void (*done) (Scsi_Cmnd *))
  {
--	Adapter *host = (Adapter *) SCpnt->host->hostdata;
-+	Adapter *host = (Adapter *) SCpnt->device->host->hostdata;
+-	struct Scsi_Host *shpnt = SCpnt->host;
++	struct Scsi_Host *shpnt = SCpnt->device->host;
  
- 	if (inb(host->iobase + ASC_STAT) & INT_IM) {
- 		printk("wd7000_abort: lost interrupt\n");
-@@ -1677,7 +1677,7 @@
+ 	if (in_command) {
+ 		panic("fd_mcs: fd_mcs_queue() NOT REENTRANT!\n");
+@@ -1286,7 +1286,7 @@
  
- static int wd7000_host_reset(Scsi_Cmnd * SCpnt)
+ static int fd_mcs_abort(Scsi_Cmnd * SCpnt)
  {
--	Adapter *host = (Adapter *) SCpnt->host->hostdata;
-+	Adapter *host = (Adapter *) SCpnt->device->host->hostdata;
+-	struct Scsi_Host *shpnt = SCpnt->host;
++	struct Scsi_Host *shpnt = SCpnt->device->host;
  
- 	if (wd7000_adapter_reset(host) < 0)
- 		return FAILED;
+ 	unsigned long flags;
+ #if EVERY_ACCESS || ERRORS_ONLY || DEBUG_ABORT
+@@ -1331,7 +1331,7 @@
+ }
+ 
+ static int fd_mcs_bus_reset(Scsi_Cmnd * SCpnt) {
+-	struct Scsi_Host *shpnt = SCpnt->host;
++	struct Scsi_Host *shpnt = SCpnt->device->host;
+ 
+ #if DEBUG_RESET
+ 	static int called_once = 0;

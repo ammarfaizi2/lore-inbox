@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317442AbSFCRxB>; Mon, 3 Jun 2002 13:53:01 -0400
+	id <S317443AbSFCSHV>; Mon, 3 Jun 2002 14:07:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317444AbSFCRxA>; Mon, 3 Jun 2002 13:53:00 -0400
-Received: from horus.webmotion.com ([209.87.243.246]:51109 "EHLO
-	horus.webmotion.ca") by vger.kernel.org with ESMTP
-	id <S317442AbSFCRwQ>; Mon, 3 Jun 2002 13:52:16 -0400
-Message-ID: <3CFBACC8.6010002@bonin.ca>
-Date: Mon, 03 Jun 2002 13:52:08 -0400
-From: Andre Bonin <kernel@bonin.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020516
-X-Accept-Language: en-us, fr-ca
+	id <S317444AbSFCSHU>; Mon, 3 Jun 2002 14:07:20 -0400
+Received: from pD952AF1C.dip.t-dialin.net ([217.82.175.28]:11908 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317443AbSFCSHT>; Mon, 3 Jun 2002 14:07:19 -0400
+Date: Mon, 3 Jun 2002 12:06:55 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Jeremy White <jwhite@codeweavers.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: isofs unhide option:  troubles with Wine
+In-Reply-To: <1023123957.8071.140.camel@jwhite>
+Message-ID: <Pine.LNX.4.44.0206031204540.3833-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: bonin@bonin.ca
-Subject: Support for keyboards with special scancodes
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an Logitech Internet Navigator keyboard that has nice little 
-'play', 'pause', 'e-mail' buttons of all kinds (As many of us do, i 
-believe).  I couldn't find any specialised keyboard drivers in the 
-kernel.  Only different locales.
+Hi,
 
-I'me wondering if it was possible to write a driver that would overlay 
-the existing keyboard driver and pitch non-standardized scancodes codes 
-in a /dev file (in a standard format).  One could then create a daemon 
-that would poll this file for changes to this file and perform the 
-resulting action.
+On 3 Jun 2002, Jeremy White wrote:
+> possible rather than impossible. Question is - why was hide the default
+> and what was that decision based upon ?
 
-We could create some sort of standardized protocol for many types of 
-'special' keyboards.  For example, a logitech keyboards sends a '0x0e' 
-as a special scancode.
+Supposedly, someone wanted it _really_ hidden. I can't currently think of 
+another sane reason, I don't know if you can and it's just these 
+headaches. However, what's the advantage in disappearing files?
 
-A simplified example;
+I suggest making them readable, but not listed.
 
-The driver reads the scancode and recognizes it as 'Internet Browser'. 
-The driver therefore writes a 'IBrowserButton' command in the dev file, 
-which would be polled by a daemon/applet and would launch the 
-appropriate action relative to this scancode.
-
-Does something like this already exist?
-
-Can I get your comments on my idea?
-
-Thanks!
-
-
-***********************************
-Andre Bonin
-Computer Engineering Technologist
-Webmotion, Inc.
-Ottawa, Ontario
-Canada
-***********************************
+Regards,
+Thunder
+-- 
+ship is leaving right on time	|	Thunder from the hill at ngforever
+empty harbour, wave goodbye	|
+evacuation of the isle		|	free inhabitant not directly
+caveman's paintings drowning	|	belonging anywhere
 

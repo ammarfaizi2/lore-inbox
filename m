@@ -1,49 +1,172 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293589AbSCSDPP>; Mon, 18 Mar 2002 22:15:15 -0500
+	id <S293602AbSCSD0z>; Mon, 18 Mar 2002 22:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293595AbSCSDPG>; Mon, 18 Mar 2002 22:15:06 -0500
-Received: from mail.getnet.net ([63.137.32.10]:58332 "HELO mail.getnet.net")
-	by vger.kernel.org with SMTP id <S293589AbSCSDOx>;
-	Mon, 18 Mar 2002 22:14:53 -0500
-Message-ID: <3C96ACD1.9010306@westek-systems.com>
-Date: Tue, 19 Mar 2002 03:13:21 +0000
-From: Art Wagner <awagner@westek-systems.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020315
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.7 oss modules compile error
-Content-Type: multipart/mixed;
- boundary="------------070203090300090803060006"
+	id <S293603AbSCSD0g>; Mon, 18 Mar 2002 22:26:36 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:14854 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S293602AbSCSD0b>; Mon, 18 Mar 2002 22:26:31 -0500
+Date: Tue, 19 Mar 2002 14:28:42 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: martin.wirth@dlr.de, pwaechtler@loewe-komp.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+Message-Id: <20020319142842.0d9291c2.rusty@rustcorp.com.au>
+In-Reply-To: <1016412720.2194.16.camel@myware.mynet>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070203090300090803060006
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On 17 Mar 2002 16:52:00 -0800
+Ulrich Drepper <drepper@redhat.com> wrote:
 
-I encountered the attached error whie compiling 2.5.7 with the oss sound 
-modules
-configured. The "_not_defined_use_pci_map" portion of the failing statement
-seems to be defined in ./include/asm-i386/io.h, line 117.
-Art Wagner
+> On Sat, 2002-03-16 at 22:50, Rusty Russell wrote:
+> 
+> > Only vs. pthread_cond_broadcast.
+> 
+> No.  pthread_barrier_wait has the same problem.  It has to wake up lots
+> of thread.
 
---------------070203090300090803060006
-Content-Type: text/plain;
- name="Compile error.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Compile error.txt"
+Hmmm....
 
-drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o sound/sound.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
-	net/network.o \
-	--end-group \
-	-o vmlinux
-sound/sound.o: In function `sound_alloc_dmap':
-/usr/src/linux-2.5.7/sound/oss/dmabuf.c:116: undefined reference to `virt_to_bus_not_defined_use_pci_map'
-make: *** [vmlinux] Error 1
+What do you WANT in a kernel primitive then?  Given that we now have mutexes,
+what else do we need to make pthreads relatively painless?
 
---------------070203090300090803060006--
+> > And if you're using that you probably
+> > have some other performance issues anyway?
+> 
+> Why?  Conditional variables are of use in situations with loosely
+> coupled threads.
 
+I meant vs. pthread_cond_signal.
+
+Look, here is an example implementation.  Please suggest:
+1) Where this is flawed,
+2) Where this is suboptimal,
+3) What kernel primitive would help to resolve these?
+
+Thanks,
+Rusty.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+/* Assume we have the following semaphore operations:
+
+   futex_down(futex);
+   futex_down_time(futex, relative timeout);
+   futex_up(futex, count);
+*/
+typedef struct
+{
+	struct futex futex;
+} pthread_mutex_t;
+
+typedef struct 
+{
+	int num_waiting;
+	struct futex wait, ack;
+} pthread_cond_t;
+
+typedef struct
+{
+	unsigned int num_left;
+	struct futex wait;
+	unsigned int initial_count;
+} pthread_barrier_t;
+
+#define PTHREAD_MUTEX_INITIALIZER { { 1 } }
+#define PTHREAD_COND_INITIALIZER { 0, { 0 }, { 0 } }
+
+int pthread_barrier_init(struct pthread_barrier_t *barrier,
+			 void *addr,
+			 unsigned int count)
+{
+	barrier->num_left = barrier->initial_count = count;
+	barrier->wait.count = 0;
+}
+
+int pthread_barrier_wait(struct pthread_barrier_t *barrier)
+{
+	if (atomic_dec_and_test(&barrier->num_left)) {
+		/* Restore barrier. */
+		barrier->num_left = barrier->initial_count;
+		/* Wake the other threads */
+		futex_up(&barrier->wait, barrier->initial_count-1);
+		return 0; /* PTHREAD_BARRIER_SERIAL_THREAD */
+	}
+	while (futex_down(&barrier->wait) == 0 || errno == EINTR);
+	return 1;
+}
+
+int pthread_cond_signal(pthread_cond_t *cond)
+{
+	if (cond->num_waiters)
+		return futex_up(&cond->futex, 1);
+	return 0;
+}
+
+int pthread_cond_broadcast(pthread_cond_t *cond)
+{
+	unsigned int waiters = cond->num_waiting;
+
+	if (waiters) {
+		/* Re-initialize ACK.  Could have been upped by
+                   pthread_cond_signal and pthread_cond_wait. */
+		cond->ack.count = 0;
+		futex_up(&cond->futex, waiters);
+		/* Wait for ack before returning. */
+		futex_down(&cond->ack);
+	}
+	return 0;
+}
+
+static int __pthread_cond_wait(pthread_cond_t *cond,
+			       pthread_mutex_t *mutex,
+			       const struct timespec *reltime)
+{
+	int ret;
+
+	/* Increment first so broadcaster knows we are waiting. */
+	atomic_inc(cond->num_waiting);
+	futex_up(&mutex, 1);
+	do {
+		ret = futex_down_time(&cond, reltime);
+	} while (ret < 0 && errno == EINTR);
+	if (atomic_dec_and_test(cond->num_waiting))
+		futex_up(&cond->ack);
+	futex_down(&mutex->futex);
+	return ret;
+}
+
+int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
+{
+	return __pthread_cond_wait(cond, mutex, NULL);
+}
+
+int pthread_cond_timedwait(pthread_cond_t *cond,
+			   pthread_mutex_t *mutex,
+			   const struct timespec *abstime)
+{
+	struct timeval _now;
+	struct timespec now, rel;
+
+	/* Absolute to relative */
+	gettimeofday(&_now, NULL);
+	TIMEVAL_TO_TIMESPEC(&_now, &now);
+	if (now.tv_sec > abstime->tv_sec
+	    || (now.tv_sec == abstime->tv_sec
+		&& now.tv_nsec > abstime->tv_nsec))
+		return ETIMEDOUT;
+
+	rel.tv_sec = now.tv_sec - abstime->tv_sec;
+	rel.tv_nsec = now.tv_usec - abstime->tv_usec;
+	if (rel.tv_nsec < 0) {
+		--rel.tv_sec;
+		rel.tv_nsec += 1000000000;
+	}
+	return __pthread_cond_wait(cond, mutex, &rel);
+}

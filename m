@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263272AbTEMG65 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 02:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263276AbTEMG65
+	id S263257AbTEMG6F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 02:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbTEMG6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 02:58:57 -0400
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:22107 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S263272AbTEMG6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 02:58:53 -0400
-From: Jos Hulzink <josh@stack.nl>
-To: thunder7@xs4all.nl, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
-Date: Tue, 13 May 2003 09:15:58 +0200
-User-Agent: KMail/1.5
-References: <200305122135.53751.josh@stack.nl> <20030513050133.GA4720@middle.of.nowhere>
-In-Reply-To: <20030513050133.GA4720@middle.of.nowhere>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 13 May 2003 02:58:05 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:39429 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263257AbTEMG6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 02:58:03 -0400
+Date: Tue, 13 May 2003 08:10:32 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ben Collins <bcollins@debian.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
+Message-ID: <20030513081032.A7184@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ben Collins <bcollins@debian.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20030513062640.GR433@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305130915.58419.josh@stack.nl>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030513062640.GR433@phunnypharm.org>; from bcollins@debian.org on Tue, May 13, 2003 at 02:26:40AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 May 2003 07:01, Jurriaan wrote:
-> Is this with or without IOAPIC? I got some problems with MPS 1.4, acpi
-> and the local ioapic on a uniprocessor system, see bugzilla 678. I think
-> it's a different problem, though.
+On Tue, May 13, 2003 at 02:26:40AM -0400, Ben Collins wrote:
+> This was causing me all sorts of problems with linux1394's 16-18 byte
+> long bus_id lengths. The sysfs names were all broken.
+> 
+> This not only makes KOBJ_NAME_LEN match BUS_ID_SIZE, but fixes the
+> strncpy's in drivers/base/ so that it can't happen again (atleast the
+> strings will be null terminated).
 
-Your problem looks the same, though isn't, for your kernel finds a MADT:
+What about defining BUS_ID_SIZE in terms of KOBJ_NAME_LEN?
 
-ACPI: RSDP (v000 KT400                      ) @ 0x000f74a0
-ACPI: RSDT (v001 KT400  AWRDACPI 16944.11825) @ 0x3fff3000
-ACPI: FADT (v001 KT400  AWRDACPI 16944.11825) @ 0x3fff3040
-vvvvv
-ACPI: MADT (v001 KT400  AWRDACPI 16944.11825) @ 0x3fff71c0
-^^^^^
-ACPI: DSDT (v001 KT400  AWRDACPI 00000.04096) @ 0x00000000
-ACPI: BIOS passes blacklist
-
-And ACPI uses the IOAPIC, as expected:
-
-ACPI: Interpreter enabled
-ACPI: Using IOAPIC for interrupt routing
-
-Unfortunately, we're talking two different bugs :(
-
-Jos

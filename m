@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129670AbQKTBt5>; Sun, 19 Nov 2000 20:49:57 -0500
+	id <S129851AbQKTBxH>; Sun, 19 Nov 2000 20:53:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129941AbQKTBts>; Sun, 19 Nov 2000 20:49:48 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:6148 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129851AbQKTBtk>; Sun, 19 Nov 2000 20:49:40 -0500
-Date: Mon, 20 Nov 2000 01:16:23 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Dan Hollis <goemon@anime.net>
-cc: Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: BTTV detection broken in 2.4.0-test11-pre5
-In-Reply-To: <Pine.LNX.4.30.0011190740290.13294-100000@anime.net>
-Message-ID: <Pine.LNX.4.30.0011200115070.1076-100000@imladris.demon.co.uk>
+	id <S129960AbQKTBw6>; Sun, 19 Nov 2000 20:52:58 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:31502 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129689AbQKTBwq>; Sun, 19 Nov 2000 20:52:46 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 2.4.0-test11-pre7: isapnp hang
+Date: 19 Nov 2000 17:22:09 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8v9uc1$5c5$1@cesium.transmeta.com>
+In-Reply-To: <8v9rf6$54k$1@cesium.transmeta.com> <E13xfQ1-0003CR-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Nov 2000, Dan Hollis wrote:
-
-> Writeprotect the flashbios with the motherboard jumper, and remove the
-> cmos battery.
+Followup to:  <E13xfQ1-0003CR-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
 >
-> Checkmate. :-)
+> > Try reserving ports 0x300-0x31f on the kernel command line
+> > ("reserve=0x300,0x20").
+> > 
+> > I'm surprised isapnp uses a port in such a commonly used range,
+> > though.
+> 
+> It seems to be a combination of two bugs. The one I posted a patch for and
+> something odd that is taking port 0x279 before the pnp probe is run, which
+> suggests a link order issue. Although in truth _nobody_ should be claing
+> that anyway
+> 
 
-Only if you run your kernel XIP from the flash. If you load it into RAM,
-it's still possible for an attacker to modify it. You can load new code
-into the kernel even if the kernel doesn't make it easy for you by having
-CONFIG_MODULES defined.
+It seems to me that it would be better to initialize all the (non-PnP)
+ISA cards first, and have them claim their preferred ranges.  Now you
+can pick the PnP isolate port out of what is left, and also have a
+much better idea of what is available.
 
+	-hpa
 -- 
-dwmw2
-
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

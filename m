@@ -1,139 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUESB2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUESB2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUESB2J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 21:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUESB2J
+	id S263772AbUESB2r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 21:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbUESB2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 21:28:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26085 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263770AbUESB2A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 21:28:00 -0400
-Date: Tue, 18 May 2004 18:27:53 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andy Lutomirski <luto@stanford.edu>
-Cc: Chris Wright <chrisw@osdl.org>, Andy Lutomirski <luto@myrealbox.com>,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       olaf+list.linux-kernel@olafdietsche.de, Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH] scaled-back caps, take 4 (was Re: [PATCH] capabilites, take 2)
-Message-ID: <20040518182751.J21045@build.pdx.osdl.net>
-References: <fa.dt4cg55.jnqvr5@ifi.uio.no> <40A4F163.6090802@stanford.edu> <20040514110752.U21045@build.pdx.osdl.net> <200405141548.05106.luto@myrealbox.com> <20040517231912.H21045@build.pdx.osdl.net> <40A9D356.6060807@stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <40A9D356.6060807@stanford.edu>; from luto@stanford.edu on Tue, May 18, 2004 at 02:11:51AM -0700
+	Tue, 18 May 2004 21:28:47 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:28619 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S263772AbUESB2n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 21:28:43 -0400
+Message-ID: <40AAB845.9090505@blue-labs.org>
+Date: Tue, 18 May 2004 21:28:37 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040421
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [OOPS] null ptr dereference, 2.6.6, ov511 usb webcam
+Content-Type: multipart/mixed;
+ boundary="------------020604010007070009050306"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andy Lutomirski (luto@stanford.edu) wrote:
-> Chris Wright wrote:
-> > Alright, I tried to write up my expectations for all the various modes
-> > w.r.t dropping privs, keeping them, setuid apps, etc.  I then wrote some
-> > tests to get a baseline, and well as a way to compare results.  Finally
-> > I wrote a patch that meets the requirements I laid out, and compared it
-> > against yours.  With one minor exception, the capabilities bits match
-> > up.  You drop effective caps when a non-root users execs a non-root
-> > setuid app, and I the caps alone.  ...
-> 
-> Paranoia.  There are legacy setuid programs out there (presumably even 
-> setuid-nonroot).  Let's make them behave as closely to the way they 
-> currently do as possible.
+This is a multi-part message in MIME format.
+--------------020604010007070009050306
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes, that's the goal I have.  Although, the above scenario, they've
-already been limited (IOW, if nothing's been touched, all behaves the
-same).  Starting with limited inheritable (as say uid 500), execute
-a non-root, setuid (say uid 99) program, is this expected to change
-effective set?  Currently it's a transition for 0 caps to 0 caps, not
-very interesting.  Given they are both unprivelged uids, I kept
-the (limited) effective.
+drivers/usb/media/ov511.c: USB OV511 video device found
+drivers/usb/media/ov511.c: model: AverMedia InterCam Elite
+drivers/usb/media/ov511.c: Sensor is an OV7610
+drivers/usb/media/ov511.c: Device at usb-0000:00:07.2-2.3 registered to 
+minor 0
+Unable to handle kernel NULL pointer dereference at virtual address 00000095
+ printing eip:
+c0390179
+*pde = 00000000
+Oops: 0002 [#1]
+PREEMPT
+CPU:    0
+EIP:    0060:[<c0390179>]    Not tainted
+EFLAGS: 00010282   (2.6.6)
+EIP is at ov51x_v4l1_ioctl+0x29/0x90
+eax: dbc0d494   ebx: 00000095   ecx: 00000095   edx: d617bf00
+esi: 00000001   edi: d617bf00   ebp: dbb71bc0   esp: daccdf80
+ds: 007b   es: 007b   ss: 0068
+Process camsource (pid: 8158, threadinfo=daccd000 task=d625d1b0)
+Stack: 080630b0 08063068 80887614 80887614 c0632d00 d617bf00 ffffffe7 
+c015e4a9
+       0806319c dbb71bc0 00000000 3b7e2d4c 00000007 08063138 0806319c 
+daccd000
+       c0103e89 00000007 80887614 0806319c 08063138 0806319c 40b2fa48 
+00000036
+Call Trace:
+ [<c015e4a9>] sys_ioctl+0xe9/0x240
+ [<c0103e89>] sysenter_past_esp+0x52/0x71
 
-> > # Still w/out changing inheritable and with KEEPCAPS set
-> > # 10 Root process does setuid(!0), effective caps are dropped
-> > # 11 Root process does seteuid(!0), effective caps are dropped
-> > # 12 Nonroot process restores uid 0, effective restored to permitted
-> 
-> I still want some variant on KEEPCAPS that causes setxuid to leave caps 
-> completely alone.  Oh, well.
+Code: ff 8e 94 00 00 00 0f 88 cb 25 00 00 31 c0 85 c0 ba fc ff ff
 
-Yeah, digs hole deeper though.
 
-> > # 18 Non-root execs setuid-nonroot process, new caps bound by inheritable
-> 
-> What new caps?
+--------------020604010007070009050306
+Content-Type: text/x-vcard; charset=utf8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
 
-The caps in the newly exec'd process.  IOW, effective aren't dropped,
-but as you'd expect inheritable provides limit.
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
 
-> >>+	/* Pretend we have VFS capabilities */
-> >>+	if ((bprm->secflags & BINPRM_SEC_SETUID) && bprm->e_uid == 0)
-> >>+		cap_set_full(bprm->cap_permitted);
-> >>+	else
-> >>+		cap_clear(bprm->cap_permitted);
-> >>+
-> > 
-> > 
-> > Thus far we've kept all this stuff out of core.  I believe we should
-> > keep it that way.  This could easily be left in bprm_set().
-> 
-> True.  But as long as linux_binprm has fields for this stuff, intuitively 
-> it should always be filled in (i.e. not just in commoncap).  That way we 
-> can say that commoncap doesn't get special treatment :)
-> 
-> Also, this seems like the right place to check for VFS caps.  This way we can.
 
-This does change the current notion of layering.  I see your point though, 
-likening it to say reading inode and finding S_ISUID bit.
-
-> >>+ * The rules of Linux capabilities (not POSIX!)
-> >>+ *
-> >>+ * What the masks mean:
-> >>+ *  pP = capabilities that this process has
-> >>+ *  pE = capabilities that this process has and are enabled
-> >>+ * (so pE <= pP)
-> >>+ *
-> >>+ * The capability evolution rules are:
-> >>+ *
-> >>+ *  pP' = ((fP & cap_bset) | pP) & Y
-> >>+ *  pE' = (pE | fP) & pP'
-> >>+ *
-> >>+ *  X = cap_bset
-> >>+ *  Y is zero if uid!=0, euid==0, and setuid non-root
-> >>+ *
-> >>+ *  Exception: if setuid-nonroot, then pE' is reset to 0.
-> > 
-> > While this works fine, I was interested to see what we could do to
-> > leave the old algorithm.  Seems both work out fine.
-> > 
-> >>+	/* setuid-nonroot is special. */
-> >>+	if (is_setuid && bprm->e_uid != 0 && current->uid != 0 &&
-> >>+	    current->euid == 0)
-> >>+		cap_clear(new_pP);
-> > 
-> > 
-> > setuid-nonroot from a non-root user needs to clear effective?
-> 
-> Yes.  Say user 500 runs a setuid-root program, which goes back and runs a 
-> setuid-500 program.  uid==euid==500 now, so the program expects to be 
-> unprivileged.  This makes that work.  (I'm assuming you meant permitted. 
-> Effective gets cleared in cap_mask(new_pE, new_pP)).
-
-Yup, I see.  This works in my patch as well.  I'll add this test.  Also
-added test to check disabling priv escalation during ptrace of setuid
-app.
-
-> The reason I killed the old algorithm is because it's scary (in the sense 
-> of being complicated and subtle for no good reason) and because I don't see 
-> the point of inheritable caps.  I doubt anything uses them currently on a 
-> vanilla kernel because they don't _do_ anything.  So I killed them.
-
-This does break all those caps aware apps (yeah, tongue-in-cheek ;-)
-that actually have the idea to widen the effective set, yet limit the
-inheriable set.  Seriously, I don't know how much this matters.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+--------------020604010007070009050306--

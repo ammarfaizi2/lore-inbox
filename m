@@ -1,91 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268950AbUHUJQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268944AbUHUJTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268950AbUHUJQB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 05:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268946AbUHUJQA
+	id S268944AbUHUJTj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 05:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268932AbUHUJTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 05:16:00 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:41601 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S268933AbUHUJOo (ORCPT
+	Sat, 21 Aug 2004 05:19:38 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:34001 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267485AbUHUJQu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 05:14:44 -0400
-Date: Sat, 21 Aug 2004 11:14:41 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Josan Kadett <corporate@superonline.com>
-Cc: "'Aidas Kasparas'" <a.kasparas@gmc.lt>, linux-kernel@vger.kernel.org
-Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
-Message-ID: <20040821091441.GA691@ucw.cz>
-References: <4126FDD8.1090101@gmc.lt> <S268889AbUHUIAZ/20040821080025Z+1903@vger.kernel.org>
+	Sat, 21 Aug 2004 05:16:50 -0400
+Date: Sat, 21 Aug 2004 11:18:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P5
+Message-ID: <20040821091804.GA26622@elte.hu>
+References: <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu> <1093058602.854.5.camel@krustophenia.net> <20040821091338.GA25931@elte.hu> <1093079726.854.80.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <S268889AbUHUIAZ/20040821080025Z+1903@vger.kernel.org>
+In-Reply-To: <1093079726.854.80.camel@krustophenia.net>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 21, 2004 at 11:00:27AM +0200, Josan Kadett wrote:
-> The problem is that the interface 192.168.1.1 does not allow any tranmission
-> to occur. An implementation error I think... We send packets to 192.168.1.1,
-> we get no reply, but when we send packets to 192.168.77.1 we get the replies
-> (that is where the abnormality begins). However; the replies are now sourced
-> from 192.168.1.1 instead. That is, the blasted code in the device calculates
-> the checksum using the wrong IP address which it thinks it is assigned to...
 
-How about assigning an IP address that generates the same checksum to
-the second interface? That'd solve your problem.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-Or assign both interfaces the same IP address, maybe the device allows it.
+> > > http://krustophenia.net/testresults.php?dataset=2.6.8.1-P6#/var/www/2.6.8.1-P6/trace8.txt
+> > 
+> > i suspect if you turn off tracing (or disable it in the kernel
+> > completely) then you'd see below-100 usec latencies here. A trace entry
+> > costs ~0.3 usecs on your box, so this 50-entry trace has roughly 15
+> > usecs of tracing overhead :-)
+> > 
+> 
+> FWIW, I did see one of these over 200 usecs.
 
-> 
-> -----Original Message-----
-> From: Aidas Kasparas [mailto:a.kasparas@gmc.lt] 
-> Sent: Saturday, August 21, 2004 9:47 AM
-> To: Josan Kadett
-> Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
-> 
-> But will these checksums be incorect if crazy box would communicate with 
-> address in 192.168.1.x only?
-> 
-> The whole idea was based on the fact, that if that box works well in 
-> 192.168.1.x networkd, then let it think it works in the network it knows 
-> how to work!
-> 
-> Josan Kadett wrote:
-> > It is definetely impossible to use IPTables to handle packets with
-> incorrect
-> > checksums since NAT would drop the connection right away, otherwise I
-> would
-> > not have been asking this question here.
-> > 
-> > -----Original Message-----
-> > From: Aidas Kasparas [mailto:a.kasparas@gmc.lt] 
-> > Sent: Saturday, August 21, 2004 8:54 AM
-> > To: Josan Kadett
-> > Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
-> > 
-> > How about setting up a separate box which would listen on that 
-> > 192.168.77.1 address and MASQUERADE connections to your crazy box from 
-> > 192.168.1.x address? Maybe then you would no longer need to break things 
-> >   in kernel?
-> > 
-> > 
-> > 
-> 
-> -- 
-> Aidas Kasparas
-> IT administrator
-> GM Consult Group, UAB
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+which trace is this?
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+	Ingo

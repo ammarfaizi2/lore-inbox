@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268296AbRG3VZ5>; Mon, 30 Jul 2001 17:25:57 -0400
+	id <S268258AbRG3V0r>; Mon, 30 Jul 2001 17:26:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268233AbRG3VZr>; Mon, 30 Jul 2001 17:25:47 -0400
-Received: from [64.7.140.42] ([64.7.140.42]:14784 "EHLO inet.connecttech.com")
-	by vger.kernel.org with ESMTP id <S268055AbRG3VZ2>;
-	Mon, 30 Jul 2001 17:25:28 -0400
-Message-ID: <060201c1193e$bbc1edc0$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Thomas Hood" <jdthoodREMOVETHIS@yahoo.co.uk>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B65CDC8.7ECE387A@yahoo.co.uk>
-Subject: Re: "serial" does not show up in /proc/interrupts
-Date: Mon, 30 Jul 2001 17:29:37 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S268055AbRG3V0j>; Mon, 30 Jul 2001 17:26:39 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:36340 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S268233AbRG3V0X>; Mon, 30 Jul 2001 17:26:23 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200107302126.f6ULQPi1032424@webber.adilger.int>
+Subject: Re: Support for serial console on legacy free machines
+To: Linux kernel development list <linux-kernel@vger.kernel.org>
+Date: Mon, 30 Jul 2001 15:26:25 -0600 (MDT)
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-From: "Thomas Hood" <jdthoodREMOVETHIS@yahoo.co.uk>
-> I am not using /dev/ttyS0 at the moment, so IRQ4 isn't listed
-> as used.  I assume that's normal.  But I do have /dev/ttyS1
+Khalid Aziz writes:
+> I am working on adding support for serial console on legacy free
+> machines. Legacy free machines are not expected to have the legacy COM
+> ports.
 
-That is normal. serial.c unregisters the irq if it's no longer
-needed.
+Has anyone considered allowing console devices to run over bi-directional
+parallel ports?  I imagine most of the required code is in PLIP and serial,
+which unfortunately I know nothing about.
 
-> open; it uses IRQ3.  But note that the name of the serial
-> driver is not printed in the list.  Why not?
->
->   3:       1979          XT-PIC
+Several newer systems I have today do not have physical serial ports at all,
+but all of them (even laptops) still have bi-directional parallel ports.
 
-If you have it open, it should appear.
+I suppose there may be some difficulties in exporting a "serial-like"
+interface to the user apps (e.g. minicom and such), but maybe not.
 
-> Fishy!
-
-Indeed.
-
-..Stu
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbUCPNsu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 08:48:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUCPNsu
+	id S261682AbUCPNsa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 08:48:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUCPNsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 08:48:50 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:6533 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261674AbUCPNsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 08:48:47 -0500
-Date: Tue, 16 Mar 2004 13:46:13 +0000
-From: Dave Jones <davej@redhat.com>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       jgarzik@pobox.com
-Subject: Re: [3C509] Fix sysfs leak.
-Message-ID: <20040316134613.GA15600@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Marc Zyngier <mzyngier@freesurf.fr>, linux-kernel@vger.kernel.org,
-	torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com
-References: <200403152147.i2FLl09s002942@delerium.codemonkey.org.uk> <wrpad2hf4be.fsf@panther.wild-wind.fr.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <wrpad2hf4be.fsf@panther.wild-wind.fr.eu.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 16 Mar 2004 08:48:30 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:59092 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261682AbUCPNs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 08:48:27 -0500
+Date: Tue, 16 Mar 2004 14:47:58 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: Arthur Corliss <corliss@digitalmages.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix HZ leaking to userspace in BSD accounting
+Message-ID: <Pine.LNX.4.53.0403161414150.19052@gockel.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 11:56:37AM +0100, Marc Zyngier wrote:
- > >>>>> "davej" == davej  <davej@redhat.com> writes:
- > 
- > davej>  #ifdef CONFIG_EISA
- > davej> -	if (eisa_driver_register (&el3_eisa_driver) < 0) {
- > davej> +	if (eisa_driver_register (&el3_eisa_driver) <= 0) {
- > davej>  		eisa_driver_unregister (&el3_eisa_driver);
- > davej>  	}
- > davej>  #endif
- > 
- > This is bogus. eisa_driver_register returns 0 when it *succeeds*.
+BSD accounting was missed in the conversion from HZ to USER_HZ.
+I thought nobody cared, but apparently there are still users to it.
 
-Then the probing routine is bogus, it returns 0 when it fails too.
+A larger patch with binary compatible 32 uid/gid support etc. is currently
+cooking, but we want to fix this as soon as possible, before distris
+pick up 2.6.
 
-		Dave
+Thanks,
+Tim
 
+
+--- linux-2.6.5-rc1/kernel/acct.c	2004-03-11 10:33:04.000000000 +0100
++++ linux-2.6.5-rc1-acct/kernel/acct.c	2004-03-16 13:48:13.000000000 +0100
+@@ -52,6 +52,7 @@
+ #include <linux/security.h>
+ #include <linux/vfs.h>
+ #include <linux/jiffies.h>
++#include <linux/times.h>
+ #include <asm/uaccess.h>
+ #include <asm/div64.h>
+ #include <linux/blkdev.h> /* sector_div */
+@@ -336,13 +337,13 @@ static void do_acct_process(long exitcod
+ 
+ 	strlcpy(ac.ac_comm, current->comm, sizeof(ac.ac_comm));
+ 
+-	elapsed = get_jiffies_64() - current->start_time;
++	elapsed = jiffies_64_to_clock_t(get_jiffies_64() - current->start_time);
+ 	ac.ac_etime = encode_comp_t(elapsed < (unsigned long) -1l ?
+ 	                       (unsigned long) elapsed : (unsigned long) -1l);
+-	do_div(elapsed, HZ);
++	do_div(elapsed, USER_HZ);
+ 	ac.ac_btime = xtime.tv_sec - elapsed;
+-	ac.ac_utime = encode_comp_t(current->utime);
+-	ac.ac_stime = encode_comp_t(current->stime);
++	ac.ac_utime = encode_comp_t(jiffies_to_clock_t(current->utime));
++	ac.ac_stime = encode_comp_t(jiffies_to_clock_t(current->stime));
+ 	/* we really need to bite the bullet and change layout */
+ 	ac.ac_uid = current->uid;
+ 	ac.ac_gid = current->gid;

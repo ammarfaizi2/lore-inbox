@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293416AbSCARWB>; Fri, 1 Mar 2002 12:22:01 -0500
+	id <S293441AbSCARYL>; Fri, 1 Mar 2002 12:24:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293423AbSCARVv>; Fri, 1 Mar 2002 12:21:51 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63751 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293416AbSCARVh>; Fri, 1 Mar 2002 12:21:37 -0500
-Subject: Re: Multiple kernels OOPS at boot on Fujitsu pt510 ( AMD DX100 CPU ) - ksymoops output attached
-To: mallum@xblox.net (Matthew Allum)
-Date: Fri, 1 Mar 2002 17:36:32 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C7F93B6.904@xblox.net> from "Matthew Allum" at Mar 01, 2002 02:44:06 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293439AbSCARYB>; Fri, 1 Mar 2002 12:24:01 -0500
+Received: from AMontpellier-201-1-1-61.abo.wanadoo.fr ([193.252.31.61]:47620
+	"EHLO awak") by vger.kernel.org with ESMTP id <S293423AbSCARXv>;
+	Fri, 1 Mar 2002 12:23:51 -0500
+Subject: [2.4.19-pre1-ac1] usbnet frames mangled
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16gqxM-0004LV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 01 Mar 2002 18:23:48 +0100
+Message-Id: <1015003428.2274.5.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Id really appreciate some help on this matter. Theres plenty of these 
-> 510's on ebay at the moment going very cheapy ( 100$) and they'd make 
-> nice wireless 'web pads'.
+Hi,
 
-I have a somewhat older beast (Fujitsu Stylistic 1000) which is somewhat
-older and a little lower spec that I've been playing with a fair bit getting
-Xfce + scribble etc running on with no problem.
+using an ipaq running 2.4.17-rmk5-hh5 as "usb client" (usbnet
+connection), I got lots frames mangled (about 95%). For example, a
+typical ping request:
 
-Generally when you get a crash very early you want to check
-	-CPU type the kernel was built with - your oops isnt an illegal
-	 instruction so thats not it
-	-Disabling APM support
-	-Disabling PnpBIOS support (-ac tree only)
-	-Using mem=fooM where foo is a bit under what is fitted in case
-	 the box lies about memory availability
+0000  48 3f 05 1f 43 9a c6 33  f5 8f d9 b3 08 00 45 00   H?..C..3 ......E.
+0010  00 54 00 00 40 00 40 01  36 a5 01 01 01 01 01 01   .T..@.@. 6.......
+0020  01 02 08 00 86 99 df 00  05 00 b5 bd 7f 3c 65 68   ........ .....<eh
+0030  08 00 08 09 0a 0b 0c 0d  0e 0f 10 11 12 13 14 15   ........ ........
+0040  16 17 18 19 1a 1b 1c 1d  1e 1f 20 21 22 23 24 25   ........ .. !"#$%
+0050  26 27 28 29 2a 2b 2c 2d  2e 2f 30 31 32 33 34 35   &'()*+,- ./012345
+0060  36 37                                              67               
 
-That generally gets successes. You might also want to do a test boot 
-with mem=6M in case the machine has something funky like a 15-16Mb Vesa
-local bus magic hole in the address map.
+is often received as:
 
-Definitely looks a fun toy
+0000  16 17 18 19 1a 1b 1c 1d  1e 1f 20 21 22 23 24 25   ........ .. !"#$%
+0010  26 27 28 29 2a 2b 2c 2d  2e 2f 30 31 32 33 34 35   &'()*+,- ./012345
+0020  36 37                                              67               
+
+which of course doesn't mean anything. I saw this behavior since I
+upgraded my desktop from 2.4.18-ac2 to 2.4.19-pre1-ac1
+

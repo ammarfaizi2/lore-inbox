@@ -1,171 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbUBNQuv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 11:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBNQuv
+	id S262360AbUBNQyu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 11:54:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUBNQyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 11:50:51 -0500
-Received: from verein.lst.de ([212.34.189.10]:26842 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S262355AbUBNQuq (ORCPT
+	Sat, 14 Feb 2004 11:54:50 -0500
+Received: from mail.kroah.org ([65.200.24.183]:52187 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262360AbUBNQyq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 11:50:46 -0500
-Date: Sat, 14 Feb 2004 17:50:37 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@osdl.org, jsimmons@infradead.org
+	Sat, 14 Feb 2004 11:54:46 -0500
+Date: Sat, 14 Feb 2004 08:54:44 -0800
+From: Greg KH <greg@kroah.com>
+To: Mike Bell <kernel@mikebell.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] back out fbdev sysfs support
-Message-ID: <20040214165037.GA15985@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, torvalds@osdl.org,
-	jsimmons@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: devfs vs udev, thoughts from a devfs user
+Message-ID: <20040214165444.GA26602@kroah.com>
+References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca> <20040210172552.GB27779@kroah.com> <20040210174603.GL4421@tinyvaio.nome.ca> <20040210181242.GH28111@kroah.com> <20040210182943.GO4421@tinyvaio.nome.ca> <20040213211920.GH14048@kroah.com> <20040214085110.GG5649@tinyvaio.nome.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -3.849 () BAYES_00,DOMAIN_BODY
+In-Reply-To: <20040214085110.GG5649@tinyvaio.nome.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Sat, Feb 14, 2004 at 12:51:11AM -0800, Mike Bell wrote:
+> On Fri, Feb 13, 2004 at 01:19:20PM -0800, Greg KH wrote:
+> > > That's a pretty minor difference, from the kernel's point of view. It's
+> > > basically putting the same numbers in different fields.
+> > 
+> > Heh, that's a HUGE difference!
+> 
+> Only from userspace's point of view. To the kernel, it's basically the
+> same thing.
 
-this patch backs out James' sysfs support for fbdev again.  It
-introduces a big, race for every driver not converted to
-framebuffer_{alloc,release} (that is every driver but Ben's new
-radeonfb).
+Woah, no this is NOT true.  If you continue to this this, then this
+discussion is going to go no where.
 
-I've left in framebuffer_{alloc,release} as stubs so drivers can be
-converted to it gradually and once all drivers are done it can be
-enabled again.
+Remember, the "dev" file in sysfs is just another attribute for the
+device.  Just like a serial number or product id.  A device node would
+be a totally different thing.  See all of the other messages from others
+about why this is true.
 
-<rant>
-James, what about pushing the 2GB worth of fbdev driver fixes in your
-tree to Linus so people actually get working fb support again instead
-of adding new holes?  A maintainers job can't be to apply patches to
-his personal CVS repository and sitting on them forever
-</rant>
+> Now keeping in mind again that I'm not advocating putting device nodes
+> into sysfs, what about a little thought experiment. Supposing you did
+> replace sysfs's major:minor text file with a real device node
+
+Stop right there and go read the archives for why we are not going to do
+this.  This has been discussed a lot.
+
+> Now, here's a question. What's wrong with taking those and splitting
+> them into a new filesystem?
+
+Because then you have devfs, which is not what we are trying to do here.
+
+It seems that you are insisting that we have to make a devfs.  Great,
+have fun, use the devfs we already have.
+
+> As I see it, part of the reason procfs
+> became such a nightmare was because people thought there could be only
+> one kernel-generated filesystem and put everything in there.
+
+Not true.  procfs got to be a mess for lots of other reasons (lack of
+control, no other options, etc...)
+
+> Linux
+> is moving a lot of the silly magic values out of proc and into sysfs
+> where they make more sense. Great! But what about stuff that doesn't
+> really fit into sysfs as it is right now? Should we take sysfs's clean
+> interface and extend it with special cases until it's the ugly mess proc
+> is?
+
+No, and I'm not advocating that at all, and never have.  That's not the
+point here.
+
+> Or leave everything that doesn't fit cleanly into sysfs in proc,
+> making proc a sort of special-cases wasteland?
+
+No, go make your own fs if that's what is needed.  See the IBM service
+processor driver filesystem for an example of something like this.
+
+> Alternativly, why not say that there doesn't need to be just one or two
+> kernel-exported filesystems, and instead make a sort of library for
+> exporting kernel information via fake filesystems (I can't remember, has
+> this already been done?)
+
+already been done, see the libfs code.  I don't understand what this has
+to do with udev though....
+
+> I'm not a kernel hacker
+
+Stop.  Go read http://ometer.com/hacking.com  Especially pay attention to
+the section "Back-seat coders are bad."  I specifically like the lines:
+
+	If you don't know how to code, then you don't know how to design
+	the software either. Period.  You can only cause trouble.
 
 
---- 1.82/drivers/video/fbmem.c	Thu Feb 12 18:14:53 2004
-+++ edited/drivers/video/fbmem.c	Fri Feb 13 06:00:42 2004
-@@ -1228,9 +1228,6 @@
- 			break;
- 	fb_info->node = i;
- 	
--	if (fb_add_class_device(fb_info))
--		return -EINVAL;
--	
- 	if (fb_info->pixmap.addr == NULL) {
- 		fb_info->pixmap.addr = kmalloc(FBPIXMAPSIZE, GFP_KERNEL);
- 		if (fb_info->pixmap.addr) {
-@@ -1279,7 +1276,6 @@
- 		kfree(fb_info->pixmap.addr);
- 	registered_fb[i]=NULL;
- 	num_registered_fb--;
--	class_device_del(&fb_info->class_dev);
- 	return 0;
- }
- 
-@@ -1307,8 +1303,6 @@
- 	if (register_chrdev(FB_MAJOR,"fb",&fb_fops))
- 		printk("unable to get major %d for fb devs\n", FB_MAJOR);
- 
--	class_register(&fb_class);
--	
- #ifdef CONFIG_FB_OF
- 	if (ofonly) {
- 		offb_init();
---- 1.1/drivers/video/fbsysfs.c	Fri Feb  6 12:14:39 2004
-+++ edited/drivers/video/fbsysfs.c	Fri Feb 13 08:04:18 2004
-@@ -9,50 +9,15 @@
-  *	2 of the License, or (at your option) any later version.
-  */
- 
--#include <linux/config.h>
-+/*
-+ * Note:  currently there's only stubs for framebuffer_alloc and
-+ * framebuffer_release here.  The reson for that is that until all drivers
-+ * are converted to use it a sysfsification will open OOPSable races.
-+ */
-+
- #include <linux/kernel.h>
- #include <linux/fb.h>
- 
--#define to_fb_info(class) container_of(class, struct fb_info, class_dev)
--
--static void release_fb_info(struct class_device *class_dev)
--{
--	struct fb_info *info = to_fb_info(class_dev);
--
--	/* This doesn't harm */
--	fb_dealloc_cmap(&info->cmap);
--
--	kfree(info);
--}
--
--struct class fb_class = {
--	.name 		= "graphics",
--	.release 	= &release_fb_info,
--};
--
--static ssize_t show_dev(struct class_device *class_dev, char *buf)
--{
--	struct fb_info *info = to_fb_info(class_dev);
--
--	return sprintf(buf, "%u:%u\n", FB_MAJOR, info->node);
--}
--
--static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
--
--int fb_add_class_device(struct fb_info *info)
--{
--	int retval;
--
--	info->class_dev.class = &fb_class;
--	snprintf(info->class_dev.class_id, BUS_ID_SIZE, "fb%d",
--		 info->node);
--	retval = class_device_register(&info->class_dev);
--	if (retval)
--		return retval;
--	return class_device_create_file(&info->class_dev,
--					&class_device_attr_dev);
--}
--
- /**
-  * framebuffer_alloc - creates a new frame buffer info structure
-  *
-@@ -82,7 +47,6 @@
- 		return NULL;
- 	memset(p, 0, fb_info_size + size);
- 	info = (struct fb_info *) p;
--	info->class_dev.dev = dev;
- 
- 	if (size)
- 		info->par = p + fb_info_size;
-@@ -103,7 +67,7 @@
-  */
- void framebuffer_release(struct fb_info *info)
- {
--	class_device_put(&info->class_dev);
-+	kfree(info);
- }
- 
- EXPORT_SYMBOL(framebuffer_release);
---- 1.57/include/linux/fb.h	Fri Feb 13 16:19:26 2004
-+++ edited/include/linux/fb.h	Fri Feb 13 08:04:27 2004
-@@ -448,7 +448,6 @@
- 	char *screen_base;		/* Virtual address */
- 	struct vc_data *display_fg;	/* Console visible on this display */
- 	int currcon;			/* Current VC. */
--	struct class_device class_dev;	/* Sysfs data */	
- 	void *pseudo_palette;		/* Fake palette of 16 colors */ 
- 	/* From here on everything is device dependent */
- 	void *par;	
-@@ -533,9 +532,6 @@
- /* drivers/video/fbsysfs.c */
- extern struct fb_info *framebuffer_alloc(size_t size, struct device *dev);
- extern void framebuffer_release(struct fb_info *info);
--extern int fb_add_class_device(struct fb_info *info);
--
--extern struct class fb_class;
- 
- /* drivers/video/fbmon.c */
- #define FB_MAXTIMINGS       0
+So my main point is, I don't know what you are arguing anymore.  If you
+don't like udev, and for some reason think that devfs and devfsd can
+provide you a stable, secure, and PERSISTENT device naming system, then
+fine, go use devfs.
+
+The rest of us will be over here using udev.
+
+(Remember you still haven't told me how you are going to name your scsi
+disk and USB printer in a persistent manner no matter how they are
+discovered using devfsd.)
+
+> How do you figure that's free? hotplug's a great feature, nothing
+> against it, but as far as I know the vast majority of installations
+> aren't making use of it right now.
+
+Hint, I don't know of ANY distro that does not enable CONFIG_HOTPLUG
+that is not a embedded distro.  That's why I call it "free".  It has so
+many other benefits that people can no longer turn it off and expect
+their systems to work "nicely".
+
+In conclusion, if you have any problems with udev, how it works, how it
+is configured, etc., I'm very glad to hear them and help you through it.
+But if you just want to complain about how we all should be using devfs
+and devfsd instead of sysfs and udev, you are going to get no where with
+me.
+
+thanks,
+
+greg k-h

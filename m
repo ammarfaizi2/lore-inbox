@@ -1,29 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280893AbRKCAOn>; Fri, 2 Nov 2001 19:14:43 -0500
+	id <S280895AbRKCAhD>; Fri, 2 Nov 2001 19:37:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280894AbRKCAOd>; Fri, 2 Nov 2001 19:14:33 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58122 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280893AbRKCAO0>; Fri, 2 Nov 2001 19:14:26 -0500
-Subject: Re: 2.4.12-ac3 floppy module requires 0x3f0-0x3f1 ioports
-To: maze@druid.if.uj.edu.pl (Maciej Zenczykowski)
-Date: Sat, 3 Nov 2001 00:21:22 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111030050520.19178-100000@druid.if.uj.edu.pl> from "Maciej Zenczykowski" at Nov 03, 2001 01:00:28 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15zoYs-00045t-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S280896AbRKCAgn>; Fri, 2 Nov 2001 19:36:43 -0500
+Received: from jalon.able.es ([212.97.163.2]:904 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S280895AbRKCAgk>;
+	Fri, 2 Nov 2001 19:36:40 -0500
+Date: Sat, 3 Nov 2001 01:36:32 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: ext3 for pre7 ?
+Message-ID: <20011103013632.A2427@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any reason why the floppy module requires the ioport range
-> 0x3f0-0x3f1 in order to load?  On my computer /proc/ioports reports this
-> range as used by PnPBIOS PNP0c02, thus the floppy module cannot reserve
-> the range 0x3f0-0x3f5 and refuses to load.
+Hi.
 
-This is a bug in the PnPBIOS experimental code - turn off PnPBIOS and/or
-update for the moment
+I have tried to adapt the ext3 patch for pre6 to pre7, but many things
+in the buffer and cache sections (vmscan.c and so on) have changed...
+I also saw in CVS that there have been changes to make it work on pre7. 
+But I did not guess how to make a patch from CVS.
+
+Anyone out there has it ?
+
+BTW: I see there are a bunch of chages in ext3 patch outside its own
+fs subtree (try_to_free_pages and so on). Why are not integrated in
+mainline ?
+
+TIA
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.14-pre7-beo #1 SMP Fri Nov 2 20:26:59 CET 2001 i686

@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288143AbSACCdR>; Wed, 2 Jan 2002 21:33:17 -0500
+	id <S288141AbSACCer>; Wed, 2 Jan 2002 21:34:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287956AbSACCdH>; Wed, 2 Jan 2002 21:33:07 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:46980
+	id <S287956AbSACCeh>; Wed, 2 Jan 2002 21:34:37 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:48004
 	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288143AbSACCcz>; Wed, 2 Jan 2002 21:32:55 -0500
-Date: Wed, 2 Jan 2002 21:19:23 -0500
+	id <S288141AbSACCeX>; Wed, 2 Jan 2002 21:34:23 -0500
+Date: Wed, 2 Jan 2002 21:20:56 -0500
 From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Dave Jones <davej@suse.de>
-Cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+To: Lionel Bouton <Lionel.Bouton@free.fr>
+Cc: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102211923.E21788@thyrsus.com>
+Message-ID: <20020102212056.F21788@thyrsus.com>
 Reply-To: esr@thyrsus.com
 Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
+	Lionel Bouton <Lionel.Bouton@free.fr>, Dave Jones <davej@suse.de>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>,
 	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C3398E1.4080904@free.fr> <Pine.LNX.4.33.0201030035230.5131-100000@Appserv.suse.de>
+In-Reply-To: <3C338DCC.3020707@free.fr> <Pine.LNX.4.33.0201022349200.427-100000@Appserv.suse.de> <20020102174824.A21408@thyrsus.com> <3C339681.3080100@free.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201030035230.5131-100000@Appserv.suse.de>; from davej@suse.de on Thu, Jan 03, 2002 at 12:37:53AM +0100
+In-Reply-To: <3C339681.3080100@free.fr>; from Lionel.Bouton@free.fr on Thu, Jan 03, 2002 at 12:23:45AM +0100
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@suse.de>:
-> On Thu, 3 Jan 2002, Lionel Bouton wrote:
+Lionel Bouton <Lionel.Bouton@free.fr>:
+> Eric I see your point now. But stop me if I don't get the idea behind 
+> your autoconfigurator :
+> Guessing the hardware configuration is done in order to ease the whole 
+> configuration process. After polishing the configuration - no need for 
+> root priviledge - the user start the build process that doesn't need 
+> root priviledge either.
+> But when the user gets the resulting kernel how does (s)he avoid suing 
+> to root in order to *install* it and its modules ?
+> I'm not familiar with people configuring and compiling kernels for 
+> pleasure. They usually want to boot it...
 > 
-> > > If /proc/dmi were to go in soon, at least I *could* rely on it in 2.6.
-> > If in rc.sysinit a call to "dmidecode > /var/run/dmi" were to go in the
-> > user space 2.6 kernel build dependancies in Documentation/Changes,
-> > you'll be on the same level.
-> 
-> Could even be done as part of Al's early-userspace, thus removing the
-> reliance upon vendors to do it.  Does imply that you're building 2.6 on a
-> 2.6 enabled distro though.
+> Your whole point here is not to avoid several su instead of 1?
 
-Tell me more.  This begins to sound potentially interesting -- I can
-certainly live with knowing the state of the DMI tables as of the time
-of last boot, as long as it's in a fixed location that the
-autoconfigurator can count on.
+That's actually *precisely* the point.  The user should not have to 
+go root for anything before the `make install' point.
 -- 
 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Gun Control: The theory that a woman found dead in an alley, raped and
-strangled with her panty hose, is somehow morally superior to a
-woman explaining to police how her attacker got that fatal bullet wound.
-	-- L. Neil Smith
+The whole of the Bill [of Rights] is a declaration of the right of the
+people at large or considered as individuals...  It establishes some
+rights of the individual as unalienable and which consequently, no
+majority has a right to deprive them of.
+         -- Albert Gallatin, Oct 7 1789

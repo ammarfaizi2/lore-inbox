@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276630AbRI2VUv>; Sat, 29 Sep 2001 17:20:51 -0400
+	id <S276627AbRI2VPc>; Sat, 29 Sep 2001 17:15:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276633AbRI2VUl>; Sat, 29 Sep 2001 17:20:41 -0400
-Received: from www.fagotten.org ([212.73.164.10]:26628 "EHLO
-	joxer.fagotten.org") by vger.kernel.org with ESMTP
-	id <S276630AbRI2VUX>; Sat, 29 Sep 2001 17:20:23 -0400
-Message-ID: <3BB63B20.4E69B51D@fagotten.org>
-Date: Sat, 29 Sep 2001 23:20:32 +0200
-From: Daniel Elvin <daniel.elvin@fagotten.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.17-ide i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: AST P/75 causes Machine Check Exception type 0x9 on v2.4.10
-In-Reply-To: <E15nOrR-0002d1-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S276625AbRI2VPW>; Sat, 29 Sep 2001 17:15:22 -0400
+Received: from h183n3fls22o974.telia.com ([213.64.105.183]:65157 "EHLO
+	milou.dyndns.org") by vger.kernel.org with ESMTP id <S276627AbRI2VPC> convert rfc822-to-8bit;
+	Sat, 29 Sep 2001 17:15:02 -0400
+Message-Id: <200109292115.f8TLFMm29146@milou.dyndns.org>
+X-Mailer: exmh version 2.5_20010923 01/15/2001 with nmh-1.0.4
+To: Andre Hedrick <andre@aslab.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC (patch below) Re: ide drive problem? 
+In-Reply-To: Message from Andre Hedrick <andre@aslab.com> 
+   of "Sat, 29 Sep 2001 13:26:43 PDT." <Pine.LNX.4.31.0109291325410.7545-100000@postbox.aslab.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Sat, 29 Sep 2001 23:15:22 +0200
+From: Anders Eriksson <ander@milou.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Booting an AST Bravo P/75 with kernel v2.4.10 results in a "CPU#0
-> > Machine Check Exception: 0x10C938 (type: 0x9)".
-> 
-> Please try 2.4.9ac17 - it should be fixed in the -ac tree, and if so I can
-> push it on to Linus
 
-That solved the problem. Thanks!
+On boot my bios reports the disks as "S.M.A.R.T. Capable but 
+disabled". Any pointer to where I can read up on this? (the bios 
+settings gives nothing).
 
-/Daniel
+/Anders
+
+
+>>>>> On Sat, 29 Sep 2001, "Andre" == Andre Hedrick wrote:
+
+  Andre> Sorry ABORTED commands are reported ad valid errors.  The
+  Andre> case of SMART errors is that SMART may not be enabled in the
+  Andre> device.
+
+
+
+

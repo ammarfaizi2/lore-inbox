@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278108AbRJRUCW>; Thu, 18 Oct 2001 16:02:22 -0400
+	id <S278113AbRJRUEW>; Thu, 18 Oct 2001 16:04:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278113AbRJRUCM>; Thu, 18 Oct 2001 16:02:12 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:12160 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S278108AbRJRUCC>; Thu, 18 Oct 2001 16:02:02 -0400
-Date: Thu, 18 Oct 2001 16:02:30 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: kuznet@ms2.inr.ac.ru
-cc: Christopher Friesen <cfriesen@nortelnetworks.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: how to see manually specified proxy arp entries using "ip neigh"
-In-Reply-To: <200110181925.XAA04814@ms2.inr.ac.ru>
-Message-ID: <Pine.LNX.3.95.1011018155423.4619A-100000@chaos.analogic.com>
+	id <S278114AbRJRUEN>; Thu, 18 Oct 2001 16:04:13 -0400
+Received: from marty.infinity.powertie.org ([63.105.29.14]:519 "HELO
+	marty.infinity.powertie.org") by vger.kernel.org with SMTP
+	id <S278113AbRJRUEE>; Thu, 18 Oct 2001 16:04:04 -0400
+Date: Thu, 18 Oct 2001 12:49:01 -0700 (PDT)
+From: Patrick Mochel <mochelp@infinity.powertie.org>
+To: Jonathan Lundell <jlundell@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] New Driver Model for 2.5
+In-Reply-To: <p05100309b7f4cd5976f7@[10.128.7.49]>
+Message-ID: <Pine.LNX.4.21.0110181237360.17191-100000@marty.infinity.powertie.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001 kuznet@ms2.inr.ac.ru wrote:
 
-> Hello!
-> 
-> > I (and others) have asked this a couple times here and on the netdev list, and
-> > so far nobody has answered it (not even negatively).
-> 
-> :-) And me answered to this hundred of times: "no way". :-)
-> 
-> Ability to add/delete them with "ip neigh" will be removed in the next
-> snapshot as well. The feature is obsolete.
-> 
-> Alexey
-> -
+> The "state of all the devices in the system". Presumably, while you 
+> walk the tree the first time (to save state) interrupts are enabled, 
+> and devices are active. Operations (including interrupts) on the 
+> device can, presumably, change the state of the device after its 
+> state has been saved.
 
-I need the ability to delete an arp cache entry using `arp -d ...`.
-Is this being removed? If so, I can't test embedded systems that
-all come alive with a phony IEEE station address. Software normally
-re-programs the SEEPROM with a real IEEE station address from a
-data-base, over the network. The target is then restarted to
-enable the new IEEE station address, and the server has the old
-one deleted from its arp cache. Failure to delete the arp cache
-entry results in a failure to connect, or a timeout of 5 minutes
-for the arp cache entry to expire. Either one can't be acceptible
-in automated testing.
+Ya, I'm an idiot sometimes. I relized this just as I was leaving for
+lunch. I almost turned around to come back and answer..
 
-Cheers,
-Dick Johnson
+This is what I had in mind; If someone could give me a thumbs-up or
+thumbs-down on whether or not this would work:
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+When the driver gets a save_state request, that is its notification that
+it is going to sleep. It should then stop/finish all I/O requests. It
+should then prevent itself from taking any more - by setting a flag or
+whatever. Then, device save state. 
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+>From that point in, it should know not to take any requests, theoretically
+preserving state. 
+
+When it gets the restore_state() call, it should first restore device
+state. Once it does that, it knows that it can take I/O requests again. 
+
+That should work, right?
+
+The only thing that that won't work for is the device to which we're
+saving state, like the disk. At some point, though we have to accept that
+the state that we saved was some checkpoint in the past, and it won't
+reflect the state that changed in the process of writing the system state.
+
+	-pat
+
 
 

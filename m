@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266535AbUFQPoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266545AbUFQPoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266535AbUFQPoA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 11:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266537AbUFQPoA
+	id S266545AbUFQPoe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 11:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266546AbUFQPod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 11:44:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51087 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266535AbUFQPn6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 11:43:58 -0400
-Date: Thu, 17 Jun 2004 08:41:32 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: bmarsh@bmarsh.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Use of Moxa serial card with SMP kernels
-Message-Id: <20040617084132.510d0bcb.rddunlap@osdl.org>
-In-Reply-To: <200406171112.39485.bmarsh@bmarsh.com>
-References: <200406171112.39485.bmarsh@bmarsh.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Jun 2004 11:44:33 -0400
+Received: from sanosuke.troilus.org ([66.92.173.88]:65167 "EHLO
+	sanosuke.troilus.org") by vger.kernel.org with ESMTP
+	id S266545AbUFQPoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 11:44:30 -0400
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: hch@lst.de, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: more files with licenses that aren't GPL-compatible
+References: <200406180629.i5I6Ttn04674@freya.yggdrasil.com>
+From: Michael Poole <mdpoole@troilus.org>
+Date: Thu, 17 Jun 2004 11:44:29 -0400
+In-Reply-To: <200406180629.i5I6Ttn04674@freya.yggdrasil.com> (Adam J.
+ Richter's message of "Thu, 17 Jun 2004 23:29:55 -0700")
+Message-ID: <87n032xk82.fsf@sanosuke.troilus.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jun 2004 11:12:39 -0400 Bruce Marshall wrote:
+Adam J. Richter writes:
 
-| Moxa serial card option not available when requesting an SMP kernel  (2.6.7)
-| 
-| I was told back when 2.6.4 was new that the selection of a Moxa serial card 
-| was not possible if an SMP kernel was selected.  I used the work-around of 
-| not using an SMP kernel.
-| 
-| My question:   Is this a permanent problem which will never be fixed or a 
-| temporary situation?
+> 	I believe that distribution of Linux kernel binaries that
+> compile in this firmware is direct copyright infringment, and
+> that distribution of Linux kernel modules that compile in
+> this firmware is contributory copyright infringement (to the direct
+> infringmenet that occurs when the image is created in RAM, and
+> there are US court cases that say that copying into RAM is copying
+> for the purposes of copyright).
+>
+> 	The United States Copyright Office has issued a copyright
+> registration to Yggdrasil Computing for some software in the Linux
+> USB serial drivers.  Yggdrasil Computing has never given permission
+> for distribution of GPL-incompatible firmware with that software.
 
-It's permanent until someone takes the time and trouble to fix it.
+The first "official" version of Linux that included USB serial code
+that mentioned you (Adam Richter and/or Yggdrasil) was 2.4.  That same
+version included the same binary firmware you complained about in
+2001, and the changelog in usbserial.c makes it clear that *at least*
+the WhiteHEAT firmware was already present when you contributed your
+code.
 
-Both Moxa serial drivers (moxa & mxser) are BROKEN_ON_SMP because
-they use cli() to disable interrupts for critical sections.
-See Documentation/cli-sti-removal.txt for details.
-They will need some acceptable modern form of protection there,
+Would you explain why your claim of copyright infringement is not
+estopped by the pre-existing condition of firmware being present?
 
-Is anyone working on this?  not that I've heard of.
-Have you tried this email address:
-Copyright (C) 1999-2000  Moxa Technologies (support@moxa.com.tw).
-
-Is anyone out there motivated to fix this?  This is Bruce's real
-question, I believe.
-
---
-~Randy
+Michael Poole

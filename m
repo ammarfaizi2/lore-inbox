@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272489AbRIKPsy>; Tue, 11 Sep 2001 11:48:54 -0400
+	id <S272493AbRIKPzO>; Tue, 11 Sep 2001 11:55:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272493AbRIKPso>; Tue, 11 Sep 2001 11:48:44 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27654 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S272489AbRIKPsi>; Tue, 11 Sep 2001 11:48:38 -0400
-Date: Tue, 11 Sep 2001 08:48:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Andreas Dilger <adilger@turbolabs.com>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.10-pre5
-In-Reply-To: <20010911153729Z16241-1367+14@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33.0109110843010.8078-100000@penguin.transmeta.com>
+	id <S272507AbRIKPzF>; Tue, 11 Sep 2001 11:55:05 -0400
+Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:34945 "EHLO
+	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S272493AbRIKPyt>; Tue, 11 Sep 2001 11:54:49 -0400
+Subject: Re: Kernel stack....
+To: Emmanuel Varagnat-AEV010 <Emmanuel_Varagnat-AEV010@email.mot.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF320808EF.12D7A841-ON80256AC4.005690AE@portsmouth.uk.ibm.com>
+From: "Richard J Moore" <richardj_moore@uk.ibm.com>
+Date: Tue, 11 Sep 2001 16:53:49 +0100
+X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 11/09/2001 16:54:51
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 11 Sep 2001, Daniel Phillips wrote:
+If you have an interrupt stack, and that's not strictly necessary in OS
+design, then you either need one per processor or to handle interrupts on
+only one processor. If you use the task time kernel stack, which under IA32
+you will do as soon as the CPU processes the interrupt gate for that IRQ,
+then the interrupt stack frame wil appear on the task time stack. Things in
+theory can continue this was. Eventually the stack will unwind with the
+interrupt frame being finally removed with an IRET. No it is possible to
+switch to a separate stack but that has to be engineered by the system
+interrupt handler. I don't recall whether Linux does this. If it does
+you'll see it happening in the /arch code for interrupt handling.
+
+Richard Moore -  RAS Project Lead - Linux Technology Centre (ATS-PIC).
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
+
+
+                                                                                                                                   
+                    Emmanuel Varagnat                                                                                              
+                    <Emmanuel_Varagnat-AEV010@emai       To:     Richard J Moore/UK/IBM@IBMGB                                      
+                    l.mot.com>                           cc:                                                                       
+                                                         Subject:     Re: Kernel stack....                                         
+                    11/09/2001 16:26                                                                                               
+                    Please respond to Emmanuel                                                                                     
+                    Varagnat-AEV010                                                                                                
+                                                                                                                                   
+                                                                                                                                   
+
+
+
+
+Richard J Moore wrote:
 >
-> But see my post in this thread where I created a simple test to show that,
-> even when we pre-read *all* the inodes in a directory, there is no great
-> performance win.
+> Emmanuel Varagnat wrote:
+>
+> >Yes but there is one stack per processor ?
+>
+> One per process.
 
-Note that I suspect that because the inode tree _is_ fairly dense, you
-don't actually need to do much read-ahead in most cases. Simply because
-you automatically do read-ahead _always_: when somebody reads a 128-byte
-inode, you (whether you like it or not) always "read-ahead" the 31 inodes
-around it on a 4kB filesystem.
+Yes I know, but inside the kernel when an IRQ is handled
+the kernel use its own stack. But if there is many processors
+many IRQ handler are supposed "turn". And if they share the
+same stack, data are melted.
 
-So we _already_ do read-ahead by a "factor of 31". Whether we can improve
-that or not by increasing it to 63 inodes, who knows?
+Thanks for your answer.
 
-I actually think that the "start read-ahead for inode blocks when you do
-readdir" might be a bigger win, because that would be a _new_ kind of
-read-ahead that we haven't done before, and might improve performance for
-things like "ls -l" in the cold-cache situation..
+-Manu
 
-(Although again, because the inode is relatively small to the IO cache
-size, it's probably fairly _hard_ to get a fully cold-cache inode case. So
-I'm not sure even that kind of read-ahead would actually make any
-difference at all).
 
-		Linus
+
 

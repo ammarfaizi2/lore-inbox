@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbUDZQCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbUDZQGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbUDZQCz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 12:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUDZQCi
+	id S262874AbUDZQGG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 12:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUDZQD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 12:02:38 -0400
-Received: from mesa.unizar.es ([155.210.11.66]:37551 "EHLO relay.unizar.es")
-	by vger.kernel.org with ESMTP id S262802AbUDZQBd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 12:01:33 -0400
-Date: Mon, 26 Apr 2004 18:01:28 +0200
-From: Jorge Bernal <koke@sindominio.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 8139too not working in 2.6
-Message-ID: <20040426160128.GA28649@amedias.org>
-References: <opr62ahdvlpsnffn@mail.mcaserta.com> <200404261405.20078.koke_lkml@amedias.org> <200404261313.37870.dj@david-web.co.uk>
+	Mon, 26 Apr 2004 12:03:58 -0400
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:30128 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S263032AbUDZQDP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 12:03:15 -0400
+Subject: Re: [PATCH-2.6.6-rc2-bk] NTFS 2.1.7 release: Implement NFS
+	exporting
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <408D31DC.6040708@tmr.com>
+References: <Pine.SOL.4.58.0404232055210.15465@orange.csi.cam.ac.uk>
+	 <408D31DC.6040708@tmr.com>
+Content-Type: text/plain
+Organization: University of Cambridge Computing Service
+Message-Id: <1082995293.5754.8.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200404261313.37870.dj@david-web.co.uk>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 26 Apr 2004 17:01:33 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 26, 2004 at 01:13:37PM +0100, David Johnson wrote:
-> On Monday 26 Apr 2004 13:05, Jorge Bernal (Koke) wrote:
-> >
-> > I have tried with 2.6.5 and now with 2.6.6-rc2-mm1 and works perfectly.
-> > This message is going through that card ;)
+On Mon, 2004-04-26 at 16:59, Bill Davidsen wrote:
+> Anton Altaparmakov wrote:
+> > Linus, please do a
+> > 
+> > 	bk pull http://linux-ntfs.bkbits.net/ntfs-2.6
+> > 
+> > Thanks!  This update implements NFS exporting of mounted NTFS volumes
+> > which people have been requesting for a while.  Also, there are some minor
+> > updates and white space cleanups.  This has been tested including forcing
+> > a server reboot while clients have open files on an NTFS volume NFS
+> > exported by the server.
 > 
-> Do you mean that both 2.6.5 and 2.6.6-rc2-mm1 worked or that only 
-> 2.6.6-rc2-mm1 worked and 2.6.5 didn't?
-> 
+> Sounds like tha answer to the maiden's prayer. And if it will allow both 
+>   NFS and SMB access to the same data, I know some people who will find 
+> it most useful.
 
-Both worked and I can't remember exactly but think that 2.6.3 (or .4)
-also worked.
+It certainly should allow both NFS and SMB access to the same data.  At
+least I don't see any reason why it shouldn't work...
 
+But keep in mind that whilst the ntfs driver can read everything (except
+encrypted files) at present it can only overwrite existing files without
+changes in file size...
+
+Best regards,
+
+	Anton
 -- 
-"Sólo el éxito diferencia al genio del loco"
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ &
+http://www-stu.christs.cam.ac.uk/~aia21/
 
-Blog: http://www.amedias.org/koke
-Web Personal: http://sindominio.net/~koke/
-JID: koke@zgzjabber.ath.cx
+

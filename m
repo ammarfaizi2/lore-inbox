@@ -1,73 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264300AbTLESou (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264325AbTLESny
+	id S264331AbTLESth (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTLESsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:43:54 -0500
-Received: from mail.scitechsoft.com ([63.195.13.67]:1006 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S264320AbTLESmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 13:42:50 -0500
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Linus Torvalds <torvalds@osdl.org>
-Date: Fri, 05 Dec 2003 10:44:02 -0800
+	Fri, 5 Dec 2003 13:48:21 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9405 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264289AbTLESrj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 13:47:39 -0500
+Message-ID: <3FD0D2B7.2050403@pobox.com>
+Date: Fri, 05 Dec 2003 13:47:19 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: RE: Linux GPL and binary module exception clause? 
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3FD06172.28193.4801EF18@localhost>
-References: <MDEHLPKNGKAHNMBLJOLKMEIDIHAA.davids@webmaster.com>
-In-reply-to: <Pine.LNX.4.58.0312042245350.9125@home.osdl.org>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: Linus Torvalds <torvalds@osdl.org>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] libata fixes
+References: <20031205181643.GA6877@gtf.org> <Pine.LNX.4.58.0312051041000.9125@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312051041000.9125@home.osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------040409010709090900050206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
+This is a multi-part message in MIME format.
+--------------040409010709090900050206
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> So you can run the kernel and create non-GPL'd programs while running it
-> to your hearts content. You can use it to control a nuclear submarine, and
-> that's totally outside the scope of the license (but if you do, please
-> note that the license does not imply any kind of warranty or similar).
+Linus Torvalds wrote:
 > 
-> BUT YOU CAN NOT USE THE KERNEL HEADER FILES TO CREATE NON-GPL'D BINARIES.
+> On Fri, 5 Dec 2003, Jeff Garzik wrote:
 > 
-> Comprende?
+>>Linus, please do a
+>>
+>>	bk pull bk://gkernel.bkbits.net/libata-2.5
+>>
+>>This will update the following files:
+>>
+>> drivers/scsi/libata-core.c  |   17 ++---
+>> drivers/scsi/sata_promise.c |  128 +++++++++++++++++++++++++-------------------
+> 
+> 
+> Right now, I'm accepting one-liners that I think are "obvious" and also
+> "very important" (ie fixes for oopses that anybody can trigger, rather
+> than for example updates to one particular driver). So it sounds like I
+> might accept _one_ of these:
+> 
+> 
+>><jgarzik@redhat.com> (03/12/05 1.1498)
+>>   [libata] fix use-after-free
+>>
+>>   Fixes oops some were seeing on module unload.
+>>
+>>   Caught by Jon Burgess.
+> 
+> 
+> If this is basically an obvious one-liner ("move a kfree")?
+> 
+> Andrew is still off, and he can make a decision independently, but right
+> now I'm not going to apply anything bigger.
 
-Right, and by extension of the same argument you cannot use kernel 
-headers to create non-GPL'ed binaries that run IN USER SPACE! Just 
-because a program runs in user space does not mean that it is not a 
-dervived work. There is nothing special about a user mode program 
-compared to a module just because it uses Linux system calls. The same 
-principles you apply to determine whether a module is a derived work also 
-apply to user space programs, *ESPECIALLY* if you consider that the GPL 
-kernel header files contains code (inline C or assembler) that probably 
-gets linked either directly or indirectly (through the C runtime library) 
-into *EVERY* Linux user mode program. 
 
-This exact reasoning is what RedHat (aka Cygnus) has been using for years 
-with the Cygwin toolkit for Windows. Although 99% of the code built with 
-the GNU compilers and Cygwin includes the glibc runtime library that is 
-LGPL, every program *must* include the C runtime library startup code or 
-it cannot function. *That* code is pure GPL, and by extension any program 
-using the Cygwin libraries is a derived work and must be GPL. If you 
-don't like that, by a commercially licensed version of Cygwin from 
-RedHat/Cygnus instead.
+Yep, split out and attached...
 
-This is also IMHO why so few people outside of Red Hat contribute to 
-Cygwin, but that is a different issue ;-)
+	Jeff
 
-Regards,
 
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
 
-~ SciTech SNAP - The future of device driver technology! ~
+--------------040409010709090900050206
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1497  -> 1.1498 
+#	drivers/scsi/libata-core.c	1.8     -> 1.9    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/12/05	jgarzik@redhat.com	1.1498
+# [libata] fix use-after-free
+# 
+# Fixes oops some were seeing on module unload.
+# 
+# Caught by Jon Burgess.
+# --------------------------------------------
+#
+diff -Nru a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
+--- a/drivers/scsi/libata-core.c	Fri Dec  5 13:46:54 2003
++++ b/drivers/scsi/libata-core.c	Fri Dec  5 13:46:54 2003
+@@ -3224,8 +3224,6 @@
+ 		scsi_host_put(ap->host); /* FIXME: check return val */
+ 	}
+ 
+-	kfree(host_set);
+-
+ 	pci_release_regions(pdev);
+ 
+ 	for (i = 0; i < host_set->n_ports; i++) {
+@@ -3242,6 +3240,7 @@
+ 		}
+ 	}
+ 
++	kfree(host_set);
+ 	pci_disable_device(pdev);
+ 	pci_set_drvdata(pdev, NULL);
+ }
+
+--------------040409010709090900050206--
 

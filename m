@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbTEPSdo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 14:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264589AbTEPSdn
+	id S264537AbTEPSfU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 14:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTEPSfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 14:33:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21252 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264553AbTEPSdm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 14:33:42 -0400
+	Fri, 16 May 2003 14:35:20 -0400
+Received: from uldns1.unil.ch ([130.223.8.20]:5591 "EHLO uldns1.unil.ch")
+	by vger.kernel.org with ESMTP id S264537AbTEPSfS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 14:35:18 -0400
+Date: Fri, 16 May 2003 20:48:10 +0200
+From: Gregoire Favre <greg@magma.unil.ch>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [ANNOUNCE] submount: another removeable media handler
-Date: 16 May 2003 11:46:20 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ba3bls$c2p$1@cesium.transmeta.com>
-References: <200305160106.37274.eweiss@sbcglobal.net> <20030516113304.GK32559@Synopsys.COM> <200305161027.20045.eweiss@sbcglobal.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Subject: ide-floppy and 2.5 works great...
+Message-ID: <20030516184810.GA26628@magma.unil.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200305161027.20045.eweiss@sbcglobal.net>
-By author:    Eugene Weiss <eweiss@sbcglobal.net>
-In newsgroup: linux.dev.kernel
->
-> 
-> > how is it different from what automounter does?
-> 
-> Autofs works by creating a special filesystem above the vfs layer, and passing 
-> requests and data back and forth.   Submount actually does much less than 
-> this- it puts a special filesystem underneath the real one, and the only 
-> things it returns to the VFS layer are error messages.  It handles no IO 
-> operations whatsoever.
-> 
-> Peter Anvin has called using the automounter for removeable media "abuse."
-> Submount is designed for it.
-> 
+Hello,
 
-Sure, but it's not clear to me that you have listened to me saying
-*why* it is abuse.
+I hadded lots of trouble with my ide ZIP 250...
+I was using ide-scsi under pre 2.4.21-rc1-ac3, but since 2.4.21-rc1-ac3
+the ide-scsi wasn't working for my ZIP, so I tried ide-floppy, and it
+was the beginning of the same problem as under the 2.5 kernels...
 
-Basically, in my opinion removable media should be handled by insert
-and removal detection, not by access detection.  Obviously, there are
-some sticky issues with that in the case where media can be removed
-without notice (like PC floppies or other manual-eject devices), but
-overall I think that is the correct approach.
+It seems to me the problem was that I use the "raw Zip" without
+partition, which didn't trouble ide-scsi, but with ide-floppy...
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+I have made a primary partition, and now it seems to works perfectly
+well with XFS on it ;-)
+
+Is it really needed to have a partition table on a ZIP?
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

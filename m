@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267869AbTBKSWm>; Tue, 11 Feb 2003 13:22:42 -0500
+	id <S261353AbTBKSaD>; Tue, 11 Feb 2003 13:30:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267879AbTBKSWm>; Tue, 11 Feb 2003 13:22:42 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:59877 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267869AbTBKSWk>; Tue, 11 Feb 2003 13:22:40 -0500
-Subject: Can't enable dma on /dev/hda
-From: maxxle@t-online.de (maxxle)
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8-3mdk 
-Date: 11 Feb 2003 19:31:16 +0000
-Message-Id: <1044991886.3923.43.camel@sam>
+	id <S261594AbTBKSaD>; Tue, 11 Feb 2003 13:30:03 -0500
+Received: from mail5.bluewin.ch ([195.186.1.207]:39143 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S261353AbTBKSaC>;
+	Tue, 11 Feb 2003 13:30:02 -0500
+Date: Tue, 11 Feb 2003 19:39:43 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Henrik Persson <nix@socialism.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via rhine bug? (timeouts and resets)
+Message-ID: <20030211183943.GA2443@k3.hellgate.ch>
+Mail-Followup-To: Henrik Persson <nix@socialism.nu>,
+	linux-kernel@vger.kernel.org
+References: <200302111344.h1BDiMPY067070@sirius.nix.badanka.com> <20030211154449.GA2252@k3.hellgate.ch> <200302111652.h1BGq0PY067795@sirius.nix.badanka.com> <20030211171736.GA1359@k3.hellgate.ch> <200302111745.h1BHjdPY067992@sirius.nix.badanka.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302111745.h1BHjdPY067992@sirius.nix.badanka.com>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.60 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 11 Feb 2003 18:44:59 +0100, Henrik Persson wrote:
+> RL> _same_ errors my guess is you're still running the old driver. Check
+> RL> the log at debug=3.
+> 
+> Darn. The same PROBLEMS, not the same errors. Indeed, the errors are not
+> there. But the behaviour is still the same, i.e. slow speeds after a
+> while.. :/
 
-I'm running a debian 3.0 System using kernel 2.4.19 (also tried 2.4.20).
-On this system it's not possible to enable dma on /dev/hda (HDD IDE)
+No errors at all? No "Transmitter underrun" (at debug>1)? I suspect you hit
+two more bugs: If the driver resets the chip (e.g. watchdog timeout),
+chances are the chip is programmed to go half-duplex -> performance breaks
+down. No problem as long as we deal with errors properly, but the Rhine-II
+can throw an error the mainline driver doesn't notice because the interrupt
+status registers stay clean.
 
-The MoBo is a VIA Board called VIA-C3M266 (CLE266 chipset)
-Northbridge: VT8623
-Southbridge: VT8235
+Can I see a complete log (at debug=3), starting with module insertion?
+There's got to be some underrun and watchdog timeout.
 
-My kernel is compiled with this features:
-ATAPI/IDE/MFM/RLL support --> IDE, ATA and ATAPI Block devices --> 
-[*] generic PCI bus-master DMA support
-[*] Use PCI DMA by default when available  
-[*] VIA82CXXX chipset support
+> But it's not as bad as it got a few minutes ago when I tested the driver
+> from scyld.com.. It totally trashed my NIC.. A shame though, since it ran
 
-And this is what hdparm tels me:
-hdparm -d 1 /dev/hda:
+Define "trashed". How exactly did it misbehave, what did you have to do to
+get it back working? Anything interesting in the log before it breaks?
 
-/dev/hda:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- using_dma    =  0 (off)
+FWIW, it is possible to get a Rhine into a state where physically removing
+the PCI card from the computer and keeping both away from any power source
+for an hour still results in the driver hanging on boot (after putting
+everything back together, of course). I've gone through this twice so far.
+Voodoo magic.
 
-
-What can I do to force my system to run using dma on /dev/hda.
-Or is my CLE266 chipset a bit too new for being supported by 2.4.19/20?
-
-
-Hope somebody is able to help me
-
-
-maxxle
-
+Roger

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130196AbQLBUfV>; Sat, 2 Dec 2000 15:35:21 -0500
+	id <S130267AbQLBUjl>; Sat, 2 Dec 2000 15:39:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130267AbQLBUfM>; Sat, 2 Dec 2000 15:35:12 -0500
-Received: from tazenda.demon.co.uk ([158.152.220.239]:10770 "EHLO
-	tazenda.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S130196AbQLBUe6>; Sat, 2 Dec 2000 15:34:58 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999 (debian)
-To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-cc: Chris Wedgwood <cw@f00f.org>, Donald Becker <becker@scyld.com>,
-        Francois Romieu <romieu@cogenit.fr>,
-        Russell King <rmk@arm.linux.org.uk>, Ivan Passos <lists@cyclades.com>,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [RFC] Configuring synchronous interfaces in Linux 
-In-Reply-To: Message from Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com> 
-   of "Sat, 02 Dec 2000 13:07:29 CST." <Pine.LNX.3.96.1001202130202.1450B-100000@mandrakesoft.mandrakesoft.com> 
-In-Reply-To: <Pine.LNX.3.96.1001202130202.1450B-100000@mandrakesoft.mandrakesoft.com> 
+	id <S130375AbQLBUjb>; Sat, 2 Dec 2000 15:39:31 -0500
+Received: from vitelus.com ([64.81.36.147]:36619 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S130267AbQLBUjP>;
+	Sat, 2 Dec 2000 15:39:15 -0500
+Date: Sat, 2 Dec 2000 12:08:46 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Transmeta and Linux-2.4.0-test12-pre3
+Message-ID: <20001202120846.C16734@vitelus.com>
+In-Reply-To: <200012020409.UAA04058@adam.yggdrasil.com> <90a065$5ai$1@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 02 Dec 2000 20:02:00 +0000
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E142IrA-0007hG-00@kings-cross.london.uk.eu.org>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <90a065$5ai$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 01, 2000 at 09:09:25PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Does 'ifconfig eth0 media xxx' wind up calling dev->set_config?
+On Fri, Dec 01, 2000 at 09:09:25PM -0800, Linus Torvalds wrote:
+> NOTE! Getting the 2.4.x kernel up and running is the easy part.  The
+> machine also has a very recent ATI Rage Mobility chip in it, and you
+> need the newest XFree86 CVS snapshot to make it work (along with a
+> one-liner patch from me, unless that has already made it into the CVS
+> tree by now).
 
-Yes.
+It seems to just have:
 
-p.
-
+  1067. Fix ATI clock generator recognition when an adapter BIOS
+  cannot be retrieved (Linus Torvals).
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

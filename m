@@ -1,79 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269060AbUHMK1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269063AbUHMK3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269060AbUHMK1D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 06:27:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269057AbUHMK0r
+	id S269063AbUHMK3x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 06:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269059AbUHMK1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 06:26:47 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60104 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S269065AbUHMKZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 06:25:01 -0400
-Date: Fri, 13 Aug 2004 12:22:02 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.or
-Subject: [2.6 patch] CONFIG_MII requires only CONFIG_NET
-Message-ID: <20040813102202.GT13377@fs.tum.de>
+	Fri, 13 Aug 2004 06:27:38 -0400
+Received: from holomorphy.com ([207.189.100.168]:26002 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269058AbUHMKXy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 06:23:54 -0400
+Date: Fri, 13 Aug 2004 03:23:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>, Keith Owens <kaos@ocs.com.au>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
+Message-ID: <20040813102334.GD11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Keith Owens <kaos@ocs.com.au>, Linus Torvalds <torvalds@osdl.org>,
+	Pavel Machek <pavel@ucw.cz>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
+References: <23701.1092268910@ocs3.ocs.com.au> <20040812010115.GY11200@holomorphy.com> <Pine.LNX.4.58.0408112133470.2544@montezuma.fsmlabs.com> <20040812020424.GB11200@holomorphy.com> <20040812072058.GH11200@holomorphy.com> <20040813080116.GY11200@holomorphy.com> <20040813091640.GZ11200@holomorphy.com> <20040813093002.GA11200@holomorphy.com> <20040813094614.GB11200@holomorphy.com> <20040813100540.GC11200@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040813100540.GC11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+On Fri, Aug 13, 2004 at 01:01:16AM -0700, William Lee Irwin III wrote:
+>>>>>               text    data     bss     dec     hex filename
+>>>>> mainline: 19973522        6607761 1878448 28459731        1b242d3 vmlinux
+>>>>> cool:     19839487        6585707 1878448 28303642        1afe11a vmlinux
+>>>>> C-func:   19923848        6582771 1878384 28385003        1b11eeb vmlinux
 
-the patch below still applies against 2.6.8-rc4-mm1.
+On Fri, Aug 13, 2004 at 02:16:40AM -0700, William Lee Irwin III wrote:
+>>>> unlock:    19895498        6582746 1878384 28356628        1b0b014 vmlinux
 
-Could you comment on it and apply it if it's correct?
+On Fri, Aug 13, 2004 at 02:30:02AM -0700, William Lee Irwin III wrote:
+>>> unlock-irq: 19889858        6582721 1878384 28350963        1b099f3 vmlinux
 
-TIA
-Adrian
+On Fri, Aug 13, 2004 at 02:46:14AM -0700, William Lee Irwin III wrote:
+>> read-unlock: 19883858        6582674 1878384 28344916        1b08254 vmlinux
 
+On Fri, Aug 13, 2004 at 03:05:40AM -0700, William Lee Irwin III wrote:
+> irqrestore:   19855759        6582442 1878384 28316585        1b013a9 vmlinux
 
-But trying it out CONFIG_MII=y seems to at least compile with 
-CONFIG_NET_ETHERNET=n.
-
-@Jeff:
-It seems, CONFIG_MII doesn't actually require CONFIG_NET_ETHERNET?
-Could you comment on the following patch?
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.6-rc1-mm1-full/drivers/net/Kconfig.old	2004-04-20 00:48:27.000000000 +0200
-+++ linux-2.6.6-rc1-mm1-full/drivers/net/Kconfig	2004-04-20 01:07:51.000000000 +0200
-@@ -151,6 +151,15 @@
- 
- 	  If you don't have this card, of course say N.
- 
-+config MII
-+        tristate "Generic Media Independent Interface device support"
-+        depends on NET
-+        help
-+          Most ethernet controllers have MII transceiver either as an external
-+          or internal device.  It is safe to say Y or M here even if your
-+          ethernet card lack MII.
-+
-+
- if NETDEVICES
- 	source "drivers/net/arcnet/Kconfig"
- endif
-@@ -188,14 +197,6 @@
- 	  kernel: saying N will just cause the configurator to skip all
- 	  the questions about Ethernet network cards. If unsure, say N.
- 
--config MII
--	tristate "Generic Media Independent Interface device support"
--	depends on NET_ETHERNET
--	help
--	  Most ethernet controllers have MII transceiver either as an external
--	  or internal device.  It is safe to say Y or M here even if your
--	  ethernet card lack MII.
--
- source "drivers/net/arm/Kconfig"
- 
- config MACE
+Reinlining read_unlock_irq() also yields:
+rdunlockirq:    19855255        6582369 1878384 28316008        1b01168 vmlinux
 
 
+-- wli

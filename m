@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310400AbSCLEvt>; Mon, 11 Mar 2002 23:51:49 -0500
+	id <S310394AbSCLFGM>; Tue, 12 Mar 2002 00:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310392AbSCLEvn>; Mon, 11 Mar 2002 23:51:43 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28936 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310400AbSCLEva>; Mon, 11 Mar 2002 23:51:30 -0500
-Date: Mon, 11 Mar 2002 20:40:13 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@redhat.com>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <3C8D8376.8010907@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0203112031460.18739-100000@penguin.transmeta.com>
+	id <S310405AbSCLFGD>; Tue, 12 Mar 2002 00:06:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28431 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310402AbSCLFFv>;
+	Tue, 12 Mar 2002 00:05:51 -0500
+Message-ID: <3C8D8C9C.3060208@mandrakesoft.com>
+Date: Tue, 12 Mar 2002 00:05:32 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+In-Reply-To: <Pine.LNX.4.33.0203112023410.18739-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
-On Mon, 11 Mar 2002, Jeff Garzik wrote:
-> 
-> For the details of the userspace interface (for both ATA and SCSI), my 
-> idea was to use standard read(2) and write(2).
+>On Mon, 11 Mar 2002, Linus Torvalds wrote:
+>
+>> - attach to one or more request queue(s). Notice that you should not have
+>>   _one_ module that handles all request queues, because the filter module
+>>   obviously has to be different for an ATA disk than for a SCSI disk, and
+>>   in fact it might be different for an IBM ATA disk than for a Maxtor ATA
+>>   disk, for example.
+>>
+>
+>Btw, to tie this back to the other IDE thread, namely the suspend/resume 
+>thing, I think things like that should also just push commands down the 
+>request list. In particular, instead of waiting until the handler is NULL, 
+>it should do something like
+>
+> - create a "sync" request
+> - do the equivalent of
+>
+>	DECLARE_COMPLETION(wait);
+>	rq->waiting = &wait;
+>	q->elevator.elevator_add_req_fn(q, rq, queue_head);
+>	wait_for_completion(&wait);
+>
+>which automatically synchronizes with any outstanding requests (simply 
+>by virtue of the elevator knowing not to re-order/merge special requests, 
+>so when the sync command in finished, we know all other commands have 
+>finished too).
+>
 
-I like it, but you have to realize that most, if not all, of the commands 
-really are not a matter of a read or a write, but a "transaction", which 
-is a pair of both (and at least in theory you could have transactions that 
-are more complex than just a "command + result", ie more than just a 
-write("cmd + outdata")+read("status + indata")).
+Dumb question, why create a separate request?
 
-I agree 100% with the notion of using read/write to do this, but I think
-you need to make it very explicit that we _are_ talking about
-transactions, and that the file descriptor would act as a "transaction
-descriptor" when you do this. The file descriptor is the one that matches
-up the write that started the transaction with the read that gets the
-status of it - thus allowing multiple concurrent transactions in flight.
+Why not just have some way to wait for request X (and flag it for 
+no-merge/barrier treatment, etc.)?  bios have end_io callbacks...
 
-And the command has to have some structure, ie it needs to not just be the
-low-level command, but also have the information about the "format" of the
-transaction (so that the generic layer can build up the correct BIO data
-structures for the result, before it actually sees the read itself).
+    Jeff
 
-			Linus
+
+
+
 

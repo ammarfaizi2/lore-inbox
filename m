@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271947AbRH2LsA>; Wed, 29 Aug 2001 07:48:00 -0400
+	id <S271950AbRH2L7k>; Wed, 29 Aug 2001 07:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271948AbRH2Lrv>; Wed, 29 Aug 2001 07:47:51 -0400
-Received: from thunderchild.ikk.sztaki.hu ([193.225.87.24]:54533 "HELO
-	thunderchild.ikk.sztaki.hu") by vger.kernel.org with SMTP
-	id <S271947AbRH2Lrk>; Wed, 29 Aug 2001 07:47:40 -0400
-Date: Wed, 29 Aug 2001 13:47:57 +0200
-From: Gergely Madarasz <gorgo@thunderchild.debian.net>
+	id <S271949AbRH2L7a>; Wed, 29 Aug 2001 07:59:30 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:35090 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S271948AbRH2L7Z>;
+	Wed, 29 Aug 2001 07:59:25 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: Re: vm problems
-Message-ID: <20010829134757.A6202@thunderchild.ikk.sztaki.hu>
-In-Reply-To: <20010829131419.Z6202@thunderchild.ikk.sztaki.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010829131419.Z6202@thunderchild.ikk.sztaki.hu>; from gorgo@thunderchild.debian.net on Wed, Aug 29, 2001 at 01:14:19PM +0200
+Subject: Announce: modutils 2.4.8 is available 
+Date: Wed, 29 Aug 2001 21:59:30 +1000
+Message-ID: <25643.999086370@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 29, 2001 at 01:14:19PM +0200, Gergely Madarasz wrote:
-> Hello,
-> 
-> I get hundreds of this error message:
-> 
-> __alloc_pages: 0-order allocation failed.
-> 
-> The machine is an IBM x250 with 4G ram, the kernel is vanilla 2.4.9 and
-> 2.4.9-ac3, no swap, running bonnie++. When the memory fills up with cache,
-> I start receiving the error message. 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-actually I thought I was running 2.4.9-ac3, but no, and I see the message
-is commented out in 2.4.9-ac3. Does this mean that it doesn't mean
-anything serious? Some of my processes were stuck in uninterruptible
-sleep, I couldn't even shutdown correctly, so there are some problems.
+Content-Type: text/plain; charset=us-ascii
 
--- 
-Madarasz Gergely   gorgo@thunderchild.debian.net   gorgo@linux.rulez.org
-    It's practically impossible to look at a penguin and feel angry.
-        Egy pingvinre gyakorlatilag lehetetlen haragosan nezni.
-                  HuLUG: http://mlf.linux.rulez.org/
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+
+modutils-2.4.8.tar.gz           Source tarball, includes RPM spec file
+modutils-2.4.8-1.src.rpm        As above, in SRPM format
+modutils-2.4.8-1.i386.rpm       Compiled with egcs-2.91.66, glibc 2.1.2
+modutils-2.4.8-1.ia64.rpm       Compiled with gcc 2.96-ia64-000717 snap 001117,
+				libc-2.2.1.
+modutils-2.4.8-1.sparc.rpm      Compiled for combined 32/64 sparc.
+patch-modutils-2.4.8.gz         Patch from modutils 2.4.7 to 2.4.8.
+
+Related kernel patches.
+
+patch-2.4.2-persistent.gz       Adds persistent data and generic string
+				support to kernel 2.4.2 onwards.  Optional.
+
+Changelog extract
+
+	* Always define flag_unresolved_error.  Debian #108934.
+	* Check for symindx out of bounds.  H. J. Lu.
+	* Archdata for MIPS, dbe table.  Maciej W. Rozycki.
+	* Archdata for PPC, ftr fixup.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.3 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE7jNkhi4UHNye0ZOoRAvvKAKCD5OUnQxNOAHrz1jBzeS/zO2Hw+wCgvXLj
+c3+Y2N0lw9filBkXNA8BBLg=
+=JDR4
+-----END PGP SIGNATURE-----
+

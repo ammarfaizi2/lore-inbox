@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbUBRECH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 23:02:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUBRECH
+	id S262564AbUBRDvT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 22:51:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUBRDvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 23:02:07 -0500
-Received: from mail.kroah.org ([65.200.24.183]:24750 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261950AbUBRECB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 23:02:01 -0500
-Date: Tue, 17 Feb 2004 20:01:54 -0800
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: sensors@stimpy.netroedge.com
-Subject: Re: 2.6.3rc4 ali1535 i2c driver rmmod oops.
-Message-ID: <20040218040153.GB6729@kroah.com>
-References: <20040218031544.GB26304@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040218031544.GB26304@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 Feb 2004 22:51:19 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:19669
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S262564AbUBRDvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 22:51:17 -0500
+Message-ID: <4032DCF1.9050603@tmr.com>
+Date: Tue, 17 Feb 2004 22:33:05 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hilko Bengen <bengen@hilluzination.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: major network performance difference between 2.4 and 2.6.2-rc2
+References: <402403A5.4090708@tmr.com> (Bill Davidsen's message of "Fri, 06 Feb 2004 16:14:13 -0500") <87znbupydc.fsf@hilluzination.de>
+In-Reply-To: <87znbupydc.fsf@hilluzination.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 03:15:44AM +0000, Dave Jones wrote:
-> Erk, whats going on here ?
+Hilko Bengen wrote:
+> Bill Davidsen <davidsen@tmr.com> writes:
+> 
+> 
+>>What would be nice is some kind of table approach, hash or tree,
+>>which allows operations to be matches against all of the IPs in a
+>>group, and obviously to add/delete entries. I think for simplicity
+>>individual IPs rather than CIDR blocks are desirable.
+> 
+> 
+> Do you mean something like <http://www.hipac.org/>?
 
-Hm, I'll try to debug this tomorrow.
+Thank you for the pointer, it's not what I meant but probably will be 
+highly useful anyway.
 
-Oh nevermind, that's just a dumb driver.  It's doing a release_region on
-memory it didn't get.  Stupid, stupid, stupid...
+What I had in mind was a single rule which would apply against a table 
+of IP addresses and CIDR blocks instead of one. Somewhat like the access 
+table in sendmail, but perhaps more like a database in that I could add 
+and delete to/from the table at runtime while always leaving the table 
+valid (pseudo-atomic operations).
 
-Dave can you verify that this patch fixes the problem for you?
+Perhaps the example of what I would like to do is better than what I 
+wrote. Think of tables in iproute2.
 
-thanks,
+iptables -A INPUT -p tcp --stable badguys --dport smtp -j REJECT
+   then as I detect...
+iptables -T badguys add 270.1.2.3
+iptables -T badguys add 270.4.5.16/4
 
-greg k-h
+So I could add and delete to a table, and it's use would not be limited 
+to a single rule. It would be an independent in-memory table of some 
+(hash?) organization.
 
+I think the link you kindly provided is a viable solution, it's just not 
+quite what I had in mind, allowing me to use an IP set in multiple or 
+changing ways without redefinition for each IP.
 
-===== i2c-ali1535.c 1.12 vs edited =====
---- 1.12/drivers/i2c/busses/i2c-ali1535.c	Tue Jan 20 08:58:03 2004
-+++ edited/i2c-ali1535.c	Tue Feb 17 20:00:44 2004
-@@ -517,6 +517,7 @@
- static void __devexit ali1535_remove(struct pci_dev *dev)
- {
- 	i2c_del_adapter(&ali1535_adapter);
-+	release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
- }
- 
- static struct pci_driver ali1535_driver = {
-@@ -534,7 +535,6 @@
- static void __exit i2c_ali1535_exit(void)
- {
- 	pci_unregister_driver(&ali1535_driver);
--	release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
- }
- 
- MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>, "
+Didn't mean to get this going in this list, it grew from a chance comment.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

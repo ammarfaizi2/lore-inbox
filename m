@@ -1,61 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266615AbTBXMs7>; Mon, 24 Feb 2003 07:48:59 -0500
+	id <S266968AbTBXNFI>; Mon, 24 Feb 2003 08:05:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266968AbTBXMs7>; Mon, 24 Feb 2003 07:48:59 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:12988 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S266615AbTBXMs6>;
-	Mon, 24 Feb 2003 07:48:58 -0500
-Date: Mon, 24 Feb 2003 13:58:48 +0100 (MET)
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-Message-Id: <200302241258.h1OCwmSs013918@harpo.it.uu.se>
-To: rusty@rustcorp.com.au
-Subject: Re: [BUG] 2.5.62 kmod rewrite broke modprobe's install command
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S266978AbTBXNFI>; Mon, 24 Feb 2003 08:05:08 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:59782 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S266968AbTBXNFH>; Mon, 24 Feb 2003 08:05:07 -0500
+Message-ID: <3E5A1671.5060202@namesys.com>
+Date: Mon, 24 Feb 2003 15:56:17 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andries Brouwer <aebr@win.tue.nl>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]  comments on st_blksize and f_bsize for 2.5
+References: <3E526C94.3020109@namesys.com> <20030224102009.GB14024@win.tue.nl>
+In-Reply-To: <20030224102009.GB14024@win.tue.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Feb 2003 13:52:18 +1100, Rusty Russell wrote:
->--- linux-2.5.62-bk6/kernel/kmod.c	2003-02-18 11:18:57.000000000 +1100
->+++ working-2.5.62-bk6-usermode-sig/kernel/kmod.c	2003-02-24 12:18:55.000000000 +1100
->@@ -152,6 +152,14 @@ static int ____call_usermodehelper(void 
-> 	struct subprocess_info *sub_info = data;
-> 	int retval;
-> 
->+	/* Unblock all signals. */
->+	flush_signals(curtask);
->+	flush_signal_handlers(curtask);
->+	spin_lock_irq(&curtask->sighand->siglock);
->+	sigemptyset(&curtask->blocked);
->+	recalc_sigpending();
->+	spin_unlock_irq(&curtask->sighand->siglock);
->+
-> 	retval = -EPERM;
-> 	if (current->fs->root)
-> 		retval = execve(sub_info->path, sub_info->argv,sub_info->envp);
+Andries Brouwer wrote:
+
+>On Tue, Feb 18, 2003 at 08:25:40PM +0300, Hans Reiser wrote:
 >
+>  
+>
+>>Since a few applications, and the linux manpages, seem to not really 
+>>understand what these are for, they need comments like SUSv2 has for 
+>>them.  A larger discussion will be provided if requested.
+>>    
+>>
+>
+>  
+>
+>>+	unsigned int	st_blksize;	/* Optimal I/O size */
+>>    
+>>
+>
+>  
+>
+>>+	int f_bsize;	/* Filesystem blocksize */
+>>    
+>>
+>
+>Yes, discussion - I wouldnt mind seeing details.
+>
+>The trivial part is st_blksize: all agree.
+>Quoting the man page:
+>
+>       The value st_blksize gives the "preferred" blocksize
+>       for efficient file system I/O.  (Writing to a file in
+>       smaller chunks may cause an inefficient read-modify-rewrite.)
+>
+Oh my, I must confess that we read just the comment on the struct in the 
+manpage:
 
-Doesn't compile (curtask undeclared) and doesn't work (SIGCHLD is
-still SIG_IGN causing system() to fail). The problem is that
-kernel/workqueue.c:worker_thread() [which is what runs modprobe now]
-sets SIGCHLD to SIG_IGN, and your patch doesn't unbreak that.
+                 blksize_t     st_blksize;  /* blocksize for filesystem 
+I/O */
 
-The patch below, applied on top of your patch, makes it work for me.
+and not the text below it which is correct if less clear than it could be.
 
-/Mikael
+How about using our comment on the struct on the manpage as it is more 
+clear? 
 
---- linux-2.5.62/kernel/kmod.c.~2~	2003-02-24 12:39:01.000000000 +0100
-+++ linux-2.5.62/kernel/kmod.c	2003-02-24 13:27:51.000000000 +0100
-@@ -150,10 +150,12 @@
- static int ____call_usermodehelper(void *data)
- {
- 	struct subprocess_info *sub_info = data;
-+	struct task_struct *curtask = current;
- 	int retval;
- 
- 	/* Unblock all signals. */
- 	flush_signals(curtask);
-+	curtask->sighand->action[SIGCHLD-1].sa.sa_handler = SIG_DFL;
- 	flush_signal_handlers(curtask);
- 	spin_lock_irq(&curtask->sighand->siglock);
- 	sigemptyset(&curtask->blocked);
+
+How about instead saying in the manpage body:
+
+Historically, st_blksize was the block size, and applications would do 
+I/O's at that size for greater efficiency of IO.  Now, after some 
+evolution, st_blksize represents the most efficient size of an IO to 
+that file, and no longer always represents the actual size of blocks in 
+the underlying filesystem.
+
+
+Or you could even use the longer comment on the struct, but then I have 
+always liked lng comments more than most....;-)
+
+-- 
+Hans
+
+

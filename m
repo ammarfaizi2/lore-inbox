@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269320AbUIBXsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269324AbUIBXsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269320AbUIBXsH (ORCPT <rfc822;willy@w.ods.org>);
+	id S269324AbUIBXsH (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 2 Sep 2004 19:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269346AbUIBXpw
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269320AbUIBXph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:45:52 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:4498 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269305AbUIBXgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:36:35 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Lee Revell <rlrevell@joe-job.com>, Spam <spam@tnonline.net>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+	Thu, 2 Sep 2004 19:45:37 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:3993 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269307AbUIBXk6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:40:58 -0400
+Date: Fri, 3 Sep 2004 00:40:21 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Hans Reiser <reiser@namesys.com>
+cc: David Masover <ninja@slaphack.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
+       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk,
        Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        Alexander Lyamin aka FLX <flx@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20040902205857.GF8653@atrey.karlin.mff.cuni.cz>
-References: <rlrevell@joe-job.com>
-	 <1094079071.1343.25.camel@krustophenia.net>
-	 <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
-	 <1535878866.20040902214144@tnonline.net>
-	 <20040902194909.GA8653@atrey.karlin.mff.cuni.cz>
-	 <1094155277.11364.92.camel@krustophenia.net>
-	 <20040902204351.GE8653@atrey.karlin.mff.cuni.cz>
-	 <1094158060.1347.16.camel@krustophenia.net>
-	 <20040902205857.GF8653@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094164385.6163.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 02 Sep 2004 23:33:07 +0100
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <41356321.4030307@namesys.com>
+Message-ID: <Pine.LNX.4.61.0409030037540.23011@fogarty.jakma.org>
+References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
+ <41352279.7020307@slaphack.com> <41356321.4030307@namesys.com>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-02 at 21:58, Pavel Machek wrote:
-> Uservfs.sf.net.
-> 
-> Unlike alan, I do not think that "do it all in library" is good
-> idea. I put it in the userspace as "codafs" server, and let
-> applications see it as a regular filesystem.
+On Tue, 31 Aug 2004, Hans Reiser wrote:
 
-That works for me too, providing someone has fixed all the user mode fs
-deadlocks with paging
+> learning how to turn the hand crank to start your car. Just the look of "tar 
+> -xf" turns them away. Crypto-Geek gobbledy-gook is what it is. Let's value 
+> their time, there are a lot of them.
 
+These kinds of people would use something like file-roller in GNOME, 
+and they'd care not a jot whether file-rollers used built-in 
+tar support, and/or openat() or via file-as-dir fs support.
+
+All they care about is that they get a window with icons for their 
+files that they can click on. How it's done does not matter - it only 
+matters to those who must write the code.
+
+> Hans
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+I haven't lost my mind; I know exactly where I left it.

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274709AbRITXzF>; Thu, 20 Sep 2001 19:55:05 -0400
+	id <S274713AbRIUADP>; Thu, 20 Sep 2001 20:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274710AbRITXyz>; Thu, 20 Sep 2001 19:54:55 -0400
-Received: from sushi.toad.net ([162.33.130.105]:14047 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S274709AbRITXym>;
-	Thu, 20 Sep 2001 19:54:42 -0400
-Message-ID: <3BAA81B3.4C284258@yahoo.co.uk>
-Date: Thu, 20 Sep 2001 19:54:27 -0400
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] PnP BIOS no-irq/IRQ0 bug
+	id <S274714AbRIUADF>; Thu, 20 Sep 2001 20:03:05 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:34062 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S274713AbRIUADA>;
+	Thu, 20 Sep 2001 20:03:00 -0400
+Date: Thu, 20 Sep 2001 16:59:52 -0700
+From: Greg KH <greg@kroah.com>
+To: lkml@krimedawg.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB hub broken between 2.4.10-pre6 and 2.4.10-pre12
+Message-ID: <20010920165952.A22273@kroah.com>
+In-Reply-To: <Pine.LNX.4.33.0109190110330.590-100000@mcgruff.krimedawg.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109190110330.590-100000@mcgruff.krimedawg.org>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a one-character patch which may be self-explanatory.
-The irq should be initialized to -1 (i.e., "no irq") rather
-than 0 (i.e., IRQ0) so that the irq field in the pci_dev will
-be -1 and not 0 if the PnP BIOS returns an irq mask with no
-bits set.     // Thomas <jdthood_AT_yahoo.co.uk>
+On Wed, Sep 19, 2001 at 01:15:52AM -0700, lkml@krimedawg.org wrote:
+> After upgrading from 2.4.10-pre6 and -pre12, my USB hub stopped working.
+> This happens with both of the UHCI drivers.  If there's anything I can do
+> to help (narrow it down to a specific release?) let me know...
 
---- linux-2.4.9-ac10/drivers/pnp/pnp_bios.c_ORIG	Thu Sep 20 18:54:59 2001
-+++ linux-2.4.9-ac10/drivers/pnp/pnp_bios.c	Thu Sep 20 18:55:22 2001
-@@ -716,7 +716,7 @@
- static void __init pnpbios_rawdata_2_pci_dev(struct pnp_bios_node *node, struct pci_dev *pci_dev)
- {
- 	unsigned char *p = node->data, *lastp=NULL;
--        int mask,i,io,irq=0,len,dma=-1;
-+        int mask,i,io,irq=-1,len,dma=-1;
- 
- 	memset(pci_dev, 0, sizeof(struct pci_dev));
-         while ( (char *)p < ((char *)node->data + node->size )) {
+It looks like your hub is working, for a while, then it starts having
+problems.
+Is this hub powered from the USB bus, or from an external power supply?
+Does your devices still work properly plugged into the computer
+directly?
+
+thanks,
+
+greg k-h

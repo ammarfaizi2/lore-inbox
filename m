@@ -1,49 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVCQW6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVCQW7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVCQW6y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 17:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVCQW6y
+	id S261336AbVCQW7l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 17:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVCQW7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 17:58:54 -0500
-Received: from gate.crashing.org ([63.228.1.57]:32199 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261333AbVCQW6x (ORCPT
+	Thu, 17 Mar 2005 17:59:41 -0500
+Received: from rproxy.gmail.com ([64.233.170.201]:45090 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261336AbVCQW7b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 17:58:53 -0500
-Subject: RE: PCI Error Recovery API Proposal. (WAS:: [PATCH/RFC]
-	PCIErrorRecovery)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Greg KH <greg@kroah.com>, ak@muc.de,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E5024080FDBA3@orsmsx404.amr.corp.intel.com>
-References: <C7AB9DA4D0B1F344BF2489FA165E5024080FDBA3@orsmsx404.amr.corp.intel.com>
-Content-Type: text/plain
-Date: Fri, 18 Mar 2005 09:57:58 +1100
-Message-Id: <1111100278.25180.21.camel@gaston>
+	Thu, 17 Mar 2005 17:59:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ZvbYF50MO4nYX3EN7L8FyEP5I/OwUP8zPdF9vQbj2FFx9u6dX6tuwuixr7VExItYe8f6urogNhyeBpLOtb7l8WoGsM8kA7nPqhdlG7N8hsZPPB8wtzUhx6HQCUSQnsu7Qcy1t4UrkKAxzjZ4VL9iXcY1OHvo5IiLurGIshU+GaU=
+Message-ID: <29495f1d05031714596de3b335@mail.gmail.com>
+Date: Thu, 17 Mar 2005 14:59:31 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH] Prezeroing V8
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 17 Mar 2005 13:43:47 -0800 (PST), Christoph Lameter
+<clameter@sgi.com> wrote:
+> Changelog:
+> - Drop clear_pages and the approach to zero pages of higher order
+>   first
+> - Zero a percentage of pages from all orders to avoid fragmentation
+> 
+> Adds management of ZEROED and NOT_ZEROED pages and a background daemon
+> called scrubd. /proc/sys/vm/scrubd_load, /proc/sys/vm_scrubd_start and
+> /proc/sys/vm_scrubd_stop control the scrub daemon. See Documentation/vm/
+> scrubd.txt
+> 
+> In an SMP environment the scrub daemon is typically running on the most
+> idle cpu. Thus a single threaded application running
+> on one cpu may have the other cpu zeroing pages for it etc. The scrub
+> daemon is hardly noticable and usually finishes zeroing quickly since
+> most processors are optimized for linear memory filling.
+> 
+> Patch against 2.6.11.3-bk3
+> 
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> 
 
-> On a fatal error the interface is down.  No matter what the driver
-> supports (AER aware, EEH aware, unaware) all IO is likely to fail.
-> Resetting a bus in a point-to-point environment like PCI Express or EEH
-> (as you describe) should have little adverse effect.  The risk is the
-> bus reset will cause a card reset and the driver must understand to
-> re-initialize the card.  A link reset in PCI Express will not cause a
-> card reset.  We assume the driver will reset its card if necessary.
+<snip>
 
-Does the link side of PCIE provides a way to trigger a hard reset of the
-rest of the card ? If not, then it's dodgy as there may be no way to
-consistently "reset" the card if it's in a bad state. I have to double
-check, but I suspect that IBM's implementation of EEH-compliant PCIE
-will add a full hard reset not just a link reset.
+> Index: linux-2.6.11/mm/scrubd.c
+> ===================================================================
+> --- /dev/null   1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6.11/mm/scrubd.c    2005-03-17 13:12:23.000000000 -0800
 
+<snip>
 
+> +/*
+> + * scrub_pgdat() will work across all this node's zones.
+> + */
+> +static void scrub_pgdat(pg_data_t *pgdat)
+> +{
+> +       int i;
+> +
+> +       if (system_state != SYSTEM_RUNNING)
+> +               return;
+> +
+> +        while (avenrun[0] >= ((unsigned long)sysctl_scrub_load << FSHIFT))
+> +               schedule_timeout(30*HZ);
 
+This is a busy-loop, unless you set the state before you call
+schedule_timeout(). Additionally, you really want to sleep 30 seconds
+at a time? Please use msleep() or msleep_interruptible(), unless you
+expect wait-queue events.
+
+Thanks,
+Nish

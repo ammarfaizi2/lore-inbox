@@ -1,79 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289230AbSA3PLg>; Wed, 30 Jan 2002 10:11:36 -0500
+	id <S289250AbSA3PRq>; Wed, 30 Jan 2002 10:17:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289272AbSA3PL1>; Wed, 30 Jan 2002 10:11:27 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:29157
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S289243AbSA3PLO>; Wed, 30 Jan 2002 10:11:14 -0500
-Date: Wed, 30 Jan 2002 16:11:05 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-        killeri@iki.fi
-Subject: Re: Wanted: Volunteer to code a Patchbot
-Message-ID: <20020130161105.E9765@jaquet.dk>
-In-Reply-To: <Pine.LNX.4.33.0201301306190.7674-100000@serv> <E16VumS-0000EM-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16VumS-0000EM-00@starship.berlin>; from phillips@bonn-fries.net on Wed, Jan 30, 2002 at 02:28:04PM +0100
+	id <S289243AbSA3PR1>; Wed, 30 Jan 2002 10:17:27 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:55312 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S289241AbSA3PRG>; Wed, 30 Jan 2002 10:17:06 -0500
+Message-ID: <3C580E6B.6080905@namesys.com>
+Date: Wed, 30 Jan 2002 18:16:59 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Rob Landley <landley@trommello.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
+        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com> <20020130092100.KCMT17610.femail45.sdc1.sfba.home.com@there>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 02:28:04PM +0100, Daniel Phillips wrote:
->    Wanted: a scripting person who has a clue about MTAs and wants to 
->    contribute to the kernel.  Please step up to the table over here
->    and sign in blood, then we will tell you what your mission is.
->    Nobody will thank you for any of the work you do or reward you in
->    any way, except for the right to bask in the glory and fame of
->    being the one who ended the patchbot wars.  And maybe, just maybe
->    get that coveted Slashdot interview.
-> 
-> OK. that's it, if somebody bites I'll gladly participate in a design thread, 
-> otherwise I think this is just going to sleep until the next bi-monthly 
-> patchbot flameup.
+Rob Landley wrote:
 
-I'll bite. I was noodling with this in the background already, so
-I have some thoughts at home which I'll be happy to write up and
-send to the list. Other people, notably John Weber (linuxhq)
-and Patrick Mochel(? odsl) stated that they were working on
-something too. As I dont do this for a living (dont mean to
-imply that they are), I wouldn't want to want to be in the
-way for the big boys :)
+>
+>
+>This is eleven "top level" maintainers, one of whom is handling ext3 which 
+>sounds kind of odd...  (If David Miller is networking and Jeff Garzik is 
+>network drivers, would there be a "filesystem drivers" guy paired off with Al 
+>Viro?  Does EXT2 go through Andrew Morton as well?  Would Hans Reiser submit 
+>directly to you for ReiserFS patches, or should he get a signoff from...  
+>Um...  Andrew?  Al?  Try to get it into the -dj tree first?  Could I have a 
+>hint?)
+>
 
-If I understand correctly, the bot would, in its basic incarnation,
-accept patches (at patchbot@somewhere), stamp them with an uid,
-and forward them to various places, e.g., lists, maintainers etc
-and let the sumbitter know the patch uid. A mailing list archive
-would then be the patch store. Basic filtering could be done by
-the bot to reject non-patches etc.
+There is a maintainers list somewhere in the kernel tree.  I am listed 
+there as  the ReiserFS maintainer, and I send our patches directly to 
+Linus and Marcelo.  I don't think that a filesystems maintainer would be 
+easily achieved, since if we agreed about architecture we would have 
+written the same filesystems.   We can't even agree about whether 
+streams and extended attributes should be implemented as files, and as 
+for whether keyword search and database functionality should go into the 
+filesystem namespace.....
 
-The bot could also:
-* Annotate patches with files touched.
-* Try to apply patches and take action based on succces failure.
-* Try to compile the resulting tree (based on a submitted .config)
-  and take action based on the results.
-* Store submissions locally and do the steps above for new
-  kernel revisions, resubmtting them if appropriate.
+So, there is a maintainers list, and for many subsystems it works fairly 
+well.  For ReiserFS, while I review and approve all patches we accept, 
+Oleg Drokin is my patch whirlwind who does the work of testing and 
+inspecting line by line for bugs (I inspect more for desirable 
+functionality).
 
-Yes, the compile step kinda made the HW requirements go through
-the roof.
+ReiserFS has been well-tended by Marcelo, so things are working well for 
+us.  Dave Jones tends to 2.5 ReiserFS patches quite nicely also.  None 
+of our 2.5 patches are earth-shattering, so I think it is very 
+reasonable for Linus to pay attention to, say,  bio stuff for now rather 
+than our patches (I am sure he will eventually fold them in from Dave 
+Jones's tree.)  I worry more that I haven't had a few hours to brief 
+Linus on the strategic direction of Reiser4, and what I think is needed 
+longterm to compete with Longhorn, but this is probably my fault for not 
+asking him for it.
 
-I have some code already to handle some of this but typically,
-I started at the wrong end and did the patch/compile stuff
-first :) Ah, BTW, that is in python. I dont see a problem
-with that.
+I know that others have had real problems in this regard, and I don't 
+discount them, but ReiserFS patches are going well at this time.
 
-Please comment but I may be offline till later this evening.
+Hans
 
-Regards,
-  Rasmus
-
-PS: Daniel have made me aware of another volunteer, Kalle
-Kivimaa. I have added him to the list and could obviously
-work with him.

@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbTI2Gp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 02:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262841AbTI2Gp6
+	id S261812AbTI2GyF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 02:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbTI2GyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 02:45:58 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:26098 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S262838AbTI2Gp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 02:45:57 -0400
-Date: Sun, 28 Sep 2003 23:42:36 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@osdl.org
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: effect of nfs blocksize on I/O ?
-Message-ID: <20030928234236.A16924@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Mon, 29 Sep 2003 02:54:05 -0400
+Received: from smtp2.BelWue.DE ([129.143.2.15]:18928 "EHLO smtp2.BelWue.DE")
+	by vger.kernel.org with ESMTP id S261812AbTI2GyC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 02:54:02 -0400
+Date: Mon, 29 Sep 2003 08:53:59 +0200 (CEST)
+From: Oliver Tennert <tennert@science-computing.de>
+To: linux-kernel@vger.kernel.org
+Subject: Why Sysrq+k does not offer a trusted path
+Message-ID: <Pine.LNX.4.44.0309290836460.16991-100000@picard.science-computing.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not talking about rsize/wsize, rather the fs blocksize.
 
-2.4 sets this to MIN(MAX(MAX(4096,rsize),wsize),32768) = 8192 typically.
-2.6 sets this to nfs_fsinfo.wtmult?nfs_fsinfo.wtmult:512 = 512 typically.
+Hello,
 
-(My estimation of "typical" may be way off though.)
+the Sysrq documentation states that the sequence Sysrq + k is not supposed
+to constitute a SAK as specified for a C2 system.
 
-At a 512 byte blocksize, this overflows struct statfs for fs > 1TB.
-Most of my NFS filesystems (on netapp) are larger than that.
+Although I do not quite know what excatly in the author's view is missing
+for Sysrq + k to really offer a C2 compliant trusted path for logging in,
+at least I know of one thing which in a trivial way constitutes a security
+leak:
 
-But more importantly, what does the VFS *do* with the blocksize?
-strace seems to show that glibc/stdio does consider it.  If I fprintf()
-two 4096 byte strings, libc does a single write() with 8192 blocksize,
-and 3 write()'s for 512 blocksize.  I haven't looked to see what goes
-over the wire, but I assume that still follows rsize/wsize.
+As "/proc/sys/kernel/sysrq" is writable for any privileged process,
+writing a "0" into it leads to switching off sys requests altogether. A
+malicious program can then do just that and otherwise simulate the
+functionality of sys requests its own way. Forging a secure login path is
+then a trivial task.
 
-Does any NFS server report wtmult?
+My question is: why not eliminate "/proc/sys/kernel/sysrq" altogether, and
+decide at boot time if sysrq functionality is wished or not?
 
-Here's a patch.
+Setting the variable sysrq_enabled at a very early stage of the kernel
+setup based on a command line parameter "sysrq" would be a very convenient
+way to decide if sys requests are to be enabled, and moreover this
+procedure cannot be overridden once the kernel has booted.
 
-/fc
+Thus it is a more secure way to offer a real SAK.
 
---- a/fs/nfs/inode.c	2003-09-28 23:41:13.000000000 -0700
-+++ b/fs/nfs/inode.c	2003-09-28 23:40:18.000000000 -0700
-@@ -323,8 +323,8 @@
- 		server->wsize = nfs_block_size(fsinfo.wtpref, NULL);
- 	if (sb->s_blocksize == 0) {
- 		if (fsinfo.wtmult == 0) {
--			sb->s_blocksize = 512;
--			sb->s_blocksize_bits = 9;
-+			sb->s_blocksize = nfs_block_bits(server->rsize > server->wsize ? server->rsize : server->wsize,
-+							 &sb->s_blocksize_bits);
- 		} else
- 			sb->s_blocksize = nfs_block_bits(fsinfo.wtmult,
- 							 &sb->s_blocksize_bits);
+Or am I missing a very important point?
+
+Best regards
+
+Oliver Tennert
+
+--
+________________________________________creating IT solutions
+
+Dr. Oliver Tennert			science + computing ag
+phone   +49(0)7071 9457-598		Hagellocher Weg 71-75
+fax     +49(0)7071 9457-411		D-72070 Tuebingen, Germany
+O.Tennert@science-computing.de		www.science-computing.de
+
+
+

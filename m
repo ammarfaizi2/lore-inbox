@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262525AbTCMSyJ>; Thu, 13 Mar 2003 13:54:09 -0500
+	id <S262501AbTCMSwP>; Thu, 13 Mar 2003 13:52:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262530AbTCMSyJ>; Thu, 13 Mar 2003 13:54:09 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:52143 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262525AbTCMSyH>;
-	Thu, 13 Mar 2003 13:54:07 -0500
-Date: Thu, 13 Mar 2003 20:04:21 +0100
+	id <S262502AbTCMSwP>; Thu, 13 Mar 2003 13:52:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:16815 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262501AbTCMSwN>;
+	Thu, 13 Mar 2003 13:52:13 -0500
+Date: Thu, 13 Mar 2003 20:02:47 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: jeremy@goop.org, linux-kernel@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5.64-mm6: kernel BUG at kernel/timer.c:155!
-Message-ID: <20030313190421.GR836@suse.de>
-References: <20030313182812.7679.qmail@linuxmail.org>
+Message-ID: <20030313190247.GQ836@suse.de>
+References: <1047576167.1318.4.camel@ixodes.goop.org> <20030313175454.GP836@suse.de> <1047578690.1322.17.camel@ixodes.goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030313182812.7679.qmail@linuxmail.org>
+In-Reply-To: <1047578690.1322.17.camel@ixodes.goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 13 2003, Felipe Alfaro Solana wrote:
-> ----- Original Message ----- 
-> From: Jens Axboe <axboe@suse.de> 
-> Date: 	Thu, 13 Mar 2003 18:54:54 +0100 
-> To: Jeremy Fitzhardinge <jeremy@goop.org> 
-> Subject: Re: 2.5.64-mm6: kernel BUG at kernel/timer.c:155! 
->  
-> > On Thu, Mar 13 2003, Jeremy Fitzhardinge wrote: 
-> > > I was reading back a freshly burned CD from my shiny new Plexwriter 
-> > > 48/24/48A.  I'm using ide-scsi, so this is an iso9660 filesystem mounted 
-> >  
-> > out of curiousity, why? ide-cd should work much better than ide-scsi in 
-> > 2.5, if it doesn't I'd like to know. 
->  
-> There are still userspace CD burning programs that do not yet 
-> support ATAPI burning interface. "cdrecord" does support it, 
-> but K3B (a KDE burning frontend to cdrecord and company) 
-> only works with SCSI or IDE-SCSI burners (well, or at least 
-> I have been unable to convince it to use the ATAPI interface 
-> to my Sony burner). 
+On Thu, Mar 13 2003, Jeremy Fitzhardinge wrote:
+> On Thu, 2003-03-13 at 09:54, Jens Axboe wrote:
+> > On Thu, Mar 13 2003, Jeremy Fitzhardinge wrote:
+> > > I was reading back a freshly burned CD from my shiny new Plexwriter
+> > > 48/24/48A.  I'm using ide-scsi, so this is an iso9660 filesystem mounted
+> > 
+> > out of curiousity, why? ide-cd should work much better than ide-scsi in
+> > 2.5, if it doesn't I'd like to know.
+> 
+> Mostly because I couldn't make cdrecord work properly with ide-cd - it
+> kept claiming I had an adaptec disk connected rather than the plextor
+> cdrom:
+> 
+> : root@ixodes:pts/2; cdrecord -scanbus 'dev=ATAPI:'
+> Cdrecord 2.01a05 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J?rg Schilling
+> scsidev: 'ATAPI:'
+> devname: 'ATAPI'
+> scsibus: -1 target: -1 lun: -1
+> Warning: Using ATA Packet interface.
+> Warning: The related libscg interface code is in pre alpha.
+> Warning: There may be fatal problems.
+> Using libscg version 'schily-0.7'
+> scsibus0:
+>         0,0,0     0) 'ADAPTEC ' 'ACB-5500        ' 'FAKE' NON CCS Disk
+>         0,1,0     1) *
+>         0,2,0     2) *
+>         0,3,0     3) *
+>         0,4,0     4) *
+>         0,5,0     5) *
+>         0,6,0     6) *
+>         0,7,0     7) *
+> 
+> 
+> Maybe I just need to spend more effort on the user-space tools.  Is
+> there something other than cdrecord I should be using?
 
-That is quite possible. Maybe someone could compile a list of programs
-that still use read/write to /dev/sg*?
+Nope cdrecord is fine, but I think only open by device name works
+currently. So you'd need to do
 
-I had at some point planned to allow arbitrary block device -> /dev/sg*
-mapping, maybe it would be a good idea to finish that thought. Then you
-wouldn't have to rely on programs using SG_IO ioctl, which does seem
-like a bad idea.
+# cdrecord -dev=/dev/hdX -inq
+
+to print inquiry data, for instance.
 
 -- 
 Jens Axboe

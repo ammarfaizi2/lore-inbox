@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266088AbUAFHOx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 02:14:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266090AbUAFHOx
+	id S266092AbUAFHsE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 02:48:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266093AbUAFHsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 02:14:53 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:53960 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266088AbUAFHOv (ORCPT
+	Tue, 6 Jan 2004 02:48:04 -0500
+Received: from [216.239.30.242] ([216.239.30.242]:2058 "EHLO wind.enjellic.com")
+	by vger.kernel.org with ESMTP id S266092AbUAFHr5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 02:14:51 -0500
-Date: Tue, 6 Jan 2004 08:14:32 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>, Daniel Jacobowitz <dan@debian.org>,
-       Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040106071432.GA29252@ucw.cz>
-References: <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040105205228.A1092@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.4i
+	Tue, 6 Jan 2004 02:47:57 -0500
+Message-Id: <200401060747.i067lr5S030638@wind.enjellic.com>
+From: greg@wind.enjellic.com (Dr. Greg Wettstein)
+Date: Tue, 6 Jan 2004 01:47:53 -0600
+In-Reply-To: Philip Dodd <spambox@two-towers.net>
+       "2.4.24 and exec-shield-2.4.23-G4" (Jan  5,  9:36pm)
+Reply-To: greg@enjellic.com
+X-Mailer: Mail User's Shell (7.2.5 10/14/92)
+To: Philip Dodd <spambox@two-towers.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.24 and exec-shield-2.4.23-G4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 08:52:28PM +0100, Andries Brouwer wrote:
+On Jan 5,  9:36pm, Philip Dodd wrote:
+} Subject: 2.4.24 and exec-shield-2.4.23-G4
 
-> > udev can then use those serial numbers to have a stable pathname
+> Hi all,
+
+Good evening, hope the day is going well for everyone.
+
+> Just a quick query - I rebuilt the kernel on one of the machines here 
+> and I was running the previous 2.4.23 with Ingo's exec-shield patch.  I 
+> got the same patch (2.4.23-G4) to apply pretty easily (the mmremap hunk 
+> applied with an offset, only the makefile failed, patched by hand) and 
+> was just wondering if it is reasonable to assume the mmremap patch in 
+> 2.4.24 won't impact the exec-shield patch.  The patch in question is 
+> attached here.
 > 
-> True. Provided that it knows how to get them.
-> The kernel driver knew all about the device.
-> Must udev also know all about all possible devices?
+> I'm a bit of a neopyhte, but a quick look through the code didn't 
+> suggest that it would have any leathal effect.  Am I wrong and will my 
+> PC catch fire overnight because of this? :-D
 
-No. But it must have rules about what to do with all possible device
-types (at least very generic default rules), based on the data the
-drivers can provide to identify the device.
+The preliminary indications I have indicate there are problems.
 
-> Do I/O to these devices?
+I applied the 2.4.23-G4 patch from Ingo with the same results you had,
+ie the the mmremap offset and Makefile failures.  Compiled and
+rebooted the kernel on a test machine.
 
-If the using an UUID stored on the device (like the filesystem UUID), yes.
+XFree86 4.3.0 with the RedHat patches now fails to start with a SIG11
+error.  Turning off exec-shield (echoing 0 to
+/proc/sys/kernel/exec-shield) enables XFree to start normally.
 
-> Or must sysfs export all data that could possibly be used?
+So it would seem that something changed with the mremap changes in
+2.4.24.
 
-Not necessarily. But udev must get the all the data that could possibly
-be used for assigning a name to the device. It can get them either as
-hotplug command line arguments and environment variables or via sysfs,
-or by any other means.
+> Thanks in advance,
+> 
+> Phil
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Have a good day.
+
+Greg
+
+}-- End of excerpt from Philip Dodd
+
+As always,
+Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
+4206 N. 19th Ave.           Specializing in information infra-structure
+Fargo, ND  58102            development.
+PH: 701-281-1686
+FAX: 701-281-3949           EMAIL: greg@enjellic.com
+------------------------------------------------------------------------------
+"The POP3 server service depends on the SMTP server service, which failed
+to start because of the following error:  The operation completed
+succesfully."
+                                -- Windows NT server v3.51

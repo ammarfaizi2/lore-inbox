@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUE3Gx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUE3G6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbUE3Gx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 02:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUE3Gx6
+	id S261914AbUE3G6O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 02:58:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUE3G6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 02:53:58 -0400
-Received: from hera.kernel.org ([63.209.29.2]:42643 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261857AbUE3Gx4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 02:53:56 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: ftp.kernel.org
-Date: Sun, 30 May 2004 06:52:47 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c9c0bv$g7b$1@terminus.zytor.com>
-References: <jbglaw@lug-owl.de> <200405292105.i4TL5mdT004928@pincoya.inf.utfsm.cl>
+	Sun, 30 May 2004 02:58:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37320 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261879AbUE3G6M convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 02:58:12 -0400
+Date: Sat, 29 May 2004 23:57:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zoltan Boszormenyi <zboszor@freemail.hu>
+Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>
+Subject: Re: bk-drm patch missing from 2.6.6-mm2 and later?
+Message-Id: <20040529235734.2d7acfb5.akpm@osdl.org>
+In-Reply-To: <40B982D0.60904@freemail.hu>
+References: <40B97F6A.1030008@freemail.hu>
+	<40B982D0.60904@freemail.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1085899967 16620 127.0.0.1 (30 May 2004 06:52:47 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sun, 30 May 2004 06:52:47 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200405292105.i4TL5mdT004928@pincoya.inf.utfsm.cl>
-By author:    Horst von Brand <vonbrand@inf.utfsm.cl>
-In newsgroup: linux.dev.kernel
+Zoltan Boszormenyi <zboszor@freemail.hu> wrote:
+>
+> Zoltan Boszormenyi írta:
+> > Hi,
+> > 
+> > 2.6.6-mm1 has it, 2.6.6-mm2 and later does not
+> > and announce.txt from 2.6.6-mm2 does not say
+> > anything about why it has been dropped.
+> > 2.6.7-rc1 does not seem to have it either.
+> > Would you please include it again or at least
+> > say something about it...
+> > 
+> > Best regards,
+> > Zoltán Böszörményi
+> > 
 > 
-> > If you see aborts [with rsync], properly set the timeout parameter...
-> 
-> With mirror you can use file patterns to include/exclude (e.g. get just the
-> .bz2 versions (not redundant .gz)), only consider "new" files (i.e.,
-> exclude anything more than a week old), etc.
-> 
+> Sorry, I searched for "dri" instead of "drm".
+> 2.6.7-rc1 has the patch.
 
-You can do that with rsync as well.  If there is something specific
-you need that isn't there I'm sure if you report it it will be there
-soon, too.
-
-	-hpa
+Yes, but it's empty.   Dave, is the latest DRM devel tree
+at http://drm.bkbits.net/drm-2.6?

@@ -1,59 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289725AbSAOW5h>; Tue, 15 Jan 2002 17:57:37 -0500
+	id <S289727AbSAOW5r>; Tue, 15 Jan 2002 17:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289728AbSAOW5b>; Tue, 15 Jan 2002 17:57:31 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:56192
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S289725AbSAOW5S>; Tue, 15 Jan 2002 17:57:18 -0500
-Date: Tue, 15 Jan 2002 15:56:52 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Justin Carlson <justincarlson@cmu.edu>, esr@thyrsus.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Message-ID: <20020115225652.GB5220@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20020115013025.GA3814@cpe-24-221-152-185.az.sprintbbd.net> <197055869.1011134770@[195.224.237.69]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <197055869.1011134770@[195.224.237.69]>
-User-Agent: Mutt/1.3.25i
+	id <S289728AbSAOW5j>; Tue, 15 Jan 2002 17:57:39 -0500
+Received: from gw.wmich.edu ([141.218.1.100]:49860 "EHLO gw.wmich.edu")
+	by vger.kernel.org with ESMTP id <S289727AbSAOW5Z>;
+	Tue, 15 Jan 2002 17:57:25 -0500
+Message-ID: <000f01c19e18$469a3700$0501a8c0@psuedogod>
+From: "Ed Sweetman" <ed.sweetman@wmich.edu>
+To: "Nicholas Lee" <nj.lee@plumtree.co.nz>,
+        "Ville Herva" <vherva@niksula.hut.fi>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020115202302.GA598@inktiger.kiwa.co.nz> <20020115205116.GH51648@niksula.cs.hut.fi> <20020115211032.GC598@inktiger.kiwa.co.nz> <20020115214049.GI51648@niksula.cs.hut.fi> <20020115220211.GE598@inktiger.kiwa.co.nz>
+Subject: Re: Disk corruption - Abit KT7, 2.2.19+ide patches
+Date: Tue, 15 Jan 2002 17:59:19 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 10:46:11PM -0000, Alex Bligh - linux-kernel wrote:
-> >>From the other side, how does having the ability to probe local hardware
-> >>hurt?  It should be cleanly seperable from the classical build process
-> >>for the purists, and helpful to some (I think) significant portion of
-> >>the userbase, particularly those folks who like to test bleeding edge
-> >>stuff on a variety of hardware.  I don't really understand the
-> >>resistance to the idea of someone going out and implementing this.
+
+> On Tue, Jan 15, 2002 at 11:40:49PM +0200, Ville Herva wrote:
 > >
-> >Right, and this is 95% possible even.  Doing PCI stuff is rather easy
-> >(since we've got it all mapped out even).  The problem is the 100%
-> >point-click-run goal that Eric has.
+> > Hmm, do the pci ids map somehow to physical pci slots? It seems one
+>
+> Im not sure. Someone in the mailing list should know though. 8)
+>
+> > particular physical pci slot location is troublesome in our case. It
+caused
+> > problems with nic and even with a scsi adapter. Unfortunately I can't
+> > remember which slot it was - I'll have to check (I _think_ it was the
+third
+> > counting from bottom).
 > >
-> >The original sticking point was doing ISA (and other buses that are
-> >_not_ autodetect friendly in a safe way).
-> 
-> & this has a seemingly obvious solution,
-[snip]
+> > So I'm interested in the physical location of you nic...
+>
+> Ok. I can't check the machine in Wellington, but in the machine here.
+> Not couting the AGP slot, the NIC is sitting in the third slot in the
+> back of the box.
+>
+>
+> I'd have to open it (later today when the office is closed) to comfirm
+> its sitting in the 'third' PCI slot from the CPU.
+>
+> The NIC is the only PCI card in this machines. The video card being a
+> basic AGP one. (This is the other difference with the machine in
+> Wellington which has an old but expensive PCI video card.)
+>
+>
+> The problem with moving the card, is that the problem exhibits very
+> slowly. After the previous problems with the Seagate drive reseting and
+> the computer finally crashing majorly I replaced the drive and
+> everything seemed fine.
+>
+> Only now have I notice the problems.
+>
 
-> those, which when loaded on a system not containing the relevant
-> card, can cause a hangup; thus deferring the autoprobing until
-> boot time.
+sounds like you're using the shared irq slot, might want to verify that with
+lspci -vvv to see if anything else is using an irq at the time that's the
+same as the card in that slot.  Also some places will do various special
+things to one of the last pci slots, you should be able to find out by
+looking in the manual.  Some cards just dont play nicely with shared irqs.
 
-If everything worked before as a module, this works still.  If not, you
-need to have a for loop or something that attempts to load every XXX
-subsystem driver.
+Then there's always the locality to some other device in the case possibly
+causing your problem.   many reasons could cause the problem you're
+describing.   I'm not really sure how this is a linux problem though since
+you mention it's occuring only in a certain physical slot.
 
-But the point I was getting at is the 100% solution isn't possible.
-Even if we narrow the scope of the problem to just x86 hardware, theres
-still things which can't be solved.  Talking to random memory locations
-will bite you at somepoint on some hw.  Old busses weren't designed with
-any sort of autoconfig in mind.
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/

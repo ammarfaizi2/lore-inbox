@@ -1,862 +1,780 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261839AbSJ2Qj3>; Tue, 29 Oct 2002 11:39:29 -0500
+	id <S262040AbSJ2QhV>; Tue, 29 Oct 2002 11:37:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261724AbSJ2Qi1>; Tue, 29 Oct 2002 11:38:27 -0500
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:40928 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S261839AbSJ2Qfx>;
-	Tue, 29 Oct 2002 11:35:53 -0500
+	id <S262038AbSJ2QhV>; Tue, 29 Oct 2002 11:37:21 -0500
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:37856 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S261611AbSJ2Qfp>;
+	Tue, 29 Oct 2002 11:35:45 -0500
 To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: [PATCH] 4/11  Ext2/3 Updates: Extended attributes, ACL, etc.
+Subject: [PATCH] 1/11  Ext2/3 Updates: Extended attributes, ACL, etc.
 From: tytso@mit.edu
-Message-Id: <E186ZRW-0006tW-00@snap.thunk.org>
-Date: Tue, 29 Oct 2002 11:42:14 -0500
+Message-Id: <E186ZRO-0006tQ-00@snap.thunk.org>
+Date: Tue, 29 Oct 2002 11:42:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Port of the 0.8.50 xattr-mbcache patch to 2.5.  (Shrinker API, hch cleanups)
-(now uses struct block_device * to index devices, and uses hash.h for
-hash function)
+Default mount options from superblock for ext2/3 filesystems
 
-This patch creates a meta block cache which is utilized by the ext3 and
-ext2 extended attribute patch (patches 2 and 3, respectively).  This
-cache allows directory blocks to be indexed by multiple keys.  In the
-case of the extended attribute patches, it is used to look up blocks by
-both the block number and by the hash of the extended attributes.  This
-is extremely important to allow the sharing of acl's when stored as
-extended attributes.  Otherwise every single file would require its own,
-separate, one block overhead to store then ACL, even though there might
-be a large number of files that have the same ACL.
+This patch adds support for default mount options to be stored in the
+superblock, so they don't have to be specified on the mount command line
+(or in /etc/fstab).  While I was in the code, I also cleaned up the
+handling of how mount options are processed in the ext2 and ext3
+filesystems.
 
-fs/Config.in            |   11 
-fs/Makefile             |    4 
-fs/mbcache.c            |  702 ++++++++++++++++++++++++++++++++++++++++++++++++
-include/linux/mbcache.h |   72 ++++
-4 files changed, 788 insertions(+), 1 deletion(-)
+Most mount options are now processed *after* the superblock has been
+read in.  This allows for a much cleaner handling of those default mount
+option parameters that were already stored in the superblock: the
+resuid, resgid, and s_errors fields were handled using some fairly gross
+special cases.  Now the only mount option which is processed first is
+the sb option, which specifies the location of the superblock.  This
+allows the handling of all of the default mount parameters to be much
+more cleanly and more generally handled.
 
-diff -Nru a/fs/Config.in b/fs/Config.in
---- a/fs/Config.in	Tue Oct 29 09:54:48 2002
-+++ b/fs/Config.in	Tue Oct 29 09:54:48 2002
-@@ -185,6 +185,17 @@
-    define_tristate CONFIG_ZISOFS_FS n
- fi
+This does change the behaviour from earlier kernels, in that if the sb
+mount option is specified, it must be specified *first*.  However, this
+option is rarely used, and if it is, it generally is specified first, so
+this seems to be a reasonable restriction.
+
+fs/ext2/super.c         |  194 +++++++++++++++++++++++++-----------------------
+fs/ext3/super.c         |  185 +++++++++++++++++++++++----------------------
+include/linux/ext2_fs.h |   28 ++++++
+include/linux/ext3_fs.h |   16 +++
+4 files changed, 242 insertions(+), 181 deletions(-)
+
+diff -Nru a/fs/ext2/super.c b/fs/ext2/super.c
+--- a/fs/ext2/super.c	Tue Oct 29 09:54:21 2002
++++ b/fs/ext2/super.c	Tue Oct 29 09:54:21 2002
+@@ -52,16 +52,12 @@
+ 	va_start (args, fmt);
+ 	vsprintf (error_buf, fmt, args);
+ 	va_end (args);
+-	if (test_opt (sb, ERRORS_PANIC) ||
+-	    (le16_to_cpu(sbi->s_es->s_errors) == EXT2_ERRORS_PANIC &&
+-	     !test_opt (sb, ERRORS_CONT) && !test_opt (sb, ERRORS_RO)))
++	if (test_opt (sb, ERRORS_PANIC))
+ 		panic ("EXT2-fs panic (device %s): %s: %s\n",
+ 		       sb->s_id, function, error_buf);
+ 	printk (KERN_CRIT "EXT2-fs error (device %s): %s: %s\n",
+ 		sb->s_id, function, error_buf);
+-	if (test_opt (sb, ERRORS_RO) ||
+-	    (le16_to_cpu(sbi->s_es->s_errors) == EXT2_ERRORS_RO &&
+-	     !test_opt (sb, ERRORS_CONT) && !test_opt (sb, ERRORS_PANIC))) {
++	if (test_opt (sb, ERRORS_RO)) {
+ 		printk ("Remounting filesystem read-only\n");
+ 		sb->s_flags |= MS_RDONLY;
+ 	}
+@@ -216,12 +212,61 @@
+ 	.get_parent = ext2_get_parent,
+ };
  
-+# Meta block cache for Extended Attributes (ext2/ext3)
-+if [ "$CONFIG_EXT2_FS_XATTR" = "y" -o "$CONFIG_EXT3_FS_XATTR" = "y" ]; then
-+   if [ "$CONFIG_EXT2_FS" = "y" -o "$CONFIG_EXT3_FS" = "y" ]; then
-+      define_tristate CONFIG_FS_MBCACHE y
-+   else
-+      if [ "$CONFIG_EXT2_FS" = "m" -o "$CONFIG_EXT3_FS" = "m" ]; then
-+         define_tristate CONFIG_FS_MBCACHE m
-+      fi
-+   fi
-+fi
-+
- mainmenu_option next_comment
- comment 'Partition Types'
- source fs/partitions/Config.in
-diff -Nru a/fs/Makefile b/fs/Makefile
---- a/fs/Makefile	Tue Oct 29 09:54:48 2002
-+++ b/fs/Makefile	Tue Oct 29 09:54:48 2002
-@@ -6,7 +6,7 @@
- # 
- 
- export-objs :=	open.o dcache.o buffer.o bio.o inode.o dquot.o mpage.o aio.o \
--                fcntl.o read_write.o dcookies.o
-+                fcntl.o read_write.o dcookies.o mbcache.o
- 
- obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
- 		bio.o super.o block_dev.o char_dev.o stat.o exec.o pipe.o \
-@@ -29,6 +29,8 @@
- obj-y				+= binfmt_script.o
- 
- obj-$(CONFIG_BINFMT_ELF)	+= binfmt_elf.o
-+
-+obj-$(CONFIG_FS_MBCACHE)	+= mbcache.o
- 
- obj-$(CONFIG_QUOTA)		+= dquot.o
- obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
-diff -Nru a/fs/mbcache.c b/fs/mbcache.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/mbcache.c	Tue Oct 29 09:54:48 2002
-@@ -0,0 +1,702 @@
-+/*
-+ * linux/fs/mbcache.c
-+ * (C) 2001-2002 Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+ */
-+
-+/*
-+ * Filesystem Meta Information Block Cache (mbcache)
-+ *
-+ * The mbcache caches blocks of block devices that need to be located
-+ * by their device/block number, as well as by other criteria (such
-+ * as the block's contents).
-+ *
-+ * There can only be one cache entry in a cache per device and block number.
-+ * Additional indexes need not be unique in this sense. The number of
-+ * additional indexes (=other criteria) can be hardwired (at compile time)
-+ * or specified at cache create time.
-+ *
-+ * Each cache entry is of fixed size. An entry may be `valid' or `invalid'
-+ * in the cache. A valid entry is in the main hash tables of the cache,
-+ * and may also be in the lru list. An invalid entry is not in any hashes
-+ * or lists.
-+ *
-+ * A valid cache entry is only in the lru list if no handles refer to it.
-+ * Invalid cache entries will be freed when the last handle to the cache
-+ * entry is released.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+
-+#include <linux/hash.h>
-+#include <linux/fs.h>
-+#include <linux/mm.h>
-+#include <linux/slab.h>
-+#include <linux/sched.h>
-+#include <linux/init.h>
-+#include <linux/mbcache.h>
-+
-+
-+#ifdef MB_CACHE_DEBUG
-+# define mb_debug(f...) do { \
-+		printk(KERN_DEBUG f); \
-+		printk("\n"); \
-+	} while (0)
-+#define mb_assert(c) do { if (!(c)) \
-+		printk(KERN_ERR "assertion " #c " failed\n"); \
-+	} while(0)
-+#else
-+# define mb_debug(f...) do { } while(0)
-+# define mb_assert(c) do { } while(0)
-+#endif
-+#define mb_error(f...) do { \
-+		printk(KERN_ERR f); \
-+		printk("\n"); \
-+	} while(0)
-+		
-+MODULE_AUTHOR("Andreas Gruenbacher <a.gruenbacher@computer.org>");
-+MODULE_DESCRIPTION("Meta block cache (for extended attributes)");
-+MODULE_LICENSE("GPL");
-+
-+EXPORT_SYMBOL(mb_cache_create);
-+EXPORT_SYMBOL(mb_cache_shrink);
-+EXPORT_SYMBOL(mb_cache_destroy);
-+EXPORT_SYMBOL(mb_cache_entry_alloc);
-+EXPORT_SYMBOL(mb_cache_entry_insert);
-+EXPORT_SYMBOL(mb_cache_entry_release);
-+EXPORT_SYMBOL(mb_cache_entry_takeout);
-+EXPORT_SYMBOL(mb_cache_entry_free);
-+EXPORT_SYMBOL(mb_cache_entry_dup);
-+EXPORT_SYMBOL(mb_cache_entry_get);
-+#if !defined(MB_CACHE_INDEXES_COUNT) || (MB_CACHE_INDEXES_COUNT > 0)
-+EXPORT_SYMBOL(mb_cache_entry_find_first);
-+EXPORT_SYMBOL(mb_cache_entry_find_next);
-+#endif
-+
-+
-+/*
-+ * Global data: list of all mbcache's, lru list, and a spinlock for
-+ * accessing cache data structures on SMP machines. (The lru list is
-+ * global across all mbcaches.)
-+ */
-+
-+static LIST_HEAD(mb_cache_list);
-+static LIST_HEAD(mb_cache_lru_list);
-+static spinlock_t mb_cache_spinlock = SPIN_LOCK_UNLOCKED;
-+static struct shrinker *mb_shrinker;
-+
-+static inline int
-+mb_cache_indexes(struct mb_cache *cache)
++static unsigned long get_sb_block(void **data)
 +{
-+#ifdef MB_CACHE_INDEXES_COUNT
-+	return MB_CACHE_INDEXES_COUNT;
-+#else
-+	return cache->c_indexes_count;
-+#endif
++	unsigned long 	sb_block;
++	char 		*options = (char *) *data;
++
++	if (!options || strncmp(options, "sb=", 3) != 0)
++		return 1;	/* Default location */
++	options += 3;
++	sb_block = simple_strtoul(options, &options, 0);
++	if (*options && *options != ',') {
++		printk("EXT2-fs: Invalid sb specification: %s\n",
++		       (char *) *data);
++		return 1;
++	}
++	if (*options == ',')
++		options++;
++	*data = (void *) options;
++	return sb_block;
 +}
 +
-+/*
-+ * What the mbcache registers as to get shrunk dynamically.
-+ */
-+
-+static int mb_cache_shrink_fn(int nr_to_scan, unsigned int gfp_mask);
-+
-+static inline void
-+__mb_cache_entry_takeout_lru(struct mb_cache_entry *ce)
++static int want_value(char *value, char *option)
 +{
-+	if (!list_empty(&ce->e_lru_list))
-+		list_del_init(&ce->e_lru_list);
++	if (!value || !*value) {
++		printk(KERN_NOTICE "EXT2-fs: the %s option needs an argument\n",
++		       option);
++		return -1;
++	}
++	return 0;
 +}
 +
-+
-+static inline void
-+__mb_cache_entry_into_lru(struct mb_cache_entry *ce)
++static int want_null_value(char *value, char *option)
 +{
-+	list_add(&ce->e_lru_list, &mb_cache_lru_list);
++	if (*value) {
++		printk(KERN_NOTICE "EXT2-fs: Invalid %s argument: %s\n",
++		       option, value);
++		return -1;
++	}
++	return 0;
 +}
 +
-+
-+static inline int
-+__mb_cache_entry_in_lru(struct mb_cache_entry *ce)
++static int want_numeric(char *value, char *option, unsigned long *number)
 +{
-+	return (!list_empty(&ce->e_lru_list));
++	if (want_value(value, option))
++		return -1;
++	*number = simple_strtoul(value, &value, 0);
++	if (want_null_value(value, option))
++		return -1;
++	return 0;
 +}
 +
+ /*
+  * This function has been shamelessly adapted from the msdos fs
+  */
+-static int parse_options (char * options, unsigned long * sb_block,
+-			  unsigned short *resuid, unsigned short * resgid,
+-			  unsigned long * mount_options)
++static int parse_options (char * options,
++			  struct ext2_sb_info *sbi)
+ {
+ 	char * this_char;
+ 	char * value;
+@@ -234,22 +279,22 @@
+ 		if ((value = strchr (this_char, '=')) != NULL)
+ 			*value++ = 0;
+ 		if (!strcmp (this_char, "bsddf"))
+-			clear_opt (*mount_options, MINIX_DF);
++			clear_opt (sbi->s_mount_opt, MINIX_DF);
+ 		else if (!strcmp (this_char, "nouid32")) {
+-			set_opt (*mount_options, NO_UID32);
++			set_opt (sbi->s_mount_opt, NO_UID32);
+ 		}
+ 		else if (!strcmp (this_char, "check")) {
+ 			if (!value || !*value || !strcmp (value, "none"))
+-				clear_opt (*mount_options, CHECK);
++				clear_opt (sbi->s_mount_opt, CHECK);
+ 			else
+ #ifdef CONFIG_EXT2_CHECK
+-				set_opt (*mount_options, CHECK);
++				set_opt (sbi->s_mount_opt, CHECK);
+ #else
+ 				printk("EXT2 Check option not supported\n");
+ #endif
+ 		}
+ 		else if (!strcmp (this_char, "debug"))
+-			set_opt (*mount_options, DEBUG);
++			set_opt (sbi->s_mount_opt, DEBUG);
+ 		else if (!strcmp (this_char, "errors")) {
+ 			if (!value || !*value) {
+ 				printk ("EXT2-fs: the errors option requires "
+@@ -257,19 +302,19 @@
+ 				return 0;
+ 			}
+ 			if (!strcmp (value, "continue")) {
+-				clear_opt (*mount_options, ERRORS_RO);
+-				clear_opt (*mount_options, ERRORS_PANIC);
+-				set_opt (*mount_options, ERRORS_CONT);
++				clear_opt (sbi->s_mount_opt, ERRORS_RO);
++				clear_opt (sbi->s_mount_opt, ERRORS_PANIC);
++				set_opt (sbi->s_mount_opt, ERRORS_CONT);
+ 			}
+ 			else if (!strcmp (value, "remount-ro")) {
+-				clear_opt (*mount_options, ERRORS_CONT);
+-				clear_opt (*mount_options, ERRORS_PANIC);
+-				set_opt (*mount_options, ERRORS_RO);
++				clear_opt (sbi->s_mount_opt, ERRORS_CONT);
++				clear_opt (sbi->s_mount_opt, ERRORS_PANIC);
++				set_opt (sbi->s_mount_opt, ERRORS_RO);
+ 			}
+ 			else if (!strcmp (value, "panic")) {
+-				clear_opt (*mount_options, ERRORS_CONT);
+-				clear_opt (*mount_options, ERRORS_RO);
+-				set_opt (*mount_options, ERRORS_PANIC);
++				clear_opt (sbi->s_mount_opt, ERRORS_CONT);
++				clear_opt (sbi->s_mount_opt, ERRORS_RO);
++				set_opt (sbi->s_mount_opt, ERRORS_PANIC);
+ 			}
+ 			else {
+ 				printk ("EXT2-fs: Invalid errors option: %s\n",
+@@ -279,52 +324,25 @@
+ 		}
+ 		else if (!strcmp (this_char, "grpid") ||
+ 			 !strcmp (this_char, "bsdgroups"))
+-			set_opt (*mount_options, GRPID);
++			set_opt (sbi->s_mount_opt, GRPID);
+ 		else if (!strcmp (this_char, "minixdf"))
+-			set_opt (*mount_options, MINIX_DF);
++			set_opt (sbi->s_mount_opt, MINIX_DF);
+ 		else if (!strcmp (this_char, "nocheck"))
+-			clear_opt (*mount_options, CHECK);
++			clear_opt (sbi->s_mount_opt, CHECK);
+ 		else if (!strcmp (this_char, "nogrpid") ||
+ 			 !strcmp (this_char, "sysvgroups"))
+-			clear_opt (*mount_options, GRPID);
++			clear_opt (sbi->s_mount_opt, GRPID);
+ 		else if (!strcmp (this_char, "resgid")) {
+-			if (!value || !*value) {
+-				printk ("EXT2-fs: the resgid option requires "
+-					"an argument\n");
++			unsigned long v;
++			if (want_numeric(value, "resgid", &v))
+ 				return 0;
+-			}
+-			*resgid = simple_strtoul (value, &value, 0);
+-			if (*value) {
+-				printk ("EXT2-fs: Invalid resgid option: %s\n",
+-					value);
+-				return 0;
+-			}
++			sbi->s_resgid = v;
+ 		}
+ 		else if (!strcmp (this_char, "resuid")) {
+-			if (!value || !*value) {
+-				printk ("EXT2-fs: the resuid option requires "
+-					"an argument");
+-				return 0;
+-			}
+-			*resuid = simple_strtoul (value, &value, 0);
+-			if (*value) {
+-				printk ("EXT2-fs: Invalid resuid option: %s\n",
+-					value);
+-				return 0;
+-			}
+-		}
+-		else if (!strcmp (this_char, "sb")) {
+-			if (!value || !*value) {
+-				printk ("EXT2-fs: the sb option requires "
+-					"an argument");
+-				return 0;
+-			}
+-			*sb_block = simple_strtoul (value, &value, 0);
+-			if (*value) {
+-				printk ("EXT2-fs: Invalid sb option: %s\n",
+-					value);
++			unsigned long v;
++			if (want_numeric(value, "resuid", &v))
+ 				return 0;
+-			}
++			sbi->s_resuid = v;
+ 		}
+ 		/* Silently ignore the quota options */
+ 		else if (!strcmp (this_char, "grpquota")
+@@ -464,10 +482,9 @@
+ 	struct ext2_sb_info * sbi;
+ 	struct ext2_super_block * es;
+ 	unsigned long sb_block = 1;
+-	unsigned short resuid = EXT2_DEF_RESUID;
+-	unsigned short resgid = EXT2_DEF_RESGID;
+-	unsigned long logic_sb_block = 1;
++	unsigned long logic_sb_block = get_sb_block(&data);
+ 	unsigned long offset = 0;
++	unsigned long def_mount_opts;
+ 	int blocksize = BLOCK_SIZE;
+ 	int db_count;
+ 	int i, j;
+@@ -485,12 +502,6 @@
+ 	 * This is important for devices that have a hardware
+ 	 * sectorsize that is larger than the default.
+ 	 */
+-
+-	sbi->s_mount_opt = 0;
+-	if (!parse_options ((char *) data, &sb_block, &resuid, &resgid,
+-	    &sbi->s_mount_opt))
+-		goto failed_sbi;
+-
+ 	blocksize = sb_min_blocksize(sb, BLOCK_SIZE);
+ 	if (!blocksize) {
+ 		printk ("EXT2-fs: unable to set blocksize\n");
+@@ -498,9 +509,8 @@
+ 	}
+ 
+ 	/*
+-	 * If the superblock doesn't start on a sector boundary,
+-	 * calculate the offset.  FIXME(eric) this doesn't make sense
+-	 * that we would have to do this.
++	 * If the superblock doesn't start on a hardware sector boundary,
++	 * calculate the offset.  
+ 	 */
+ 	if (blocksize != BLOCK_SIZE) {
+ 		logic_sb_block = (sb_block*BLOCK_SIZE) / blocksize;
+@@ -524,6 +534,27 @@
+ 				sb->s_id);
+ 		goto failed_mount;
+ 	}
 +
-+/*
-+ * Insert the cache entry into all hashes.
-+ */
-+static inline void
-+__mb_cache_entry_link(struct mb_cache_entry *ce)
-+{
-+	struct mb_cache *cache = ce->e_cache;
-+	unsigned int bucket;
-+	int n;
++	/* Set defaults before we parse the mount options */
++	def_mount_opts = le32_to_cpu(es->s_default_mount_opts);
++	if (def_mount_opts & EXT2_DEFM_DEBUG)
++		set_opt(sbi->s_mount_opt, DEBUG);
++	if (def_mount_opts & EXT2_DEFM_BSDGROUPS)
++		set_opt(sbi->s_mount_opt, GRPID);
++	if (def_mount_opts & EXT2_DEFM_UID16)
++		set_opt(sbi->s_mount_opt, NO_UID32);
 +	
-+	bucket = hash_long((unsigned long)ce->e_bdev +
-+			   (ce->e_block & 0xffffff), cache->c_bucket_bits);
-+	list_add(&ce->e_block_list, &cache->c_block_hash[bucket]);
-+	for (n=0; n<mb_cache_indexes(cache); n++) {
-+		bucket = hash_long(ce->e_indexes[n].o_key,
-+				   cache->c_bucket_bits);
-+		list_add(&ce->e_indexes[n].o_list,
-+		         &cache->c_indexes_hash[n][bucket]);
++	if (le16_to_cpu(sbi->s_es->s_errors) == EXT2_ERRORS_PANIC)
++		set_opt(sbi->s_mount_opt, ERRORS_PANIC);
++	else if (le16_to_cpu(sbi->s_es->s_errors) == EXT2_ERRORS_RO)
++		set_opt(sbi->s_mount_opt, ERRORS_RO);
++
++	sbi->s_resuid = le16_to_cpu(es->s_def_resuid);
++	sbi->s_resgid = le16_to_cpu(es->s_def_resgid);
++	
++	if (!parse_options ((char *) data, sbi))
++		goto failed_mount;
++
+ 	if (le32_to_cpu(es->s_rev_level) == EXT2_GOOD_OLD_REV &&
+ 	    (EXT2_HAS_COMPAT_FEATURE(sb, ~0U) ||
+ 	     EXT2_HAS_RO_COMPAT_FEATURE(sb, ~0U) ||
+@@ -605,14 +636,6 @@
+ 	sbi->s_desc_per_block = sb->s_blocksize /
+ 					 sizeof (struct ext2_group_desc);
+ 	sbi->s_sbh = bh;
+-	if (resuid != EXT2_DEF_RESUID)
+-		sbi->s_resuid = resuid;
+-	else
+-		sbi->s_resuid = le16_to_cpu(es->s_def_resuid);
+-	if (resgid != EXT2_DEF_RESGID)
+-		sbi->s_resgid = resgid;
+-	else
+-		sbi->s_resgid = le16_to_cpu(es->s_def_resgid);
+ 	sbi->s_mount_state = le16_to_cpu(es->s_state);
+ 	sbi->s_addr_per_block_bits =
+ 		log2 (EXT2_ADDR_PER_BLOCK(sb));
+@@ -767,22 +790,13 @@
+ {
+ 	struct ext2_sb_info * sbi = EXT2_SB(sb);
+ 	struct ext2_super_block * es;
+-	unsigned short resuid = sbi->s_resuid;
+-	unsigned short resgid = sbi->s_resgid;
+-	unsigned long new_mount_opt;
+-	unsigned long tmp;
+ 
+ 	/*
+ 	 * Allow the "check" option to be passed as a remount option.
+ 	 */
+-	new_mount_opt = sbi->s_mount_opt;
+-	if (!parse_options (data, &tmp, &resuid, &resgid,
+-			    &new_mount_opt))
++	if (!parse_options (data, sbi))
+ 		return -EINVAL;
+ 
+-	sbi->s_mount_opt = new_mount_opt;
+-	sbi->s_resuid = resuid;
+-	sbi->s_resgid = resgid;
+ 	es = sbi->s_es;
+ 	if ((*flags & MS_RDONLY) == (sb->s_flags & MS_RDONLY))
+ 		return 0;
+diff -Nru a/fs/ext3/super.c b/fs/ext3/super.c
+--- a/fs/ext3/super.c	Tue Oct 29 09:54:21 2002
++++ b/fs/ext3/super.c	Tue Oct 29 09:54:21 2002
+@@ -105,32 +105,6 @@
+ 
+ static char error_buf[1024];
+ 
+-/* Determine the appropriate response to ext3_error on a given filesystem */
+-
+-static int ext3_error_behaviour(struct super_block *sb)
+-{
+-	/* First check for mount-time options */
+-	if (test_opt (sb, ERRORS_PANIC))
+-		return EXT3_ERRORS_PANIC;
+-	if (test_opt (sb, ERRORS_RO))
+-		return EXT3_ERRORS_RO;
+-	if (test_opt (sb, ERRORS_CONT))
+-		return EXT3_ERRORS_CONTINUE;
+-	
+-	/* If no overrides were specified on the mount, then fall back
+-	 * to the default behaviour set in the filesystem's superblock
+-	 * on disk. */
+-	switch (le16_to_cpu(EXT3_SB(sb)->s_es->s_errors)) {
+-	case EXT3_ERRORS_PANIC:
+-		return EXT3_ERRORS_PANIC;
+-	case EXT3_ERRORS_RO:
+-		return EXT3_ERRORS_RO;
+-	default:
+-		break;
+-	}
+-	return EXT3_ERRORS_CONTINUE;
+-}
+-
+ /* Deal with the reporting of failure conditions on a filesystem such as
+  * inconsistencies detected or read IO failures.
+  *
+@@ -156,20 +130,16 @@
+ 	if (sb->s_flags & MS_RDONLY)
+ 		return;
+ 
+-	if (ext3_error_behaviour(sb) != EXT3_ERRORS_CONTINUE) {
+-		EXT3_SB(sb)->s_mount_opt |= EXT3_MOUNT_ABORT;
+-		journal_abort(EXT3_SB(sb)->s_journal, -EIO);
+-	}
+-
+-	if (ext3_error_behaviour(sb) == EXT3_ERRORS_PANIC) 
++	if (test_opt (sb, ERRORS_PANIC))
+ 		panic ("EXT3-fs (device %s): panic forced after error\n",
+ 		       sb->s_id);
+-
+-	if (ext3_error_behaviour(sb) == EXT3_ERRORS_RO) {
++	if (test_opt (sb, ERRORS_RO)) {
+ 		printk (KERN_CRIT "Remounting filesystem read-only\n");
+ 		sb->s_flags |= MS_RDONLY;
++	} else {
++		EXT3_SB(sb)->s_mount_opt |= EXT3_MOUNT_ABORT;
++		journal_abort(EXT3_SB(sb)->s_journal, -EIO);
+ 	}
+-
+ 	ext3_commit_super(sb, es, 1);
+ }
+ 
+@@ -257,7 +227,7 @@
+ 	vsprintf (error_buf, fmt, args);
+ 	va_end (args);
+ 
+-	if (ext3_error_behaviour(sb) == EXT3_ERRORS_PANIC)
++	if (test_opt (sb, ERRORS_PANIC))
+ 		panic ("EXT3-fs panic (device %s): %s: %s\n",
+ 		       sb->s_id, function, error_buf);
+ 
+@@ -545,17 +515,32 @@
+ 	return 0;
+ }
+ 
++static unsigned long get_sb_block(void **data)
++{
++	unsigned long 	sb_block;
++	char 		*options = (char *) *data;
++
++	if (!options || strncmp(options, "sb=", 3) != 0)
++		return 1;	/* Default location */
++	options += 3;
++	sb_block = simple_strtoul(options, &options, 0);
++	if (*options && *options != ',') {
++		printk("EXT3-fs: Invalid sb specification: %s\n",
++		       (char *) *data);
++		return 1;
 +	}
++	if (*options == ',')
++		options++;
++	*data = (void *) options;
++	return sb_block;
 +}
 +
+ /*
+  * This function has been shamelessly adapted from the msdos fs
+  */
+-static int parse_options (char * options, unsigned long * sb_block,
+-			  struct ext3_sb_info *sbi,
+-			  unsigned long * inum,
+-			  int is_remount)
+-{
+-	unsigned long *mount_options = &sbi->s_mount_opt;
+-	uid_t *resuid = &sbi->s_resuid;
+-	gid_t *resgid = &sbi->s_resgid;
++static int parse_options (char * options, struct ext3_sb_info *sbi,
++			  unsigned long * inum, int is_remount)
++{
+ 	char * this_char;
+ 	char * value;
+ 
+@@ -567,42 +552,42 @@
+ 		if ((value = strchr (this_char, '=')) != NULL)
+ 			*value++ = 0;
+ 		if (!strcmp (this_char, "bsddf"))
+-			clear_opt (*mount_options, MINIX_DF);
++			clear_opt (sbi->s_mount_opt, MINIX_DF);
+ 		else if (!strcmp (this_char, "nouid32")) {
+-			set_opt (*mount_options, NO_UID32);
++			set_opt (sbi->s_mount_opt, NO_UID32);
+ 		}
+ 		else if (!strcmp (this_char, "abort"))
+-			set_opt (*mount_options, ABORT);
++			set_opt (sbi->s_mount_opt, ABORT);
+ 		else if (!strcmp (this_char, "check")) {
+ 			if (!value || !*value || !strcmp (value, "none"))
+-				clear_opt (*mount_options, CHECK);
++				clear_opt (sbi->s_mount_opt, CHECK);
+ 			else
+ #ifdef CONFIG_EXT3_CHECK
+-				set_opt (*mount_options, CHECK);
++				set_opt (sbi->s_mount_opt, CHECK);
+ #else
+ 				printk(KERN_ERR 
+ 				       "EXT3 Check option not supported\n");
+ #endif
+ 		}
+ 		else if (!strcmp (this_char, "debug"))
+-			set_opt (*mount_options, DEBUG);
++			set_opt (sbi->s_mount_opt, DEBUG);
+ 		else if (!strcmp (this_char, "errors")) {
+ 			if (want_value(value, "errors"))
+ 				return 0;
+ 			if (!strcmp (value, "continue")) {
+-				clear_opt (*mount_options, ERRORS_RO);
+-				clear_opt (*mount_options, ERRORS_PANIC);
+-				set_opt (*mount_options, ERRORS_CONT);
++				clear_opt (sbi->s_mount_opt, ERRORS_RO);
++				clear_opt (sbi->s_mount_opt, ERRORS_PANIC);
++				set_opt (sbi->s_mount_opt, ERRORS_CONT);
+ 			}
+ 			else if (!strcmp (value, "remount-ro")) {
+-				clear_opt (*mount_options, ERRORS_CONT);
+-				clear_opt (*mount_options, ERRORS_PANIC);
+-				set_opt (*mount_options, ERRORS_RO);
++				clear_opt (sbi->s_mount_opt, ERRORS_CONT);
++				clear_opt (sbi->s_mount_opt, ERRORS_PANIC);
++				set_opt (sbi->s_mount_opt, ERRORS_RO);
+ 			}
+ 			else if (!strcmp (value, "panic")) {
+-				clear_opt (*mount_options, ERRORS_CONT);
+-				clear_opt (*mount_options, ERRORS_RO);
+-				set_opt (*mount_options, ERRORS_PANIC);
++				clear_opt (sbi->s_mount_opt, ERRORS_CONT);
++				clear_opt (sbi->s_mount_opt, ERRORS_RO);
++				set_opt (sbi->s_mount_opt, ERRORS_PANIC);
+ 			}
+ 			else {
+ 				printk (KERN_ERR
+@@ -613,29 +598,25 @@
+ 		}
+ 		else if (!strcmp (this_char, "grpid") ||
+ 			 !strcmp (this_char, "bsdgroups"))
+-			set_opt (*mount_options, GRPID);
++			set_opt (sbi->s_mount_opt, GRPID);
+ 		else if (!strcmp (this_char, "minixdf"))
+-			set_opt (*mount_options, MINIX_DF);
++			set_opt (sbi->s_mount_opt, MINIX_DF);
+ 		else if (!strcmp (this_char, "nocheck"))
+-			clear_opt (*mount_options, CHECK);
++			clear_opt (sbi->s_mount_opt, CHECK);
+ 		else if (!strcmp (this_char, "nogrpid") ||
+ 			 !strcmp (this_char, "sysvgroups"))
+-			clear_opt (*mount_options, GRPID);
++			clear_opt (sbi->s_mount_opt, GRPID);
+ 		else if (!strcmp (this_char, "resgid")) {
+ 			unsigned long v;
+ 			if (want_numeric(value, "resgid", &v))
+ 				return 0;
+-			*resgid = v;
++			sbi->s_resgid = v;
+ 		}
+ 		else if (!strcmp (this_char, "resuid")) {
+ 			unsigned long v;
+ 			if (want_numeric(value, "resuid", &v))
+ 				return 0;
+-			*resuid = v;
+-		}
+-		else if (!strcmp (this_char, "sb")) {
+-			if (want_numeric(value, "sb", sb_block))
+-				return 0;
++			sbi->s_resuid = v;
+ 		}
+ #ifdef CONFIG_JBD_DEBUG
+ 		else if (!strcmp (this_char, "ro-after")) {
+@@ -666,12 +647,12 @@
+ 			if (want_value(value, "journal"))
+ 				return 0;
+ 			if (!strcmp (value, "update"))
+-				set_opt (*mount_options, UPDATE_JOURNAL);
++				set_opt (sbi->s_mount_opt, UPDATE_JOURNAL);
+ 			else if (want_numeric(value, "journal", inum))
+ 				return 0;
+ 		}
+ 		else if (!strcmp (this_char, "noload"))
+-			set_opt (*mount_options, NOLOAD);
++			set_opt (sbi->s_mount_opt, NOLOAD);
+ 		else if (!strcmp (this_char, "data")) {
+ 			int data_opt = 0;
+ 
+@@ -690,7 +671,7 @@
+ 				return 0;
+ 			}
+ 			if (is_remount) {
+-				if ((*mount_options & EXT3_MOUNT_DATA_FLAGS) !=
++				if ((sbi->s_mount_opt & EXT3_MOUNT_DATA_FLAGS) !=
+ 							data_opt) {
+ 					printk(KERN_ERR
+ 					       "EXT3-fs: cannot change data "
+@@ -698,8 +679,8 @@
+ 					return 0;
+ 				}
+ 			} else {
+-				*mount_options &= ~EXT3_MOUNT_DATA_FLAGS;
+-				*mount_options |= data_opt;
++				sbi->s_mount_opt &= ~EXT3_MOUNT_DATA_FLAGS;
++				sbi->s_mount_opt |= data_opt;
+ 			}
+ 		} else if (!strcmp (this_char, "commit")) {
+ 			unsigned long v;
+@@ -954,10 +935,11 @@
+ 	struct buffer_head * bh;
+ 	struct ext3_super_block *es = 0;
+ 	struct ext3_sb_info *sbi;
+-	unsigned long sb_block = 1;
++	unsigned long sb_block = get_sb_block(&data);
+ 	unsigned long logic_sb_block = 1;
+ 	unsigned long offset = 0;
+ 	unsigned long journal_inum = 0;
++	unsigned long def_mount_opts;
+ 	int blocksize;
+ 	int hblock;
+ 	int db_count;
+@@ -967,13 +949,6 @@
+ #ifdef CONFIG_JBD_DEBUG
+ 	ext3_ro_after = 0;
+ #endif
+-	/*
+-	 * See what the current blocksize for the device is, and
+-	 * use that as the blocksize.  Otherwise (or if the blocksize
+-	 * is smaller than the default) use the default.
+-	 * This is important for devices that have a hardware
+-	 * sectorsize that is larger than the default.
+-	 */
+ 	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
+ 	if (!sbi)
+ 		return -ENOMEM;
+@@ -982,10 +957,19 @@
+ 	sbi->s_mount_opt = 0;
+ 	sbi->s_resuid = EXT3_DEF_RESUID;
+ 	sbi->s_resgid = EXT3_DEF_RESGID;
+-	if (!parse_options ((char *) data, &sb_block, sbi, &journal_inum, 0))
+-		goto out_fail;
+ 
++	/*
++	 * See what the current blocksize for the device is, and
++	 * use that as the blocksize.  Otherwise (or if the blocksize
++	 * is smaller than the default) use the default.
++	 * This is important for devices that have a hardware
++	 * sectorsize that is larger than the default.
++	 */
+ 	blocksize = sb_min_blocksize(sb, EXT3_MIN_BLOCK_SIZE);
++	if (!blocksize) {
++		printk ("EXT3-fs: unable to set blocksize\n");
++		goto out_fail;
++	}
+ 
+ 	/*
+ 	 * The ext3 superblock will not be buffer aligned for other than 1kB
+@@ -1014,6 +998,33 @@
+ 			       sb->s_id);
+ 		goto failed_mount;
+ 	}
++	
++	/* Set defaults before we parse the mount options */
++	def_mount_opts = le32_to_cpu(es->s_default_mount_opts);
++	if (def_mount_opts & EXT3_DEFM_DEBUG)
++		set_opt(sbi->s_mount_opt, DEBUG);
++	if (def_mount_opts & EXT3_DEFM_BSDGROUPS)
++		set_opt(sbi->s_mount_opt, GRPID);
++	if (def_mount_opts & EXT3_DEFM_UID16)
++		set_opt(sbi->s_mount_opt, NO_UID32);
++	if ((def_mount_opts & EXT3_DEFM_JMODE) == EXT3_DEFM_JMODE_DATA)
++		sbi->s_mount_opt |= EXT3_MOUNT_JOURNAL_DATA;
++	else if ((def_mount_opts & EXT3_DEFM_JMODE) == EXT3_DEFM_JMODE_ORDERED)
++		sbi->s_mount_opt |= EXT3_MOUNT_ORDERED_DATA;
++	else if ((def_mount_opts & EXT3_DEFM_JMODE) == EXT3_DEFM_JMODE_WBACK)
++		sbi->s_mount_opt |= EXT3_MOUNT_WRITEBACK_DATA;
++
++	if (le16_to_cpu(sbi->s_es->s_errors) == EXT3_ERRORS_PANIC)
++		set_opt(sbi->s_mount_opt, ERRORS_PANIC);
++	else if (le16_to_cpu(sbi->s_es->s_errors) == EXT3_ERRORS_RO)
++		set_opt(sbi->s_mount_opt, ERRORS_RO);
++	
++	sbi->s_resuid = le16_to_cpu(es->s_def_resuid);
++	sbi->s_resgid = le16_to_cpu(es->s_def_resgid);
++
++	if (!parse_options ((char *) data, sbi, &journal_inum, 0))
++		goto failed_mount;
++
+ 	if (le32_to_cpu(es->s_rev_level) == EXT3_GOOD_OLD_REV &&
+ 	    (EXT3_HAS_COMPAT_FEATURE(sb, ~0U) ||
+ 	     EXT3_HAS_RO_COMPAT_FEATURE(sb, ~0U) ||
+@@ -1111,10 +1122,6 @@
+ 	sbi->s_itb_per_group = sbi->s_inodes_per_group /sbi->s_inodes_per_block;
+ 	sbi->s_desc_per_block = blocksize / sizeof(struct ext3_group_desc);
+ 	sbi->s_sbh = bh;
+-	if (sbi->s_resuid == EXT3_DEF_RESUID)
+-		sbi->s_resuid = le16_to_cpu(es->s_def_resuid);
+-	if (sbi->s_resgid == EXT3_DEF_RESGID)
+-		sbi->s_resgid = le16_to_cpu(es->s_def_resgid);
+ 	sbi->s_mount_state = le16_to_cpu(es->s_state);
+ 	sbi->s_addr_per_block_bits = log2(EXT3_ADDR_PER_BLOCK(sb));
+ 	sbi->s_desc_per_block_bits = log2(EXT3_DESC_PER_BLOCK(sb));
+@@ -1698,7 +1705,7 @@
+ 	/*
+ 	 * Allow the "check" option to be passed as a remount option.
+ 	 */
+-	if (!parse_options(data, &tmp, sbi, &tmp, 1))
++	if (!parse_options(data, sbi, &tmp, 1))
+ 		return -EINVAL;
+ 
+ 	if (sbi->s_mount_opt & EXT3_MOUNT_ABORT)
+diff -Nru a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
+--- a/include/linux/ext2_fs.h	Tue Oct 29 09:54:21 2002
++++ b/include/linux/ext2_fs.h	Tue Oct 29 09:54:21 2002
+@@ -410,7 +410,19 @@
+ 	__u8	s_prealloc_blocks;	/* Nr of blocks to try to preallocate*/
+ 	__u8	s_prealloc_dir_blocks;	/* Nr to preallocate for dirs */
+ 	__u16	s_padding1;
+-	__u32	s_reserved[204];	/* Padding to the end of the block */
++	/*
++	 * Journaling support valid if EXT3_FEATURE_COMPAT_HAS_JOURNAL set.
++	 */
++	__u8	s_journal_uuid[16];	/* uuid of journal superblock */
++	__u32	s_journal_inum;		/* inode number of journal file */
++	__u32	s_journal_dev;		/* device number of journal file */
++	__u32	s_last_orphan;		/* start of list of inodes to delete */
++	__u32	s_hash_seed[4];		/* HTREE hash seed */
++	__u8	s_def_hash_version;	/* Default hash version to use */
++	__u8	s_reserved_char_pad;
++	__u16	s_reserved_word_pad;
++	__u32	s_default_mount_opts;
++	__u32	s_reserved[191];	/* Padding to the end of the block */
+ };
+ 
+ /*
+@@ -488,6 +500,20 @@
+  */
+ #define	EXT2_DEF_RESUID		0
+ #define	EXT2_DEF_RESGID		0
 +
 +/*
-+ * Remove the cache entry from all hashes.
++ * Default mount options
 + */
-+static inline void
-+__mb_cache_entry_unlink(struct mb_cache_entry *ce)
-+{
-+	int n;
-+
-+	list_del_init(&ce->e_block_list);
-+	for (n = 0; n < mb_cache_indexes(ce->e_cache); n++)
-+		list_del(&ce->e_indexes[n].o_list);
-+}
-+
-+
-+static inline int
-+__mb_cache_entry_is_linked(struct mb_cache_entry *ce)
-+{
-+	return (!list_empty(&ce->e_block_list));
-+}
-+
-+
-+static inline struct mb_cache_entry *
-+__mb_cache_entry_read(struct mb_cache_entry *ce)
-+{
-+	__mb_cache_entry_takeout_lru(ce);
-+	atomic_inc(&ce->e_used);
-+	return ce;
-+}
-+
-+
-+static inline void
-+__mb_cache_entry_forget(struct mb_cache_entry *ce)
-+{
-+	struct mb_cache *cache = ce->e_cache;
-+
-+	mb_assert(atomic_read(&ce->e_used) == 0);
-+	atomic_dec(&cache->c_entry_count);
-+	if (cache->c_op.free)
-+		cache->c_op.free(ce);
-+	kmem_cache_free(cache->c_entry_cache, ce);
-+}
-+
-+
-+static inline void
-+__mb_cache_entry_release_unlock(struct mb_cache_entry *ce)
-+{
-+	if (atomic_dec_and_test(&ce->e_used)) {
-+		if (!__mb_cache_entry_is_linked(ce))
-+			goto forget;
-+		__mb_cache_entry_into_lru(ce);
-+	}
-+	spin_unlock(&mb_cache_spinlock);
-+	return;
-+forget:
-+	spin_unlock(&mb_cache_spinlock);
-+	__mb_cache_entry_forget(ce);
-+}
-+
++#define EXT2_DEFM_DEBUG		0x0001
++#define EXT2_DEFM_BSDGROUPS	0x0002
++#define EXT2_DEFM_XATTR_USER	0x0004
++#define EXT2_DEFM_ACL		0x0008
++#define EXT2_DEFM_UID16		0x0010
++    /* Not used by ext2, but reserved for use by ext3 */
++#define EXT3_DEFM_JMODE		0x0060 
++#define EXT3_DEFM_JMODE_DATA	0x0020
++#define EXT3_DEFM_JMODE_ORDERED	0x0040
++#define EXT3_DEFM_JMODE_WBACK	0x0060
+ 
+ /*
+  * Structure of a directory entry
+diff -Nru a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
+--- a/include/linux/ext3_fs.h	Tue Oct 29 09:54:21 2002
++++ b/include/linux/ext3_fs.h	Tue Oct 29 09:54:21 2002
+@@ -449,7 +449,8 @@
+ 	__u8	s_def_hash_version;	/* Default hash version to use */
+ 	__u8	s_reserved_char_pad;
+ 	__u16	s_reserved_word_pad;
+-	__u32	s_reserved[192];	/* Padding to the end of the block */
++	__u32	s_default_mount_opts;
++	__u32	s_reserved[191];	/* Padding to the end of the block */
+ };
+ 
+ #ifdef __KERNEL__
+@@ -541,6 +542,19 @@
+  */
+ #define	EXT3_DEF_RESUID		0
+ #define	EXT3_DEF_RESGID		0
 +
 +/*
-+ * mb_cache_shrink_fn()  memory pressure callback
-+ *
-+ * This function is called by the kernel memory management when memory
-+ * gets low.
-+ *
-+ * @nr_to_scan: Number of objects to scan
-+ * @gfp_mask: (ignored)
-+ *
-+ * Returns the number of objects which are present in the cache.
++ * Default mount options
 + */
-+static int
-+mb_cache_shrink_fn(int nr_to_scan, unsigned int gfp_mask)
-+{
-+	LIST_HEAD(free_list);
-+	struct list_head *l;
-+	int count = 0;
-+
-+	spin_lock(&mb_cache_spinlock);
-+	list_for_each_prev(l, &mb_cache_list) {
-+		struct mb_cache *cache =
-+			list_entry(l, struct mb_cache, c_cache_list);
-+		mb_debug("cache %s (%d)", cache->c_name,
-+			  atomic_read(&cache->c_entry_count));
-+		count += atomic_read(&cache->c_entry_count);
-+	}
-+	mb_debug("trying to free %d entries", nr_to_scan);
-+	if (nr_to_scan == 0) {
-+		spin_unlock(&mb_cache_spinlock);
-+		goto out;
-+	}
-+	while (nr_to_scan && !list_empty(&mb_cache_lru_list)) {
-+		struct mb_cache_entry *ce =
-+			list_entry(mb_cache_lru_list.prev,
-+				   struct mb_cache_entry, e_lru_list);
-+		list_move(&ce->e_lru_list, &free_list);
-+		if (__mb_cache_entry_is_linked(ce))
-+			__mb_cache_entry_unlink(ce);
-+		nr_to_scan--;
-+	}
-+	spin_unlock(&mb_cache_spinlock);
-+	l = free_list.prev;
-+	while (l != &free_list) {
-+		struct mb_cache_entry *ce = list_entry(l,
-+			struct mb_cache_entry, e_lru_list);
-+		l = l->prev;
-+		__mb_cache_entry_forget(ce);
-+		count--;
-+	}
-+out:
-+	mb_debug("%d remaining entries ", count);
-+	return count;
-+}
-+
-+
-+/*
-+ * mb_cache_create()  create a new cache
-+ *
-+ * All entries in one cache are equal size. Cache entries may be from
-+ * multiple devices. If this is the first mbcache created, registers
-+ * the cache with kernel memory management. Returns NULL if no more
-+ * memory was available.
-+ *
-+ * @name: name of the cache (informal)
-+ * @cache_op: contains the callback called when freeing a cache entry
-+ * @entry_size: The size of a cache entry, including
-+ *              struct mb_cache_entry
-+ * @indexes_count: number of additional indexes in the cache. Must equal
-+ *                 MB_CACHE_INDEXES_COUNT if the number of indexes is
-+ *                 hardwired.
-+ * @bucket_bits: log2(number of hash buckets)
-+ */
-+struct mb_cache *
-+mb_cache_create(const char *name, struct mb_cache_op *cache_op,
-+		size_t entry_size, int indexes_count, int bucket_bits)
-+{
-+	int m=0, n, bucket_count = 1 << bucket_bits;
-+	struct mb_cache *cache = NULL;
-+
-+	if(entry_size < sizeof(struct mb_cache_entry) +
-+	   indexes_count * sizeof(struct mb_cache_entry_index))
-+		return NULL;
-+
-+	cache = kmalloc(sizeof(struct mb_cache) +
-+	                indexes_count * sizeof(struct list_head), GFP_KERNEL);
-+	if (!cache)
-+		goto fail;
-+	cache->c_name = name;
-+	if (cache_op)
-+		cache->c_op.free = cache_op->free;
-+	else
-+		cache->c_op.free = NULL;
-+	atomic_set(&cache->c_entry_count, 0);
-+	cache->c_bucket_bits = bucket_bits;
-+#ifdef MB_CACHE_INDEXES_COUNT
-+	mb_assert(indexes_count == MB_CACHE_INDEXES_COUNT);
-+#else
-+	cache->c_indexes_count = indexes_count;
-+#endif
-+	cache->c_block_hash = kmalloc(bucket_count * sizeof(struct list_head),
-+	                              GFP_KERNEL);
-+	if (!cache->c_block_hash)
-+		goto fail;
-+	for (n=0; n<bucket_count; n++)
-+		INIT_LIST_HEAD(&cache->c_block_hash[n]);
-+	for (m=0; m<indexes_count; m++) {
-+		cache->c_indexes_hash[m] = kmalloc(bucket_count *
-+		                                 sizeof(struct list_head),
-+		                                 GFP_KERNEL);
-+		if (!cache->c_indexes_hash[m])
-+			goto fail;
-+		for (n=0; n<bucket_count; n++)
-+			INIT_LIST_HEAD(&cache->c_indexes_hash[m][n]);
-+	}
-+	cache->c_entry_cache = kmem_cache_create(name, entry_size, 0,
-+		0 /*SLAB_POISON | SLAB_RED_ZONE*/, NULL, NULL);
-+	if (!cache->c_entry_cache)
-+		goto fail;
-+
-+	spin_lock(&mb_cache_spinlock);
-+	if (list_empty(&mb_cache_list)) {
-+		if (mb_shrinker) {
-+			printk(KERN_ERR "%s: already have a shrinker!\n",
-+					__FUNCTION__);
-+			remove_shrinker(mb_shrinker);
-+		}
-+		mb_shrinker = set_shrinker(DEFAULT_SEEKS, mb_cache_shrink_fn);
-+	}
-+	list_add(&cache->c_cache_list, &mb_cache_list);
-+	spin_unlock(&mb_cache_spinlock);
-+	return cache;
-+
-+fail:
-+	if (cache) {
-+		while (--m >= 0)
-+			kfree(cache->c_indexes_hash[m]);
-+		if (cache->c_block_hash)
-+			kfree(cache->c_block_hash);
-+		kfree(cache);
-+	}
-+	return NULL;
-+}
-+
-+
-+/*
-+ * mb_cache_shrink()
-+ *
-+ * Removes all cache entires of a device from the cache. All cache entries
-+ * currently in use cannot be freed, and thus remain in the cache. All others
-+ * are freed.
-+ *
-+ * @cache: which cache to shrink
-+ * @bdev: which device's cache entries to shrink
-+ */
-+void
-+mb_cache_shrink(struct mb_cache *cache, struct block_device *bdev)
-+{
-+	LIST_HEAD(free_list);
-+	struct list_head *l;
-+
-+	spin_lock(&mb_cache_spinlock);
-+	l = mb_cache_lru_list.prev;
-+	while (l != &mb_cache_lru_list) {
-+		struct mb_cache_entry *ce =
-+			list_entry(l, struct mb_cache_entry, e_lru_list);
-+		l = l->prev;
-+		if (ce->e_bdev == bdev) {
-+			list_move(&ce->e_lru_list, &free_list);
-+			if (__mb_cache_entry_is_linked(ce))
-+				__mb_cache_entry_unlink(ce);
-+		}
-+	}
-+	spin_unlock(&mb_cache_spinlock);
-+	l = free_list.prev;
-+	while (l != &free_list) {
-+		struct mb_cache_entry *ce =
-+			list_entry(l, struct mb_cache_entry, e_lru_list);
-+		l = l->prev;
-+		__mb_cache_entry_forget(ce);
-+	}
-+}
-+
-+
-+/*
-+ * mb_cache_destroy()
-+ *
-+ * Shrinks the cache to its minimum possible size (hopefully 0 entries),
-+ * and then destroys it. If this was the last mbcache, un-registers the
-+ * mbcache from kernel memory management.
-+ */
-+void
-+mb_cache_destroy(struct mb_cache *cache)
-+{
-+	LIST_HEAD(free_list);
-+	struct list_head *l;
-+	int n;
-+
-+	spin_lock(&mb_cache_spinlock);
-+	l = mb_cache_lru_list.prev;
-+	while (l != &mb_cache_lru_list) {
-+		struct mb_cache_entry *ce =
-+			list_entry(l, struct mb_cache_entry, e_lru_list);
-+		l = l->prev;
-+		if (ce->e_cache == cache) {
-+			list_move(&ce->e_lru_list, &free_list);
-+			if (__mb_cache_entry_is_linked(ce))
-+				__mb_cache_entry_unlink(ce);
-+		}
-+	}
-+	list_del(&cache->c_cache_list);
-+	if (list_empty(&mb_cache_list) && mb_shrinker) {
-+		remove_shrinker(mb_shrinker);
-+		mb_shrinker = 0;
-+	}
-+	spin_unlock(&mb_cache_spinlock);
-+
-+	l = free_list.prev;
-+	while (l != &free_list) {
-+		struct mb_cache_entry *ce =
-+			list_entry(l, struct mb_cache_entry, e_lru_list);
-+		l = l->prev;
-+		__mb_cache_entry_forget(ce);
-+	}
-+
-+	if (atomic_read(&cache->c_entry_count) > 0) {
-+		mb_error("cache %s: %d orphaned entries",
-+			  cache->c_name,
-+			  atomic_read(&cache->c_entry_count));
-+	}
-+
-+	kmem_cache_destroy(cache->c_entry_cache);
-+
-+	for (n=0; n < mb_cache_indexes(cache); n++)
-+		kfree(cache->c_indexes_hash[n]);
-+	kfree(cache->c_block_hash);
-+
-+	kfree(cache);
-+}
-+
-+
-+/*
-+ * mb_cache_entry_alloc()
-+ *
-+ * Allocates a new cache entry. The new entry will not be valid initially,
-+ * and thus cannot be looked up yet. It should be filled with data, and
-+ * then inserted into the cache using mb_cache_entry_insert(). Returns NULL
-+ * if no more memory was available.
-+ */
-+struct mb_cache_entry *
-+mb_cache_entry_alloc(struct mb_cache *cache)
-+{
-+	struct mb_cache_entry *ce;
-+
-+	atomic_inc(&cache->c_entry_count);
-+	ce = kmem_cache_alloc(cache->c_entry_cache, GFP_KERNEL);
-+	if (ce) {
-+		INIT_LIST_HEAD(&ce->e_lru_list);
-+		INIT_LIST_HEAD(&ce->e_block_list);
-+		ce->e_cache = cache;
-+		atomic_set(&ce->e_used, 1);
-+	}
-+	return ce;
-+}
-+
-+
-+/*
-+ * mb_cache_entry_insert()
-+ *
-+ * Inserts an entry that was allocated using mb_cache_entry_alloc() into
-+ * the cache. After this, the cache entry can be looked up, but is not yet
-+ * in the lru list as the caller still holds a handle to it. Returns 0 on
-+ * success, or -EBUSY if a cache entry for that device + inode exists
-+ * already (this may happen after a failed lookup, but when another process
-+ * has inserted the same cache entry in the meantime).
-+ *
-+ * @bdev: device the cache entry belongs to
-+ * @block: block number
-+ * @keys: array of additional keys. There must be indexes_count entries
-+ *        in the array (as specified when creating the cache).
-+ */
-+int
-+mb_cache_entry_insert(struct mb_cache_entry *ce, struct block_device *bdev,
-+		      sector_t block, unsigned int keys[])
-+{
-+	struct mb_cache *cache = ce->e_cache;
-+	unsigned int bucket;
-+	struct list_head *l;
-+	int error = -EBUSY, n;
-+
-+	bucket =  hash_long((unsigned long)bdev + (block & 0xffffffff), 
-+			    cache->c_bucket_bits);
-+	spin_lock(&mb_cache_spinlock);
-+	list_for_each_prev(l, &cache->c_block_hash[bucket]) {
-+		struct mb_cache_entry *ce =
-+			list_entry(l, struct mb_cache_entry, e_block_list);
-+		if (ce->e_bdev == bdev && ce->e_block == block)
-+			goto out;
-+	}
-+	mb_assert(!__mb_cache_entry_is_linked(ce));
-+	ce->e_bdev = bdev;
-+	ce->e_block = block;
-+	for (n=0; n<mb_cache_indexes(cache); n++)
-+		ce->e_indexes[n].o_key = keys[n];
-+	__mb_cache_entry_link(ce);
-+out:
-+	spin_unlock(&mb_cache_spinlock);
-+	return error;
-+}
-+
-+
-+/*
-+ * mb_cache_entry_release()
-+ *
-+ * Release a handle to a cache entry. When the last handle to a cache entry
-+ * is released it is either freed (if it is invalid) or otherwise inserted
-+ * in to the lru list.
-+ */
-+void
-+mb_cache_entry_release(struct mb_cache_entry *ce)
-+{
-+	spin_lock(&mb_cache_spinlock);
-+	__mb_cache_entry_release_unlock(ce);
-+}
-+
-+
-+/*
-+ * mb_cache_entry_takeout()
-+ *
-+ * Take a cache entry out of the cache, making it invalid. The entry can later
-+ * be re-inserted using mb_cache_entry_insert(), or released using
-+ * mb_cache_entry_release().
-+ */
-+void
-+mb_cache_entry_takeout(struct mb_cache_entry *ce)
-+{
-+	spin_lock(&mb_cache_spinlock);
-+	mb_assert(!__mb_cache_entry_in_lru(ce));
-+	if (__mb_cache_entry_is_linked(ce))
-+		__mb_cache_entry_unlink(ce);
-+	spin_unlock(&mb_cache_spinlock);
-+}
-+
-+
-+/*
-+ * mb_cache_entry_free()
-+ *
-+ * This is equivalent to the sequence mb_cache_entry_takeout() --
-+ * mb_cache_entry_release().
-+ */
-+void
-+mb_cache_entry_free(struct mb_cache_entry *ce)
-+{
-+	spin_lock(&mb_cache_spinlock);
-+	mb_assert(!__mb_cache_entry_in_lru(ce));
-+	if (__mb_cache_entry_is_linked(ce))
-+		__mb_cache_entry_unlink(ce);
-+	__mb_cache_entry_release_unlock(ce);
-+}
-+
-+
-+/*
-+ * mb_cache_entry_dup()
-+ *
-+ * Duplicate a handle to a cache entry (does not duplicate the cache entry
-+ * itself). After the call, both the old and the new handle must be released.
-+ */
-+struct mb_cache_entry *
-+mb_cache_entry_dup(struct mb_cache_entry *ce)
-+{
-+	atomic_inc(&ce->e_used);
-+	return ce;
-+}
-+
-+
-+/*
-+ * mb_cache_entry_get()
-+ *
-+ * Get a cache entry  by device / block number. (There can only be one entry
-+ * in the cache per device and block.) Returns NULL if no such cache entry
-+ * exists.
-+ */
-+struct mb_cache_entry *
-+mb_cache_entry_get(struct mb_cache *cache, struct block_device *bdev,
-+		   sector_t block)
-+{
-+	unsigned int bucket;
-+	struct list_head *l;
-+	struct mb_cache_entry *ce;
-+
-+	bucket = hash_long((unsigned long)bdev + (block & 0xffffffff),
-+			   cache->c_bucket_bits);
-+	spin_lock(&mb_cache_spinlock);
-+	list_for_each(l, &cache->c_block_hash[bucket]) {
-+		ce = list_entry(l, struct mb_cache_entry, e_block_list);
-+		if (ce->e_bdev == bdev && ce->e_block == block) {
-+			ce = __mb_cache_entry_read(ce);
-+			goto cleanup;
-+		}
-+	}
-+	ce = NULL;
-+
-+cleanup:
-+	spin_unlock(&mb_cache_spinlock);
-+	return ce;
-+}
-+
-+#if !defined(MB_CACHE_INDEXES_COUNT) || (MB_CACHE_INDEXES_COUNT > 0)
-+
-+static struct mb_cache_entry *
-+__mb_cache_entry_find(struct list_head *l, struct list_head *head,
-+		      int index, struct block_device *bdev, unsigned int key)
-+{
-+	while (l != head) {
-+		struct mb_cache_entry *ce =
-+			list_entry(l, struct mb_cache_entry,
-+			           e_indexes[index].o_list);
-+		if (ce->e_bdev == bdev &&
-+		    ce->e_indexes[index].o_key == key) {
-+			ce = __mb_cache_entry_read(ce);
-+			if (ce)
-+				return ce;
-+		}
-+		l = l->next;
-+	}
-+	return NULL;
-+}
-+
-+
-+/*
-+ * mb_cache_entry_find_first()
-+ *
-+ * Find the first cache entry on a given device with a certain key in
-+ * an additional index. Additonal matches can be found with
-+ * mb_cache_entry_find_next(). Returns NULL if no match was found.
-+ *
-+ * @cache: the cache to search
-+ * @index: the number of the additonal index to search (0<=index<indexes_count)
-+ * @bdev: the device the cache entry should belong to
-+ * @key: the key in the index
-+ */
-+struct mb_cache_entry *
-+mb_cache_entry_find_first(struct mb_cache *cache, int index,
-+			  struct block_device *bdev, unsigned int key)
-+{
-+	unsigned int bucket = hash_long(key, cache->c_bucket_bits);
-+	struct list_head *l;
-+	struct mb_cache_entry *ce;
-+
-+	mb_assert(index < mb_cache_indexes(cache));
-+	spin_lock(&mb_cache_spinlock);
-+	l = cache->c_indexes_hash[index][bucket].next;
-+	ce = __mb_cache_entry_find(l, &cache->c_indexes_hash[index][bucket],
-+	                           index, bdev, key);
-+	spin_unlock(&mb_cache_spinlock);
-+	return ce;
-+}
-+
-+
-+/*
-+ * mb_cache_entry_find_next()
-+ *
-+ * Find the next cache entry on a given device with a certain key in an
-+ * additional index. Returns NULL if no match could be found. The previous
-+ * entry is atomatically released, so that mb_cache_entry_find_next() can
-+ * be called like this:
-+ *
-+ * entry = mb_cache_entry_find_first();
-+ * while (entry) {
-+ * 	...
-+ *	entry = mb_cache_entry_find_next(entry, ...);
-+ * }
-+ *
-+ * @prev: The previous match
-+ * @index: the number of the additonal index to search (0<=index<indexes_count)
-+ * @bdev: the device the cache entry should belong to
-+ * @key: the key in the index
-+ */
-+struct mb_cache_entry *
-+mb_cache_entry_find_next(struct mb_cache_entry *prev, int index,
-+			 struct block_device *bdev, unsigned int key)
-+{
-+	struct mb_cache *cache = prev->e_cache;
-+	unsigned int bucket = hash_long(key, cache->c_bucket_bits);
-+	struct list_head *l;
-+	struct mb_cache_entry *ce;
-+
-+	mb_assert(index < mb_cache_indexes(cache));
-+	spin_lock(&mb_cache_spinlock);
-+	l = prev->e_indexes[index].o_list.next;
-+	ce = __mb_cache_entry_find(l, &cache->c_indexes_hash[index][bucket],
-+	                           index, bdev, key);
-+	__mb_cache_entry_release_unlock(prev);
-+	return ce;
-+}
-+
-+#endif  /* !defined(MB_CACHE_INDEXES_COUNT) || (MB_CACHE_INDEXES_COUNT > 0) */
-diff -Nru a/include/linux/mbcache.h b/include/linux/mbcache.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/mbcache.h	Tue Oct 29 09:54:48 2002
-@@ -0,0 +1,72 @@
-+/*
-+  File: linux/mbcache.h
-+
-+  (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+*/
-+
-+/* Hardwire the number of additional indexes */
-+#define MB_CACHE_INDEXES_COUNT 1
-+
-+struct mb_cache_entry;
-+
-+struct mb_cache_op {
-+	void (*free)(struct mb_cache_entry *);
-+};
-+
-+struct mb_cache {
-+	struct list_head		c_cache_list;
-+	const char			*c_name;
-+	struct mb_cache_op		c_op;
-+	atomic_t			c_entry_count;
-+	int				c_bucket_bits;
-+#ifndef MB_CACHE_INDEXES_COUNT
-+	int				c_indexes_count;
-+#endif
-+	kmem_cache_t			*c_entry_cache;
-+	struct list_head		*c_block_hash;
-+	struct list_head		*c_indexes_hash[0];
-+};
-+
-+struct mb_cache_entry_index {
-+	struct list_head		o_list;
-+	unsigned int			o_key;
-+};
-+
-+struct mb_cache_entry {
-+	struct list_head		e_lru_list;
-+	struct mb_cache			*e_cache;
-+	atomic_t			e_used;
-+	struct block_device		*e_bdev;
-+	sector_t			e_block;
-+	struct list_head		e_block_list;
-+	struct mb_cache_entry_index	e_indexes[0];
-+};
-+
-+/* Functions on caches */
-+
-+struct mb_cache * mb_cache_create(const char *, struct mb_cache_op *, size_t,
-+				  int, int);
-+void mb_cache_shrink(struct mb_cache *, struct block_device *);
-+void mb_cache_destroy(struct mb_cache *);
-+
-+/* Functions on cache entries */
-+
-+struct mb_cache_entry *mb_cache_entry_alloc(struct mb_cache *);
-+int mb_cache_entry_insert(struct mb_cache_entry *, struct block_device *,
-+			  sector_t, unsigned int[]);
-+void mb_cache_entry_rehash(struct mb_cache_entry *, unsigned int[]);
-+void mb_cache_entry_release(struct mb_cache_entry *);
-+void mb_cache_entry_takeout(struct mb_cache_entry *);
-+void mb_cache_entry_free(struct mb_cache_entry *);
-+struct mb_cache_entry *mb_cache_entry_dup(struct mb_cache_entry *);
-+struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *,
-+					  struct block_device *,
-+					  sector_t);
-+#if !defined(MB_CACHE_INDEXES_COUNT) || (MB_CACHE_INDEXES_COUNT > 0)
-+struct mb_cache_entry *mb_cache_entry_find_first(struct mb_cache *cache, int,
-+						 struct block_device *, 
-+						 unsigned int);
-+struct mb_cache_entry *mb_cache_entry_find_next(struct mb_cache_entry *, int,
-+						struct block_device *, 
-+						unsigned int);
-+#endif
++#define EXT3_DEFM_DEBUG		0x0001
++#define EXT3_DEFM_BSDGROUPS	0x0002
++#define EXT3_DEFM_XATTR_USER	0x0004
++#define EXT3_DEFM_ACL		0x0008
++#define EXT3_DEFM_UID16		0x0010
++#define EXT3_DEFM_JMODE		0x0060
++#define EXT3_DEFM_JMODE_DATA	0x0020
++#define EXT3_DEFM_JMODE_ORDERED	0x0040
++#define EXT3_DEFM_JMODE_WBACK	0x0060
+ 
+ /*
+  * Structure of a directory entry

@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316289AbSETTl0>; Mon, 20 May 2002 15:41:26 -0400
+	id <S316267AbSETTjI>; Mon, 20 May 2002 15:39:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316300AbSETTl0>; Mon, 20 May 2002 15:41:26 -0400
-Received: from adsl-65-67-113-206.dsl.rcsntx.swbell.net ([65.67.113.206]:13444
-	"HELO ansivirus.mine.nu") by vger.kernel.org with SMTP
-	id <S316289AbSETTlY>; Mon, 20 May 2002 15:41:24 -0400
-Subject: Problem with 2.4.18 kernel downloaded from kernel.org
-From: Mike Ramsey <mramsey@ansivirus.mine.nu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 20 May 2002 14:37:48 -0500
-Message-Id: <1021923468.22591.7.camel@ansivirus.mine.nu>
-Mime-Version: 1.0
+	id <S316272AbSETTjH>; Mon, 20 May 2002 15:39:07 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:5643 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S316267AbSETTjG>; Mon, 20 May 2002 15:39:06 -0400
+Date: Mon, 20 May 2002 16:38:15 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Bug with shared memory.
+In-Reply-To: <1232903251.1021886554@[10.10.2.3]>
+Message-ID: <Pine.LNX.4.44L.0205201630050.24352-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-during make modules it fails with
+On Mon, 20 May 2002, Martin J. Bligh wrote:
 
-make[1]: Entering directory `/usr/src/linux-2.4.18-6mdk/drivers'
-make -C atm modules
-make[2]: Entering directory `/usr/src/linux-2.4.18-6mdk/drivers/atm'
-make[2]: *** No rule to make target
-`/home/quintela/rpm/2418/BUILD/linux/include/linux/module.h', needed by
-`eni.o'.  Stop.
-make[2]: Leaving directory `/usr/src/linux-2.4.18-6mdk/drivers/atm'
-make[1]: *** [_modsubdir_atm] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.18-6mdk/drivers'
-make: *** [_mod_drivers] Error 2
+> 1) Running Oracle apps, doing raw IO. We are running an -aa kernel
+> on this machine, and it doesn't help.
 
-well as you can see there is a problem here.. The fact that quintela is
-not a user on my system and i believe juan quintela to be a kernel
-developer. I could be wrong here. anyway i decided to perform a grep -r
-quintela /usr/src/linux/* > output.txt it generated a 3MB  txt file i'm 
-not attaching as of yet do to its size. if you would like it let me
-know. Otherwise please have this hard linked directory removed  from the
-source so i don't need to compile  from that dirctory :P 
+> So, we haven't really given Andrea's patch a fair test yet. If you
+> guys can agree which the better approach is by just discussing it,
 
-Thanks 
-Mike Ramsey
+One thing that seems to be missing in Linux are proper VM
+statistics. There is no way handwaving and discussions are
+going to be better than a measurement of what's going on
+inside the VM.
+
+Treating the different VM patch sets as black boxes with
+benchmarks will show us which VM works best for which
+benchmark, but it won't show us why or how to combine the
+good features of the different VMs...
+
+I think good statistics to start would be the traditional
+page fault rate (pf), page free rate (fr), page scan rate
+(sr), reclaims (re), pageout (po), pagein (pi) and some
+variation of iowait stats.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

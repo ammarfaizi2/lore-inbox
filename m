@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263491AbTK1V3R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 16:29:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbTK1V3R
+	id S263533AbTK1VSl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 16:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbTK1VSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 16:29:17 -0500
-Received: from holomorphy.com ([199.26.172.102]:1988 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263491AbTK1V3C (ORCPT
+	Fri, 28 Nov 2003 16:18:41 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:48590 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263533AbTK1VSi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 16:29:02 -0500
-Date: Fri, 28 Nov 2003 13:28:53 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Misha Nasledov <misha@nasledov.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APM Suspend Problem
-Message-ID: <20031128212853.GB8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Misha Nasledov <misha@nasledov.com>, linux-kernel@vger.kernel.org
-References: <20031127062057.GA31974@nasledov.com>
+	Fri, 28 Nov 2003 16:18:38 -0500
+Date: Fri, 28 Nov 2003 22:18:27 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jack Steiner <steiner@sgi.com>
+Cc: Jes Sorensen <jes@wildopensource.com>, linux-kernel@vger.kernel.org
+Subject: Re: hash table sizes
+Message-ID: <20031128211827.GA25644@wohnheim.fh-wedel.de>
+References: <16323.23221.835676.999857@gargle.gargle.HOWL> <20031125204814.GA19397@sgi.com> <20031125130741.108bf57c.akpm@osdl.org> <20031125211424.GA32636@sgi.com> <20031125132439.3c3254ff.akpm@osdl.org> <yq0d6bcmvfd.fsf@wildopensource.com> <20031128145255.GA26853@sgi.com> <yq08ym0mpig.fsf@wildopensource.com> <20031128193536.GA28519@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20031127062057.GA31974@nasledov.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031128193536.GA28519@sgi.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 26, 2003 at 10:20:57PM -0800, Misha Nasledov wrote:
-> Since about 2.6.0-test9, my ThinkPad T21 no longer suspends with APM. I had
-> issues with it suspending before, I don't remember exactly what issues, but I
-> know that it definitely worked in -test2. When I hit the key on my laptop to
-> suspend, it will turn off the LCD and the HD will spin down, but the machine
-> will not actually suspend. Here is what is printed out on the console when I
-> hit the suspend key and then when I hit another key to "wake" it up:
+[pruned CC: list]
 
-Mine suspends okay when I close the lid, but it's never honored the
-button that I know of (or button-based suspend broke too often for me
-to notice it ever working).
+On Fri, 28 November 2003 13:35:36 -0600, Jack Steiner wrote:
+> 
+> Then I still dont understand your proposal. (I probably missed some piece
+> of the discussion).
+> 
+> You proposed above to limit the allocation to the amount of memory on a node.
 
+Jes didn't _limit_ the allocation to the memory on a node, he _based_
+it on it, instead of total memory for all nodes.  Therefore a 1024
+node NUMA machine with 2GB per node has no bigger hash tables, than a
+single CPU machine with 2GB total memory, however big that may be.
 
--- wli
+Unless I didn't understand his patch, that is. :)
+
+Jörn
+
+-- 
+"Error protection by error detection and correction."
+-- from a university class

@@ -1,112 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbTIRXM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 19:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbTIRXM1
+	id S262195AbTIRXTg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 19:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTIRXTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 19:12:27 -0400
-Received: from [193.138.115.2] ([193.138.115.2]:11276 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S262015AbTIRXMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 19:12:24 -0400
-Date: Fri, 19 Sep 2003 01:10:40 +0200 (CEST)
-From: Jesper Juhl <jju@dif.dk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: netpoll/netconsole minor tweaks
-In-Reply-To: <1063919555.16536.5.camel@dhcp23.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.56.0309190103240.10809@jju_lnx.backbone.dif.dk>
-References: <20030917112447.A24623@osdlab.pdx.osdl.net> 
- <1063888205.15962.20.camel@dhcp23.swansea.linux.org.uk> 
- <20030918094832.A16499@osdlab.pdx.osdl.net> <1063919555.16536.5.camel@dhcp23.swansea.linux.org.uk>
+	Thu, 18 Sep 2003 19:19:36 -0400
+Received: from web41902.mail.yahoo.com ([66.218.93.153]:27516 "HELO
+	web41902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262195AbTIRXTe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 19:19:34 -0400
+Message-ID: <20030918231933.61866.qmail@web41902.mail.yahoo.com>
+Date: Fri, 19 Sep 2003 01:19:33 +0200 (CEST)
+From: =?iso-8859-1?q?sandra=20williams?= <sandra_williams42007@yahoo.fr>
+Subject: GOD BLESS
+To: sandra_williams42007@yahoo.fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+FROM MRS SANDRA WILLIAMS
 
-On Thu, 18 Sep 2003, Alan Cox wrote:
+In brief Introduction , utill we see face to face , I
+am MRS SANDRA WILLIAMS, a widow , my husband  was
+Comrade George WILLIAMS of the blessd memory who died
+on the 25th of feb 2001 in detention in Freetown,
+Sierre Leone . Following the collapse of mojor Johnny
+Paul Koromah military regime by the combined forces of
+the west Africa peace keeping force (ECOMOG) which
+reinstalled the civilian elected President Alhaji
+Tejan Kabbah. 
+ The President upon resumption of office , clamed down
+on my husband and his colleagues who served under the
+military arrangement of major Johnny Paul Koromah and
+succeeded in killing some of them including my
+husband, may his soul rest in peace   Amen. 
+When my husband was in detention before his death , He
+instructed me to take possession of one large trunk
+box which contains the sum of US$8.5 Millions in the
+custody of one security company in Abidjan – Côte
+d’ivoire. He told me to go to the under ground vault
+of our family house in the village, Mande that I will
+see the document covering the deposite of the trunk
+box that when ever I declare the document to the
+security company, they will release the box to me. He
+also instructed me to look for a foreign partner who
+will help me to invest the funds.
+According to him, he said that the security company
+where this box where deposited do not know the exact
+content of the box for security reasons as it was
+declared as family valuables not as money. And he
+instructed me, in any case that I should not let the
+security company to know the real content of the box.
+Immediatly after his death I and my son where able to
+move out of the country Sierra-Leone to Abidjan
+Côted’Ivoire through the help of my husband’s family
+friend who has a fishing trawler.
+Now, I have located the security company here in
+Abidjan – Côte d’Ivoire and were confirm really that
+he deposited a trunk box in their custody through the
+security company Director and their executive
+Officers.
 
-> On Iau, 2003-09-18 at 17:48, Chris Wright wrote:
-> > > <pedant>
-> > > should be cpu_relax();
-> > > </pedant>
-> >
-> > Hrm, there's many spots that aren't using it.  What's the benefit, less
-> > power consumption?  Is it worth a patch to convert other things over?
->
-> It speeds up hyperthreading CPUs by letting them know that this
-> paticular thread is waiting for stuff (sched_yield for silicon)
->
+Right now Iam looking for a reliable trust worthy
+foreign partner who will be able to help me retrive
+the consignment and transfer these funds from here in
+Abidjan  Côte d'Ivoire to a safe Bank account overseas
+and back it up when the fund enter’s his account abord
+and also advice me on a favourable  business
+investment opportunities where these funds will  be
+effectively invest. 
 
-Does that mean that it would be benneficial to do something like this in
-for example eepro100.c ??
+The security company where this box where deposited in
+Abidjan do not know the exact content of the box for
+security reasons as it was declared as family
+valuables not as money .So my dear , I am in the name
+of god soliciting for your help in this matter as this
+is the only hope of survival for me and my son since
+the man of the house is out. 
 
-diff -up linux-2.6.0-test5-orig/drivers/net/eepro100.c
-linux-2.6.0-test5/drivers/net/eepro100.c
---- linux-2.6.0-test5-orig/drivers/net/eepro100.c       2003-09-08 21:50:09.000000000 +0200
-+++ linux-2.6.0-test5/drivers/net/eepro100.c    2003-09-19 01:03:19.000000000 +0200
-@@ -913,9 +913,11 @@ static void do_slow_command(struct net_d
+I have negotiated with my son to give you 15% of the
+total cash as commision, while you will be gaining 5%
+of the monthly profit of the investment. All this are
+subject to negotiation upon your acceptance . 
+Moreover, other very important details shall be made
+known to you as soon as I receive your positve
+response to this proposal. 
 
-        for (wait = 0; wait <= 100; wait++)
-                if (inb(cmd_ioaddr) == 0) return;
--       for (; wait <= 20000; wait++)
-+       for (; wait <= 20000; wait++) {
-                if (inb(cmd_ioaddr) == 0) return;
-                else udelay(1);
-+               cpu_relax();
-+       }
-        printk(KERN_ERR "Command %4.4x was not accepted after %d polls!"
-               "  Current status %8.8x.\n",
-               cmd, wait, inl(dev->base_addr + SCBStatus));
+Please help me with good spirit in the name of God
+Almight Thanking you for anticipated co-operation. 
 
+Yours faithfully 
 
-
-or maybe even take it to the extreme like
-
-
-diff -up linux-2.6.0-test5-orig/drivers/net/eepro100.c
-linux-2.6.0-test5/drivers/net/eepro100.c
---- linux-2.6.0-test5-orig/drivers/net/eepro100.c       2003-09-08 21:50:09.000000000 +0200
-+++ linux-2.6.0-test5/drivers/net/eepro100.c    2003-09-19 01:07:50.000000000 +0200
-@@ -902,20 +902,25 @@ static void do_slow_command(struct net_d
- {
-        long cmd_ioaddr = dev->base_addr + SCBCmd;
-        int wait = 0;
--       do
-+       do {
-                if (inb(cmd_ioaddr) == 0) break;
--       while(++wait <= 200);
-+               cpu_relax();
-+       } while(++wait <= 200);
-        if (wait > 100)
-                printk(KERN_ERR "Command %4.4x never accepted (%d
-polls)!\n",
-                       inb(cmd_ioaddr), wait);
-
-        outb(cmd, cmd_ioaddr);
-
--       for (wait = 0; wait <= 100; wait++)
-+       for (wait = 0; wait <= 100; wait++) {
-                if (inb(cmd_ioaddr) == 0) return;
--       for (; wait <= 20000; wait++)
-+               cpu_relax();
-+       }
-+       for (; wait <= 20000; wait++) {
-                if (inb(cmd_ioaddr) == 0) return;
-                else udelay(1);
-+               cpu_relax();
-+       }
-        printk(KERN_ERR "Command %4.4x was not accepted after %d polls!"
-               "  Current status %8.8x.\n",
-               cmd, wait, inl(dev->base_addr + SCBStatus));
+MRS SANDRA WILLIAMS
 
 
-How short/long waits are we talking about before it is benneficial to be
-calling cpu_relax() ?
 
 
-Kind regards,
-
-Jesper Juhl <jju@dif.dk>
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

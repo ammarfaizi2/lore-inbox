@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVAYGJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbVAYGR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbVAYGJg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 01:09:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVAYGJZ
+	id S261829AbVAYGR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 01:17:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVAYGR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 01:09:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:38881 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261830AbVAYGJI (ORCPT
+	Tue, 25 Jan 2005 01:17:56 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:12496 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261829AbVAYGRz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 01:09:08 -0500
-Date: Mon, 24 Jan 2005 22:02:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050125060256.GB2061@kroah.com>
-References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124175449.GK3515@stusta.de> <20050124213442.GC18933@kroah.com> <20050124214751.GA6396@infradead.org>
+	Tue, 25 Jan 2005 01:17:55 -0500
+Date: Tue, 25 Jan 2005 07:17:41 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andi Kleen <ak@suse.de>, hch@infradead.org, linux-kernel@vger.kernel.org,
+       chrisw@osdl.org, davem@davemloft.net
+Subject: Re: [PATCH] move common compat ioctls to hash
+Message-ID: <20050125061741.GA27013@wotan.suse.de>
+References: <20050118072133.GB76018@muc.de> <20050118110432.GE23127@mellanox.co.il> <20050124202609.GA15057@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050124214751.GA6396@infradead.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050124202609.GA15057@mellanox.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 09:47:51PM +0000, Christoph Hellwig wrote:
-> On Mon, Jan 24, 2005 at 01:34:42PM -0800, Greg KH wrote:
-> > And as for the "these patches have never been reviewed" comments, that's
-> > why I put them in my tree, and have them show up in -mm.  It's getting
-> > them a wider exposure and finding out these kinds of issues.  So the
-> > process is working properly :)
+On Mon, Jan 24, 2005 at 10:26:09PM +0200, Michael S. Tsirkin wrote:
+> Hi!
+> The new ioctl code in fs/compat.c can be streamlined a little
+> using the compat hash instead of an explicit switch statement.
 > 
-> It would be a lot more productive to follow the normal rules, though.
-> That is posting them on lkml as properly split up patches, and with
-> proper descriptions of what they're doing.
+> The attached patch is against 2.6.11-rc2-bk2.
+> Andi, could you please comment? Does this make sence?
 
-As previously mentioned, these patches have had that, on the sensors
-mailing list.  Lots of review and comments went into them there, and the
-code was reworked quite a lot based on it.
+Problem is that when a compat_ioctl handler returns -EINVAL
+instead of -ENOIOCTLCMD on unknown ioctl it won't check the common
+ones.
 
-Surely you don't want me to forward _every_ driver patch that I get to
-lkml first?  :)
+I fear this mistake would be common, that is why I put in the switch.
 
-That's what all of the subsystem specific mailing lists are for...
-
-thanks,
-
-greg k-h
-
+-Andi

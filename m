@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbTHSTSK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbTHSTQB
+	id S261296AbTHSTTl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbTHSTS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:16:01 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:18326 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261288AbTHSTGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:06:54 -0400
+	Tue, 19 Aug 2003 15:18:27 -0400
+Received: from relay.pair.com ([209.68.1.20]:13579 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S261274AbTHSTRE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:17:04 -0400
+X-pair-Authenticated: 68.40.145.213
 Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: "David S. Miller" <davem@redhat.com>, willy@w.ods.org,
-       richard@aspectgroup.co.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, davidsen@tmr.com, bloemsaa@xs4all.nl,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030819185219.116fd259.skraw@ithnet.com>
-References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
-	 <20030819145403.GA3407@alpha.home.local>
-	 <20030819170751.2b92ba2e.skraw@ithnet.com>
-	 <20030819085717.56046afd.davem@redhat.com>
-	 <20030819185219.116fd259.skraw@ithnet.com>
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: Andi Kleen <ak@muc.de>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, davem@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m365ktxz3k.fsf@averell.firstfloor.org>
+References: <mdtk.Zy.1@gated-at.bofh.it> <mgUv.3Wb.39@gated-at.bofh.it>
+	 <mgUv.3Wb.37@gated-at.bofh.it> <miMw.5yo.31@gated-at.bofh.it>
+	 <m365ktxz3k.fsf@averell.firstfloor.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1061319864.30565.52.camel@dhcp23.swansea.linux.org.uk>
+Message-Id: <1061320620.3744.16.camel@athena.fprintf.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 19 Aug 2003 20:04:25 +0100
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 19 Aug 2003 15:17:00 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-08-19 at 17:52, Stephan von Krawczynski wrote:
-> <quote RFC-985>
+On Tue, 2003-08-19 at 14:48, Andi Kleen wrote:
+> In my experience everybody who wants a different behaviour use some
+> more or less broken stateful L2/L3 switching hacks (like ipvs) or
+> having broken routing tables. While such hacks may be valid for some
+> uses they should not impact the default case.
 
-Effectively Obsolete.
-
->       An ARP reply is discarded if the destination IP address does not
->       match the local host address.  An ARP request is discarded if the
-
-The local host address. Singular. Back from the days where addresses
-lived by box
-
+So, changing your default route is a "hack"?  That's all that's
+necessary.  You can even do it with "route del/route add".
+-- 
+Daniel Gryniewicz <dang@fprintf.net>

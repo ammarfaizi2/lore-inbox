@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315507AbSECAcl>; Thu, 2 May 2002 20:32:41 -0400
+	id <S315510AbSECAfn>; Thu, 2 May 2002 20:35:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315510AbSECAck>; Thu, 2 May 2002 20:32:40 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27155 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315507AbSECAcg>; Thu, 2 May 2002 20:32:36 -0400
+	id <S315511AbSECAfm>; Thu, 2 May 2002 20:35:42 -0400
+Received: from [194.234.65.222] ([194.234.65.222]:47521 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S315510AbSECAfl>; Thu, 2 May 2002 20:35:41 -0400
+Date: Fri, 3 May 2002 02:35:04 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+X-X-Sender: roy@mustard.heime.net
+To: Jeff Nguyen <jeff@aslab.com>
+cc: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Pavel Machek <pavel@suse.cz>, <linux-kernel@vger.kernel.org>
 Subject: Re: IDE hotplug support?
-To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
-Date: Fri, 3 May 2002 01:51:25 +0100 (BST)
-Cc: dalecki@evision-ventures.com (Martin Dalecki),
-        pavel@suse.cz (Pavel Machek), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205030223520.31927-100000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at May 03, 2002 02:25:41 AM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <09fa01c1f227$c8357f00$6502a8c0@jeff>
+Message-ID: <Pine.LNX.4.44.0205030232490.31927-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E173RID-0005Ii-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The request aliasing effects will be almost for sure disasterous
-> > to overall system performance.
+> You can get a sustained read speed of 80MB/s on the Adaptec 2000S
+> Zero Channel RAID with 7 drives (RAID-5). But the sustained write
+> speed is only around 32MB/s.
 > 
-> hm. all I want is lots of space. I don't need speed here. What is 
-> 'disasterous' here?
+> On the other hand, the 3Ware Escalade 7850 can sustain a read speed
+> of 130MB/s with 8 drives (RAID-5). The write speed is 30MB/s.
 
-Halve the expected throughput and subtract a bit. Since you can put 8
-ports on a 3ware card one drive per port at 160Gb a drive I suspect you
-don't need master/slave pairs 8)
+I've done 82MB/s with two WD 120GB 7200 IDE drives in sw raid 0
+
+ok. that was outer rim, but still.
+
+need I say more?
+
+roy
+--
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

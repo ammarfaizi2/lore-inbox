@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUFQQyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266574AbUFQQzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266572AbUFQQyv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 12:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUFQQyv
+	id S266574AbUFQQzj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 12:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266575AbUFQQzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 12:54:51 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:5026 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266572AbUFQQyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 12:54:49 -0400
-Message-ID: <40D1CD0F.4030306@namesys.com>
-Date: Thu, 17 Jun 2004 09:55:43 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Thu, 17 Jun 2004 12:55:39 -0400
+Received: from smtp.sys.beep.pl ([195.245.198.13]:48912 "EHLO smtp.sys.beep.pl")
+	by vger.kernel.org with ESMTP id S266574AbUFQQzf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 12:55:35 -0400
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: linux-kernel@vger.kernel.org
+Subject: Re: Finalized FPU Crash Fix? [2.2.x]
+Date: Thu, 17 Jun 2004 18:55:28 +0200
+User-Agent: KMail/1.6.52
+References: <20040617160856.GA1470@brevity>
+In-Reply-To: <20040617160856.GA1470@brevity>
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Daniel Pittman <daniel@rimspace.net>, linux-kernel@vger.kernel.org,
-       Ext3-users@redhat.com, Chris Mason <mason@suse.com>
-Subject: Re: mode data=journal in ext3. Is it safe to use?
-References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan> <1087322976.1874.36.camel@pla.lokal.lan> <40D06C0B.7020005@techsource.com> <871xkfroph.fsf@enki.rimspace.net> <40D12DB6.3080606@namesys.com> <20040617100813.GA19280@redhat.com>
-In-Reply-To: <20040617100813.GA19280@redhat.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200406171855.28929.arekm@pld-linux.org>
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: Points assigned by spam scoring system to this email. Note that message
+	is treated as spam ONLY if X-Spam-Flag header is set to YES.
+	If you have any report questions, see report postmaster@beep.pl for details.
+	Content analysis details:   (0.0 points, 25.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On Thursday 17 of June 2004 18:08, Josh Myer wrote:
+> Hello everybody,
+>
+> Is there a general concensus that the one-liner in 2.6.7 is an
+> appropriate fix for the FPU hang/crash bug?  I have several machines
+> running 2.4.x which require that outside people have shell access.
+> Needless to say, I'm somewhat nervous about this problem =)
+And how this look in 2.2.x kernels? One guy here tells me that after running 
+http://linuxreviews.org/news/2004-06-11_kernel_crash/index.html#toc1the 2.2 
+kernel freezes.
 
->On Wed, Jun 16, 2004 at 10:35:50PM -0700, Hans Reiser wrote:
->
-> > >the reluctance of the developers to adapt to the 4K kernel stacks in
-> > >2.6.recent,
-> > >
-> > do you use them?  I don't know real users who do, or else I would be 
-> > quicker to care.
->
->The Fedora Core 2 kernel (and what will be RHEL4) is currently
->using 4K stacks.  This makes up quite a large userbase.
->  
->
-Sigh.  I guess we have to support it then.
+Is such fix right one? 2.2.x doesn't crash with it.
 
-Chris, are you up to doing it?
-
-> > On the one hand, you complain about how we were unstable, and on the 
-> > other hand you complain about how we aren't willing to destabilize the 
-> > code to add new features to what is no longer the development branch.  
-> > Seems pretty inconsistent logically to me.
->
->If you really are reluctant it fix it, there's always the option of
->marking CONFIG_REISER4 as dependant on CONFIG_BROKEN if CONFIG_4KSTACKS
->is selected.
->
->		Dave
->
->
->
->  
->
-
+Index: SOURCES/kernel-fwait-2.2.patch
+diff -u /dev/null SOURCES/kernel-fwait-2.2.patch:1.1
+--- /dev/null   Thu Jun 17 15:34:42 2004
++++ SOURCES/kernel-fwait-2.2.patch      Thu Jun 17 15:34:36 2004
+@@ -0,0 +1,10 @@
++--- linux-2.2.26/include/asm-i386/processor.h~ Thu Jun 17 17:19:57 2004
+++++ linux-2.2.26/include/asm-i386/processor.h  Thu Jun 17 17:32:36 2004
++@@ -426,6 +426,7 @@
++ 
++ #define clear_fpu(tsk) do { \
++       if (tsk->flags & PF_USEDFPU) { \
+++              asm volatile("fnclex ; fwait"); \
++               tsk->flags &= ~PF_USEDFPU; \
++               stts(); \
++       } \
+-- 
+Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
+arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267318AbTABWet>; Thu, 2 Jan 2003 17:34:49 -0500
+	id <S266576AbTABW3U>; Thu, 2 Jan 2003 17:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267320AbTABWet>; Thu, 2 Jan 2003 17:34:49 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:34214 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S267318AbTABWeq>;
-	Thu, 2 Jan 2003 17:34:46 -0500
-Date: Fri, 3 Jan 2003 00:42:46 +0200
-From: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
-To: Ross Biro <rossb@google.com>
-Cc: Lionel Bouton <Lionel.Bouton@inet6.fr>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andre Hedrick <andre@linux-ide.org>,
+	id <S266622AbTABW3U>; Thu, 2 Jan 2003 17:29:20 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:46985
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266576AbTABW3T>; Thu, 2 Jan 2003 17:29:19 -0500
+Subject: Re: [PATCH] TCP Zero Copy for mmapped files
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Thomas Ogrisegg <tom@rhadamanthys.org>,
+       "David S. Miller" <davem@redhat.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UDMA 133 on a 40 pin cable
-Message-ID: <20030102224246.GA429@linux.kappa.ro>
-References: <20030102182932.GA27340@linux.kappa.ro> <1041536269.24901.47.camel@irongate.swansea.linux.org.uk> <3E14B698.8030107@inet6.fr> <3E14BFD4.7000909@google.com>
+In-Reply-To: <20030102222816.GF2461@work.bitmover.com>
+References: <20021230010953.GA17731@window.dhis.org>
+	<20021230012937.GC5156@work.bitmover.com>
+	<1041489421.3703.6.camel@rth.ninka.net>
+	<20030102221210.GA7704@window.dhis.org> 
+	<20030102222816.GF2461@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Jan 2003 23:20:44 +0000
+Message-Id: <1041549644.24829.66.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E14BFD4.7000909@google.com>
-User-Agent: Mutt/1.3.25i
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok then after all .. what I see on my box could be a stupid IDE controller?
+On Thu, 2003-01-02 at 22:28, Larry McVoy wrote:
+> The VM cost hurts.  Badly.  Imagine that the network costs ZERO.  Then
+> the map/unmap/vm ops become the dominating term.  That's why it is a
+> fruitless approach, it still has a practical limit which is too low.
 
-On Thu, Jan 02, 2003 at 02:40:20PM -0800, Ross Biro wrote:
-> >
-> >#1 How is the 40/80 pin detection done at the hardware level ?
-> 
-> 
-> On the motherboard end of the 80 conductor cable, the connector shorts 
-> one of the pins to ground (maybe pin 38).  The ide controller  just 
-> checks to see if the pin is pulled low or not.  Pulled low = 80 pin. 
-> That's one of the reasons it's important to plug IDE cables in the 
-> correct way.
-> 
->    Ross
-> 
+It depends how predictable your content is. With a 64bit box and a porn
+server its probably quite tidy
 
--- 
-      Teodor Iacob,
-Network Administrator
-Astral TELECOM Internet

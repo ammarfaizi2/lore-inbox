@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131016AbQLZCvd>; Mon, 25 Dec 2000 21:51:33 -0500
+	id <S131152AbQLZEoO>; Mon, 25 Dec 2000 23:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131114AbQLZCvW>; Mon, 25 Dec 2000 21:51:22 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:4626 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131016AbQLZCvJ>; Mon, 25 Dec 2000 21:51:09 -0500
-Date: Mon, 25 Dec 2000 18:20:15 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Marco d'Itri" <md@Linux.IT>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <20001225194406.A1242@wonderland.linux.it>
-Message-ID: <Pine.LNX.4.10.10012251818260.6807-100000@penguin.transmeta.com>
+	id <S131172AbQLZEoE>; Mon, 25 Dec 2000 23:44:04 -0500
+Received: from natmail2.webmailer.de ([192.67.198.65]:27027 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S131152AbQLZEnx>; Mon, 25 Dec 2000 23:43:53 -0500
+From: Stefan Hoffmeister <Stefan.Hoffmeister@Econos.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 8139too driver broken? (2.4-test12) - Was: Re: rtl8139 driver broken? (2.2.16)
+Date: Tue, 26 Dec 2000 05:14:13 +0100
+Organization: Econos
+Message-ID: <g75g4tso13gl70pjbodc3mjcp9puua0q8u@4ax.com>
+In-Reply-To: <vb074t8d27bdedg6m7pv4c4qqu1f8324cq@4ax.com> <E149X1l-00051k-00@the-village.bc.nu> <6kn94tohu3v901eeod2nf94ish0ct33cci@4ax.com>
+In-Reply-To: <6kn94tohu3v901eeod2nf94ish0ct33cci@4ax.com>
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+: On Sat, 23 Dec 2000 18:50:53 +0100, Stefan Hoffmeister wrote:
 
+>The rather major problem that
+>remains is performance.
 
-On Mon, 25 Dec 2000, Marco d'Itri wrote:
->
->  >Do you get any messages? I don't think you will, but it should be tested.
->
-> I read you found the real cause so that may be bogus, but I have got two
-> messages while booting. The first showed up while doing the fsck of a 6
-> GB file systems and killed the process (fscks of smaller partitions
-> completed successfully), the second occured while initializing
-> /dev/random and left an unkillable dd process and a stuck boot process
-> (I gathered this info with sysrq).
+In case someone is interested...
 
-I'd still love to get the trace for these. I think I have a handle on the
-problems, but it would stil be helpful - dropping a dirty page really
-shouldn't happen except for the swap cache (and that should have been
-plugged by adding the ClearPageDirty()).
+Windows 2000 SP1 now has the Realtek 8139 (Celeron 433, 192 MB, pure
+SCSI); drivers as shipped with W2K. Using a 40 MB test file over FTP, I
+get
 
-		Linus
+  Realtek card sends with 3.5 MB/s
+  Realtek card receives with 5 MB/s
+
+The system that previously contained the 8139 card now has a (10 MBit)
+8029 card - transfer rates with that card are about 850 KB/s, compared to
+the 400KB/s to 530 KB/s with the (100 MBit) 8139 card.
+
+This makes me conclude that there is some pretty serious problem left in
+the 8139too driver.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

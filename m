@@ -1,152 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVCUUzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVCUUz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbVCUUzt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 15:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVCUUxB
+	id S261892AbVCUUz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 15:55:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVCUUxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 15:53:01 -0500
-Received: from digitalimplant.org ([64.62.235.95]:31372 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261896AbVCUUtH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 15:49:07 -0500
-Date: Mon, 21 Mar 2005 12:48:57 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: linux-kernel@vger.kernel.org
-cc: greg@kroah.com
-Subject: [8/9] [RFC] Steps to fixing the driver model locking
-Message-ID: <Pine.LNX.4.50.0503211246410.20647-100000@monsoon.he.net>
+	Mon, 21 Mar 2005 15:53:25 -0500
+Received: from heisenberg.zen.co.uk ([212.23.3.141]:40867 "EHLO
+	heisenberg.zen.co.uk") by vger.kernel.org with ESMTP
+	id S261895AbVCUUtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 15:49:04 -0500
+Message-Id: <200503212049.j2LKn0h2003231@StraightRunning.com>
+From: "Colin Harrison" <colin.harrison@virgin.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Supermount patch oops with 2.6.12-rc1-bk1 in drivers/cdrom.c
+Date: Mon, 21 Mar 2005 20:49:09 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Copyright: Copyright (c) 2005 Colin Harrison
+X-Domain: StraightRunning.com
+X-Admin: colin@straightrunning.com
+X-Originating-Heisenberg-IP: [62.3.107.196]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-ChangeSet@1.2237, 2005-03-21 12:00:18-08:00, mochel@digitalimplant.org
-  [driver core] Add a klist to struct bus_type for its drivers.
+I'm using 2.6.12-rc1-bk1 with ck's supermount patch
+(supermount-ng208-2611.diff) and am getting the following oops with 'find .
+-name fred' from '/' when a disk is in my dvdrom drive:-
 
+Kernel 2.6.12-rc1-bk1 on an i686 / ttyS0
+chamonix.straightrunning.com login: Unable to handle kernel NULL pointer
+dereference at virtual address 00000108
+ printing eip:
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+Modules linked in: parport_pc lp parport floppy natsemi supermount
+nls_iso8859_15 ntfs mga_vid fusion intel_agp agpgart snd_seq_oss x
+CPU:    0
+EIP:    0060:[<c021ea2f>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.12colin)
+EIP is at cdrom_mediactl+0x16/0xbf
+eax: 00000108   ebx: 00000108   ecx: 000004d3   edx: dfb7d300
+esi: 000004d3   edi: 000004d3   ebp: d5998e58   esp: d5998e48
+ds: 007b   es: 007b   ss: 0068
+Process find (pid: 1727, threadinfo=d5998000 task=d909d520)
+Stack: dfb7d300 dfb7d300 dfb7d300 000004d3 d5998e68 c021347b 00000000
+c02de7a0
+       d5998e80 e2a1b6fc 00000000 00000000 d5d906e0 df5bc200 d5998e9c
+e2a1dc80
+       d5d906e0 00000000 df5bc200 df5bc200 dfce6e14 d5998ea8 e2a1de8e
+df5bc200
+Call Trace:
+ [<c0102cdf>] show_stack+0xa9/0xb1
+ [<c0102e4d>] show_registers+0x14d/0x1c1
+ [<c0103037>] die+0xe9/0x188
+ [<c010e1bc>] do_page_fault+0x437/0x635
+ [<c0102937>] error_code+0x2b/0x30
+ [<c021347b>] idecd_mediactl+0x23/0x29
+ [<e2a1b6fc>] supermount_mediactl+0xb4/0x13c [supermount]
+ [<e2a1dc80>] subfs_mount+0xd0/0x11c [supermount]
+ [<e2a1de8e>] check_and_remount_subfs+0x38/0x5d [supermount]
+ [<e2a1e4cf>] subfs_go_online+0x36/0x102 [supermount]
+ [<e2a1c8ea>] supermount_permission+0x47/0xf7 [supermount]
+ [<c0157d02>] permission+0x96/0xac
+ [<c015979f>] may_open+0x5f/0x1b6
+ [<c0159dba>] open_namei+0x4c4/0x597
+ [<c014a509>] filp_open+0x29/0x48
+ [<c014a949>] sys_open+0x4d/0x87
+ [<c01026c7>] sysenter_past_esp+0x54/0x75
+Code: 89 44 24 08 8b 45 dc 89 44 24 04 e8 eb 48 ef ff e9 38 ff ff ff 55 89
+e5 83 ec 10 89 5d f4 89 75 f8 89 55 f0 89 7d fc 89 c3 89
 
-  - Use it in bus_for_each_drv().
-  - Use the klist spinlock instead of the bus rwsem.
+Entering kdb (current=0xd909d520, pid 1727) Oops: Oops
+due to oops @ 0xc021ea2f
+eax = 0x00000108 ebx = 0x00000108 ecx = 0x000004d3 edx = 0xdfb7d300
+esi = 0x000004d3 edi = 0x000004d3 esp = 0xd5998e48 eip = 0xc021ea2f
+ebp = 0xd5998e58 xss = 0xc0220068 xcs = 0x00000060 eflags = 0x00010286
+xds = 0xdfb7007b xes = 0x0000007b origeax = 0xffffffff &regs = 0xd5998e14
+kdb>
 
+More info. can be supplied as required and I'll look further myself.
 
+Thanks
 
-  Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
---- a/drivers/base/bus.c	2005-03-21 12:30:27 -08:00
-+++ b/drivers/base/bus.c	2005-03-21 12:30:27 -08:00
-@@ -135,30 +135,6 @@
- decl_subsys(bus, &ktype_bus, NULL);
-
-
--static int __bus_for_each_drv(struct bus_type *bus, struct device_driver *start,
--			      void * data, int (*fn)(struct device_driver *, void *))
--{
--	struct list_head *head;
--	struct device_driver *drv;
--	int error = 0;
--
--	if (!(bus = get_bus(bus)))
--		return -EINVAL;
--
--	head = &bus->drivers.list;
--	drv = list_prepare_entry(start, head, kobj.entry);
--	list_for_each_entry_continue(drv, head, kobj.entry) {
--		get_driver(drv);
--		error = fn(drv, data);
--		put_driver(drv);
--		if (error)
--			break;
--	}
--	put_bus(bus);
--	return error;
--}
--
--
- static struct device * next_device(struct klist_iter * i)
- {
- 	struct klist_node * n = klist_next(i);
-@@ -203,6 +179,14 @@
- 	return error;
- }
-
-+
-+
-+static struct device_driver * next_driver(struct klist_iter * i)
-+{
-+	struct klist_node * n = klist_next(i);
-+	return n ? container_of(n, struct device_driver, knode_bus) : NULL;
-+}
-+
- /**
-  *	bus_for_each_drv - driver iterator
-  *	@bus:	bus we're dealing with.
-@@ -226,12 +210,19 @@
- int bus_for_each_drv(struct bus_type * bus, struct device_driver * start,
- 		     void * data, int (*fn)(struct device_driver *, void *))
- {
--	int ret;
-+	struct klist_iter i;
-+	struct device_driver * drv;
-+	int error = 0;
-
--	down_read(&bus->subsys.rwsem);
--	ret = __bus_for_each_drv(bus, start, data, fn);
--	up_read(&bus->subsys.rwsem);
--	return ret;
-+	if (!bus)
-+		return -EINVAL;
-+
-+	klist_iter_init_node(&bus->klist_drivers, &i,
-+			     start ? &start->knode_bus : NULL);
-+	while ((drv = next_driver(&i)) && !error)
-+		error = fn(drv, data);
-+	klist_iter_exit(&i);
-+	return error;
- }
-
-
-@@ -377,6 +368,7 @@
- 		down_write(&bus->subsys.rwsem);
- 		driver_attach(drv);
- 		up_write(&bus->subsys.rwsem);
-+		klist_add_tail(&bus->klist_drivers, &drv->knode_bus);
- 		module_add_driver(drv->owner, drv);
-
- 		driver_add_attrs(bus, drv);
-@@ -398,6 +390,7 @@
- {
- 	if (drv->bus) {
- 		driver_remove_attrs(drv->bus, drv);
-+		klist_remove(&drv->knode_bus);
- 		down_write(&drv->bus->subsys.rwsem);
- 		pr_debug("bus %s: remove driver %s\n", drv->bus->name, drv->name);
- 		driver_detach(drv);
-@@ -537,6 +530,7 @@
- 		goto bus_drivers_fail;
-
- 	klist_init(&bus->klist_devices);
-+	klist_init(&bus->klist_drivers);
- 	bus_add_attrs(bus);
-
- 	pr_debug("bus type '%s' registered\n", bus->name);
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	2005-03-21 12:30:27 -08:00
-+++ b/include/linux/device.h	2005-03-21 12:30:27 -08:00
-@@ -54,6 +54,7 @@
- 	struct kset		drivers;
- 	struct kset		devices;
- 	struct klist		klist_devices;
-+	struct klist		klist_drivers;
-
- 	struct bus_attribute	* bus_attrs;
- 	struct device_attribute	* dev_attrs;
-@@ -106,6 +107,7 @@
- 	struct completion	unloaded;
- 	struct kobject		kobj;
- 	struct list_head	devices;
-+	struct klist_node	knode_bus;
-
- 	struct module 		* owner;
+Colin Harrison
 

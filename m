@@ -1,46 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbTDXHb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 03:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTDXHb6
+	id S261309AbTDXHhC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 03:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTDXHhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 03:31:58 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:47495 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261328AbTDXHb4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 03:31:56 -0400
-Date: Thu, 24 Apr 2003 08:44:00 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-Message-ID: <20030424074400.GD28253@mail.jlokier.co.uk>
-References: <20030424051510.GK8931@holomorphy.com> <Pine.LNX.4.44.0304232217550.19326-100000@home.transmeta.com> <20030424061500.GN8978@holomorphy.com>
+	Thu, 24 Apr 2003 03:37:02 -0400
+Received: from mail.gmx.de ([213.165.64.20]:29914 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261309AbTDXHhA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 03:37:00 -0400
+Date: Thu, 24 Apr 2003 09:49:01 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Nigel Cunningham <ncunningham@clear.net.nz>, Pavel Machek <pavel@ucw.cz>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Fix SWSUSP & !SWAP
+Message-Id: <20030424094901.435101a6.gigerstyle@gmx.ch>
+In-Reply-To: <28790000.1051159060@[10.10.2.4]>
+References: <F760B14C9561B941B89469F59BA3A847E96E0E@orsmsx401.jf.intel.com>
+	<20030424000344.GC32577@atrey.karlin.mff.cuni.cz>
+	<1051142550.4306.10.camel@laptop-linux>
+	<1605730000.1051145146@flay>
+	<1051152437.2453.26.camel@laptop-linux>
+	<28790000.1051159060@[10.10.2.4]>
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030424061500.GN8978@holomorphy.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> Well, my walking out of computing is tied to complete prevention of
-> kernel hacking on commodity hardware, so you've not lost anything yet.
-> I only really care if it's no longer possible to get a commodity system
-> to run Linux on at all, not about crypto dongles.
+Good Morning All:-)
 
-Hi William,
+On Wed, 23 Apr 2003 21:37:41 -0700
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
 
-If it ever gets that bad, email me and we'll find a way to create
-hardware without those restrictions, and get it to people who want it.
+> >> > I don't believer I've ever seen things get OOM killed. Instead, page
+> >> > cache is discarded until things do fit.
+> >> 
+> >> What happens if user allocated pages are filling up all the space,
+> >> not page cache? Trust me, it happens ;-)
+> > 
 
-If the hardware that comes out of industry won't let you hack, hey you
-still have basic materials like SiO2 from the real world to make your
-own.  Tough, but rewarding :)
+Yes, it happens...:-)
 
-It only gets _really_ bad when it becomes illegal to make your own
-hardware :(
+> > Yep, just because I haven't seen it, doesn't mean a thing. :>. In that
 
--- Jamie
+<snip>
+
+</snip>
+
+> The more I think about this, the more it seems so much simpler to just
+> require a reserved swap area the size of your RAM to suspend into. Would
+> make the code so much simpler ... forget the option bit I suggested earlier
+> ;-)
+
+I think most people doesn't interest wheter the code is simple or not...it must work!
+
+What I like to see is that we can define in /etc/fstab an entry for a separate suspend partition or suspend file.
+
+eg. for a partition:
+/dev/sda4	none	swsusp	swsp	0 0
+
+or for a file:
+/tmp/swsusp	none	swsusp	swsp	0 0
+
+Is it possible? It's also just an idea...
+
+Marc
+
+Also I wouldn't like it, if my programs get OOM-killed just because swap and memory are full! The reasons because I use standby and hybernation are:
+
+1. I hate booting...(If I like booting I would use windows;-))
+2. I want to continue working on the last work without opening the programs again
+3. I can go home faster:-)

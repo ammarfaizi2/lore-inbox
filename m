@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRALIG6>; Fri, 12 Jan 2001 03:06:58 -0500
+	id <S129401AbRALILx>; Fri, 12 Jan 2001 03:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129860AbRALIGp>; Fri, 12 Jan 2001 03:06:45 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:10435 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129267AbRALIGk>; Fri, 12 Jan 2001 03:06:40 -0500
-To: "J . A . Magallon" <jamagallon@able.es>,
-        Linus Torvalds <torvalds@transmeta.com>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: Strange umount problem in latest 2.4.0 kernels
-In-Reply-To: <UTC200101112234.XAA98877.aeb@ark.cwi.nl>
-	<20010112002303.A905@werewolf.able.es>
-From: Christoph Rohland <cr@sap.com>
-Date: 12 Jan 2001 09:05:53 +0100
-In-Reply-To: <20010112002303.A905@werewolf.able.es>
-Message-ID: <qwwg0ipi49q.fsf@sap.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+	id <S129562AbRALILo>; Fri, 12 Jan 2001 03:11:44 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:54153 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129655AbRALIL3>;
+	Fri, 12 Jan 2001 03:11:29 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14942.48157.259491.78067@pizda.ninka.net>
+Date: Fri, 12 Jan 2001 00:11:09 -0800 (PST)
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Christoph Lameter <christoph@lameter.com>, khttpd-users@zgp.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: khttpd beaten by boa
+In-Reply-To: <20010112084259.B441@marowsky-bree.de>
+In-Reply-To: <Pine.LNX.4.21.0101071655090.1110-100000@home.lameter.com>
+	<Pine.LNX.4.21.0101112214040.22231-100000@home.lameter.com>
+	<20010112084259.B441@marowsky-bree.de>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001, jamagallon@able.es wrote:
-> Same cam be applied to shm ? Thus kernel Documentation/Changes
-> should be changed:
-[...]
-> 
-> none        /dev/shm    shm     defaults    0 0
-> 
-> to
-> 
-> shm        /dev/shm    shm     defaults    0 0
-> 
 
-Yes, I thought that I changed that :-( I always have the type as
-device in my fstab. 
+Lars Marowsky-Bree writes:
+ > This just goes on to show that khttpd is unnecessary kernel bloat
+ > and can be "just as well" handled by a userspace application, minus
+ > some rather very special cases which do not justify its inclusion
+ > into the main kernel.
 
-Linus, it is not really crucial, but still could be applied without
-breaking anything for sure ;-) 
+My take on this is that khttpd is unmaintained garbage.
 
-Greetings
-		Christoph
+TUX is evidence that khttpd can be done properly and
+beat the pants off of anything done in userspace.
 
---- 2.4.0/Documentation/Changes Mon Jan  1 19:00:04 2001
-+++ linux/Documentation/Changes Fri Jan 12 09:03:35 2001
-@@ -121,7 +121,7 @@
- memory. Adding the following line to /etc/fstab should take care of
- things:
- 
--none           /dev/shm        shm             defaults        0 0
-+shm            /dev/shm        shm             defaults        0 0
- 
- Remember to create the directory that you intend to mount shm on if
- necessary (The entry is automagically created if you use devfs). You           
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,138 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313236AbSDJPGX>; Wed, 10 Apr 2002 11:06:23 -0400
+	id <S313190AbSDJPPq>; Wed, 10 Apr 2002 11:15:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313189AbSDJPFW>; Wed, 10 Apr 2002 11:05:22 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:20996 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S313207AbSDJPEK>; Wed, 10 Apr 2002 11:04:10 -0400
-Message-ID: <3CB45352.6030109@namesys.com>
-Date: Wed, 10 Apr 2002 18:59:30 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020310
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ReiserFS bugfixes, the critical one of the thirteen, please
- apply, 12 of 13
-Content-Type: multipart/mixed;
- boundary="------------000804060002080704050503"
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-This is a multi-part message in MIME format.
---------------000804060002080704050503
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-
-
---------------000804060002080704050503
-Content-Type: message/rfc822;
- name="[PATCH] 2.5.8-pre3 patch 12 of 13"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="[PATCH] 2.5.8-pre3 patch 12 of 13"
-
-
->From - Wed Apr 10 15:37:37 2002
-X-Mozilla-Status2: 00000000
-Return-Path: <green@namesys.com>
-Delivered-To: reiser@namesys.com
-Received: (qmail 13285 invoked from network); 10 Apr 2002 11:21:51 -0000
-Received: from angband.namesys.com (postfix@212.16.7.85)
-  by thebsh.namesys.com with SMTP; 10 Apr 2002 11:21:51 -0000
-Received: by angband.namesys.com (Postfix on SuSE Linux 7.3 (i386), from userid 521)
-	id 2F6E34D1B34; Wed, 10 Apr 2002 15:21:51 +0400 (MSD)
-Date: Wed, 10 Apr 2002 15:21:51 +0400
-From: Oleg Drokin <green@namesys.com>
-To: reiser@namesys.com
-Subject: [PATCH] 2.5.8-pre3 patch 12 of 13
-Message-ID: <20020410152151.A20916@namesys.com>
+	id <S313200AbSDJPPp>; Wed, 10 Apr 2002 11:15:45 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:4070 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S313190AbSDJPPp>;
+	Wed, 10 Apr 2002 11:15:45 -0400
+Date: Wed, 10 Apr 2002 16:24:43 +0200
+From: Piotr Esden-Tempski <pe1724@bingo-ev.de>
+To: Amol Kumar Lad <amolk@ishoni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reducing root filesystem
+Message-ID: <20020410142443.GA4665@bingo-ev.de>
+In-Reply-To: <7CFD7CA8510CD6118F950002A519EA3001067D06@leonoid.in.ishoni.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.3.27i
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+You can try using dietlibc (http://www.fefe.de/dietlibc/) and other
+tools listed on http://www.fefe.de/ . There is also a project rewriting
+shell tools in assembler but I do not remember the name. This should
+reduce required root space a little.
 
- This patch fixes a problem that was created during inode structure
- cleanup/ private parts separation. This fix was made by Chris Mason.
- This is very critical bugfix. Without it, filesystem corruption
- happens on savelinks processing and possibly in some other cases.
+cheers Esden
 
+On Wed, Apr 10, 2002 at 07:38:09PM +0530, Amol Kumar Lad wrote:
+> Hi,
+>   I am porting Linux to an embedded system. Currently my rootfilesystem is
+> around 2.5 MB (after keeping it to minimal and adding tools like busybox). I
+> want to furthur reduce it to say maximum of 1.5 MB. 
+> Please suggest some link/references where I can find the details to optimise
+> my root filesystem
+> 
+> thanks
+> Amol
+> 
+> please CC me
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---- linux-2.5.8-pre2/fs/reiserfs/inode.c.orig	Mon Apr  8 14:09:57 2002
-+++ linux-2.5.8-pre2/fs/reiserfs/inode.c	Mon Apr  8 14:23:15 2002
-@@ -1111,8 +1111,19 @@
-     return;
- }
- 
-+/* reiserfs_read_inode2 is called to read the inode off disk, and it
-+** does a make_bad_inode when things go wrong.  But, we need to make sure
-+** and clear the key in the private portion of the inode, otherwise a
-+** corresponding iput might try to delete whatever object the inode last
-+** represented.
-+*/
-+static void reiserfs_make_bad_inode(struct inode *inode) {
-+    memset(INODE_PKEY(inode), 0, KEY_SIZE);
-+    make_bad_inode(inode);
-+}
-+
- void reiserfs_read_inode(struct inode *inode) {
--    make_bad_inode(inode) ;
-+    reiserfs_make_bad_inode(inode) ;
- }
- 
- 
-@@ -1132,7 +1143,7 @@
-     int retval;
- 
-     if (!p) {
--	make_bad_inode(inode) ;
-+	reiserfs_make_bad_inode(inode) ;
- 	return;
-     }
- 
-@@ -1152,13 +1163,13 @@
- 	reiserfs_warning ("vs-13070: reiserfs_read_inode2: "
-                     "i/o failure occurred trying to find stat data of %K\n",
-                     &key);
--	make_bad_inode(inode) ;
-+	reiserfs_make_bad_inode(inode) ;
- 	return;
-     }
-     if (retval != ITEM_FOUND) {
- 	/* a stale NFS handle can trigger this without it being an error */
- 	pathrelse (&path_to_sd);
--	make_bad_inode(inode) ;
-+	reiserfs_make_bad_inode(inode) ;
- 	inode->i_nlink = 0;
- 	return;
-     }
-@@ -1185,7 +1196,7 @@
- 			      "dead inode read from disk %K. "
- 			      "This is likely to be race with knfsd. Ignore\n", 
- 			      &key );
--	    make_bad_inode( inode );
-+	    reiserfs_make_bad_inode( inode );
-     }
- 
-     reiserfs_check_path(&path_to_sd) ; /* init inode should be relsing */
---- linux-2.5.8-pre2/fs/reiserfs/super.c.orig	Mon Apr  8 14:00:50 2002
-+++ linux-2.5.8-pre2/fs/reiserfs/super.c	Mon Apr  8 14:23:15 2002
-@@ -746,9 +746,8 @@
-     //
-     // ok, reiserfs signature (old or new) found in at the given offset
-     //    
--    brelse (bh);
--    
-     sb_set_blocksize (s, sb_blocksize(rs));
-+    brelse (bh);
-     
-     bh = reiserfs_bread (s, offset / s->s_blocksize);
-     if (!bh) {
-
-
-
---------------000804060002080704050503--
-
+-- 
+bChat2: http://bchat2.bingo-ev.de                       ___  ___  ___  _  _
+bChat: http://bchat.bingo-ev.de                        | _ || _ || __|| |//
+ROCK LINUX: www.rocklinux.org                          ||_|||| ||||   |  /
+-Born to run kill -9 win                               |  _|||_||||__ |  \
+-"Ignorance is bliss." (Matrix)                        ||\\ |_LINUX__||_|\\
+GPG Public Key Block: http://www.esden.net/me/esden-key-2002-01-17.asc

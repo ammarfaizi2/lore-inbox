@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132629AbRANNRB>; Sun, 14 Jan 2001 08:17:01 -0500
+	id <S132655AbRANNRb>; Sun, 14 Jan 2001 08:17:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132655AbRANNQv>; Sun, 14 Jan 2001 08:16:51 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:58779 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S132629AbRANNQl>;
-	Sun, 14 Jan 2001 08:16:41 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S132807AbRANNRM>; Sun, 14 Jan 2001 08:17:12 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:19572
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S132655AbRANNRI>; Sun, 14 Jan 2001 08:17:08 -0500
+Date: Sun, 14 Jan 2001 14:16:55 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] limit mmap_cache nulling (2.2.19-7)
+Message-ID: <20010114141655.C604@jaquet.dk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14945.42633.188963.984765@pizda.ninka.net>
-Date: Sun, 14 Jan 2001 05:15:53 -0800 (PST)
-To: Andi Kleen <ak@suse.de>
-Cc: Igmar Palsenberg <i.palsenberg@jdimedia.nl>,
-        Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 + iproute2
-In-Reply-To: <20010114133140.A23640@gruyere.muc.suse.de>
-In-Reply-To: <20010114124659.A23188@gruyere.muc.suse.de>
-	<Pine.LNX.4.30.0101141309160.16758-100000@jdi.jdimedia.nl>
-	<20010114133140.A23640@gruyere.muc.suse.de>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Andi Kleen writes:
- > David's /proc/errno_strings
+The following patch against 2.2.19-7 adds checks in do_munmap and 
+merge_segments to limit the nulling of mmap_cache to the cases where
+the cached vma is in the affected area.
 
-David put a smiley at the end of that sentence, he was kidding and was
-trying to show you how rediculious keeping errno strings in the kernel
-is.
+Comments?
 
-Later,
-David S. Miller
-davem@redhat.com
+
+--- linux-2.2.19-7/mm/mmap.c~	Sun Jan 14 13:43:50 2001
++++ linux-2.2.19-7/mm/mmap.c	Sun Jan 14 14:02:04 2001
+@@ -689,8 +689,11 @@
+ 		kmem_cache_free(vm_area_cachep, extra);
+ 
+ 	free_pgtables(mm, prev, addr, addr+len);
++		
++	if (mm->mmap_cache && mm->mmap_cache->vm_start < addr+len 
++	    && mm->mmap_cache->vm_end > addr)
++		mm->mmap_cache = NULL;	/* Kill the cache. */
+ 
+-	mm->mmap_cache = NULL;	/* Kill the cache. */
+ 	return 0;
+ }
+ 
+@@ -867,7 +870,9 @@
+ 		kmem_cache_free(vm_area_cachep, mpnt);
+ 		mpnt = prev;
+ 	}
+-	mm->mmap_cache = NULL;		/* Kill the cache. */
++       if (mm->mmap_cache && mm->mmap_cache->vm_start < end_addr 
++           && mm->mmap_cache->vm_end > start_addr)
++	       mm->mmap_cache = NULL;		/* Kill the cache. */
+ }
+ 
+ void __init vma_init(void)
+
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+Are they taking DDT?
+                -- Vice President Dan Quayle asking doctors at a Manhattan
+                   AIDS clinic about their treatments of choice, 4/30/92
+                   (reported in Esquire, 8/92, and NY Post early May 92)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267121AbTBHWJH>; Sat, 8 Feb 2003 17:09:07 -0500
+	id <S267122AbTBHWZv>; Sat, 8 Feb 2003 17:25:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267122AbTBHWJH>; Sat, 8 Feb 2003 17:09:07 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:51584 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S267121AbTBHWJH>;
-	Sat, 8 Feb 2003 17:09:07 -0500
-Date: Sat, 8 Feb 2003 23:18:44 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Thomas Molina <tmolina@cox.net>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 328] New: The computer seems to hang after the kernel has uncompressed and starts to boot.
-Message-ID: <20030208221844.GA3206@win.tue.nl>
-References: <20980000.1044736584@[10.10.2.4]> <Pine.LNX.4.44.0302081456180.3031-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302081456180.3031-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.25i
+	id <S267123AbTBHWZv>; Sat, 8 Feb 2003 17:25:51 -0500
+Received: from h-64-105-35-123.SNVACAID.covad.net ([64.105.35.123]:47850 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S267122AbTBHWZu>; Sat, 8 Feb 2003 17:25:50 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 8 Feb 2003 14:35:23 -0800
+Message-Id: <200302082235.OAA26038@adam.yggdrasil.com>
+To: gf@unixsol.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59-mm9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 08, 2003 at 03:00:43PM -0600, Thomas Molina wrote:
+On 08 Feb 2003, Georgi Chorbadzhiyski wrote:
+>Jochen Hein wrote:
+>> Andrew Morton <akpm@digeo.com> writes:
+>>>. Adam's cleanup and cutdown of devfs has been put back in again.  We
+>>>  really need devfs users to test this and to report, please.  (And not just
+>>>  to me!  I'll only bounce it to Adam J.  Richter <adam@yggdrasil.com>
+>>>  anyway)
+>> 
+>> Ok, I patched 2.5.59 with Adam's patch and it boots fine.  I miss the
+>> file /dev/.devfsd - Debian uses that file to detect devfs and act
+>> accordingly.  Still in the first minutes, I'll get back when Linus has
 
-> I began to see this bug this weekend myself.  I'm not sure of the cause, 
-> but it can be worked around by configuring the kernel for built-in (not 
-> modular) support of virtual terminals (CONFIG_VT) and support for console 
-> on virtual terminals (CONFIG_VT_CONSOLE).  
+>Slackware does the same.
 
-Maybe unrelated, but there is some really ugly code in
-char_dev.c:get_chrfops().
+	Distributions that want to do something different for devfs
+can parse /proc/mounts, or, less reliably, do statfs("/dev", &statfs_buf)
+and look at statfs_buf.f_type.  So, you still have this ability without
+the need for additional kernel code.
 
-There, if one needs a character device that is not present
-a request_module("char-major-%d") is done.
-However, if the character device has TTY_MAJOR or TTYAUX_MAJOR
-and a driver for this major is requested, and we already have
-one, but it is the wrong one, then we also do the request_module.
-Yecch.
+	It's worth noting that some devfs users may want the non-devfs
+behavior (which I assume means creating /dev files during some
+installation process) because they may have a script to save /dev
+before shutdown and restore their additional /dev nodes at boot, so
+you probably want to centralize this decision in some little script
+anyhow.  The devfsd (for the stock devfs) has a couple of commands
+designed for this, although this can just as easily be done in scripts
+for boot and shutdowns.
 
-The reason is of course that entirely different drivers cover
-different fragments of the major space (4,1 is /dev/tty1 and
-4,65 is /dev/ttyS1)
+	Also, I suppose that checking for /dev/.devfsd is an easy way
+to detect _which_ devfs you are using, although I don't know if such a
+check is useful, since you could start devfsd unconditionally and it
+should just exit if the old devfs is not present.
 
-So, I could imagine that if one has neither module, and needs
-one, get_chrfops() loads the wrong one. Speculation.
-
-Andries
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

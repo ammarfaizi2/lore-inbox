@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVCCV25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVCCV26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbVCCV25 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 16:28:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVCCVZJ
+	id S262159AbVCCV26 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 16:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVCCVZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 16:25:09 -0500
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:63679 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S262403AbVCCVQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 16:16:42 -0500
-From: Bernd Schubert <bernd-schubert@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: x86_64: 32bit emulation problems
-Date: Thu, 3 Mar 2005 22:16:30 +0100
-User-Agent: KMail/1.6.2
-Cc: Andi Kleen <ak@muc.de>, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andreas Schwab <schwab@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de> <1109782387.9667.11.camel@lade.trondhjem.org> <20050303091908.GC5215@muc.de>
-In-Reply-To: <20050303091908.GC5215@muc.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 3 Mar 2005 16:25:31 -0500
+Received: from fire.osdl.org ([65.172.181.4]:17060 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262480AbVCCVUe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 16:20:34 -0500
+Date: Thu, 3 Mar 2005 13:20:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+Message-Id: <20050303132011.7c80033d.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503030852490.8941@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+	<20050302174507.7991af94.akpm@osdl.org>
+	<Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
+	<20050302185508.4cd2f618.akpm@osdl.org>
+	<Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
+	<20050302201425.2b994195.akpm@osdl.org>
+	<Pine.LNX.4.58.0503022021150.3816@schroedinger.engr.sgi.com>
+	<20050302205612.451d220b.akpm@osdl.org>
+	<Pine.LNX.4.58.0503022206001.4389@schroedinger.engr.sgi.com>
+	<20050302222008.4910eb7b.akpm@osdl.org>
+	<Pine.LNX.4.58.0503030852490.8941@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200503032216.31859.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 March 2005 10:19, Andi Kleen wrote:
-> On Wed, Mar 02, 2005 at 08:53:07AM -0800, Trond Myklebust wrote:
-> > on den 02.03.2005 Klokka 12:33 (+0100) skreiv Bernd Schubert:
-> > > > I can see no good reason for truncating inode number values on
-> > > > platforms that actually do support 64-bit inode numbers, but I can
-> > > > see several
-> > >
-> > > Well, at least we would have a reason ;)
-> >
-> > A 32-bit emulation mode is clearly a "platform" which does NOT support
-> > 64-bit inode numbers, however there is (currently) no way for the kernel
-> > to detect that you are running that. Any extra truncation should
-> > therefore ideally be done by the emulation layer rather than the kernel
-> > itself.
+Christoph Lameter <clameter@sgi.com> wrote:
 >
-> The problem here is that glibc uses stat64() which supports
-> 64bit inode numbers. But glibc does the overflow checking itself
-> and generates the EOVERFLOW in user space. Nothing we can do
-> about that. The 64bit inodes work under 32bit too, so your
-> code checking for 64bitness is totally bogus.
->
-> The old stat interface doesn't check that case currently either
-> (will fix that), but that's not the problem here.
->
-> But in general the emulation layer cannot do truncation because
-> it doesn't know if it is ok to do for the low level file system.
-> If anything this has to be done in the fs.
->
+> On Wed, 2 Mar 2005, Andrew Morton wrote:
+> 
+>  > >  This is not relevant since it only deals with file pages.
+>  >
+>  > OK.   And CONFIG_DEBUG_PAGEALLOC?
+> 
+>  Its a debug feature that can be fixed if its broken.
 
-So what do you actually suggest? On the one hand you say even 32bit userspace 
-supports 64bit inodes, if it wants. On the other hand you say the truncation 
-needs to be done on file system level. 
-To my mind this is contradicting, the first statement suggests to do the 
-truncation in userspace, the second says it can only be done in the kernel?
+It's broken.
 
-Cheers,
- Bernd
+A fix would be to restore the get_page() if CONFIG_DEBUG_PAGEALLOC.  Not
+particularly glorious..
+

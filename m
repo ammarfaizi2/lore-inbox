@@ -1,394 +1,1238 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315573AbSEIAWl>; Wed, 8 May 2002 20:22:41 -0400
+	id <S315577AbSEIAY4>; Wed, 8 May 2002 20:24:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315575AbSEIAWk>; Wed, 8 May 2002 20:22:40 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:2553 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315573AbSEIAWd>;
-	Wed, 8 May 2002 20:22:33 -0400
-Message-Id: <200205090019.g490JGN17300@w-gaughen.des.beaverton.ibm.com>
+	id <S315576AbSEIAYz>; Wed, 8 May 2002 20:24:55 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:5113 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315577AbSEIAWs>;
+	Wed, 8 May 2002 20:22:48 -0400
+Message-Id: <200205090019.g490JXY17324@w-gaughen.des.beaverton.ibm.com>
 X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
 Reply-to: gone@us.ibm.com
 From: Patricia Gaughen <gone@us.ibm.com>
 To: marcelo@conectiva.com.br
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] modularization of setup_arch() for 2.4.19pre8
+Subject: [PATCH] discontigmem support for ia32 NUMA box against 2.4.19pre8
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 08 May 2002 17:19:15 -0700
+Date: Wed, 08 May 2002 17:19:33 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Please consider this patch for inclusion into the next 2.4 release.  
-It was accepted into the 2.4.19pre6aa1, with slight modifications 
-by Andrea that I have incorporated into this version of my patch.
+Please consider this patch for inclusion into the next 2.4 release.
+Sent this patch out last week as an RFC.  I've resolved the comments 
+from that post, mostly regarding config options.  
 
-This patch restructures setup_arch() for i386 to make it easier to
-include the i386 numa changes (for CONFIG_DISCONTIGMEM) I've been 
-working on.  It also makes setup_arch() easier to read.  
+This patch provides generic discontiguous memory support for the i386
+numa architecture.  The patch also provides supports for the ia32 IBM
+NUMA-Q hardware platform.  
 
-I'm also submitting a patch for mem_init(), the two patches do not 
-depend on each other, but my discontigmem patch does depend on 
-both.
+This patch depends on the two patches that modularize setup_arch() and
+mem_init().  These two patches were sent to the mailing list about a
+week go.  They're available at:
 
-All of the above mentioned patches are available at:
+http://prdownloads.sourceforge.net/lse/meminit-2.4.19pre8.patch
+http://prdownloads.sourceforge.net/lse/setup_arch-2.4.19pre8.patch
+The discontigmem patch is available at:
 
-http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=87263
+http://prdownloads.sourceforge.net/lse/x86_discontigmem-2.4.19pre8.patch
 
-I've booted with the patches on the following systems:
+Assumptions made: 
 
-UP system
-4 Proc SMP system
-8 Proc NUMA system
+        - that the first node has at least 900Mb of memory
 
-Feedback regarding these patches is greatly appreciated.
+Still to do:
+
+	- port to 2.5.1? (as soon as we can get it booting on our hardware)
+	- write up a set of instructions (and todo list) so that other
+	ia32 numa boxes	can reuse this patch.
+        - test on a system with more than 4GB of memory (this will be done 
+	as part of the port of my patch to x440 hardware)
+
+Testing done: 
+
+        - single proc desktop pc (CONFIG_X86_NUMAQ is not set)
+        - 4 proc SMP system (CONFIG_X86_NUMAQ is not set)
+        - 8 proc NUMA box with 2GB memory (CONFIG_X86_NUMAQ=y, 
+		CONFIG_NUMA is not set)
+        - 8 proc NUMA box with 2GB memory (CONFIG_X86_NUMAQ=y, 
+		CONFIG_NUMA=y)
+        - 16 proc NUMA box with 4GB memory (CONFIG_X86_NUMAQ=y, 
+		CONFIG_NUMA=y)
+
+Any and all feedback is greatly appreciated.
 
 Thanks,
 Pat
 
--- 
+--
 Patricia Gaughen (gone@us.ibm.com)
 IBM Linux Technology Center
 http://www.ibm.com/linux/ltc/
 
-
---- linux-2.4.19pre8/arch/i386/kernel/setup.c	Tue May  7 11:54:04 2002
-+++ linux-2.4.19pre8-cleanup/arch/i386/kernel/setup.c	Tue May  7 15:36:50 2002
-@@ -800,49 +800,6 @@
+--- linux-2.4.19pre8-cleanup/arch/i386/config.in	Tue May  7 11:54:04 2002
++++ linux-2.4.19pre8-multi/arch/i386/config.in	Wed May  8 11:09:21 2002
+@@ -198,7 +198,15 @@
+       define_bool CONFIG_X86_IO_APIC y
+    fi
+ else
+-   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
++   bool 'Multiquad NUMA system' CONFIG_X86_NUMAQ
++   if [ "$CONFIG_X86_NUMAQ" = "y" ]; then
++      bool 'Numa Memory Allocation Support' CONFIG_NUMA
++      if [ "$CONFIG_NUMA" = "y" ]; then
++         define_bool CONFIG_DISCONTIGMEM y
++         define_bool CONFIG_X86_DISCONTIGMEM y
++      fi
++      define_bool CONFIG_MULTIQUAD y
++   fi
+ fi
+ 
+ if [ "$CONFIG_SMP" = "y" -a "$CONFIG_X86_CMPXCHG" = "y" ]; then
+--- linux-2.4.19pre8-cleanup/arch/i386/kernel/Makefile	Fri Nov  9 14:21:21 2001
++++ linux-2.4.19pre8-multi/arch/i386/kernel/Makefile	Wed May  8 11:09:21 2002
+@@ -40,5 +40,7 @@
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= mpparse.o apic.o nmi.o
+ obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o acpitable.o
+ obj-$(CONFIG_X86_VISWS_APIC)	+= visws_apic.o
++obj-$(CONFIG_X86_NUMAQ)		+= core_ibmnumaq.o
++obj-$(CONFIG_DISCONTIGMEM)	+= numa.o
+ 
+ include $(TOPDIR)/Rules.make
+--- linux-2.4.19pre8-cleanup/arch/i386/kernel/setup.c	Tue May  7 15:36:50 2002
++++ linux-2.4.19pre8-multi/arch/i386/kernel/setup.c	Wed May  8 11:09:21 2002
+@@ -115,6 +115,7 @@
+ #include <asm/dma.h>
+ #include <asm/mpspec.h>
+ #include <asm/mmu_context.h>
++#include <asm/setup.h>
+ /*
+  * Machine setup..
+  */
+@@ -800,20 +801,10 @@
  	}
  }
  
--void __init setup_arch(char **cmdline_p)
--{
--	unsigned long bootmap_size, low_mem_size;
--	unsigned long start_pfn, max_pfn, max_low_pfn;
--	int i;
+-#define PFN_UP(x)	(((x) + PAGE_SIZE-1) >> PAGE_SHIFT)
+-#define PFN_DOWN(x)	((x) >> PAGE_SHIFT)
+-#define PFN_PHYS(x)	((x) << PAGE_SHIFT)
 -
--#ifdef CONFIG_VISWS
--	visws_get_board_type_and_rev();
--#endif
+-/*
+- * Reserved space for vmalloc and iomap - defined in asm/page.h
+- */
+-#define MAXMEM_PFN	PFN_DOWN(MAXMEM)
+-#define MAX_NONPAE_PFN	(1 << 20)
 -
-- 	ROOT_DEV = to_kdev_t(ORIG_ROOT_DEV);
-- 	drive_info = DRIVE_INFO;
-- 	screen_info = SCREEN_INFO;
--	apm_info.bios = APM_BIOS_INFO;
--	if( SYS_DESC_TABLE.length != 0 ) {
--		MCA_bus = SYS_DESC_TABLE.table[3] &0x2;
--		machine_id = SYS_DESC_TABLE.table[0];
--		machine_submodel_id = SYS_DESC_TABLE.table[1];
--		BIOS_revision = SYS_DESC_TABLE.table[2];
--	}
--	aux_device_present = AUX_DEVICE_INFO;
--
--#ifdef CONFIG_BLK_DEV_RAM
--	rd_image_start = RAMDISK_FLAGS & RAMDISK_IMAGE_START_MASK;
--	rd_prompt = ((RAMDISK_FLAGS & RAMDISK_PROMPT_FLAG) != 0);
--	rd_doload = ((RAMDISK_FLAGS & RAMDISK_LOAD_FLAG) != 0);
--#endif
--	setup_memory_region();
--
--	if (!MOUNT_ROOT_RDONLY)
--		root_mountflags &= ~MS_RDONLY;
--	init_mm.start_code = (unsigned long) &_text;
--	init_mm.end_code = (unsigned long) &_etext;
--	init_mm.end_data = (unsigned long) &_edata;
--	init_mm.brk = (unsigned long) &_end;
--
--	code_resource.start = virt_to_bus(&_text);
--	code_resource.end = virt_to_bus(&_etext)-1;
--	data_resource.start = virt_to_bus(&_etext);
--	data_resource.end = virt_to_bus(&_edata)-1;
--
--	parse_mem_cmdline(cmdline_p);
--
- #define PFN_UP(x)	(((x) + PAGE_SIZE-1) >> PAGE_SHIFT)
- #define PFN_DOWN(x)	((x) >> PAGE_SHIFT)
- #define PFN_PHYS(x)	((x) << PAGE_SHIFT)
-@@ -853,15 +810,14 @@
- #define MAXMEM_PFN	PFN_DOWN(MAXMEM)
- #define MAX_NONPAE_PFN	(1 << 20)
+ /*
+  * Find the highest page frame number we have available
+  */
+-static unsigned long __init find_max_pfn(void)
++unsigned long __init find_max_pfn(void)
+ {
+ 	unsigned long max_pfn;
+ 	int i;
+@@ -838,7 +829,7 @@
+ /*
+  * Determine low and high memory ranges:
+  */
+-static unsigned long __init find_max_low_pfn(unsigned long *max_pfn)
++unsigned long __init find_max_low_pfn(unsigned long *max_pfn)
+ {
+ 	unsigned long max_low_pfn;
  
--	/*
--	 * partially used pages are not usable - thus
--	 * we are rounding upwards:
--	 */
--	start_pfn = PFN_UP(__pa(&_end));
+@@ -894,6 +885,7 @@
+ 	return max_low_pfn;
+ }
+ 
++#ifndef CONFIG_DISCONTIGMEM
+ /*
+  * Register fully available low RAM pages with the bootmem allocator.
+  */
+@@ -1015,6 +1007,7 @@
+ 
+ 	return max_low_pfn;
+ }
++#endif /* !CONFIG_DISCONTIGMEM */
+ 
+ /*
+  * Request address space for all standard RAM and ROM resources
+--- linux-2.4.19pre8-cleanup/arch/i386/kernel/core_ibmnumaq.c	Wed Dec 31 
+16:00:00 1969
++++ linux-2.4.19pre8-multi/arch/i386/kernel/core_ibmnumaq.c	Wed May  8 
+16:33:31 2002
+@@ -0,0 +1,143 @@
 +/*
-+ * Find the highest page frame number we have available
++ * Written by: Patricia Gaughen, IBM Corporation
++ *
++ * Copyright (C) 2002, IBM Corp.
++ *
++ * All rights reserved.          
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <gone@us.ibm.com>
 + */
-+static unsigned long __init find_max_pfn(void)
++
++#include <linux/config.h>
++#include <linux/mm.h>
++#include <linux/bootmem.h>
++#include <linux/mmzone.h>
++#include <asm/core_ibmnumaq.h>
++
++#ifdef CONFIG_X86_NUMAQ
++unsigned long long nodes_mem_start[MAX_NUMNODES];
++unsigned long long nodes_mem_size[MAX_NUMNODES];
++
++/*
++ * Function: smp_dump_qct()
++ *
++ * Description: gets memory layout from the quad config table.  This
++ * function also increments numnodes with the number of nodes (quads)
++ * present.
++ */
++static void __init smp_dump_qct(void)
 +{
++	int node;
++	struct eachquadmem *eq;
++	struct sys_cfg_data *scd =
++		(struct sys_cfg_data *)__va(SYS_CFG_DATA_PRIV_ADDR);
++
++#define	MB_TO_B(addr) ((addr) << 20)
++	numnodes = 0;
++	for(node = 0; node < MAX_NUMNODES; node++) {
++		if(scd->quads_present31_0 & (1 << node)) {
++			numnodes++;
++			eq = &scd->eq[node];
++			/* Convert to bytes */
++			nodes_mem_start[node] = MB_TO_B(eq->hi_shrd_mem_start - eq->priv_mem_size);
++			nodes_mem_size[node] = MB_TO_B(eq->hi_shrd_mem_size + eq->priv_mem_size);
++		}
++	}
++}
++
++/*
++ * -----------------------------------------
++ *
++ * functions related to physnode_map
++ *
++ * -----------------------------------------
++ */
++/*
++ * physnode_map keeps track of the physical memory layout of the
++ * ibmnumaq nodes on a 256Mb break (each element of the array will
++ * represent 256Mb of memory and will be marked by the node id.  so,
++ * if the first gig is on node 0, and the second gig is on node 1
++ * physnode_map will contain:
++ * physnode_map[0-3] = 0;
++ * physnode_map[4-7] = 1;
++ * physnode_map[8- ] = -1;
++ */
++int physnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
++
++#define MB_TO_ELEMENT(x) (x >> ELEMENT_REPRESENTS)
++#define PA_TO_MB(pa) (pa >> 20) 	/* assumption: a physical address is in 
+bytes */
++
++int ibmnumaqpa_to_nid(unsigned long long pa)
++{
++	int nid;
++	
++	nid = physnode_map[MB_TO_ELEMENT(PA_TO_MB(pa))];
++
++	/* the physical address passed in is not in the map for the system */
++	if (nid == -1)
++		BUG();
++
++	return nid;
++}
++
++int ibmnumaqpfn_to_nid(unsigned long pfn)
++{
++	return ibmnumaqpa_to_nid(pfn << PAGE_SHIFT);
++}
++
++/*
++ * for each node mark the regions
++ *        TOPOFMEM = hi_shrd_mem_start + hi_shrd_mem_size
++ *
++ * need to be very careful to not mark 1024+ as belonging
++ * to node 0. will want 1027 to show as belonging to node 1
++ * example:
++ *  TOPOFMEM = 1024
++ * 1024 >> 8 = 4 (subtract 1 for starting at 0]
++ * tmpvar = TOPOFMEM - 256 = 768
++ * 1024 >> 8 = 4 (subtract 1 for starting at 0]
++ * 
++ */
++static void __init initialize_physnode_map(void)
++{
++	int nid;
++	unsigned int topofmem, cur;
++	struct eachquadmem *eq;
++ 	struct sys_cfg_data *scd =
++		(struct sys_cfg_data *)__va(SYS_CFG_DATA_PRIV_ADDR);
++
++	
++	for(nid = 0; nid < numnodes; nid++) {
++		if(scd->quads_present31_0 & (1 << nid)) {
++			eq = &scd->eq[nid];
++			cur = eq->hi_shrd_mem_start;
++			topofmem = eq->hi_shrd_mem_start + eq->hi_shrd_mem_size;
++			while (cur < topofmem) {
++				physnode_map[cur >> 8] = nid;
++				cur += (ELEMENT_REPRESENTS - 1);
++			}
++		}
++	}
++}
++
++void __init get_memcfg_ibmnumaq(void)
++{
++	smp_dump_qct();
++	initialize_physnode_map();
++}
++#endif /* CONFIG_X86_NUMAQ */
+--- linux-2.4.19pre8-cleanup/arch/i386/kernel/numa.c	Wed Dec 31 16:00:00 1969
++++ linux-2.4.19pre8-multi/arch/i386/kernel/numa.c	Wed May  8 11:09:21 2002
+@@ -0,0 +1,326 @@
++/*
++ * Written by: Patricia Gaughen, IBM Corporation
++ *
++ * Copyright (C) 2002, IBM Corp.
++ *
++ * All rights reserved.          
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <gone@us.ibm.com>
++ */
++
++#include <linux/config.h>
++#include <linux/mm.h>
++#include <linux/bootmem.h>
++#include <linux/mmzone.h>
++#include <linux/highmem.h>
++#include <asm/e820.h>
++#include <asm/setup.h>
++
++#ifdef CONFIG_X86_DISCONTIGMEM
++
++struct pfns {
++	unsigned long start_pfn;
 +	unsigned long max_pfn;
-+	int i;
- 
--	/*
--	 * Find the highest page frame number we have available
--	 */
- 	max_pfn = 0;
- 	for (i = 0; i < e820.nr_map; i++) {
- 		unsigned long start, end;
-@@ -876,17 +832,24 @@
- 			max_pfn = end;
- 	}
- 
--	/*
--	 * Determine low and high memory ranges:
--	 */
--	max_low_pfn = max_pfn;
-+	return max_pfn;
++};
++
++plat_pg_data_t *plat_node_data[MAX_NUMNODES];
++bootmem_data_t plat_node_bdata;
++struct pfns plat_node_bootpfns[MAX_NUMNODES];
++
++extern unsigned long find_max_low_pfn(unsigned long *);
++extern unsigned long find_max_pfn(void);
++extern void pagetable_init (void);
++extern void kmap_init(void);
++extern void init_one_highpage(struct page *, int, int);
++extern inline int page_is_ram (unsigned long);
++
++extern unsigned long long nodes_mem_start[], nodes_mem_size[];
++extern struct e820map e820;
++extern char _end;
++extern unsigned long highend_pfn, highstart_pfn;
++extern unsigned long max_low_pfn;
++extern unsigned long totalram_pages;
++extern unsigned long totalhigh_pages;
++
++static void __init find_max_pfn_node(int nid, unsigned long system_max_pfn)
++{
++	unsigned long node_datasz;
++	unsigned long start, end;
++
++	start = plat_node_bootpfns[nid].start_pfn = PFN_UP(nodes_mem_start[nid]);
++	end = PFN_DOWN(nodes_mem_start[nid]) + PFN_DOWN(nodes_mem_size[nid]);
++
++	if (start >= end) {
++		BUG();
++	}
++	if (end > system_max_pfn) {
++		end = system_max_pfn;
++	}
++	plat_node_bootpfns[nid].max_pfn = end;
++
++	node_datasz = PFN_UP(sizeof(plat_pg_data_t));
++	PLAT_NODE_DATA(nid) = (plat_pg_data_t *)(__va(min_low_pfn << PAGE_SHIFT));
++	min_low_pfn += node_datasz;
 +}
 +
-+/*
-+ * Determine low and high memory ranges:
-+ */
-+static unsigned long __init find_max_low_pfn(unsigned long *max_pfn)
-+{
-+	unsigned long max_low_pfn;
-+
-+	max_low_pfn = *max_pfn;
- 	if (max_low_pfn > MAXMEM_PFN) {
- 		if (highmem_pages == -1)
--			highmem_pages = max_pfn - MAXMEM_PFN;
--		if (highmem_pages + MAXMEM_PFN < max_pfn)
--			max_pfn = MAXMEM_PFN + highmem_pages;
--		if (highmem_pages + MAXMEM_PFN > max_pfn) {
--			printk("only %luMB highmem pages available, ignoring highmem size of 
-%uMB.\n", pages_to_mb(max_pfn - MAXMEM_PFN), pages_to_mb(highmem_pages));
-+			highmem_pages = *max_pfn - MAXMEM_PFN;
-+		if (highmem_pages + MAXMEM_PFN < *max_pfn)
-+			*max_pfn = MAXMEM_PFN + highmem_pages;
-+		if (highmem_pages + MAXMEM_PFN > *max_pfn) {
-+			printk("only %luMB highmem pages available, ignoring highmem size of 
-%uMB.\n", pages_to_mb(*max_pfn - MAXMEM_PFN), pages_to_mb(highmem_pages));
- 			highmem_pages = 0;
- 		}
- 		max_low_pfn = MAXMEM_PFN;
-@@ -894,14 +857,14 @@
- 		/* Maximum memory usable is what is directly addressable */
- 		printk(KERN_WARNING "Warning only %ldMB will be used.\n",
- 					MAXMEM>>20);
--		if (max_pfn > MAX_NONPAE_PFN)
-+		if (*max_pfn > MAX_NONPAE_PFN)
- 			printk(KERN_WARNING "Use a PAE enabled kernel.\n");
- 		else
- 			printk(KERN_WARNING "Use a HIGHMEM enabled kernel.\n");
- #else /* !CONFIG_HIGHMEM */
- #ifndef CONFIG_X86_PAE
--		if (max_pfn > MAX_NONPAE_PFN) {
--			max_pfn = MAX_NONPAE_PFN;
-+		if (*max_pfn > MAX_NONPAE_PFN) {
-+			*max_pfn = MAX_NONPAE_PFN;
- 			printk(KERN_WARNING "Warning only 4GB will be used.\n");
- 			printk(KERN_WARNING "Use a PAE enabled kernel.\n");
- 		}
-@@ -911,8 +874,8 @@
- 		if (highmem_pages == -1)
- 			highmem_pages = 0;
- #if CONFIG_HIGHMEM
--		if (highmem_pages >= max_pfn) {
--			printk(KERN_ERR "highmem size specified (%uMB) is bigger than pages 
-available (%luMB)!.\n", pages_to_mb(highmem_pages), pages_to_mb(max_pfn));
-+		if (highmem_pages >= *max_pfn) {
-+			printk(KERN_ERR "highmem size specified (%uMB) is bigger than pages 
-available (%luMB)!.\n", pages_to_mb(highmem_pages), pages_to_mb(*max_pfn));
- 			highmem_pages = 0;
- 		}
- 		if (highmem_pages) {
-@@ -928,27 +891,19 @@
- #endif
- 	}
- 
--#ifdef CONFIG_HIGHMEM
--	highstart_pfn = highend_pfn = max_pfn;
--	if (max_pfn > max_low_pfn) {
--		highstart_pfn = max_low_pfn;
--	}
--	printk(KERN_NOTICE "%ldMB HIGHMEM available.\n",
--		pages_to_mb(highend_pfn - highstart_pfn));
--#endif
--	printk(KERN_NOTICE "%ldMB LOWMEM available.\n",
--			pages_to_mb(max_low_pfn));
--	/*
--	 * Initialize the boot-time allocator (with low memory only):
--	 */
--	bootmap_size = init_bootmem(start_pfn, max_low_pfn);
-+	return max_low_pfn;
-+}
-+
-+/*
-+ * Register fully available low RAM pages with the bootmem allocator.
-+ */
-+static void __init register_bootmem_low_pages(unsigned long max_low_pfn)
++static void __init register_bootmem_low_pages(unsigned long 
+system_max_low_pfn)
 +{
 +	int i;
- 
--	/*
--	 * Register fully available low RAM pages with the bootmem allocator.
--	 */
- 	for (i = 0; i < e820.nr_map; i++) {
- 		unsigned long curr_pfn, last_pfn, size;
-- 		/*
++
++	for (i = 0; i < e820.nr_map; i++) {
++		unsigned long curr_pfn, last_pfn, size;
++ 		/*
++		 * Reserve usable low memory
++		 */
++		if (e820.map[i].type != E820_RAM)
++			continue;
 +		/*
- 		 * Reserve usable low memory
- 		 */
- 		if (e820.map[i].type != E820_RAM)
-@@ -977,6 +932,39 @@
- 		size = last_pfn - curr_pfn;
- 		free_bootmem(PFN_PHYS(curr_pfn), PFN_PHYS(size));
- 	}
++		 * We are rounding up the start address of usable memory:
++		 */
++		curr_pfn = PFN_UP(e820.map[i].addr);
++		if (curr_pfn >= system_max_low_pfn)
++			continue;
++		/*
++		 * ... and at the end of the usable range downwards:
++		 */
++		last_pfn = PFN_DOWN(e820.map[i].addr + e820.map[i].size);
++
++		if (last_pfn > system_max_low_pfn)
++			last_pfn = system_max_low_pfn;
++
++		/*
++		 * .. finally, did all the rounding and playing
++		 * around just make the area go away?
++		 */
++		if (last_pfn <= curr_pfn)
++			continue;
++
++		size = last_pfn - curr_pfn;
++		free_bootmem_node(NODE_DATA(0), PFN_PHYS(curr_pfn), PFN_PHYS(size));
++	}
 +}
 +
-+static unsigned long __init setup_memory(void)
++unsigned long __init setup_memory(void)
 +{
-+	unsigned long bootmap_size, start_pfn, max_low_pfn, max_pfn;
++	int nid;
++	unsigned long bootmap_size, system_start_pfn, system_max_low_pfn, 
+system_max_pfn;
++
++	get_memcfg_numa();
 +
 +	/*
 +	 * partially used pages are not usable - thus
 +	 * we are rounding upwards:
 +	 */
-+	start_pfn = PFN_UP(__pa(&_end));
++	system_start_pfn = min_low_pfn = PFN_UP(__pa(&_end));
 +
-+	max_pfn = find_max_pfn();
-+
-+	max_low_pfn = find_max_low_pfn(&max_pfn);
++	system_max_pfn = find_max_pfn();
++	system_max_low_pfn = max_low_pfn = find_max_low_pfn(&system_max_pfn);
 +
 +#ifdef CONFIG_HIGHMEM
-+	highstart_pfn = highend_pfn = max_pfn;
-+	if (max_pfn > max_low_pfn) {
-+		highstart_pfn = max_low_pfn;
-+	}
-+	printk(KERN_NOTICE "%ldMB HIGHMEM available.\n",
-+		pages_to_mb(highend_pfn - highstart_pfn));
++		highstart_pfn = highend_pfn = system_max_pfn;
++		if (system_max_pfn > system_max_low_pfn) {
++			highstart_pfn = system_max_low_pfn;
++		}
++		printk(KERN_NOTICE "%ldMB HIGHMEM available.\n",
++		       pages_to_mb(highend_pfn - highstart_pfn));
 +#endif
 +	printk(KERN_NOTICE "%ldMB LOWMEM available.\n",
-+			pages_to_mb(max_low_pfn));
++			pages_to_mb(system_max_low_pfn));
++	
++	for (nid = 0; nid < numnodes; nid++)
++	{	
++		find_max_pfn_node(nid, system_max_pfn);
++
++	}
++
++	NODE_DATA(0)->bdata = &plat_node_bdata;
++
 +	/*
 +	 * Initialize the boot-time allocator (with low memory only):
 +	 */
-+	bootmap_size = init_bootmem(start_pfn, max_low_pfn);
++	bootmap_size = init_bootmem_node(NODE_DATA(0), min_low_pfn, 0, 
+system_max_low_pfn);
 +
-+	register_bootmem_low_pages(max_low_pfn);
++	register_bootmem_low_pages(system_max_low_pfn);
 +
- 	/*
- 	 * Reserve the bootmem bitmap itself as well. We do this in two
- 	 * steps (first step was init_bootmem()) because this catches
-@@ -1025,32 +1013,18 @@
- 	}
- #endif
- 
--	if (test_bit(X86_FEATURE_HT, &boot_cpu_data.x86_capability[0]))
--		enable_acpi_smp_table = 1;
--	
--
--	/*
--	 * NOTE: before this point _nobody_ is allowed to allocate
--	 * any memory using the bootmem allocator.
--	 */
--
--#ifdef CONFIG_SMP
--	smp_alloc_memory(); /* AP processor realmode stacks in low memory*/
--#endif
--	paging_init();
--#ifdef CONFIG_X86_LOCAL_APIC
--	/*
--	 * get boot-time SMP configuration:
--	 */
--	if (smp_found_config)
--		get_smp_config();
--#endif
-+	return max_low_pfn;
-+}
- 
-+/*
-+ * Request address space for all standard RAM and ROM resources
-+ * and also for regions reported as reserved by the e820.
-+ */
-+static void __init register_memory(unsigned long max_low_pfn)
-+{
-+	unsigned long low_mem_size;
-+	int i;
- 
--	/*
--	 * Request address space for all standard RAM and ROM resources
--	 * and also for regions reported as reserved by the e820.
--	 */
- 	probe_roms();
- 	for (i = 0; i < e820.nr_map; i++) {
- 		struct resource *res;
-@@ -1087,6 +1061,73 @@
- 	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
- 	if (low_mem_size > pci_mem_start)
- 		pci_mem_start = low_mem_size;
-+}
++	/*
++	 * Reserve the bootmem bitmap itself as well. We do this in two
++	 * steps (first step was init_bootmem()) because this catches
++	 * the (very unlikely) case of us accidentally initializing the
++	 * bootmem allocator with an invalid RAM area.
++	 */
++	reserve_bootmem_node(NODE_DATA(0), HIGH_MEMORY, (PFN_PHYS(min_low_pfn) +
++		 bootmap_size + PAGE_SIZE-1) - (HIGH_MEMORY));
 +
-+void __init setup_arch(char **cmdline_p)
-+{
-+	unsigned long max_low_pfn;
++	/*
++	 * reserve physical page 0 - it's a special BIOS page on many boxes,
++	 * enabling clean reboots, SMP operation, laptop functions.
++	 */
++	reserve_bootmem_node(NODE_DATA(0), 0, PAGE_SIZE);
 +
-+#ifdef CONFIG_VISWS
-+	visws_get_board_type_and_rev();
-+#endif
++	/*
++	 * But first pinch a few for the stack/trampoline stuff
++	 * FIXME: Don't need the extra page at 4K, but need to fix
++	 * trampoline before removing it. (see the GDT stuff)
++	 */
++	reserve_bootmem_node(NODE_DATA(0), PAGE_SIZE, PAGE_SIZE);
 +
-+ 	ROOT_DEV = to_kdev_t(ORIG_ROOT_DEV);
-+ 	drive_info = DRIVE_INFO;
-+ 	screen_info = SCREEN_INFO;
-+	apm_info.bios = APM_BIOS_INFO;
-+	if( SYS_DESC_TABLE.length != 0 ) {
-+		MCA_bus = SYS_DESC_TABLE.table[3] &0x2;
-+		machine_id = SYS_DESC_TABLE.table[0];
-+		machine_submodel_id = SYS_DESC_TABLE.table[1];
-+		BIOS_revision = SYS_DESC_TABLE.table[2];
++	/*
++	 * Find and reserve possible boot-time SMP configuration:
++	 */
++	find_smp_config();
++
++#ifdef CONFIG_BLK_DEV_INITRD
++	if (LOADER_TYPE && INITRD_START) {
++		if (INITRD_START + INITRD_SIZE <= (system_max_low_pfn << PAGE_SHIFT)) {
++			reserve_bootmem(INITRD_START, INITRD_SIZE);
++			initrd_start =
++				INITRD_START ? INITRD_START + PAGE_OFFSET : 0;
++			initrd_end = initrd_start+INITRD_SIZE;
++		}
++		else {
++			printk(KERN_ERR "initrd extends beyond end of memory "
++			    "(0x%08lx > 0x%08lx)\ndisabling initrd\n",
++			    INITRD_START + INITRD_SIZE,
++			    system_max_low_pfn << PAGE_SHIFT);
++			initrd_start = 0;
++		}
 +	}
-+	aux_device_present = AUX_DEVICE_INFO;
-+
-+#ifdef CONFIG_BLK_DEV_RAM
-+	rd_image_start = RAMDISK_FLAGS & RAMDISK_IMAGE_START_MASK;
-+	rd_prompt = ((RAMDISK_FLAGS & RAMDISK_PROMPT_FLAG) != 0);
-+	rd_doload = ((RAMDISK_FLAGS & RAMDISK_LOAD_FLAG) != 0);
 +#endif
-+	setup_memory_region();
 +
-+	if (!MOUNT_ROOT_RDONLY)
-+		root_mountflags &= ~MS_RDONLY;
-+	init_mm.start_code = (unsigned long) &_text;
-+	init_mm.end_code = (unsigned long) &_etext;
-+	init_mm.end_data = (unsigned long) &_edata;
-+	init_mm.brk = (unsigned long) &_end;
++	return system_max_low_pfn;
++}
 +
-+	code_resource.start = virt_to_bus(&_text);
-+	code_resource.end = virt_to_bus(&_etext)-1;
-+	data_resource.start = virt_to_bus(&_etext);
-+	data_resource.end = virt_to_bus(&_edata)-1;
++/*
++ * paging_init() sets up the page tables - note that the first 8MB are
++ * already mapped by head.S.
++ *
++ * This routines also unmaps the page at virtual kernel address 0, so
++ * that we can trap those pesky NULL-reference errors in the kernel.
++ */
++void __init paging_init(void)
++{
 +
-+	parse_mem_cmdline(cmdline_p);
-+
-+	max_low_pfn = setup_memory();
-+
-+	if (test_bit(X86_FEATURE_HT, &boot_cpu_data.x86_capability[0]))
-+		enable_acpi_smp_table = 1;
++	int nid;
 +	
++	pagetable_init();
 +
-+	/*
-+	 * NOTE: before this point _nobody_ is allowed to allocate
-+	 * any memory using the bootmem allocator.
-+	 */
++	__asm__( "movl %%ecx,%%cr3\n" ::"c"(__pa(swapper_pg_dir)));
 +
-+#ifdef CONFIG_SMP
-+	smp_alloc_memory(); /* AP processor realmode stacks in low memory*/
-+#endif
-+	paging_init();
-+#ifdef CONFIG_X86_LOCAL_APIC
++#if CONFIG_X86_PAE
 +	/*
-+	 * get boot-time SMP configuration:
++	 * We will bail out later - printk doesnt work right now so
++	 * the user would just see a hanging kernel.
 +	 */
-+	if (smp_found_config)
-+		get_smp_config();
++	if (cpu_has_pae)
++		set_in_cr4(X86_CR4_PAE);
 +#endif
 +
-+	register_memory(max_low_pfn);
++	__flush_tlb_all();
++
++#ifdef CONFIG_HIGHMEM
++	kmap_init();
++#endif
++
++	for (nid = 0; nid < numnodes; nid++) {
++		unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++		unsigned int max_dma;
++
++		unsigned long low = max_low_pfn;
++		unsigned long high = plat_node_bootpfns[nid].max_pfn;
++		unsigned long start = plat_node_bootpfns[nid].start_pfn;
++		
++		max_dma = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
++
++		if (start > low) {
++#ifdef CONFIG_HIGHMEM
++		  zones_size[ZONE_HIGHMEM] = high - start;
++#endif
++		} else {
++			if (low < max_dma)
++				zones_size[ZONE_DMA] = low;
++			else {
++				zones_size[ZONE_DMA] = max_dma;
++				zones_size[ZONE_NORMAL] = low - max_dma;
++#ifdef CONFIG_HIGHMEM
++				zones_size[ZONE_HIGHMEM] = high - low;
++#endif
++			}
++		}
++		free_area_init_node(nid, NODE_DATA(nid), 0, zones_size, start << 
+PAGE_SHIFT, 0);
++	}
++	return;
++}
++
++
++int __init mem_init_free_pages(int bad_ppro)
++{
++	int reservedpages;
++	int nid;
++	unsigned long pfn;
++
++	/* this will put all low memory onto the freelists */
++	totalram_pages += free_all_bootmem_node(NODE_DATA(0));
++
++	reservedpages = 0;
++	for (pfn = 0; pfn < max_low_pfn; pfn++)
++		/*
++		 * Only count reserved RAM pages
++		 */
++		if (page_is_ram(pfn) && PageReserved(mem_map+pfn))
++			reservedpages++;
++#ifdef CONFIG_HIGHMEM
++	for (nid = 0; nid < numnodes; nid++) {
++		unsigned long node_pfn, node_high_size, zone_start_pfn;
++		struct page * zone_mem_map;
++		
++		node_high_size = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].size;
++		zone_mem_map = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_mem_map;
++		zone_start_pfn = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_start_paddr >
+> PAGE_SHIFT;
++
++		printk("Initializing highpages for node %d\n", nid);
++		for (node_pfn = 0; node_pfn < node_high_size; node_pfn++) {
++			init_one_highpage((struct page *) (zone_mem_map + node_pfn), 
+zone_start_pfn + node_pfn, bad_ppro);
++		}
++	}
++	totalram_pages += totalhigh_pages;
++#endif
++	return reservedpages;
++}
++
++void __init mem_init_set_max_mapnr(void)
++{
++	unsigned long lmax_mapnr;
++	int nid;
++	
++#ifdef CONFIG_HIGHMEM
++	highmem_start_page = mem_map + NODE_DATA(0)->node_zones[ZONE_HIGHMEM].zone_st
+art_mapnr;
++	num_physpages = highend_pfn;
++	num_mappedpages = max_low_pfn;
++
++	for (nid = 0; nid < numnodes; nid++) {
++		lmax_mapnr = PLAT_NODE_DATA_STARTNR(nid) + PLAT_NODE_DATA_SIZE(nid);
++		if (lmax_mapnr > max_mapnr) {
++			max_mapnr = lmax_mapnr;
++		}
++	}
++	
++#else
++	max_mapnr = num_mappedpages = num_physpages = max_low_pfn;
++#endif
++}
++#endif /* CONFIG_X86_DISCONTIGMEM */
+--- linux-2.4.19pre8-cleanup/arch/i386/mm/init.c	Tue May  7 15:39:04 2002
++++ linux-2.4.19pre8-multi/arch/i386/mm/init.c	Wed May  8 11:09:21 2002
+@@ -40,8 +40,8 @@
  
- #ifdef CONFIG_VT
- #if defined(CONFIG_VGA_CONSOLE)
+ mmu_gather_t mmu_gathers[NR_CPUS];
+ unsigned long highstart_pfn, highend_pfn;
+-static unsigned long totalram_pages;
+-static unsigned long totalhigh_pages;
++unsigned long totalram_pages;
++unsigned long totalhigh_pages;
+ 
+ int do_check_pgt_cache(int low, int high)
+ {
+@@ -202,7 +202,7 @@
+ 	}
+ }
+ 
+-static void __init pagetable_init (void)
++void __init pagetable_init (void)
+ {
+ 	unsigned long vaddr, end;
+ 	pgd_t *pgd, *pgd_base;
+@@ -320,6 +320,7 @@
+ 	flush_tlb_all();
+ }
+ 
++#ifndef CONFIG_X86_DISCONTIGMEM
+ /*
+  * paging_init() sets up the page tables - note that the first 8MB are
+  * already mapped by head.S.
+@@ -368,6 +369,7 @@
+ 	}
+ 	return;
+ }
++#endif /* !CONFIG_X86_DISCONTIGMEM */
+ 
+ /*
+  * Test if the WP bit works in supervisor mode. It isn't supported on 386's
+@@ -415,7 +417,7 @@
+ 	}
+ }
+ 
+-static inline int page_is_ram (unsigned long pagenr)
++inline int page_is_ram (unsigned long pagenr)
+ {
+ 	int i;
+ 
+@@ -463,6 +465,7 @@
+ 	totalhigh_pages++;
+ }
+ 
++#ifndef CONFIG_X86_DISCONTIGMEM
+ static int __init mem_init_free_pages(void)
+ {
+ 	extern int ppro_with_ram_bug(void);
+@@ -489,13 +492,8 @@
+ 	return reservedpages;
+ }
+ 
+-void __init mem_init(void)
++static void __init mem_init_set_max_mapnr(void)
+ {
+-	int codesize, reservedpages, datasize, initsize;
+-
+-	if (!mem_map)
+-		BUG();
+-	
+ #ifdef CONFIG_HIGHMEM
+ 	highmem_start_page = mem_map + highstart_pfn;
+ 	max_mapnr = num_physpages = highend_pfn;
+@@ -503,6 +501,19 @@
+ #else
+ 	max_mapnr = num_mappedpages = num_physpages = max_low_pfn;
+ #endif
++}
++
++#endif /* !CONFIG_X86_DISCONTIGMEM */
++
++void __init mem_init(void)
++{
++	int codesize, reservedpages, datasize, initsize;
++
++	if (!mem_map)
++		BUG();
++	
++	mem_init_set_max_mapnr();
++	
+ 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 
+ 	/* clear the zero-page */
+--- linux-2.4.19pre8-cleanup/include/asm-i386/page.h	Tue May  7 11:54:43 2002
++++ linux-2.4.19pre8-multi/include/asm-i386/page.h	Wed May  8 11:09:21 2002
+@@ -131,8 +131,10 @@
+ #define MAXMEM			((unsigned long)(-PAGE_OFFSET-VMALLOC_RESERVE))
+ #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
+ #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
++#ifndef CONFIG_DISCONTIGMEM
+ #define virt_to_page(kaddr)	(mem_map + (__pa(kaddr) >> PAGE_SHIFT))
+ #define VALID_PAGE(page)	((page - mem_map) < max_mapnr)
++#endif /* !CONFIG_DISCONTIGMEM */
+ 
+ #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
+ 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+--- linux-2.4.19pre8-cleanup/include/asm-i386/io.h	Tue May  7 11:54:43 2002
++++ linux-2.4.19pre8-multi/include/asm-i386/io.h	Wed May  8 11:09:21 2002
+@@ -100,10 +100,22 @@
+  * Change "struct page" to physical address.
+  */
+ #ifdef CONFIG_HIGHMEM64G
++
++#ifndef CONFIG_DISCONTIGMEM
+ #define page_to_phys(page)	((u64)(page - mem_map) << PAGE_SHIFT)
+ #else
++#define page_to_phys(page)	(((u64)(page - page_zone(page)->zone_mem_map) << 
+PAGE_SHIFT) + page_zone(page)->zone_start_paddr)
++#endif /* !CONFIG_DISCONTIGMEM */
++
++#else
++
++#ifndef CONFIG_DISCONTIGMEM
+ #define page_to_phys(page)	((page - mem_map) << PAGE_SHIFT)
+-#endif
++#else
++#define page_to_phys(page)	(((page - page_zone(page)->zone_mem_map) << 
+PAGE_SHIFT) + page_zone(page)->zone_start_paddr)
++#endif /* !CONFIG_DISCONTIGMEM */
++
++#endif /* CONFIG_HIGHMEM64G */
+ 
+ extern void * __ioremap(unsigned long offset, unsigned long size, unsigned 
+long flags);
+ 
+--- linux-2.4.19pre8-cleanup/include/asm-i386/pgtable.h	Tue May  7 11:54:43 
+2002
++++ linux-2.4.19pre8-multi/include/asm-i386/pgtable.h	Wed May  8 11:09:21 2002
+@@ -297,9 +297,12 @@
+  * Conversion functions: convert a page and protection to a page entry,
+  * and a page entry and page directory to the page they refer to.
+  */
+-
++#ifndef CONFIG_DISCONTIGMEM
+ #define mk_pte(page, pgprot)	__mk_pte((page) - mem_map, (pgprot))
+-
++#else
++#define mk_pte(page, pgprot)	__mk_pte(((page) - page_zone(page)->zone_mem_map 
++ (page_zone(page)->zone_start_paddr >> PAGE_SHIFT)), (pgprot))
++#endif /* !CONFIG_DISCONTIGMEM */
++ 
+ /* This takes a physical page address that is used by the remapping functions 
+*/
+ #define mk_pte_phys(physpage, pgprot)	__mk_pte((physpage) >> PAGE_SHIFT, 
+pgprot)
+ 
+@@ -351,7 +354,10 @@
+ 
+ /* Needs to be defined here and not in linux/mm.h, as it is arch dependent */
+ #define PageSkip(page)		(0)
++
++#ifndef CONFIG_DISCONTIGMEM
+ #define kern_addr_valid(addr)	(1)
++#endif /* !CONFIG_DISCONTIGMEM */
+ 
+ #define io_remap_page_range remap_page_range
+ 
+--- linux-2.4.19pre8-cleanup/include/asm-i386/pgtable-2level.h	Thu Jul 26 
+13:40:32 2001
++++ linux-2.4.19pre8-multi/include/asm-i386/pgtable-2level.h	Wed May  8 
+11:09:21 2002
+@@ -56,7 +56,13 @@
+ }
+ #define ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
+ #define pte_same(a, b)		((a).pte_low == (b).pte_low)
++
++#ifndef CONFIG_DISCONTIGMEM
+ #define pte_page(x)		(mem_map+((unsigned long)(((x).pte_low >> PAGE_SHIFT))))
++#else
++#define pte_page(x)		(NODE_MEM_MAP(PHYSADDR_TO_NID((x).pte_low)) + 
+PLAT_NODE_DATA_LOCALNR(((unsigned long)((x).pte_low)), 
+PHYSADDR_TO_NID((x).pte_low)))
++#endif /* !CONFIG_DISCONTIGMEM */
++
+ #define pte_none(x)		(!(x).pte_low)
+ #define __mk_pte(page_nr,pgprot) __pte(((page_nr) << PAGE_SHIFT) | 
+pgprot_val(pgprot))
+ 
+--- linux-2.4.19pre8-cleanup/include/asm-i386/pgtable-3level.h	Thu Jul 26 
+13:40:32 2001
++++ linux-2.4.19pre8-multi/include/asm-i386/pgtable-3level.h	Wed May  8 
+15:56:05 2002
+@@ -86,7 +86,13 @@
+ 	return a.pte_low == b.pte_low && a.pte_high == b.pte_high;
+ }
+ 
++#ifndef CONFIG_DISCONTIGMEM
+ #define pte_page(x)	(mem_map+(((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << 
+(32 - PAGE_SHIFT))))
++#else
++/* pte_page = lmem_map + nodelocal_pfn */
++#define pte_pfn(x) 	(((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - 
+PAGE_SHIFT)))
++#define pte_page(x)	(NODE_MEM_MAP(PFN_TO_NID(pte_pfn(x))) + 
+PLAT_NODE_DATA_LOCALNR(pte_pfn(x), PFN_TO_NID(pte_pfn(x))))
++#endif /* !CONFIG_DISCONTIGMEM */
+ #define pte_none(x)	(!(x).pte_low && !(x).pte_high)
+ 
+ static inline pte_t __mk_pte(unsigned long page_nr, pgprot_t pgprot)
+--- linux-2.4.19pre8-cleanup/include/asm-i386/setup.h	Fri Nov 12 10:12:11 1999
++++ linux-2.4.19pre8-multi/include/asm-i386/setup.h	Wed May  8 11:09:21 2002
+@@ -1,10 +1,14 @@
+-/*
+- *	Just a place holder. We don't want to have to test x86 before
+- *	we include stuff
+- */
+-
+ #ifndef _i386_SETUP_H
+ #define _i386_SETUP_H
+ 
++#define PFN_UP(x)	(((x) + PAGE_SIZE-1) >> PAGE_SHIFT)
++#define PFN_DOWN(x)	((x) >> PAGE_SHIFT)
++#define PFN_PHYS(x)	((x) << PAGE_SHIFT)
++
++/*
++ * Reserved space for vmalloc and iomap - defined in asm/page.h
++ */
++#define MAXMEM_PFN	PFN_DOWN(MAXMEM)
++#define MAX_NONPAE_PFN	(1 << 20)
+ 
+ #endif /* _i386_SETUP_H */
+--- linux-2.4.19pre8-cleanup/include/asm-i386/mmzone.h	Wed Dec 31 16:00:00 1969
++++ linux-2.4.19pre8-multi/include/asm-i386/mmzone.h	Wed May  8 11:09:21 2002
+@@ -0,0 +1,103 @@
++/*
++ * Written by Pat Gaughen (gone@us.ibm.com) Mar 2002
++ *
++ */
++
++#ifndef _ASM_MMZONE_H_
++#define _ASM_MMZONE_H_
++
++#ifdef CONFIG_DISCONTIGMEM
++
++#ifdef CONFIG_X86_NUMAQ
++#include <asm/core_ibmnumaq.h>
++#else
++#define PHYSADDR_TO_NID(pa)	(0)
++#define PFN_TO_NID(pfn)		(0)
++#define MAX_NUMNODES	1
++#ifdef CONFIG_NUMA
++#define _cpu_to_node(cpu) 0
++#endif /* CONFIG_NUMA */
++#endif /* CONFIG_X86_NUMAQ */
++
++#ifdef CONFIG_NUMA
++#define numa_node_id() _cpu_to_node(smp_processor_id())
++#endif /* CONFIG_NUMA */
++
++typedef struct plat_pglist_data {
++	pg_data_t	gendata;
++} plat_pg_data_t;
++
++extern plat_pg_data_t *plat_node_data[];
++
++/*
++ * Following are macros that are specific to this numa platform.
++ */
++#define reserve_bootmem(addr, size) \
++	reserve_bootmem_node(NODE_DATA(0), (addr), (size))
++#define alloc_bootmem(x) \
++	__alloc_bootmem_node(NODE_DATA(0), (x), SMP_CACHE_BYTES, 
+__pa(MAX_DMA_ADDRESS))
++#define alloc_bootmem_low(x) \
++	__alloc_bootmem_node(NODE_DATA(0), (x), SMP_CACHE_BYTES, 0)
++#define alloc_bootmem_pages(x) \
++	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
++#define alloc_bootmem_low_pages(x) \
++	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, 0)
++#define alloc_bootmem_node(ignore, x) \
++	__alloc_bootmem_node(NODE_DATA(0), (x), SMP_CACHE_BYTES, 
+__pa(MAX_DMA_ADDRESS))
++#define alloc_bootmem_pages_node(ignore, x) \
++	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
++#define alloc_bootmem_low_pages_node(ignore, x) \
++	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, 0)
++
++#define PLAT_NODE_DATA(n)		(plat_node_data[(n)])
++#define PLAT_NODE_DATA_STARTNR(n)	\
++	(PLAT_NODE_DATA(n)->gendata.node_start_mapnr)
++#define PLAT_NODE_DATA_SIZE(n)		(PLAT_NODE_DATA(n)->gendata.node_size)
++#define PLAT_NODE_DATA_LOCALNR(p, n) \
++	(((p) - PLAT_NODE_DATA(n)->gendata.node_start_paddr) >> PAGE_SHIFT)
++
++/*
++ * Following are macros that each numa implmentation must define.
++ */
++
++/*
++ * Given a kernel address, find the home node of the underlying memory.
++ */
++#define KVADDR_TO_NID(kaddr)	PHYSADDR_TO_NID(__pa(kaddr))
++
++/*
++ * Return a pointer to the node data for node n.
++ */
++#define NODE_DATA(n)	(&((PLAT_NODE_DATA(n))->gendata))
++
++/*
++ * NODE_MEM_MAP gives the kaddr for the mem_map of the node.
++ */
++#define NODE_MEM_MAP(nid)	(NODE_DATA(nid)->node_mem_map)
++
++/*
++ * Given a kaddr, ADDR_TO_MAPBASE finds the owning node of the memory
++ * and returns the the mem_map of that node.
++ */
++#define ADDR_TO_MAPBASE(kaddr) \
++			NODE_MEM_MAP(KVADDR_TO_NID((unsigned long)(kaddr)))
++
++/*
++ * Given a kaddr, LOCAL_BASE_ADDR finds the owning node of the memory
++ * and returns the kaddr corresponding to first physical page in the
++ * node's mem_map.
++ */
++#define LOCAL_BASE_ADDR(kaddr)	((unsigned long)__va(NODE_DATA(KVADDR_TO_NID(ka
+ddr))->node_start_paddr))
++
++#define LOCAL_MAP_NR(kvaddr) \
++	(((unsigned long)(kvaddr)-LOCAL_BASE_ADDR(kvaddr)) >> PAGE_SHIFT)
++
++#define kern_addr_valid(kaddr)	test_bit(LOCAL_MAP_NR(kaddr), \
++					 NODE_DATA(KVADDR_TO_NID(kaddr))->valid_addr_bitmap)
++
++#define virt_to_page(kaddr)	(ADDR_TO_MAPBASE(kaddr) + LOCAL_MAP_NR(kaddr))
++/* This does not check the holes between lmem_maps */
++#define VALID_PAGE(page)	(((page) - mem_map) < max_mapnr)
++
++#endif /* CONFIG_X86_DISCONTIGMEM */
++#endif /* _ASM_MMZONE_H_ */
+--- linux-2.4.19pre8-cleanup/include/asm-i386/core_ibmnumaq.h	Wed Dec 31 
+16:00:00 1969
++++ linux-2.4.19pre8-multi/include/asm-i386/core_ibmnumaq.h	Wed May  8 
+11:09:21 2002
+@@ -0,0 +1,179 @@
++/*
++ * Written by: Patricia Gaughen, IBM Corporation
++ *
++ * Copyright (C) 2002, IBM Corp.
++ *
++ * All rights reserved.          
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <gone@us.ibm.com>
++ */
++
++#ifndef CORE_IBMNUMAQ_H
++#define CORE_IBMNUMAQ_H
++
++#ifdef CONFIG_X86_NUMAQ
++
++#include <asm/smpboot.h>
++
++/*
++ * for now assume that 8Gb is max amount of RAM for whole system
++ *    8Gb * 1024Mb/Gb = 8192 Mb
++ *    8192 Mb / 256Mb = 32
++ */
++#define MAX_ELEMENTS 32
++#define ELEMENT_REPRESENTS 8 /* 256 Mb */
++
++#define PHYSADDR_TO_NID(pa) ibmnumaqpa_to_nid(pa)
++#define PFN_TO_NID(pa) ibmnumaqpfn_to_nid(pa)
++#define MAX_NUMNODES		8
++#ifdef CONFIG_NUMA
++#define _cpu_to_node(cpu) (cpu_to_logical_apicid(cpu) >> 4)
++#endif /* CONFIG_NUMA */
++extern int ibmnumaqpa_to_nid(unsigned long long);
++extern int ibmnumaqpfn_to_nid(unsigned long);
++extern void get_memcfg_ibmnumaq(void);
++#define get_memcfg_numa() get_memcfg_ibmnumaq()
++
++/*
++ * SYS_CFG_DATA_PRIV_ADDR, struct eachquadmem, and struct sys_cfg_data are 
+the
++ */
++#define SYS_CFG_DATA_PRIV_ADDR		0x0009d000 /* place for scd in private quad 
+space */
++
++/*
++ * Communication area for each processor on lynxer-processor tests.
++ *
++ * NOTE: If you change the size of this eachproc structure you need
++ *       to change the definition for EACH_QUAD_SIZE.
++ */
++struct eachquadmem {
++	unsigned int	priv_mem_start;		/* Starting address of this */
++						/* quad's private memory. */
++						/* This is always 0. */
++						/* In MB. */
++	unsigned int	priv_mem_size;		/* Size of this quad's */
++						/* private memory. */
++						/* In MB. */
++	unsigned int	low_shrd_mem_strp_start;/* Starting address of this */
++						/* quad's low shared block */
++						/* (untranslated). */
++						/* In MB. */
++	unsigned int	low_shrd_mem_start;	/* Starting address of this */
++						/* quad's low shared memory */
++						/* (untranslated). */
++						/* In MB. */
++	unsigned int	low_shrd_mem_size;	/* Size of this quad's low */
++						/* shared memory. */
++						/* In MB. */
++	unsigned int	lmmio_copb_start;	/* Starting address of this */
++						/* quad's local memory */
++						/* mapped I/O in the */
++						/* compatibility OPB. */
++						/* In MB. */
++	unsigned int	lmmio_copb_size;	/* Size of this quad's local */
++						/* memory mapped I/O in the */
++						/* compatibility OPB. */
++						/* In MB. */
++	unsigned int	lmmio_nopb_start;	/* Starting address of this */
++						/* quad's local memory */
++						/* mapped I/O in the */
++						/* non-compatibility OPB. */
++						/* In MB. */
++	unsigned int	lmmio_nopb_size;	/* Size of this quad's local */
++						/* memory mapped I/O in the */
++						/* non-compatibility OPB. */
++						/* In MB. */
++	unsigned int	io_apic_0_start;	/* Starting address of I/O */
++						/* APIC 0. */
++	unsigned int	io_apic_0_sz;		/* Size I/O APIC 0. */
++	unsigned int	io_apic_1_start;	/* Starting address of I/O */
++						/* APIC 1. */
++	unsigned int	io_apic_1_sz;		/* Size I/O APIC 1. */
++	unsigned int	hi_shrd_mem_start;	/* Starting address of this */
++						/* quad's high shared memory.*/
++						/* In MB. */
++	unsigned int	hi_shrd_mem_size;	/* Size of this quad's high */
++						/* shared memory. */
++						/* In MB. */
++	unsigned int	mps_table_addr;		/* Address of this quad's */
++						/* MPS tables from BIOS, */
++						/* in system space.*/
++	unsigned int	lcl_MDC_pio_addr;	/* Port-I/O address for */
++						/* local access of MDC. */
++	unsigned int	rmt_MDC_mmpio_addr;	/* MM-Port-I/O address for */
++						/* remote access of MDC. */
++	unsigned int	mm_port_io_start;	/* Starting address of this */
++						/* quad's memory mapped Port */
++						/* I/O space. */
++	unsigned int	mm_port_io_size;	/* Size of this quad's memory*/
++						/* mapped Port I/O space. */
++	unsigned int	mm_rmt_io_apic_start;	/* Starting address of this */
++						/* quad's memory mapped */
++						/* remote I/O APIC space. */
++	unsigned int	mm_rmt_io_apic_size;	/* Size of this quad's memory*/
++						/* mapped remote I/O APIC */
++						/* space. */
++	unsigned int	mm_isa_start;		/* Starting address of this */
++						/* quad's memory mapped ISA */
++						/* space (contains MDC */
++						/* memory space). */
++	unsigned int	mm_isa_size;		/* Size of this quad's memory*/
++						/* mapped ISA space (contains*/
++						/* MDC memory space). */
++	unsigned int	rmt_qmi_addr;		/* Remote addr to access QMI.*/
++	unsigned int	lcl_qmi_addr;		/* Local addr to access QMI. */
++};
++
++/*
++ * Note: This structure must be NOT be changed unless the multiproc and
++ * OS are changed to reflect the new structure.
++ */
++struct sys_cfg_data {
++	unsigned int	quad_id;
++	unsigned int	bsp_proc_id; /* Boot Strap Processor in this quad. */
++	unsigned int	scd_version; /* Version number of this table. */
++	unsigned int	first_quad_id;
++	unsigned int	quads_present31_0; /* 1 bit for each quad */
++	unsigned int	quads_present63_32; /* 1 bit for each quad */
++	unsigned int	config_flags;
++	unsigned int	boot_flags;
++	unsigned int	csr_start_addr; /* Absolute value (not in MB) */
++	unsigned int	csr_size; /* Absolute value (not in MB) */
++	unsigned int	lcl_apic_start_addr; /* Absolute value (not in MB) */
++	unsigned int	lcl_apic_size; /* Absolute value (not in MB) */
++	unsigned int	low_shrd_mem_base; /* 0 or 512MB or 1GB */
++	unsigned int	low_shrd_mem_quad_offset; /* 0,128M,256M,512M,1G */
++					/* may not be totally populated */
++	unsigned int	split_mem_enbl; /* 0 for no low shared memory */ 
++	unsigned int	mmio_sz; /* Size of total system memory mapped I/O */
++				 /* (in MB). */
++	unsigned int	quad_spin_lock; /* Spare location used for quad */
++					/* bringup. */
++	unsigned int	nonzero55; /* For checksumming. */
++	unsigned int	nonzeroaa; /* For checksumming. */
++	unsigned int	scd_magic_number;
++	unsigned int	system_type;
++	unsigned int	checksum;
++	/*
++	 *	memory configuration area for each quad
++	 */
++        struct	eachquadmem eq[MAX_NUMNODES];	/* indexed by quad id */
++};
++
++#endif /* CONFIG_X86_NUMAQ */
++#endif /* CORE_IBMNUMAQ_H */
++
+--- linux-2.4.19pre8-cleanup/include/linux/bootmem.h	Thu Apr 18 16:24:17 2002
++++ linux-2.4.19pre8-multi/include/linux/bootmem.h	Wed May  8 11:09:21 2002
+@@ -31,9 +31,10 @@
+ 
+ extern unsigned long __init bootmem_bootmap_pages (unsigned long);
+ extern unsigned long __init init_bootmem (unsigned long addr, unsigned long 
+memend);
+-extern void __init reserve_bootmem (unsigned long addr, unsigned long size);
+ extern void __init free_bootmem (unsigned long addr, unsigned long size);
+ extern void * __init __alloc_bootmem (unsigned long size, unsigned long 
+align, unsigned long goal);
++#ifndef CONFIG_X86_DISCONTIGMEM
++extern void __init reserve_bootmem (unsigned long addr, unsigned long size);
+ #define alloc_bootmem(x) \
+ 	__alloc_bootmem((x), SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_low(x) \
+@@ -42,6 +43,7 @@
+ 	__alloc_bootmem((x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_low_pages(x) \
+ 	__alloc_bootmem((x), PAGE_SIZE, 0)
++#endif /* !CONFIG_X86_DISCONTIGMEM */
+ extern unsigned long __init free_all_bootmem (void);
+ 
+ extern unsigned long __init init_bootmem_node (pg_data_t *pgdat, unsigned 
+long freepfn, unsigned long startpfn, unsigned long endpfn);
+@@ -49,11 +51,13 @@
+ extern void __init free_bootmem_node (pg_data_t *pgdat, unsigned long addr, 
+unsigned long size);
+ extern unsigned long __init free_all_bootmem_node (pg_data_t *pgdat);
+ extern void * __init __alloc_bootmem_node (pg_data_t *pgdat, unsigned long 
+size, unsigned long align, unsigned long goal);
++#ifndef CONFIG_X86_DISCONTIGMEM
+ #define alloc_bootmem_node(pgdat, x) \
+ 	__alloc_bootmem_node((pgdat), (x), SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_pages_node(pgdat, x) \
+ 	__alloc_bootmem_node((pgdat), (x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_low_pages_node(pgdat, x) \
+ 	__alloc_bootmem_node((pgdat), (x), PAGE_SIZE, 0)
++#endif /* !CONFIG_X86_DISCONTIGMEM */
+ 
+ #endif /* _LINUX_BOOTMEM_H */
+--- linux-2.4.19pre8-cleanup/mm/bootmem.c	Fri Dec 21 09:42:04 2001
++++ linux-2.4.19pre8-multi/mm/bootmem.c	Wed May  8 11:09:21 2002
+@@ -306,10 +306,12 @@
+ 	return(init_bootmem_core(&contig_page_data, start, 0, pages));
+ }
+ 
++#ifndef CONFIG_X86_DISCONTIGMEM
+ void __init reserve_bootmem (unsigned long addr, unsigned long size)
+ {
+ 	reserve_bootmem_core(contig_page_data.bdata, addr, size);
+ }
++#endif /* !CONFIG_X86_DISCONTIGMEM */
+ 
+ void __init free_bootmem (unsigned long addr, unsigned long size)
+ {
+--- linux-2.4.19pre8-cleanup/Documentation/Configure.help	Tue May  7 11:54:02 
+2002
++++ linux-2.4.19pre8-multi/Documentation/Configure.help	Wed May  8 16:02:12 
+2002
+@@ -234,7 +234,7 @@
+   Axis Communication site, <http://developer.axis.com/>.
+ 
+ Multiquad support for NUMA systems
+-CONFIG_MULTIQUAD
++CONFIG_X86_NUMAQ
+   This option is used for getting Linux to run on a (IBM/Sequent) NUMA 
+   multiquad box. This changes the way that processors are bootstrapped,
+   and uses Clustered Logical APIC addressing mode instead of Flat Logical.
 
 

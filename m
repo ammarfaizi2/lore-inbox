@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbUKPLDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbUKPLTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbUKPLDW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 06:03:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbUKPLDW
+	id S261956AbUKPLTh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 06:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbUKPLTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 06:03:22 -0500
-Received: from pauline.vellum.cz ([81.31.2.234]:59349 "EHLO pauline.vellum.cz")
-	by vger.kernel.org with ESMTP id S261956AbUKPLC2 (ORCPT
+	Tue, 16 Nov 2004 06:19:37 -0500
+Received: from user-0c99geh.cable.mindspring.com ([24.148.193.209]:64435 "EHLO
+	tuxq.com") by vger.kernel.org with ESMTP id S261956AbUKPLTf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 06:02:28 -0500
-Date: Tue, 16 Nov 2004 12:02:26 +0100
-From: Jan Kratochvil 
-	<rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: penberg@gmail.com, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-Message-ID: <20041116120226.A27354@pauline.vellum.cz>
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org> <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>; from miklos@szeredi.hu on Tue, Nov 16, 2004 at 11:20:22AM +0100
+	Tue, 16 Nov 2004 06:19:35 -0500
+Message-ID: <4199E246.3070006@tuxq.com>
+Date: Tue, 16 Nov 2004 06:19:34 -0500
+From: "Steven E. Woolard" <tuxq@tuxq.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040919
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: attention
+References: <4182218F00041772@mail-7.tiscali.it>
+In-Reply-To: <4182218F00041772@mail-7.tiscali.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, Nov 16, 2004 at 11:20:22AM +0100, Miklos Szeredi wrote:
-> >    - Breaks if CONFIG_PROC_FS is not enabled.
+gordonb@tiscali.it wrote:
+> Dear,
+> It is my pleasure contacting you now, as I have longed
+> to get in touch with anybody who knew Mr. David Contreras.
 > 
-> Yes.  Would a device node be better?  Perhaps.  This way there's no
-> need to allocate a major/minor for a device.
+> I am Barr.Gordon Brendan,the personal attorney to Mr.David
+ > ...
 
-"fuse/version" you have in /proc while it belongs to /proc
-"fuse/dev"     you have in /proc while it belongs to /dev
-
-Also I am not sure human-readable "fuse/version" is required there at all.
-Regular FUSE request enlisted in 'enum fuse_opcode' would be enough.
-
-
-Regards,
-Lace
+LOL I got this same spam mail a few days ago.

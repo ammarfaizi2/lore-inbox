@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129854AbRCTMIE>; Tue, 20 Mar 2001 07:08:04 -0500
+	id <S130129AbRCTNZR>; Tue, 20 Mar 2001 08:25:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130038AbRCTMHy>; Tue, 20 Mar 2001 07:07:54 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:36232 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S129854AbRCTMHh>;
-	Tue, 20 Mar 2001 07:07:37 -0500
-Message-ID: <3AB747BB.73F041CE@mandrakesoft.com>
-Date: Tue, 20 Mar 2001 07:06:19 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: PCMCIA serial CardBus support vanished in 2.4.3-pre3 and later
-In-Reply-To: <3AB732F0.CE13E52F@oracle.com>
+	id <S130252AbRCTNZH>; Tue, 20 Mar 2001 08:25:07 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:42504 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S130129AbRCTNY5>; Tue, 20 Mar 2001 08:24:57 -0500
+Date: Tue, 20 Mar 2001 14:08:38 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Fabio Riccardi <fabio@chromium.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: user space web server accelerator support
+Message-ID: <20010320140838.B1465@arthur.ubicom.tudelft.nl>
+In-Reply-To: <3AB6D0A5.EC4807E3@chromium.com> <15030.54194.780246.320476@pizda.ninka.net> <3AB6D574.8C123AE9@chromium.com> <15030.54685.535763.403057@pizda.ninka.net> <3AB6D795.F06C1B18@chromium.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AB6D795.F06C1B18@chromium.com>; from fabio@chromium.com on Mon, Mar 19, 2001 at 08:07:49PM -0800
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi wrote:
+On Mon, Mar 19, 2001 at 08:07:49PM -0800, Fabio Riccardi wrote:
+> Fantastic!
 > 
-> Sorry to repost the issue but I got no reply...
-> 
->  2.4.3-pre3 and synced-up versions of the -ac series remove support for
->  PCMCIA serial CardBus. In drivers/char/pcmcia the Makefile and Config.in
->  files are modified to exclude serial_cb and the serial_cb.c file itself
->  is removed by the patch. As a net result, my Xircom modem port becomes
->  invisible to the kernel and I can't dial out through it.
-> 
-> As a temporary measure I backed out the changes in drivers/char/pcmcia
->  and my 2.4.3-pre4 kernel seems happy (in fact I am dialing out through
->  said Xircom modem).
-> 
-> Did I miss some announcement for replacement features for serial_cb or
->  did a bad patch slip in ?
+> I was not aware of it, sorry... where can I find some doc?
 
-Neither.  serial.c does serial_cb's job now.  It looks like serial.c
-needs to scan for modems as well as serial ports, and tytso agrees with
-me on that.  We just need to check and see if winmodems reports
-themselves as real modems before fixing this.
+W. Richard Stevens, "Advanced programming in the UNIX environment",
+chapter 15.3.
+
+
+Erik
+
+> "David S. Miller" wrote:
+> 
+> > Unix sockets allow one processes to "give" a file descriptor to
+> > another process via a facility called "file descriptor passing".
 
 -- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full mooon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

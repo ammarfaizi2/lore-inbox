@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269650AbUJMHpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269653AbUJMIEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269650AbUJMHpT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 03:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269653AbUJMHpT
+	id S269653AbUJMIEj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 04:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269648AbUJMIEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 03:45:19 -0400
-Received: from 221-169-69-23.adsl.static.seed.net.tw ([221.169.69.23]:51929
-	"EHLO cola.voip.idv.tw") by vger.kernel.org with ESMTP
-	id S269650AbUJMHpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 03:45:13 -0400
-Subject: Re: 2.6.9-rc4-mm1
-From: Wen-chien Jesse Sung <jesse@opnet.com.tw>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Hideo AOKI <aoki@sdl.hitachi.co.jp>
-In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org>
-References: <20041011032502.299dc88d.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1097653366.6209.15.camel@libra>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 13 Oct 2004 15:42:46 +0800
+	Wed, 13 Oct 2004 04:04:39 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:15267 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S269643AbUJMIEM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 04:04:12 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16748.57721.66330.638048@napali.hpl.hp.com>
+Date: Wed, 13 Oct 2004 01:04:09 -0700
+To: <akepner@sgi.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
+       <akpm@osdl.org>, <jbarnes@sgi.com>
+Subject: Re: bug in 2.6.9-rc4-mm1 ia64/mm/init.c 
+In-Reply-To: <Pine.LNX.4.33.0410121705510.31839-100000@localhost.localdomain>
+References: <Pine.LNX.4.33.0410121705510.31839-100000@localhost.localdomain>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/
+>>>>> On Tue, 12 Oct 2004 17:21:41 -0700 (PDT), <akepner@sgi.com> said:
 
-Hi Andrew,
+  >> Hi Folks;
 
-kernel/sysctl.c does not compile if CONFIG_SWAP=n.
+  >> Tried a kernel built with akpm's 2.6.9-rc4-mm1 patch today (using
+  >> a default sn2 .config file.) It crashes on boot with:
 
---- 2.6.9-rc4-mm1/kernel/sysctl.c  (revision 16)
-+++ 2.6.9-rc4-mm1/kernel/sysctl.c  (local)
-@@ -813,6 +813,7 @@
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec,
- 	},
-+#ifdef CONFIG_SWAP
- 	{
- 		.ctl_name	= VM_SWAP_TOKEN_TIMEOUT,
- 		.procname	= "swap_token_timeout",
-@@ -822,6 +823,7 @@
- 		.proc_handler	= &proc_dointvec_jiffies,
- 		.strategy	= &sysctl_jiffies,
- 	},
-+#endif
- 	{ .ctl_name = 0 }
- };
- 
- 
+  >> ....  SGI SAL version 3.40 Virtual mem_map starts at
+  >> 0xa0007ffe85938000 Unable to handle kernel paging request at
+  >> virtual address a0007ffeaf970000 swapper[0]: Oops 8813272891392
+  >> [1] Modules linked in:
 
--- 
-Best Regards,
-Wen-chien Jesse Sung
+  >> I traced this down to a recent patch (see
+  >> http://marc.theaimsgroup.com/?l=linux-mm&m=109723728329408&w=2)
+  >> which contains:
 
+Why was this patch even accepted?  It seemed rather dubious to me and
+I don't recall much discussion on its merits or safety.
+
+	--david

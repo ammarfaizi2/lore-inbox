@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262324AbSJ2RhA>; Tue, 29 Oct 2002 12:37:00 -0500
+	id <S262100AbSJ2RWG>; Tue, 29 Oct 2002 12:22:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262346AbSJ2RhA>; Tue, 29 Oct 2002 12:37:00 -0500
-Received: from precia.cinet.co.jp ([210.166.75.133]:20352 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262324AbSJ2Rg7>; Tue, 29 Oct 2002 12:36:59 -0500
-Message-ID: <3DBEC8BA.F2043BEF@cinet.co.jp>
-Date: Wed, 30 Oct 2002 02:43:22 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.44-pc98smp i686)
-X-Accept-Language: ja, en
+	id <S262083AbSJ2RWG>; Tue, 29 Oct 2002 12:22:06 -0500
+Received: from 3-090.ctame701-1.telepar.net.br ([200.193.161.90]:16037 "EHLO
+	3-090.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262100AbSJ2RWF>; Tue, 29 Oct 2002 12:22:05 -0500
+Date: Tue, 29 Oct 2002 15:28:00 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: Re: 2.5.44-mm6
+In-Reply-To: <Pine.LNX.3.96.1021029065944.6113B-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44L.0210291526560.1697-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET 22/25] add support for PC-9800 architecture (sound alsa)
-References: <20021026115417.A1424@precia.cinet.co.jp>
-		<s5hu1j630qh.wl@alsa2.suse.de> <s5hsmyp36c4.wl@alsa2.suse.de>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
-> 
-> Hi,
-> 
-> the attached is a patch to create a new driver module,
-> snd-pc98-cs4232, which supports CS4232 on PC9800 and PC98II MPU
-> daughterboard.  (if you find the module name weird, please change as
-> you like.  the name is tentative :)
-> in this patch, almost all pc98-specific hardware initialization is
-> done in the card module, hence the changes to common modules become
-> minimum.
-(snip)
-> please check whether it works for you.  if it's ok, i'd like to merge
-> it into alsa cvs, so the changes will be sent as ALSA update patches
-> later.
-Thank you very much. I'm testing patch. And found some problems.
-sound/drivers/opl3/Makefile, sound/core/Makefile, sound/core/seq/Makefile
-and sound/core/seq/instr/Makefile needed additional patch for compile.
-PCM works fine. But mpu401 plays very slow tempo. I can't find reason
-yet.
+On Tue, 29 Oct 2002, Bill Davidsen wrote:
+> On Mon, 28 Oct 2002, Andrew Morton wrote:
+> > Rik van Riel wrote:
+> > > Just let me know if you're interested in my load control mechanism
+> > > and I'll send it to you.
+> > It would also be interesting to know if we really care?
+>
+> I think there is a need for keeping an overloaded machine in some way
+> usable, not because anyone is really running it that way, but because
+> the sysadmin needs a way to determine why a correctly sized machine is
+> suddenly seeing a high load.
 
-Regards,
-Osamu Tomita
+Indeed, it's a stability thing, not a performance thing.
+
+It's Not Good(tm) to have a system completely crap out because
+of a load spike. Instead it should survive the load spike and
+go on with life.
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

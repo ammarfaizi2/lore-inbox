@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270273AbTGSQCj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 12:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270403AbTGSQCi
+	id S268476AbTGSQHy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 12:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270057AbTGSQHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 12:02:38 -0400
-Received: from adedition.com ([216.209.85.42]:51208 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S270273AbTGSQCh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 12:02:37 -0400
-Date: Sat, 19 Jul 2003 12:17:25 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: John Bradford <john@grabjohn.com>
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper
-Message-ID: <20030719161725.GD17587@mark.mielke.cc>
-References: <200307191600.h6JG0OZd002669@81-2-122-30.bradfords.org.uk>
+	Sat, 19 Jul 2003 12:07:54 -0400
+Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:59145
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S268476AbTGSQHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 12:07:53 -0400
+Date: Sat, 19 Jul 2003 09:23:04 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Eugene Teo <eugene.teo@eugeneteo.net>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: [PATCH] O7int for interactivity
+Message-ID: <20030719162304.GA1059@matchmail.com>
+Mail-Followup-To: Eugene Teo <eugene.teo@eugeneteo.net>,
+	Con Kolivas <kernel@kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+	Davide Libenzi <davidel@xmailserver.org>
+References: <200307190210.49687.kernel@kolivas.org> <20030718230717.GG2289@matchmail.com> <20030719034059.GE10120@eugeneteo.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307191600.h6JG0OZd002669@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030719034059.GE10120@eugeneteo.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 19, 2003 at 05:00:24PM +0100, John Bradford wrote:
-> > Any investment into writing a new source management
-> > system would be better served by improving the linux source code.
-> What happens if somebody develops a really good versioned filesystem
-> for Linux, would it not get merged, because the linux kernel would
-> then contain SCM-like functionality?
+On Sat, Jul 19, 2003 at 11:40:59AM +0800, Eugene Teo wrote:
+> <quote sender="Mike Fedyk">
+> > On Sat, Jul 19, 2003 at 02:10:49AM +1000, Con Kolivas wrote:
+> > > Here is an update to my Oint patches for 2.5/6 interactivity. Note I will be 
+> > > away for a week so bash away and abuse this one lots and when I get back I can 
+> > > see what else needs doing. Note I posted a preview earlier but this is the formal
+> > > O7 patch (check the datestamp which people hate in the naming of my patches).
+> > > I know this is turning into a marathon effort but... as you're all probably aware
+> > > there is nothing simple about tuning this beast. Thanks to all the testers and
+> > > people commenting; keep it coming please.
+> > 
+> > Is this on top of 06 or 06.1?
+> 
+> His patches are usually on top of the previous patch,
+> so if you applied O6int, apply O6.1int on it, then O7int on O6.1int.
+> But do read his readme file when you download it.
 
-One day, when it happens, we'll see what ripple effects it has.
-
-In most cases, however, I suspect that a versioned file system will never
-be a replacement for a good source management system. The lines could become
-blurred, but the 'good versioned file system' might take the form a kernel
-module that allowed SCM systems to plug into it, at which point, Bit Keeper
-might plug into it, and everybody would be happy. I doubt you want to put
-merge manager functionality into the kernel, or many of the other components
-of a good source management system. The storage and access is one of the
-lesser concerns. Bit Keeper uses similar storage and access methods as
-SCCS, does it not?
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Yeah, I didn't even go to his web site.  I've been taking his patches sent
+through email, saving it to a file, and running that through patch... :-D

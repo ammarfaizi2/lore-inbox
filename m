@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277366AbRJZCz3>; Thu, 25 Oct 2001 22:55:29 -0400
+	id <S277382AbRJZDEt>; Thu, 25 Oct 2001 23:04:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277380AbRJZCzT>; Thu, 25 Oct 2001 22:55:19 -0400
-Received: from mx3.port.ru ([194.67.57.13]:64265 "EHLO smtp3.port.ru")
-	by vger.kernel.org with ESMTP id <S277366AbRJZCzE>;
-	Thu, 25 Oct 2001 22:55:04 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200110260257.f9Q2vhg09527@vegae.deep.net>
-Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
-To: urban@teststation.com (Urban Widmark)
-Date: Fri, 26 Oct 2001 06:57:42 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0110252253270.7785-100000@cola.teststation.com> from "Urban Widmark" at Oct 25, 2001 11:19:51 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S277385AbRJZDEj>; Thu, 25 Oct 2001 23:04:39 -0400
+Received: from queen.bee.lk ([203.143.12.182]:2946 "EHLO queen.bee.lk")
+	by vger.kernel.org with ESMTP id <S277382AbRJZDEf>;
+	Thu, 25 Oct 2001 23:04:35 -0400
+Date: Fri, 26 Oct 2001 09:05:05 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>
+Cc: Anuradha Ratnaweera <anuradha@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: Other computers HIGHLY degrading network performance (DoS?)
+Message-ID: <20011026090505.A15880@bee.lk>
+In-Reply-To: <20011026084328.A14814@bee.lk> <1004064922.21997.7.camel@Eleusis>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1004064922.21997.7.camel@Eleusis>; from jhingber@ix.netcom.com on Thu, Oct 25, 2001 at 10:55:16PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"  Urban Widmark wrote:"
-> >        Hello folks...
-> > 
-> > 	Host A: p166, ISA NE2K, linux-2.4.12-ac4
-> > 	Host B: p2-400, rtl-8129, WinXP (heh, not my box though ;)
-> > 
-> > 	Load: smbmount connection from host A to the host B, and getting
-> >      large files.
-> 
-> You don't say if any of the tests you did are related to smbfs. I suspect
-> this reasoning is completely irrelevant (not, that it has stopped me
-> before ... :)
-> 
-> smbfs is not the fastest thing around. I think the slowness on some
-> operations is related to how it waits after sending each request.
-> 
->      process A				  process B
->    get semaphore
->    request 4096 bytes			wait on semaphore
->    ... wait for network ...
->    read packet
->    read packet
->    read packet
->    release semaphore
-> 					get semaphore
-> 					request 4096 bytes
-> 
-> It could send the second request without waiting for the first to complete
-> (if it knew how to separate the responses). Doing that should speed things
-> up.
-> 
-> If you play mp3's over smbfs while also doing something else I suppose the
-> delay could become noticable. I can't explain the other effects, so
-> possibly this is unrelated to smbfs.
-> 
-> You could make me happy by repeating the tests, but generating the network
-> load with something else (http?).
-> 
-> /Urban
-> 
-> 
-> 
-        1. /dev/hda is -u1d1 `ed, and the disc load is near to not existent
-	2. mp3 is placed locally
+On Thu, Oct 25, 2001 at 10:55:16PM -0400, Jeffrey H. Ingber wrote:
+>
+> I think this is what QoS and the like are for.
 
-cheers, Samium Gromoff
+Well, we _are_ going to solve the problem using a firewall between the router
+and the local area network.
+
+But the real problem is a different one.
+
+One machine begins an intensive downloading job.  How can this degrade the
+network performance even for ICMP packets between another machine and the
+router?  Notice that this can't be collitions because the download goes at
+64kbps and the local network is 100 Mbps.  Something funny is going on to
+stop other people's packets.
+
+Cheers,
+
+Anuradha
+
+
+-- 
+
+Debian GNU/Linux (kernel 2.4.13)
+
+True leadership is the art of changing a group from what it is to what
+it ought to be.
+		-- Virginia Allan
 

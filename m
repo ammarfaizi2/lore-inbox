@@ -1,41 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269755AbUJWBuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269332AbUJWAcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269755AbUJWBuL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 21:50:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269841AbUJWBsB
+	id S269332AbUJWAcs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 20:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269708AbUJWAcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 21:48:01 -0400
-Received: from quechua.inka.de ([193.197.184.2]:5299 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S269805AbUJWBov (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 21:44:51 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Gigantic memory leak in linux-2.6.[789]!
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <200410221613.35913.ks@cs.aau.dk>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1CLAxd-0001cC-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sat, 23 Oct 2004 03:44:49 +0200
+	Fri, 22 Oct 2004 20:32:06 -0400
+Received: from smtp4.netcabo.pt ([212.113.174.31]:65239 "EHLO
+	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S269621AbUJWAai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 20:30:38 -0400
+Message-ID: <32871.192.168.1.5.1098491242.squirrel@192.168.1.5>
+In-Reply-To: <20041022175633.GA1864@elte.hu>
+References: <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
+    <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
+    <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
+    <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu>
+    <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu>
+    <20041022175633.GA1864@elte.hu>
+Date: Sat, 23 Oct 2004 01:27:22 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
+       "Florian Schmidt" <mista.tapas@gmx.net>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Alexander Batyrshin" <abatyrshin@ru.mvista.com>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 23 Oct 2004 00:30:34.0320 (UTC) FILETIME=[828F0500:01C4B897]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200410221613.35913.ks@cs.aau.dk> you wrote:
-> When the loop has completed, the system use 124 MB memory more _each_ time.... 
-> so it is pretty easy to make a denial-of-service attack :-(
+Ingo Molnar wrote:
+>
+> i have released the -U10.2 Real-Time Preemption patch, which can be
+> downloaded from:
+>
+>   http://redhat.com/~mingo/realtime-preempt/
+>
 
-for starters i recommend to look at "free" and only at the marked number:
+Regarding the jackd -R issue, I was trying to capture some debug data via
+netconsole on my laptop (P4/UP) running RT-U10.2, and when the system
+freezes as reported before, I was able to kick the SysRq+T. But, instead
+of a task trace list, I get the following:
 
-             total       used       free     shared    buffers     cached
-Mem:        126368     108432      17936          0       6532      42104
--/+ buffers/cache:      59796*     66572*
-Swap:       262128      43400     218728
+SysRq : <3>BUG: sleeping function called from invalid context IRQ 1(776)
+at kernel/mutex.c:37
+in_atomic():1 [00000001], irqs_disabled():1
+ [<c0104ee4>] dump_stack+0x1e/0x20 (20)
+ [<c0114a23>] __might_sleep+0xb2/0xc7 (36)
+ [<c012c0f2>] _mutex_lock+0x39/0x5e (28)
+ [<c012c13a>] _mutex_lock_irqsave+0x11/0x15 (12)
+ [<c027f927>] refill_skbs+0x13/0x6d (20)
+ [<c027fa4c>] find_skb+0x5d/0x9d (24)
+ [<c027fb74>] netpoll_send_udp+0x3b/0x298 (48)
+ [<e00ef047>] write_msg+0x47/0x5c [netconsole] (36)
+ [<c0117804>] __call_console_drivers+0x51/0x60 (32)
+ [<c0117910>] call_console_drivers+0x6d/0x147 (40)
+ [<c0117caf>] release_console_sem+0x48/0x100 (36)
+ [<c0117bd5>] vprintk+0x127/0x174 (36)
+ [<c0117aac>] printk+0x18/0x1a (16)
+ [<c01f4849>] __handle_sysrq+0x38/0xed (40)
+ [<c01ee426>] kbd_event+0xeb/0xfa (40)
+ [<c025f6a8>] input_event+0x160/0x3d4 (44)
+ [<c02620b6>] atkbd_report_key+0x3b/0x95 (32)
+ [<c026236c>] atkbd_interrupt+0x25c/0x590 (60)
+ [<c01f6fd2>] serio_interrupt+0x4f/0xa5 (44)
+ [<c01f78cb>] i8042_interrupt+0xb8/0x1b8 (40)
+ [<c0131dbc>] handle_IRQ_event+0x48/0x79 (32)
+ [<c01325dd>] do_hardirq+0x86/0x123 (40)
+ [<c0132712>] do_irqd+0x98/0xc9 (36)
+ [<c012b7d7>] kthread+0x9c/0xc9 (48)
+ [<c0102305>] kernel_thread_helper+0x5/0xb (548454420)
+preempt count: 00000002
+. 2-level deep critical section nesting:
+.. entry 1: __sysrq_lock_table+0x12/0x14 [<c01f482b>] /
+(__handle_sysrq+0x1a/0xed [<c01f482b>])
+.. entry 2: print_traces+0x16/0x48 [<c0104ee4>] / (dump_stack+0x1e/0x20
+[<c0104ee4>])
 
-or at the swap numbers if you have low memory (like i do).
+Other SysRq key combinations dumps similar.
 
-Gruss
-Bernd
+Any suggestions?
 -- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+

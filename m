@@ -1,83 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261824AbSJEBMx>; Fri, 4 Oct 2002 21:12:53 -0400
+	id <S261813AbSJEBL3>; Fri, 4 Oct 2002 21:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261841AbSJEBMx>; Fri, 4 Oct 2002 21:12:53 -0400
-Received: from p001.as-l031.contactel.cz ([212.65.234.193]:24192 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S261824AbSJEBMv>;
-	Fri, 4 Oct 2002 21:12:51 -0400
-Date: Sat, 5 Oct 2002 03:17:49 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: "frode@freenix.no" <frode@freenix.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40 (several issues): kernel BUG! at slab.c:1292, imm/ppa IOMega ZIP drivers modules ".o" not found, XFS won't link, depmod complains on
-Message-ID: <20021005011749.GN1408@ppc.vc.cvut.cz>
-References: <3D9E23E2.8000400@freenix.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D9E23E2.8000400@freenix.no>
-User-Agent: Mutt/1.4i
+	id <S261815AbSJEBL3>; Fri, 4 Oct 2002 21:11:29 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:40779 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S261813AbSJEBL2>; Fri, 4 Oct 2002 21:11:28 -0400
+Date: Fri, 4 Oct 2002 18:25:24 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.40: lkcd (4/9): additional kernel symbols
+In-Reply-To: <m3znttg2wz.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.44.0210041822120.10168-100000@nakedeye.aparity.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 05, 2002 at 01:27:30AM +0200, frode@freenix.no wrote:
-> I just downloaded the linux-2.5.40 tarball.
-> FAT: Using codepage cp437
-> FAT: Using IO charset iso8859-1
-> FAT: Using codepage cp437
-> FAT: Using IO charset iso8859-1
-> FAT: Using codepage cp437
-> FAT: Using IO charset iso8859-1
-> Adding 262136k swap on /swapfile.  Priority:-2 extents:519
-> ------------[ cut here ]------------
-> kernel BUG at slab.c:1292!
-> invalid operand: 0000
+On 5 Oct 2002, Andi Kleen wrote:
+|>"Matt D. Robinson" <yakker@aparity.com> writes:
+|>
+|>> diff -urN -X /home/bharata/dontdiff linux-2.5.40/arch/i386/kernel/i386_ksyms.c linux-2.5.40+lkcd/arch/i386/kernel/i386_ksyms.c
+|>> --- linux-2.5.40/arch/i386/kernel/i386_ksyms.c	Tue Oct  1 12:36:59 2002
+|>> +#if defined(CONFIG_X86) || defined(CONFIG_ALPHA)
+|>> +EXPORT_SYMBOL(page_is_ram);
+|>> +#endif
+|>
+|>This ifdef in i386_ksyms.c doesn't make much sense...
 
-It is probably time to send it to Linus once more...
-						Petr Vandrovec
+If the rest of the architectures used page_is_ram(), this
+wouldn't be a problem, but not all do.  And since we use
+it/need it, that's the reason for the addition.
 
-diff -urdN linux/fs/fat/inode.c linux/fs/fat/inode.c
---- linux/fs/fat/inode.c	2002-10-05 00:55:46.000000000 +0200
-+++ linux/fs/fat/inode.c	2002-10-05 01:00:15.000000000 +0200
-@@ -228,8 +228,6 @@
- 	save = 0;
- 	savep = NULL;
- 	while ((this_char = strsep(&options,",")) != NULL) {
--		if (!*this_char)
--			continue;
- 		if ((value = strchr(this_char,'=')) != NULL) {
- 			save = *value;
- 			savep = value;
-@@ -351,7 +349,7 @@
- 			strncpy(cvf_options,value,100);
- 		}
- 
--		if (this_char != options) *(this_char-1) = ',';
-+		if (options) *(options-1) = ',';
- 		if (value) *savep = save;
- 		if (ret == 0)
- 			break;
-diff -urdN linux/fs/vfat/namei.c linux/fs/vfat/namei.c
---- linux/fs/vfat/namei.c	2002-10-05 00:56:02.000000000 +0200
-+++ linux/fs/vfat/namei.c	2002-10-05 01:00:15.000000000 +0200
-@@ -117,8 +117,6 @@
- 	savep = NULL;
- 	ret = 1;
- 	while ((this_char = strsep(&options,",")) != NULL) {
--		if (!*this_char)
--			continue;
- 		if ((value = strchr(this_char,'=')) != NULL) {
- 			save = *value;
- 			savep = value;
-@@ -154,8 +152,8 @@
- 			else
- 				ret = 0;
- 		}
--		if (this_char != options)
--			*(this_char-1) = ',';
-+		if (options)
-+			*(options-1) = ',';
- 		if (value) {
- 			*savep = save;
- 		}
+|>> +#ifdef CONFIG_SMP
+|>> +extern irq_desc_t irq_desc[];
+|>> +extern unsigned long irq_affinity[];
+|>> +EXPORT_SYMBOL(irq_affinity);
+|>> +EXPORT_SYMBOL(irq_desc);
+|>> +extern void dump_send_ipi(void);
+|>> +EXPORT_SYMBOL(dump_send_ipi);
+|>> +extern int (*dump_ipi_function_ptr)(struct pt_regs *);
+|>> +EXPORT_SYMBOL(dump_ipi_function_ptr);
+|>> +extern void (*dump_trace_ptr)(struct pt_regs *);
+|>> +EXPORT_SYMBOL(dump_trace_ptr);
+|>> +extern void show_this_cpu_state(int, struct pt_regs *, struct task_struct *);
+|>> +EXPORT_SYMBOL(show_this_cpu_state);
+|>
+|>Before adding all these ugly declarations I would just declare the file where
+|>whey are exported from as 'x-obj' and put them directly to where the 
+|>functions live.
+
+Okee, I'll start looking into doing this.  That'll break out this
+whole patch (assuming there's something else that can be done for
+the page_is_ram() mechanism).
+
+|>-Andi
+
+--Matt
+

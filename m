@@ -1,32 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262895AbVCWJWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262903AbVCWJYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262895AbVCWJWm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 04:22:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVCWJWm
+	id S262903AbVCWJYH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 04:24:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVCWJYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 04:22:42 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:62900 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262895AbVCWJWW (ORCPT
+	Wed, 23 Mar 2005 04:24:07 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:5557 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262894AbVCWJXw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 04:22:22 -0500
-Date: Wed, 23 Mar 2005 10:22:11 +0100 (MET)
+	Wed, 23 Mar 2005 04:23:52 -0500
+Date: Wed, 23 Mar 2005 10:23:49 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: zyphr <infzyphr@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 140 bugs, many of which are post-2.6.10 regressions - got a
- list?
-In-Reply-To: <3de2c80b05032301067d6e4db3@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0503231021280.19506@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0503221514370.32335@yvahk01.tjqt.qr>
- <3de2c80b05032301067d6e4db3@mail.gmail.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] devfs: remove a redundant NULL pointer check prior to
+ kfree()
+In-Reply-To: <200503231104.10704.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.61.0503231023070.19506@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.62.0503222351350.2683@dragon.hyggekrogen.localhost>
+ <200503231104.10704.vda@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Those are almost 2 years old ;-)
+>IIRC devfs is deprecated and has less than a year to live.
 
-Jesper and me found that out about 17 hours before you :p
+What are we waiting for, then?
 
 
 Jan Engelhardt

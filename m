@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUAEPZi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 10:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265168AbUAEPZh
+	id S265151AbUAEPVw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 10:21:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbUAEPVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 10:25:37 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:4250 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265161AbUAEPZf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 10:25:35 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 5 Jan 2004 11:59:15 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: caszonyi@rdslink.ro, linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20040105105915.GU15106@bytesex.org>
-References: <Pine.LNX.4.53.0312262105560.537@grinch.ro> <Pine.LNX.4.58.0312261419230.14874@home.osdl.org>
+	Mon, 5 Jan 2004 10:21:52 -0500
+Received: from users.linvision.com ([62.58.92.114]:30655 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S265151AbUAEPVe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 10:21:34 -0500
+Date: Mon, 5 Jan 2004 16:21:32 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mremap bug and 2.4?
+Message-ID: <20040105152132.GB5117@bitwizard.nl>
+References: <20040105145421.GC2247@rdlg.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312261419230.14874@home.osdl.org>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20040105145421.GC2247@rdlg.net>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 		....
->                         while (voffset >= sg_dma_len(vsg)) {
->                                 voffset -= sg_dma_len(vsg);
->                                 vsg++;
->                         }
-> 		....
-
-> I suspect the problem is that 
+On Mon, Jan 05, 2004 at 09:54:21AM -0500, Robert L. Harris wrote:
+> Just read this on full disclosure:
 > 
-> 	"voffset >= sg_dma_len(vsg)"
+> http://isec.pl/vulnerabilities/isec-0013-mremap.txt
 > 
-> test: if "voffset" is _exactly_ the same as sg_dma_len(), then we will 
-> test one more iteration (when "voffset" is 0), and that iteration may be 
-> past the end of the "vsg" array.
+> Is it valid?
 
-That certainly makes sense, the 'v' plane is the last one in the memory
-block for the video frame to be captured, so voffset / vsg will walk to
-the last sg entry and may overrun described.  Good catch, I'm impressed.
+Yes, Marcelo released 2.4.24 an hour ago for that reason.
 
-> I suspect the fix might be to change the test to
-> 
-> 	"voffset && voffset >= sg_dma_len(vsg)"
 
-Merged into my tree, thanks.
+Erik
 
-still busy with the xmas mail backlog,
-
-  Gerd
-
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

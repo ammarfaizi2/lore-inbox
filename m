@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270724AbTHGURv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 16:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270764AbTHGURv
+	id S270510AbTHGUQA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 16:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270519AbTHGUQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 16:17:51 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:60656 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S270724AbTHGUR0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 16:17:26 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 7 Aug 2003 22:17:24 +0200 (MEST)
-Message-Id: <UTC200308072017.h77KHOl02587.aeb@smtp.cwi.nl>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: [PATCH] correct - I hope - check for HPA and LBA48
+	Thu, 7 Aug 2003 16:16:00 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:31493 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S270510AbTHGUP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 16:15:56 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Ken Moffat <ken@kenmoffat.uklinux.net>
+Subject: Re: 2.4.22-rc1 breaks dri in X-4.3.0
+Date: Thu, 7 Aug 2003 22:15:38 +0200
+User-Agent: KMail/1.5.3
 Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0308071708390.4303-100000@logos.cnet>
+In-Reply-To: <Pine.LNX.4.44.0308071708390.4303-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200308072212.38688.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I remember that it is necessary to check whether the words
-containing the HPA and LBA48 bits are valid before looking
-at these bits. This improves things for at least one disk.
-But there is much buggy hardware out there - this may also
-break some things. Not to be applied (yet) to stable kernels.
+On Thursday 07 August 2003 22:08, Marcelo Tosatti wrote:
 
-Andries
+Hi Marcelo,
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
---- a/drivers/ide/ide-disk.c	Thu Aug  7 22:08:22 2003
-+++ b/drivers/ide/ide-disk.c	Thu Aug  7 22:42:27 2003
-@@ -1080,24 +1080,21 @@
- 	return (id->capability & 2);
- }
- 
--/*
-- * Bits 10 of command_set_1 and cfs_enable_1 must be equal,
-- * so on non-buggy drives we need test only one.
-- * However, we should also check whether these fields are valid.
-- */
- static inline int
- idedisk_supports_host_protected_area(const struct hd_driveid *id)
- {
--	return (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
-+	return (id->command_set_2 & 0xc000) == 0x4000 /* words 82-83 valid */
-+		&& (id->command_set_1 & 0x0400)	      /* HPA supported */
-+		&& (id->csf_default & 0xc000) == 0x4000 /* wds 85-87 valid */
-+		&& (id->cfs_enable_1 & 0x0400);       /* HPA enabled */
- }
- 
--/*
-- * The same here.
-- */
- static inline int
- idedisk_supports_lba48(const struct hd_driveid *id)
- {
--	return (id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400);
-+	return (id->command_set_2 & 0xc400) == 0x4400 /* LBA48 supported */
-+		&& (id->csf_default & 0xc000) == 0x4000 /* wds 85-87 valid */
-+		&& (id->cfs_enable_2 & 0x0400);       /* LBA48 enabled */
- }
- 
- static inline unsigned long long
+> Does the DRM module get loaded?
+> Whats the output of insmod drm.o ?
+
+drm.o? I think you mean radeon.o ;)
+
+ciao, Marc
+

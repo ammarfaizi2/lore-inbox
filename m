@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313711AbSELRgM>; Sun, 12 May 2002 13:36:12 -0400
+	id <S313911AbSELSPP>; Sun, 12 May 2002 14:15:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313904AbSELRgL>; Sun, 12 May 2002 13:36:11 -0400
-Received: from ns1.system-techniques.com ([199.33.245.254]:36762 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S313711AbSELRgK>; Sun, 12 May 2002 13:36:10 -0400
-Date: Sun, 12 May 2002 13:36:00 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: john slee <indigoid@higherplane.net>
-cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Tcp/ip offload card driver
-In-Reply-To: <20020512005537.GG3855@higherplane.net>
-Message-ID: <Pine.LNX.4.44.0205121335050.14675-100000@filesrv1.baby-dragons.com>
+	id <S314277AbSELSPO>; Sun, 12 May 2002 14:15:14 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:61144 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S313911AbSELSPN>;
+	Sun, 12 May 2002 14:15:13 -0400
+Date: Sun, 12 May 2002 14:15:12 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Elladan <elladan@eskimo.com>
+cc: Jakob ?stergaard <jakob@unthought.net>,
+        Kasper Dupont <kasperd@daimi.au.dk>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
+In-Reply-To: <20020512103432.A24018@eskimo.com>
+Message-ID: <Pine.GSO.4.21.0205121412160.25791-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Hello John ,  Think about it ;-) .  Maybe an order of magnitude ?
-		JimL
 
-On Sun, 12 May 2002, john slee wrote:
-> On Fri, May 10, 2002 at 10:51:06AM -0500, Nicholas Harring wrote:
-> > And how about when an SMP system isn't enough? Should I have to
-> > re-engineer my network storage architecture when hardware exists that'll
-> > increase throughput if a simple device driver gets written? Don't forget
-> > that with 64 bit PCI that the limit of the bus has been raised, and with
->
-> jeff merkey has already demonstrated 300MiB/sec and higher speeds on x86
-> linux, with 3ware raid and dolphin sci cards.  how much faster do you
-> need to go?
->
-> j.
->
-> --
-> R N G G   "Well, there it goes again... And we just sit
->  I G G G   here without opposable thumbs." -- gary larson
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+On Sun, 12 May 2002, Elladan wrote:
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+> His test was different.
+> 
+> He opened a file in a legal situation (shell can create a new file), and
+> then forked off a suid process over and over with the stdout of that
+> process set to a dup of the shell's already open fd.
+> 
+> It's perfectly legal for the shell to sit around with a file open and
+> pass it off to a child, even if the disk is full.
+> 
+> It's also perfectly legal for root to write to the fd, even if the disk
+> is full (for normal users).  
+> 
+> It just happens that the suid program wasn't the one who chose what file
+> it was going to write stdout to - the shell did.
+> 
+> Thus, the security violation.
+
+	<shrug> relying on 5% in security-sensitive setup is *dumb*.
+In that case you need properly set quota (better yet, no lusers with write
+access anywhere on that fs)..
+
+	There are worse holes problems 5% rule.  E.g. you can create a
+file with hole, mmap over that hole, dirty the pages and exit.  Guess
+who ends up writing them out?  Right, kswapd.  Which is run as root.
+No suid applications required...
 

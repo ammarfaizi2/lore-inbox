@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261684AbRFNIpD>; Thu, 14 Jun 2001 04:45:03 -0400
+	id <S261577AbRFNIoD>; Thu, 14 Jun 2001 04:44:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261685AbRFNIox>; Thu, 14 Jun 2001 04:44:53 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:518 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S261684AbRFNIom>;
-	Thu, 14 Jun 2001 04:44:42 -0400
-Date: Thu, 14 Jun 2001 10:44:31 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Daniel <ddickman@nyc.rr.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: obsolete code must die
-In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x>
-Message-ID: <Pine.LNX.4.33.0106141035340.27628-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261684AbRFNInx>; Thu, 14 Jun 2001 04:43:53 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:24195 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S261577AbRFNInt>;
+	Thu, 14 Jun 2001 04:43:49 -0400
+Date: Thu, 14 Jun 2001 10:43:50 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Zip: what does that mean?
+Message-ID: <20010614104350.A16562@ulima.unil.ch>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--J/dobhs11T7y2rNN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 13 Jun 2001, Daniel wrote:
+Hello,
 
-> So without further ado here're the features I want to get rid of:
->
-> i386, i486
-> The Pentium processor has been around since 1995. Support for these older
-> processors should go so we can focus on optimizations for the pentium and
-> better processors.
-Please, I have a lot of 486 that I use for many secondary things and a
-386, why I should not be able to run the latest kernel on them?
-In princip, linux have to support all old hardware out there.
->
-> math-emu
-> If support for i386 and i486 is going away, then so should math emulation.
-> Every intel processor since the 486DX has an FPU unit built in. In fact
-> shouldn't FPU support be a userspace responsibility anyway?
-see previuos
->
-> ISA, MCA, EISA device drivers
-> If support for the buses is gone, there's no point in supporting devices for
-> these buses.
-Again, a lot of modern MB comes out with at less one isa slot, and anyway
-isa bus is present also without the slot on all MB since it has to be
-there. how many users are happy
-with their old sound blaster 16 on ISA, or with their old
-isa modem and would never change it? they should never be forced.
->
-> MFM/RLL/XT/ESDI hard drive support
-> Does anyone still *have* an RLL drive that works? At the very least get rid
-> of the old driver (eg CONFIG_BLK_DEV_HD_ONLY, CONFIG_BLK_DEV_HD_IDE,
-> CONFIG_BLK_DEV_XD, CONFIG_BLK_DEV_PS2)
-see previous
->
-> parallel/serial/game ports
-> More controversial to remove this, since they are *still* in pretty wide
-> use -- but USB and IEEE 1394 are the way to go. No ifs ands or buts.
-see previous
->
-> a.out
-> Who needs it anymore. I love ELF.
-and how many are happy to play doom with a.out svgalibs??
->
-my 2 cents
-Luigi
+I have an IDE 250Mb Zip, it work fine, but I can see:
+Jun 11 23:52:35 greg sudo:     greg : TTY=pts/3 ; PWD=/home/greg ;
+USER=root ; COMMAND=/sbin/e2fsck /dev/hdc
+Jun 11 23:52:35 greg kernel: ide-floppy: hdc: I/O error, pc = 5a, key =
+5, asc = 24, ascq =  0
+Jun 11 23:52:37 greg kernel:  hdc: unknown partition table
+Jun 11 23:52:37 greg kernel: hdc: 98304kB, 96/64/32 CHS, 4096 kBps, 512
+sector size, 2941 rpm
+Jun 11 23:52:37 greg kernel: ide-floppy: hdc: I/O error, pc = 5a, key =
+5, asc = 24, ascq =  0
+Jun 11 23:52:37 greg kernel:  hdc: unknown partition table
 
+Could someone explain me what's wrong?
 
+I can access then the disk without the smallest problem.
+
+It's with all my self compiled kernel... (2.4.n and 2.4.n-acm).
+
+Thanks,
+
+	Greg
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+
+--J/dobhs11T7y2rNN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7KHlGFDWhsRXSKa0RArEnAKDRRJicB6QggfMezzrYjUcJ28edpQCfdBzB
+MQ/5taDPs8PWqibXCbv7/3Q=
+=H5rG
+-----END PGP SIGNATURE-----
+
+--J/dobhs11T7y2rNN--

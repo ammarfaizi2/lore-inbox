@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132285AbRCWA07>; Thu, 22 Mar 2001 19:26:59 -0500
+	id <S132290AbRCWAaj>; Thu, 22 Mar 2001 19:30:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132286AbRCWA0k>; Thu, 22 Mar 2001 19:26:40 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58634 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132285AbRCWA03>; Thu, 22 Mar 2001 19:26:29 -0500
-Subject: Re: [PATCH] gcc-3.0 warnings
-To: jamagallon@able.es (J . A . Magallon)
-Date: Fri, 23 Mar 2001 00:28:32 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <20010323011140.A1176@werewolf.able.es> from "J . A . Magallon" at Mar 23, 2001 01:11:41 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132292AbRCWAaa>; Thu, 22 Mar 2001 19:30:30 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:3713 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S132290AbRCWAaT>; Thu, 22 Mar 2001 19:30:19 -0500
+Message-ID: <3ABA986F.3816FB62@uow.edu.au>
+Date: Fri, 23 Mar 2001 00:27:27 +0000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.2-ac19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Mikael Pettersson <mikpe@csd.uu.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <200103230009.BAA22702@harpo.it.uu.se>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14gFRT-0003f4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  	page_cache_release(page);
-> -out:
+Mikael Pettersson wrote:
+> 
+> [+] Speaking as a hacker on a runtime system for a concurrent
+> programming language (Erlang), I consider the current Unix/POSIX/Linux
+> default of having the kernel throw up[*] at the user's current stack
+> pointer to be unbelievably broken. sigaltstack() and SA_ONSTACK should
+> not be options but required behaviour.
+> 
 
-out:;
-
-does that trick
-
-> -	default:
-> +	default:;
-
-Agree - done
-
-> --- linux-2.4.2-ac21/net/ipv4/icmp.c.orig	Thu Mar 22 23:39:22 2001
-> +++ linux-2.4.2-ac21/net/ipv4/icmp.c	Thu Mar 22 23:42:23 2001
-
-Again out:;
-
->  			goto error;
-> -	default:
-> +	default:;
-
-Ok
-
-The aic7xxx change looks right too. Someone with the hardware handy needs to
-check that one though.
-
-As to the asm - I'll apply it to -ac if you can verify the asm after changes
-goes happily through the older gcc/binutils (should do) and send me a nice
-clean diff of just those changes
-
-
-
+Why?  What problem does stack puke cause?

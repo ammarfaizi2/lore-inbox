@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263477AbTHXMP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 08:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbTHXMP3
+	id S263470AbTHXMEF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 08:04:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263477AbTHXMEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 08:15:29 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:64940 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263477AbTHXMPX (ORCPT
+	Sun, 24 Aug 2003 08:04:05 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:35090 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S263470AbTHXMEB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 08:15:23 -0400
-Date: Sun, 24 Aug 2003 14:10:09 +0200
-From: Vojtech Pavlik <vojtech@ucw.cz>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: 2.6.0-test3-bk6: hang at i8042.c when booting with no PS/2 mouse attached
-Message-ID: <20030824121009.GB30316@ucw.cz>
-References: <20030824120605.23981.qmail@linuxmail.org>
+	Sun, 24 Aug 2003 08:04:01 -0400
+Subject: Re: [PATCH 2.6.0-test4][NET] 3c509.c: remove device.name field
+From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: netdev@oss.sgi.com, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030824034735.534b8c68.davem@redhat.com>
+References: <1061644409.1141.18.camel@lima.royalchallenge.com> 
+	<20030824034735.534b8c68.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 24 Aug 2003 17:55:40 +0530
+Message-Id: <1061727940.1288.4.camel@lima.royalchallenge.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030824120605.23981.qmail@linuxmail.org>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 24, 2003 at 01:06:05PM +0100, Felipe Alfaro Solana wrote:
-> ----- Original Message ----- 
-> From: Vojtech Pavlik <vojtech@ucw.cz> 
-> Date: Sun, 24 Aug 2003 12:46:15 +0200 
-> To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> 
-> Subject: Re: 2.6.0-test3-bk6: hang at i8042.c when booting with no PS/2 mouse attached 
->  
-> > On Mon, Aug 18, 2003 at 09:09:16PM +0200, Felipe Alfaro Solana wrote: 
-> >  
-> > > If I try to boot my P4 box (i845DE motherboard) with no PS/2 mouse 
-> > > plugged into the PS/2 port, the kernel hangs while checking the AUX 
-> > > ports in function i8042_check_aux(). The i8042_check_aux() function is 
-> > > trying to request IRQ #12, but the call to request_irq() causes the 
-> > > hang. The kernel hangs exactly at: 
-> > >  
-> > >         if (request_irq(values->irq, i8042_interrupt, SA_SHIRQ, 
-> > >                                 "i8042", i8042_request_irq_cookie)) 
-> >  
-> > What happens if you remove the SA_SHIRQ and replace with 0? 
->  
-> It does nothing: the kernel still hangs there. It seems to be a problem with the new ACPI code 
-> changes cause the kernel boots fine with "pci=noacpi". 
+Hi Dave,
 
-Most likely something with the polarity of interrupts.
+On Sun, 2003-08-24 at 16:17, David S. Miller wrote:
+> On 23 Aug 2003 18:43:29 +0530
+> Vinay K Nallamothu <vinay-rc@naturesoft.net> wrote:
+> 
+> > This patch removes the device name field which is no longer present.
+> 
+> This doesn't look like the right fix.  You can't just
+> delete these lines, you should rather replace them with
+> accesses to whatever the MCA device struct name field is.
+> 
+> 
+Pls find the updated patch (hopefully right this time) below:
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Thanks
+vinay
+
+--- linux-2.6.0-test4/drivers/net/3c509.c	2003-08-23 13:14:30.000000000 +0530
++++ linux-2.6.0-test4-nvk/drivers/net/3c509.c	2003-08-24 17:51:19.000000000 +0530
+@@ -629,8 +629,8 @@
+ 			   el3_mca_adapter_names[mdev->index], slot + 1);
+ 
+ 		/* claim the slot */
+-		strncpy(device->name, el3_mca_adapter_names[mdev->index],
+-				sizeof(device->name));
++		strncpy(mdev->name, el3_mca_adapter_names[mdev->index],
++				sizeof(mdev->name));
+ 		mca_device_set_claim(mdev, 1);
+ 
+ 		if_port = pos4 & 0x03;
+

@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbTKMLmY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 06:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTKMLmY
+	id S264123AbTKMLuo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 06:50:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTKMLuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 06:42:24 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:4226 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263893AbTKMLmV
+	Thu, 13 Nov 2003 06:50:44 -0500
+Received: from stud4.tuwien.ac.at ([193.170.75.21]:13302 "EHLO
+	stud4.tuwien.ac.at") by vger.kernel.org with ESMTP id S264123AbTKMLum convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 06:42:21 -0500
-Message-ID: <3FB36E18.2030105@cyberone.com.au>
-Date: Thu, 13 Nov 2003 22:42:16 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Thu, 13 Nov 2003 06:50:42 -0500
+From: Roland Lezuo <roland.lezuo@chello.at>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.23-rc1: SiS pirq: IDE/ACPI/DAQ mapping not implemented: (97)
+Date: Thu, 13 Nov 2003 12:50:26 +0100
+User-Agent: KMail/1.5.4
+X-MSMail-Priority: High
+Reply-By: Sat, 18 Oct 2004 08:00:00 +0100
+X-message-flag: Outlook says: It is not clever to use me! I'm full of bugs and everyone can hack me!
 MIME-Version: 1.0
-To: Catalin BOIE <util@deuroconsult.ro>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test9 + 2 * P IV Xeon 2.4GHz with HT + SATA + RAID1 = scheduler
- problems
-References: <Pine.LNX.4.58.0311131303500.4183@hosting.rdsbv.ro>
-In-Reply-To: <Pine.LNX.4.58.0311131303500.4183@hosting.rdsbv.ro>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200311131250.42465.roland.lezuo@chello.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Hello,
 
-Catalin BOIE wrote:
+on my Sis 745 Chipset neither psaux nor USB is working as it should. I can 
+only use serial mice on this box.
 
->Hi!
->
->I want to tell you that 2.6.0-test gets better and better. It works very
->very well on several systems. Thank you very much, guys.
->
->I have an server (like in the subject). The problem is that the scheduler
->seems to behave weird. Sometimes a program just do nothing. There is no
->disk activity, interrupts are a little over 1000, no disk requests,
->context switches are ~40. The system is idle but it has work to do!
->Can I provide more info?
->
->I tried to put elevator=deadline and things seems worse.
->
->If I'm not mistaken, the processes are in D state. Bt I'm not sure, I must
->check again and right now I can't.
->
+<from dmesg>
+SiS pirq: IDE/ACPI/DAQ mapping not implemented: (97)
+SiS router unknown request: (97)
+SiS pirq: IDE/ACPI/DAQ mapping not implemented: (97)
+SiS router unknown request: (97)
 
-Hi,
-Please capture a Ctrl + Scroll Lock dump when you get processes stuck in
-D state.
+I though the patch has already been merged?
+If you need any more info about the system please CC me.
 
->
->Also I suspect that scheduler doesn't pay special attention to virtual
->(HT) processors. Is this true?
->
+regards 
+Roland Lezuo
+- -- 
+PGP Key ID: 0xFCC9ED1E
+http://members.chello.at/roland.lezuo/ <- l337 zup4 h4x0r 4nd c0d3r h0meb4se
+root@server:/ >mount -t inetfs /dev/inet /mnt/tmp
+root@server:/ >rm -rf /mnt/tmp
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-This is correct. Are you seeing any problems with HT? I think Linus
-was hoping the NUMA / SMP scheduler could be generalised a bit more
-so that HT would just fall into place. This might not happen before
-2.7, so the shared runqueue approach might be the next best thing
-(I like it).
-
+iD8DBQE/s3AM5qlVDPzJ7R4RAnRKAJ9SvTLYh+BiZtyn1BCPImqrjK8BfwCgtITv
+HHhcTIa+iTWbo3jG8ujZnxQ=
+=TIH+
+-----END PGP SIGNATURE-----
 

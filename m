@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316616AbSFPXvC>; Sun, 16 Jun 2002 19:51:02 -0400
+	id <S316617AbSFPX5P>; Sun, 16 Jun 2002 19:57:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316617AbSFPXvB>; Sun, 16 Jun 2002 19:51:01 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:8190 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316616AbSFPXvA>; Sun, 16 Jun 2002 19:51:00 -0400
-Subject: Re: [PATCH] 2.4-ac: sparc64 support for O(1) scheduler
-From: Robert Love <rml@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "David S. Miller" <davem@redhat.com>, alan@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0206161710240.7461-100000@e2>
-References: <Pine.LNX.4.44.0206161710240.7461-100000@e2>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 16 Jun 2002 16:45:45 -0700
-Message-Id: <1024271149.3090.13.camel@sinai>
-Mime-Version: 1.0
+	id <S316619AbSFPX5O>; Sun, 16 Jun 2002 19:57:14 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:22251 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S316617AbSFPX5O>;
+	Sun, 16 Jun 2002 19:57:14 -0400
+Date: Sun, 16 Jun 2002 19:57:14 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
+In-Reply-To: <UTC200206162205.g5GM5eJ05123.aeb@smtp.cwi.nl>
+Message-ID: <Pine.GSO.4.21.0206161951160.5807-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-06-16 at 08:19, Ingo Molnar wrote:
 
-> Linus applied them already, they will be in 2.5.22. They fix real bugs and
-> i've seen no problems on my testboxes. Those bits are a must for SMP x86
-> and Sparc64 as well, there is absolutely no reason to selectively delay
-> their backmerge. Besides the last task_rq_lock() optimization which got
-> undone in 2.5 already, all the recent scheduler bits i posted are needed.
 
-I know they are fine (I looked over them) and I saw Linus took them, but
-2.5.22 is not yet out and I did not see any reason to rush to new bits
-to Alan for 2.4 when we could wait a bit and make sure 2.5 proves them
-fine...
+On Mon, 17 Jun 2002 Andries.Brouwer@cwi.nl wrote:
 
-My approach thus far with 2.5 -> 2.4 O(1) backports has been one of
-caution and it has worked fine thus far.  I figure, what is the rush?
+> >> The result of Step One is that the loop no longer touches all
+> >> filesystems but lives entirely in namei.c. So, the second patch,
+> >> that only changes namei.c can change the recursion into iteration.
+> >> Maybe tomorrow or the day after.
+> 
+> > Obvious breakage: nd->flags can be clobbered by __vfs_follow_link(),
+> > so your do_follow_link() and friends are broken.
+> 
+> Yes, I know. No doubt you are able to fix that by reading that bit
+> before calling __vfs_follow_link(). It will be repaired fully
+> automatically tomorrow or the day after when __vfs_follow_link()
+> disappears altogether.
+> 
+> But that is the microscopic criticism. I was more interested in
+> hearing comments on the global setup.
 
-	Robert Love
+I don't see global setup here - just a (rather messy) change of API.
+The really interesting question is how you'll handle namei.c code.
+Bringing the call of __vfs_follow_link() into do_follow_link() is
+not interesting in itself - you still have recursion to eliminate and
+that's where the hell will begin.  Change of ->follow_link() prototype
+per se doesn't buy anything and is as you admit kludgy.  If you need
+it for really interesting stuff - please do show that stuff.
 

@@ -1,73 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUIOQNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266748AbUIOQO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266648AbUIOQNb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 12:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUIOQLk
+	id S266748AbUIOQO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 12:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266547AbUIOQOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 12:11:40 -0400
-Received: from [69.28.190.101] ([69.28.190.101]:31635 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S266648AbUIOQKa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 12:10:30 -0400
-Date: Wed, 15 Sep 2004 12:10:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [sata] new libata-dev-2.6 queue created (AHCI, SATA bridges)
-Message-ID: <20040915161026.GA31360@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 15 Sep 2004 12:14:02 -0400
+Received: from lakermmtao01.cox.net ([68.230.240.38]:24056 "EHLO
+	lakermmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S266674AbUIOQLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 12:11:15 -0400
+X-Mailer: Openwave WebEngine, version 2.8.15 (webedge20-101-1103-20040528)
+From: <tuxrocks@cox.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: open source realtek driver for 8180
+Date: Wed, 15 Sep 2004 12:11:15 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Message-Id: <20040915161113.BVQI25194.lakermmtao01.cox.net@smtp.east.cox.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-"libata-dev-2.6" is a new patch queue for SATA features which are under
-development, or need additional testing before being deployed into the
-upstream-bound libata-2.[46] queues.
-
-It currently contains:
-
-1) A workaround for problems on multiple SATA controllers when using
-PATA disks attached via SATA bridges.
-
-2) New driver AHCI.  This should currently be considered a technology
-preview or early beta test.  Simply because it is a young driver on
-complicated hardware, using a new "FIS-based" delivery method (read:
-brand new hotpath), caution is advised.  Do not use in production yet.
-
-
-I have updated my SATA status page to reflect these updates:
-	http://linux.yyz.us/sata/sata-status.html
-
-
-BK users:
-bk pull bk://gkernel.bkbits.net/libata-dev-2.6
-
-Patch (NOTE: relative to 2.6.9-rc2-bk1-libata1.patch):
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.9-rc2-bk1-libata1-dev1.patch.bz2
-
-This will update the following files:
-
- drivers/scsi/Kconfig       |    8 
- drivers/scsi/Makefile      |    1 
- drivers/scsi/ahci.c        |  973 +++++++++++++++++++++++++++++++++++++++++++++
- drivers/scsi/libata-core.c |   37 +
- include/linux/ata.h        |    1 
- include/linux/libata.h     |    1 
- 6 files changed, 1018 insertions(+), 3 deletions(-)
-
-through these ChangeSets:
-
-<jgarzik@pobox.com> (04/09/15 1.1905)
-   [libata] add AHCI driver
-
-<brad@wasp.net.au> (04/09/15 1.1902.1.1)
-   [PATCH] libata basic detection and errata for PATA->SATA bridges
-   
-   This patch works around an issue with WD drives (and possibly others) over SiL PATA->SATA Bridges on SATA controllers locking up with transfers > 200 sectors.
-   
-   Signed-off-by: Brad Campbell <brad@wasp.net.au>
+Hello all.  I posted to the list in July concerning the possible importance of the infamous 8180 chipset specifications in developing an open-source (and more complete) driver.  Jeff Garzik replied that a driver was forthcoming by late August.  I was just curious as to where I should be keeping an eye out for the driver (there are currently two projects at sourceforge developing drivers for this chipset, was Jeff refering to one of these?) and if development was getting close to completion.  Please cc me any replies.
+Thanks for your time, and thanks to all of the developers!
+--Wayne
 

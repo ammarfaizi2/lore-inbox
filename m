@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265816AbSLIRCc>; Mon, 9 Dec 2002 12:02:32 -0500
+	id <S265854AbSLIQ5l>; Mon, 9 Dec 2002 11:57:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265819AbSLIRCc>; Mon, 9 Dec 2002 12:02:32 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:17057 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265816AbSLIRCb> convert rfc822-to-8bit; Mon, 9 Dec 2002 12:02:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: build failure in 2.4.20
-Date: Mon, 9 Dec 2002 18:09:57 +0100
-User-Agent: KMail/1.4.3
-References: <15860.46389.654483.692231@ronispc.chem.mcgill.ca>
-In-Reply-To: <15860.46389.654483.692231@ronispc.chem.mcgill.ca>
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: ronis@onsager.chem.mcgill.ca, David Ronis <ronis@ronispc.chem.mcgill.ca>
+	id <S265865AbSLIQ5l>; Mon, 9 Dec 2002 11:57:41 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27913 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265854AbSLIQ5k>; Mon, 9 Dec 2002 11:57:40 -0500
+Date: Mon, 9 Dec 2002 09:00:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Richard Henderson <rth@twiddle.net>, Patrick Mochel <mochel@osdl.org>,
+       Willy Tarreau <willy@w.ods.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <jgarzik@pobox.com>
+Subject: Re: /proc/pci deprecation?
+In-Reply-To: <1039443067.10475.19.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0212090854510.3397-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212091809.57622.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 December 2002 16:22, David Ronis wrote:
 
-Hi David,
 
-> drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in
-> discarded section .text.exit' make: *** [vmlinux] Error 1
-> It sounds like this is a problem with ld or as, but I'm not sure.  Any
-> suggestions?
-$editor arch/i386/vmlinux.lds
+On 9 Dec 2002, Alan Cox wrote:
+>
+> I wonder if this is why we have all these problems with VIA chipset
+> interrupt handling. According to VIA docs they _do_ use
+> PCI_INTERRUPT_LINE on integrated devices to select the IRQ routing
+> between APIC and PCI/ISA etc, as well as 0 meaning "IRQ disabled"
 
-you'll see starting at line 67 this:
+Whee.. That sounds like a load of crock in the first place, since the
+PCI_INTERRUPT_LINE thing should be just a scratch register as far as I
+know. However, it doesn't really matter - we definitely should never write
+to it anyway, so the VIA behaviour while strange should still be
+acceptable.
 
-  /* Sections to be discarded */
-  /DISCARD/ : {
-        *(.text.exit)
-        *(.data.exit)
-        *(.exitcall.exit)
-        }
+Anyway, to get back on the original discussion, I think we should remove
+the writing, and then make sure that /sbin/lspci (or some other tool) can
+be made to easily show either the kernel irq mapping value _or_ the
+"original PCI config space" value. At that point I'd agree that /proc/pci
+has outlived its usefulness.
 
-remove this:
+(Although I still think the name database is nice to have - I certainly
+prefer it over having a lot of drivers having their _own_ name databases
+for printout purposes).
 
-        *(.text.exit)
+		Linus
 
-try again.
-
-ciao, Marc

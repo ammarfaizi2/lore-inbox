@@ -1,188 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265947AbTAFEZA>; Sun, 5 Jan 2003 23:25:00 -0500
+	id <S265791AbTAFEWr>; Sun, 5 Jan 2003 23:22:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265982AbTAFEZA>; Sun, 5 Jan 2003 23:25:00 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:58862 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S265947AbTAFEY5>; Sun, 5 Jan 2003 23:24:57 -0500
-Date: Sun, 5 Jan 2003 21:33:03 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Andrew Morton <akpm@zip.com.au>,
-       "Rusty's Trivial Patches" <trivial@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5 ext3 ino_t removal
-Message-ID: <20030105213303.B31555@schatzie.adilger.int>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	Rusty's Trivial Patches <trivial@rustcorp.com.au>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S265898AbTAFEWr>; Sun, 5 Jan 2003 23:22:47 -0500
+Received: from yossman.net ([209.162.234.20]:21253 "EHLO yossman.net")
+	by vger.kernel.org with ESMTP id <S265791AbTAFEWq>;
+	Sun, 5 Jan 2003 23:22:46 -0500
+Message-ID: <3E19068E.5080607@yossman.net>
+Date: Sun, 05 Jan 2003 23:31:10 -0500
+From: Brian Davids <dlister@yossman.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew McGregor <andrew@indranet.co.nz>
+CC: linux-kernel@vger.kernel.org
+Subject: Patches for nVidia drivers + 2.5.54 (Was Re: Honest does not pay
+ here ...)
+References: <Pine.LNX.4.10.10301051223130.421-100000@master.linux-ide.org>	 <1041805731.1052.4.camel@aurora.localdomain>	 <2209530000.1041811301@localhost.localdomain> <1041812124.1052.10.camel@aurora.localdomain> <1790000.1041822871@localhost.localdomain>
+In-Reply-To: <1790000.1041822871@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against 2.5.53 removes my erronous use of ino_t in a
-couple of places in the ext3 code.  This has been replaced with unsigned
-long (the same as is used for inode->i_ino).  This patch matches the fix
-submitted to 2.4 for fixing 64-bit compiler warnings, and also replaces a
-couple of %ld with %lu to forestall output wierdness with filesystems with
-a few billion inodes.
+Andrew McGregor wrote:
 
-Cheers, Andreas
-======================= ext3-2.4-ino_t.diff ===============================
---- linux/fs/ext3/ialloc.c.orig	Sat Oct 19 11:42:23 2002
-+++ linux/fs/ext3/ialloc.c	Sat Jan  4 12:14:18 2003
-@@ -64,8 +64,8 @@ static int read_inode_bitmap (struct sup
- 	if (!bh) {
- 		ext3_error (sb, "read_inode_bitmap",
- 			    "Cannot read inode bitmap - "
--			    "block_group = %lu, inode_bitmap = %lu",
--			    block_group, (unsigned long) gdp->bg_inode_bitmap);
-+			    "block_group = %lu, inode_bitmap = %u",
-+			    block_group, gdp->bg_inode_bitmap);
- 		retval = -EIO;
- 	}
- 	/*
-@@ -531,19 +532,19 @@ out:
- }
- 
- /* Verify that we are loading a valid orphan from disk */
--struct inode *ext3_orphan_get (struct super_block * sb, ino_t ino)
-+struct inode *ext3_orphan_get(struct super_block *sb, unsigned long ino)
- {
--	ino_t max_ino = le32_to_cpu(EXT3_SB(sb)->s_es->s_inodes_count);
-+	unsigned long max_ino = le32_to_cpu(EXT3_SB(sb)->s_es->s_inodes_count);
- 	unsigned long block_group;
- 	int bit;
- 	int bitmap_nr;
- 	struct buffer_head *bh;
- 	struct inode *inode = NULL;
--	
-+
- 	/* Error cases - e2fsck has already cleaned up for us */
- 	if (ino > max_ino) {
- 		ext3_warning(sb, __FUNCTION__,
--			     "bad orphan ino %ld!  e2fsck was run?\n", ino);
-+			     "bad orphan ino %lu!  e2fsck was run?\n", ino);
- 		return NULL;
- 	}
- 
-@@ -552,7 +553,7 @@ struct inode *ext3_orphan_get (struct su
- 	if ((bitmap_nr = load_inode_bitmap(sb, block_group)) < 0 ||
- 	    !(bh = EXT3_SB(sb)->s_inode_bitmap[bitmap_nr])) {
- 		ext3_warning(sb, __FUNCTION__,
--			     "inode bitmap error for orphan %ld\n", ino);
-+			     "inode bitmap error for orphan %lu\n", ino);
- 		return NULL;
- 	}
- 
-@@ -563,7 +564,7 @@ struct inode *ext3_orphan_get (struct su
- 	if (!ext3_test_bit(bit, bh->b_data) || !(inode = iget(sb, ino)) ||
- 	    is_bad_inode(inode) || NEXT_ORPHAN(inode) > max_ino) {
- 		ext3_warning(sb, __FUNCTION__,
--			     "bad orphan inode %ld!  e2fsck was run?\n", ino);
-+			     "bad orphan inode %lu!  e2fsck was run?\n", ino);
- 		printk(KERN_NOTICE "ext3_test_bit(bit=%d, block=%ld) = %d\n",
- 		       bit, bh->b_blocknr, ext3_test_bit(bit, bh->b_data));
- 		printk(KERN_NOTICE "inode=%p\n", inode);
-@@ -570,9 +571,9 @@ struct inode *ext3_orphan_get (struct su
- 		if (inode) {
- 			printk(KERN_NOTICE "is_bad_inode(inode)=%d\n",
- 			       is_bad_inode(inode));
--			printk(KERN_NOTICE "NEXT_ORPHAN(inode)=%d\n",
-+			printk(KERN_NOTICE "NEXT_ORPHAN(inode)=%u\n",
- 			       NEXT_ORPHAN(inode));
--			printk(KERN_NOTICE "max_ino=%ld\n", max_ino);
-+			printk(KERN_NOTICE "max_ino=%lu\n", max_ino);
- 		}
- 		/* Avoid freeing blocks if we got a bad deleted inode */
- 		if (inode && inode->i_nlink == 0)
---- linux/fs/ext3/namei.c.orig	Sat Oct 19 11:42:45 2002
-+++ linux/fs/ext3/namei.c	Sat Jan  4 12:13:27 2003
-@@ -716,10 +716,10 @@ int ext3_orphan_del(handle_t *handle, st
- {
- 	struct list_head *prev;
- 	struct ext3_sb_info *sbi;
--	ino_t ino_next; 
-+	unsigned long ino_next;
- 	struct ext3_iloc iloc;
- 	int err = 0;
--	
-+
- 	lock_super(inode->i_sb);
- 	if (list_empty(&inode->u.ext3_i.i_orphan)) {
- 		unlock_super(inode->i_sb);
-@@ -730,7 +730,7 @@ int ext3_orphan_del(handle_t *handle, st
- 	prev = inode->u.ext3_i.i_orphan.prev;
- 	sbi = EXT3_SB(inode->i_sb);
- 
--	jbd_debug(4, "remove inode %ld from orphan list\n", inode->i_ino);
-+	jbd_debug(4, "remove inode %lu from orphan list\n", inode->i_ino);
- 
- 	list_del(&inode->u.ext3_i.i_orphan);
- 	INIT_LIST_HEAD(&inode->u.ext3_i.i_orphan);
-@@ -741,13 +741,13 @@ int ext3_orphan_del(handle_t *handle, st
- 	 * list in memory. */
- 	if (!handle)
- 		goto out;
--	
-+
- 	err = ext3_reserve_inode_write(handle, inode, &iloc);
- 	if (err)
- 		goto out_err;
- 
- 	if (prev == &sbi->s_orphan) {
--		jbd_debug(4, "superblock will point to %ld\n", ino_next);
-+		jbd_debug(4, "superblock will point to %lu\n", ino_next);
- 		BUFFER_TRACE(sbi->s_sbh, "get_write_access");
- 		err = ext3_journal_get_write_access(handle, sbi->s_sbh);
- 		if (err)
-@@ -758,8 +758,8 @@ int ext3_orphan_del(handle_t *handle, st
- 		struct ext3_iloc iloc2;
- 		struct inode *i_prev =
- 			list_entry(prev, struct inode, u.ext3_i.i_orphan);
--		
--		jbd_debug(4, "orphan inode %ld will point to %ld\n",
-+
-+		jbd_debug(4, "orphan inode %lu will point to %lu\n",
- 			  i_prev->i_ino, ino_next);
- 		err = ext3_reserve_inode_write(handle, i_prev, &iloc2);
- 		if (err)
-@@ -774,7 +774,7 @@ int ext3_orphan_del(handle_t *handle, st
- 	if (err)
- 		goto out_brelse;
- 
--out_err: 	
-+out_err:
- 	ext3_std_error(inode->i_sb, err);
- out:
- 	unlock_super(inode->i_sb);
---- linux/include/linux/ext3_fs.h.orig	Thu Jan  2 16:10:24 2003
-+++ linux/include/linux/ext3_fs.h	Sat Jan  4 12:25:41 2003
-@@ -622,7 +622,7 @@ extern int ext3_sync_file (struct file *
- /* ialloc.c */
- extern struct inode * ext3_new_inode (handle_t *, const struct inode *, int);
- extern void ext3_free_inode (handle_t *, struct inode *);
--extern struct inode * ext3_orphan_get (struct super_block *, ino_t);
-+extern struct inode * ext3_orphan_get (struct super_block *, unsigned long);
- extern unsigned long ext3_count_free_inodes (struct super_block *);
- extern void ext3_check_inodes_bitmap (struct super_block *);
- extern unsigned long ext3_count_free (struct buffer_head *, unsigned);
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> Well, there are people working on it.  I seem to be one of the few 
+> people for whom a 2.5.x + nvidia kernel really scratches an itch.  (for 
+> me, it's my laptop + kernel IPSEC)
+> 
+> There are patches at www.minion.de that make things stable up to 2.5.53. 
+> .54 broke it again, but that will be fixed shortly
+
+It was fixed with an update on www.minion.de on January 3.  I've been 
+running 2.5.54 w/ the nVidia drivers since then... ;)
 
 
------ End forwarded message -----
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Brian Davids
 

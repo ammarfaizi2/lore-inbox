@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129426AbQLACgM>; Thu, 30 Nov 2000 21:36:12 -0500
+	id <S129664AbQLACvZ>; Thu, 30 Nov 2000 21:51:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbQLACgC>; Thu, 30 Nov 2000 21:36:02 -0500
-Received: from trgras.timpanogas.org ([207.109.151.236]:4 "EHLO
-	trgras.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129426AbQLACfo>; Thu, 30 Nov 2000 21:35:44 -0500
-Date: Thu, 30 Nov 2000 18:59:26 -0700
-From: root <root@trgras.timpanogas.org>
-To: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Oops in 2.2.18 with pppd dial in server
-Message-ID: <20001130185926.A884@trgras.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="RnlQjJ0d97Da+TV1"
-X-Mailer: Mutt 1.0.1i
+	id <S129345AbQLACvP>; Thu, 30 Nov 2000 21:51:15 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:28685 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129514AbQLACvC>; Thu, 30 Nov 2000 21:51:02 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Florian Heinz <sky@dereference.de>
+Date: Fri, 1 Dec 2000 13:11:45 +1100 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14887.2273.174231.960990@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: Some problems with the raid-stuff in 2.4.0-test12pre3
+In-Reply-To: message from Florian Heinz on Thursday November 30
+In-Reply-To: <20001130123322.A672@inode.real-linux.de>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday November 30, sky@dereference.de wrote:
+> Hello people,
+> 
+> I have some trouble with the raid-stuff.
+> My machine is a Pentium-III, 256 MB ram and 7 scsi-disks (IBM DNES-318350W
+> 17B). I'm using raid5 for 6 of these disks (chunk-size 8).
+> Machine boots, I do mkraid /dev/md0 and then mke2fs /dev/md0 and that's
+> where the problems start. mkfs tries to write 684 inode-tables and after the
+> first 30 it gets very slow. ps ax (with wchan) tells me it hangs in
+> wakeup_bdflush.
+> I'm rather sure it's related to the raidcode, because without raid the disks
+> work as expected.
+> I'm using an Adaptec 7892A with the aic7xxx-driver, I have disabled the TCQ
+> and the extra checks for the new queueing code, but I have tried with both
+> activated, too.
+> No related messages from the kernel in the syslog.
+> It worked fine with 2.2.x.
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
+Is it just "very slow", but it eventually finishes, it is it so slow,
+that it actually stops and doesn't make any progress at all?
 
+raid5 in 2.4 is definately slower than in 2.2.  Could that be all that
+you are seeing?
 
-Alan,
-
-I was able to reproduce this oops with a somewhat more reliable ksymoops (I was ready for this nasty bug this time).  Looks like the problem is in the sockets
-code.
-
-See attached.
-
-Jeff
-
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="oops.txt"
-
-ksymoops 0.7c on i686 2.2.18pre21.  Options used
-EIP:  0010: [<c013365d>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-Call Trace: [<c014c43d>] [<c014cb15>] [<c012d79a>] [<c012dda8>] [<c014cb82>] [<c014d7cb>] [<c010a038>]
-Warning (Oops_read): Code line not seen, dumping what data is available
-
->>EIP; c013365d <get_empty_inode+15/98>   <=====
-Trace; c014c43d <get_fd+91/9c>
-Trace; c014cb15 <sock_create+85/d8>
-Trace; c012d79a <permission+1a/2c>
-Trace; c012dda8 <open_namei+1dc/34c>
-Trace; c014cb82 <sys_socket+1a/7c>
-Trace; c014d7cb <sys_socketcall+5f/1a8>
-Trace; c010a038 <system_call+34/38>
-
-
-
---RnlQjJ0d97Da+TV1--
+NeilBrown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVCBJ2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVCBJcB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262238AbVCBJ2n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 04:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbVCBJ1Z
+	id S262241AbVCBJcB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 04:32:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbVCBJcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 04:27:25 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:9380 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S262238AbVCBJ0p (ORCPT
+	Wed, 2 Mar 2005 04:32:01 -0500
+Received: from mailfe06.swip.net ([212.247.154.161]:676 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262241AbVCBJba (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 04:26:45 -0500
-Message-ID: <422586D1.5000609@trash.net>
-Date: Wed, 02 Mar 2005 10:26:41 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050106 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mukesh agrawal <mukesh@cs.cmu.edu>
-CC: coreteam@netfilter.org, netfilter-devel@lists.netfilter.org,
-       trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [netfilter-core] [PATCH 2.6.10 1/1] netfilter: fix crash on	nat+icmp
- packets
-References: <Pine.LNX.4.61.0503011830590.31296@slash.mukesh.agrawals.org>
-In-Reply-To: <Pine.LNX.4.61.0503011830590.31296@slash.mukesh.agrawals.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 2 Mar 2005 04:31:30 -0500
+X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
+Subject: Re: Tracing memory leaks (slabs) in 2.6.9+ kernels?
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Justin Schoeman <justin@expertron.co.za>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4225768B.3010005@expertron.co.za>
+References: <4225768B.3010005@expertron.co.za>
+Content-Type: text/plain
+Date: Wed, 02 Mar 2005 10:31:27 +0100
+Message-Id: <1109755887.2279.1.camel@boxen>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mukesh agrawal wrote:
-
-> The cause of the crash is that udp_manip_pkt reads *pskb into iph before 
-> calling skb_ip_make_writable, and fails to update iph after the call. 
-> Since skb_ip_make_writable may delete the original skb when it makes a 
-> copy, a page fault may occur when udp_manip_pkt later dereferences iph.
-
-This bug has already been fixed in 2.6.11-rc.
-
-Regards
-Patrick
-
+> I am having a problem with memory leaking on a patched kernel.  In order 
+> to pinpoint the leak, I would like to try to trace the allocation points 
+> for the memory.
 > 
-> diff -uprN linux-2.6.10.orig/net/ipv4/netfilter/ip_nat_proto_udp.c 
-> linux-2.6.10.fixed/net/ipv4/netfilter/ip_nat_proto_udp.c
-> --- linux-2.6.10.orig/net/ipv4/netfilter/ip_nat_proto_udp.c    
-> 2004-12-24 16:34:01.000000000 -0500
-> +++ linux-2.6.10.fixed/net/ipv4/netfilter/ip_nat_proto_udp.c    
-> 2005-03-01 19:32:21.000000000 -0500
-> @@ -95,6 +95,9 @@ udp_manip_pkt(struct sk_buff **pskb,
+> I have found some vague references to patches that allow the user to 
+> dump the caller address for slab allocations, but I cannot find the 
+> patch itself.
 > 
->      if (!skb_ip_make_writable(pskb, hdroff + sizeof(hdr)))
->          return 0;
-> +    /* skb_ip_make_writable may have copied the skb, and deleted
-> +       the original */
-> +    iph = (struct iphdr *)((*pskb)->data + iphdroff);
+> Can anybody please point me in the right direction - either for that 
+> patch, or any other way to track down leaking slabs?
 > 
->      hdr = (void *)(*pskb)->data + hdroff;
->      if (maniptype == IP_NAT_MANIP_SRC) {
-> 
+
+>From akpm:
+
+Could you please use this patch?  Make sure that you enable
+CONFIG_FRAME_POINTER (might not be needed for __builtin_return_address(0),
+but let's be sure).  Also enable CONFIG_DEBUG_SLAB.
+
+
+
+From: Manfred Spraul <manfred@colorfullife.com>
+
+With the patch applied,
+
+	echo "size-4096 0 0 0" > /proc/slabinfo
+
+walks the objects in the size-4096 slab, printing out the calling address
+of whoever allocated that object.
+
+It is for leak detection.
+
+
+diff -puN mm/slab.c~slab-leak-detector mm/slab.c
+--- 25/mm/slab.c~slab-leak-detector	2005-02-15 21:06:44.000000000 -0800
++++ 25-akpm/mm/slab.c	2005-02-15 21:06:44.000000000 -0800
+@@ -2116,6 +2116,15 @@ cache_alloc_debugcheck_after(kmem_cache_
+ 		*dbg_redzone1(cachep, objp) = RED_ACTIVE;
+ 		*dbg_redzone2(cachep, objp) = RED_ACTIVE;
+ 	}
++	{
++		int objnr;
++		struct slab *slabp;
++
++		slabp = GET_PAGE_SLAB(virt_to_page(objp));
++
++		objnr = (objp - slabp->s_mem) / cachep->objsize;
++		slab_bufctl(slabp)[objnr] = (unsigned long)caller;
++	}
+ 	objp += obj_dbghead(cachep);
+ 	if (cachep->ctor && cachep->flags & SLAB_POISON) {
+ 		unsigned long	ctor_flags = SLAB_CTOR_CONSTRUCTOR;
+@@ -2179,12 +2188,14 @@ static void free_block(kmem_cache_t *cac
+ 		objnr = (objp - slabp->s_mem) / cachep->objsize;
+ 		check_slabp(cachep, slabp);
+ #if DEBUG
++#if 0
+ 		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
+ 			printk(KERN_ERR "slab: double free detected in cache '%s', objp %p.\n",
+ 						cachep->name, objp);
+ 			BUG();
+ 		}
+ #endif
++#endif
+ 		slab_bufctl(slabp)[objnr] = slabp->free;
+ 		slabp->free = objnr;
+ 		STATS_DEC_ACTIVE(cachep);
+@@ -2998,6 +3009,29 @@ struct seq_operations slabinfo_op = {
+ 	.show	= s_show,
+ };
+ 
++static void do_dump_slabp(kmem_cache_t *cachep)
++{
++#if DEBUG
++	struct list_head *q;
++
++	check_irq_on();
++	spin_lock_irq(&cachep->spinlock);
++	list_for_each(q,&cachep->lists.slabs_full) {
++		struct slab *slabp;
++		int i;
++		slabp = list_entry(q, struct slab, list);
++		for (i = 0; i < cachep->num; i++) {
++			unsigned long sym = slab_bufctl(slabp)[i];
++
++			printk("obj %p/%d: %p", slabp, i, (void *)sym);
++			print_symbol(" <%s>", sym);
++			printk("\n");
++		}
++	}
++	spin_unlock_irq(&cachep->spinlock);
++#endif
++}
++
+ #define MAX_SLABINFO_WRITE 128
+ /**
+  * slabinfo_write - Tuning for the slab allocator
+@@ -3038,9 +3072,11 @@ ssize_t slabinfo_write(struct file *file
+ 			    batchcount < 1 ||
+ 			    batchcount > limit ||
+ 			    shared < 0) {
+-				res = -EINVAL;
++				do_dump_slabp(cachep);
++				res = 0;
+ 			} else {
+-				res = do_tune_cpucache(cachep, limit, batchcount, shared);
++				res = do_tune_cpucache(cachep, limit,
++							batchcount, shared);
+ 			}
+ 			break;
+ 		}
+_
+
+
 

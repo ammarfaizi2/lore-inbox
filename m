@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263607AbTLTO5R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 09:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTLTO5R
+	id S263692AbTLTPKx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 10:10:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTLTPKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 09:57:17 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:52203 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263607AbTLTO5O
+	Sat, 20 Dec 2003 10:10:53 -0500
+Received: from smtp14.eresmas.com ([62.81.235.114]:18589 "EHLO
+	smtp14.eresmas.com") by vger.kernel.org with ESMTP id S263692AbTLTPKw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 09:57:14 -0500
-Message-ID: <3FE46345.1040102@cyberone.com.au>
-Date: Sun, 21 Dec 2003 01:57:09 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Sat, 20 Dec 2003 10:10:52 -0500
+Message-ID: <3FE4666D.4070307@wanadoo.es>
+Date: Sat, 20 Dec 2003 16:10:37 +0100
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: John Hawkes <hawkes@babylon.engr.sgi.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, johnstul@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] 2.6.0-test11 sched_clock() broken for "drifty ITC"
-References: <200312182044.hBIKiCLY5477429@babylon.engr.sgi.com> <20031220105031.GA17848@elte.hu>
-In-Reply-To: <20031220105031.GA17848@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel <linux-kernel@vger.kernel.org>, jvp@lateapex.net
+Subject: Re: Adaptec DPT_I2O Driver
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jason Van Patten wrote:
 
+> Can I assume that because no one's replied to my question regarding this
+> broken driver, that no one's currently working on it?
 
-Ingo Molnar wrote:
+SCSI questions to linux-scsi <linux-scsi@vger.kernel.org>
 
->
->So i believe the generic relaxing of sched_clock() synchronization is
->the right thing to do. I like your patch. It adds minimal overhead and
->solves a hard problem - nice work! Andrew, please apply it.
->
->
-
-Its a great looking patch if you must have high res sched_clock. So
-I guess I agree with it.
-
-Can we have a scheduler day when Andrew is ready to take patches for
-it? I have a few small changes that I'd like to get merged soon too
-(not sched domains - that should probably go to the mm tree for a while)
-
-Relevant patches are
-sched-ctx-count-preempt.patch
-sched-fork-cleanup.patch
-sched-migrate-comment.patch
-sched-style.patch
-sched-migrate-affinity-race.patch
-
-
+Mark Salyzyn <Mark_Salyzyn@adaptec.com> is your man.
 

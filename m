@@ -1,70 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbUKRAkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbUKRAki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262717AbUKRAkj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 19:40:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbUKQXy5
+	id S262623AbUKRAki (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 19:40:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbUKRAeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 18:54:57 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:54179 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262669AbUKQXnz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 18:43:55 -0500
-To: linux-kernel@vger.kernel.org
-cc: Ian.Pratt@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Steven.Hand@cl.cam.ac.uk
-Subject: Xen 2.0 VMM patches
-Date: Wed, 17 Nov 2004 23:43:53 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CUZSs-000502-00@mta1.cl.cam.ac.uk>
+	Wed, 17 Nov 2004 19:34:16 -0500
+Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:42500 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S262607AbUKRA2d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 19:28:33 -0500
+Message-ID: <419BECB0.70801@tebibyte.org>
+Date: Thu, 18 Nov 2004 01:28:32 +0100
+From: Chris Ross <chris@tebibyte.org>
+Organization: At home (Eindhoven, The Netherlands)
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: pt-br, pt
+MIME-Version: 1.0
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrea Arcangeli <andrea@novell.com>,
+       Jesse Barnes <jbarnes@sgi.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable
+ braindamage
+References: <20041105200118.GA20321@logos.cnet> <200411051532.51150.jbarnes@sgi.com> <20041106012018.GT8229@dualathlon.random> <1099706150.2810.147.camel@thomas> <20041117195417.A3289@almesberger.net> <419BDE53.1030003@tebibyte.org> <20041117210410.R28844@almesberger.net>
+In-Reply-To: <20041117210410.R28844@almesberger.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The Xen team would like to start submitting upstream the patches
-required to enable Linux to run over the Xen 2.0 Virtual Machine
-Monitor. For more information about Xen see: http://xen.sf.net
+Werner Almesberger escreveu:
+> Chris Ross wrote:
+> The underlying hypothesis for suggesting explicitly flagging
+> candidates for killing is of course that it doesn't see who
+> exactly is misbehaving :-) Since this issue has been around for
+> a nummber of years, I think it's fair to assume that the OOM
+> killers indeed have a problem in that area.
 
-There are three main classes of patch required:
-  core        : small patches that provide extra hooks for arch-xen
-  arch-xen    : large patch to add arch/xen and include/asm-xen 
-  xen-drivers : patch to add virtual block, network and console drivers
+That's my point ii) below, which is what Thomas's patch is trying to 
+address. I doubt you'd find much disagreement that this area still needs 
+work :)
 
-We're proposing to submit the 'core' patches first, as these
-probably require closest inspection (the others are all new
-files in new directories, so can't break existing architectures).
+>>The example I have in mind is on my machine when the daily cron 
+>>run over commits causing standard daemons such as ntpd to be killed to 
+>>make room. It would be preferable if the daemon was swapped out and just 
+>>didn't run for minutes, or even hours if need be, but was allowed to run 
+>>again once the system had settled down.
+> 
+> Ah, now I understand why you'd want to swap. Interesting. Now,
+> depending on the time if day, you have typically "interactive"
+> processes, like your idle desktop, turn into "non-interactive"
+> ones, which can then be subjected to swapping. Nice example
+> against static classification :-)
 
-There is already a significant user base and lively developer
-community backing the Xen project, so we're confident we will
-have the resources to maintain arch-xen on Linux 2.6 going
-forward (as well as Linux 2.4/NetBSD/FreeBSD/etc).
+A better example than the ntpd daemon (which mightn't take kindly to 
+finding minutes just passed in a blink of its eye) is Thomas's example 
+with the sshd. If the daemon was swapped out you wouldn't be able to log 
+into the box while it was thrashing, but in practice you can't really 
+anyway. At least once the system had recovered sufficiently you could 
+get back in, under the present system you can never log in again.
 
-Let us know what you think of the patches ;-)
+>>So, the problem breaks down into three parts:
+>>
+>>	  i) When should the oom killer be invoked.
+>>	 ii) How do we pick a victim process
+>>	iii) How can we deal with the process in the most useful manner
+> 
+> iii) may also affect i). If you're going to swap, you don't want
+> to wait until you're fighting for the last available page in the
+> system.
 
-Cheers,
-Ian, Keir, Christian, Steve
+Well yes, in typical fashion everything depends on everything else. That 
+in a nutshell is also my argument against the kill-me flag.
 
-
-Original Xen 2.0 release annoucement:
-
-The Xen team are pleased to announce the release of Xen 2.0, the
-open-source Virtual Machine Monitor.  Xen enables you to run
-multiple operating systems images concurrently on the same
-hardware, securely partitioning the resources of the machine
-between them. Xen uses a technique called 'para-virtualization'
-to achieve very low performance overhead -- typically just a few
-percent relative to native.  This new release provides kernel
-support for Linux 2.4.27/2.6.9, NetBSD and FreeBSD.
-
-Xen 2.0 runs on almost the entire set of modern x86 hardware
-supported by Linux, and is easy to 'drop-in' to an existing Linux
-installation.  The new release has a lot more flexibility in how
-guest OS virtual I/O devices are configured. For example, you can
-configure arbitrary firewalling, bridging and routing of guest
-virtual network interfaces, and use copy-on-write LVM volumes or
-loopback files for storing guest OS disk images.  Another new
-feature is 'live migration', which allows running OS images to be
-moved between nodes in a cluster without having to stop
-them. Visit http://xen.sf.net for downloads and documentation.
-
-
-
+Regards,
+Chris R.

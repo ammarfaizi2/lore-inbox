@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278163AbRKSO3C>; Mon, 19 Nov 2001 09:29:02 -0500
+	id <S276312AbRKSO1m>; Mon, 19 Nov 2001 09:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278381AbRKSO2y>; Mon, 19 Nov 2001 09:28:54 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:21252 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S278163AbRKSO2i>; Mon, 19 Nov 2001 09:28:38 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+	id <S278163AbRKSO1c>; Mon, 19 Nov 2001 09:27:32 -0500
+Received: from jakorasia.nic.fi ([212.38.224.80]:57804 "EHLO jakorasia.nic.fi")
+	by vger.kernel.org with ESMTP id <S276312AbRKSO1U>;
+	Mon, 19 Nov 2001 09:27:20 -0500
+Message-Id: <200111191427.QAA11984@jakorasia.nic.fi>
+Content-Type: text/plain; charset=US-ASCII
+From: jarmo kettunen <oh1mrr@nic.fi>
 To: linux-kernel@vger.kernel.org
-Subject: Mount opts: make umask and friends valid for any fs
-Date: Mon, 19 Nov 2001 16:28:23 +0000
-X-Mailer: KMail [version 1.2]
+Subject: Module 6pack
+Date: Mon, 19 Nov 2001 16:27:24 +0200
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Message-Id: <01111916282302.00817@nemo>
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently some fs support umask=NNN mount opt to indicate which mode bits to 
-clear for all files/dirs (mostly those which don't have support for mode: 
-vfat etc). Some also have fmask/dmask (smbfs).
+Hi
 
-Would it be useful to make those a generic mount opts applicable to any fs:
-u[f]mask=NNN: bits to clear for files and dirs
-udmask=NNN: bits to clear for dirs (overrides umask)
-[f]mask=NNN: bits to set for files and dirs
-dmask=NNN: bits to set for dirs (overrides fmask)
+I don't know if this have been cleared before,anyway can't find any help.
+In module 6pack is something weird...when I try close computer or reboot
+it,I get just at the end of closing process message:
+unregister_detdevice:waiting for sp0 to become free.Usage count=1654.
+Number is growing what longer I'm using Hamradio stuff and computer stops 
+there continuing sending that message.
+I remember this message started at the end of 2.3.x series kernels,so I 
+figured that something was done in kernel,module it self have been same???
 
-Note: this mess with file/dir separation is due to historical
-'x bit for dirs' (mis)feature
---
-vda
+I have posted this "bug" to author,but response was,that it takes long time
+to check it out because of free time.
+
+So question is purposed to ham-oriented coders,who might have some spare time
+to look into code /linux/drivers/net/hamradio/6pack.c.Unfotunately I have NO 
+skills with code.
+
+I need to upgrade kernel into one comp,which I admin remote and now,if I have
+remotely boot computer it hangs there,waiting for sp0 to become free...Needs 
+to push button and that is remotely quite job..Distance cap 15km.
+
+We have at the moment in use kernel 2.2.17 and there 6pack works...Module
+version is 0.4.2...Here 2.4.15-pre5 it is 0.3.0?And NO...0.4.2 does not work
+with this kernel.
+
+So anybody intrested????
+
+Jarmo

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318736AbSHWIxv>; Fri, 23 Aug 2002 04:53:51 -0400
+	id <S318731AbSHWIwB>; Fri, 23 Aug 2002 04:52:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318738AbSHWIxv>; Fri, 23 Aug 2002 04:53:51 -0400
-Received: from gate.perex.cz ([194.212.165.105]:61446 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S318736AbSHWIxu>;
-	Fri, 23 Aug 2002 04:53:50 -0400
-Date: Fri, 23 Aug 2002 10:57:15 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ALSA 0.9.0rc3
-In-Reply-To: <20020822183156.A24470@infradead.org>
-Message-ID: <Pine.LNX.4.33.0208231054410.521-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318733AbSHWIwB>; Fri, 23 Aug 2002 04:52:01 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:10742 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318731AbSHWIwA>; Fri, 23 Aug 2002 04:52:00 -0400
+Subject: Re: SMP Netfinity 340 hangs under 2.4.19
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Maurice Volaski <mvolaski@aecom.yu.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <a05111609b98ba20903b0@[129.98.90.227]>
+References: <a05111608b98b96373cce@[129.98.90.227]>
+	<1030090864.5932.5.camel@irongate.swansea.linux.org.uk> 
+	<a05111609b98ba20903b0@[129.98.90.227]>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 23 Aug 2002 09:57:29 +0100
+Message-Id: <1030093049.5911.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Aug 2002, Christoph Hellwig wrote:
+On Fri, 2002-08-23 at 09:47, Maurice Volaski wrote:
+> I haven't tried plain 2.4.19 yet. Should I have reason to not trust 
+> these patches?
 
-> On Wed, Aug 21, 2002 at 08:21:05PM +0200, Jaroslav Kysela wrote:
-> > Hello,
-> > 
-> > 	Linus, please, apply these patches with latest ALSA code to 2.5 
-> > tree:
-> 
-> Any chance you could stop that BK megachangeset and instead do one changeset
-> per cvs commit?
+In the sense that they are not tested by the majority of 2.4.19 users
+its always worth checking that.
 
-I'll do more frequent syncing with the kernel tree in the future (I assume 
-per week), but creating changesets per CVS commit is too overkill from the 
-maintaince view. Everybody interested in ALSA development might watch 
-our CVSLOG mailing list (archived) or use our CVS.
+> So could this be taken to mean the issue is most likely software 
+> (presumably kernel)-related?
 
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
+It normally points to a kernel locking error
 

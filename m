@@ -1,58 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268013AbUH1A6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268043AbUH1BDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268013AbUH1A6V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 20:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUH1A6V
+	id S268043AbUH1BDG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 21:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUH1BDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 20:58:21 -0400
-Received: from jib.isi.edu ([128.9.128.193]:13704 "EHLO jib.isi.edu")
-	by vger.kernel.org with ESMTP id S268013AbUH1A6O (ORCPT
+	Fri, 27 Aug 2004 21:03:06 -0400
+Received: from colin2.muc.de ([193.149.48.15]:14858 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S268043AbUH1BCz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 20:58:14 -0400
-Date: Fri, 27 Aug 2004 17:50:03 -0700
-From: Craig Milo Rogers <rogers@isi.edu>
-To: Rob van Nieuwkerk <robn@berrymount.nl>
-Cc: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>, prakashkc@gmx.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-Message-ID: <20040828005003.GJ24018@isi.edu>
-References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org> <200408270917.47656.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.61.0408271445120.578@senta.theria.org> <200408271604.35400.vda@port.imtp.ilyichevsk.odessa.ua> <412F337C.90206@gmx.de> <Pine.LNX.4.61.0408271536340.578@senta.theria.org> <20040828011818.2d5f282c.robn@berrymount.nl>
+	Fri, 27 Aug 2004 21:02:55 -0400
+Date: 28 Aug 2004 03:02:53 +0200
+Date: Sat, 28 Aug 2004 03:02:53 +0200
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "David S. Miller" <davem@davemloft.net>, clameter@sgi.com, ak@suse.de,
+       wli@holomorphy.com, davem@redhat.com, raybry@sgi.com,
+       benh@kernel.crashing.org, manfred@colorfullife.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       vrajesh@umich.edu, hugh@veritas.com
+Subject: Re: page fault scalability patch final : i386 tested, x86_64 support added
+Message-ID: <20040828010253.GA50329@muc.de>
+References: <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com> <20040816143903.GY11200@holomorphy.com> <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com> <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com> <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com> <20040827233602.GB1024@wotan.suse.de> <Pine.LNX.4.58.0408271717400.15597@schroedinger.engr.sgi.com> <20040827172337.638275c3.davem@davemloft.net> <20040827173641.5cfb79f6.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040828011818.2d5f282c.robn@berrymount.nl>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040827173641.5cfb79f6.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04.08.28, Rob van Nieuwkerk wrote:
-> 	The author of the pwc driver has publicly stated that this
-> 	NDA has expired more than 1 year ago !!!
+On Fri, Aug 27, 2004 at 05:36:41PM -0700, Andrew Morton wrote:
+> "David S. Miller" <davem@davemloft.net> wrote:
+> >
+> > On Fri, 27 Aug 2004 17:19:11 -0700 (PDT)
+> > Christoph Lameter <clameter@sgi.com> wrote:
+> > 
+> > > That is still 2^(32+12) = 2^44 = 16TB.
+> > 
+> > It's actually:
+> > 
+> > 	2 ^ (31 + PAGE_SHIFT)
+> > 
+> > '31' because atomic_t is 'signed' and PAGE_SHIFT should
+> > be obvious.
+> > 
+> > Christoph definitely has a point, this is even more virtual space
+> > than most of the 64-bit platforms even support.  (Sparc64 is
+> > 2^43 and I believe ia64 is similar)
 > 
-> Despite this he refuses to release the source code for the binary-only
-> driver.  Of course it is his right to do so: it is his code.
-> But I think it is important for everyone to know this fact.
+> When can we reasonably expect someone to blow this out of the water? 
+> Within the next couple of years, I suspect?
 
-	I agree that everyone should know this.  It shows remarkable
-integrity and restraint on Nemosoft's part, and is, I feel, in
-concordance with the values that Linux recently expressed in his
-message regarding the GPL and lawyers.
+With 4 level page tables x86-64 will support 47 bits virtual theoretical.
+They cannot be used right now because the current x86-64 CPUs have
+40 bits physical max and it is currently even hardcoded to 40bits,
+but I planned to drop that in the 4 level patch (in fact I already did) 
+so that the kernel will in theory support CPUs will more physical memory.
 
-	In one of Nemosoft's messages, he said that we wasn't
-releasing proprietary data on the Philips chips, even though his NDA
-has expired, because (and I'm paraphrasing here) he wants to maintain
-a good working relationship with Philips.  I believe that this is an
-important point, and a critical one for long-term success.  We, the
-Linux community, should want Philips to voluntarily release the
-details on their chips.  This is important because we should want
-Philips to release *new* programming details on *new* chips in a
-timely fashion; preferably, in an open-source-conformant fashion.
 
-	As you can see, if Nemosoft were to unilaterally breach
-Philips' confidence in him, then Philips might stop telling him the
-programming details on new chips.  Linux would potentially have
-working open source drivers for older chips, but potentially no
-drivers at all, open or closed source, for new chips by this
-manufacturer.
+> It does look like we need a new type which is atomic64 on 64-bit and
+> atomic32 on 32-bit.  That could be used to fix the
+> mmaping-the-same-page-4G-times-kills-the-kernel bug too.
 
-					Craig Milo Rogers
+Yep.  Good plan. atomic_long_t ? 
+
+> 
+> > and this limit actually
+> > mostly comes from the 3-level page table limits.
+> 
+> This reminds me - where's that 4-level pagetable patch got to?
+
+It exists on my HD, but is not really finished yet.
+
+I was on vacation and travelling and had some other things to do, so it got 
+delayed a bit, but I hope to work on it soon again.
+
+-Andi
+

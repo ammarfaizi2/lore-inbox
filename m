@@ -1,62 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVALTVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVALTYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVALTVj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 14:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVALTUM
+	id S261353AbVALTYz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 14:24:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVALTW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 14:20:12 -0500
-Received: from waste.org ([216.27.176.166]:24026 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261305AbVALTKZ (ORCPT
+	Wed, 12 Jan 2005 14:22:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37331 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261305AbVALTUQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:10:25 -0500
-Date: Wed, 12 Jan 2005 11:09:49 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: Chris Wright <chrisw@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050112190949.GH2940@waste.org>
-References: <20050111230642.GD2940@waste.org> <200501120213.j0C2DjGO008084@localhost.localdomain>
+	Wed, 12 Jan 2005 14:20:16 -0500
+Date: Wed, 12 Jan 2005 11:20:15 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Chris Wright <chrisw@osdl.org>, William Lee Irwin III <wli@holomorphy.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: node_online_map patch kills x86_64
+Message-ID: <20050112112015.P24171@build.pdx.osdl.net>
+References: <20050111151656.A24171@build.pdx.osdl.net> <20050112000726.GD14443@holomorphy.com> <20050111163504.D24171@build.pdx.osdl.net> <1105555323.8266.2.camel@arrakis>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501120213.j0C2DjGO008084@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1105555323.8266.2.camel@arrakis>; from colpatch@us.ibm.com on Wed, Jan 12, 2005 at 10:42:03AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 09:13:44PM -0500, Paul Davis wrote:
-> >And that is a failure of imagination on the part of the JACK
+* Matthew Dobson (colpatch@us.ibm.com) wrote:
+> On Tue, 2005-01-11 at 16:35, Chris Wright wrote:
+> > Thanks wli.  Seems Andi understands the issue despite my unintelligible
+> > bug report ;-)
+> > 
+> > thanks,
+> > -chris
 > 
-> Please be careful with your words. Based on your comments below, it
-> appears that you've never read any of the technical docs on it, and
-> almost certainly never read the source code.
+> So I assume you were trying to saying that backing out the patches makes
+> the machine boot, and leaving them in kills it, right?
 
-I thought I made it clear that I didn't even know the name of library.
-And I thought I understood from you that you had to do different
-start-up per client depending on whether RT was available. Have I
-misunderstood you?
+Yes, exactly.  Not sure which part of my brain was misfiring when I
+wrote that gibberish ;-)
 
-> >A client starts at normal priority, asks jack nicely to promote it to
-> >RT, then jackd, if so configured/enabled, calls the wrapper with a PID
-> 
-> a PID? clients are multithreaded, and only specific threads run with
-> RT scheduling (normally just the one created for them by
-> libjack). So you presumably mean a TID, which in turn creates a
-> problem for any system (e.g. 2.4) where all threads share the PID, and
-> sched_setscheduler() really does use the PID as a PID, not a TID.
+> And does Andi's
+> "[PATCH] x86_64: Optimize nodemask operations slightly" fix your
+> problem?  I'm assuming that's what the reference to "Andi understanding
+> the issue" meant?  Or is there still a problem booting x86_64 with the
+> numnodes -> node_online_map patches?
 
-That actually sounds like an independent API problem.
+The patch from Andi that I tested which fixed the issue for me was:
 
-> but its gets worse. JACK clients need to drop RT scheduling under
-> certain, well-defined circumstances. how do they get it back under
-> this scheme?
+Index: linux/arch/x86_64/mm/srat.c
+===================================================================
+--- linux.orig/arch/x86_64/mm/srat.c	2005-01-09 18:19:17.%N +0100
++++ linux/arch/x86_64/mm/srat.c	2005-01-12 02:43:54.%N +0100
+@@ -29,8 +29,8 @@
+ 	if (pxm2node[pxm] == 0xff) {
+ 		if (num_online_nodes() >= MAX_NUMNODES)
+ 			return -1;
+-		pxm2node[pxm] = num_online_nodes();
+-		node_set_online(num_online_nodes());
++		pxm2node[pxm] = num_online_nodes() - 1;
++		node_set_online(pxm2node[pxm]);
+ 	}
+ 	return pxm2node[pxm];
+ }
 
-Assuming a more thread-aware API, they just ask for privileges again.
-But with the non-thread-aware API, my first reaction would be the thread in
-question clones, and the clone drops privileges.
 
+This looks like just a straight fix for the following from your patch (AFAICT):
+
+-		pxm2node[pxm] = numnodes - 1;
+-		numnodes++;
++		pxm2node[pxm] = num_online_nodes();
++		node_set_online(num_online_nodes());
+
+However, what's in bk is a bit different and it too is working well:
+
+http://linux.bkbits.net:8080/linux-2.6/gnupatch@41e543d4Ujgg-Hk9pyWGiXvs7oXkBw
+
+Hope that clarifies.  Thanks.
+-chris
 -- 
-Mathematics is the supreme nostalgia of our time.
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

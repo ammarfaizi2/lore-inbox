@@ -1,129 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290607AbSA3VP6>; Wed, 30 Jan 2002 16:15:58 -0500
+	id <S290613AbSA3VP6>; Wed, 30 Jan 2002 16:15:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290606AbSA3VPq>; Wed, 30 Jan 2002 16:15:46 -0500
-Received: from mail.epost.de ([64.39.38.76]:62601 "EHLO mail.epost.de")
-	by vger.kernel.org with ESMTP id <S290611AbSA3VPA>;
-	Wed, 30 Jan 2002 16:15:00 -0500
-Message-ID: <3C58622D.6B0265ED@epost.de>
-Date: Wed, 30 Jan 2002 22:14:21 +0100
-From: Martin Wirth <martin.wirth@epost.de>
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.2.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: push BKL out of llseek
+	id <S290607AbSA3VPl>; Wed, 30 Jan 2002 16:15:41 -0500
+Received: from codepoet.org ([166.70.14.212]:13499 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S290606AbSA3VOW>;
+	Wed, 30 Jan 2002 16:14:22 -0500
+Date: Wed, 30 Jan 2002 14:14:22 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020130211422.GA22705@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0201300110420.1542-100000@penguin.transmeta.com> <E16VrdT-0006t7-00@the-village.bc.nu> <20020130051855.E11267@havoc.gtf.org> <20020130171126.GA26583@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020130171126.GA26583@kroah.com>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed Jan 30, 2002 at 09:11:26AM -0800, Greg KH wrote:
+> I have had that same dream too, Jeff :)
+> Especially after spelunking through the SCSI drivers, and being amazed
+> that only one of them uses the, now two year old, pci_register_driver()
+> interface (which means that only that driver works properly in PCI
+> hotplug systems.)
 
-This is just a general idea I had a few month ago and might be of some
-value
-for the replacement of BKL or longheld spinlocks in the future 2.5
-developement.
+Spelunking through the SCSI drivers involves great deal of
+bravery.  That pile of dung does not need a "small-stuff"
+maintainer.  It needs to be forcefully ejected and replaced with
+extreme prejudice.  It is amazing that ancient stuff works as
+well as it does...
 
-While writing some device driver for a real-time data acquisition I had
-a 
-similar problem. I had to protect some driver data structure that is 
-heavily accessed from multiple processes for merely reading a few
-variables
-consistently. But from time to time there are bigger tasks to be done,
-where
-holding a spinlock is not appropriate. 
+ -Erik
 
-So I used a combination of a spinlock and a semaphore. You can lock this
-combilock for short-term issues in a spin-lock mode:
-
-       combi_spin_lock(struct combilock *x)
-       combi_spin_unlock(struct combilock *x)
-
-and for longer lasting tasks in a semaphore mode by:
-
-       combi_mutex_lock(struct combilock *x)
-       combi_mutex_unlock(struct combilock *x)
-
-If a spin-lock request is blocked by a mutex-lock, the spin-lock
-attempt also sleeps i.e. behaves like a semaphore.
-
-This approach is less automatic than a first_spin_then_sleep mutex,
-but normally the programmer knows better if he is going to do quick
-things, or
-maybe maybe unbounded stuff.
-
-Note: For a preemtible kernel this approach could lead to much less
-scheduling ping-pong also for UP if a spinlock is replaced by a
-combilock 
-instead of a semaphore.  
-
-
-The code is quite simple and borrowed a bit from the completion handler
-stuff
-in sched.c. (Of course the owner could be a simple flag, but I had some
-later 
-extension to a priority inheritance scheme in mind).
-
-struct combilock {
-       wait_queue_head_t wait;
-       task_t            *owner;
-};
-
-
-void combi_spin_lock(struct combilock *x)
-{
-       spin_lock(&x->wait.lock);
-       if (x->owner) {
-              DECLARE_WAITQUEUE(wait, current);
-              wait.flags |= WQ_FLAG_EXCLUSIVE;
-	      __add_wait_queue_tail(&x->wait, &wait);
-	      do {
-	             __set_current_state(TASK_UNINTERRUPTIBLE);
-		     spin_unlock(&x->wait.lock);
-		     schedule();
-		     spin_lock(&x->wait.lock);
-	      } while (x->owner);
-	      __remove_wait_queue(&x->wait, &wait);
-       }
-}
-
-
-void combi_spin_unlock(struct combilock *x)
-{
-       spin_unlock(&x->wait.lock);  
-}
-
-
-void combi_mutex_lock(struct combilock *x)
-{
-       spin_lock(&x->wait.lock);
-       if (x->owner) {
-              DECLARE_WAITQUEUE(wait, current);
-              wait.flags |= WQ_FLAG_EXCLUSIVE;
-	      __add_wait_queue_tail(&x->wait, &wait);
-	      do {
-		     __set_current_state(TASK_UNINTERRUPTIBLE);
-		     spin_unlock(&x->wait.lock);
-		     schedule();
-		     spin_lock(&x->wait.lock);
-	      } while (x->owner);
-	      __remove_wait_queue(&x->wait, &wait);
-       } else 
-              x->owner=current;  
-       spin_unlock(&x->wait.lock);
-}
-
-
-void combi_mutex_unlock(struct combilock *x)
-{
-	spin_lock(&x->wait.lock);
-	x->owner=NULL;
-	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE,
-1, 0);
-	spin_unlock(&x->wait.lock);
-}
-
-
-Martin Wirth
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

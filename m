@@ -1,97 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267650AbUJCAnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUJCArI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267650AbUJCAnG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 20:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267651AbUJCAnG
+	id S267651AbUJCArI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 20:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267653AbUJCArI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 20:43:06 -0400
-Received: from gate.crashing.org ([63.228.1.57]:28348 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267650AbUJCAm7 (ORCPT
+	Sat, 2 Oct 2004 20:47:08 -0400
+Received: from main.gmane.org ([80.91.229.2]:35480 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267651AbUJCArD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 20:42:59 -0400
-Subject: [PATCH] Fix booting on some recent G5s
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Content-Type: text/plain
-Message-Id: <1096763918.26914.63.camel@gaston>
+	Sat, 2 Oct 2004 20:47:03 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: [PATCH 2.4] Use "sym53c8xx_2" as proc_name
+Date: Sat, 02 Oct 2004 17:46:59 -0700
+Message-ID: <pan.2004.10.03.00.46.58.30112@triplehelix.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 03 Oct 2004 10:38:38 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-126-181-112.dsl.pltn13.pacbell.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Hello all,
 
-Some recent G5s have a problem with PCI/HT probing. They crash
-(machine check) during the probe of some slot numbers, it seems
-to be related to some functions beeing disabled by the firmware
-inside the K2 ASIC.
+A month or so ago I wrote a patch against 2.6 that changed the proc_name
+of each ESP variant to its actual module name, since our initrd creation
+scripts use the contents of /proc/scsi to determine which modules to
+include in the ramdisk. Now this is happening with sym53c8xx/sym53c8xx_2
+as well. sym53c8xx_2 is detected as the appropriate module during the
+install procedure, but appears in /proc/scsi as sym53c8xx, so the wrong
+module is inserted into the ramdisk. This patch, against 2.4, changes
+the NAME53C8XX #define to "sym53c8xx_2", which proc_name gets set to.
 
-This patch limits the config space accesses to devices that are
-present in the OF device-tree. This fixes the problem and shouldn't
-"add" any limitation. If you plug a "random" PCI card with no OF
-driver, the firmware will still build a node for it with the
-default set of properties created from the config space.
+(It turns out that most of the time one gets lucky. sym53c8xx works in
+many of the same cases that sym53c8xx_2 did. But one tester reported
+that using sym53c8xx instead of sym53c8xx_2 caused his kernel to panic.
+More on that perhaps later.)
 
-Ben.
+Marcelo, please apply :)
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Joshua Kwan <joshk@triplehelix.org>
 
-
---- 1.5/arch/ppc64/kernel/pmac_pci.c	2004-07-25 14:51:52 +10:00
-+++ edited/arch/ppc64/kernel/pmac_pci.c	2004-08-04 10:26:07 +10:00
-@@ -271,7 +271,7 @@
- 				    int offset, int len, u32 *val)
- {
- 	struct pci_controller *hose;
--	struct device_node *busdn;
-+	struct device_node *busdn, *dn;
- 	unsigned long addr;
+--- kernel-source-2.4.27-2.4.27/drivers/scsi/sym53c8xx_2/sym_glue.c~	2004-10-02 17:35:22.000000000 -0700
++++ kernel-source-2.4.27-2.4.27/drivers/scsi/sym53c8xx_2/sym_glue.c	2004-10-02 17:35:38.000000000 -0700
+@@ -55,7 +55,7 @@
+ #include "sym_glue.h"
  
- 	if (bus->self)
-@@ -282,6 +282,16 @@
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 	hose = busdn->phb;
- 	if (hose == NULL)
-+		return PCIBIOS_DEVICE_NOT_FOUND;
-+
-+	/* We only allow config cycles to devices that are in OF device-tree
-+	 * as we are apparently having some weird things going on with some
-+	 * revs of K2 on recent G5s
-+	 */
-+	for (dn = busdn->child; dn; dn = dn->sibling)
-+		if (dn->devfn == devfn)
-+			break;
-+	if (dn == NULL)
- 		return PCIBIOS_DEVICE_NOT_FOUND;
+ #define NAME53C		"sym53c"
+-#define NAME53C8XX	"sym53c8xx"
++#define NAME53C8XX	"sym53c8xx_2"
  
- 	addr = u3_ht_cfg_access(hose, bus->number, devfn, offset);
---- 1.21/arch/ppc/platforms/pmac_pci.c	2004-07-29 14:58:35 +10:00
-+++ edited/arch/ppc/platforms/pmac_pci.c	2004-08-17 14:18:09 +10:00
-@@ -315,6 +315,10 @@
- 	unsigned int addr;
- 	int i;
- 
-+	struct device_node *np = pci_busdev_to_OF_node(bus, devfn);
-+	if (np == NULL)
-+		return PCIBIOS_DEVICE_NOT_FOUND;
-+
- 	/*
- 	 * When a device in K2 is powered down, we die on config
- 	 * cycle accesses. Fix that here.
-@@ -362,6 +366,9 @@
- 	unsigned int addr;
- 	int i;
- 
-+	struct device_node *np = pci_busdev_to_OF_node(bus, devfn);
-+	if (np == NULL)
-+		return PCIBIOS_DEVICE_NOT_FOUND;
- 	/*
- 	 * When a device in K2 is powered down, we die on config
- 	 * cycle accesses. Fix that here.
+ /*
+  *  Simple Wrapper to kernel PCI bus interface.
+
+
+-- 
+Joshua Kwan
 
 

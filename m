@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262631AbTCYNYm>; Tue, 25 Mar 2003 08:24:42 -0500
+	id <S262637AbTCYNhn>; Tue, 25 Mar 2003 08:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262633AbTCYNYm>; Tue, 25 Mar 2003 08:24:42 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:55488 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262631AbTCYNYm>; Tue, 25 Mar 2003 08:24:42 -0500
-Date: Tue, 25 Mar 2003 14:35:25 +0100
-From: Andi Kleen <ak@muc.de>
-To: Dave Jones <davej@codemonkey.org.uk>, Andi Kleen <ak@muc.de>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: cacheline size detection code in 2.5.66
-Message-ID: <20030325133525.GA30321@averell>
-References: <20030325071532.GA19217@averell> <20030325143310.A3487@jurassic.park.msu.ru> <20030325121527.GA29965@averell> <20030325124333.GB28451@suse.de>
+	id <S262638AbTCYNhn>; Tue, 25 Mar 2003 08:37:43 -0500
+Received: from almesberger.net ([63.105.73.239]:61446 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S262637AbTCYNhm>; Tue, 25 Mar 2003 08:37:42 -0500
+Date: Tue, 25 Mar 2003 10:48:42 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: raj <raj@cs.wisc.edu>, linux-kernel@vger.kernel.org, zandy@cs.wisc.edu
+Subject: Re: [PATCH] ptrace on stopped processes (2.4)
+Message-ID: <20030325104842.A7468@almesberger.net>
+References: <1047936295.3e763d273307c@www-auth.cs.wisc.edu> <20030324040908.GA19754@nevyn.them.org> <3E7EA4B2.5010306@cs.wisc.edu> <20030324150552.GA26287@nevyn.them.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030325124333.GB28451@suse.de>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030324150552.GA26287@nevyn.them.org>; from dan@debian.org on Mon, Mar 24, 2003 at 10:05:53AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > Broken in i386 too.
-> 
-> I don't see anything broken there. The K7 / K8 feature flags are not
-> bit for bit compatible though iirc (can't find my K8 cpuid manuals right now).
+Daniel Jacobowitz wrote:
+> No, that's not what I meant.  When you attach using GDB, there is no
+> way for GDB to determine if the process was previously stopped or
+> running.
 
-Umm - they should be. Otherwise CPUID would be completely useless.
+Likewise, there's a race condition with any other concurrent use
+of SIGSTOP.
 
-I double checked both the Intel and the x86-64 manual now and bit 19 
-of 0000_0001 is CLFLUSH 
+Perhaps one could introduce a PTRACE_ATTACH2 that uses "addr" to
+indicate the signal that should be used to sychronize attaching.
+That way, programs that use STOP/CONT for their own purposes could
+be attached to with ptrace(PTRACE_ATTACH2,pid,SIGTRAP,0), or such.
 
-So cpufeature.h and the x86-64 test is correct
+If the process is already stopped, the debugger would be notified
+with WSTOPSIG set to that signal instead of SIGTRAP.
 
-0000_0001 is supposed to be globally compatible. 8000_0001 
-is supposed to be compatible inside AMD CPUs (and 19 is reserved here)
+- Werner
 
-Ivan confused me.  Either he read the application note wrong or it is wrong.
-
--Andi
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,98 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263321AbSK0BZg>; Tue, 26 Nov 2002 20:25:36 -0500
+	id <S263760AbSK0Bgk>; Tue, 26 Nov 2002 20:36:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263362AbSK0BZf>; Tue, 26 Nov 2002 20:25:35 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:26108 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S263321AbSK0BZe> convert rfc822-to-8bit; Tue, 26 Nov 2002 20:25:34 -0500
-Message-ID: <957BD1C2BF3CD411B6C500A0C944CA2601F11699@pdsmsx32.pd.intel.com>
-From: "Wang, Stanley" <stanley.wang@intel.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'rusty@rustcorp.com.au'" <rusty@rustcorp.com.au>,
-       "Zhuang, Louis" <louis.zhuang@intel.com>
-Subject: RE: [BUG] [2.5.49] symbol_get doesn't work
-Date: Wed, 27 Nov 2002 09:30:43 +0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 8BIT
+	id <S263794AbSK0Bgk>; Tue, 26 Nov 2002 20:36:40 -0500
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:16401 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id <S263760AbSK0Bgj>; Tue, 26 Nov 2002 20:36:39 -0500
+Subject: 2.4.19+ initrd/floppy oddity, Slackware 8.1 bootdisks
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 26 Nov 2002 20:43:57 -0500
+Message-Id: <1038361438.591.146.camel@pinhead>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, my last patch would cause an incompatible type warning. The following
-patch could do better.
+Found an odd problem with loading initrd from multiple uncompressed
+floppies using kernel 2.4.19...2.4.20-rc4-ac1.  Floppy #1 of a 5-floppy
+Slackware 8.1 install set loads correctly, then prompts for #2.  Floppy
+#2 first executes a seek-track-zero and then immediately prompts to
+enter floppy #3 without transferring any data.  I thought it was a data
+read error, so spent much time making new floppies; no change.
 
-diff -Naur -X dontdiff linux-2.5.49/include/linux/module.h
-linux-2.5.49-bugfix/include/linux/module.h
---- linux-2.5.49/include/linux/module.h	2002-11-27 09:23:39.000000000 +0800
-+++ linux-2.5.49-bugfix/include/linux/module.h	2002-11-27
-09:23:54.000000000 +0800
-@@ -86,7 +86,7 @@
- /* Get/put a kernel symbol (calls must be symmetric) */
- void *__symbol_get(const char *symbol);
- void *__symbol_get_gpl(const char *symbol);
--#define symbol_get(x) ((typeof(&x))(__symbol_get(#x)))
-+#define symbol_get(t,x) ((typeof(t))(__symbol_get(#x)))
- 
- /* For every exported symbol, place a struct in the __ksymtab section */
- #define EXPORT_SYMBOL(sym)				\
+Kernel 2.4.18 does not have this problem.  2.4.19 and up exhibit it.  I
+did not try 2.4.19-pre.  Interestingly, booting off of a single
+(compressed) floppy works fine in all cases.
+
+Platform is a Dell desktop GXP260, P4, I82801 chipset.
+
+Kris
 
 
-
-Thanks,
-Stanley
-
-> -----Original Message-----
-> From: Wang, Stanley 
-> Sent: 2002Äê11ÔÂ26ÈÕ 16:14
-> To: 'linux-kernel@vger.kernel.org'
-> Cc: 'rusty@rustcorp.com.au'
-> Subject: [BUG] [2.5.49] symbol_get doesn't work
-> 
-> 
-> Hello,
-> I found the symbol_get()/symbol_put() didn't work on my 2.5.49 build.
-> I think the root cause is a wrong macro definition. The 
-> following patch could 
-> fix this bug.
-> 
-> diff -Naur -X dontdiff linux-2.5.49/include/linux/module.h 
-> linux-2.5.49-bugfix/include/linux/module.h
-> --- linux-2.5.49/include/linux/module.h	2002-11-26 
-> 16:06:36.000000000 +0800
-> +++ linux-2.5.49-bugfix/include/linux/module.h	
-> 2002-11-26 16:01:52.000000000 +0800
-> @@ -86,7 +86,7 @@
->  /* Get/put a kernel symbol (calls must be symmetric) */
->  void *__symbol_get(const char *symbol);
->  void *__symbol_get_gpl(const char *symbol);
-> -#define symbol_get(x) ((typeof(&x))(__symbol_get(#x)))
-> +#define symbol_get(x) ((typeof(&x))(__symbol_get(x)))
->  
->  /* For every exported symbol, place a struct in the 
-> __ksymtab section */
->  #define EXPORT_SYMBOL(sym)				\
-> @@ -166,7 +166,7 @@
->  #ifdef CONFIG_MODULE_UNLOAD
->  
->  void __symbol_put(const char *symbol);
-> -#define symbol_put(x) __symbol_put(#x)
-> +#define symbol_put(x) __symbol_put(x)
->  void symbol_put_addr(void *addr);
->  
->  /* We only need protection against local interrupts. */
-> 
-> 
-> Your Sincerely,
-> Stanley Wang 
-> 
-> SW Engineer, Intel Corporation.
-> Intel China Software Lab. 
-> Tel: 021-52574545 ext. 1171 
-> iNet: 8-752-1171 
->  
-> Opinions expressed are those of the author and do not 
-> represent Intel Corporation
-> 

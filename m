@@ -1,80 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262800AbTHURMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 13:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbTHURMJ
+	id S262826AbTHURGS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 13:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbTHUREQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 13:12:09 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:31975 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S262800AbTHURKU convert rfc822-to-8bit
+	Thu, 21 Aug 2003 13:04:16 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:40091 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S262806AbTHURDf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 13:10:20 -0400
-content-class: urn:content-classes:message
+	Thu, 21 Aug 2003 13:03:35 -0400
+Message-ID: <3F449866.1070406@softhome.net>
+Date: Thu, 21 Aug 2003 12:01:10 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH] 'noapic' already handled elsewhere
-Date: Thu, 21 Aug 2003 13:09:54 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE009FCA0@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 'noapic' already handled elsewhere
-Thread-Index: AcNoA+kErlP0Fp5iTDWaX2gUUoEbogAAazbA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>, <torvalds@osdl.org>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>, <zwane@linuxpower.ca>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Aug 2003 17:09:55.0716 (UTC) FILETIME=[0B1F3440:01C36807]
+To: Sergey Spiridonov <spiridonov@gamic.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: how to turn off, or to clear read cache?
+References: <mzNF.3z3.47@gated-at.bofh.it> <mB2M.4Jv.35@gated-at.bofh.it> <mCi4.5Kq.3@gated-at.bofh.it>
+In-Reply-To: <mCi4.5Kq.3@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
-This won't work.
-acpi_boot_init() is called from setup_arch(), which is called from
-start_kernel() _before_ parse_options().  Ie. ACPI needs to consume this
-flag before __setup() is invoked.
+Sergey Spiridonov wrote:
+> Denis Vlasenko wrote:
+> 
+>> umount/mount cycle will do it, as well as intentional OOMing the box
+>> (from non-root account please;)
+> 
+> 
+> OOMing doesn't help also, since kernel starts to swap and I have 
+> performance degradation after. Swithching off the swap is dangerous in 
+> conjunction with OOMing.
+> 
 
--Len
+   indirectly, patch mentioned in this mail can help:
 
-> -----Original Message-----
-> From: Jeff Garzik [mailto:jgarzik@pobox.com] 
-> Sent: Thursday, August 21, 2003 12:15 PM
-> To: torvalds@osdl.org
-> Cc: Brown, Len; Grover, Andrew; zwane@linuxpower.ca; 
-> linux-kernel@vger.kernel.org
-> Subject: [PATCH] 'noapic' already handled elsewhere
-> 
-> 
-> I sent a previous patch to s/LOCAL_APIC/IO_APIC/, as Zwane noticed
-> my first patch needed that.  In that patch, I commented __setup()
-> would be better.
-> 
-> Well... line 718 of arch/i386/kernel/io_apic.c _already_ handles this
-> case, using __setup() properly.
-> 
-> Word of warning... patch only compile tested, but seems obvious from
-> looking at io_apic.c.
-> 
-> BTW, why isn't ACPI using __setup() as well?  I don't see that ACPI
-> needs to patch arch/i386/kernel/setup.c at all.
-> 
-> 
-> ===== arch/i386/kernel/setup.c 1.94 vs edited =====
-> --- 1.94/arch/i386/kernel/setup.c	Thu Aug 21 01:32:04 2003
-> +++ edited/arch/i386/kernel/setup.c	Thu Aug 21 12:09:13 2003
-> @@ -544,12 +544,6 @@
->  			if (!acpi_force) acpi_disabled = 1;
->  		}
->  
-> -#ifdef CONFIG_X86_LOCAL_APIC
-> -		/* disable IO-APIC */
-> -		else if (!memcmp(from, "noapic", 6)) {
-> -			skip_ioapic_setup = 1;
-> -		}
-> -#endif /* CONFIG_X86_LOCAL_APIC */
->  #endif /* CONFIG_ACPI_BOOT */
->  
->  		/*
-> 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=106142721228497&w=2
+
+   it provides a way to limit read cache - so it is easier to flush it.
+
+P.S. will love to see something like this in 2.6. And for 2.4 too.
+

@@ -1,165 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVCUNNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVCUNPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbVCUNNq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 08:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVCUNNq
+	id S261788AbVCUNPe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 08:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVCUNPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 08:13:46 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:48821 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261769AbVCUNNi (ORCPT
+	Mon, 21 Mar 2005 08:15:34 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:61877 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261784AbVCUNPI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 08:13:38 -0500
-Message-ID: <423ED7E4.2A1F0970@tv-sign.ru>
-Date: Mon, 21 Mar 2005 17:19:16 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Mon, 21 Mar 2005 08:15:08 -0500
+Message-ID: <423E94FF.9000603@suse.de>
+Date: Mon, 21 Mar 2005 10:33:51 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Christoph Lameter <christoph@lameter.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 6/5] timers: enable irqs in __mod_timer()
-Content-Type: text/plain; charset=us-ascii
+To: ncunningham@cyclades.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mgarrett@chiark.greenend.org.uk
+Subject: Re: Suspend-to-disk woes
+References: <423B01A3.8090501@gmail.com>	 <20050319132612.GA1504@openzaurus.ucw.cz>	 <200503191220.35207.rmiller@duskglow.com>	 <20050319212922.GA1835@elf.ucw.cz> <20050319212922.GA1835@elf.ucw.cz>	 <1111364066.9720.2.camel@desktop.cunningham.myip.net.au>	 <E1DDAcH-0002n5-00@chiark.greenend.org.uk> <1111384766.9720.144.camel@desktop.cunningham.myip.net.au>
+In-Reply-To: <1111384766.9720.144.camel@desktop.cunningham.myip.net.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On top of "[PATCH 5/5] timers: cleanup, kill __get_base()", see
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111125359121372
+Hi,
 
-If the timer is currently running on another CPU, __mod_timer()
-spins with interrupts disabled and timer->lock held. I think it
-is better to spin_unlock_irqrestore(&timer->lock) in __mod_timer's
-retry path.
+Nigel Cunningham wrote:
 
-This patch is unneccessary long. It is because it tries to cleanup
-the code a bit. I do not like the fact that lock+test+unlock pattern
-is duplicated in the code.
+> On Mon, 2005-03-21 at 11:17, Matthew Garrett wrote:
 
-If you think that this patch uglifies the code or does not match
-kernel's coding style - just say nack :)
+>> It's trivial to do this in userspace - just have an app in initramfs
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> It's not that trivial.
 
---- 2.6.12-rc1/kernel/timer.c~6_LOCK	2005-03-19 23:34:23.000000000 +0300
-+++ 2.6.12-rc1/kernel/timer.c	2005-03-21 18:55:25.000000000 +0300
-@@ -174,64 +174,60 @@ int __mod_timer(struct timer_list *timer
- {
- 	tvec_base_t *old_base, *new_base;
- 	unsigned long flags;
--	int ret = 0;
--
--	BUG_ON(!timer->function);
--
--	check_timer(timer);
--
--	spin_lock_irqsave(&timer->lock, flags);
--	new_base = &__get_cpu_var(tvec_bases);
--repeat:
--	old_base = timer_base(timer);
--
--	/*
--	 * Prevent deadlocks via ordering by old_base < new_base.
--	 */
--	if (old_base && (new_base != old_base)) {
--		if (old_base < new_base) {
--			spin_lock(&new_base->lock);
--			spin_lock(&old_base->lock);
--		} else {
--			spin_lock(&old_base->lock);
--			spin_lock(&new_base->lock);
--		}
--		/*
--		 * The timer base might have been cancelled while we were
--		 * trying to take the lock(s), or can still be running on
--		 * old_base's CPU.
--		 */
--		if (timer_base(timer) != old_base
--				|| old_base->running_timer == timer) {
--			spin_unlock(&new_base->lock);
--			spin_unlock(&old_base->lock);
--			goto repeat;
--		}
--	} else {
--		spin_lock(&new_base->lock);
--		if (timer_base(timer) != old_base) {
--			spin_unlock(&new_base->lock);
--			goto repeat;
--		}
--	}
--
--	/*
--	 * Delete the previous timeout (if there was any).
--	 * We hold timer->lock, no need to check old_base != 0.
--	 */
--	if (timer_pending(timer)) {
--		list_del(&timer->entry);
--		ret = 1;
--	}
--
--	timer->expires = expires;
--	internal_add_timer(new_base, timer);
--	__set_base(timer, new_base, 1);
--
--	if (old_base && (new_base != old_base))
--		spin_unlock(&old_base->lock);
--	spin_unlock(&new_base->lock);
--	spin_unlock_irqrestore(&timer->lock, flags);
-+	int new_lock, ret;
-+
-+	BUG_ON(!timer->function);
-+	check_timer(timer);
-+
-+	for (ret = -1; ret < 0; ) {
-+		spin_lock_irqsave(&timer->lock, flags);
-+		new_base = &__get_cpu_var(tvec_bases);
-+		old_base = timer_base(timer);
-+
-+		/* Prevent AB-BA deadlocks. */
-+		new_lock = old_base < new_base;
-+		if (new_lock)
-+			spin_lock(&new_base->lock);
-+
-+		/* Note:
-+		 *	(old_base == NULL)     => (new_lock == 1)
-+		 *	(old_base == new_base) => (new_lock == 0)
-+		 */
-+		if (old_base) {
-+			spin_lock(&old_base->lock);
-+
-+			if (timer_base(timer) != old_base)
-+				goto unlock;
-+
-+			if (old_base != new_base) {
-+				/* Ensure the timer is serialized. */
-+				if (old_base->running_timer == timer)
-+					goto unlock;
-+
-+				if (!new_lock) {
-+					spin_lock(&new_base->lock);
-+					new_lock = 1;
-+				}
-+			}
-+		}
-+
-+		ret = 0;
-+		/* We hold timer->lock, no need to check old_base != 0. */
-+		if (timer_pending(timer)) {
-+			list_del(&timer->entry);
-+			ret = 1;
-+		}
-+
-+		timer->expires = expires;
-+		internal_add_timer(new_base, timer);
-+		__set_base(timer, new_base, 1);
-+unlock:
-+		if (old_base)
-+			spin_unlock(&old_base->lock);
-+		if (new_lock)
-+			spin_unlock(&new_base->lock);
-+		spin_unlock_irqrestore(&timer->lock, flags);
-+	}
- 
- 	return ret;
- }
+> - Your image might not be stored in a swap partition. For Suspend2, it
+> can potentially in a swap file or (soon) an ordinary file;
+> - Finding which partition to look in for the signature might be non
+> trivial (labels in fstab). You'd want to hard code it or (perferably)
+> copy a config file from the root (or other) partition;
+> - Having addressed the above issues, you still need to add code to read
+> the swap header, parse it to find the header, read the header from the
+> image, parse it and obtain the kernel version of the saved image.
+
+Well, and you want to compile all this into the kernel? Just to hold the
+hands of users who have not read the fine manual?
+And you'd need to compile this into all kernels, especially those that
+_don't_ support suspend to disk. Or you are back at the place where the
+thread started.
+
+> If your image is not stored in a swap partition, you probably can't
+> mount the fs the image is stored on, because doing so will replay the
+> image and make resuming unsafe, so this approach is less trivial without
+> knowing exactly which disk blocks and device IDs to use (and using dd to
+> access them).
+
+GRUB reads kernel and initramfs from a dirty reiserfs partition on
+resume (although this is a bad idea if you want a fast resume, but
+that's another problem). It is possible.
+
+> On top of these, we have two implementations, so you'll want to check
+> for the signatures of both.
+
+This is the final argument for doing it in userspace :-).
+
+> That said, I am considering making something like what you're saying:
+> exposing methods of testing whether an image exists and an entry through
+> which you can get Suspend to erase an image via a proc (eventually
+> sysfs) entry. This will allow something like what you're saying to be
+> controlled from userspace.
+
+It does not help if the next kernel i boot is not suspend2 patched. This
+work should rather go into a library that exports this functions to
+userspace programs, for all known suspend implementations.
+
+Regards,
+
+   Stefan
+

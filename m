@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268055AbTAIXxi>; Thu, 9 Jan 2003 18:53:38 -0500
+	id <S268012AbTAIXwC>; Thu, 9 Jan 2003 18:52:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268056AbTAIXxi>; Thu, 9 Jan 2003 18:53:38 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:15747 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S268055AbTAIXxg>;
-	Thu, 9 Jan 2003 18:53:36 -0500
-Date: Thu, 09 Jan 2003 15:53:26 -0800 (PST)
-Message-Id: <20030109.155326.46433564.davem@redhat.com>
-To: maxk@qualcomm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <5.1.0.14.2.20030109124152.07a18e28@mail1.qualcomm.com>
-References: <Pine.LNX.4.33.0212252340090.1270-100000@champ.qualcomm.com>
-	<20030107.012139.34126482.davem@redhat.com>
-	<5.1.0.14.2.20030109124152.07a18e28@mail1.qualcomm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S268051AbTAIXwC>; Thu, 9 Jan 2003 18:52:02 -0500
+Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:51570 "EHLO
+	vlad.geekizoid.com") by vger.kernel.org with ESMTP
+	id <S268012AbTAIXwB>; Thu, 9 Jan 2003 18:52:01 -0500
+Reply-To: <vlad@geekizoid.com>
+From: "Vlad@Vlad.geekizoid.com" <vlad@vlad.geekizoid.com>
+To: <rms@gnu.org>
+Cc: "Lkml \(E-mail\)" <linux-kernel@vger.kernel.org>
+Subject: Linux/Hurd vs GNU/Linux (was Re: Nvidia and its choice to read the GPL "differently")
+Date: Thu, 9 Jan 2003 18:01:11 -0600
+Message-ID: <014801c2b83b$62fe4f10$0200a8c0@wsl3>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <E18WlsS-0000Xp-00@fencepost.gnu.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Max Krasnyansky <maxk@qualcomm.com>
-   Date: Thu, 09 Jan 2003 12:45:37 -0800
+Your last sentence there is telling.  Hurd is both GNU and Linux, yet you
+don't seem to be interested in giving credit where credit is due.  If you
+can't do that, you don't have any credibility left.
 
-   Those guys will have to bump mod refcount themselves then.
-   sock_init_data() and sock_graft() have access to ->owner field but sk_alloc()
-   doesn't. So we either have to change sk_alloc() API or make call to
-   sock_init_data()/sock_graft() a must. Any other suggestions ?
+-----Original Message-----
+From: Richard Stallman [mailto:rms@gnu.org]
+Sent: Thursday, January 09, 2003 5:14 PM
+To: Vlad@Vlad.geekizoid.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
 
-This isn't rocket science, just make a new sock_foo() interface
-that merely does the module owner setup.
+I would expect that both GNU code and Linux make up smaller fractions
+of current GNU/Linux distros, because so many other programs have been
+added over the years.  It's a good thing that so many free programs
+have been developed, and that so many people have contributed, but
+this doesn't change the system's history.  It started out as the
+combination of GNU and Linux.
+

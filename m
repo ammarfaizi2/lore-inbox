@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269081AbRHaTbK>; Fri, 31 Aug 2001 15:31:10 -0400
+	id <S268963AbRHaTns>; Fri, 31 Aug 2001 15:43:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269099AbRHaTa7>; Fri, 31 Aug 2001 15:30:59 -0400
-Received: from albireo.ucw.cz ([62.168.0.14]:27398 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id <S269081AbRHaTar>;
-	Fri, 31 Aug 2001 15:30:47 -0400
-Date: Fri, 31 Aug 2001 21:30:50 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Nico Schottelius <nicos@pcsystems.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: problem: pc_keyb.h
-Message-ID: <20010831213050.A3217@albireo.ucw.cz>
-In-Reply-To: <3B8FE42B.23804609@pcsystems.de>
-Mime-Version: 1.0
+	id <S269119AbRHaTni>; Fri, 31 Aug 2001 15:43:38 -0400
+Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:21959 "EHLO
+	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
+	id <S268963AbRHaTn2>; Fri, 31 Aug 2001 15:43:28 -0400
+Message-ID: <3B8FE8F0.A8072B7A@bigfoot.com>
+Date: Fri, 31 Aug 2001 12:43:44 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p9ai i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Athlon doesn't like Athlon optimisation?
+In-Reply-To: <20010831044247.B811@gondor.com> <3B8EFF67.9010409@digitalaudioresources.org> <3B8FD501.CE027082@bigfoot.com> <3B8FE2D1.A0AD0B04@mail.utexas.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B8FE42B.23804609@pcsystems.de>; from nicos@pcsystems.de on Fri, Aug 31, 2001 at 09:23:23PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+"Bobby D. Bryant" wrote:
+> 
+> Tim Moore wrote:
+> 
+> > > It seems to work somewhat better for some if you set your BIOS to the
+> > > conservative settings, but that didn't help me.  I have an Epox 8KTA3+ (Via
+> > > KT133A) w/ a 1.4GHz Athlon and 512MB memory.  If you can't get it to work that
+> > > way, just stick with the K6 setting.  The point is, your hardware is likely fine
+> > > (fine being relative, I suppose)
+> > > If there are other tricks, I'm all ears.
+> >
+> > The i686 setting works perfectly.
+> 
+> For some people.  I have an 8KTA3+ that will boot as an i686, but starts oopsing its
+> shorts off after it has been up a while.
+> 
+> I posted some of the oopsen a few months ago, and to my feeble mind they all looked
+> memory related.  (Several were "bug in slab.c" kind of thing, IIRC.
 
-> Why can't I include pc_keyb.h directtly into a C program ?
-> I need that for a part of GPM.
+I hadn't heard a case of 686 not working given the compatability between
+Athlon/PIII.  To be clear, CONFIG_M686=y has worked perfectly with
+850MHz Athlon + VT82C686.
 
-pc_keyb.h is a kernel include, thus it uses the kernel set of types
-which unfortunately collides badly with the types used in user space.
-
-The best solution is to create your own include and copy the
-relevant parts of pc_keyb.h there.
-
-BTW what exactly do you plan to do? Sending keyboard controller
-or mouse controller commands from user space is probably very
-dangerous as it's going to collide with the commands sent by the
-kernel.
- 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-If a train station is where the train stops, what is a work station?
+rgds,
+tim.
+--

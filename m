@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314051AbSEAU60>; Wed, 1 May 2002 16:58:26 -0400
+	id <S314049AbSEAVBn>; Wed, 1 May 2002 17:01:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314049AbSEAU6Z>; Wed, 1 May 2002 16:58:25 -0400
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:267 "EHLO
-	inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S314051AbSEAU6Y>; Wed, 1 May 2002 16:58:24 -0400
-Date: Wed, 1 May 2002 22:58:18 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: Eugenij Butusov <dinorage@wp.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernels 2.2.19-2.4.x. Why why why?
-Message-ID: <20020501225818.A31613@bouton.inet6-interne.fr>
-Mail-Followup-To: Eugenij Butusov <dinorage@wp.pl>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020501201703.A990@matrix.awr.open.net.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314052AbSEAVBm>; Wed, 1 May 2002 17:01:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42767 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314049AbSEAVBl>;
+	Wed, 1 May 2002 17:01:41 -0400
+Message-ID: <3CD057BE.2050603@mandrakesoft.com>
+Date: Wed, 01 May 2002 17:01:50 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] alternative API for raw devices
+In-Reply-To: <Pine.GSO.4.21.0205011555450.12640-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 01, 2002 at 08:17:03PM +0200, Eugenij Butusov wrote:
-Content-Description: letter
-> Dear Alan,
+Alexander Viro wrote:
 
-Now we know where's the secret behind Alan's skills : he's not
-an human being but a distributed soul across humans subscribed to the
-lkml :-)
+>Actual IO code is pretty much copied from old driver.  The main differences:
+>	* device is originally created with ownership/permissions of the
+>	  block device we'd used; you can chmod/chown it at any time,
+>	  obviously.
+>
 
->  I'm writing to You because of my problem with kernels > 2.2.17.
-> This kernel is the last that works on my machine. I've tried almost
-> all, including 2.3.x and 2.5.x, but they simple don't work. After
+Tangent a little bit to partitions.
 
-The IDE support for your chipset is known to have various quirks on 2.4.18
-and below.
-I don't follow 2.2 kernels so I've no advice for them. For 2.4 kernels
-please try at least 2.4.19-pre7 or 2.4.19-pre3-ac1.
-Trying 2.3.x kernels seems a waste of time (unless you points to the precise
-patch that brings instabilily to your system) and 2.5.x is audacious to say the
-least.
+Consider a filesystem which creates device nodes for N partitions on a 
+spindle, "msdos_partition_fs".  In a discussion a while back on 
+permissions, you suggested that inheriting permissions from the base 
+block device was the wrong way to go, and that (for now)  'uid' and 
+'gid' mount options were the best route.
 
-Looking at the last kernel messages (/var/log/message) before your crashes
-might help locate the problem's origin.
+Is inheriting permissions coming back into style?  Or am I reading too 
+much into the permissions scheme you describe above?
 
-For guidelines on bug reporting, please take a look at the
-"REPORTING-BUGS" file at the root of your kernel source tree.
+    Jeff
 
-LB.
+
+
+

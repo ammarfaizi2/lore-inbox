@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317036AbSG2N0R>; Mon, 29 Jul 2002 09:26:17 -0400
+	id <S317194AbSG2NhJ>; Mon, 29 Jul 2002 09:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317083AbSG2N0R>; Mon, 29 Jul 2002 09:26:17 -0400
-Received: from ns.suse.de ([213.95.15.193]:64517 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317036AbSG2N0R>;
-	Mon, 29 Jul 2002 09:26:17 -0400
-Date: Mon, 29 Jul 2002 15:29:38 +0200
-From: Dave Jones <davej@suse.de>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: /proc/pci removal?
-Message-ID: <20020729152938.G17798@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20020729131717.A25451@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020729131717.A25451@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Mon, Jul 29, 2002 at 01:17:17PM +0100
+	id <S317215AbSG2NhJ>; Mon, 29 Jul 2002 09:37:09 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:36508 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S317194AbSG2NhI>;
+	Mon, 29 Jul 2002 09:37:08 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 29 Jul 2002 15:39:52 +0200 (MEST)
+Message-Id: <UTC200207291339.g6TDdqf18529.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com, viro@math.psu.edu
+Subject: bug in the present partition code
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 01:17:17PM +0100, Russell King wrote:
+Al,
 
- > I seem to vaguely remember that a while ago (2.3 days?) there was
- > discussion about removing /proc/pci in favour of the lspci output,
- > however there doesn't seem much in google groups about it (and marc
- > seems useless with non-alphanumeric searches.)
- > 
- > Can anyone remember the consensus?
+A BUG_ON at device.h:215 is triggered by
+scsi_unregister_host -> sd_detach -> driverfs_remove_partitions ->
+device_remove _file
+because driverfs_remove_partitions is called for a device
+where driverfs_create_partitions was not called for.
 
-ISTR Linus was quite attached to it, so it got un-obsoleted.
+(A device without media - no partitions have ever been seen.)
 
-        Dave
+There are various ways to fix - I'll leave it to you to pick
+some appropriate one.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Andries
+
+
+[I find that code becomes ugly when one includes a struct in
+another struct. Lots of assignments
+	ptr = &(p->start_of_struct);
+The advantage of having things separate is that one can use
+NULL to mean "uninitialized", while &(p->start_of_struct)
+is never NULL. So, I wouldn't mind adding a * and an r in the
+   struct device hd_driverfs_dev;  /* support driverfs hiearchy */
+in struct hd_struct. But you may have other preferences.]

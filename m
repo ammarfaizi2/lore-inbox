@@ -1,80 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264771AbRF1W2V>; Thu, 28 Jun 2001 18:28:21 -0400
+	id <S264802AbRF1WbB>; Thu, 28 Jun 2001 18:31:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264779AbRF1W2L>; Thu, 28 Jun 2001 18:28:11 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2462 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264771AbRF1W14>;
-	Thu, 28 Jun 2001 18:27:56 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S264800AbRF1Wa5>; Thu, 28 Jun 2001 18:30:57 -0400
+Received: from petrus.schuldei.org ([195.84.105.112]:43187 "HELO
+	petrus.schuldei.org") by vger.kernel.org with SMTP
+	id <S264794AbRF1WaL>; Thu, 28 Jun 2001 18:30:11 -0400
+Date: Fri, 29 Jun 2001 00:39:00 +0200
+From: Andreas Schuldei <andreas@schuldei.org>
+To: linux-kernel@vger.kernel.org
+Subject: artificial latency for a network interface
+Message-ID: <20010629003900.A6065@sigrid.schuldei.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15163.44893.949350.415471@pizda.ninka.net>
-Date: Thu, 28 Jun 2001 15:27:41 -0700 (PDT)
-To: Jes Sorensen <jes@sunsite.dk>
-Cc: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m achi ne
-In-Reply-To: <d3u2109rho.fsf@lxplus015.cern.ch>
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880AD5@xsj02.sjs.agilent.com>
-	<d33d8kbdel.fsf@lxplus015.cern.ch>
-	<15163.43319.82354.562310@pizda.ninka.net>
-	<d3u2109rho.fsf@lxplus015.cern.ch>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+to simulate a sattelite link, I need to add a latency to a
+network connection. 
 
-Jes Sorensen writes:
- > >>>>> "David" == David S Miller <davem@redhat.com> writes:
- > 
- > David> Jes Sorensen writes:
- > >>  Because on ia64 you will get back a 64 bit pointer if you use
- > >> pci_set_dma_mask() to set a 64 bit mask before calling the pci
- > >> functions in question.
- > 
- > David> Please note that this is nonstandard and undocumented behavior.
- > 
- > David> This is not a supported API at all, and the way 64-bit DMA will
- > David> eventually be done across all platforms is likely to be
- > David> different.
- > 
- > Well please also note there has been requests for proper 64 bit DMA
- > support for over 3 years or so by now.
+What is the easiest and best way to do that?
 
-Hey Jes, figure this out, I did all the work to get proper 32 bit DMA
-to work.  I was waiting 3 years for that and I did all the work
-myself.  I was patient, people needing 64-bit DMA can be patient as
-well and wait 1 or 2 weeks for 2.5.x to start up so we can make these
-kinds of changes.
+I wanted to do that using two tun devices. 
+I had hoped to have a routing like this:
 
- > The interface we use works well, so why should it be changed for other
- > architecures? Instead it would make a lot more sense to support it on
- > other architectures that can do 64 bit DMA.
+ <-> eth0 <-> tun0 <-> userspace, waiting queue <-> tun1 <-> eth1
 
-Because it makes not one iota of sense to have a 64-bit dma_addr_t on
-a 32-bit system where none of this DAC crap is relevant.
+I need to do it this way and not with iptables help, because it
+needs to work also on 2.2.x kernels.
 
-That is why.
+Now I started experimenting with the tun0 interfaces and got
+problems: till now I have not succeeded to get a tun0 interface
+up. the example code (br_select.c) in the package (as found for
+example on sourceforge) looks fishy and does not work too well. 
+is it correct that only one /dev/tun file is necessary, but
+/dev/tun0 and tun1 are opend for reading and writing?
 
-Send Linus a patch which makes dma_addr_t 64-bit on ix86, see how far
-you get.  And I would totally agree with him, the overhead of the
-larger type is totally stupid for %99 of cases on x86.
+I also did not manage to point any routes at tun0 or tun1. thoes
+interfaces do not show up in the /proc/net/dev either.
 
-Sure, if HIGHMEM or whatever is set, it may make sense.  But I think
-eating the 64-bit type in all drivers using dma_addr_t, even one's
-only capable of 32-bit PCI addressing, is bogus as well.
+only the module is loaded.
 
-This is why I wanted a seperate dma64_addr_t and pci64_*() routines to
-match.  So the overhead only existed where it was absolutely needed.
-People already bark at me about the overhead of adding dma_addr_t when
-"virt_to_bus and bus_to_virt worked perfectly fine without having to
- keep track of these DMA cookies everywhere" and to a certain extent
-they are right.  So we should avoid making this worse when possible.
-
-Later,
-David S. Miller
-davem@redhat.com
-
-
+I seem to miss something. who has used those devices before and
+got them working and could help me debug this?

@@ -1,32 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261415AbREMQ1L>; Sun, 13 May 2001 12:27:11 -0400
+	id <S261368AbREMQZV>; Sun, 13 May 2001 12:25:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261416AbREMQ1B>; Sun, 13 May 2001 12:27:01 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47366 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261415AbREMQ0y>; Sun, 13 May 2001 12:26:54 -0400
-Subject: Re: mount /dev/hdb2 /usr; swapon /dev/hdb2  keeps flooding
-To: viro@math.psu.edu (Alexander Viro)
-Date: Sun, 13 May 2001 17:23:07 +0100 (BST)
-Cc: szabi@inf.elte.hu (BERECZ Szabolcs), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0105121935570.11973-100000@weyl.math.psu.edu> from "Alexander Viro" at May 12, 2001 07:39:22 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261415AbREMQZL>; Sun, 13 May 2001 12:25:11 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:27407 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261368AbREMQZD>;
+	Sun, 13 May 2001 12:25:03 -0400
+Date: Sun, 13 May 2001 13:24:39 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: page_launder() bug
+In-Reply-To: <Pine.LNX.3.96.1010508142408.569A-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.21.0105131322190.5468-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14yyeB-0006fT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Erm... Let me restate: what did you expect to achieve with that?
-> Swap on device means that all contents of that device is lost.
-> Mounting fs from device generally means that you don't want the
-> loss of contents. At least until you unmount the thing.
+On Tue, 8 May 2001, Mikulas Patocka wrote:
 
-Actually no. There is no swap magic so the swap fails. Unfortunately it 
-appears to have hosed the mount in the meantime. 
+> > +		if (!dead_swap_page &&
+> > +		    (PageTestandClearReferenced(page) || page->age > 0 ||
+> > +		     (!page->buffers && page_count(page) > 1) ||
+> > +		     page_ramdisk(page))) {
+> 		^^^^^^^^^^^^^^^^^^^^^^
+> >  			del_page_from_inactive_dirty_list(page);
+> >  			add_page_to_active_list(page);
+> >  			continue;
+> 
+> #define page_ramdisk(page) \
+>         (page->buffers && (MAJOR(page->buffers->b_dev) == RAMDISK_MAJOR))
+> 
+> Are you sure that no one will release buffers under your hands?
 
-Alan
+Two things can happen:
+
+1) the page gets ramdisk buffers _after_ we look at it first,
+   in this case the page isn't freeable and will be moved to
+   the active list on the next page_launder() loop
+
+2) the page loses its ramdisk buffers after we look at it,
+   now the page is freeable, but we won't see it again until
+   it is moved from the active list to the inactive_dirty
+   list again
+
+Any side effects harmful enough to warrant complicating this
+test ?
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbTEUTxS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 15:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbTEUTxS
+	id S262252AbTEUTvz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 15:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTEUTvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 15:53:18 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:15810 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262256AbTEUTxQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 15:53:16 -0400
-Date: Wed, 21 May 2003 13:07:36 -0700
-From: Greg KH <greg@kroah.com>
-To: Manuel Estrada Sainz <ranty@debian.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, jt@hpl.hp.com,
-       Pavel Roskin <proski@gnu.org>, Oliver Neukum <oliver@neukum.org>,
-       David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH] Re: request_firmware() hotplug interface, third round and a halve
-Message-ID: <20030521200736.GA2606@kroah.com>
-References: <20030517221921.GA28077@ranty.ddts.net> <20030521072318.GA12973@kroah.com> <20030521185212.GC12677@ranty.ddts.net>
+	Wed, 21 May 2003 15:51:54 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:34826 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262252AbTEUTvx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 15:51:53 -0400
+Date: Wed, 21 May 2003 22:03:44 +0200
+To: Duraid Madina <duraid@octopus.com.au>
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-ia64] Re: web page on O(1) scheduler
+Message-ID: <20030521200344.GA3693@hh.idb.hist.no>
+References: <16075.8557.309002.866895@napali.hpl.hp.com> <1053507692.1301.1.camel@laptop.fenrus.com> <3ECB57A4.1010804@octopus.com.au> <1053522732.1301.4.camel@laptop.fenrus.com> <3ECBD0EA.70307@octopus.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030521185212.GC12677@ranty.ddts.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3ECBD0EA.70307@octopus.com.au>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2003 at 08:52:12PM +0200, Manuel Estrada Sainz wrote:
-> On Wed, May 21, 2003 at 12:23:18AM -0700, Greg KH wrote:
-> > Oops, forgot to respond to this, sorry...
-> > 
-> > On Sun, May 18, 2003 at 12:19:22AM +0200, Manuel Estrada Sainz wrote:
-> [snip]
-> > >  - There is a timeout, changeable from userspace. Feedback on a
-> > >    reasonable default value appreciated.
-> > 
-> > Is this really needed?  Especially as you now have:
+On Thu, May 22, 2003 at 05:18:02AM +1000, Duraid Madina wrote:
+> Arjan van de Ven wrote:
 > 
->  There is currently no way to know if hotplug couldn't be called at all
->  or if it failed because it didn't have firmware load support.
+> >if you had spent the time you spent on this colorful graphic on reading
+> >SUS or Posix about what sched_yield() means
 > 
->  If that happens, we would be waiting for ever. And I'd rather make that
->  a countable number of seconds :)
+> Quoth the man page,
 > 
->  I'll make '0' mean no timeout at all.
+> "A process can relinquish the processor voluntarily without blocking by 
+> calling sched_yield. The process will then be moved to the end of the 
+> queue for its static priority and a new process gets to run."
+>
+This assumes the implementation uses queues, one per 
+priority level.
+And even if it does, the process may be the only one with that
+priority, making this a useless way of giving up "some time".
+It'll still get rescheduled over and over and prevent
+lower-priority processes from running.
 
-Ok, that's fine with me.  A bit of documentation for all of this might
-be nice.  Just add some kerneldoc comments to your public functions, and
-you should be fine.
+ 
+> How you get from there to "I'm the least important thing in the system" 
+> is, once again, beyond me. And even if that were a reasonable 
+> interpretation of the word 'yield', you would still hope that more than 
+> one CPU would get something to do if there was enough work to go around. 
+> Agreed, "spinning" on sched_yield is a very naive way of doing 
+> spinlocks. But that doesn't change the fact that it's a simple and 
+> correct way. One would have hoped that calling sched_yield every few 
+> million cycles wouldn't break the scheduler.
 
->  I am not sure on how to implement "if a driver that uses it is
->  selected" and not sure on where to add the Kconfig entries to make it
->  available to out-of-kernel modules.
+The way I understand it, the scheduler doesn't "break".  You just
+get a lot of useless busy waiting.
 
-You could do something like what has been done for the mii module.  Look
-at lib/Makefile and drivers/usb/net/Makefile.mii for an example.
-
-I'm not saying that this is the best way, but it could be one solution.
-Ideally, the user would never have to select the firmware core option,
-it would just get automatically built if a driver that needs it is also
-selected.
-
->  Patches:
-
-The patches look great.  Add a bit of documentation, and some build
-integration, and I'd think you are finished.  Unless anyone else has any
-objections?
-
-Very nice job, thanks again for doing this.
-
-greg k-h
+Helge Hafting

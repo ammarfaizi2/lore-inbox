@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263796AbTCVU0i>; Sat, 22 Mar 2003 15:26:38 -0500
+	id <S263803AbTCVU36>; Sat, 22 Mar 2003 15:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263797AbTCVU0i>; Sat, 22 Mar 2003 15:26:38 -0500
-Received: from main.gmane.org ([80.91.224.249]:23750 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S263796AbTCVU0h>;
-	Sat, 22 Mar 2003 15:26:37 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Nicholas Wourms <nwourms@myrealbox.com>
-Subject: Re: IDE todo list
-Date: Sat, 22 Mar 2003 15:33:46 -0500
-Message-ID: <3E7CC8AA.7060501@myrealbox.com>
-References: <1048352492.9219.4.camel@irongate.swansea.linux.org.uk>	 <20030322172453.GB9889@vana.vc.cvut.cz>	 <1048360040.9221.23.camel@irongate.swansea.linux.org.uk>	 <3E7CA555.9050203@myrealbox.com> <1048365383.9221.30.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	id <S263812AbTCVU36>; Sat, 22 Mar 2003 15:29:58 -0500
+Received: from newglider.melbpc.org.au ([203.12.152.9]:54283 "EHLO
+	relay9.melbpc.org.au") by vger.kernel.org with ESMTP
+	id <S263803AbTCVU35>; Sat, 22 Mar 2003 15:29:57 -0500
+Message-ID: <3E7CC836.4000707@melbpc.org.au>
+Date: Sun, 23 Mar 2003 07:31:50 +1100
+From: Tim Josling <tej@melbpc.org.au>
+Organization: Melbourne PC User Group
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Philip.Blundell@pobox.com, linux-parport@torque.net
+Subject: Re: [PATCH] to drivers/parport/ieee1284_ops.c to fix timing	dependent
+ hang
+References: <3E782567.3020008@melbpc.org.au>	 <1048278154.6017.2.camel@ixodes.goop.org>  <3E7C2BA0.4040100@melbpc.org.au> <1048355094.8537.11.camel@ixodes.goop.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+X-RAVMilter-Version: 8.3.4(snapshot 20020706) (relay9)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sat, 2003-03-22 at 18:03, Nicholas Wourms wrote:
+
+
+Jeremy Fitzhardinge wrote:
+> On Sat, 2003-03-22 at 01:23, Tim Josling wrote:
 > 
->>The AMD Opus ide driver is also displaying symptoms of the 
->>same problem I had in 2.4.21-ac with UDMA100.  To refresh, 
->>it was detecting 80w as 40w and 40w as 80w [reverse logic]. 
->>  I am going to try the same fix which was posted for my 
->>2.4.21-ac problem.  I'll let you know if it worked...
+>>According to my reading of the code, it should only happen in polled 
+>>mode, but I have only one week of experience looking at kernel source.
 > 
 > 
-> The cable detect stuff for AMD is fixed in the current driver
-> I believe. Its not however full resynched into 2.5.6x yet. I
-> need to finish merging the proc fixes into 2.4 before I do that
+> I'm wondering if a better fix might be to have something like:
+> 
+> 	if (wait * 2 > wait)
+> 		wait *= 2;
+> 
+> at the bottom of the loop, so that the wrap-around doesn't happen.
 > 
 
-Well unfortunately, even with out the little modification, 
-bk-current now locks right after printing out the hdd 
-geometry/partition info.  Apparently, something in the slew 
-of patches which went in today has broke my setup. 
-Unfortunately, I'm using the -mm3 patchset, so I can't say 
-for certain that it isn't causing problems with the recently 
-checked in code.  Any suggestions on how to go about 
-debugging this?  I'm using a usb keyboard, so I don't think 
-the Magic Sys-Req button will work at this point [Alas, KDB 
-is currently non-functional for 2.5].
+I tried
+  wait *=2;
+	if (wait > 10 * HZ)
+		wait = 10 * HZ;
+and that worked, so your theory would probably work. However to my mind 
+it is a hack.
 
-Cheers,
-Nicholas
+> 
+>>So it should be a work-around, assuming interrupts work on the parallel 
+>>port on your system :-). It is an very vexing problem, as I'm sure you know.
+>>
+>>By the way, LJ1100s tend to get page feeding problems about the time the 
+>>warranty runs out, but HP has a free kit you can order to fix the problem.
+> 
+> 
+> Yes, I just installed it.  It suddenly made the printer useful again, so
+> I've printing more, and seeing the hangs.  I enabled interrupts, which
+> seems to work OK.
+> 
+> 	J
+
+Good. That (enabling interrupts fixes the problem) tends to add credence 
+to my theory.
+
+Happy printing!
+
+Tim Josling
 
 

@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289790AbSAWQYy>; Wed, 23 Jan 2002 11:24:54 -0500
+	id <S289895AbSAWQ3Y>; Wed, 23 Jan 2002 11:29:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289880AbSAWQYo>; Wed, 23 Jan 2002 11:24:44 -0500
-Received: from dsl-213-023-038-076.arcor-ip.net ([213.23.38.76]:42137 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289790AbSAWQYg>;
-	Wed, 23 Jan 2002 11:24:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Hugh Dickins <hugh@veritas.com>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: pte-highmem-5
-Date: Wed, 23 Jan 2002 17:29:18 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.21.0201230451540.1368-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.21.0201230451540.1368-100000@localhost.localdomain>
+	id <S289902AbSAWQ3O>; Wed, 23 Jan 2002 11:29:14 -0500
+Received: from coffee.Psychology.McMaster.CA ([130.113.218.59]:9159 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S289895AbSAWQ3B>; Wed, 23 Jan 2002 11:29:01 -0500
+Date: Wed, 23 Jan 2002 11:30:11 -0500 (EST)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
+To: <emacs-devel@gnu.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: reading a file in emacs crashes 2.4.17 and 18-pre4
+In-Reply-To: <Pine.LNX.4.40.0201230644480.3823-100000@ccs.covici.com>
+Message-ID: <Pine.LNX.4.33.0201231124590.24338-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16TQH1-00020K-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 23, 2002 06:38 am, Hugh Dickins wrote:
-> First half agreed, second half not sure.  Maybe no series at all.
-> Could it be worked with just the one serie, 
+> I reconfigured my kernel to lie to it and say k6 for the processor
+> family instead of k7.
 
-Pardon me, but what is a serie?  It's not an english word:
+right.  and just for posterity, let me note here that 
+the K7-specific kernel code IS NOT KNOWN TO BE BUGGY.
 
-   http://www.m-w.com/dictionary.htm
+the best and so far only explanation is that since CONFIG_MK7 
+can *triple* the bandwidth that Linux demands of dram, 
+marginal hardware is pushed over the edge.  stable hardware
+has no problem with the code, and the code follows AMD's specs.
 
---
-Daniel
+turning off the optimizations is just de-tuning the kernel
+to pander to (work around) flakey hardware.
+
+> > > Well, I have worked around this problem by getting rid of the Athlon
+> > > optimizations so I guess there is still more work to do on those.
+> >
+> > Could you please tell what did you change, exactly?  It might be that
+> > this information should be in etc/PROBLEMS, in case other users bump into
+> > the same problem.
+

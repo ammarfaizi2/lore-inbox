@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUG2KxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUG2LMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263815AbUG2KxP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 06:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbUG2KxP
+	id S264153AbUG2LMV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 07:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUG2LMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 06:53:15 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:41150 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263815AbUG2KxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 06:53:14 -0400
-Message-ID: <4108D349.1030209@yahoo.com.au>
-Date: Thu, 29 Jul 2004 20:36:57 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: haveblue@us.ibm.com, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@sgi.com>
-Subject: Re: Oops in find_busiest_group(): 2.6.8-rc1-mm1
-References: <1089871489.10000.388.camel@nighthawk>	<20040728234255.29ef4c13.pj@sgi.com>	<4108B66D.1050000@yahoo.com.au> <20040729022912.04a0806d.pj@sgi.com>
-In-Reply-To: <20040729022912.04a0806d.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jul 2004 07:12:20 -0400
+Received: from [217.67.22.1] ([217.67.22.1]:18663 "EHLO mail.6com.net")
+	by vger.kernel.org with ESMTP id S264153AbUG2LMS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 07:12:18 -0400
+Date: Thu, 29 Jul 2004 13:12:17 +0200
+From: Jan Oravec <jan.oravec@6com.sk>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: LSI 53c1030 (Fusion MPT) performance with O_SYNC
+Message-ID: <20040729111217.GA29466@omega.6com.net>
+Reply-To: Jan Oravec <jan.oravec@6com.sk>
+References: <20040729095648.GA27925@omega.6com.net> <1091095493.2792.6.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091095493.2792.6.camel@laptop.fenrus.com>
+X-Operating-System: UNIX
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Nick writes:
+On Thu, Jul 29, 2004 at 12:04:53PM +0200, Arjan van de Ven wrote:
+> On Thu, 2004-07-29 at 11:56, Jan Oravec wrote:
 > 
->> Can you try with 2.6.8-rc2-mm1?
+> > I've noticed poor performance with MySQL/InnoDB when compared to another
+> > S2880-based box with IDE disks.
 > 
-> 
-> This _is_ with 2.6.8-rc2-mm1.
-> 
-> 
->>Does it happen continually after the system has booted?
-> 
-> 
-> Yes - nonstop - 4 times per millisecond, for at least as
-> long as the machine has been up (I'm rebooting every few
-> minutes, for other reasons ...).
-> 
-> 
->>comment out the call to cpu_attach_domain ... Does that fix it?
-> 
-> 
-> Yes - that fixes it.  My ratelimited printks on NULL group cease.
-> 
+> your ide disk probably has write back caching enabled while your
+> mptfusion doesn't..... if you value data integrity over performance the
+> mptfusion has a saner default ;)
 
-Hmm, nothing else seems to be oopsing. Maybe it is the ia64
-domain setup code that Jesse did? The domains/groups must
-not have been built properly somewhere.
+It was enabled:
+
+# sginfo -c /dev/sda
+Caching mode page (0x8)
+-----------------------
+Initiator Control                  0
+ABPF                               0
+CAP                                0
+DISC                               1
+SIZE                               0
+Write Cache Enabled                1
+MF                                 0
+Read Cache Disabled                0
+Demand Read Retention Priority     0
+Demand Write Retention Priority    0
+Disable Pre-fetch Transfer Length  65535
+Minimum Pre-fetch                  0
+Maximum Pre-fetch                  0
+Maximum Pre-fetch Ceiling          65535
+FSW                                1
+LBCSS                              0
+DRA                                0
+Number of Cache Segments           8
+Cache Segment size                 0
+Non-Cache Segment size             0
+
+When I've disabled it on both mptfusion and IDE, it took 40s on mpt and 83s
+on IDE.
+
+It seems like write-cache is not as effective on mptfusion as it is on IDE?
+
+I am considering plugging there a ZCR with battery, so write-cache has a
+sense for me.
+
+
+Jan

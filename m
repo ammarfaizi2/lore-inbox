@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262542AbTCRS7F>; Tue, 18 Mar 2003 13:59:05 -0500
+	id <S262546AbTCRTDf>; Tue, 18 Mar 2003 14:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262543AbTCRS7F>; Tue, 18 Mar 2003 13:59:05 -0500
-Received: from pixar.pixar.com ([138.72.10.20]:18154 "EHLO pixar.pixar.com")
-	by vger.kernel.org with ESMTP id <S262542AbTCRS7E>;
-	Tue, 18 Mar 2003 13:59:04 -0500
-Date: Tue, 18 Mar 2003 11:09:55 -0800
-From: Lars Damerow <lars@pixar.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem: high CPU usage during unmount
-Message-ID: <20030318190955.GC4094@pixar.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S262549AbTCRTDf>; Tue, 18 Mar 2003 14:03:35 -0500
+Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:13698 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S262546AbTCRTDe>; Tue, 18 Mar 2003 14:03:34 -0500
+Date: Tue, 18 Mar 2003 13:14:21 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4
+ due to wrmsr (performance)
+In-Reply-To: <3E7765DE.10609@didntduck.org>
+Message-ID: <Pine.LNX.4.44.0303181312490.1261-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, folks!
+> > You can run this (stupid) test-program to try. On my P4 I get
+> > 
+> > 	empty overhead=320 cycles
+> > 	load overhead=0 cycles
+> > 	I$ load overhead=0 cycles
+> > 	I$ load overhead=0 cycles
+> > 	I$ store overhead=264 cycles
 
-In all kernel versions I've tried, including 2.4.20, I'm seeing very high CPU
-usage (typically 99%) while my system unmounts a large number of mounts. All of
-this CPU time appears to be used by the kernel's umount() call.
+On my Athlon 1.3GHz system I get:
+[tmolina@dad tmolina]$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 1343.030
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
+pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2637.82
 
-The slowdown seriously affects the system's interactivity, and its duration
-depends on the number of umounts the system has to do. For 79 mounts, it lasts
-about 16.5 seconds.
+empty overhead=16 cycles
+load overhead=1 cycles
+I$ load overhead=1 cycles
+I$ load overhead=1 cycles
+I$ store overhead=763 cycles
 
-I wrote a shell script that calls umount for each of these 79 mounts in a for
-loop, and running it through time shows it to take 15.6 seconds of system time
-with 95% CPU consumed.
 
-While this typically happens through amd-managed NFS mounts, I've found that it
-also happens with loopback mounts.
-
-Does this sound familiar to anyone, and if so, is there anything I can do to
-stop it? I can produce more debugging information if that would be useful.
-
-Please CC me on any responses. Thanks very much for your time!
--lars
-
-___________________________________________________________
-lars damerow
-button pusher
-pixar animation studios
-lars@pixar.com
-
-I want to raise my freak flag higher and higher and
-I want to raise my freak flag and never be alone...  -tmbg

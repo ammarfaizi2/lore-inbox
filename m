@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263236AbUB1BJf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 20:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263238AbUB1BJb
+	id S263223AbUB1BI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 20:08:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbUB1BI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 20:09:31 -0500
-Received: from bay14-f68.bay14.hotmail.com ([64.4.49.68]:44812 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263236AbUB1BJZ
+	Fri, 27 Feb 2004 20:08:27 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:25582 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263223AbUB1BIY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 20:09:25 -0500
-X-Originating-IP: [24.136.227.168]
-X-Originating-Email: [filamoon2@hotmail.com]
-From: "johnny zhao" <filamoon2@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: udp packet loss even with large socket buffer
-Date: Fri, 27 Feb 2004 20:09:24 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY14-F68kiyPoHZgzD000006ad@hotmail.com>
-X-OriginalArrivalTime: 28 Feb 2004 01:09:24.0447 (UTC) FILETIME=[811BAEF0:01C3FD97]
+	Fri, 27 Feb 2004 20:08:24 -0500
+Message-ID: <403FEA02.6040506@mvista.com>
+Date: Fri, 27 Feb 2004 17:08:18 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Tom Rini <trini@kernel.crashing.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, amit@av.mvista.com,
+       kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [KGDB PATCH][1/7] Add / use kernel/Kconfig.kgdb
+References: <20040227212301.GC1052@smtp.west.cox.net> <403FC521.7040508@mvista.com> <20040227235059.GG425@elf.ucw.cz>
+In-Reply-To: <20040227235059.GG425@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Pavel Machek wrote:
+> Hi!
+> 
+> 
+> 
+>>>+config KGDB_THREAD
+>>>+	bool "KGDB: Thread analysis"
+>>>+	depends on KGDB
+>>>+	help
+>>>+	  With thread analysis enabled, gdb can talk to kgdb stub to list
+>>>+	  threads and to get stack trace for a thread. This option also 
+>>>enables
+>>>+	  some code which helps gdb get exact status of thread. Thread 
+>>>analysis
+>>>+	  adds some overhead to schedule and down functions. You can disable
+>>>+	  this option if you do not want to compromise on speed.
+>>
+>>Lets remove the overhead and eliminate the need for this option in favor of 
+>>always having threads.  Works in the mm kgdb...
+> 
+> 
+> No. Thread analysis is unsuitable for the mainline (manipulates
+> sched.c in ugly way). It may be okay for -mm, but in such case it
+> should better be separated.
 
-I have a problem when trying to receive udp packets containing video data 
-sent by Microsoft Windows Messenger. Here is a detailed description:
+Not in the -mm version.  I agree that sched.c should NEVER be treated this way 
+and it is not in the -mm version.  I also think that, most of the time, it is 
+useful to have the thread stuff, but that may be just my usage...
 
-Linux box:
-    Linux-2.4.21-0.13mdksmp, P4 2.6G HT
-socket mode:
-    blocked mode
-code used:
-    while ( recvfrom(...) )
-socket buffer size:
-    8388608, set by using sysctl -w net.core.rmem_default and rmem_max
 
-I used ethereal(using libpcap) to monitor the network traffic. All the 
-packets were transferred and captured by libpcap. But my program constantly 
-suffers from packet loss. According to ethereal, the average time interval 
-between 2 packets  is 70-80ms, and the minimum interval can go down to ~1ms. 
-Each packet is smaller than 1500 bytes (ethernet MTU).
-
-Can anybody help me? I googled and found a similar case that had been solved 
-by increasing the socket buffer size. But it doesn't work for me. I think 8M 
-is a crazily large size :(
-
-Thank you!
-
-_________________________________________________________________
-Get fast, reliable access with MSN 9 Dial-up. Click here for Special Offer! 
-http://click.atdmt.com/AVE/go/onm00200361ave/direct/01/
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266150AbUBCWks (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 17:40:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266165AbUBCWks
+	id S266167AbUBCWhN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 17:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266172AbUBCWhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 17:40:48 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54681 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266150AbUBCWkq (ORCPT
+	Tue, 3 Feb 2004 17:37:13 -0500
+Received: from kalmia.drgw.net ([209.234.73.41]:17625 "EHLO kalmia.hozed.org")
+	by vger.kernel.org with ESMTP id S266167AbUBCWhH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 17:40:46 -0500
-Date: Tue, 3 Feb 2004 23:40:21 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       John Bradford <john@grabjohn.com>,
-       Martin =?iso-8859-1?Q?Povoln=FD?= <xpovolny@aurora.fi.muni.cz>,
-       linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: 2.6.0, cdrom still showing directories after being erased
-Message-ID: <20040203224021.GK11683@suse.de>
-References: <Pine.LNX.4.53.0402030839380.31203@chaos> <401FB78A.5010902@zvala.cz> <Pine.LNX.4.53.0402031018170.31411@chaos> <200402031602.i13G2NFi002400@81-2-122-30.bradfords.org.uk> <yw1xsmhsf882.fsf@kth.se> <200402031635.i13GZJ9Q002866@81-2-122-30.bradfords.org.uk> <20040203174606.GG3967@aurora.fi.muni.cz> <200402031853.i13Ir1e0003202@81-2-122-30.bradfords.org.uk> <yw1xn080m1d2.fsf@kth.se> <Pine.LNX.4.53.0402031509100.32547@chaos>
+	Tue, 3 Feb 2004 17:37:07 -0500
+Date: Tue, 3 Feb 2004 16:37:06 -0600
+From: Troy Benjegerdes <hozer@hozed.org>
+To: "Woodruff, Robert J" <woody@co.intel.com>
+Cc: infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
+Message-ID: <20040203223706.GB11222@kalmia.hozed.org>
+References: <F595A0622682C44DBBE0BBA91E56A5ED1C3662@orsmsx410.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0402031509100.32547@chaos>
+In-Reply-To: <F595A0622682C44DBBE0BBA91E56A5ED1C3662@orsmsx410.jf.intel.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 03 2004, Richard B. Johnson wrote:
-> On Tue, 3 Feb 2004, [iso-8859-1] Måns Rullgård wrote:
+So, for starters, can you or Jerrie post a patch containing just the 2.6
+infiniband access layer, Or create a new BK tree for 2.6 infiniband stuff
+that uses the new 2.6 kbuild system?
+
+
+
+
+On Mon, Feb 02, 2004 at 03:58:56PM -0800, Woodruff, Robert J wrote:
 > 
-> > John Bradford <john@grabjohn.com> writes:
-> >
-> > > Regardless of specs, I don't know what the majority of devices in the
-> > > real world actually do.  Maybe Jens and Alan, (cc'ed), can help.
-> >
-> > Just tested with an ASUS SCB-2408 in my laptop.  It gives read errors
-> > after doing a fast erase, just like it should.
-> >
-> > --
-> > Måns Rullgård
-> > mru@kth.se
-> > -
+> We were waiting until we had some version of the InfiniBand code ported
+> to 2.6 before
+> asking for it to be included in the 2.6 kernel tree. Jerrie made the
+> changes
+> to the IB access layer to allow it to compile on 2.6, but it cannot yet
+> be tested 
+> till we get a 2.6 driver from Mellanox. 
 > 
-> I had to borrow a R/W CDROM because most everybody uses CR-R only
-> here. That's why it took so long to check. With SCSI, Linux 2.4.24,
-> cdrecord fails to umount the drive before it burns it. The result
-> is that the previous directory still remains at the mount-point.
-> This, even though cdrecord ejected the drive to "re-read" its
-> status.
+> I'd also like to hear from the linux-kernel folks on what we would need
+> to
+> do to get a basic InfiniBand access layer included in the 2.6 base. 
 > 
-> Bottom line: If the CDROM isn't umounted first, you can still
-> get a directory entry even though the CDROM has been written with
-> about 500 magabytes of new data.
-
-So what? Just because you can do it, doesn't mean it's a valid thing to
-do. You can literally come up with thousands of similar weird things, if
-you wanted to.
-
-This whole discussion is silly and pointless.
-
--- 
-Jens Axboe
-
+> We'd also like to hear from Mellanox if they have any plans to provide
+> an open
+> source VPD driver anytime soon. 
+> 
+> woody
+> 

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285043AbRLMTdv>; Thu, 13 Dec 2001 14:33:51 -0500
+	id <S285006AbRLMTjL>; Thu, 13 Dec 2001 14:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285006AbRLMTdl>; Thu, 13 Dec 2001 14:33:41 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:54562 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S285043AbRLMTdf> convert rfc822-to-8bit; Thu, 13 Dec 2001 14:33:35 -0500
-Date: Thu, 13 Dec 2001 17:39:19 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: "David S. Miller" <davem@redhat.com>
-cc: <andrea@suse.de>, <axboe@suse.de>, <gibbs@scsiguy.com>,
-        <LB33JM16@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping
-In-Reply-To: <20011212.160631.14975630.davem@redhat.com>
-Message-ID: <20011213173234.B1979-100000@gerard>
+	id <S285042AbRLMTjB>; Thu, 13 Dec 2001 14:39:01 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:49156 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S285006AbRLMTit>;
+	Thu, 13 Dec 2001 14:38:49 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200112131938.WAA02795@ms2.inr.ac.ru>
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2
+To: Mika.Liljeberg@welho.com (Mika Liljeberg)
+Date: Thu, 13 Dec 2001 22:38:35 +0300 (MSK)
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, mika.liljeberg@nokia.com
+In-Reply-To: <3C1901BC.C5E7936C@welho.com> from "Mika Liljeberg" at Dec 13, 1 09:30:04 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
+> have a fairly low RTO. There were no FIN retransmissions, I'm sorry to
+> say.
 
-On Wed, 12 Dec 2001, David S. Miller wrote:
+I believe, believe. :-)
 
->    From: Gérard Roudier <groudier@free.fr>
->    Date: Wed, 12 Dec 2001 18:22:30 +0100 (CET)
->
->    PCI was intended to be implemented as a LOCAL BUS with all agents on the
->    LOCAL BUS being able to talk with any other agent using a flat addressing
->    scheme. Your PCI thing does not look like true PCI to me, but rather like
->    some bad mutant that has every chance not to survive a long time.
->
-> Intentions are neither here nor there.  PCI is MORE USEFUL, because
-> you CAN do things like IOMMU's and treat PCI like a complete seperate
-> I/O bus world.
+It is possible _only_ if rto is at 120 seconds. It is the only case
+when retransmissions do not happen and this would be normal behaviour.
 
-But there are a couple of things you cannot do with PCI. For example, you
-cannot mow the lawn with PCI. But since there is always room for
-improvement... :-) :-)
+For now it is the only hypothesis and it will be clear from /proc/net/tcp,
+whether is this right or not.
 
-  Gérard.
-
+Alexey

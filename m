@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVBIOge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVBIOpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVBIOge (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 09:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVBIOge
+	id S261828AbVBIOpM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 09:45:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVBIOpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 09:36:34 -0500
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:740 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S261827AbVBIOgb convert rfc822-to-8bit (ORCPT
+	Wed, 9 Feb 2005 09:45:12 -0500
+Received: from village.ehouse.ru ([193.111.92.18]:9741 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S261828AbVBIOpF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 09:36:31 -0500
-X-OB-Received: from unknown (208.36.123.33)
-  by wfilter.us4.outblaze.com; 9 Feb 2005 14:36:29 -0000
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+	Wed, 9 Feb 2005 09:45:05 -0500
+From: "Alexander Y. Fomichev" <gluk@php4.ru>
+Reply-To: "Alexander Y. Fomichev" <gluk@php4.ru>
+To: Nathan Scott <nathans@sgi.com>
+Subject: Re: 2.6.11-rc3-bk5: XFS: fcron: could not write() buf to disk: Resource temporarily unavailable
+Date: Wed, 9 Feb 2005 17:44:54 +0300
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <200502082051.36989.gluk@php4.ru> <20050209012900.GA1140@frodo>
+In-Reply-To: <20050209012900.GA1140@frodo>
 MIME-Version: 1.0
-From: "Deepti Patel" <pateldeepti@lycos.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 09 Feb 2005 09:36:29 -0500
-Subject: Getting errors in compilation of Hello World!
-X-Originating-Ip: 67.85.157.5
-X-Originating-Server: ws7-4.us4.outblaze.com
-Message-Id: <20050209143629.1B610CA09D@ws7-4.us4.outblaze.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502091744.55137.gluk@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I am new to Linux. I am tring to load a module in kernel of 'Fedora core2'.
-I wrote a simple Hello world program and tring to compile it with Makefile. I tried 3 differnt types of make file but still it is giving me error. I will really appritiate any help.
- 
-Here is my Hello world program:
+On Wednesday 09 February 2005 04:29, Nathan Scott wrote:
+> On Tue, Feb 08, 2005 at 08:51:36PM +0300, Alexander Y. Fomichev wrote:
+> > G' day
+> >
+> > It looks like XFS broken somewhere in 2.6.11-rc1,
+> > sadly i can't sand "right" bugreport, some facts only.
+> > Upgrade to 2.6.11-rc2 makes fcron non-working for me in case of
+> > crontabs directory is placed on XFS partition.
+> > When i try to install new crontab fcrontab die with error:
+> > "could not write() buf to disk: Resource temporarily unavailable"
+>
+> Is that an O_SYNC write, do you know?  Or a write to an inode
+> with the sync flag set?
 
-    #include <linux/init.h>
-    #include <linux/module.h>
-    #include <linux/kernel.h>
+Yes, it is O_SYNC, as i can see from fcron sources, and, no, kernel
+have been compiled without xattrs support (if i understand
+your question correctly)
 
-    static int hello_init(void)
-    {
-        printk(KERN_ALERT "Hello, world\n");
-        return 0;
-    }
+>
+> > The same time it works with 2.6.10.
+>
+> I'm chasing down a problem similar to this atm, so far looks like
+> something in the generic VM code below sync_page_range is giving
+> back EAGAIN, and that is getting passed back out to userspace by
+> XFS.  Not sure where/why/how its been caused yet though ... I'll
+> let you know once I have a fix or have found the culprit change.
+>
+> cheers.
 
-    static void hello_exit(void)
-    {
-        printk(KERN_ALERT "Goodbye, cruel world\n");
-    }
+Tnx for quick answer.
 
-    module_init(hello_init);
-    module_exit(hello_exit);
-
-
-Here is the Makefile:
-
-ifneq ($(KERNELRELEASE),)
-obj-m:= hello.o
-
-else
-KDIR:= /lib/modules/$(shell uname -r)/build
-PWD:= $(shell pwd)
-
-default:
-$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
-endif
-
-Problem here is once I type the command "make" at the shell prompt it gives the following message :
-
-$ make: Nothing to be done for 'default'
-
+PS: i forgot to mention last time i tested 2.6.11-rc3-bk5 with the
+same results.
 
 -- 
-_______________________________________________
-Find what you are looking for with the Lycos Yellow Pages
-http://r.lycos.com/r/yp_emailfooter/http://yellowpages.lycos.com/default.asp?SRC=lycos10
-
+Best regards.
+        Alexander Y. Fomichev <gluk@php4.ru>
+        Public PGP key: http://sysadminday.org.ru/gluk.asc

@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbTKHPEf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 10:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTKHPEf
+	id S261784AbTKHPQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 10:16:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTKHPQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 10:04:35 -0500
-Received: from 30.Red-80-36-33.pooles.rima-tde.net ([80.36.33.30]:26585 "EHLO
-	linalco.com") by vger.kernel.org with ESMTP id S261782AbTKHPEe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 10:04:34 -0500
-Date: Sat, 8 Nov 2003 16:06:54 +0100
-From: Ragnar Hojland Espinosa <ragnar@linalco.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, John Bradford <john@grabjohn.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Message-ID: <20031108150654.GA19980@linalco.com>
-References: <Pine.LNX.3.96.1031107090309.20991B-100000@gatekeeper.tmr.com> <Pine.LNX.4.44.0311070652080.1842-100000@home.osdl.org>
+	Sat, 8 Nov 2003 10:16:57 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:2053 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261784AbTKHPQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 10:16:56 -0500
+Subject: Re: lib.a causing modules not to load
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <20031108085152.B18856@infradead.org>
+References: <1068222065.1894.21.camel@mulgrave>
+	<20031107203419.7d0de676.akpm@osdl.org> 
+	<20031108085152.B18856@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Nov 2003 09:16:10 -0600
+Message-Id: <1068304571.2048.5.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311070652080.1842-100000@home.osdl.org>
-X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 07, 2003 at 07:01:22AM -0800, Linus Torvalds wrote:
-> In other words, they seem to "exist" in the same sense that soubdblaster 
-> CD-ROM users "exist". True in theory, but apparently only really useful 
-> for theoretical arguments.
+On Sat, 2003-11-08 at 02:51, Christoph Hellwig wrote:
+> On Fri, Nov 07, 2003 at 08:34:19PM -0800, Andrew Morton wrote:
+> > How about we just link that function into the kernel and be done with it? 
+> > We'll waste a few bytes on SMP machines which have neither ext2 nor ext3
+> > linked-in or loaded as modules, but that doesn't sound very important...
+> > 
+> > (We don't have a kernel/random-support-stuff.c, but we have
+> > mm/random-support-stuff.c which for some reason is called mm/swap.c, so
+> > I put it there).
+> 
+> Well, this solves the problem for this particular case, but not other
+> stuff in lib for other situations.
 
-Well, I hope its in better state than the Mitsumi driver, because last
-time I tried it was broken (oopsed in a simple cat) since a 2.3.xx
-IIRC [0]
+I agree...there's much more in lib than just percpu_counter_mod.
 
-[0]  Tracked it down to a -pre if anyone is interested and its still
-     broken.. 
--- 
-Ragnar Hojland - Project Manager
-Linalco "Specialists in Linux and Free Software"
-http://www.linalco.com  Tel: +34-91-4561700
+> We should just stop building lib
+> as archive and conditionalize building bigger and rarely used stuff in
+> there using Kconfig symbols.
+
+Actually, I do think lib serves a purpose for shared routines that are
+used in disparate places throughout the kernel.
+
+Why code these as Kconfig symbol dependencies when the library mechanism
+does exactly what we want except for this one all symbols are in modules
+case.  As a counter example: kobject is in lib...Imagine exactly how
+many Kconfig conditions we'd have to introduce to conditionalise that...
+
+I really think the correct way forwards is to fix the one failing case;
+I was just asking if anyone had already thought about it.
+
+James
+
+
+
+
+

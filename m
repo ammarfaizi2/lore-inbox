@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314761AbSD2D3U>; Sun, 28 Apr 2002 23:29:20 -0400
+	id <S314776AbSD2Dr0>; Sun, 28 Apr 2002 23:47:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314767AbSD2D3T>; Sun, 28 Apr 2002 23:29:19 -0400
-Received: from [202.135.142.194] ([202.135.142.194]:58124 "EHLO
+	id <S314784AbSD2DrZ>; Sun, 28 Apr 2002 23:47:25 -0400
+Received: from [202.135.142.194] ([202.135.142.194]:4876 "EHLO
 	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S314761AbSD2D3T>; Sun, 28 Apr 2002 23:29:19 -0400
-Date: Mon, 29 Apr 2002 13:32:33 +1000
+	id <S314776AbSD2DrZ>; Sun, 28 Apr 2002 23:47:25 -0400
+Date: Mon, 29 Apr 2002 13:50:43 +1000
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com (Linus Torvalds)
+To: Daniel Dickman <ddickman@nyc.rr.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: graphical cset stats
-Message-Id: <20020429133233.71a6337f.rusty@rustcorp.com.au>
-In-Reply-To: <aa5bn5$28v$1@penguin.transmeta.com>
+Subject: Re: [PATCH] spelling changes backported from 2.5.9 to 2.4.19-pre7
+Message-Id: <20020429135043.4f570d93.rusty@rustcorp.com.au>
+In-Reply-To: <1019631011.2710.13.camel@24-90-114-48>
 X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -20,17 +20,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Apr 2002 04:18:45 +0000 (UTC)
-torvalds@transmeta.com (Linus Torvalds) wrote:
+On 24 Apr 2002 02:49:31 -0400
+Daniel Dickman <ddickman@nyc.rr.com> wrote:
 
-> So I personally get a bit nervous about pretty graphs - they _seem_ to
-> say so much, yet they clearly don't tell enough.  Which can be a bit
-> dangerous if somebody takes them too seriously. They're just simple
-> enough that you think you get the RealTruth(tm).
+> Hi,
+> 
+> Here are some random Documentation changes that could be backported to the 2.4.x series. These apply cleanly to 2.4.19-pre7. The following files are modified:
+> 
+> - Documentation/DMA-mapping.txt
+> - Documentation/IRQ-affinity.txt
+> - Documentation/SubmittingDrivers
 
-Shut up Linus!  They're obviously revealing a Deeper Truth.
+Want to submit these (individually) to the Trivial Patch Monkey?
+	trivial at rustcorp.com.au
 
-12th best kernel coder on the planet!  Woohoo!
+Thanks,
 Rusty.
 -- 
    there are those who do and those who hang on and you don't see too

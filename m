@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285170AbRLFRBB>; Thu, 6 Dec 2001 12:01:01 -0500
+	id <S285173AbRLFRFV>; Thu, 6 Dec 2001 12:05:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285164AbRLFRAw>; Thu, 6 Dec 2001 12:00:52 -0500
-Received: from h152-148-10-6.outland.lucent.com ([152.148.10.6]:62886 "EHLO
-	alpo.casc.com") by vger.kernel.org with ESMTP id <S285170AbRLFRAi>;
-	Thu, 6 Dec 2001 12:00:38 -0500
-From: John Stoffel <stoffel@casc.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15375.41990.439405.8024@gargle.gargle.HOWL>
-Date: Thu, 6 Dec 2001 11:59:50 -0500
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Rob Landley <landley@trommello.org>, "Eric S. Raymond" <esr@thyrsus.com>,
-        <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-In-Reply-To: <Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva>
-In-Reply-To: <20011206001558.OQCD485.femail3.sdc1.sfba.home.com@there>
-	<Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva>
-X-Mailer: VM 6.95 under Emacs 20.6.1
+	id <S285176AbRLFRFL>; Thu, 6 Dec 2001 12:05:11 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39182 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285173AbRLFRE5>; Thu, 6 Dec 2001 12:04:57 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Linux/Pro  -- clusters
+Date: Thu, 6 Dec 2001 16:58:34 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9uo83q$aa7$1@penguin.transmeta.com>
+In-Reply-To: <9um58i$9no$1@penguin.transmeta.com> <E16BlnL-00080m-00@the-village.bc.nu>
+X-Trace: palladium.transmeta.com 1007658287 10402 127.0.0.1 (6 Dec 2001 17:04:47 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 6 Dec 2001 17:04:47 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <E16BlnL-00080m-00@the-village.bc.nu>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>
+>You still need the scsi code. There are a whole sequence of common, quite
+>complex and generic functions that the scsi layer handles (in paticular
+>error handling).
 
-Rik> IMHO it's not acceptable that people upgrading from one 2.4
-Rik> kernel to the next will have to install Python 2 on their
-Rik> machine. 
+Well, the preliminary patches already handle _some_ common things, like
+building the proper command request for reads and writes etc, and that
+will probably continue.  We'll probably have to have all the old helpers
+for things like "this target only wants to be probed on lun 0" etc.
 
-So has anyone had time to test the Python version 1.5 based CML2 that
-was posted?  Would that make it more acceptable?
+I disagree about the error handling, though.
 
-Rik> Security bugs are and will be discovered, you cannot make it
-Rik> impossible for people to do security upgrades.
+Traditionally, the timeouts and the reset handling was handled in the
+SCSI mid-layer, and it was a complete and utter disaster.  Different
+hosts simply wanted so different behaviour that it's not even funny.
+Timeouts for different commands were so different that people ended up
+making most timeouts so long that they no longer made sense for other
+commands etc.
 
-This is a bogus arguement, since I could say the same about installing
-new kernels.  There could (and will) be security problems with the
-kernel, so we should not release new ones until we have proved they
-are correct.
+Other device drivers have been able to handle timeouts and errors on
+their own before, and have _not_ had the kinds of horrendous problems
+that the SCSI layer has had.
 
-Yeah, I'm being a pain here, but Rik is making a bad arguement here.
+We'll see what the details will end up being, but I personally think
+that it is a major mistake to try to have generic error handling.  The
+only true generic thing is "this request finished successfully / with an
+error", and _no_ high-level retries etc. It's up to the driver to decide
+if retries make sense.
 
-Rik> Yes, I agree the method you're using to smuggle CML2 into a
-Rik> stable kernel is insidious. Please stop it.
+(Often retrying _doesn't_ make sense, because the firmware on the
+high-end card or disk itself may already have done retries on its own,
+and high-level error handling is nothing but a waste of time and causes
+the error notification to be even more delayed).
 
-I think you're being too harsh here.  Smuggling is not happening here,
-it's been very aboveboard that CML2 might (I repeat MIGHT) be
-back-ported to the 2.4 series of kernels.  But since it would happen
-in the -pre tree, there would be plenty of notice.  And people could
-complain then.
-
-The requirement for python2 is a bit of a pain, but hey, for 2.5, it's
-not a problem.
-
-John
-   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548
+		Linus

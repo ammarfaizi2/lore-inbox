@@ -1,13 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287388AbSADNZb>; Fri, 4 Jan 2002 08:25:31 -0500
+	id <S288503AbSADN1b>; Fri, 4 Jan 2002 08:27:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288503AbSADNZV>; Fri, 4 Jan 2002 08:25:21 -0500
-Received: from ns.suse.de ([213.95.15.193]:16646 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287388AbSADNZO> convert rfc822-to-8bit;
-	Fri, 4 Jan 2002 08:25:14 -0500
+	id <S288521AbSADN1V>; Fri, 4 Jan 2002 08:27:21 -0500
+Received: from ns.suse.de ([213.95.15.193]:24582 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288503AbSADN1H>;
+	Fri, 4 Jan 2002 08:27:07 -0500
+Mail-Copies-To: never
 To: "Eric S. Raymond" <esr@thyrsus.com>
-Cc: Erik Andersen <andersen@codepoet.org>,
+Cc: Andreas Schwab <schwab@suse.de>, Erik Andersen <andersen@codepoet.org>,
         linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: LSB1.1: /proc/cpuinfo
 In-Reply-To: <20020103190219.B27938@thyrsus.com>
@@ -16,41 +17,38 @@ In-Reply-To: <20020103190219.B27938@thyrsus.com>
 	<20020104081802.GC5587@codepoet.org>
 	<20020104071940.A10172@thyrsus.com> <je4rm2l0qz.fsf@sykes.suse.de>
 	<20020104080358.A11215@thyrsus.com>
-X-Yow: I'm also pre-POURED pre-MEDITATED and pre-RAPHAELITE!!
-From: Andreas Schwab <schwab@suse.de>
-Date: Fri, 04 Jan 2002 14:25:13 +0100
+From: Andreas Jaeger <aj@suse.de>
+Date: Fri, 04 Jan 2002 14:27:01 +0100
 In-Reply-To: <20020104080358.A11215@thyrsus.com> ("Eric S. Raymond"'s
  message of "Fri, 4 Jan 2002 08:03:58 -0500")
-Message-ID: <jezo3ujlja.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1.30 (ia64-suse-linux)
+Message-ID: <u8d70qnt5m.fsf@gromit.moeb>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Artificial
+ Intelligence, i386-suse-linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 "Eric S. Raymond" <esr@thyrsus.com> writes:
 
-|> Andreas Schwab <schwab@suse.de>:
-|> > |> I'm not very worried about this.  On modern machines int == long 
-|> > 
-|> > You mean alpha, ia64, ppc64, s390x, x68-64 are not modern machines?
-|> 
-|> Well, S390 certainly isn't! :-)
+> Andreas Schwab <schwab@suse.de>:
+>> |> I'm not very worried about this.  On modern machines int == long 
+>> 
+>> You mean alpha, ia64, ppc64, s390x, x68-64 are not modern machines?
+>
+> Well, S390 certainly isn't! :-)
 
-s390x is the new 64 bit architecture.
+s390x - the zSeries - is newer ;-)
 
-|> If the PPC etc. have 32-bit ints then I stand corrected, but I thought the 
-|> compiler ports on those machines used the native register size same as
-|> everybody else.
+> If the PPC etc. have 32-bit ints then I stand corrected, but I thought the 
+> compiler ports on those machines used the native register size same as
+> everybody else.
 
-On all those architectures the ABI used on Linux has int == 32 bits and
-long == 64 bits.  LP64 is more usefull in most cases than ILP64.
+All the ports Andreas mentioned use 32-bit int and 64-bit longs.
 
-Andreas.
-
+Andreas
 -- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj

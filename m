@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265650AbSLUXp2>; Sat, 21 Dec 2002 18:45:28 -0500
+	id <S264644AbSLVBAu>; Sat, 21 Dec 2002 20:00:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265656AbSLUXp2>; Sat, 21 Dec 2002 18:45:28 -0500
-Received: from services.cam.org ([198.73.180.252]:31038 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S265650AbSLUXp1>;
-	Sat, 21 Dec 2002 18:45:27 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] compile error mtrr/if.c
-Date: Sat, 21 Dec 2002 18:53:26 -0500
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200212211853.26554.tomlins@cam.org>
+	id <S264646AbSLVBAu>; Sat, 21 Dec 2002 20:00:50 -0500
+Received: from www2.mail.lycos.com ([209.202.220.150]:4920 "HELO mailcity.com")
+	by vger.kernel.org with SMTP id <S264644AbSLVBAt>;
+	Sat, 21 Dec 2002 20:00:49 -0500
+To: "Rob Shortt" <rob@infointeractive.com>
+Date: Sat, 21 Dec 2002 20:08:32 -0500
+From: "Paul Richards" <greytek@lycos.com>
+Message-ID: <CBLIEOOEMIICNBAA@mailcity.com>
+Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+X-Sent-Mail: off
+Reply-To: greytek@lycos.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: Re: [PATCH] 2.4.19 rivafb updates
+X-Sender-Ip: 68.41.210.181
+Organization: Lycos Mail  (http://www.mail.lycos.com:80)
+Content-Type: text/plain; charset=us-ascii
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 03 Dec 2002 11:06:07  
+ Rob Shortt wrote:
+>Hi Paul,
+>
+>First of all, thanks for this patch!  I came accross it while searching 
+>the archives last night.  I am using a GeForce4 MX440 and have applied 
+>your patch, now rivafb successfully detects my card.
+>
+>I am trying to use rivefb with my TV as the (only) display.  I have 
+>tried an 800x600 mode @ 60 Hz which from what I read is optimal for 
+>TV's, also this is the mode I use when using X to display on my TV. 
+>With rivafb in this mode (similar results for other modes) my display is 
+>totally garbled with rectangles of colours going everywhere.
+>
+>My question is does something need to change with regard to rivafb to 
+>play nice with a television as the display or do I just need to keep 
+>searching for a better modeline?  I will be testing the patched rivafb 
+>this evening with a regular monitor to make sure that works as well.
+>
+>Once again, thanks!  If anyone else on this list has any input that also 
+>would be appreciated.
+>
+>-Rob Shortt
+>
 
-I get this compiling from bk current (Dec 21):
+Sorry for the wait (real life stuff), but unfortunately there is no tv-out support in this patch. 
 
-make -f scripts/Makefile.build obj=arch/i386/kernel/cpu/mtrr
-  gcc -Wp,-MD,arch/i386/kernel/cpu/mtrr/.if.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=if -DKBUILD_MODNAME=if   -c -o arch/i386/kernel/cpu/mtrr/if.o arch/i386/kernel/cpu/mtrr/if.c
-arch/i386/kernel/cpu/mtrr/if.c:306: duplicate initializer
-arch/i386/kernel/cpu/mtrr/if.c:306: (near initialization for `mtrr_fops.release')
-make[4]: *** [arch/i386/kernel/cpu/mtrr/if.o] Error 1
-make[3]: *** [arch/i386/kernel/cpu/mtrr] Error 2
-make[2]: *** [arch/i386/kernel/cpu] Error 2
-make[1]: *** [arch/i386/kernel] Error 2
-make: *** [vmlinux] Error 2
-oscar% vi arch/i386/kernel/cpu/mtrr/if.c
+Regards,
 
-which is caused by:
+Paul F. Richards
 
-static struct file_operations mtrr_fops = {
-        .owner   = THIS_MODULE,
-        .open    = mtrr_open,
-        .read    = seq_read,
-        .llseek  = seq_lseek,
-        .release = single_release,
-        .write   = mtrr_write,
-        .ioctl   = mtrr_ioctl,
-        .release = mtrr_close,
-};
 
-single_release is called in mtrr_close so I would guess that removing 
-".release = single_release," is the way to go (it compiles).  Assuming
-this is correct here is the patch.
-
-----------
-diff -Nru a/arch/i386/kernel/cpu/mtrr/if.c b/arch/i386/kernel/cpu/mtrr/if.c
---- a/arch/i386/kernel/cpu/mtrr/if.c    Sat Dec 21 18:52:05 2002
-+++ b/arch/i386/kernel/cpu/mtrr/if.c    Sat Dec 21 18:52:05 2002
-@@ -300,7 +300,6 @@
-        .open    = mtrr_open,
-        .read    = seq_read,
-        .llseek  = seq_lseek,
--       .release = single_release,
-        .write   = mtrr_write,
-        .ioctl   = mtrr_ioctl,
-        .release = mtrr_close,
-----------
-
-TIA,
-Ed Tomlinson
+_____________________________________________________________
+Get 25MB, POP3, Spam Filtering with LYCOS MAIL PLUS for $19.95/year.
+http://login.mail.lycos.com/brandPage.shtml?pageId=plus&ref=lmtplus

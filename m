@@ -1,91 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272371AbRIFBB7>; Wed, 5 Sep 2001 21:01:59 -0400
+	id <S272369AbRIFBH7>; Wed, 5 Sep 2001 21:07:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272370AbRIFBBu>; Wed, 5 Sep 2001 21:01:50 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:9476 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S272369AbRIFBBj>; Wed, 5 Sep 2001 21:01:39 -0400
-Date: Thu, 6 Sep 2001 03:02:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rohit.seth@intel.com
-Subject: kiobuf wrong changes in 2.4.9ac9
-Message-ID: <20010906030228.C11329@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S272370AbRIFBHt>; Wed, 5 Sep 2001 21:07:49 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:41231 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S272369AbRIFBHn>; Wed, 5 Sep 2001 21:07:43 -0400
+Date: Thu, 6 Sep 2001 02:04:51 +0100 (BST)
+From: Dave Jones <davej@suse.de>
+X-X-Sender: <davej@noodles.codemonkey.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] Machine Check Exception thinko.
+Message-ID: <Pine.LNX.4.31.0109060153500.9882-100000@noodles.codemonkey.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I suggest to backout the kiobuf patch in 2.4.9ac9. Right performance fix
-is just in 2.4.10pre4aa1 and it depends on O_DIRECT.
 
-see:
+Hi all,
+ The values printed by the bluesmoke exception handler are bogus.
+We're printing the address twice, instead of the address + the misc
+register as the intel spec defines. (I guess the reports we've had
+where the two values reported differing are down to the CPU being
+in a sorry state).
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.10pre4aa1/00_o_direct-15
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.10pre4aa1/10_rawio-f_iobuf-1
+I'm surprised I didn't notice this whilst doing my recent
+'use the MSR #defines' diff, and thought for a second I had introduced it
+with that patch, but I checked, and this bug existed before I did that,
+I just 'reimplemented' it.
 
-Porting to 2.4.5 is very very very trivial if truly needed.
+If this patch is correct, and I'm not missing something here, all
+previously hand-decoded reports on Linux-kernel have been incorrect.
+(oops!)
 
-I cannot care less if with 2 hounrded of harddisks and 2 houndred of
-tasks all doing simultaneous I/O to all the 2 hounrded of harddisks, 2
-hounrded of mbytes of ram are statically allocated in kiobufs. If you
-have money for such configuration you *defininitely* don't want to waste
-cpu in kiobufs allocation but you want to keep them preallocated and
-spend the money in the 2 houndred mbytes of ram (today in Italy a pair
-kilometers away from my home I can buy a 128mbytes 133mhz dimm for 20
-EUR [in us it has to be cheaper], compare that with the price of the
-rest of the system). I didn't even attempted to count the static ram you
-as well spend in the large preallocated I/O queues for each harddisk for
-the same reason.
+As a side-note, I'm interested in any dumped Machine Check Exception logs,
+as I've started a tool to parse these into plaintext, and the more real
+world test cases the better.
 
-In low end configuration with a few disks and a few tasks doing I/O the
-ram overhead is some houndred kbytes so it's fine.
+Patch below.
 
-For the thread/process issue there's no difference at all (I'm not
-penalyzing threads), it's just that you must reopen the file if the
-child thread or process will do simutalenous I/O to the same rawio
-device with the parent (the only difference between process and thread
-is that you will be forced to share the same fd space with the parent in
-the thread case but it's a long time [2.2] that the fd space is
-1024*1024 fd high bound).
+regards,
 
-Now I'm not saying we don't need to shrink the size of the kiobuf so we
-can save ram [notably for non IO backed kiobuf users] and make the
-contention case faster as well (btw, having the KIO_MAX_ATOMIC_IO at
-512k is useful only in -aa with the other changes that allows the 512k
-scsi commands:
+Dave.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.10pre4aa1/00_sd-max_sectors-1
+diff -urN --exclude-from=/home/davej/.exclude linux-ac/arch/i386/kernel/bluesmoke.c linux-dj/arch/i386/kernel/bluesmoke.c
+--- linux-ac/arch/i386/kernel/bluesmoke.c	Thu Sep  6 01:10:08 2001
++++ linux-dj/arch/i386/kernel/bluesmoke.c	Thu Sep  6 01:19:03 2001
+@@ -38,7 +38,7 @@
+ 			high&=~(1<<31);
+ 			if(high&(1<<27))
+ 			{
+-				rdmsr(MSR_IA32_MC0_ADDR+i*4, alow, ahigh);
++				rdmsr(MSR_IA32_MC0_MISC+i*4, alow, ahigh);
+ 				printk("[%08x%08x]", alow, ahigh);
+ 			}
+ 			if(high&(1<<26))
 
-). But my plan was to split the kiobuf in two entities to save ram and
-to try to slabify it again, but that's a much lower prio work (the high
-prio stuff is what I'm shipping above in -aa) and my point here is that
-this lower prio work it's not in the direction of the patch.
 
-The above is all about performance and design, about real world
-showstopper the one in 2.4.9ac9 is that kiobuf allocations are going to
-fail during read/writes due mem framentation (this is why it was using
-vmalloc indeed) [those faliures should be easily reprocible on x86 boxes
-with PAGE_SIZE = 4k]. The reason kmem allocations larger than PAGE_SIZE
-aren't reliable is because the slab like everything else is alloc_pages
-backed and the main allocator isn't reliable to allocate anything larger
-than PAGE_SIZE.  OTOH for the kernel stack we also allocate 2*PAGE_SIZE
-physically contigous, but here the kiobuf structure would generate an
-order 2 allocation that will definitely fail with the current vm
-eventually [ask Daniel] (not order 1 like kernel stack)
+-- 
+| Dave Jones.                    http://www.codemonkey.org.uk
+| SuSE Labs .
 
-I told Rohit a few days ago about some of those issues as argument why I
-didn't accepted the patch, he raised a few issues that I hope to have
-addressed in this email, I was busy with other things and so I managed
-to answer only now, I'm sorry for the delay Rohit.
 
-Rohit could you please do a run of the benchmark on top of
-2.4.10pre4aa1 to verify I'm right about the "high prio" stuff, then
-we'll address the "low prio" contention optimization and finegrined
-memory-saving part relaxed in a larger patch.
 
-Andrea

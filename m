@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVCPCKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVCPCWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbVCPCKu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 21:10:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVCPCKu
+	id S262469AbVCPCWE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 21:22:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVCPCWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 21:10:50 -0500
-Received: from colo.lackof.org ([198.49.126.79]:10118 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S262430AbVCPCKm (ORCPT
+	Tue, 15 Mar 2005 21:22:04 -0500
+Received: from main.gmane.org ([80.91.229.2]:28633 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262469AbVCPCWB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 21:10:42 -0500
-Date: Tue, 15 Mar 2005 19:12:07 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: "Nguyen, Tom L" <tom.l.nguyen@intel.com>, Greg KH <greg@kroah.com>,
-       long <tlnguyen@snoqualmie.dp.intel.com>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 0/6] PCI Express Advanced Error Reporting Driver
-Message-ID: <20050316021207.GA6608@colo.lackof.org>
-References: <C7AB9DA4D0B1F344BF2489FA165E5024080A4C09@orsmsx404.amr.corp.intel.com> <20050315201139.GA1756@colo.lackof.org>
+	Tue, 15 Mar 2005 21:22:01 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Adam <kinema@gmail.com>
+Subject: console/fbdev/DRM rearchitecture progress?
+Date: Wed, 16 Mar 2005 02:19:15 +0000 (UTC)
+Message-ID: <loom.20050316T031224-991@post.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050315201139.GA1756@colo.lackof.org>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 4.242.177.169 (Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.6) Gecko/20050225 Firefox/1.0.1)
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 01:11:39PM -0700, Grant Grundler wrote:
-> Tom,
-> A co-worker made the following observation (I'm paraphrasing):
-> 	...this proposal does not deal with the Error Reporting ECN.
-> 	For example, they do not show the advisory non-fatal bit in
-> 	the correctable error status register.
-> 
-> I believe he is referring to the "Error Clarifications ECN":
-> 
-> 	http://www.pcisig.com/specifications/pciexpress/ECN_-_Error_Clarifications.pdf
+Back on the second of August Jon Smirl posted (http://tinyurl.com/5w2nt) a
+synopsis of the plan created at OLS for the rearchitecture of the console, fbdev
+and DRM subsystems.  Has any more thought gone into this major rework of the
+kernel?
 
-Tom,
-Sorry - I got this wrong.
-He was referring to an unpublished draft "Error Reporting ECN".
-You'll have to talk to Intel's PCI-SIG representative to get a copy.
-[ Ugh. And everyone else is SOL - sorry ]
+--adam
 
-I'm annoyed he wanted me to raise this in a public forum without
-having a public document to point at. And I'm annoyed at myself
-for being lazy and not verifying that before hand...
-
-sorry,
-grant

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263213AbUC3ABx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 19:01:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263210AbUC3ABx
+	id S263231AbUC3AET (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 19:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263225AbUC3AES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 19:01:53 -0500
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:13441 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263213AbUC3ABu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 19:01:50 -0500
-Message-ID: <4068B8E8.2030407@yahoo.com.au>
-Date: Tue, 30 Mar 2004 10:01:44 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rick Lindsley <ricklind@us.ibm.com>
-CC: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       jun.nakajima@intel.com, piggin@cyberone.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
-       mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-References: <200403291730.i2THUBo27915@owlet.beaverton.ibm.com>
-In-Reply-To: <200403291730.i2THUBo27915@owlet.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 29 Mar 2004 19:04:18 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:2159 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263231AbUC3ACT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 19:02:19 -0500
+Date: Mon, 29 Mar 2004 15:04:10 -0800
+From: Paul Jackson <pj@sgi.com>
+To: colpatch@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
+       wli@holomorphy.com, haveblue@us.ibm.com, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH] Introduce mask ADT, rebuild cpumask_t and nodemask_t
+ [0/22]
+Message-Id: <20040329150410.7ed30da1.pj@sgi.com>
+In-Reply-To: <1080600241.6742.20.camel@arrakis>
+References: <20040329041140.77ce66d2.pj@sgi.com>
+	<1080600241.6742.20.camel@arrakis>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rick Lindsley wrote:
->     Rick Lindsley wrote:
->     > I've got a web page up now on my home machine which shows data from
->     > schedstats across the various flavors of 2.6.4 and 2.6.5-rc2 under
->     > load from kernbench, SPECjbb, and SPECdet.
->     > 
->     >     http://eaglet.rain.com/rick/linux/sched-domain/index.html
->     > 
->     
->     I can't see it
-> 
-> Ack, sorry, wrong path.  Hazards of typing at 3am .. should've used cut 'n'
-> paste ...
-> 
->     http://eaglet.rain.com/rick/linux/results/sched-domain/index.html
-> 
+Thanks, Matthew, for reviewing these, and the initial feedback.
 
-Hi Rick,
-This looks very cool. Very comprehensive. Have you got any
-plans to intergrate it with sched_domains (so for example,
-you can see stats for each domain)?
+I should give credit to Christoph Hellwig - he's the one who initially
+recommended to me that I use a common ADT for both cpumask and nodemask,
+about 4 months ago.  I will never admit in public how much time that
+one line comment of his cost me ... ;-).
 
-I will have to have a look at the code, it should be useful
-for testing.
-
-Thanks
-Nick
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

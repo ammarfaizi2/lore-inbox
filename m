@@ -1,56 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266384AbTAONgS>; Wed, 15 Jan 2003 08:36:18 -0500
+	id <S264915AbTAONuP>; Wed, 15 Jan 2003 08:50:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266406AbTAONgS>; Wed, 15 Jan 2003 08:36:18 -0500
-Received: from h18n2fls31o276.telia.com ([213.64.188.18]:46587 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S266384AbTAONgR>; Wed, 15 Jan 2003 08:36:17 -0500
-Message-ID: <3E256549.3020502@gorling.se>
-Date: Wed, 15 Jan 2003 14:42:33 +0100
-From: =?ISO-8859-1?Q?Stefan_G=F6rling?= <stefan@gorling.se>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
+	id <S266417AbTAONuP>; Wed, 15 Jan 2003 08:50:15 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:57223 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S264915AbTAONuO>; Wed, 15 Jan 2003 08:50:14 -0500
+Date: Wed, 15 Jan 2003 09:00:36 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Mark Mielke <mark@mark.mielke.cc>
+cc: DervishD <raul@pleyades.net>, Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Changing argv[0] under Linux.
+In-Reply-To: <20030114212113.GF15412@mark.mielke.cc>
+Message-ID: <Pine.LNX.3.95.1030115085049.17316A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mbox archive of linux-kernel ?
-References: <20030114073256.C9108@newbox.localdomain> <20030114123649.GE27709@mea-ext.zmailer.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 14 Jan 2003, Mark Mielke wrote:
 
-ftp.uwsg.indiana.edu carries most of the mbox-files, except for Apr-June 
-2000 which are missing for some odd reason. So if anyone have any idea 
-where I might find it in a convenient format I'd appriceate it. If you 
-just need senders and subject I could mail you a sql-dump.
+> On Tue, Jan 14, 2003 at 03:28:23PM -0500, Richard B. Johnson wrote:
+> > On Tue, 14 Jan 2003, Mark Mielke wrote:
+> > > On Tue, Jan 14, 2003 at 02:56:35PM -0500, Richard B. Johnson wrote:
+> > > > Well I just grepped through usr/include/bits/posix1_lim.h and it
+> > > > shows 255 (with this 'C' library) so you are probably right.
+> > > > In any event, a "whole line of text" isn't going to overrun it. 
+> > > Looking at the code, it looks to me as if argv[0] can be any size up to
+> > > _SC_ARG_MAX, with the restraining factor being that the environment
+> > > variables and the other arguments must fit in the same space.
+> > > Is this not correct?
+> > Don't think so. In my headers _SC_ARG_MAX is an enumerated type
+> > that is numerically equal to 0. It's in confname.h, the first
+> > element in the enumerated list.
+> 
+> _SC_ARG_MAX is one of the identifiers that are used with sysconf() to
+> lookup a system-wide configuration value:
+> 
+>     $ perl -MPOSIX -e 'print sysconf(_SC_ARG_MAX), "\n"'
+>     131072
+> 
+> The environment size for a program invoked using exec() can be up to
+> 131072 bytes long (my configuration). This environment holds the
+> command arguments as well as the environment.
+> 
+> On my system, _SC_ARG_MAX is telling me that it is possible to have
+> argv[0] be just under 131072 bytes long.
+> 
+> mark
+> 
 
-If you're going to parse them, I've found perl and Mail::Box very 
-convenient.
+The following program shows why it's not "safe" to do anything
+with argv[0].
 
-/Stefan
+#include <stdio.h>
+int main(int c, char *argv[], char *env[])
+{
+   int i;
+   i = 0;
+   printf("Stack is at %p\n", &i);
+   while(argv[i])
+   {
+       printf("Pointer at %p = %s\n", argv[i], argv[i]);
+       i++; 
+   }
+   i = 0;
+   while(env[i])
+   {
+       printf("Pointer at %p = %s\n", env[i], env[i]);
+       i++; 
+   }
+   return 0;
+}
 
->On Tue, Jan 14, 2003 at 07:32:56AM -0500, Scott McDermott wrote:
->  
->
->>anyone have an mbox or similar format archive of the whole linux-kernel
->>discussion going back since its inception?
->>    
->>
->
->See the pointers at:
->
->  http://vger.kernel.org/vger-lists.html#linux-kernel
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+Everything is lined-up, sitting on the stack, and all variable-
+length.
 
+I looked at sendmail and it just does:
+
+	strcpy(argv[0] ,"sendmail:accepting connections");
+
+But sendmail doesn't use the environment so if it gets trashed
+it doesn't make any difference. It looks as though, if the
+environment was small, i.e., only "TERM=vt100", sendmail might
+have problems if main() ever returns to _start. The stack
+will be trashed. But, most 'C' code doesn't do "return N;" from
+main, certainly not a daemon, most call exit().
+
+Anyway, overwriting argv[0] is done, but it's not "safe".
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
 

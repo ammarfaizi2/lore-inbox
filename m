@@ -1,154 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbTJUB4T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 21:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbTJUB4T
+	id S262839AbTJUB47 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 21:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262841AbTJUB47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 21:56:19 -0400
-Received: from mail016.syd.optusnet.com.au ([211.29.132.167]:33420 "EHLO
-	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262802AbTJUB4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 21:56:15 -0400
-Subject: Re: K 2.6 test6 strange signal behaviour
-From: Ken Foskey <foskey@optushome.com.au>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20031020132805.5e5a59f1.akpm@osdl.org>
-References: <1066654886.5930.57.camel@gandalf.foskey.org>
-	 <20031020132805.5e5a59f1.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1066701370.1079.13.camel@gandalf.foskey.org>
+	Mon, 20 Oct 2003 21:56:59 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:13736 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262839AbTJUB4y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 21:56:54 -0400
+Date: Mon, 20 Oct 2003 18:56:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: schlicht@uni-mannheim.de, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       James Simmons <jsimmons@infradead.org>
+Subject: Re: 2.6.0-test8-mm1
+Message-Id: <20031020185613.7d670975.akpm@osdl.org>
+In-Reply-To: <200310210046.h9L0kHFg001918@turing-police.cc.vt.edu>
+References: <20031020020558.16d2a776.akpm@osdl.org>
+	<200310201811.18310.schlicht@uni-mannheim.de>
+	<20031020144836.331c4062.akpm@osdl.org>
+	<200310210001.08761.schlicht@uni-mannheim.de>
+	<200310210014.h9L0EZFP003073@turing-police.cc.vt.edu>
+	<20031020172732.6b6b3646.akpm@osdl.org>
+	<200310210046.h9L0kHFg001918@turing-police.cc.vt.edu>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 21 Oct 2003 11:56:10 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-10-21 at 06:28, Andrew Morton wrote:
-> Ken Foskey <foskey@optushome.com.au> wrote:
-> >
-> > I have a problem with signals.
+Valdis.Kletnieks@vt.edu wrote:
+>
+> On Mon, 20 Oct 2003 17:27:32 PDT, Andrew Morton said:
+> > Valdis.Kletnieks@vt.edu wrote:
+> > >
+> > > This ring any bells?  What you want tested? etc etc....
+> > 
+> > Can you try disabling all fbdev stuff in config?
 > 
-> You should be using sigsetjmp(), not setjmp().
+> OK.. That booted just fine, didn't hang in pty_init, didn't hit the
+> WARN_ON added to fs_inoce.c.
+> 
+> So we have:
+> 
+> works:
+> #  CONFIG_FB is not set
+> 
+> Doesn't work:
+> CONFIG_FB=y
+> CONFIG_FB_VESA=y
+> CONFIG_FRAMEBUFFER_CONSOLE=y
+> CONFIG_PCI_CONSOLE=y
+> CONFIG_FONT_8x8=y
+> CONFIG_FONT_8x16=y
+> CONFIG_LOGO=y
+> CONFIG_LOGO_LINUX_MONO=y
+> CONFIG_LOGO_LINUX_VGA16=y
+> CONFIG_LOGO_LINUX_CLUT224=y
+> 
+> I've not had a chance to play binary search on those options yet..  Graphics
+> card is an NVidia GeForce 440Go, and was previous working just fine with
+> framebuffer over on vc1-6 and NVidia's driver on an XFree86 on vc7. (OK, I
+> admit I didn't stress test the framebuffer side much past "penguins and
+> scroiled text"...)
+> 
 
-No difference.  Note that this is K 2.6 specific, it "works" in K 2.4.
+Thanks.  You're now the third person (schlicht@uni-mannheim.de,
+jeremy@goop.org) who reports that the weird oopses (usually in
+invalidate_list()) go away when the fbdev code is disabled.
 
-I am reading on sigaction now, I will recode with SA_RESTART tonight.  
-I think this is not the solution because I am explicitly setting the
-signal handler before every call.  I think this simply leaves the signal
-handler active ie old BSD style.
+You're using vesafb on nvidia, Jeremy is using vesafb on either radeon or
+nvidia, not sure about Thomas.
 
-I also received this comment:
-
-> Unblock the signal handler before you raise the signal again.
-
-I think this means sigprocmask with UNBLOCK.  "Should" this be
-required.  After reading and Andrews comments I added a reset and
-siglongjmp here is my current handler:
-
-static void SignalHdl( int sig )
-{
-  bSignal = 1;
-  
-  fprintf( stderr, "Signal %d caught\n", sig );
-  signal( sig, SIG_DFL );  /* reset handler back */
-  siglongjmp( check_env, sig );  /* return to code */
-}
-
-I do have a work around, I am pursuing this because the signal handler
-is behaving differently in K 2.6 than K 2.4.  The error may be mine
-however it may also be a bug with the kernel.
-
--- 
-Thanks
-KenF
-OpenOffice.org developer
-
-Current code:
-
-#include <stdio.h>
-#include <signal.h>
-#include <setjmp.h>
-
-/*************************************************************************
-|*	Typdeclarations for memory access test functions
-*************************************************************************/
-typedef int (*TestFunc)( void* );
-
-/*************************************************************************
-*************************************************************************/
-static sigjmp_buf check_env;
-static int bSignal;
-static void SignalHdl( int sig )
-{
-  bSignal = 1;
-  
-  fprintf( stderr, "Signal %d caught\n", sig );
-  signal( sig, SIG_DFL );
-  siglongjmp( check_env, sig );
-}
-
-/*************************************************************************
-*************************************************************************/
-void check( TestFunc func, void* p )
-{
-  int result;
-
-  fprintf( stderr, "Setting Jump\n" );
-  if ( !sigsetjmp( check_env, 0 ) )
-  {
-	signal( SIGSEGV,	SignalHdl );
-	signal( SIGBUS,		SignalHdl );
-    fprintf( stderr, "Running \n" );
-	result = func( p );
-    fprintf( stderr, "Finished \n" );
-	signal( SIGSEGV,	SIG_DFL );
-	signal( SIGBUS,		SIG_DFL );
-  }
-  fprintf( stderr, "After jump \n" );
-}
-
-/*************************************************************************
-*************************************************************************/
-static int GetAtAddress( void* p )
-{
-  return *((char*)p);
-}
-
-/*************************************************************************
-*************************************************************************/
-static int SetAtAddress( void* p )
-{
-  return *((char*)p)	= 0;
-}
-
-/*************************************************************************
-*************************************************************************/
-void CheckGetAccess( void* p )
-{
-  check( (TestFunc)GetAtAddress, p );
-}
-/*************************************************************************
-*************************************************************************/
-void CheckSetAccess( void* p )
-{
-  check( (TestFunc)SetAtAddress, p );
-}
-
-/*************************************************************************
-*************************************************************************/
-int main( int argc, char* argv[] )
-{
-  {
-	char* p = NULL;
-	fprintf( stderr, "Getting from NULL\n" );
-    CheckGetAccess( p );
-	fprintf( stderr, "Setting to NULL\n" );
-    CheckSetAccess( p );
-	fprintf( stderr, "After Setting to NULL\n" );
-  }
-
-  exit( 0 );
-}
-
+Has anyone tried CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC, see if that
+turns anything up?
 

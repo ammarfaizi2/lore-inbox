@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313508AbSGFXY5>; Sat, 6 Jul 2002 19:24:57 -0400
+	id <S314078AbSGFXlr>; Sat, 6 Jul 2002 19:41:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313867AbSGFXY4>; Sat, 6 Jul 2002 19:24:56 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:525 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313508AbSGFXY4>; Sat, 6 Jul 2002 19:24:56 -0400
-Message-ID: <3D277CC7.9040003@zytor.com>
-Date: Sat, 06 Jul 2002 16:27:03 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en-us, en, sv
+	id <S314096AbSGFXlq>; Sat, 6 Jul 2002 19:41:46 -0400
+Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:31981 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S314078AbSGFXlp>; Sat, 6 Jul 2002 19:41:45 -0400
+Date: Sat, 6 Jul 2002 17:44:21 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: B.Zolnierkiewicz@elka.pw.edu.pl
+Message-ID: <Pine.LNX.4.44.0207061734500.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] /proc/cpuinfo output from some arch
-References: <003201c224cd$e25df820$0201a8c0@witek> <jen0t4g35k.fsf@sykes.suse.de> <20020706221205.A5242@flint.arm.linux.org.uk> <ag7q77$en7$1@cesium.transmeta.com> <20020707002006.B5242@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Sat, Jul 06, 2002 at 03:16:07PM -0700, H. Peter Anvin wrote:
-> 
->>/proc/cpuinfo was *definitely* meant to be parsed by programs.
->>Unfortunately, lots of architectures seems to have completely missed
->>that fact.
-> 
-> Sigh, its a shame such things aren't documented somewhere in the
-> kernel tarball.
-> 
+Hi,
 
-No kidding...
+Just a small question about IDE 96: in __ata_end_request(), we do
 
-	-hpa
+	spin_lock_irqsave(ch->lock, flags);
 
+	BUG_ON(!(rq->flags & REQ_STARTED));
+
+Shouldn't we rather flip these two, or much rather move 
+spin_lock_irqsave() even more down, below
+
+	if (!nr_secs)
+		nr_secs = rq->hard_cur_sectors;
+
+since it hasn't got any use to hold a spin lock until the udma_enable & 
+co.? However, I'd at least move it below the BUG_ON().
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

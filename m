@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262836AbRE0Rbt>; Sun, 27 May 2001 13:31:49 -0400
+	id <S262834AbRE0RdJ>; Sun, 27 May 2001 13:33:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262835AbRE0Rbj>; Sun, 27 May 2001 13:31:39 -0400
-Received: from web13407.mail.yahoo.com ([216.136.175.65]:20747 "HELO
-	web13407.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262834AbRE0Rb0>; Sun, 27 May 2001 13:31:26 -0400
-Message-ID: <20010527173125.26717.qmail@web13407.mail.yahoo.com>
-Date: Sun, 27 May 2001 19:31:25 +0200 (CEST)
-From: =?iso-8859-1?q?Cesar=20Da=20Silva?= <thunderlight1@yahoo.com>
-Reply-To: cesar.da.silva@cyberdude.com
-Subject: Re: Please help me fill in the blanks.
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: kernellist <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B1065FD.3F8D7EDF@mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S262835AbRE0Rct>; Sun, 27 May 2001 13:32:49 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:63716 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S262834AbRE0Rck>; Sun, 27 May 2001 13:32:40 -0400
+Date: Sun, 27 May 2001 19:16:14 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: tim@cyberelk.net, linux-kernel@vger.kernel.org
+Subject: insl/outsl in parport_pc and !CONFIG_PCI
+Message-ID: <20010527191613.A2808@rz.informatik.uni-erlangen.de>
+Mail-Followup-To: Richard Zidlicky <rz@linux-m68k.org>, tim@cyberelk.net,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you Jeff for your very helpfull answer.
 
- --- Jeff Garzik <jgarzik@mandrakesoft.com> skrev: >
-Cesar Da Silva wrote:
+Hi,
 
-> > * Alternative I/O Pathing
-> 
-> be less vague
+How is that supposed to work on systems without PCI? For now I have
+defined 
 
-What I mean with the above (my defenition) is:
-[Alternative I/O Pathing allows the operating system
-to re-route the I/O of devices, such as disk or
-network adapters, to a backup device, in case of
-failure.
+#define insl(port,buf,len)   isa_insb(port,buf,(len)<<2)
+#define outsl(port,buf,len)  isa_outsb(port,buf,(len)<<2)
 
-Regards,
-Cesar da Silva
+in asm-m68k/parport.h.
 
-_____________________________________________________
-Do You Yahoo!?
-Ditt_namn@yahoo.se - skaffa en gratis mailadress på http://mail.yahoo.se
+Bye
+Richard

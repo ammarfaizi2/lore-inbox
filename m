@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269802AbRHMVSO>; Mon, 13 Aug 2001 17:18:14 -0400
+	id <S269823AbRHMVgS>; Mon, 13 Aug 2001 17:36:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269808AbRHMVSF>; Mon, 13 Aug 2001 17:18:05 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29706 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269802AbRHMVR7>; Mon, 13 Aug 2001 17:17:59 -0400
-Subject: Re: Are we going too fast?
-To: pf-kernel@mirkwood.net (PinkFreud)
-Date: Mon, 13 Aug 2001 22:20:03 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.20.0108131656470.1037-100000@eriador.mirkwood.net> from "PinkFreud" at Aug 13, 2001 05:07:38 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15WP7z-0008H0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S269824AbRHMVgJ>; Mon, 13 Aug 2001 17:36:09 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:64076 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S269823AbRHMVfv>; Mon, 13 Aug 2001 17:35:51 -0400
+Date: Mon, 13 Aug 2001 17:36:04 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200108132136.f7DLa4l13034@devserv.devel.redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8-ac2 USB keyboard capslock hang
+In-Reply-To: <mailman.997731905.31689.linux-kernel2news@redhat.com>
+In-Reply-To: <E15WM1P-0007uJ-00@the-village.bc.nu> <mailman.997731905.31689.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately, that's all the info I have.  Console switching was still
-> working, so I tried enabling logging to a console - no output.  System just
-> hangs.  Any suggestions on what I might try to get more information for you?
+The bug that I fixed was that CapsLock submitted URB while
+in a callback (it was a LED control URB).
 
-Dont suppose you know where I can get a qnx file system to play with ?
+If you have to hit CapsLock _twice_ to trigger the bug,
+then I think it's something different.
 
-> this thread that perhaps some old HOWTOs on hardware need to be maintained
-> again - I think I agree with that.
+-- Pete
 
-VIA has some chipset bugs, Matrox G400 cards seem to abuse the PCI spec for 
-benchmarketing dirties.
-
-(All chipsets have bugs in truth, its just how they appear and if they
-affect users. As of 2.4.8 the VIA ones should be in the users not affected
-camp)
-
-Alan
+> this bug has been around since 2.4.3-ac *at least*, and the linux-usb 
+> folks are aware of it [but can't get a repro].  i've had repros since 
+> 2.4.3-ac.
+> 
+> this is the first time afaik that this bug has been reported on a non 
+> ms-natural-pro keyboard tho.
+> 
+> Alan Cox wrote:
+> 
+> >>On Mon, Aug 13, 2001 at 06:56:48PM +0100, Alan Cox wrote:
+> >>
+> >>>Roswell is the Red Hat 7.2 beta, so its probably another bug that was fixed
+> >>>in the USB and input updates in -ac
+> >>>
+> >>It hangs on 2.4.8-ac2, so was this bug fix lost perhaps? 
+> >>
+> >
+> >It would be useful to know if 2.4.7ac3 say works and if so which one after
+> >that it broke at

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262267AbSJIWQf>; Wed, 9 Oct 2002 18:16:35 -0400
+	id <S262201AbSJIWPq>; Wed, 9 Oct 2002 18:15:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262297AbSJIWQe>; Wed, 9 Oct 2002 18:16:34 -0400
-Received: from ce00521-p19-hertas5.cenara.com ([195.38.1.140]:18560 "EHLO
-	ce00521-p19-hertas5.cenara.com") by vger.kernel.org with ESMTP
-	id <S262267AbSJIWQd>; Wed, 9 Oct 2002 18:16:33 -0400
-Date: Thu, 10 Oct 2002 00:22:05 +0200 (CEST)
-From: =?iso-8859-1?Q?Per_Lid=E9n?= <per@fukt.bth.se>
-X-X-Sender: per@ce00521-p19-hertas5.cenara.com
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] root kernel option with devfs
-Message-ID: <Pine.LNX.4.44.0210092352320.192-100000@ce00521-p19-hertas5.cenara.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262267AbSJIWPq>; Wed, 9 Oct 2002 18:15:46 -0400
+Received: from n1x6.imsa.edu ([143.195.1.6]:11660 "EHLO mail.imsa.edu")
+	by vger.kernel.org with ESMTP id <S262201AbSJIWPp>;
+	Wed, 9 Oct 2002 18:15:45 -0400
+Date: Wed, 9 Oct 2002 17:21:29 -0500
+From: Maciej Babinski <maciej@imsa.edu>
+To: linux-kernel@vger.kernel.org
+Subject: PCMCIA trouble in 2.5.41
+Message-ID: <20021009172129.A20370@imsa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Since upgrading from 2.4.19 to 2.5.41, my ISA-PCMCIA bridge is
+no longer detected. It is detected as follows in 2.4.19, and also
+works in 2.5.7, the only other 2.5 kernel I've tried.
 
-The "root=" kernel option doesn't work when used together with devfs
-device names, e.g. root=/dev/discs/disc0/part1. It appears as if the
-string "discs/disc0/part1" will incorrectly be interpreted as a
-hex-number, which results in a kernel panic "VFS: Unable to mount root fs
-on ...". This has been broken since 2.4.19.
+Linux Kernel Card Services 3.1.22
+  options:  [pci] [cardbus] [pm]
+Intel PCIC probe:
+  Vadem VG-469 ISA-to-PCMCIA at port 0x3e2 ofs 0x00, 2 sockets
+    host opts [0]: none
+    host opts [1]: none
+    ISA irqs (scanned) = 3 polling interval = 1000 ms
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0100-0x04ff: excluding 0x2f8-0x2ff 0x378-0x37f 0x3e8-0x3f7 0x460-0x467 0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.
+cs: memory probe 0x0d0000-0x0dffff: clean.
 
-This patch has been submitted to lkml before (don't remember by who), and
-I've only been updated it to apply cleanly on 2.4.20-pre10. It would be
-very nice if this problem was solved before 2.4.20 was released.
-
-/Per
-
-
---- linux-2.4.20-pre10/init/do_mounts.c.old	2002-10-09 23:04:59.000000000 +0200
-+++ linux-2.4.20-pre10/init/do_mounts.c	2002-10-09 23:50:46.000000000
-+0200
-@@ -258,6 +258,8 @@
- 			}
- 			dev++;
- 		} while (dev->name);
-+		if (!(dev->name))
-+			return to_kdev_t(0);
- 	}
- 	return to_kdev_t(base + simple_strtoul(line,NULL,base?10:16));
- }
-
+In 2.5.41, loadling the i82356 module results in a "no such device"
+message.

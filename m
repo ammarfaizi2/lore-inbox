@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVACETt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVACEUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbVACETt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 23:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVACETt
+	id S261332AbVACEUt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 23:20:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVACEUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 23:19:49 -0500
-Received: from mail.tmr.com ([216.238.38.203]:11648 "EHLO pixels.tmr.com")
-	by vger.kernel.org with ESMTP id S261299AbVACETs (ORCPT
+	Sun, 2 Jan 2005 23:20:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64397 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261332AbVACEUn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 23:19:48 -0500
-Message-ID: <41D8C55A.5010801@tmr.com>
-Date: Sun, 02 Jan 2005 23:08:58 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Sun, 2 Jan 2005 23:20:43 -0500
+Date: Sun, 2 Jan 2005 23:20:28 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       robert_hentosh@dell.com
+Subject: Re: [PATCH][2/2] do not OOM kill if we skip writing many pages
+In-Reply-To: <20050102172929.GL5164@dualathlon.random>
+Message-ID: <Pine.LNX.4.61.0501022319180.10640@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.61.0412201013420.13935@chimarrao.boston.redhat.com>
+ <20050102172929.GL5164@dualathlon.random>
 MIME-Version: 1.0
-To: Linux Kernel M/L <linux-kernel@vger.kernel.org>
-Subject: 2.6.10-ac2 - more cdrecord wierdness
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to write a backup CD. The first write goes fine, I have rw 
-permission on the device, I use /dev/hdc, all is fine. I can mount the 
-CD, read it, etc.
+On Sun, 2 Jan 2005, Andrea Arcangeli wrote:
 
-However - it was written with the -multi option so I can add things to 
-it, since most of my backups are 50MB at a time. When I try to get the 
-size (using a perl script) which does:
-  cdrecord dev=/dev/hdc -msinfo
-I get permission denied. Even if I set cdrecord setuid (as a test, I 
-don't run that way).
+> I don't like this one, it's much less obvious than 1/2. After your
+> obviously right 1/2 we're already guaranteed at least a percentage of
+> the ram will not be dirty. Is the below really needed even after 1/2 +
+> Andrew's fix? Are you sure this isn't a workaround for the lack of
+> Andrew's fix.
 
-Back to ide-scsi, the perl program allows me to have the best features 
-of growisofs and some other usefulk features for backing up relatively 
-small datasets on a single CD.
+Agreed, Andrew's fix should in theory be enough and only my
+1/2 should be needed.
 
-Just a FYI - I assume there's a good reason why reading the unclosed 
-filesystem size would compromise security.
+However, in practice people are still generating OOM kills
+even with both Andrew's fix and my own patch applied, so I
+suspect there's another hole left open somewhere...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

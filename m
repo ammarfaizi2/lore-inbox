@@ -1,87 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbUESJZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbUESJ3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262756AbUESJZc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 05:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUESJZ2
+	id S262960AbUESJ3X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 05:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbUESJ3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 05:25:28 -0400
-Received: from lagoon1.di-ve.com ([194.158.37.138]:42921 "HELO di-ve.com")
-	by vger.kernel.org with SMTP id S262459AbUESJZP (ORCPT
+	Wed, 19 May 2004 05:29:23 -0400
+Received: from zero.aec.at ([193.170.194.10]:8196 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262488AbUESJ3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 05:25:15 -0400
-Message-ID: <19566.80.179.249.163.1084958608.squirrel@webmail.di-ve.com>
-Date: Wed, 19 May 2004 11:23:28 +0200 (CEST)
-Subject: Greetings From Sanni
-From: sammijnr@di-ve.com
-To: sammijnr@di-ve.com
-User-Agent: SquirrelMail/1.4.0
+	Wed, 19 May 2004 05:29:21 -0400
+To: Jan Kasprzak <kas@informatics.muni.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: sendfile -EOVERFLOW on AMD64
+References: <1XuW9-3G0-23@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 19 May 2004 11:29:18 +0200
+In-Reply-To: <1XuW9-3G0-23@gated-at.bofh.it> (Jan Kasprzak's message of
+ "Wed, 19 May 2004 10:50:13 +0200")
+Message-ID: <m3d650wys1.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-Priority: 3
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend,
+Jan Kasprzak <kas@informatics.muni.cz> writes:
+>
+> The image (FC2-i386-DVD.iso) has 4370640896 bytes. The FTP server is native
+> x86_64 binary, not a 32-bit one.
 
-As you read this, I don‘t want you to feel sorry for
-me, because, I believe everyone will die someday.
+sys_sendfile limits itself dumbly to 2GB even on 64bit architectures.
+This patch should fix it on x86-64, although other 64bit ports may 
+need a similar patch. Just removing the limit in read_write 
+is not easy, because it would need fixes in all the 32bit emulation
+layers.
 
-My name is Sanni Sammi Jnr a merchant in Dubai, in
-theU.A.E.I have been diagnosed with Esophageal cancer .
+-Andi
 
-It has defiled all forms of medical treatment, and
-right now I have only about a few months to live,
-according to medical experts.
+diff -u linux-2.6.6-amd64/include/asm-x86_64/unistd.h-o linux-2.6.6-amd64/include/asm-x86_64/unistd.h
+--- linux-2.6.6-amd64/include/asm-x86_64/unistd.h-o	2004-05-09 14:30:09.000000000 +0200
++++ linux-2.6.6-amd64/include/asm-x86_64/unistd.h	2004-05-19 11:27:00.000000000 +0200
+@@ -98,7 +98,7 @@
+ __SYSCALL(__NR_getpid, sys_getpid)
+ 
+ #define __NR_sendfile                           40
+-__SYSCALL(__NR_sendfile, sys_sendfile)
++__SYSCALL(__NR_sendfile, sys_sendfile64)
+ #define __NR_socket                             41
+ __SYSCALL(__NR_socket, sys_socket)
+ #define __NR_connect                            42
 
-I have not particularly lived my life so well, as I
-never really cared for anyone(not even myself)but my
-business. Though I am very rich, I was never generous,
-I was always hostile to people and only focused on my
-business as that was the only thing I cared for. But
-now I regret all this as I now know that there is more
-to life than just wanting to have
-or make all the money in the world.
-
-I believe when God gives me a second chance to come to
-this world I would live my life a different way from
-how I have lived it. Now that God has called me, I
-have willed and given most of my property and assets
-to my immediate and extended family members as well as
-a few close friends.
-
-I want God to be merciful to me and accept my soul so,
-I have decided to give also to charity
-organizations, as I want this to be one of the last
-good deeds I do on earth. So far, I have distributed
-money to some charity organizations in the U.A.E,
-Algeria and Malaysia. Now that my health has
-deteriorated so badly, I cannot do this myself
-anymore.
-
-I once asked members of my family to close
-one of my accounts and distribute the money which I
-have there to charity organization in Bulgaria and
-Pakistan, they refused and kept the money to
-themselves. Hence, I do not trust them anymore, as
-they seem not to be contended with what I have left
-for them.
-
-The last of my money which no one knows of is the huge
-cash deposit of eighteen million dollars
-$18,000,000,00 that I have with a finance/Security
-Company abroad. I will want you to help me collect
-this deposit and dispatched it to charity
-organizations.
-
-
-I have set aside 10% for you and for your time.
-
-God be with you.
-
-Sanni Sammi Jnr.
-
-
-
-__________________________________________________________ 
- For special offers on latest publications on Malta or by Maltese authors go to http://shop.di-ve.com

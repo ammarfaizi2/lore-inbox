@@ -1,95 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129035AbQJ0Iff>; Fri, 27 Oct 2000 04:35:35 -0400
+	id <S129151AbQJ0JcU>; Fri, 27 Oct 2000 05:32:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129082AbQJ0IfZ>; Fri, 27 Oct 2000 04:35:25 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:1032 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S129035AbQJ0IfP>;
-	Fri, 27 Oct 2000 04:35:15 -0400
-Message-ID: <39F93E20.EC1C2D9@mandrakesoft.com>
-Date: Fri, 27 Oct 2000 04:34:40 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-21mdksmp i686)
-X-Accept-Language: en
+	id <S129264AbQJ0JcK>; Fri, 27 Oct 2000 05:32:10 -0400
+Received: from hermes.mixx.net ([212.84.196.2]:2323 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129151AbQJ0JcB>;
+	Fri, 27 Oct 2000 05:32:01 -0400
+Message-ID: <39F94B8F.C2293ADD@innominate.de>
+Date: Fri, 27 Oct 2000 11:31:59 +0200
+From: Juri Haberland <juri.haberland@innominate.de>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-NFS-RAID i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PATCH 2.4.0.10.6: always no-strict-aliasing
-In-Reply-To: <Pine.LNX.4.10.10010262345530.1231-100000@penguin.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------8D1D42275A6BCAF3DB39F863"
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Quota fixes and a few questions
+In-Reply-To: <20000927145620.B8484@atrey.karlin.mff.cuni.cz> <20001007003134.B4732@redhat.com> <news2mail-39EAE3A3.7D08CD8B@innominate.de> <news2mail-39EF0906.E7281F12@innominate.de> <20001019190354.A15755@atrey.karlin.mff.cuni.cz> <20001020154204.A1863@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------8D1D42275A6BCAF3DB39F863
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Linus Torvalds wrote:
->  (a) the new compiler requirements (sorry, but it turned out that 2.7.2.3
->      really is too subtly broken with named structure initializers that
->      are very heavily used these days inside the kernel)
+"Stephen C. Tweedie" wrote:
 > 
->      Suggested stable compiler: gcc-2.91.66, aka egcs-1.1.2, which is the
->      one most vendors have been shipping for a long time, and while sure
->      to be buggy too has not been found to be seriously so at least yet.
+> Hi,
 > 
->      Other modern gcc versions may well work too.
+> On Thu, Oct 19, 2000 at 07:03:54PM +0200, Jan Kara wrote:
+> >
+> > > I stumbled into another problem:
+> > > When using ext3 with quotas the kjournald process stops responding and
+> > > stays in DW state when the filesystem gets under heavy load. It is easy
+> > > to reproduce:
+> > > Just extract two or three larger tar.gz files at the same time to a ext3
+> > > filesystem with activated quotas...
+> 
+> Which ext3 version, exactly?  0.0.2f had quota problems because ext3
+> wasn't doing quota writethrough, so that inode cleaning could force
+> out random dirty quotas at any point.  0.0.3b should fix that.  If it
+> doesn't, I'll try to reproduce it here.
 
-Since egcs-1.1.2 supports -fno-strict-aliasing, would the attached patch
-against linux/Makefile be appropriate?
+Hi Stephen,
+
+unfortunately 0.0.3b has the same problem. I tried it with a stock
+2.2.17 kernel + NFS patches + ext3-0.0.3b and the quota rpm you
+included. Extracting two larger tar.gz files hits the deadlock reliably.
+
+Juri
 
 -- 
-Jeff Garzik                    | Raft naked...
-Building 1024                  | It adds color to your cheeks.
-MandrakeSoft                   |
---------------8D1D42275A6BCAF3DB39F863
-Content-Type: text/plain; charset=us-ascii;
- name="makefile.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="makefile.patch"
-
-Index: Makefile
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_4/Makefile,v
-retrieving revision 1.1.1.11
-diff -u -r1.1.1.11 Makefile
---- Makefile	2000/10/22 23:14:50	1.1.1.11
-+++ Makefile	2000/10/27 08:32:28
-@@ -16,7 +16,7 @@
- FINDHPATH	= $(HPATH)/asm $(HPATH)/linux $(HPATH)/scsi $(HPATH)/net
- 
- HOSTCC  	= gcc
--HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
-+HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
- 
- CROSS_COMPILE 	=
- 
-@@ -87,7 +87,7 @@
- 
- CPPFLAGS := -D__KERNEL__ -I$(HPATH)
- 
--CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
-+CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
- AFLAGS := -D__ASSEMBLY__ $(CPPFLAGS)
- 
- #
-@@ -181,9 +181,6 @@
- DRIVERS += $(DRIVERS-y)
- 
- include arch/$(ARCH)/Makefile
--
--# use '-fno-strict-aliasing', but only if the compiler can take it
--CFLAGS += $(shell if $(CC) -fno-strict-aliasing -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-fno-strict-aliasing"; fi)
- 
- export	CPPFLAGS CFLAGS AFLAGS
- 
-
---------------8D1D42275A6BCAF3DB39F863--
-
+juri.haberland@innominate.de
+system engineer                                         innominate AG
+clustering & security                               networking people
+phone: +49-30-308806-45  fax: -77                http://innominate.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268765AbRHKTRC>; Sat, 11 Aug 2001 15:17:02 -0400
+	id <S268714AbRHKTLw>; Sat, 11 Aug 2001 15:11:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268792AbRHKTQw>; Sat, 11 Aug 2001 15:16:52 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:32007 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268765AbRHKTQm>; Sat, 11 Aug 2001 15:16:42 -0400
+	id <S268765AbRHKTLm>; Sat, 11 Aug 2001 15:11:42 -0400
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:19629 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S268714AbRHKTLc>; Sat, 11 Aug 2001 15:11:32 -0400
+Date: Sat, 11 Aug 2001 15:11:42 -0400 (EDT)
+From: "Daniel T. Chen" <crimsun@email.unc.edu>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Writes to mounted devices containing file-systems.
-Date: 11 Aug 2001 12:16:23 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9l40a7$9ja$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.3.95.1010810075750.10479A-100000@chaos.analogic.com> <20010811144729.B31614@wyvern>
+cc: emu10k1-devel@opensource.creative.com
+Subject: [PATCH] EMU10K1: Juha Rjola's AC3 Passthrough for SMP kernels (against
+ 2.4.8+Rui)
+Message-ID: <Pine.A41.4.21L1.0108111506190.39342-200000@login3.isis.unc.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1744699036-1742709216-997556984=:39342"
+Content-ID: <Pine.A41.4.21L1.0108111511220.39342@login3.isis.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010811144729.B31614@wyvern>
-By author:    Adrian Bridgett <adrian.bridgett@iname.com>
-In newsgroup: linux.dev.kernel
-> 
-> Personally I'd prefer AIX's approach - let the write through (if the user
-> wants to shoot themselves in the foot...), but report an error about it (to
-> syslog). 
-> 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I don't see any point in having "you just fscked yourself" written to
-the syslog.  At the same time, writing to a mounted device is actually
-useful: it's currently the only way to write the boot block on an
-ext2 filesystem (and Viro: if you start using the page cache for the
-superblock in ext2, you probably have to add an explicit interface to
-write the boot block at the same time!!!)
+---1744699036-1742709216-997556984=:39342
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.A41.4.21L1.0108111510001.39342@login3.isis.unc.edu>
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+I've rediffed Juha's patch against 2.4.8+Rui's patch.
+
+---
+Dan Chen                 crimsun@email.unc.edu
+GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
+
+---1744699036-1742709216-997556984=:39342
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="2.4.8+rui_ac3smp_emu10k1-1.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.A41.4.21L1.0108111509440.39342@login3.isis.unc.edu>
+Content-Description: ac3-smp-fix.diff
+Content-Disposition: ATTACHMENT; FILENAME="2.4.8+rui_ac3smp_emu10k1-1.diff"
+
+ZGlmZiAtdU5yIGxpbnV4LTIuNC44LXJ1aS9kcml2ZXJzL3NvdW5kL2VtdTEw
+azEvYXVkaW8uYyBsaW51eC0yLjQuOC1ydWktYWMzX3NtcF9maXgvZHJpdmVy
+cy9zb3VuZC9lbXUxMGsxL2F1ZGlvLmMNCi0tLSBsaW51eC0yLjQuOC1ydWkv
+ZHJpdmVycy9zb3VuZC9lbXUxMGsxL2F1ZGlvLmMJU2F0IEF1ZyAxMSAxNDo0
+NjozNyAyMDAxDQorKysgbGludXgtMi40LjgtcnVpLWFjM19zbXBfZml4L2Ry
+aXZlcnMvc291bmQvZW11MTBrMS9hdWRpby5jCVNhdCBBdWcgMTEgMTQ6NDk6
+NDcgMjAwMQ0KQEAgLTEyNDYsOCArMTI0NiwxMSBAQA0KIA0KIAkJc3Bpbl9s
+b2NrX2lycXNhdmUoJndvaW5zdC0+bG9jaywgZmxhZ3MpOw0KIA0KLQkJaWYg
+KHdvaW5zdC0+Zm9ybWF0LnBhc3N0aHJvdWdoICYmIGNhcmQtPnB0LnN0YXRl
+ICE9IFBUX1NUQVRFX0lOQUNUSVZFKQ0KKwkJaWYgKHdvaW5zdC0+Zm9ybWF0
+LnBhc3N0aHJvdWdoICYmIGNhcmQtPnB0LnN0YXRlICE9IFBUX1NUQVRFX0lO
+QUNUSVZFKSB7DQorCQkJc3Bpbl9sb2NrKCZjYXJkLT5wdC5sb2NrKTsNCiAg
+ICAgICAgICAgICAgICAgICAgICAgICBlbXUxMGsxX3B0X3N0b3AoY2FyZCk7
+DQorCQkJc3Bpbl91bmxvY2soJmNhcmQtPnB0LmxvY2spOw0KKwkJfQ0KIA0K
+IAkJaWYgKHdvaW5zdC0+c3RhdGUgJiBXQVZFX1NUQVRFX09QRU4pIHsNCiAJ
+CQlpZiAod29pbnN0LT5zdGF0ZSAmIFdBVkVfU1RBVEVfU1RBUlRFRCkgew0K
+ZGlmZiAtdU5yIGxpbnV4LTIuNC44LXJ1aS9kcml2ZXJzL3NvdW5kL2VtdTEw
+azEvZWZ4bWdyLmMgbGludXgtMi40LjgtcnVpLWFjM19zbXBfZml4L2RyaXZl
+cnMvc291bmQvZW11MTBrMS9lZnhtZ3IuYw0KLS0tIGxpbnV4LTIuNC44LXJ1
+aS9kcml2ZXJzL3NvdW5kL2VtdTEwazEvZWZ4bWdyLmMJU2F0IEF1ZyAxMSAx
+NDo0NjozNyAyMDAxDQorKysgbGludXgtMi40LjgtcnVpLWFjM19zbXBfZml4
+L2RyaXZlcnMvc291bmQvZW11MTBrMS9lZnhtZ3IuYwlTYXQgQXVnIDExIDE0
+OjUxOjIwIDIwMDENCkBAIC0xOTcsMTUgKzE5NywxNSBAQA0KIAkJdTMyIGJj
+Ow0KIAkJYmMgPSBzYmxpdmVfcmVhZHB0cihjYXJkLCBHUFJfQkFTRSArIGNh
+cmQtPnB0LmludHJfZ3ByLCAwKTsNCiAJCWlmIChiYyAhPSAwKSB7DQotCQkJ
+c3Bpbl9sb2NrX2lycXNhdmUoJmNhcmQtPmxvY2ssIGZsYWdzKTsNCisJCQlE
+UEQoMywgInB0IGludGVycnVwdCwgYmMgPSAlZFxuIiwgYmMpOw0KKwkJCXNw
+aW5fbG9ja19pcnFzYXZlKCZjYXJkLT5wdC5sb2NrLCBmbGFncyk7DQogCQkJ
+Y2FyZC0+cHQuYmxvY2tzX3BsYXllZCA9IGJjOw0KIAkJCWlmIChjYXJkLT5w
+dC5ibG9ja3NfcGxheWVkID49IGNhcmQtPnB0LmJsb2Nrc19jb3BpZWQpIHsN
+CiAJCQkJRFBGKDEsICJidWZmZXIgdW5kZXJydW4gaW4gcGFzc3Rocm91Z2gg
+cGxheWJhY2tcbiIpOw0KIAkJCQllbXUxMGsxX3B0X3N0b3AoY2FyZCk7DQog
+CQkJfQ0KIAkJCXdha2VfdXBfaW50ZXJydXB0aWJsZSgmY2FyZC0+cHQud2Fp
+dCk7DQotCQkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmY2FyZC0+bG9jaywg
+ZmxhZ3MpOw0KLQkJCURQRCgzLCAicHQgaW50ZXJydXB0LCBiYyA9ICVkXG4i
+LCBiYyk7DQorCQkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmY2FyZC0+cHQu
+bG9jaywgZmxhZ3MpOw0KIAkJfQ0KIAl9DQogfQ0KZGlmZiAtdU5yIGxpbnV4
+LTIuNC44LXJ1aS9kcml2ZXJzL3NvdW5kL2VtdTEwazEvbWFpbi5jIGxpbnV4
+LTIuNC44LXJ1aS1hYzNfc21wX2ZpeC9kcml2ZXJzL3NvdW5kL2VtdTEwazEv
+bWFpbi5jDQotLS0gbGludXgtMi40LjgtcnVpL2RyaXZlcnMvc291bmQvZW11
+MTBrMS9tYWluLmMJU2F0IEF1ZyAxMSAxNDo0NzoyNyAyMDAxDQorKysgbGlu
+dXgtMi40LjgtcnVpLWFjM19zbXBfZml4L2RyaXZlcnMvc291bmQvZW11MTBr
+MS9tYWluLmMJU2F0IEF1ZyAxMSAxNDo1MTo1NSAyMDAxDQpAQCAtNzc1LDYg
+Kzc3NSw3IEBADQogCWNhcmQtPnB0LmludHJfZ3ByX25hbWUgPSAiY291bnQi
+Ow0KIAljYXJkLT5wdC5lbmFibGVfZ3ByX25hbWUgPSAiZW5hYmxlIjsNCiAJ
+Y2FyZC0+cHQucG9zX2dwcl9uYW1lID0gInB0ciI7DQorCXNwaW5fbG9ja19p
+bml0KCZjYXJkLT5wdC5sb2NrKTsNCiAJaW5pdF93YWl0cXVldWVfaGVhZCgm
+Y2FyZC0+cHQud2FpdCk7DQogDQogLyoJdG1wID0gc2JsaXZlX3JlYWRmbjAo
+Y2FyZCwgSENGRyk7DQpkaWZmIC11TnIgbGludXgtMi40LjgtcnVpL2RyaXZl
+cnMvc291bmQvZW11MTBrMS9wYXNzdGhyb3VnaC5jIGxpbnV4LTIuNC44LXJ1
+aS1hYzNfc21wX2ZpeC9kcml2ZXJzL3NvdW5kL2VtdTEwazEvcGFzc3Rocm91
+Z2guYw0KLS0tIGxpbnV4LTIuNC44LXJ1aS9kcml2ZXJzL3NvdW5kL2VtdTEw
+azEvcGFzc3Rocm91Z2guYwlTYXQgQXVnIDExIDE0OjQ2OjM3IDIwMDENCisr
+KyBsaW51eC0yLjQuOC1ydWktYWMzX3NtcF9maXgvZHJpdmVycy9zb3VuZC9l
+bXUxMGsxL3Bhc3N0aHJvdWdoLmMJU2F0IEF1ZyAxMSAxNDo1MzozMCAyMDAx
+DQpAQCAtMjA5LDkgKzIwOSw3IEBADQogew0KIAlzdHJ1Y3QgcHRfZGF0YSAq
+cHQgPSAmY2FyZC0+cHQ7DQogCWludCBpOw0KLQl1bnNpZ25lZCBsb25nIGZs
+YWdzOw0KIA0KLQlzcGluX2xvY2tfaXJxc2F2ZSgmY2FyZC0+cHQubG9jaywg
+ZmxhZ3MpOw0KIAlpZiAocHQtPnN0YXRlICE9IFBUX1NUQVRFX0lOQUNUSVZF
+KSB7DQogCQlEUEYoMiwgImRpZ2l0YWwgcGFzcy10aHJvdWdoIHN0b3BwZWRc
+biIpOw0KIAkJc2JsaXZlX3dyaXRlcHRyKGNhcmQsIEdQUl9CQVNFICsgcHQt
+PmVuYWJsZV9ncHIsIDAsIDApOw0KQEAgLTIyMiw3ICsyMjAsNiBAQA0KIAkJ
+cHQtPnN0YXRlID0gUFRfU1RBVEVfSU5BQ1RJVkU7DQogCQlrZnJlZShwdC0+
+YnVmKTsNCiAJfQ0KLQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZjYXJkLT5w
+dC5sb2NrLCBmbGFncyk7DQogfQ0KIA0KIHZvaWQgZW11MTBrMV9wdF93YXZl
+b3V0X3VwZGF0ZShzdHJ1Y3QgZW11MTBrMV93YXZlZGV2aWNlICp3YXZlX2Rl
+dikNCg==
+---1744699036-1742709216-997556984=:39342--

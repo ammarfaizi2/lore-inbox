@@ -1,69 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUGMUyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265898AbUGMUym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265887AbUGMUyR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 16:54:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265802AbUGMUyQ
+	id S265898AbUGMUym (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 16:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUGMUyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 16:54:16 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:59255 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S265887AbUGMUwt convert rfc822-to-8bit (ORCPT
+	Tue, 13 Jul 2004 16:54:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35214 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265898AbUGMUyb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 16:52:49 -0400
-X-Ironport-AV: i="3.81R,166,1083560400"; 
-   d="scan'208"; a="56041687:sNHT30990320"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [linux-usb-devel] [PATCH] proper bios handoff in ehci-hcd
-Date: Tue, 13 Jul 2004 15:52:43 -0500
-Message-ID: <7A8F92187EF7A249BF847F1BF4903C046304CF@ausx2kmpc103.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [linux-usb-devel] [PATCH] proper bios handoff in ehci-hcd
-Thread-Index: AcRpGkYu9iVGLNY9SFWZUX+1GOlxbQAAO8OA
-From: <Stuart_Hayes@Dell.com>
-To: <whbeers@mbio.ncsu.edu>, <david-b@pacbell.net>
-Cc: <olh@suse.de>, <Gary_Lerhaupt@Dell.com>,
-       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 13 Jul 2004 20:52:44.0714 (UTC) FILETIME=[58BEA8A0:01C4691B]
+	Tue, 13 Jul 2004 16:54:31 -0400
+Date: Tue, 13 Jul 2004 13:54:02 -0700
+From: cliff white <cliffw@osdl.org>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: bunk@fs.tum.de, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.8-rc1
+Message-Id: <20040713135402.388af231.cliffw@osdl.org>
+In-Reply-To: <4d8e3fd304071208566280e89b@mail.gmail.com>
+References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
+	<4d8e3fd3040712023469039826@mail.gmail.com>
+	<20040712154204.GS4701@fs.tum.de>
+	<4d8e3fd304071208566280e89b@mail.gmail.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Will Beers wrote:
->  > though maybe 500 msec is too short a period to wait.
->  > See if 5000 msec helps.
+On Mon, 12 Jul 2004 17:56:14 +0200
+Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+
+[snip]
+> I agree.
 > 
-> I went all the way up to 20000 msec and it still didn't help.  I'm
-> sure it's a bad idea, but removing that whole if-block below it makes
-> it work (which is effectively what switching the and/or did).  I
-> don't know enough about it to judge whether it's correct, but what
-> exactly is it checking for there?    
+> > OSDL does some tests for any -rc and many other people like me do other
+> > testing. Besides this, most patches already got similar treatment in
+> > -mm. This might not be a base for an ISO 9000 certificate, but it seems
+> > to be sufficietely working for finding most problems before the acttual
+> > release.
 > 
-> -Will
+> OSDL does some test for any -rc but the results of these tests don't affect
+> the release process. At least not in an official way.
+>  
+> > It would be more important if Linus would release one last -rc that will
+> > be released unchanged (except for EXTRAVERSION a few days later to catch
+> > bugs in last minute changes. This might catch more problems like the JFS
+> > compile problem in 2.6.7.
+> 
+> Right,
+> and in those days may be OSDL could run the testsuite we are discussing about.
 
-Without the patch, Linux would just ignore the BIOS handoff--Linux was
-writing "0" to the bit that it was supposed to wait for the BIOS to
-clear, so it never waited for the BIOS to let go of the controller.
-
-I bet you have a bad BIOS that won't hand off, but I would try the other
-thing David suggested--change the write to a byte write.  It seems
-unlikely, but, since Linux is writing a "1" to the "BIOS owns the
-controller" bit right now, you might be hitting something like this, if
-the system is breaking up the write into multiple smaller writes:
-
-the "OS wants the controller" bit is getting written to 1 (first part of
-the Linux write, which the system broke into pieces)
-the system BIOS (SMI handler) sees that bit set to 1, and clears the
-"BIOS owns" bit
-the "BIOS owns" bit is getting written back to a 1 (the second part of
-the Linux write)
-Linux waits in vain for BIOS to clear the "BIOS owns" bit\
-
-Again, seems unlikely, but worth a try if you're recompiling and
-testing.
+We do run bunches of tests, but we are generally way behind in actually looking
+and analysing the results of those tests - which makes it hard for us to help the
+development much.  Any body that wishes to help particpate
+in OSDL testing, come on down! We're at stp-devel@lists.sourceforge.net
+cliffw
 
 
+> 
+> ciao, Paolo
+>  
+> -- 
+> paoloc.doesntexist.org
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+-- 
+The church is near, but the road is icy.
+The bar is far, but i will walk carefully. - Russian proverb

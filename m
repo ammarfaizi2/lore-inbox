@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311752AbSFTIPW>; Thu, 20 Jun 2002 04:15:22 -0400
+	id <S312254AbSFTImt>; Thu, 20 Jun 2002 04:42:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311898AbSFTIPV>; Thu, 20 Jun 2002 04:15:21 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54452 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S311752AbSFTIPU>;
-	Thu, 20 Jun 2002 04:15:20 -0400
-Date: Thu, 20 Jun 2002 01:09:07 -0700 (PDT)
-Message-Id: <20020620.010907.120151704.davem@redhat.com>
-To: rmk@arm.linux.org.uk
-Cc: rml@tech9.net, george@mvista.com, kuznet@ms2.inr.ac.ru,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replace timer_bh with tasklet
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020620091115.A6313@flint.arm.linux.org.uk>
-References: <1024538005.922.70.camel@sinai>
-	<20020619.185514.52961715.davem@redhat.com>
-	<20020620091115.A6313@flint.arm.linux.org.uk>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S312560AbSFTIms>; Thu, 20 Jun 2002 04:42:48 -0400
+Received: from angband.namesys.com ([212.16.7.85]:9600 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S312254AbSFTIms>; Thu, 20 Jun 2002 04:42:48 -0400
+Date: Thu, 20 Jun 2002 12:42:46 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Nils =?koi8-r?Q?O=2E_=3D=3FISO-8859-1=3FQ=3FSel=3DE5sdal?= ?= 
+	<noselasd@Utel.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS & NFS oops
+Message-ID: <20020620124246.A1020@namesys.com>
+References: <200206181041.g5IAfpL20399@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <200206181041.g5IAfpL20399@localhost.localdomain>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Russell King <rmk@arm.linux.org.uk>
-   Date: Thu, 20 Jun 2002 09:11:16 +0100
-   
-   You appear to have missed willy's posting a couple of days ago
-   fixing up the serial driver BHs.
+Hello!
 
-Did it get applied to 2.5.x?
+   Can you reproduce this?
+
+Bye,
+    Oleg
+On Tue, Jun 18, 2002 at 12:41:51PM +0200, Nils O. =?ISO-8859-1?Q?Sel=E5sdal ?= wrote:
+> Just wanted to know if this is a known problem and if it might be fixed in
+> the near future:
+> Using 2.4.19-pre8 just one filesystem with reiserfs, I exported a directory. Mounted
+> it on another hosts and started writing a large (500mb) file to it, that resulted
+> in the server filesystem going full and the server locked up hard.
+> 
+> -
+> NOS@Utel.no
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

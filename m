@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261542AbSJMRFK>; Sun, 13 Oct 2002 13:05:10 -0400
+	id <S261572AbSJMRFY>; Sun, 13 Oct 2002 13:05:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261572AbSJMRFK>; Sun, 13 Oct 2002 13:05:10 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:63899 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261542AbSJMRFJ>;
-	Sun, 13 Oct 2002 13:05:09 -0400
-Date: Sun, 13 Oct 2002 13:10:49 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Michael Clark <michael@metaparadigm.com>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: Linux v2.5.42
-In-Reply-To: <3DA99CEC.8040208@metaparadigm.com>
-Message-ID: <Pine.GSO.4.21.0210131243480.9247-100000@steklov.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261574AbSJMRFY>; Sun, 13 Oct 2002 13:05:24 -0400
+Received: from h-66-167-78-17.SNVACAID.covad.net ([66.167.78.17]:17878 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S261572AbSJMRFW>; Sun, 13 Oct 2002 13:05:22 -0400
+Date: Sun, 13 Oct 2002 10:11:03 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: alan@lxorguk.ukuu.org.uk, andre@linux-ide.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Patch?: linux-2.5.42/drivers/ide/ide-probe.c null pointer dereference
+Message-ID: <20021013101103.A1304@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Mon, 14 Oct 2002, Michael Clark wrote:
-
-> Some of us have large arrays and SANs where the absence a volume
-> manager is a big thing. I'm glad to see the distros picking it up
-> - i guess they have customers who need this sort of stuff.
-> 
-> How about feedback from other kernel developers on EVMS. Does anyone
-> think 'its good enough for inclusion now as long as a few cleanups
-> are done after the freeze'?
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
-	Mostly those who won't have to clean up the mess afterwards.
-For the record, my vote is "not ready".
+	Linux-2.5.42 introduced a new IDE driver function
+HWIF(drive)->ide_dma_queued_on().  It appears that if the device does
+not do DMA at all, ide_dma_queued_on will be set to NULL.  I guess that
+is intentional, as that other code in drivers/ide actually checks
+for the possibility that ide_dma_queue_on may be null.
 
-	There are good chunks, no arguments about that.  However, IMNSHO
-we will be better off if we gradually pick the pieces that make sense
-and integrate them into the system.  As it is, wholesale merge would cost
-us too much half a year down the road.
+	Anyhow, when I booted 2.5.42, I got a null pointer dereference,
+and I think it was because the system that I booted had an ATAPI CDROM
+drive and I think my chip set and drive combination does not do DMA for
+ATAPI devices.
 
-	I have seen major subsystem rewrites.  I have done several myself.
-I have also done more than a bit of wading through "yet another drivers".
-EVMS in its current state shows a lot of signs promising very painful
-work on cleanups and intergration.  "Few cleanups after the freeze" doesn't
-come anywhere near the impression I'm getting from it and I would bet a lot
-on that particular impression.
+	Anyhow, the following patch made the problem go away, although
+I'm not that confident of the correctness of the fix.  For what it's worth,
+I am composing this email on the system running the changed code.
 
+-- 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ide-probe.diff"
+
+--- linux-2.5.42/drivers/ide/ide-probe.c	2002-10-11 21:22:09.000000000 -0700
++++ linux/drivers/ide/ide-probe.c	2002-10-13 09:57:02.000000000 -0700
+@@ -806,7 +806,8 @@
+ 	ide_toggle_bounce(drive, 1);
+ 
+ #ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
+-	HWIF(drive)->ide_dma_queued_on(drive);
++	if (HWIF(drive)->ide_dma_queued_on)
++		HWIF(drive)->ide_dma_queued_on(drive);
+ #endif
+ }
+ 
+
+--r5Pyd7+fXNt84Ff3--

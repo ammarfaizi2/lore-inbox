@@ -1,22 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265282AbUBFCQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 21:16:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265319AbUBFCQJ
+	id S266233AbUBFC0J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 21:26:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUBFC0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 21:16:09 -0500
-Received: from [218.16.109.241] ([218.16.109.241]:50333 "ehlo hotmail.com")
-	by vger.kernel.org with ESMTP id S265282AbUBFCQI (ORCPT
+	Thu, 5 Feb 2004 21:26:09 -0500
+Received: from ns.suse.de ([195.135.220.2]:6088 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266233AbUBFC0E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 21:16:08 -0500
-From: =?GB2312?B?wO62q8qk?= <gdhd3000@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: gdhd3000@hotmail.com
-Date: Fri, 6 Feb 2004 10:16:04 +0800
-X-Priority: 3
-X-Mailer: FoxMail 3.11 Release [cn]
-Message-Id: <S265282AbUBFCQI/20040206021608Z+20@vger.kernel.org>
+	Thu, 5 Feb 2004 21:26:04 -0500
+Date: Fri, 6 Feb 2004 03:20:54 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       piggy@timesys.com, trini@kernel.crashing.org, george@mvista.com
+Subject: Re: kgdb support in vanilla 2.6.2
+Message-Id: <20040206032054.3fd7db8d.ak@suse.de>
+In-Reply-To: <200402052320.04393.amitkale@emsyssoft.com>
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>
+	<20040204155452.49c1eba8.akpm@osdl.org.suse.lists.linux.kernel>
+	<p73n07ykyop.fsf@verdi.suse.de>
+	<200402052320.04393.amitkale@emsyssoft.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 5 Feb 2004 23:20:04 +0530
+"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+
+> On Thursday 05 Feb 2004 8:41 am, Andi Kleen wrote:
+> > Andrew Morton <akpm@osdl.org> writes:
+> > > need to take a look at such things and really convice ourselves that
+> > > they're worthwhile.  Personally, I'd only be interested in the basic
+> > > stub.
+> >
+> > What I found always extremly ugly in the i386 stub was that it uses
+> > magic globals to talk to the page fault handler. For the x86-64
+> > version I replaced that by just using __get/__put_user in the memory
+> > accesses, which is much cleaner. I would suggest doing that for i386
+> > too.
+> 
+> May be I am missing something obvious. When debugging a page fault handler if 
+> kgdb accesses an swapped-out user page doesn't it deadlock when trying to 
+> hold mm semaphore?
+
+Modern i386 kernels don't grab the mm semaphore when the access is >= TASK_SIZE
+and the access came from kernel space (actually I see x86-64 still does, but that's 
+a bug, will fix). You could only see a deadlock when using user addresses
+and you already hold the mm semaphore for writing (normal read lock is ok). 
+Just don't do that. 
+
+
+> George has coded cfi directives i386 too. He can use them to backtrace past 
+> irqs stack.
+
+Problem is that he did it without binutils support. I don't think that's a good
+idea because it makes the code basically unmaintainable for normal souls
+(it's like writing assembly code directly in hex) 
+
+-Andi

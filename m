@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbUKSEjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUKSEsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbUKSEjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 23:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUKSEjK
+	id S261252AbUKSEsx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 23:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUKSEsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 23:39:10 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:10921 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261252AbUKSEiH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 23:38:07 -0500
-Subject: [patch] no need to recalculate rq
-From: Robert Love <rml@novell.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1100837616.4051.17.camel@localhost.localdomain>
-References: <1100837616.4051.17.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 18 Nov 2004 23:39:06 -0500
-Message-Id: <1100839146.20622.22.camel@localhost>
+	Thu, 18 Nov 2004 23:48:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2030 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261252AbUKSEsw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 23:48:52 -0500
+Date: Thu, 18 Nov 2004 20:48:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: Six archs are missing atomic_inc_return()
+Message-Id: <20041118204836.09d2d738.akpm@osdl.org>
+In-Reply-To: <200411180148_MC3-1-8EE2-A85D@compuserve.com>
+References: <200411180148_MC3-1-8EE2-A85D@compuserve.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-18 at 23:13 -0500, Steven Rostedt wrote:
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>
+>  Six archs do not have the atomic_inc_return() macro as of 2.6.10-rc2:
+> 
+>    cris
+>    h8300
+>    m32r
+>    ppc
+>    ppc64
+>    s390
 
-> On lines 3325 and 3330 with the calls to deactivate_task and
-> __activate_task respectively. The runqueue is locked at 3316. Can the
-> runqueue returned by task_rq change in this setup? If not, what is the
-> need for the call to task_rq. Can't rq just be used instead, or is this
-> just some extra paranoia? 
+All of these architectures implement atomic_add_return().  So they all need
 
-I don't see any reason that it is needed.  The runqueue is locked and
-the task is not going anywhere.  There is no need to recalculate the
-runqueue.
+	#define atomic_inc_return(v)	atomic_add_return(1, v)
 
-Patch below uses the cached runqueue, rq, saving a few instructions.
+added to their atomic.h.
 
-	Robert Love
-
-
-no need to call task_rq in setscheduler; just use rq
-
-Signed-Off-By: Robert Love <rml@novell.com>
-
- kernel/sched.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -urN linux-2.6.10-rc2/kernel/sched.c linux/kernel/sched.c
---- linux-2.6.10-rc2/kernel/sched.c	2004-11-18 23:32:54.189696376 -0500
-+++ linux/kernel/sched.c	2004-11-18 23:35:54.309314032 -0500
-@@ -3144,12 +3144,12 @@
- 	}
- 	array = p->array;
- 	if (array)
--		deactivate_task(p, task_rq(p));
-+		deactivate_task(p, rq);
- 	retval = 0;
- 	oldprio = p->prio;
- 	__setscheduler(p, policy, lp.sched_priority);
- 	if (array) {
--		__activate_task(p, task_rq(p));
-+		__activate_task(p, rq);
- 		/*
- 		 * Reschedule if we are currently running on this runqueue and
- 		 * our priority decreased, or if we are not currently running on
-
-
+Wanna send a patch?

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313014AbSDTSGT>; Sat, 20 Apr 2002 14:06:19 -0400
+	id <S314671AbSDTSL4>; Sat, 20 Apr 2002 14:11:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314677AbSDTSGS>; Sat, 20 Apr 2002 14:06:18 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37459 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S313014AbSDTSGF>; Sat, 20 Apr 2002 14:06:05 -0400
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <5.1.0.14.2.20020420170907.06e87550@pop.cus.cam.ac.uk>
-	<5.1.0.14.2.20020420170907.06e87550@pop.cus.cam.ac.uk>
-	<5.1.0.14.2.20020420174422.00ad1390@pop.cus.cam.ac.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Apr 2002 11:58:11 -0600
-Message-ID: <m1adry45ho.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S314678AbSDTSLz>; Sat, 20 Apr 2002 14:11:55 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:12557 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S314671AbSDTSLx>;
+	Sat, 20 Apr 2002 14:11:53 -0400
+Date: Sat, 20 Apr 2002 15:11:41 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK patches exported.
+In-Reply-To: <31608.1019318609@redhat.com>
+Message-ID: <Pine.LNX.4.44L.0204201510530.1960-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov <aia21@cantab.net> writes:
+On Sat, 20 Apr 2002, David Woodhouse wrote:
 
-> The fact that some developers use bitkeeper has no effect on other
-> developers. Well ok, it means that the bk using developers can work faster but
-> that is not at issue here...
+> For the benefit of the BK haters, or more to the point for my benefit to
+> shut up the occasional whinging I've heard about needing to use BK to get
+> at the very latest patches from Linus' tree...
+>
+> 	http://www.kernel.org/~dwmw2/bk-2.5/
 
-Faster?  BK has no impact on the fundamentals of code development.  Only
-on the problem of merging code.  Only when the bottle neck is merge speed
-does it really come into play.  
+I've created one of these two, with both 2.4 and 2.5, containing
+all changesets from 2.4.0:
 
-For Linus this is obviously a very important issue.  For some of the
-rest of us it is less so.
+	ftp://nl.linux.org/pub/linux/bk2patch/{v2.4,v2.5}
 
-For myself I find great benefit in reviewing my own patches, and in
-having other people look at them and review them.  I may be wrong
-but I do not see bitkeeper helping in that regard (except reduce
-the noise of renames).
+regards,
 
-Eric
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

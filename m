@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbTFOGhd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 02:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTFOGhd
+	id S261872AbTFOGjS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 02:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbTFOGjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 02:37:33 -0400
-Received: from dp.samba.org ([66.70.73.150]:31886 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261411AbTFOGhc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 02:37:32 -0400
-Date: Sun, 15 Jun 2003 16:51:02 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Roland McGrath <roland@redhat.com>, davidm@hpl.hp.com,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: FIXMAP-related change to mm/memory.c
-Message-ID: <20030615065102.GD31148@krispykreme>
-References: <16105.28970.526326.249287@napali.hpl.hp.com> <200306130656.h5D6uGc32359@magilla.sf.frob.com> <20030613001517.5413e511.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030613001517.5413e511.akpm@digeo.com>
-User-Agent: Mutt/1.5.4i
+	Sun, 15 Jun 2003 02:39:18 -0400
+Received: from ns3.levonline.com ([217.70.32.4]:6409 "EHLO
+	tessla.levonline.com") by vger.kernel.org with ESMTP
+	id S261872AbTFOGjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 02:39:15 -0400
+Message-Id: <200306150653.h5F6r3007462@tessla.levonline.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+Subject: 2.5 and module loading
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Date: Sun, 15 Jun 2003 08:53:03 +0300
+From: Per Bergqvist <per@synap.se>
+X-Originating-IP: [217.215.72.97]
+User-Agent: IMHO/0.98.3 (Webmail for Roxen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> >  			static struct vm_area_struct fixmap_vma = {
-> >   				/* Catch users - if there are any valid
-> >   				   ones, we can make this be "&init_mm" or
-> >   				   something.  */
-> >   				.vm_mm = NULL,
-> >  -				.vm_start = FIXADDR_START,
-> >  -				.vm_end = FIXADDR_TOP,
-> >  +				.vm_start = FIXADDR_USER_START,
-> >  +				.vm_end = FIXADDR_USER_END,
-> >   				.vm_page_prot = PAGE_READONLY,
-> >   				.vm_flags = VM_READ | VM_EXEC,
-> >   			};
-> 
-> Note that the current version of this code does not compile for User Mode
-> Linux.  Its FIXADDR_TOP is not a constant.   It would be nice to fix that
-> this time around.
-> 
-> It appears that this patch will break x86_64, parisc and um.
+This is probably the common question but I haven't been able to find
+the proper answer...
 
-Its a problem on ppc64 too. I want to put the signal trampolines into
-a fixmap area above the stack, ie different places on 32bit and 64bit
-executables.
+Can somebody please explain what is needed to get module loading
+working with the 2.5.xx kernels ?
 
-Anton
+I use redhat 9 as base dist with a modutils 2.4.25,
+monolitic kernels work fine but with no luck with modules.
+
+What else is needed ?
+
+BR
+Per
+=========================================================
+Per Bergqvist
+Synapse Systems AB
+Phone: +46 709 686 685
+Email: per@synap.se

@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289831AbSAKCF3>; Thu, 10 Jan 2002 21:05:29 -0500
+	id <S289880AbSAKCMj>; Thu, 10 Jan 2002 21:12:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289837AbSAKCFO>; Thu, 10 Jan 2002 21:05:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28176 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289831AbSAKCEw>; Thu, 10 Jan 2002 21:04:52 -0500
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-To: nitrax@giron.wox.org (Martin Eriksson)
-Date: Fri, 11 Jan 2002 02:16:27 +0000 (GMT)
-Cc: Ronald.Wahl@informatik.tu-chemnitz.de (Ronald Wahl),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <015701c19a3c$8f2b7630$0201a8c0@HOMER> from "Martin Eriksson" at Jan 11, 2002 02:09:03 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289877AbSAKCM3>; Thu, 10 Jan 2002 21:12:29 -0500
+Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:61116 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S289836AbSAKCMO>; Thu, 10 Jan 2002 21:12:14 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [patch] O(1) scheduler, -H4 - 2.4.17 problems
+Date: Fri, 11 Jan 2002 03:10:59 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16OrF5-0006HI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020111021221Z289836-13997+3739@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Just curious; is RPM a "standard" for most linux distros now? I have always
-> been running RedHat so I wouldn't know.
+On Fri, Jan 11, 2002 at 00:52:16AM, khromy wrote:
+> On Thu, Jan 10, 2002 at 07:43:04PM -0500, Ed Tomlinson wrote:
+> > Incase I messed up removing and repatch I tried from a clean kernel with
+> > the same results.
+> > Any one else seeing this?
+>
+> Yes.. This is a PII350 with 128MiB... If anybody needs any more info let
+> me know.
 
-Most but not all. Debian has a very powerful package system that is quite
-different for example. I don't know if the Debian package setup protects
-you from installing i686 binaries on an i486, but I bet within 48 hours of
-this discussion it will do anyway
+-H5 (-G1, latest I've tried worked)
+
+1 GHz Athlon II, 640 MB 
+hang hard right after
+Initializing RT netlink socket
+
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

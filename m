@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263031AbREaIfG>; Thu, 31 May 2001 04:35:06 -0400
+	id <S263035AbREaJFM>; Thu, 31 May 2001 05:05:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263032AbREaIe4>; Thu, 31 May 2001 04:34:56 -0400
-Received: from sgi.SGI.COM ([192.48.153.1]:27433 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S263031AbREaIem>;
-	Thu, 31 May 2001 04:34:42 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Frank Davis <fdavis112@juno.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.5-ac4 es1371.o unresolved symbols 
-In-Reply-To: Your message of "Thu, 31 May 2001 10:06:54 +0200."
-             <20010531100654.A1759@suse.cz> 
+	id <S263036AbREaJFB>; Thu, 31 May 2001 05:05:01 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:32516 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S263035AbREaJEo>; Thu, 31 May 2001 05:04:44 -0400
+Date: Thu, 31 May 2001 11:01:47 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Jose Carlos Garcia Sogo <jose@servidor.jaimedelamo.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops with 2.4.5-ac3
+Message-ID: <20010531110147.B13054@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010531094556.A599@hal9000>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 31 May 2001 18:34:20 +1000
-Message-ID: <17420.991298060@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010531094556.A599@hal9000>; from jose@servidor.jaimedelamo.eu.org on Thu, May 31, 2001 at 09:45:56AM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 May 2001 10:06:54 +0200, 
-Vojtech Pavlik <vojtech@suse.cz> wrote:
->On Thu, May 31, 2001 at 05:52:39PM +1000, Keith Owens wrote:
->> When the user has gameport hardware compiled it as a module and they
->> have es1371 bult into the kernel then es1371 silently ignores the
->> gameport, even if the gameport modules has been loaded.  This violates
->> the principle of least surprise, a user configuring both gameport and
->> es1371 expects to use the gameport, kbuild should support that instead
->> of silently ignoring the combination.
->
->True. Is this worse than the ugliness in your patch?
+On Thu, May 31, 2001 at 09:45:56AM +0200, Jose Carlos Garcia Sogo wrote:
+>    I've just got an oops with the 2.4.5-ac3 kernel. I have attached the log 
+>   to this mail. I have also having more random dead locks, but I haven't 
+>   catch any log of them. If I manage to get some logs, I'll send here also.
+> 
+>    Anyway, 2.4.5-ac3 is much more stable in my computer than vanilla 2.4.5, 
+>   which was almost unusable. With 2.4.4, I had some problems also.
+> 
+>    I'm using NVIDIA's module for a TNT2 M64 card.
 
-Only kernel developers see the ugly patch.  The unexpected presence or
-absence of gameport code affects all users.  User always win that
-argument.  Adding a warning is just as bad, kbuild either generates a
-valid config or nothing at all.  Users never check warnings anyway :(.
+Try to reproduce the errors without the nvidia module. If you still get
+oopses, report them over here. If not, complain to nvidia.
 
+
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

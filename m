@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266012AbTGCAgH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 20:36:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbTGCAgH
+	id S265303AbTGCBAl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 21:00:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbTGCBAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 20:36:07 -0400
-Received: from mail.inw.de ([217.6.75.131]:60037 "EHLO mail.internetwork-ag.de")
-	by vger.kernel.org with ESMTP id S266012AbTGCAgD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 20:36:03 -0400
-Message-ID: <3F037DF5.BCF5DF22@inw.de>
-Date: Wed, 02 Jul 2003 17:51:01 -0700
-From: Till Immanuel Patzschke <tip@inw.de>
-Organization: interNetwork AG
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-4GB i686)
-X-Accept-Language: en
+	Wed, 2 Jul 2003 21:00:41 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:48115 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S265303AbTGCBAj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 21:00:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Subject: Re: PTY DOS vulnerability?
+Date: Wed, 2 Jul 2003 20:14:36 -0500
+X-Mailer: KMail [version 1.2]
+Cc: Fredrik Tolf <fredrik@dolda2000.cjb.net>, linux-kernel@vger.kernel.org
+References: <200306301613.11711.fredrik@dolda2000.cjb.net> <03070106574900.01125@tabby> <20030701195323.GA15483@hh.idb.hist.no>
+In-Reply-To: <20030701195323.GA15483@hh.idb.hist.no>
 MIME-Version: 1.0
-To: Faye Pearson <faye@zippysoft.com>
-CC: linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net
-Subject: Re: pppd pppoatm multilink?
-References: <20030702121820.GA21592@clara.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <03070220143600.04348@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm,
-
-how is that supposed to work?  The trick about PPPoA is that the underlying
-(logical) structure provides a distinct physical link (like in the modem
-world).  The actual ATM cells have no tag that allows the BRAS to sort out which
-PPP connection is currently sending packets, so you actually have to have more
-than one VC to make this work.
-
-Cheers,
-
-Immanuel
-
-Faye Pearson wrote:
-
-> My ISP is about to trial multilink ADSL for use with routers like the
-> Cisco 1600, but I was wondering if it could be done 'on the cheap' (well
-> relatively anyway) with a linux box and a couple of PCI ADSL modems.
+On Tuesday 01 July 2003 14:53, Helge Hafting wrote:
+> On Tue, Jul 01, 2003 at 06:57:49AM -0500, Jesse Pollard wrote:
+> > One problem is that ptys are not just "used by the user". Every terminal
+> > window opened uses a pty. As does a network connection.
+> >
+> > As does "expect" - which is less visible to the user since it is intended
+> > to be invisible.
+> >
+> > The real question is "how many PTYs should a single user have?"
+> > Which then prompts the question "How many concurrent users should there
+> > be?"
+> >
+> > second, just providing a user limit doesn't prevent a denial of service..
+> > Just have more connections than ptys and you are in the same situation.
 >
-> AIUI it should work the same as MP using two ttyS devices but
-> first glance suggests this won't work, the pppoatm module for pppd
-> seems to take the VPI.VCI as the device and there doesn't seem to
-> be any way to say which physical ATM device to use.  The VPI.VCI
-> would be the same at both interfaces.  Does it just pick the
-> first available ATM device?  Or just the first ATM device?
->
-> Thanks
->
-> Faye.
->
-> Please also cc: me in on replies, thank you.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Isn't this something a improved sshd could do?  I.e. if the
+> connection using up the last (or one of the last) pty's logs
+> in as non-root - just kill it.
 
+and how is it to determine that it is the last?
+
+try two and die if the second fails???
+
+at least one system just creates more ptys...

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268455AbUJGVVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUJGVVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268455AbUJGVVT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUJGVRr
+	id S262279AbUJGVVU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267798AbUJGVRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 17:17:47 -0400
-Received: from zimbo.cs.wm.edu ([128.239.2.64]:24803 "EHLO zimbo.cs.wm.edu")
-	by vger.kernel.org with ESMTP id S267740AbUJGU4k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 16:56:40 -0400
-Date: Thu, 7 Oct 2004 16:56:14 -0400
-From: "Serge E. Hallyn" <hallyn@CS.WM.EDU>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, jmorris@redhat.com, serue@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/3] lsm: add bsdjail module
-Message-ID: <20041007205614.GA23824@escher.cs.wm.edu>
-References: <20041007040859.GA17774@escher.cs.wm.edu> <Xine.LNX.4.44.0410070216130.2191-100000@thoron.boston.redhat.com> <20041006232208.505ccacd.akpm@osdl.org> <20041007090645.U2357@build.pdx.osdl.net> <20041007114039.6e861b2b.akpm@osdl.org> <20041007115240.C2357@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041007115240.C2357@build.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+	Thu, 7 Oct 2004 17:17:52 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:60093 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S268235AbUJGU4E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 16:56:04 -0400
+Message-ID: <4165ACF8.8060208@rtr.ca>
+Date: Thu, 07 Oct 2004 16:54:16 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Mark Lord <lsml@rtr.ca>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
+References: <4161A06D.8010601@rtr.ca> <416547B6.5080505@rtr.ca> <20041007150709.B12688@infradead.org> <4165624C.5060405@rtr.ca> <416565DB.4050006@pobox.com> <4165A45D.2090200@rtr.ca> <4165A766.1040104@pobox.com> <4165A85D.7080704@rtr.ca> <4165AB1B.8000204@pobox.com>
+In-Reply-To: <4165AB1B.8000204@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * Andrew Morton (akpm@osdl.org) wrote:
-> > Chris Wright <chrisw@osdl.org> wrote:
-> > > * Andrew Morton (akpm@osdl.org) wrote:
-> > > Which feature are you concerned over, the additional hook or the
-> > > new module?
-> > 
-> > I am concerned about the presence of new code - simple as that.
-> 
-> Understood.
+ >You're the only person in the world that
+ >(a) needs these hooks NOW and (b) can utilize the hooks NOW,
+ >by your own admission  ;-)
 
-We do have time allotted for maintenance of LSMs, so not only am I
-interested in maintaining bsdjail on my own, but I don't even have to do
-it in my free time  :)
+Actually, no.
 
-> > We need to be able to demonstrate that the new code is sufficiently useful
-> > to a sufficiently large number of people as to warrant the cost of
-> > maintaining it in the tree for the rest of eternity.
-> 
-> That's fine.  Serge, can you enlighten us with an idea of the users of
-> this code?
+There's a full-time programmer at PDC working
+on the RAID management layer for this, plus all
+of the folks there working on the O/S independent
+apps in userland for the card.
 
-I am "just a developer", and don't have ready access to any marketers.
-There was no customer demand which we were addressing.  We just saw it
-as a very useful feature easy to implement.  Some people have privately
-expressed interested in the patch over the last few months as I've been
-sending out patches.  And as Chris has mentioned, the vserver community
-appears to be thriving, and should be partially (though by no means
-fully!) served by this module.  If nothing else it should reduce the
-size of the patch they need to maintain.
+Perhaps I can get hold of an early snapshot of that
+code from them (the chardev driver), and submit that
+as a subsequent patch.
 
-I wish I had a better answer...
+So, skipping the EXPORTs for now, how do you guys
+feel about the driver ?
 
--serge
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

@@ -1,88 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUHRI66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265215AbUHRJEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUHRI66 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 04:58:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265196AbUHRI66
+	id S265215AbUHRJEY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 05:04:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUHRJEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 04:58:58 -0400
-Received: from holomorphy.com ([207.189.100.168]:43957 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265161AbUHRI6z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 04:58:55 -0400
-Date: Wed, 18 Aug 2004 01:58:50 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: DervishD <disposable1@telefonica.net>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: setproctitle
-Message-ID: <20040818085850.GW11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	DervishD <disposable1@telefonica.net>,
-	Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20040818082851.GA32519@DervishD>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Aug 2004 05:04:24 -0400
+Received: from pop107-mtl.zid.com ([207.253.126.107]:46089 "EHLO oemcomputer")
+	by vger.kernel.org with ESMTP id S265212AbUHRJEN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 05:04:13 -0400
+From: formation.sept@laposte.net
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?=C9laboration=20d'un=20Plan=20de=20Formation?=
+Date: Tue, 17 Aug 2004 21:40:06 -0400
+MIME-Version: 1.0 (produced by Synapse)
+x-mailer: Synapse - Delphi & Kylix TCP/IP library by Lukas Gebauer
+Content-type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20040818082851.GA32519@DervishD>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Description: Message text
+Message-Id: <S265212AbUHRJEN/20040818090413Z+516@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 10:28:51AM +0200, DervishD wrote:
->     Is there any special reason not to implement setproctitle in the
-> kernel? In user space is a bit difficult to implement since 'argv[0]'
-> cannot grow beyond the initially allocated space, better said, it can
-> grow but only changing the pointer to another place or eating the
-> space occupied by the other arguments.
->     proftpd has a not-very-polite set_proc_title that misses the
-> final NULL, and a couple of other programs out there uses it, too.
-> Applications should be free to change theirs proc titles to some
-> pretty if they want, shouldn't they?
->     In proc/base.c you can read about 'setproctitle(3)', that is, in
-> library space (user space), not kernel space, but AFAIK only FreeBSD
-> has setproctitle :?
+ÉLABORATION D'UN PLAN DE FORMATION
 
-Observe the following, from fs/proc/base.c:
+Formation:
 
-static int proc_pid_cmdline(struct task_struct *task, char * buffer)
-{
-	int res = 0;
-	unsigned int len;
-	struct mm_struct *mm = get_task_mm(task);
-	if (!mm)
-		goto out;
-	if (!mm->arg_end)
-		goto out;	/* Shh! No looking before we're done */
+Atelier d'un jour - Le 27 Septembre 2004 à Montréal
+et le 24 Septembre 2004 à Québec
 
- 	len = mm->arg_end - mm->arg_start;
+"Pour ceux qui pensent que la formation coûte cher... essayez l'ignorance".
+
+CETTE FORMATION S'ADRESSE AUX DIRECTEURS FORMATION, DIRECTEURS 
+DES RESSOURCES HUMAINES, GESTIONNAIRES D'ENTREPRISE ET 
+DIRECTEURS DE DÉPARTEMENT GÉRANT LEUR FORMATION.
+	
+
+Suivez cette formation pour :
+
+    * Apprendre à développer un plan de formation en lien direct avec les objectifs 
+stratégiques de votre entreprise
+    * Gérer les compétences : outils d'analyse d'écart de compétences et mise à niveau
+    * Améliorer la productivité et la compétitivité
+    * Comprendre le processus pédagogique
+    * Mieux placer votre entreprise sur son marché
+    * Accroître le retour sur investissement de la formation
+    * Mieux gérer votre budget formation vis-à-vis de la loi 90
+    * Vous assurer que les méthodes apprises sont correctement appliquées et 
+implantées dans votre entreprise
+
+
+OBJECTIFS:
+Développer une démarche permettant d'analyser les besoins en formation et de 
+planifier les actions significatives.
+Acquérir des compétences et connaître des méthodes afin de planifier les achats de 
+formation en fonction des objectifs stratégiques de l'entreprise.
+Connaître les outils d'évaluation et de gestion de compétences.
+Connaître les enjeux et l'importance de la planification de la formation dans le contexte 
+de la mondialisation.
+
+PLAN DE COURS:
+
+Introduction:  Dans le contexte de la globalisation des marchés - la formation 
+aujourd'hui
+
+Présentation de la démarche en 5 points:
+
+    * Le diagnostic:  analyser les besoins en formation
+          o L'objectif stratégique
+          o L'objectif opérationnel
+          o Les objectifs de formation
+          o L'entretien avec le commanditaire du projet de formation
+          o Impact de la formation sur ...
+                + La compétence
+                + La motivation
+                + L'environnement de travail
+          o Étude de faisabilité
+                + Analyse stratégique
+                + Analyse de risque
+
+    * L'action de formation:  concevoir la réponse au besoin
+          o Le processus pédagogique
+                + Inscription
+                + Implication
+                + Action de formation
+                + Suivi
+                + Évaluation
+          o Conception de l'action de formation
+
+    * Le plan de formation:  la planification des actions
+          o Les acteurs
+          o Planification
+          o Aides
+          o Le plan de formation
+          o La fiche d'action de formation
+
+    * Sélection des prestataires:  les moyens
+          o Classification des achats en formation
+          o Sélection des prestataires
+                + Le cahier des charges
+                + Critères de sélection
+                + Coût de la formation
+          o Le marché de la formation
+
+    * Évaluation des projets de formation
+          o Évaluation du processus
+          o Évaluation des résultats
+          o Typologie
+          o Évaluation à froid
+          o Évaluation à chaud
+          o Évaluation individuelle
+          o Évaluation collective
+
+
+Date de la formation:  27 Septembre 2004 à Montréal et le 24 Septembre à Québec
+Lieu de la formation: Hôtel Plaza Québec  3031, Boul Laurier Ste-Foy
+Lieu de la formation:  Best Western Laval, 3655, Aut. des Laurentides, Laval
+
+Pour inscription, veuillez contacter Mme Maryse Morin au 1-800-861-6618
+
+
+Conseillers en sciences de gestion et technologies avancées
+450-226-2238 ou le 1-800-861-6618
+
+www.compufinder.com
+
+
+
+Pour vous désabonner de notre liste d'envoi écrire à 
  
-	if (len > PAGE_SIZE)
-		len = PAGE_SIZE;
+info.compufinder@quebecemail.com
  
-	res = access_process_vm(task, mm->arg_start, buffer, len, 0);
+merci
 
-	// If the nul at the end of args has been overwritten, then
-	// assume application is using setproctitle(3).
-	if (res > 0 && buffer[res-1] != '\0') {
-		len = strnlen(buffer, res);
-		if (len < res) {
-		    res = len;
-		} else {
-			len = mm->env_end - mm->env_start;
-			if (len > PAGE_SIZE - res)
-				len = PAGE_SIZE - res;
-			res += access_process_vm(task, mm->env_start, buffer+res, len, 0);
-			res = strnlen(buffer, res);
-		}
-	}
-	mmput(mm);
-
-out:
-	return res;
-}
-
-The command-line arguments are being fetched from the process address
-space, i.e. simply editing argv[] in userspace will have the desired
-effect. Though this code is butt ugly.
-
-
--- wli

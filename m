@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUEaCBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264501AbUEaCDR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbUEaCBu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 22:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbUEaCBu
+	id S264501AbUEaCDR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 22:03:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbUEaCDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 22:01:50 -0400
-Received: from main.gmane.org ([80.91.224.249]:28374 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264500AbUEaCBt (ORCPT
+	Sun, 30 May 2004 22:03:17 -0400
+Received: from ums.usu.ru ([194.226.236.116]:19145 "EHLO ums.usu.ru")
+	by vger.kernel.org with ESMTP id S264501AbUEaCDM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 22:01:49 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sun, 30 May 2004 22:03:12 -0400
+Message-ID: <40BA92A8.8040405@ums.usu.ru>
+Date: Mon, 31 May 2004 08:04:24 +0600
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: xfs partition refuses to mount
-Date: Mon, 31 May 2004 04:02:31 +0200
-Message-ID: <yw1xk6ytbbgo.fsf@kth.se>
-References: <40B8D24A.4080703@xfs.org> <Pine.GSO.4.33.0405291528450.14297-100000@sweetums.bluetronic.net>
- <20040531113141.A1116544@boing.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:KNhpZOG6tXlw9HUwda74Sp2QSQE=
-Cc: linux-xfs@oss.sgi.com
+Subject: Aliases are broken with ieee1394 modules
+X-Enigmail-Version: 0.83.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Shimmin <tes@sgi.com> writes:
+This problem can be reproduced on a 2.6.6 kernel if you compile e.g. 
+video1394 as a module.
 
-> Hi Ricky,
->
-> On Sat, May 29, 2004 at 03:35:34PM -0400, Ricky Beam wrote:
->> (I've had the journal become spooge on a sparc64 box a few times.)
->> 
-> Until May 20 (just over a week ago) recovery on sparc64 (and big endian
-> 64) did not work. A fix went into xfs_bit.c thanks to Nicolas
-> Boullis. (Our XFS qa tests are routinely run on intel cpus)
+The source line in drivers/ieee1394/video1394.c that is a problem:
 
-What about 64-bit little endian?  I'm using XFS on Alpha, and it seems
-to be working.  Is there something I should watch out for?
+MODULE_ALIAS_CHARDEV(IEEE1394_MAJOR, IEEE1394_MINOR_BLOCK_VIDEO1394 * 16);
+
+The bad result is that in /lib/modules/2.6.6/modules.alias the following 
+line appears:
+
+alias char-major-171-1 * 16 video1394
+
+I use gcc 3.3.2, if that matters. Similar problem exists with other 
+ieee1394 modules.
 
 -- 
-Måns Rullgård
-mru@kth.se
-
+Alexander E. Patrakov
+Please CC: me, I am not subscribed

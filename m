@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbSIZVOQ>; Thu, 26 Sep 2002 17:14:16 -0400
+	id <S261538AbSIZVQk>; Thu, 26 Sep 2002 17:16:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261531AbSIZVOQ>; Thu, 26 Sep 2002 17:14:16 -0400
-Received: from pD9E23892.dip.t-dialin.net ([217.226.56.146]:8426 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S261530AbSIZVN4>; Thu, 26 Sep 2002 17:13:56 -0400
-Date: Thu, 26 Sep 2002 15:19:52 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Thunder from the hill <thunder@lightweight.ods.org>
-cc: Rik van Riel <riel@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated
- v2
-In-Reply-To: <Pine.LNX.4.44.0209261511290.7827-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0209261519280.7827-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261535AbSIZVQk>; Thu, 26 Sep 2002 17:16:40 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:2820 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261529AbSIZVPr>; Thu, 26 Sep 2002 17:15:47 -0400
+Date: Thu, 26 Sep 2002 22:20:58 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] 2.5.38 - Config.in: Second extended fs rename / move Ext3 to a wiser place
+Message-ID: <20020926222058.A604@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <200209261944.23447.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200209261944.23447.m.c.p@wolk-project.de>; from m.c.p@wolk-project.de on Thu, Sep 26, 2002 at 09:53:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Sep 26, 2002 at 09:53:56PM +0200, Marc-Christian Petersen wrote:
+> Hi there,
+> 
+> these are just cosmetic fixes.
+> 
+> I think we can do the following:
+> 
+> 1. rename: "Second extended fs support" to "Ext2 file system support"
+>     (to be equal to Ext3fs)
+> 
+> 2. move: "Ext3 journalling file system support" near under to Ext2 fs.
+> 
+> Coments?
 
-On Thu, 26 Sep 2002, Thunder from the hill wrote:
-> /**
->  * slist_del -  remove an entry from list
->  * @buf:        a storage area, just as long as the entry
->  * @entry:      entry to be removed
->  */
-> #define slist_del(_entry_in,_buf)			\
-> do {							\
-> 	typeof(_entry_in) _entry = (_entry_in),		\
-> 			  _head = (_buf), _free;	\
-> 	memcpy(_head, _entry, sizeof(_entry));		\
-> 	_free = _entry;					\
-> 	_entry = _entry->next;				\
-> 	_head->next = NULL;				\
-> 	(_buf) = _head;					\
-	^^^^^^^^^^^^^^^ Ignore this
-> } while (0)
+What's the point?
 
+> I also thought about splitting the "Journal Filesystems" into an extra menu 
+> option just to clear up the whole menu a bit since we have: ReiserFS, Ext3, 
+> XFS, JFS, JFFS and JFFSv2. I cooked up a patch which does it, also attached!
 
-			Thunder
--- 
-assert(typeof((fool)->next) == typeof(fool));	/* wrong */
+The idea makes zero sense.  Blockbased filesystems sounds like more
+useful split if the menu is really to big for you.
 

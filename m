@@ -1,70 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129703AbRAQTyC>; Wed, 17 Jan 2001 14:54:02 -0500
+	id <S130036AbRAQTym>; Wed, 17 Jan 2001 14:54:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130036AbRAQTxw>; Wed, 17 Jan 2001 14:53:52 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:30981 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129703AbRAQTxm>; Wed, 17 Jan 2001 14:53:42 -0500
-Date: Wed, 17 Jan 2001 14:57:26 -0500
-From: Chris Mason <mason@suse.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: set_page_dirty/page_launder deadlock
-Message-ID: <31670000.979761446@tiny>
-In-Reply-To: <Pine.LNX.4.10.10101141054530.4086-100000@penguin.transmeta.com>
-X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131256AbRAQTyd>; Wed, 17 Jan 2001 14:54:33 -0500
+Received: from msp-65-25-214-194.mn.rr.com ([65.25.214.194]:5130 "EHLO
+	msp-65-25-214-194.mn.rr.com") by vger.kernel.org with ESMTP
+	id <S130036AbRAQTyY>; Wed, 17 Jan 2001 14:54:24 -0500
+Date: Wed, 17 Jan 2001 13:54:20 -0600
+From: Rick Richardson <rick@remotepoint.com>
+To: linux-kernel@vger.kernel.org
+Subject: kmalloc() of 4MB causes "kernel BUG at slab.c:1542!"
+Message-ID: <20010117135420.A3536@remotepoint.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="NzB8fVQJ5HfG6fxh"
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Sunday, January 14, 2001 10:56:10 AM -0800 Linus Torvalds
-<torvalds@transmeta.com> wrote:
 
->> Marcelo Tosatti writes:
->>  > 
->>  > While taking a look at page_launder()...
->> 
->>  ...
->> 
->>  > set_page_dirty() may lock the pagecache_lock which means potential
->>  > deadlock since we have the pagemap_lru_lock locked.
->> 
-> 
-> Well, as the new shm code doesn't return 1 any more, the whole locked page
-> handling should just be deleted. ramfs always just re-marked the page
-> dirty in its own "writepage()" function, so it was only shmfs that ever
-> returned this special case, and because of other issues it already got
-> excised by Christoph..
-> 
+[please cc me on any responses]
 
-Then I'm confused by the code in 2.4.1pre8:
+Environment: 2.4.0 released, Pentium III with 256MB's of RAM.
+Problem:  kmalloc() of 4M causes kernel message "kernel BUG at slab.c:1542"
 
--chris
+	Here is the dmesg output:
 
-/*
- * Move the page from the page cache to the swap cache
- */
-static int shmem_writepage(struct page * page)
+kernel BUG at slab.c:1542!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0129b84>]
+EFLAGS: 00010282
+eax: 0000001b   ebx: d2922000   ecx: cdf6c000   edx: 00000000
+esi: 00000007   edi: 00000000   ebp: 0806f124   esp: cb1bdef4
+ds: 0018   es: 0018   ss: 0018
+Process insmod (pid: 24167, stackpage=cb1bd000)
+Stack: c02148eb c021498b 00000606 00000286 00000001 c02a75ec 00000029 d2922000 
+       00000000 d2922083 01000000 00000007 d29221c0 01000000 c0116c65 00000000 
+       cc8a6000 0000020c cc8a7000 00000060 ffffffea 00000003 c2be5420 00000060 
+Call Trace: [<d2922000>] [<d2922083>] [<d29221c0>] [<c0116c65>] [<d2920000>] [<d2922060>] [<c0109057>] 
+
+Code: 0f 0b 83 c4 0c 31 c0 83 c4 10 5b 5e c3 eb 0d 90 90 90 90 90 
+
+Repeat by:
+	Compile simple driver attached.
+	$ insmod test.o Amt=4096
+
+
+-- 
+Rick Richardson  rick@remotepoint.com  http://home.mn.rr.com/richardsons/
+Twins Cities traffic animations are at http://members.nbci.com/tctraffic/#1
+
+Most Minnesotans think Global Warming is a good thing.
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="test.c"
+
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/types.h>
+#include <linux/string.h>
+#include <linux/kernel.h>
+#include <linux/sched.h>
+#include <linux/timer.h>
+#include <linux/config.h>
+#include <linux/socket.h>
+#include <linux/sockios.h>
+#include <linux/errno.h>
+#include <linux/in.h>
+#include <linux/mm.h>
+#include <linux/inet.h>
+#include <linux/netdevice.h>
+#include <linux/etherdevice.h>
+#include <linux/if_arp.h>
+#include <linux/skbuff.h>
+#include <linux/proc_fs.h>
+#include <linux/stat.h>
+#include <linux/init.h>
+
+static size_t   Amt = 1;
+MODULE_PARM(Amt, "l");
+MODULE_PARM_DESC(Amt, "Pages of memory to allocate");
+
+static void *mem;
+
+static int __init
+init(void)
 {
-	int error;
-	struct shmem_inode_info *info;
-	swp_entry_t *entry, swap;
+        /* Announce this module has been loaded. */
+        printk(KERN_INFO "test loading; allocate %d bytes\n", Amt*4096);
 
-	info = &page->mapping->host->u.shmem_i;
-	if (info->locked)
-		return 1;
-	swap = __get_swap_page(2);
-	if (!swap.val)
-		return 1;
+        mem = kmalloc(Amt*4096, GFP_KERNEL);
+        if (!mem) return (-ENOMEM);
 
+        printk(KERN_INFO "test loaded\n");
+        return 0;
+}
 
+static void __exit
+fini(void)
+{
+        printk(KERN_INFO "test unloading\n");
+        kfree(mem);
+}
+
+module_init(init);
+module_exit(fini);
+
+--NzB8fVQJ5HfG6fxh--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

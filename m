@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311206AbSDCLc1>; Wed, 3 Apr 2002 06:32:27 -0500
+	id <S311483AbSDCLeR>; Wed, 3 Apr 2002 06:34:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311211AbSDCLcS>; Wed, 3 Apr 2002 06:32:18 -0500
-Received: from relay2.uni-heidelberg.de ([129.206.210.211]:23778 "EHLO
-	relay2.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S311206AbSDCLcI>; Wed, 3 Apr 2002 06:32:08 -0500
-Message-Id: <200204031132.g33BW5M28288@fubini.pci.uni-heidelberg.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Bernd Schubert <bernd-schubert@web.de>
-To: Mark Cooke <mpc@star.sr.bham.ac.uk>
-Subject: Re: time jumps
-Date: Wed, 3 Apr 2002 13:32:05 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S311211AbSDCLeH>; Wed, 3 Apr 2002 06:34:07 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:2322 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S311320AbSDCLd7>; Wed, 3 Apr 2002 06:33:59 -0500
+Date: Wed, 3 Apr 2002 21:34:59 +1000
+From: john slee <indigoid@higherplane.net>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0203271729290.15451-100000@pc24.sr.bham.ac.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Subject: Re: [OT] who's maintaining util-linux?
+Message-ID: <20020403113459.GB13429@higherplane.net>
+In-Reply-To: <200204030938.g339cnX16298@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Apr 03, 2002 at 12:38:08PM -0200, Denis Vlasenko wrote:
+> Hi folks,
+> 
+> I'm using util-linux and have some problems with them.
+> The biggest of promlems is that I am unable to contact
+> maintainers of said utils :-(   Are they maintained?
 
-after changing from 'CONFIG_X86_TSC=n' to 'CONFIG_X86_TSC=y' the problem 
-still exists, so I'm going to try some other suggestions.
+according to debian/testing's /usr/share/doc/util-linux/copyright:
 
-But nevertheless, thanks for your help,
+-----
+This is the Debian GNU/Linux prepackaged version of util-linux.
 
-Bernd
+This package was put together by Guy Maor <maor@debian.org> and later
+maintained by Sean 'Shaleh' Perry <shaleh@debian.org>.
+Current maintainer is Adrian Bunk <bunk@fs.tum.de>.
+-----
 
-On Wednesday 27 March 2002 18:33, Mark Cooke wrote:
-> There is a hardware bug on some via 686a systems where the RTC appears
-> automagically change it's programmed value.
->
-> A patch was originally made against 2.4.2, and some version of this
-> appears to be applied to current kernels (I don't have a vanilla
-> 2.4.17 to check against).  Look in arch/i386/kernel/time.c for mention
-> of 686a.
->
-> It appears to only be used if the kernel's not compiled with
-> CONFIG_X86_TSC though, so if you have that defined you may not see the
-> problem at all...
->
-> Mark
+hope that helps,
+
+j.
+
+-- 
+R N G G   "Well, there it goes again... And we just sit 
+I G G G   here without opposable thumbs." -- gary larson

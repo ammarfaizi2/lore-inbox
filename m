@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUG1UqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263761AbUG1UwC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbUG1UqV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 16:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUG1UqV
+	id S263761AbUG1UwC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 16:52:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUG1UwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 16:46:21 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:37394 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S263740AbUG1UqL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 16:46:11 -0400
-Date: Wed, 28 Jul 2004 13:46:03 -0700
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Bill Huey <bhuey@lnxw.com>, karim@opersys.com,
-       Scott Wood <scott@timesys.com>, Ingo Molnar <mingo@elte.hu>,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>,
-       Manas Saksena <manas.saksena@timesys.com>,
-       Philippe Gerum <rpm@xenomai.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] IRQ threads
-Message-ID: <20040728204603.GA7106@nietzsche.lynx.com>
-References: <20040727225040.GA4370@yoda.timesys> <4107CA18.4060204@opersys.com> <1091039327.747.26.camel@mindpipe> <4107FA93.3030801@opersys.com> <1091043218.766.10.camel@mindpipe> <20040728202107.GA6952@nietzsche.lynx.com> <1091047369.791.35.camel@mindpipe>
-Mime-Version: 1.0
+	Wed, 28 Jul 2004 16:52:02 -0400
+Received: from av5-2-sn3.vrr.skanova.net ([81.228.9.114]:3531 "EHLO
+	av5-2-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S263761AbUG1Uvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 16:51:54 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] Trivial CDRW packet writing doc update
+From: Peter Osterlund <petero2@telia.com>
+Date: 28 Jul 2004 22:36:51 +0200
+Message-ID: <m3llh3uavw.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091047369.791.35.camel@mindpipe>
-User-Agent: Mutt/1.5.6+20040722i
-From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 04:42:51PM -0400, Lee Revell wrote:
-> As I understand it there will still be a place for the current hard-RT
-> Linux solutions, because even if I can get five nines latency better
-> than N, this is not good enough for hard RT, as you need to be able to
-> mathematically demonstrate that you can *never* miss a deadline.
-> 
-> Or are you saying that the latest developments in the stock kernel make
-> this possible?
 
-Not quite with this thread and in this stage of development, but this is
-quite possible if certain concurrency problems are solved in Linux. RCU is
-a potential pain as well as other things. BSD/OS-FreeBSD-current are not
-new to this kind of conversion, so this is certainly very possible with
-very finite software engineering problems to solve. 
+Document that pktcdvd block devices have a 2KB block size.
 
-Scary ain't it ? It makes me wonder some times.
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
-bill
+ linux-petero/Documentation/cdrom/packet-writing.txt |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
+diff -puN Documentation/cdrom/packet-writing.txt~packet-doc-update Documentation/cdrom/packet-writing.txt
+--- linux/Documentation/cdrom/packet-writing.txt~packet-doc-update	2004-07-28 22:00:19.047078592 +0200
++++ linux-petero/Documentation/cdrom/packet-writing.txt	2004-07-28 22:00:19.049078288 +0200
+@@ -71,8 +71,8 @@ Notes
+   filesystem corruption if the disc wears out.
+ 
+ - Since the pktcdvd driver makes the disc appear as a regular block
+-  device, you can put any filesystem you like on the disc. For
+-  example, run:
++  device with a 2KB block size, you can put any filesystem you like on
++  the disc. For example, run:
+ 
+ 	# /sbin/mke2fs /dev/pktcdvd/dev_name
+ 
+_
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

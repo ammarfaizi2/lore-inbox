@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266997AbSKLWyt>; Tue, 12 Nov 2002 17:54:49 -0500
+	id <S267019AbSKLWxf>; Tue, 12 Nov 2002 17:53:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbSKLWyt>; Tue, 12 Nov 2002 17:54:49 -0500
-Received: from jstevenson.plus.com ([212.159.71.212]:64684 "EHLO
-	alpha.stev.org") by vger.kernel.org with ESMTP id <S266997AbSKLWyq>;
-	Tue, 12 Nov 2002 17:54:46 -0500
-Subject: Re: iostats broken for devices with major number > DK_MAX_DISK (16)
-From: James Stevenson <james@stev.org>
-To: Per Andreas Buer <perbu@linpro.no>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <PERBUMSGID-ul64ramh6g5.fsf@nfsd.linpro.no>
-References: <PERBUMSGID-ul64ramh6g5.fsf@nfsd.linpro.no>
-Content-Type: text/plain
+	id <S267020AbSKLWxf>; Tue, 12 Nov 2002 17:53:35 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:27344 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267019AbSKLWxe>; Tue, 12 Nov 2002 17:53:34 -0500
+Date: Tue, 12 Nov 2002 15:53:49 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
+       hohnbaum@us.ibm.com
+Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
+Message-ID: <179150000.1037145229@flay>
+In-Reply-To: <20021112215305.GZ23425@holomorphy.com>
+References: <E18BaIc-0006Zs-00@holomorphy> <20021112205241.GS23425@holomorphy.com> <3DD172B8.8040802@us.ibm.com> <20021112213504.GV23425@holomorphy.com> <20021112213906.GW23425@holomorphy.com> <177250000.1037141189@flay> <20021112215305.GZ23425@holomorphy.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 12 Nov 2002 23:01:03 +0000
-Message-Id: <1037142064.1570.0.camel@god.stev.org>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-12 at 20:35, Per Andreas Buer wrote:
-> Hi,
+>>> Also, every PCI bridge in my box has a bus number of 3 so the lookup
+>>> table will produce wrong answers every time.
 > 
-> sorry for the intrusion. I noticed iostats didn't display statistics for
-> devices on Mylex RAID constrollers. Det statistics are completely
-> missing in /proc/stat. The reason seems to be an assumption that disks
-> have major numbers which are below 16
-> (http://lxr.linux.no/source/include/linux/kernel_stat.h#L15) which is
-> used by http://lxr.linux.no/source/fs/proc/proc_misc.c#L344.
+> On Tue, Nov 12, 2002 at 02:46:29PM -0800, Martin J. Bligh wrote:
+>> Isn't that the local bus number though? The topology functions take
+>> global bus numbers, which should be unique ...
+>> M.
 > 
-> Devices on Mylex-controllers have major number 48. Would it break
-> anything if DK_MAX_MAJOR if set higher (e.g. 64)?
-> 
-> AFAIK this goes for both 2.4 and the 2.5 series.
+> That bus number mangling scheme is an instance of an approach vetoed
+> over a year ago by Dave Miller and others, and does not work for bridges
+> because arch code does not get the opportunity to mangle the bus number
+> during bridge discovery.
 
-i have been runing with 2.4.x kernel with this number
-set higher i have still yet to see any problem with it
-other than using more memory.
+Right, I'm not against the sysdata thing, seems like a much better way
+to do it in general (what I did was a quick hack). Was just confused
+by the global bus number assertion, but if we use the sysdata stuff,
+it's all a non-issue ;-)
 
+M.
 

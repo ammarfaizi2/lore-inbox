@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262128AbSKHPEb>; Fri, 8 Nov 2002 10:04:31 -0500
+	id <S262137AbSKHPOh>; Fri, 8 Nov 2002 10:14:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262130AbSKHPEb>; Fri, 8 Nov 2002 10:04:31 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:55707 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262128AbSKHPEb>; Fri, 8 Nov 2002 10:04:31 -0500
-Subject: Re: NMI handling rework
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: Zwane Mwaikambo <zwane@holomorphy.com>, Ingo Molnar <mingo@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Levon <levon@movementarian.org>
-In-Reply-To: <3DCA99F4.4090703@mvista.com>
-References: <Pine.LNX.4.44.0211070103540.27141-100000@montezuma.mastecende.com> 
-	<3DCA99F4.4090703@mvista.com>
-Content-Type: text/plain
+	id <S262145AbSKHPOg>; Fri, 8 Nov 2002 10:14:36 -0500
+Received: from chambertin.convergence.de ([212.84.236.2]:8719 "EHLO
+	chambertin.convergence.de") by vger.kernel.org with ESMTP
+	id <S262137AbSKHPOg>; Fri, 8 Nov 2002 10:14:36 -0500
+Message-ID: <3DCBD66D.8090309@convergence.de>
+Date: Fri, 08 Nov 2002 16:21:17 +0100
+From: Holger Waechtler <holger@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: Switch DVB to generic crc32.
+References: <3DCBC2E3.5040503@convergence.de>  <28280.1036753951@passion.cambridge.redhat.com> <16466.1036764849@passion.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Nov 2002 15:34:28 +0000
-Message-Id: <1036769668.16651.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-07 at 16:51, Corey Minyard wrote:
-> NMIs cannot be masked, they are by definition non-maskable :-).  You can 
-> get an NMI while executing an NMI.
+Hi David,
 
-The intel docs certainly imply NMI is never interrupted by an NMI, so
-you have one per CPU to worry about
+I'm looking on the generic crc32 code right now, but need some time to 
+completely understand the code. Have you checked that this code 
+implements the same generator polynomial as defined in the DVB standard?
 
+Holger
 

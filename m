@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262427AbSJER7o>; Sat, 5 Oct 2002 13:59:44 -0400
+	id <S262428AbSJESCz>; Sat, 5 Oct 2002 14:02:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262428AbSJER7o>; Sat, 5 Oct 2002 13:59:44 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:27663
+	id <S262430AbSJESCz>; Sat, 5 Oct 2002 14:02:55 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:37903
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262427AbSJER7o>; Sat, 5 Oct 2002 13:59:44 -0400
-Subject: Re: 2.5 Problem Report Status
+	with ESMTP id <S262428AbSJESCy>; Sat, 5 Oct 2002 14:02:54 -0400
+Subject: Re: [IDE] sleeping function called from illegal context at
+	slab.c:1347
 From: Robert Love <rml@tech9.net>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org, Stian Jordet <liste@jordet.nu>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Matthew Wilcox <willy@debian.org>, Burton Windle <bwindle@fint.org>,
-       Mikael Pettersson <mikpe@csd.uu.se>,
-       caligula@cam029208.student.utwente.nl, Bill Davidsen <davidsen@tmr.com>,
-       Stephen Marz <smarz@host187.south.iit.edu>,
-       "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>,
-       Bob_Tracy <rct@gherkin.frus.com>, Dominik Brodowski <linux@brodo.de>
-In-Reply-To: <Pine.LNX.4.44.0210050924470.10630-100000@dad.molina>
-References: <Pine.LNX.4.44.0210050924470.10630-100000@dad.molina>
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43341.172.173.28.251.1033807005.squirrel@mail.orbita1.ru>
+References: <43341.172.173.28.251.1033807005.squirrel@mail.orbita1.ru>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Oct 2002 14:05:49 -0400
-Message-Id: <1033841151.742.3694.camel@phantasy>
+Date: 05 Oct 2002 14:08:26 -0400
+Message-Id: <1033841307.1247.3706.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-05 at 12:57, Thomas Molina wrote:
+On Sat, 2002-10-05 at 04:36, Andrey Panin wrote:
 
->    open                   04 Oct 2002 scheduling while atomic oops
->    6. http://marc.theaimsgroup.com/?l=linux-kernel&m=103270005902896&w=2
+> looks like i tracked down yet another instance of this already famous 
+> message, :)
+> but i don't know how to fix it.
 > 
-> This appears to be a long-running problem.  Is it related to the group of 
-> problems below involving "function might sleep while holding a lock" or is 
-> it a scheduling system problem?
-
-This is the same thing as all those "sleeping while atomic"
-(might_sleep) bugs below.  It is just a debugging check.  It does the
-same check as might_sleep but during schedule().
-
-If you had specific culprits (i.e. foo() calls bar() which schedules
-while foo() holds the baz lock) would be very useful.  Otherwise listing
-this as a problem is not useful.
-
->    open                   29 Sep 2002 Oracle 9.2 goes OOM on startup
->   14. http://marc.theaimsgroup.com/?l=linux-kernel&m=103333545310595&w=2
+> This message produced by IDE driver is IMHO 
+> caused by ide_init_queue() function called while holding
+> ide_lock spinlock in the 
+> init_irq() function (ide-probe.c).
 > 
-> This problem was reported for 2.5.39.  I have seen neither a followup, nor 
-> a reference to a fix.  Does this problem still exist in 2.5.40?
+> Then ide_init_queue() calls blk_init_queue() 
+> and we have a this call chain:
+>     ide_init_queue() -> blk_init_queue() -> 
+> blk_init_free_list() -> kmem_cache_alloc()
 
-Should be fixed in bk.
+This is known, but thank you anyhow.
 
->    open                   2.5.40      init_irq() function doing unsafe 
->                                       things inside ide_lock
->   24. http://marc.theaimsgroup.com/?l=linux-kernel&m=103316967724891&w=2
-> 
-> Might sleep while holding a lock.
+> What can we do to fix this ?
 
-Is this still not fixed?  Ugh.
-
-BTW, I like the fact you are listing specific atomicity issues.  Thank
-you.  It is a lot more useful than just saying there are "sleeping while
-atomic" bugs.
+Question of the year :)
 
 	Robert Love
 

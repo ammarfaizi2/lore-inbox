@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbTI3Qe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 12:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbTI3Qe1
+	id S261291AbTI3Qr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 12:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTI3Qr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 12:34:27 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:984 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261744AbTI3Qe0 (ORCPT
+	Tue, 30 Sep 2003 12:47:59 -0400
+Received: from main.gmane.org ([80.91.224.249]:65434 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261291AbTI3Qr6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 12:34:26 -0400
-Date: Tue, 30 Sep 2003 18:34:25 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Christoph Klocker <cklocker@kth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: datatransfer slow down with 1TB files
-Message-ID: <20030930163425.GA27770@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Christoph Klocker <cklocker@kth.se>, linux-kernel@vger.kernel.org
-References: <3F796B6B.8070505@kth.se>
+	Tue, 30 Sep 2003 12:47:58 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Schwarz <usenet.2117@andreas-s.net>
+Subject: Re: Call traces due to lost IRQ
+Date: Tue, 30 Sep 2003 16:47:56 +0000 (UTC)
+Message-ID: <slrnbnjcu8.43n.usenet.2117@home.andreas-s.net>
+References: <20030930154032.GA795@donald.balu5>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F796B6B.8070505@kth.se>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2003 at 01:39:23PM +0200, Christoph Klocker wrote:
+Martin Pitt wrote:
+> [1.] Kernel boot yields lost IRQ with some call traces
+>
+> [2.] When booting 2.6.0-test6, the following message appears:
+>
+> 	------------- snip -------------
+> 	irq 12: nobody cared!
+> 	Call Trace:
+> 	 [<c010b5ca>] __report_bad_irq+0x2a/0x90
+> 	 [<c010b6bc>] note_interrupt+0x6c/0xa0
 
-> the sequential output stays at 183MB/s any time, up to 1TB.
-> As my harddisks have a sustained rate of 32-50 MB/s each it should not 
-> be the
-
-Do they also have that rate near the spindle? Try creating 10 100GB files
-and see if they all have the same rate.
+I've got the same messages (2.6.0-test6-mm1).
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+AVR-Tutorial, über 350 Links
+Forum für AVRGCC und MSPGCC
+-> http://www.mikrocontroller.net
+

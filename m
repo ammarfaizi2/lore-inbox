@@ -1,56 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275265AbRKFF0T>; Tue, 6 Nov 2001 00:26:19 -0500
+	id <S277282AbRKFFi7>; Tue, 6 Nov 2001 00:38:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276591AbRKFFZq>; Tue, 6 Nov 2001 00:25:46 -0500
-Received: from viper.haque.net ([66.88.179.82]:24960 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S277143AbRKFFZQ>;
-	Tue, 6 Nov 2001 00:25:16 -0500
-Date: Tue, 6 Nov 2001 00:25:16 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: [patch] remove deactivate_page call in loop.c
-Message-ID: <Pine.LNX.4.33.0111060023180.1597-200000@viper.haque.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1480741555-122262502-1005024316=:1597"
+	id <S277094AbRKFFit>; Tue, 6 Nov 2001 00:38:49 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:54288 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S277012AbRKFFih>;
+	Tue, 6 Nov 2001 00:38:37 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.13-ac8 current() changes
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 06 Nov 2001 16:38:24 +1100
+Message-ID: <17745.1005025104@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+2.4.13-ac8 changed get_current() to use cr2 instead of esp and
+introduced hard_get_current() which uses esp.  The comment on
+hard_get_current() in include/asm-i386/smp.h says "for within NMI,
+do_page_fault, cpu_init".  But NMI, do_page_fault and cpu_init can
+execute other code, any references to current() in that other code will
+use get_current() instead of hard_get_current().
 
---1480741555-122262502-1005024316=:1597
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+How is generic code called from NMI etc. meant to know which version of
+current() to use?  Usage of current() is hidden inside a lot of other
+macros, this change looks like a data mismatch just waiting to bite us.
 
-No problems so far.
-Since lots of people are asking about this....
 
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Developer/Project Lead
-   Don't drink and derive." --Unknown          http://www.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
---1480741555-122262502-1005024316=:1597
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="loop-deactivate_page.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0111060025160.1597@viper.haque.net>
-Content-Description: 
-Content-Disposition: attachment; filename="loop-deactivate_page.diff"
-
-LS0tIGxpbnV4L2RyaXZlcnMvYmxvY2svbG9vcC5jLm9yaWcJTW9uIE5vdiAg
-NSAyMzowMToxMCAyMDAxDQorKysgbGludXgvZHJpdmVycy9ibG9jay9sb29w
-LmMJVHVlIE5vdiAgNiAwMDoyMTo1OSAyMDAxDQpAQCAtMjE4LDE0ICsyMTgs
-MTIgQEANCiAJCWluZGV4Kys7DQogCQlwb3MgKz0gc2l6ZTsNCiAJCVVubG9j
-a1BhZ2UocGFnZSk7DQotCQlkZWFjdGl2YXRlX3BhZ2UocGFnZSk7DQogCQlw
-YWdlX2NhY2hlX3JlbGVhc2UocGFnZSk7DQogCX0NCiAJcmV0dXJuIDA7DQog
-DQogdW5sb2NrOg0KIAlVbmxvY2tQYWdlKHBhZ2UpOw0KLQlkZWFjdGl2YXRl
-X3BhZ2UocGFnZSk7DQogCXBhZ2VfY2FjaGVfcmVsZWFzZShwYWdlKTsNCiBm
-YWlsOg0KIAlyZXR1cm4gLTE7DQo=
---1480741555-122262502-1005024316=:1597--

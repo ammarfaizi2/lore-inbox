@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbUGLVFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUGLVNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbUGLVFP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 17:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUGLVFP
+	id S263147AbUGLVNs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 17:13:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbUGLVNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 17:05:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4775 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262547AbUGLVFK (ORCPT
+	Mon, 12 Jul 2004 17:13:48 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:8648 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263147AbUGLVNq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 17:05:10 -0400
-Date: Mon, 12 Jul 2004 14:04:09 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "Charles R. Anderson" <cra@WPI.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: v2.6 IGMPv3 implementation
-Message-Id: <20040712140409.3575b900.davem@redhat.com>
-In-Reply-To: <20040712203056.GI7822@angus.ind.WPI.EDU>
-References: <20040712203056.GI7822@angus.ind.WPI.EDU>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jul 2004 17:13:46 -0400
+Message-Id: <200407122108.i6CL8puf027997@laptop10.inf.utfsm.cl>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.8-rc1 
+In-Reply-To: Your message of "Mon, 12 Jul 2004 17:42:04 +0200."
+             <20040712154204.GS4701@fs.tum.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Mon, 12 Jul 2004 17:08:51 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jul 2004 16:30:56 -0400
-"Charles R. Anderson" <cra@WPI.EDU> wrote:
+Adrian Bunk <bunk@fs.tum.de> said:
 
-> /* Multicast source filter calls */
-> #define SIOCSIPMSFILTER        0x89a0          /* set mcast src filter (ipv4) */
-> #define SIOCGIPMSFILTER 0x89a1         /* get mcast src filter (ipv4) */
-> #define SIOCSMSFILTER  0x89a2          /* set mcast src filter (proto indep) */
-> #define SIOCGMSFILTER  0x89a3          /* get mcast src filter (proto indep) */
-> 
-> These do not appear in the Linus kernel, though.  Does anyone know the
-> status of these ioctls and the IGMPv3 implementation in general?
+[...]
 
-We didn't use ioctls, we used socket options.  See:
+> Unless he really knows what he's doing, no user should use anything 
+> other than the actual releases (i.e. 2.6.7, 2.6.8, 2.6.9,...).
 
-include/linux/in.h
+Nope. They should use whatever $DISTRO gives them. Anything else is
+experimental (more or less so).
 
-Specifically IP_MSFILTER and friends.
 
-BTW, unlike you claim, the IGMPv3 stack implementation has been in the
-kernel for a long time, much before 2.6.7  It is even in the current
-2.4.x sources as well.
+[...]
+
+> It would be more important if Linus would release one last -rc that will 
+> be released unchanged (except for EXTRAVERSION a few days later to catch 
+> bugs in last minute changes. This might catch more problems like the JFS 
+> compile problem in 2.6.7.
+
+Just try and change Linus' ways...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130214AbRCHXGa>; Thu, 8 Mar 2001 18:06:30 -0500
+	id <S130186AbRCHXTL>; Thu, 8 Mar 2001 18:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130209AbRCHXGU>; Thu, 8 Mar 2001 18:06:20 -0500
-Received: from h14-159.tokyu-net.catv.ne.jp ([202.221.14.159]:30479 "EHLO
-	antiopikon") by vger.kernel.org with ESMTP id <S130202AbRCHXGH>;
-	Thu, 8 Mar 2001 18:06:07 -0500
-Date: Fri, 9 Mar 2001 08:07:00 +0900
-From: Augustin Vidovic <vido@ldh.org>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Open Source W2K argument fallout][securityalert@sans.org: Large Criminal Hacker Attack on Windows NT E-Banking and E-Commerce Sites]
-Message-ID: <20010309080700.B22814@ldh.org>
-In-Reply-To: <20010308164044.A11129@vger.timpanogas.org>
+	id <S130261AbRCHXTB>; Thu, 8 Mar 2001 18:19:01 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:28654
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S130186AbRCHXSs>; Thu, 8 Mar 2001 18:18:48 -0500
+Date: Thu, 8 Mar 2001 16:16:39 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Steven Cole <scole@lanl.gov>, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] remove CONFIG_NCR885E from Configure.help
+Message-ID: <20010308161639.A16013@opus.bloom.county>
+In-Reply-To: <01030808522000.01048@spc.esa.lanl.gov> <Pine.LNX.4.05.10103081720460.924-100000@callisto.of.borg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010308164044.A11129@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Thu, Mar 08, 2001 at 04:40:44PM -0700
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.05.10103081720460.924-100000@callisto.of.borg>; from geert@linux-m68k.org on Thu, Mar 08, 2001 at 05:21:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 08, 2001 at 04:40:44PM -0700, Jeff V. Merkey wrote:
-> I am continually amazed at how secure an "open source" OS is in 
-> comparison to W2K.  Relative to the W2K open source arguments, one
-> good fallout would be that folks would be able to identify 
-> holes like this one quickly.
+On Thu, Mar 08, 2001 at 05:21:32PM +0100, Geert Uytterhoeven wrote:
+> On Thu, 8 Mar 2001, Steven Cole wrote:
+> > It appears that use of CONFIG_NCR885E was removed in 2.4.2-ac2,
+> > in Config.in and the Makefile in drivers/net.
+> > 
+> > If it really is the case that CONFIG_NCR885E is history, then it
+> > should be history in Configure.help as well.
+> 
+> I'm still wondering whether there really are no other boards with a Sym53c885
+> than the Synergy PPC board (which is no longer supported).
 
-Hmmm. The article states that the exploited bugs had been reported
-by M$ before.
+...which is supposed to be coming back as well.
 
-More interesting is, that despite all those stolen credit car numbers
-cases, a more secure paiyment system (at least challenge-based) has still
-not been adopted.
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261284AbTCTBVZ>; Wed, 19 Mar 2003 20:21:25 -0500
+	id <S261288AbTCTBXE>; Wed, 19 Mar 2003 20:23:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261288AbTCTBVZ>; Wed, 19 Mar 2003 20:21:25 -0500
-Received: from loki.a-q.co.uk ([195.224.50.15]:36366 "EHLO loki.a-q.co.uk")
-	by vger.kernel.org with ESMTP id <S261284AbTCTBVY>;
-	Wed, 19 Mar 2003 20:21:24 -0500
-Date: Thu, 20 Mar 2003 01:32:24 +0000
+	id <S262630AbTCTBXE>; Wed, 19 Mar 2003 20:23:04 -0500
+Received: from loki.a-q.co.uk ([195.224.50.15]:37134 "EHLO loki.a-q.co.uk")
+	by vger.kernel.org with ESMTP id <S261288AbTCTBXD>;
+	Wed, 19 Mar 2003 20:23:03 -0500
+Date: Thu, 20 Mar 2003 01:34:03 +0000
 From: James Wright <james@jigsawdezign.com>
 To: linux-kernel@vger.kernel.org
 Subject: P4 3.06Ghz Hyperthreading with 2.4.20?
-Message-Id: <20030320013224.5311bdef.james@jigsawdezign.com>
+Message-Id: <20030320013403.43a869d0.james@jigsawdezign.com>
 Organization: Jigsaw Dezign
 X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0

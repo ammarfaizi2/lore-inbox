@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262264AbSJGRog>; Mon, 7 Oct 2002 13:44:36 -0400
+	id <S261277AbSJGSDp>; Mon, 7 Oct 2002 14:03:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262513AbSJGRof>; Mon, 7 Oct 2002 13:44:35 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13291 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262264AbSJGRof>;
-	Mon, 7 Oct 2002 13:44:35 -0400
-Date: Mon, 7 Oct 2002 13:50:00 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Mark Peloquin <peloquin@us.ibm.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 3/4: evms_ioctl.h
-In-Reply-To: <20021007183415.A22316@infradead.org>
-Message-ID: <Pine.GSO.4.21.0210071340580.29030-100000@weyl.math.psu.edu>
+	id <S262543AbSJGSDp>; Mon, 7 Oct 2002 14:03:45 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34063 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261277AbSJGSDp>; Mon, 7 Oct 2002 14:03:45 -0400
+Date: Mon, 7 Oct 2002 11:08:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Mike Galbraith <efault@gmx.de>
+cc: Matthew Wilcox <willy@debian.org>, Christoph Hellwig <hch@infradead.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: bcopy()
+In-Reply-To: <5.1.0.14.2.20021007195409.00b54a98@pop.gmx.net>
+Message-ID: <Pine.LNX.4.33.0210071105350.21165-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Mon, 7 Oct 2002, Mike Galbraith wrote:
+> >
+> >XFS seems to be a big user of bcopy, though..
+> 
+> Does it matter from the cleanliness side?  (1->N users)
 
-On Mon, 7 Oct 2002, Christoph Hellwig wrote:
+It does.
 
-> I don't think that basing kernel internal interfaces on ioctl is
-> a smart idea.  Just add another function pionter to your operations
-> vector for every operation you want supported on volumes.
+I will not apply a patch that removes bcopy() in the name of 
+"cleanliness", if it then results in a number of modules just adding their 
+own
 
-s/every/& generic/.  Other than that, seconded.  BTW, one of the pending
-changes is taking the last more or less generic ioctl (HDIO_GETGEO) into
-a separate method...
+	#define bcopy(a,b,c) memcpy(b,a,c)
 
-->ioctl() is for driver-specific crud; stuff that won't be used by
-any generic application.  "Make a cuckoo jump out of drive and sing
-'1000 bottles of beer'" is a valid ioctl.  "Get drive size" isn't.
+because then the whole cleanup would be pointless - it would just make 
+some modules even uglier than they were before.
+
+So I'd much rather see the XFS etc code moved away from bcopy() first,
+because that's the _real_ cleanup. The library code isn't all that ugly in
+comparison.
+
+		Linus
 

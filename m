@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286419AbSABASy>; Tue, 1 Jan 2002 19:18:54 -0500
+	id <S286421AbSABAcG>; Tue, 1 Jan 2002 19:32:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286421AbSABASp>; Tue, 1 Jan 2002 19:18:45 -0500
-Received: from mail016.syd.optusnet.com.au ([203.2.75.176]:11213 "EHLO
-	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S286419AbSABASd>; Tue, 1 Jan 2002 19:18:33 -0500
-Date: Wed, 2 Jan 2002 11:18:16 +1100
-From: Andrew Clausen <clausen@gnu.org>
-To: linux-kernel@vger.kernel.org, bug-parted@gnu.org,
-        evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] userspace discovery of partitions
-Message-ID: <20020102111816.A869@gnu.org>
-In-Reply-To: <20020102055735.C472@gnu.org> <20020101131817.J12868@lynx.no>
+	id <S286424AbSABAbz>; Tue, 1 Jan 2002 19:31:55 -0500
+Received: from jalon.able.es ([212.97.163.2]:5601 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S286421AbSABAbk>;
+	Tue, 1 Jan 2002 19:31:40 -0500
+Date: Wed, 2 Jan 2002 01:34:11 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        samson swanson <intellectcrew@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: a great C++ book?
+Message-ID: <20020102013411.A5968@werewolf.able.es>
+In-Reply-To: <20020101041111.29695.qmail@web14310.mail.yahoo.com> <Pine.LNX.4.43.0201011214560.7188-100000@waste.org> <20020101104331.F4802@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020101131817.J12868@lynx.no>; from adilger@turbolabs.com on Tue, Jan 01, 2002 at 01:18:17PM -0700
-X-Accept-Language: en,pt
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020101104331.F4802@work.bitmover.com>; from lm@bitmover.com on Tue, Jan 01, 2002 at 19:43:31 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 01, 2002 at 01:18:17PM -0700, Andreas Dilger wrote:
-> On Jan 02, 2002  05:57 +1100, Andrew Clausen wrote:
-> > As discussed a while ago (see thread starting at
-> > http://www.uwsg.iu.edu/hypermail/linux/kernel/0105.2/0659.html), I
-> > wrote a frontend to libparted that does nothing but probe all
-> > block devices for partition tables, and tells the kernel what
-> > partitions it finds.  It optionally prints a short summary.
-> 
-> This would mesh nicely with the filesystem (and other content) probing
-> tool/lib that I wrote, blkid.  It probes filesystem types (and also
-> label, uuid, fs size for common fs types).
 
-Indeed.  To be honest, I think it's a mistake to have both libparted
-and blkid.  OTOH, libparted isn't scaling down very well (yet).
+On 20020101 Larry McVoy wrote:
+>
+>Makes you wonder what would happen if someone tried to design a
+>minimalistic C++, call it the "M programming language", have be close
+>to C with the minimal useful parts of C++ included.
+>
 
-> Hmm, it does seem a bit large for what it is doing.  Any idea where
-> the bloat is coming from?
+There are specs for something called 'Embedded C++'. You can run it on
+a cell phone, so it looks like little bloated...
 
-Mainly because the code is structured for editing.  Editing is much
-harder than just reading.  There is a lot more information to parse,
-that you could otherwise throw out.  For example, you don't care about
-partition names, or whether the partition has some magic flag to
-allow it to boot on architecture X.
-
-Also, since you must provide an incremental editing system when
-editting, it is often easier to use this system when you are
-parsing.  That means you can't get rid of the editing system when
-all you want to do is parse.  In libparted, this includes a
-constraint solver (about 7k), code to verify that there's space
-for metadata, code to set partition types, flags...
-
-In practice, all this code is hard to separate out, and it all
-adds up.  Perhaps this is an argument for maintaining two sets of
-partition code.  Feel free to look at the code, and decide for
-yourself ;)
-
-Andrew
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre1-beo #3 SMP Thu Dec 27 10:15:27 CET 2001 i686

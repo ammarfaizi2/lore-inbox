@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264125AbTDWQil (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 12:38:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTDWQil
+	id S264104AbTDWQqn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 12:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264107AbTDWQqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 12:38:41 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:60176
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S264125AbTDWQii (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 12:38:38 -0400
-Subject: Re: 2.5.68-mm2
-From: Robert Love <rml@tech9.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <20030423095926.GJ8931@holomorphy.com>
-References: <20030423012046.0535e4fd.akpm@digeo.com>
-	 <20030423095926.GJ8931@holomorphy.com>
-Content-Type: text/plain
-Message-Id: <1051116646.2756.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
-Date: 23 Apr 2003 12:50:46 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Apr 2003 12:46:43 -0400
+Received: from mail.gmx.net ([213.165.65.60]:27512 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264104AbTDWQqm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 12:46:42 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Andrew Kirilenko <icedank@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Searching for string problems
+Date: Wed, 23 Apr 2003 19:58:43 +0300
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200304231958.43235.icedank@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-23 at 05:59, William Lee Irwin III wrote:
+Hello!
 
-> rml and I coordinated to put together a small patch (combining both
-> our own) for properly locking the static variables in out_of_memory().
-> There's not any evidence things are going wrong here now, but it at
-> least addresses the visible lack of locking in out_of_memory().
+OK. I've solved my problems with storing data (problem was with improper DS 
+setup - thanks to all, pointed me to this). And now I should perform a search 
+in the BIOS are for particular string (version of BIOS ). Here is my code 
+(it's located in the setup.S, so executes in the real mode, not ptotected).
 
-Thank you for posting this, wli.
+-->
+start_of_setup:
+	jmp cl_start
+cl_id_str:      .string "BIOS 0.1" 
+cl_start:
+        movb    $0, %al
+        movw    $0xe000, %bx
+cl_compare:
+        incw    %bx
+        movw    %bx, %si
+        cmpw    $0xefff, %si
+        je      cl_compare_done
+        movw    $cl_id_str, %di
+cl_compare_inner:
+        movb    (%di), %ah
+        cmpb    $0, %ah
+        je      cl_compare_done_good
+        cmpb    (%si), %ah
+        jne     cl_compare
+        incw    %si
+        incw    %di
+        jmp     cl_compare_inner
+cl_compare_done_good:
+        movb    $1, %al
+cl_compare_done:
+<--
 
-> -	first = now;
-> +	/*
-> +	 * We dropped the lock above, so check to be sure the variable
-> +	 * first only ever increases to prevent false OOM's.
-> +	 */
-> +	if (time_after(now, first))
-> +		first = now;
+This code don't work... I'm sure, that's because of inproper registers setup 
+(or maybe address range is wrong). Please help me.
 
-Just thinking... this little bit is actually a bug even on UP sans
-kernel preemption, too, since oom_kill() can sleep.  If it sleeps, and
-another process enters out_of_memory(), 'now' and 'first' will be out of
-sync.
-
-So I think this patch is a Good Thing in more ways than the obvious SMP
-or kernel preemption issue.
-
-	Robert Love
-
-
+Best regards,
+Andrew.

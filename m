@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262867AbRE3WZu>; Wed, 30 May 2001 18:25:50 -0400
+	id <S262865AbRE3W3K>; Wed, 30 May 2001 18:29:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262859AbRE3WZf>; Wed, 30 May 2001 18:25:35 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:55817 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262858AbRE3WZJ>; Wed, 30 May 2001 18:25:09 -0400
-Date: Wed, 30 May 2001 17:48:51 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] reclaim dirty dead swapcache pages
-In-Reply-To: <20010531001537.G1138@werewolf.able.es>
-Message-ID: <Pine.LNX.4.21.0105301743100.5231-100000@freak.distro.conectiva>
+	id <S262866AbRE3W2u>; Wed, 30 May 2001 18:28:50 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36617 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262865AbRE3W2l>; Wed, 30 May 2001 18:28:41 -0400
+Subject: CML1 ruleset code
+To: linux-kernel@vger.kernel.org
+Date: Wed, 30 May 2001 23:26:42 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E155EQM-0006k5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've put an updated version of the rule engine on
 
+ftp.linux.org.uk:pub/linux/alan/cml1-load.c
 
-On Thu, 31 May 2001, J . A . Magallon wrote:
+This allows for then to be on a line of its own and the use of 'unset' which
+is an unofficial bogosity the alpha people seem to have invented
 
-> 
-> On 05.30 Marcelo Tosatti wrote:
-> > 
-> > 
-> > Its at
-> > http://bazar.conectiva.com.br/~marcelo/patches/v2.4/2.4.5ac4/reapswap.patch
-> > 
-> > Please test. 
-> > 
-> 
-> Which kind of test, something like the gcc think I posted recently ?
+Haven't fixed the TODO items yet
 
-I don't remember that, sorry. What was it again? 
+Example output:
 
-> Just stress vm, fill swap, and try to do it again ?
-
-For example.
-
-I would _prefer_ tests non artifical tests, though. (ie not the kind of
-workloads where tasks are trying to consume all available resources all
-the time)
-
-Still, any kind of report is welcome, of course. 
-
-Thanks a lot! 
+Variable CONFIG_DMA_NONPCI: 
+{
+    {
+    All of:
+        $CONFIG_IDE!= n
+    }
+    AND
+    {
+    Not all of:
+        $CONFIG_BLK_DEV_TIVO= y
+    }
+    AND
+    {
+    Subset of:
+        n
+    }
+}
+OR
+{
+    {
+    All of:
+        $CONFIG_IDE!= n
+    }
+    AND
+    {
+    All of:
+        $CONFIG_BLK_DEV_TIVO= y
+    }
+    AND
+    {
+    Subset of:
+        y
+    }
+}
 

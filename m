@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274982AbTHMNYs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 09:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274990AbTHMNYs
+	id S274990AbTHMNcY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 09:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275003AbTHMNcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 09:24:48 -0400
-Received: from ip144-173-busy.ott.istop.com ([66.11.173.144]:19213 "EHLO
-	worf.vpn") by vger.kernel.org with ESMTP id S274982AbTHMNYp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 09:24:45 -0400
-Date: Wed, 13 Aug 2003 09:24:39 -0400
-From: Christian Mautner <linux@mautner.ca>
-To: linux-kernel@vger.kernel.org
-Cc: Norbert Preining <preining@logic.at>
-Subject: Re: SOLUTION Re: 2.6.0-test3 cannot mount root fs
-Message-ID: <20030813132439.GA24883@mautner.ca>
-References: <1060436885.467.0.camel@teapot.felipe-alfaro.com> <3F34D0EA.8040006@rogers.com> <20030809104024.GA12316@gamma.logic.tuwien.ac.at> <20030809115656.GC27013@www.13thfloor.at> <20030809090718.GA10360@gamma.logic.tuwien.ac.at> <20030809130641.A8174@electric-eye.fr.zoreil.com> <20030809090718.GA10360@gamma.logic.tuwien.ac.at> <01a201c35e65$0536ef60$ee52a450@theoden> <3F34D0EA.8040006@rogers.com> <20030813061546.GB24994@gamma.logic.tuwien.ac.at>
+	Wed, 13 Aug 2003 09:32:24 -0400
+Received: from baloney.puettmann.net ([194.97.54.34]:16314 "EHLO
+	baloney.puettmann.net") by vger.kernel.org with ESMTP
+	id S274990AbTHMNcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 09:32:22 -0400
+Date: Wed, 13 Aug 2003 15:31:26 +0200
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22 APM problems with IBM Thinkpad's
+Message-ID: <20030813133126.GA26337@puettmann.net>
+References: <20030813123119.GA25111@puettmann.net> <16186.14686.455795.927909@gargle.gargle.HOWL>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030813061546.GB24994@gamma.logic.tuwien.ac.at>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <16186.14686.455795.927909@gargle.gargle.HOWL>
+User-Agent: Mutt/1.5.4i
+From: Ruben Puettmann <ruben@puettmann.net>
+X-Scanner: exiscan *19mvio-0006tc-00*tDDbxtpUIAc* (Puettmann.NeT, Germany)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 08:15:46AM +0200, Norbert Preining wrote:
-> On Die, 12 Aug 2003, Christian Mautner wrote:
-> > Hast du auch einen kompletten Kernel tarball versucht? Wahrscheinlich
+On Wed, Aug 13, 2003 at 03:13:02PM +0200, Mikael Pettersson wrote:
 > 
-> The solution is:
-> 	Get a COMPLETE linux-2.6.0-test3.tar.bz2
-> and 
-> 	DO NOT USE patch
+> This sounds like a well-known APM/local-APIC clash.
 
-I'm pretty sure the problem is related to the file 
-usr/initramfs_data.S. This file is automatically created by the
-usr/Makefile, but not deleted by mrproper or distclean (in -test1). 
+nice to know ... 
+> 
+> Never ever use DISPLAY_BLANK if you also have SMP or UP_APIC.
 
-See l-k thread "remove initramfs temp files" of Aug 8.
+not nice so ;-( how is it with acpi? Same problem?
 
-The patch to -test2 contained the file usr/initramfs_data.S, and the
-patch process fails since it's trying to create it. I ended up
-accidently with garbage in usr/initramfs_data.S, to the effect that
-the symbol .init.ramfs was empty (could be told from System.map),
-which in turn had the effect that in init/initramfs.c the function
-unpack_to_rootfs() was called with a length of 0 (&__initramfs_end ==
-&__initramfs_start), which in turn prevented this very initial root
-file system which is needed to mount root.
+> With APIC support enabled (SMP or UP_APIC), APM must be constrained:
+> DISPLAY_BLANK off
+> CPU_IDLE off
+> built-in driver, not module
 
-A warning message in unpack_to_rootfs() if it is called with a length
-of 0 would have been very helpful.
+Why will this not be disabled in make *config so that nobody will run in
+this problem?
 
-Having make distclean remove initramfs_data.S would be very good
-practice as well.
+> This is because the apm driver does BIOS calls, and many BIOSen
+> (including the code in graphics cards, e.g. all Radeons it seems)
+> like to hang if a local APIC timer interrupt arrives.
 
-chm.
+Yes radeonfb don't like apm -s on this thinkpad. apm -s works but on
+resume it freezed some on
+
+modprobe radeonfb;
+sleep 10;
+rmmod radeonfb;
+sleep 10;
+modprobe radeonfb;
+
+and thinkpad freezed .
+
+
+            Ruben
 
 -- 
-christian mautner -- chm bei istop punkt com -- ottawa, canada
+Ruben Puettmann
+ruben@puettmann.net
+http://www.puettmann.net

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135641AbRDSMMF>; Thu, 19 Apr 2001 08:12:05 -0400
+	id <S135645AbRDSMQP>; Thu, 19 Apr 2001 08:16:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135644AbRDSML5>; Thu, 19 Apr 2001 08:11:57 -0400
-Received: from mailhost.mipsys.com ([62.161.177.33]:18678 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S135641AbRDSMLq>; Thu, 19 Apr 2001 08:11:46 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: CaT <cat@zip.com.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI power management
-Date: Thu, 19 Apr 2001 14:10:56 +0200
-Message-Id: <20010419121056.15234@mailhost.mipsys.com>
-In-Reply-To: <20010419203839.F6041@zip.com.au>
-In-Reply-To: <20010419203839.F6041@zip.com.au>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S135646AbRDSMQF>; Thu, 19 Apr 2001 08:16:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:16390 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S135645AbRDSMPq>;
+	Thu, 19 Apr 2001 08:15:46 -0400
+Date: Thu, 19 Apr 2001 14:15:38 +0200
+From: Jens Axboe <axboe@suse.de>
+To: stefan@jaschke-net.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with Toshiba SD-W2002 DVD-RAM drive (IDE)
+Message-ID: <20010419141538.S16822@suse.de>
+In-Reply-To: <01041714250400.01376@antares> <01041913393800.01240@antares> <20010419134601.P16822@suse.de> <01041914131100.01232@antares>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01041914131100.01232@antares>; from s-jaschke@t-online.de on Thu, Apr 19, 2001 at 02:13:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Thu, Apr 19, 2001 at 11:19:31AM +0100, Benjamin Herrenschmidt wrote:
->> Hi ! Glad to see things moving around Power Management ;)
->> 
->> >This was originally a private reply to Patrick Mochel, but the e-mail
->> >kept getting longer and longer :)
->> 
->> Note: we have setup a list for PM issues
->> 
->> http://lists.sourceforge.net/lists/listinfo/linux-pm-devel
->
->Oooooo....
->
->*tries to subscribe*
->
->Doh! The silly thing is trying to use the From_ header on the confirm
->rather then the From: header and so I can't subscribe. Can this get fixed?
+On Thu, Apr 19 2001, Stefan Jaschke wrote:
+> > > I applied your patch to 2.4.4-pre4. It compiled fine, but crashed during
+> > > boot (just right after the IDE init) with
+> >
+> > This should fix it.
+> 
+> It boots now. But I still cannot read a DVD-RAM disk (same behavior 
+> as before):
 
-Dunno, it's the standard sourceforge/geocrawler list stuff..
+This is really strange, are you sure your drive is ok? Does mounting
+dvd-rom and cd-rom's work fine?
 
-Ben.
-
-
+-- 
+Jens Axboe
 

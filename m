@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVBNSPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVBNSQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbVBNSPn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 13:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVBNSPn
+	id S261509AbVBNSQw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 13:16:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVBNSQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 13:15:43 -0500
-Received: from mail.kroah.org ([69.55.234.183]:7114 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261508AbVBNSPj (ORCPT
+	Mon, 14 Feb 2005 13:16:51 -0500
+Received: from fire.osdl.org ([65.172.181.4]:41940 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261511AbVBNSQn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 13:15:39 -0500
-Date: Mon, 14 Feb 2005 09:41:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Jay Lan <jlan@engr.sgi.com>
-Subject: Re: [RFC][PATCH 2.6.11-rc3-mm2] Relay Fork Module
-Message-ID: <20050214174111.GB6697@kroah.com>
-References: <1107786245.9582.27.camel@frecb000711.frec.bull.fr> <20050207154623.33333cda.akpm@osdl.org> <1108109504.30559.43.camel@frecb000711.frec.bull.fr> <20050211005446.081aa075.akpm@osdl.org> <1108134520.14068.66.camel@frecb000711.frec.bull.fr> <20050211191112.GB19139@kroah.com> <1108369609.25606.29.camel@frecb000711.frec.bull.fr>
+	Mon, 14 Feb 2005 13:16:43 -0500
+Date: Mon, 14 Feb 2005 10:16:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Fruhwirth Clemens <clemens@endorphin.org>
+Cc: davem@davemloft.net, jmorris@redhat.com, linux-kernel@vger.kernel.org,
+       michal@logix.cz, adam@yggdrasil.com
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to
+ crypto_tfm
+Message-Id: <20050214101615.6882c6ba.akpm@osdl.org>
+In-Reply-To: <1108402135.23133.48.camel@ghanima>
+References: <Xine.LNX.4.44.0502101247390.9159-100000@thoron.boston.redhat.com>
+	<1108387234.8086.37.camel@ghanima>
+	<20050214075655.6dec60cb.davem@davemloft.net>
+	<1108400799.23133.34.camel@ghanima>
+	<20050214090726.2d099d96.davem@davemloft.net>
+	<1108402135.23133.48.camel@ghanima>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108369609.25606.29.camel@frecb000711.frec.bull.fr>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 09:26:49AM +0100, Guillaume Thouvenin wrote:
-> 
->  I'm using kobject because it allows to notify user space application by
-> sending an event and as I need to send a kernel event (fork event) to a
-> user space application I thought about kobject. Do you think that it's
-> not the good solution because it's a too big mechanism for what I want
-> to do?
+Fruhwirth Clemens <clemens@endorphin.org> wrote:
+>
+> First, one has to make kmap fallible.
 
-Yes, I think it is too "big" of a solution, take a look at the connector
-code, it is what you want to use instead.
+I think it would be relatively simple and sane to modify the existing
+kmap() implementations to add a new try_kmap() which is atomic and returns
+failure if it would have needed to sleep.
 
-thanks,
+That being said, kmap() is a sort of old and deprecated thing which scales
+badly on SMP.  We've put considerable work into moving over to
+kmap_atomic() and using nice tight short code regions where atomic
+kmappings are held.
 
-greg k-h

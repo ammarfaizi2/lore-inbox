@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283618AbRLIQwz>; Sun, 9 Dec 2001 11:52:55 -0500
+	id <S283603AbRLIQpF>; Sun, 9 Dec 2001 11:45:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283621AbRLIQwq>; Sun, 9 Dec 2001 11:52:46 -0500
-Received: from smtp02.web.de ([217.72.192.151]:12554 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S283618AbRLIQwg>;
-	Sun, 9 Dec 2001 11:52:36 -0500
-Date: Sun, 9 Dec 2001 17:52:21 +0100
-From: Richard Hoechenberger <GeekuX@web.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-pre8 doesn't compile w/ LVM support
-Message-ID: <20011209175221.A19993@web.de>
-Reply-To: Richard Hoechenberger <GeekuX@web.de>
+	id <S283610AbRLIQo4>; Sun, 9 Dec 2001 11:44:56 -0500
+Received: from ns.caldera.de ([212.34.180.1]:34453 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S283603AbRLIQoj>;
+	Sun, 9 Dec 2001 11:44:39 -0500
+Date: Sun, 9 Dec 2001 17:42:50 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
+        linux-ia64@linuxia64.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-ia64] Re: Linux 2.4.17-pre6 drm-4.0
+Message-ID: <20011209174250.A7406@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+	linux-ia64@linuxia64.org, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011208133156.A22531@caldera.de> <E16CjUs-0001ky-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.9-ac10 i686
-X-Editor: VIM - Vi IMproved 5.7
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16CjUs-0001ky-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Dec 08, 2001 at 03:34:38PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just downloaded the 2.5.0 kernel and patched it up to 2.5.1-pre8.
-When I try to compile (using 'make-kpkg' v1.65 under Debian), I get the
-following error:
+On Sat, Dec 08, 2001 at 03:34:38PM +0000, Alan Cox wrote:
+> > So what DRM can build out of tree easily - e.g. the Caldera LTP
+> > (3.1 early access) had a DRM package built completly out of tree.
+> 
+> XFree86 4.0, 4.1, ... ship with the DRM kernel modules buildable from
+> the XFree86 tree too
 
-make[3]: Entering directory `/tmp/kernel/linux/drivers/md'
-/usr/bin/make all_targets
-make[4]: Entering directory `/tmp/kernel/linux/drivers/md'
-gcc -D__KERNEL__ -I/tmp/kernel/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o lvm.o lvm.c
-lvm.c: In function `lvm_user_bmap':
-lvm.c:1046: request for member `bv_len' in something not a structure or union
-make[4]: *** [lvm.o] Fehler 1
-make[4]: Leaving directory `/tmp/kernel/linux/drivers/md'
-make[3]: *** [first_rule] Fehler 2
-make[3]: Leaving directory `/tmp/kernel/linux/drivers/md'
-make[2]: *** [_subdir_md] Fehler 2
-make[2]: Leaving directory `/tmp/kernel/linux/drivers'
-make[1]: *** [_dir_drivers] Fehler 2
-make[1]: Leaving directory `/tmp/kernel/linux'
-make: *** [stamp-build] Fehler 2
-richard@sid:/tmp/kernel/linux$
+Been there, done that.
 
+Having seen the XFree build process this doesn't look like an option to
+me anymore.  Also a separate tarball easyfies building a new set of modules
+for a new kernel a lot.
 
-In my .config, CONFIG_BLK_DEV_LVM is set to 'y'.
+	Christoph
 
-I'm using gcc version 2.95.4, running on Linux 2.4.9-ac10.
-
-
-Any idea what's causing the problem?
-
-
-Richard
+-- 
+Of course it doesn't work. We've performed a software upgrade.

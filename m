@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284289AbRLRRSU>; Tue, 18 Dec 2001 12:18:20 -0500
+	id <S284321AbRLRRWU>; Tue, 18 Dec 2001 12:22:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284302AbRLRRSK>; Tue, 18 Dec 2001 12:18:10 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50446 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284289AbRLRRSC>; Tue, 18 Dec 2001 12:18:02 -0500
-Date: Tue, 18 Dec 2001 09:16:48 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+	id <S284314AbRLRRWP>; Tue, 18 Dec 2001 12:22:15 -0500
+Received: from ns0.cobite.com ([208.222.80.10]:58373 "EHLO ns0.cobite.com")
+	by vger.kernel.org with ESMTP id <S284302AbRLRRWB>;
+	Tue, 18 Dec 2001 12:22:01 -0500
+Date: Tue, 18 Dec 2001 12:21:54 -0500 (EST)
+From: David Mansfield <david@cobite.com>
+X-X-Sender: <david@admin>
+To: Linus Torvalds <torvalds@transmeta.com>
 cc: William Lee Irwin III <wli@holomorphy.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <linux-audio-dev@music.columbia.edu>,
         Jeff Garzik <jgarzik@mandrakesoft.com>
 Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <200112181619.fBIGJBv13914@maila.telia.com>
-Message-ID: <Pine.LNX.4.33.0112180910270.2867-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0112172153410.2416-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0112181216341.1237-100000@admin>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> 	audio_devs[devc->dev]->min_fragment = 5;
+> 
 
-On Tue, 18 Dec 2001, Roger Larsson wrote:
->
-> Lets see: we have >1 GHz CPU and interrupts at >1000 Hz
->  => 1 Mcycle / interrupt - is that insane?
+Generally speaking, you want to be able to specify about a 1ms fragment,
+speaking as a realtime audio programmer (no offense Victor...).  However,
+1ms is 128 bytes at 16bit stereo, but only 32 bytes at 8bit mono.  Nobody
+does 8bit mono, but that's probably why it's there.  A lot of drivers seem 
+to have 128 byte as minimum fragment size.  Even the high end stuff like 
+the RME hammerfall only go down to 64 byte fragment PER CHANNEL, which is 
+the same as 128 bytes for stereo in the SB 16.
 
-Ehh.. First off, the CPU may be 1GHz, but the memory subsystem, and the
-PCI subsystem definitely are _not_. Most PCI cards still run at a
-(comparatively) leisurely 33MHz, and when we're talking about audio, we're
-talking about actually having to _access_ that audio device.
+> Raising that min_fragment thing from 5 to 10 would make the minimum DMA
+> buffer go from 32 bytes to 1kB, which is a _lot_ more reasonable (what,
+> at 2*2 bytes per sample and 44kHz would mean that a 1kB DMA buffer empties
+> in less than 1/100th of a second, but at least it should be < 200 irqs/sec
+> rather than >400).
 
-Yes. At 33MHz, not at 1GHz.
+Note that the ALSA drivers allow the app to set watermarks for wakeup, 
+while allowing flexibility in fragment size and number.  You can 
+essentially say, wake me up when there are at least n fragments empty, and 
+put me to sleep if m fragments are full.
 
-Also, at 32-byte fragments, the frequency is actually 5.5kHz, not 1kHz.
-Now, I seriously doubt the mp3-player actually used 32-byte fragments (it
-probably just asked for something small, and got it), but let's say it
-asked for something in the kHz range (ie 256-512 byte frags). That does
-_not_ equate to "1 Mcycle". It equates to 33 _kilocycles_ in PCI-land, and
-a PCI read will take several cycles.
+David
 
-> If the hardware can support it? Why not let it? It is really up to the
-> applications/user to decide...
-
-Well, this particular user was unhappy with the CPU spending a noticeably
-amount of time on just web-surfing and mp3-playing.
-
-So clearly the _user_ didn't ask for it.
-
-And I suspect that the app writer just didn't even realize what he did. He
-may have used another sound card that didn't even allow small fragments.
-
-		Linus
+-- 
+/==============================\
+| David Mansfield              |
+| david@cobite.com             |
+\==============================/
 

@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261996AbSJBAsZ>; Tue, 1 Oct 2002 20:48:25 -0400
+	id <S261870AbSJBArU>; Tue, 1 Oct 2002 20:47:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262311AbSJBAsZ>; Tue, 1 Oct 2002 20:48:25 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:22519 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262081AbSJBAsX>; Tue, 1 Oct 2002 20:48:23 -0400
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20021001184225.GC29788@marowsky-bree.de>
-References: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu>
-	<Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it>
-	<20021001154808.GD126@suse.de>  <20021001184225.GC29788@marowsky-bree.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 02 Oct 2002 02:00:58 +0100
-Message-Id: <1033520458.20284.46.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261996AbSJBArU>; Tue, 1 Oct 2002 20:47:20 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:62425 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261870AbSJBArT>;
+	Tue, 1 Oct 2002 20:47:19 -0400
+Date: Tue, 1 Oct 2002 20:52:46 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Christoph Hellwig <hch@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.40 - and a feature freeze reminder
+In-Reply-To: <Pine.LNX.4.33.0210011735100.4577-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0210012037040.9782-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-01 at 19:42, Lars Marowsky-Bree wrote:
-> I'll again pipe in for the radical solution: EVMS(powerful) on top of
-> device-mapper(elegant). 
 
-The more shit you pile the more likely your compost heap is to collapse.
-And with some of the stuff in EVMS I don't want to be around when it
-does
 
-> EVMS also shows promise as they are working on _open_ cluster support, which I
-> think will be one of the big things to happen in 2.7. 
+On Tue, 1 Oct 2002, Linus Torvalds wrote:
 
-DM is small and clean. It may well be that if we go the DM way (and I
-think we should) that those bits of EVMS that we want (like cluster)
-actually come out a lot cleaner than in EVMS itself
+> 
+> On Tue, 1 Oct 2002, Christoph Hellwig wrote:
+> > 
+> > What about the 64bit sector_t (aka >2TB blockdevice) patches. 
+> 
+> I think we should do both 64-bit sector_t and 32-bit dev_t, although both 
+> of them depend on how horrible the code ends up being. Example patches?
 
-Alan
+Umm...  Speaking of 32bit dev_t, I'd rather do it right way.  We _do_ have
+a very real chance to kill all per-major arrays in a couple of weeks.
+Both for block and character devices.
+
+Basically, we can get rid of the notions of major and minor.  With the stuff
+already in place we can easily do CIDR equivalent - I have such patches and
+they work nicely.  Probable sequence:
+	* switch to dynamic allocation of gendisks (large part will go
+in a couple of hours, the rest - later tonight).
+	* refcounting for gendisks [~3Kb patch]
+	* caching of pointer to gendisk in bdev->bd_disk
+	* killing majority of get_gendisk() calls [~20Kb]
+	* introduction of blk_register_area() and removal of kludge in genhd.c;
+switching blk_set_probe() users to final mechanism ([~15Kb patch])
+	* using it to deal with remaining deadlocks in modular ide, etc.
+	* addition of gendisk->queue poitner, setting it for all gendisks.
+	* defining QUEUE to local variable in all drivers that still use it.
+	* killing blk_dev[] array.
+	* switching set_device_ro() to gendisk *.
+	* moving read-only/read-write state into gendisk.
+	* killing the last remaining array.
+
+At that point block devices are OK.  Moreover, blk_register_area() can be
+easily abstracted into mechanism common for block and character devices,
+but in any case character devices are much easier...
 

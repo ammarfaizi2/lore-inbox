@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265136AbUAMSbm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 13:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265147AbUAMSbl
+	id S265094AbUAMSaB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 13:30:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUAMSaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 13:31:41 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:55223 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265136AbUAMSbW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 13:31:22 -0500
-Date: Tue, 13 Jan 2004 19:31:16 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: John Cherry <cherry@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.1 (compile stats)
-In-Reply-To: <1073661600.2709.0.camel@lightning>
-Message-ID: <Pine.GSO.4.58.0401131929590.9060@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0401082242010.27013@evo.osdl.org>
- <1073661600.2709.0.camel@lightning>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 Jan 2004 13:30:01 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30724 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265094AbUAMS37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 13:29:59 -0500
+Date: Tue, 13 Jan 2004 18:29:55 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: jt@hpl.hp.com
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Re: [PROBLEM] ircomm ioctls
+Message-ID: <20040113182955.F7256@flint.arm.linux.org.uk>
+Mail-Followup-To: jt@hpl.hp.com,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20040113181034.GA9960@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040113181034.GA9960@bougret.hpl.hp.com>; from jt@bougret.hpl.hp.com on Tue, Jan 13, 2004 at 10:10:34AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jan 2004, John Cherry wrote:
-> Linux 2.6 Compile Statistics (gcc 3.2.2)
-> Warnings/Errors Summary
->
-> Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
->              (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
-> -----------  -----------  -------- -------- -------- -------- ---------
-> 2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-> 2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-> 2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-> 2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-> 2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
->
-> Web page with links to complete details:
->    http://developer.osdl.org/cherry/compile/
-> Daily compiles (ia32):
->    http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-> Daily compiles (ia64):
->    http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-> Latest changes in Linus' bitkeeper tree:
->    http://linux.bkbits.net:8080/linux-2.5
+On Tue, Jan 13, 2004 at 10:10:34AM -0800, Jean Tourrilhes wrote:
+> Russell King wrote :
+> > On Tue, Jan 13, 2004 at 12:00:15PM +0100, Jozef Vesely wrote:
+> > > I am gettig this error (while connecting to my mobile phone):
+> > > ------
+> > > # gsmctl -d /dev/ircomm0  ALL
+> > > gsmctl[ERROR]: clearing DTR failed (errno: 22/Invalid argument)
+> > > ------
+> > 
+> > ircomm needs updating to use the tiocmset/tiocmget driver calls.  Could
+> > you see if the following patch solves your problem please?
+> 
+> 	Good catch. Is there any other API changes worth looking into ?
+> 
+> 	By the way, I would rather keep the function
+> ircomm_tty_tiocmget() and ircomm_tty_tiocmset() in ircomm_tty_ioctl.c,
+> because ircomm_tty.c is already big and messy.
+> 	Check the patch below (quickly tested).
 
-While trying to make m68k use drivers/Kconfig, I keep on finding multi-bus
-drivers that don't compile if CONFIG_PCI is disabled. Perhaps you want to check
-for that too?
+I think this patch is missing some of the error checking (TTY_IO_ERROR)
+which I included in my later patch.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281024AbRKTLkM>; Tue, 20 Nov 2001 06:40:12 -0500
+	id <S281027AbRKTLom>; Tue, 20 Nov 2001 06:44:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281029AbRKTLkB>; Tue, 20 Nov 2001 06:40:01 -0500
-Received: from mailhost.iitb.ac.in ([203.197.74.142]:27664 "HELO
-	mailhost.iitb.ac.in") by vger.kernel.org with SMTP
-	id <S281028AbRKTLjn>; Tue, 20 Nov 2001 06:39:43 -0500
-Date: Tue, 20 Nov 2001 17:04:58 +0530
-From: N S S Kishore K <kishore@cse.iitb.ac.in>
-To: linux-kernel@vger.kernel.org
-Subject: write_lock_bh()
-Message-ID: <20011120170458.A24330@cse.iitb.ac.in>
-Reply-To: N S S Kishore K <kishore@cse.iitb.ac.in>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.1i
-X-Useless-Header: ??? # sign! 
-X-Operating-System: SunOS chandra 5.6 Generic_105181-11 sun4u sparc
-Organization: Dept. of Computer Science and Engineering, IIT Bombay
-X-Url: http://www.cse.iitb.ac.in/~kishore
+	id <S281029AbRKTLoc>; Tue, 20 Nov 2001 06:44:32 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:47372 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S281027AbRKTLoR>; Tue, 20 Nov 2001 06:44:17 -0500
+Date: Tue, 20 Nov 2001 09:43:38 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Ryan Cumming <bodnar42@phalynx.dhs.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Swap
+In-Reply-To: <E1661fQ-0001UQ-00@localhost>
+Message-ID: <Pine.LNX.4.33L.0111200943050.1491-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
-	Can I call write_lock_bh() on a different lock, from a routine
-which already called write_lock_bh() on another lock?
+On Mon, 19 Nov 2001, Ryan Cumming wrote:
+> On November 19, 2001 18:49, Eric W. Biederman wrote:
+> > That would probably do it.  Though it is puzzling why after the file
+> > is munmaped it's pages aren't recycled.
+>
+> Because they're part of the page cache now, and won't be recycled
+> until newer pages 'push' them out of memory.
 
--kishore
+Newer pages cannot push them out of memory, due to use-once.
+That is, unless those newer pages also get mmap()d or if they
+get accessed really often.
 
+Rik
 -- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,64 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272165AbTHNFHE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 01:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272166AbTHNFHE
+	id S272169AbTHNFOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 01:14:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272215AbTHNFOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 01:07:04 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:58853 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S272165AbTHNFHA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 01:07:00 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: Yury Umanets <umka@namesys.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Daniel Egger <degger@fhm.edu>, Hans Reiser <reiser@namesys.com>,
-       Nikita Danilov <Nikita@namesys.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <Pine.LNX.3.96.1030813160910.12417A-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1030813160910.12417A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Organization: NAMESYS
-Message-Id: <1060837469.17622.6.camel@haron.namesys.com>
+	Thu, 14 Aug 2003 01:14:08 -0400
+Received: from charger.oldcity.dca.net ([207.245.82.76]:52201 "EHLO
+	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
+	id S272169AbTHNFOE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 01:14:04 -0400
+Date: Thu, 14 Aug 2003 01:13:47 -0400
+From: "Mark M. Hoffman" <mhoffman@lightlink.com>
+To: Sensors <sensors@Stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Subject: Re: [BK PATCH] i2c driver fixes for 2.6.0-test2
+Message-ID: <20030814051347.GB15093@earth.solarsys.private>
+Reply-To: Sensors <sensors@Stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <20030802052904.GA9782@kroah.com> <20030802095518.4c5630ef.khali@linux-fr.org> <20030802165638.GF11038@kroah.com> <20030803052728.GC5202@earth.solarsys.private> <20030804160630.GB3395@kroah.com> <20030805034921.GB11605@earth.solarsys.private>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 14 Aug 2003 09:04:29 +0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030805034921.GB11605@earth.solarsys.private>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-08-14 at 00:12, Bill Davidsen wrote:
-> On Sun, 27 Jul 2003, Yury Umanets wrote:
-> 
-> > On Sun, 2003-07-27 at 18:10, Daniel Egger wrote:
-> > > Am Son, 2003-07-27 um 15.28 schrieb Hans Reiser:
-> 
-> > > > or for which a wear leveling block device driver is used (I don't know
-> > > > if one exists for Linux).
-> > > 
-> > > This is normally done by the filesystem (e.g. JFFS2).
-> > 
-> > Normally device driver should be concerned about making wear out
-> > smaller. It is up to it IMHO.
+This is a resend of a patch to the i2c-nforce2.c I2C bus driver.
+The start of the relevant thread was here:
+http://archives.andrew.net.au/lm-sensors/msg03820.html
 
-> 
-> The driver should do the logical to physical mapping, but the portability
-> vanishes if the filesystem to physical mapping is not the same for all
-> machines and operating systems. For pluggable devices this is important.
-> 
-> The leveling seems to be done by JFFs2 in a portable way, and that's as it
-> should be. If the leveling were in the driver I don't believe even FAT
-> would work.
+[comment]
+This patch restores a line that was wrongly removed.  There are also some
+trivial cleanups.  It applies & compiles vs. 2.6.0-test3.  It's untested
+(no hardware here).
+[/comment]
 
-Hello Bill,
+--- linux-2.6.0-test3/drivers/i2c/busses/i2c-nforce2.c.orig	2003-08-14 00:53:00.000000000 -0400
++++ linux-2.6.0-test3/drivers/i2c/busses/i2c-nforce2.c	2003-08-14 01:05:31.000000000 -0400
+@@ -51,10 +51,6 @@
+ #ifndef PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS   0x0064
+ #endif
+-/* TODO: sync with lm-sensors */
+-#ifndef I2C_HW_SMBUS_NFORCE2
+-#define I2C_HW_SMBUS_NFORCE2	0x0c
+-#endif
+ 
+ 
+ struct nforce2_smbus {
+@@ -128,20 +124,10 @@
+ 	.name   	= "unset",
+ };
+ 
+-
+-#if 0
+-/* Internally used pause function */
+-static void nforce2_do_pause(unsigned int amount)
+-{
+-	current->state = TASK_INTERRUPTIBLE;
+-	schedule_timeout(amount);
+-}
+-#endif
+-
+ /* Return -1 on error. See smbus.h for more information */
+-static s32 nforce2_access(struct i2c_adapter * adap, u16 addr, unsigned short flags,
+-		char read_write, u8 command, int size,
+-		union i2c_smbus_data * data)
++static s32 nforce2_access(struct i2c_adapter * adap, u16 addr,
++		unsigned short flags, char read_write,
++		u8 command, int size, union i2c_smbus_data * data)
+ {
+ 	struct nforce2_smbus *smbus = adap->algo_data;
+ 	unsigned char protocol, pec, temp;
+@@ -249,7 +235,7 @@
+ 
+ #if 0
+ 	do {
+-		nforce2_do_pause(1);
++		i2c_do_pause(1);
+ 		temp = inb_p(NVIDIA_SMB_STS);
+ 	} while (((temp & NVIDIA_SMB_STS_DONE) == 0) && (timeout++ < MAX_TIMEOUT));
+ #endif
+@@ -332,13 +318,8 @@
+ 			smbus->base, smbus->base+smbus->size-1, name);
+ 		return -1;
+ 	}
+-/*
+-	smbus->adapter.owner = THIS_MODULE;
+-	smbus->adapter.id = I2C_ALGO_SMBUS | I2C_HW_SMBUS_NFORCE2;
+-	smbus->adapter.algo = &smbus_algorithm;
+-	smbus->adapter.algo_data = smbus;
+-*/
+ 	smbus->adapter = nforce2_adapter;
++	smbus->adapter.algo_data = smbus;
+ 	smbus->adapter.dev.parent = &dev->dev;
+ 	snprintf(smbus->adapter.name, DEVICE_NAME_SIZE,
+ 		"SMBus nForce2 adapter at %04x", smbus->base);
 
-Yes, you are right. Device driver cannot take care about leveling.
-
-It is able only to take care about simple caching (one erase block) in 
-order to make wear out smaller and do not read/write whole block if one 
-sector should be written.
-
-Part of a filesystem called "block allocator" should take care about 
-leveling.
+-- 
+Mark M. Hoffman
+mhoffman@lightlink.com
 

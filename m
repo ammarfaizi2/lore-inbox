@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313992AbSDKFvS>; Thu, 11 Apr 2002 01:51:18 -0400
+	id <S313995AbSDKFzA>; Thu, 11 Apr 2002 01:55:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313993AbSDKFvS>; Thu, 11 Apr 2002 01:51:18 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:58128 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S313992AbSDKFvR>; Thu, 11 Apr 2002 01:51:17 -0400
-Message-Id: <200204110547.g3B5l3X08802@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Jurgen Philippaerts <jurgen@pophost.eunet.be>,
-        linux-kernel@vger.kernel.org
-Subject: Re: arch/sparc64/kernel/traps.c
-Date: Thu, 11 Apr 2002 08:50:13 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020409212000.GK9996@sparkie.is.traumatized.org> <20020409.155757.34666328.davem@redhat.com> <20020410133908.GJ11858@sparkie.is.traumatized.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S313996AbSDKFy7>; Thu, 11 Apr 2002 01:54:59 -0400
+Received: from f38.pav0.hotmail.com ([64.4.32.222]:3078 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S313995AbSDKFy6>;
+	Thu, 11 Apr 2002 01:54:58 -0400
+X-Originating-IP: [202.88.225.32]
+From: "blesson paul" <blessonpaul@msn.com>
+To: linux-kernel@vger.kernel.org
+Subject: put_user_byte()
+Date: Thu, 11 Apr 2002 11:24:52 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F38uSbh29cM3oryKFRJ00031d09@hotmail.com>
+X-OriginalArrivalTime: 11 Apr 2002 05:54:52.0812 (UTC) FILETIME=[6634C4C0:01C1E11D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 April 2002 11:39, Jurgen Philippaerts wrote:
-> On Wed, Apr 10, 2002 at 01:10:10AM +0200, David S. Miller wrote:
-> > ksymoops should be already installed on your system
-> > at /usr/bin/ksymoops, if it isn't find the package
-> > to install or complain to your distribution maintainer :-)
-> >
-> > If you still want to compile ksymoops from source you need to update
-> > and install a new binutils to get the latest BFD library.
->
-> allright, ksymoops doesn't come with my distribution (Splack)
-> so i got the source, and went from there.
->
-> now it compiled nicely.
->
-> here's the output that i get (i'm not quite sure what to expect, so i
-> hope this is what you need:)
+Hi all
+                I need to copy some data from kernel memory space to user 
+memory space. When I investigated, the command for that purpose is 
+put_user_byte(). But in kernel2.4, I can't find the implementation of this 
+command. I want to know the command which replaced put_user_byte() in 2.4 
+kernel. Also I want to know whether there is any synonyms for verify_area() 
+in kernel 2.4
+regards
+Blesson Paul
 
-[snip]
 
-> Error (Oops_bfd_perror): set_section_contents Bad value
 
-[snip]
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
 
-I've seen the same when ksymoops was linked against old libbfd.
-It builds without errors but could not disassemble oopsed code.
-Check for old libbfd lying around.
---
-vda

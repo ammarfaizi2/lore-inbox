@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129274AbRBNU2R>; Wed, 14 Feb 2001 15:28:17 -0500
+	id <S129374AbRBNU3g>; Wed, 14 Feb 2001 15:29:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129374AbRBNU2H>; Wed, 14 Feb 2001 15:28:07 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48401 "EHLO
+	id <S130170AbRBNU30>; Wed, 14 Feb 2001 15:29:26 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49681 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129274AbRBNU16>; Wed, 14 Feb 2001 15:27:58 -0500
-Subject: Re: IDE DMA Problems...system hangs
-To: jsidhu@arraycomm.com (Jasmeet Sidhu)
-Date: Wed, 14 Feb 2001 20:28:27 +0000 (GMT)
+	id <S129374AbRBNU3I>; Wed, 14 Feb 2001 15:29:08 -0500
+Subject: Re: Samba performance / zero-copy network I/O
+To: glamb@lcis.dyndns.org (Gord R. Lamb)
+Date: Wed, 14 Feb 2001 20:29:42 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.0.2.1.2.20010214115941.02471bb8@pop.arraycomm.com> from "Jasmeet Sidhu" at Feb 14, 2001 12:09:39 PM
+In-Reply-To: <Pine.LNX.4.32.0102141452210.27843-100000@localhost.localdomain> from "Gord R. Lamb" at Feb 14, 2001 03:14:19 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14T8XO-0005wN-00@the-village.bc.nu>
+Message-Id: <E14T8Ya-0005wb-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anybody else having these problems with a ide raid 5?
-> The Raid 5 performance should also be questioned..here are some number 
-> returned by hdparam
+> When reading the profiler results, the largest consuming kernel (calls?)
+> are file_read_actor and csum_partial_copy_generic, by a longshot (about
+> 70% and 20% respectively).
+> 
+> Presumably, the csum_partial_copy_generic should be eliminated (or at
+> least reduced) by David Miller's zerocopy patch, right?  Or am I
+> misunderstanding this completely? :)
 
-You will get horribly bad performance off raid5 if you have stripes on both
-hda/hdb  or hdc/hdd etc.
+To an extent, providing you are using the samba sendfile() patches. SMB cant
+make great use of zero copy file I/O due to the fact its not really designed
+so much as mutated over time and isnt oriented for speed
 
-> Feb 13 05:23:27 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
-> SeekComplete Error }
-> Feb 13 05:23:27 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
-> BadCRC }
-
-You have inadequate cabling. CRC errors are indications of that. Make sure you
-are using sufficiently short cables for ATA33 and proper 80pin ATA66 cables.
-
-> Feb 13 12:12:42 bertha kernel: hdg: irq timeout: status=0x50 { DriveReady 
-> SeekComplete }
-> Feb 13 12:13:02 bertha kernel: hdg: timeout waiting for DMA
-
-This could be cabling too, cant be sure
-
-> Feb 13 12:13:12 bertha kernel: hdg: DMA disabled
-
-It gave up using DMA
-
-> Feb 13 12:13:12 bertha kernel: ide3: reset: success	<------- * SYSTEM HUNG 
-> AT THIS POINT *
-
-Ok thats a reasonable behaviour, except it shouldnt have then hung.

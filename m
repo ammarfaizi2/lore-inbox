@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268291AbRGWQpU>; Mon, 23 Jul 2001 12:45:20 -0400
+	id <S268303AbRGWQ7C>; Mon, 23 Jul 2001 12:59:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268293AbRGWQpK>; Mon, 23 Jul 2001 12:45:10 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:18266 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S268291AbRGWQo7>; Mon, 23 Jul 2001 12:44:59 -0400
-Date: Mon, 23 Jul 2001 18:45:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Dike <jdike@karaya.com>, user-mode-linux-user@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: user-mode port 0.44-2.4.7
-Message-ID: <20010723184528.R822@athlon.random>
-In-Reply-To: <20010723175635.L822@athlon.random> <Pine.LNX.4.33.0107230931590.12978-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S268300AbRGWQ6l>; Mon, 23 Jul 2001 12:58:41 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:64482 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S268299AbRGWQ6d>;
+	Mon, 23 Jul 2001 12:58:33 -0400
+Message-ID: <XFMail.20010723100059.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0107230931590.12978-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jul 23, 2001 at 09:33:28AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Date: Mon, 23 Jul 2001 10:00:59 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] small include/linux/list.h integration ...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, Jul 23, 2001 at 09:33:28AM -0700, Linus Torvalds wrote:
-> 
-> On Mon, 23 Jul 2001, Andrea Arcangeli wrote:
-> >
-> > in my tree I did some further cleanup, here the ones that you can
-> > interested about:
-> 
-> Andrea, please drop the "volatile" from xtime. It's bogus.
+Subject says it all.
 
-it's the other way around, it's needed and gcc trapped a kernel bug.
 
-If the contents of memory not declared volatile changes under GCC (like
-it can happen right now for xtime since it's declared non volatile), gcc
-has the full rights to crash the kernel at runtime.
+- Davide
 
-I know there are other bugs like this one in the kernel, but this is not
-a good reason to fix the known ones IMHO.
 
-Andrea
+
+
+
+diff -Nru linux-2.4.7.vanilla/include/linux/list.h linux-2.4.7/include/linux/list.h
+--- linux-2.4.7.vanilla/include/linux/list.h    Fri Feb 16 16:06:17 2001
++++ linux-2.4.7/include/linux/list.h    Sun Jul 22 16:22:36 2001
+@@ -149,6 +149,11 @@
+ #define list_for_each(pos, head) \
+        for (pos = (head)->next; pos != (head); pos = pos->next)
+ 
++#define list_first(head)       (((head)->next != (head)) ? (head)->next: (struct list_head *) 0)
++#define list_last(head)        (((head)->prev != (head)) ? (head)->prev: (struct list_head *) 0)
++#define list_next(pos, head)   (((pos)->next != (head)) ? (pos)->next: (struct list_head *) 0)
++#define list_prev(pos, head)   (((pos)->prev != (head)) ? (pos)->prev: (struct list_head *) 0)
++
+ #endif /* __KERNEL__ || _LVM_H_INCLUDE */
+ 
+ #endif
+
+

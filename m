@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265277AbRFUWtu>; Thu, 21 Jun 2001 18:49:50 -0400
+	id <S265280AbRFUWuu>; Thu, 21 Jun 2001 18:50:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265278AbRFUWta>; Thu, 21 Jun 2001 18:49:30 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:35022 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S265277AbRFUWtT>; Thu, 21 Jun 2001 18:49:19 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDEE1@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'esr@thyrsus.com'" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: RE: [kbuild-devel] Missing help entries in 2.4.6pre5
-Date: Thu, 21 Jun 2001 15:49:01 -0700
+	id <S265279AbRFUWuk>; Thu, 21 Jun 2001 18:50:40 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60678 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265278AbRFUWub>; Thu, 21 Jun 2001 18:50:31 -0400
+Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
+To: mbac@nyct.net (Michael Bacarella)
+Date: Thu, 21 Jun 2001 23:49:53 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010621183737.A12304@sync.nyct.net> from "Michael Bacarella" at Jun 21, 2001 06:37:37 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15DDGr-0002Oo-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-They're all in pre5 patch, around line 900.
+> Apple's doing it right now.
 
-Regards -- Andy
+Hardly..
 
-> From: Eric S. Raymond [mailto:esr@thyrsus.com]
-> The following configuration symbols in 2.4.6pre5 do not have 
-> Congfgure.help entries,:
-> 
-> CONFIG_ACPI_AC
-> CONFIG_ACPI_BUSMGR
-> CONFIG_ACPI_BUTTON
-> CONFIG_ACPI_CMBATT
-> CONFIG_ACPI_CPU
-> CONFIG_ACPI_DEBUG
-> CONFIG_ACPI_EC
-> CONFIG_ACPI_SYS
-> CONFIG_ACPI_THERMAL
+> Except that Apple keeps the old code open. Probably because
+> they'll gain nothing from it, and at best, they can appeal to
+> the techies.
+
+A company that seems to write 'you shall not work on open source projects
+in your spare time' into its employment contracts is not what I would call
+friendly or want to work for. Im sure its only a small step to 'employees
+shall not snowboard' 'employees shall not go skiing' - all of course argued
+for the same reason as being essential to the company interest
 

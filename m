@@ -1,64 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132764AbQK3KSb>; Thu, 30 Nov 2000 05:18:31 -0500
+        id <S132780AbQK3KUL>; Thu, 30 Nov 2000 05:20:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132780AbQK3KSV>; Thu, 30 Nov 2000 05:18:21 -0500
-Received: from 13dyn240.delft.casema.net ([212.64.76.240]:16144 "EHLO
-        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-        id <S132764AbQK3KSG>; Thu, 30 Nov 2000 05:18:06 -0500
-Message-Id: <200011300947.KAA27728@cave.bitwizard.nl>
-Subject: Re: [PATCH] New user space serial port driver
-In-Reply-To: <Pine.LNX.4.21.0011300817320.846-100000@penguin.homenet> from Tigran
- Aivazian at "Nov 30, 2000 08:22:13 am"
-To: Tigran Aivazian <tigran@veritas.com>
-Date: Thu, 30 Nov 2000 10:47:34 +0100 (MET)
-CC: Patrick van de Lageweg <patrick@bitwizard.nl>,
-        Rogier Wolff <wolff@bitwizard.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: R.E.Wolff@bitwizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+        id <S132794AbQK3KUB>; Thu, 30 Nov 2000 05:20:01 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:1809 "HELO
+        note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+        id <S132780AbQK3KTo>; Thu, 30 Nov 2000 05:19:44 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Russell King <rmk@arm.linux.org.uk>
+Date: Thu, 30 Nov 2000 20:49:03 +1100 (EST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14886.8847.933172.241464@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-kbuild@torque.net
+Subject: Re: PATCH  - kbuild documentation.
+In-Reply-To: message from Russell King on Thursday November 30
+In-Reply-To: <14885.37565.611695.816426@notabene.cse.unsw.edu.au>
+        <200011300036.eAU0aTc05028@flint.arm.linux.org.uk>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+        LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+        8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
-> On Thu, 30 Nov 2000, Patrick van de Lageweg wrote:
-> > +static struct tty_struct * ussp_table[USSP_MAX_PORTS] = { NULL, };
+On Thursday November 30, rmk@arm.linux.org.uk wrote:
+> Neil Brown writes:
+> > +	An example for libraries from drivers/acorn/scsi/Makefile:
 > 
-> this wastes at least 4 * USSP_MAX_PORTS bytes in the kernel image.
-> Typically around 64 bytes but could be more. For more info see the recent
-> silly flamewars on the list.
-
-And I think the guys who were saying that the "documentation is more
-important than those few bytes" were winning. 
-
-I am one of those guys. I think the documentation aspect is much more
-important than those 64 bytes.
-
-> The correct way is not to initialize the data
-> to zero explicitly as BSS is cleared automatically on boot. It is also
-> probably documented in the lkml FAQ at the bottom of this message.
+> This is no longer true; you'll have to find another example.
 > 
-> Also, it makes your code look consistent as, e.g. in cases below you do
-> the right thing:
+> > +	As ordering is not so important in libraries, this still uses
+> > +	LX_OBJS and MX_OBJS, though (presumably) it could be changed to
+> > +	use MIX_OBJS as follows:
+> > +
+> > +		active-objs	:= $(sort $(obj-y) $(obj-m))
+> > +		L_OBJS		:= $(obj-y)
+> > +		M_OBJS		:= $(obj-m)
+> > +		MIX_OBJS	:= $(filter $(export-objs), $(active-objs))
+> > +
+> > +	which is clearly shorted and arguably clearer.
 > 
-> > +static struct termios    * ussp_termios[USSP_MAX_PORTS];
-> > +static struct termios    * ussp_termios_locked[USSP_MAX_PORTS];
+> What if you have
+> 
+> obj-$(CONFIG_FOO) += foo.o foobar.o
+> obj-$(CONFIG_BAR) += bar.o foobar.o
+> 
+> and CONFIG_FOO=y and CONFIG_BAR=m?  What about CONFIG_FOO=y and
+> CONFIG_BAR=y?  Do we still support this method?  If not, what is the
+> recommended way of doing this sort of stuff?
 
-this SHOULD mean that these are first initialized before use. 
+The first case (y and m) would be satisifed by
 
-If you think they can be used before first being initialized by the
-code, then that's a bug, and I'll look into it.
+   M_OBJS := $(filter-out $(O_OBJS) $(L_OBJS), $(obj-m))
 
-			Roger. 
+but the second (y and y) wouldn't.  If you want to be allowed to
+mention a .o file twice, and still maintain ordering, you are asking a lot.
+You could try:
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+obj-$(CONFIG_FOO)$(CONFIG_BAR) += foobar.o
+obj-$(CONFIG_FOO) += foo.o foobar.o
+obj-$(CONFIG_BAR) += bar.o foobar.o
+
+O_OBJS := $(obj-y) $(obj-ym) $(obj-my)
+M_OBJS := $(obj-m) $(obj-mm)
+
+But that it starting to look ugly.
+
+Maybe:
+O_OBJS := $(shell echo $(obj-y) | tr ' ' '\n' | cat -n | sort -u +1 | sort -n | cut -f2)
+
+But I don't think that is much better.
+
+There is room for other good ideas here if this is a real need.
+
+NeilBrown
+
+(I love Unix pipelines)
+
+>    _____
+>   |_____| ------------------------------------------------- ---+---+-
+>   |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+>   | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+>   | +-+-+                                                     --- -+-
+>   /   |               THE developer of ARM Linux              |+| /|\
+>  /  | | |                                                     ---  |
+>     +-+-+ -------------------------------------------------  /\\\  |
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

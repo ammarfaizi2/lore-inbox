@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319238AbSIFPy4>; Fri, 6 Sep 2002 11:54:56 -0400
+	id <S318764AbSIFQKR>; Fri, 6 Sep 2002 12:10:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319234AbSIFPy4>; Fri, 6 Sep 2002 11:54:56 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:16358 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S319238AbSIFPyy>; Fri, 6 Sep 2002 11:54:54 -0400
-Subject: Re: pid_max hang again...
-From: Paul Larson <plars@linuxtestproject.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0209061738330.24094-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0209061738330.24094-100000@localhost.localdomain>
+	id <S318772AbSIFQKR>; Fri, 6 Sep 2002 12:10:17 -0400
+Received: from sc-grnvl-66-169-5-131.chartersc.net ([66.169.5.131]:33207 "EHLO
+	rhino") by vger.kernel.org with ESMTP id <S318764AbSIFQKP>;
+	Fri, 6 Sep 2002 12:10:15 -0400
+Subject: Re: ide drive dying?
+From: Billy Harvey <Billy.Harvey@thrillseeker.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0209061141190.30387-100000@router.windsormachine.com>
+References: <Pine.LNX.4.33.0209061141190.30387-100000@router.windsormachine.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 06 Sep 2002 10:47:23 -0500
-Message-Id: <1031327243.30451.7.camel@plars.austin.ibm.com>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 06 Sep 2002 12:14:53 -0400
+Message-Id: <1031328893.16365.243.camel@rhino>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-06 at 10:39, Ingo Molnar wrote:
+On Fri, 2002-09-06 at 11:42, Mike Dresser wrote:
+> On 6 Sep 2002, Alan Cox wrote:
 > 
-> On 6 Sep 2002, Paul Larson wrote:
+> > On Fri, 2002-09-06 at 16:26, Mike Dresser wrote:
+> > > eBAY, and buy yourself a new drive.  You can pickup 80 gig drives for
+> > > around 80 bucks nowadays.  I used to recommend Maxtors, until they said
+> > > they're cutting their warranty to one year from three.  I don't know what
+> > > to use anymore.
+> >
+> > At current drive density and reliabilities - raid. Software raid setups
+> > are so cheap there is little point not running RAID on IDE nowdays
+> >
+> Well, I was looking more on the side of the Windows PC's here at the
+> office, it's a bit expensive to start running raid on those.
 > 
-> > It looks like this change dropped us back to the same error all this was
-> > originally supposed to fix.  When you hit PID_MAX, get_pid() starts
-> > looping forever looking for a free pid and hangs.  I could probably make
-> > my original fix work on this very easily if you'd like.
-> 
-> yes please send a patch for this. Reintroduction of the looping bug was
-> unintended.
-> 
-> > I wonder though, would it be possible to do this in a more simple way by
-> > just throttling max_threads back to something more sane if it gets
-> > defaulted too high?  Since it gets checked before we even get to the
-> > get_pid call in copy_process().  That would keep the number of processes
-> > down to a sane level without the risk.
-> 
-> this is a good approach as well, but now pid_max can be adjusted runtime
-> so truncating max_threads as a side-effect looks a bit problematic. We
-> should rather fail the fork() cleanly.
-I agree, unless this was just going to be temporary.  I'll pull the
-get_pid() fix up to the current version and send it in a bit.
+> Mike
 
-Thanks,
-Paul Larson
+Well, I haven't examined this empirically, but as the quantity of disk
+drives in an organization continues increasing, so does the probability
+of disk failure, any one of which can mean lost time/money, etc.  Drive
+reliability is likely not increasing at the same rate that density is,
+so the likelihood of lost data is probably increasing.  Since LAN speeds
+continue to increase, it might start making sense now in clusters of
+more than a few machines to make each machine less reliant on its own
+disk storage (to the point of not at all other than big swap space) and
+use the LAN more.  On the LAN put the money into a quality shared
+resource - a heavy duty UPS'd, etc. RAID system.  Especially if a RAID
+system is as easy to build/maintain/use as Alan alludes to (don't know -
+never built one).
+
+Billy
 

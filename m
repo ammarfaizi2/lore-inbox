@@ -1,56 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVCOTZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVCOTa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbVCOTZu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 14:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVCOTZs
+	id S261787AbVCOTa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 14:30:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVCOTa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:25:48 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:16316 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261799AbVCOTWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:22:51 -0500
-Date: Tue, 15 Mar 2005 19:22:36 +0000 (GMT)
-From: James Simmons <jsimmons@www.infradead.org>
-X-X-Sender: jsimmons@pentafluge.infradead.org
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: linux-fbdev-devel@lists.sourceforge.net,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Michal Januszewski <spock@gentoo.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       "Antonino A. Daplas" <adaplas@hotpop.com>
-Subject: Re: [Linux-fbdev-devel] [announce 0/7] fbsplash - The Framebuffer
- Splash
-In-Reply-To: <9e4733910503151103b8a9c8f@mail.gmail.com>
-Message-ID: <Pine.LNX.4.56.0503151920080.5506@pentafluge.infradead.org>
-References: <20050308015731.GA26249@spock.one.pl> 
- <Pine.LNX.4.62.0503091033400.22598@numbat.sonytel.be> 
- <1110392212.3116.215.camel@localhost.localdomain> 
- <Pine.LNX.4.56.0503092043380.7510@pentafluge.infradead.org> 
- <1110408049.9942.275.camel@localhost.localdomain> 
- <Pine.LNX.4.62.0503101009240.9227@numbat.sonytel.be>  <20050310145419.GD632@openzaurus.ucw.cz>
-  <Pine.LNX.4.56.0503111801550.10827@pentafluge.infradead.org> 
- <9e473391050311101356536667@mail.gmail.com> 
- <Pine.LNX.4.56.0503151855430.5506@pentafluge.infradead.org>
- <9e4733910503151103b8a9c8f@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: 0.0 (/)
+	Tue, 15 Mar 2005 14:30:56 -0500
+Received: from mailfe03.swip.net ([212.247.154.65]:53959 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261793AbVCOT0P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 14:26:15 -0500
+X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
+Subject: [PATCH] add gfp_mask to page owner
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 21:25:23 +0100
+Message-Id: <1110918323.1210.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew
 
-> DRM doesn't know a thing about 3D. All it does is DMA, memory
-> management and queue things up for the GPU to work on. You don't even
-> have to have a GPU processor you could use the CPU to execute the
-> commands.
-> 
-> It's the code up in mesa that knows about 3D and builds the commands
-> to be sent to DRM.
+After looking at the recent memory leak thread I think it might have
+helped having the gfp mask of the allocated pages. This makes that
+available, no changes needed for the user-space sorter, same trace with
+different gfp masks will be in separate chunks.
 
-Not all devices are DMA. Personally since it is generic DMA engine then 
-why not move it to the device api so everyone could use it. We already 
-have DMA pools. Actually I have started some work for some generic DMA 
-handling for the device api core but I have other fish to fry first.
+Output looks like:
+
+4819 times:
+Page allocated via order 0, mask 0x50
+[0xc012b7b9] find_lock_page+25
+[0xc012b8c8] find_or_create_page+152
+[0xc0147d74] grow_dev_page+36
+[0xc0148164] __find_get_block+84
+[0xc0147ebc] __getblk_slow+124
+[0xc0148164] __find_get_block+84
+[0xc01481e7] __getblk+55
+[0xc0185d14] do_readahead+100
+
+
+If you think it might be a good idea then here it is.
+
+
+Index: linux-2.6.11/fs/proc/proc_misc.c
+===================================================================
+--- linux-2.6.11.orig/fs/proc/proc_misc.c	2005-03-15 21:13:43.000000000 +0100
++++ linux-2.6.11/fs/proc/proc_misc.c	2005-03-15 21:17:20.000000000 +0100
+@@ -571,7 +571,8 @@
+ 	if (!kbuf)
+ 		return -ENOMEM;
+ 
+-	ret = snprintf(kbuf, 1024, "Page allocated via order %d\n", page->order);
++	ret = snprintf(kbuf, 1024, "Page allocated via order %d, mask 0x%x\n",
++			page->order, page->gfp_mask);
+ 
+ 	for (i = 0; i < 8; i++) {
+ 		if (!page->trace[i])
+Index: linux-2.6.11/mm/page_alloc.c
+===================================================================
+--- linux-2.6.11.orig/mm/page_alloc.c	2005-03-15 21:13:43.000000000 +0100
++++ linux-2.6.11/mm/page_alloc.c	2005-03-15 21:14:32.000000000 +0100
+@@ -1050,6 +1050,7 @@
+ 	asm ("movl %%ebp, %0" : "=r" (bp) : );
+ #endif
+ 	page->order = (int) order;
++	page->gfp_mask = gfp_mask;
+ 	__stack_trace(page, &address, bp);
+ 	}
+ #endif /* CONFIG_PAGE_OWNER */
+Index: linux-2.6.11/include/linux/mm.h
+===================================================================
+--- linux-2.6.11.orig/include/linux/mm.h	2005-03-15 21:13:43.000000000 +0100
++++ linux-2.6.11/include/linux/mm.h	2005-03-15 21:14:32.000000000 +0100
+@@ -266,6 +266,7 @@
+ #endif /* WANT_PAGE_VIRTUAL */
+ #ifdef CONFIG_PAGE_OWNER
+ 	int order;
++	unsigned int gfp_mask;
+ 	unsigned long trace[8];
+ #endif
+ };
+
+
+
 

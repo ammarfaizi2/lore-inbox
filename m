@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267108AbRGJTU1>; Tue, 10 Jul 2001 15:20:27 -0400
+	id <S267106AbRGJTUH>; Tue, 10 Jul 2001 15:20:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267109AbRGJTUR>; Tue, 10 Jul 2001 15:20:17 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:9988 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267108AbRGJTUM>;
-	Tue, 10 Jul 2001 15:20:12 -0400
-Message-ID: <20010710004415.A557@bug.ucw.cz>
-Date: Tue, 10 Jul 2001 00:44:15 +0200
+	id <S267108AbRGJTT5>; Tue, 10 Jul 2001 15:19:57 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:8452 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267106AbRGJTTq>;
+	Tue, 10 Jul 2001 15:19:46 -0400
+Message-ID: <20010710004449.B557@bug.ucw.cz>
+Date: Tue, 10 Jul 2001 00:44:49 +0200
 From: Pavel Machek <pavel@suse.cz>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Jeff Garzik <jgarzik@mandrakesoft.com>
@@ -38,13 +38,8 @@ Hi!
 > And if the NSA wants the US goverment to execute binary only chinese bios code
 > on all their critical systems I am sure people will be happy.
 
-You already rely on BIOS to boot your kernel. What if that evil
-binary-only BIOS just readed keystrokes stored in 8042, and is sending
-contents of your harddrive over network during memory test?
-
-								Pavel
-[I believe real problem here is correctness, not security, because
-BIOS vendor certainly has ways to screw you up.]
+...but I still would be happier if there was no AML interpretation...
+								Pavel 
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
 Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

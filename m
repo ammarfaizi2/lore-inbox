@@ -1,33 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268137AbUIFP3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268155AbUIFPdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268137AbUIFP3d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 11:29:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268153AbUIFP3d
+	id S268155AbUIFPdu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 11:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268156AbUIFPdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 11:29:33 -0400
-Received: from mail.xor.ch ([212.55.210.163]:55048 "HELO mail.xor.ch")
-	by vger.kernel.org with SMTP id S268137AbUIFP3a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 11:29:30 -0400
-Message-ID: <413C8253.A1CBA3A4@orpatec.ch>
-Date: Mon, 06 Sep 2004 17:29:23 +0200
-From: Otto Wyss <otto.wyss@orpatec.ch>
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
-MIME-Version: 1.0
-To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Enhancements of the framebuffer
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Sep 2004 11:33:50 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:11496 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S268155AbUIFPdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 11:33:49 -0400
+Message-Id: <5.1.0.14.2.20040906172216.00b1fbe0@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 06 Sep 2004 17:32:43 +0200
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: Re: drivers/cdrom/cdu31a.c broken
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-ID: rf-SQ2ZcoeVlZYKXNf4g1ah8f93idDa7ViXKGsfRyAEE1Y6dirHNkh
+X-TOI-MSGID: 9d5925c9-35f7-47d3-b650-f0b50a2aefb0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a thread started at linux-fbdev-devel about the future of the
-framebuffer which might be interesting for you as well. Have a look at
-"http://sourceforge.net/mailarchive/forum.php?thread_id=5515857&forum_id=2357"
-and join the discussion at "http://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel".
+Olaf scribeth:
+ > typo, should be ; instead of :
 
-O. Wyss
+I wonder how that happened having been signed off by no less
+than 4 people ?!  ;-)
 
--- 
-See a huge pile of work at "http://wyodesktop.sourceforge.net/"
+Which raises a couple of other questions regarding the
+schedule_timeout -> msleep changes:
+
+Is it correct to replace a TASK_INTERRUPTIBLE schedule_timeout
+with msleep which is TASK_UNINTERRUPTIBLE ?
+
+Did anyone check if the relevant pieces of code are under control
+of a wait queue ?
+
+Margit
+
+

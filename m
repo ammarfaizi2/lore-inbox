@@ -1,83 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269214AbUIHTmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269381AbUIHTkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269214AbUIHTmF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 15:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269315AbUIHTkx
+	id S269381AbUIHTkA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 15:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269380AbUIHTi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 15:40:53 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:11753 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S269328AbUIHTa7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 15:30:59 -0400
-Message-ID: <413F5EE7.6050705@sgi.com>
-Date: Wed, 08 Sep 2004 14:35:03 -0500
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Wed, 8 Sep 2004 15:38:27 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:19415 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S269319AbUIHT2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 15:28:22 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [patch][4/9] ide: always allocate hwif->sg_table
+Date: Wed, 8 Sep 2004 21:26:53 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com,
-       piggin@cyberone.com.au, mbligh@aracnet.com
-Subject: Re: swapping and the value of /proc/sys/vm/swappiness
-References: <413CB661.6030303@sgi.com> <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <cone.1094513660.210107.6110.502@pc.kolivas.org> <20040907000304.GA8083@logos.cnet> <20040907212051.GC3492@logos.cnet> <413F1518.7050608@sgi.com> <20040908165412.GB4284@logos.cnet>
-In-Reply-To: <20040908165412.GB4284@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409082126.53365.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+[patch] ide: always allocate hwif->sg_table
 
-Marcelo Tosatti wrote:
+Allocate hwif->sg_table in hwif_init() so it can also be used for PIO.
 
-> 
-> 
-> Huh, that changes the meaning of the dirty limits. Dont think its suitable
-> for mainline.
-> 
-> 
+Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+---
 
-The change is, in fact, not much different from what is already actually 
-there.  The code in get_dirty_limits() adjusts the value of the user supplied 
-parameters in /proc/sys/vm depending on how much mapped memory there is.  If 
-you undo the convoluted arithmetic that is in there, one finds that if you are 
-using the default dirty_ratio of 40%, then if the unmapped_ratio is between 
-80% and 10%, then
+ linux-2.6.9-rc1-bk10-bzolnier/drivers/ide/ide-dma.c   |   11 ++---------
+ linux-2.6.9-rc1-bk10-bzolnier/drivers/ide/ide-probe.c |    7 +++++++
+ linux-2.6.9-rc1-bk10-bzolnier/drivers/ide/ide.c       |    1 +
+ 3 files changed, 10 insertions(+), 9 deletions(-)
 
-    dirty_ratio = unmapped_ratio / 2;
-
-and, a little bit of algebra later:
-
-    dirty = (total_pages - wbs->nr_mapped)/2
-
-and
-
-    background = dirty_background_ratio/vm_background_ratio * (total_pages
-	- wbs->nr_mapped)
-
-That is, for a wide range of memory usage, you are really running with an
-dirty ratio of 50% stated in terms of the number of unmapped pages, and there 
-is no direct way to override this.
-
-Of course, at the edges, the code changes these calculations.  It just seems 
-to me that rather than continue the convoluted calculation that is in
-get_dirty_limits(), we just make the outcome more explicit and tell the user
-what is really going on.
-
-We'd still have to figure out how to encourage a minimum page cache size of
-some kind, which is what I understand the 5% min value for dirty_ratio is in 
-there for.
-
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
-
-
+diff -puN drivers/ide/ide.c~ide_sg_table drivers/ide/ide.c
+--- linux-2.6.9-rc1-bk10/drivers/ide/ide.c~ide_sg_table	2004-09-05 19:52:40.773452360 +0200
++++ linux-2.6.9-rc1-bk10-bzolnier/drivers/ide/ide.c	2004-09-05 19:52:40.785450536 +0200
+@@ -870,6 +870,7 @@ void ide_unregister(unsigned int index)
+ 		hwif->drives[i].disk = NULL;
+ 		put_disk(disk);
+ 	}
++	kfree(hwif->sg_table);
+ 	unregister_blkdev(hwif->major, hwif->name);
+ 	spin_lock_irq(&ide_lock);
+ 
+diff -puN drivers/ide/ide-dma.c~ide_sg_table drivers/ide/ide-dma.c
+--- linux-2.6.9-rc1-bk10/drivers/ide/ide-dma.c~ide_sg_table	2004-09-05 19:52:40.775452056 +0200
++++ linux-2.6.9-rc1-bk10-bzolnier/drivers/ide/ide-dma.c	2004-09-05 19:52:40.787450232 +0200
+@@ -868,10 +868,6 @@ int ide_release_dma_engine (ide_hwif_t *
+ 				    hwif->dmatable_dma);
+ 		hwif->dmatable_cpu = NULL;
+ 	}
+-	if (hwif->sg_table) {
+-		kfree(hwif->sg_table);
+-		hwif->sg_table = NULL;
+-	}
+ 	return 1;
+ }
+ 
+@@ -904,15 +900,12 @@ int ide_allocate_dma_engine (ide_hwif_t 
+ 	hwif->dmatable_cpu = pci_alloc_consistent(hwif->pci_dev,
+ 						  PRD_ENTRIES * PRD_BYTES,
+ 						  &hwif->dmatable_dma);
+-	hwif->sg_table = kmalloc(sizeof(struct scatterlist) * PRD_ENTRIES,
+-				GFP_KERNEL);
+ 
+-	if ((hwif->dmatable_cpu) && (hwif->sg_table))
++	if (hwif->dmatable_cpu)
+ 		return 0;
+ 
+-	printk(KERN_ERR "%s: -- Error, unable to allocate%s%s table(s).\n",
++	printk(KERN_ERR "%s: -- Error, unable to allocate%s DMA table(s).\n",
+ 		(hwif->dmatable_cpu == NULL) ? " CPU" : "",
+-		(hwif->sg_table == NULL) ?  " SG DMA" : " DMA",
+ 		hwif->cds->name);
+ 
+ 	ide_release_dma_engine(hwif);
+diff -puN drivers/ide/ide-probe.c~ide_sg_table drivers/ide/ide-probe.c
+--- linux-2.6.9-rc1-bk10/drivers/ide/ide-probe.c~ide_sg_table	2004-09-05 19:52:40.778451600 +0200
++++ linux-2.6.9-rc1-bk10-bzolnier/drivers/ide/ide-probe.c	2004-09-05 19:52:40.788450080 +0200
+@@ -1251,6 +1251,13 @@ static int hwif_init(ide_hwif_t *hwif)
+ 	if (register_blkdev(hwif->major, hwif->name))
+ 		return 0;
+ 
++	hwif->sg_table = kmalloc(sizeof(struct scatterlist) * PRD_ENTRIES,
++				 GFP_KERNEL);
++	if (!hwif->sg_table) {
++		printk(KERN_ERR "%s: unable to allocate SG table.\n", hwif->name);
++		goto out;
++	}
++
+ 	if (alloc_disks(hwif) < 0)
+ 		goto out;
+ 	
+_

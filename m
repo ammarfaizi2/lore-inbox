@@ -1,103 +1,358 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbUKOGsC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbUKOGuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbUKOGsC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 01:48:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbUKOGqF
+	id S261542AbUKOGuW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 01:50:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUKOGtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 01:46:05 -0500
-Received: from havoc.gtf.org ([69.28.190.101]:41945 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261521AbUKOGpU (ORCPT
+	Mon, 15 Nov 2004 01:49:39 -0500
+Received: from havoc.gtf.org ([69.28.190.101]:42969 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261529AbUKOGqM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 01:45:20 -0500
-Date: Mon, 15 Nov 2004 01:45:15 -0500
+	Mon, 15 Nov 2004 01:46:12 -0500
+Date: Mon, 15 Nov 2004 01:46:09 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: [BK PATCHES] 2.6.x misc updates (OSS drvr module_param stuff)
-Message-ID: <20041115064515.GA14512@havoc.gtf.org>
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [netdrvr] netdev-2.6 queue updated
+Message-ID: <20041115064609.GA14547@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The most notable thing is the addition of HostAP.
+
 BK users:
 
-	bk pull bk://gkernel.bkbits.net/misc-2.6
+	bk pull bk://gkernel.bkbits.net/netdev-2.6
+
+Patch:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.10-rc2-netdev1.patch.bz2
 
 This will update the following files:
 
- sound/oss/i810_audio.c |   12 ++++++------
- sound/oss/soundcard.c  |    4 ++--
- sound/oss/uart401.c    |    8 ++++----
- 3 files changed, 12 insertions(+), 12 deletions(-)
+ MAINTAINERS                                     |    7 
+ drivers/net/3c505.c                             |   10 
+ drivers/net/3c507.c                             |  148 
+ drivers/net/3c59x.c                             |    1 
+ drivers/net/8139cp.c                            |  102 
+ drivers/net/8139too.c                           |   98 
+ drivers/net/8390.c                              |    1 
+ drivers/net/8390.h                              |    1 
+ drivers/net/Kconfig                             |   73 
+ drivers/net/ac3200.c                            |   64 
+ drivers/net/atp.c                               |    2 
+ drivers/net/bonding/bond_3ad.c                  |   10 
+ drivers/net/depca.c                             |   24 
+ drivers/net/e100.c                              |    1 
+ drivers/net/e2100.c                             |   18 
+ drivers/net/eepro100.c                          |  293 -
+ drivers/net/fealnx.c                            |  275 -
+ drivers/net/gt96100eth.c                        |    8 
+ drivers/net/hamradio/6pack.c                    |  370 +-
+ drivers/net/hp100.c                             |   65 
+ drivers/net/ixgb/ixgb_main.c                    |   33 
+ drivers/net/lne390.c                            |   64 
+ drivers/net/mace.c                              |   66 
+ drivers/net/ne3210.c                            |   34 
+ drivers/net/pcmcia/fmvj18x_cs.c                 |    4 
+ drivers/net/pcmcia/ibmtr_cs.c                   |    7 
+ drivers/net/pcmcia/pcnet_cs.c                   |   39 
+ drivers/net/pcmcia/smc91c92_cs.c                |    2 
+ drivers/net/pcmcia/xirc2ps_cs.c                 |    2 
+ drivers/net/r8169.c                             |  855 ++++-
+ drivers/net/s2io-regs.h                         |    3 
+ drivers/net/s2io.c                              | 3114 ++++++++++++--------
+ drivers/net/s2io.h                              |  295 +
+ drivers/net/sb1000.c                            |   14 
+ drivers/net/sis900.c                            |    1 
+ drivers/net/sk98lin/Makefile                    |    1 
+ drivers/net/sk98lin/h/skdrv2nd.h                |    5 
+ drivers/net/sk98lin/skaddr.c                    |    2 
+ drivers/net/sk98lin/skethtool.c                 |  555 +++
+ drivers/net/sk98lin/skge.c                      |  280 -
+ drivers/net/sk98lin/skproc.c                    |  453 +--
+ drivers/net/skfp/h/fplustm.h                    |    6 
+ drivers/net/skfp/h/targethw.h                   |    6 
+ drivers/net/skfp/h/targetos.h                   |    2 
+ drivers/net/skfp/h/types.h                      |   21 
+ drivers/net/skfp/skfddi.c                       |   25 
+ drivers/net/skfp/smt.c                          |    7 
+ drivers/net/starfire.c                          |   79 
+ drivers/net/sundance.c                          |  259 -
+ drivers/net/tlan.c                              |   72 
+ drivers/net/tlan.h                              |   88 
+ drivers/net/tokenring/3c359.c                   |   36 
+ drivers/net/tokenring/3c359.h                   |    2 
+ drivers/net/tokenring/ibmtr.c                   |  158 -
+ drivers/net/tokenring/lanstreamer.c             |   24 
+ drivers/net/tokenring/lanstreamer.h             |    2 
+ drivers/net/tokenring/olympic.c                 |   94 
+ drivers/net/tulip/de2104x.c                     |    1 
+ drivers/net/tulip/dmfe.c                        |    1 
+ drivers/net/tulip/tulip_core.c                  |    3 
+ drivers/net/tulip/winbond-840.c                 |    3 
+ drivers/net/tulip/xircom_tulip_cb.c             |   16 
+ drivers/net/typhoon.c                           |    3 
+ drivers/net/via-rhine.c                         |  276 -
+ drivers/net/via-velocity.h                      |    4 
+ drivers/net/wan/c101.c                          |    3 
+ drivers/net/wan/cycx_drv.c                      |   22 
+ drivers/net/wan/n2.c                            |    5 
+ drivers/net/wireless/Kconfig                    |    2 
+ drivers/net/wireless/Makefile                   |    2 
+ drivers/net/wireless/airo.c                     |   69 
+ drivers/net/wireless/airport.c                  |    5 
+ drivers/net/wireless/arlan-main.c               |   90 
+ drivers/net/wireless/arlan-proc.c               |   15 
+ drivers/net/wireless/arlan.h                    |   26 
+ drivers/net/wireless/hermes.c                   |   43 
+ drivers/net/wireless/hermes.h                   |   62 
+ drivers/net/wireless/hostap/Kconfig             |  101 
+ drivers/net/wireless/hostap/Makefile            |    8 
+ drivers/net/wireless/hostap/hostap.c            | 1205 +++++++
+ drivers/net/wireless/hostap/hostap.h            |   57 
+ drivers/net/wireless/hostap/hostap_80211.h      |  107 
+ drivers/net/wireless/hostap/hostap_80211_rx.c   | 1080 +++++++
+ drivers/net/wireless/hostap/hostap_80211_tx.c   |  522 +++
+ drivers/net/wireless/hostap/hostap_ap.c         | 3259 +++++++++++++++++++++
+ drivers/net/wireless/hostap/hostap_ap.h         |  272 +
+ drivers/net/wireless/hostap/hostap_common.h     |  556 +++
+ drivers/net/wireless/hostap/hostap_config.h     |   86 
+ drivers/net/wireless/hostap/hostap_crypt.c      |  167 +
+ drivers/net/wireless/hostap/hostap_crypt.h      |   50 
+ drivers/net/wireless/hostap/hostap_crypt_ccmp.c |  486 +++
+ drivers/net/wireless/hostap/hostap_crypt_tkip.c |  696 ++++
+ drivers/net/wireless/hostap/hostap_crypt_wep.c  |  281 +
+ drivers/net/wireless/hostap/hostap_cs.c         |  785 +++++
+ drivers/net/wireless/hostap/hostap_download.c   |  761 +++++
+ drivers/net/wireless/hostap/hostap_hw.c         | 3607 +++++++++++++++++++++++
+ drivers/net/wireless/hostap/hostap_info.c       |  469 +++
+ drivers/net/wireless/hostap/hostap_ioctl.c      | 3624 ++++++++++++++++++++++++
+ drivers/net/wireless/hostap/hostap_pci.c        |  452 ++
+ drivers/net/wireless/hostap/hostap_plx.c        |  611 ++++
+ drivers/net/wireless/hostap/hostap_proc.c       |  466 +++
+ drivers/net/wireless/hostap/hostap_wlan.h       | 1071 +++++++
+ drivers/net/wireless/netwave_cs.c               |   75 
+ drivers/net/wireless/orinoco_cs.c               |   10 
+ drivers/net/wireless/orinoco_pci.c              |    7 
+ drivers/net/wireless/orinoco_plx.c              |   82 
+ drivers/net/wireless/orinoco_tmd.c              |   51 
+ drivers/net/wireless/prism54/isl_ioctl.c        |   24 
+ drivers/net/wireless/prism54/islpci_hotplug.c   |    2 
+ drivers/net/wireless/prism54/prismcompat.h      |    4 
+ drivers/net/wireless/ray_cs.c                   |    4 
+ drivers/net/wireless/wavelan_cs.c               |   25 
+ drivers/net/wireless/wavelan_cs.p.h             |    1 
+ include/linux/delay.h                           |    5 
+ include/linux/ibmtr.h                           |   15 
+ include/linux/pci_ids.h                         |    3 
+ include/pcmcia/mem_op.h                         |   89 
+ 117 files changed, 26084 insertions(+), 4024 deletions(-)
 
 through these ChangeSets:
 
-<jgarzik@pobox.com> (04/11/14 1.2162)
-   [sound/oss] use module_param() in soundcard.c and uart401.c
+<philipp.gortan:tttech.com>:
+  o [netdrvr 8139cp] add PCI ID
 
-<jgarzik@pobox.com> (04/11/14 1.2161)
-   [sound/oss i810_audio] use module_param()
-   
-   Also, set MODULE_AUTHOR and correct module name in a macro.
+<raghavendra.koushik:s2io.com>:
+  o S2io: styling
+  o S2io: modified loadable parameters
+  o S2io: 2 buffer mode with copy
+  o S2io: new functions for card restart
+  o S2io: two buffer mode
+  o S2io: NAPI fix
+  o S2io: new txd allocation
+  o S2io: module loadable parameters
+  o S2io: hardware fixes
+  o S2io: optimizations
+  o S2io: sw bug fixes
+  o S2io: cosmetic changes
 
-diff -Nru a/sound/oss/i810_audio.c b/sound/oss/i810_audio.c
---- a/sound/oss/i810_audio.c	2004-11-14 22:53:09 -05:00
-+++ b/sound/oss/i810_audio.c	2004-11-14 22:53:09 -05:00
-@@ -3460,15 +3460,15 @@
- }	
- #endif /* CONFIG_PM */
- 
--MODULE_AUTHOR("");
-+MODULE_AUTHOR("The Linux kernel team");
- MODULE_DESCRIPTION("Intel 810 audio support");
- MODULE_LICENSE("GPL");
--MODULE_PARM(ftsodell, "i");
--MODULE_PARM(clocking, "i");
--MODULE_PARM(strict_clocking, "i");
--MODULE_PARM(spdif_locked, "i");
-+module_param(ftsodell, int, 0444);
-+module_param(clocking, uint, 0444);
-+module_param(strict_clocking, int, 0444);
-+module_param(spdif_locked, int, 0444);
- 
--#define I810_MODULE_NAME "intel810_audio"
-+#define I810_MODULE_NAME "i810_audio"
- 
- static struct pci_driver i810_pci_driver = {
- 	.name		= I810_MODULE_NAME,
-diff -Nru a/sound/oss/soundcard.c b/sound/oss/soundcard.c
---- a/sound/oss/soundcard.c	2004-11-14 22:53:09 -05:00
-+++ b/sound/oss/soundcard.c	2004-11-14 22:53:09 -05:00
-@@ -535,8 +535,8 @@
- static int dmabuf;
- static int dmabug;
- 
--MODULE_PARM(dmabuf, "i");
--MODULE_PARM(dmabug, "i");
-+module_param(dmabuf, int, 0444);
-+module_param(dmabug, int, 0444);
- 
- static int __init oss_init(void)
- {
-diff -Nru a/sound/oss/uart401.c b/sound/oss/uart401.c
---- a/sound/oss/uart401.c	2004-11-14 22:53:09 -05:00
-+++ b/sound/oss/uart401.c	2004-11-14 22:53:09 -05:00
-@@ -430,11 +430,11 @@
- 
- static struct address_info cfg_mpu;
- 
--static int __initdata io = -1;
--static int __initdata irq = -1;
-+static int io = -1;
-+static int irq = -1;
- 
--MODULE_PARM(io, "i");
--MODULE_PARM(irq, "i");
-+module_param(io, int, 0444);
-+module_param(irq, int, 0444);
- 
- 
- static int __init init_uart401(void)
+Adrian Bunk:
+  o net/skfp/smt.c: remove an unused function
+  o net/3c505.c: remove unused functions
+  o bonding: remove an unused function
+  o net/wan/n2.c: remove an unused function
+
+Alexander Viro:
+  o mace iomem annotations - trivial part
+  o airo iomem annotations
+  o wavelan_cs iomem annotations
+  o lne390 iomem annotations and fixes
+  o fealnx iomem annotations, switch to io{read,write}
+  o wireless iomem annotations and fixes, switch to io{read,write}
+  o ibmtr annotations - the rest
+  o skfp iomem annotations, switch to io{read,write}
+  o olympic_open() cleanup and fixes
+  o sundance iomem annotations, switch to io{read,write}
+  o via-rhine iomem annotations, switch to io{read,write}
+  o net/pcmcia iomem annotations
+  o netwave iomem annotations
+  o arlan iomem annotations and cleanups
+  o netdev_priv() in netwave_cs
+  o netdev_priv() in arlan
+  o (25/32) lanstreamer iomem annotations
+  o beginning of ibmtr iomem annotations
+  o e2100 iomem annotations and fixes
+  o 3c359 iomem annotations
+  o depca iomem annotations
+  o killed isa_... in 3c507
+  o starfire iomem annotations
+  o ne3210 iomem annotations
+  o ac3200 iomem annotations and fixes
+  o iomem annotations in r8169
+
+Andrew Morton:
+  o r8169 module_param build fix
+
+Arjan van de Ven:
+  o ray_cs export cleanup
+
+Christoph Hellwig:
+  o unexport ei_tx_timeout
+
+Daniele Venzano:
+  o Add Altimata PHY to sis900 driver
+
+David Dillow:
+  o net/typhoon.c: use previously-unused function
+
+David S. Miller:
+  o eepro100.c iomap conversion
+
+Felipe Damasio:
+  o 8139cp net driver: add MODULE_VERSION
+
+François Romieu:
+  o r8169: netconsole support
+  o r8169: unneeded synchronize_irq()
+  o r8169: always clean Tx desc
+  o r8169: cleanup
+  o r8169: rtl8169_close() races
+  o r8169: automatic pci dac step down
+  o r8169: wrong advertisement of VLAN features
+  o r8169: Tx timeout rework
+  o r8169: default on disabling PCIDAC
+  o r8169: Mac identifier extracted from Realtek's driver v2.2
+  o r8169: TSO support
+  o r8169: hint for Tx flow control
+  o r8169: miscalculation of available Tx descriptors
+  o 8139cp: SG support fixes
+  o r8169: vlan support
+  o r8169: Rx checksum support
+  o r8169: advertise DMA to high memory
+  o r8169: Tx checksum offload
+  o r8169: comment a gcc 2.95.x bug
+  o r8169: sync the names of a few bits with the 8139cp driver
+  o r8169: bump version number
+  o r8169: enable MWI
+  o r8169: code cleanup
+  o r8169: per device receive buffer size
+  o r8169: add ethtool_ops.{get_regs_len/get_regs}
+
+Ganesh Venkatesan:
+  o ixgb: Condition that determines when to quit polling
+  o ixgb: Fix memory leak in NAPI mode. Avoid unnecessary
+  o ixgb: Fix VLAN filter setup errors (while running
+
+Jeff Garzik:
+  o [wireless hostap] update for new pci_save_state()
+  o [netdrvr eepro100] fix pci_iomap() args and info msg that follows
+  o [netdrvr 8139cp] TSO support
+
+John W. Linville:
+  o tulip: Add MODULE_VERSION
+  o e100: Add MODULE_VERSION
+  o r8169: Add MODULE_VERSION
+  o 8139too: Add MODULE_VERSION
+  o 3c59x: Add MODULE_VERSION
+  o r8169: simplify trick if() expression
+  o r8169: fix RxVlan bit manipulation
+  o r8169: endian-swap return of rtl8169_tx_vlan_tag()
+
+Jouni Malinen:
+  o Host AP: Replaced MODULE_PARM with module_param*
+  o Host AP: Replaced direct dev->priv references with netdev_priv(dev)
+  o Host AP: Updated to use Linux wireless extensions v17
+  o Host AP: pci_register_driver() return value changes
+  o Host AP: Fix netif_carrier_off() in non-client modes
+  o Host AP: Fix PRISM2_IO_DEBUG
+  o Host AP: Use void __iomem * with {read,write}{b,w}
+  o Host AP: Fix card enabling after firmware download
+  o Host AP: Do not bridge packets to unauthorized ports
+  o Host AP: Fix compilation with PRISM2_NO_STATION_MODES defined
+  o Host AP: Prevent STAs from associating using AP address
+  o Host AP: Fix hw address changing for wifi# interface
+  o Host AP: Remove ioctl debug messages
+  o Host AP: Ignore (Re)AssocResp messages silently
+  o Host AP: Fix interface packet counters
+  o Host AP: Disable EAPOL TX/RX debug messages
+  o fix hostap crypto bugs
+  o Add HostAP wireless driver
+
+Krzysztof Halasa:
+  o net/wan/n2.c: remove an unused function
+
+Margit Schubert-While:
+  o prism54 sparse fixes
+  o prism54 fix resume processing
+
+Michal Schmidt:
+  o sk98: add netpoll console support
+
+Nishanth Aravamudan:
+  o net/gt96100eth: replace gt96100_delay() with msleep_interruptible()
+  o net/sb1000: replace nicedelay() with ssleep_interruptible()
+  o net/cycx_drv: replace delay_cycx() with ssleep_interruptible()
+  o net/airo: replace schedule_timeout() with *sleep() variants
+  o Add ssleep_interruptible()
+
+Ralf Bächle:
+  o Another big 6pack patch
+
+Rene Herman:
+  o 8139too Interframe Gap Time
+
+Roger Luethi:
+  o mc_filter on big-endian arch
+
+Steffen Klassert:
+  o 8139cp - add netpoll support
+
+Stephen Hemminger:
+  o sk98: ethtool pause param support
+  o sk98: ethtool phy support
+  o sk98: basic ethtool support
+  o sk98: use module_param
+  o sk98: use netdev_priv
+  o sk98: /proc interface related changes
+  o sk98: local variable can be constant
+  o sk98: no explicit module ref counting needed
+  o xircom_tulip_cb: convert to using module_param
+  o tlan: enable faster hash function
+  o tlan: make inline's static (rev2)
+  o tlan: get rid of unneeded global vars (rev 2)
+  o tlan: use netdev_priv (rev 2)
+  o hp100: use inline for comple usage of dev->priv
+  o hp100: use netdev_priv (rev 2)
+  o via-velocity: get rid of unused global
+  o via-rhine: free_ring should be static
+  o via-rhine: use module_param
+  o 8139too: use netdev_priv
+  o r8169: use netdev_priv
+  o r8169: use module_param
+  o 8139cp - module_param
+
+Thomas Gleixner:
+  o rtl8139too.c: Fix missing pci_disable_dev
+  o rtl8139too.c: Fix missing pci_disable_dev
+
+Tom Rini:
+  o IBM EMAC Kconfig changes: Add 'select CRC32'
+  o IBM EMAC Kconfig changes
+

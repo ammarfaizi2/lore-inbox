@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281011AbRKMCc2>; Mon, 12 Nov 2001 21:32:28 -0500
+	id <S281249AbRKMCgs>; Mon, 12 Nov 2001 21:36:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281016AbRKMCcJ>; Mon, 12 Nov 2001 21:32:09 -0500
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:23048 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S281011AbRKMCcB>;
-	Mon, 12 Nov 2001 21:32:01 -0500
-Message-ID: <3BF06FE7.CD7EB273@nyc.rr.com>
-Date: Mon, 12 Nov 2001 19:57:11 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: PCMCIA and 2.4.15-pre4
-In-Reply-To: <fa.cbjrp4v.1a3ct9g@ifi.uio.no>
+	id <S281052AbRKMCgd>; Mon, 12 Nov 2001 21:36:33 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:17266 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S281249AbRKMCgN>; Mon, 12 Nov 2001 21:36:13 -0500
+Date: Mon, 12 Nov 2001 21:36:12 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+        Andrew Morton <akpm@zip.com.au>
+Subject: Re: Fwd: eepro100 pm fix (fwd)
+Message-ID: <20011112213612.A16461@devserv.devel.redhat.com>
+In-Reply-To: <mailman.1005569101.17579.linux-kernel2news@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <mailman.1005569101.17579.linux-kernel2news@redhat.com>; from saw@saw.sw.com.sg on Mon, Nov 12, 2001 at 03:50:03PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Weber wrote:
+FYI:
+
+The patch looks good but it does not help my case.
+The eepro100 is dead after resume on my Sony PCG-Z505JE.
+BTW, my difficulties started somewhere in 2.4.10 or thereabouts,
+so they are probably unrelated to what Jens reported "a year ago".
+
+-- Pete
+
+> Path: post-office.corp.redhat.com!not-for-mail
+> From: Andrey Savochkin <saw@saw.sw.com.sg>
+> Newsgroups: linux-kernel
+> Date: Mon, 12 Nov 2001 15:50:03 +0300
+> Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+>    Andrew Morton <akpm@zip.com.au>
+> To: torvalds@transmeta.com
+
+> Linus,
 > 
-> I am having trouble with 2.4.15 and PCMCIA.  Anyone seeing similar
-> problems?
-
-I should add:
-
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge
-(rev 03)
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge
-(rev 03)
-00:05.0 Bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-00:05.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-00:05.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 03)
-00:0b.0 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to
-Cardbus Bridge with ZV Support (rev 20)
-00:0b.1 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to
-Cardbus Bridge with ZV Support (rev 20)
-
-
-Let me know if you need any more information.
+> Could you apply it, please?
+> 
+> 	Andrey
+> 
+> ----- Forwarded message from Jens Axboe <axboe@suse.de> -----
+> 
+> Date: Mon, 12 Nov 2001 13:24:53 +0100
+> From: Jens Axboe <axboe@suse.de>
+> To: saw@saw.sw.com.sg
+> Subject: eepro100 pm fix
+> Message-ID: <20011112132453.B786@suse.de>
+> 
+> Hi Andrey,
+> 
+> This patch posted by Andrew Morton makes the eepro100 actually survive a
+> apm suspend and resume without totally croaking (a problem I reported
+> probably a year or so ago :-). Any chance you could include it?
+> 
+> -- 
+> Jens Axboe

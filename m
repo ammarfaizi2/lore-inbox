@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280186AbRKXVOe>; Sat, 24 Nov 2001 16:14:34 -0500
+	id <S280153AbRKXVOe>; Sat, 24 Nov 2001 16:14:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280203AbRKXVOR>; Sat, 24 Nov 2001 16:14:17 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:55817 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280186AbRKXVOD>;
-	Sat, 24 Nov 2001 16:14:03 -0500
-Date: Sat, 24 Nov 2001 19:13:52 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "Marc A. Ohmann" <marc@ds6.net>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-Message-ID: <20011124191352.A955@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"Marc A. Ohmann" <marc@ds6.net>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva> <20011124150905.A26221@flanders.digsol.net>
-Mime-Version: 1.0
+	id <S280186AbRKXVOS>; Sat, 24 Nov 2001 16:14:18 -0500
+Received: from smtp6.mindspring.com ([207.69.200.110]:30010 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S280153AbRKXVOA>; Sat, 24 Nov 2001 16:14:00 -0500
+Message-ID: <3C000EE7.D69C1482@mindspring.com>
+Date: Sat, 24 Nov 2001 13:19:35 -0800
+From: Joe <joeja@mindspring.com>
+Reply-To: joeja@mindspring.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14/2.4.15 cpia driver IS broke.. no its parport
+In-Reply-To: <Pine.LNX.4.33.0111230950580.24427-100000@netfinity.realnet.co.sz> <3BFF16F0.C331F0E4@mindspring.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011124150905.A26221@flanders.digsol.net>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Nov 24, 2001 at 03:09:05PM -0600, Marc A. Ohmann escreveu:
+Okay I have done some more research and found out what is happening!
+After further testing I have found out that the problem with the parport driver
+is actually in the ieee1294 code.   One of the changes in the file
+drivers/parport/ieee1294_ops.c is causing problems.  (for me atleast)
 
-> I build Andrea's patch and everything seemed to work fine.  I am building
-> 2.4.16-pre1 on two systems right now.  What can I check to test the
-> iput() patch or any other patches?
+The code has changed from calls to parport_frob_control() to calls to
+parport_write_control ().(Fine)
 
-Well, as both fix the same problem, you can do the very same test you did
-to conclude that Andrea's patch made everything work ok for you :)
+The problem is that in the call to acknowledge the handshake (Event 44? about
+line592) the call to parport_frob_control or parport_pc_frob_control as it is
+#defined to is called with a 0 which I think causes the code to call
+parport_pc_data_forward and the new code just calls parport_pc_data_reverse.
+I think that we may need to call the parport_pc_data_forward still.
 
-- Arnaldo
+-               parport_write_control (port, ctl);   // new code
++               parport_frob_control (port, PARPORT_CONTROL_AUTOFD, 0);  //old
+working code
+
+Joe
+
+> I have been doing some testing and debugging and found out that something in
+> the 2.4.14 parport driver is breaking my webcam II.  I have a patch that
+> reverts out all the changes in 2.4.14 parport driver back to 2.4.13 and the
+> driver now works.  I am going to do some more testing and see if I can narrow
+> the code down.  Right now the patch is  about 700+ lines, but reverts out
+> ALL the parport changes.
+>
+> My hardward is a VIA chipset (686). It is the ABiT KT7A MB.
+>
+> What's happening is that the cpia is being recgonized, but the video device
+> is not accessable. This is in both 2.4.15 and 2.4.14, with the creative
+> WebCam II.
+>
+> In the /proc/cpia/video0 file it shows the CPIA version as 0.00 instead of
+> 1.20.
+

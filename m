@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263136AbUDLWEd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 18:04:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263138AbUDLWEd
+	id S263137AbUDLWCy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 18:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbUDLWCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 18:04:33 -0400
-Received: from mail.kroah.org ([65.200.24.183]:28815 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263136AbUDLWE3 (ORCPT
+	Mon, 12 Apr 2004 18:02:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36316 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263130AbUDLWCx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 18:04:29 -0400
-Date: Mon, 12 Apr 2004 15:03:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Martin Hermanowski <martin@mh57.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-mm4 (hci_usb module unloading oops)
-Message-ID: <20040412220353.GC23692@kroah.com>
-References: <20040410200551.31866667.akpm@osdl.org> <20040412101911.GA3823@mh57.de>
+	Mon, 12 Apr 2004 18:02:53 -0400
+Date: Mon, 12 Apr 2004 15:02:52 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: fix must_not_trace_exec() test
+Message-ID: <20040412150252.D21045@build.pdx.osdl.net>
+References: <20040410200551.31866667.akpm@osdl.org> <878yh1y1gs.fsf@goat.bogus.local> <407AA51F.5020205@myrealbox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040412101911.GA3823@mh57.de>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <407AA51F.5020205@myrealbox.com>; from luto@myrealbox.com on Mon, Apr 12, 2004 at 07:18:07AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 12, 2004 at 12:19:11PM +0200, Martin Hermanowski wrote:
-> I get an oops when I try to unload the hci_usb module.
+* Andy Lutomirski (luto@myrealbox.com) wrote:
+> Olaf Dietsche wrote:
+> > Although, I'd rather not lump together unrelated tests without
+> > renaming must_not_trace_exec(). Btw, can someone enlighten me what
+> > this atomic_read() test is all about.
+> 
+> I assumed that the test was to check if the caller is a thread, but that
+> sounds odd -- wouldn't it stop being a thread after the exec anyway?
+> Maybe that part happens after compute_creds, so this prevents a race?
+> Although I don't see how it could be triggered if the thread never
+> entered usermode before getting a new fs/files/sighand.
 
-{sigh}  I'm hating that driver right now...
-
-There are a number of pending bluetooth patches for that driver that fix
-a number of different bugs, so I'm leary of trying to see if this is a
-different one or not at this point in time.  Care to apply all of the
-bluetooth patches and if this still happens, can you report it to the
-linux-usb-devel and bluez-devel mailing lists?
-
-> What other useful information can I provide?
-
-CONFIG_DEBUG_DRIVER might be good to set, and then we can see if we are
-not trying to remove the same device twice for some odd reason.  If you
-do duplicate this, please include all of the debug log entries that
-happen from when you unplug the device.
-
-Also CONFIG_USB_DEBUG might help out.
-
-> Apr 12 12:07:48 localhost udev[22216]: removing device node '/dev/hci0'
-
-Nice, glad to see udev is working for you :)
+There's no requirement for CLONE_THREAD when using at least CLONE_FS
+and CLONE_FILES.  And all of the latter are inherited across execve().
+These tests are needed to keep a malicious program from controlling the
+setuid program in ways other than ptrace.
 
 thanks,
-
-greg k-h
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

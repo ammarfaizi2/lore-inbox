@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280389AbRJaS2m>; Wed, 31 Oct 2001 13:28:42 -0500
+	id <S280388AbRJaSaC>; Wed, 31 Oct 2001 13:30:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280390AbRJaS2c>; Wed, 31 Oct 2001 13:28:32 -0500
-Received: from tahallah.demon.co.uk ([158.152.175.193]:10484 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S280389AbRJaS2Z>; Wed, 31 Oct 2001 13:28:25 -0500
-Date: Wed, 31 Oct 2001 18:28:28 +0000 (GMT)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: "David S. Miller" <davem@redhat.com>
-cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [sparc] Weird ioctl() bug in 2.2.19 (fwd)
-In-Reply-To: <20011031.092954.115906622.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0110311827530.19987-100000@tahallah.demon.co.uk>
+	id <S280391AbRJaS3w>; Wed, 31 Oct 2001 13:29:52 -0500
+Received: from mail014.mail.bellsouth.net ([205.152.58.34]:15453 "EHLO
+	imf14bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S280388AbRJaS3m>; Wed, 31 Oct 2001 13:29:42 -0500
+Message-ID: <3BE04338.8F0AF9D4@mandrakesoft.com>
+Date: Wed, 31 Oct 2001 13:30:16 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: pre6 BUG oops
+In-Reply-To: <3BE03401.406B8585@mandrakesoft.com> <20011031.094112.125896630.davem@redhat.com> <9rpfbj$vrn$1@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Oct 2001, David S. Miller wrote:
+Linus Torvalds wrote:
+> Maybe it's just the page count that is buggered, and we free it too
+> early as a result.  Is this the same machine that had interesting
+> trouble before?
 
->   cp src/linux/include/linux/soundcard.h /usr/include/linux/soundcard.h
-
-Unfortunately, these files are identical, which is why it is so strange!
+yes, a UP alpha running 2.4.14-pre6, that was described in the false oom
+killer report.
 
 -- 
-Come the revolution, humourless gits'll be first up against the wall.
-
-http://www.tahallah.demon.co.uk
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

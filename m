@@ -1,36 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264813AbTGKTdp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 15:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264825AbTGKS5j
+	id S265166AbTGKS5a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 14:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265153AbTGKS4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 14:57:39 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36280
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264982AbTGKSPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 14:15:22 -0400
-Subject: RE: Geode GX1, video acceleration -> crash
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Keyser Soze <keyser_soze2u@yahoo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ferenc@engard.hu
-In-Reply-To: <20030711181025.14633.qmail@web10001.mail.yahoo.com>
-References: <20030711181025.14633.qmail@web10001.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057948046.20636.42.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jul 2003 19:27:27 +0100
+	Fri, 11 Jul 2003 14:56:46 -0400
+Received: from web13301.mail.yahoo.com ([216.136.175.37]:13189 "HELO
+	web13301.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264813AbTGKSFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 14:05:34 -0400
+Message-ID: <20030711182015.71489.qmail@web13301.mail.yahoo.com>
+Date: Fri, 11 Jul 2003 11:20:15 -0700 (PDT)
+From: Ronald Jerome <imun1ty@yahoo.com>
+Subject: generate-modprobe question and USB fatal error during INIT:-resending
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-11 at 19:10, Keyser Soze wrote:
-> Try turning off ide dma and see if that helps.  You
-> will lose very little by turning off udma on this
-> system and I'll bet you end up being more stable.
+For soem reason it looks like my first post did not go
+thru.  I am sending this again.  SOrry if it posts
+twice
 
-You'll lose a lot of disk performance turning off UDMA on a Geode GX1,
-down from full UDMA33 to about 1Mbyte/second. It should be rock solid
-at least my Geode's are. Slow... but solid
+I unsubcribed from softhome.net and subscribed
+with this address.  Softhome did not give me enough
+space.
 
+
+Anyhow I think I know what the problem is?  Its with
+the modprobe.conf.
+
+I updated both my mkinitrd and mod-utils with the aid
+of Paul Nasrat.  I dunno if you know who he is.
+
+Anyhow when I run "generate-modprobe.conf >
+/etc/modprobe.conf
+
+I see that the the sections for "usb-uhci" "mousedev"
+and "keybdev".   Those are incorrect.  They should be
+"uhci-hcd", "usbmouse" and "usbkbd".  Once I changed
+the "usb-uhci" to "uhci-hcd"  at least the usb
+installed ok but those changes I made for the mouse
+and keyboard still does not work.
+
+Is there something screwed up somewhere else?
+
+If I rerun  "generate-modprobe.conf >
+/etc/modprobe.conf
+
+Everything defaults back to "usb-uhci", "mousedev" and
+keybdev"?
+
+WHy I am not sure.
+
+Is there a fix for this to get the modprobe.conf to
+correlate to the new kernel modules?
+
+
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

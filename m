@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbTFTOTS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 10:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTFTOTS
+	id S262316AbTFTOVh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 10:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTFTOVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 10:19:18 -0400
-Received: from thor.65535.net ([65.214.160.96]:54285 "EHLO thor.65535.net")
-	by vger.kernel.org with ESMTP id S262299AbTFTOTO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 10:19:14 -0400
-Date: Fri, 20 Jun 2003 15:34:05 +0100 (BST)
-From: Rus Foster <rghf@fsck.me.uk>
-To: Thomas Frase <thomas.frase@ist-einmalig.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: root shell exploit still working in kernel 2.4.21
-In-Reply-To: <004d01c33738$7031e440$0200a8c0@brainbug>
-Message-ID: <20030620153321.V31879@thor.65535.net>
-References: <004d01c33738$7031e440$0200a8c0@brainbug>
+	Fri, 20 Jun 2003 10:21:37 -0400
+Received: from windsormachine.com ([206.48.122.28]:47108 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S262316AbTFTOVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 10:21:35 -0400
+Date: Fri, 20 Jun 2003 10:35:22 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: xircom card bus with 2.4.20 link trouble
+In-Reply-To: <1056119306.6727.27.camel@portable>
+Message-ID: <Pine.LNX.4.33.0306201031160.15589-100000@router.windsormachine.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jun 2003, Thomas Frase wrote:
+On 20 Jun 2003, Arnaud Ligot wrote:
 
-> hello!
+> > I haven't tried a 2.5.x kernel, nor a 2.4.21(it's on my list of things to
+> > do)
+> the card works with 2.4.20 nice and works if you set an ip address with
+> the 2.4.21
+
+Going to move to 2.4.21 in a few minutes(just booting up the laptop so i
+can copy the vmlinuz image over to it)
+
+> I have a CEM56-100
 >
-> the problem:
-> i tried an exploit (url given below) with debian woody kernel 2.4.18
-> and self compiled kernel 2.4.21 resulting in a root shell.
->
 
-Under 2.4.21 delete the binary, recompile it and see if it still happens.
-The binary sets itself SUID IIRC
+> I use the xirc2ps_cs module. I haven't force cardmgr to use so I think
+> it's the good module for the card
 
-Rgds
+If it's a CEM56-100, that's not a cardbus card!
 
-Rus
+That's the regular pcmcia version.  That would explain why your xirc2ps_cs
+is working.  You have the same card as I do, with a differing model name.
+Never did figure out what's different between the REM and CEM.
 
---
-www: http://www.65535.net       | Hosting - Shell Accounts
-MSNM: support@65535.net		| Virtual Servers from just $15/mo
-e: rghf@65535.net               | Community: http://www.65535.org
-t: +44 (0) 7092016595           | 10% Donation on every FreeBSD product
+Mike
 

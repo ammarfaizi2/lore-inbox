@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267435AbUGNQEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267431AbUGNQFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267435AbUGNQEA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 12:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267432AbUGNQD7
+	id S267431AbUGNQFE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 12:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267432AbUGNQFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 12:03:59 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:56803 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S267431AbUGNQDt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 12:03:49 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: arjanv@redhat.com
-Subject: Re: [Q] don't allow tmpfs to page out
-Date: Wed, 14 Jul 2004 18:03:18 +0200
-User-Agent: KMail/1.6.2
-References: <200407141654.31817.mbuesch@freenet.de> <200407141751.14292.mbuesch@freenet.de> <1089820882.2806.7.camel@laptop.fenrus.com>
-In-Reply-To: <1089820882.2806.7.camel@laptop.fenrus.com>
+	Wed, 14 Jul 2004 12:05:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18116 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267431AbUGNQE6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 12:04:58 -0400
+Date: Wed, 14 Jul 2004 18:04:21 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Michael Buesch <mbuesch@freenet.de>
 Cc: William Stearns <wstearns@pobox.com>,
        linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+Subject: Re: [Q] don't allow tmpfs to page out
+Message-ID: <20040714160421.GD22641@devserv.devel.redhat.com>
+References: <200407141654.31817.mbuesch@freenet.de> <200407141751.14292.mbuesch@freenet.de> <1089820882.2806.7.camel@laptop.fenrus.com> <200407141803.21388.mbuesch@freenet.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="W5WqUoFLvi1M7tJE"
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200407141803.21388.mbuesch@freenet.de>
+In-Reply-To: <200407141803.21388.mbuesch@freenet.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Quoting Arjan van de Ven <arjanv@redhat.com>:
-> On Wed, 2004-07-14 at 17:51, Michael Buesch wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
+--W5WqUoFLvi1M7tJE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, Jul 14, 2004 at 06:03:18PM +0200, Michael Buesch wrote:
 > > 
-> > Quoting William Stearns <wstearns@pobox.com>:
-> > > Good afternoon, Michael,
-> > 
-> > Hi William,
-> > 
-> > > 	I suspect a regular ramdisk, as opposed to tmpfs, would do what 
-> > > you want.
-> > 
-> > No, since a regular ramdisk is static in size.
+> > which is why there is ramfs .. :)
 > 
-> which is why there is ramfs .. :)
+> In 2.4, too? Can't find it.
+> What's the CONFIG_* of ramfs?
 
-In 2.4, too? Can't find it.
-What's the CONFIG_* of ramfs?
+CONFIG_RAMFS
 
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
+--W5WqUoFLvi1M7tJE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFA9VlGFGK1OIvVOP4RAn3HAJ9fU0KX6FNJDQwn9gVFGKA506eivgCfd28S
-zBmNkGBYQd4lmSmUVSzvmGA=
-=eejH
+iD8DBQFA9VmExULwo51rQBIRAn/1AKCcCieODtlp8Ggv8/qh6yx2rkR2NwCfVVBM
+ZsuHbacOqxM24TGri1YrkIc=
+=/3oq
 -----END PGP SIGNATURE-----
+
+--W5WqUoFLvi1M7tJE--

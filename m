@@ -1,75 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310206AbSCSGUU>; Tue, 19 Mar 2002 01:20:20 -0500
+	id <S310209AbSCSG1u>; Tue, 19 Mar 2002 01:27:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310207AbSCSGUL>; Tue, 19 Mar 2002 01:20:11 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:46586
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S310206AbSCSGT7>; Tue, 19 Mar 2002 01:19:59 -0500
-Date: Mon, 18 Mar 2002 22:20:30 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: MrChuoi <MrChuoi@yahoo.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.4.19-pre3-ac1
-Message-ID: <20020319062030.GN2254@matchmail.com>
-Mail-Followup-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-	MrChuoi <MrChuoi@yahoo.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20020319012940.430CC4E534@mail.vnsecurity.net> <Pine.LNX.4.44.0203190753140.25412-100000@netfinity.realnet.co.sz>
+	id <S310212AbSCSG1k>; Tue, 19 Mar 2002 01:27:40 -0500
+Received: from [210.19.28.11] ([210.19.28.11]:3972 "EHLO dZuRa.Vault-ID.com")
+	by vger.kernel.org with ESMTP id <S310209AbSCSG1e>;
+	Tue, 19 Mar 2002 01:27:34 -0500
+Date: Tue, 19 Mar 2002 14:24:21 +0800
+From: Corporal Pisang <Corporal_Pisang@Counter-Strike.com.my>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.7 make modules_install error (oss)
+Message-Id: <20020319142421.6359419a.Corporal_Pisang@Counter-Strike.com.my>
+Organization: CS Malaysia
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+User-Agent: Half Life (Build 1760)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 07:54:12AM +0200, Zwane Mwaikambo wrote:
-> Hi,
-> Just a question, does the commited as field specify how much memory has 
-> actually been *allocated* as per requests, but not necesserily in use? 
-> This one is my home box, looks a bit crazy don't you think? The box has 
-> about ~120 processes right now, heavy X session (2000x2000@32 virtual, 
-> KDE2 with lots of eye candy), two kernel builds in the background and 
-> cdrecord. 
-> 
-> Linux version 2.4.19-pre2-ac3 (zwane@montezuma) (gcc version 2.96 20000731 
-> (Red Hat Linux 7.1 2.96-98)) #2 Sat Mar 9 20:44:38 SAST 2002
-> 
->         total:    used:    free:  shared: buffers:  cached:
-> Mem:  527527936 519610368  7917568        0 16871424 398352384
-> Swap: 542785536 73433088 469352448
-> MemTotal:       515164 kB
-> MemFree:          7732 kB
-> MemShared:           0 kB
-> Buffers:         16476 kB
-> Cached:         380044 kB
-> SwapCached:       8972 kB
-> Active:         262252 kB
-> Inact_dirty:    209392 kB
-> Inact_clean:     11248 kB
-> Inact_target:    96576 kB
-> HighTotal:           0 kB
-> HighFree:            0 kB
-> LowTotal:       515164 kB
-> LowFree:          7732 kB
-> SwapTotal:      530064 kB
-> SwapFree:       458352 kB
-> Committed AS:  8060848 kB
-> 
-> Things could get interesting if everyone touches their pages ;)
+Hi,
 
-What's your uptime?
+make -C  arch/i386/lib modules_install
+make[1]: Entering directory `/usr/src/linux/arch/i386/lib'
+make[1]: Nothing to be done for `modules_install'.
+make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
+cd /lib/modules/2.5.7; \
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.7; fi
+depmod: *** Unresolved symbols in /lib/modules/2.5.7/kernel/sound/oss/sound.o
+depmod:         virt_to_bus_not_defined_use_pci_map
+make: *** [_modinst_post] Error 1
 
-I've been able to get "Committed AS" to just grow and grow with a kernel
-compile within a while loop after a couple days (pii 350, so faster machines
-should show that sooner...).
+Regards,
 
-When you get a chance, go into single user mode and see if "Committed AS"
-goes down to a sane level.  If not, you're seeing what I am.
-
-I've seen it without highmem, with and without smp, etc. more info available
-upon request.
-
-Mike
+-Ubaida-

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263398AbTHVSbD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 14:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbTHVSbD
+	id S263884AbTHVSlo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 14:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264136AbTHVSlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 14:31:03 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:37271 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S263398AbTHVSbB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 14:31:01 -0400
-Date: Fri, 22 Aug 2003 17:50:39 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>, Mike Fedyk <mfedyk@matchmail.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: md: bug in file raid5.c, line 540 was: Re: Linux 2.4.22-rc1
-Message-ID: <20030822155039.GA6980@marowsky-bree.de>
-References: <Pine.LNX.4.44.0308051543130.12501-100000@logos.cnet> <20030819202629.GA4083@matchmail.com> <20030819210913.GC4083@matchmail.com> <16197.43294.828878.586018@gargle.gargle.HOWL>
+	Fri, 22 Aug 2003 14:41:44 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:39686 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264015AbTHVSlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 14:41:39 -0400
+Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing
+	tst-mmap-eofsync in glibc on parisc)
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "David S. Miller" <davem@redhat.com>, willy@debian.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>, drepper@redhat.com
+In-Reply-To: <Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 22 Aug 2003 13:41:26 -0500
+Message-Id: <1061577688.2090.285.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <16197.43294.828878.586018@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-08-22T15:24:46,
-   Neil Brown <neilb@cse.unsw.edu.au> said:
+On Fri, 2003-08-22 at 13:34, Hugh Dickins wrote:
+> Might the problem be in parisc's __flush_dcache_page,
+> which only examines i_mmap_shared?
 
-> This bug could happen if you try to fail a device that is not active.
+This is the issue: we do treat them differently.
 
-Yes, thats not generally a tested code path in 2.4. On removing the
-BUG() statement, also check that all counters get in/decremented
-correctly, or the next lurking bug will hit you.
+Semantics differ between privately mapped data (where there's no
+coherency guarantee) and shared data (where there is).  Flushing the
+virtual cache is expensive on pa, so we only do it for the i_mmap_shared
+list.
 
-I fixed that for multipath in 2.4 too, but I can't get around to clean
-up the patchset *sigh*
+The difficulty is that a mmap of a read only file with MAP_SHARED is
+expecting the shared cache semantics, but gets added to the non shared
+list.
+
+Since flushing the caches is a performance hog, we'd like do be able to
+distinguish the cases where we have to do the flush MAP_SHARED mappings
+from those we don't (MAP_PRIVATE).
+
+James
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering		ever tried. ever failed. no matter.
-SuSE Labs				try again. fail again. fail better.
-Research & Development, SuSE Linux AG		-- Samuel Beckett
 

@@ -1,96 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbTK1Tin (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 14:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTK1Th7
+	id S261965AbTK1Tgm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 14:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTK1Tgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 14:37:59 -0500
-Received: from smtp804.mail.ukl.yahoo.com ([217.12.12.141]:44374 "HELO
-	smtp804.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262015AbTK1ThM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 14:37:12 -0500
-Message-ID: <3FC7A3D9.3070500@sbcglobal.net>
-Date: Fri, 28 Nov 2003 13:36:57 -0600
-From: Wes Janzen <superchkn@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.5) Gecko/20031008
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Goerzen <jgoerzen@complete.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Promise IDE controller crashes 2.4.22
-References: <slrnbsche8.2ir.jgoerzen@christoph.complete.org>
-In-Reply-To: <slrnbsche8.2ir.jgoerzen@christoph.complete.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 28 Nov 2003 14:36:42 -0500
+Received: from slimnet.xs4all.nl ([194.109.194.192]:51133 "EHLO slimnas.slim")
+	by vger.kernel.org with ESMTP id S261965AbTK1Tgl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 14:36:41 -0500
+Subject: Re: 2.6.0-test11: sbp2 trouble
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: Ben Collins <bcollins@debian.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031128175950.GC1844@phunnypharm.org>
+References: <1070036586.8571.15.camel@paragon.slim>
+	 <20031128175950.GC1844@phunnypharm.org>
+Content-Type: text/plain
+Message-Id: <1070048217.9795.2.camel@paragon.slim>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 28 Nov 2003 20:36:57 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Can you do a ps and show me what the two knodemgrd's look like?
 
-I'd suspect some sort of PCI problem, especially since you're running a 
-K6.  What chipset is your motherboard based on?
+Here it goes:
 
-I'm running a K6-2 400 on an FIC PA2013 with two PDC20269 controllers 
-and my primary drive is a 6Y060L0.  I've had no problem with writes in 
-DMA mode locking the system in 2.4.22 or any of the test kernels.  I 
-have a 92048D8 that doesn't like UDMA-2 writes, but that won't hang the 
-system; it just causes Linux to continually reset the interface until 
-the kernel finally disables DMA on the drive.  Oddly, UDMA-1 works fine 
-but this is a drive to controller hardware issue and not the drivers 
-fault. 
+[root@paragon root]# ps -ef|grep knode
+root      9891     1  0 20:33 ?        00:00:00 [knodemgrd_0]
+root      9892     1  0 20:33 ?        00:00:00 [knodemgrd_1]
 
-Anyway, since the kernel seems to handle a DMA write gone bad, that 
-leads me to believe that this issue is caused by the increased data 
-flowing over the PCI bus when using DMA vs using PIO.  I'm not an expert 
-though, maybe someone else has an opinion on this?
+Hope that helps. Also included some more dmesg output
 
-You might try putting the card in another slot too.  My cards are 
-installed in slots 1 & 2 with 2 other PCI cards and an ISA device.  This 
-particular motherboard seems to handle a full complement of expansion 
-cards without problem, but I remember hearing nightmares about such a 
-configuration back when these things were new.
+ohci1394: $Rev: 1045 $ Ben Collins <bcollins@debian.org>
+ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[20]  MMIO=[feaff800-feafffff]  Max
+Packet=[2048]
+ohci1394_1: OHCI-1394 1.1 (PCI): IRQ=[20]  MMIO=[feaff000-feaff7ff]  Max
+Packet=[2048]
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00e01800001eea32]
+ieee1394: Node added: ID:BUS[0-01:1023]  GUID[0030e00050000aa0]
+ieee1394: The root node is not cycle master capable; selecting a new
+root node and resetting...
+ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+sbp2: $Rev: 1034 $ Ben Collins <bcollins@debian.org>
+scsi3 : SCSI emulation for IEEE-1394 SBP-2 Devices
+ieee1394: sbp2: Error logging into SBP-2 device - login timed-out
+ieee1394: Node added: ID:BUS[1-00:1023]  GUID[0030e001700104bf]
+ieee1394: Host added: ID:BUS[1-02:1023]  GUID[00023c00c100cb72]
+scsi4 : SCSI emulation for IEEE-1394 SBP-2 Devices
+ieee1394: sbp2: Logged into SBP-2 device
+ieee1394: sbp2: Node 1-00:1023: Max speed [S400] - Max payload [2048]
+  Vendor: IomintSA  Model: MCE3130AP-MO1300  Rev: 0011
+  Type:   Optical Device                     ANSI SCSI revision: 02
+ieee1394: sbp2: Error reconnecting to SBP-2 device - reconnect failed
+ieee1394: sbp2: Error logging into SBP-2 device - login failed
+ieee1394: sbp2: sbp2_reconnect_device failed!
+ieee1394: sbp2: Error logging into SBP-2 device - login timed-out
 
--Wes-
-
-John Goerzen wrote:
-
->Hi,
->
->I have a Promise 20269-based UDMA 133 IDE controller.  If I have DMA
->enabled on this controller, then when it is seeing heavy write activity,
->the system freezes.  No messages on the console, ctrl-alt-del does
->nothing, magic sysrq does nothing.
->
->Reads do not appear to cause this problem, and the problem also
->disappears if I disable DMA on the drive connected to the controller by
->using hdparm.
->
->System information:
->Linux pi 2.4.22 #3 Sat Oct 25 15:45:50 CDT 2003 i586 GNU/Linux
->AMD K6 400MHz processor
->
->lspci:
->00:08.0 Unknown mass storage controller: Promise Technology, Inc. 20269
->(rev 02)
->
->Drive: Maxtor 6Y160P0 150GB UDMA 133
->
->I have, in my .config:
->
->CONFIG_BLK_DEV_PDC202XX_NEW=y
->CONFIG_BLK_DEV_PDC202XX=y
->
->Thanks for any insight.
->
->-- John Goerzen
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
 

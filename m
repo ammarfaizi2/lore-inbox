@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261598AbSIXHXC>; Tue, 24 Sep 2002 03:23:02 -0400
+	id <S261595AbSIXHQ5>; Tue, 24 Sep 2002 03:16:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261599AbSIXHXB>; Tue, 24 Sep 2002 03:23:01 -0400
-Received: from dp.samba.org ([66.70.73.150]:8382 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261598AbSIXHXB>;
-	Tue, 24 Sep 2002 03:23:01 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "David S. Miller" <davem@redhat.com>
-Cc: mingo@elte.hu, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] streq() 
-In-reply-to: Your message of "Mon, 23 Sep 2002 23:24:13 MST."
-             <20020923.232413.08022213.davem@redhat.com> 
-Date: Tue, 24 Sep 2002 17:28:00 +1000
-Message-Id: <20020924072814.CFC332C1AC@lists.samba.org>
+	id <S261596AbSIXHQ5>; Tue, 24 Sep 2002 03:16:57 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33701 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S261595AbSIXHQy>;
+	Tue, 24 Sep 2002 03:16:54 -0400
+Date: Tue, 24 Sep 2002 09:30:40 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Cc: Bill Davidsen <davidsen@tmr.com>, Larry McVoy <lm@bitmover.com>,
+       Peter Waechtler <pwaechtler@mac.com>, <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+In-Reply-To: <Pine.LNX.4.44.0209240111330.7827-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0209240921090.10279-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020923.232413.08022213.davem@redhat.com> you write:
->    From: Rusty Russell <rusty@rustcorp.com.au>
->    Date: Tue, 24 Sep 2002 16:04:33 +1000
->    
->    For runtime checks (which are never as good) you could change the GFP_
->    defined to set the high bit.
-> 
-> Another idea is to make a gfp_flags_t, that worked very well
-> for things like mm_segment_t.
 
-But you can't or them together without some icky macro, unless they're
-typedef to an integer type in which case gcc doesn't warn you if you
-just stuck a "sizeof(x)" in there.
+On Tue, 24 Sep 2002, Thunder from the hill wrote:
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> > 90% of the programs that matter behave exactly like Larry has described.
+> > IO is the main source of blocking. Go and profile a busy webserver or
+> > mailserver or database server yourself if you dont believe it.
+>
+> Well, I guess Java Web Server behaves the same?
+
+yes. The most common case is that it either blocks on the external network
+connection (IO), or on some internal database connection (IO as well). The
+JVMs themselves be better well-threaded internally, with not much
+contention on any internal lock. The case of internal synchronization is
+really that the 1:1 model makes a 'bad parallelism' more visible: when
+there's contention. It's quite rare that heavy synchronization and heavy
+lock contention cannot be avoided, and it mostly involves simulation
+projects which often do this because they simulate real world IO :-)
+
+(but, all this thread is becoming pretty theoretical - current fact is
+that the 1:1 library is currently more than 4 times faster than the only
+M:N library that we were able to run the test on using the same kernel, on
+M:N's 'home turf'. So anyone who thinks the M:N library should perform
+faster is welcome to improve it and send in results.)
+
+	Ingo
+

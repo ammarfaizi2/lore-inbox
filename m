@@ -1,25 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129866AbRABDkb>; Mon, 1 Jan 2001 22:40:31 -0500
+	id <S129956AbRABDmb>; Mon, 1 Jan 2001 22:42:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129956AbRABDkW>; Mon, 1 Jan 2001 22:40:22 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:4736 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129866AbRABDkI>;
-	Mon, 1 Jan 2001 22:40:08 -0500
-Date: Mon, 1 Jan 2001 18:52:16 -0800
-Message-Id: <200101020252.SAA01602@pizda.ninka.net>
+	id <S130338AbRABDmW>; Mon, 1 Jan 2001 22:42:22 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:6784 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129956AbRABDmM>;
+	Mon, 1 Jan 2001 22:42:12 -0500
+Date: Mon, 1 Jan 2001 18:54:57 -0800
+Message-Id: <200101020254.SAA01657@pizda.ninka.net>
 From: "David S. Miller" <davem@redhat.com>
-To: tommy@teatime.com.tw
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <3A513089.9AF6EB6A@teatime.com.tw> (message from Tommy Wu on Tue,
-	02 Jan 2001 09:36:09 +0800)
-Subject: Re: Sparc64 compile error for 2.4.0-prerelease
-In-Reply-To: <3A513089.9AF6EB6A@teatime.com.tw>
+To: rusty@linuxcare.com.au
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E14DHeH-0001H9-00@halfway> (message from Rusty Russell on Tue,
+	02 Jan 2001 13:58:05 +1100)
+Subject: Re: [PATCH] set_bit takes a long.
+In-Reply-To: <E14DHeH-0001H9-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Rusty Russell <rusty@linuxcare.com.au>
+   Date: 	Tue, 02 Jan 2001 13:58:05 +1100
 
-See testing/prerelease-diff
+   Alan has this, obviously hasn't made it to you.
+
+Yes it has, see testing/prerelease-diff :-)
 
 Later,
 David S. Miller

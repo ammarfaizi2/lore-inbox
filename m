@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275391AbRJFRss>; Sat, 6 Oct 2001 13:48:48 -0400
+	id <S275424AbRJFSEV>; Sat, 6 Oct 2001 14:04:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275398AbRJFRsj>; Sat, 6 Oct 2001 13:48:39 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:59909 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S275391AbRJFRsa>; Sat, 6 Oct 2001 13:48:30 -0400
-Date: Sat, 6 Oct 2001 19:48:52 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: %u-order allocation failed
-In-Reply-To: <Pine.LNX.4.33L.0110061357560.12110-200000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.3.96.1011006194028.5632A-100000@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275425AbRJFSEC>; Sat, 6 Oct 2001 14:04:02 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:60043 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S275424AbRJFSDu>; Sat, 6 Oct 2001 14:03:50 -0400
+Date: Sat, 6 Oct 2001 14:04:19 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200110061804.f96I4Jk03897@devserv.devel.redhat.com>
+To: paulus@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to get virtual address from dma address
+In-Reply-To: <mailman.1002355920.6872.linux-kernel2news@redhat.com>
+In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain> <d3n136tc48.fsf@lxplus014.cern.ch> <mailman.1002355920.6872.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Oct 2001, Rik van Riel wrote:
+>[...]
+> The argument for supplying this functionality in the PCI DMA code
+> would be that if it was done there it could be done once, and in a
+> sophisticated and efficient (and SMP-safe :) fashion, rather than
+> ad-hoc in each driver.
 
-> On Sat, 6 Oct 2001, Mikulas Patocka wrote:
-> > On Sat, 6 Oct 2001, Rik van Riel wrote:
-> > > On Sat, 6 Oct 2001, Mikulas Patocka wrote:
-> > >
-> > > > Buddy allocator is broken - kill it. Or at least do not misuse it for
-> > > > anything except kernel or driver initialization.
-> > >
-> > > Please send patches to get rid of the buddy allocator while
-> > > still making it possible to allocate contiguous chunks of
-> > > memory.
-> > >
-> > > If you have any idea on how to fix things, this would be a
-> > > good time to let us know.
-> >
-> > Here goes the fix. (note that I didn't try to compile it so there may be
-> > bugs, but you see the point).
-> 
-> So what are you going to do when your 64MB of vmalloc space
-> runs out ?
+This is exactly the kind of thinking that brought us pci_pool.
+With all due respect to David-B, it was totally unnecessary,
+in my view. However, attempts to make it "pretty" resulted in
+something that cannot be implemented right. Just think if
+pci_pool_free can be entered from an interrupt. If you allow
+that, you cannot free full pages (because some broken architectures
+implement pci_alloc_consistent with vmalloc, and vfree is not
+interrupt safe). The root of the problem is an attempt to specify
+variable sized pools.
 
-Make larger vmalloc space :-) Virtual memory costs very little.
-Besides 64M / 8k = 8192 - so it runs out at 8192 processes.
+I am afraid that if we start adding first class citizen APIs
+in the area of pci_alloc_something, it's going to be more and
+more interdependent and will place very strong constraints
+on what architectures can and cannot do. For example, already
+pci_alloc_consistent _cannot_ be implemented on some HP machines
+(and, by extension, pci_pool).
 
-Of course vmalloc space can overflow - but it overflows only when the
-machine is overloaded with too many processes, too many processes with
-many filedescriptors etc. On the other hand, the buddy allocator fails
-*RANDOMLY*. Totally randomly, depending on cache access patterns and
-page allocation times.
+> It may also be possible for the PCI DMA code to take advantage of its
+> knowledge of a particular platform, for example if the platform only
+> has a small range of possible DMA addresses then it could use a simple
+> and fast lookup table.  Or it may be possible to read the IOMMU tables
+> on some platforms and do the reverse mapping quickly that way - this
+> would certainly be the case for the IBM RS/6000 machines since the
+> IOMMU tables are in system RAM.
 
-Mikulas
+And it neither of these is possible, then what? Then you fall
+back on the most generic code, which is the worst case of
+all possible partial implementations in drivers.
 
+-- Pete

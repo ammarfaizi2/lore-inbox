@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262776AbTCNKJR>; Fri, 14 Mar 2003 05:09:17 -0500
+	id <S263311AbTCNKQj>; Fri, 14 Mar 2003 05:16:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262976AbTCNKJQ>; Fri, 14 Mar 2003 05:09:16 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:19467 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S262776AbTCNKIk>; Fri, 14 Mar 2003 05:08:40 -0500
-Message-ID: <3E71AD26.6080203@aitel.hist.no>
-Date: Fri, 14 Mar 2003 11:21:26 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Kendall Bennett <KendallB@scitechsoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: VESA FBconsole driver?
-References: <3E708815.23768.38089C@localhost> <3E70A68F.9422.AF1599@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263312AbTCNKQj>; Fri, 14 Mar 2003 05:16:39 -0500
+Received: from home.linuxhacker.ru ([194.67.236.68]:11175 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S263311AbTCNKQh>;
+	Fri, 14 Mar 2003 05:16:37 -0500
+Date: Fri, 14 Mar 2003 13:26:02 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org, zubarev@us.ibm.com,
+       gregkh@us.ibm.com
+Subject: Re: [2.4] Multiple memleaks in IBM Hot Plug Controller Driver
+Message-ID: <20030314102602.GA7985@linuxhacker.ru>
+References: <20030313204556.GA3475@linuxhacker.ru> <200303140957.h2E9vfu08416@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303140957.h2E9vfu08416@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kendall Bennett wrote:
+Hello!
 
-> The reason why it would nice is so that the VESA FBconsole driver (and in 
-> fact all the FBconsole drivers that use the real mode BIOS to set an 
-> initial display mode) can restore that mode correctly when an application 
-> exists and restores the console. Right now it is up to the application 
-> program to restore the console, as the kernel has absolutely no way to do 
-> it. If that program has not way to restore it (old SVGALib code for 
-> instance) or the application crashes, you are stuck with a black screen 
-> if you are using a framebuffer console. If the kernel knew how to call 
-> the BIOS to restore the mode, this problem could be completely eliminated 
-> and services could be provided to properly restore the system state
+On Fri, Mar 14, 2003 at 11:54:40AM +0200, Denis Vlasenko wrote:
 
-The bios isn't the way to go. Unless the bios coders puts an _ordinary_ 
-linux kernel module in their eprom.
+> > +	if (!str)
+> > +		return NULL;
+> >  	memset (str, 0, 3);
+> This was fun, right? "Lets add second memset just in case
+> first failed" ;) ;)
 
-If the kernel knew how to restore the video state itself - that'd be 
-something.  Go complain to those who keeps such knowledge secret.
-And no, they won't risk their company on providing such information.
-Setting the modes is such a tiny little piece of what a graphichs
-card do.  (Providing full information on how to program the
-accelerator chips wouldn't kill them either...)
+Ah, I was half asleep when doing the change, so I missed
+other obvious stuff it seems, like memset of three bytes to
+two byte variabe :)
+memset on wrong thing (second memset should be applied to str1 of course.)
 
-Helge Hafting
+But as Greg KH said already, whis stuff should be replaced by version from 2.5 instead ;)
 
+> >  	bit = (int)(var / 10);
+> >  	switch (bit) {
+> > @@ -608,13 +608,20 @@
+> >  		return str;
+> >  	default:
+> >  		//2 digits number
+> > +		str1 = (char *) kmalloc (2, GFP_KERNEL);
+> > +		if (!str1) {
+> > +			break;
+> > +		}
+> > +		memset (str, 0, 3);
+> > +             memset (str, 0, 3);
+> >               *str1 = (char)(bit + 48);
+> >               strncpy (str, str1, 1);
+> >               memset (str1, 0, 3);
+> Wow! *str1 is 2 bytes long, not 3!
+
+yup.
+
+> Anyway, here is the diff against some old 2.5 (sorry don't have latest
+> tree here at the moment). Also here are old and new functions
+> for easy visual diff. Completely untested:
+
+New 2.5 code does not have this function at all.
+I will look into porting 2.5 changes back to 2.4 tonight. This seems to be proper solution
+in this case.
+
+Bye,
+    Oleg

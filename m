@@ -1,40 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314077AbSHBO2s>; Fri, 2 Aug 2002 10:28:48 -0400
+	id <S314938AbSHBObM>; Fri, 2 Aug 2002 10:31:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314149AbSHBO2s>; Fri, 2 Aug 2002 10:28:48 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:9486 "EHLO
+	id <S315162AbSHBObM>; Fri, 2 Aug 2002 10:31:12 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:12814 "EHLO
 	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S314077AbSHBO2s>; Fri, 2 Aug 2002 10:28:48 -0400
-Date: Fri, 2 Aug 2002 07:32:13 -0700 (PDT)
+	id <S314938AbSHBObL>; Fri, 2 Aug 2002 10:31:11 -0400
+Date: Fri, 2 Aug 2002 07:34:38 -0700 (PDT)
 From: James Simmons <jsimmons@transvirtual.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-cc: Ivan Gyurdiev <ivangurdiev@attbi.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.30
-In-Reply-To: <3D4A6D2B.2B1733D9@aitel.hist.no>
-Message-ID: <Pine.LNX.4.44.0208020731520.8182-100000@www.transvirtual.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: [PATCH] console fixes and updates.
+Message-ID: <Pine.LNX.4.44.0208020732430.8182-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> James Simmons wrote:
-> >
-> > > The following trivial patches are still missing from the kernel:
-> > >
-> > >        - devfs patch to fix the problem with missing virtual consoles - only 0 in
-> > > /dev/vc: drivers/char/console.c
-> >
-> > Try out my console patch at
-> >
-> > http://www.transvirtual.com/~jsimmons/console.diff.gz
-> >
-> > Please tell me if it solves the problem. I waiting for someone to say it
-> > works then I will push my BK stuff to Linus.
->
-> The patch works for me.  2.5.30 with this and the compile-fix for devfs
-> comes up with /dev/vc/ populated normally.
 
-Great. I will push my stuff ot Linus now :-)
+This patch brings the console system up to date with the DJ tree. Still
+more to come. It fixes several bugs including the devfs one. Please apply.
+
+http://linuxconsole.bkbits.net/dev
+
+ arch/mips/au1000/common/serial.c |    2
+ arch/parisc/kernel/pdc_cons.c    |    3
+ arch/ppc/4xx_io/serial_sicc.c    |    2
+ arch/ppc/8xx_io/uart.c           |    2
+ arch/ppc64/kernel/ioctl32.c      |   64
+ arch/sparc64/kernel/ioctl32.c    |   23
+ arch/x86_64/ia32/ia32_ioctl.c    |   20
+ drivers/char/Makefile            |   12
+ drivers/char/console.c           | 3032 ---------------------------------------
+ drivers/char/console_macros.h    |  161 +-
+ drivers/char/consolemap.c        |  136 -
+ drivers/char/decvte.c            | 2054 ++++++++++++++++++++++++++
+ drivers/char/hvc_console.c       |    2
+ drivers/char/keyboard.c          |  605 ++++---
+ drivers/char/misc.c              |    1
+ drivers/char/selection.c         |   63
+ drivers/char/sysrq.c             |   22
+ drivers/char/tty_io.c            |    7
+ drivers/char/vc_screen.c         |  115 +
+ drivers/char/vt.c                | 2756 +++++++++++++++++++++--------------
+ drivers/char/vt_ioctl.c          | 1441 ++++++++++++++++++
+ drivers/s390/char/ctrlchar.c     |    2
+ drivers/tc/zs.c                  |    2
+ drivers/video/dummycon.c         |    1
+ drivers/video/fbcon.c            |   55
+ drivers/video/mdacon.c           |   21
+ drivers/video/newport_con.c      |    1
+ drivers/video/promcon.c          |   33
+ drivers/video/sticon-bmode.c     |    2
+ drivers/video/sticon.c           |    3
+ drivers/video/vgacon.c           |   21
+ include/linux/console.h          |   17
+ include/linux/console_struct.h   |  110 -
+ include/linux/consolemap.h       |    6
+ include/linux/kbd_kern.h         |   27
+ include/linux/selection.h        |   23
+ include/linux/tty.h              |    8
+ include/linux/vt_kern.h          |  275 ++-
+ include/video/fbcon.h            |    2
+ 39 files changed, 6214 insertions(+), 4918 deletions(-)
+
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'\_   _/`\
+ \___)=(___/
 

@@ -1,58 +1,215 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267659AbTBXSim>; Mon, 24 Feb 2003 13:38:42 -0500
+	id <S267775AbTBXSrH>; Mon, 24 Feb 2003 13:47:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267322AbTBXSVo>; Mon, 24 Feb 2003 13:21:44 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:29912 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265773AbTBXSKr>; Mon, 24 Feb 2003 13:10:47 -0500
-To: yodaiken@fsmlabs.com
-cc: Benjamin LaHaise <bcrl@redhat.com>, Larry McVoy <lm@work.bitmover.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: Minutes from Feb 21 LSE Call 
-In-reply-to: Your message of Mon, 24 Feb 2003 09:25:33 MST.
-             <20030224092533.B11805@hq.fsmlabs.com> 
+	id <S267776AbTBXSrG>; Mon, 24 Feb 2003 13:47:06 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:9682 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267775AbTBXSqz>; Mon, 24 Feb 2003 13:46:55 -0500
+Date: Mon, 24 Feb 2003 10:57:01 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.59-mjb7 (scalability / NUMA patchset)
+Message-ID: <6530000.1046113021@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <11849.1046110837.1@us.ibm.com>
-Date: Mon, 24 Feb 2003 10:20:37 -0800
-Message-Id: <E18nNDR-00035B-00@w-gerrit2>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Feb 2003 09:25:33 MST, yodaiken@fsmlabs.com wrote:
-> It's interesting to me that the people supporting the scale up do not 
-> carefully do such benchmarks and indeed have a rather cavilier attitude
-> to testing and benchmarking: or perhaps they don't think it's worth 
-> publishing. 
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-I'm afraid it is the latter half that is closer to correct.  Within
-IBM's Linux Technology Center, we have a good sized performance team
-and a tightly coupled set of developers who can internally share a
-lot of real benchmark data.  Unfortunately, the rules of SPEC and TPC
-don't allow us to release data unless it is carefully (and time-
-consumingly) audited, and IBM has a history of not dumping the output
-of a few hundred runs of benchmarks out in the open and then claiming
-that it is all valid, without doing a lot of internal validation first.
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-I'm sure other large companies doing Linux stuff have similar hurdles.
-In some cases, ours are probably higher than average (IBM as an
-entity has zero interest in pissing of the TPC or SPEC).
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.59/patch-2.5.59-mjb
+7.bz2
 
-We do have a few papers out there, check OLS for the large database
-workload one that steps through 2.4 performance changes (stock
-2.4 vs. a set of patches we pushed to UL & RHAT) that increase
-database performance about, oh, I forget, 5-fold...  And there
-is occasional other data sent out on web server stuff, some
-microbenchmark data (see the continuing stream of data from mbligh,
-for instance).  Also, the contest data, OSDL data, etc. etc.
-shows comparisons and trends for anyone who cares to pay attention.
+additional:
 
-It *would* be nice if someone could publish a compedium of performance
-data, but that would be asking a lot...
+http://www.aracnet.com/~fletch/linux/2.5.59/pidmaps_nodepages
 
-gerrit
+Since 2.5.59-mjb6 (~ = changed, + = added, - = dropped)
+
+Notes:
+
++ fix_was_sched				Ingo / wli / Rick Lindsley
++ kirq					Nitin Kamble
++ kirq_clustered			Dave Hansen / Martin J. Bligh
++ irq_affinity				Martin J. Bligh
++ no_kirq				Martin J. Bligh
+
+Pending:
+scheduler callers profiling (Anton)
+PPC64 NUMA patches (Anton)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Non-PAE aligned kernel splits (Dave Hansen)
+Update the lost timer ticks code
+Ingo scheduler updates
+
+dcache_rcu					Dipankar / Maneesh
+	Use RCU type locking for the dentry cache.
+
+dcache_sunrpc					Maneesh
+	Fix up NFS to work properly with dcache
+
+early_printk					Dave Hansen et al.
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+vmalloc_stats					Dave Hansen
+	Expose useful vmalloc statistics
+
+local_pgdat					William Lee Irwin
+	Move the pgdat structure into the remapped space with lmem_map
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+notsc						Martin Bligh
+	Enable notsc option for NUMA-Q (new version for new config system)
+
+mpc_apic_id					Martin J. Bligh
+	Fix null ptr dereference (optimised away, but ...)
+
+doaction					Martin J. Bligh
+	Fix cruel torture of macros and small furry animals in io_apic.c
+
+kgdb						Andrew Morton / Various People
+	The older version of kgdb, synched with 2.5.54-mm1
+
+noframeptr					Martin Bligh
+	Disable -fomit_frame_pointer
+
+ingosched					Ingo Molnar
+	Modify NUMA scheduler to have independant tick basis.
+
+schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/stat
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+discontig_x440					Pat Gaughen / IBM NUMA team
+	SLIT/SRAT parsing for x440 discontigmem
+
+acpi_x440_hack					Anonymous Coward
+	Stops x440 crashing, but owner is ashamed of it ;-)
+
+summit_smp					John Stultz
+	Make Summit config options work on standard SMP
+
+cyclone_fixes					John Stultz
+	Fix up some stuff for the x440's cyclone timer
+
+enable_cyclone					John Stultz
+	Enable the x440's cyclone timer
+
+lost_tick					John Stultz
+	Detect lost timer ticks
+
+frlock_xtime					Stephen Hemminger et al.
+	Turn xtime_lock into an frlock to reduce contention 
+
+frlock-xtime-i386				Stephen Hemminger et al.
+	Turn xtime_lock into an frlock to reduce contention 
+
+frlock-xtime-ia64				Stephen Hemminger et al.
+	Turn xtime_lock into an frlock to reduce contention 
+
+frlock-xtime-other				Stephen Hemminger et al.
+	Turn xtime_lock into an frlock to reduce contention 
+
+numaq_ioapicids					William Lee Irwin
+	Stop 8 quad NUMA-Qs from panicing due to phys apicid "exhaustion".
+
+oprofile_p4					John Levon
+	Updates for oprofile for P4s. Needs new userspace tools.
+
+starfire					Ion Badulescu
+	64 bit aware starfire driver	
+
+tcp_fix						Alexey
+	Stop some tcp problem with hardware checksumming (e1000?)
+
+numa_pci_fix					Dave Hansen
+	Fix a potential error in the numa pci code from Stanford Checker
+
+pgd_ctor					William Lee Irwin
+	Use slabs for pgd
+
+pfn_to_nid					William Lee Irwin
+	Turn pfn_to_nid into a macro
+
+oprofile_fixes					John Levon
+	fix a couple of bugs in oprofile
+
+kprobes						Vamsi Krishna S
+	Add kernel probes hooks to the kernel
+
+dmc_exit1					Dave McCracken
+	Speed up the exit path, pt 1.
+
+dmc_exit2					Dave McCracken
+	Speed up the exit path, pt 1.
+
+shpte						Dave McCracken
+	Shared pagetables (as a config option)
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+fix_kgdb					Dave Hansen
+	Fix interaction between kgdb and 4K stacks
+
+stacks_from_slab				William Lee Irwin
+	Take kernel stacks from the slab cache, not page allocation.
+
+thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+
+lkcd						LKCD team
+	Linux kernel crash dump support
+
+alt_sysrq_t					Russell King
+	Fix up ALT+sysrq+t
+
+fix_was_sched					Ingo / wli / Rick Lindsley
+	Fix hangs in the scheduler.
+
+kirq						Nitin Kamble
+	Provide better interrupt balancing
+
+kirq_clustered					Dave Hansen / Martin J. Bligh
+	Fix kirq for clustered apic systems (eg x440)
+
+irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+
+no_kirq						Martin J. Bligh
+	Allow disabling of kirq to work properly
+
+-mjb						Martin Bligh
+	Add a tag to the makefile
+

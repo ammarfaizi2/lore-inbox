@@ -1,82 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVAOAUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbVAOAWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262044AbVAOAUP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 19:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVAOAUP
+	id S262050AbVAOAWe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 19:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVAOAWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 19:20:15 -0500
-Received: from colin2.muc.de ([193.149.48.15]:25363 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262044AbVAOAUC (ORCPT
+	Fri, 14 Jan 2005 19:22:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49623 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262050AbVAOAWR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 19:20:02 -0500
-Date: 15 Jan 2005 01:20:01 +0100
-Date: Sat, 15 Jan 2005 01:20:01 +0100
-From: Andi Kleen <ak@muc.de>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: karim@opersys.com, Roman Zippel <zippel@linux-m68k.org>,
-       Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev <ltt-dev@listserv.shafik.org>
+	Fri, 14 Jan 2005 19:22:17 -0500
+Date: Fri, 14 Jan 2005 16:26:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: tglx@linutronix.de
+Cc: karim@opersys.com, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.11-rc1-mm1
-Message-ID: <20050115002001.GA70888@muc.de>
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <41E84E9E.1000907@am.sony.com>
+Message-Id: <20050114162652.73283f2e.akpm@osdl.org>
+In-Reply-To: <1105747280.13265.72.camel@tglx.tec.linutronix.de>
+References: <20050114002352.5a038710.akpm@osdl.org>
+	<1105740276.8604.83.camel@tglx.tec.linutronix.de>
+	<41E85123.7080005@opersys.com>
+	<1105747280.13265.72.camel@tglx.tec.linutronix.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E84E9E.1000907@am.sony.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 02:58:38PM -0800, Tim Bird wrote:
-> > Roman Zippel wrote: 
-> >>You don't think that's a little overkill?
-> >
-> >Based on the descriptions below, I think Roman is right.  There's
-> too much going on here for the average user.  I haven't looked closely,
-> but some of the stuff seems to be for esoteric use cases.  There are
-> two ways to approach it:
->  - add a simplified API for the most common usage
->  - strip out the stuff that's not really needed, and figure out
->  workarounds for things (like tracing initialization) that need
->  special assistance.
-> 
-> Some of these options (e.g. bufsize) are available to the user
-> via tracedaemon. I can honestly say I haven't got a clue what
-> to use for some of them, and so always leave them at defaults.
+Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> ...
+> I'm impressed of your sudden time constraints awareness. Allowing 8192
+> bytes of user event size, string printing with varags and XML tracing
+> is not biting you ? 
 
-This is a strong cue that they are unneeded. 
+?  I see no XML in there.
 
-> > I can see why you'd say this as a first impression, but really it isn't.
-> > 
-> > Here's a simple primer to this call's parameters:
-> > channel_path, mode:
-> > 	Where does this appear in relayfs and what rights do
-> > 	user-space apps have over it (rwx).
-> > bufsize, nbufs:
-> > 	Usually things have to be subdivided in sub-buffers to make
-> > 	both writing and reading simple. LTT uses this to allow,
-> > 	among other things, random trace access.
-> Could these be simplified to a few enumerated modes?
-
-Just make it a global single define in the source.
+akpm:/usr/src/25> grep -i xml patches/ltt* patches/relayfs*
+patches/ltt-core-headers.patch:+#define LTT_CUSTOM_EV_FORMAT_TYPE_XML   3
+akpm:/usr/src/25> 
 
 > 
-> > channel_flags, channel_callbacks:
-> > start_reserve, end_reserve, rchan_start_reserve:
-> > resize_min, resize_max:
-> > init_buf, init_buf_size:
+> Haha. If you have eventstamps and timestamps (even the jiffie + event
+> based ones) nothing is hard to interpret. I guess the ethereal guys are
+> rolling on the floor and laughing. 
 > 
-> It seems like you could remove these from relay_open() and move them to
-> get()/set() operations if you wanted to simplify the open API.
+> The kernel is not the place to fix your postprocessing problems. Sure
+> you have to do more complicated stuff, but you move the burden from
+> kernel to a place where it does not hurt.
 
-I think all for which not an clear need is demonstrated should
-be removed. If there is a real need it can be still readded later.
-But in the current form it is far too complicated and too fat.
+I thought Karim said that this was a form of data compression.
 
-> Or, you could create other (separate) APIs to pre-fill the buffer or
-> reserve space.  Do you want me to take a look at this and propose
-> some specific changes?  (I won't get to this until Monday, though).
+> 
+> Yes, the "you would anyway have to go down the same path we have"
+> argument really scares me away from doing so. 
+> 
+> I don't buy this kind of arguments. 
 
-No, no, it far less APIs not more. 
-
--Andi
+I do.  When someone has been working on a real-world project for several
+years we *need* to understand all the problems which that person
+encountered before we can competently review the implementation.  Surely
+you've been there before: you throw out all the old stuff, write a new one
+and once you've addressed all the warts and corner cases and
+weird-but-valid requirements it ends up with the same complexity as the
+original.

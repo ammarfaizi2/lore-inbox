@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268209AbUHKUO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268220AbUHKURi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268209AbUHKUO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 16:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268215AbUHKUO0
+	id S268220AbUHKURi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 16:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268216AbUHKURi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 16:14:26 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:28552 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S268209AbUHKUOZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 16:14:25 -0400
-Date: Wed, 11 Aug 2004 22:14:24 +0200
-From: Sascha Wilde <wilde@sha-bang.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, "David N. Welton" <davidw@eidetix.com>
-Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
-Message-ID: <20040811201424.GB864@kenny.sha-bang.local>
-References: <4107E788.8030903@eidetix.com> <41122C82.3020304@eidetix.com> <200408110131.14114.dtor_core@ameritech.net>
+	Wed, 11 Aug 2004 16:17:38 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:7900 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268215AbUHKURd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 16:17:33 -0400
+Date: Wed, 11 Aug 2004 22:17:25 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Arnd Bergmann <arnd@arndb.de>, zippel@linux-m68k.org
+Cc: Christoph Hellwig <hch@infradead.org>, wli@holomorphy.com,
+       davem@redhat.com, geert@linux-m68k.org, schwidefsky@de.ibm.com,
+       linux390@de.ibm.com, sparclinux@vger.kernel.org,
+       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: architectures with their own "config PCMCIA"
+Message-ID: <20040811201725.GJ26174@fs.tum.de>
+References: <20040807170122.GM17708@fs.tum.de> <20040807181051.A19250@infradead.org> <20040807172518.GA25169@fs.tum.de> <200408072013.01168.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408110131.14114.dtor_core@ameritech.net>
+In-Reply-To: <200408072013.01168.arnd@arndb.de>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 01:31:13AM -0500, Dmitry Torokhov wrote:
-> On Thursday 05 August 2004 07:48 am, David N. Welton wrote:
-> > By putting a series of 'crashme/reboot' calls into the kernel, I 
-> > narrowed a possibl cause of it down to this bit of code in 
-> > drivers/input/serio.c:753
-[...]
-> Could you please try the patch below? I am interested in tests both
-> with and without keyboard/mouse. The main idea is to leave ports
-> that have been disabled by BIOS alone... The patch compiles but
-> otherwise untested. Against 2.6.7.
+On Sat, Aug 07, 2004 at 08:12:56PM +0200, Arnd Bergmann wrote:
+>...
+> On Samstag, 7. August 2004 19:25, Adrian Bunk wrote:
+> > Is there eny reason for such options that are never visible nor enabled,  
+> > or could they be removed?
+> 
+> Yes, the reason is that some other options depend on them. We added the
+> PCMCIA option to arch/s390/Kconfig to stop kbuild from asking about
+> some drivers that won't work anyway.
+> 
+> E.g. drivers/scsi/pcmcia starts with
+> 
+> menu "PCMCIA SCSI adapter support"
+> 	depends on SCSI!=n && PCMCIA!=n && MODULES
+> 
+> which evaluate to true if the PCMCIA option is not known. Changing
+> that to
+> 
+> menu "PCMCIA SCSI adapter support"
+> 	depends on SCSI && PCMCIA && MODULES
+> 
+> solves this in a different way, but I'm not 100% sure if it still has
+> the same meaning.
 
-Sorry, but the patch does not work for me.  The resulting kernel
-reboots, but it _disables_ (or fails to enable?) the PS/2 keyboard.
+Roman, is it intentional that PCMCIA!=n is true if there's no PCMCIA 
+option, or is it simply a bug?
 
-I don't know if it is of any interest, but I'm using grub to load
-linux (and in the grub boot shell the keyboard works).
+> 	Arnd <><
 
-> BTW, do you both have the same motherboard/chipset? Maybe a dmi
-> entry is in order...
+cu
+Adrian
 
-No.  I'm using a MSI Mainboard with AMD (Viper) chipset.
-
-cheers
-sascha
 -- 
-Sascha Wilde : "GUIs normally make it simple to accomplish simple 
-             : actions and impossible to accomplish complex actions."
-             : (Doug Gwyn - 22/Jun/91 in comp.unix.wizards)
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

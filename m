@@ -1,117 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262988AbTHWQr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 12:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbTHWQr1
+	id S263199AbTHWQ5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 12:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263321AbTHWQ5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 12:47:27 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31242 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262988AbTHWQrO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.redhat.com>);
-	Sat, 23 Aug 2003 12:47:14 -0400
-content-class: urn:content-classes:message
+	Sat, 23 Aug 2003 12:57:23 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:10169 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263485AbTHWOck (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 10:32:40 -0400
+From: Andrew Theurer <habanero@us.ibm.com>
+Reply-To: habanero@us.ibm.com
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [Lse-tech] Re: [patch] scheduler fix for 1cpu/node case
+Date: Sat, 23 Aug 2003 09:32:24 -0500
+User-Agent: KMail/1.5
+Cc: Bill Davidsen <davidsen@tmr.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Erich Focht <efocht@hpce.nec.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Andi Kleen <ak@muc.de>,
+       torvalds@osdl.org, mingo@elte.hu
+References: <Pine.LNX.3.96.1030813163849.12417I-100000@gatekeeper.tmr.com> <200308221912.38184.habanero@us.ibm.com> <3F46B561.7060706@cyberone.com.au>
+In-Reply-To: <3F46B561.7060706@cyberone.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: 2.6.0-test4 - lost ACPI
-Date: Sat, 23 Aug 2003 12:47:04 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE009FCC7@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.0-test4 - lost ACPI
-Thread-Index: AcNpZWdMqBuCCjpRTBKizHA1OzgTZwAKkzHQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Tomasz Torcz" <zdzichu@irc.pl>, "LKML" <linux-kernel@vger.redhat.com>,
-       <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 23 Aug 2003 16:47:05.0591 (UTC) FILETIME=[2F4A3870:01C36996]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308230932.24832.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you're using run-time ACPI features, you'll probably want to
-make sure that your MB BIOS is the latest available.
+> >AMD is 1 because there's no need to balance within a node, so I want the
+> >inter-node balance frequency to be as often as it was with just O(1). 
+> > This interval would not work well with other NUMA boxes, so that's the
+> > main reason to have arch specific intervals.
+>
+> OK, I misread the patch. IIRC AMD has 1 CPU per node? If so, why doesn't
+> this simply prevent balancing within a node?
 
-I didn't see which VIA 693 MB you've got, but it could be that a
-BIOS upgrade would move it from 09/13/00 to something past 1/1/2001 --
-the (yes, arbitrary) cutoff for enabling ACPI by default.
+Yes, one cpu/node.  Oh, it does prevent it, but with the current intervals, we 
+end up not really balancing as often (since we need a inter-node balance), 
+and when we call load_balance in schedule when idle, we don't balance at all 
+since it's only a node local balance.
 
-Or you could add "acpi=force" to your command line, as suggested in the
-dmesg output.
+> >  And, as a general guideline, boxes with
+> >different local-remote latency ratios will probably benefit from different
+> >inter-node balance intervals.  I don't know what these ratios are, but I'd
+> >like the kernel to have the ability to change for one arch and not affect
+> >another.
+>
+> I fully appreciate there are huge differences... I am curious if
+> you can see much improvements in practice.
 
-Or you could change the source to alter or disable #define
-ACPI_BLACKLIST_CUTOFF_YEAR 2001
-
-If your system misbehaves when ACPI is enabled by one of these methods,
-please let me know.
-
-Thanks,
--Len
-
-
-> -----Original Message-----
-> From: Tomasz Torcz [mailto:zdzichu@irc.pl] 
-> Sent: Saturday, August 23, 2003 6:53 AM
-> To: LKML
-> Subject: 2.6.0-test4 - lost ACPI
-> 
-> 
-> 
-> Hi,
-> 
-> I am using ACPI for few years now. As far as I can see, on my
-> machine it is only usfeul for binding events to Power button (like
-> running fbdump) and for powering off. I'm also experimenting
-> with swsusp, which I run by /proc/acpi/sleep.
-> 
-> 2.6.0-test4 has a surprise for me:
-> 
-> Linux version 2.6.0-test4 (zdzichu@mother) (gcc version 
-> 3.3.1) #15 Sat Aug 23 12:03:
-> 02 CEST 2003
-> Video mode to be used for restore is ffff
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 0000000013ff0000 (usable)
->  BIOS-e820: 0000000013ff0000 - 0000000013ff3000 (ACPI NVS)
->  BIOS-e820: 0000000013ff3000 - 0000000014000000 (ACPI data)
->  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-> 319MB LOWMEM available.
-> On node 0 totalpages: 81904
->   DMA zone: 4096 pages, LIFO batch:1
->   Normal zone: 77808 pages, LIFO batch:16
->   HighMem zone: 0 pages, LIFO batch:1
-> DMI 2.1 present.
-> ACPI disabled because your bios is from 00 and too old
-> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> You can enable it with acpi=force
-> ACPI: RSDP (v000 VIA693                                    ) 
-> @ 0x000f70c0
-> ACPI: RSDT (v001 AWARD  AWRDACPI 0x42302e31 AWRD 0x00000000) 
-> @ 0x13ff3000
-> ACPI: FADT (v001 AWARD  AWRDACPI 0x42302e31 AWRD 0x00000000) 
-> @ 0x13ff3040
-> ACPI: DSDT (v001 VIA693 AWRDACPI 0x00001000 MSFT 0x0100000a) 
-> @ 0x00000000
-> 
-> WTF? My BIOS was perfectly good all those years! And no, there is
-> no upgrade for my motherboard available. Using acpi=force is ugly
-> and un-understandable.
-> 
-> There are also some strange directories in /proc :
-> dr-xr-xr-x    2 root     root            0 Aug 23 12:50 
-> /proc/ac_adapter/
-> dr-xr-xr-x    2 root     root            0 Aug 23 12:50 /proc/fan
-> 
-> they are empty, but they should be in /proc/acpi/
-> 
-> Attached files:
-> Output from dmidecode, lspci -v, my dmesg and /proc/cpuinfo
-> 
-> [Please CC me on replies. Thank you].
-> 
-> -- 
-> Tomasz Torcz                 "God, root, what's the difference?" 
-> zdzichu@irc.-nie.spam-.pl         "God is more forgiving."   
-> 
+I think AMD would be the first good test.  Maybe Andi has some results on 
+numasched vs O(1), which would be a good indication.

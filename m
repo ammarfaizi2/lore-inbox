@@ -1,44 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269214AbUICCSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269401AbUICAMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269214AbUICCSS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 22:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269419AbUICCSA
+	id S269401AbUICAMT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 20:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269432AbUICAD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 22:18:00 -0400
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:10969 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S269512AbUICBQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 21:16:31 -0400
+	Thu, 2 Sep 2004 20:03:26 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:28404 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S269407AbUIBX6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:58:15 -0400
+Date: Thu, 2 Sep 2004 20:02:40 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@fsmlabs.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Anton Blanchard <anton@samba.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Matt Mackall <mpm@selenic.com>
+Subject: [PATCH][4/8] Arch agnostic completely out of line locks / ppc32
+Message-ID: <Pine.LNX.4.58.0409021227490.4481@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16695.50657.670300.755315@wombat.chubb.wattle.id.au>
-Date: Fri, 3 Sep 2004 11:16:17 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Paolo Molaro <lupus@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: incorrect time accouting
-In-Reply-To: <75465520@toto.iv>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Paolo" == Paolo Molaro <lupus@debian.org> writes:
+ arch/ppc/kernel/time.c        |   14 ++++++++++++++
+ arch/ppc/kernel/vmlinux.lds.S |    1 +
+ include/asm-ppc/ptrace.h      |    5 +++++
+ 3 files changed, 20 insertions(+)
 
-Paolo> While benchmarking, a user pointed out that time(1) reported
-Paolo> incorrect user and system times when running mono.
-Paolo> A typical example (running on 2.6.8.1 is):
+Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
 
+Index: linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/time.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/ppc/kernel/time.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 time.c
+--- linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/time.c	26 Aug 2004 13:12:55 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/time.c	2 Sep 2004 13:53:46 -0000
+@@ -108,6 +108,20 @@ static inline int tb_delta(unsigned *jif
+ 	return delta;
+ }
 
++#ifdef CONFIG_SMP
++unsigned long profile_pc(struct pt_regs *regs)
++{
++	unsigned long pc = instruction_pointer(regs);
++
++	if (pc >= (unsigned long)&__lock_text_start &&
++	    pc <= (unsigned long)&__lock_text_end)
++		return regs->link;
++
++	return pc;
++}
++EXPORT_SYMBOL(profile_pc);
++#endif
++
+ /*
+  * timer_interrupt - gets called when the decrementer overflows,
+  * with interrupts disabled.
+Index: linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/vmlinux.lds.S
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/ppc/kernel/vmlinux.lds.S,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 vmlinux.lds.S
+--- linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/vmlinux.lds.S	26 Aug 2004 13:12:55 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/arch/ppc/kernel/vmlinux.lds.S	2 Sep 2004 13:08:15 -0000
+@@ -32,6 +32,7 @@ SECTIONS
+   {
+     *(.text)
+     SCHED_TEXT
++    LOCK_TEXT
+     *(.fixup)
+     *(.got1)
+     __got2_start = .;
+Index: linux-2.6.9-rc1-mm1-stage/include/asm-ppc/ptrace.h
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/include/asm-ppc/ptrace.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 ptrace.h
+--- linux-2.6.9-rc1-mm1-stage/include/asm-ppc/ptrace.h	26 Aug 2004 13:13:12 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/include/asm-ppc/ptrace.h	2 Sep 2004 13:08:16 -0000
+@@ -47,7 +47,12 @@ struct pt_regs {
 
-This is because mono is multithreaded.  At present, time(1) records
-only the time of the parent thread.  This will change soon (I hope)
-when the Roland McGrath's getrusage() patches are merged.
+ #ifndef __ASSEMBLY__
+ #define instruction_pointer(regs) ((regs)->nip)
++#ifdef CONFIG_SMP
++extern unsigned long profile_pc(struct pt_regs *regs);
++#else
+ #define profile_pc(regs) instruction_pointer(regs)
++#endif
++
+ #define user_mode(regs) (((regs)->msr & MSR_PR) != 0)
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+ #define force_successful_syscall_return()   \

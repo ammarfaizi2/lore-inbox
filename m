@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289201AbSBEHBl>; Tue, 5 Feb 2002 02:01:41 -0500
+	id <S289185AbSBEHAc>; Tue, 5 Feb 2002 02:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289230AbSBEHBb>; Tue, 5 Feb 2002 02:01:31 -0500
-Received: from [217.7.28.131] ([217.7.28.131]:60430 "EHLO inetgate.hob.de")
-	by vger.kernel.org with ESMTP id <S289201AbSBEHB0>;
-	Tue, 5 Feb 2002 02:01:26 -0500
-Message-ID: <3C5F80F2.54AF98E3@hob.de>
-Date: Tue, 05 Feb 2002 07:51:30 +0100
-From: Christian Hildner <christian.hildner@hob.de>
-Organization: hob electronic
-X-Mailer: Mozilla 4.78 [de]C-CCK-MCD DT  (WinNT; U)
-X-Accept-Language: de
-MIME-Version: 1.0
-To: Jes Sorensen <jes@sunsite.dk>
-Cc: davidm@hpl.hp.com, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-ia64] kmalloc() size-limitation
-In-Reply-To: <3C3D6A89.27EAA4C7@hob.de> <15421.61910.163437.45726@napali.hpl.hp.com> <3C3ED5E7.8BA479B7@hob.de> <15423.5404.65155.924018@napali.hpl.hp.com> <3C43D6EC.74B4EC85@hob.de> <d31yg1lzgm.fsf@lxplus052.cern.ch>
+	id <S289201AbSBEHAV>; Tue, 5 Feb 2002 02:00:21 -0500
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:1433 "EHLO
+	hercules.oisec.net") by vger.kernel.org with ESMTP
+	id <S289185AbSBEHAB>; Tue, 5 Feb 2002 02:00:01 -0500
+Date: Tue, 5 Feb 2002 07:59:42 +0100
+From: Cliff Albert <cliff@oisec.net>
+To: Wojtek Pilorz <wpilorz@bdk.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 512 Mb DIMM not detected by the BIOS!
+Message-ID: <20020205065942.GA2141@oisec.net>
+Mail-Followup-To: Wojtek Pilorz <wpilorz@bdk.pl>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <000001c1ac30$2ed408a0$0100a8c0@stratus> <Pine.LNX.4.21.0202041205110.7872-100000@celebris.bdk.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0202041205110.7872-100000@celebris.bdk.pl>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: Don't do Windows, Just do Unix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen schrieb:
+On Mon, Feb 04, 2002 at 12:17:10PM +0100, Wojtek Pilorz wrote:
 
-> Christian Hildner <christian.hildner@hob.de> writes:
->
-> > David,
-> >
-> > you proposed me to use alloc_pages() instead of kmalloc() in order
-> > to get memory bigger than the 128K limit of the kmalloc() call. But
-> > even driver-developers don't want to handle with the page struct
-> > unless this is unavoidable. Which are the disadvantages of
-> > increasing the size limit of kmalloc() to 256K, 512K or 1M since
-> > machines are getting bigger and 64Bit machines break with current
-> > memory limitations?
->
-> Because drivers needs to work on all architectures and relying on
-> different hahavior from kmalloc() is bad.
->
-> Jes
+> > This is a chipset problem. Chipsets support up to x CAS (column) lines
+> > and y RAS (row) lines, and depending on your DIMM memory module layout
+> > and configuration, you 512MB DIMM will be detected as a different sized
+> > module.
+> > 
+> > Eg. The venerable Intel 440BX (PII) chipset supports a max of 256MB per
+> > slot. Ah well.
+> > 
+> 
+> I had similar problem - on an Intel 440BX based motherboard (ABIT BX-133
+> RAID) the 256MB DIMMs I originally got were only 'half-detected' (e.g. I
+> got only 128MB from each one); These DIMMs were working OK on some
+> VIA-based systems; after changing them to a different type (both old and
+> new were ECC DIMMs from Kingston, just different type) they are working
+> OK.
+> 
+> I it could be of any help, I can find the part numbers/names of my DIMMs.
+> 
+> > Since it's a chipset (ie hardware) issue, it's not possible to work
+> > around this problem - you need a newer chipset. Sorry.
+> Or maybe another DIMM type - at least I was able to successfully use 256MB
+> DIMMs of appropriate type.
 
-Jes,
+Double Sided 256MB Dimms are required, single sided dimms rarely work on
+BX-based boards.
 
-sorry for being unclear. I mean from increasing the kmalloc() size-limit
-all platforms would benefit.
-
-Christian
-
-PS: David, I am looking forward getting your book. You are doing a great
-job.
-
+-- 
+Cliff Albert		| RIPE:	     CA3348-RIPE | www.oisec.net
+cliff@oisec.net		| 6BONE:     CA2-6BONE	 | icq 18461740

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267375AbTAMJF2>; Mon, 13 Jan 2003 04:05:28 -0500
+	id <S267648AbTAMJSr>; Mon, 13 Jan 2003 04:18:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267632AbTAMJF2>; Mon, 13 Jan 2003 04:05:28 -0500
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:14236 "EHLO
-	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S267375AbTAMJF1> convert rfc822-to-8bit; Mon, 13 Jan 2003 04:05:27 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH][COMPAT] compat_sys_[f]statfs - s390x part
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFC74FD0A9.9C22AA34-ONC1256CAD.0031FD29@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 13 Jan 2003 10:11:20 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 13/01/2003 10:13:56
-MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+	id <S267683AbTAMJSr>; Mon, 13 Jan 2003 04:18:47 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11784 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267648AbTAMJSq>; Mon, 13 Jan 2003 04:18:46 -0500
+Date: Mon, 13 Jan 2003 09:27:34 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] add module reference to struct tty_driver
+Message-ID: <20030113092734.C12379@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <20030113054708.GA3604@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030113054708.GA3604@kroah.com>; from greg@kroah.com on Sun, Jan 12, 2003 at 09:47:09PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 12, 2003 at 09:47:09PM -0800, Greg KH wrote:
+> In digging into the tty layer locking, I noticed that the tty layer
+> doesn't handle module reference counting for any tty drivers.  Well, I've
+> known this for a long time, just finally got around to fixing it :)
+> Here's a patch against 2.5.56 that should fix this issue (works for
+> me...)
+> 
+> Comments?  If no one objects, I'll send it on to Linus, and add support
+> for this to a number of tty drivers that commonly get built as modules.
 
-Hi Stephen,
+I'd just ask whether you considered what happens when:
 
-> Hopefully, with Martin's continued blessing, here is the s390x part.
+1. two people open the same tty
+2. the tty is hung up
+3. both people close the tty
 
-Looks fine to me. I can't test it at the moment because the s390x compat
-stuff is broken right now. Not because of your patches but other things
-need fixing. I'll have a go at it as soon as I'm through with the TLS
-stuff for binutils and glibc. Keep up with it, I'm happy about every
-line of code that is moved out of the arch/s390* folders.
+(this isn't an indication that the patch is wrong, I'm just interested
+to know.)
 
-blue skies,
-   Martin
+I'll test its behaviour later today - the current rules for incrementing/
+decrementing the tty driver module use counts are rediculous at present,
+and this patch would solve it nicely.
 
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

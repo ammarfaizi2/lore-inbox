@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270796AbRIAPDQ>; Sat, 1 Sep 2001 11:03:16 -0400
+	id <S270646AbRIAPAh>; Sat, 1 Sep 2001 11:00:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270773AbRIAPDH>; Sat, 1 Sep 2001 11:03:07 -0400
-Received: from imo-r06.mx.aol.com ([152.163.225.102]:17645 "EHLO
-	imo-r06.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S270774AbRIAPC6>; Sat, 1 Sep 2001 11:02:58 -0400
-From: Floydsmith@aol.com
-Message-ID: <93.f9abf44.28c252b0@aol.com>
-Date: Sat, 1 Sep 2001 11:03:12 EDT
-Subject: idetape broke in 2.4.x-2.4.9-ac5 (write OK but not read) ide-scsi works in 2.4.4
-To: linux-kernel@vger.kernel.org, linux-tape@vger.kernel.org
-CC: Floydsmith@aol.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: AOL 4.0 for Windows 95 sub 14
+	id <S270773AbRIAPAR>; Sat, 1 Sep 2001 11:00:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51473 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270646AbRIAPAI>; Sat, 1 Sep 2001 11:00:08 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Bizzare crashes on IBM Thinkpad A22e.. yenta_socket related
+Date: Sat, 1 Sep 2001 14:56:55 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9mqsvn$fql$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0108311244070.2899-100000@TesterTop.PolyDom> <Pine.LNX.4.33.0109010022440.1295-100000@TesterTop.PolyDom>
+X-Trace: palladium.transmeta.com 999356397 29444 127.0.0.1 (1 Sep 2001 14:59:57 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 1 Sep 2001 14:59:57 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now, I can get everything (my ide ls-120 and ide HP 8Gig tape) to work in 
-2.2.18. I can also get both to work in 2.4.4 (and earlier 2.4.x) but only 
-with what I believe is an unnecessay "workarround" - namely by configuring 
-IDESCSI into the kernel (SCSI emulation) and then using boot param 
-hdc=ide-scsi. However, I feel, that I should not have to do that with any 
-kernel (that is, SCSI emulation should be optional for this device) because 
-this was the case for 2.2.18.
+In article <Pine.LNX.4.33.0109010022440.1295-100000@TesterTop.PolyDom>,
+Olivier Crete  <Tester@videotron.ca> wrote:
+>
+>Ok, I've tried removing different parts of the kernel and I have been able
+>to find that the instability (repetable freezes) start to appear when the
+>yenta_socket.o module is loaded. I dont see the link between this module
+>and the events that trigger the freezes... It crashes when I do the
+>following things: use any of the non-keyboard buttons (thinkpad buttons
+>and volume control), brightness control, etc.. These buttons fn-X
+>combination have in common that they do not generate a scancode as shown
+>by showkey.
 
-If I try not to use SCSI emulation for all 2.4.x kernels (including:
-Kernel 2.4.9-ac5 on  i686
-then
-ide-tape: ht0: I/O error, pc =  8, key =  5, asc = 2c, ascq =  0
-tar: /dev/ht0: Cannot read: Input/output error
-(writes work OK though)
+What they are doing, however, is to generate a SCI, ie "System Control
+Interrupt". Which, I bet you five bucks, is routed to the same interrupt
+that your CardBus controller is on.
 
-As mentioned above, scsi emulation works for 2.4.4 (reads and writes). But if 
-turned on in 2.4.9-ac5, then I get
-/dev/st0: No such device
-So, with kernels above 2.4.4, I can't use the drive at all (or at least can't 
-"read" with it which makes it useless).
+So the fact that the system hangs only with the CardBus module loaded
+really has nothing to do with the yenta code itself - it's just that
+before the yenta module is loaded, the SCI will be entirely ignored.
+Once yenta _is_ loaded, however, we have a interrupt handler for the
+interrupt and will start accepting it.
 
-The ideal situtation (at least for me) would be to have 2.4.x  kernels behave 
-like the 2.2.x ones, that is, scsi emulation would not need to be turned on 
-for these ide drives (that is, it would be optional) and I would go back to 
-using /dev/ht0.
+However, the interrupt handler we have is _not_ aware of system
+control interrupts. So it won't be able to handle them, and the
+interrupts will go on forever - locking up the machine.
 
-Floyd,
+
+The problem here is that the SCI really _should_not_ generate a regular
+interrupt unless the system is ready to accept it. The SCI can be routed
+to a SMI (system management interrupt, which puts the CPU in SMM mode,
+at which point the BIOS SMM routines can handle it), _or_ if you have
+ACPI enabled, ACPI should be (a) enabling the SCI->regular irq routine
+_and_ (b) actually handling the irq.
+
+Do you have ACPI enabled in your kernel?
+
+What are the bootup messages?
+
+		Linus

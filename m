@@ -1,52 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276525AbRI2Pdv>; Sat, 29 Sep 2001 11:33:51 -0400
+	id <S276522AbRI2PXL>; Sat, 29 Sep 2001 11:23:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276524AbRI2Pdl>; Sat, 29 Sep 2001 11:33:41 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:53121 "EHLO ookhoi.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S276523AbRI2Pd1>;
-	Sat, 29 Sep 2001 11:33:27 -0400
-Date: Sat, 29 Sep 2001 17:33:52 +0200
-From: Ookhoi <ookhoi@dds.nl>
-To: arjan@fenrus.demon.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9-ac17 Adaptec AIC7XXX problems (new driver, old one works fine)
-Message-ID: <20010929173352.F9327@humilis>
-Reply-To: ookhoi@dds.nl
-In-Reply-To: <20010929162224.E9327@humilis> <E15nLLO-00027M-00@fenrus.demon.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15nLLO-00027M-00@fenrus.demon.nl>
-User-Agent: Mutt/1.3.19i
-X-Uptime: 20:50:40 up 1 day, 9 min,  9 users,  load average: 0.08, 0.12, 0.05
+	id <S276523AbRI2PXB>; Sat, 29 Sep 2001 11:23:01 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:8481 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S276522AbRI2PWw>; Sat, 29 Sep 2001 11:22:52 -0400
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: RFC (patch below) Re: ide drive problem?
+Date: Sat, 29 Sep 2001 17:21:16 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Hahn <hahn@physics.mcmaster.ca>
+In-Reply-To: <E15myH3-00076i-00@the-village.bc.nu>
+In-Reply-To: <E15myH3-00076i-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_GZJFKS4YND8PISU5IZVZ"
+Message-Id: <E15nLxO-0001yx-00@mrvdom00.schlund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In article <20010929162224.E9327@humilis> you wrote:
-> > Hi Justin, Alan,
-> 
-> > aic7xxx_old.c:11965: parse error before string constant
-> > aic7xxx_old.c:11965: warning: type defaults to `int' in declaration of `MODULE_LICENSE'
-> > aic7xxx_old.c:11965: warning: function declaration isn't a prototype
-> > aic7xxx_old.c:11965: warning: data definition has no type or storage class
-> 
-> 
-> Yet another driver with bogus #ifdef around the module.h include.. sigh
 
-You mean linux/drivers/scsi/aic7xxx_old.c ? The old one is the one that
-fails to compile with -ac17
+--------------Boundary-00=_GZJFKS4YND8PISU5IZVZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Hi List, Hi Andre,
+
+as Mark Hahn made a FAQ entry for the =20
+
+hde: dma_intr: status=3D0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=3D0x84 { DriveStatusError BadCRC }
+
+message, I think we should point all users to this FAQ. I saw this messag=
+e
+and questions about it very often in this list, so we should help the use=
+rs=20
+to find a fast solution. You know, only a few people read a manual, even =
+in=20
+error case.
+
+Now the output looks like:
+
+hde: dma_intr: status=3D0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=3D0x84 { DriveStatusError BadCRC }
+
+For further Informations please check: http://www.tux.org/lkml/#s13-3
 
 
-> --- linux/drivers/scsi/aic7xxx/aic7xxx_linux.c~	Fri Sep 28 13:02:13 2001
-> +++ linux/drivers/scsi/aic7xxx/aic7xxx_linux.c	Sat Sep 29 15:41:52 2001
-> @@ -120,9 +120,7 @@
->   * under normal conditions.
->   */
->  
-> -#if defined(MODULE)
->  #include <linux/module.h>
-> -#endif
->  
->  #include "aic7xxx_osm.h"
->  #include "aic7xxx_inline.h"
+
+This patch applies correct for 2.4.9ac14 and 2.4.10
+
+diff -r -u linux/drivers/ide/ide.c linux-new/drivers/ide/ide.c
+--- linux/drivers/ide/ide.c     Fri Sep 28 17:36:54 2001
++++ linux-new/drivers/ide/ide.c Sat Sep 29 17:03:36 2001
+@@ -935,6 +935,9 @@
+                                        printk(", sector=3D%ld", HWGROUP(=
+drive)->rq->sector);
+                        }
+                }
++               if ((stat & READY_STAT) && (stat & SEEK_STAT) && (stat & =
+ERR_STAT)
++                && (err & ABRT_ERR) && (err & ICRC_ERR))
++                       printk("\nFor further Informations please check: =
+http://www.tux.org/lkml/#s13-3\n");
+ #endif /* FANCY_STATUS_DUMPS */
+                printk("\n");
+        }
+
+
+greetings
+
+Christian Borntr=E4ger
+--------------Boundary-00=_GZJFKS4YND8PISU5IZVZ
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="m.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="m.patch"
+
+ZGlmZiAtciAtdSBsaW51eC9kcml2ZXJzL2lkZS9pZGUuYyBsaW51eC1uZXcvZHJpdmVycy9pZGUv
+aWRlLmMKLS0tIGxpbnV4L2RyaXZlcnMvaWRlL2lkZS5jCUZyaSBTZXAgMjggMTc6MzY6NTQgMjAw
+MQorKysgbGludXgtbmV3L2RyaXZlcnMvaWRlL2lkZS5jCVNhdCBTZXAgMjkgMTc6MDM6MzYgMjAw
+MQpAQCAtOTM1LDYgKzkzNSw5IEBACiAJCQkJCXByaW50aygiLCBzZWN0b3I9JWxkIiwgSFdHUk9V
+UChkcml2ZSktPnJxLT5zZWN0b3IpOwogCQkJfQogCQl9CisJCWlmICgoc3RhdCAmIFJFQURZX1NU
+QVQpICYmIChzdGF0ICYgU0VFS19TVEFUKSAmJiAoc3RhdCAmIEVSUl9TVEFUKQorCQkgJiYgKGVy
+ciAmIEFCUlRfRVJSKSAmJiAoZXJyICYgSUNSQ19FUlIpKQorCQkgICAgICAgIHByaW50aygiXG5G
+b3IgZnVydGhlciBJbmZvcm1hdGlvbnMgcGxlYXNlIGNoZWNrOiBodHRwOi8vd3d3LnR1eC5vcmcv
+bGttbC8jczEzLTNcbiIpOwogI2VuZGlmCS8qIEZBTkNZX1NUQVRVU19EVU1QUyAqLwogCQlwcmlu
+dGsoIlxuIik7CiAJfQo=
+
+--------------Boundary-00=_GZJFKS4YND8PISU5IZVZ--

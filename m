@@ -1,70 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270142AbTHJRAv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 13:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270420AbTHJRAv
+	id S270022AbTHJRMA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 13:12:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270420AbTHJRMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 13:00:51 -0400
-Received: from elvas.procergs.com.br ([200.198.128.213]:54283 "EHLO
-	elvas.procergs.com.br") by vger.kernel.org with ESMTP
-	id S270142AbTHJRAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 13:00:48 -0400
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.6.0-test[123]: nvidia driver broke the ALSA sound for
- NForce
-From: Otavio Salvador <otavio@debian.org>
-Date: Sun, 10 Aug 2003 14:00:46 -0300
-Message-ID: <87wudlih1d.fsf@retteb.casa>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 10 Aug 2003 13:12:00 -0400
+Received: from smtp03.uc3m.es ([163.117.136.123]:7951 "EHLO smtp.uc3m.es")
+	by vger.kernel.org with ESMTP id S270022AbTHJRL4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 13:11:56 -0400
+Date: Sun, 10 Aug 2003 19:06:17 +0200
+Message-Id: <200308101706.h7AH6Hd21642@oboe.it.uc3m.es>
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+To: Paul Clements <Paul.Clements@SteelEye.com>
+Subject: Re: [PATCH 2.4.22-pre] nbd: fix race conditions
+Cc: linux-kernel@vger.kernel.org
+X-Newsgroups: linux.kernel
+In-Reply-To: <iKef.8c1.15@gated-at.bofh.it>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Folks,
+In article <iKef.8c1.15@gated-at.bofh.it> you wrote:
+> This patch is similar to one I posted yesterday for 2.6. It fixes the
+> following race conditions in nbd:
+>  
+> 1) adds locking and properly orders the code in NBD_CLEAR_SOCK to
+> eliminate races with other code
 
-I've tried the tree kernels and all doesn't play well the sound using
-ALSA for Nforce (intel8x0). This problem anly ocours when nvidia
-driver is loaded. 
+This is not so clear as for the 2.6 code.  There's no ref_count in the
+2.4 request struct, so you have no standard way to mark a request as
+in-flight, and hence no standard way to get clr_queue to skip it for the
+moment.  You are using something else as a marker, but I'm not quite
+clear what.  Can you say?
 
-Bellow are some calltrace from syslog about this:
+To summarise - the patch below appears to me not to do what you say it
+does, though it does cure races between setting and unsetting lo->file
+and lo->sock. It doesn't appear to cure races between clearing requests and
+doing them.
 
-Aug  4 13:56:56 retteb kernel: agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
-Aug  4 13:56:56 retteb kernel: agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
-Aug  4 13:56:56 retteb kernel: agpgart: Putting AGP V2 device at 0000:02:00.0 into 4x mode
-Aug  4 13:56:56 retteb kernel: Badness in pci_find_subsys at drivers/pci/search.c:132
-Aug  4 13:56:56 retteb kernel: Call Trace:
-Aug  4 13:56:56 retteb kernel:  [pci_find_subsys+232/240] pci_find_subsys+0xe8/0xf0
-Aug  4 13:56:56 retteb kernel:  [pci_find_device+47/64] pci_find_device+0x2f/0x40
-Aug  4 13:56:56 retteb kernel:  [pci_find_slot+40/80] pci_find_slot+0x28/0x50
-Aug  4 13:56:56 retteb kernel:  [_end+528808817/1069608232] os_pci_init_handle+0x39/0x70 [nvidia]
-Aug  4 13:56:56 retteb kernel:  [_end+527652855/1069608232] __nvsym00015+0x1f/0x24 [nvidia]
-Aug  4 13:56:56 retteb kernel:  [_end+528468051/1069608232] __nvsym03985+0x1f/0x24 [nvidia]
-Aug  4 13:56:56 retteb kernel:  [_end+528324424/1069608232] __nvsym03792+0x208/0x1c38 [nvidia]
-Aug  4 13:56:56 retteb kernel:  [check_journal_end+376/656] check_journal_end+0x178/0x290
-Aug  4 13:56:56 retteb kernel:  [do_journal_end+211/3168] do_journal_end+0xd3/0xc60
-Aug  4 13:56:56 retteb kernel:  [__block_commit_write+142/144] __block_commit_write+0x8e/0x90
-Aug  4 13:56:56 retteb kernel:  [generic_commit_write+74/176] generic_commit_write+0x4a/0xb0
-Aug  4 13:56:56 retteb kernel:  [reiserfs_commit_write+264/400] reiserfs_commit_write+0x108/0x190
-Aug  4 13:56:56 retteb kernel:  [block_prepare_write+52/80] block_prepare_write+0x34/0x50
-Aug  4 13:56:56 retteb kernel:  [unlock_page+21/96] unlock_page+0x15/0x60
-Aug  4 13:56:56 retteb kernel:  [generic_file_aio_write_nolock+1292/2960] generic_file_aio_write_nolock+0x50c/0xb90
-Aug  4 13:56:56 retteb kernel:  [_end+528267728/1069608232] __nvsym03662+0x78/0x84 [nvidia]
-Aug  4 13:56:56 retteb kernel:  [_end+528220881/1069608232] __nvsym03555+0x105/0x11c [nvidia]
-Aug  4 13:56:56 retteb kernel:  [_end+527669600/1069608232] __nvsym00758+0x78/0xb0 [nvidia]
+> 2) adds an lo->sock check to nbd_clear_que to eliminate races between
+> do_nbd_request and nbd_clear_que, which resulted in the dequeuing of
+> active requests
+>  
+> 3) adds an lo->sock check to NBD_DO_IT to eliminate races with
+> NBD_CLEAR_SOCK, which caused an Oops when "nbd-client -d" was called
+>  
 
-The driver of nvidia is 4496 and if I remove this all sound is back to
-normal. 
+All these are for the same thing - the metadataraces. 
 
-Anyone have some idea where is the problem or how fix this?
+> --- linux-2.4.21-PRISTINE/drivers/block/nbd.c	Fri Jun 13 10:51:32 2003
+> +++ linux-2.4.21/drivers/block/nbd.c	Sat Aug  9 13:25:49 2003
+> @@ -428,23 +428,24 @@ static int nbd_ioctl(struct inode *inode
+>                  return 0 ;
+>   
+>  	case NBD_CLEAR_SOCK:
+> +		error = 0;
+> +		down(&lo->tx_lock);
+> +		lo->sock = NULL;
+> +		up(&lo->tx_lock);
 
-TIA,
-Otavio
-                                   
--- 
-        O T A V I O    S A L V A D O R
----------------------------------------------
- E-mail: otavio@debian.org      UIN: 5906116
- GNU/Linux User: 239058     GPG ID: 49A5F855
- Home Page: http://www.freedom.ind.br/otavio
----------------------------------------------
+Unggg .. you mark lo->sock as null, atomically.
+
+> +		spin_lock(&lo->queue_lock);
+> +		file = lo->file;
+> +		lo->file = NULL;
+> +		spin_unlock(&lo->queue_lock);
+
+You save lo->file and mark it null, atomically.
+
+>  		nbd_clear_que(lo);
+>  		spin_lock(&lo->queue_lock);
+>  		if (!list_empty(&lo->queue_head)) {
+> -			spin_unlock(&lo->queue_lock);
+> -			printk(KERN_ERR "nbd: Some requests are in progress -> can not turn off.\n");
+> -			return -EBUSY;
+> -		}
+
+You remove the code that gave up on trying to clear socket if the queue is
+nonempty. Why? What's wrong with getting userspace to retry until OK?
+Oh, I see ...
+
+> -		file = lo->file;
+> -		if (!file) {
+> -			spin_unlock(&lo->queue_lock);
+> -			return -EINVAL;
+> +			printk(KERN_ERR "nbd: disconnect: some requests are in progress -> please try again.\n");
+> +			error = -EBUSY;
+>  		}
+
+... it looks as though if the queue is nonempty, we now still return
+busy. So what you did was remove the test on lo->file. Now we don't
+care about the lo->file state. Why?
+
+
+> -		lo->file = NULL;
+> -		lo->sock = NULL;
+>  		spin_unlock(&lo->queue_lock);
+> -		fput(file);
+> -		return 0;
+> +		if (file)
+> +			fput(file);
+> +		return error;
+
+Well, that was harmless. 
+
+>  	case NBD_SET_SOCK:
+>  		if (lo->file)
+>  			return -EBUSY;
+> @@ -491,9 +492,12 @@ static int nbd_ioctl(struct inode *inode
+>  		 * there should be a more generic interface rather than
+>  		 * calling socket ops directly here */
+>  		down(&lo->tx_lock);
+> -		printk(KERN_WARNING "nbd: shutting down socket\n");
+> -		lo->sock->ops->shutdown(lo->sock, SEND_SHUTDOWN|RCV_SHUTDOWN);
+> -		lo->sock = NULL;
+> +		if (lo->sock) {
+> +			printk(KERN_WARNING "nbd: shutting down socket\n");
+> +			lo->sock->ops->shutdown(lo->sock,
+> +				SEND_SHUTDOWN|RCV_SHUTDOWN);
+> +			lo->sock = NULL;
+> +		}
+
+Harmless.
+
+>  		up(&lo->tx_lock);
+>  		spin_lock(&lo->queue_lock);
+>  		file = lo->file;
+> @@ -505,6 +509,13 @@ static int nbd_ioctl(struct inode *inode
+>  			fput(file);
+>  		return lo->harderror;
+>  	case NBD_CLEAR_QUE:
+> +		down(&lo->tx_lock);
+> +		if (lo->sock) {
+> +			up(&lo->tx_lock);
+> +			return 0; /* probably should be error, but that would
+> +				   * break "nbd-client -d", so just return 0 */
+> +		}
+> +		up(&lo->tx_lock);
+
+You don't clear queue while lo->sock is nonzero. This means that one
+must have cleared socket beforehand.
+
+>  		nbd_clear_que(lo);
+>  		return 0;
+>  #ifdef PARANOIA
+
+I don't see any race conditions going away. Except possibly a race
+between set sock and clear sock to set lo->sock. The setting of
+lo->file is also a little more atomic now, and that's OK. But surely
+the race condition you cured in 2.6 was not this at all, but a race
+between clearing the queue and doing the requests?
+
+Peter

@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268310AbUJDQzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268281AbUJDRHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268310AbUJDQzR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 12:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268285AbUJDQzR
+	id S268281AbUJDRHM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 13:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268285AbUJDRHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 12:55:17 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:25236 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S268271AbUJDQzL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 12:55:11 -0400
-Date: Mon, 4 Oct 2004 12:55:10 -0400 (EDT)
-From: William Knop <wknop@andrew.cmu.edu>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: libata badness
-In-Reply-To: <41617AA0.9020809@pobox.com>
-Message-ID: <Pine.LNX.4.60-041.0410041241540.9105@unix43.andrew.cmu.edu>
-References: <Pine.LNX.4.60-041.0410040656001.2350@unix48.andrew.cmu.edu>
- <41617AA0.9020809@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 4 Oct 2004 13:07:12 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:33933 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268281AbUJDRHJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 13:07:09 -0400
+Date: Mon, 4 Oct 2004 09:46:39 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: efocht@hpce.nec.com, akpm@osdl.org, nagar@watson.ibm.com,
+       ckrm-tech@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041004094639.076c65e7.pj@sgi.com>
+In-Reply-To: <842970000.1096901859@[10.10.2.4]>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<200410032221.26683.efocht@hpce.nec.com>
+	<20041003134842.79270083.akpm@osdl.org>
+	<200410041605.30395.efocht@hpce.nec.com>
+	<842970000.1096901859@[10.10.2.4]>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin wrote:
+> I don't think anyone is suggesting that either system as is could replace
+> the other ... more that a combined system could be made for both types
+> of resource control that would be a better overall solution.
 
-> It either smells like a hardware problem or a raid problem.  The oops you 
-> list here is in raid5 not libata.
+Oops - sorry, Martin.  I obviously didn't read your entire sentence
+before objecting before.
 
-I'm inclined to agree. I should have titled the thread "libata/md badness" 
-since it appears to be a raid atop sata issue. Raid5 apparently works over 
-scsi, though.
+Now that I do, it makes sense.
 
-This is really beyond my realm of knowledge, though. After I check my 
-drives for errors, I'm going to back up my array and then experiment a 
-bit. I'll post any oopses I find in hopes that someone will be able to 
-properly interpret them.
-
-Will
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

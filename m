@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbUEQWYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263032AbUEQW2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbUEQWYx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 18:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUEQWYw
+	id S263032AbUEQW2J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 18:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUEQW12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 18:24:52 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64678 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263059AbUEQWYG (ORCPT
+	Mon, 17 May 2004 18:27:28 -0400
+Received: from twin.uoregon.edu ([128.223.214.27]:45696 "EHLO twin.uoregon.edu")
+	by vger.kernel.org with ESMTP id S263024AbUEQWVk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 18:24:06 -0400
-Date: Mon, 17 May 2004 15:26:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.6 appears to be 3 to 4 times slower than 2.6.5
-Message-Id: <20040517152638.42e9085c.akpm@osdl.org>
-In-Reply-To: <40A8CB2E.1070108@mrc-bsu.cam.ac.uk>
-References: <40A8CB2E.1070108@mrc-bsu.cam.ac.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 17 May 2004 18:21:40 -0400
+Date: Mon, 17 May 2004 15:17:34 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Roland Dreier <roland@topspin.com>
+cc: Norman Diamond <ndiamond@despammed.com>, Adrian Bunk <bunk@fs.tum.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] kill off PC9800
+In-Reply-To: <5265auu3i1.fsf@topspin.com>
+Message-ID: <Pine.LNX.4.44.0405171503090.30974-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk> wrote:
->
-> Another "me too" I'm afraid.  I'm running 2.6.6 on an ordinary UP Athlon 
-> system under Gentoo, and it behaves very strangely.  About 3 out of 4 times, 
-> it hangs during boot-up, at the "Freeing unused kernel memory" stage, and 
-> seems to not get as far as calling init....
+On 17 May 2004, Roland Dreier wrote:
 > 
-> Yesterday, it got past that stage, and the various startup scripts began to 
-> run, but *achingly* slowly.  It took about 10 minutes to get most of the 
-> network services started, with no login prompt in sight - I got fed up and 
-> rebooted then, because I needed to get some work done!
+> I don't know how many PC9800 machines were made but I can't believe
+> it's that many.
 
-Please try again and if it gets all the way to a login prompt, compare the
-contents of /proc/mtrr with 2.6.6-rc3.  Also play around with `top', etc. 
-See if there's anything unusual happening.
+then you've never been to japan.
+
+but I think this got off track.
+
+The salient issues as I understand them are:
+
+pc9800 has been broken for a while. 
+
+There is currently no maintainer.
+
+it's not likely to become unbroken anytime soon.
+
+the principle stakeholders would seem to be people with pc9800 machines 
+who run linux which means input from the linux/98 project if it's still 
+extant but baring that it's just a pile of dead code.
+
+Looking back through my mail I see Alan Cox touched it sometime in the 
+2.5.66 era.
+ 
+>  - Roland
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+
+

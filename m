@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316408AbSGGSux>; Sun, 7 Jul 2002 14:50:53 -0400
+	id <S316430AbSGGSxQ>; Sun, 7 Jul 2002 14:53:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316430AbSGGSuw>; Sun, 7 Jul 2002 14:50:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14605 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316408AbSGGSuw>;
-	Sun, 7 Jul 2002 14:50:52 -0400
-Date: Sun, 7 Jul 2002 19:53:25 +0100
+	id <S316446AbSGGSxP>; Sun, 7 Jul 2002 14:53:15 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17165 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316430AbSGGSxO>;
+	Sun, 7 Jul 2002 14:53:14 -0400
+Date: Sun, 7 Jul 2002 19:55:54 +0100
 From: Matthew Wilcox <willy@debian.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org,
-       jmorris@intercode.com.au
+To: kuznet@ms2.inr.ac.ru
+Cc: Matthew Wilcox <willy@debian.ORG>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] simplify networking fcntl
-Message-ID: <20020707195325.N27706@parcelfarce.linux.theplanet.co.uk>
-References: <20020707171555.L27706@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73d6tzwkap.fsf@oldwotan.suse.de>
+Message-ID: <20020707195554.O27706@parcelfarce.linux.theplanet.co.uk>
+References: <20020707171555.L27706@parcelfarce.linux.theplanet.co.uk> <200207071709.VAA17085@sex.inr.ac.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <p73d6tzwkap.fsf@oldwotan.suse.de>; from ak@suse.de on Sun, Jul 07, 2002 at 06:54:22PM +0200
+In-Reply-To: <200207071709.VAA17085@sex.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Sun, Jul 07, 2002 at 09:09:02PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 07, 2002 at 06:54:22PM +0200, Andi Kleen wrote:
+On Sun, Jul 07, 2002 at 09:09:02PM +0400, kuznet@ms2.inr.ac.ru wrote:
+> Hello!
 > 
-> I believe James Morris did this (clean up network fcntl) already in a more 
-> complex patchkit that also cleans up the SIGIO/SIGURG sending. 
-> Perhaps you coordinate with him.
+> > sock_no_fcntl is only called for F_SETOWN, so it can stand some
+> > simplification.
+> 
+> sk->proc. Sorry, generic F_SETOWN does not handle SIGURG.
 
-Last I heard from James, he was having more trouble than he expected
-making it work right.  an incremental improvement didn't seem
-unreasonable.
+indeed -- did you read the patch?  i simplified sock_no_fcntl so it
+_only_ handled F_SETOWN, which is the only time it's called.
 
 -- 
 Revolutions do not require corporate support.

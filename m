@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317017AbSGNTav>; Sun, 14 Jul 2002 15:30:51 -0400
+	id <S317022AbSGNTib>; Sun, 14 Jul 2002 15:38:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317022AbSGNTau>; Sun, 14 Jul 2002 15:30:50 -0400
-Received: from ja.mac.ssi.bg ([212.95.166.194]:52228 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S317017AbSGNTat>;
-	Sun, 14 Jul 2002 15:30:49 -0400
-Date: Sun, 14 Jul 2002 22:35:04 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-X-X-Sender: ja@u.domain.uli
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: [BUG?] unwanted proxy arp in 2.4.19-pre10
-Message-ID: <Pine.LNX.4.44.0207142213210.1343-100000@u.domain.uli>
+	id <S317023AbSGNTia>; Sun, 14 Jul 2002 15:38:30 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:18630 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317022AbSGNTia>; Sun, 14 Jul 2002 15:38:30 -0400
+Date: Sun, 14 Jul 2002 21:58:01 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Bart Verwilst <verwilst@gentoo.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sa2opl3 driver b0rkage?
+In-Reply-To: <200207142033.29721.verwilst@gentoo.org>
+Message-ID: <Pine.LNX.4.44.0207142149040.13686-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 14 Jul 2002, Bart Verwilst wrote:
 
-	Hello All, David,
+> I'm using kernel 2.4.19-pre7-ac2, and since i upgraded, arts (KDE's sound 
+> server) keeps on crashing every few minutes :o( I have an OPL3SA2 sound card.
 
-Andi Kleen wrote:
+Have you tried going back to a 'working' kernel?
 
-> The main use of this seem to be certain HA failover setups.
-> Some people use a patch that allows to disable ARP per interface for it
-> ("hidden") but for some reasons it was not integrated.
+> 	- opl3sa2 update                                     (Zwane Mwaikambo)   <---  
 
-	Yes, "hidden" has its own purpose which is limitted
-usually to HA setups. Then Alexey proposed (from long time)
-such ARP tricks to be controlled with hook(s)/rules. My ideas in
-such direction resulted in "iparp" which is completed:
+That was mostly cleanups, i haven't changed anything which could possibly 
+affect playback.
 
-http://www.linuxvirtualserver.org/~julian/#iparp
+> Several KDE bugreports say the same thing, for example:
+> 
+> http://bugs.kde.org/db/32/32415.html
 
-	Its purpose is "tuning" of ARP (the kernel's use
-only), not for security. For example, it can't deal with remote
-replies.
+Irregardless, i'll give it a test and give you some feedback
 
-	But at the same time I see David implements arptables.
-May be now it is good time to ask:
+Cheers,
+	Zwane
 
-	David,
-
-	can you explain what kind of control will be
-possible with arptables. For now, I see only filtering of
-remote probes. As we know the clusters have different needs.
-Can you draw a list of goals that will be achieved with
-arptables and whether the 2 ARP requirements for clusters ("drop
-probes to VIP" and the most needed "don't announce VIP in our
-probes") will exist in arptables? The 3th requirement (used
-from "hidden" to avoid problems with autoselecting VIP as src
-IP can be easily solved in routing).
-
-> It would be likely easier/more straightforward if there was a special
-> ARP routing table that is only consulted by ARP filter (as an extension
-> to the current multi table routing). Then you could just put reject routes
-> there to filter ARP Unfortunately nobody has stepped forward to implement it
-> yet, so it remained a dream so far.
->
-> Another thing that was implemented is a netfilter chain for ARP, but
-> afaik there are no filtering modules for it yet, so Joe User cannot
-> use it. It likely just exists somewhere as a proprietary module in
-> someone's firewall appliance and all they did was to contribute the
-> hook. It probably would not be hard to rewrite a filter module for it,
-> but again nobody did it yet.
-
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
+-- 
+function.linuxpower.ca
 

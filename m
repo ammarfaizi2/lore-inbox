@@ -1,51 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267888AbTBKRHw>; Tue, 11 Feb 2003 12:07:52 -0500
+	id <S267886AbTBKRMG>; Tue, 11 Feb 2003 12:12:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267889AbTBKRHw>; Tue, 11 Feb 2003 12:07:52 -0500
-Received: from mail4.bluewin.ch ([195.186.4.74]:42724 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S267888AbTBKRHv>;
-	Tue, 11 Feb 2003 12:07:51 -0500
-Date: Tue, 11 Feb 2003 18:17:36 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Henrik Persson <nix@socialism.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via rhine bug? (timeouts and resets)
-Message-ID: <20030211171736.GA1359@k3.hellgate.ch>
-Mail-Followup-To: Henrik Persson <nix@socialism.nu>,
-	linux-kernel@vger.kernel.org
-References: <200302111344.h1BDiMPY067070@sirius.nix.badanka.com> <20030211154449.GA2252@k3.hellgate.ch> <200302111652.h1BGq0PY067795@sirius.nix.badanka.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302111652.h1BGq0PY067795@sirius.nix.badanka.com>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.60 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+	id <S267887AbTBKRMG>; Tue, 11 Feb 2003 12:12:06 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:62133 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S267886AbTBKRMD>;
+	Tue, 11 Feb 2003 12:12:03 -0500
+Message-ID: <3E49311E.6090108@colorfullife.com>
+Date: Tue, 11 Feb 2003 18:21:34 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Hartmut Manz <manz@intes.de>, linux-kernel@vger.kernel.org
+Subject: Re: allocate more than 2 GB on IA32
+Content-Type: multipart/mixed;
+ boundary="------------090201040100010306030001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Feb 2003 17:51:09 +0100, Henrik Persson wrote:
-> RL> The patch attached below will definitely solve some of the problems
-> RL> you're seeing (e.g. "excessive collisions" on a switch). Feedback
-> 
-> Well.. It didn't solve my problems.. Still the same errors.. :/
+This is a multi-part message in MIME format.
+--------------090201040100010306030001
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-That I find hard to believe. You were seeing a combination of "MII status
-changed" and "Abort 0208, frame dropped.". That's because the driver makes
-two mistakes: It treats 0200 as a link change (first message), and it
-thinks 0008 indicates excessive collisions (second message).
+Martin wrote:
 
-In fact, 0008 means "transmission error", and 0200 specifies a buffer
-underrun. The patch fixes that (lines 204, 213). If you are seeing the
-_same_ errors my guess is you're still running the old driver. Check the
-log at debug=3.
+>> i would like to allocate more than 2 GB of memory on an IA32 architecture.
+>> 
+>> The machine is a dual XEON_DP with 3 GB of Ram and 4 GB of swap space.
+>> 
+>> I have tried with the default SUSE 8.1 kernel as well as with a
+>> 2.4.20-pre4aa1 Kernel compile by my own using these Options:
+>> 
+>> CONFIG_HIGHMEM4G=y
+>> CONFIG_HIGHMEM=y
+>> CONFIG_1GB=y
+>> 
+>> but I am only able to allocate 2 GB with a single malloc call.
+>> I tought it should be possible to allocate up to 2.9 GB of memory to a
+>> process, with this kernel settings.
+>
+>Well, assuming you had no user-space code or data, or a stack, or any
+>shared libraries to fit into that space as well ;-)
+>  
+>
+It's tricky, but not impossible.
 
-> RL> You shouldn't need to force full duplex, btw.
-> 
-> Nah, that was "just in case".. ;)
+Hartmut, start you application, allocate 2 gigabyte memory and then check
+    /proc/<pidof your app>/maps.
+It shows how your virtual memory is used.
 
-It's masking another bug that's waiting to hit you <g>.
+You application is loaded at address 0x08000000. The stack is at 
+0xbfffxxxx. Addresses above 0xC0000000 are reserved for the kernel.
+Usually shared libraries are loaded at 0x40000000, and thus the largest 
+area is 2 GB: from 0x400xxxx to 0xbfffxxxx.
 
-Roger
+You must remove everything that is at 0x4000xxxx, then you can malloc 
+2.9 GB. Linking with --static is definitively required, but it's not 
+enough - the glibc-2.3 library startup seems to malloc something at 
+0x40000000. Try another C library.
+
+One alternative would be a 2.9 GB global variable. An ugly example is 
+attached - I could create a 2943 MB large variable.
+With some asm-foo, it should be possible to create one 2.9 GB variable. 
+Then implement your own malloc, backed by that 2.9 GB memory area.
+
+--
+    Manfred
+
+--------------090201040100010306030001
+Content-Type: text/plain;
+ name="testmalloc.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="testmalloc.c"
+
+#include <malloc.h>
+// Test the maximum size of one linear block that is achievable with Linux
+// compile with gcc --static.
+
+#define SIZE	2943
+
+unsigned char dummy1[1024UL*1024*SIZE/2];
+unsigned char dummy2[1024UL*1024*SIZE/2];
+
+int main(void)
+{
+	if ((unsigned long)dummy2 != (unsigned long) ((&dummy1)+1))  {
+		printf("dummy1 has address %lx, ends at %lxh.\n",dummy1, (&dummy1)+1);
+		printf("dummy2 has address %lx.\n",dummy2);
+		printf("duh. something went wrong.\n");
+	} else {
+		printf("%d MB memory block starting at address %lxh available.\n",
+				SIZE, (unsigned long)dummy1);
+	}
+	for(;;) sleep(100);
+	return 0;
+}
+
+--------------090201040100010306030001--
+

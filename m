@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261733AbSI2Sal>; Sun, 29 Sep 2002 14:30:41 -0400
+	id <S261720AbSI2S15>; Sun, 29 Sep 2002 14:27:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261735AbSI2Sak>; Sun, 29 Sep 2002 14:30:40 -0400
-Received: from gate.perex.cz ([194.212.165.105]:9488 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S261733AbSI2SaC>;
-	Sun, 29 Sep 2002 14:30:02 -0400
-Date: Sun, 29 Sep 2002 20:34:52 +0200 (CEST)
+	id <S261719AbSI2S14>; Sun, 29 Sep 2002 14:27:56 -0400
+Received: from gate.perex.cz ([194.212.165.105]:7696 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S261720AbSI2S1l>;
+	Sun, 29 Sep 2002 14:27:41 -0400
+Date: Sun, 29 Sep 2002 20:32:33 +0200 (CEST)
 From: Jaroslav Kysela <perex@suse.cz>
 X-X-Sender: <perex@pnote.perex-int.cz>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ALSA update [5/10] - 2002/07/17
-Message-ID: <Pine.LNX.4.33.0209292034300.591-100000@pnote.perex-int.cz>
+Subject: [PATCH] ALSA update [3/10] - 2002/07/03
+Message-ID: <Pine.LNX.4.33.0209292031430.591-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,954 +24,454 @@ You can import this changeset into BK by piping this whole message to:
 ===================================================================
 
 
-ChangeSet@1.605.2.16, 2002-09-25 17:10:33+02:00, perex@pnote.perex-int.cz
-  ALSA update 2002/07/17:
-    - AD1816A - fixed MIC playback volume
-    - OPL3SA2 - fixed non-ISA PnP build
-    - AC'97 code - 1st version of separated codec specific code
+ChangeSet@1.605.2.14, 2002-09-25 15:45:01+02:00, perex@pnote.perex-int.cz
+  ALSA update 2002/07/03:
+    - added support for spdif on coexant cx20468 chip
+    - fixed compilation without CONFIG_PROC_FS
+    - YMFPCI driver
+      - fixed GPIO read/write
+      - a new module option snd_rear_switch
+    - ioctl32 - added support for old hw_params ioctl
+    - ES1968 driver
+      - enabled hw control IRQ
+      - calling es1968_reset() in free()
+    - VIA8233 driver - fixes for mono playback
 
 
- include/sound/version.h         |    2 
- sound/core/ioctl32/ioctl32.c    |    1 
- sound/isa/ad1816a/ad1816a_lib.c |    2 
- sound/isa/opl3sa2.c             |    2 
- sound/pci/ac97/Makefile         |    2 
- sound/pci/ac97/ac97_codec.c     |  316 ----------------------------------------
- sound/pci/ac97/ac97_id.h        |   44 +++++
- sound/pci/ac97/ac97_patch.c     |  310 +++++++++++++++++++++++++++++++++++++++
- sound/pci/ac97/ac97_patch.h     |   38 ++++
- 9 files changed, 401 insertions(+), 316 deletions(-)
+ include/sound/ac97_codec.h     |    9 +++++++++
+ include/sound/info.h           |    4 ++--
+ include/sound/version.h        |    2 +-
+ include/sound/ymfpci.h         |    2 +-
+ sound/core/ioctl32/pcm32.c     |    2 ++
+ sound/isa/gus/gus_mem_proc.c   |    4 ++--
+ sound/pci/ac97/ac97_codec.c    |   31 +++++++++++++++++++++++++++++++
+ sound/pci/es1968.c             |   10 ++++++----
+ sound/pci/via8233.c            |    2 +-
+ sound/pci/ymfpci/ymfpci.c      |    6 +++++-
+ sound/pci/ymfpci/ymfpci_main.c |   39 +++++++++++++++++++++++----------------
+ 11 files changed, 83 insertions(+), 28 deletions(-)
 
 
+diff -Nru a/include/sound/ac97_codec.h b/include/sound/ac97_codec.h
+--- a/include/sound/ac97_codec.h	Sun Sep 29 20:20:29 2002
++++ b/include/sound/ac97_codec.h	Sun Sep 29 20:20:29 2002
+@@ -127,6 +127,14 @@
+ #define AC97_CSR_SPECF_DATA	0x6e	/* Special Feature Data */
+ #define AC97_CSR_BDI_STATUS	0x7a	/* BDI Status */
+ 
++/* specific - Conexant */
++#define AC97_CXR_AUDIO_MISC	0x5c
++#define AC97_CXR_SPDIFEN	(1<<3)
++#define AC97_CXR_COPYRGT	(1<<2)
++#define AC97_CXR_SPDIF_MASK	(3<<0)
++#define AC97_CXR_SPDIF_PCM	0x0
++#define AC97_CXR_SPDIF_AC3	0x2
++
+ /* ac97->scaps */
+ #define AC97_SCAP_SURROUND_DAC	(1<<0)	/* surround L&R DACs are present */
+ #define AC97_SCAP_CENTER_LFE_DAC (1<<1)	/* center and LFE DACs are present */
+@@ -135,6 +143,7 @@
+ #define AC97_HAS_PC_BEEP	(1<<0)	/* force PC Speaker usage */
+ #define AC97_AD_MULTI		(1<<1)	/* Analog Devices - multi codecs */
+ #define AC97_CS_SPDIF		(1<<2)	/* Cirrus Logic uses funky SPDIF */
++#define AC97_CX_SPDIF		(1<<3)	/* Conexant's spdif interface */
+ 
+ /*
+ 
+diff -Nru a/include/sound/info.h b/include/sound/info.h
+--- a/include/sound/info.h	Sun Sep 29 20:20:29 2002
++++ b/include/sound/info.h	Sun Sep 29 20:20:29 2002
+@@ -151,8 +151,8 @@
+ 
+ static inline int snd_info_get_line(snd_info_buffer_t * buffer, char *line, int len) { return 0; }
+ static inline char *snd_info_get_str(char *dest, char *src, int len) { return NULL; }
+-static inline snd_info_entry_t *snd_info_create_module_entry(struct module * module, const char *name) { return NULL; }
+-static inline snd_info_entry_t *snd_info_create_card_entry(snd_card_t * card, const char *name) { return NULL; }
++static inline snd_info_entry_t *snd_info_create_module_entry(struct module * module, const char *name, snd_info_entry_t *parent) { return NULL; }
++static inline snd_info_entry_t *snd_info_create_card_entry(snd_card_t * card, const char *name, snd_info_entry_t *parent) { return NULL; }
+ static inline void snd_info_free_entry(snd_info_entry_t * entry) { ; }
+ static inline snd_info_entry_t *snd_info_create_device(const char *name,
+ 						       unsigned int number,
 diff -Nru a/include/sound/version.h b/include/sound/version.h
---- a/include/sound/version.h	Sun Sep 29 20:21:04 2002
-+++ b/include/sound/version.h	Sun Sep 29 20:21:04 2002
+--- a/include/sound/version.h	Sun Sep 29 20:20:29 2002
++++ b/include/sound/version.h	Sun Sep 29 20:20:29 2002
 @@ -1,3 +1,3 @@
  /* include/version.h.  Generated automatically by configure.  */
  #define CONFIG_SND_VERSION "0.9.0rc2"
--#define CONFIG_SND_DATE " (Sun Jul 14 21:30:57 2002 UTC)"
-+#define CONFIG_SND_DATE " (Wed Jul 17 10:56:41 2002 UTC)"
-diff -Nru a/sound/core/ioctl32/ioctl32.c b/sound/core/ioctl32/ioctl32.c
---- a/sound/core/ioctl32/ioctl32.c	Sun Sep 29 20:21:04 2002
-+++ b/sound/core/ioctl32/ioctl32.c	Sun Sep 29 20:21:04 2002
-@@ -20,6 +20,7 @@
+-#define CONFIG_SND_DATE " (Wed Jun 26 18:12:42 2002 UTC)"
++#define CONFIG_SND_DATE " (Wed Jul 03 16:51:35 2002 UTC)"
+diff -Nru a/include/sound/ymfpci.h b/include/sound/ymfpci.h
+--- a/include/sound/ymfpci.h	Sun Sep 29 20:20:29 2002
++++ b/include/sound/ymfpci.h	Sun Sep 29 20:20:29 2002
+@@ -358,7 +358,7 @@
+ int snd_ymfpci_pcm2(ymfpci_t *chip, int device, snd_pcm_t **rpcm);
+ int snd_ymfpci_pcm_spdif(ymfpci_t *chip, int device, snd_pcm_t **rpcm);
+ int snd_ymfpci_pcm_4ch(ymfpci_t *chip, int device, snd_pcm_t **rpcm);
+-int snd_ymfpci_mixer(ymfpci_t *chip);
++int snd_ymfpci_mixer(ymfpci_t *chip, int rear_switch);
+ int snd_ymfpci_joystick(ymfpci_t *chip);
  
- #define __NO_VERSION__
- #include <sound/driver.h>
-+#include <linux/sched.h>
- #include <linux/smp_lock.h>
- #include <linux/init.h>
- #include <linux/time.h>
-diff -Nru a/sound/isa/ad1816a/ad1816a_lib.c b/sound/isa/ad1816a/ad1816a_lib.c
---- a/sound/isa/ad1816a/ad1816a_lib.c	Sun Sep 29 20:21:04 2002
-+++ b/sound/isa/ad1816a/ad1816a_lib.c	Sun Sep 29 20:21:04 2002
-@@ -908,7 +908,7 @@
- AD1816A_DOUBLE("FM Playback Switch", AD1816A_FM_ATT, 15, 7, 1, 1),
- AD1816A_DOUBLE("FM Playback Volume", AD1816A_FM_ATT, 8, 0, 63, 1),
- AD1816A_SINGLE("Mic Playback Switch", AD1816A_MIC_GAIN_ATT, 15, 1, 1),
--AD1816A_SINGLE("Mic Playback Volume", AD1816A_MIC_GAIN_ATT, 8, 63, 1),
-+AD1816A_SINGLE("Mic Playback Volume", AD1816A_MIC_GAIN_ATT, 8, 31, 1),
- AD1816A_SINGLE("Mic Boost", AD1816A_MIC_GAIN_ATT, 14, 1, 0),
- AD1816A_DOUBLE("Video Playback Switch", AD1816A_VID_GAIN_ATT, 15, 7, 1, 1),
- AD1816A_DOUBLE("Video Playback Volume", AD1816A_VID_GAIN_ATT, 8, 0, 31, 1),
-diff -Nru a/sound/isa/opl3sa2.c b/sound/isa/opl3sa2.c
---- a/sound/isa/opl3sa2.c	Sun Sep 29 20:21:04 2002
-+++ b/sound/isa/opl3sa2.c	Sun Sep 29 20:21:04 2002
-@@ -71,9 +71,11 @@
- MODULE_PARM(snd_enable, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
- MODULE_PARM_DESC(snd_enable, "Enable OPL3-SA soundcard.");
- MODULE_PARM_SYNTAX(snd_enable, SNDRV_ENABLE_DESC);
-+#ifdef __ISAPNP__
- MODULE_PARM(snd_isapnp, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
- MODULE_PARM_DESC(snd_isapnp, "ISA PnP detection for specified soundcard.");
- MODULE_PARM_SYNTAX(snd_isapnp, SNDRV_ISAPNP_DESC);
-+#endif
- MODULE_PARM(snd_port, "1-" __MODULE_STRING(SNDRV_CARDS) "l");
- MODULE_PARM_DESC(snd_port, "Port # for OPL3-SA driver.");
- MODULE_PARM_SYNTAX(snd_port, SNDRV_ENABLED ",allows:{{0xf86},{0x370},{0x100}},dialog:list");
-diff -Nru a/sound/pci/ac97/Makefile b/sound/pci/ac97/Makefile
---- a/sound/pci/ac97/Makefile	Sun Sep 29 20:21:04 2002
-+++ b/sound/pci/ac97/Makefile	Sun Sep 29 20:21:04 2002
-@@ -5,7 +5,7 @@
- 
- export-objs  := ac97_codec.o ak4531_codec.o
- 
--snd-ac97-codec-objs := ac97_codec.o
-+snd-ac97-codec-objs := ac97_codec.o ac97_patch.o
- snd-ak4531-codec-objs := ak4531_codec.o
- 
- # Toplevel Module Dependency
+ int snd_ymfpci_voice_alloc(ymfpci_t *chip, ymfpci_voice_type_t type, int pair, ymfpci_voice_t **rvoice);
+diff -Nru a/sound/core/ioctl32/pcm32.c b/sound/core/ioctl32/pcm32.c
+--- a/sound/core/ioctl32/pcm32.c	Sun Sep 29 20:20:29 2002
++++ b/sound/core/ioctl32/pcm32.c	Sun Sep 29 20:20:29 2002
+@@ -55,7 +55,9 @@
+ struct sndrv_pcm_hw_params32 {
+ 	u32 flags;
+ 	struct sndrv_mask masks[SNDRV_PCM_HW_PARAM_LAST_MASK - SNDRV_PCM_HW_PARAM_FIRST_MASK + 1]; /* this must be identical */
++	struct sndrv_mask mres[5];	/* reserved masks */
+ 	struct sndrv_interval32 intervals[SNDRV_PCM_HW_PARAM_LAST_INTERVAL - SNDRV_PCM_HW_PARAM_FIRST_INTERVAL + 1];
++	struct sndrv_interval ires[9];	/* reserved intervals */
+ 	u32 rmask;
+ 	u32 cmask;
+ 	u32 info;
+diff -Nru a/sound/isa/gus/gus_mem_proc.c b/sound/isa/gus/gus_mem_proc.c
+--- a/sound/isa/gus/gus_mem_proc.c	Sun Sep 29 20:20:29 2002
++++ b/sound/isa/gus/gus_mem_proc.c	Sun Sep 29 20:20:29 2002
+@@ -68,8 +68,8 @@
+ 	case 1:	/* SEEK_CUR */
+ 		file->f_pos += offset;
+ 		break;
+-	case 2: /* SEEK_END */
+-		file->f_pos = priv->size - offset;
++	case 2: /* SEEK_END, offset is negative */
++		file->f_pos = priv->size + offset;
+ 		break;
+ 	default:
+ 		return -EINVAL;
 diff -Nru a/sound/pci/ac97/ac97_codec.c b/sound/pci/ac97/ac97_codec.c
---- a/sound/pci/ac97/ac97_codec.c	Sun Sep 29 20:21:04 2002
-+++ b/sound/pci/ac97/ac97_codec.c	Sun Sep 29 20:21:04 2002
-@@ -31,6 +31,8 @@
- #include <sound/ac97_codec.h>
- #include <sound/asoundef.h>
- #include <sound/initval.h>
-+#include "ac97_id.h"
-+#include "ac97_patch.h"
- 
- MODULE_AUTHOR("Jaroslav Kysela <perex@suse.cz>");
- MODULE_DESCRIPTION("Universal interface for Audio Codec '97");
-@@ -51,21 +53,6 @@
- static void snd_ac97_proc_init(snd_card_t * card, ac97_t * ac97);
- static void snd_ac97_proc_done(ac97_t * ac97);
- 
--static int patch_wolfson00(ac97_t * ac97);
--static int patch_wolfson03(ac97_t * ac97);
--static int patch_wolfson04(ac97_t * ac97);
--static int patch_tritech_tr28028(ac97_t * ac97);
--static int patch_sigmatel_stac9708(ac97_t * ac97);
--static int patch_sigmatel_stac9721(ac97_t * ac97);
--static int patch_sigmatel_stac9744(ac97_t * ac97);
--static int patch_sigmatel_stac9756(ac97_t * ac97);
--static int patch_cirrus_cs4299(ac97_t * ac97);
--static int patch_cirrus_spdif(ac97_t * ac97);
--static int patch_conexant(ac97_t * ac97);
--static int patch_ad1819(ac97_t * ac97);
--static int patch_ad1881(ac97_t * ac97);
--static int patch_ad1886(ac97_t * ac97);
--
- typedef struct {
- 	unsigned int id;
- 	unsigned int mask;
-@@ -107,6 +94,7 @@
- { 0x41445360, 0xffffffff, "AD1885",		patch_ad1881 },
- { 0x41445361, 0xffffffff, "AD1886",		patch_ad1886 },
- { 0x41445362, 0xffffffff, "AD1887",		patch_ad1881 },
-+{ 0x41445372, 0xffffffff, "AD1981A",		NULL },
- { 0x414c4300, 0xfffffff0, "RL5306",	 	NULL },
- { 0x414c4310, 0xfffffff0, "RL5382", 		NULL },
- { 0x414c4320, 0xfffffff0, "RL5383", 		NULL },
-@@ -151,27 +139,6 @@
+--- a/sound/pci/ac97/ac97_codec.c	Sun Sep 29 20:20:29 2002
++++ b/sound/pci/ac97/ac97_codec.c	Sun Sep 29 20:20:29 2002
+@@ -61,6 +61,7 @@
+ static int patch_sigmatel_stac9756(ac97_t * ac97);
+ static int patch_cirrus_cs4299(ac97_t * ac97);
+ static int patch_cirrus_spdif(ac97_t * ac97);
++static int patch_conexant(ac97_t * ac97);
+ static int patch_ad1819(ac97_t * ac97);
+ static int patch_ad1881(ac97_t * ac97);
+ static int patch_ad1886(ac97_t * ac97);
+@@ -143,6 +144,7 @@
+ { 0x83847644, 0xffffffff, "STAC9744",		patch_sigmatel_stac9744 },
+ { 0x83847656, 0xffffffff, "STAC9756/57",	patch_sigmatel_stac9756 },
+ { 0x45838308, 0xffffffff, "ESS1988",		NULL },
++{ 0x43585429, 0xffffffff, "Cx20468",		patch_conexant },
  { 0, 	      0,	  NULL,			NULL }
  };
  
--#define AC97_ID_AK4540		0x414b4d00
--#define AC97_ID_AK4542		0x414b4d01
--#define AC97_ID_AD1819		0x41445303
--#define AC97_ID_AD1881		0x41445340
--#define AC97_ID_AD1881A		0x41445348
--#define AC97_ID_AD1885		0x41445360
--#define AC97_ID_AD1886		0x41445361
--#define AC97_ID_AD1887		0x41445362
--#define AC97_ID_TR28028		0x54524108
--#define AC97_ID_STAC9700	0x83847600
--#define AC97_ID_STAC9704	0x83847604
--#define AC97_ID_STAC9705	0x83847605
--#define AC97_ID_STAC9708	0x83847608
--#define AC97_ID_STAC9721	0x83847609
--#define AC97_ID_STAC9744	0x83847644
--#define AC97_ID_STAC9756	0x83847656
--#define AC97_ID_CS4297A		0x43525910
--#define AC97_ID_CS4299		0x43525930
--#define AC97_ID_CS4201		0x43525948
--#define AC97_ID_CS4205		0x43525958
--
- static const char *snd_ac97_stereo_enhancements[] =
- {
-   /*   0 */ "No 3D Stereo Enhancement",
-@@ -1848,283 +1815,6 @@
- 		snd_info_unregister(ac97->proc_entry);
- 		ac97->proc_entry = NULL;
+@@ -766,6 +768,13 @@
+ 		default: x = 0; break; // illegal.
+ 		}
+ 		change = snd_ac97_update_bits(ac97, AC97_CSR_SPDIF, 0x3fff, ((val & 0xcfff) | (x << 12)));
++	} else if (ac97->flags & AC97_CX_SPDIF) {
++		int v;
++		v = ucontrol->value.iec958.status[0] & (IEC958_AES0_CON_EMPHASIS_5015|IEC958_AES0_CON_NOT_COPYRIGHT) ? 0 : AC97_CXR_COPYRGT;
++		v |= ucontrol->value.iec958.status[0] & IEC958_AES0_NONAUDIO ? AC97_CXR_SPDIF_AC3 : AC97_CXR_SPDIF_PCM;
++		change = snd_ac97_update_bits(ac97, AC97_CXR_AUDIO_MISC, 
++					      AC97_CXR_SPDIF_MASK | AC97_CXR_COPYRGT,
++					      v);
+ 	} else {
+ 		change = snd_ac97_update_bits(ac97, AC97_SPDIF, 0x3fff, val);
  	}
--}
--
--/*
-- *  Chip specific initialization
-- */
--
--static int patch_wolfson00(ac97_t * ac97)
--{
--	/* This sequence is suspect because it was designed for
--	   the WM9704, and is known to fail when applied to the
--	   WM9707.  If you're having trouble initializing a
--	   WM9700, this is the place to start looking.
--	   Randolph Bentson <bentson@holmsjoen.com> */
--
--	// WM9701A
--	snd_ac97_write_cache(ac97, 0x72, 0x0808);
--	snd_ac97_write_cache(ac97, 0x74, 0x0808);
--
--	// patch for DVD noise
--	snd_ac97_write_cache(ac97, 0x5a, 0x0200);
--
--	// init vol
--	snd_ac97_write_cache(ac97, 0x70, 0x0808);
--
--	snd_ac97_write_cache(ac97, AC97_SURROUND_MASTER, 0x0000);
--	return 0;
--}
--
--static int patch_wolfson03(ac97_t * ac97)
--{
--	/* This is known to work for the ViewSonic ViewPad 1000
--	   Randolph Bentson <bentson@holmsjoen.com> */
--
--	// WM9703/9707
--	snd_ac97_write_cache(ac97, 0x72, 0x0808);
--	snd_ac97_write_cache(ac97, 0x20, 0x8000);
--	return 0;
--}
--
--static int patch_wolfson04(ac97_t * ac97)
--{
--	// WM9704
--	snd_ac97_write_cache(ac97, 0x72, 0x0808);
--	snd_ac97_write_cache(ac97, 0x74, 0x0808);
--
--	// patch for DVD noise
--	snd_ac97_write_cache(ac97, 0x5a, 0x0200);
--
--	// init vol
--	snd_ac97_write_cache(ac97, 0x70, 0x0808);
--
--	snd_ac97_write_cache(ac97, AC97_SURROUND_MASTER, 0x0000);
--	return 0;
--}
--
--static int patch_tritech_tr28028(ac97_t * ac97)
--{
--	snd_ac97_write_cache(ac97, 0x26, 0x0300);
--	snd_ac97_write_cache(ac97, 0x26, 0x0000);
--	snd_ac97_write_cache(ac97, AC97_SURROUND_MASTER, 0x0000);
--	snd_ac97_write_cache(ac97, AC97_SPDIF, 0x0000);
--	return 0;
--}
--
--static int patch_sigmatel_stac9708(ac97_t * ac97)
--{
--	unsigned int codec72, codec6c;
--
--	codec72 = snd_ac97_read(ac97, AC97_SIGMATEL_BIAS2) & 0x8000;
--	codec6c = snd_ac97_read(ac97, AC97_SIGMATEL_ANALOG);
--
--	if ((codec72==0) && (codec6c==0)) {
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC1, 0xabba);
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC2, 0x1000);
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS1, 0xabba);
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS2, 0x0007);
--	} else if ((codec72==0x8000) && (codec6c==0)) {
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC1, 0xabba);
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC2, 0x1001);
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_DAC2INVERT, 0x0008);
--	} else if ((codec72==0x8000) && (codec6c==0x0080)) {
--		/* nothing */
--	}
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_MULTICHN, 0x0000);
--	return 0;
--}
--
--static int patch_sigmatel_stac9721(ac97_t * ac97)
--{
--	if (snd_ac97_read(ac97, AC97_SIGMATEL_ANALOG) == 0) {
--		// patch for SigmaTel
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC1, 0xabba);
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC2, 0x4000);
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS1, 0xabba);
--		snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS2, 0x0002);
--	}
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_MULTICHN, 0x0000);
--	return 0;
--}
--
--static int patch_sigmatel_stac9744(ac97_t * ac97)
--{
--	// patch for SigmaTel
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC1, 0xabba);
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC2, 0x0000);	/* is this correct? --jk */
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS1, 0xabba);
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS2, 0x0002);
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_MULTICHN, 0x0000);
--	return 0;
--}
--
--static int patch_sigmatel_stac9756(ac97_t * ac97)
--{
--	// patch for SigmaTel
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC1, 0xabba);
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC2, 0x0000);	/* is this correct? --jk */
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS1, 0xabba);
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS2, 0x0002);
--	snd_ac97_write_cache(ac97, AC97_SIGMATEL_MULTICHN, 0x0000);
--	return 0;
--}
--
--static int patch_cirrus_spdif(ac97_t * ac97)
--{
--	/* Basically, the cs4201/cs4205/cs4297a has non-standard sp/dif registers.
--	   WHY CAN'T ANYONE FOLLOW THE BLOODY SPEC?  *sigh*
--	   - sp/dif EA ID is not set, but sp/dif is always present.
--	   - enable/disable is spdif register bit 15.
--	   - sp/dif control register is 0x68.  differs from AC97:
--	   - valid is bit 14 (vs 15)
--	   - no DRS
--	   - only 44.1/48k [00 = 48, 01=44,1] (AC97 is 00=44.1, 10=48)
--	   - sp/dif ssource select is in 0x5e bits 0,1.
--	*/
--
--	ac97->flags |= AC97_CS_SPDIF; 
--        ac97->ext_id |= AC97_EA_SPDIF;	/* force the detection of spdif */
--	snd_ac97_write_cache(ac97, AC97_CSR_ACMODE, 0x0080);
--	return 0;
--}
--
--static int patch_cirrus_cs4299(ac97_t * ac97)
--{
--	/* force the detection of PC Beep */
--	ac97->flags |= AC97_HAS_PC_BEEP;
--	
--	return patch_cirrus_spdif(ac97);
--}
--
--static int patch_conexant(ac97_t * ac97)
--{
--	ac97->flags |= AC97_CX_SPDIF;
--        ac97->ext_id |= AC97_EA_SPDIF;	/* force the detection of spdif */
--	return 0;
--}
--
--static int patch_ad1819(ac97_t * ac97)
--{
--	// patch for Analog Devices
--	snd_ac97_write_cache(ac97, AC97_AD_SERIAL_CFG, 0x7000); /* select all codecs */
--	return 0;
--}
--
--static unsigned short patch_ad1881_unchained(ac97_t * ac97, int idx, unsigned short mask)
--{
--	unsigned short val;
--
--	// test for unchained codec
--	snd_ac97_write_cache(ac97, AC97_AD_SERIAL_CFG, mask);
--	snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, 0x0000);	/* ID0C, ID1C, SDIE = off */
--	val = snd_ac97_read(ac97, AC97_VENDOR_ID2);
--	if ((val & 0xff40) != 0x5340)
--		return 0;
--	ac97->spec.ad18xx.unchained[idx] = mask;
--	ac97->spec.ad18xx.id[idx] = val;
--	return mask;
--}
--
--static int patch_ad1881_chained1(ac97_t * ac97, int idx, unsigned short codec_bits)
--{
--	static int cfg_bits[3] = { 1<<12, 1<<14, 1<<13 };
--	unsigned short val;
--	
--	snd_ac97_write_cache(ac97, AC97_AD_SERIAL_CFG, cfg_bits[idx]);
--	snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, 0x0004);	// SDIE
--	val = snd_ac97_read(ac97, AC97_VENDOR_ID2);
--	if ((val & 0xff40) != 0x5340)
--		return 0;
--	if (codec_bits)
--		snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, codec_bits);
--	ac97->spec.ad18xx.chained[idx] = cfg_bits[idx];
--	ac97->spec.ad18xx.id[idx] = val;
--	return 1;
--}
--
--static void patch_ad1881_chained(ac97_t * ac97, int unchained_idx, int cidx1, int cidx2)
--{
--	// already detected?
--	if (ac97->spec.ad18xx.unchained[cidx1] || ac97->spec.ad18xx.chained[cidx1])
--		cidx1 = -1;
--	if (ac97->spec.ad18xx.unchained[cidx2] || ac97->spec.ad18xx.chained[cidx2])
--		cidx2 = -1;
--	if (cidx1 < 0 && cidx2 < 0)
--		return;
--	// test for chained codecs
--	snd_ac97_write_cache(ac97, AC97_AD_SERIAL_CFG, ac97->spec.ad18xx.unchained[unchained_idx]);
--	snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, 0x0002);		// ID1C
--	if (cidx1 >= 0) {
--		if (patch_ad1881_chained1(ac97, cidx1, 0x0006))		// SDIE | ID1C
--			patch_ad1881_chained1(ac97, cidx2, 0);
--		else if (patch_ad1881_chained1(ac97, cidx2, 0x0006))	// SDIE | ID1C
--			patch_ad1881_chained1(ac97, cidx1, 0);
--	} else if (cidx2 >= 0) {
--		patch_ad1881_chained1(ac97, cidx2, 0);
--	}
--}
--
--static int patch_ad1881(ac97_t * ac97)
--{
--	static const char cfg_idxs[3][2] = {
--		{2, 1},
--		{0, 2},
--		{0, 1}
--	};
--	
--	// patch for Analog Devices
--	unsigned short codecs[3];
--	int idx, num;
--
--	init_MUTEX(&ac97->spec.ad18xx.mutex);
--
--	codecs[0] = patch_ad1881_unchained(ac97, 0, (1<<12));
--	codecs[1] = patch_ad1881_unchained(ac97, 1, (1<<14));
--	codecs[2] = patch_ad1881_unchained(ac97, 2, (1<<13));
--
--	snd_runtime_check(codecs[0] | codecs[1] | codecs[2], goto __end);
--
--	for (idx = 0; idx < 3; idx++)
--		if (ac97->spec.ad18xx.unchained[idx])
--			patch_ad1881_chained(ac97, idx, cfg_idxs[idx][0], cfg_idxs[idx][1]);
--
--	if (ac97->spec.ad18xx.id[1]) {
--		ac97->flags |= AC97_AD_MULTI;
--		ac97->scaps |= AC97_SCAP_SURROUND_DAC;
--	}
--	if (ac97->spec.ad18xx.id[2]) {
--		ac97->flags |= AC97_AD_MULTI;
--		ac97->scaps |= AC97_SCAP_CENTER_LFE_DAC;
--	}
--
--      __end:
--	/* select all codecs */
--	snd_ac97_write_cache(ac97, AC97_AD_SERIAL_CFG, 0x7000);
--	/* check if only one codec is present */
--	for (idx = num = 0; idx < 3; idx++)
--		if (ac97->spec.ad18xx.id[idx])
--			num++;
--	if (num == 1) {
--		/* ok, deselect all ID bits */
--		snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, 0x0000);
--	}
--	/* required for AD1886/AD1885 combination */
--	ac97->ext_id = snd_ac97_read(ac97, AC97_EXTENDED_ID);
--	if (ac97->spec.ad18xx.id[0]) {
--		ac97->id &= 0xffff0000;
--		ac97->id |= ac97->spec.ad18xx.id[0];
--	}
--	return 0;
--}
--
--static int patch_ad1886(ac97_t * ac97)
--{
--	patch_ad1881(ac97);
--	/* Presario700 workaround */
--	/* for Jack Sense/SPDIF Register misetting causing */
--	snd_ac97_write_cache(ac97, AC97_AD_JACK_SPDIF, 0x0010);
--	return 0;
- }
+@@ -808,6 +817,10 @@
+     AC97_SINGLE(SNDRV_CTL_NAME_IEC958("",PLAYBACK,NONE) "AC97-SPSA", AC97_CSR_ACMODE, 0, 3, 0)
+ };
  
- /*
-diff -Nru a/sound/pci/ac97/ac97_id.h b/sound/pci/ac97/ac97_id.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/sound/pci/ac97/ac97_id.h	Sun Sep 29 20:21:04 2002
-@@ -0,0 +1,44 @@
-+/*
-+ *  Copyright (c) by Jaroslav Kysela <perex@suse.cz>
-+ *  Universal interface for Audio Codec '97
-+ *
-+ *  For more details look to AC '97 component specification revision 2.2
-+ *  by Intel Corporation (http://developer.intel.com).
-+ *
-+ *
-+ *   This program is free software; you can redistribute it and/or modify
-+ *   it under the terms of the GNU General Public License as published by
-+ *   the Free Software Foundation; either version 2 of the License, or
-+ *   (at your option) any later version.
-+ *
-+ *   This program is distributed in the hope that it will be useful,
-+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *   GNU General Public License for more details.
-+ *
-+ *   You should have received a copy of the GNU General Public License
-+ *   along with this program; if not, write to the Free Software
-+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-+ *
-+ */
++static const snd_kcontrol_new_t snd_ac97_conexant_controls_spdif[2] = {
++    AC97_SINGLE(SNDRV_CTL_NAME_IEC958("",PLAYBACK,SWITCH), AC97_CXR_AUDIO_MISC, 3, 1, 0),
++};
 +
-+#define AC97_ID_AK4540		0x414b4d00
-+#define AC97_ID_AK4542		0x414b4d01
-+#define AC97_ID_AD1819		0x41445303
-+#define AC97_ID_AD1881		0x41445340
-+#define AC97_ID_AD1881A		0x41445348
-+#define AC97_ID_AD1885		0x41445360
-+#define AC97_ID_AD1886		0x41445361
-+#define AC97_ID_AD1887		0x41445362
-+#define AC97_ID_TR28028		0x54524108
-+#define AC97_ID_STAC9700	0x83847600
-+#define AC97_ID_STAC9704	0x83847604
-+#define AC97_ID_STAC9705	0x83847605
-+#define AC97_ID_STAC9708	0x83847608
-+#define AC97_ID_STAC9721	0x83847609
-+#define AC97_ID_STAC9744	0x83847644
-+#define AC97_ID_STAC9756	0x83847656
-+#define AC97_ID_CS4297A		0x43525910
-+#define AC97_ID_CS4299		0x43525930
-+#define AC97_ID_CS4201		0x43525948
-+#define AC97_ID_CS4205		0x43525958
-diff -Nru a/sound/pci/ac97/ac97_patch.c b/sound/pci/ac97/ac97_patch.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/sound/pci/ac97/ac97_patch.c	Sun Sep 29 20:21:04 2002
-@@ -0,0 +1,310 @@
-+/*
-+ *  Copyright (c) by Jaroslav Kysela <perex@suse.cz>
-+ *  Universal interface for Audio Codec '97
-+ *
-+ *  For more details look to AC '97 component specification revision 2.2
-+ *  by Intel Corporation (http://developer.intel.com).
-+ *
-+ *
-+ *   This program is free software; you can redistribute it and/or modify
-+ *   it under the terms of the GNU General Public License as published by
-+ *   the Free Software Foundation; either version 2 of the License, or
-+ *   (at your option) any later version.
-+ *
-+ *   This program is distributed in the hope that it will be useful,
-+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *   GNU General Public License for more details.
-+ *
-+ *   You should have received a copy of the GNU General Public License
-+ *   along with this program; if not, write to the Free Software
-+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-+ *
-+ */
-+
-+#include <sound/driver.h>
-+#include <linux/delay.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <sound/core.h>
-+#include <sound/pcm.h>
-+#include <sound/ac97_codec.h>
-+#include <sound/asoundef.h>
-+#include <sound/initval.h>
-+
-+/*
-+ *  Chip specific initialization
-+ */
-+
-+int patch_wolfson00(ac97_t * ac97)
-+{
-+	/* This sequence is suspect because it was designed for
-+	   the WM9704, and is known to fail when applied to the
-+	   WM9707.  If you're having trouble initializing a
-+	   WM9700, this is the place to start looking.
-+	   Randolph Bentson <bentson@holmsjoen.com> */
-+
-+	// WM9701A
-+	snd_ac97_write_cache(ac97, 0x72, 0x0808);
-+	snd_ac97_write_cache(ac97, 0x74, 0x0808);
-+
-+	// patch for DVD noise
-+	snd_ac97_write_cache(ac97, 0x5a, 0x0200);
-+
-+	// init vol
-+	snd_ac97_write_cache(ac97, 0x70, 0x0808);
-+
-+	snd_ac97_write_cache(ac97, AC97_SURROUND_MASTER, 0x0000);
-+	return 0;
+ #define AD18XX_PCM_BITS(xname, codec, shift, mask) \
+ { iface: SNDRV_CTL_ELEM_IFACE_MIXER, name: xname, info: snd_ac97_ad18xx_pcm_info_bits, \
+   get: snd_ac97_ad18xx_pcm_get_bits, put: snd_ac97_ad18xx_pcm_put_bits, \
+@@ -1342,6 +1355,17 @@
+ 			/* set default PCM S/PDIF params */
+ 			/* consumer,PCM audio,no copyright,no preemphasis,PCM coder,original,48000Hz */
+ 			snd_ac97_write_cache(ac97, AC97_CSR_SPDIF, 0x0a20);
++		} else if (ac97->flags & AC97_CX_SPDIF) {
++			for (idx = 0; idx < 3; idx++)
++				if ((err = snd_ctl_add(card, snd_ac97_cnew(&snd_ac97_controls_spdif[idx], ac97))) < 0)
++					return err;
++			if ((err = snd_ctl_add(card, snd_ac97_cnew(&snd_ac97_conexant_controls_spdif[0], ac97))) < 0)
++				return err;
++			/* set default PCM S/PDIF params */
++			/* consumer,PCM audio,no copyright,no preemphasis,PCM coder,original,48000Hz */
++			snd_ac97_write_cache(ac97, AC97_CXR_AUDIO_MISC,
++					     snd_ac97_read(ac97, AC97_CXR_AUDIO_MISC) & ~(AC97_CXR_SPDIFEN|AC97_CXR_COPYRGT|AC97_CXR_SPDIF_MASK));
++			
+ 		} else {
+ 			for (idx = 0; idx < 5; idx++)
+ 				if ((err = snd_ctl_add(card, snd_ac97_cnew(&snd_ac97_controls_spdif[idx], ac97))) < 0)
+@@ -1968,6 +1992,13 @@
+ 	ac97->flags |= AC97_HAS_PC_BEEP;
+ 	
+ 	return patch_cirrus_spdif(ac97);
 +}
 +
-+int patch_wolfson03(ac97_t * ac97)
-+{
-+	/* This is known to work for the ViewSonic ViewPad 1000
-+	   Randolph Bentson <bentson@holmsjoen.com> */
-+
-+	// WM9703/9707
-+	snd_ac97_write_cache(ac97, 0x72, 0x0808);
-+	snd_ac97_write_cache(ac97, 0x20, 0x8000);
-+	return 0;
-+}
-+
-+int patch_wolfson04(ac97_t * ac97)
-+{
-+	// WM9704
-+	snd_ac97_write_cache(ac97, 0x72, 0x0808);
-+	snd_ac97_write_cache(ac97, 0x74, 0x0808);
-+
-+	// patch for DVD noise
-+	snd_ac97_write_cache(ac97, 0x5a, 0x0200);
-+
-+	// init vol
-+	snd_ac97_write_cache(ac97, 0x70, 0x0808);
-+
-+	snd_ac97_write_cache(ac97, AC97_SURROUND_MASTER, 0x0000);
-+	return 0;
-+}
-+
-+int patch_tritech_tr28028(ac97_t * ac97)
-+{
-+	snd_ac97_write_cache(ac97, 0x26, 0x0300);
-+	snd_ac97_write_cache(ac97, 0x26, 0x0000);
-+	snd_ac97_write_cache(ac97, AC97_SURROUND_MASTER, 0x0000);
-+	snd_ac97_write_cache(ac97, AC97_SPDIF, 0x0000);
-+	return 0;
-+}
-+
-+int patch_sigmatel_stac9708(ac97_t * ac97)
-+{
-+	unsigned int codec72, codec6c;
-+
-+	codec72 = snd_ac97_read(ac97, AC97_SIGMATEL_BIAS2) & 0x8000;
-+	codec6c = snd_ac97_read(ac97, AC97_SIGMATEL_ANALOG);
-+
-+	if ((codec72==0) && (codec6c==0)) {
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC1, 0xabba);
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC2, 0x1000);
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS1, 0xabba);
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS2, 0x0007);
-+	} else if ((codec72==0x8000) && (codec6c==0)) {
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC1, 0xabba);
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC2, 0x1001);
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_DAC2INVERT, 0x0008);
-+	} else if ((codec72==0x8000) && (codec6c==0x0080)) {
-+		/* nothing */
-+	}
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_MULTICHN, 0x0000);
-+	return 0;
-+}
-+
-+int patch_sigmatel_stac9721(ac97_t * ac97)
-+{
-+	if (snd_ac97_read(ac97, AC97_SIGMATEL_ANALOG) == 0) {
-+		// patch for SigmaTel
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC1, 0xabba);
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC2, 0x4000);
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS1, 0xabba);
-+		snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS2, 0x0002);
-+	}
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_MULTICHN, 0x0000);
-+	return 0;
-+}
-+
-+int patch_sigmatel_stac9744(ac97_t * ac97)
-+{
-+	// patch for SigmaTel
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC1, 0xabba);
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC2, 0x0000);	/* is this correct? --jk */
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS1, 0xabba);
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS2, 0x0002);
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_MULTICHN, 0x0000);
-+	return 0;
-+}
-+
-+int patch_sigmatel_stac9756(ac97_t * ac97)
-+{
-+	// patch for SigmaTel
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC1, 0xabba);
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_CIC2, 0x0000);	/* is this correct? --jk */
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS1, 0xabba);
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_BIAS2, 0x0002);
-+	snd_ac97_write_cache(ac97, AC97_SIGMATEL_MULTICHN, 0x0000);
-+	return 0;
-+}
-+
-+int patch_cirrus_spdif(ac97_t * ac97)
-+{
-+	/* Basically, the cs4201/cs4205/cs4297a has non-standard sp/dif registers.
-+	   WHY CAN'T ANYONE FOLLOW THE BLOODY SPEC?  *sigh*
-+	   - sp/dif EA ID is not set, but sp/dif is always present.
-+	   - enable/disable is spdif register bit 15.
-+	   - sp/dif control register is 0x68.  differs from AC97:
-+	   - valid is bit 14 (vs 15)
-+	   - no DRS
-+	   - only 44.1/48k [00 = 48, 01=44,1] (AC97 is 00=44.1, 10=48)
-+	   - sp/dif ssource select is in 0x5e bits 0,1.
-+	*/
-+
-+	ac97->flags |= AC97_CS_SPDIF; 
-+        ac97->ext_id |= AC97_EA_SPDIF;	/* force the detection of spdif */
-+	snd_ac97_write_cache(ac97, AC97_CSR_ACMODE, 0x0080);
-+	return 0;
-+}
-+
-+int patch_cirrus_cs4299(ac97_t * ac97)
-+{
-+	/* force the detection of PC Beep */
-+	ac97->flags |= AC97_HAS_PC_BEEP;
-+	
-+	return patch_cirrus_spdif(ac97);
-+}
-+
-+int patch_conexant(ac97_t * ac97)
++static int patch_conexant(ac97_t * ac97)
 +{
 +	ac97->flags |= AC97_CX_SPDIF;
 +        ac97->ext_id |= AC97_EA_SPDIF;	/* force the detection of spdif */
 +	return 0;
-+}
+ }
+ 
+ static int patch_ad1819(ac97_t * ac97)
+diff -Nru a/sound/pci/es1968.c b/sound/pci/es1968.c
+--- a/sound/pci/es1968.c	Sun Sep 29 20:20:29 2002
++++ b/sound/pci/es1968.c	Sun Sep 29 20:20:30 2002
+@@ -1129,7 +1129,7 @@
+ 	/* clear WP interupts */
+ 	outw(1, chip->io_port + 0x04);
+ 	/* enable WP ints */
+-	outw(inw(chip->io_port + 0x18) | 4, chip->io_port + 0x18);
++	outw(inw(chip->io_port + ESM_PORT_HOST_IRQ) | ESM_HIRQ_DSIE, chip->io_port + ESM_PORT_HOST_IRQ);
+ 	spin_unlock_irqrestore(&chip->reg_lock, flags);
+ 
+ 	freq = runtime->rate;
+@@ -1260,7 +1260,7 @@
+ 	/* clear WP interupts */
+ 	outw(1, chip->io_port + 0x04);
+ 	/* enable WP ints */
+-	outw(inw(chip->io_port + 0x18) | 4, chip->io_port + 0x18);
++	outw(inw(chip->io_port + ESM_PORT_HOST_IRQ) | ESM_HIRQ_DSIE, chip->io_port + ESM_PORT_HOST_IRQ);
+ 	spin_unlock_irqrestore(&chip->reg_lock, flags);
+ 
+ 	freq = runtime->rate;
+@@ -1821,7 +1821,7 @@
+ 	apu_set_register(chip, apu, 11, 0x0000);
+ 	spin_lock_irqsave(&chip->reg_lock, flags);
+ 	outw(1, chip->io_port + 0x04); /* clear WP interupts */
+-	outw(inw(chip->io_port + 0x18) | 4, chip->io_port + 0x18); /* enable WP ints */
++	outw(inw(chip->io_port + ESM_PORT_HOST_IRQ) | ESM_HIRQ_DSIE, chip->io_port + ESM_PORT_HOST_IRQ); /* enable WP ints */
+ 	spin_unlock_irqrestore(&chip->reg_lock, flags);
+ 
+ 	snd_es1968_apu_set_freq(chip, apu, ((unsigned int)48000 << 16) / chip->clock); /* 48000 Hz */
+@@ -2328,9 +2328,10 @@
+ 	outb(0, iobase + ASSP_CONTROL_C);	/* M: Disable ASSP, ASSP IRQ's and FM Port */
+ 
+ 	/* Enable IRQ's */
+-	w = ESM_HIRQ_DSIE | ESM_HIRQ_MPU401;
++	w = ESM_HIRQ_DSIE | ESM_HIRQ_MPU401 | ESM_HIRQ_HW_VOLUME;
+ 	outw(w, iobase + ESM_PORT_HOST_IRQ);
+ 
 +
-+int patch_ad1819(ac97_t * ac97)
-+{
-+	// patch for Analog Devices
-+	snd_ac97_write_cache(ac97, AC97_AD_SERIAL_CFG, 0x7000); /* select all codecs */
-+	return 0;
-+}
-+
-+static unsigned short patch_ad1881_unchained(ac97_t * ac97, int idx, unsigned short mask)
-+{
-+	unsigned short val;
-+
-+	// test for unchained codec
-+	snd_ac97_write_cache(ac97, AC97_AD_SERIAL_CFG, mask);
-+	snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, 0x0000);	/* ID0C, ID1C, SDIE = off */
-+	val = snd_ac97_read(ac97, AC97_VENDOR_ID2);
-+	if ((val & 0xff40) != 0x5340)
-+		return 0;
-+	ac97->spec.ad18xx.unchained[idx] = mask;
-+	ac97->spec.ad18xx.id[idx] = val;
-+	return mask;
-+}
-+
-+static int patch_ad1881_chained1(ac97_t * ac97, int idx, unsigned short codec_bits)
-+{
-+	static int cfg_bits[3] = { 1<<12, 1<<14, 1<<13 };
-+	unsigned short val;
-+	
-+	snd_ac97_write_cache(ac97, AC97_AD_SERIAL_CFG, cfg_bits[idx]);
-+	snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, 0x0004);	// SDIE
-+	val = snd_ac97_read(ac97, AC97_VENDOR_ID2);
-+	if ((val & 0xff40) != 0x5340)
-+		return 0;
-+	if (codec_bits)
-+		snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, codec_bits);
-+	ac97->spec.ad18xx.chained[idx] = cfg_bits[idx];
-+	ac97->spec.ad18xx.id[idx] = val;
-+	return 1;
-+}
-+
-+static void patch_ad1881_chained(ac97_t * ac97, int unchained_idx, int cidx1, int cidx2)
-+{
-+	// already detected?
-+	if (ac97->spec.ad18xx.unchained[cidx1] || ac97->spec.ad18xx.chained[cidx1])
-+		cidx1 = -1;
-+	if (ac97->spec.ad18xx.unchained[cidx2] || ac97->spec.ad18xx.chained[cidx2])
-+		cidx2 = -1;
-+	if (cidx1 < 0 && cidx2 < 0)
-+		return;
-+	// test for chained codecs
-+	snd_ac97_write_cache(ac97, AC97_AD_SERIAL_CFG, ac97->spec.ad18xx.unchained[unchained_idx]);
-+	snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, 0x0002);		// ID1C
-+	if (cidx1 >= 0) {
-+		if (patch_ad1881_chained1(ac97, cidx1, 0x0006))		// SDIE | ID1C
-+			patch_ad1881_chained1(ac97, cidx2, 0);
-+		else if (patch_ad1881_chained1(ac97, cidx2, 0x0006))	// SDIE | ID1C
-+			patch_ad1881_chained1(ac97, cidx1, 0);
-+	} else if (cidx2 >= 0) {
-+		patch_ad1881_chained1(ac97, cidx2, 0);
+ 	/*
+ 	 * set up wavecache
+ 	 */
+@@ -2502,6 +2503,7 @@
+ 	chip->master_switch = NULL;
+ 	chip->master_volume = NULL;
+ 	if (chip->res_io_port) {
++		snd_es1968_reset(chip);
+ 		release_resource(chip->res_io_port);
+ 		kfree_nocheck(chip->res_io_port);
+ 	}
+diff -Nru a/sound/pci/via8233.c b/sound/pci/via8233.c
+--- a/sound/pci/via8233.c	Sun Sep 29 20:20:29 2002
++++ b/sound/pci/via8233.c	Sun Sep 29 20:20:29 2002
+@@ -364,7 +364,7 @@
+ 		outb(fmt, chip->port + VIA_REG_MULTPLAY_FORMAT);
+ 		/* set sample number to slot 3, 4, 7, 8, 6, 9 */
+ 		switch (runtime->channels) {
+-		case 1: slots = (1<<0); break;
++		case 1: slots = (1<<0) | (1<<4); break;
+ 		case 2: slots = (1<<0) | (2<<4); break;
+ 		case 4: slots = (1<<0) | (2<<4) | (3<<8) | (4<<12); break;
+ 		case 6: slots = (1<<0) | (2<<4) | (5<<8) | (6<<12) | (3<<16) | (4<<20); break;
+diff -Nru a/sound/pci/ymfpci/ymfpci.c b/sound/pci/ymfpci/ymfpci.c
+--- a/sound/pci/ymfpci/ymfpci.c	Sun Sep 29 20:20:29 2002
++++ b/sound/pci/ymfpci/ymfpci.c	Sun Sep 29 20:20:29 2002
+@@ -46,6 +46,7 @@
+ static int snd_enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_PNP;	/* Enable this card */
+ static long snd_fm_port[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = -1};
+ static long snd_mpu_port[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = -1};
++static int snd_rear_switch[SNDRV_CARDS];
+ 
+ MODULE_PARM(snd_index, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
+ MODULE_PARM_DESC(snd_index, "Index value for the Yamaha DS-XG PCI soundcard.");
+@@ -62,6 +63,9 @@
+ MODULE_PARM(snd_fm_port, "1-" __MODULE_STRING(SNDRV_CARDS) "l");
+ MODULE_PARM_DESC(snd_fm_port, "FM OPL-3 Port.");
+ MODULE_PARM_SYNTAX(snd_fm_port, SNDRV_ENABLED);
++MODULE_PARM(snd_rear_switch, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
++MODULE_PARM_DESC(snd_rear_switch, "Enable shared rear/line-in switch");
++MODULE_PARM_SYNTAX(snd_rear_switch, SNDRV_ENABLED "," SNDRV_BOOLEAN_FALSE_DESC);
+ 
+ static struct pci_device_id snd_ymfpci_ids[] __devinitdata = {
+         { 0x1073, 0x0004, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },   /* YMF724 */
+@@ -189,7 +193,7 @@
+ 		snd_card_free(card);
+ 		return err;
+ 	}
+-	if ((err = snd_ymfpci_mixer(chip)) < 0) {
++	if ((err = snd_ymfpci_mixer(chip, snd_rear_switch[dev])) < 0) {
+ 		snd_card_free(card);
+ 		return err;
+ 	}
+diff -Nru a/sound/pci/ymfpci/ymfpci_main.c b/sound/pci/ymfpci/ymfpci_main.c
+--- a/sound/pci/ymfpci/ymfpci_main.c	Sun Sep 29 20:20:30 2002
++++ b/sound/pci/ymfpci/ymfpci_main.c	Sun Sep 29 20:20:30 2002
+@@ -1560,30 +1560,36 @@
+ 
+ static int snd_ymfpci_get_gpio_out(ymfpci_t *chip, int pin)
+ {
+-	u16 reg, ctrl;
++	u16 reg, mode;
+ 	unsigned long flags;
+ 
+-	reg = ~(1 << pin) & 0xff;
+-	ctrl = 0xff00 | reg;
+ 	spin_lock_irqsave(&chip->reg_lock, flags);
+-	snd_ymfpci_writew(chip, YDSXGR_GPIOFUNCENABLE, ctrl);
+-	ctrl = snd_ymfpci_readw(chip, YDSXGR_GPIOINSTATUS);
++	reg = snd_ymfpci_readw(chip, YDSXGR_GPIOFUNCENABLE);
++	reg &= ~(1 << (pin + 8));
++	reg |= (1 << pin);
++	snd_ymfpci_writew(chip, YDSXGR_GPIOFUNCENABLE, reg);
++	/* set the level mode for input line */
++	mode = snd_ymfpci_readw(chip, YDSXGR_GPIOTYPECONFIG);
++	mode &= ~(3 << (pin * 2));
++	snd_ymfpci_writew(chip, YDSXGR_GPIOTYPECONFIG, mode);
++	snd_ymfpci_writew(chip, YDSXGR_GPIOFUNCENABLE, reg | (1 << (pin + 8)));
++	mode = snd_ymfpci_readw(chip, YDSXGR_GPIOINSTATUS);
+ 	spin_unlock_irqrestore(&chip->reg_lock, flags);
+-	return (ctrl >> pin) & 1;
++	return (mode >> pin) & 1;
+ }
+ 
+ static int snd_ymfpci_set_gpio_out(ymfpci_t *chip, int pin, int enable)
+ {
+-	u16 reg, ctrl;
++	u16 reg;
+ 	unsigned long flags;
+ 
+-	reg = ~(1 << pin) & 0xff;
+-	ctrl = (reg << 8) | reg;
+ 	spin_lock_irqsave(&chip->reg_lock, flags);
+-	snd_ymfpci_writew(chip, YDSXGR_GPIOFUNCENABLE, ctrl);
++	reg = snd_ymfpci_readw(chip, YDSXGR_GPIOFUNCENABLE);
++	reg &= ~(1 << pin);
++	reg &= ~(1 << (pin + 8));
++	snd_ymfpci_writew(chip, YDSXGR_GPIOFUNCENABLE, reg);
+ 	snd_ymfpci_writew(chip, YDSXGR_GPIOOUTCTRL, enable << pin);
+-	ctrl = 0xff00 | reg;
+-	snd_ymfpci_writew(chip, YDSXGR_GPIOFUNCENABLE, ctrl);
++	snd_ymfpci_writew(chip, YDSXGR_GPIOFUNCENABLE, reg | (1 << (pin + 8)));
+ 	spin_unlock_irqrestore(&chip->reg_lock, flags);
+ 
+ 	return 0;
+@@ -1639,7 +1645,7 @@
+ 	chip->ac97 = NULL;
+ }
+ 
+-int __devinit snd_ymfpci_mixer(ymfpci_t *chip)
++int __devinit snd_ymfpci_mixer(ymfpci_t *chip, int rear_switch)
+ {
+ 	ac97_t ac97;
+ 	snd_kcontrol_t *kctl;
+@@ -1673,10 +1679,11 @@
+ 
+ 	/*
+ 	 * shared rear/line-in
+-	 * FIXME: should be only on supported models - checking subdevice
+ 	 */
+-	if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&snd_ymfpci_rear_shared, chip))) < 0)
+-		return err;
++	if (rear_switch) {
++		if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&snd_ymfpci_rear_shared, chip))) < 0)
++			return err;
 +	}
-+}
-+
-+int patch_ad1881(ac97_t * ac97)
-+{
-+	static const char cfg_idxs[3][2] = {
-+		{2, 1},
-+		{0, 2},
-+		{0, 1}
-+	};
-+	
-+	// patch for Analog Devices
-+	unsigned short codecs[3];
-+	int idx, num;
-+
-+	init_MUTEX(&ac97->spec.ad18xx.mutex);
-+
-+	codecs[0] = patch_ad1881_unchained(ac97, 0, (1<<12));
-+	codecs[1] = patch_ad1881_unchained(ac97, 1, (1<<14));
-+	codecs[2] = patch_ad1881_unchained(ac97, 2, (1<<13));
-+
-+	snd_runtime_check(codecs[0] | codecs[1] | codecs[2], goto __end);
-+
-+	for (idx = 0; idx < 3; idx++)
-+		if (ac97->spec.ad18xx.unchained[idx])
-+			patch_ad1881_chained(ac97, idx, cfg_idxs[idx][0], cfg_idxs[idx][1]);
-+
-+	if (ac97->spec.ad18xx.id[1]) {
-+		ac97->flags |= AC97_AD_MULTI;
-+		ac97->scaps |= AC97_SCAP_SURROUND_DAC;
-+	}
-+	if (ac97->spec.ad18xx.id[2]) {
-+		ac97->flags |= AC97_AD_MULTI;
-+		ac97->scaps |= AC97_SCAP_CENTER_LFE_DAC;
-+	}
-+
-+      __end:
-+	/* select all codecs */
-+	snd_ac97_write_cache(ac97, AC97_AD_SERIAL_CFG, 0x7000);
-+	/* check if only one codec is present */
-+	for (idx = num = 0; idx < 3; idx++)
-+		if (ac97->spec.ad18xx.id[idx])
-+			num++;
-+	if (num == 1) {
-+		/* ok, deselect all ID bits */
-+		snd_ac97_write_cache(ac97, AC97_AD_CODEC_CFG, 0x0000);
-+	}
-+	/* required for AD1886/AD1885 combination */
-+	ac97->ext_id = snd_ac97_read(ac97, AC97_EXTENDED_ID);
-+	if (ac97->spec.ad18xx.id[0]) {
-+		ac97->id &= 0xffff0000;
-+		ac97->id |= ac97->spec.ad18xx.id[0];
-+	}
-+	return 0;
-+}
-+
-+int patch_ad1886(ac97_t * ac97)
-+{
-+	patch_ad1881(ac97);
-+	/* Presario700 workaround */
-+	/* for Jack Sense/SPDIF Register misetting causing */
-+	snd_ac97_write_cache(ac97, AC97_AD_JACK_SPDIF, 0x0010);
-+	return 0;
-+}
-diff -Nru a/sound/pci/ac97/ac97_patch.h b/sound/pci/ac97/ac97_patch.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/sound/pci/ac97/ac97_patch.h	Sun Sep 29 20:21:04 2002
-@@ -0,0 +1,38 @@
-+/*
-+ *  Copyright (c) by Jaroslav Kysela <perex@suse.cz>
-+ *  Universal interface for Audio Codec '97
-+ *
-+ *  For more details look to AC '97 component specification revision 2.2
-+ *  by Intel Corporation (http://developer.intel.com).
-+ *
-+ *
-+ *   This program is free software; you can redistribute it and/or modify
-+ *   it under the terms of the GNU General Public License as published by
-+ *   the Free Software Foundation; either version 2 of the License, or
-+ *   (at your option) any later version.
-+ *
-+ *   This program is distributed in the hope that it will be useful,
-+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *   GNU General Public License for more details.
-+ *
-+ *   You should have received a copy of the GNU General Public License
-+ *   along with this program; if not, write to the Free Software
-+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-+ *
-+ */
-+
-+int patch_wolfson00(ac97_t * ac97);
-+int patch_wolfson03(ac97_t * ac97);
-+int patch_wolfson04(ac97_t * ac97);
-+int patch_tritech_tr28028(ac97_t * ac97);
-+int patch_sigmatel_stac9708(ac97_t * ac97);
-+int patch_sigmatel_stac9721(ac97_t * ac97);
-+int patch_sigmatel_stac9744(ac97_t * ac97);
-+int patch_sigmatel_stac9756(ac97_t * ac97);
-+int patch_cirrus_cs4299(ac97_t * ac97);
-+int patch_cirrus_spdif(ac97_t * ac97);
-+int patch_conexant(ac97_t * ac97);
-+int patch_ad1819(ac97_t * ac97);
-+int patch_ad1881(ac97_t * ac97);
-+int patch_ad1886(ac97_t * ac97);
+ 
+ 	return 0;
+ }
 
 ===================================================================
 
 
 This BitKeeper patch contains the following changesets:
-1.605.2.16
+1.605.2.14
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch2407
-M'XL(`)!$EST``^U<>W/:2!+_VWR*OFQ5UB0\-'HA3)Q=!7#"QK$IP,FFLEO4
-M(`U&:R%QDO#CEGSWZQF)EQ'/3;)W6W%22$@]/?WX34_W:-`/<!6RX.1HQ`)V
-MG_D!WOAA='(4CD-6L/Z#WUN^C]^+`W_(BH*FV+LINHXWOL^'_MBS%\\S2-^D
-MD36`6Q:$)T>DH,RN1`\C=G+4JK^^.C=;F<SI*50'U+MF;1;!Z6DF\H-;ZMKA
-MSS0:N+Y7B`+JA4,6T8+E#R<STHDL23+^TTA)D31]0G1)+4TL8A-"5<)L258-
-M7<T(07\>>7[$"N(\[W@1ZO.845G6B"HKLC)1C9(N96I`"KJD%>0"T4&2BU*Y
-M*&M`2B=$.E&4YY)\(DFPCCD\+T->RKR"+ZM+-6.!>=XV83RR:<2`MRI*I2)*
-MA7<`\F#6B$%T$\_ZSCVSX5VC"B.7/O2H=0.WOCL>LH3RLGFNM$UY1NGY7KZ!
-MK)M>$WICQ[6G'*L_EDM@^3;#+R2,A#\=WP._#R$;T0`%L<5]"\(1LYR^8XFO
-MF;<@:XIF9)IS]V;R>_YE,A*5,B^GAN:?W'<QW$:64Z16N20^ND*$@I68DBBD
-MK.!Q(FD2D2=$I676MVC95BU+8\I:SVUG+8"BJ429D+*NDW7".2$M4IM[8W;L
-MNDYO54!%*QED(AL:[1NZHO9[9=E@O6T";F&?""GI^-4P%BRXF\(C/DX?*ZQ.
-M2$DUC(E*2V7:*UFJ0M2R2NTOP%J;Z'A45FWI>)8[MEDQYI1`KS!8MB%:3RHI
-MY0F5J,)8KR=;E/2)0M<+MI%M(I1,)D1&QOO:SK$?,>*&TU7-F.B*;>OEGM;3
-M=*/7D^2_RA>M)AF$'.;<%5ZJH6JEB:X9?5W7[#(MZTR5C"_`6I]H1HGH6T?Q
-M.WK#^H[+5D8P,C$FY7Y9+FLZ,QBA6JE4VEFP9;8+HQ='AC83*IGEDL:6'["B
-MXUN1J\C3XQ2SBE0BAF2H.F*VI*L3INLRL:AF2))2-O3^-L$V\8ZE4W`&T&6E
-M9&R*+?[(54(JK\8339.)@6-!IV5:8GJ)2:JD;,5:"LMY#"&&6I;%1+UFX/!I
-M^TN.W/6S]O:12S0>[V59+HDYG"@+L[=^HJDG,MDZ>Q/(DZ\R>U^)B=L&_EF,
-M'$RDIM-I/_"'$`U8/,%7W[<A"AB?1.,@=`GYX$[\QTFQN<X/!\RO-05(IL$_
-M?K!QG'@,JI<79XW7W?9%K5LS.W5X`L<?4.1?QBZF/X#ICZ:?J$0D'W#5J6:?
-M"&1LF992$/)%YLE,VO#=PG,Z@@TQ.6H")NICE$CZWX>2#KVAX<"!QAUUX$7D
-MX"'6T&8O<_.L#T5%"<LG1(8X_XLSN2$F8(]RO@)/QD0B\`A'6^QU")[*A'!$
-MQ8<D'^VV&Q>OS^O'3]ZA;,VI;.^%;$]RTZRUB]EJ][79N.B:G4X.C!PH)`<D
-MFWL$L%F<V@BJ/0-DY@:-'(U((1@/@OS8<_(]WQJ,AVCS]4PU62$Z(1*?X35)
-M$4@J'8`D^6M5"_L@"475R@F2J&TCDIP^A@3H=E'SD3?J=H$&W!(P].VQR\!F
-MH14XHPA#3RC*`<].2#G>XDEC+=YFECP`8XV2B%=3\;!L:5XTNUV\KO/KS+.=
-M_@)F5E*!M;@Y,!=)#4)K>.G<<Q+RFQ"IK,?!QW@,&;*]P/QJP><7='+HTEMX
-M^Q`RE\*+)>464;,P&<2HV;,\C#.P5(2L&.^02&3P.,0_$)AYSBTOY,C[O3]"
-M.#F%A=K.AX7\U4_#SF(AN!T_^U>DZU.>W2I2PBL,4I)('(6(=`"F%,@KV/[_
-M&57[]*3CZ8FDG2A:TI,IHEZC!GT_X)-2V2`FQZFH\S?C=-$KAT0T10$9(UJ<
-MUL&36<7WY/'%I,1ZDJEI*A`MT\`P@A#_$Z1[Q``6#R4YA^?]Y"\'3Q)%GN2.
-MCBZNSL_A<RY3(]A8)G@T-,SD,(*M0SR7@</]@MT!'X<G:ZDR[T'-[(?BW4ME
-M@>E52*M;(2U]C9G5@E=.])8Q[$H8!3:LB=[YP4UQK<T07%S?-7@2)"U8,<:O
-MZ&`#W;<_SKZJ?\@!_E'5KY7Z?*N(<X:C[RW$*S$[Q`CATP,"A`2JFBD^R\`S
-M@*H_>@B<ZT$$QU86>@_;=!6-KCR'ZT1=+!XC%O2IQ>(X-[8='UERS7XLEY!6
-MD)_AK:$?\"POHHX;@NO[-^@F,*L0KP@/1[['O&AF#LH300C8K2,,)Q=DP0C%
-M:V"'+G81C/P@ICH>1-'HI%BTV2US?92VP(5RN;.SA5@$T1@Z`R>$4>!?!W0(
-M>-K'HACMVH_N:,`J\."/P:*\5]L)H\#IC2,&3@04[2X4P$SP(>:$5]$;.&)Y
-MD8T&&(J<E7]Y?7$%KYG'`K1-<]QST;/GCL6\D`'%SOF5<(#>[R6<>)LS+D<[
-MD0.-A:R%9A5@#MX/9OB1I[TD+'/@!S&;8QIQ^0/P10J=1:$?P$6<S1H7UIIA
-MKBUFZ9[@/T`SX@DR14WO'->%'@,$0'_LYF(F2`X?&ITWEU<=,"\^P@>SU3(O
-M.A\K2!X-?+R+WHB9.<.1ZR!OU`X'8O2`2L0\WM5;U3?8R'S5.&]T/J(R<-;H
-M7-3;;3B[;($)3;/5:53YDQUH7K6:E^UZ`:#-N&@L9K'!W/U'H)L;X",Z.D09
-M71L&]):APRV&>+:!(A)'#]M=&;.A&%NNA;I(/C=I!4L=P.B4@[O`000AS%><
-M'#.8>SJ'L+8*.<":J</07(P7MA;ZMSWF+!1%RL$K/XPXY3L3,#820O)$D4IP
-MU39CQ8J9WV;++F85HT.CUC7?\D6WHR,QG_=46Y+22>0%$K)*PDOJ<D*"60$6
-MIVDD!IF3J"D="1)S@<9(I]'F)/H:-OH"2;J\1FF!1%XAZ;1D0Y(-3J.IFJP2
-M:568=H>?21+2&(JAEO04ZR4TZIQ&74>CS6FT=33&G&:=/#*9TY37T*AS>=1U
-M\FCZC$;35VBJ;54NEV)G*9JLE<FJ[H*F/"=1TDDD,B=)<;D@T>8DF,"LRQ^3
-MQSW;4\B$\(`L<J^'5?_`1')J.<PEN<IK\HXI50M63/*MTLG]'75(1JF0K^*J
-MOR&E%(]$=T@IIZX]**M$<WU/*[^GE=_3RG]:6CE=-GH1APP[X..T,'BY<$=,
-M+SA87/J0=L/QG"CM.H:$WO+U^9/MM.LC:YAV>6')+.VN.+!^VCTN&(9V?NNW
-M6?`:.*-Y&.44#G6=_PB;)B;!6``B5G;O?+<?^IXD'0LA(F3`3[*9/S-'Q6?Q
-ML`C9O\?,PVC&S\><<X30MRAB7PP%',,V"YUK#]&"`,L<)4/XPSN>7.9XK.!-
-M;SS_SN.>[R/RX&Z`(X&.XE$0PT$T%(U*".E&GP_>'Q&KB$<'014%/@*.S37B
-M%^F\$<)!0`[_\]Y''"R<<QC1(!+1%1L4!'T+1?+=T0!>87Q%]>%%+S[Y>>"[
-MP_`/GWD\4KZ,K754+,8]$#-SQ!_M"%,)('<M:@V8L!U?:XQ7'"5#,K*5;:3J
-M`FG<A_"(&**U]S4<+0X.JLU,-"J8X&0[8\*MPY]U;NM>6NY^`['(==M7K=;E
-MU46M^\YL=^HMT5@2W1X%+!H''DB5S.=4:"D;H+4("Y[6">VY]]X[[*[M>PA@
-M?M:D-J816,'\!><I10ZL+^=`65C0V-$(:IH1$LG4[ZC:'541YR2.H@9.,>MF
-MK^FB$R7N9!=2:2OI-E6V-FW6&F>[Z(XQ=HCIB]O%D&;Q@CM%^[&71&+>3,PI
-M'#[B1+>$4Y*+<`HSP0)&[26)&J_?F9WZ>?=5PVS+67B:(+V2M-:MG5J;%^;Y
-MY>L8"CC_'Q\G79^>2LCS*1PGS/CW+*#PVTTU95UM5`DW&>WU*#?97BW%>"*)
-ML7=OR8UQ8*?"CHF+2[SI9V`NGSZ7K1*'D_\%TY#]6M;,JMRX>%]O=1(EC3V5
-MQ#;&5%.<'#!5'/#I'4/XT><=1M!4CG=7YY@<O[DX8#3))&4T<=%WQCF<GH*4
-MJ+`8=]N\HPYSOZT3U;\+W[)P_;=QFKIF7DTS_L&VW]OTL1(<QR(7Q0\L"+"@
-MBGZ"?/Z/&X'JP[URN%.^A4<T_;M'_F:/6$X0C,-N.+*=?GKN_8J&CD5=]R$G
-MDFTKY`O=17'0Q*%<HEAVA>*W,.A7K,@#&VO*(G*$@%T[8<2",*ZE/KSY"%7S
-MXD>QY'%Y48>SR_/SRP_0>5.'5^>7E[6/T&[6JS\!/$.H#)Z)1ODIL[K)=YDX
-MO*<("\TH)Q91DIMXF;IW]($O([`0D_Q"TIAY%"M!I`FIJ`BQ+ATMB@8]3%>)
-M5ECNR_(]K"'=.16VD^YU`XM-O-U'C>*]Q]SR)TE3+*X=4;T*CBH<WX;(.)O<
-M]7RHM=K)%]]S'T!5"Z2H&C?P29(P1U(-=!@Y5=4<^1V..6/1J73*Z7)8TYRJ
-M1G99RA`K^P`KUY"YO-#F19+'DW+&1<"V.8)JQ:4-=VG^9=^EUR%,3F/$5-MQ
-M/EF!#"1_,1F[C[JHRI2N;B9T'`\X+"VQ@,37A;#7Z=JL,.HN8Z/:;G7-ZKO+
-M6CT&J+$+0`70RND(72-1LXI5'QL)F=*T?V.VN\UJ]U6]WL3^9Q*L&1?9%<%\
-MC]U3+TJ1*=76OR8V_)*F7F<TL1TYU5J+P=7TJ.M?0XW=.A8+MSO.K'7;]5;#
-MQ%!Y]CHNX7AP`90T`2"&B;A\"%/$P]@088T^*SK"@1\L"FR0[MBS!M3!F\NB
-MYT2!XMCWN<>MAS2\62YEXNLX%*?E:,3"2*@[8QZ+N+>^HJ\=XC`VJR*XJU,K
-MS>>31DVJYO"3X&>[UJCCH/?[L2=1X$UETOOZ1>VRU6W4Q$P@DF3>XJG8LZ9B
-M(OFO4S[N%3S%5&QN]P2*?!VNP&U\?U^8F>$3&O1W[)3KE4KIS$B$.:=L8_H%
-MCR[C#MV8=$!V]:+P1Y>'K+@HG[.U^M?B^B>%B_$GD!<O"$Z*_*#&!P4^5]+=
-M?[2WAV>]<;4/=+7*75T4[OUZ7N6DBT;;GGTO2[K0-M7SCQ"R9)=]H$*6<'+K
-M8Z!+`TH:3F8P[0K$"##@&9F?RM.(1EUNV(<D2#+[I]A`FZ`O6/T.DPFL5SZF
-MX<859ZA;GE1V8RWOP%J>L9876<=]O0")%[WQ7?PR]W]E.:@MA;3]8_@F198\
-M<.AP0&2+"I<'O44%7\[*7WYM??3(3;TNN.G9[-%T=,$D87ITM*TY3Z-%C3I;
-M8MBEQ;3#_?LC27\+:QJQ)^=:[RKRYY29W4A;?4C&&&8EB`QD&(A1BYQX[/PD
-MB_")_?[)H^?G'#^3<B#/S@@6X9]%S-R8(J0%;MX!!^\TN'OC8;R*YSD1UB*=
-M^J_'3U=Q-AQ'[#X[7V0,/TE<Q@WI`%HD!\=B!LAF*[-F9&LSDC13%YO)6YO)
-M23,E.U^@#L8>__TA>HQ9-\=SP2<PEV9V+O^>@VL_\J';99X=,^%&/48S8>=2
-MA=L+1[<B3IX_SR:C8=N<G5V'P41PX869]WD+%/'Q%?+[?*TU-9XC@4!,6C*+
-M`UT4F979_="BH_G]=M5LSE>Y:V8U7N59VY?\5_NJUB\Z]5;W_*P^Z^VW)-$6
-MQC\1A4)ZEGI@VBLX"ASP`2X*.JP(DITISJP,%5TL>!U'QWZ^=Q:<CHV?/T\F
-M"L'H%,AL'=2_R?%GJW,=L5@692"7X,"L5;@->0?LWV,GB)_90KPQL1AO8>1[
-M3WJ.%^\DF9=:25FS(?FI_]K!]*=>P_0GNW9:1>6E)6P@SZ>GR2\UI/@IP_S.
-MY#1E0A,L8D4VE4M&VEK42LQ-W-Y$W]+`\1$)XE%D\@L_KGY<ML$O_*>:;;[7
-MH2CJ.6A-%Q*&3LBBB"]8\Z?BTX7K'=SSBUE]N_C\AZS4S9NW$^[PBY2$\.#M
-MA#N^'F'-=D+M_WX[(?]IBE!YXYXS\>N4QR;YMML)]W'4ZG;"[8Y2C'_&;L+X
-M'1P[[R8\\#<JBO%],^'WS83?-Q/^PS83;M\Y5]EA"U0:S>,GF96=-[U4]M@B
-MLH%VY0'X!MJ5YZX;:%>>"%9V?!200I?V3*NR?0&_LFT=_3'!2CF^0K"JU#Q3
-M2W^QT?RW\E_N%4O;\H0MKUB2=%7FKUB2B![_6%Y;S@L4G&MW>?_"_\0K.V2R
-M]/(7/N7QS`^C^FADZ2I_$T?\+JG4J3_=4H?,_;(L7LGQ:*<PYOXVWZ8[>_>C
-6*#/#\?!45BU2LIF:^2\@19N%=E(`````
+begin 664 bkpatch2341
+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
+KF'PC#?8,>6*HN3!TW"J'3_X@Q^ERYSX<]5\K&$(X37.R_P'D[+RO"S0`````
 `
 end
 

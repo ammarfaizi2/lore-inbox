@@ -1,100 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266271AbTADGM0>; Sat, 4 Jan 2003 01:12:26 -0500
+	id <S266278AbTADHDv>; Sat, 4 Jan 2003 02:03:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266278AbTADGM0>; Sat, 4 Jan 2003 01:12:26 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:42321 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266271AbTADGMV>;
-	Sat, 4 Jan 2003 01:12:21 -0500
-From: <Hell.Surfers@cwctv.net>
-To: andrew@walrond.org, portnoy@tellink.net, linux-kernel@vger.kernel.org
-Date: Sat, 4 Jan 2003 06:20:34 +0000
-Subject: RE: Why is Nvidia given GPL'd code to use in closed source drivers?
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041661234774"
-Message-ID: <04eca0718060413DTVMAIL9@smtp.cwctv.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-
---1041661234774
+	id <S266286AbTADHDv>; Sat, 4 Jan 2003 02:03:51 -0500
+Received: from pcp01184434pcs.strl301.mi.comcast.net ([68.60.187.197]:37577
+	"EHLO mythical") by vger.kernel.org with ESMTP id <S266278AbTADHDt>;
+	Sat, 4 Jan 2003 02:03:49 -0500
+Date: Sat, 4 Jan 2003 02:12:09 -0500
+From: Ryan Anderson <ryan@michonline.com>
+To: Andrew McGregor <andrew@indranet.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Gauntlet Set NOW!
+Message-ID: <20030104071209.GH32343@michonline.com>
+Mail-Followup-To: Andrew McGregor <andrew@indranet.co.nz>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10301031425590.421-100000@master.linux-ide.org> <15900000.1041638213@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-By admitting you do not understand, you have taken the first step ;) read the lgpl, use it for your game.
-
-Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
-
-On 	Fri, 03 Jan 2003 20:21:38 +0000 	Andrew Walrond <andrew@walrond.org> wrote:
-
---1041661234774
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Fri, 3 Jan 2003 20:22:43 +0000
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267645AbTACUNy>; Fri, 3 Jan 2003 15:13:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267643AbTACUNy>; Fri, 3 Jan 2003 15:13:54 -0500
-Received: from falcon.vispa.uk.net ([62.24.228.11]:40722 "EHLO
-	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267645AbTACUNx>;
-	Fri, 3 Jan 2003 15:13:53 -0500
-Received: from walrond.org ([217.148.40.144])
-	by falcon.vispa.com (8.12.3/8.12.3) with ESMTP id h03KNaxl088033;
-	Fri, 3 Jan 2003 20:23:36 GMT
-Message-ID: <3E15F0D2.5040803@walrond.org>
-Date: Fri, 03 Jan 2003 20:21:38 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jon Portnoy <portnoy@tellink.net>, linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org> <1041596161.1157.34.camel@fly> <3E158738.4050003@walrond.org> <Pine.LNX.4.50.0301031338180.1030-100000@cerberus.localhost>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <15900000.1041638213@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-Ah, so I'm not bad then - just confused!
+On Sat, Jan 04, 2003 at 12:56:53PM +1300, Andrew McGregor wrote:
 
-Just to confirm then;
+[snip]
 
-I am free to develop computer games, keep the source code closed, sell 
-the software for cash, and I'm just a fine and dandy chap and Richard 
-Stallman will be my bestest mate?
+> Linus has made it quite clear in the past that his position on binary 
+> modules is that they are explicitly allowed, but that the maintainers of 
+> such a thing 'get everything they deserve' in terms of maintenance hassle. 
 
-Fab! I'm so happy.
+I *really* think you need to do some searches on this list to verify
+this statement.
 
-[ For non British among you:
-Irony \I"ron*y\, n.[L. ironia, Gr. ? dissimulation, fr. ? a
-    dissembler in speech, fr. ? to speak; perh. akin to E. word:
-    cf. F. ironie.]
-    1. Dissimulation; ignorance feigned for the purpose of
-       confounding or provoking an antagonist.
-    2. A sort of humor, ridicule, or light sarcasm, which adopts
-       a mode of speech the meaning of which is contrary to the
-       literal sense of the words.
-]
+Let me summarize what I remember from past discussions of this nature.
 
-Jon Portnoy wrote:
- > Educate yourself, then come back and discuss freedom.
+Linus put his code under the GPL.  Contributions came in, under the same
+license.  At some point, the first binary only module showed up.  When
+asked about the legality, Linus said something to the effect of, "I
+think they're ok."
 
-You're having a laugh mate.  :)
+Note the lack of clarification from the other (miriad) copyright
+holders?
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1041661234774--
+In summary - If you want to write binary only modules, you need to talk
+to a lawyer that understands the issues involved.  "Linus said they were
+ok" doesn't even begin to encompass the number of copyright holders
+involved.
 
 
+-- 
+
+Ryan Anderson
+  sometimes Pug Majere

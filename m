@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315739AbSENOcC>; Tue, 14 May 2002 10:32:02 -0400
+	id <S315751AbSENOzN>; Tue, 14 May 2002 10:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315742AbSENOcC>; Tue, 14 May 2002 10:32:02 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29445 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315739AbSENOcB>; Tue, 14 May 2002 10:32:01 -0400
-Subject: Re: 2.4.19-pre8 != bk -rv2.4.19-pre8
-To: andrea.gelmini@linux.it (andrea gelmini)
-Date: Tue, 14 May 2002 15:51:49 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020514134836.GA8261@fondoweb.net> from "andrea gelmini" at May 14, 2002 03:48:36 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S315754AbSENOzM>; Tue, 14 May 2002 10:55:12 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:53265 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S315751AbSENOzL>; Tue, 14 May 2002 10:55:11 -0400
+Date: Tue, 14 May 2002 15:55:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove compat code for old devfs naming scheme
+Message-ID: <20020514155508.A31292@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Richard Gooch <rgooch@ras.ucalgary.ca>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020514125339.A23979@infradead.org> <200205141435.g4EEZ3V07379@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E177deX-00084Y-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	'diff -r' between 2.4.19-pre8 downloaded from ftp.kernel.org and
-> 	the same version extracted from bitkeeper (parent is
-> 	bk://linux.bkbits.net/linux-2.4), produce the follow diff. it's
-> 	not a big issue, but it's a little annoying to apply -ac
-> 	patches.
+On Tue, May 14, 2002 at 08:35:03AM -0600, Richard Gooch wrote:
+> > As this was never present in official kernels there is really no need
+> > in keeping it - it just bloats the kernel.
+> > 
+> > Could you please forward this patch to Linus and maybe Marcelo with
+> > your next devfs update?
+> 
+> What on earth are you talking about? This code has been in the kernel
+> since 2.3.46. It's just lived in a different place: fs/devfs/util.c.
+> 
 
-If the bitkeeper tree differs from the official tarball the bitkeeper
-tree you are using is either not 2.4.19-pre8 proper, or its broken.
+Of course this code was present, otherwise it would be rather hard to
+remove it..
+
+But the old devfs naming scheme was obsolete before devfs was merged in
+2.3.46 so there is no valid reason to support it for root=.
 
 

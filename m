@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278789AbRKDF0T>; Sun, 4 Nov 2001 00:26:19 -0500
+	id <S278803AbRKDFhw>; Sun, 4 Nov 2001 00:37:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278797AbRKDF0K>; Sun, 4 Nov 2001 00:26:10 -0500
-Received: from nic-131-c196-222.mw.mediaone.net ([24.131.196.222]:49413 "EHLO
-	moonweaver.awesomeplay.com") by vger.kernel.org with ESMTP
-	id <S278789AbRKDFZ6>; Sun, 4 Nov 2001 00:25:58 -0500
-Subject: Re: Via Onboard Audio - Round #2
-From: Sean Middleditch <elanthis@awesomeplay.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BE4CC20.5FFEC4B5@mandrakesoft.com>
-In-Reply-To: <1004849558.457.15.camel@stargrazer> 
-	<3BE4CC20.5FFEC4B5@mandrakesoft.com>
-Content-Type: text/plain
+	id <S278807AbRKDFhm>; Sun, 4 Nov 2001 00:37:42 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:30213 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S278803AbRKDFhb>;
+	Sun, 4 Nov 2001 00:37:31 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200111040536.fA45akb11558@saturn.cs.uml.edu>
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+To: dalecki@evision.ag
+Date: Sun, 4 Nov 2001 00:36:46 -0500 (EST)
+Cc: viro@math.psu.edu (Alexander Viro), rusty@rustcorp.com.au (Rusty Russell),
+        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
+In-Reply-To: <3BE29401.157394A5@evision-ventures.com> from "Martin Dalecki" at Nov 02, 2001 01:39:29 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.100 (Preview Release)
-Date: 04 Nov 2001 00:30:18 -0500
-Message-Id: <1004851818.457.24.camel@stargrazer>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-11-04 at 00:03, Jeff Garzik wrote:
-> 
-> You cannot, through driver options.
-> 
-> The IRQ routing conflict is definitely the problem.  You can try booting
-> with "PNP OS: No" and maybe other irq options are hidden in your BIOS
-> setup under an advanced menu.
-> 
+Martin Dalecki writes:
 
-There is no option.  Trust me, I know BIOS setups, and unless they
-really hid the option well (I.E., not having it in the menus at all)
-it's not there.  The audio worked fine in WindowXP, obviously an OS and
-drivers can handle it.  This is a limitation and/or problem with Linux
-and it's Via Audio driver.  How can I get around this, or do I need to
-reinstall WindowsXP to use the audio?
+> Bull shit. Standard policy is currently to keep crude old
+> interfaces until no end of time. Here are some examples:
+>
+> /proc/meminfo
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  196005888 60133376 135872512        0  3280896 31088640
+> Swap: 410255360        0 410255360
+> MemTotal:       191412 kB
+> MemFree:        132688 kB
+> MemShared:           0 kB
+> Buffers:          3204 kB
+>
+> The first lines could have gone 2 years ago.
 
-(Sorry if I sounded harsh, but I just got done bitching at a couple
-companies pissing me off lately... I'm not in a put-up-with-crap mood
-right now  ^,^  After I sleep a little I will behave better, I promise.)
+Kill them in the 2.5.0 kernel.
 
-Thanks guys,
-Sean Etc.
+> /proc/ksyms - this is duplicating a system call (and making stuff
+> easier for intrusors)
 
-> -- 
-> Jeff Garzik      | Only so many songs can be sung
-> Building 1024    | with two lips, two lungs, and one tongue.
-> MandrakeSoft     |         - nomeansno
-> 
-
-
+This is still used by procps.

@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130127AbQLATKc>; Fri, 1 Dec 2000 14:10:32 -0500
+	id <S129319AbQLATX0>; Fri, 1 Dec 2000 14:23:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130147AbQLATKW>; Fri, 1 Dec 2000 14:10:22 -0500
-Received: from mail2.uni-bielefeld.de ([129.70.4.90]:3877 "EHLO
-	mail.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id <S130127AbQLATKK>; Fri, 1 Dec 2000 14:10:10 -0500
-Date: Fri, 01 Dec 2000 18:38:03 +0000
-From: Marc Mutz <Marc@Mutz.com>
-Subject: Re: [uPATCH] Re: Questions about Kernel 2.4.0.*
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: Android <android@turbosport.com>, linux-kernel@vger.kernel.org
-Message-id: <3A27F00B.4A431099@Mutz.com>
-Organization: University of Bielefeld - Dep. of Mathematics / Dep. of Physics
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17i10-0001 i586)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
-In-Reply-To: <001c01c05a86$45bb6380$19211518@vnnys1.ca.home.com>
- <20001130060732.A14250@wire.cadcamlab.org> <3A27CB48.38A1907C@Mutz.com>
- <14887.60824.271322.811343@wire.cadcamlab.org>
+	id <S129431AbQLATXR>; Fri, 1 Dec 2000 14:23:17 -0500
+Received: from web10105.mail.yahoo.com ([216.136.130.55]:12808 "HELO
+	web10105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129319AbQLATXG>; Fri, 1 Dec 2000 14:23:06 -0500
+Message-ID: <20001201185235.44106.qmail@web10105.mail.yahoo.com>
+Date: Fri, 1 Dec 2000 10:52:35 -0800 (PST)
+From: Al Peat <al_kernel@yahoo.com>
+Subject: put/get_module_symbol vs. inter_module_register/put/get/etc.
+To: linux-kernel@vger.kernel.org
+Cc: al_kernel@yahoo.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson wrote:
-> 
-<snip>
-> +TOPDIR := $(shell pwd -P)
-<snip>
+  I've followed the thread on "Persistent module
+storage" but haven't come across a general explanation
+of the changes to the inter-module symbol stuff
+between 2.4test10 and test11.  Anyone care to comment
+on the differences or on whether this is going to be a
+stable API for 2.4 (it won't be changed again)?
 
-That is specific to the bash builtin 'pwd'. GNU sh-util's pwd does not
-know that option (at least not my version, which is: "pwd (GNU sh-utils)
-1.16")
 
-I just wanted to note that...
-
-Marc
-
--- 
-Marc Mutz <Marc@Mutz.com>     http://EncryptionHOWTO.sourceforge.net/
-University of Bielefeld, Dep. of Mathematics / Dep. of Physics
-
-PGP-keyID's:   0xd46ce9ab (RSA), 0x7ae55b9e (DSS/DH)
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269286AbUJVXfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269745AbUJWCjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269286AbUJVXfS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 19:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269233AbUJVXc4
+	id S269745AbUJWCjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 22:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269347AbUJWCjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 19:32:56 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:59354 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269259AbUJVXc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 19:32:29 -0400
-Subject: Re: How is user space notified of CPU speed changes?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>, "Jack O'Quin" <joq@io.com>
-In-Reply-To: <4179623C.9050807@nortelnetworks.com>
-References: <1098399709.4131.23.camel@krustophenia.net>
-	 <1098444170.19459.7.camel@localhost.localdomain>
-	 <1098468316.5580.18.camel@krustophenia.net>
-	 <4179623C.9050807@nortelnetworks.com>
-Content-Type: text/plain
-Date: Fri, 22 Oct 2004 19:25:58 -0400
-Message-Id: <1098487558.1440.20.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Fri, 22 Oct 2004 22:39:08 -0400
+Received: from CPE-203-51-28-190.nsw.bigpond.net.au ([203.51.28.190]:38645
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S269802AbUJWCii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 22:38:38 -0400
+Message-ID: <4179C405.1010805@eyal.emu.id.au>
+Date: Sat, 23 Oct 2004 12:37:57 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue... - net/ipv4/netfilter/ipt_hashlimit.c
+ does not build
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 13:40 -0600, Chris Friesen wrote:
-> Lee Revell wrote:
-> 
-> > Seems like you are implying that any userspace app that needs to know
-> > the CPU speed is broken.  Is this correct?
-> 
-> No, we're saying that Intel's tsc implementation is broken.  <grin>
-> 
-> x86 really could use an on-die register that increments at 1GHz independent of 
-> clock speed and is synchronized across all CPUs in an SMP box.
+Linus Torvalds wrote:
+ > Ok,
+ >  Linux-2.6.10-rc1 is out there for your pleasure.
 
-Like this? (posted to jackit-devel):
+   CC [M]  net/ipv4/netfilter/ipt_hashlimit.o
+net/ipv4/netfilter/ipt_hashlimit.c: In function `__dsthash_find':
+net/ipv4/netfilter/ipt_hashlimit.c:124: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c: In function `__dsthash_free':
+net/ipv4/netfilter/ipt_hashlimit.c:173: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c: In function `htable_selective_cleanup':
+net/ipv4/netfilter/ipt_hashlimit.c:261: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:261: error: structure has no member named `l'
+net/ipv4/netfilter/ipt_hashlimit.c:261: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:269: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:269: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:269: error: structure has no member named `l'
+net/ipv4/netfilter/ipt_hashlimit.c: In function `hashlimit_match':
+net/ipv4/netfilter/ipt_hashlimit.c:460: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:460: error: structure has no member named `l'
+net/ipv4/netfilter/ipt_hashlimit.c:460: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:469: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:469: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:469: error: structure has no member named `l'
+net/ipv4/netfilter/ipt_hashlimit.c:482: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:482: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:482: error: structure has no member named `l'
+net/ipv4/netfilter/ipt_hashlimit.c:493: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:493: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:493: error: structure has no member named `l'
+net/ipv4/netfilter/ipt_hashlimit.c:497: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:497: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:497: error: structure has no member named `l'
+net/ipv4/netfilter/ipt_hashlimit.c: In function `dl_seq_start':
+net/ipv4/netfilter/ipt_hashlimit.c:572: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:572: error: structure has no member named `l'
+net/ipv4/netfilter/ipt_hashlimit.c:572: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c: In function `dl_seq_stop':
+net/ipv4/netfilter/ipt_hashlimit.c:606: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:606: error: structure has no member named `locked_by'
+net/ipv4/netfilter/ipt_hashlimit.c:606: error: structure has no member named `l'
+make[3]: *** [net/ipv4/netfilter/ipt_hashlimit.o] Error 1
+make[2]: *** [net/ipv4/netfilter] Error 2
+make[1]: *** [net/ipv4] Error 2
+make: *** [net] Error 2
 
-On Fri, 2004-10-22 at 18:20 -0500, Jack O'Quin wrote: 
-
-> On PowerPC, JACK uses the lower half of the 64-bit Timebase register,
-> which is accessible from user mode.  This is better then the i386
-> cycle counter, I believe.  See: `config/cpu/powerpc/cycles.h', the
-> comment about only using it for SMP is bogus.  We use this for both
-> MacOS X and Linux.
-
--- 
-Lee Revell <rlrevell@joe-job.com>
-
+--
+Eyal Lebedinsky	 (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

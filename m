@@ -1,54 +1,1663 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282839AbRLGMPh>; Fri, 7 Dec 2001 07:15:37 -0500
+	id <S282848AbRLGMXs>; Fri, 7 Dec 2001 07:23:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282848AbRLGMP1>; Fri, 7 Dec 2001 07:15:27 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:56822 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S282839AbRLGMPK>; Fri, 7 Dec 2001 07:15:10 -0500
-Message-Id: <5.1.0.14.2.20011207120516.025daa50@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 07 Dec 2001 12:14:08 +0000
-To: Ishan Oshadi Jayawardena <ioshadi@sltnet.lk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Fs's affected by smart atime updates
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C115125.E70E0674@sltnet.lk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S282844AbRLGMXo>; Fri, 7 Dec 2001 07:23:44 -0500
+Received: from office-gw.westend.com ([212.117.64.2]:20651 "EHLO tb.intern")
+	by vger.kernel.org with ESMTP id <S282841AbRLGMXY>;
+	Fri, 7 Dec 2001 07:23:24 -0500
+Message-ID: <3C10B4BA.6090303@westend.com>
+Date: Fri, 07 Dec 2001 13:23:22 +0100
+From: Thomas Braun <tb@westend.com>
+Reply-To: tb@westend.com
+Organization: Westend GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011202
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.4.15
+Content-Type: multipart/mixed;
+ boundary="------------040109090209090807050008"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 23:30 07/12/01, Ishan Oshadi Jayawardena wrote:
->         I've found out that NTFS and FAT are not affected
->adversely by the atime update patch by Andrew Morton.
+This is a multi-part message in MIME format.
+--------------040109090209090807050008
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-"adversely"? The patch is an improvement, not something that makes things 
-worse...
+hi group,
 
->(atime resolution in NTFS is 1 hour and in FAT, well,
->1 day!). I'd be thankful if anyone could point out
->which filesystems, if any, are _adversely_ affected by this.
 
-Huh? Atime updates in the old NTFS driver do not happen at all unless I 
-have missed something.
+can someone tell me what is going wrong with my kernel?
 
-Otherwise, the time resolution itself is down to 100ns intervals which in 
-Linux obviously isn't possible, so the Linux atime resolution will be used 
-instead.
 
-The new NTFS TNG driver will be doing the atime updates properly once write 
-support is implemented.
+if i compile my kernel i get this error message
 
-Best regards,
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
+         --start-group \
+         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+          drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o \
+         net/network.o \
+         /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
+         --end-group \
+         -o vmlinux
+drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols in discarded section .text.exit'
+make: *** [vmlinux] Fehler 1
 
-Anton
+attached my cpuinfo, meminfo and my .config an an nm output from driver/char/char.o
+
+
+
+cu thomas
+
 
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Thomas Braun       WESTEND GmbH - Aachen und Dueren     Tel 0241/701333-0
+tb@westend.com   Internet & Security for Professionals    Fax 0241/911879
+           WESTEND ist CISCO Systems Partner - Premium Certified
+
+--------------040109090209090807050008
+Content-Type: text/plain;
+ name="mail.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mail.txt"
+
+/proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  130101248 120201216  9900032        0  9322496 54759424
+Swap: 254971904 23052288 231919616
+MemTotal:       127052 kB
+MemFree:          9668 kB
+MemShared:           0 kB
+Buffers:          9104 kB
+Cached:          49268 kB
+SwapCached:       4208 kB
+Active:          50932 kB
+Inactive:        58404 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       127052 kB
+LowFree:          9668 kB
+SwapTotal:      248996 kB
+SwapFree:       226484 kB
+
+
+/proc/cpuinfo 
+
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 3
+model name	: AMD Duron(tm) Processor
+stepping	: 1
+cpu MHz		: 857.658
+cache size	: 64 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips	: 1710.48
+
+
+
+/usr/src/linux/.config
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+CONFIG_ISA=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+CONFIG_MK7=y
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_MATH_EMULATION is not set
+# CONFIG_MTRR is not set
+# CONFIG_SMP is not set
+# CONFIG_X86_UP_APIC is not set
+# CONFIG_X86_UP_IOAPIC is not set
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+# CONFIG_HOTPLUG is not set
+# CONFIG_PCMCIA is not set
+CONFIG_SYSVIPC=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+# CONFIG_PM is not set
+# CONFIG_ACPI is not set
+# CONFIG_APM is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play configuration
+#
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+# CONFIG_PNPBIOS is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_LOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_BLK_DEV_INITRD is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_MULTIPATH is not set
+# CONFIG_BLK_DEV_LVM is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+# CONFIG_NETLINK is not set
+# CONFIG_NETFILTER is not set
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_IPV6 is not set
+# CONFIG_KHTTPD is not set
+# CONFIG_ATM is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+# CONFIG_PHONE_IXJ_PCMCIA is not set
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
+# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
+# CONFIG_BLK_DEV_IDEDISK_IBM is not set
+# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
+# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
+# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
+# CONFIG_BLK_DEV_IDEDISK_WD is not set
+# CONFIG_BLK_DEV_COMMERIAL is not set
+# CONFIG_BLK_DEV_TIVO is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_ADMA=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_AEC62XX_TUNING is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_AMD74XX_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_PDC202XX_FORCE is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+# CONFIG_BLK_DEV_ATARAID is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+# CONFIG_BLK_DEV_ATARAID_HPT is not set
+
+#
+# SCSI support
+#
+# CONFIG_SCSI is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_BOOT is not set
+# CONFIG_FUSION_ISENSE is not set
+# CONFIG_FUSION_CTL is not set
+# CONFIG_FUSION_LAN is not set
+
+#
+# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+# CONFIG_I2O_PCI is not set
+# CONFIG_I2O_BLOCK is not set
+# CONFIG_I2O_LAN is not set
+# CONFIG_I2O_SCSI is not set
+# CONFIG_I2O_PROC is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+# CONFIG_DUMMY is not set
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_SUNLANCE is not set
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNBMAC is not set
+# CONFIG_SUNQE is not set
+# CONFIG_SUNLANCE is not set
+# CONFIG_SUNGEM is not set
+CONFIG_NET_VENDOR_3COM=y
+# CONFIG_EL1 is not set
+# CONFIG_EL2 is not set
+# CONFIG_ELPLUS is not set
+# CONFIG_EL16 is not set
+# CONFIG_EL3 is not set
+# CONFIG_3C515 is not set
+# CONFIG_ELMC is not set
+# CONFIG_ELMC_II is not set
+CONFIG_VORTEX=m
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_AT1700 is not set
+# CONFIG_DEPCA is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_ISA is not set
+# CONFIG_NET_PCI is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_MYRI_SBUS is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Input core support
+#
+# CONFIG_INPUT is not set
+# CONFIG_INPUT_KEYBDEV is not set
+# CONFIG_INPUT_MOUSEDEV is not set
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+# CONFIG_SERIAL_CONSOLE is not set
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+# CONFIG_82C710_MOUSE is not set
+# CONFIG_PC110_PAD is not set
+
+#
+# Joysticks
+#
+# CONFIG_INPUT_GAMEPORT is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_INTEL_RNG is not set
+# CONFIG_NVRAM is not set
+# CONFIG_RTC is not set
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+# CONFIG_SONYPI is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_I810=y
+CONFIG_AGP_VIA=y
+CONFIG_AGP_AMD=y
+CONFIG_AGP_SIS=y
+CONFIG_AGP_ALI=y
+# CONFIG_AGP_SWORKS is not set
+CONFIG_DRM=y
+CONFIG_DRM_TDFX=y
+# CONFIG_DRM_GAMMA is not set
+CONFIG_DRM_R128=y
+CONFIG_DRM_RADEON=y
+# CONFIG_DRM_I810 is not set
+# CONFIG_DRM_MGA is not set
+# CONFIG_MWAVE is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# File systems
+#
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS_FS is not set
+CONFIG_AUTOFS4_FS=y
+# CONFIG_REISERFS_FS is not set
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_BFS_FS is not set
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+# CONFIG_BUFFER_DEBUG is not set
+# CONFIG_FAT_FS is not set
+# CONFIG_MSDOS_FS is not set
+# CONFIG_UMSDOS_FS is not set
+# CONFIG_VFAT_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_JFFS2_FS is not set
+# CONFIG_CRAMFS is not set
+CONFIG_TMPFS=y
+# CONFIG_RAMFS is not set
+CONFIG_ISO9660_FS=y
+# CONFIG_JOLIET is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_NTFS_FS is not set
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+# CONFIG_DEVFS_FS is not set
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_UDF_FS is not set
+# CONFIG_UDF_RW is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+CONFIG_NFS_FS=y
+# CONFIG_NFS_V3 is not set
+# CONFIG_ROOT_NFS is not set
+CONFIG_NFSD=y
+# CONFIG_NFSD_V3 is not set
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+# CONFIG_SMB_FS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+# CONFIG_SMB_NLS is not set
+# CONFIG_NLS is not set
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_VIDEO_SELECT is not set
+# CONFIG_MDA_CONSOLE is not set
+
+#
+# Frame-buffer support
+#
+# CONFIG_FB is not set
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+# CONFIG_USB_UHCI is not set
+# CONFIG_USB_UHCI_ALT is not set
+# CONFIG_USB_OHCI is not set
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_BLUETOOTH is not set
+# CONFIG_USB_STORAGE is not set
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_DATAFAB is not set
+# CONFIG_USB_STORAGE_FREECOM is not set
+# CONFIG_USB_STORAGE_ISD200 is not set
+# CONFIG_USB_STORAGE_DPCM is not set
+# CONFIG_USB_STORAGE_HP8200e is not set
+# CONFIG_USB_STORAGE_SDDR09 is not set
+# CONFIG_USB_STORAGE_JUMPSHOT is not set
+# CONFIG_USB_ACM is not set
+# CONFIG_USB_PRINTER is not set
+# CONFIG_USB_DC2XX is not set
+# CONFIG_USB_MDC800 is not set
+# CONFIG_USB_SCANNER is not set
+# CONFIG_USB_MICROTEK is not set
+# CONFIG_USB_HPUSBSCSI is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_KAWETH is not set
+# CONFIG_USB_CATC is not set
+# CONFIG_USB_CDCETHER is not set
+# CONFIG_USB_USBNET is not set
+# CONFIG_USB_USS720 is not set
+
+#
+# USB Serial Converter support
+#
+# CONFIG_USB_SERIAL is not set
+# CONFIG_USB_SERIAL_GENERIC is not set
+# CONFIG_USB_SERIAL_BELKIN is not set
+# CONFIG_USB_SERIAL_WHITEHEAT is not set
+# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
+# CONFIG_USB_SERIAL_EMPEG is not set
+# CONFIG_USB_SERIAL_FTDI_SIO is not set
+# CONFIG_USB_SERIAL_VISOR is not set
+# CONFIG_USB_SERIAL_IR is not set
+# CONFIG_USB_SERIAL_EDGEPORT is not set
+# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
+# CONFIG_USB_SERIAL_KEYSPAN is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA49W is not set
+# CONFIG_USB_SERIAL_MCT_U232 is not set
+# CONFIG_USB_SERIAL_PL2303 is not set
+# CONFIG_USB_SERIAL_CYBERJACK is not set
+# CONFIG_USB_SERIAL_XIRCOM is not set
+# CONFIG_USB_SERIAL_OMNINET is not set
+# CONFIG_USB_RIO500 is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BLUEZ is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_DEBUG_KERNEL is not set
+
+
+
+my driver/char/char.o
+
+
+00000000 b nr_warns.1199
+00000000 d mem_fops
+00000000 d serial_options
+00000000 ? __exitcall_rs_fini
+00000000 ? __initcall_chr_dev_init
+00000000 ? __kstrtab_tty_register_ldisc
+00000000 ? __ksymtab_tty_register_ldisc
+00000000 ? __setup_kbd_reset_setup
+00000000 t do_write_mem
+00000000 t gcc2_compiled.
+00000000 T memory_devfs_register
+00000000 t serial_remove_one
+00000004 ? __initcall_raw_init
+00000008 ? __initcall_rs_init
+00000008 ? __ksymtab_tty_register_devfs
+00000008 ? __setup_aux_reconnect_setup
+00000010 ? __ksymtab_tty_unregister_devfs
+00000010 T chr_dev_init
+00000018 ? __ksymtab_n_tty_ioctl
+0000001d ? __kstrtab_tty_register_devfs
+00000020 B tty_std_termios
+00000020 ? __ksymtab_misc_register
+00000024 r list.1119
+00000028 ? __ksymtab_misc_deregister
+00000030 ? __ksymtab_add_keyboard_randomness
+00000034 d pci_boards
+00000038 ? __ksymtab_add_mouse_randomness
+00000040 ? __kstrtab_tty_unregister_devfs
+00000040 ? __ksymtab_add_interrupt_randomness
+00000040 t read_mem
+00000044 B redirect
+00000048 ? __ksymtab_add_blkdev_randomness
+00000050 ? __ksymtab_batch_entropy_store
+00000050 T console_init
+00000058 ? __ksymtab_generate_random_uuid
+00000060 B ldiscs
+00000060 d kmem_fops
+00000060 ? __kstrtab_n_tty_ioctl
+00000060 ? __ksymtab_color_table
+00000068 ? __ksymtab_default_red
+00000070 ? __ksymtab_default_grn
+00000076 ? __kstrtab_misc_register
+00000078 ? __ksymtab_default_blu
+00000080 ? __ksymtab_video_font_height
+00000088 ? __ksymtab_video_scan_lines
+0000008e ? __kstrtab_misc_deregister
+00000090 ? __ksymtab_vc_resize
+00000098 ? __ksymtab_fg_console
+000000a0 ? __ksymtab_console_blank_hook
+000000a0 t rs_fini
+000000a0 t write_mem
+000000a8 ? __ksymtab_vt_cons
+000000b0 ? __ksymtab_take_over_console
+000000b8 ? __ksymtab_give_up_console
+000000c0 d null_fops
+000000c0 ? __kstrtab_add_keyboard_randomness
+000000c0 ? __ksymtab_set_selection
+000000c8 ? __ksymtab_paste_selection
+000000d0 ? __ksymtab_register_serial
+000000d0 T tty_init
+000000d8 ? __ksymtab_unregister_serial
+000000e0 ? __ksymtab_handle_scancode
+000000e8 ? __ksymtab_kbd_ledfunc
+000000f0 ? __ksymtab_keyboard_tasklet
+000000f0 t mmap_mem
+00000100 ? __kstrtab_add_mouse_randomness
+00000120 d port_fops
+00000120 ? __kstrtab_add_interrupt_randomness
+00000140 r badmagic.1119
+00000160 ? __kstrtab_add_blkdev_randomness
+00000180 d zero_fops
+00000180 ? __kstrtab_batch_entropy_store
+00000180 r badtty.1120
+000001a0 ? __kstrtab_generate_random_uuid
+000001b0 t read_kmem
+000001c0 ? __kstrtab_color_table
+000001d6 ? __kstrtab_default_red
+000001e0 d full_fops
+000001ec ? __kstrtab_default_grn
+00000202 ? __kstrtab_default_blu
+00000218 ? __kstrtab_video_font_height
+00000234 ? __kstrtab_video_scan_lines
+00000240 d memory_fops
+0000024f ? __kstrtab_vc_resize
+00000263 ? __kstrtab_fg_console
+00000278 ? __kstrtab_console_blank_hook
+00000295 ? __kstrtab_vt_cons
+000002a0 d tty_fops
+000002a0 t raw_init
+000002a7 ? __kstrtab_take_over_console
+000002b0 t write_kmem
+000002c3 ? __kstrtab_give_up_console
+000002dd ? __kstrtab_set_selection
+000002f0 T pty_init
+000002f0 t read_port
+000002f5 ? __kstrtab_paste_selection
+00000300 d hung_up_tty_fops
+0000030f ? __kstrtab_register_serial
+00000329 ? __kstrtab_unregister_serial
+00000345 ? __kstrtab_handle_scancode
+00000348 d tty_sem
+0000035c d baud_table
+0000035f ? __kstrtab_kbd_ledfunc
+00000370 t write_port
+00000375 ? __kstrtab_keyboard_tasklet
+000003d8 d n_baud_table
+000003e0 D tty_ldisc_N_TTY
+000003f0 t read_null
+00000400 t write_null
+00000410 t read_zero
+00000420 d raw_fops
+00000460 B tty_drivers
+00000480 b dev_tty_driver
+00000480 d raw_ctl_fops
+000004e0 d misc_list
+000004f8 d misc_sem
+00000520 d misc_fops
+00000540 b dev_syscons_driver
+00000580 d random_read_wakeup_thresh
+00000584 d random_write_wakeup_thresh
+00000588 d poolinfo_table
+00000590 d serial_pci_tbl
+00000600 b dev_ptmx_driver
+00000610 t mmap_zero
+00000648 d random_read_wait
+00000650 t write_full
+00000654 d random_write_wait
+00000660 D random_fops
+00000660 t null_lseek
+00000680 t memory_lseek
+000006c0 b dev_console_driver
+000006c0 D urandom_fops
+000006c0 t open_port
+000006e0 t memory_open
+00000708 D random_table
+00000740 T misc_init
+00000780 b raw_devices
+000007a0 t batch_entropy_init
+000007b0 t alloc_tty_struct
+000007b0 t gcc2_compiled.
+000007e0 t _tty_make_name
+00000830 T tty_name
+00000840 D keyboard_type
+00000840 T rand_initialize
+00000844 d sound_timer.948
+00000850 t check_tty_count
+00000858 D kd_mksound
+0000085c D kbd_rate
+00000860 d vt_activate_queue
+00000880 d vcs_fops
+000008e0 d translations
+000008e0 T tty_register_ldisc
+00000930 T vcs_init
+00000940 t tty_set_ldisc
+00000970 T console_map_init
+000009b0 T con_init
+00000ae0 T get_tty_driver
+00000b30 T tty_check_change
+00000bc0 t hung_up_tty_read
+00000be0 t hung_up_tty_write
+00000c00 t hung_up_tty_poll
+00000c10 t hung_up_tty_ioctl
+00000c30 T do_tty_hangup
+00000cb0 T con_init_devfs
+00000cf0 t printk_pnp_dev_id
+00000d60 t start_pci_pnp_board
+00000de0 r twist_table.909
+00000ec0 T tty_hangup
+00000ee0 t pci_plx9050_fn
+00000ee0 T tty_vhangup
+00000ef0 T tty_hung_up_p
+00000f10 T disassociate_ctty
+00000f90 t pci_siig10x_fn
+00001000 t pci_siig20x_fn
+00001000 T wait_for_keypress
+00001020 T stop_tty
+00001070 t pci_inteli960ni_fn
+00001090 T start_tty
+000010d0 t pci_timedia_fn
+000010e0 D dfont_unicount
+0000110c d pnp_devices
+00001130 t tty_read
+00001140 t pci_xircom_fn
+00001160 t serial_pci_guess_board
+000011e0 D dfont_unitable
+000011e0 t serial_init_one
+00001210 t tty_write
+00001270 t probe_serial_pci
+000012b0 t check_name
+000012ec d modem_names
+000012f0 t probe_serial_pnp
+00001360 D kbd_startup_reset
+00001364 d __setup_str_kbd_reset_setup
+0000136e d __setup_str_aux_reconnect_setup
+000013e0 t down_tty_sem
+00001400 t up_tty_sem
+00001420 t init_dev
+00001430 t rs_init
+00001440 d blankinterval
+00001444 d console_callback_tq
+00001458 D want_console
+0000145c D color_table
+0000146c D default_red
+000014ac D default_grn
+000014ec D default_blu
+0000152c D con_buf_sem
+00001540 d error.1354
+00001560 D vt_console_driver
+000015a0 d sel_start
+000015c0 d inwordLut
+000015e0 d serial_version
+000015e4 d serial_revdate
+000015e8 d serial_name
+000015ec d tq_serial
+000015f4 d uart_config
+000016c0 d rs_table
+00001830 T early_serial_setup
+00001840 t release_mem
+000018e0 T kbd_init
+000018f0 t release_dev
+00001950 t kbd_reset_setup
+00001960 t kbd_read_data
+00001990 t kbd_clear_input
+000019b0 t kbd_wait_for_input
+000019e0 t initialize_kbd
+00001b20 T pckbd_init_hw
+00001b70 t aux_reconnect_setup
+00001b80 t detect_auxiliary_port
+00001c00 t psaux_init
+00001d60 R max_vals
+00001d98 R NR_TYPES
+00001df0 t tty_open
+00002160 t tty_release
+00002170 t tty_poll
+00002200 t tty_fasync
+00002310 t tiocsti
+00002390 t tiocgwinsz
+00002420 t tiocswinsz
+00002500 t tioccons
+00002570 t fionbio
+000025a0 t tiocsctty
+00002670 t tiocgpgrp
+000026d0 t tiocspgrp
+00002770 t tiocgsid
+000027d0 t tiocttygstruct
+00002860 t tiocsetd
+00002890 t send_break
+000028e0 T tty_ioctl
+00002b80 b pty_driver
+00002c40 b pty_slave_driver
+00002c60 t __do_SAK
+00002cfc b pty_refcount
+00002d00 b pty_table
+00002d20 T do_SAK
+00002d50 t flush_to_ldisc
+00002e30 T tty_get_baud_rate
+00002eb0 T tty_flip_buffer_push
+00002f10 t initialize_tty_struct
+00003090 T tty_default_put_char
+000030c0 T tty_register_devfs
+000030d0 T tty_unregister_devfs
+000030e0 T tty_register_driver
+00003100 b pty_termios
+00003190 T tty_unregister_driver
+000032d0 T tty_paranoia_check
+00003330 t check_unthrottle
+00003330 t gcc2_compiled.
+00003360 t reset_buffer_flags
+000033d0 T n_tty_flush_buffer
+00003410 T n_tty_chars_in_buffer
+00003460 t opost
+00003500 b pty_termios_locked
+00003610 t opost_block
+00003780 t echo_char
+000037e0 t eraser
+00003900 b ttyp_table
+00003b70 t n_tty_receive_room
+00003bb0 t n_tty_receive_buf
+00003d00 b ttyp_termios
+00004100 b ttyp_termios_locked
+00004500 b pty_state
+000045c0 d tmp_buf_sem
+000045d4 d timedia_single_port
+000045e0 d timedia_dual_port
+0000461c d timedia_quad_port
+0000464a d timedia_eight_port
+00004664 d timedia_data
+000046a0 d serial_pci_driver
+000046e0 D keypress_wait
+000046ec d npadch
+000046f0 d kbd
+00004700 d key_handler
+00004740 d spec_fn_table
+00004790 d buf.975
+00004794 d ret_diacr
+0000479c d pad_chars.1060
+000047a0 d app_map.1061
+000047a4 d cur_chars.1065
+000047a8 d ledstate
+000047ac D keyboard_tasklet
+000047c0 D pm_kbd_request_override
+000047e0 D plain_map
+000048e0 D shift_map
+000049e0 D altgr_map
+00004ad0 T is_ignored
+00004ae0 D ctrl_map
+00004b10 t n_tty_set_termios
+00004be0 D shift_ctrl_map
+00004cd0 t n_tty_close
+00004ce0 D alt_map
+00004d00 t n_tty_open
+00004da0 t read_chan
+00004de0 D ctrl_alt_map
+00004ee0 D key_maps
+000052e0 D keymap_count
+000052e4 D func_buf
+00005380 D funcbufptr
+00005384 D funcbufsize
+00005388 D funcbufleft
+000053a0 D func_table
+000054a0 t write_chan
+00005500 B ptm_driver
+000055c0 B pts_driver
+00005680 b ptm_table
+000056b0 t normal_poll
+000057a0 D accent_table
+000057d0 t gcc2_compiled.
+000057d0 T tty_wait_until_sent
+000058c0 t unset_locked_termios
+00005960 t change_termios
+00005a80 b ptm_termios
+00005aa0 D accent_table_size
+00005ac0 d aux_reconnect
+00005ac4 d kbd_controller_lock
+00005ae0 d high_keys
+00005ae0 t set_termios
+00005b20 d e0_keys
+00005ba0 d kbd_exists
+00005ba4 d kbdrate
+00005bac d kbd_rates.1181
+00005be4 d kbd_delays.1182
+00005c20 D psaux_fops
+00005c68 d psaux_mouse
+00005c70 t get_termio
+00005da0 t inq_canon
+00005e10 T send_prio_char
+00005e80 b ptm_termios_locked
+00005e80 T n_tty_ioctl
+00006280 b pts_table
+00006330 t gcc2_compiled.
+00006330 T raw_open
+000064c0 T raw_release
+00006510 T raw_ctl_ioctl
+00006680 b pts_termios
+000067b0 T raw_read
+000067e0 T raw_write
+00006810 t rw_raw_dev
+00006a80 b pts_termios_locked
+00006a90 t gcc2_compiled.
+00006a90 t pty_close
+00006bc0 t pty_unthrottle
+00006c10 t pty_write
+00006d50 t pty_write_room
+00006d80 t pty_chars_in_buffer
+00006dc0 t pty_get_device_number
+00006e10 t pty_set_lock
+00006e50 t pty_bsd_ioctl
+00006e80 b ptm_state
+00006ea0 t pty_unix98_ioctl
+00006ef0 t pty_flush_buffer
+00006f40 t pty_open
+00007010 t pty_set_termios
+00007030 t gcc2_compiled.
+00007030 t misc_read_proc
+000070d0 t misc_open
+00007280 T misc_register
+00007380 T misc_deregister
+00007410 t create_entropy_store
+00007410 t gcc2_compiled.
+00007500 t clear_entropy_store
+00007550 t free_entropy_store
+00007570 t add_entropy_words
+00007630 t credit_entropy_store
+00007660 T batch_entropy_store
+00007710 t batch_entropy_process
+000077d0 t add_timer_randomness
+000078b0 T add_keyboard_randomness
+000078e0 T add_mouse_randomness
+00007900 T add_interrupt_randomness
+00007930 T add_blkdev_randomness
+00007980 t SHATransform
+00007a90 t extract_entropy
+00007df0 T get_random_bytes
+00007e30 t init_std_data
+00007e80 b devfs_handle.978
+00007e84 b misc_minors
+00007ea0 b last_scancode.928
+00007ea0 T rand_initialize_irq
+00007ea4 b rekey_time.1004
+00007ea8 b count.1005
+00007ec0 b secret.1006
+00007ef0 b rekey_time.1010
+00007ef0 T rand_initialize_blkdev
+00007f00 b secret.1011
+00007f30 b random_state
+00007f34 b sec_random_state
+00007f38 b batch_entropy_pool
+00007f3c b batch_entropy_credit
+00007f40 b batch_max
+00007f40 t random_read
+00007f44 b batch_head
+00007f48 b batch_tail
+00007f4c b batch_tqueue
+00007f60 b keyboard_timer_state
+00007f70 b mouse_timer_state
+00007f80 b extract_timer_state
+00007fa0 b irq_timer_state
+000080a0 t urandom_read
+000080c0 t random_poll
+00008130 t random_write
+000081e0 t random_ioctl
+00008320 b blkdev_timer_state
+000084b0 T generate_random_uuid
+000084e0 t change_poolsize
+00008550 t proc_do_poolsize
+000085c0 t poolsize_strategy
+00008630 t proc_do_uuid
+00008700 t uuid_strategy
+0000871c b sysctl_poolsize
+00008720 b min_read_thresh
+00008724 b max_read_thresh
+00008728 b min_write_thresh
+0000872c b max_write_thresh
+00008730 b sysctl_bootid
+00008740 B vt_cons
+000087a0 t sysctl_init_random
+000087e0 t halfMD4Transform
+0000883c B video_font_height
+00008840 B default_font_height
+00008844 B video_scan_lines
+00008848 B vt_dont_switch
+00008860 b devfs_handle
+00008880 b inv_translate
+0000897c b dflt
+00008980 b p.1218
+00008984 b old.1219
+00008986 b oldx.1220
+00008988 b oldy.1221
+0000898c b printing.1364
+00008990 B fg_console
+00008994 B last_console
+00008998 B kmsg_redirect
+0000899c B conswitchp
+000089a0 B console_blanked
+000089c0 B vc_cons
+00008a30 T secure_tcp_sequence_number
+00008abc B do_poke_blanked_console
+00008ac0 b console_table
+00008b00 T secure_ip_id
+00008b50 t gcc2_compiled.
+00008b50 t kd_nosound
+00008b60 T _kd_mksound
+00008bc0 b console_termios
+00008bf0 T _kbd_rate
+00008c00 T vt_ioctl
+00008cc0 b console_termios_locked
+00008dc0 b con_driver_map
+00008ebc b printable
+00008ec0 b vesa_blank_mode
+00008ec4 b vesa_off_interval
+00008ec8 b master_display_fg
+00008ecc b scrollback_delta
+00008ed0 B console_blank_hook
+00008ed4 b console_timer
+00008ee8 b pm_con
+00008eec b softcursor_original
+00008f00 B con_buf
+00009f00 B console_driver
+00009fbc b console_refcount
+00009fc0 B sel_cons
+00009fc4 b sel_end
+00009fc8 b sel_buffer_lth
+00009fcc b sel_buffer
+00009fe0 b last_strobe.1008
+0000a000 b serial_driver
+0000a0c0 b callout_driver
+0000a17c b serial_refcount
+0000a180 b serial_timer
+0000a1a0 b IRQ_ports
+0000a520 b IRQ_timeout
+0000a8a0 b serial_pci_board
+0000a9a0 b serial_table
+0000aaa0 b serial_termios
+0000aac0 T vt_waitactive
+0000ab70 T reset_vc
+0000aba0 b serial_termios_locked
+0000abf0 T complete_change_console
+0000ac90 T change_console
+0000aca0 b tmp_buf
+0000acc0 B shift_state
+0000ace0 B kbd_table
+0000ad20 t gcc2_compiled.
+0000ad20 t vcs_size
+0000ad80 t vcs_lseek
+0000addc B kbd_ledfunc
+0000ade0 B kbd_pt_regs
+0000ade4 b k_down
+0000ae00 b key_down
+0000ae00 t vcs_read
+0000ae20 b dead_key_next
+0000ae24 b diacr
+0000ae25 b rep
+0000ae28 b ttytab
+0000ae2c b tty
+0000ae30 b pm_kbd
+0000ae34 B spawnpid
+0000ae38 B spawnsig
+0000ae3c b ledioctl
+0000ae40 b ledptrs
+0000ae80 b prev_scancode.1152
+0000ae84 b prev_code.1162
+0000ae85 b reply_expected
+0000ae86 b acknowledge
+0000ae87 b resend
+0000ae88 b queue
+0000ae8c b aux_count
+0000ae90 b mouse_reply_expected
+0000b180 t vcs_write
+0000b600 t vcs_open
+0000b630 T vcs_make_devfs
+0000b640 t gcc2_compiled.
+0000b640 t set_inverse_transl
+0000b6e0 T set_translate
+0000b700 T inverse_translate
+0000b750 t update_user_maps
+0000b7a0 T con_set_trans_old
+0000b800 T con_get_trans_old
+0000b880 T con_set_trans_new
+0000b8e0 T con_get_trans_new
+0000b940 t con_release_unimap
+0000b9e0 T con_free_unimap
+0000ba30 t con_unify_unimap
+0000bb60 t con_insert_unipair
+0000bc40 T con_clear_unimap
+0000bd10 T con_set_unimap
+0000bf10 T con_set_default_unimap
+0000c050 T con_copy_unimap
+0000c0c0 T con_get_unimap
+0000c1d0 T con_protect_unimap
+0000c200 T conv_uni_to_pc
+0000c2a0 t gcc2_compiled.
+0000c2a0 t gcc2_compiled.
+0000c2a0 T schedule_console_callback
+0000c2b0 t scrup
+0000c3e0 t scrdown
+0000c4e0 t do_update_region
+0000c650 T update_region
+0000c690 t build_attr
+0000c7a0 t update_attr
+0000c850 T invert_screen
+0000c9b0 T complement_pos
+0000cac0 t insert_char
+0000cbd0 t delete_char
+0000cce0 t add_softcursor
+0000cdb0 t hide_cursor
+0000ce30 t set_cursor
+0000ceb0 t set_origin
+0000cf50 T redraw_screen
+0000d0a0 T vc_cons_allocated
+0000d0c0 t visual_init
+0000d1a0 T vc_allocate
+0000d2d0 T vc_resize
+0000d760 T vc_disallocate
+0000d7d0 t gotoxy
+0000d890 t gotoxay
+0000d8d0 T scrollback
+0000d900 T scrollfront
+0000d930 t lf
+0000d9a0 t ri
+0000da00 t csi_J
+0000dba0 t csi_K
+0000dce0 t csi_X
+0000dd70 t default_attr
+0000ddc0 t csi_m
+0000e0d0 t respond_string
+0000e130 t cursor_report
+0000e180 T mouse_report
+0000e1d0 T mouse_reporting
+0000e1f0 t set_mode
+0000e4a0 t setterm_command
+0000e660 t csi_at
+0000e6a0 t csi_L
+0000e700 t csi_P
+0000e740 t csi_M
+0000e7a0 t save_cur
+0000e8a0 t restore_cur
+0000e9e0 t reset_terminal
+0000ebc0 t do_con_trol
+0000f870 t do_con_write
+0000fef0 t console_callback
+0000ffa0 T set_console
+0000ffb0 T vt_console_print
+00010290 t vt_console_device
+000102c0 T tioclinux
+00010410 t con_write
+00010440 t con_put_char
+00010480 t con_write_room
+000104a0 t con_chars_in_buffer
+000104b0 t con_throttle
+000104c0 t con_unthrottle
+000104e0 t con_stop
+00010540 t con_start
+00010590 t con_flush_chars
+000105d0 t con_open
+00010650 t con_close
+00010690 t vc_init
+000107a0 t clear_buffer_attributes
+00010810 T take_over_console
+000109a0 T give_up_console
+000109d0 t set_vesa_blanking
+000109f0 t vesa_powerdown
+00010a30 t vesa_powerdown_screen
+00010a40 t timer_do_blank_screen
+00010bc0 T do_blank_screen
+00010bd0 t unblank_screen_t
+00010be0 T unblank_screen
+00010cc0 t blank_screen
+00010cd0 T poke_blanked_console
+00010d30 T set_palette
+00010d60 t set_get_cmap
+00010ee0 T con_set_cmap
+00010ef0 T con_get_cmap
+00010f00 T reset_palette
+00010f80 T con_font_op
+00011260 T screen_glyph
+000112b0 T screen_pos
+00011300 T getconsxy
+00011330 T putconsxy
+00011360 T vcs_scr_readw
+000113a0 T vcs_scr_writew
+000113e0 t pm_con_request
+00011410 t gcc2_compiled.
+00011410 t sel_pos
+00011440 T clear_selection
+00011490 T sel_loadlut
+000114f0 T set_selection
+00011a40 T paste_selection
+00011b70 t gcc2_compiled.
+00011b70 t serial_in
+00011ba0 t serial_out
+00011bd0 T serial_icr_write
+00011c00 T serial_icr_read
+00011c50 t rs_stop
+00011ca0 t rs_start
+00011d00 t rs_sched_event
+00011d60 t receive_chars
+00011ec0 t transmit_chars
+00011fa0 t check_modem_status
+000120b0 t rs_interrupt
+00012170 t rs_interrupt_single
+00012200 t do_serial_bh
+00012220 t do_softint
+00012270 t rs_timer
+00012350 t figure_IRQ_timeout
+000123b0 t enable_rsa
+00012400 t disable_rsa
+00012450 t startup
+00012930 t shutdown
+00012b90 t change_speed
+00013090 t rs_put_char
+000130e0 t rs_flush_chars
+00013120 t rs_write
+000133e0 t rs_write_room
+00013400 t rs_chars_in_buffer
+00013420 t rs_flush_buffer
+00013470 t rs_send_xchar
+000134a0 t rs_throttle
+000134f0 t rs_unthrottle
+00013550 t get_serial_info
+00013670 t set_serial_info
+00013b30 t get_lsr_info
+00013c10 t get_modem_info
+00013d40 t set_modem_info
+00013ec0 t do_autoconfig
+00013f50 t rs_break
+00013f90 t rs_ioctl
+00014370 t rs_set_termios
+00014460 t rs_close
+00014610 t rs_wait_until_sent
+000146d0 t rs_hangup
+00014730 t block_til_ready
+000149f0 t get_async_struct
+00014b60 t rs_open
+00014d00 T rs_read_proc
+000150d0 t show_serial_version
+00015100 t detect_uart_irq
+00015280 t size_fifo
+000153d0 t autoconfig_startech_uarts
+00015560 t autoconfig
+00015910 t get_pci_port
+00015a80 t get_pci_irq
+00015ad0 t serial_pnp_guess_board
+00015ba0 T register_serial
+00015e00 T unregister_serial
+00015e80 t gcc2_compiled.
+00015e80 T keyboard_wait_for_keypress
+00015e90 T to_utf8
+00015f20 T setkeycode
+00015f40 T getkeycode
+00015f50 T handle_scancode
+000161a0 T put_queue
+00016210 t puts_queue
+00016290 t applkey
+000162c0 t enter
+00016310 t caps_toggle
+00016340 t caps_on
+00016370 t show_ptregs
+00016390 t hold
+000163c0 t num
+000163e0 t bare_num
+00016410 t lastcons
+00016420 t decr_console
+00016460 t incr_console
+000164a0 t send_intr
+000164f0 t scroll_forw
+00016500 t scroll_back
+00016510 t boot_it
+00016520 t compose
+00016530 t spawn_console
+00016560 t SAK
+00016580 t do_ignore
+00016590 t do_null
+000165a0 t do_spec
+000165e0 t do_lowercase
+000165f0 t do_self
+00016640 t do_dead
+00016660 t do_dead2
+00016690 t handle_diacr
+00016710 t do_cons
+00016730 t do_fn
+00016760 t do_pad
+00016870 t do_cur
+000168b0 t do_shift
+00016980 T compute_shiftstate
+00016a30 t do_meta
+00016a80 t do_ascii
+00016ac0 t do_lock
+00016af0 t do_slock
+00016b50 T getledstate
+00016b60 T setledstate
+00016ba0 T register_leds
+00016bf0 t kbd_bh
+00016cb0 t gcc2_compiled.
+00016cb0 t gcc2_compiled.
+00016cb0 t kb_wait
+00016cf0 T pckbd_setkeycode
+00016d30 T pckbd_getkeycode
+00016d60 t do_acknowledge
+00016da0 T pckbd_translate
+00016ed0 T pckbd_unexpected_up
+00016ef0 T pckbd_pm_resume
+00016f30 t handle_kbd_event
+000170a0 t keyboard_interrupt
+000170c0 t send_data
+00017150 T pckbd_leds
+000171a0 t parse_kbd_rate
+000172b0 t write_kbd_rate
+000172f0 t pckbd_rate
+00017360 t kbd_write_command_w
+00017380 t kbd_write_output_w
+000173a0 t kbd_write_command_w_and_wait
+000173c0 t kbd_write_output_w_and_wait
+000173e0 t kbd_write_cmd
+00017400 t aux_write_dev
+00017420 t __aux_write_ack
+00017440 t aux_write_ack
+00017460 t get_from_queue
+00017490 t fasync_aux
+000174c0 t release_aux
+00017510 t open_aux
+000175a0 t read_aux
+00017700 t write_aux
+00017760 t aux_poll
+         U acquire_console_sem
+         U add_timer
+         U add_wait_queue
+         U __alloc_bootmem
+         U alloc_kiovec
+         U aux_device_present
+         U bdget
+         U bdput
+         U bh_task_vec
+         U blkdev_get
+         U blkdev_put
+         U blk_size
+         U blksize_size
+         U boot_cpu_data
+         U brw_kiovec
+         U __check_region
+         U clear_user
+         U console_conditional_schedule
+         U console_drivers
+         U __const_udelay
+         U create_proc_entry
+         U ctrl_alt_del
+         U _ctype
+         U del_timer
+         U devpts_pty_kill
+         U devpts_pty_new
+         U do_gettimeofday
+         U __down_failed
+         U __down_failed_interruptible
+         U __down_failed_trylock
+         U drop_super
+         U fasync_helper
+         U file_move
+         U find_vma
+         U flush_scheduled_tasks
+         U free_irq
+         U free_kiovec
+         U free_pages
+         U __generic_copy_from_user
+         U __generic_copy_to_user
+         U __get_free_pages
+         U get_super
+         U __get_user_1
+         U __get_user_2
+         U __get_user_4
+         U get_zeroed_page
+         U hardsect_size
+         U high_memory
+         U init_bh
+         U init_task_union
+         U interruptible_sleep_on
+         U ioport_resource
+         U __ioremap
+         U iounmap
+         U irq_stat
+         U isapnp_devices
+         U isapnp_present
+         U is_orphaned_pgrp
+         U jiffies
+         U kdevname
+         U kfree
+         U kill_fasync
+         U kill_pg
+         U kill_proc
+         U kmalloc
+         U map_user_kiobuf
+         U mark_dirty_kiobuf
+         U __mark_inode_dirty
+         U _mmx_memcpy
+         U mod_timer
+         U no_llseek
+         U oops_in_progress
+         U panic
+         U pci_enable_device
+         U pci_read_config_byte
+         U pci_read_config_dword
+         U pci_register_driver
+         U pci_unregister_driver
+         U pci_write_config_byte
+         U __pollwait
+         U printk
+         U probe_irq_off
+         U probe_irq_on
+         U proc_dointvec
+         U proc_dointvec_minmax
+         U proc_dostring
+         U proc_tty_register_driver
+         U proc_tty_unregister_driver
+         U register_chrdev
+         U register_console
+         U release_console_sem
+         U __release_region
+         U remap_page_range
+         U remove_bh
+         U remove_wait_queue
+         U request_irq
+         U request_module
+         U __request_region
+         U __run_task_queue
+         U rwsem_down_read_failed
+         U rwsem_wake
+         U schedule
+         U schedule_task
+         U schedule_timeout
+         U securebits
+         U send_sig
+         U session_of_pgrp
+         U set_blocksize
+         U shmem_zero_setup
+         U show_mem
+         U show_regs
+         U show_state
+         U sleep_on
+         U sprintf
+         U strstr
+         U sysctl_intvec
+         U sys_ioperm
+         U system_utsname
+         U __tasklet_hi_schedule
+         U __tasklet_schedule
+         U tq_timer
+         U try_inc_mod_count
+         U unmap_kiobuf
+         U unregister_chrdev
+         U update_atime
+         U __up_wakeup
+         U vread
+         U __wake_up
+         U xtime
+         U zap_page_range
+         U zeromap_page_range
+
+--------------040109090209090807050008--
 

@@ -1,85 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbUDEWXA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 18:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbUDEWUe
+	id S263540AbUDEW0M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 18:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbUDEWXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 18:20:34 -0400
-Received: from mail.tmr.com ([216.238.38.203]:27409 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S263523AbUDEWRD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 18:17:03 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.4: disabling SCSI support not possible
-Date: Mon, 05 Apr 2004 18:17:14 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c4slos$6tq$1@gatekeeper.tmr.com>
-References: <406D65FE.9090001@broadnet-mediascape.de> <6uad1uv7kr.fsf@zork.zork.net> <20040402144216.A12306@flint.arm.linux.org.uk> <20040402165941.GA29046@kroah.com> <20040402181630.B12306@flint.arm.linux.org.uk>
+	Mon, 5 Apr 2004 18:23:32 -0400
+Received: from mailrelay03.sunrise.ch ([194.158.229.31]:25503 "EHLO
+	obelix.spectraweb.ch") by vger.kernel.org with ESMTP
+	id S263503AbUDEWUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 18:20:00 -0400
+Date: Tue, 6 Apr 2004 00:19:40 +0200
+From: Olivier Bornet <Olivier.Bornet@puck.ch>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.5, ACPI, suspend and ThinkPad R40
+Message-ID: <20040405221940.GA17419@puck.ch>
+Mail-Followup-To: Olivier Bornet <Olivier.Bornet@puck.ch>,
+	Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20040404173646.GA15635@puck.ch> <40708569.7060403@stud.feec.vutbr.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1081203292 7098 192.168.12.100 (5 Apr 2004 22:14:52 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <20040402181630.B12306@flint.arm.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Disposition: inline
+In-Reply-To: <40708569.7060403@stud.feec.vutbr.cz>
+X-From: Olivier Bornet <Olivier.Bornet@puck.ch>
+X-Url: http://puck.ch/
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Fri, Apr 02, 2004 at 08:59:41AM -0800, Greg KH wrote:
-> 
->>No, this is the way it used to be, and it caused all kinds of problems
->>in the past.  It was switched to use 'select' on purpose, and should
->>stay that way.
-> 
-> 
-> It's causing problems today by preventing people from being able to
-> de-select SCSI for no obvious reason.
-> 
-> It is far less intuitive to know you have to turn off USB_STORAGE
-> before you can turn off SCSI than to know that you have to turn on
-> SCSI before you can turn on USB_STORAGE.
 
-Intuitive isn't the issue, if you can't figure out why you can't turn 
-off SCSI, you leave it on, which you need to make USB storage work. If 
-you're trying to make a small kernel you presumably would have turned 
-off USB if you didn't want it. The other way, if you can turn on USB w/o 
-SCSI, it won't work, and people thing Linux is broken.
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The issue is that what we have works but it's not obvious why, vs. 
-doesn't work and also isn't obvious why. Thank you, work by default is 
-better.
-> 
-> If you wish to keep it this way, could we either have:
-> 
-> (a) a note in the SCSI help text to say that the option is forced
->     on by USB_STORAGE, so people know what to turn off.
+Hi,
 
-Chances are that most people wouldn't have USB on if they didn't want 
-it, but there's no downside to doing this.
-> 
-> or
-> 
-> (b) have kconfig tell you why you can't turn off the option.
+On Mon, Apr 05, 2004 at 12:00:09AM +0200, Michal Schmidt wrote:
+> Yes, see:
+>   http://bugzilla.kernel.org/show_bug.cgi?id=3D1415
+> There is a patch which worked for me.
 
-I thought that was what (a) did.
-> 
-> Silently preventing options being turned off with no obvious reason
-> is a pretty major misfeature.
+Thanks a lot. :-) This patch is working as expected for me. Now, after
+doing a:
 
-Compared to enabling USB storage with no hope of having it work? Adding 
-user info is desirable, but making it easy, or even possible, to build a 
-  non-working config is a lot more of a problem. You haven't compiled on 
-a slow machine lately, forcing config combinations which work is a 
-benefit of kconfig.
+  echo LID > /proc/acpi/wakeup_devices
+  echo SLPB > /proc/acpi/wakeup_devices
 
-If you want it broken you have to edit the config code. That's a good thing.
+I can resume by opening the laptop, or by using the Fn button, or by
+using the power button. :-)
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+This patch seems "very" old (first release 2003-10-28).
+
+Anyone know why this patch is not in the kernel source tree at this
+time ?
+
+Good day, and thanks for your help.
+
+		Olivier
+--=20
+Olivier Bornet                |    fran=E7ais : http://puck.ch/f
+Swiss Ice Hockey Results      |    english  : http://puck.ch/e
+http://puck.ch/               |    deutsch  : http://puck.ch/g
+Olivier.Bornet@puck.ch        |    italiano : http://puck.ch/i
+Get my PGP-key at http://puck.ch/pgp or at http://pgp.mit.edu/
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAcdt8dj3R/MU9khgRAhY5AJ0VPhImC7pVewHZglsZeorDqWkFSgCg5UfS
+ACrvSsyVbjdGIpYKOWbetew=
+=fbXJ
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--

@@ -1,73 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275086AbSITFXe>; Fri, 20 Sep 2002 01:23:34 -0400
+	id <S275092AbSITFgr>; Fri, 20 Sep 2002 01:36:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275087AbSITFXe>; Fri, 20 Sep 2002 01:23:34 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:21272 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S275086AbSITFXd>; Fri, 20 Sep 2002 01:23:33 -0400
-Date: Fri, 20 Sep 2002 08:28:32 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: gibbs@scsiguy.com, linux-kernel@vger.kernel.org
-Cc: Jani Forssell <jani.forssell@viasys.com>
-Subject: 2.4.20pre7, aic7xxx-6.2.8: Panic: HOST_MSG_LOOP with invalid SCB 0
-Message-ID: <20020920052832.GH41965@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>, gibbs@scsiguy.com,
-	linux-kernel@vger.kernel.org,
-	Jani Forssell <jani.forssell@viasys.com>
-Mime-Version: 1.0
+	id <S275094AbSITFgr>; Fri, 20 Sep 2002 01:36:47 -0400
+Received: from packet.digeo.com ([12.110.80.53]:59055 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S275092AbSITFgq>;
+	Fri, 20 Sep 2002 01:36:46 -0400
+Message-ID: <3D8AB518.218F8503@digeo.com>
+Date: Thu, 19 Sep 2002 22:41:44 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: [patch] remove page->virtual
+References: <3D8AAA58.41BC835F@digeo.com> <20020920050320.GH3530@holomorphy.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Sep 2002 05:41:45.0163 (UTC) FILETIME=[67A691B0:01C26068]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Celeron 1.3GHz, Intel i815 chipset, 512MB ram.
+William Lee Irwin III wrote:
+> 
+> On Thu, Sep 19, 2002 at 09:55:52PM -0700, Andrew Morton wrote:
+> > set_page_address() and page_address() implementations consume 0.4% and
+> > 1.3% of CPU time respectively.   I think that's OK. (Plus the tested code
+> > was doing an unneeded lookup in set_page_address(), for debug purposes)
+> 
+> Looks yummy. I'll take it for a spin tonight on my benchmark-o-matic.
+> Clearing some more air in ZONE_NORMAL is always welcome here.
 
-AIC-2640 PCI card with uw and narrow connectors. A Seagate scsi disk
-(rootfs) attached to uw, and a HP tape drive attached to narrow. Tape drive
-never used.
+Ta.
 
-I only ran 2.4.20pre7 (no other patches) for a night and it crashed:
+> On Thu, Sep 19, 2002 at 09:55:52PM -0700, Andrew Morton wrote:
+> > c01884f2 6914     10.5108     .text.lock.dir
+> > c01546b3 5847     8.88872     .text.lock.namei
+> > c01eb99e 3811     5.79355     .text.lock.dec_and_lock
+> > c01515dc 3775     5.73883     link_path_walk
+> > c015207c 3567     5.42262     path_lookup
+> > c015aba4 3194     4.85558     __d_lookup
+> > c01eb690 2814     4.2779      __generic_copy_to_user
+> > c01eb950 2562     3.8948      atomic_dec_and_lock
+> > c0187580 2473     3.7595      ext2_readdir
+> > c0155d3c 2172     3.30192     filldir64
+> > c0151114 1786     2.71511     path_release
+> > c0145b6a 1753     2.66494     .text.lock.open
+> 
+> What's going on here? fs stuff is really hurting. At any rate, the
+> overhead of the address calculation and hashtable lookup is microscopic
+> according to this, and I want space.
 
--------------------------------------------------------------------
-Kernel panic: HOST_MSG_LOOP with invalid SCB 0
 
-In interrupt handler, not syncing
--------------------------------------------------------------------
+c0182f90 5949     14.5552     ext2_readdir
 
+           lock_kernel()         
 
-Boot log snippet:
--------------------------------------------------------------------
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
-        <Adaptec 2940 SCSI adapter>
-        aic7870: Wide Channel A, SCSI Id=7, 16/253 SCBs
+c014f65c 5790     14.1662     path_lookup            
 
-  Vendor: SEAGATE   Model: ST19171W          Rev: 0024
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-(scsi0:A:0): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
-  Vendor: HP        Model: C1537A            Rev: L708
-  Type:   Sequential-Access                  ANSI SCSI revision: 02
-(scsi0:A:2): 10.000MB/s transfers (10.000MHz, offset 15)
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 8
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sda: 17783112 512-byte hdwr sectors (9105 MB)
- sda: sda1 sda2 < sda5 sda6 >
--------------------------------------------------------------------
+    Confused.  oprofile claims read_lock(&current->fs->lock) but
+    it's surely dcache_lock.
 
-.config
--------------------------------------------------------------------
-_SCSI_AIC7XXX=y
-_AIC7XXX_CMDS_PER_DEVICE=8
-_AIC7XXX_RESET_DELAY_MS=15000
-IG_AIC7XXX_PROBE_EISA_VL is not set
-IG_AIC7XXX_BUILD_FIRMWARE is not set
--------------------------------------------------------------------
+c01e6e80 4275     10.4595     atomic_dec_and_lock     
 
-2.2.18pre18 with aic7xxx-5.1.31 was solid on this box (the motherboard has
-been changed since, though).
+    dput/iput
 
- 
--- v --
-
-v@iki.fi
+c014eba4 2264     5.53924     link_path_walk          
+c0158050 1988     4.86397     __d_lookup              
+c01426e8 1903     4.656       sys_chdir               
+c01e6bc0 1735     4.24496     __generic_copy_to_user  
+c015319c 1344     3.28831     filldir64               
+c014e6b4 1205     2.94823     path_release            
+c0109070 1065     2.6057      system_call             
+c014b934 929      2.27295     cp_new_stat64           
+c014b380 822      2.01116     generic_fillattr        
+c0157250 712      1.74202     dput                    
+c014b3fc 622      1.52182     vfs_getattr             
+c0157468 556      1.36034     dget_locked

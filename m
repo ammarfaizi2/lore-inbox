@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267686AbSLTCHo>; Thu, 19 Dec 2002 21:07:44 -0500
+	id <S267724AbSLTCSo>; Thu, 19 Dec 2002 21:18:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267687AbSLTCHo>; Thu, 19 Dec 2002 21:07:44 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24300
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267686AbSLTCHn>; Thu, 19 Dec 2002 21:07:43 -0500
-Subject: Re: PATCH 2.5.x disable BAR when sizing
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Grant Grundler <grundler@cup.hp.com>
-Cc: mj@ucw.cz, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       turukawa@icc.melco.co.jp
-In-Reply-To: <20021219213712.0518B12CB2@debian.cup.hp.com>
-References: <20021219213712.0518B12CB2@debian.cup.hp.com>
-Content-Type: text/plain
+	id <S267725AbSLTCSo>; Thu, 19 Dec 2002 21:18:44 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:29429 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267724AbSLTCSn>; Thu, 19 Dec 2002 21:18:43 -0500
+Date: Thu, 19 Dec 2002 18:20:25 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Hanna Linder <hannal@us.ibm.com>, Jon Tollefson <kniht@us.ibm.com>
+cc: Eli Carter <eli.carter@inet.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Dedicated kernel bug database
+Message-ID: <56310000.1040350825@flay>
+In-Reply-To: <71820000.1040349694@w-hlinder>
+References: <200212192155.gBJLtV6k003254@darkstar.example.net> <3E0240CA.4000502@inet.com> <42790000.1040337942@w-hlinder> <50260000.1040348396@flay> <71820000.1040349694@w-hlinder>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Dec 2002 02:54:28 +0000
-Message-Id: <1040352868.30778.12.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-19 at 21:37, Grant Grundler wrote:
+>> Anything in "OPEN" state isn't really assigned to anyone yet.
+>> (the state would really better be named "NEW", but it's not). 
+>> People should move it to "ASSIGNED" if they're working on it.
 > 
-> Martin,
-> In April 2002, turukawa@icc.melco.co.jp sent a 2.4.x patch to disable
-> BARs while the BARs were being sized.  I've "forward ported" this patch
-> to 2.5.x (appended).  turukawa's excellent problem description and
-> original posting are here:
-> 	https://lists.linuxia64.org/archives//linux-ia64/2002-April/003302.html
+> 	So the process is to query for all open bugs (but not 
+> assigned) then email each person to let them know you are 
+> working on it?
+
+Sounds about right. If we had processes ;-)
+
+>> Go to file a new bug, click on the link by the subcategories, and it'll
+>> tell you (you'll have to pick the main category first).
 > 
-> David Mosberger agrees this is an "obvious fix".
-> We've been using this in the ia64 2.4 code stream since about August.
+> 	That is convoluted. You have to file a bug to find out who
+> the subsystem maintainers are? Can you put it somewhere more
+> obvious?
 
-We've rejected this twice already from different people.
+Well, you don't have to file one, you just pretend to. But it's
+not nice, I agree. Jon, is there an easier way to do this, and get
+all the information in one shot?
 
-Nothing says your memory can't be behind the bridge and you just turned
-memory access off. Whoops bang, game over.
+M.
 
-And yes this happens on some PC class systems.
-
-Alan
 

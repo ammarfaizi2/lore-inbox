@@ -1,91 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265321AbSKEXJI>; Tue, 5 Nov 2002 18:09:08 -0500
+	id <S265319AbSKEXH5>; Tue, 5 Nov 2002 18:07:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265326AbSKEXJH>; Tue, 5 Nov 2002 18:09:07 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:29449 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id <S265321AbSKEXJF>;
-	Tue, 5 Nov 2002 18:09:05 -0500
-Date: Wed, 6 Nov 2002 00:15:34 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jim Paris <jim@jtan.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: time() glitch on 2.4.18: solved
-Message-ID: <20021105231534.GA28279@alpha.home.local>
-References: <20021105201438.GA26116@alpha.home.local> <Pine.LNX.3.95.1021105152508.734B-100000@chaos.analogic.com>
+	id <S265321AbSKEXH5>; Tue, 5 Nov 2002 18:07:57 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:30933 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265319AbSKEXHy>;
+	Tue, 5 Nov 2002 18:07:54 -0500
+Subject: Panic on startup with e1000, PPC64
+From: "David C. Hansen" <haveblue@us.ibm.com>
+To: scott.feldman@intel.com
+Cc: Anton Blanchard <anton@samba.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 05 Nov 2002 15:13:47 -0800
+Message-Id: <1036538028.6194.59.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1021105152508.734B-100000@chaos.analogic.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 05, 2002 at 03:38:00PM -0500, Richard B. Johnson wrote:
-> On Tue, 5 Nov 2002, Willy Tarreau wrote:
-> 
-> > On Tue, Nov 05, 2002 at 08:07:26PM +0000, Alan Cox wrote:
-> > > On Tue, 2002-11-05 at 19:29, Richard B. Johnson wrote:
-> > > > The only hardware a modern PC needs to use "slow-down_io" on is
-> > > > the RTC CMOS device. Since we need to support older boards, you
-> > > > don't want to remove the _p options indiscriminately, but you do
-> > > > not want them ever between two consecutive writes to the same device-
-> > > > port.
-> > > 
-> > > I own at least one that needs the _p on the DMA controller and at one
-> > > that needs _p on the PIT
-> > 
-> > Well, in fact, Intel's 82C54 datasheet says that this chip needs at least
-> > 165 ns between two consecutive operations, either read or write. So with a
-> > 8 Mhz bus, you may effectively need to insert fake accesses, although most
-> > modern chipsets certainly have better specs.
-> > 
-> 
-> Its not a clocked bus. The 8 MHz means nothing. It's an async bus
-> and if the setup timing of the data/address-decode/chip-select sequence
-> is not violated, you get ~200ns between accesses so chip-to-chip
-> select time comes automatically. But, some older motherboards violated
-> all kinds of specs. They did this deliberately so you could plug
-> RAM boards into the ISA bus and get reasonable performance. If we still
-> support them, you need some artifical waits.
+I just put a pair of e1000's in my 4-way PPC64 box and booted a
+known-good kernel.  It oopsed on boot.  I'm going to try 2.5 next.
 
-Well, some older (386) motherboards had the 8254 directly connected to the ISA
-bus. And since Linux is 386-compatible, I think we should still support those
-boards.
+Linux version 2.4.20-pre4 (anton@superego) (gcc version 3.2.1 20021007
+(prerelease)) #48 SMP Tue Oct 29 18:14:24 EST 2002
+...
+Intel(R) PRO/1000 Network Driver - version 4.3.2-k1
+Copyright (c) 1999-2002 Intel Corporation.
+PCI: Enabling device 40:0b.0 (0140 -> 0143)
+eth0: Intel(R) PRO/1000 Network Connection
+NIP:  C0000000001D5358 
+MSR:  a000000000009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c00000003ff38000[1] swapper Last syscall: 120 
+last math 0000000000000000 
+GPR00: 0000000000000000 C00000003FF3B8F0 
+       C00000000053A000 C00000003FEC3C58 
+GPR04: 0000000002205800 0000000000000000 
+       0000000000000000 0000000000000000 
+GPR08: 0000000000000003 E000000000103000 
+       E000000002248000 E000000002308800 
+GPR12: C0000000005C5728 C00000003FF38000
+       0000000000000000 0000000000000000 
+GPR16: 0000000000000000 0000000000000000
+       0000000000000000 0000000000000000 
+GPR20: 0000000000000000 0000000000220000
+       0000000000000001 C0000000004DC5E0 
+GPR24: 0000000000000001 C00000003FF22000
+       C00000003FEC3A60 0000000006EC0269 
+GPR28: C00000003FEC3C58 0000000002205804
+       C000000000423698 C00000003FEC3C58 
+cpu 1: Vector: 300 (Data Access) at  [c00000003ff3b670]
+    pc: c0000000001d5358 (e1000_io_write+0x50)
+   msr: a000000000009032
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-> It's not the port address. It's the bus state. The chip requires two
-> consecutive writes when setting that latch. It's just like a 32-bit
-> write to a 32-bit port (like PCI access), you can't write to the
-> low-port, do something else, then write to the high port.
 
-Yes you can ! the chip uses a CS (chip select) from an address decoder,
-and sees the reads/writes only when both CS and either RD or WR are low.
-I understand that all this circuitry may be simplified a bit in recent
-chipsets (one unified decoder, fewer glue logic between chips), but there's
-no reason that this should not be respected if the chip makers claim a bit
-of compatibility.
+>>GPR1; c00000003ff3b8f0 <END_OF_CODE+3f9128f0/????>
+>>GPR4; 02205800 Before first symbol
+>>GPR9; e000000000103000 <END_OF_CODE+1fffffffffada000/????>
+>>GPR12; c0000000005c5728 <running_timer+0/8>
+>>GPR13; c00000003ff38000 <END_OF_CODE+3f90f000/????>
+>>GPR21; 00220000 Before first symbol
+>>GPR25; c00000003ff22000 <END_OF_CODE+3f8f9000/????>
+>>GPR28; c00000003fec3c58 <END_OF_CODE+3f89ac58/????>
+>>GPR29; 02205804 Before first symbol
 
-> It needs to be done with no intervening bus states. In the AMD case, it's
-> probably because the address is ignored on the second write.
+Call backtrace: 
+C00000003FE7D110 Unknown
+C0000000001D6890 e1000_reset_hw+0x544
+C0000000001D0600 e1000_reset+0x60
+C0000000004C1E34 Unknown
+C00000000025BC28 pci_announce_device+0x68
+C00000000025BD58 pci_register_driver+0xb0
+C0000000004C1974 Unknown
+C0000000004AFA44 Unknown
+C00000000000C420 init+0x6c
+C000000000019514 Unknown
+Kernel panic: kernel access of bad area pc c0000000001d5358 lr
+c0000000001df4f0 address E000000002308800 tsk swapper/1
+Using defaults from ksymoops -t elf32-powerpc -a powerpc:common
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-Then it's buggy. This chip was originaly designed to work for 8086/80186,
-which barely means work when directly connected to an ISA bus. If AMD make
-their chip rely on PCI-like back-to-back behaviour, I don't agree for the
-compatibility.
 
-Now, since there's at least one buggy implementation, the solution is udelay().
-But do you think that your chip may be confused by a memory access, when
-udelay() fetches the count variable from memory, for example ?
+Trace; c00000003fe7d110 <END_OF_CODE+3f854110/????>
+Trace; c0000000001d6890 <.e1000_reset_hw+544/5b8>
+Trace; 000e1000 Before first symbol
+Trace; c0000000001d0600 <.e1000_reset+60/11c>
+Trace; 000e1000 Before first symbol
+Trace; c0000000004c1e34 <.e1000_probe+438/530>
+Trace; c00000000025bc28 <.pci_announce_device+68/e8>
+Trace; c00000000025bd58 <.pci_register_driver+b0/e8>
+Trace; c0000000004c1974 <.e1000_init_module+54/dc>
+Trace; c0000000004afa44 <.do_initcalls+3c/8c>
+Trace; c00000000000c420 <.init+6c/238>
+Trace; c000000000019514 <.kernel_thread+3c/48>
 
-The last other solution may be to simply use jmp $+2, which will be slow
-enough on old sensible hardware, and imperceptible on more recent hardware
-which doesn't require this.
+>>NIP; c0000000001d5358 <.e1000_io_write+50/80>   <=====
 
-Since Alan and you have one piece of hardware which show opposite behaviour,
-we should get an ever working solution quickly :-)
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-Cheers,
-Willy
- 

@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275992AbRI1JPE>; Fri, 28 Sep 2001 05:15:04 -0400
+	id <S275990AbRI1Jv4>; Fri, 28 Sep 2001 05:51:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275986AbRI1JOy>; Fri, 28 Sep 2001 05:14:54 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:63637 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S275985AbRI1JOo>;
-	Fri, 28 Sep 2001 05:14:44 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15284.16283.111942.13934@harpo.it.uu.se>
-Date: Fri, 28 Sep 2001 11:15:07 +0200
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-tape@vger.kernel.org
-Subject: Re: idetape broke in 2.4.x-2.4.9-ac5 (write OK but not read) ide-scsi works in 2.4.4
-In-Reply-To: <20010927234023.A16753@devserv.devel.redhat.com>
-In-Reply-To: <200109042234.AAA28635@harpo.it.uu.se>
-	<20010927234023.A16753@devserv.devel.redhat.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+	id <S275994AbRI1Jvt>; Fri, 28 Sep 2001 05:51:49 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:1284 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S275990AbRI1Jvj>;
+	Fri, 28 Sep 2001 05:51:39 -0400
+Date: Fri, 28 Sep 2001 11:52:03 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4.9-ac16] usb serial compile error.
+Message-ID: <20010928115203.F21524@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev writes:
- > By the way, why does everyone insist on using ide-tape?
- > It seems to be broken beyond any repair by injection of
- > lethal poison marked "OnStream Support" (not that it was brilliant
- > before, but that was the last nail in the coffin). Just use ide-scsi
- > and be done with it. I really do not enjoy reading ide-tape.c.
+When compiling a USB serial driver (mct_u232 in my case) 
+without USB generic serial support, the compile process
+stops because of undefined 'vendor' and 'product'
+symbols.
 
-I agree that ide-tape.c looks like a buggy piece of cr*p, but apart
-from that, what would I gain from using scsi tape on top of ide-scsi?
-Would it magically work on broken Colorados?
+The attached patch corrects this issue.
 
-/Mikael
+Stelian.
+
+--- linux-2.4.9-ac16/drivers/usb/serial/usbserial.c.orig	Fri Sep 28 11:35:39 2001
++++ linux-2.4.9-ac16/drivers/usb/serial/usbserial.c	Fri Sep 28 11:35:52 2001
+@@ -323,11 +323,10 @@
+ static void generic_write_bulk_callback	(struct urb *urb);
+ static void generic_shutdown		(struct usb_serial *serial);
+ 
+-
+-#ifdef CONFIG_USB_SERIAL_GENERIC
+ static __u16	vendor	= 0x05f9;
+ static __u16	product	= 0xffff;
+ 
++#ifdef CONFIG_USB_SERIAL_GENERIC
+ static struct usb_device_id generic_device_ids[2]; /* Initially all zeroes. */
+ 
+ /* All of the device info needed for the Generic Serial Converter */
+
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

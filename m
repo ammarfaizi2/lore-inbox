@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbUDWV4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbUDWWCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbUDWV4o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 17:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUDWV4o
+	id S261582AbUDWWCo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 18:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUDWWCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 17:56:44 -0400
-Received: from spc1-brig1-3-0-cust85.lond.broadband.ntl.com ([80.0.159.85]:32474
-	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
-	id S261580AbUDWV4m convert rfc822-to-8bit (ORCPT
+	Fri, 23 Apr 2004 18:02:44 -0400
+Received: from mail.rty.ca ([64.56.132.29]:55049 "EHLO rty.ca")
+	by vger.kernel.org with ESMTP id S261582AbUDWWCm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 17:56:42 -0400
-Date: Fri, 23 Apr 2004 22:56:41 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
+	Fri, 23 Apr 2004 18:02:42 -0400
+Message-ID: <42822.68.144.162.3.1082757748.squirrel@webmail.rty.ca>
+Date: Fri, 23 Apr 2004 16:02:28 -0600 (MDT)
+Subject: Si3112 S-ATA bug preventing use of udma5.
+From: "Brenden Matthews" <brenden@rty.ca>
 To: linux-kernel@vger.kernel.org
-Subject: IDE throughput in 2.6 - it's good!
-Message-ID: <Pine.LNX.4.58.0404232237140.19797@ppg_penguin>
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Talk about lies, damned lies, and statistics.  I've seen comments about
-disk throughput, and running hdparm -t is one of my normal tests for new
-kernels.  On this particular box (1000Mhz Duron, 512MB) hdparm regularly
-reported disk reads of >= 40MB/S, at least on the outside.  Then I
-booted 2.6.5 and the reported speed dropped away to typically 26-28MB/S.
+In 2.6.5 (not sure about other versions) there is a bug/problem in the
+drivers/ide/pci/siimage.c driver.  I have only tested this with my Si3112
+chipset on an ASUS A7N8X-Deluxe mobo.  I did not discover this fix, and
+I'll post a url below to the original source.  No idea if this has been
+fixed/looked at already, but it definitely needs to be resolved.
 
- I remembered a recent comment about block sizes, so I tested the read
-speed shown for various partitions.  The outer part of the disk has
-several VFAT partitions, the ext3 partitions on the inside now report
-around 31MB/S - better than 26, but sounds poor, and 2.6.1 reported a
-slightly faster speed (might be the compiler, for 2.6.1 I used
-gcc-2.95.3, now I'm using gcc-3.3.3).  All of the 2.6 kernels on this
-box have preempt enabled.
+hdparm -t speed without fix: 16mb/s
+hdparm -t speed with fix: 55mb/s
 
- But, when all's said and done these are only numbers.  I found the
-biggest tar on this box (463MiB) and timed -
- cp from hda10 to hda9 (these are the innermost partitions)
- sync
- rm from hda9
- sync again
-Repeated three times, no other users, noted the real time.
+http://forums.gentoo.org/viewtopic.php?t=111300
 
- Under 2.4.25, between 41 and 45 seconds.
- Under 2.6.1, between 42 and 50 seconds.
- Under 2.6.5, between 38 and 40 seconds.
+Incase the link is down/broken, to fix the bug change line 269 of
+drivers/ide/pci/siimage.c from:
 
-So, despite the numbers shown by hdparm looking worse, when only one
-user is doing anything the performance is actually improved.  I've no
-idea which changes have achieved this, but thanks to whoever were
-involved.
+        u32 speedt              = 0;
 
-Ken
--- 
- das eine Mal als Tragödie, das andere Mal als Farce
+to:
+        u16 speedt              = 0;
 
+
+
+Regards,
+Brenden

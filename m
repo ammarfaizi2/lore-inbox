@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317302AbSGCWWG>; Wed, 3 Jul 2002 18:22:06 -0400
+	id <S317265AbSGCWlL>; Wed, 3 Jul 2002 18:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317303AbSGCWWF>; Wed, 3 Jul 2002 18:22:05 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:27975 "EHLO tsmtp7.mail.isp")
-	by vger.kernel.org with ESMTP id <S317302AbSGCWWE>;
-	Wed, 3 Jul 2002 18:22:04 -0400
-Date: Thu, 4 Jul 2002 00:26:36 +0200
-From: Diego Calleja <diegocg@teleline.es>
-To: Ryan Anderson <ryan@michonline.com>
-Cc: oliver@neukum.name, trini@kernel.crashing.org, corbet@lwn.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal
-Message-Id: <20020704002636.59071208.diegocg@teleline.es>
-In-Reply-To: <Pine.LNX.4.10.10207021746570.579-100000@mythical.michonline.com>
-References: <200207022010.50572.oliver@neukum.name>
-	<Pine.LNX.4.10.10207021746570.579-100000@mythical.michonline.com>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S317266AbSGCWlK>; Wed, 3 Jul 2002 18:41:10 -0400
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:16602 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317265AbSGCWlJ>; Wed, 3 Jul 2002 18:41:09 -0400
+Date: Thu, 4 Jul 2002 00:43:26 +0200
+From: Ulrich Wiederhold <U.Wiederhold@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: nvidia driver won't compile with 2.4.19-rc1
+Message-ID: <20020703224326.GA2036@sky.net>
+References: <20020703214757.GA504@sky.net> <Pine.GSO.4.30.0207040023140.23914-200000@balu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.30.0207040023140.23914-200000@balu>
+User-Agent: Mutt/1.4i
+X-Operating-System: Debian GNU/Linux 3.0 (Kernel 2.4.19-rc1)
+Organization: Using Linux Only
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jul 2002 17:50:19 -0400 (EDT)
-Ryan Anderson <ryan@michonline.com> escribió:
+* Pozsar Balazs <pozsy@uhulinux.hu> [020704 00:24]:
+> 
+> actually it compiles but the 'make' fails because of depmod complaining.
+> 
+> attached patch will help you.
 
-> In a single processor, no preempt kernel, there is no race.
-> Turn on SMP or preempt and there is one.
+Works, thanks.
+I turned off the "Set version information on all module symbols" part.
 
-So we _can't_ talk about remove module removal, but _disabling_ module
-removal in the worst case.
+Uli
 
-Because if the above is correct, single processors without preempt works
-well and can use module removal safely...
+-- 
+'The box said, 'Requires Windows 95 or better', so i installed Linux - TKK 5

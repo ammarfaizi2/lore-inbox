@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261666AbSJUVdO>; Mon, 21 Oct 2002 17:33:14 -0400
+	id <S261723AbSJUVhG>; Mon, 21 Oct 2002 17:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261690AbSJUVdO>; Mon, 21 Oct 2002 17:33:14 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:63191 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261666AbSJUVdO>;
-	Mon, 21 Oct 2002 17:33:14 -0400
-Date: Mon, 21 Oct 2002 14:33:35 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>
-Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
-Message-ID: <309670000.1035236015@flay>
-In-Reply-To: <3DB472B6.BC5B8924@digeo.com>
-References: <3DB46DFA.DFEB2907@digeo.com> <308170000.1035234988@flay> <3DB472B6.BC5B8924@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S261717AbSJUVhG>; Mon, 21 Oct 2002 17:37:06 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:65468 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261723AbSJUVhC>; Mon, 21 Oct 2002 17:37:02 -0400
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] 2.5.42 (1/2): Filesystem capabilities kernel patch
+References: <87y98vmuqf.fsf@goat.bogus.local>
+	<200210200224.07867.agruen@suse.de>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Mon, 21 Oct 2002 17:25:09 +0200
+Message-ID: <87fzuzke5m.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Nope, kept OOMing and killing everything .
-> 
-> Something broke.
+Andreas Gruenbacher <agruen@suse.de> writes:
 
-Even I worked that out ;-) 
+> Capabilities should be implemented as extended attributes;
 
-> Blockdevices only use ZONE_NORMAL for their pagecache.  That cat will
-> selectively put pressure on the normal zone (and DMA zone, of course).
+Why "should" this be implemented as extended attributes? What are the
+benefits in doing so?
 
-Ah, I recall that now. That's fundamentally screwed.
-  
->> Will try again. Presumably "find /" should do it? ;-)
-> 
-> You must have a lot of files.
+> see Ted's recent postings.
 
-Nothing too ridiculous. Will try find on a small subset repeatedly and see if
-it keeps growing first - maybe that'll show a leak.
- 
-Thanks,
+Ted's recent postings argue against capabilities at all. So what do
+you mean?
 
-M.
-
+Regards, Olaf.

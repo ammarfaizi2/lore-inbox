@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262252AbTFONQH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 09:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTFONQH
+	id S262223AbTFONP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 09:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbTFONP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 09:16:07 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51720 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262252AbTFONQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 09:16:02 -0400
-Date: Sun, 15 Jun 2003 14:29:50 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Subject: bad: scheduling while atomic!
-Message-ID: <20030615142950.A32102@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	David Woodhouse <dwmw2@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Sun, 15 Jun 2003 09:15:29 -0400
+Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:52236 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262223AbTFONPY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 09:15:24 -0400
+Date: Sun, 15 Jun 2003 15:29:11 +0200 (CEST)
+From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.71
+In-Reply-To: <Pine.LNX.4.44.0306141411320.2156-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.51L.0306151526190.11459@piorun.ds.pg.gda.pl>
+References: <Pine.LNX.4.44.0306141411320.2156-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm seeing tonnes of this with UP preempt in 2.5.71.  The following is
-just one case which I've been able to track down:
+On Sat, 14 Jun 2003, Linus Torvalds wrote:
+> I think I'll call this kernel the "sticky turtle", in honor of that
+> historic "greased weasel" kernel, and as a comment on how sadly
+> dependent I've become on the daily BK snapshots. It's been too long
+> since 2.5.70.
 
-bad: scheduling while atomic! (00000250 0 8 mtdblockd)
-[<c02372d0>] (schedule+0x0/0x490) from [<c0335fd0>] (mtd_blktrans_thread+0x220/0x258)
- r7 = 00000000  r6 = C0109FBC  r5 = C0108000  r4 = C0109FB8
-[<c0335db0>] (mtd_blktrans_thread+0x0/0x258) from [<c0224554>] (kernel_thread+0x40/0x48)
-bad: scheduling while atomic! (00000251 0 8 mtdblockd)
-[<c02372d0>] (schedule+0x0/0x490) from [<c0335fd0>] (mtd_blktrans_thread+0x220/0x258)
- r7 = 00000000  r6 = C0109FBC  r5 = C0108000  r4 = C0109FB8
-[<c0335db0>] (mtd_blktrans_thread+0x0/0x258) from [<c0224554>] (kernel_thread+0x40/0x48)
-bad: scheduling while atomic! (00000252 0 8 mtdblockd)
-[<c02372d0>] (schedule+0x0/0x490) from [<c0335fd0>] (mtd_blktrans_thread+0x220/0x258)
- r7 = 00000000  r6 = C0109FBC  r5 = C0108000  r4 = C0109FB8
-[<c0335db0>] (mtd_blktrans_thread+0x0/0x258) from [<c0224554>] (kernel_thread+0x40/0x48)
+well done - this kernel looks really good. Even building is cleaner...
 
-(The extra numbers are: preempt_count, kernel_locked, pid and comm).
+But - I get now after make modules_install:
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.71; fi
+WARNING: /lib/modules/2.5.71/kernel/drivers/char/agp/nvidia-agp.ko needs unknown symbol agp_memory_reserved
+WARNING: /lib/modules/2.5.71/kernel/drivers/net/3c509.ko needs unknown symbol netdev_boot_setup_check
 
-This instance seems to be caused by the following code in
-drivers/mtd/mtd_blkdevs.c:
-
-         while (!tr->blkcore_priv->exiting) {
-                 spin_lock_irq(rq->queue_lock);
- ...
-                 spin_unlock_irq(rq->queue_lock);
- ...
-                 spin_lock_irq(rq->queue_lock);
- ...
-         }
-
-It would be useful if we could balance the spin_locks with the
-spin_unlocks. 8)
+My kernel config:
+http://piorun.ds.pg.gda.pl/~blues/kernel-2.5/config-2.5.71.txt
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+pozdr.  Pawe³ Go³aszewski 
+---------------------------------
+worth to see: http://www.againsttcpa.com/
+CPU not found - software emulation...

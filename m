@@ -1,212 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315708AbSG1LU0>; Sun, 28 Jul 2002 07:20:26 -0400
+	id <S315721AbSG1Lcf>; Sun, 28 Jul 2002 07:32:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315709AbSG1LU0>; Sun, 28 Jul 2002 07:20:26 -0400
-Received: from mail2.alphalink.com.au ([202.161.124.58]:20799 "EHLO
-	mail2.alphalink.com.au") by vger.kernel.org with ESMTP
-	id <S315708AbSG1LUY>; Sun, 28 Jul 2002 07:20:24 -0400
-Message-ID: <3D43D3ED.32D803BB@alphalink.com.au>
-Date: Sun, 28 Jul 2002 21:22:21 +1000
-From: Greg Banks <gnb@alphalink.com.au>
-Organization: Corpus Canem Pty Ltd
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [MOAN] CONFIG_SERIAL_CONSOLE
+	id <S315734AbSG1Lcf>; Sun, 28 Jul 2002 07:32:35 -0400
+Received: from gusi.leathercollection.ph ([202.163.192.10]:17305 "EHLO
+	gusi.leathercollection.ph") by vger.kernel.org with ESMTP
+	id <S315721AbSG1Lce>; Sun, 28 Jul 2002 07:32:34 -0400
+Date: Sun, 28 Jul 2002 19:35:36 +0800
+From: Federico Sevilla III <jijo@free.net.ph>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux-XFS Mailing List <linux-xfs@oss.sgi.com>
+Subject: Re: Unkillable processes stuck in "D" state running forever
+Message-ID: <20020728113536.GI1265@leathercollection.ph>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux-XFS Mailing List <linux-xfs@oss.sgi.com>
+References: <20020728102246.GG1265@leathercollection.ph>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020728102246.GG1265@leathercollection.ph>
+User-Agent: Mutt/1.4i
+X-Organization: The Leather Collection, Inc.
+X-Organization-URL: http://www.leathercollection.ph
+X-Personal-URL: http://jijo.free.net.ph
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-G'day,
+On Sun, Jul 28, 2002 at 06:22:46PM +0800, Federico Sevilla III wrote:
+> I have been noticing problems on two of my boxes here with some
+> processes somehow getting stuck in "D" state, which cannot be killed
+> even by a SIGKILL by root, and stay on running forever. I have noticed
+> the problem, so far, on 2.4.18-xfs and 2.4.19-rc2-xfs kernels.
 
-Russell King wrote:
-> Since ppc also include{s,d} drivers/char/Config.in, this means there was
-> a define_bool _and_ bool for the same configuration variable.  This sounds
-> contary to the shell-nature of the configure scripts, and therefore illegal,
-> and as such gets broken when changes happen.
+I do not know how small a tidbit this will be, but together with these
+processes stuck in state "D", there is a continuing rise in the load
+averages of the system as reported by various interfaces
+(top/uptime/w/phpSysInfo). On the system running 2.4.18-xfs this rose to
+up to 25 before I eventually rebooted the box.
 
-Thanks to Russell for pointing out a problem I had not been aware of.
+Another bit: on the 2.4.18-xfs box, the number of processes getting
+stuck in state "D" kept growing. Various `ps ax` and `sync` processes in
+particular, would get stuck and stall as I would issue them. It may be
+interesting to note that with 2.4.19-rc2-xfs, with which I had my "latest
+encounter" with this problem, no `ps ax` or `sync` processes got stuck.
+Only the couple of apt-method processes that got stuck (and any new ones
+I would launch in an attempt to download a package from the Internet for
+installation) were there.
 
-There are quite a few similar errors in the CML1 corpus, where a query and a
-define for the same symbol exist with conditions that can overlap.  A synthetic
-example of the problem is
+Both units have already been upgraded to 2.4.19-rc3-xfs. I will send
+feedback if/when I run into any processes stuck in state "D" for
+abnormally long periods of time.
 
-bool 'foo' CONFIG_FOO
+ --> Jijo
 
-if [ "$CONFIG_FOO" = "y" ]; then
-    define_bool CONFIG_BAR y
-fi
-
-bool 'bar' CONFIG_BAR
-
-There are at least eight variants of this problem, depending on the order
-of the query and the define, which is conditional, and whether they're in
-the same menu.  All break at least one of the configurators.  The symptoms
-vary in severity (mildest first)
-
-*  .config has two copies of the correct value: BAR=y BAR=y
-*  .config has two different values, correct one last: BAR=n BAR=y
-*  .config has two different values, incorrect one last: BAR=y BAR=n
-*  configurator incorrectly displays query and correctly prevents
-   user from entering anything except the one valid value
-*  configurator incorrectly does not allow user to set a valid value
-*  configurator accepts a valid value from the user and saves a
-   different value to the .config file.
-
-Also it is typical that different configurators will generate different
-.config files in response to the same sequence of selections.
-
-I'm modifying gcml2 to try and detect these problems.  In the meantime, here
-are some examples of this problem from 2.5.26, found using a preliminary
-version of the overlap detector.
-
-    CONFIG_ACPI_BUS
-	drivers/acpi/Config.in:52
-	drivers/acpi/Config.in:73
-    	
-    CONFIG_ACPI_BUTTON
-	drivers/acpi/Config.in:57
-	drivers/acpi/Config.in:77
-    	
-    CONFIG_ACPI_FAN
-	drivers/acpi/Config.in:58
-	drivers/acpi/Config.in:78
-
-    CONFIG_ACPI_INTERPRETER
-    	arch/ia64/config.in:45
-	drivers/acpi/Config.in:53
-	drivers/acpi/Config.in:74
-    	
-    CONFIG_ACPI_PCI
-	drivers/acpi/Config.in:54
-	drivers/acpi/Config.in:68
-    	
-    CONFIG_ACPI_POWER
-	drivers/acpi/Config.in:55
-	drivers/acpi/Config.in:75
-    	
-    CONFIG_ACPI_PROCESSOR
-	drivers/acpi/Config.in:59
-	drivers/acpi/Config.in:79
-
-    CONFIG_ACPI_SYSTEM
-	drivers/acpi/Config.in:56
-	drivers/acpi/Config.in:76
-
-    CONFIG_ACPI_THERMAL
-	drivers/acpi/Config.in:60
-	drivers/acpi/Config.in:80
-    	
-    CONFIG_ALPHA_AVANTI
-    	arch/alpha/config.in:16
-	arch/alpha/config.in:218
-
-    CONFIG_ALPHA_EB64P
-    	arch/alpha/config.in:16
-    	arch/alpha/config.in:89
-
-    CONFIG_ALPHA_NONAME
-    	arch/alpha/config.in:16
-    	arch/alpha/config.in:73
-
-    CONFIG_BUSMOUSE
-    	drivers/char/Config.in:116
-    	arch/ppc/config.in:384
-    
-    CONFIG_CD_NO_IDESCSI
-    	arch/ppc64/config.in:137
-        arch/ppc64/config.in:186
-
-    CONFIG_CD_NO_IDESCSI
-    	arch/ppc/config.in:469
-    	arch/ppc/config.in:506
-
-    CONFIG_DEBUG_SPINLOCK
-    	arch/x86_64/config.in:225
-    	arch/x86_64/config.in:228
-    
-    CONFIG_DEVFS_FS
-    	arch/ia64/config.in:77
-	fs/Config.in:78
-    
-    CONFIG_FB
-    	drivers/video/Config.in:8
-    	arch/ppc/config.in:382
-
-    CONFIG_IDE
-    	arch/cris/config.in:147
-	arch/cris/drivers/Config.in:114,130
-
-    CONFIG_PARPORT
-    	arch/cris/drivers/Config.in:97,101
-	drivers/parport/Config.in:11
-
-    CONFIG_PARPORT_1284
-    	arch/cris/drivers/Config.in:98
-	drivers/parport/Config.in:68
-
-    CONFIG_PC_KEYB (mx,ds,bc,dm)
-    	arch/mips/config.in:188
-    	arch/mips/config.in:53
-	
-    CONFIG_PRINTER
-    	arch/cris/drivers/Config.in:99
-	drivers/char/Config.in:103
-
-    CONFIG_MTD
-    	drivers/mtd/Config.in:7
-	arch/cris/drivers/Config.in:139
-    		
-    CONFIG_MTD_AMDSTD
-    	drivers/mtd/chips/Config.in:52
-	arch/cris/drivers/Config.in:145
-    		
-    CONFIG_MTD_BLOCK
-    	drivers/mtd/Config.in:23
-	arch/cris/drivers/Config.in:148
-    		
-    CONFIG_MTD_CHAR
-    	drivers/mtd/Config.in:22
-	arch/cris/drivers/Config.in:147
-    		
-    CONFIG_MTD_CFI
-    	drivers/mtd/chips/Config.in:9
-	arch/cris/drivers/Config.in:141
-    		
-    CONFIG_MTD_CFI_AMDSTD
-    	drivers/mtd/chips/Config.in:45
-	arch/cris/drivers/Config.in:143
-    		
-    CONFIG_MTD_CFI_INTELEXT
-    	drivers/mtd/chips/Config.in:44
-	arch/cris/drivers/Config.in:142
-    		
-    CONFIG_MTD_PARTITIONS
-    	drivers/mtd/Config.in:14
-	arch/cris/drivers/Config.in:149
-    		
-    CONFIG_SOUND_CMPCI_FMIO
-	sound/oss/Config.in:14
-	sound/oss/Config.in:15
-    	
-    CONFIG_SYSCLK_100
-    	arch/mips/config.in:140
-    	arch/mips/config.in:24
-
-    CONFIG_VIDEO_SELECT
-	drivers/video/Config.in:101
-	arch/i386/config.in:387
-
-    CONFIG_VIDEO_SELECT
-    	drivers/video/Config.in:101
-    	arch/x86_64/config.in:196
-
-
-Greg.
 -- 
-the price of civilisation today is a courageous willingness to prevail,
-with force, if necessary, against whatever vicious and uncomprehending
-enemies try to strike it down.	   - Roger Sandall, The Age, 28Sep2001.
+Federico Sevilla III   :  <http://jijo.free.net.ph/>
+Network Administrator  :  The Leather Collection, Inc.
+GnuPG Key ID           :  0x93B746BE

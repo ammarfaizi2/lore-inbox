@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVAMXnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVANAC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261765AbVAMXnE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 18:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVAMXkl
+	id S261841AbVANAC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 19:02:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVAMX7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:40:41 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:36045 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261820AbVAMXbW (ORCPT
+	Thu, 13 Jan 2005 18:59:39 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25236 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261821AbVAMX4r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 18:31:22 -0500
-Date: Thu, 13 Jan 2005 15:29:04 -0800
-From: Greg KH <greg@kroah.com>
-To: Jonas Munsin <jmunsin@iki.fi>, Jean Delvare <khali@linux-fr.org>,
-       pioppo@ferrara.linux.it, sensors@Stimpy.netroedge.com, djg@pdp8.net,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
-Message-ID: <20050113232904.GC2458@kroah.com>
-References: <200501102341.44949.pioppo@ferrara.linux.it> <YN0o4rkI.1105435582.0805630.khali@localhost> <20050112222735.GA13572@nemo.sby.abo.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050112222735.GA13572@nemo.sby.abo.fi>
-User-Agent: Mutt/1.5.6i
+	Thu, 13 Jan 2005 18:56:47 -0500
+Date: Thu, 13 Jan 2005 15:56:45 -0800
+From: John Hawkes <hawkes@tomahawk.engr.sgi.com>
+Message-Id: <200501132356.j0DNujUY016224@tomahawk.engr.sgi.com>
+To: linux-kernel@vger.kernel.org, rml@novell.com
+Subject: 2.6.10-mm3 scaling problem with inotify
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 12:27:35AM +0200, Jonas Munsin wrote:
-> > 2* I would then add a check to the it87 driver, which completely disables
-> > the fan speed control interface if the initial configuration looks weird
-> > (all fans supposedly stopped and polarity set to "active low"). This
-> > should protect users of the driver who have a faulty BIOS.
-> > 
-> > When a bogus configuration is detected, we would of course complain in
-> > the logs and invite the user to complain to his/her motherboard maker
-> > too.
-> 
-> Here is it87.c_2.6.10-jm4-detect_broken_bios_20050112.diff implementing
-> this. It goes on top of the previous patch.
-> 
-> - detects broken bioses, disables the pwm for them and prints a message
-> - fixes an unrelated minor bug in set_fan_div()
-> 
-> Signed-off-by: Jean Delvare <khali@linux-fr.org>
-> Signed-off-by: Jonas Munsin <jmunsin@iki.fi>
+I believe I've encountered a scaling problem with the inotify code in
+2.6.10-mm3.
 
-Applied, thanks.
+vfs_read() and vfs_write() (for example) do:
+    dnotify_parent(dentry, DN_ACCESS);
+    inotify_dentry_parent_queue_event(dentry,
+                           IN_ACCESS, 0, dentry->d_name.name);
+    inotify_inode_queue_event(inode, IN_ACCESS, 0, NULL);
+for the optional "notify" functionality.
 
-greg k-h
+dnotify_parent() knows how to exit quickly:
+       if (!dir_notify_enable)
+                return;
+looking at a global flag, and inotify_inode_queue_event() also knows a quick
+exit:
+        if (!inode->inotify_data)
+                return;
+However, inotify_dentry_parent_queue_event() first has to get the parent 
+dentry:
+        parent = dget_parent(dentry);
+        inotify_inode_queue_event(parent->d_inode, mask, cookie, filename);
+        dput(parent);
+and, sadly, dget_parent(dentry) grabs a spinlock (dentry->d_lock) and dirties a cacheline (dentry->dcount).  I have an AIM7-like workload that does numerous
+concurrent reads and suffers a 40% drop in performance because of this,
+primarily due to spinlock contention.
+
+Is it possible for a parent's inode->inotify_data to be enabled when none of 
+its children's inotify_data are enabled?  That would make it easy - just look 
+at the current inode's inotify_data before walking back to the parent.
+
+John Hawkes

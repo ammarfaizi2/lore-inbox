@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263209AbUCTBOv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 20:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbUCTBOv
+	id S263219AbUCTB1j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 20:27:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbUCTB1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 20:14:51 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:54340 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263209AbUCTBOu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 20:14:50 -0500
-Date: Fri, 19 Mar 2004 17:14:04 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: colpatch@us.ibm.com, ak@muc.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
-Message-Id: <20040319171404.6f79b08a.pj@sgi.com>
-In-Reply-To: <20040319164726.02e5f417.pj@sgi.com>
-References: <1BeOx-7ax-55@gated-at.bofh.it>
-	<1BgGq-DU-5@gated-at.bofh.it>
-	<1BgZN-Vk-1@gated-at.bofh.it>
-	<m37jxhvbgm.fsf@averell.firstfloor.org>
-	<1079737773.17841.67.camel@arrakis>
-	<20040319164726.02e5f417.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 19 Mar 2004 20:27:39 -0500
+Received: from mail502.nifty.com ([202.248.37.210]:31471 "EHLO
+	mail502.nifty.com") by vger.kernel.org with ESMTP id S263219AbUCTB1i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 20:27:38 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Can I share several chroot'ed directories using 'mount --bind'?
+From: Tetsuo Handa <a5497108@anet.ne.jp>
+References: <200403192202.GEE75703.892856B1@anet.ne.jp>
+In-Reply-To: <200403192202.GEE75703.892856B1@anet.ne.jp>
+Message-Id: <200403201027.EAE41828.258196B8@anet.ne.jp>
+X-Mailer: Winbiff [Version 2.43]
+X-Accept-Language: ja,en
+Date: Sat, 20 Mar 2004 10:27:27 +0900
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->                bitmask_and(d._m, s1._m, s2._m);        \
+Hello,
 
-Oops - need the size argument to bitmask_and:
+> Currently I need to use three partitions
+> ( /data /jail/apache/data /jail/tomcat/data ).
+> But I want to use only one partition, for
+> adding new /jail/*/data requires fdisk,
+> which is not acceptable.
 
-		bitmask_and(d._m, s1._m, s2._m, sizeof(d)*8);        \
+I forgot to say one important thing.
+The / directory is read only file system,
+therefore I need to prepare writable partitions.
 
-(I only tested the 1 word case earlier ...)
+Regards...
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+                  Tetsuo Handa

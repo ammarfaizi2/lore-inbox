@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUEUSoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266007AbUEUS7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265970AbUEUSoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 14:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUEUSoZ
+	id S266007AbUEUS7L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 14:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266008AbUEUS7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 14:44:25 -0400
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:17118 "EHLO
-	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
-	id S265970AbUEUSoV (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 14:44:21 -0400
-Message-Id: <200405211844.i4LIiEjl025405@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: swsusp: fix devfs breakage introduced in 2.6.6 
-In-Reply-To: Your message of "Fri, 21 May 2004 20:05:01 +0200."
-             <xb7y8nlirle.fsf@savona.informatik.uni-freiburg.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <xb7y8nlirle.fsf@savona.informatik.uni-freiburg.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-558692796P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 21 May 2004 14:59:11 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:51849 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266007AbUEUS7H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 14:59:07 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: brettspamacct@fastclick.com
+Subject: Re: How can I optimize a process on a NUMA architecture(x86-64 specifically)?
+Date: Fri, 21 May 2004 14:58:14 -0400
+User-Agent: KMail/1.6.2
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <40AD52A4.3060607@fastclick.com> <74030000.1085161614@flay> <40AE46F9.60600@fastclick.com>
+In-Reply-To: <40AE46F9.60600@fastclick.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 21 May 2004 14:44:14 -0400
+Message-Id: <200405211458.14304.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-558692796P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Friday, May 21, 2004 2:14 pm, Brett E. wrote:
+> So could process 0 run on processor 0, allocating local to processor 0,
+> then run on processor 1, allocating local to processor 1, this way
+> allocating to both processors?
 
-On Fri, 21 May 2004 20:05:01 +0200, Sau Dan Lee said:
+Yep.
 
-> The patch  was submitted by  me.  But I'm  no devfs hero at  all.  I'm
-> just a  happy user of devfs who  gets unhappy due to  this swsusp bug.
-> :)
+> So over time process 0's allocations 
+> would be split up between both processors, defeating NUMA.
 
-Congratulate yourself anyhow. It's that type of hero that makes Linux (or=
- open
-source in general, for that matter) work as well as it does.  Yes, there'=
-s a
-core crew of several dozen maintainers (who all deserve our thanks too), =
-but
-they can't develop a great operating system in a vacuum - without good bu=
-g
-reports and the occasional user-provided patch, it all grinds to a halt v=
-ery
-quickly....
+Well, I wouldn't put it that way, but it would give your app suboptimal 
+performance.
 
-(OK, *everybody* who's ever contributed, take a bow now. :)
+> The homenode 
+> concept + explicit CPU pinning seems useful in that they allow you to
+> take advantage of NUMA better.
 
---==_Exmh_-558692796P
-Content-Type: application/pgp-signature
+When you say homenode here, do you mean restricted memory allocation?  If so, 
+then yes, that would be useful.  And we have it already with libnuma and 
+sched_setaffinity.  If you mean some sort of preferred allocation node, then 
+no, we don't have that, and it wouldn't be of much benefit I think (relative 
+to what we already have).  The idea is to do "pretty good" by default, but 
+still allow the user full control if they want to be sure.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> Without these two things the kernel will 
+> just allocate on the currently running CPU whatever that may be when in
+> fact a preference must be given to a CPU at some point, hopefully early
+> on in the life of the process, in order to take advantage of NUMA.
 
-iD8DBQFArk3+cC3lWbTT17ARAkKlAKDXL8t9DVhSajb9a1fCHBMeFbRvYgCgw1fH
-44pS4sXJevaROBzt7T6lCoI=
-=7qGY
------END PGP SIGNATURE-----
+The kernel does a pretty good job of keeping processes on the CPU they've been 
+running on, and thus they'll probably stay close to their memory.  But 
+without explicit pinning, there's no guarantee.
 
---==_Exmh_-558692796P--
+Jesse
